@@ -189,7 +189,16 @@
       "Bash(..\\.venv\\Scripts\\python.exe -c \"from pynomaly.infrastructure.data_loaders import CSVLoader; print(''Import successful'')\")",
       "Bash(PYTHONPATH=src .venv/Scripts/python.exe -m pytest tests/infrastructure/test_data_loaders.py::TestCSVLoader::test_init_default_parameters -v --no-cov --tb=short)",
       "Bash(pip3:*)",
-      "Bash(PYTHONPATH=/mnt/c/Users/andre/Pynomaly/src python3 -m pytest tests/application/ -v --tb=short)"
+      "Bash(PYTHONPATH=/mnt/c/Users/andre/Pynomaly/src python3 -m pytest tests/application/ -v --tb=short)",
+      "Bash(PYTHONPATH=/mnt/c/Users/andre/Pynomaly/src .venv/Scripts/python.exe -m pytest tests/application/test_use_cases.py -v --no-cov)",
+      "Bash(PYTHONPATH=src .venv/Scripts/python.exe -m pytest tests/application/test_use_cases.py -v --no-cov)",
+      "Bash(set PYTHONPATH=src)",
+      "Bash(PYTHONPATH=src python -m pytest tests/application/test_use_cases.py -v --no-cov)",
+      "Bash(mv:*)",
+      "Bash(coverage report:*)",
+      "Bash(PYTHONPATH=src .venv/Scripts/python.exe -m pytest tests/domain/ tests/infrastructure/ tests/application/test_use_cases.py::TestDetectAnomaliesUseCase::test_execute_success --cov=pynomaly --cov-report=term-missing:skip-covered --cov-fail-under=0 -v)",
+      "Bash(PYTHONPATH=src .venv/Scripts/python.exe -c \"import sys; sys.path.insert(0, 'src'); import pytest; pytest.main(['tests/domain/', 'tests/infrastructure/', '--cov=pynomaly', '--cov-report=term-missing:skip-covered', '--cov-fail-under=0', '-q'])\")",
+      "Bash(PYTHONPATH=src .venv/Scripts/python.exe -c \"import sys; sys.path.insert(0, 'src'); import pytest; pytest.main(['tests/domain/', 'tests/infrastructure/', '--cov=pynomaly', '--cov-report=term', '--cov-fail-under=0', '-q', '-p', 'no:xdist', '-p', 'no:bdd'])\")"
     ],
     "deny": [],
     "//": "This sets the default policy to 'allow' for any action that doesn't have a more specific rule below. This is the top-level 'allow all actions' setting.",
