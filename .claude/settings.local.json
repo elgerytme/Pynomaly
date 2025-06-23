@@ -132,7 +132,8 @@
       "Bash(cat:*)",
       "Bash(git commit:*)",
       "Bash(poetry env:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(poetry config:*)"
     ],
     "deny": [],
     "//": "This sets the default policy to 'allow' for any action that doesn't have a more specific rule below. This is the top-level 'allow all actions' setting.",
