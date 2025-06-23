@@ -131,12 +131,13 @@
 - **Total**: 69+ algorithms available
 
 ### Critical Path Items
-1. **🔴 URGENT: Fix CLI adapter integration** (blocking CLI functionality)
-2. Fix test coverage issues (currently blocking release)
-3. ~~Implement database repositories for persistence~~ ✅ **COMPLETED**
-4. Generate web UI assets (PWA icons, build Tailwind CSS)
-5. Complete remaining PyOD algorithms (10 left)
-6. Add TensorFlow and JAX adapters
+1. ~~**Fix CLI adapter integration**~~ ✅ **COMPLETED** (DI wiring fixed, graceful error handling added)
+2. **🔴 URGENT: Dependencies setup for CLI testing** (blocking CLI verification)
+3. Fix test coverage issues (currently blocking release)
+4. ~~Implement database repositories for persistence~~ ✅ **COMPLETED**
+5. Generate web UI assets (PWA icons, build Tailwind CSS)
+6. Complete remaining PyOD algorithms (10 left)
+7. Add TensorFlow and JAX adapters
 
 ## ✅ Completed Items
 
@@ -359,15 +360,20 @@
 ### 🔥 HIGH PRIORITY: CLI Integration Fixes
 
 #### CLI Adapter Integration Issues
-- [ ] **CRITICAL**: Wire algorithm adapters in DI container
-  - Missing `pyod_adapter()` provider in container.py
-  - Missing `sklearn_adapter()` provider in container.py  
-  - Missing `tods_adapter()` provider in container.py
-  - Missing `pygod_adapter()` provider in container.py
-  - Missing `pytorch_adapter()` provider in container.py
-- [ ] Fix CLI import errors for adapter references
+- [x] **CRITICAL**: Wire algorithm adapters in DI container ✅ **COMPLETED**
+  - [x] Added `pyod_adapter()` provider in container.py
+  - [x] Added `sklearn_adapter()` provider in container.py  
+  - [x] Added `tods_adapter()` provider in container.py (conditional)
+  - [x] Added `pygod_adapter()` provider in container.py (conditional)
+  - [x] Added `pytorch_adapter()` provider in container.py (conditional)
+- [x] Fix CLI import errors for adapter references ✅ **COMPLETED**
+  - [x] Added graceful error handling in CLI commands
+  - [x] Added try/catch blocks for missing adapters
+- [ ] **BLOCKING**: Dependencies not installed (numpy, pandas, pyod, etc.)
+  - CLI cannot run without core dependencies installed
+  - Requires Poetry environment setup or pip install
 - [ ] Add CLI test coverage (currently 0%)
-- [ ] Test CLI commands end-to-end functionality
+- [ ] Test CLI commands end-to-end functionality  
 - [ ] Complete configuration management implementation (config set/get)
 
 #### Web UI Asset Generation
