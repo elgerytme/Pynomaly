@@ -1,196 +1,210 @@
-# Pynomaly Examples =
+# Pynomaly Examples
 
-This directory contains practical examples demonstrating how to use Pynomaly for various anomaly detection tasks.
+This directory contains comprehensive examples demonstrating various aspects of the Pynomaly anomaly detection framework.
 
-## Prerequisites
+## Quick Start
 
-Before running the examples, make sure you have Pynomaly installed:
+The fastest way to get started is with the basic usage example:
 
 ```bash
-# From the root directory
-python setup_simple.py
-
-# Activate virtual environment
-.venv\Scripts\activate  # Windows
-source .venv/bin/activate  # Linux/Mac
+python basic_usage.py
 ```
 
 ## Available Examples
 
-### Python Scripts
+### 1. Basic Usage (`basic_usage.py`)
+**Perfect for beginners** - Learn the fundamentals of Pynomaly in under 5 minutes.
 
-#### 1. **basic_usage.py** - Getting Started
-The simplest example showing the core workflow:
-- Creating sample data with anomalies
-- Setting up a detector (Isolation Forest)
-- Training and detecting anomalies
-- Viewing results
+- Create and configure an anomaly detector
+- Load and prepare sample data  
+- Train the detector on normal data
+- Detect anomalies in new data
+- Understand detection results and confidence scores
 
+**Use this example if:** You're new to Pynomaly or anomaly detection in general.
+
+### 2. Algorithm Comparison (`algorithm_comparison.py`)  
+**For method selection** - Compare different anomaly detection algorithms on the same dataset.
+
+- Test 6 different algorithms: IsolationForest, LOF, OCSVM, COPOD, ABOD, KNN
+- Evaluate performance with precision, recall, and F1-score
+- Understand when to use each algorithm
+- See execution time comparisons
+
+**Use this example if:** You want to choose the best algorithm for your specific use case.
+
+### 3. Ensemble Detection (`ensemble_detection.py`)
+**For robust detection** - Combine multiple algorithms for more reliable anomaly detection.
+
+- Create an ensemble of 5 different detectors
+- Compare voting strategies: majority, unanimous, any
+- Understand ensemble benefits and trade-offs
+- Handle disagreements between detectors
+
+**Use this example if:** You need highly reliable anomaly detection or want to reduce false positives.
+
+### 4. Streaming Detection (`streaming_detection.py`)
+**For real-time applications** - Process continuous data streams with real-time anomaly detection.
+
+- Simulate real-time sensor data streams
+- Handle streaming data with backpressure
+- Real-time alerting and monitoring
+- Ensemble streaming detection
+- Performance tracking and metrics
+
+**Use this example if:** You need to monitor data streams in real-time or build IoT monitoring systems.
+
+### 5. Time Series Detection (`time_series_detection.py`)
+**For temporal data** - Specialized anomaly detection for time series data with seasonal patterns.
+
+- Extract temporal features (hourly, daily, weekly patterns)
+- Handle seasonal decomposition
+- Multi-algorithm comparison on time series
+- Advanced feature engineering for temporal data
+- Detect seasonal anomalies vs. trend anomalies
+
+**Use this example if:** You work with time series data, logs, or any data with temporal patterns.
+
+### 6. Custom Algorithm Integration (`custom_algorithm_integration.py`)
+**For advanced users** - Integrate your own custom anomaly detection algorithms.
+
+- Implement custom statistical detector
+- Create algorithm adapters following the framework protocols
+- Build custom ensemble methods
+- Provide explanations and metadata
+- Register algorithms in the framework
+
+**Use this example if:** You want to extend Pynomaly with proprietary algorithms or research methods.
+
+### 7. Web UI Integration (`web_ui_integration.py`)
+**For web applications** - Integrate with the Progressive Web App and create dashboards.
+
+- Multi-domain monitoring dashboards
+- Real-time web UI simulation
+- REST API endpoint examples
+- HTMX integration patterns
+- WebSocket real-time updates
+
+**Use this example if:** You need web-based monitoring, dashboards, or user interfaces.
+
+## CLI Examples
+
+### Basic Workflow (`cli_basic_workflow.sh`)
+Step-by-step CLI usage demonstration:
 ```bash
-python examples/basic_usage.py
+./cli_basic_workflow.sh
 ```
 
-**Expected Output:**
-- Creates 104 samples with 4 known anomalies
-- Detects anomalies using Isolation Forest
-- Shows detected anomaly indices and values
-
-#### 2. **algorithm_comparison.py** - Compare Multiple Algorithms
-Compares different algorithms on the same dataset:
-- Tests 6 different algorithms (IsolationForest, LOF, OCSVM, COPOD, ECOD, KNN)
-- Evaluates using precision, recall, F1-score, and accuracy
-- Shows timing information for each algorithm
-- Identifies the best performer
-
+### Batch Detection (`cli_batch_detection.sh`)  
+Process multiple datasets with multiple algorithms:
 ```bash
-python examples/algorithm_comparison.py
+./cli_batch_detection.sh
 ```
 
-**Expected Output:**
-- Performance metrics table for all algorithms
-- Best algorithm recommendation based on F1-score
-- Detailed confusion matrix for the winner
+## Sample Data
 
-#### 3. **ensemble_detection.py** - Ensemble Methods
-Demonstrates combining multiple detectors:
-- Creates ensemble with 5 different algorithms
-- Tests different voting strategies (majority, unanimous, any)
-- Handles different types of anomalies (global, local, cluster, dependency)
-- Compares ensemble vs individual detector performance
+The `sample_data/` directory contains realistic datasets for different domains:
 
-```bash
-python examples/ensemble_detection.py
-```
-
-**Expected Output:**
-- Individual detector performance
-- Ensemble results for each voting method
-- Best ensemble strategy recommendation
-
-### More Examples Coming Soon
-
-#### Python Scripts (Planned)
-- `streaming_detection.py` - Real-time anomaly detection
-- `custom_preprocessing.py` - Feature engineering for anomaly detection
-- `model_persistence.py` - Saving and loading trained models
-- `api_client_example.py` - Using the REST API
-- `batch_processing.py` - Processing multiple datasets
-
-#### Jupyter Notebooks (Planned)
-- `01_getting_started.ipynb` - Interactive introduction
-- `02_data_exploration.ipynb` - EDA for anomaly detection
-- `03_algorithm_selection.ipynb` - Choosing the right algorithm
-- `04_visualization.ipynb` - Visualizing anomalies
-- `05_time_series_anomalies.ipynb` - Time-series specific
-- `06_graph_anomalies.ipynb` - Graph-based detection
-- `07_deep_learning_models.ipynb` - Neural network approaches
-
-#### Real-World Use Cases (Planned)
-- `credit_card_fraud/` - Financial fraud detection
-- `network_intrusion/` - Cybersecurity anomalies
-- `sensor_monitoring/` - IoT anomaly detection
-- `manufacturing_defects/` - Quality control
-- `healthcare_anomalies/` - Medical data analysis
+- **`normal_2d.csv`** - 2D gaussian data with labeled anomalies
+- **`credit_transactions.csv`** - Financial transaction data for fraud detection  
+- **`sensor_readings.csv`** - IoT sensor data with equipment failures
 
 ## Running the Examples
 
-### Option 1: Direct Python Execution
+### Prerequisites
+1. Ensure Pynomaly is installed (see main README)
+2. Activate your virtual environment:
+   ```bash
+   source .venv/bin/activate  # Linux/Mac
+   # or
+   .venv\Scripts\activate     # Windows
+   ```
+
+### Python Examples
 ```bash
-cd examples
+# Basic examples
 python basic_usage.py
+python algorithm_comparison.py  
+python ensemble_detection.py
+
+# Advanced examples
+python streaming_detection.py
+python time_series_detection.py
+python custom_algorithm_integration.py
+python web_ui_integration.py
+
+# For verbose output with detailed explanations
+python basic_usage.py --verbose
 ```
 
-### Option 2: From Project Root
+### CLI Examples
 ```bash
-python examples/basic_usage.py
+# Make scripts executable (Linux/Mac)
+chmod +x *.sh
+
+# Run CLI examples  
+./cli_basic_workflow.sh
+./cli_batch_detection.sh
 ```
 
-### Option 3: Using the CLI
-Some examples can be replicated using the CLI:
+## Example Domains
 
-```bash
-# Create detector
-python cli.py detector create --name "Example Detector" --algorithm IsolationForest
+These examples cover common anomaly detection use cases:
 
-# Load data
-python cli.py dataset load sample_data.csv --name "Example Data"
+- **Financial Fraud Detection** - Credit card transaction monitoring
+- **IoT Monitoring** - Sensor anomaly detection for predictive maintenance
+- **Quality Control** - Manufacturing defect detection
+- **Network Security** - Intrusion detection systems
+- **Time Series Analysis** - Log analysis, metrics monitoring
+- **Real-time Systems** - Streaming data processing
+- **Web Applications** - Dashboard and UI integration
 
-# Run detection
-python cli.py detect run <detector_id> <dataset_id>
-```
+## Learning Path
 
-## Understanding the Output
+**Recommended learning sequence:**
 
-Each example provides:
-1. **Progress messages** - Shows what the example is doing
-2. **Dataset information** - Size, features, anomaly statistics
-3. **Results** - Detected anomalies, performance metrics
-4. **Recommendations** - Best algorithms or settings
+1. 📚 **Start with `basic_usage.py`** - Learn core concepts
+2. 🔬 **Try `algorithm_comparison.py`** - Understand algorithm differences  
+3. 🎭 **Explore `ensemble_detection.py`** - Advanced detection techniques
+4. 📡 **Run `streaming_detection.py`** - Real-time processing
+5. 📈 **Test `time_series_detection.py`** - Temporal patterns
+6. 💻 **Use CLI examples** - Production workflows
+7. 🔧 **Advanced: `custom_algorithm_integration.py`** - Extensibility
+8. 🌐 **Finally: `web_ui_integration.py`** - User interfaces
 
-## Common Patterns
+## Performance Benchmarks
 
-All examples follow similar patterns that you can use in your own code:
+Each example includes performance metrics where relevant:
 
-```python
-# 1. Initialize container
-container = create_container()
+- **Algorithm Comparison**: Execution time and memory usage
+- **Streaming Detection**: Throughput and latency measurements
+- **Time Series**: Feature extraction overhead
+- **Ensemble Methods**: Voting strategy performance impact
 
-# 2. Create/load data
-dataset = Dataset(name="My Data", data=df)
+## Advanced Usage
 
-# 3. Create detector
-detector = Detector(
-    name="My Detector",
-    algorithm="IsolationForest",
-    parameters={"contamination": 0.1}
-)
+For production deployments, consider:
 
-# 4. Train and detect
-detection_service = container.detection_service()
-await detection_service.train_detector(detector_id, dataset)
-result = await detection_service.detect_anomalies(detector_id, dataset)
-```
+- **Streaming Detection** - Process data in real-time with backpressure handling
+- **Model Persistence** - Save and load trained detectors
+- **Custom Algorithms** - Integrate your own detection methods
+- **Web Interface** - Use the Progressive Web App for visualization
+- **API Integration** - RESTful endpoints for system integration
+- **Horizontal Scaling** - Distribute detection across multiple workers
 
-## Troubleshooting
+## Getting Help
 
-### Import Errors
-Make sure you're in the virtual environment and have installed Pynomaly:
-```bash
-pip install -e .
-```
-
-### Async Errors
-Examples use `asyncio.run()` to handle async functions. For Jupyter notebooks, use:
-```python
-await main()  # Instead of asyncio.run(main())
-```
-
-### Missing Algorithms
-Some algorithms require additional dependencies:
-```bash
-pip install pyod scikit-learn
-```
+- Check the main documentation in `docs/`
+- Review algorithm-specific guides
+- See the API reference for detailed parameter information
+- Join our community for support and discussions
 
 ## Contributing Examples
 
-We welcome new examples! Please:
-1. Follow the existing naming convention
-2. Include comprehensive docstrings
-3. Add error handling
-4. Update this README
-5. Test on Windows and Linux
+We welcome additional examples! Please ensure:
 
-## Sample Datasets
-
-Sample datasets for testing are available in `examples/sample_data/`:
-- `normal_2d.csv` - Simple 2D normal distribution
-- `credit_transactions.csv` - Financial transaction data
-- `sensor_readings.csv` - Time-series sensor data
-- (More coming soon)
-
-## Further Resources
-
-- [Documentation](../docs/index.md)
-- [API Reference](../docs/api/index.md)
-- [Algorithm Guide](../docs/guides/algorithms.md)
-- [CLI Guide](../docs/guides/cli.md)
+- Clear documentation and comments
+- Realistic sample data  
+- Performance benchmarks where relevant
+- Cross-platform compatibility
+- Following the established patterns and structure
