@@ -173,6 +173,18 @@
 - [ ] Implement GPU acceleration support
 - [ ] Add algorithm performance benchmarking
 
+#### PyOD Classifiers - To Implement (10 remaining)
+- [ ] ALAD (Adversarially Learned Anomaly Detection)
+- [ ] AnoGAN (Anomaly Detection with Generative Adversarial Networks)
+- [ ] CLF (Clustering-based Local Factor)
+- [ ] DIF (Deep Isolation Forest)
+- [ ] KPCA (Kernel Principal Component Analysis)
+- [ ] LODA (Lightweight On-line Detector of Anomalies) - check if duplicate
+- [ ] PCA-MAD (PCA with Median Absolute Deviation)
+- [ ] RGraph (R-graph detector) - check if duplicate
+- [ ] QMCD (Quasi Monte Carlo Discrepancy)
+- [ ] Additional classifiers from latest PyOD releases
+
 ### Infrastructure Layer Completion
 - [x] Implement OpenTelemetry integration
 - [x] Add Prometheus metrics exporter
