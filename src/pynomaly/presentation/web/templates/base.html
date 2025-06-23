@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Pynomaly - State-of-the-art anomaly detection platform">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#3B82F6">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="apple-touch-icon" href="/static/img/icon-192.png">
+    
+    <title>{% block title %}Pynomaly{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        accent: '#F59E0B',
+                        error: '#EF4444'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+    
+    <!-- Alpine.js for interactivity -->
+    <script defer src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    
+    <!-- D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <!-- Apache ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <style>
+        .htmx-indicator {
+            opacity: 0;
+            transition: opacity 200ms ease-in;
+        }
+        .htmx-request .htmx-indicator {
+            opacity: 1;
+        }
+        .htmx-request.htmx-indicator {
+            opacity: 1;
+        }
+    </style>
+    
+    {% block head %}{% endblock %}
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg" x-data="{ mobileMenuOpen: false }">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <!-- Logo -->
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="/web/" class="text-2xl font-bold text-primary">
+                            🔍 Pynomaly
+                        </a>
+                    </div>
+                    
+                    <!-- Desktop Navigation -->
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="/web/" 
+                           class="{% if request.url.path == '/web/' %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Dashboard
+                        </a>
+                        <a href="/web/detectors" 
+                           class="{% if '/detectors' in request.url.path %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Detectors
+                        </a>
+                        <a href="/web/datasets"
+                           class="{% if '/datasets' in request.url.path %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Datasets
+                        </a>
+                        <a href="/web/detection"
+                           class="{% if '/detection' in request.url.path %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Detection
+                        </a>
+                        <a href="/web/experiments"
+                           class="{% if '/experiments' in request.url.path %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Experiments
+                        </a>
+                        <a href="/web/visualizations"
+                           class="{% if '/visualizations' in request.url.path %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Visualizations
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="-mr-2 flex items-center sm:hidden">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" 
+                            class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            <path x-show="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div x-show="mobileMenuOpen" class="sm:hidden">
+            <div class="pt-2 pb-3 space-y-1">
+                <a href="/web/" class="block pl-3 pr-4 py-2 border-l-4 {% if request.url.path == '/web/' %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
+                    Dashboard
+                </a>
+                <a href="/web/detectors" class="block pl-3 pr-4 py-2 border-l-4 {% if '/detectors' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
+                    Detectors
+                </a>
+                <a href="/web/datasets" class="block pl-3 pr-4 py-2 border-l-4 {% if '/datasets' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
+                    Datasets
+                </a>
+                <a href="/web/detection" class="block pl-3 pr-4 py-2 border-l-4 {% if '/detection' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
+                    Detection
+                </a>
+                <a href="/web/experiments" class="block pl-3 pr-4 py-2 border-l-4 {% if '/experiments' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
+                    Experiments
+                </a>
+                <a href="/web/visualizations" class="block pl-3 pr-4 py-2 border-l-4 {% if '/visualizations' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
+                    Visualizations
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-white mt-12">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <div class="text-center text-gray-500 text-sm">
+                © 2024 Pynomaly - State-of-the-art anomaly detection platform
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(registration => console.log('SW registered:', registration))
+                    .catch(error => console.log('SW registration failed:', error));
+            });
+        }
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

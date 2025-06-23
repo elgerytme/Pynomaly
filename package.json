@@ -1,0 +1,20 @@
+{
+  "name": "pynomaly-web",
+  "version": "0.1.0",
+  "description": "Pynomaly Web UI",
+  "scripts": {
+    "build-css": "tailwindcss -i ./src/pynomaly/presentation/web/static/css/input.css -o ./src/pynomaly/presentation/web/static/css/tailwind.css --minify",
+    "watch-css": "tailwindcss -i ./src/pynomaly/presentation/web/static/css/input.css -o ./src/pynomaly/presentation/web/static/css/tailwind.css --watch",
+    "build": "npm run build-css",
+    "dev": "npm run watch-css"
+  },
+  "devDependencies": {
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10",
+    "autoprefixer": "^10.4.16",
+    "cssnano": "^6.0.2",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.4.0"
+  }
+}

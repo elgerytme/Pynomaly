@@ -16,9 +16,9 @@ from pynomaly.presentation.api.endpoints import (
     detectors,
     detection,
     experiments,
-    health,
-    web
+    health
 )
+from pynomaly.presentation.web.app import mount_web_ui
 
 
 @asynccontextmanager
@@ -76,12 +76,6 @@ def create_app(container: Container | None = None) -> FastAPI:
         instrumentator = Instrumentator()
         instrumentator.instrument(app).expose(app, endpoint="/metrics")
     
-    # Mount static files for PWA
-    app.mount(
-        "/static",
-        StaticFiles(directory="src/pynomaly/presentation/web/static"),
-        name="static"
-    )
     
     # Include API routers
     app.include_router(
@@ -114,19 +108,14 @@ def create_app(container: Container | None = None) -> FastAPI:
         tags=["experiments"]
     )
     
-    # Include web UI routes (HTMX endpoints)
-    app.include_router(
-        web.router,
-        prefix="",
-        tags=["web"],
-        include_in_schema=False  # Hide from API docs
-    )
+    # Mount web UI
+    mount_web_ui(app)
     
     @app.get("/", include_in_schema=False)
     async def root():
         """Redirect to web UI."""
         from fastapi.responses import RedirectResponse
-        return RedirectResponse(url="/dashboard")
+        return RedirectResponse(url="/web/")
     
     return app
 
