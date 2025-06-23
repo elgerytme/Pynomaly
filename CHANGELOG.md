@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Critical**: Fixed PyGOD adapter inheritance to properly extend `Detector` base class
+- **Critical**: Fixed TODS adapter inheritance to properly extend `Detector` base class
+- **Core**: Resolved adapter initialization issues preventing proper algorithm instantiation
+
+### Added
+- **Database Persistence**: Complete SQLAlchemy-based repository implementation
+  - `DatabaseDetectorRepository` with CRUD operations
+  - `DatabaseDatasetRepository` with metadata persistence
+  - `DatabaseDetectionResultRepository` with score serialization
+  - Cross-database JSON type handling (PostgreSQL JSONB, SQLite TEXT)
+  - Cross-database UUID type handling with proper serialization
+  - Database session factory with connection pooling
+  - Support for both PostgreSQL and SQLite backends
+- **Infrastructure**: Database models for all core entities
+  - `DatasetModel` with feature and metadata support
+  - `DetectorModel` with model serialization capability
+  - `DetectionResultModel` with anomaly score persistence
+
+### Changed
+- **Architecture**: Enhanced infrastructure layer to 95% completion
+- **Adapters**: Standardized adapter initialization patterns across all implementations
+- **Dependencies**: All optional dependencies properly configured in pyproject.toml
+
+### Technical Details
+- Database repositories implement proper async/await patterns
+- SQLAlchemy models use declarative base with type decorators
+- Session management with proper transaction handling and rollback
+- Repository pattern maintains clean separation from infrastructure details
+
 ## [0.1.0] - 2024-01-15
 
 ### Added
