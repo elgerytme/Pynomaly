@@ -13,6 +13,16 @@ from dependency_injector import providers
 from pynomaly.domain.entities import Dataset, Detector
 from pynomaly.infrastructure.config import Container, Settings
 
+# Import dependency management
+from .conftest_dependencies import (
+    requires_dependency, 
+    requires_dependencies, 
+    requires_core_dependencies,
+    get_dependency_report,
+    print_dependency_status,
+    AVAILABLE_DEPENDENCIES
+)
+
 
 @pytest.fixture(scope="session")
 def event_loop():

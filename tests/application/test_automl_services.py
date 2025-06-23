@@ -7,6 +7,8 @@ from datetime import datetime
 from typing import Dict, List, Any
 import uuid
 
+from tests.conftest_dependencies import requires_dependency, requires_dependencies
+
 from pynomaly.application.services.automl_service import AutoMLService
 from pynomaly.application.dto.automl_dto import (
     AutoMLRequestDTO,
@@ -22,6 +24,7 @@ from pynomaly.domain.entities import Dataset, Detector, DetectionResult
 from pynomaly.domain.exceptions import ProcessingError, ValidationError
 
 
+@requires_dependency('optuna')
 class TestAutoMLService:
     """Test AutoML service functionality."""
     

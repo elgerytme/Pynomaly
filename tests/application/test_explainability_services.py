@@ -8,6 +8,8 @@ from typing import Dict, List, Any
 import uuid
 import numpy as np
 
+from tests.conftest_dependencies import requires_dependency, requires_dependencies
+
 from pynomaly.application.services.explainability_service import ExplainabilityService
 from pynomaly.application.dto.explainability_dto import (
     ExplanationRequestDTO,
@@ -23,6 +25,7 @@ from pynomaly.domain.entities import Dataset, Detector, DetectionResult, Anomaly
 from pynomaly.domain.exceptions import ProcessingError, ValidationError
 
 
+@requires_dependencies('shap', 'lime')
 class TestExplainabilityService:
     """Test Explainability service functionality."""
     

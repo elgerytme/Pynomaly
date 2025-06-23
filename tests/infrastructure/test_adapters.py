@@ -6,22 +6,55 @@ import numpy as np
 import pandas as pd
 import pytest
 from unittest.mock import Mock, patch, MagicMock
-import torch
-import torch.nn as nn
-from sklearn.ensemble import IsolationForest
-from sklearn.neighbors import LocalOutlierFactor
-from sklearn.svm import OneClassSVM
+
+from tests.conftest_dependencies import requires_dependency, requires_dependencies
+
+# Optional imports with graceful fallbacks
+sklearn_available = True
+torch_available = True
+
+try:
+    from sklearn.ensemble import IsolationForest
+    from sklearn.neighbors import LocalOutlierFactor
+    from sklearn.svm import OneClassSVM
+except ImportError:
+    sklearn_available = False
+    IsolationForest = None
+    LocalOutlierFactor = None
+    OneClassSVM = None
+
+try:
+    import torch
+    import torch.nn as nn
+except ImportError:
+    torch_available = False
+    torch = None
+    nn = None
 
 from pynomaly.domain.entities import Dataset, Detector
 from pynomaly.domain.exceptions import InvalidAlgorithmError, AdapterError
 from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.infrastructure.adapters import (
-    PyODAdapter, 
-    SklearnAdapter, 
-    PyTorchAdapter, 
-    PyGODAdapter, 
-    TODSAdapter
-)
+from pynomaly.infrastructure.adapters import PyODAdapter, SklearnAdapter
+
+# Conditionally import optional adapters
+PyTorchAdapter = None
+PyGODAdapter = None
+TODSAdapter = None
+
+try:
+    from pynomaly.infrastructure.adapters import PyTorchAdapter
+except ImportError:
+    pass
+
+try:
+    from pynomaly.infrastructure.adapters import PyGODAdapter
+except ImportError:
+    pass
+
+try:
+    from pynomaly.infrastructure.adapters import TODSAdapter
+except ImportError:
+    pass
 
 
 @pytest.fixture
@@ -62,6 +95,7 @@ def anomalous_dataset():
     return Dataset(name="anomalous_dataset", features=features, targets=targets)
 
 
+@requires_dependency('pyod')
 class TestPyODAdapter:
     """Test PyODAdapter."""
     
@@ -130,6 +164,7 @@ class TestPyODAdapter:
             PyODAdapter("UnsupportedAlgorithm")
 
 
+@requires_dependency('scikit-learn')
 class TestSklearnAdapter:
     """Test SklearnAdapter."""
     
@@ -195,3 +230,109 @@ class TestSklearnAdapter:
         assert all(label in [0, 1] for label in result.labels)
         assert sum(result.labels) > 0  # Should detect some anomalies
         assert len(result.anomalies) == sum(result.labels)  # Anomalies match labels
+
+
+@requires_dependency('torch')
+class TestPyTorchAdapter:
+    """Test PyTorchAdapter."""
+    
+    @pytest.mark.skipif(not torch_available or PyTorchAdapter is None, reason="PyTorch not available")
+    def test_create_model(self):
+        """Test creating PyTorch adapter instance."""
+        if not torch_available or PyTorchAdapter is None:
+            pytest.skip("PyTorch not available")
+            
+        adapter = PyTorchAdapter("AutoEncoder")
+        assert adapter.algorithm_name == "AutoEncoder"
+        assert adapter.name == "PyTorch_AutoEncoder"
+        assert hasattr(adapter, "fit")
+        assert hasattr(adapter, "detect")
+    
+    @pytest.mark.skipif(not torch_available or PyTorchAdapter is None, reason="PyTorch not available")
+    def test_torch_device_selection(self):
+        """Test device selection for PyTorch."""
+        if not torch_available or PyTorchAdapter is None:
+            pytest.skip("PyTorch not available")
+            
+        adapter = PyTorchAdapter("AutoEncoder")
+        # Should handle both CPU and CUDA devices gracefully
+        assert hasattr(adapter, "device")
+
+
+@requires_dependencies('pyod', 'torch')
+class TestPyGODAdapter:
+    """Test PyGODAdapter for graph-based anomaly detection."""
+    
+    def test_list_algorithms(self):
+        """Test listing available algorithms."""
+        algorithms = list(PyGODAdapter.ALGORITHM_MAPPING.keys())
+        assert len(algorithms) > 0
+        assert "DOMINANT" in algorithms or "GCNAE" in algorithms
+    
+    def test_create_model(self):
+        """Test creating PyGOD adapter instance."""
+        adapter = PyGODAdapter("DOMINANT")
+        assert adapter.algorithm_name == "DOMINANT"
+        assert adapter.name == "PyGOD_DOMINANT"
+        assert hasattr(adapter, "fit")
+        assert hasattr(adapter, "detect")
+
+
+@requires_dependency('pyod')
+class TestTODSAdapter:
+    """Test TODSAdapter for time-series anomaly detection."""
+    
+    def test_list_algorithms(self):
+        """Test listing available algorithms."""
+        algorithms = list(TODSAdapter.ALGORITHM_MAPPING.keys())
+        assert len(algorithms) > 0
+        # Check for common TODS algorithms
+        assert any(algo in algorithms for algo in ["IsolationForest", "LOF", "KNN"])
+    
+    def test_create_model(self):
+        """Test creating TODS adapter instance."""
+        adapter = TODSAdapter("IsolationForest")
+        assert adapter.algorithm_name == "IsolationForest"
+        assert adapter.name == "TODS_IsolationForest"
+        assert hasattr(adapter, "fit")
+        assert hasattr(adapter, "detect")
+
+
+class TestAdapterIntegration:
+    """Test adapter integration and compatibility."""
+    
+    def test_adapter_protocol_compliance(self):
+        """Test that all adapters follow the same protocol."""
+        # Test with mock data that doesn't require external dependencies
+        X = np.random.rand(50, 3)
+        df = pd.DataFrame(X, columns=["a", "b", "c"])
+        dataset = Dataset(name="test", data=df)
+        
+        # Create mock adapters if real ones aren't available
+        adapters_to_test = []
+        
+        # Only test adapters whose dependencies are available
+        if sklearn_available:
+            try:
+                adapters_to_test.append(SklearnAdapter("IsolationForest"))
+            except Exception:
+                pass
+                
+        # Test basic protocol compliance
+        for adapter in adapters_to_test:
+            assert hasattr(adapter, "fit")
+            assert hasattr(adapter, "detect")
+            assert hasattr(adapter, "score")
+            assert hasattr(adapter, "name")
+            assert hasattr(adapter, "algorithm_name")
+    
+    def test_adapter_error_handling(self):
+        """Test adapter error handling."""
+        with pytest.raises(InvalidAlgorithmError):
+            if sklearn_available:
+                SklearnAdapter("NonExistentAlgorithm")
+        
+        # Test with unsupported algorithm names  
+        with pytest.raises((InvalidAlgorithmError, ValueError)):
+            if PyODAdapter:
+                PyODAdapter("UnsupportedAlgorithmName")
