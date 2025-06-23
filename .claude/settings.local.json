@@ -140,7 +140,8 @@
       "Bash(poetry export:*)",
       "Bash(python:*)",
       "Bash(.venv/Scripts/python.exe:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "//": "This sets the default policy to 'allow' for any action that doesn't have a more specific rule below. This is the top-level 'allow all actions' setting.",
