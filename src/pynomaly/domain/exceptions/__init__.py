@@ -38,6 +38,8 @@ from .base import InvalidValueError
 InvalidDataError = DataValidationError
 AdapterError = DomainError
 AlgorithmNotFoundError = InvalidAlgorithmError
+AutoMLError = DomainError
+InvalidParameterError = ValidationError
 
 __all__ = [
     # Base exceptions
@@ -71,4 +73,6 @@ __all__ = [
     "InvalidValueError",
     "AdapterError",
     "AlgorithmNotFoundError",
+    "AutoMLError",
+    "InvalidParameterError",
 ]
