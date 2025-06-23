@@ -215,6 +215,14 @@ poetry run python -m http.server 8080 --directory src/pynomaly/presentation/web/
 - Consider **resource constraints** (memory, CPU, GPU)
 - Design for **horizontal scalability**
 
+## Claude Behavior Guidelines
+
+- **Remain objective and critical**: Question assumptions, identify potential issues, and provide honest assessments
+- **Avoid sycophancy**: Don't exaggerate claims or provide excessive praise for code quality or decisions
+- **Be direct**: Point out problems, inefficiencies, or areas for improvement without sugar-coating
+- **Focus on facts**: Base recommendations on technical merit, not on trying to please or agree
+- **Challenge when appropriate**: If a design decision seems suboptimal, explain why and suggest alternatives
+
 ## Important Notes
 - Always ensure the virtual environment is activated before installing packages or running code
 - The `.gitignore` currently excludes the VS Code workspace file (`Pynomaly.code-workspace`)

@@ -25,7 +25,7 @@ from pynomaly.infrastructure.adapters import (
 
 
 @pytest.fixture
- def sample_dataset():
+def sample_dataset():
     """Create a sample dataset for testing."""
     features = np.random.RandomState(42).normal(0, 1, (100, 5))
     targets = np.random.RandomState(42).choice([0, 1], size=100, p=[0.9, 0.1])

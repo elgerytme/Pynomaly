@@ -11,7 +11,7 @@ from rich.console import Console
 from rich.table import Table
 
 from pynomaly.infrastructure.config import create_container
-from pynomaly.presentation.cli import datasets, detectors, detection, server
+from pynomaly.presentation.cli import datasets, detectors, detection, server, performance
 
 
 # Create Typer app
@@ -30,6 +30,7 @@ app.add_typer(detectors.app, name="detector", help="Manage anomaly detectors")
 app.add_typer(datasets.app, name="dataset", help="Manage datasets")
 app.add_typer(detection.app, name="detect", help="Run anomaly detection")
 app.add_typer(server.app, name="server", help="Manage API server")
+app.add_typer(performance.app, name="perf", help="Performance monitoring and optimization")
 
 # Store container globally for CLI
 _container = None

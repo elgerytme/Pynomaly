@@ -63,6 +63,15 @@ class PyODAdapter(Detector):
         # Graph-based
         "R-Graph": ("pyod.models.rgraph", "RGraph"),
         "LUNAR": ("pyod.models.lunar", "LUNAR"),
+        # Deep Learning (Additional)
+        "ALAD": ("pyod.models.alad", "ALAD"),
+        "AnoGAN": ("pyod.models.anogan", "AnoGAN"),
+        "DIF": ("pyod.models.dif", "DIF"),
+        # Statistical/Other
+        "CLF": ("pyod.models.clf", "CLF"),
+        "KPCA": ("pyod.models.kpca", "KPCA"),
+        "PCA-MAD": ("pyod.models.pca", "PCA"),  # With MAD option
+        "QMCD": ("pyod.models.qmcd", "QMCD"),
         # Other
         "INNE": ("pyod.models.inne", "INNE"),
         "ECOD": ("pyod.models.ecod", "ECOD"),

@@ -1,0 +1,280 @@
+# Pynomaly Docker Development and Deployment Makefile
+# Hardened container management for development, testing, and production
+
+.PHONY: help build dev test prod clean security-scan logs
+.DEFAULT_GOAL := help
+
+# ============================================================================
+# Configuration
+# ============================================================================
+DOCKER_COMPOSE = docker-compose -f docker-compose.hardened.yml
+PROJECT_NAME = pynomaly
+IMAGE_NAME = $(PROJECT_NAME)
+DOCKER_REGISTRY ?= localhost:5000
+
+# Environment files
+ENV_FILE = .env
+ENV_EXAMPLE = .env.example
+
+# ============================================================================
+# Help Documentation
+# ============================================================================
+help: ## Show this help message
+	@echo "Pynomaly Docker Management"
+	@echo "=========================="
+	@echo ""
+	@echo "Available commands:"
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-20s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo ""
+	@echo "Environment files:"
+	@echo "  .env              Runtime environment variables"
+	@echo "  .env.example      Template for environment configuration"
+
+# ============================================================================
+# Environment Setup
+# ============================================================================
+env-setup: ## Set up environment configuration
+	@if [ ! -f $(ENV_FILE) ]; then \
+		echo "Creating .env from template..."; \
+		cp $(ENV_EXAMPLE) $(ENV_FILE); \
+		echo "Please edit .env with your configuration"; \
+	else \
+		echo ".env already exists"; \
+	fi
+
+env-validate: ## Validate environment configuration
+	@echo "Validating environment configuration..."
+	@if [ ! -f $(ENV_FILE) ]; then \
+		echo "Error: .env file not found. Run 'make env-setup' first."; \
+		exit 1; \
+	fi
+	@echo "Environment configuration is valid"
+
+# ============================================================================
+# Build Commands
+# ============================================================================
+build: env-validate ## Build all container stages
+	@echo "Building Pynomaly containers..."
+	$(DOCKER_COMPOSE) build --no-cache
+	@echo "Build complete!"
+
+build-dev: env-validate ## Build development container
+	@echo "Building development container..."
+	$(DOCKER_COMPOSE) build --target development pynomaly-dev
+	@echo "Development build complete!"
+
+build-test: env-validate ## Build testing container
+	@echo "Building testing container..."
+	$(DOCKER_COMPOSE) build --target testing pynomaly-test
+	@echo "Testing build complete!"
+
+build-prod: env-validate ## Build production container
+	@echo "Building production container..."
+	$(DOCKER_COMPOSE) build --target production pynomaly-prod
+	@echo "Production build complete!"
+
+# ============================================================================
+# Development Commands
+# ============================================================================
+dev: env-validate ## Start development environment
+	@echo "Starting development environment..."
+	$(DOCKER_COMPOSE) up -d pynomaly-dev redis postgres
+	@echo "Development environment started!"
+	@echo "API available at: http://localhost:8000"
+	@echo "API docs at: http://localhost:8000/docs"
+
+dev-logs: ## Follow development logs
+	$(DOCKER_COMPOSE) logs -f pynomaly-dev
+
+dev-shell: ## Open shell in development container
+	$(DOCKER_COMPOSE) exec pynomaly-dev /bin/bash
+
+dev-stop: ## Stop development environment
+	$(DOCKER_COMPOSE) down
+
+dev-restart: ## Restart development environment
+	$(DOCKER_COMPOSE) restart pynomaly-dev
+
+# ============================================================================
+# Testing Commands
+# ============================================================================
+test: env-validate ## Run comprehensive test suite
+	@echo "Starting test environment..."
+	$(DOCKER_COMPOSE) --profile testing up -d redis-test postgres-test
+	@echo "Running tests..."
+	$(DOCKER_COMPOSE) --profile testing run --rm pynomaly-test
+	@echo "Cleaning up test environment..."
+	$(DOCKER_COMPOSE) --profile testing down
+	@echo "Tests complete!"
+
+test-coverage: env-validate ## Run tests with coverage report
+	@echo "Running tests with coverage..."
+	$(DOCKER_COMPOSE) --profile testing up -d redis-test postgres-test
+	$(DOCKER_COMPOSE) --profile testing run --rm pynomaly-test \
+		python -m pytest -v --cov=src/pynomaly --cov-report=html --cov-report=term-missing
+	$(DOCKER_COMPOSE) --profile testing down
+	@echo "Coverage report generated in htmlcov/"
+
+test-unit: env-validate ## Run unit tests only
+	$(DOCKER_COMPOSE) --profile testing run --rm pynomaly-test \
+		python -m pytest tests/unit/ -v
+
+test-integration: env-validate ## Run integration tests only
+	$(DOCKER_COMPOSE) --profile testing up -d redis-test postgres-test
+	$(DOCKER_COMPOSE) --profile testing run --rm pynomaly-test \
+		python -m pytest tests/integration/ -v
+	$(DOCKER_COMPOSE) --profile testing down
+
+test-performance: env-validate ## Run performance tests
+	$(DOCKER_COMPOSE) --profile testing run --rm pynomaly-test \
+		python -m pytest tests/performance/ -v --benchmark-only
+
+# ============================================================================
+# Production Commands
+# ============================================================================
+prod: env-validate ## Start production environment
+	@echo "Starting production environment..."
+	$(DOCKER_COMPOSE) --profile production up -d
+	@echo "Production environment started!"
+	@echo "Application available at: http://localhost"
+
+prod-logs: ## Follow production logs
+	$(DOCKER_COMPOSE) --profile production logs -f
+
+prod-shell: ## Open shell in production container
+	$(DOCKER_COMPOSE) --profile production exec pynomaly-prod /bin/bash
+
+prod-stop: ## Stop production environment
+	$(DOCKER_COMPOSE) --profile production down
+
+prod-restart: ## Restart production environment
+	$(DOCKER_COMPOSE) --profile production restart
+
+prod-scale: ## Scale production services
+	$(DOCKER_COMPOSE) --profile production up -d --scale pynomaly-prod=3
+
+# ============================================================================
+# Security Commands
+# ============================================================================
+security-scan: ## Run security scan on containers
+	@echo "Running security scans..."
+	@which trivy >/dev/null 2>&1 || { echo "Error: trivy not installed. Install with: brew install trivy"; exit 1; }
+	trivy image $(PROJECT_NAME):development
+	trivy image $(PROJECT_NAME):testing  
+	trivy image $(PROJECT_NAME):production
+	@echo "Security scan complete!"
+
+security-audit: ## Audit Python dependencies for security issues
+	$(DOCKER_COMPOSE) run --rm pynomaly-dev safety check
+	$(DOCKER_COMPOSE) run --rm pynomaly-dev bandit -r src/
+
+# ============================================================================
+# Database Commands
+# ============================================================================
+db-migrate: ## Run database migrations
+	$(DOCKER_COMPOSE) exec pynomaly-dev python -m pynomaly.scripts.init_database
+
+db-shell: ## Open database shell
+	$(DOCKER_COMPOSE) exec postgres psql -U pynomaly -d pynomaly_dev
+
+db-backup: ## Backup development database
+	$(DOCKER_COMPOSE) exec postgres pg_dump -U pynomaly pynomaly_dev > backup_$(shell date +%Y%m%d_%H%M%S).sql
+
+db-restore: ## Restore database from backup (DB_BACKUP_FILE=backup.sql)
+	@if [ -z "$(DB_BACKUP_FILE)" ]; then echo "Error: Set DB_BACKUP_FILE=backup.sql"; exit 1; fi
+	$(DOCKER_COMPOSE) exec -T postgres psql -U pynomaly -d pynomaly_dev < $(DB_BACKUP_FILE)
+
+# ============================================================================
+# Monitoring Commands
+# ============================================================================
+logs: ## Show logs for all services
+	$(DOCKER_COMPOSE) logs -f
+
+status: ## Show status of all containers
+	$(DOCKER_COMPOSE) ps
+
+health: ## Check health of all services
+	@echo "Checking service health..."
+	$(DOCKER_COMPOSE) exec pynomaly-dev curl -f http://localhost:8000/api/health || echo "API health check failed"
+	$(DOCKER_COMPOSE) exec redis redis-cli ping || echo "Redis health check failed"
+	$(DOCKER_COMPOSE) exec postgres pg_isready -U pynomaly || echo "PostgreSQL health check failed"
+
+metrics: ## Show resource usage metrics
+	docker stats --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}\t{{.BlockIO}}"
+
+# ============================================================================
+# Maintenance Commands
+# ============================================================================
+clean: ## Remove all containers, volumes, and images
+	@echo "Cleaning up containers..."
+	$(DOCKER_COMPOSE) down -v --remove-orphans
+	@echo "Removing images..."
+	docker rmi -f $(shell docker images -q $(PROJECT_NAME)) 2>/dev/null || true
+	@echo "Cleaning up unused resources..."
+	docker system prune -f
+	@echo "Cleanup complete!"
+
+clean-volumes: ## Remove all data volumes (WARNING: destroys data)
+	@echo "WARNING: This will destroy all data!"
+	@read -p "Are you sure? [y/N] " confirm; [ "$$confirm" = "y" ] || exit 1
+	$(DOCKER_COMPOSE) down -v
+	docker volume rm -f $(shell docker volume ls -q | grep $(PROJECT_NAME)) 2>/dev/null || true
+
+reset: clean build ## Complete reset: clean and rebuild everything
+
+# ============================================================================
+# Utility Commands
+# ============================================================================
+install-tools: ## Install required development tools
+	@echo "Installing development tools..."
+	@command -v docker >/dev/null 2>&1 || { echo "Error: Docker not installed"; exit 1; }
+	@command -v docker-compose >/dev/null 2>&1 || { echo "Error: Docker Compose not installed"; exit 1; }
+	@echo "All tools are installed!"
+
+lint: ## Run code linting in container
+	$(DOCKER_COMPOSE) run --rm pynomaly-dev black src/ tests/ --check
+	$(DOCKER_COMPOSE) run --rm pynomaly-dev isort src/ tests/ --check-only
+	$(DOCKER_COMPOSE) run --rm pynomaly-dev flake8 src/ tests/
+	$(DOCKER_COMPOSE) run --rm pynomaly-dev mypy src/
+
+format: ## Format code in container
+	$(DOCKER_COMPOSE) run --rm pynomaly-dev black src/ tests/
+	$(DOCKER_COMPOSE) run --rm pynomaly-dev isort src/ tests/
+
+docs: ## Generate documentation
+	$(DOCKER_COMPOSE) run --rm pynomaly-dev mkdocs build
+
+docs-serve: ## Serve documentation locally
+	$(DOCKER_COMPOSE) run --rm -p 8080:8000 pynomaly-dev mkdocs serve --dev-addr 0.0.0.0:8000
+
+# ============================================================================
+# CI/CD Commands
+# ============================================================================
+ci-test: ## Run CI/CD test pipeline
+	@echo "Running CI/CD test pipeline..."
+	make build-test
+	make test-coverage
+	make security-scan
+	make lint
+	@echo "CI/CD pipeline complete!"
+
+ci-build: ## Build and tag images for registry
+	docker build -f Dockerfile.hardened --target production -t $(DOCKER_REGISTRY)/$(IMAGE_NAME):latest .
+	docker build -f Dockerfile.hardened --target production -t $(DOCKER_REGISTRY)/$(IMAGE_NAME):$(shell date +%Y%m%d) .
+
+ci-push: ## Push images to registry
+	docker push $(DOCKER_REGISTRY)/$(IMAGE_NAME):latest
+	docker push $(DOCKER_REGISTRY)/$(IMAGE_NAME):$(shell date +%Y%m%d)
+
+# ============================================================================
+# Debug Commands
+# ============================================================================
+debug: ## Start development environment with debug configuration
+	$(DOCKER_COMPOSE) -f docker-compose.hardened.yml -f docker-compose.debug.yml up -d
+
+debug-test: ## Debug specific test
+	@if [ -z "$(TEST)" ]; then echo "Error: Set TEST=test_file::test_name"; exit 1; fi
+	$(DOCKER_COMPOSE) --profile testing run --rm pynomaly-test python -m pytest $(TEST) -vvs --pdb
+
+inspect: ## Inspect container configuration
+	$(DOCKER_COMPOSE) config

@@ -5,8 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Request
-from fastapi.responses import HTMLResponse
+from fastapi import APIRouter, Depends, Request, Form, HTTPException
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -36,9 +36,19 @@ router = APIRouter()
 @router.get("/", response_class=HTMLResponse)
 async def index(
     request: Request,
-    container: Container = Depends(get_container)
+    container: Container = Depends(get_container),
+    current_user: Optional[str] = Depends(get_current_user)
 ):
     """Main dashboard page."""
+    settings = container.config()
+    
+    # Check if auth is enabled and user is not authenticated
+    if settings.auth_enabled and not current_user:
+        return templates.TemplateResponse(
+            "login.html",
+            {"request": request}
+        )
+    
     # Get counts for dashboard
     detector_count = container.detector_repository().count()
     dataset_count = container.dataset_repository().count()
@@ -51,12 +61,79 @@ async def index(
         "index.html",
         {
             "request": request,
+            "current_user": current_user,
+            "auth_enabled": settings.auth_enabled,
             "detector_count": detector_count,
             "dataset_count": dataset_count,
             "result_count": result_count,
             "recent_results": recent_results
         }
     )
+
+
+@router.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    """Login page."""
+    return templates.TemplateResponse(
+        "login.html",
+        {"request": request}
+    )
+
+
+@router.post("/login", response_class=HTMLResponse)
+async def login_post(
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...),
+    container: Container = Depends(get_container)
+):
+    """Handle login form submission."""
+    settings = container.config()
+    
+    if not settings.auth_enabled:
+        return RedirectResponse(url="/web/", status_code=302)
+    
+    try:
+        from pynomaly.infrastructure.auth import get_auth
+        from pynomaly.domain.exceptions import AuthenticationError
+        
+        auth_service = get_auth()
+        if not auth_service:
+            raise HTTPException(status_code=503, detail="Authentication service not available")
+        
+        # Authenticate user
+        user = auth_service.authenticate_user(username, password)
+        token_response = auth_service.create_access_token(user)
+        
+        # Create redirect response with token as cookie
+        response = RedirectResponse(url="/web/", status_code=302)
+        response.set_cookie(
+            key="access_token",
+            value=f"Bearer {token_response.access_token}",
+            max_age=token_response.expires_in,
+            httponly=True,
+            secure=settings.is_production,
+            samesite="lax"
+        )
+        
+        return response
+        
+    except AuthenticationError as e:
+        return templates.TemplateResponse(
+            "login.html",
+            {
+                "request": request,
+                "error": str(e)
+            }
+        )
+
+
+@router.post("/logout")
+async def logout():
+    """Handle logout."""
+    response = RedirectResponse(url="/web/login", status_code=302)
+    response.delete_cookie("access_token")
+    return response
 
 
 @router.get("/detectors", response_class=HTMLResponse)

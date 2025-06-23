@@ -1,0 +1,57 @@
+{
+  "validation_results": {
+    "cli_structure": true,
+    "entry_point": true,
+    "command_analysis": true,
+    "dependencies": true,
+    "architecture": true,
+    "help_system": true,
+    "error_handling": true
+  },
+  "commands_found": {
+    "main": [
+      "version",
+      "config",
+      "status",
+      "quickstart"
+    ],
+    "detectors": [
+      "list",
+      "create",
+      "show",
+      "delete",
+      "algorithms",
+      "clone"
+    ],
+    "datasets": [
+      "list",
+      "load",
+      "show",
+      "quality",
+      "split",
+      "delete",
+      "export"
+    ],
+    "detection": [
+      "train",
+      "run",
+      "batch",
+      "evaluate",
+      "results"
+    ],
+    "server": [
+      "start",
+      "stop",
+      "status",
+      "logs",
+      "config",
+      "health"
+    ]
+  },
+  "timestamp": "1750711426.1199338",
+  "validation_summary": {
+    "total_tests": 7,
+    "passed_tests": 7,
+    "all_passed": true
+  }
+}

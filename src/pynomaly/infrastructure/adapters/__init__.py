@@ -26,3 +26,15 @@ try:
     __all__.append("PyTorchAdapter")
 except ImportError:
     pass
+
+try:
+    from .tensorflow_adapter import TensorFlowAdapter
+    __all__.append("TensorFlowAdapter")
+except ImportError:
+    pass
+
+try:
+    from .jax_adapter import JAXAdapter
+    __all__.append("JAXAdapter")
+except ImportError:
+    pass

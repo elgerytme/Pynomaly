@@ -56,3 +56,20 @@ class LeaderboardEntryDTO(BaseModel):
     metric_name: str
     parameters: Dict[str, Any] = Field(default_factory=dict)
     timestamp: datetime
+
+
+class ExperimentResponseDTO(BaseModel):
+    """DTO for experiment API responses."""
+    
+    model_config = ConfigDict(from_attributes=True)
+    
+    id: str
+    name: str
+    description: Optional[str] = None
+    status: str = "active"
+    total_runs: int = 0
+    best_score: Optional[float] = None
+    best_metric: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+    metadata: Dict[str, Any] = Field(default_factory=dict)

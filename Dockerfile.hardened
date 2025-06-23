@@ -1,0 +1,317 @@
+# Multi-stage hardened Ubuntu-based Dockerfile for Pynomaly
+# Development, Testing, and Production-ready container
+
+# ============================================================================
+# Build Stage - Dependencies and compilation
+# ============================================================================
+FROM ubuntu:22.04 as builder
+
+# Security: Set non-interactive mode and disable recommends
+ENV DEBIAN_FRONTEND=noninteractive
+ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
+
+# Security: Update and install build dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        # Build essentials
+        build-essential \
+        gcc \
+        g++ \
+        make \
+        cmake \
+        # Python build dependencies
+        python3.11 \
+        python3.11-dev \
+        python3.11-venv \
+        python3-pip \
+        # ML dependencies
+        libblas-dev \
+        liblapack-dev \
+        libatlas-base-dev \
+        gfortran \
+        # Git for dependency installation
+        git \
+        # SSL/TLS support
+        ca-certificates \
+        libssl-dev \
+        # Additional system libraries
+        libffi-dev \
+        libglib2.0-0 \
+        libsm6 \
+        libxext6 \
+        libxrender-dev \
+        libgomp1 \
+        # Cleanup
+        && apt-get clean \
+        && rm -rf /var/lib/apt/lists/* \
+        && rm -rf /tmp/* \
+        && rm -rf /var/tmp/*
+
+# Set Python 3.11 as default
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+
+# Install pip and poetry
+RUN python3 -m pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    python3 -m pip install --no-cache-dir poetry==1.7.1
+
+# Set working directory
+WORKDIR /build
+
+# Copy dependency files
+COPY pyproject.toml ./
+
+# Configure poetry for container builds
+RUN poetry config virtualenvs.create false && \
+    poetry config installer.parallel true && \
+    poetry config installer.max-workers 4
+
+# Install all dependencies including optional ones
+RUN poetry install --no-dev --no-root --extras "all"
+
+# Install additional ML dependencies that might be missing
+RUN python3 -m pip install --no-cache-dir \
+    torch==2.1.0+cpu \
+    torchvision==0.16.0+cpu \
+    torchaudio==2.1.0+cpu \
+    --index-url https://download.pytorch.org/whl/cpu && \
+    python3 -m pip install --no-cache-dir \
+    tensorflow==2.15.0 \
+    tensorflow-cpu==2.15.0 \
+    jax[cpu]==0.4.20 \
+    jaxlib==0.4.20 \
+    optax==0.1.7 \
+    shap==0.43.0 \
+    lime==0.2.0.1 \
+    passlib[bcrypt]==1.7.4 \
+    redis==5.0.1 \
+    psycopg2-binary==2.9.9 \
+    kafka-python==2.0.2 \
+    optuna==3.4.0
+
+# ============================================================================
+# Hardened Runtime Stage
+# ============================================================================
+FROM ubuntu:22.04 as runtime
+
+# Security: Set non-interactive mode
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Security: Create system user first
+RUN groupadd -r -g 1000 pynomaly && \
+    useradd -r -g pynomaly -u 1000 -m -s /bin/bash pynomaly
+
+# Security: Install minimal runtime dependencies only
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        # Essential runtime
+        python3.11 \
+        python3.11-venv \
+        python3-pip \
+        # Security tools
+        ca-certificates \
+        curl \
+        # Minimal ML runtime libraries
+        libblas3 \
+        liblapack3 \
+        libatlas3-base \
+        libgomp1 \
+        # System libraries for ML frameworks
+        libglib2.0-0 \
+        libsm6 \
+        libxext6 \
+        libxrender1 \
+        libgcc-s1 \
+        # Network tools for health checks
+        netcat-openbsd \
+        # Process management
+        tini \
+        && apt-get clean \
+        && rm -rf /var/lib/apt/lists/* \
+        && rm -rf /tmp/* \
+        && rm -rf /var/tmp/* \
+        && rm -rf /var/cache/apt/*
+
+# Security: Set Python 3.11 as default
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+
+# Security: Copy Python packages from builder
+COPY --from=builder /usr/local/lib/python3.11 /usr/local/lib/python3.11
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Security: Set secure environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/app/src \
+    PATH="/usr/local/bin:$PATH" \
+    # Security settings
+    PYTHONHASHSEED=random \
+    # Performance settings
+    OMP_NUM_THREADS=1 \
+    NUMBA_CACHE_DIR=/tmp \
+    # Application settings
+    PYNOMALY_ENV=production \
+    PYNOMALY_LOG_LEVEL=INFO
+
+# Security: Create secure directory structure
+RUN mkdir -p /app/src /app/storage /app/logs /app/temp /app/data && \
+    chown -R pynomaly:pynomaly /app && \
+    chmod -R 755 /app && \
+    # Security: Remove world-writable permissions
+    find /app -type d -exec chmod 755 {} \; && \
+    find /app -type f -exec chmod 644 {} \;
+
+# Set working directory
+WORKDIR /app
+
+# Copy application code with proper ownership
+COPY --chown=pynomaly:pynomaly src/ ./src/
+COPY --chown=pynomaly:pynomaly pyproject.toml ./
+COPY --chown=pynomaly:pynomaly README.md ./
+
+# Security: Install the application
+RUN python3 -m pip install --no-cache-dir -e .
+
+# Security: Create non-privileged directories
+RUN mkdir -p /app/storage/{models,experiments,temp} \
+             /app/logs \
+             /app/data && \
+    chown -R pynomaly:pynomaly /app/storage /app/logs /app/data && \
+    chmod -R 750 /app/storage /app/logs /app/data
+
+# Security: Switch to non-root user
+USER pynomaly
+
+# Security: Expose only necessary port
+EXPOSE 8000
+
+# Security: Add comprehensive health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD python3 -c "import requests; requests.get('http://localhost:8000/api/health', timeout=5)" || exit 1
+
+# Security: Use tini as PID 1 for proper signal handling
+ENTRYPOINT ["tini", "--"]
+
+# Default command for API server
+CMD ["python3", "-m", "uvicorn", "pynomaly.presentation.api.app:app", \
+     "--host", "0.0.0.0", "--port", "8000", \
+     "--workers", "1", "--access-log"]
+
+# ============================================================================
+# Development Stage (extends runtime)
+# ============================================================================
+FROM runtime as development
+
+# Switch back to root for development tools installation
+USER root
+
+# Install development dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        # Development tools
+        git \
+        vim \
+        less \
+        htop \
+        # Debugging tools
+        strace \
+        # Network debugging
+        tcpdump \
+        netcat-openbsd \
+        # Development utilities
+        jq \
+        tree \
+        && apt-get clean \
+        && rm -rf /var/lib/apt/lists/*
+
+# Install development Python packages
+RUN python3 -m pip install --no-cache-dir \
+    pytest==7.4.3 \
+    pytest-cov==4.1.0 \
+    pytest-asyncio==0.21.1 \
+    pytest-xdist==3.5.0 \
+    pytest-mock==3.12.0 \
+    pytest-benchmark==4.0.0 \
+    hypothesis==6.88.1 \
+    black==23.11.0 \
+    isort==5.12.0 \
+    mypy==1.7.1 \
+    flake8==6.1.0 \
+    bandit==1.7.5 \
+    safety==2.3.5 \
+    pre-commit==3.5.0
+
+# Switch back to application user
+USER pynomaly
+
+# Development-specific environment
+ENV PYNOMALY_ENV=development \
+    PYNOMALY_LOG_LEVEL=DEBUG \
+    PYTHONPATH=/app/src:/app/tests
+
+# Development command with auto-reload
+CMD ["python3", "-m", "uvicorn", "pynomaly.presentation.api.app:app", \
+     "--host", "0.0.0.0", "--port", "8000", \
+     "--reload", "--reload-dir", "/app/src"]
+
+# ============================================================================
+# Testing Stage (extends development)
+# ============================================================================
+FROM development as testing
+
+# Switch to root for test setup
+USER root
+
+# Install additional testing dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        # Redis for integration tests
+        redis-server \
+        # PostgreSQL client for database tests
+        postgresql-client \
+        && apt-get clean \
+        && rm -rf /var/lib/apt/lists/*
+
+# Switch back to application user
+USER pynomaly
+
+# Testing-specific environment
+ENV PYNOMALY_ENV=testing \
+    PYNOMALY_LOG_LEVEL=DEBUG \
+    PYTEST_ADDOPTS="--tb=short --strict-markers"
+
+# Default testing command
+CMD ["python3", "-m", "pytest", "-v", "--cov=src/pynomaly", \
+     "--cov-report=term-missing", "--cov-report=html"]
+
+# ============================================================================
+# Production Stage (final hardened image)
+# ============================================================================
+FROM runtime as production
+
+# Production-specific optimizations
+ENV PYNOMALY_ENV=production \
+    PYNOMALY_LOG_LEVEL=INFO \
+    # Security: Disable debug features
+    PYTHONOPTIMIZE=2 \
+    # Performance: Enable optimizations
+    MALLOC_TRIM_THRESHOLD_=0
+
+# Security: Final permission lockdown
+USER root
+RUN find /app -type f -executable -exec chmod 755 {} \; && \
+    find /app -type f ! -executable -exec chmod 644 {} \; && \
+    find /app -type d -exec chmod 755 {} \; && \
+    # Security: Remove any remaining build artifacts
+    find /usr/local -name "*.pyc" -delete && \
+    find /usr/local -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+
+# Security: Final switch to non-root user
+USER pynomaly
+
+# Production command with optimizations
+CMD ["python3", "-m", "uvicorn", "pynomaly.presentation.api.app:app", \
+     "--host", "0.0.0.0", "--port", "8000", \
+     "--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker", \
+     "--access-log", "--no-server-header"]

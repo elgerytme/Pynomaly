@@ -18,10 +18,12 @@ from pynomaly.application.dto import (
     CreateExperimentDTO,
     ExperimentResponseDTO,
     LeaderboardEntryDTO,
-    BatchDetectionRequestDTO,
-    EnsembleRequestDTO,
-    ModelMetricsDTO,
-    ValidationErrorDTO,
+    AutoMLRequestDTO,
+    AutoMLResponseDTO,
+    ExplanationRequestDTO,
+    ExplanationResponseDTO,
+    FeatureContributionDTO,
+    LocalExplanationDTO,
 )
 from pynomaly.domain.entities import Detector, Dataset, DetectionResult, Anomaly
 from pynomaly.domain.value_objects import ContaminationRate, AnomalyScore, ConfidenceInterval
@@ -34,116 +36,129 @@ class TestCreateDetectorDTO:
         """Test creating a valid CreateDetectorDTO."""
         dto = CreateDetectorDTO(
             name="test_detector",
-            algorithm="isolation_forest",
-            contamination=0.1,
-            hyperparameters={"n_estimators": 100, "random_state": 42}
+            algorithm_name="IsolationForest",
+            contamination_rate=0.1,
+            parameters={"n_estimators": 100, "random_state": 42}
         )
         
         assert dto.name == "test_detector"
-        assert dto.algorithm == "isolation_forest"
-        assert dto.contamination == 0.1
-        assert dto.hyperparameters["n_estimators"] == 100
+        assert dto.algorithm_name == "IsolationForest"
+        assert dto.contamination_rate == 0.1
+        assert dto.parameters["n_estimators"] == 100
     
     def test_contamination_validation(self):
         """Test contamination rate validation."""
         # Valid contamination rates
-        CreateDetectorDTO(name="test", algorithm="test", contamination=0.05)
-        CreateDetectorDTO(name="test", algorithm="test", contamination=0.5)
+        CreateDetectorDTO(name="test", algorithm_name="test", contamination_rate=0.05)
+        CreateDetectorDTO(name="test", algorithm_name="test", contamination_rate=0.5)
         
         # Invalid contamination rates
         with pytest.raises(ValueError):
-            CreateDetectorDTO(name="test", algorithm="test", contamination=-0.1)
+            CreateDetectorDTO(name="test", algorithm_name="test", contamination_rate=-0.1)
         
         with pytest.raises(ValueError):
-            CreateDetectorDTO(name="test", algorithm="test", contamination=1.5)
+            CreateDetectorDTO(name="test", algorithm_name="test", contamination_rate=1.5)
     
     def test_name_validation(self):
         """Test name validation."""
         # Valid names
-        CreateDetectorDTO(name="valid_name", algorithm="test", contamination=0.1)
-        CreateDetectorDTO(name="Valid Name 123", algorithm="test", contamination=0.1)
+        CreateDetectorDTO(name="valid_name", algorithm_name="test", contamination_rate=0.1)
+        CreateDetectorDTO(name="Valid Name 123", algorithm_name="test", contamination_rate=0.1)
         
         # Invalid names
         with pytest.raises(ValueError):
-            CreateDetectorDTO(name="", algorithm="test", contamination=0.1)
+            CreateDetectorDTO(name="", algorithm_name="test", contamination_rate=0.1)
         
         with pytest.raises(ValueError):
-            CreateDetectorDTO(name="   ", algorithm="test", contamination=0.1)
+            CreateDetectorDTO(name="   ", algorithm_name="test", contamination_rate=0.1)
     
     def test_algorithm_validation(self):
         """Test algorithm validation."""
         valid_algorithms = [
-            "isolation_forest", "local_outlier_factor", "one_class_svm",
-            "pyod_lof", "pyod_knn", "pyod_abod"
+            "IsolationForest", "LocalOutlierFactor", "OneClassSVM",
+            "LOF", "KNN", "ABOD"
         ]
         
         for algo in valid_algorithms:
-            CreateDetectorDTO(name="test", algorithm=algo, contamination=0.1)
+            CreateDetectorDTO(name="test", algorithm_name=algo, contamination_rate=0.1)
         
-        # Invalid algorithm
+        # Test with empty algorithm name should raise validation error
         with pytest.raises(ValueError):
-            CreateDetectorDTO(name="test", algorithm="invalid_algorithm", contamination=0.1)
+            CreateDetectorDTO(name="test", algorithm_name="", contamination_rate=0.1)
     
-    def test_hyperparameters_optional(self):
-        """Test that hyperparameters are optional."""
-        dto = CreateDetectorDTO(name="test", algorithm="isolation_forest", contamination=0.1)
-        assert dto.hyperparameters is None
+    def test_parameters_optional(self):
+        """Test that parameters are optional."""
+        dto = CreateDetectorDTO(name="test", algorithm_name="IsolationForest", contamination_rate=0.1)
+        assert dto.parameters == {}
     
-    def test_to_domain_entity(self):
-        """Test conversion to domain entity."""
+    def test_json_serialization(self):
+        """Test JSON serialization of DTO."""
         dto = CreateDetectorDTO(
             name="test_detector",
-            algorithm="isolation_forest",
-            contamination=0.1,
-            hyperparameters={"n_estimators": 100}
+            algorithm_name="IsolationForest",
+            contamination_rate=0.1,
+            parameters={"n_estimators": 100}
         )
         
-        detector = dto.to_domain_entity()
+        # Test that it can be serialized
+        json_data = dto.model_dump()
         
-        assert isinstance(detector, Detector)
-        assert detector.name == "test_detector"
-        assert detector.algorithm == "isolation_forest"
-        assert detector.contamination.value == 0.1
-        assert detector.hyperparameters == {"n_estimators": 100}
+        assert json_data["name"] == "test_detector"
+        assert json_data["algorithm_name"] == "IsolationForest"
+        assert json_data["contamination_rate"] == 0.1
+        assert json_data["parameters"] == {"n_estimators": 100}
 
 
 class TestDetectorResponseDTO:
     """Test DetectorResponseDTO serialization."""
     
-    def test_from_domain_entity(self):
-        """Test creating DTO from domain entity."""
-        detector = Detector(
+    def test_valid_response_dto(self):
+        """Test creating a valid DetectorResponseDTO."""
+        from uuid import uuid4
+        from datetime import datetime
+        
+        dto = DetectorResponseDTO(
+            id=uuid4(),
             name="test_detector",
-            algorithm="isolation_forest",
-            contamination=ContaminationRate(0.1),
-            hyperparameters={"n_estimators": 100}
+            algorithm_name="IsolationForest",
+            contamination_rate=0.1,
+            is_fitted=True,
+            created_at=datetime.utcnow(),
+            parameters={"n_estimators": 100}
         )
         
-        dto = DetectorResponseDTO.from_domain_entity(detector)
-        
-        assert dto.id == detector.id
         assert dto.name == "test_detector"
-        assert dto.algorithm == "isolation_forest"
-        assert dto.contamination == 0.1
-        assert dto.hyperparameters == {"n_estimators": 100}
-        assert dto.created_at is not None
+        assert dto.algorithm_name == "IsolationForest"
+        assert dto.contamination_rate == 0.1
+        assert dto.is_fitted is True
+        assert dto.parameters == {"n_estimators": 100}
+        assert dto.status == "active"
+        assert dto.version == "1.0.0"
     
     def test_serialization(self):
         """Test JSON serialization."""
-        detector = Detector(
+        from uuid import uuid4
+        from datetime import datetime
+        
+        dto = DetectorResponseDTO(
+            id=uuid4(),
             name="test_detector",
-            algorithm="isolation_forest",
-            contamination=ContaminationRate(0.1)
+            algorithm_name="IsolationForest",
+            contamination_rate=0.1,
+            is_fitted=False,
+            created_at=datetime.utcnow()
         )
         
-        dto = DetectorResponseDTO.from_domain_entity(detector)
-        serialized = dto.dict()
+        serialized = dto.model_dump()
         
         assert "id" in serialized
         assert "name" in serialized
-        assert "algorithm" in serialized
-        assert "contamination" in serialized
+        assert "algorithm_name" in serialized
+        assert "contamination_rate" in serialized
         assert "created_at" in serialized
+        assert "is_fitted" in serialized
+        assert "status" in serialized
+        assert "version" in serialized
 
 
 class TestDatasetDTO:

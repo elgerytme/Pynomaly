@@ -49,3 +49,33 @@ class UpdateDetectorDTO(BaseModel):
     contamination_rate: Optional[float] = Field(None, ge=0, le=1)
     parameters: Optional[Dict[str, Any]] = None
     metadata: Optional[Dict[str, Any]] = None
+
+
+class DetectorResponseDTO(BaseModel):
+    """DTO for detector API responses."""
+    
+    model_config = ConfigDict(from_attributes=True)
+    
+    id: UUID
+    name: str
+    algorithm_name: str
+    contamination_rate: float
+    is_fitted: bool
+    created_at: datetime
+    trained_at: Optional[datetime] = None
+    parameters: Dict[str, Any] = Field(default_factory=dict)
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+    status: str = "active"
+    version: str = "1.0.0"
+
+
+class DetectionRequestDTO(BaseModel):
+    """DTO for detection requests."""
+    
+    model_config = ConfigDict(from_attributes=True)
+    
+    detector_id: UUID
+    data: list[list[float]]  # 2D array of features
+    return_scores: bool = True
+    return_feature_importance: bool = False
+    threshold: Optional[float] = None

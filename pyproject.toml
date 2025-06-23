@@ -57,8 +57,10 @@ redis = "^5.0.0"
 # Optional ML backends
 torch = {version = "^2.1.0", optional = true}
 tensorflow = {version = "^2.15.0", optional = true}
+keras = {version = "^3.0.0", optional = true}
 jax = {version = "^0.4.23", optional = true}
 jaxlib = {version = "^0.4.23", optional = true}
+optax = {version = "^0.1.7", optional = true}
 # Data processing
 pyarrow = "^14.0.0"
 polars = {version = "^0.20.0", optional = true}
@@ -73,6 +75,13 @@ openpyxl = {version = "^3.1.0", optional = true}
 pygod = {version = "^1.1.0", optional = true}
 tods = {version = "^1.0.0", optional = true}
 torch-geometric = {version = "^2.4.0", optional = true}
+# AutoML libraries
+optuna = {version = "^3.5.0", optional = true}
+hyperopt = {version = "^0.2.7", optional = true}
+auto-sklearn = {version = "^0.15.0", optional = true}
+# Explainability libraries
+shap = {version = "^0.42.0", optional = true}
+lime = {version = "^0.2.0", optional = true}
 # Infrastructure resilience
 tenacity = "^8.2.0"
 py-breaker = "^0.5.0"
@@ -123,7 +132,7 @@ pandas-stubs = "^2.1.0"
 # ML backends
 torch = ["torch"]
 tensorflow = ["tensorflow"]
-jax = ["jax", "jaxlib"]
+jax = ["jax", "jaxlib", "optax"]
 # High-performance data processing
 polars = ["polars"]
 spark = ["pyspark"]
@@ -138,9 +147,12 @@ excel = ["openpyxl"]
 performance = ["fastparquet"]
 # Combined extras
 data-processing = ["polars", "pyspark", "h5py", "sqlalchemy", "psycopg2-binary", "fastparquet", "openpyxl"]
-ml-backends = ["torch", "tensorflow", "jax", "jaxlib"]
+ml-backends = ["torch", "tensorflow", "keras", "jax", "jaxlib", "optax"]
 specialized = ["pygod", "torch-geometric", "tods"]
-all = ["torch", "tensorflow", "jax", "jaxlib", "polars", "pyspark", "h5py", "sqlalchemy", "psycopg2-binary", "dask", "pygod", "torch-geometric", "tods", "fastparquet", "openpyxl"]
+# AutoML and explainability
+automl = ["optuna", "hyperopt", "auto-sklearn"]
+explainability = ["shap", "lime"]
+all = ["torch", "tensorflow", "keras", "jax", "jaxlib", "optax", "polars", "pyspark", "h5py", "sqlalchemy", "psycopg2-binary", "dask", "pygod", "torch-geometric", "tods", "fastparquet", "openpyxl", "optuna", "hyperopt", "auto-sklearn", "shap", "lime"]
 
 [tool.poetry.scripts]
 pynomaly = "pynomaly.presentation.cli.app:app"

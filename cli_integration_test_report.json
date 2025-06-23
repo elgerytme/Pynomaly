@@ -1,0 +1,165 @@
+{
+  "integration_test_results": {
+    "help_system": {
+      "main_help": {
+        "exit_code": 1,
+        "success": false,
+        "has_output": false,
+        "contains_pynomaly": false,
+        "contains_subcommands": false,
+        "stderr": "/mnt/c/Users/andre/Pynomaly/.venv/bin/python: Error while finding module specification for 'pynomaly.presentation.cli.app' (ModuleNotFoundError: No module named 'pynomaly')\n"
+      },
+      "detector_help": {
+        "exit_code": 1,
+        "success": false,
+        "has_output": false,
+        "contains_commands": false,
+        "stderr": "/mnt/c/Users/andre/Pynomaly/.venv/bin/python: Error while finding module specification for 'pynomaly.presentation.cli.app' (ModuleNotFoundError: No module named 'pynomaly')\n"
+      },
+      "dataset_help": {
+        "exit_code": 1,
+        "success": false,
+        "has_output": false,
+        "contains_commands": false,
+        "stderr": "/mnt/c/Users/andre/Pynomaly/.venv/bin/python: Error while finding module specification for 'pynomaly.presentation.cli.app' (ModuleNotFoundError: No module named 'pynomaly')\n"
+      },
+      "detect_help": {
+        "exit_code": 1,
+        "success": false,
+        "has_output": false,
+        "contains_commands": false,
+        "stderr": "/mnt/c/Users/andre/Pynomaly/.venv/bin/python: Error while finding module specification for 'pynomaly.presentation.cli.app' (ModuleNotFoundError: No module named 'pynomaly')\n"
+      },
+      "server_help": {
+        "exit_code": 1,
+        "success": false,
+        "has_output": false,
+        "contains_commands": false,
+        "stderr": "/mnt/c/Users/andre/Pynomaly/.venv/bin/python: Error while finding module specification for 'pynomaly.presentation.cli.app' (ModuleNotFoundError: No module named 'pynomaly')\n"
+      },
+      "perf_help": {
+        "exit_code": 1,
+        "success": false,
+        "has_output": false,
+        "contains_commands": false,
+        "stderr": "/mnt/c/Users/andre/Pynomaly/.venv/bin/python: Error while finding module specification for 'pynomaly.presentation.cli.app' (ModuleNotFoundError: No module named 'pynomaly')\n"
+      }
+    },
+    "basic_commands": {
+      "version": {
+        "exit_code": 1,
+        "success": false,
+        "has_output": false,
+        "stderr": "/mnt/c/Users/andre/Pynomaly/.venv/bin/python: Error while finding module specification for 'pynomaly.presentation.cli.app' (ModuleNotFoundError: No module named 'pynomaly')\n"
+      },
+      "config_show": {
+        "exit_code": 1,
+        "success": false,
+        "has_output": false,
+        "stderr": "/mnt/c/Users/andre/Pynomaly/.venv/bin/python: Error while finding module specification for 'pynomaly.presentation.cli.app' (ModuleNotFoundError: No module named 'pynomaly')\n"
+      },
+      "status": {
+        "exit_code": 1,
+        "success": false,
+        "has_output": false,
+        "stderr": "/mnt/c/Users/andre/Pynomaly/.venv/bin/python: Error while finding module specification for 'pynomaly.presentation.cli.app' (ModuleNotFoundError: No module named 'pynomaly')\n"
+      },
+      "quickstart": {
+        "exit_code": 1,
+        "success": true,
+        "has_output": false,
+        "stderr": "/mnt/c/Users/andre/Pynomaly/.venv/bin/python: Error while finding module specification for 'pynomaly.presentation.cli.app' (ModuleNotFoundError: No module named 'pynomaly')\n"
+      }
+    },
+    "error_handling": {
+      "invalid_command": {
+        "exit_code": 1,
+        "success": true,
+        "error_in_output": false,
+        "stderr": "/mnt/c/Users/andre/Pynomaly/.venv/bin/python: Error while finding module specification for 'pynomaly.presentation.cli.app' (ModuleNotFoundError: No module named 'pynomaly')\n"
+      },
+      "missing_argument": {
+        "exit_code": 1,
+        "success": true,
+        "error_in_output": false,
+        "stderr": "/mnt/c/Users/andre/Pynomaly/.venv/bin/python: Error while finding module specification for 'pynomaly.presentation.cli.app' (ModuleNotFoundError: No module named 'pynomaly')\n"
+      },
+      "conflicting_flags": {
+        "exit_code": 1,
+        "success": false,
+        "error_handled": true,
+        "stderr": "/mnt/c/Users/andre/Pynomaly/.venv/bin/python: Error while finding module specification for 'pynomaly.presentation.cli.app' (ModuleNotFoundError: No module named 'pynomaly')\n"
+      }
+    },
+    "specific_commands": {
+      "detector_list": {
+        "exit_code": 1,
+        "success": true,
+        "graceful_failure": true,
+        "stderr": "/mnt/c/Users/andre/Pynomaly/.venv/bin/python: Error while finding module specification for 'pynomaly.presentation.cli.app' (ModuleNotFoundError: No module named 'pynomaly')\n"
+      },
+      "dataset_list": {
+        "exit_code": 1,
+        "success": true,
+        "graceful_failure": true,
+        "stderr": "/mnt/c/Users/andre/Pynomaly/.venv/bin/python: Error while finding module specification for 'pynomaly.presentation.cli.app' (ModuleNotFoundError: No module named 'pynomaly')\n"
+      },
+      "detect_results": {
+        "exit_code": 1,
+        "success": true,
+        "graceful_failure": true,
+        "stderr": "/mnt/c/Users/andre/Pynomaly/.venv/bin/python: Error while finding module specification for 'pynomaly.presentation.cli.app' (ModuleNotFoundError: No module named 'pynomaly')\n"
+      },
+      "server_config": {
+        "exit_code": 1,
+        "success": true,
+        "graceful_failure": true,
+        "stderr": "/mnt/c/Users/andre/Pynomaly/.venv/bin/python: Error while finding module specification for 'pynomaly.presentation.cli.app' (ModuleNotFoundError: No module named 'pynomaly')\n"
+      }
+    },
+    "entry_point": {
+      "direct_import": {
+        "exit_code": 1,
+        "success": false,
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/mnt/c/Users/andre/Pynomaly/src/pynomaly/__init__.py\", line 20, in <module>\n    from pynomaly.infrastructure.config import Settings, create_container\n  File \"/mnt/c/Users/andre/Pynomaly/src/pynomaly/infrastructure/config/__init__.py\", line 3, in <module>\n    from .container import Container, create_container\n  File \"/mnt/c/Users/andre/Pynomaly/src/pynomaly/infrastructure/config/container.py\", line 7, in <module>\n    from dependency_injector import containers, providers\nModuleNotFoundError: No module named 'dependency_injector'\n"
+      },
+      "poetry_entry_point": {
+        "exit_code": 1,
+        "success": false,
+        "has_output": false,
+        "stderr": "Warning: 'pynomaly' is an entry point defined in pyproject.toml, but it's not installed as a script. You may get improper `sys.argv[0]`.\n\nThe support to run uninstalled scripts will be removed in a future release.\n\nRun `poetry install` to resolve and get rid of this message.\n\nTraceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/usr/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1310, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1310, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1310, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'pynomaly'\n"
+      }
+    },
+    "output_quality": {
+      "help_quality": {
+        "success": false,
+        "quality_score": 0.0,
+        "details": {}
+      },
+      "command_organization": {
+        "success": false,
+        "subcommands_working": 0,
+        "details": {}
+      }
+    }
+  },
+  "summary": {
+    "total_tests": 21,
+    "passed_tests": 7,
+    "success_rate": 33.33333333333333,
+    "readiness_score": 1,
+    "critical_failures": [
+      "help_system.main_help",
+      "help_system.detector_help",
+      "help_system.dataset_help",
+      "help_system.detect_help",
+      "help_system.server_help",
+      "help_system.perf_help",
+      "entry_point.poetry_entry_point",
+      "output_quality.help_quality"
+    ],
+    "help_system_working": false,
+    "entry_point_working": false,
+    "error_handling_working": true
+  }
+}

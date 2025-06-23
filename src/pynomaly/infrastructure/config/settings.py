@@ -32,6 +32,62 @@ class MonitoringSettings(BaseModel):
     instrument_sqlalchemy: bool = True
 
 
+class SecuritySettings(BaseModel):
+    """Security and audit settings."""
+    
+    # Input sanitization
+    sanitization_level: str = "moderate"  # strict, moderate, permissive
+    max_input_length: int = 10000
+    allow_html: bool = False
+    
+    # Encryption
+    encryption_algorithm: str = "fernet"  # fernet, aes_gcm, aes_cbc
+    encryption_key_length: int = 32
+    enable_key_rotation: bool = True
+    key_rotation_days: int = 90
+    
+    # Audit logging
+    enable_audit_logging: bool = True
+    enable_compliance_logging: bool = False
+    audit_retention_days: int = 2555  # 7 years
+    
+    # Security monitoring
+    enable_security_monitoring: bool = True
+    threat_detection_enabled: bool = True
+    
+    # Rate limiting
+    enable_advanced_rate_limiting: bool = True
+    brute_force_max_attempts: int = 5
+    brute_force_time_window: int = 300  # 5 minutes
+    
+    # Headers and CORS
+    security_headers_enabled: bool = True
+    csp_enabled: bool = True
+    hsts_enabled: bool = True
+    
+    # Session management
+    session_timeout: int = 3600  # 1 hour
+    max_concurrent_sessions: int = 5
+    
+    @field_validator("sanitization_level")
+    @classmethod
+    def validate_sanitization_level(cls, v: str) -> str:
+        """Validate sanitization level."""
+        valid_levels = ["strict", "moderate", "permissive"]
+        if v not in valid_levels:
+            raise ValueError(f"Sanitization level must be one of: {valid_levels}")
+        return v
+    
+    @field_validator("encryption_algorithm")
+    @classmethod
+    def validate_encryption_algorithm(cls, v: str) -> str:
+        """Validate encryption algorithm."""
+        valid_algorithms = ["fernet", "aes_gcm", "aes_cbc"]
+        if v not in valid_algorithms:
+            raise ValueError(f"Encryption algorithm must be one of: {valid_algorithms}")
+        return v
+
+
 class Settings(BaseSettings):
     """Application settings with environment variable support."""
     
@@ -58,9 +114,22 @@ class Settings(BaseSettings):
     experiment_storage_path: Path = Path("./storage/experiments")
     temp_path: Path = Path("./storage/temp")
     
-    # Database settings (for future use)
+    # Database settings
     database_url: Optional[str] = None
-    database_pool_size: int = 5
+    database_pool_size: int = 10
+    database_max_overflow: int = 20
+    database_pool_timeout: int = 30
+    database_pool_recycle: int = 3600
+    database_echo: bool = False
+    database_echo_pool: bool = False
+    
+    # Repository selection
+    use_database_repositories: bool = False  # Default to in-memory for backward compatibility
+    
+    @property
+    def database_configured(self) -> bool:
+        """Check if database is configured."""
+        return self.database_url is not None
     
     # Cache settings
     cache_enabled: bool = True
@@ -76,6 +145,9 @@ class Settings(BaseSettings):
     # Monitoring settings
     monitoring: MonitoringSettings = Field(default_factory=MonitoringSettings)
     
+    # Security settings
+    security: SecuritySettings = Field(default_factory=SecuritySettings)
+    
     # Algorithm settings
     default_contamination_rate: float = 0.1
     max_parallel_detectors: int = 4
@@ -90,6 +162,12 @@ class Settings(BaseSettings):
     random_seed: int = 42
     gpu_enabled: bool = False
     gpu_memory_fraction: float = 0.8
+    
+    # Streaming settings
+    kafka_bootstrap_servers: str = "localhost:9092"
+    kafka_topic_prefix: str = "pynomaly"
+    streaming_enabled: bool = False
+    max_streaming_sessions: int = 10
     
     @field_validator("storage_path", "model_storage_path", "experiment_storage_path", "temp_path")
     @classmethod
@@ -116,12 +194,30 @@ class Settings(BaseSettings):
         if not self.database_url:
             return {}
         
-        return {
+        config = {
             "url": self.database_url,
             "pool_size": self.database_pool_size,
+            "max_overflow": self.database_max_overflow,
+            "pool_timeout": self.database_pool_timeout,
+            "pool_recycle": self.database_pool_recycle,
             "pool_pre_ping": True,
-            "echo": self.app.debug
+            "echo": self.database_echo or self.app.debug,
+            "echo_pool": self.database_echo_pool
         }
+        
+        # Add database-specific configurations
+        if self.database_url.startswith('sqlite:'):
+            config.update({
+                "connect_args": {"check_same_thread": False},
+                "poolclass": "StaticPool"
+            })
+        elif self.database_url.startswith('postgresql:'):
+            config.update({
+                "pool_size": max(self.database_pool_size, 5),
+                "max_overflow": max(self.database_max_overflow, 10)
+            })
+        
+        return config
     
     def get_logging_config(self) -> Dict[str, Any]:
         """Get logging configuration."""

@@ -12,12 +12,77 @@ from pynomaly.application.services import (
     ExperimentTrackingService,
     ModelPersistenceService
 )
+
+# Optional AutoML service
+try:
+    from pynomaly.application.services.automl_service import AutoMLService
+except ImportError:
+    AutoMLService = None
+
+# Optional explainability services
+try:
+    from pynomaly.domain.services.explainability_service import ExplainabilityService
+    from pynomaly.application.services.explainability_service import ApplicationExplainabilityService
+    from pynomaly.infrastructure.explainers import SHAPExplainer, LIMEExplainer, SHAP_AVAILABLE, LIME_AVAILABLE
+    EXPLAINABILITY_AVAILABLE = True
+except ImportError:
+    ExplainabilityService = None
+    ApplicationExplainabilityService = None
+    SHAPExplainer = None
+    LIMEExplainer = None
+    SHAP_AVAILABLE = False
+    LIME_AVAILABLE = False
+    EXPLAINABILITY_AVAILABLE = False
+
+# Optional streaming services
+try:
+    from pynomaly.domain.services.streaming_service import StreamingDetectionService
+    from pynomaly.application.services.streaming_service import ApplicationStreamingService
+    from pynomaly.application.use_cases.streaming_use_case import StreamingUseCase
+    from pynomaly.infrastructure.streaming import (
+        ModelBasedStreamProcessor, 
+        StatisticalStreamProcessor, 
+        EnsembleStreamProcessor,
+        KafkaConnector,
+        RedisConnector
+    )
+    STREAMING_AVAILABLE = True
+except ImportError:
+    StreamingDetectionService = None
+    ApplicationStreamingService = None
+    StreamingUseCase = None
+    ModelBasedStreamProcessor = None
+    StatisticalStreamProcessor = None
+    EnsembleStreamProcessor = None
+    KafkaConnector = None
+    RedisConnector = None
+    STREAMING_AVAILABLE = False
+
+# Optional distributed processing services
+try:
+    from pynomaly.infrastructure.distributed import (
+        DistributedProcessingManager,
+        DetectionCoordinator,
+        LoadBalancer
+    )
+    DISTRIBUTED_AVAILABLE = True
+except ImportError:
+    DistributedProcessingManager = None
+    DetectionCoordinator = None
+    LoadBalancer = None
+    DISTRIBUTED_AVAILABLE = False
 from pynomaly.application.use_cases import (
     DetectAnomaliesUseCase,
     EvaluateModelUseCase,
     ExplainAnomalyUseCase,
     TrainDetectorUseCase
 )
+
+# Optional AutoML use case
+try:
+    from pynomaly.application.use_cases.automl_use_case import AutoMLUseCase
+except ImportError:
+    AutoMLUseCase = None
 from pynomaly.domain.services import (
     AnomalyScorer,
     EnsembleAggregator,
@@ -52,9 +117,10 @@ except ImportError:
 
 # Monitoring services
 try:
-    from pynomaly.infrastructure.monitoring import TelemetryService
+    from pynomaly.infrastructure.monitoring import TelemetryService, HealthService
 except ImportError:
     TelemetryService = None
+    HealthService = None
 
 # Database repositories
 try:
@@ -75,6 +141,59 @@ try:
     from pynomaly.infrastructure.resilience.service import ResilienceService
 except ImportError:
     ResilienceService = None
+
+# Lifecycle services
+try:
+    from pynomaly.infrastructure.lifecycle import ShutdownService
+except ImportError:
+    ShutdownService = None
+
+# Security services
+try:
+    from pynomaly.infrastructure.security import (
+        InputSanitizer, SanitizationConfig,
+        SQLInjectionProtector, QuerySanitizer, SafeQueryBuilder,
+        EncryptionService, DataEncryption, FieldEncryption, EncryptionConfig,
+        SecurityHeadersMiddleware, SecurityHeaders, CSPConfig,
+        AuditLogger, SecurityMonitor, UserActionTracker,
+        create_development_headers, create_production_headers
+    )
+    SECURITY_AVAILABLE = True
+except ImportError:
+    InputSanitizer = None
+    SanitizationConfig = None
+    SQLInjectionProtector = None
+    QuerySanitizer = None
+    SafeQueryBuilder = None
+    EncryptionService = None
+    DataEncryption = None
+    FieldEncryption = None
+    EncryptionConfig = None
+    SecurityHeadersMiddleware = None
+    SecurityHeaders = None
+    CSPConfig = None
+    AuditLogger = None
+    SecurityMonitor = None
+    UserActionTracker = None
+    create_development_headers = None
+    create_production_headers = None
+    SECURITY_AVAILABLE = False
+
+# Performance optimization services
+try:
+    from pynomaly.infrastructure.performance import (
+        ConnectionPoolManager,
+        QueryOptimizer,
+        QueryCache,
+        PoolConfiguration,
+        PerformanceService
+    )
+except ImportError:
+    ConnectionPoolManager = None
+    QueryOptimizer = None
+    QueryCache = None
+    PoolConfiguration = None
+    PerformanceService = None
 
 # Optional high-performance data loaders - import only if available
 try:
@@ -114,6 +233,16 @@ try:
 except ImportError:
     PyTorchAdapter = None
 
+try:
+    from pynomaly.infrastructure.adapters import TensorFlowAdapter
+except ImportError:
+    TensorFlowAdapter = None
+
+try:
+    from pynomaly.infrastructure.adapters import JAXAdapter
+except ImportError:
+    JAXAdapter = None
+
 
 class Container(containers.DeclarativeContainer):
     """Main dependency injection container."""
@@ -127,10 +256,16 @@ class Container(containers.DeclarativeContainer):
     feature_validator = providers.Singleton(FeatureValidator)
     ensemble_aggregator = providers.Singleton(EnsembleAggregator)
     
-    # Repositories
-    detector_repository = providers.Singleton(InMemoryDetectorRepository)
-    dataset_repository = providers.Singleton(InMemoryDatasetRepository)
-    result_repository = providers.Singleton(InMemoryResultRepository)
+    # Repositories - Select based on configuration
+    detector_repository = providers.Singleton(
+        lambda: _create_detector_repository(Settings())
+    )
+    dataset_repository = providers.Singleton(
+        lambda: _create_dataset_repository(Settings())
+    )
+    result_repository = providers.Singleton(
+        lambda: _create_result_repository(Settings())
+    )
     
     # Data loaders
     csv_loader = providers.Factory(
@@ -179,6 +314,12 @@ class Container(containers.DeclarativeContainer):
     if PyTorchAdapter is not None:
         pytorch_adapter = providers.Singleton(PyTorchAdapter)
     
+    if TensorFlowAdapter is not None:
+        tensorflow_adapter = providers.Singleton(TensorFlowAdapter)
+    
+    if JAXAdapter is not None:
+        jax_adapter = providers.Singleton(JAXAdapter)
+    
     # Authentication services - only create if available
     if JWTAuthService is not None:
         jwt_auth_service = providers.Singleton(
@@ -220,6 +361,12 @@ class Container(containers.DeclarativeContainer):
             otlp_endpoint=config.provided.monitoring.otlp_endpoint
         )
     
+    if HealthService is not None:
+        health_service = providers.Singleton(
+            HealthService,
+            max_history=100
+        )
+    
     # Database services - only create if available and configured
     if DatabaseManager is not None:
         database_manager = providers.Singleton(
@@ -249,6 +396,46 @@ class Container(containers.DeclarativeContainer):
     # Resilience services - only create if available
     if ResilienceService is not None:
         resilience_service = providers.Singleton(ResilienceService)
+    
+    # Lifecycle services - only create if available
+    if ShutdownService is not None:
+        shutdown_service = providers.Singleton(
+            ShutdownService,
+            shutdown_timeout=60.0
+        )
+    
+    # Performance optimization services - only create if available
+    if ConnectionPoolManager is not None:
+        connection_pool_manager = providers.Singleton(ConnectionPoolManager)
+        
+        # Pool configuration for different environments
+        pool_config = providers.Singleton(
+            PoolConfiguration,
+            min_size=5,
+            max_size=20,
+            timeout=30.0,
+            max_overflow=10,
+            recycle_time=3600,
+            health_check_interval=60
+        )
+    
+    # Initialize query_optimizer as None
+    query_optimizer = None
+    if QueryOptimizer is not None and DatabaseManager is not None:
+        query_optimizer = providers.Singleton(
+            QueryOptimizer,
+            engine=database_manager.provided.engine,
+            cache_size=1000,
+            cache_ttl=3600
+        )
+    
+    if PerformanceService is not None and ConnectionPoolManager is not None:
+        performance_service = providers.Singleton(
+            PerformanceService,
+            pool_manager=connection_pool_manager,
+            query_optimizer=query_optimizer,
+            monitoring_interval=300.0
+        )
     
     # Preprocessing services - only create if available
     if DataCleaner is not None:
@@ -295,6 +482,65 @@ class Container(containers.DeclarativeContainer):
         tracking_path=config.provided.experiment_storage_path
     )
     
+    # AutoML service - only create if available
+    if AutoMLService is not None:
+        automl_service = providers.Singleton(
+            AutoMLService,
+            detector_repository=detector_repository,
+            dataset_repository=dataset_repository,
+            adapter_registry=providers.Object("adapter_registry"),  # Will be injected
+            max_optimization_time=3600,
+            n_trials=100,
+            cv_folds=3,
+            random_state=42
+        )
+    
+    # Explainability services - only create if available
+    if EXPLAINABILITY_AVAILABLE:
+        # Domain explainability service
+        domain_explainability_service = providers.Singleton(ExplainabilityService)
+        
+        # Register explainers if available
+        if SHAP_AVAILABLE and SHAPExplainer is not None:
+            shap_explainer = providers.Singleton(SHAPExplainer)
+        
+        if LIME_AVAILABLE and LIMEExplainer is not None:
+            lime_explainer = providers.Singleton(LIMEExplainer)
+        
+        # Application explainability service
+        if ApplicationExplainabilityService is not None:
+            application_explainability_service = providers.Singleton(
+                ApplicationExplainabilityService,
+                domain_explainability_service=domain_explainability_service,
+                detector_repository=detector_repository,
+                dataset_repository=dataset_repository
+            )
+    
+    # Distributed processing services - only create if available
+    if DISTRIBUTED_AVAILABLE:
+        # Distributed processing manager
+        distributed_processing_manager = providers.Singleton(
+            DistributedProcessingManager,
+            max_workers=10,
+            task_timeout=300,
+            heartbeat_interval=30
+        )
+        
+        # Detection coordinator for distributed workflows
+        detection_coordinator = providers.Singleton(
+            DetectionCoordinator,
+            processing_manager=distributed_processing_manager
+        )
+        
+        # Load balancer for horizontal scaling
+        load_balancer = providers.Singleton(
+            LoadBalancer,
+            strategy=providers.Object("round_robin"),  # Default strategy
+            health_check_interval=30,
+            health_check_timeout=10,
+            max_retries=3
+        )
+    
     # Use cases
     detect_anomalies_use_case = providers.Factory(
         DetectAnomaliesUseCase,
@@ -314,10 +560,196 @@ class Container(containers.DeclarativeContainer):
         detector_repository=detector_repository
     )
     
-    explain_anomaly_use_case = providers.Factory(
-        ExplainAnomalyUseCase,
-        detector_repository=detector_repository
-    )
+    # Explainability use case - only create if available
+    if EXPLAINABILITY_AVAILABLE and ApplicationExplainabilityService is not None:
+        explain_anomaly_use_case = providers.Factory(
+            ExplainAnomalyUseCase,
+            explainability_service=application_explainability_service
+        )
+    
+    # AutoML use case - only create if available
+    if AutoMLUseCase is not None and AutoMLService is not None:
+        automl_use_case = providers.Factory(
+            AutoMLUseCase,
+            automl_service=automl_service
+        )
+    
+    # Streaming services - only create if available
+    if STREAMING_AVAILABLE:
+        # Domain streaming service
+        domain_streaming_service = providers.Singleton(StreamingDetectionService)
+        
+        # Application streaming service
+        if ApplicationStreamingService is not None:
+            application_streaming_service = providers.Singleton(
+                ApplicationStreamingService,
+                detector_repository=detector_repository,
+                max_concurrent_sessions=10
+            )
+        
+        # Streaming use case
+        if StreamingUseCase is not None and ApplicationStreamingService is not None:
+            streaming_use_case = providers.Factory(
+                StreamingUseCase,
+                streaming_service=application_streaming_service
+            )
+        
+        # Stream processors
+        if ModelBasedStreamProcessor is not None:
+            model_based_stream_processor = providers.Factory(ModelBasedStreamProcessor)
+        
+        if StatisticalStreamProcessor is not None:
+            statistical_stream_processor = providers.Factory(StatisticalStreamProcessor)
+        
+        if EnsembleStreamProcessor is not None:
+            ensemble_stream_processor = providers.Factory(EnsembleStreamProcessor)
+        
+        # Stream connectors
+        if KafkaConnector is not None:
+            kafka_connector = providers.Factory(
+                KafkaConnector,
+                bootstrap_servers=config.provided.kafka_bootstrap_servers,
+                consumer_group="pynomaly-streaming"
+            )
+        
+        if RedisConnector is not None:
+            redis_connector = providers.Factory(
+                RedisConnector,
+                redis_url=config.provided.redis_url,
+                input_stream="anomaly_input",
+                consumer_group="pynomaly-group"
+            )
+    
+    # Security services - only create if available
+    if SECURITY_AVAILABLE:
+        # Input sanitization
+        sanitization_config = providers.Singleton(
+            SanitizationConfig,
+            level=config.provided.security.sanitization_level,
+            max_length=config.provided.security.max_input_length,
+            allow_html=config.provided.security.allow_html
+        )
+        
+        input_sanitizer = providers.Singleton(
+            InputSanitizer,
+            config=sanitization_config
+        )
+        
+        # SQL injection protection
+        sql_injection_protector = providers.Singleton(SQLInjectionProtector)
+        query_sanitizer = providers.Singleton(QuerySanitizer)
+        
+        if DatabaseManager is not None:
+            safe_query_builder = providers.Singleton(
+                SafeQueryBuilder,
+                metadata=database_manager.provided.metadata
+            )
+        
+        # Encryption services
+        encryption_config = providers.Singleton(
+            EncryptionConfig,
+            algorithm=config.provided.security.encryption_algorithm,
+            key_length=config.provided.security.encryption_key_length,
+            enable_key_rotation=config.provided.security.enable_key_rotation
+        )
+        
+        encryption_service = providers.Singleton(
+            EncryptionService,
+            config=encryption_config
+        )
+        
+        data_encryption = providers.Singleton(
+            DataEncryption,
+            config=encryption_config
+        )
+        
+        field_encryption = providers.Singleton(
+            FieldEncryption,
+            encryption_service=encryption_service
+        )
+        
+        # Security headers
+        security_headers_config = providers.Factory(
+            lambda config=config: create_development_headers() if config.app.environment == "development" 
+            else create_production_headers()
+        )
+        
+        # Audit logging
+        audit_logger = providers.Singleton(
+            AuditLogger,
+            logger_name="pynomaly.audit",
+            enable_structured_logging=True,
+            enable_compliance_logging=config.provided.security.enable_compliance_logging
+        )
+        
+        # Security monitoring
+        security_monitor = providers.Singleton(
+            SecurityMonitor,
+            audit_logger=audit_logger
+        )
+        
+        # User action tracking
+        user_action_tracker = providers.Singleton(
+            UserActionTracker,
+            audit_logger=audit_logger,
+            security_monitor=security_monitor
+        )
+
+
+def _create_detector_repository(config):
+    """Create appropriate detector repository based on configuration."""
+    if config.use_database_repositories and config.database_configured:
+        if DatabaseDetectorRepository is not None and DatabaseManager is not None:
+            # Create database manager and repository
+            db_manager = DatabaseManager(
+                database_url=config.database_url,
+                echo=config.database_echo or config.app.debug
+            )
+            # Initialize database if needed
+            try:
+                from pynomaly.infrastructure.persistence.migrations import DatabaseMigrator
+                migrator = DatabaseMigrator(db_manager)
+                if not migrator.check_tables_exist():
+                    migrator.create_all_tables()
+            except Exception as e:
+                import logging
+                logging.warning(f"Database initialization failed, falling back to in-memory: {e}")
+                return InMemoryDetectorRepository()
+            
+            return DatabaseDetectorRepository(db_manager.get_session)
+    
+    # Default to in-memory repository
+    return InMemoryDetectorRepository()
+
+
+def _create_dataset_repository(config):
+    """Create appropriate dataset repository based on configuration."""
+    if config.use_database_repositories and config.database_configured:
+        if DatabaseDatasetRepository is not None and DatabaseManager is not None:
+            # Create database manager and repository
+            db_manager = DatabaseManager(
+                database_url=config.database_url,
+                echo=config.database_echo or config.app.debug
+            )
+            return DatabaseDatasetRepository(db_manager.get_session)
+    
+    # Default to in-memory repository
+    return InMemoryDatasetRepository()
+
+
+def _create_result_repository(config):
+    """Create appropriate result repository based on configuration."""
+    if config.use_database_repositories and config.database_configured:
+        if DatabaseDetectionResultRepository is not None and DatabaseManager is not None:
+            # Create database manager and repository
+            db_manager = DatabaseManager(
+                database_url=config.database_url,
+                echo=config.database_echo or config.app.debug
+            )
+            return DatabaseDetectionResultRepository(db_manager.get_session)
+    
+    # Default to in-memory repository
+    return InMemoryResultRepository()
 
 
 class TestContainer(Container):

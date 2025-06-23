@@ -7,6 +7,7 @@ from .telemetry import (
     trace_span,
     trace_method
 )
+from .health_service import HealthService, HealthStatus, SystemMetrics
 
 __all__ = [
     "TelemetryService",
@@ -14,4 +15,7 @@ __all__ = [
     "get_telemetry",
     "trace_span",
     "trace_method",
+    "HealthService",
+    "HealthStatus", 
+    "SystemMetrics",
 ]
