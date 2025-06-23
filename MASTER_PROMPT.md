@@ -24,6 +24,7 @@ Follow **Clean Architecture**, **Domain-Driven Design (DDD)**, and **Hexagonal A
    - REST API (FastAPI)
    - CLI (Click/Typer)
    - Python SDK
+   - Progressive Web App (PWA) with HTMX, Tailwind CSS, D3.js, Apache ECharts
 
 ## Implementation Guidelines
 
@@ -86,6 +87,13 @@ When integrating algorithms:
 5. **Multi-Modal**: Time-series, tabular, graph, text
 6. **Ensemble Methods**: Advanced voting strategies
 7. **Uncertainty Quantification**: Confidence intervals
+8. **Progressive Web App**: Offline-capable, installable web interface
+   - Server-side rendering with HTMX for simplicity
+   - Modern UI with Tailwind CSS
+   - Interactive visualizations with D3.js
+   - Statistical charts with Apache ECharts
+   - Works offline with service workers
+   - Installable on desktop and mobile devices
 
 ### Directory Structure
 ```
@@ -108,7 +116,11 @@ pynomaly/
 │   ├── presentation/
 │   │   ├── api/
 │   │   ├── cli/
-│   │   └── sdk/
+│   │   ├── sdk/
+│   │   └── web/          # Progressive Web App
+│   │       ├── static/  # CSS, JS, images
+│   │       ├── templates/ # HTMX templates
+│   │       └── assets/  # PWA manifest, icons
 │   └── shared/
 │       ├── protocols/
 │       └── utils/

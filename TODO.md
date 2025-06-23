@@ -32,6 +32,22 @@
 - [ ] Implement model persistence service
 - [ ] Create feature engineering pipeline
 
+## Web UI (Progressive Web App)
+- [ ] Set up FastAPI routes for HTMX endpoints
+- [ ] Configure Tailwind CSS build process
+- [ ] Create base HTMX templates
+- [ ] Implement PWA manifest and service worker
+- [ ] Design responsive layout with Tailwind
+- [ ] Create anomaly visualization components with D3.js
+- [ ] Implement statistical dashboards with Apache ECharts
+- [ ] Add offline data storage with IndexedDB
+- [ ] Configure background sync for updates
+- [ ] Implement push notifications for alerts
+- [ ] Create app shell for fast loading
+- [ ] Add installation prompts for PWA
+- [ ] Test offline functionality
+- [ ] Optimize for mobile devices
+
 ## Algorithm Integration
 - [ ] Integrate PyOD algorithms
 - [ ] Add TODS support
@@ -71,6 +87,10 @@
 - [ ] Implement streaming support
 - [ ] Add GPU acceleration
 - [ ] Create visualization tools
+- [ ] Real-time anomaly updates in web UI
+- [ ] Interactive model parameter tuning
+- [ ] Export visualizations from web UI
+- [ ] Collaborative features for team analysis
 
 ## Production Features
 - [ ] Implement health checks

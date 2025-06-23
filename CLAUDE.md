@@ -28,6 +28,7 @@ Follow **Clean Architecture**, **Domain-Driven Design (DDD)**, and **Hexagonal A
    - REST API (FastAPI)
    - CLI (Click/Typer)
    - Python SDK
+   - Progressive Web App (PWA) with HTMX, Tailwind CSS, D3.js, Apache ECharts
 
 ## Implementation Guidelines
 
@@ -90,6 +91,13 @@ When integrating algorithms:
 5. **Multi-Modal**: Time-series, tabular, graph, text
 6. **Ensemble Methods**: Advanced voting strategies
 7. **Uncertainty Quantification**: Confidence intervals
+8. **Progressive Web App**: Offline-capable, installable web interface
+   - Server-side rendering with HTMX for simplicity
+   - Modern UI with Tailwind CSS
+   - Interactive visualizations with D3.js
+   - Statistical charts with Apache ECharts
+   - Works offline with service workers
+   - Installable on desktop and mobile devices
 
 ### Directory Structure
 ```
@@ -112,7 +120,11 @@ pynomaly/
 │   ├── presentation/
 │   │   ├── api/
 │   │   ├── cli/
-│   │   └── sdk/
+│   │   ├── sdk/
+│   │   └── web/          # Progressive Web App
+│   │       ├── static/  # CSS, JS, images
+│   │       ├── templates/ # HTMX templates
+│   │       └── assets/  # PWA manifest, icons
 │   └── shared/
 │       ├── protocols/
 │       └── utils/
@@ -156,6 +168,21 @@ poetry run bandit -r src/
 ```bash
 poetry run pynomaly --help  # CLI
 poetry run uvicorn pynomaly.presentation.api:app  # API
+poetry run uvicorn pynomaly.presentation.api:app --reload  # API with auto-reload for development
+```
+
+#### Web UI Development
+```bash
+# Install frontend dependencies
+npm install -D tailwindcss @tailwindcss/forms @tailwindcss/typography
+npm install htmx.org d3 echarts
+
+# Build Tailwind CSS
+npm run build-css  # Production build
+npm run watch-css  # Development with watch mode
+
+# PWA development
+poetry run python -m http.server 8080 --directory src/pynomaly/presentation/web/static  # Test service worker
 ```
 
 ## Development Workflow
@@ -192,3 +219,14 @@ poetry run uvicorn pynomaly.presentation.api:app  # API
 - Always ensure the virtual environment is activated before installing packages or running code
 - The `.gitignore` currently excludes the VS Code workspace file (`Pynomaly.code-workspace`)
 - Follow the architectural principles strictly to maintain clean separation of concerns
+
+## Web UI Technology Stack
+- **HTMX**: Provides dynamic behavior with minimal JavaScript, keeping complexity server-side
+- **Tailwind CSS**: Utility-first CSS framework for rapid, consistent UI development
+- **D3.js**: For creating custom, interactive anomaly visualizations
+- **Apache ECharts**: For statistical charts, time series plots, and dashboards
+- **PWA**: Progressive Web App features for offline capability and installability
+  - Service workers handle offline caching and background sync
+  - Web app manifest enables installation on desktop and mobile
+  - IndexedDB for client-side data storage
+  - Push API for real-time anomaly notifications

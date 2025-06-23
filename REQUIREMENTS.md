@@ -15,7 +15,7 @@
 - **Domain Layer**: Pure Python classes for anomaly concepts (Anomaly, Detector, Dataset, Score)
 - **Application Layer**: Use cases/services orchestrating domain logic
 - **Infrastructure Layer**: Adapters for algorithms, data sources, persistence
-- **Presentation Layer**: REST API, CLI, SDK interfaces
+- **Presentation Layer**: REST API, CLI, SDK interfaces, Progressive Web App (PWA)
 - **Ports**: Abstract interfaces for algorithm providers, data loaders, result publishers
 - **Adapters**: Concrete implementations for PyOD, TODS, PyGOD, scikit-learn, etc.
 
@@ -52,7 +52,13 @@ pynomaly/
 │   ├── domain/           # Business logic
 │   ├── application/      # Use cases
 │   ├── infrastructure/   # External integrations
-│   ├── presentation/     # APIs/CLI
+│   ├── presentation/     # APIs/CLI/Web UI
+│   │   ├── api/         # FastAPI REST endpoints
+│   │   ├── cli/         # Command-line interface
+│   │   └── web/         # Progressive Web App
+│   │       ├── static/  # CSS, JS, images
+│   │       ├── templates/ # HTMX templates
+│   │       └── assets/  # PWA manifest, icons
 │   └── shared/          # Cross-cutting concerns
 ├── tests/               # Comprehensive test suite
 ├── docs/                # Sphinx documentation
@@ -71,6 +77,20 @@ pynomaly/
 - **Security**: Input validation, rate limiting, authentication
 - **Observability**: Distributed tracing, structured logging
 - **Performance**: Caching, connection pooling, lazy loading
+
+### Web UI Requirements (Progressive Web App)
+- **HTMX** for dynamic server-side rendering without complex JavaScript
+- **Tailwind CSS** for responsive, utility-first styling
+- **D3.js** for interactive anomaly visualizations
+- **Apache ECharts** for statistical charts and dashboards
+- **PWA Features**:
+  - Service worker for offline functionality
+  - App manifest for installability
+  - Background sync for data updates
+  - Push notifications for anomaly alerts
+  - Local storage and IndexedDB for offline data
+  - App shell architecture for fast loading
+  - Responsive design for mobile/tablet/desktop
 
 ### Development & Testing
 - **100% type coverage** with mypy strict mode
