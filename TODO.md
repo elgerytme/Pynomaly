@@ -1,5 +1,72 @@
 # Pynomaly TODO List
 
+## 📊 Status Update (Latest)
+
+### Recently Completed Enhancements
+
+#### ✅ Algorithm Adapters (3 New)
+1. **TODS Adapter** (`infrastructure/adapters/tods_adapter.py`)
+   - Time-series anomaly detection algorithms
+   - Implemented: MatrixProfile, LSTM, DeepLog, Telemanom
+   - Automatic time-series data formatting
+   - Window-based anomaly detection support
+
+2. **PyGOD Adapter** (`infrastructure/adapters/pygod_adapter.py`)
+   - Graph anomaly detection algorithms
+   - Implemented: DOMINANT, GCNAE, SCAN, GAAN, and more
+   - Automatic graph structure inference from data
+   - Support for attributed graphs and GNN models
+
+3. **PyTorch Adapter** (`infrastructure/adapters/pytorch_adapter.py`)
+   - Deep learning models: AutoEncoder, VAE, DeepSVDD, DAGMM
+   - GPU support detection and usage
+   - Custom anomaly scoring methods
+   - Flexible architecture configuration
+
+#### ✅ Infrastructure Enhancements (3 Major)
+1. **OpenTelemetry Monitoring** (`infrastructure/monitoring/telemetry.py`)
+   - Distributed tracing with OTLP export
+   - Prometheus metrics with custom collectors
+   - Request tracking and performance monitoring
+   - Auto-instrumentation for FastAPI, SQLAlchemy, and requests
+
+2. **Redis Caching Layer** (`infrastructure/cache/redis_cache.py`)
+   - Automatic serialization for different data types
+   - Cache key utilities for all entity types
+   - Decorator patterns for caching operations
+   - TTL support and pattern-based invalidation
+
+3. **JWT Authentication System** (`infrastructure/auth/`)
+   - Token generation and validation
+   - User authentication and registration
+   - API key generation and management
+   - Role-based access control (RBAC)
+   - Rate limiting middleware
+   - Permission-based endpoint protection
+
+### Current Architecture Status
+- **Domain Layer**: ✅ Complete
+- **Application Layer**: ✅ Complete
+- **Infrastructure Layer**: 🟨 85% (missing DB repos, circuit breakers)
+- **Presentation Layer**: ✅ Complete (API, CLI, PWA)
+- **Testing**: 🔴 16.18% coverage (needs urgent attention)
+- **Documentation**: 🟨 60% (basic docs complete, advanced guides pending)
+
+### Algorithm Coverage Summary
+- **PyOD**: 40/50 algorithms (80% coverage)
+- **Scikit-learn**: 6 algorithms
+- **TODS**: 8 time-series algorithms (NEW)
+- **PyGOD**: 11 graph algorithms (NEW)
+- **PyTorch**: 4 deep learning models (NEW)
+- **Total**: 69+ algorithms available
+
+### Critical Path Items
+1. Fix test coverage issues (currently blocking release)
+2. Implement database repositories for persistence
+3. Add circuit breakers and retry mechanisms
+4. Complete remaining PyOD algorithms (10 left)
+5. Add TensorFlow and JAX adapters
+
 ## ✅ Completed Items
 
 ### Project Setup
@@ -165,12 +232,12 @@
 ## 🚧 In Progress / To Do
 
 ### Missing Algorithm Adapters
-- [x] Add TODS adapter implementation
-- [x] Integrate PyGOD for graph anomalies
-- [x] Create PyTorch adapter for deep learning models
+- [x] Add TODS adapter implementation (✅ 8 algorithms: time-series specific)
+- [x] Integrate PyGOD for graph anomalies (✅ 11 algorithms: graph neural networks)
+- [x] Create PyTorch adapter for deep learning models (✅ 4 models: AE, VAE, SVDD, DAGMM)
 - [ ] Create TensorFlow adapter
 - [ ] Create JAX adapter
-- [ ] Implement GPU acceleration support
+- [ ] Implement GPU acceleration support (partially done in PyTorch adapter)
 - [ ] Add algorithm performance benchmarking
 
 #### PyOD Classifiers - To Implement (10 remaining)
@@ -186,10 +253,10 @@
 - [ ] Additional classifiers from latest PyOD releases
 
 ### Infrastructure Layer Completion
-- [x] Implement OpenTelemetry integration
-- [x] Add Prometheus metrics exporter
+- [x] Implement OpenTelemetry integration (✅ Complete with tracing & metrics)
+- [x] Add Prometheus metrics exporter (✅ Auto-instrumentation enabled)
 - [ ] Create database repositories (PostgreSQL/MongoDB)
-- [x] Implement Redis caching layer
+- [x] Implement Redis caching layer (✅ With decorators & utilities)
 - [ ] Add circuit breaker pattern with py-breaker
 - [ ] Implement retry mechanisms with tenacity
 - [ ] Create message queue integration (RabbitMQ/Kafka)
@@ -214,14 +281,14 @@
 - [ ] Implement uncertainty quantification
 
 ### Security & Authentication
-- [x] Implement JWT authentication
+- [x] Implement JWT authentication (✅ Access & refresh tokens)
 - [ ] Add OAuth2 integration
-- [x] Create API key management system
-- [x] Implement rate limiting with slowapi
+- [x] Create API key management system (✅ Generation & revocation)
+- [x] Implement rate limiting with slowapi (✅ Per-client limiting)
 - [ ] Add request validation and sanitization
 - [ ] Create audit logging system
 - [ ] Implement data encryption at rest
-- [x] Add role-based access control (RBAC)
+- [x] Add role-based access control (RBAC) (✅ Permission-based endpoints)
 
 ### Production Features Enhancement
 - [ ] Add comprehensive health check endpoints
@@ -303,3 +370,92 @@
 - [ ] Implement federated learning support
 - [ ] Create marketplace for custom algorithms
 - [ ] Add collaborative annotation features
+
+## 📚 Documentation & Examples Gaps
+
+### Examples Directory (Completely Empty)
+The `/examples/` directory needs to be populated with practical examples:
+
+#### Python Script Examples Needed
+- [ ] `basic_usage.py` - Simple anomaly detection workflow
+- [ ] `algorithm_comparison.py` - Compare multiple algorithms on same dataset
+- [ ] `ensemble_detection.py` - Using multiple detectors together
+- [ ] `streaming_detection.py` - Real-time anomaly detection example
+- [ ] `custom_preprocessing.py` - Data preprocessing and feature engineering
+- [ ] `model_persistence.py` - Saving and loading trained models
+- [ ] `api_client_example.py` - Using the REST API from Python
+- [ ] `batch_processing.py` - Processing multiple datasets in batch
+
+#### Jupyter Notebook Tutorials Needed
+- [ ] `01_getting_started.ipynb` - Interactive introduction
+- [ ] `02_data_exploration.ipynb` - EDA for anomaly detection
+- [ ] `03_algorithm_selection.ipynb` - Choosing the right algorithm
+- [ ] `04_visualization.ipynb` - Visualizing anomalies and results
+- [ ] `05_time_series_anomalies.ipynb` - Time-series specific examples
+- [ ] `06_graph_anomalies.ipynb` - Graph-based anomaly detection
+- [ ] `07_deep_learning_models.ipynb` - Neural network approaches
+
+#### Real-World Use Case Examples Needed
+- [ ] `credit_card_fraud/` - Complete fraud detection example
+- [ ] `network_intrusion/` - Network security anomaly detection
+- [ ] `sensor_monitoring/` - IoT sensor anomaly detection
+- [ ] `manufacturing_defects/` - Quality control example
+- [ ] `healthcare_anomalies/` - Medical data anomaly detection
+
+#### CLI Example Scripts Needed
+- [ ] `cli_basic_workflow.sh` - Basic CLI commands workflow
+- [ ] `cli_batch_detection.sh` - Batch processing with CLI
+- [ ] `cli_experiment_tracking.sh` - MLOps workflow example
+
+#### Sample Datasets Needed
+- [ ] `sample_data/normal_2d.csv` - Simple 2D normal distribution
+- [ ] `sample_data/credit_transactions.csv` - Sample financial data
+- [ ] `sample_data/sensor_readings.csv` - Time-series sensor data
+- [ ] `sample_data/network_logs.csv` - Network traffic data
+- [ ] `sample_data/graph_data.json` - Graph structure for PyGOD
+
+#### Configuration Examples Needed
+- [ ] `.env.example` - Environment variables template
+- [ ] `config/detectors.yaml` - Detector configuration examples
+- [ ] `config/docker-compose.prod.yml` - Production Docker setup
+
+### Documentation Gaps
+
+#### API Reference (Empty `/docs/api/`)
+- [ ] `docs/api/domain.md` - Domain layer API reference
+- [ ] `docs/api/application.md` - Application services reference
+- [ ] `docs/api/infrastructure.md` - Infrastructure adapters reference
+- [ ] `docs/api/rest.md` - REST API endpoint documentation
+- [ ] `docs/api/cli.md` - CLI command reference
+
+#### Architecture Documentation (Empty `/docs/architecture/`)
+- [ ] `docs/architecture/overview.md` - Clean architecture explanation
+- [ ] `docs/architecture/domain-driven-design.md` - DDD principles used
+- [ ] `docs/architecture/dependency-injection.md` - DI container design
+- [ ] `docs/architecture/adapter-pattern.md` - Algorithm adapter pattern
+- [ ] `docs/architecture/decision-records/` - ADR directory
+
+#### Guides (Empty `/docs/guides/`)
+- [ ] `docs/guides/algorithms.md` - Complete algorithm guide with use cases
+- [ ] `docs/guides/datasets.md` - Data preparation and preprocessing
+- [ ] `docs/guides/experiments.md` - MLOps and experiment tracking
+- [ ] `docs/guides/deployment.md` - Production deployment strategies
+- [ ] `docs/guides/performance-tuning.md` - Optimization techniques
+- [ ] `docs/guides/troubleshooting.md` - Common issues and solutions
+- [ ] `docs/guides/security.md` - Security best practices
+- [ ] `docs/guides/monitoring.md` - Observability and monitoring
+
+#### Missing Referenced Documentation
+- [ ] `docs/getting-started/architecture.md` - Architecture deep dive
+- [ ] `docs/advanced/deployment.md` - Advanced deployment scenarios
+- [ ] `docs/advanced/scaling.md` - Horizontal scaling strategies
+- [ ] `docs/advanced/integrations.md` - Third-party integrations
+
+### Examples README.md Content Needed
+The examples/README.md is empty and needs:
+- Overview of available examples
+- Prerequisites and setup instructions
+- Description of each example with expected outputs
+- Links to relevant documentation
+- Instructions for running notebooks
+- Sample dataset descriptions
