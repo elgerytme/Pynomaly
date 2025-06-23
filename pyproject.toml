@@ -1,0 +1,204 @@
+[tool.poetry]
+name = "pynomaly"
+version = "0.1.0"
+description = "State-of-the-art Python anomaly detection package with clean architecture"
+authors = ["Pynomaly Team <team@pynomaly.io>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/pynomaly/pynomaly"
+repository = "https://github.com/pynomaly/pynomaly"
+documentation = "https://pynomaly.readthedocs.io"
+keywords = ["anomaly-detection", "outlier-detection", "machine-learning", "clean-architecture"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed"
+]
+packages = [{include = "pynomaly", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+# Core ML/Anomaly Detection
+pyod = "^2.0.5"
+scikit-learn = "^1.5.0"
+numpy = "^1.26.0"
+pandas = "^2.2.0"
+scipy = "^1.11.0"
+# Architecture & Infrastructure
+pydantic = "^2.5.0"
+pydantic-settings = "^2.1.0"
+structlog = "^24.1.0"
+dependency-injector = "^4.41.0"
+# API & CLI
+fastapi = "^0.109.0"
+typer = {extras = ["all"], version = "^0.9.0"}
+uvicorn = {extras = ["standard"], version = "^0.27.0"}
+# Utilities
+httpx = "^0.26.0"
+rich = "^13.7.0"
+python-multipart = "^0.0.6"
+# Optional ML backends
+torch = {version = "^2.1.0", optional = true}
+tensorflow = {version = "^2.15.0", optional = true}
+jax = {version = "^0.4.23", optional = true}
+jaxlib = {version = "^0.4.23", optional = true}
+# Data processing
+pyarrow = "^14.0.0"
+dask = {version = "^2024.1.0", optional = true}
+# Monitoring & Observability
+opentelemetry-api = "^1.22.0"
+opentelemetry-sdk = "^1.22.0"
+opentelemetry-instrumentation-fastapi = "^0.43b0"
+prometheus-client = "^0.19.0"
+
+[tool.poetry.group.dev.dependencies]
+# Testing
+pytest = "^8.0.0"
+pytest-cov = "^4.1.0"
+pytest-asyncio = "^0.23.0"
+pytest-xdist = "^3.5.0"
+pytest-benchmark = "^4.0.0"
+pytest-mock = "^3.12.0"
+hypothesis = "^6.92.0"
+faker = "^22.0.0"
+# Code Quality
+mypy = "^1.8.0"
+black = "^23.12.0"
+isort = "^5.13.0"
+flake8 = "^7.0.0"
+flake8-docstrings = "^1.7.0"
+flake8-annotations = "^3.0.1"
+bandit = {extras = ["toml"], version = "^1.7.5"}
+safety = "^3.0.0"
+# Pre-commit
+pre-commit = "^3.6.0"
+# Documentation
+mkdocs = "^1.5.3"
+mkdocs-material = "^9.5.0"
+mkdocstrings = {extras = ["python"], version = "^0.24.0"}
+# Development tools
+ipython = "^8.19.0"
+jupyter = "^1.0.0"
+notebook = "^7.0.0"
+# Type stubs
+types-requests = "^2.31.0"
+pandas-stubs = "^2.1.0"
+
+[tool.poetry.extras]
+torch = ["torch"]
+tensorflow = ["tensorflow"]
+jax = ["jax", "jaxlib"]
+distributed = ["dask"]
+all = ["torch", "tensorflow", "jax", "jaxlib", "dask"]
+
+[tool.poetry.scripts]
+pynomaly = "pynomaly.presentation.cli:app"
+
+[build-system]
+requires = ["poetry-core>=1.7.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+skip_gitignore = true
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+ignore_missing_imports = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--cov=pynomaly",
+    "--cov-branch",
+    "--cov-report=term-missing:skip-covered",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "--cov-fail-under=90",
+]
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["pynomaly"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if TYPE_CHECKING:",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.bandit]
+targets = ["src"]
+exclude_dirs = ["tests", "docs"]
+skips = ["B101", "B601"]
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503", "D100", "D104"]
+docstring-convention = "google"
+per-file-ignores = [
+    "__init__.py:F401",
+    "tests/*:D"
+]
