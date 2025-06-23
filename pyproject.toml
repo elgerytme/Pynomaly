@@ -100,7 +100,7 @@ distributed = ["dask"]
 all = ["torch", "tensorflow", "jax", "jaxlib", "dask"]
 
 [tool.poetry.scripts]
-pynomaly = "pynomaly.presentation.cli:app"
+pynomaly = "pynomaly.presentation.cli.app:app"
 
 [build-system]
 requires = ["poetry-core>=1.7.0"]
