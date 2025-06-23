@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - Pynomaly</title>
+    <link rel="stylesheet" href="/static/css/tailwind.css">
+    <style>
+        .offline-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+    <div class="max-w-md mx-auto text-center px-6">
+        <!-- Offline Icon -->
+        <div class="offline-animation text-6xl mb-6">
+            📡
+        </div>
+        
+        <!-- Title -->
+        <h1 class="text-2xl font-bold text-gray-900 mb-4">
+            You're Offline
+        </h1>
+        
+        <!-- Description -->
+        <p class="text-gray-600 mb-8">
+            It looks like you've lost your internet connection. Don't worry - 
+            Pynomaly will continue working once you're back online.
+        </p>
+        
+        <!-- Retry Button -->
+        <button onclick="window.location.reload()" 
+                class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 mb-6">
+            🔄 Try Again
+        </button>
+        
+        <!-- Offline Features -->
+        <div class="bg-white rounded-lg p-6 shadow-sm">
+            <h3 class="font-semibold text-gray-900 mb-4">Available Offline:</h3>
+            <ul class="text-left space-y-2 text-gray-600">
+                <li class="flex items-center">
+                    <span class="text-green-500 mr-2">✓</span>
+                    View cached detection results
+                </li>
+                <li class="flex items-center">
+                    <span class="text-green-500 mr-2">✓</span>
+                    Browse detector configurations
+                </li>
+                <li class="flex items-center">
+                    <span class="text-green-500 mr-2">✓</span>
+                    Access documentation
+                </li>
+                <li class="flex items-center">
+                    <span class="text-orange-500 mr-2">⚠</span>
+                    Limited: Creating new detectors
+                </li>
+                <li class="flex items-center">
+                    <span class="text-orange-500 mr-2">⚠</span>
+                    Limited: Running new detections
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Footer -->
+        <div class="mt-8 text-sm text-gray-500">
+            <p>Pynomaly PWA • Offline Mode</p>
+        </div>
+    </div>
+
+    <script>
+        // Check connection status
+        function checkOnline() {
+            if (navigator.onLine) {
+                window.location.reload();
+            }
+        }
+        
+        // Listen for online event
+        window.addEventListener('online', checkOnline);
+        
+        // Check periodically
+        setInterval(checkOnline, 5000);
+        
+        // Show network status
+        console.log('Network status:', navigator.onLine ? 'Online' : 'Offline');
+    </script>
+</body>
+</html>

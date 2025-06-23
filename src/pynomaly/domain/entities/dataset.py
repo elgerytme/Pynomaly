@@ -10,6 +10,8 @@ from uuid import UUID, uuid4
 import numpy as np
 import pandas as pd
 
+from pynomaly.domain.exceptions import InvalidDataError
+
 
 @dataclass
 class Dataset:
@@ -58,6 +60,8 @@ class Dataset:
                 self.data = pd.DataFrame(self.data, columns=self.feature_names)
         
         elif isinstance(self.data, pd.DataFrame):
+            if self.data.empty:
+                raise InvalidDataError("Dataset cannot be empty")
             if self.feature_names is None:
                 self.feature_names = list(self.data.columns)
         else:

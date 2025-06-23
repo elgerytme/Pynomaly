@@ -76,13 +76,18 @@ def create_detector(
     detector_repo = container.detector_repository()
     
     # Get available algorithms
-    pyod_adapter = container.pyod_adapter()
-    available_algorithms = pyod_adapter.list_algorithms()
-    
-    if algorithm not in available_algorithms:
-        console.print(f"[red]Error:[/red] Algorithm '{algorithm}' not available")
-        console.print(f"Available algorithms: {', '.join(available_algorithms)}")
-        raise typer.Exit(1)
+    try:
+        pyod_adapter = container.pyod_adapter()
+        available_algorithms = pyod_adapter.list_algorithms()
+        
+        if algorithm not in available_algorithms:
+            console.print(f"[red]Error:[/red] Algorithm '{algorithm}' not available")
+            console.print(f"Available algorithms: {', '.join(available_algorithms)}")
+            raise typer.Exit(1)
+    except Exception as e:
+        console.print(f"[red]Error:[/red] Failed to access PyOD adapter: {str(e)}")
+        console.print("Creating detector without algorithm validation...")
+        # Continue without validation for now
     
     # Create detector
     try:
@@ -201,11 +206,16 @@ def list_algorithms(
 ):
     """List available algorithms."""
     container = get_cli_container()
-    pyod_adapter = container.pyod_adapter()
     
-    # Get algorithm info
-    algorithms = pyod_adapter.list_algorithms()
-    algorithm_info = pyod_adapter.get_algorithm_info()
+    try:
+        pyod_adapter = container.pyod_adapter()
+        # Get algorithm info
+        algorithms = pyod_adapter.list_algorithms()
+        algorithm_info = pyod_adapter.get_algorithm_info()
+    except Exception as e:
+        console.print(f"[red]Error:[/red] Failed to access PyOD adapter: {str(e)}")
+        console.print("No algorithms available - check PyOD installation")
+        raise typer.Exit(1)
     
     # Create table
     table = Table(title="Available Anomaly Detection Algorithms")

@@ -84,6 +84,11 @@ class ValidationError(DomainError):
         super().__init__(message, details)
 
 
+class InvalidValueError(ValidationError):
+    """Exception raised when a value is invalid."""
+    pass
+
+
 class NotFittedError(DomainError):
     """Exception raised when using an unfitted model."""
     
@@ -134,5 +139,90 @@ class ConfigurationError(DomainError):
             details["expected"] = expected
         if actual is not None:
             details["actual"] = actual
+        
+        super().__init__(message, details)
+
+
+class AuthenticationError(PynamolyError):
+    """Exception raised when authentication fails."""
+    
+    def __init__(
+        self,
+        message: str = "Authentication failed",
+        username: Optional[str] = None,
+        reason: Optional[str] = None,
+        **kwargs: Any
+    ) -> None:
+        """Initialize authentication error.
+        
+        Args:
+            message: Error message
+            username: Username that failed authentication
+            reason: Reason for authentication failure
+            **kwargs: Additional details
+        """
+        details = kwargs
+        if username:
+            details["username"] = username
+        if reason:
+            details["reason"] = reason
+        
+        super().__init__(message, details)
+
+
+class AuthorizationError(PynamolyError):
+    """Exception raised when authorization fails."""
+    
+    def __init__(
+        self,
+        message: str = "Authorization failed",
+        user_id: Optional[str] = None,
+        required_permission: Optional[str] = None,
+        required_role: Optional[str] = None,
+        **kwargs: Any
+    ) -> None:
+        """Initialize authorization error.
+        
+        Args:
+            message: Error message
+            user_id: User ID that failed authorization
+            required_permission: Permission that was required
+            required_role: Role that was required
+            **kwargs: Additional details
+        """
+        details = kwargs
+        if user_id:
+            details["user_id"] = user_id
+        if required_permission:
+            details["required_permission"] = required_permission
+        if required_role:
+            details["required_role"] = required_role
+        
+        super().__init__(message, details)
+
+
+class CacheError(PynamolyError):
+    """Exception raised when cache operations fail."""
+    
+    def __init__(
+        self,
+        message: str = "Cache operation failed",
+        operation: Optional[str] = None,
+        key: Optional[str] = None,
+        **kwargs: Any
+    ) -> None:
+        """Initialize cache error.
+        
+        Args:
+            message: Error message
+            operation: Cache operation that failed
+            key: Cache key involved
+            **kwargs: Additional details
+        """
+        details = kwargs
+        if operation:
+            details["operation"] = operation
+        if key:
+            details["key"] = key
         
         super().__init__(message, details)

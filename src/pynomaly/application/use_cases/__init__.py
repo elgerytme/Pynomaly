@@ -10,7 +10,11 @@ from .train_detector import (
     TrainDetectorRequest,
     TrainDetectorResponse
 )
-from .evaluate_model import EvaluateModelUseCase
+from .evaluate_model import (
+    EvaluateModelUseCase,
+    EvaluateModelRequest,
+    EvaluateModelResponse
+)
 from .explain_anomaly import ExplainAnomalyUseCase
 
 __all__ = [
@@ -21,5 +25,7 @@ __all__ = [
     "TrainDetectorRequest",
     "TrainDetectorResponse",
     "EvaluateModelUseCase",
+    "EvaluateModelRequest",
+    "EvaluateModelResponse",
     "ExplainAnomalyUseCase",
 ]

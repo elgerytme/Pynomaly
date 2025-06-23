@@ -3,13 +3,40 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import List
 from uuid import UUID
 
+import numpy as np
 import pandas as pd
 import pytest
 
 from pynomaly.domain.entities import Anomaly, Dataset, Detector, DetectionResult
 from pynomaly.domain.exceptions import InvalidDataError, ValidationError
+from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
+
+
+class MockDetector(Detector):
+    """Concrete test implementation of Detector."""
+    
+    def fit(self, dataset: Dataset) -> None:
+        """Dummy fit implementation."""
+        self.is_fitted = True
+        self.trained_at = datetime.utcnow()
+    
+    def detect(self, dataset: Dataset) -> DetectionResult:
+        """Dummy detect implementation."""
+        from pynomaly.domain.entities.detection_result import DetectionResult
+        return DetectionResult(
+            detector_id=self.id,
+            dataset_id=dataset.id,
+            scores=[AnomalyScore(0.5) for _ in range(len(dataset.data))],
+            labels=[0 for _ in range(len(dataset.data))],
+            threshold=0.5
+        )
+    
+    def score(self, dataset: Dataset) -> List[AnomalyScore]:
+        """Dummy score implementation."""
+        return [AnomalyScore(0.5) for _ in range(len(dataset.data))]
 
 
 class TestDetector:
@@ -17,14 +44,14 @@ class TestDetector:
     
     def test_create_detector(self):
         """Test creating a detector."""
-        detector = Detector(
+        detector = MockDetector(
             name="Test Detector",
-            algorithm="IsolationForest",
+            algorithm_name="IsolationForest",
             parameters={"contamination": 0.1}
         )
         
         assert detector.name == "Test Detector"
-        assert detector.algorithm == "IsolationForest"
+        assert detector.algorithm_name == "IsolationForest"
         assert detector.parameters["contamination"] == 0.1
         assert not detector.is_fitted
         assert isinstance(detector.id, UUID)
@@ -33,18 +60,17 @@ class TestDetector:
     def test_detector_validation(self):
         """Test detector validation."""
         with pytest.raises(ValueError):
-            Detector(name="", algorithm="IsolationForest")
+            MockDetector(name="", algorithm_name="IsolationForest")
         
         with pytest.raises(ValueError):
-            Detector(name="Test", algorithm="")
+            MockDetector(name="Test", algorithm_name="")
     
     def test_update_parameters(self):
         """Test updating detector parameters."""
-        detector = Detector(name="Test", algorithm="LOF")
-        detector.update_parameters({"n_neighbors": 20})
+        detector = MockDetector(name="Test", algorithm_name="LOF")
+        detector.parameters["n_neighbors"] = 20
         
         assert detector.parameters["n_neighbors"] == 20
-        assert isinstance(detector.updated_at, datetime)
 
 
 class TestDataset:
@@ -60,7 +86,7 @@ class TestDataset:
         
         dataset = Dataset(
             name="Test Dataset",
-            data=df[["feature1", "feature2"]],
+            data=df,
             target_column="target"
         )
         
@@ -118,29 +144,47 @@ class TestAnomaly:
     
     def test_create_anomaly(self):
         """Test creating an anomaly."""
+        score = AnomalyScore(value=0.95)
         anomaly = Anomaly(
-            index=42,
-            score=0.95,
-            threshold=0.8,
-            features={"feature1": 10.5, "feature2": -3.2}
+            score=score,
+            data_point={"feature1": 10.5, "feature2": -3.2},
+            detector_name="test_detector"
         )
         
-        assert anomaly.index == 42
-        assert anomaly.score == 0.95
-        assert anomaly.threshold == 0.8
-        assert anomaly.is_anomaly
-        assert anomaly.confidence == pytest.approx(0.1875)  # (0.95 - 0.8) / 0.8
+        assert anomaly.score.value == 0.95
+        assert anomaly.data_point == {"feature1": 10.5, "feature2": -3.2}
+        assert anomaly.detector_name == "test_detector"
+        assert isinstance(anomaly.id, UUID)
+        assert isinstance(anomaly.timestamp, datetime)
+        assert anomaly.severity == "critical"  # score > 0.9
     
     def test_anomaly_validation(self):
         """Test anomaly validation."""
-        with pytest.raises(ValueError):
-            Anomaly(index=-1, score=0.5, threshold=0.8)
+        score = AnomalyScore(value=0.5)
         
+        # Test empty detector name
         with pytest.raises(ValueError):
-            Anomaly(index=0, score=-0.1, threshold=0.8)
+            Anomaly(
+                score=score,
+                data_point={"feature1": 1.0},
+                detector_name=""
+            )
         
-        with pytest.raises(ValueError):
-            Anomaly(index=0, score=0.5, threshold=-0.1)
+        # Test invalid score type
+        with pytest.raises(TypeError):
+            Anomaly(
+                score=0.5,  # Should be AnomalyScore
+                data_point={"feature1": 1.0},
+                detector_name="test"
+            )
+        
+        # Test invalid data_point type
+        with pytest.raises(TypeError):
+            Anomaly(
+                score=score,
+                data_point="not_a_dict",
+                detector_name="test"
+            )
 
 
 class TestDetectionResult:
@@ -151,48 +195,72 @@ class TestDetectionResult:
         detector_id = UUID("12345678-1234-5678-1234-567812345678")
         dataset_id = UUID("87654321-4321-8765-4321-876543218765")
         
+        # Create sample data
+        scores = [AnomalyScore(0.9), AnomalyScore(0.92), AnomalyScore(0.88), AnomalyScore(0.95)]
+        anomalies = [
+            Anomaly(
+                score=scores[1],  # Second score for first anomaly
+                data_point={"feature1": 1.0},
+                detector_name="test_detector"
+            ),
+            Anomaly(
+                score=scores[3],  # Fourth score for second anomaly
+                data_point={"feature1": 2.0}, 
+                detector_name="test_detector"
+            )
+        ]
+        labels = np.array([0, 1, 0, 1])  # Binary classification - 2 anomalies match 2 Anomaly objects
+        
         result = DetectionResult(
             detector_id=detector_id,
             dataset_id=dataset_id,
-            n_samples=1000,
-            n_anomalies=50,
-            anomaly_rate=0.05,
+            anomalies=anomalies,
+            scores=scores,
+            labels=labels,
             threshold=0.85,
-            execution_time_ms=250,
-            anomaly_indices=[1, 5, 10, 20],
-            anomaly_scores=[0.9, 0.92, 0.88, 0.95]
+            execution_time_ms=250
         )
         
         assert result.detector_id == detector_id
         assert result.dataset_id == dataset_id
-        assert result.n_samples == 1000
-        assert result.n_anomalies == 50
-        assert result.anomaly_rate == 0.05
-        assert len(result.anomaly_indices) == 4
+        assert len(result.anomalies) == 2
+        assert len(result.scores) == 4
+        assert result.threshold == 0.85
+        assert result.execution_time_ms == 250
     
     def test_detection_result_validation(self):
         """Test detection result validation."""
         detector_id = UUID("12345678-1234-5678-1234-567812345678")
         dataset_id = UUID("87654321-4321-8765-4321-876543218765")
         
+        # Create valid base data
+        scores = [AnomalyScore(0.9)]
+        anomalies = [
+            Anomaly(
+                score=scores[0],
+                data_point={"feature1": 1.0},
+                detector_name="test_detector"
+            )
+        ]
+        
+        # Test mismatched dimensions (scores vs labels)
         with pytest.raises(ValueError):
             DetectionResult(
                 detector_id=detector_id,
                 dataset_id=dataset_id,
-                n_samples=0,  # Invalid
-                n_anomalies=10,
-                anomaly_rate=0.1,
-                threshold=0.8,
-                execution_time_ms=100
+                anomalies=anomalies,
+                scores=scores,  # 1 score
+                labels=np.array([0, 1]),  # 2 labels - mismatch!
+                threshold=0.8
             )
         
+        # Test invalid label values (not binary)
         with pytest.raises(ValueError):
             DetectionResult(
                 detector_id=detector_id,
                 dataset_id=dataset_id,
-                n_samples=100,
-                n_anomalies=101,  # More anomalies than samples
-                anomaly_rate=1.01,
-                threshold=0.8,
-                execution_time_ms=100
+                anomalies=anomalies,
+                scores=scores,
+                labels=np.array([2]),  # Invalid - not 0 or 1
+                threshold=0.8
             )

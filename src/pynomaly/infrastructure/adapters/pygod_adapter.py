@@ -21,7 +21,7 @@ from pynomaly.shared.protocols import DetectorProtocol
 logger = logging.getLogger(__name__)
 
 
-class PyGODAdapter(DetectorProtocol):
+class PyGODAdapter(Detector):
     """Adapter for PyGOD graph anomaly detection algorithms."""
     
     # Lazy imports to avoid import errors if PyGOD not installed
@@ -69,13 +69,14 @@ class PyGODAdapter(DetectorProtocol):
                 
         return cls._algorithm_map
     
-    def __init__(self, detector: Detector):
+    def __init__(self, algorithm: str, parameters: Optional[Dict[str, Any]] = None):
         """Initialize PyGOD adapter with detector configuration.
         
         Args:
-            detector: Detector entity with algorithm configuration
+            algorithm: Algorithm name
+            parameters: Algorithm parameters
         """
-        self.detector = detector
+        super().__init__(algorithm=algorithm, parameters=parameters or {})
         self._model = None
         self._init_algorithm()
     
@@ -83,18 +84,18 @@ class PyGODAdapter(DetectorProtocol):
         """Initialize the PyGOD algorithm instance."""
         algorithm_map = self._get_algorithm_map()
         
-        if self.detector.algorithm not in algorithm_map:
+        if self.algorithm not in algorithm_map:
             available = ", ".join(algorithm_map.keys())
             raise AlgorithmNotFoundError(
-                f"Algorithm '{self.detector.algorithm}' not found in PyGOD. "
+                f"Algorithm '{self.algorithm}' not found in PyGOD. "
                 f"Available algorithms: {available}"
             )
         
         try:
-            algorithm_class = algorithm_map[self.detector.algorithm]
+            algorithm_class = algorithm_map[self.algorithm]
             
             # Configure parameters
-            params = self.detector.parameters.copy()
+            params = self.parameters.copy()
             
             # Handle common parameter mappings
             if 'contamination' in params:
@@ -103,7 +104,7 @@ class PyGODAdapter(DetectorProtocol):
                 params['contamination'] = 0.1  # Default
             
             # Algorithm-specific parameter handling
-            if self.detector.algorithm in ['DOMINANT', 'GCNAE', 'ANOMALOUS']:
+            if self.algorithm in ['DOMINANT', 'GCNAE', 'ANOMALOUS']:
                 # Deep learning models
                 params.setdefault('hidden_dim', 64)
                 params.setdefault('num_layers', 2)
@@ -116,12 +117,12 @@ class PyGODAdapter(DetectorProtocol):
                 else:
                     params['gpu'] = -1  # CPU by default
             
-            elif self.detector.algorithm == 'SCAN':
+            elif self.algorithm == 'SCAN':
                 # SCAN specific parameters
                 params.setdefault('eps', 0.5)
                 params.setdefault('mu', 2)
             
-            elif self.detector.algorithm == 'RADAR':
+            elif self.algorithm == 'RADAR':
                 # RADAR specific parameters
                 params.setdefault('gamma', 1.0)
                 params.setdefault('k', 5)
@@ -131,7 +132,7 @@ class PyGODAdapter(DetectorProtocol):
             
         except Exception as e:
             raise AdapterError(
-                f"Failed to initialize PyGOD algorithm '{self.detector.algorithm}': {e}"
+                f"Failed to initialize PyGOD algorithm '{self.algorithm}': {e}"
             )
     
     def fit(self, dataset: Dataset) -> None:
@@ -152,10 +153,10 @@ class PyGODAdapter(DetectorProtocol):
                 self._model.fit(graph_data)
             else:
                 # Some models might use different training methods
-                raise AdapterError(f"Model {self.detector.algorithm} does not support fit method")
+                raise AdapterError(f"Model {self.algorithm} does not support fit method")
             
-            self.detector.is_fitted = True
-            logger.info(f"Successfully trained PyGOD {self.detector.algorithm}")
+            self.is_fitted = True
+            logger.info(f"Successfully trained PyGOD {self.algorithm}")
             
         except Exception as e:
             raise AdapterError(f"Failed to train PyGOD model: {e}")
@@ -169,7 +170,7 @@ class PyGODAdapter(DetectorProtocol):
         Returns:
             Detection results with anomaly scores and labels
         """
-        if not self.detector.is_fitted:
+        if not self.is_fitted:
             raise AdapterError("Model must be fitted before prediction")
         
         try:
@@ -188,7 +189,7 @@ class PyGODAdapter(DetectorProtocol):
                     # Use labels as scores if no score function
                     scores = labels.astype(float)
             else:
-                raise AdapterError(f"Model {self.detector.algorithm} does not support predict method")
+                raise AdapterError(f"Model {self.algorithm} does not support predict method")
             
             # Normalize scores to [0, 1] range
             min_score = np.min(scores)
@@ -209,12 +210,12 @@ class PyGODAdapter(DetectorProtocol):
             ]
             
             return DetectionResult(
-                detector_id=self.detector.id,
+                detector_id=self.id,
                 dataset_id=dataset.id,
                 scores=anomaly_scores,
                 labels=labels.tolist(),
                 metadata={
-                    "algorithm": self.detector.algorithm,
+                    "algorithm": self.algorithm,
                     "n_anomalies": int(np.sum(labels)),
                     "contamination_rate": float(np.sum(labels) / len(labels)),
                     "is_graph": True,

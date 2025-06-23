@@ -21,7 +21,7 @@ from pynomaly.shared.protocols import DetectorProtocol
 logger = logging.getLogger(__name__)
 
 
-class TODSAdapter(DetectorProtocol):
+class TODSAdapter(Detector):
     """Adapter for TODS time-series anomaly detection algorithms."""
     
     # Lazy imports to avoid import errors if TODS not installed
@@ -63,13 +63,14 @@ class TODSAdapter(DetectorProtocol):
                 
         return cls._algorithm_map
     
-    def __init__(self, detector: Detector):
+    def __init__(self, algorithm: str, parameters: Optional[Dict[str, Any]] = None):
         """Initialize TODS adapter with detector configuration.
         
         Args:
-            detector: Detector entity with algorithm configuration
+            algorithm: Algorithm name
+            parameters: Algorithm parameters
         """
-        self.detector = detector
+        super().__init__(algorithm=algorithm, parameters=parameters or {})
         self._model = None
         self._init_algorithm()
     
@@ -77,28 +78,28 @@ class TODSAdapter(DetectorProtocol):
         """Initialize the TODS algorithm instance."""
         algorithm_map = self._get_algorithm_map()
         
-        if self.detector.algorithm not in algorithm_map:
+        if self.algorithm not in algorithm_map:
             available = ", ".join(algorithm_map.keys())
             raise AlgorithmNotFoundError(
-                f"Algorithm '{self.detector.algorithm}' not found in TODS. "
+                f"Algorithm '{self.algorithm}' not found in TODS. "
                 f"Available algorithms: {available}"
             )
         
         try:
-            algorithm_class = algorithm_map[self.detector.algorithm]
+            algorithm_class = algorithm_map[self.algorithm]
             
             # TODS uses hyperparameter configuration
             hyperparams = algorithm_class.metadata.query()['primitive_code']['class_type_arguments']['Hyperparams']
             
             # Configure hyperparameters
-            params = self.detector.parameters.copy()
+            params = self.parameters.copy()
             
             # Handle common parameter mappings
             if 'contamination' in params:
                 params['contamination'] = float(params['contamination'])
             
             # Handle window size for time-series methods
-            if self.detector.algorithm in ['MatrixProfile', 'LSTM', 'DeepLog']:
+            if self.algorithm in ['MatrixProfile', 'LSTM', 'DeepLog']:
                 if 'window_size' not in params:
                     params['window_size'] = 50  # Default window size
             
@@ -113,7 +114,7 @@ class TODSAdapter(DetectorProtocol):
             
         except Exception as e:
             raise AdapterError(
-                f"Failed to initialize TODS algorithm '{self.detector.algorithm}': {e}"
+                f"Failed to initialize TODS algorithm '{self.algorithm}': {e}"
             )
     
     def fit(self, dataset: Dataset) -> None:
@@ -133,8 +134,8 @@ class TODSAdapter(DetectorProtocol):
             self._model.set_training_data(inputs=X)
             self._model.fit()
             
-            self.detector.is_fitted = True
-            logger.info(f"Successfully trained TODS {self.detector.algorithm}")
+            self.is_fitted = True
+            logger.info(f"Successfully trained TODS {self.algorithm}")
             
         except Exception as e:
             raise AdapterError(f"Failed to train TODS model: {e}")
@@ -148,7 +149,7 @@ class TODSAdapter(DetectorProtocol):
         Returns:
             Detection results with anomaly scores and labels
         """
-        if not self.detector.is_fitted:
+        if not self.is_fitted:
             raise AdapterError("Model must be fitted before prediction")
         
         try:
@@ -170,7 +171,7 @@ class TODSAdapter(DetectorProtocol):
                 normalized_scores = np.zeros_like(scores)
             
             # Calculate threshold based on contamination rate
-            contamination = self.detector.parameters.get('contamination', 0.1)
+            contamination = self.parameters.get('contamination', 0.1)
             threshold = np.percentile(normalized_scores, (1 - contamination) * 100)
             
             # Create labels (1 for anomaly, 0 for normal)
@@ -186,12 +187,12 @@ class TODSAdapter(DetectorProtocol):
             ]
             
             return DetectionResult(
-                detector_id=self.detector.id,
+                detector_id=self.id,
                 dataset_id=dataset.id,
                 scores=anomaly_scores,
                 labels=labels.tolist(),
                 metadata={
-                    "algorithm": self.detector.algorithm,
+                    "algorithm": self.algorithm,
                     "threshold": float(threshold),
                     "n_anomalies": int(np.sum(labels)),
                     "contamination_rate": float(np.sum(labels) / len(labels)),

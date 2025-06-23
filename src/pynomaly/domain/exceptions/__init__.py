@@ -6,6 +6,9 @@ from .base import (
     ValidationError,
     NotFittedError,
     ConfigurationError,
+    AuthenticationError,
+    AuthorizationError,
+    CacheError,
 )
 from .detector_exceptions import (
     DetectorError,
@@ -28,9 +31,11 @@ from .result_exceptions import (
     InconsistentResultError,
 )
 
-# Aliases for backward compatibility
+# Import InvalidValueError from base
+from .base import InvalidValueError
+
+# Aliases for backward compatibility  
 InvalidDataError = DataValidationError
-InvalidValueError = ValidationError
 AdapterError = DomainError
 AlgorithmNotFoundError = InvalidAlgorithmError
 
@@ -41,6 +46,9 @@ __all__ = [
     "ValidationError",
     "NotFittedError",
     "ConfigurationError",
+    "AuthenticationError",
+    "AuthorizationError",
+    "CacheError",
     # Detector exceptions
     "DetectorError",
     "DetectorNotFittedError",

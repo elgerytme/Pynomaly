@@ -56,7 +56,7 @@ class Anomaly:
             return False
         
         # Consider high confidence if interval width is < 10% of score
-        relative_width = self.confidence_interval.width / self.score.value
+        relative_width = self.confidence_interval.width() / self.score.value
         return relative_width < 0.1
     
     @property
@@ -101,7 +101,7 @@ class Anomaly:
             result["confidence_interval"] = {
                 "lower": self.confidence_interval.lower,
                 "upper": self.confidence_interval.upper,
-                "level": self.confidence_interval.level,
+                "level": self.confidence_interval.confidence_level,
             }
         
         return result

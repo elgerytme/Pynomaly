@@ -18,7 +18,7 @@ from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
 from pynomaly.shared.protocols import DetectorProtocol
 
 
-class PyODAdapter(Detector, DetectorProtocol):
+class PyODAdapter(Detector):
     """Adapter for PyOD anomaly detection algorithms."""
     
     # Mapping of algorithm names to PyOD classes

@@ -19,7 +19,7 @@ from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
 from pynomaly.shared.protocols import DetectorProtocol
 
 
-class SklearnAdapter(Detector, DetectorProtocol):
+class SklearnAdapter(Detector):
     """Adapter for scikit-learn anomaly detection algorithms."""
     
     # Mapping of algorithm names to sklearn classes
@@ -191,7 +191,7 @@ class SklearnAdapter(Detector, DetectorProtocol):
         ]
         
         # Calculate threshold
-        threshold_idx = int(len(scores) * (1 - self.contamination_rate.value))
+        threshold_idx = int(len(raw_scores) * (1 - self.contamination_rate.value))
         threshold = float(np.sort(normalized_scores)[threshold_idx])
         
         # Create Anomaly entities
