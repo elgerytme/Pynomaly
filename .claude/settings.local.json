@@ -4,7 +4,9 @@
       "Bash(poetry --version)",
       "Bash(poetry init:*)",
       "Bash(mkdir:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(.venv/bin/pip:*)",
+      "Bash(.venv/Scripts/pip:*)"
     ],
     "//": "This sets the default policy to 'allow' for any action that doesn't have a more specific rule below. This is the top-level 'allow all actions' setting.",
     "default_action": "allow",
