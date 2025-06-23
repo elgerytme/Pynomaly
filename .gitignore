@@ -49,3 +49,12 @@ src/pynomaly/shared/protocols/__pycache__/detector_protocol.cpython-311.pyc
 src/pynomaly/shared/protocols/__pycache__/repository_protocol.cpython-311.pyc
 tests/__pycache__/__init__.cpython-311.pyc
 tests/__pycache__/conftest.cpython-311-pytest-8.4.1.pyc
+tests/application/__pycache__/test_use_cases.cpython-311-pytest-8.4.1.pyc
+tests/domain/__pycache__/test_entities.cpython-311-pytest-8.4.1.pyc
+tests/domain/__pycache__/test_value_objects.cpython-311-pytest-8.4.1.pyc
+tests/infrastructure/__pycache__/test_adapters.cpython-311-pytest-8.4.1.pyc
+tests/integration/__pycache__/test_detection_flow.cpython-311-pytest-8.4.1.pyc
+tests/presentation/__pycache__/test_api.cpython-311-pytest-8.4.1.pyc
+tests/unit/__pycache__/__init__.cpython-311.pyc
+tests/unit/domain/__pycache__/__init__.cpython-311.pyc
+tests/unit/domain/__pycache__/test_value_objects.cpython-311-pytest-8.4.1.pyc
