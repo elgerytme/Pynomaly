@@ -1,7 +1,7 @@
 """Data Transfer Objects for application layer."""
 
 from .detector_dto import DetectorDTO, CreateDetectorDTO, UpdateDetectorDTO
-from .dataset_dto import DatasetDTO, CreateDatasetDTO
+from .dataset_dto import DatasetDTO, CreateDatasetDTO, DataQualityReportDTO
 from .result_dto import DetectionResultDTO, AnomalyDTO
 from .experiment_dto import ExperimentDTO, RunDTO
 
@@ -13,6 +13,7 @@ __all__ = [
     # Dataset DTOs
     "DatasetDTO",
     "CreateDatasetDTO",
+    "DataQualityReportDTO",
     # Result DTOs
     "DetectionResultDTO",
     "AnomalyDTO",

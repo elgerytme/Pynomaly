@@ -5,8 +5,31 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from pydantic import Field, field_validator
+from pydantic import BaseModel, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class AppSettings(BaseModel):
+    """Application-specific settings."""
+    name: str = "Pynomaly"
+    version: str = "0.1.0"
+    environment: str = "development"
+    debug: bool = False
+
+
+class MonitoringSettings(BaseModel):
+    """Monitoring and observability settings."""
+    metrics_enabled: bool = True
+    tracing_enabled: bool = False
+    prometheus_enabled: bool = True
+    prometheus_port: int = 9090
+    otlp_endpoint: Optional[str] = None
+    otlp_insecure: bool = True
+    log_level: str = "INFO"
+    log_format: str = "json"
+    host_name: str = "localhost"
+    instrument_fastapi: bool = True
+    instrument_sqlalchemy: bool = True
 
 
 class Settings(BaseSettings):
@@ -20,9 +43,7 @@ class Settings(BaseSettings):
     )
     
     # Application settings
-    app_name: str = "Pynomaly"
-    version: str = "0.1.0"
-    debug: bool = False
+    app: AppSettings = Field(default_factory=AppSettings)
     
     # API settings
     api_host: str = "0.0.0.0"
@@ -53,10 +74,7 @@ class Settings(BaseSettings):
     jwt_expiration: int = 3600  # seconds
     
     # Monitoring settings
-    metrics_enabled: bool = True
-    tracing_enabled: bool = False
-    log_level: str = "INFO"
-    log_format: str = "json"  # json or text
+    monitoring: MonitoringSettings = Field(default_factory=MonitoringSettings)
     
     # Algorithm settings
     default_contamination_rate: float = 0.1
@@ -91,7 +109,7 @@ class Settings(BaseSettings):
     @property
     def is_production(self) -> bool:
         """Check if running in production mode."""
-        return not self.debug
+        return not self.app.debug
     
     def get_database_config(self) -> Dict[str, Any]:
         """Get database configuration."""
@@ -102,7 +120,7 @@ class Settings(BaseSettings):
             "url": self.database_url,
             "pool_size": self.database_pool_size,
             "pool_pre_ping": True,
-            "echo": self.debug
+            "echo": self.app.debug
         }
     
     def get_logging_config(self) -> Dict[str, Any]:
@@ -122,12 +140,12 @@ class Settings(BaseSettings):
             "handlers": {
                 "console": {
                     "class": "logging.StreamHandler",
-                    "formatter": self.log_format,
+                    "formatter": self.monitoring.log_format,
                     "stream": "ext://sys.stdout"
                 }
             },
             "root": {
-                "level": self.log_level,
+                "level": self.monitoring.log_level,
                 "handlers": ["console"]
             }
         }

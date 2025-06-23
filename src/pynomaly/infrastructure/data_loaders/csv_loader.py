@@ -13,7 +13,7 @@ from pynomaly.domain.exceptions import DataValidationError
 from pynomaly.shared.protocols import BatchDataLoaderProtocol, DataLoaderProtocol
 
 
-class CSVLoader(DataLoaderProtocol, BatchDataLoaderProtocol):
+class CSVLoader(BatchDataLoaderProtocol):
     """Data loader for CSV files."""
     
     def __init__(

@@ -11,7 +11,11 @@ from fastapi.staticfiles import StaticFiles
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from pynomaly.infrastructure.config import Container, Settings
+from pynomaly.infrastructure.auth import init_auth, track_request_metrics
+from pynomaly.infrastructure.cache import init_cache
+from pynomaly.infrastructure.monitoring import init_telemetry
 from pynomaly.presentation.api.endpoints import (
+    auth,
     datasets,
     detectors,
     detection,
@@ -28,12 +32,33 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     container = app.state.container
     settings = container.config()
     
-    print(f"Starting {settings.app_name} v{settings.version}")
+    print(f"Starting {settings.app.name} v{settings.app.version}")
+    
+    # Initialize services
+    if settings.cache_enabled:
+        init_cache(settings)
+    
+    if settings.auth_enabled:
+        init_auth(settings)
+    
+    if settings.monitoring.metrics_enabled or settings.monitoring.tracing_enabled:
+        init_telemetry(settings)
     
     yield
     
     # Shutdown
     print("Shutting down...")
+    
+    # Cleanup services
+    from pynomaly.infrastructure.monitoring import get_telemetry
+    telemetry = get_telemetry()
+    if telemetry:
+        telemetry.shutdown()
+    
+    from pynomaly.infrastructure.cache import get_cache
+    cache = get_cache()
+    if cache:
+        cache.close()
 
 
 def create_app(container: Container | None = None) -> FastAPI:
@@ -53,8 +78,8 @@ def create_app(container: Container | None = None) -> FastAPI:
     
     # Create app
     app = FastAPI(
-        title=settings.app_name,
-        version=settings.version,
+        title=settings.app.name,
+        version=settings.app.version,
         description="State-of-the-art anomaly detection platform",
         docs_url="/api/docs",
         redoc_url="/api/redoc",
@@ -71,8 +96,11 @@ def create_app(container: Container | None = None) -> FastAPI:
         **settings.get_cors_config()
     )
     
+    # Add request tracking middleware
+    app.middleware("http")(track_request_metrics)
+    
     # Add Prometheus metrics if enabled
-    if settings.metrics_enabled:
+    if settings.monitoring.prometheus_enabled:
         instrumentator = Instrumentator()
         instrumentator.instrument(app).expose(app, endpoint="/metrics")
     
@@ -82,6 +110,12 @@ def create_app(container: Container | None = None) -> FastAPI:
         health.router,
         prefix="/api/health",
         tags=["health"]
+    )
+    
+    app.include_router(
+        auth.router,
+        prefix="/api/auth",
+        tags=["authentication"]
     )
     
     app.include_router(

@@ -28,6 +28,12 @@ from .result_exceptions import (
     InconsistentResultError,
 )
 
+# Aliases for backward compatibility
+InvalidDataError = DataValidationError
+InvalidValueError = ValidationError
+AdapterError = DomainError
+AlgorithmNotFoundError = InvalidAlgorithmError
+
 __all__ = [
     # Base exceptions
     "PynamolyError",
@@ -52,4 +58,9 @@ __all__ = [
     "ScoreCalculationError",
     "ThresholdError",
     "InconsistentResultError",
+    # Aliases
+    "InvalidDataError",
+    "InvalidValueError",
+    "AdapterError",
+    "AlgorithmNotFoundError",
 ]

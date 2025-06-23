@@ -40,40 +40,12 @@ class CreateDetectorDTO(BaseModel):
     contamination_rate: float = Field(default=0.1, ge=0, le=1)
     parameters: Dict[str, Any] = Field(default_factory=dict)
     metadata: Dict[str, Any] = Field(default_factory=dict)
-    
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "name": "IsolationForest Detector",
-                "algorithm_name": "IsolationForest",
-                "contamination_rate": 0.1,
-                "parameters": {
-                    "n_estimators": 100,
-                    "max_samples": "auto",
-                    "random_state": 42
-                },
-                "metadata": {
-                    "description": "Isolation Forest for anomaly detection",
-                    "tags": ["tree-based", "ensemble"]
-                }
-            }
-        }
 
 
 class UpdateDetectorDTO(BaseModel):
-    """DTO for updating detector parameters."""
+    """DTO for updating an existing detector."""
     
     name: Optional[str] = Field(None, min_length=1, max_length=100)
     contamination_rate: Optional[float] = Field(None, ge=0, le=1)
     parameters: Optional[Dict[str, Any]] = None
     metadata: Optional[Dict[str, Any]] = None
-    
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "contamination_rate": 0.05,
-                "parameters": {
-                    "n_estimators": 200
-                }
-            }
-        }

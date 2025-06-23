@@ -1,5 +1,5 @@
 """API endpoints."""
 
-from . import datasets, detection, detectors, experiments, health, web
+from . import auth, datasets, detection, detectors, experiments, health
 
-__all__ = ["datasets", "detection", "detectors", "experiments", "health", "web"]
+__all__ = ["auth", "datasets", "detection", "detectors", "experiments", "health"]

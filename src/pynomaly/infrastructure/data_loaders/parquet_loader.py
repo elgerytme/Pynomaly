@@ -13,7 +13,7 @@ from pynomaly.domain.exceptions import DataValidationError
 from pynomaly.shared.protocols import BatchDataLoaderProtocol, DataLoaderProtocol
 
 
-class ParquetLoader(DataLoaderProtocol, BatchDataLoaderProtocol):
+class ParquetLoader(BatchDataLoaderProtocol):
     """Data loader for Parquet files."""
     
     def __init__(
