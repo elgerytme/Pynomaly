@@ -21,6 +21,31 @@ State-of-the-art Python anomaly detection platform with clean architecture, 40+ 
 
 ## Installation
 
+### Quick Setup (Python + pip only)
+
+If you want to run Pynomaly without Poetry, Docker, or Make:
+
+```bash
+# Run the setup script
+python setup_simple.py
+
+# Or manually:
+python -m venv .venv
+.venv\Scripts\activate  # Windows (or source .venv/bin/activate on Linux/Mac)
+pip install -r requirements.txt
+pip install -e .
+```
+
+Then run the app:
+```bash
+python cli.py --help
+python cli.py server start
+```
+
+See [README_SIMPLE_SETUP.md](README_SIMPLE_SETUP.md) for detailed instructions.
+
+### Full Setup (with Poetry)
+
 ```bash
 # Install with Poetry
 poetry install

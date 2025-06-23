@@ -51,7 +51,41 @@ poetry run pynomaly --help
 
 ## Install with pip
 
-If you prefer using pip:
+### Simple Setup (No Poetry/Docker/Make required)
+
+For the simplest setup using only Python and pip:
+
+```bash
+# Clone the repository
+git clone https://github.com/pynomaly/pynomaly.git
+cd pynomaly
+
+# Run the automated setup script
+python setup_simple.py
+```
+
+This script will:
+- Create a virtual environment
+- Install all dependencies from requirements.txt
+- Set up Pynomaly in development mode
+- Show you how to run the application
+
+After setup:
+```bash
+# Windows
+.venv\Scripts\activate
+
+# Linux/Mac
+source .venv/bin/activate
+
+# Run the app
+python cli.py --help
+python cli.py server start
+```
+
+### Manual pip Installation
+
+If you prefer manual setup:
 
 ```bash
 # Clone the repository
@@ -59,17 +93,17 @@ git clone https://github.com/pynomaly/pynomaly.git
 cd pynomaly
 
 # Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Install package
+# Install from requirements.txt
+pip install -r requirements.txt
+
+# Install package in development mode
 pip install -e .
-
-# Install with extras
-pip install -e ".[torch]"      # PyTorch support
-pip install -e ".[tensorflow]" # TensorFlow support
-pip install -e ".[all]"        # All optional dependencies
 ```
+
+For more details, see [README_SIMPLE_SETUP.md](../../README_SIMPLE_SETUP.md)
 
 ## Install from PyPI
 

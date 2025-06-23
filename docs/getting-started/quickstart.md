@@ -2,6 +2,26 @@
 
 Get started with anomaly detection in minutes using Pynomaly.
 
+## Prerequisites
+
+Make sure you have Python 3.11+ installed. No need for Poetry, Docker, or Make!
+
+### Simple Setup (Python + pip only)
+
+```bash
+# Clone and setup
+git clone https://github.com/pynomaly/pynomaly.git
+cd pynomaly
+python setup_simple.py
+
+# Activate virtual environment
+.venv\Scripts\activate  # Windows
+source .venv/bin/activate  # Linux/Mac
+
+# Test installation
+python cli.py --help
+```
+
 ## Basic Workflow
 
 The typical anomaly detection workflow consists of:
@@ -17,11 +37,14 @@ The typical anomaly detection workflow consists of:
 ### Step 1: Load Your Data
 
 ```bash
-# Load a CSV file
+# Using the simple Python CLI
+python cli.py dataset load data.csv --name "Sales Data"
+
+# Or if you have the package installed properly
 pynomaly dataset load data.csv --name "Sales Data"
 
 # Load with specific options
-pynomaly dataset load transactions.csv \
+python cli.py dataset load transactions.csv \
   --name "Transactions" \
   --target fraud_label \
   --sample 10000
@@ -209,14 +232,20 @@ print(f"Ensemble found {ensemble_result.n_anomalies} anomalies")
 ### Start the Server
 
 ```bash
-# Start with default settings
+# Using simple Python CLI
+python cli.py server start
+
+# Or if package is installed
 pynomaly server start
 
 # Start with custom host/port
-pynomaly server start --host 0.0.0.0 --port 8080
+python cli.py server start --host 0.0.0.0 --port 8080
 
 # Start with auto-reload for development
-pynomaly server start --reload
+python cli.py server start --reload
+
+# Or run directly with uvicorn
+python -m uvicorn pynomaly.presentation.api.app:app --reload
 ```
 
 ### Access the UI
