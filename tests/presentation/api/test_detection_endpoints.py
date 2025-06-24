@@ -422,8 +422,11 @@ class TestDetectionEndpoints:
         assert "explanation" in data
 
     def test_streaming_detection_endpoint(self, client, mock_container, mock_user):
-        """Test streaming detection endpoint."""
-        mock_service = mock_container.streaming_service.return_value
+        """Test streaming detection endpoint - REMOVED FOR SIMPLIFICATION."""
+        # Streaming infrastructure removed for simplification
+        pytest.skip("Streaming functionality removed in Phase 1 simplification")
+        
+        mock_service = Mock()
         mock_service.start_stream = AsyncMock(return_value={
             "stream_id": "stream-123",
             "status": "active",
