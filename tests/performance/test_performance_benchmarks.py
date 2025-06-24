@@ -403,10 +403,11 @@ class TestScalabilityTesting:
         assert len(results) == num_operations
 
     def test_streaming_throughput_limits(self):
-        """Test streaming data processing throughput limits."""
-        from pynomaly.infrastructure.streaming.stream_processor import StreamProcessor
+        """Test streaming data processing throughput limits - REMOVED FOR SIMPLIFICATION."""
+        # Streaming infrastructure removed for simplification
+        pytest.skip("Streaming functionality removed in Phase 1 simplification")
         
-        processor = Mock(spec=StreamProcessor)
+        processor = Mock()
         
         # Generate streaming data
         def data_generator():

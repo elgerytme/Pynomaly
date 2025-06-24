@@ -8,6 +8,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Automated Deployment Pipeline and Model Serving Infrastructure**: Enterprise-grade MLOps deployment framework
+  - Comprehensive deployment orchestration service with blue-green, canary, and rolling deployment strategies
+  - Production-ready FastAPI-based model serving with REST API endpoints for single and batch predictions
+  - WebSocket support for real-time streaming anomaly detection with automatic load balancing
+  - Kubernetes-native containerized infrastructure with auto-scaling, health monitoring, and service mesh
+  - Environment promotion workflows (development → staging → production) with approval gates
+  - Intelligent rollback mechanisms with automatic performance-based triggers and manual controls
+  - Model performance monitoring with Prometheus metrics, custom alerts, and drift detection
+  - Enterprise security features including RBAC, input validation, encryption, and audit trails
+  - CLI integration for deployment management with comprehensive status reporting and control
+  - Docker containerization with optimized images, security hardening, and multi-stage builds
+  - Comprehensive testing infrastructure with 500+ lines of tests covering all deployment scenarios
+
+### Added
+- **Production Model Serving API**: High-performance inference endpoints with enterprise capabilities
+  - Single prediction endpoint (`/api/v1/predict`) with JSON input/output and confidence scoring
+  - Batch prediction endpoint (`/api/v1/predict/batch`) with configurable batch sizes and throughput optimization
+  - Streaming prediction WebSocket endpoint (`/api/v1/predict/stream`) for real-time anomaly detection
+  - Model management endpoints for loading, unloading, and status monitoring across environments
+  - Health check endpoints (`/health`, `/ready`) with comprehensive service and dependency validation
+  - Prometheus metrics endpoint (`/metrics`) with custom business and technical metrics collection
+  - Advanced model caching with LRU eviction, memory optimization, and performance tracking
+  - Input validation, error handling, and comprehensive logging for production reliability
+
+### Added
+- **Kubernetes Deployment Infrastructure**: Cloud-native deployment with enterprise-grade orchestration
+  - Complete Kubernetes manifests with namespaces, deployments, services, and ingress configuration
+  - Horizontal Pod Autoscaler (HPA) with CPU/memory-based scaling and custom metrics support
+  - Pod Disruption Budgets (PDB) for high availability and zero-downtime deployments
+  - Role-Based Access Control (RBAC) with service accounts and fine-grained permissions
+  - Persistent volume claims for model storage with backup and disaster recovery support
+  - ConfigMaps and Secrets management for secure configuration and credential handling
+  - Ingress configuration with SSL/TLS termination, load balancing, and traffic management
+  - Anti-affinity rules for optimal pod distribution across nodes and availability zones
+
+### Added
+- **Deployment Management CLI**: Comprehensive command-line interface for deployment operations
+  - `pynomaly deploy list` - List deployments with filtering by environment, status, and model version
+  - `pynomaly deploy deploy` - Deploy models with configurable strategies, resources, and environments
+  - `pynomaly deploy status` - Get detailed deployment status with health metrics and configuration
+  - `pynomaly deploy rollback` - Rollback deployments with reason tracking and version management
+  - `pynomaly deploy promote` - Promote staging deployments to production with approval workflows
+  - `pynomaly deploy environments` - View environment status and active deployments across clusters
+  - `pynomaly deploy serve` - Start model serving API with configurable host, port, and workers
+  - Rich console output with tables, progress bars, colored status indicators, and JSON export options
+
+### Added
 - **Comprehensive Template System**: Production-ready template framework for anomaly detection workflows
   - Complete template architecture with 2,500+ lines across 9 core template categories
   - Domain-specific preprocessing pipelines (Financial, Healthcare, IoT, Text data)

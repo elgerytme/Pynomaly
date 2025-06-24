@@ -44,16 +44,7 @@ except ImportError:
     LIME_AVAILABLE = False
     EXPLAINABILITY_AVAILABLE = False
 
-# Streaming services removed for simplification
-StreamingDetectionService = None
-ApplicationStreamingService = None
-StreamingUseCase = None
-ModelBasedStreamProcessor = None
-StatisticalStreamProcessor = None
-EnsembleStreamProcessor = None
-KafkaConnector = None
-RedisConnector = None
-STREAMING_AVAILABLE = False
+# Streaming infrastructure completely removed for simplification
 
 # Distributed processing removed for simplification
 DistributedProcessingManager = None
@@ -509,7 +500,12 @@ class Container(containers.DeclarativeContainer):
                 dataset_repository=dataset_repository
             )
     
-    # Distributed processing removed for simplification
+    # Phase 2 services - only create if available and feature flags enabled
+    if PHASE2_SERVICES_AVAILABLE and feature_flags.is_enabled("algorithm_optimization"):
+        algorithm_benchmark_service = providers.Singleton(AlgorithmBenchmarkService)
+    
+    if PHASE2_SERVICES_AVAILABLE and feature_flags.is_enabled("complexity_monitoring"):
+        complexity_monitor = providers.Singleton(ComplexityMonitor)
     
     # Use cases
     detect_anomalies_use_case = providers.Factory(
@@ -544,7 +540,6 @@ class Container(containers.DeclarativeContainer):
             automl_service=automl_service
         )
     
-    # Streaming services removed for simplification
     
     # Security services - only create if available
     if SECURITY_AVAILABLE:

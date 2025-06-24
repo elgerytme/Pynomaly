@@ -132,7 +132,9 @@ pynomaly/
 ├── docs/
 ├── examples/
 ├── benchmarks/
-└── docker/
+└── deploy/
+    ├── docker/           # All Docker-related files
+    └── kubernetes/       # All Kubernetes-related files
 ```
 
 ## Development Environment
@@ -234,15 +236,38 @@ poetry run python -m http.server 8080 --directory src/pynomaly/presentation/web/
   - Build and deployment automation
   - Database initialization scripts
   - Benchmarking and performance tools
-- **docker/**: All Docker-related files
+- **deploy/docker/**: All Docker-related files
   - Dockerfiles (main, hardened, testing variants)
   - docker-compose files for different environments
   - Docker-specific Makefiles and configurations
+- **deploy/kubernetes/**: All Kubernetes-related files
+  - Pod definitions, services, ingress configurations
+  - ConfigMaps, secrets, persistent volumes
+  - Helm charts and Kustomize overlays
+  - RBAC configurations and network policies
+  - **Exception**: Kubernetes files required only for Docker development may remain in docker/
 - **tests/**: All testing code organized by test type
 - **docs/**: All documentation files
 - **examples/**: Sample code and usage demonstrations
 - **src/**: Source code following clean architecture structure
 - **benchmarks/**: Performance testing and benchmarking code
+
+### Deployment Organization Rules
+- **deploy/docker/**: ALL Docker-related files must be placed here
+  - Dockerfiles for all environments (main, hardened, testing, UI testing)
+  - All docker-compose files (development, production, testing variants)
+  - Docker-specific Makefiles and build scripts
+  - Docker environment configuration files
+  - Docker health check scripts
+- **deploy/kubernetes/**: ALL Kubernetes-related files must be placed here
+  - Deployment manifests and pod specifications
+  - Service definitions and ingress configurations
+  - ConfigMaps, secrets, and persistent volume claims
+  - Helm charts, values files, and templates
+  - Kustomize base configurations and overlays
+  - RBAC policies, network policies, and security contexts
+  - Kubernetes-specific monitoring and logging configurations
+  - **Exception**: Kubernetes files used exclusively for Docker development (e.g., local development clusters) may remain in deploy/docker/
 
 ### Maintenance Rules
 - **Never clutter the root directory** with utility scripts or temporary files
@@ -250,6 +275,7 @@ poetry run python -m http.server 8080 --directory src/pynomaly/presentation/web/
 - **Use descriptive directory names** that clearly indicate their purpose
 - **Maintain consistency** in file naming and organization patterns
 - **Regular cleanup**: Remove obsolete files and reorganize as needed
+- **Deployment separation**: Strictly enforce Docker vs. Kubernetes file placement rules
 
 ## Changelog Management Rules
 

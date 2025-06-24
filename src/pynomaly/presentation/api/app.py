@@ -16,6 +16,7 @@ from pynomaly.infrastructure.cache import init_cache
 from pynomaly.infrastructure.monitoring import init_telemetry
 from pynomaly.presentation.api.endpoints import (
     auth,
+    autonomous,
     datasets,
     detectors,
     detection,
@@ -122,6 +123,12 @@ def create_app(container: Container | None = None) -> FastAPI:
         auth.router,
         prefix="/api/auth",
         tags=["authentication"]
+    )
+    
+    app.include_router(
+        autonomous.router,
+        prefix="/api/autonomous",
+        tags=["autonomous"]
     )
     
     app.include_router(

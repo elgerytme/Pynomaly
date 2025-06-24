@@ -798,9 +798,10 @@ class TestDataPipelineWorkflow:
     def test_real_time_data_streaming_workflow(self):
         """Test real-time data streaming and processing workflow."""
         
-        from pynomaly.infrastructure.streaming.stream_processor import StreamProcessor
+        # Streaming infrastructure removed for simplification
+        pytest.skip("Streaming functionality removed in Phase 1 simplification")
         
-        stream_processor = StreamProcessor()
+        stream_processor = Mock()
         
         # Mock streaming data source
         streaming_data = [

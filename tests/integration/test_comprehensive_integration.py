@@ -574,11 +574,9 @@ class TestDataFlowIntegration:
         assert all(0 <= s <= 1 for s in result.anomaly_scores)
     
     async def test_streaming_data_pipeline(self):
-        """Test streaming data processing pipeline."""
-        from pynomaly.infrastructure.streaming.processors import StreamProcessor
-        
-        # Mock stream processor
-        processor = Mock(spec=StreamProcessor)
+        """Test streaming data processing pipeline - REMOVED FOR SIMPLIFICATION."""
+        # Streaming infrastructure removed for simplification
+        pytest.skip("Streaming functionality removed in Phase 1 simplification")
         
         # Simulate streaming data
         async def generate_stream_data():
