@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking Anomaly Detection - Presentation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #003366, #0066cc);
+            color: #333;
+        }
+        
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            box-sizing: border-box;
+            page-break-after: always;
+            background: white;
+            margin-bottom: 2rem;
+        }
+        
+        .slide-title {
+            background: linear-gradient(135deg, #003366, #0066cc);
+            color: white;
+            text-align: center;
+        }
+        
+        .slide-section {
+            background: #003366;
+            color: white;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #003366;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .slide-section h2 {
+            color: white;
+            font-size: 3rem;
+        }
+        
+        h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #0066cc;
+        }
+        
+        .subtitle {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            color: #666;
+            text-align: center;
+        }
+        
+        ul {
+            font-size: 1.4rem;
+            line-height: 1.8;
+            max-width: 90%;
+            text-align: left;
+        }
+        
+        li {
+            margin-bottom: 1rem;
+            padding-left: 0.5rem;
+        }
+        
+        .highlight {
+            background-color: #e6f3ff;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .metric {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0066cc;
+        }
+        
+        .roi-box {
+            background: #e6f3ff;
+            border: 2px solid #0066cc;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        @media print {
+            .slide {
+                page-break-after: always;
+                height: 100vh;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Slide 1: Title -->
+<div class="slide slide-title">
+    <h1>Anomaly and Outlier Detection in Banking</h1>
+    <p class="subtitle">A Business Guide to Modern Risk Detection Technology</p>
+    <div style="margin-top: 3rem;">
+        <p style="font-size: 1.2rem; opacity: 0.9;">Leveraging Pynomaly and PyOD for Enterprise Security</p>
+    </div>
+</div>
+
+<!-- Slide 2: Executive Summary -->
+<div class="slide">
+    <h2>Executive Summary</h2>
+    <ul>
+        <li>Banks process <span class="highlight">millions of transactions daily</span> across multiple channels</li>
+        <li>Traditional rule-based systems struggle with volume and sophistication</li>
+        <li>Anomaly detection provides <span class="highlight">automated identification</span> of unusual patterns</li>
+        <li>Pynomaly + PyOD offer enterprise-ready fraud detection solutions</li>
+        <li>ROI of <span class="metric">300-500%</span> achievable within 3 years</li>
+    </ul>
+</div>
+
+<!-- Section: Understanding Anomaly Detection -->
+<div class="slide slide-section">
+    <h2>Understanding Anomaly Detection</h2>
+</div>
+
+<!-- Slide 3: What is Anomaly Detection? -->
+<div class="slide">
+    <h2>What is Anomaly Detection?</h2>
+    <ul>
+        <li>Like a <span class="highlight">highly trained security guard</span> who knows what "normal" looks like</li>
+        <li>Automatically monitors millions of transactions and behaviors</li>
+        <li>Identifies patterns that deviate from established norms</li>
+        <li>Works in <span class="highlight">real-time</span> to prevent fraud before it impacts customers</li>
+        <li>Adapts and learns from new patterns and analyst feedback</li>
+    </ul>
+</div>
+
+<!-- Slide 4: Types of Banking Anomalies -->
+<div class="slide">
+    <h2>Types of Banking Anomalies</h2>
+    <ul>
+        <li><span class="highlight">Point Anomalies:</span> Single unusual events ($50K withdrawal from $500 account)</li>
+        <li><span class="highlight">Contextual Anomalies:</span> Normal actions in wrong context (3AM rural ATM)</li>
+        <li><span class="highlight">Collective Anomalies:</span> Groups of related events (coordinated attacks)</li>
+        <li><span class="highlight">Behavioral Anomalies:</span> Changes in customer patterns over time</li>
+        <li><span class="highlight">Network Anomalies:</span> Suspicious connections between accounts</li>
+    </ul>
+</div>
+
+<!-- Slide 5: Why Banks Need This -->
+<div class="slide">
+    <h2>Why Banks Need Anomaly Detection</h2>
+    <ul>
+        <li><span class="highlight">Financial Impact:</span> Global banking fraud losses exceed <span class="metric">$30B annually</span></li>
+        <li><span class="highlight">Regulatory Requirements:</span> AML, KYC, fraud prevention mandates</li>
+        <li><span class="highlight">Volume Challenge:</span> Cannot manually review millions of transactions</li>
+        <li><span class="highlight">Sophistication:</span> Fraudsters adapt faster than rule updates</li>
+        <li><span class="highlight">Customer Experience:</span> Reduce false positives that block legitimate transactions</li>
+    </ul>
+</div>
+
+<!-- Section: Technology Deep Dive -->
+<div class="slide slide-section">
+    <h2>Technology Deep Dive</h2>
+</div>
+
+<!-- Slide 6: How It Works -->
+<div class="slide">
+    <h2>How Anomaly Detection Works</h2>
+    <ul>
+        <li><span class="highlight">Training Phase:</span> Learn patterns from historical transaction data</li>
+        <li><span class="highlight">Pattern Recognition:</span> Understand what constitutes "normal" behavior</li>
+        <li><span class="highlight">Real-time Scoring:</span> Assign risk scores to incoming transactions</li>
+        <li><span class="highlight">Alert Generation:</span> Flag high-risk transactions for review</li>
+        <li><span class="highlight">Continuous Learning:</span> Adapt based on analyst feedback and outcomes</li>
+    </ul>
+</div>
+
+<!-- Slide 7: Pynomaly Platform -->
+<div class="slide">
+    <h2>Pynomaly: Enterprise Anomaly Detection</h2>
+    <ul>
+        <li><span class="highlight">Multi-Algorithm Integration:</span> Combines PyOD, TODS, PyGOD technologies</li>
+        <li><span class="highlight">Clean Architecture:</span> Modular, scalable, maintainable design</li>
+        <li><span class="highlight">Production-Ready:</span> 99.9% uptime, sub-second response times</li>
+        <li><span class="highlight">Banking-Specific:</span> Risk scoring, regulatory reporting, audit trails</li>
+        <li><span class="highlight">Real-time Processing:</span> Handles millions of transactions per day</li>
+    </ul>
+</div>
+
+<!-- Slide 8: PyOD Engine -->
+<div class="slide">
+    <h2>PyOD: The Detection Engine</h2>
+    <ul>
+        <li><span class="highlight">40+ Advanced Algorithms:</span> Isolation Forest, LOF, One-Class SVM, etc.</li>
+        <li><span class="highlight">Automatic Selection:</span> Chooses optimal algorithms for each data type</li>
+        <li><span class="highlight">Ensemble Methods:</span> Combines multiple algorithms for higher accuracy</li>
+        <li><span class="highlight">Specialized Algorithms:</span> Optimized for different banking use cases</li>
+        <li><span class="highlight">Proven Performance:</span> Widely used in financial services industry</li>
+    </ul>
+</div>
+
+<!-- Slide 9: Autonomous Mode -->
+<div class="slide">
+    <h2>Autonomous Detection Mode</h2>
+    <ul>
+        <li><span class="highlight">Continuous Learning:</span> Adapts to changing patterns automatically</li>
+        <li><span class="highlight">Self-Tuning:</span> Optimizes parameters without manual intervention</li>
+        <li><span class="highlight">Intelligent Prioritization:</span> Routes alerts based on risk and impact</li>
+        <li><span class="highlight">Automated Response:</span> Blocks transactions and initiates workflows</li>
+        <li><span class="highlight">Human Oversight:</span> Maintains controls and escalation procedures</li>
+    </ul>
+</div>
+
+<!-- Section: Risk Scoring -->
+<div class="slide slide-section">
+    <h2>Risk Scoring & Prioritization</h2>
+</div>
+
+<!-- Slide 10: Risk Framework -->
+<div class="slide">
+    <h2>Risk Scoring Framework</h2>
+    <ul>
+        <li><span class="highlight">0-30: Low Risk</span> - Routine monitoring and automated handling</li>
+        <li><span class="highlight">31-60: Medium Risk</span> - Scheduled review by standard analysts</li>
+        <li><span class="highlight">61-80: High Risk</span> - Priority investigation by experienced analysts</li>
+        <li><span class="highlight">81-100: Critical Risk</span> - Immediate action and senior analyst review</li>
+        <li><span class="highlight">Multi-factor Scoring:</span> Statistical, contextual, network, and intelligence</li>
+    </ul>
+</div>
+
+<!-- Slide 11: Alert Prioritization -->
+<div class="slide">
+    <h2>Intelligent Alert Prioritization</h2>
+    <ul>
+        <li><span class="highlight">Department-Specific Views:</span> Fraud, AML, Risk, Operations, Compliance</li>
+        <li><span class="highlight">Dynamic Filtering:</span> Geographic, product, channel, and time-based filters</li>
+        <li><span class="highlight">Alert Clustering:</span> Group related suspicious activities together</li>
+        <li><span class="highlight">Predictive Analytics:</span> Anticipate trends before they fully emerge</li>
+        <li><span class="highlight">Feedback Loop:</span> Learn from analyst decisions to improve accuracy</li>
+    </ul>
+</div>
+
+<!-- Section: Applications -->
+<div class="slide slide-section">
+    <h2>Department-Specific Applications</h2>
+</div>
+
+<!-- Slide 12: Fraud Prevention -->
+<div class="slide">
+    <h2>Fraud Prevention Applications</h2>
+    <ul>
+        <li><span class="highlight">Real-time Transaction Monitoring</span> across all payment channels</li>
+        <li><span class="highlight">Account Takeover Detection</span> through login pattern analysis</li>
+        <li><span class="highlight">Card Fraud Prevention</span> with spending pattern recognition</li>
+        <li><span class="highlight">Digital Banking Fraud</span> for online and mobile anomalies</li>
+        <li><span class="metric">60-80% reduction</span> in false positives, faster case resolution</li>
+    </ul>
+</div>
+
+<!-- Slide 13: AML & Compliance -->
+<div class="slide">
+    <h2>AML & Compliance Applications</h2>
+    <ul>
+        <li><span class="highlight">Suspicious Activity Reporting (SAR)</span> automation</li>
+        <li><span class="highlight">Money Laundering Pattern Detection</span> (structuring, layering)</li>
+        <li><span class="highlight">Network Analysis</span> for criminal organization identification</li>
+        <li><span class="highlight">Regulatory Compliance</span> automation and audit trail generation</li>
+        <li><span class="highlight">Risk-based Customer Due Diligence</span> and monitoring</li>
+    </ul>
+</div>
+
+<!-- Slide 14: Risk Management -->
+<div class="slide">
+    <h2>Risk Management Applications</h2>
+    <ul>
+        <li><span class="highlight">Credit Risk Early Warning</span> through customer behavior changes</li>
+        <li><span class="highlight">Market Risk Detection</span> for unusual trading patterns</li>
+        <li><span class="highlight">Operational Risk</span> monitoring of systems and processes</li>
+        <li><span class="highlight">Model Risk Management</span> and performance monitoring</li>
+        <li><span class="highlight">Portfolio-wide risk assessment</span> and stress testing</li>
+    </ul>
+</div>
+
+<!-- Section: Implementation -->
+<div class="slide slide-section">
+    <h2>Implementation Strategy</h2>
+</div>
+
+<!-- Slide 15: Roadmap -->
+<div class="slide">
+    <h2>Phased Implementation Approach</h2>
+    <ul>
+        <li><span class="highlight">Phase 1 (Months 1-3):</span> Foundation - Basic fraud detection</li>
+        <li><span class="highlight">Phase 2 (Months 4-6):</span> Enhancement - Multi-department expansion</li>
+        <li><span class="highlight">Phase 3 (Months 7-12):</span> Autonomous - Full automation deployment</li>
+        <li><span class="highlight">Phase 4 (Ongoing):</span> Improvement - Continuous optimization</li>
+        <li><span class="highlight">Risk-managed approach</span> with clear milestones and success metrics</li>
+    </ul>
+</div>
+
+<!-- Slide 16: Success Factors -->
+<div class="slide">
+    <h2>Implementation Success Factors</h2>
+    <ul>
+        <li><span class="highlight">Executive Sponsorship:</span> Strong C-level support and resource commitment</li>
+        <li><span class="highlight">Cross-Department Collaboration:</span> Involvement of all stakeholders</li>
+        <li><span class="highlight">Change Management:</span> Comprehensive training and communication</li>
+        <li><span class="highlight">Technical Excellence:</span> Proper integration and performance optimization</li>
+        <li><span class="highlight">Continuous Improvement:</span> Ongoing adaptation and enhancement</li>
+    </ul>
+</div>
+
+<!-- Section: ROI -->
+<div class="slide slide-section">
+    <h2>Business Benefits & ROI</h2>
+</div>
+
+<!-- Slide 17: Benefits -->
+<div class="slide">
+    <h2>Quantifiable Business Benefits</h2>
+    <ul>
+        <li><span class="highlight">Fraud Detection:</span> <span class="metric">85-95% accuracy</span> vs. 60-70% traditional systems</li>
+        <li><span class="highlight">Cost Reduction:</span> <span class="metric">70% less</span> investigation time, 60-80% fewer false positives</li>
+        <li><span class="highlight">Compliance:</span> Avoid millions in AML fines, <span class="metric">90% automated</span> reporting</li>
+        <li><span class="highlight">Customer Experience:</span> <span class="metric">80% reduction</span> in legitimate transaction blocks</li>
+        <li><span class="highlight">Operational Efficiency:</span> 40-50% analyst time redirected to high-value work</li>
+    </ul>
+</div>
+
+<!-- Slide 18: ROI Analysis -->
+<div class="slide">
+    <h2>Return on Investment</h2>
+    <div class="roi-box">
+        <ul style="font-size: 1.6rem;">
+            <li><span class="highlight">Investment:</span> $3M-$8M over 3 years (varies by bank size)</li>
+            <li><span class="highlight">Annual Benefits:</span> $9M-$25M (fraud reduction, operations, compliance)</li>
+            <li><span class="highlight">Year 1 ROI:</span> <span class="metric">100-200%</span></li>
+            <li><span class="highlight">Year 2 ROI:</span> <span class="metric">200-400%</span></li>
+            <li><span class="highlight">Year 3+ ROI:</span> <span class="metric">300-500%</span></li>
+        </ul>
+    </div>
+</div>
+
+<!-- Slide 19: Strategic Benefits -->
+<div class="slide">
+    <h2>Strategic Business Value</h2>
+    <ul>
+        <li><span class="highlight">Competitive Advantage:</span> Technology leadership in fraud prevention</li>
+        <li><span class="highlight">Regulatory Positioning:</span> Proactive compliance demonstrates commitment</li>
+        <li><span class="highlight">Business Agility:</span> Rapid adaptation to new threats and growth</li>
+        <li><span class="highlight">Risk Management:</span> Comprehensive enterprise risk visibility</li>
+        <li><span class="highlight">Innovation Platform:</span> Foundation for advanced analytics and AI</li>
+    </ul>
+</div>
+
+<!-- Slide 20: Conclusion -->
+<div class="slide">
+    <h2>Key Takeaways</h2>
+    <ul>
+        <li>Anomaly detection is <span class="highlight">transformational</span> for modern banking security</li>
+        <li>Pynomaly + PyOD provide <span class="highlight">enterprise-ready, proven</span> technology</li>
+        <li>ROI of <span class="metric">300-500%</span> achievable with proper implementation</li>
+        <li><span class="highlight">Phased approach</span> reduces risk and ensures successful adoption</li>
+        <li>Investment today positions bank for <span class="highlight">competitive advantage</span> tomorrow</li>
+    </ul>
+</div>
+
+<!-- Slide 21: Next Steps -->
+<div class="slide">
+    <h2>Recommended Next Steps</h2>
+    <ul>
+        <li><span class="highlight">Executive briefing</span> and strategic alignment session</li>
+        <li><span class="highlight">Technical architecture review</span> and system integration planning</li>
+        <li><span class="highlight">Pilot program design</span> for initial fraud detection use case</li>
+        <li><span class="highlight">Resource planning</span> and team training requirements assessment</li>
+        <li><span class="highlight">Detailed business case</span> development and budget approval process</li>
+    </ul>
+</div>
+
+<!-- Final slide -->
+<div class="slide slide-title">
+    <h1>Thank You</h1>
+    <p class="subtitle">Questions & Discussion</p>
+    <div style="margin-top: 3rem;">
+        <p style="font-size: 1.2rem; opacity: 0.9;">For more information about implementing anomaly detection<br>in your banking environment, contact our solutions team</p>
+    </div>
+</div>
+
+</body>
+</html>
