@@ -1,0 +1,63 @@
+[
+  {
+    "environment": "Bash (Linux/WSL)",
+    "python_cmd": "python3",
+    "shell_prefix": null,
+    "platform": "Linux",
+    "test_env": "/tmp/pynomaly_autonomous_test_ruvndca3",
+    "tests": [
+      {
+        "test_name": "autonomous_basic_functionality",
+        "python_cmd": "python3",
+        "platform": "Linux",
+        "tests": [
+          {
+            "name": "import_test",
+            "description": "Test if pynomaly can be imported",
+            "success": false,
+            "output": "",
+            "error": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nModuleNotFoundError: No module named 'pynomaly'\n",
+            "duration": 0.09506487846374512
+          }
+        ],
+        "overall_success": false
+      }
+    ],
+    "overall_success": false,
+    "start_time": 1750795298.5655158,
+    "end_time": 1750795298.660595,
+    "total_duration": 0.09507918357849121
+  },
+  {
+    "environment": "PowerShell (Windows)",
+    "python_cmd": "python",
+    "shell_prefix": [
+      "powershell.exe",
+      "-Command"
+    ],
+    "platform": "Linux",
+    "test_env": "/tmp/pynomaly_autonomous_test_4lyzlhl8",
+    "tests": [
+      {
+        "test_name": "autonomous_basic_functionality",
+        "python_cmd": "powershell.exe -Command python",
+        "platform": "Linux",
+        "tests": [
+          {
+            "name": "import_test",
+            "description": "Test if pynomaly can be imported",
+            "success": false,
+            "output": "",
+            "error": "[Errno 2] No such file or directory: 'powershell.exe -Command python'",
+            "duration": 0.036542654037475586
+          }
+        ],
+        "overall_success": false
+      }
+    ],
+    "overall_success": false,
+    "start_time": 1750795298.6639075,
+    "end_time": 1750795298.7004652,
+    "total_duration": 0.036557674407958984
+  }
+]
