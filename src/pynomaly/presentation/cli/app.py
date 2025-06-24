@@ -10,7 +10,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from pynomaly.presentation.cli import datasets, detectors, detection, server, autonomous
+from pynomaly.presentation.cli import datasets, detectors, detection, server, autonomous, preprocessing
 # from pynomaly.presentation.cli import performance  # Temporarily disabled due to Typer type issues
 from pynomaly.presentation.cli.export import export_app
 from pynomaly.presentation.cli.container import get_cli_container
@@ -31,6 +31,7 @@ console = Console()
 app.add_typer(autonomous.app, name="auto", help="🤖 Autonomous anomaly detection (auto-configure and run)")
 app.add_typer(detectors.app, name="detector", help="Manage anomaly detectors")
 app.add_typer(datasets.app, name="dataset", help="Manage datasets")
+app.add_typer(preprocessing.app, name="data", help="🔧 Data preprocessing (clean, transform, pipeline)")
 app.add_typer(detection.app, name="detect", help="Run anomaly detection")
 app.add_typer(export_app, name="export", help="Export results to business intelligence platforms")
 app.add_typer(server.app, name="server", help="Manage API server")
@@ -146,6 +147,211 @@ def status():
 
 
 @app.command()
+def generate_config(
+    config_type: str = typer.Argument(..., help="Config type: 'test', 'experiment', or 'autonomous'"),
+    output: Path = typer.Option("pynomaly_config.json", "--output", "-o", help="Output file path"),
+    format: str = typer.Option("json", "--format", "-f", help="Output format (json, yaml)"),
+    detector: Optional[str] = typer.Option(None, "--detector", help="Detector algorithm"),
+    dataset: Optional[str] = typer.Option(None, "--dataset", help="Dataset path or name"),
+    contamination: Optional[float] = typer.Option(None, "--contamination", help="Contamination rate"),
+    max_algorithms: Optional[int] = typer.Option(None, "--max-algorithms", help="Max algorithms to try"),
+    auto_tune: Optional[bool] = typer.Option(None, "--auto-tune", help="Enable auto-tuning"),
+    cross_validation: Optional[bool] = typer.Option(None, "--cv", help="Enable cross-validation"),
+    cv_folds: Optional[int] = typer.Option(None, "--folds", help="Number of CV folds"),
+    save_results: Optional[bool] = typer.Option(None, "--save", help="Save results"),
+    export_format: Optional[str] = typer.Option(None, "--export-format", help="Export format"),
+    verbose: Optional[bool] = typer.Option(None, "--verbose", help="Verbose output"),
+    include_examples: bool = typer.Option(True, "--examples/--no-examples", help="Include usage examples")
+):
+    """Generate configuration files for tests or experiments from CLI options."""
+    import json
+    import yaml
+    from datetime import datetime
+    
+    config = {
+        "metadata": {
+            "type": config_type,
+            "created": datetime.now().isoformat(),
+            "version": "1.0",
+            "description": f"Pynomaly {config_type} configuration"
+        }
+    }
+    
+    if config_type == "test":
+        config["test"] = {
+            "detector": {
+                "algorithm": detector or "IsolationForest",
+                "parameters": {
+                    "contamination": contamination or 0.1,
+                    "random_state": 42
+                }
+            },
+            "dataset": {
+                "source": dataset or "path/to/test_data.csv",
+                "validation": {
+                    "enabled": True,
+                    "checks": ["missing_values", "data_types", "duplicates"]
+                }
+            },
+            "training": {
+                "validate_data": True,
+                "save_model": save_results if save_results is not None else True
+            },
+            "detection": {
+                "validate_features": True,
+                "save_results": save_results if save_results is not None else True,
+                "export": {
+                    "enabled": True,
+                    "format": export_format or "csv",
+                    "path": "test_results.csv"
+                }
+            },
+            "evaluation": {
+                "cross_validation": cross_validation if cross_validation is not None else True,
+                "folds": cv_folds or 5,
+                "metrics": ["precision", "recall", "f1", "auc_roc", "auc_pr"]
+            }
+        }
+        
+        if include_examples:
+            config["examples"] = {
+                "usage": [
+                    "pynomaly detector create --name test_detector --algorithm IsolationForest",
+                    "pynomaly dataset load path/to/test_data.csv --name test_data",
+                    "pynomaly detect train test_detector test_data",
+                    "pynomaly detect run test_detector test_data --output results.csv",
+                    "pynomaly detect evaluate test_detector test_data --cv --folds 5"
+                ],
+                "description": "Basic testing workflow with single detector"
+            }
+    
+    elif config_type == "experiment":
+        config["experiment"] = {
+            "name": "anomaly_detection_experiment",
+            "description": "Comparative anomaly detection experiment",
+            "algorithms": [
+                {
+                    "name": "IsolationForest",
+                    "parameters": {"contamination": contamination or 0.1, "n_estimators": 100}
+                },
+                {
+                    "name": "LOF",
+                    "parameters": {"contamination": contamination or 0.1, "n_neighbors": 20}
+                },
+                {
+                    "name": "OneClassSVM",
+                    "parameters": {"nu": contamination or 0.1, "gamma": "scale"}
+                }
+            ],
+            "dataset": {
+                "source": dataset or "path/to/experiment_data.csv",
+                "preprocessing": {
+                    "normalization": "standard",
+                    "feature_selection": False,
+                    "outlier_removal": False
+                }
+            },
+            "evaluation": {
+                "cross_validation": cross_validation if cross_validation is not None else True,
+                "folds": cv_folds or 5,
+                "metrics": ["precision", "recall", "f1", "auc_roc", "auc_pr", "average_precision"],
+                "statistical_tests": ["wilcoxon", "friedman"]
+            },
+            "hyperparameter_tuning": {
+                "enabled": auto_tune if auto_tune is not None else True,
+                "method": "grid_search",
+                "cv_folds": 3,
+                "scoring": "average_precision"
+            },
+            "output": {
+                "save_results": save_results if save_results is not None else True,
+                "export_format": export_format or "excel",
+                "include_visualizations": True,
+                "generate_report": True
+            }
+        }
+        
+        if include_examples:
+            config["examples"] = {
+                "usage": [
+                    "pynomaly dataset load path/to/experiment_data.csv --name exp_data",
+                    "pynomaly detect batch IsolationForest LOF OneClassSVM exp_data",
+                    "pynomaly detect evaluate IsolationForest exp_data --cv --folds 5",
+                    "pynomaly export excel results.json experiment_results.xlsx"
+                ],
+                "description": "Multi-algorithm experiment with statistical comparison"
+            }
+    
+    elif config_type == "autonomous":
+        config["autonomous"] = {
+            "data_source": dataset or "path/to/data.csv",
+            "analysis": {
+                "max_samples": 10000,
+                "profile_data": True,
+                "detect_seasonality": True,
+                "complexity_analysis": True
+            },
+            "detection": {
+                "max_algorithms": max_algorithms or 5,
+                "confidence_threshold": 0.8,
+                "auto_tune_hyperparams": auto_tune if auto_tune is not None else True,
+                "ensemble_methods": True
+            },
+            "output": {
+                "save_results": save_results if save_results is not None else True,
+                "export_results": True,
+                "export_format": export_format or "csv",
+                "verbose": verbose if verbose is not None else False,
+                "generate_insights": True
+            },
+            "quality_assurance": {
+                "validation_checks": True,
+                "result_consistency": True,
+                "performance_monitoring": True
+            }
+        }
+        
+        if include_examples:
+            config["examples"] = {
+                "usage": [
+                    "pynomaly auto detect path/to/data.csv --output results.csv",
+                    "pynomaly auto profile path/to/data.csv --verbose",
+                    "pynomaly auto quick path/to/data.csv --contamination 0.05"
+                ],
+                "description": "Fully autonomous anomaly detection with minimal configuration"
+            }
+    
+    else:
+        console.print(f"[red]Error:[/red] Unknown config type '{config_type}'. Use 'test', 'experiment', or 'autonomous'")
+        raise typer.Exit(1)
+    
+    # Save configuration
+    try:
+        if format.lower() == "yaml":
+            with open(output, "w") as f:
+                yaml.dump(config, f, default_flow_style=False, sort_keys=False, indent=2)
+        else:  # json
+            with open(output, "w") as f:
+                json.dump(config, f, indent=2, default=str)
+        
+        console.print(f"[green]✓[/green] {config_type.title()} configuration generated: {output}")
+        
+        if include_examples:
+            console.print(f"\n[bold blue]Usage Examples:[/bold blue]")
+            examples = config.get("examples", {}).get("usage", [])
+            for example in examples:
+                console.print(f"  [cyan]{example}[/cyan]")
+            
+            description = config.get("examples", {}).get("description", "")
+            if description:
+                console.print(f"\n[dim]{description}[/dim]")
+    
+    except Exception as e:
+        console.print(f"[red]Error:[/red] Failed to save config: {str(e)}")
+        raise typer.Exit(1)
+
+
+@app.command()
 def quickstart():
     """Run interactive quickstart guide."""
     console.print("[bold blue]Welcome to Pynomaly![/bold blue]\n")
@@ -160,19 +366,25 @@ def quickstart():
     console.print("You can load data from CSV or Parquet files.")
     console.print("Example: [cyan]pynomaly dataset load data.csv --name my_data[/cyan]")
     
-    console.print("\n[bold]Step 2: Create a detector[/bold]")
+    console.print("\n[bold]Step 2: Clean and preprocess data (optional)[/bold]")
+    console.print("Clean missing values, outliers, and transform features.")
+    console.print("Examples:")
+    console.print("  [cyan]pynomaly data clean <dataset_id> --missing drop_rows --outliers clip[/cyan]")
+    console.print("  [cyan]pynomaly data transform <dataset_id> --scaling standard --encoding onehot[/cyan]")
+    
+    console.print("\n[bold]Step 3: Create a detector[/bold]")
     console.print("Choose from various algorithms like IsolationForest, LOF, etc.")
     console.print("Example: [cyan]pynomaly detector create --name my_detector --algorithm IsolationForest[/cyan]")
     
-    console.print("\n[bold]Step 3: Train the detector[/bold]")
+    console.print("\n[bold]Step 4: Train the detector[/bold]")
     console.print("Train your detector on the loaded dataset.")
     console.print("Example: [cyan]pynomaly detect train --detector my_detector --dataset my_data[/cyan]")
     
-    console.print("\n[bold]Step 4: Detect anomalies[/bold]")
+    console.print("\n[bold]Step 5: Detect anomalies[/bold]")
     console.print("Run detection on new data.")
     console.print("Example: [cyan]pynomaly detect run --detector my_detector --dataset test_data[/cyan]")
     
-    console.print("\n[bold]Step 5: View and export results[/bold]")
+    console.print("\n[bold]Step 6: View and export results[/bold]")
     console.print("Analyze detection results and export them to various platforms.")
     console.print("Examples:")
     console.print("  [cyan]pynomaly detect results --latest[/cyan]")
