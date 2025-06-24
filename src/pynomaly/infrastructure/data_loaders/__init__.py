@@ -2,6 +2,8 @@
 
 from .csv_loader import CSVLoader
 from .parquet_loader import ParquetLoader
+from .json_loader import JSONLoader
+from .excel_loader import ExcelLoader
 
 # High-performance data loaders (optional dependencies)
 try:
@@ -26,6 +28,8 @@ except ImportError:
 __all__ = [
     "CSVLoader",
     "ParquetLoader",
+    "JSONLoader",
+    "ExcelLoader",
 ]
 
 # Optional high-performance loaders

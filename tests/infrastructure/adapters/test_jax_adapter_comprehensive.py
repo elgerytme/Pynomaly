@@ -68,7 +68,8 @@ class TestJAXAdapterComprehensive:
     @pytest.mark.parametrize("algorithm_name", [
         "AutoEncoder",
         "VAE", 
-        "IsolationForest"
+        "IsolationForest",
+        "OCSVM"
     ])
     def test_jax_adapter_initialization(self, algorithm_name):
         """Test JAX adapter initialization for all algorithms."""
@@ -186,6 +187,36 @@ class TestJAXAdapterComprehensive:
         assert model_info["algorithm"] == "IsolationForest"
         assert model_info["n_trees"] == 50
         assert model_info["max_depth"] == 8
+    
+    @requires_jax
+    def test_ocsvm_training_and_prediction(self, sample_dataset):
+        """Test OCSVM training and prediction."""
+        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        
+        adapter = JAXAdapter(
+            algorithm_name="OCSVM",
+            contamination_rate=ContaminationRate(0.1),
+            gamma=0.1,
+            nu=0.05
+        )
+        
+        # Test fitting
+        adapter.fit(sample_dataset)
+        assert adapter.is_fitted
+        
+        # Test prediction
+        result = adapter.predict(sample_dataset)
+        
+        assert result is not None
+        assert result.n_samples == len(sample_dataset.data)
+        assert result.anomaly_rate <= 0.2  # Should be reasonable
+        
+        # Test model info
+        model_info = adapter.get_model_info()
+        assert model_info["algorithm"] == "OCSVM"
+        assert model_info["gamma"] == 0.1
+        assert model_info["nu"] == 0.05
+        assert "n_support_vectors" in model_info
     
     @requires_jax
     def test_prediction_without_fitting(self, sample_dataset):

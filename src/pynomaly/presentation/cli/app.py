@@ -11,7 +11,7 @@ from rich.console import Console
 from rich.table import Table
 
 from pynomaly.infrastructure.config import create_container
-from pynomaly.presentation.cli import datasets, detectors, detection, server, performance
+from pynomaly.presentation.cli import datasets, detectors, detection, server, performance, autonomous
 from pynomaly.presentation.cli.export import export_app
 
 
@@ -27,6 +27,7 @@ app = typer.Typer(
 console = Console()
 
 # Add subcommands
+app.add_typer(autonomous.app, name="auto", help="🤖 Autonomous anomaly detection (auto-configure and run)")
 app.add_typer(detectors.app, name="detector", help="Manage anomaly detectors")
 app.add_typer(datasets.app, name="dataset", help="Manage datasets")
 app.add_typer(detection.app, name="detect", help="Run anomaly detection")
