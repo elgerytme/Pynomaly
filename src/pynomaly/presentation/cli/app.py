@@ -10,9 +10,10 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from pynomaly.infrastructure.config import create_container
-from pynomaly.presentation.cli import datasets, detectors, detection, server, performance, autonomous
+from pynomaly.presentation.cli import datasets, detectors, detection, server, autonomous
+# from pynomaly.presentation.cli import performance  # Temporarily disabled due to Typer type issues
 from pynomaly.presentation.cli.export import export_app
+from pynomaly.presentation.cli.container import get_cli_container
 
 
 # Create Typer app
@@ -33,18 +34,7 @@ app.add_typer(datasets.app, name="dataset", help="Manage datasets")
 app.add_typer(detection.app, name="detect", help="Run anomaly detection")
 app.add_typer(export_app, name="export", help="Export results to business intelligence platforms")
 app.add_typer(server.app, name="server", help="Manage API server")
-app.add_typer(performance.app, name="perf", help="Performance monitoring and optimization")
-
-# Store container globally for CLI
-_container = None
-
-
-def get_cli_container():
-    """Get or create container for CLI."""
-    global _container
-    if _container is None:
-        _container = create_container()
-    return _container
+# app.add_typer(performance.app, name="perf", help="Performance monitoring and optimization")  # Disabled
 
 
 @app.command()

@@ -10,7 +10,7 @@ from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from pynomaly.presentation.cli.app import get_cli_container
+from pynomaly.presentation.cli.container import get_cli_container
 
 
 app = typer.Typer()

@@ -11,7 +11,7 @@ from rich.table import Table
 
 from pynomaly.application.dto import CreateDetectorDTO
 from pynomaly.domain.entities import Detector
-from pynomaly.presentation.cli.app import get_cli_container
+from pynomaly.presentation.cli.container import get_cli_container
 
 
 app = typer.Typer()

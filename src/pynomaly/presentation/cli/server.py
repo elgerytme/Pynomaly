@@ -12,7 +12,7 @@ from typing import Optional
 import typer
 from rich.console import Console
 
-from pynomaly.presentation.cli.app import get_cli_container
+from pynomaly.presentation.cli.container import get_cli_container
 
 
 app = typer.Typer()

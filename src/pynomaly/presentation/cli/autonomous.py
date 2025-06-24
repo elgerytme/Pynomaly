@@ -22,7 +22,7 @@ from pynomaly.infrastructure.data_loaders.csv_loader import CSVLoader
 from pynomaly.infrastructure.data_loaders.parquet_loader import ParquetLoader
 from pynomaly.infrastructure.data_loaders.json_loader import JSONLoader
 from pynomaly.infrastructure.data_loaders.excel_loader import ExcelLoader
-from pynomaly.presentation.cli.app import get_cli_container
+from pynomaly.presentation.cli.container import get_cli_container
 
 
 app = typer.Typer()

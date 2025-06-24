@@ -529,9 +529,4 @@ def run_async_command(func):
     return wrapper
 
 
-# Apply async wrapper to all commands
-for command_name in ["list_pools", "show_pool", "reset_pool_stats", "query_performance", 
-                     "cache_stats", "clear_cache", "optimize_database", "monitor_performance", 
-                     "performance_report"]:
-    command = getattr(app, "commands")[command_name]
-    command.callback = run_async_command(command.callback)
+# Note: Async commands are handled individually in their decorators

@@ -226,3 +226,30 @@ class CacheError(PynamolyError):
             details["key"] = key
         
         super().__init__(message, details)
+
+
+class InfrastructureError(PynamolyError):
+    """Exception raised when infrastructure operations fail."""
+    
+    def __init__(
+        self,
+        message: str = "Infrastructure operation failed",
+        component: Optional[str] = None,
+        operation: Optional[str] = None,
+        **kwargs: Any
+    ) -> None:
+        """Initialize infrastructure error.
+        
+        Args:
+            message: Error message
+            component: Infrastructure component that failed
+            operation: Operation that failed
+            **kwargs: Additional details
+        """
+        details = kwargs
+        if component:
+            details["component"] = component
+        if operation:
+            details["operation"] = operation
+        
+        super().__init__(message, details)

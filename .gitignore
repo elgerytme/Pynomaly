@@ -8,9 +8,13 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
+build/artifacts/
+!build/artifacts/README.md
+build/lib/
 develop-eggs/
 dist/
+deploy/artifacts/
+!deploy/artifacts/README.md
 downloads/
 eggs/
 .eggs/

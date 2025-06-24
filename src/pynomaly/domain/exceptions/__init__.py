@@ -9,6 +9,7 @@ from .base import (
     AuthenticationError,
     AuthorizationError,
     CacheError,
+    InfrastructureError,
 )
 from .detector_exceptions import (
     DetectorError,
@@ -53,6 +54,7 @@ __all__ = [
     "AuthenticationError",
     "AuthorizationError",
     "CacheError",
+    "InfrastructureError",
     # Detector exceptions
     "DetectorError",
     "DetectorNotFittedError",
