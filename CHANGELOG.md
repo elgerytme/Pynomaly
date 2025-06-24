@@ -7,6 +7,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2025-06-24
+
+### Added
+- **Comprehensive Dataset Collection**: 69,000+ samples across 8 diverse anomaly detection datasets
+  - Financial Fraud Detection (10K samples, 9 features, 2% anomalies) - Transaction fraud with timing/amount patterns
+  - Network Intrusion Detection (8K samples, 11 features, 5% anomalies) - DDoS, port scanning, traffic anomalies
+  - IoT Sensor Monitoring (12K samples, 10 features, 3% anomalies) - Environmental monitoring with sensor failures
+  - Manufacturing Quality Control (6K samples, 11 features, 8% anomalies) - Process control and defect detection
+  - E-commerce Behavior Analysis (15K samples, 12 features, 4% anomalies) - Bot detection and user behavior
+  - Time Series Anomalies (5K samples, 10 features, 6% anomalies) - Temporal patterns with trend changes
+  - High-Dimensional Data (3K samples, 54 features, 10% anomalies) - Curse of dimensionality challenges
+  - KDD Cup 1999 (10K samples, real-world network intrusion benchmark)
+
+### Added
+- **Analysis Tools & Scripts**: Complete dataset analysis infrastructure
+  - `scripts/generate_comprehensive_datasets.py` - Automated dataset generation with realistic patterns
+  - `scripts/analyze_dataset_comprehensive.py` - Multi-dataset analysis with algorithm recommendations
+  - `examples/analyze_financial_fraud.py` - Domain-specific fraud detection analysis
+  - `examples/analyze_network_intrusion.py` - Network security analysis with attack pattern detection
+  - Individual metadata files with detailed dataset characteristics
+
+### Added
+- **Documentation & Guides**: Comprehensive analysis documentation
+  - `docs/guides/dataset-analysis-guide.md` - 200+ line comprehensive analysis guide
+  - Algorithm selection matrix for each dataset type
+  - Domain-specific feature engineering approaches
+  - Implementation strategies and best practices
+  - Production deployment considerations
+
+### Added
+- **Algorithm Recommendations**: Domain-specific algorithm guidance
+  - Financial Fraud: IsolationForest (primary), LocalOutlierFactor, OneClassSVM
+  - Network Intrusion: IsolationForest (primary), EllipticEnvelope, PyOD.ABOD
+  - IoT Sensors: LocalOutlierFactor (primary), EllipticEnvelope, PyOD.KNN
+  - Manufacturing: IsolationForest (primary), EllipticEnvelope, PyOD.OCSVM
+  - E-commerce: LocalOutlierFactor (primary), IsolationForest, PyOD.COPOD
+  - Time Series: LocalOutlierFactor (primary), IsolationForest, EllipticEnvelope
+  - High-Dimensional: IsolationForest (primary), PyOD.PCA, PyOD.ABOD
+
+### Documentation
+- Updated `examples/README.md` with comprehensive dataset collection information
+- Added detailed dataset characteristics and usage instructions
+- Provided analysis scripts and visualization examples for each domain
+- Included implementation guidelines and performance considerations
+
+### Infrastructure
+- Organized datasets in structured directory with synthetic and real-world subdirectories
+- Added metadata JSON files for each dataset with characteristics and recommendations
+- Created master dataset metadata with comprehensive overview
+
+## [0.2.0] - 2025-06-23
+
 ### Fixed
 - **Critical**: Fixed PyGOD adapter inheritance to properly extend `Detector` base class
 - **Critical**: Fixed TODS adapter inheritance to properly extend `Detector` base class
