@@ -1,0 +1,199 @@
+{
+  "generated_at": "2025-06-24T16:35:02.043657",
+  "total_datasets": 8,
+  "synthetic_datasets": 7,
+  "real_world_datasets": 1,
+  "datasets": [
+    {
+      "name": "financial_fraud",
+      "description": "Financial transaction fraud detection with unusual amounts, timing, and patterns",
+      "samples": 10000,
+      "features": 9,
+      "anomaly_rate": 0.02,
+      "anomaly_count": 200,
+      "anomaly_types": [
+        "Transaction fraud",
+        "Unusual amounts",
+        "Timing anomalies",
+        "Location anomalies"
+      ],
+      "recommended_algorithms": [
+        "IsolationForest",
+        "LocalOutlierFactor",
+        "OneClassSVM"
+      ],
+      "feature_types": {
+        "numerical": 8,
+        "categorical": 1
+      },
+      "missing_values": 0,
+      "created": "2025-06-24T16:34:53.611985",
+      "file_size_mb": 1.15
+    },
+    {
+      "name": "network_intrusion",
+      "description": "Network traffic anomaly detection with DDoS, port scanning, and malicious patterns",
+      "samples": 8000,
+      "features": 11,
+      "anomaly_rate": 0.05,
+      "anomaly_count": 400,
+      "anomaly_types": [
+        "DDoS attacks",
+        "Port scanning",
+        "Traffic volume anomalies",
+        "Protocol anomalies"
+      ],
+      "recommended_algorithms": [
+        "IsolationForest",
+        "EllipticEnvelope",
+        "PyOD.ABOD"
+      ],
+      "feature_types": {
+        "numerical": 10,
+        "categorical": 1
+      },
+      "missing_values": 0,
+      "created": "2025-06-24T16:34:53.678052",
+      "file_size_mb": 1.02
+    },
+    {
+      "name": "iot_sensors",
+      "description": "IoT sensor monitoring with failures, environmental anomalies, and drift",
+      "samples": 12000,
+      "features": 10,
+      "anomaly_rate": 0.03,
+      "anomaly_count": 360,
+      "anomaly_types": [
+        "Sensor failures",
+        "Environmental anomalies",
+        "Measurement drift",
+        "Temporal anomalies"
+      ],
+      "recommended_algorithms": [
+        "LocalOutlierFactor",
+        "EllipticEnvelope",
+        "PyOD.KNN"
+      ],
+      "feature_types": {
+        "numerical": 10,
+        "categorical": 0
+      },
+      "missing_values": 0,
+      "created": "2025-06-24T16:34:53.770437",
+      "file_size_mb": 1.01
+    },
+    {
+      "name": "manufacturing_quality",
+      "description": "Manufacturing quality control with defective products and process variations",
+      "samples": 6000,
+      "features": 11,
+      "anomaly_rate": 0.08,
+      "anomaly_count": 480,
+      "anomaly_types": [
+        "Product defects",
+        "Process variations",
+        "Machine malfunctions",
+        "Specification violations"
+      ],
+      "recommended_algorithms": [
+        "IsolationForest",
+        "PyOD.OCSVM",
+        "EllipticEnvelope"
+      ],
+      "feature_types": {
+        "numerical": 11,
+        "categorical": 0
+      },
+      "missing_values": 0,
+      "created": "2025-06-24T16:34:53.830891",
+      "file_size_mb": 0.55
+    },
+    {
+      "name": "ecommerce_behavior",
+      "description": "E-commerce user behavior with bot detection and fraud patterns",
+      "samples": 15000,
+      "features": 12,
+      "anomaly_rate": 0.04,
+      "anomaly_count": 600,
+      "anomaly_types": [
+        "Bot behavior",
+        "Purchase fraud",
+        "Unusual browsing patterns",
+        "Session anomalies"
+      ],
+      "recommended_algorithms": [
+        "LocalOutlierFactor",
+        "IsolationForest",
+        "PyOD.COPOD"
+      ],
+      "feature_types": {
+        "numerical": 12,
+        "categorical": 0
+      },
+      "missing_values": 0,
+      "created": "2025-06-24T16:34:53.913470",
+      "file_size_mb": 1.49
+    },
+    {
+      "name": "time_series_anomalies",
+      "description": "Time series with spikes, drops, trend changes, and seasonality breaks",
+      "samples": 5000,
+      "features": 10,
+      "anomaly_rate": 0.06,
+      "anomaly_count": 300,
+      "anomaly_types": [
+        "Value spikes",
+        "Value drops",
+        "Trend changes",
+        "Level shifts",
+        "Seasonality breaks"
+      ],
+      "recommended_algorithms": [
+        "PyOD.KNN",
+        "LocalOutlierFactor",
+        "EllipticEnvelope"
+      ],
+      "feature_types": {
+        "numerical": 10,
+        "categorical": 0
+      },
+      "missing_values": 0,
+      "created": "2025-06-24T16:34:53.966843",
+      "file_size_mb": 0.42
+    },
+    {
+      "name": "high_dimensional",
+      "description": "High-dimensional dataset with correlated features and outliers",
+      "samples": 3000,
+      "features": 54,
+      "anomaly_rate": 0.1,
+      "anomaly_count": 300,
+      "anomaly_types": [
+        "High-dimensional outliers",
+        "Correlation anomalies",
+        "Feature space anomalies"
+      ],
+      "recommended_algorithms": [
+        "IsolationForest",
+        "PyOD.PCA",
+        "PyOD.ABOD",
+        "LocalOutlierFactor"
+      ],
+      "feature_types": {
+        "numerical": 54,
+        "categorical": 0
+      },
+      "missing_values": 0,
+      "created": "2025-06-24T16:34:54.115150",
+      "file_size_mb": 1.26
+    },
+    {
+      "name": "kdd_cup_1999",
+      "description": "Network intrusion detection dataset from KDD Cup 1999",
+      "source": "UCI Machine Learning Repository",
+      "anomaly_rate": 0.0328,
+      "samples": 10000,
+      "features": 41
+    }
+  ]
+}

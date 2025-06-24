@@ -109,6 +109,42 @@ The `sample_data/` directory contains realistic datasets for different domains:
 - **`credit_transactions.csv`** - Financial transaction data for fraud detection  
 - **`sensor_readings.csv`** - IoT sensor data with equipment failures
 
+### Comprehensive Dataset Collection
+
+The `sample_datasets/` directory contains an extensive collection of tabular datasets covering various anomaly detection scenarios:
+
+#### Synthetic Datasets
+- **Financial Fraud** (10K samples) - Transaction fraud with timing and amount patterns
+- **Network Intrusion** (8K samples) - DDoS, port scanning, traffic anomalies  
+- **IoT Sensors** (12K samples) - Environmental monitoring with sensor failures
+- **Manufacturing Quality** (6K samples) - Process control and defect detection
+- **E-commerce Behavior** (15K samples) - Bot detection and user behavior analysis
+- **Time Series Anomalies** (5K samples) - Temporal patterns with trend changes
+- **High-Dimensional** (3K samples) - Curse of dimensionality challenges
+
+#### Real-World Datasets
+- **KDD Cup 1999** (10K sample) - Network intrusion detection benchmark
+
+Each dataset includes:
+- ✅ Detailed metadata and characteristics
+- 📊 Analysis scripts with domain-specific approaches
+- 🧠 Algorithm recommendations
+- 📋 Implementation guidelines
+- 📈 Visualization examples
+
+**Getting Started with Sample Datasets:**
+```bash
+# Generate all datasets
+python scripts/generate_comprehensive_datasets.py
+
+# Analyze all datasets
+python scripts/analyze_dataset_comprehensive.py
+
+# Analyze specific domains
+python examples/analyze_financial_fraud.py
+python examples/analyze_network_intrusion.py
+```
+
 ## Running the Examples
 
 ### Prerequisites

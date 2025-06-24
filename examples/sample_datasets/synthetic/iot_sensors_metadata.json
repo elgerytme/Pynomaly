@@ -1,0 +1,26 @@
+{
+  "name": "iot_sensors",
+  "description": "IoT sensor monitoring with failures, environmental anomalies, and drift",
+  "samples": 12000,
+  "features": 10,
+  "anomaly_rate": 0.03,
+  "anomaly_count": 360,
+  "anomaly_types": [
+    "Sensor failures",
+    "Environmental anomalies",
+    "Measurement drift",
+    "Temporal anomalies"
+  ],
+  "recommended_algorithms": [
+    "LocalOutlierFactor",
+    "EllipticEnvelope",
+    "PyOD.KNN"
+  ],
+  "feature_types": {
+    "numerical": 10,
+    "categorical": 0
+  },
+  "missing_values": 0,
+  "created": "2025-06-24T16:34:53.770437",
+  "file_size_mb": 1.01
+}
