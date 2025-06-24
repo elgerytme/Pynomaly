@@ -157,6 +157,8 @@ poetry build  # Build distribution packages
 #### Testing and Quality
 ```bash
 poetry run pytest --cov=pynomaly --cov-report=html
+poetry run pytest > tests/pytest_output.txt 2>&1  # Capture pytest output in tests/
+poetry run pytest -v > tests/pytest_full_output.txt 2>&1  # Verbose output in tests/
 poetry run mypy --strict src/
 poetry run black src/ tests/
 poetry run isort src/ tests/
@@ -223,10 +225,37 @@ poetry run python -m http.server 8080 --directory src/pynomaly/presentation/web/
 - **Focus on facts**: Base recommendations on technical merit, not on trying to please or agree
 - **Challenge when appropriate**: If a design decision seems suboptimal, explain why and suggest alternatives
 
+## Project Organization Rules
+
+### File Organization Standards
+- **Root Directory**: Keep only essential project files (pyproject.toml, README.md, LICENSE, etc.)
+- **scripts/**: All Python scripts, utilities, and CLI tools
+  - Development and testing scripts
+  - Build and deployment automation
+  - Database initialization scripts
+  - Benchmarking and performance tools
+- **docker/**: All Docker-related files
+  - Dockerfiles (main, hardened, testing variants)
+  - docker-compose files for different environments
+  - Docker-specific Makefiles and configurations
+- **tests/**: All testing code organized by test type
+- **docs/**: All documentation files
+- **examples/**: Sample code and usage demonstrations
+- **src/**: Source code following clean architecture structure
+- **benchmarks/**: Performance testing and benchmarking code
+
+### Maintenance Rules
+- **Never clutter the root directory** with utility scripts or temporary files
+- **Group related files** in appropriate subdirectories
+- **Use descriptive directory names** that clearly indicate their purpose
+- **Maintain consistency** in file naming and organization patterns
+- **Regular cleanup**: Remove obsolete files and reorganize as needed
+
 ## Important Notes
 - Always ensure the virtual environment is activated before installing packages or running code
 - The `.gitignore` currently excludes the VS Code workspace file (`Pynomaly.code-workspace`)
 - Follow the architectural principles strictly to maintain clean separation of concerns
+- **CRITICAL**: Always keep `requirements.txt` in sync with `pyproject.toml` core dependencies. When adding/removing dependencies in `pyproject.toml`, immediately update `requirements.txt` to include only the non-optional dependencies needed for basic functionality
 
 ## Web UI Technology Stack
 - **HTMX**: Provides dynamic behavior with minimal JavaScript, keeping complexity server-side

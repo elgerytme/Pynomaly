@@ -37,7 +37,10 @@ pyarrow>=14.0.0
 
 # Infrastructure resilience
 tenacity>=8.2.0
-py-breaker>=0.5.0
+circuitbreaker>=1.4.0
+pybreaker>=0.7.0
+aiobreaker>=1.1.0
+circuit-breaker-box>=0.3.0
 asyncio-throttle>=1.0.2
 
 # Monitoring & Observability
