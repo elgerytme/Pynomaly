@@ -345,11 +345,66 @@ When logical units of work are complete, **ALWAYS** update both CHANGELOG.md and
    - Commit both files together with the feature
 4. **Quality Check**: Ensure changelog entry includes sufficient detail for users
 
+#### TODO.md Synchronization Rules
+**MANDATORY: Automatic TODO.md Updates with Claude Code Internal Todos**
+
+Claude Code MUST automatically synchronize the internal todo system with TODO.md following these rules:
+
+**📋 Synchronization Requirements:**
+1. **Bidirectional Sync**: Changes in either Claude Code todos or TODO.md must trigger updates in both
+2. **Real-Time Updates**: Synchronization occurs immediately when:
+   - New Claude Code todos are created using TodoWrite
+   - Todo status changes (pending → in_progress → completed)
+   - TODO.md is manually edited with new tasks or status updates
+   - Logical units of work are completed
+
+**📝 TODO.md Integration Process:**
+1. **Task Creation**: When TodoWrite creates new tasks, automatically add them to TODO.md "Current Work in Progress" section
+2. **Status Updates**: When todo status changes, update corresponding entries in TODO.md with appropriate symbols:
+   - ⏳ **Pending**: Tasks in pending status
+   - 🔄 **In Progress**: Tasks actively being worked on
+   - ✅ **Completed**: Tasks marked as completed
+3. **Completion Documentation**: When tasks are completed, move them to the "Latest Completed" section with:
+   - Detailed description of work accomplished
+   - Technical specifications and features implemented
+   - Cross-references to related files, commits, or documentation
+
+**🔄 Automatic Update Triggers:**
+- **Every TodoWrite call**: Update TODO.md current work section
+- **Task completion**: Move completed items to "Latest Completed" with full documentation
+- **Milestone completion**: Create new "Latest Completed" section with comprehensive summary
+- **Session end**: Ensure all todo changes are reflected in TODO.md
+
+**📊 TODO.md Structure Maintenance:**
+1. **Current Work Section**: Always reflects active Claude Code todos
+2. **Priority Ordering**: High priority todos appear first in each section
+3. **Progress Tracking**: Include percentage completion estimates for complex tasks
+4. **Cross-References**: Link todos to specific files, commits, or documentation sections
+
+**🎯 Implementation Requirements:**
+- Claude Code must check TODO.md at conversation start and sync with any existing tasks
+- All todo operations must include automatic TODO.md updates
+- TODO.md changes must be committed along with related code changes
+- Maintain chronological order in "Latest Completed" sections with most recent first
+
+**Example Integration:**
+```markdown
+### 🔄 Current Work in Progress
+- 🔄 **ACTIVE: Implementing user authentication system** (Priority: High)
+  - ✅ Create JWT token service
+  - 🔄 Implement login/logout endpoints  
+  - ⏳ Add session management
+  - ⏳ Create password reset functionality
+```
+
+This ensures complete transparency and maintains TODO.md as the authoritative source of project status while leveraging Claude Code's internal todo system for task management.
+
 #### Automation Triggers
 - **Git Hooks**: Pre-commit hooks to remind about changelog updates
 - **PR Templates**: Include changelog update checklist in pull request templates
 - **CI Validation**: Check that CHANGELOG.md was modified in feature branches
 - **Release Process**: Aggregate changelog entries for version releases
+- **TODO Sync Validation**: Ensure TODO.md reflects all Claude Code todo changes
 
 ## Important Notes
 - Always ensure the virtual environment is activated before installing packages or running code
