@@ -10,10 +10,11 @@ from enum import Enum
 
 
 class ExportFormat(Enum):
-    """Supported export formats (simplified)."""
+    """Supported export formats (core only)."""
     EXCEL = "excel"
     CSV = "csv"
     JSON = "json"
+    PARQUET = "parquet"
 
 
 class ExportDestination(Enum):
@@ -45,23 +46,9 @@ class ExportOptions:
     include_formulas: bool = False
     sheet_names: Optional[List[str]] = None
     
-    # Power BI options
-    workspace_id: Optional[str] = None
-    dataset_name: Optional[str] = None
-    table_name: Optional[str] = None
-    refresh_schedule: Optional[str] = None
-    streaming_dataset: bool = False
-    
-    # Google Sheets options
-    spreadsheet_id: Optional[str] = None
-    sheet_id: Optional[str] = None
-    share_with_emails: Optional[List[str]] = None
-    permissions: str = "view"  # view, edit, comment
-    
-    # Smartsheet options
-    sheet_template_id: Optional[str] = None
-    folder_id: Optional[str] = None
-    workspace_name: Optional[str] = None
+    # Additional format options (simplified)
+    parquet_compression: str = "snappy"
+    json_indent: Optional[int] = 2
     
     # Data filtering and selection
     include_normal_samples: bool = True
@@ -102,9 +89,10 @@ class ExportOptions:
         valid_charts = ["scatter", "histogram", "line", "bar", "pie"]
         self.chart_types = [ct for ct in self.chart_types if ct in valid_charts]
         
-        # Validate permissions
-        if self.permissions not in ["view", "edit", "comment"]:
-            self.permissions = "view"
+        # Validate parquet compression
+        valid_compression = ["snappy", "gzip", "brotli", "lz4", "zstd"]
+        if self.parquet_compression not in valid_compression:
+            self.parquet_compression = "snappy"
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary representation."""
@@ -148,4 +136,13 @@ class ExportOptions:
         self.format = ExportFormat.JSON
         self.include_charts = False
         self.use_advanced_formatting = False
+        self.json_indent = 2
+        return self
+    
+    def for_parquet(self) -> 'ExportOptions':
+        """Create Parquet-optimized export options."""
+        self.format = ExportFormat.PARQUET
+        self.include_charts = False
+        self.use_advanced_formatting = False
+        self.parquet_compression = "snappy"
         return self

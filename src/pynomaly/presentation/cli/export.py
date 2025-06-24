@@ -36,12 +36,12 @@ def list_export_formats():
     table.add_column("Adapter", style="blue")
     table.add_column("Extensions", style="yellow")
     
-    # All possible formats
+    # Core supported formats
     all_formats = [
         ExportFormat.EXCEL,
-        ExportFormat.POWERBI,
-        ExportFormat.GSHEETS,
-        ExportFormat.SMARTSHEET
+        ExportFormat.CSV,
+        ExportFormat.JSON,
+        ExportFormat.PARQUET
     ]
     
     for format in all_formats:

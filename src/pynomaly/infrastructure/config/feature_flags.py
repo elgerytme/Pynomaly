@@ -63,7 +63,7 @@ class FeatureFlags(BaseSettings):
     
     # Phase 2: Core Enhancement Features
     algorithm_optimization: bool = Field(
-        default=False,
+        default=True,
         description="Enable algorithm performance optimization"
     )
     
@@ -73,7 +73,7 @@ class FeatureFlags(BaseSettings):
     )
     
     performance_monitoring: bool = Field(
-        default=False,
+        default=True,
         description="Enable real-time performance monitoring"
     )
     

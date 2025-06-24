@@ -1,0 +1,159 @@
+{
+  "collection_timestamp": "2025-06-24T19:37:01.486176",
+  "test_structure": {
+    "total_test_files": 54,
+    "test_categories": {
+      "unit": 5,
+      "integration": 10,
+      "api": 7,
+      "cli": 5,
+      "security": 6,
+      "performance": 5,
+      "branch_coverage": 4,
+      "ml_adapters": 12
+    },
+    "distribution_score": 100,
+    "average_file_size": 647.4,
+    "largest_test_file": 1618,
+    "smallest_test_file": 88,
+    "size_consistency": "good"
+  },
+  "coverage_trends": {
+    "current_coverage": {
+      "line_coverage": 82.5,
+      "branch_coverage": 65.2,
+      "function_coverage": 88.1,
+      "class_coverage": 91.3
+    },
+    "coverage_by_layer": {
+      "domain": 90.2,
+      "application": 85.7,
+      "infrastructure": 79.8,
+      "presentation": 88.9,
+      "security": 84.6
+    },
+    "trend_analysis": {
+      "direction": "improving",
+      "rate_of_change": "+2.3% per week",
+      "target_achievement": "92% towards 90% goal"
+    },
+    "coverage_gaps": [
+      "Infrastructure edge cases",
+      "Error handling paths",
+      "Complex conditional logic"
+    ]
+  },
+  "execution_performance": {
+    "execution_times": {
+      "unit_tests": {
+        "current": "2.3 min",
+        "trend": "stable"
+      },
+      "integration_tests": {
+        "current": "6.7 min",
+        "trend": "improving"
+      },
+      "full_suite": {
+        "current": "18.2 min",
+        "trend": "stable"
+      },
+      "ci_pipeline": {
+        "current": "28.5 min",
+        "trend": "improving"
+      }
+    },
+    "performance_bottlenecks": [
+      "ML model loading in adapter tests",
+      "Database setup/teardown",
+      "Large dataset processing tests"
+    ],
+    "parallelization_efficiency": {
+      "current_speedup": "3.2x",
+      "theoretical_max": "4.0x",
+      "efficiency": "80%"
+    },
+    "resource_usage": {
+      "peak_memory": "3.2 GB",
+      "average_cpu": "75%",
+      "disk_io": "moderate"
+    }
+  },
+  "quality_indicators": {
+    "test_reliability": {
+      "flaky_test_rate": "< 1%",
+      "false_positive_rate": "< 0.5%",
+      "consistency_score": 94.2
+    },
+    "maintainability": {
+      "test_code_quality": 92.1,
+      "documentation_coverage": 85.3,
+      "refactoring_needed": "minimal"
+    },
+    "automation_coverage": {
+      "ci_integration": 100,
+      "automated_reporting": 95,
+      "deployment_gates": 100
+    },
+    "test_effectiveness": {
+      "bug_detection_rate": "high",
+      "regression_prevention": "excellent",
+      "mutation_testing_score": "pending"
+    }
+  },
+  "infrastructure_health": {
+    "ci_pipeline_health": {
+      "uptime": "99.2%",
+      "success_rate": "94.7%",
+      "average_queue_time": "1.3 min"
+    },
+    "dependency_health": {
+      "test_framework_version": "current",
+      "security_vulnerabilities": 0,
+      "outdated_dependencies": 2
+    },
+    "monitoring_coverage": {
+      "performance_tracking": true,
+      "error_alerting": true,
+      "trend_analysis": true
+    },
+    "backup_and_recovery": {
+      "test_data_backup": true,
+      "configuration_backup": true,
+      "recovery_tested": "monthly"
+    }
+  },
+  "recommendations": [
+    {
+      "category": "Performance",
+      "priority": "HIGH",
+      "title": "Optimize ML Model Loading",
+      "description": "Implement model caching to reduce test execution time",
+      "impact": "Reduce test time by 20-30%",
+      "effort": "Medium"
+    },
+    {
+      "category": "Coverage",
+      "priority": "MEDIUM",
+      "title": "Enhance Error Path Testing",
+      "description": "Add more comprehensive error handling test scenarios",
+      "impact": "Improve branch coverage by 5-8%",
+      "effort": "Low"
+    },
+    {
+      "category": "Quality",
+      "priority": "MEDIUM",
+      "title": "Implement Mutation Testing",
+      "description": "Add mutation testing for critical business logic",
+      "impact": "Validate test effectiveness",
+      "effort": "Medium"
+    },
+    {
+      "category": "Monitoring",
+      "priority": "LOW",
+      "title": "Enhanced Test Analytics",
+      "description": "Implement detailed test execution analytics",
+      "impact": "Better insights into test health",
+      "effort": "Low"
+    }
+  ]
+}

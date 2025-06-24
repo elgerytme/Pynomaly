@@ -46,11 +46,7 @@ except ImportError:
 
 # Streaming infrastructure completely removed for simplification
 
-# Distributed processing removed for simplification
-DistributedProcessingManager = None
-DetectionCoordinator = None
-LoadBalancer = None
-DISTRIBUTED_AVAILABLE = False
+# Distributed processing infrastructure completely removed for simplification
 from pynomaly.application.use_cases import (
     DetectAnomaliesUseCase,
     EvaluateModelUseCase,
@@ -503,50 +499,18 @@ class Container(containers.DeclarativeContainer):
     # Phase 2 services - only create if available and feature flags enabled
     if PHASE2_SERVICES_AVAILABLE and feature_flags.is_enabled("algorithm_optimization"):
         algorithm_benchmark_service = providers.Singleton(AlgorithmBenchmarkService)
+        
+        # Algorithm optimization service
+        try:
+            from pynomaly.application.services.algorithm_optimization_service import AlgorithmOptimizationService
+            algorithm_optimization_service = providers.Singleton(AlgorithmOptimizationService)
+        except ImportError:
+            pass
     
     if PHASE2_SERVICES_AVAILABLE and feature_flags.is_enabled("complexity_monitoring"):
         complexity_monitor = providers.Singleton(ComplexityMonitor)
     
-    # Memory optimization services - conditionally create based on feature flags
-    try:
-        from pynomaly.application.services.memory_optimization_service import (
-            MemoryOptimizationService, MemoryProfiler
-        )
-        from pynomaly.infrastructure.data_processing import (
-            StreamingDataProcessor, MemoryOptimizedDataLoader, LargeDatasetAnalyzer
-        )
-        
-        # Core memory processing services
-        streaming_data_processor = providers.Singleton(
-            StreamingDataProcessor,
-            chunk_size=10000,
-            memory_limit_mb=500
-        )
-        
-        memory_optimized_data_loader = providers.Singleton(
-            MemoryOptimizedDataLoader,
-            processor=streaming_data_processor
-        )
-        
-        large_dataset_analyzer = providers.Singleton(
-            LargeDatasetAnalyzer,
-            processor=streaming_data_processor
-        )
-        
-        # High-level memory optimization service
-        memory_optimization_service = providers.Singleton(
-            MemoryOptimizationService,
-            chunk_size=10000,
-            memory_limit_mb=500,
-            enable_streaming=True
-        )
-        
-        # Memory profiler for development and monitoring
-        memory_profiler = providers.Singleton(MemoryProfiler)
-        
-    except ImportError:
-        # Memory optimization features not available
-        pass
+    
     
     # Use cases
     detect_anomalies_use_case = providers.Factory(

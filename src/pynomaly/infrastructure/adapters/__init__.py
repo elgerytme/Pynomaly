@@ -3,10 +3,22 @@
 from .pyod_adapter import PyODAdapter
 from .sklearn_adapter import SklearnAdapter
 
+# Optimized adapters for Phase 2
+try:
+    from .optimized_adapter import OptimizedAdapter, OptimizedEnsembleAdapter
+    OPTIMIZED_ADAPTERS_AVAILABLE = True
+except ImportError:
+    OptimizedAdapter = None
+    OptimizedEnsembleAdapter = None
+    OPTIMIZED_ADAPTERS_AVAILABLE = False
+
 __all__ = [
     "PyODAdapter",
     "SklearnAdapter",
 ]
+
+if OPTIMIZED_ADAPTERS_AVAILABLE:
+    __all__.extend(["OptimizedAdapter", "OptimizedEnsembleAdapter"])
 
 # Optional ML adapters - only import if dependencies are available
 try:

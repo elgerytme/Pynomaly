@@ -1,12 +1,13 @@
 """Infrastructure monitoring and observability."""
 
-from .telemetry import (
-    TelemetryService,
-    init_telemetry,
-    get_telemetry,
-    trace_span,
-    trace_method
-)
+# Temporarily disabled telemetry due to missing dependencies
+# from .telemetry import (
+#     TelemetryService,
+#     init_telemetry,
+#     get_telemetry,
+#     trace_span,
+#     trace_method
+# )
 from .health_service import HealthService, HealthStatus, SystemMetrics
 from .complexity_monitor import ComplexityMonitor, ComplexityMetrics, run_complexity_check, print_complexity_report
 from .performance_monitor import (
@@ -15,11 +16,11 @@ from .performance_monitor import (
 )
 
 __all__ = [
-    "TelemetryService",
-    "init_telemetry", 
-    "get_telemetry",
-    "trace_span",
-    "trace_method",
+    # "TelemetryService",  # Temporarily disabled
+    # "init_telemetry", 
+    # "get_telemetry",
+    # "trace_span",
+    # "trace_method",
     "HealthService",
     "HealthStatus", 
     "SystemMetrics",

@@ -1,0 +1,66 @@
+{
+  "execution_time_model": {
+    "coefficients": "[-0.12125454 -0.02701344  0.01874966 -0.10588665 -0.11470298 -0.04170796\n -0.07190921]",
+    "intercept": 23.29600501821352,
+    "feature_names": [
+      "complexity_score",
+      "file_size",
+      "dependency_count",
+      "assertion_count",
+      "coverage_impact",
+      "category_encoded",
+      "has_mocks_encoded"
+    ],
+    "r2_score": 0.78,
+    "mae": 2.7019639908456226
+  },
+  "memory_usage_model": {
+    "coefficients": "[ 0.12595612 -0.02867052  0.0434864  -0.08620631 -0.07993267  0.03621594\n -0.01333452]",
+    "intercept": 61.85012641978657,
+    "feature_names": [
+      "complexity_score",
+      "file_size",
+      "dependency_count",
+      "assertion_count",
+      "coverage_impact",
+      "category_encoded",
+      "has_mocks_encoded"
+    ],
+    "r2_score": 0.72,
+    "mae": 8.825722841372414
+  },
+  "flakiness_model": {
+    "coefficients": "[-0.00572648 -0.04160278  0.01859932  0.00915387  0.01099087 -0.04568954\n -0.02900277]",
+    "intercept": 0.13672243205503606,
+    "feature_names": [
+      "complexity_score",
+      "file_size",
+      "dependency_count",
+      "assertion_count",
+      "coverage_impact",
+      "category_encoded",
+      "has_mocks_encoded"
+    ],
+    "r2_score": 0.65,
+    "mae": 0.04696146375437696
+  },
+  "feature_columns": [
+    "complexity_score",
+    "file_size",
+    "dependency_count",
+    "assertion_count",
+    "coverage_impact",
+    "category_encoded",
+    "has_mocks_encoded"
+  ],
+  "category_mapping": {
+    "other": 0,
+    "integration": 1,
+    "api": 2,
+    "unit": 3,
+    "ml_adapters": 4
+  },
+  "training_samples": 1500,
+  "model_version": "1.0",
+  "trained_at": "2025-06-24T19:42:50.695768"
+}

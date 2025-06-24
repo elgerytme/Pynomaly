@@ -222,17 +222,12 @@ class ExportService:
         # Apply format-specific optimizations
         if format == ExportFormat.EXCEL:
             return options.for_excel()
-        elif format == ExportFormat.POWERBI:
-            workspace_id = kwargs.get('workspace_id')
-            dataset_name = kwargs.get('dataset_name')
-            if workspace_id and dataset_name:
-                return options.for_powerbi(workspace_id, dataset_name)
-        elif format == ExportFormat.GSHEETS:
-            spreadsheet_id = kwargs.get('spreadsheet_id')
-            return options.for_gsheets(spreadsheet_id)
-        elif format == ExportFormat.SMARTSHEET:
-            workspace_name = kwargs.get('workspace_name')
-            return options.for_smartsheet(workspace_name)
+        elif format == ExportFormat.CSV:
+            return options.for_csv()
+        elif format == ExportFormat.JSON:
+            return options.for_json()
+        elif format == ExportFormat.PARQUET:
+            return options.for_parquet()
         
         return options
     

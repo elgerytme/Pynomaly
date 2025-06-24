@@ -21,7 +21,15 @@ from redis.exceptions import ConnectionError, RedisError
 from pynomaly.domain.entities import DetectionResult, Detector
 from pynomaly.domain.exceptions import CacheError
 from pynomaly.infrastructure.config import Settings
-from pynomaly.infrastructure.monitoring import get_telemetry, trace_method
+# Temporarily disabled telemetry
+# from pynomaly.infrastructure.monitoring import get_telemetry, trace_method
+
+# Simple no-op decorator for trace_method while telemetry is disabled
+def trace_method(operation_name: str):
+    """No-op decorator for telemetry tracing."""
+    def decorator(func):
+        return func
+    return decorator
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +48,7 @@ class RedisCache:
         self.settings = settings
         self.enabled = settings.cache_enabled and settings.redis_url is not None
         self._client: Optional[redis.Redis] = None
-        self._telemetry = get_telemetry()
+        # self._telemetry = get_telemetry()  # Temporarily disabled
         
         if self.enabled:
             self._connect()
@@ -66,7 +74,7 @@ class RedisCache:
             self.enabled = False
             self._client = None
     
-    @trace_method("cache.get")
+    # @trace_method("cache.get")  # Temporarily disabled
     def get(self, key: str, default: Optional[T] = None) -> Optional[T]:
         """Get value from cache.
         
@@ -98,7 +106,7 @@ class RedisCache:
             logger.warning(f"Cache get failed for key {key}: {e}")
             return default
     
-    @trace_method("cache.set")
+    # @trace_method("cache.set")  # Temporarily disabled
     def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
         """Set value in cache.
         
@@ -132,7 +140,7 @@ class RedisCache:
             logger.warning(f"Cache set failed for key {key}: {e}")
             return False
     
-    @trace_method("cache.delete")
+    # @trace_method("cache.delete")  # Temporarily disabled
     def delete(self, key: str) -> bool:
         """Delete value from cache.
         

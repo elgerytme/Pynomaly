@@ -13,7 +13,8 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from pynomaly.infrastructure.config import Container, Settings
 from pynomaly.infrastructure.auth import init_auth, track_request_metrics
 from pynomaly.infrastructure.cache import init_cache
-from pynomaly.infrastructure.monitoring import init_telemetry
+# Temporarily disabled telemetry
+# from pynomaly.infrastructure.monitoring import init_telemetry
 from pynomaly.presentation.api.endpoints import (
     auth,
     autonomous,
@@ -49,7 +50,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
         init_auth(settings)
     
     if settings.monitoring.metrics_enabled or settings.monitoring.tracing_enabled:
-        init_telemetry(settings)
+        # init_telemetry(settings)  # Temporarily disabled
+        pass
     
     yield
     
@@ -57,10 +59,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     print("Shutting down...")
     
     # Cleanup services
-    from pynomaly.infrastructure.monitoring import get_telemetry
-    telemetry = get_telemetry()
-    if telemetry:
-        telemetry.shutdown()
+    # Telemetry cleanup temporarily disabled
+    # from pynomaly.infrastructure.monitoring import get_telemetry
+    # telemetry = get_telemetry()
+    # if telemetry:
+    #     telemetry.shutdown()
     
     from pynomaly.infrastructure.cache import get_cache
     cache = get_cache()

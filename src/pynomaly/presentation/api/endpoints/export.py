@@ -22,11 +22,11 @@ router = APIRouter(prefix="/export", tags=["export"])
 
 
 class ExportFormatAPI(str, Enum):
-    """API enum for export formats."""
+    """API enum for export formats (core only)."""
     EXCEL = "excel"
-    POWERBI = "powerbi"
-    GSHEETS = "gsheets"
-    SMARTSHEET = "smartsheet"
+    CSV = "csv"
+    JSON = "json"
+    PARQUET = "parquet"
 
 
 class ExportRequest(BaseModel):
@@ -35,27 +35,16 @@ class ExportRequest(BaseModel):
     format: ExportFormatAPI = Field(..., description="Export format")
     filename: Optional[str] = Field(None, description="Output filename (for file-based exports)")
     
-    # Excel options
+    # Format-specific options
     include_charts: bool = Field(True, description="Include charts and visualizations")
     advanced_formatting: bool = Field(True, description="Use advanced formatting")
     highlight_anomalies: bool = Field(True, description="Highlight anomalous samples")
     
-    # Power BI options
-    workspace_id: Optional[str] = Field(None, description="Power BI workspace ID")
-    dataset_name: Optional[str] = Field(None, description="Power BI dataset name")
-    streaming_dataset: bool = Field(False, description="Use streaming dataset")
-    table_name: str = Field("AnomalyResults", description="Table name")
+    # JSON options
+    json_indent: Optional[int] = Field(2, description="JSON indentation level")
     
-    # Google Sheets options
-    spreadsheet_id: Optional[str] = Field(None, description="Existing spreadsheet ID")
-    share_with_emails: Optional[List[str]] = Field(None, description="Emails to share with")
-    permissions: str = Field("view", description="Permission level: view, edit, comment")
-    
-    # Smartsheet options
-    workspace_name: Optional[str] = Field(None, description="Smartsheet workspace name")
-    folder_id: Optional[str] = Field(None, description="Smartsheet folder ID")
-    template_id: Optional[str] = Field(None, description="Template ID")
-    access_level: str = Field("VIEWER", description="Access level for sharing")
+    # Parquet options  
+    parquet_compression: str = Field("snappy", description="Parquet compression algorithm")
     
     # General options
     notify_on_completion: bool = Field(False, description="Send notification when complete")
