@@ -251,6 +251,106 @@ poetry run python -m http.server 8080 --directory src/pynomaly/presentation/web/
 - **Maintain consistency** in file naming and organization patterns
 - **Regular cleanup**: Remove obsolete files and reorganize as needed
 
+## Changelog Management Rules
+
+### Automatic Changelog Updates
+When logical units of work are complete, **ALWAYS** update both CHANGELOG.md and TODO.md following these rules:
+
+#### What Constitutes a "Logical Unit of Work"
+- **Feature Implementation**: Complete new features with tests and documentation
+- **Bug Fixes**: Resolved issues that affect functionality
+- **Infrastructure Changes**: CI/CD, Docker, deployment configuration updates
+- **Documentation Phases**: Major documentation additions or restructuring
+- **Testing Milestones**: Significant test coverage improvements or test infrastructure
+- **Algorithm Implementations**: New ML algorithms, adapters, or detection methods
+- **Performance Improvements**: Optimization work with measurable improvements
+- **Security Enhancements**: Authentication, authorization, or security fixes
+- **API Changes**: Breaking or non-breaking API modifications
+- **Dependency Updates**: Major dependency upgrades or additions
+
+#### Changelog Update Process
+1. **Immediate Update**: Update CHANGELOG.md immediately when work is complete
+2. **Version Numbering**: Follow semantic versioning (MAJOR.MINOR.PATCH)
+3. **Entry Format**: Use standardized format with date, version, and categorized changes
+4. **Cross-Reference**: Update TODO.md to mark items as completed and reference changelog
+5. **Commit Message**: Include changelog update in the same commit as the feature
+
+#### Changelog Entry Categories
+- **Added**: New features, capabilities, or functionality
+- **Changed**: Changes in existing functionality or behavior
+- **Deprecated**: Soon-to-be removed features
+- **Removed**: Features removed in this release
+- **Fixed**: Bug fixes and issue resolutions
+- **Security**: Security-related changes and vulnerability fixes
+- **Performance**: Performance improvements and optimizations
+- **Documentation**: Documentation additions, improvements, or restructuring
+- **Infrastructure**: CI/CD, build system, or deployment changes
+- **Testing**: Test additions, improvements, or infrastructure changes
+
+#### Mandatory Changelog Updates
+**ALWAYS update the changelog when:**
+- Completing any feature from the TODO.md list
+- Adding new algorithms, adapters, or detection methods
+- Making API changes that affect external usage
+- Completing documentation phases or major updates
+- Implementing infrastructure or deployment changes
+- Achieving testing milestones or coverage improvements
+- Fixing bugs or security issues
+- Adding new datasets, examples, or analysis tools
+- Completing autonomous mode enhancements
+- Making performance optimizations
+
+#### Changelog Entry Template
+```markdown
+## [Version] - YYYY-MM-DD
+
+### Added
+- New feature description with context and usage
+- Algorithm implementations with performance characteristics
+- Documentation sections with scope and audience
+
+### Changed
+- Modified functionality with migration guidance
+- Updated dependencies with version information
+- Improved performance with benchmark results
+
+### Fixed
+- Bug fixes with issue references and impact
+- Security vulnerabilities with severity assessment
+- Compatibility issues with affected systems
+
+### Documentation
+- New guides, tutorials, or reference materials
+- Updated existing documentation with scope
+- API documentation improvements
+
+### Infrastructure
+- CI/CD pipeline improvements
+- Docker configuration enhancements
+- Deployment automation additions
+
+### Testing
+- Test coverage improvements with percentages
+- New test infrastructure or frameworks
+- Performance test additions
+```
+
+#### Integration with Development Workflow
+1. **Before Starting Work**: Check TODO.md for planned work items
+2. **During Development**: Keep notes of changes for changelog entry
+3. **Upon Completion**: 
+   - Update CHANGELOG.md with detailed entry
+   - Mark TODO.md items as completed
+   - Cross-reference between both files
+   - Commit both files together with the feature
+4. **Quality Check**: Ensure changelog entry includes sufficient detail for users
+
+#### Automation Triggers
+- **Git Hooks**: Pre-commit hooks to remind about changelog updates
+- **PR Templates**: Include changelog update checklist in pull request templates
+- **CI Validation**: Check that CHANGELOG.md was modified in feature branches
+- **Release Process**: Aggregate changelog entries for version releases
+
 ## Important Notes
 - Always ensure the virtual environment is activated before installing packages or running code
 - The `.gitignore` currently excludes the VS Code workspace file (`Pynomaly.code-workspace`)
