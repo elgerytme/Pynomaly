@@ -336,7 +336,8 @@
       "Bash(PYTHONPATH=/mnt/c/Users/andre/Pynomaly/src grep -n \"ocsvm\\|OCSVM\" /mnt/c/Users/andre/Pynomaly/src/pynomaly/infrastructure/adapters/jax_adapter.py)",
       "Bash(PYTHONPATH:*)",
       "Bash(for:*)",
-      "Bash(do [ -f \"/mnt/c/Users/andre/Pynomaly/$file\" ])"
+      "Bash(do [ -f \"/mnt/c/Users/andre/Pynomaly/$file\" ])",
+      "Bash(powershell.exe:*)"
     ],
     "deny": [],
     "//": "This sets the default policy to 'allow' for any action that doesn't have a more specific rule below. This is the top-level 'allow all actions' setting.",
