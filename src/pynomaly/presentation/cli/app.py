@@ -43,7 +43,7 @@ def version():
     container = get_cli_container()
     settings = container.config()
     
-    console.print(f"[bold blue]Pynomaly[/bold blue] v{settings.version}")
+    console.print(f"[bold blue]Pynomaly[/bold blue] v{settings.app.version}")
     console.print(f"Python {sys.version.split()[0]}")
     console.print(f"Storage: {settings.storage_path}")
 
