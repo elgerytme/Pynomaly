@@ -273,3 +273,4 @@ tests/ui/ui_test_env/bin/python3.12
 tests/ui/ui_test_env/bin/python
 tests/ui/ui_test_env/bin/python3
 tests/ui/ui_test_env/bin/python3.12
+tests/ui_integration_results.json
