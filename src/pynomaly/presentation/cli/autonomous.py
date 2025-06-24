@@ -39,12 +39,19 @@ def autonomous_detect(
     save_results: bool = typer.Option(True, "--save/--no-save", help="Save results to database"),
     export_format: str = typer.Option("csv", "--format", "-f", help="Export format (csv, parquet, excel)"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose output"),
-    max_samples: int = typer.Option(10000, "--max-samples", help="Maximum samples for analysis")
+    max_samples: int = typer.Option(10000, "--max-samples", help="Maximum samples for analysis"),
+    
+    # Preprocessing options
+    enable_preprocessing: bool = typer.Option(True, "--preprocess/--no-preprocess", help="Enable intelligent preprocessing"),
+    quality_threshold: float = typer.Option(0.8, "--quality-threshold", help="Data quality threshold for preprocessing"),
+    max_preprocessing_time: float = typer.Option(300.0, "--max-preprocess-time", help="Maximum preprocessing time (seconds)"),
+    preprocessing_strategy: str = typer.Option("auto", "--preprocessing-strategy", help="Preprocessing strategy: auto, aggressive, conservative, minimal")
 ):
     """Run fully autonomous anomaly detection on any data source.
     
     This command automatically:
     - Detects data format and loads the data
+    - Assesses data quality and applies intelligent preprocessing
     - Profiles the dataset to understand its characteristics  
     - Recommends and configures optimal algorithms
     - Runs detection with the best algorithms
@@ -60,7 +67,13 @@ def autonomous_detect(
         save_results=save_results,
         export_results=output is not None,
         export_format=export_format,
-        verbose=verbose
+        verbose=verbose,
+        
+        # Preprocessing configuration
+        enable_preprocessing=enable_preprocessing,
+        quality_threshold=quality_threshold,
+        max_preprocessing_time=max_preprocessing_time,
+        preprocessing_strategy=preprocessing_strategy
     )
     
     # Setup data loaders
@@ -85,7 +98,9 @@ def autonomous_detect(
         "[bold blue]🤖 Autonomous Anomaly Detection[/bold blue]\n"
         f"Data Source: {data_source}\n"
         f"Max Algorithms: {max_algorithms}\n"
-        f"Auto-tune: {'Yes' if auto_tune else 'No'}",
+        f"Auto-tune: {'Yes' if auto_tune else 'No'}\n"
+        f"Preprocessing: {'Enabled' if enable_preprocessing else 'Disabled'}\n"
+        f"Quality Threshold: {quality_threshold:.2f}",
         title="Configuration"
     ))
     
@@ -412,6 +427,80 @@ def _display_profile(profile, recommendations, verbose: bool) -> None:
     analysis_table.add_row("Trend Detected", "Yes" if profile.trend_detected else "No")
     
     console.print(analysis_table)
+    
+    # Data Quality and Preprocessing Information
+    if hasattr(profile, 'quality_score') and profile.quality_score is not None:
+        console.print("\n[bold blue]🔧 Data Quality & Preprocessing[/bold blue]")
+        
+        quality_table = Table(title="Data Quality Assessment")
+        quality_table.add_column("Metric", style="cyan")
+        quality_table.add_column("Value", style="white")
+        
+        # Quality score with color coding
+        quality_score = profile.quality_score
+        quality_color = "green" if quality_score >= 0.8 else "yellow" if quality_score >= 0.6 else "red"
+        quality_table.add_row("Quality Score", f"[{quality_color}]{quality_score:.2f}[/{quality_color}]")
+        
+        if hasattr(profile, 'preprocessing_recommended'):
+            quality_table.add_row("Preprocessing Recommended", 
+                                "Yes" if profile.preprocessing_recommended else "No")
+        
+        if hasattr(profile, 'preprocessing_applied'):
+            quality_table.add_row("Preprocessing Applied", 
+                                "Yes" if profile.preprocessing_applied else "No")
+        
+        console.print(quality_table)
+        
+        # Show preprocessing details if applied
+        if hasattr(profile, 'preprocessing_metadata') and profile.preprocessing_metadata:
+            metadata = profile.preprocessing_metadata
+            if metadata.get("preprocessing_applied"):
+                console.print("\n[bold green]✓ Preprocessing Applied[/bold green]")
+                
+                if "applied_steps" in metadata:
+                    steps_table = Table(title="Applied Preprocessing Steps")
+                    steps_table.add_column("Step", style="cyan")
+                    steps_table.add_column("Action", style="green")
+                    steps_table.add_column("Details", style="white")
+                    
+                    for step in metadata["applied_steps"]:
+                        step_type = step.get("type", "Unknown")
+                        action = step.get("action", "Unknown")
+                        
+                        # Format details based on step type
+                        if "columns" in step:
+                            columns = step["columns"]
+                            if isinstance(columns, list):
+                                details = f"{len(columns)} columns"
+                                if len(columns) <= 3:
+                                    details += f": {', '.join(columns)}"
+                            else:
+                                details = str(columns)
+                        elif "count" in step:
+                            details = f"{step['count']} items"
+                        else:
+                            details = ""
+                        
+                        steps_table.add_row(step_type.replace("_", " ").title(), action.title(), details)
+                    
+                    console.print(steps_table)
+                
+                # Show shape changes
+                original_shape = metadata.get("original_shape")
+                final_shape = metadata.get("final_shape")
+                if original_shape and final_shape:
+                    console.print(f"\n[dim]Shape: {original_shape[0]:,}×{original_shape[1]} → {final_shape[0]:,}×{final_shape[1]}[/dim]")
+        
+        # Show quality issues if available
+        if hasattr(profile, 'quality_report') and profile.quality_report and profile.quality_report.issues:
+            console.print("\n[bold yellow]⚠️ Data Quality Issues Detected[/bold yellow]")
+            
+            for issue in profile.quality_report.issues[:5]:  # Show top 5 issues
+                severity_color = "red" if issue.severity > 0.7 else "yellow" if issue.severity > 0.4 else "green"
+                console.print(f"• [{severity_color}]{issue.issue_type.value.replace('_', ' ').title()}[/{severity_color}]: {issue.description}")
+            
+            if len(profile.quality_report.issues) > 5:
+                console.print(f"[dim]... and {len(profile.quality_report.issues) - 5} more issues[/dim]")
     
     # Algorithm recommendations
     if recommendations:
