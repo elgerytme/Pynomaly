@@ -1,0 +1,303 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pynomaly UI Test Report - Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(#f59e0b 304.97910447761194deg, #e5e7eb 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+        .score-circle::before {
+            content: '';
+            width: 90px;
+            height: 90px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+        }
+        .score-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: #f59e0b;
+            z-index: 1;
+        }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .category-card {
+            text-align: center;
+            padding: 20px;
+        }
+        .category-score {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .critical {
+            color: #ef4444;
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .warning {
+            color: #f59e0b;
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .strength {
+            color: #10b981;
+            background: #f0fdf4;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .recommendation {
+            background: #f0f9ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        h1, h2, h3 { color: #1f2937; }
+        .highlight { background: #fef3c7; padding: 2px 6px; border-radius: 4px; }
+        .issue-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            margin-right: 8px;
+        }
+        .critical-badge { background: #ef4444; }
+        .warning-badge { background: #f59e0b; }
+        .performance-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .performance-metric:last-child { border-bottom: none; }
+        .metric-value {
+            font-weight: bold;
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 Pynomaly UI Test Report</h1>
+        <div class="score-circle">
+            <div class="score-text">85</div>
+        </div>
+        <h2>Overall UI Quality Score - Grade: B</h2>
+        <p>Generated: 2025-06-24 08:44:21 | Tests: 78 | Passed: 71 | Failed: 7</p>
+    </div>
+    
+    <div class="category-grid">
+        <div class="card category-card">
+            <div class="category-score" style="color: #22c55e;">
+                85</div>
+            <div>Layout</div>
+        </div>
+        <div class="card category-card">
+            <div class="category-score" style="color: #22c55e;">
+                90</div>
+            <div>UX Flows</div>
+        </div>
+        <div class="card category-card">
+            <div class="category-score" style="color: #22c55e;">
+                98</div>
+            <div>Visual</div>
+        </div>
+        <div class="card category-card">
+            <div class="category-score" style="color: #f59e0b;">
+                72</div>
+            <div>Accessibility</div>
+        </div>
+        <div class="card category-card">
+            <div class="category-score" style="color: #22c55e;">
+                88</div>
+            <div>Responsive</div>
+        </div>
+    </div>
+    
+    <div class="grid">
+        <div class="card">
+            <h2>🚨 Critical Issues</h2>
+            <div class="critical">
+                <span class="issue-badge critical-badge">CRITICAL</span>
+                <strong>Mobile menu button missing aria-label</strong><br>
+                <small>Location: base.html navigation | WCAG: 4.1.2 Name, Role, Value</small>
+            </div>
+            <div class="critical">
+                <span class="issue-badge critical-badge">CRITICAL</span>
+                <strong>Form inputs without associated labels</strong><br>
+                <small>Location: Detector/dataset forms | WCAG: 3.3.2 Labels or Instructions</small>
+            </div>
+            <div class="critical">
+                <span class="issue-badge critical-badge">CRITICAL</span>
+                <strong>Form inputs missing proper labels</strong><br>
+                <small>Location: detectors.html | Impact: Screen readers cannot identify fields</small>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>⚠️ Warnings</h2>
+            <div class="warning">
+                <span class="issue-badge warning-badge">WARNING</span>
+                <strong>Images missing descriptive alt text</strong><br>
+                <small>Count: 4 | Location: Dashboard icons and charts</small>
+            </div>
+            <div class="warning">
+                <span class="issue-badge warning-badge">WARNING</span>
+                <strong>Touch targets below 44px minimum</strong><br>
+                <small>Count: 3 | Affected: Mobile viewports</small>
+            </div>
+            <div class="warning">
+                <span class="issue-badge warning-badge">WARNING</span>
+                <strong>Error messages lack ARIA live regions</strong><br>
+                <small>Location: HTMX responses | Impact: No error announcements</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>💪 Strengths</h2>
+        <div class="strength">✅ Excellent visual consistency across components</div>
+        <div class="strength">✅ Good semantic HTML structure foundation</div>
+        <div class="strength">✅ Responsive design works well on most viewports</div>
+        <div class="strength">✅ Performance is generally acceptable</div>
+        <div class="strength">✅ Modern UI framework integration (HTMX, Tailwind)</div>
+    </div>
+    
+    <div class="card">
+        <h2>🎯 Priority Recommendations</h2>
+        <div class="recommendation">🔴 <strong>Fix accessibility violations immediately</strong> - WCAG compliance is critical for inclusive design</div>
+        <div class="recommendation">🟡 <strong>Enhance form validation and error handling</strong> - Improve user feedback and error recovery</div>
+        <div class="recommendation">🟢 <strong>Optimize responsive design at breakpoints</strong> - Address layout shifts and touch targets</div>
+        <div class="recommendation">🔵 <strong>Improve loading states and user feedback</strong> - Make HTMX interactions more visible</div>
+    </div>
+    
+    <div class="card">
+        <h2>⚡ Performance Metrics</h2>
+        <div class="performance-metric">
+            <span>Dashboard Load Time</span>
+            <span class="metric-value">1.2s</span>
+        </div>
+        <div class="performance-metric">
+            <span>Chart Rendering</span>
+            <span class="metric-value">1.4s</span>
+        </div>
+        <div class="performance-metric">
+            <span>HTMX Response Time</span>
+            <span class="metric-value">0.3s</span>
+        </div>
+        <div class="performance-metric">
+            <span>Lighthouse Accessibility</span>
+            <span class="metric-value">78/100</span>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>📋 Next Steps</h2>
+        <ol>
+            <li><strong>Immediate (Week 1):</strong> Fix all critical accessibility issues</li>
+            <li><strong>High Priority (Week 2):</strong> Enhance form validation and error handling</li>
+            <li><strong>Medium Priority (Week 3):</strong> Optimize responsive design and touch targets</li>
+            <li><strong>Enhancement (Week 4):</strong> Add progressive enhancement and advanced features</li>
+        </ol>
+        
+        <h3>🛠️ Development Process</h3>
+        <p>1. Implement fixes from <code>UI_ISSUES_AND_FIXES.md</code><br>
+        2. Re-run tests: <code>./scripts/run_ui_testing.sh</code><br>
+        3. Validate improvements with real assistive technology users<br>
+        4. Integrate accessibility testing into CI/CD pipeline</p>
+    </div>
+    
+    <div class="card">
+        <h2>📊 Test Coverage Summary</h2>
+        <div class="grid">
+            <div>
+                <h4>Layout Validation</h4>
+                <p>✅ Navigation consistency<br>
+                ✅ Semantic HTML<br>
+                ❌ Form structure<br>
+                ❌ Error displays</p>
+            </div>
+            <div>
+                <h4>Accessibility</h4>
+                <p>❌ ARIA attributes<br>
+                ❌ Keyboard navigation<br>
+                ❌ Focus indicators<br>
+                ✅ Color contrast</p>
+            </div>
+            <div>
+                <h4>Responsive Design</h4>
+                <p>✅ Viewport adaptation<br>
+                ✅ Mobile navigation<br>
+                ❌ Touch targets<br>
+                ❌ Breakpoint consistency</p>
+            </div>
+            <div>
+                <h4>Visual Regression</h4>
+                <p>✅ Component consistency<br>
+                ✅ Cross-viewport stability<br>
+                ✅ Baseline coverage: 92%<br>
+                ✅ Zero regressions detected</p>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 40px; padding: 20px; color: #6b7280;">
+        <p>📍 <strong>Current Status:</strong> <span class="highlight">Needs Attention (Grade B)</span></p>
+        <p>🎯 <strong>Target:</strong> A grade (95+ points) with full accessibility compliance</p>
+        <p>⏱️ <strong>Estimated Fix Time:</strong> 2-3 weeks for critical issues, 4-6 weeks for comprehensive improvements</p>
+    </div>
+</body>
+</html>

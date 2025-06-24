@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="20" failures="0" skipped="0" tests="20" time="3.354" timestamp="2025-06-23T20:09:07.388724-04:00" hostname="rocm-socm"><testcase classname="" name="tests.application.test_automl_services" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/Pynomaly/tests/application/test_automl_services.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/application/test_automl_services.py:13: in &lt;module&gt;
+    from pynomaly.application.dto.automl_dto import (
+E   ImportError: cannot import name 'AlgorithmRecommendationRequestDTO' from 'pynomaly.application.dto.automl_dto' (/mnt/c/Users/andre/Pynomaly/src/pynomaly/application/dto/automl_dto.py)</error></testcase><testcase classname="" name="tests.application.test_explainability_services" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/Pynomaly/tests/application/test_explainability_services.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/application/test_explainability_services.py:13: in &lt;module&gt;
+    from pynomaly.application.services.explainability_service import ExplainabilityService
+src/pynomaly/application/services/explainability_service.py:20: in &lt;module&gt;
+    from pynomaly.infrastructure.repositories.dataset_repository import DatasetRepository
+E   ModuleNotFoundError: No module named 'pynomaly.infrastructure.repositories.dataset_repository'</error></testcase><testcase classname="" name="tests.application.test_integration_workflows" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/Pynomaly/tests/application/test_integration_workflows.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/application/test_integration_workflows.py:16: in &lt;module&gt;
+    from pynomaly.application.services.explainability_service import ExplainabilityService
+src/pynomaly/application/services/explainability_service.py:20: in &lt;module&gt;
+    from pynomaly.infrastructure.repositories.dataset_repository import DatasetRepository
+E   ModuleNotFoundError: No module named 'pynomaly.infrastructure.repositories.dataset_repository'</error></testcase><testcase classname="" name="tests.infrastructure.test_adapters_comprehensive" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/Pynomaly/tests/infrastructure/test_adapters_comprehensive.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/infrastructure/test_adapters_comprehensive.py:13: in &lt;module&gt;
+    from pynomaly.infrastructure.adapters import (
+E   ImportError: cannot import name 'PyTorchAdapter' from 'pynomaly.infrastructure.adapters' (/mnt/c/Users/andre/Pynomaly/src/pynomaly/infrastructure/adapters/__init__.py)</error></testcase><testcase classname="" name="tests.infrastructure.test_auth_comprehensive" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/Pynomaly/tests/infrastructure/test_auth_comprehensive.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/infrastructure/test_auth_comprehensive.py:11: in &lt;module&gt;
+    from pynomaly.infrastructure.auth.jwt_auth import (
+src/pynomaly/infrastructure/auth/__init__.py:3: in &lt;module&gt;
+    from .jwt_auth import (
+src/pynomaly/infrastructure/auth/jwt_auth.py:17: in &lt;module&gt;
+    from passlib.context import CryptContext
+E   ModuleNotFoundError: No module named 'passlib'</error></testcase><testcase classname="" name="tests.infrastructure.test_caching_comprehensive" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/Pynomaly/tests/infrastructure/test_caching_comprehensive.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/infrastructure/test_caching_comprehensive.py:13: in &lt;module&gt;
+    from pynomaly.infrastructure.cache import (
+src/pynomaly/infrastructure/cache/__init__.py:3: in &lt;module&gt;
+    from .redis_cache import (
+src/pynomaly/infrastructure/cache/redis_cache.py:18: in &lt;module&gt;
+    import redis
+E   ModuleNotFoundError: No module named 'redis'</error></testcase><testcase classname="" name="tests.infrastructure.test_configuration_comprehensive" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/Pynomaly/tests/infrastructure/test_configuration_comprehensive.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/infrastructure/test_configuration_comprehensive.py:14: in &lt;module&gt;
+    from pynomaly.infrastructure.config import Settings, DependencyContainer
+E   ImportError: cannot import name 'DependencyContainer' from 'pynomaly.infrastructure.config' (/mnt/c/Users/andre/Pynomaly/src/pynomaly/infrastructure/config/__init__.py)</error></testcase><testcase classname="" name="tests.infrastructure.test_configuration_enhanced" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/Pynomaly/tests/infrastructure/test_configuration_enhanced.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/infrastructure/test_configuration_enhanced.py:16: in &lt;module&gt;
+    from pynomaly.infrastructure.config import Settings, DependencyContainer
+E   ImportError: cannot import name 'DependencyContainer' from 'pynomaly.infrastructure.config' (/mnt/c/Users/andre/Pynomaly/src/pynomaly/infrastructure/config/__init__.py)</error></testcase><testcase classname="" name="tests.infrastructure.test_data_loaders_comprehensive" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/Pynomaly/tests/infrastructure/test_data_loaders_comprehensive.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/infrastructure/test_data_loaders_comprehensive.py:14: in &lt;module&gt;
+    from pynomaly.domain.exceptions import DataValidationError, LoaderError
+E   ImportError: cannot import name 'LoaderError' from 'pynomaly.domain.exceptions' (/mnt/c/Users/andre/Pynomaly/src/pynomaly/domain/exceptions/__init__.py)</error></testcase><testcase classname="" name="tests.infrastructure.test_data_loaders_enhanced" time="0.000"><error message="collection failure">/home/admeier/.local/lib/python3.12/site-packages/_pytest/python.py:498: in importtestmodule
+    mod = import_path(
+/home/admeier/.local/lib/python3.12/site-packages/_pytest/pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load
+    ???
+&lt;frozen importlib._bootstrap&gt;:1331: in _find_and_load_unlocked
+    ???
+&lt;frozen importlib._bootstrap&gt;:935: in _load_unlocked
+    ???
+/home/admeier/.local/lib/python3.12/site-packages/_pytest/assertion/rewrite.py:177: in exec_module
+    source_stat, co = _rewrite_test(fn, self.config)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/admeier/.local/lib/python3.12/site-packages/_pytest/assertion/rewrite.py:357: in _rewrite_test
+    tree = ast.parse(source, filename=strfn)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/ast.py:52: in parse
+    return compile(source, filename, mode, flags,
+E     File "/mnt/c/Users/andre/Pynomaly/tests/infrastructure/test_data_loaders_enhanced.py", line 141
+E       csv_data = \"\"\"id,name,score,timestamp,is_active,confidence
+E                   ^
+E   SyntaxError: unexpected character after line continuation character</error></testcase><testcase classname="" name="tests.infrastructure.test_database_comprehensive" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/Pynomaly/tests/infrastructure/test_database_comprehensive.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/infrastructure/test_database_comprehensive.py:15: in &lt;module&gt;
+    from pynomaly.infrastructure.persistence.database import DatabaseConnection
+E   ImportError: cannot import name 'DatabaseConnection' from 'pynomaly.infrastructure.persistence.database' (/mnt/c/Users/andre/Pynomaly/src/pynomaly/infrastructure/persistence/database.py)</error></testcase><testcase classname="" name="tests.infrastructure.test_distributed_comprehensive" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/Pynomaly/tests/infrastructure/test_distributed_comprehensive.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/infrastructure/test_distributed_comprehensive.py:10: in &lt;module&gt;
+    from pynomaly.infrastructure.distributed import (
+src/pynomaly/infrastructure/distributed/__init__.py:4: in &lt;module&gt;
+    from .worker import DistributedWorker
+src/pynomaly/infrastructure/distributed/worker.py:9: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.infrastructure.test_middleware_comprehensive" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/Pynomaly/tests/infrastructure/test_middleware_comprehensive.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/infrastructure/test_middleware_comprehensive.py:13: in &lt;module&gt;
+    from fastapi import FastAPI, Request, Response, HTTPException
+E   ModuleNotFoundError: No module named 'fastapi'</error></testcase><testcase classname="" name="tests.infrastructure.test_monitoring_comprehensive" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/Pynomaly/tests/infrastructure/test_monitoring_comprehensive.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/infrastructure/test_monitoring_comprehensive.py:12: in &lt;module&gt;
+    from pynomaly.infrastructure.monitoring import (
+src/pynomaly/infrastructure/monitoring/__init__.py:3: in &lt;module&gt;
+    from .telemetry import (
+src/pynomaly/infrastructure/monitoring/telemetry.py:18: in &lt;module&gt;
+    from opentelemetry import metrics, trace
+E   ModuleNotFoundError: No module named 'opentelemetry'</error></testcase><testcase classname="" name="tests.infrastructure.test_persistence_comprehensive" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/Pynomaly/tests/infrastructure/test_persistence_comprehensive.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/infrastructure/test_persistence_comprehensive.py:21: in &lt;module&gt;
+    from pynomaly.infrastructure.persistence.database import DatabaseConnection, init_database
+E   ImportError: cannot import name 'DatabaseConnection' from 'pynomaly.infrastructure.persistence.database' (/mnt/c/Users/andre/Pynomaly/src/pynomaly/infrastructure/persistence/database.py)</error></testcase><testcase classname="" name="tests.infrastructure.test_preprocessing_comprehensive" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/Pynomaly/tests/infrastructure/test_preprocessing_comprehensive.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/infrastructure/test_preprocessing_comprehensive.py:25: in &lt;module&gt;
+    from pynomaly.infrastructure.preprocessing.preprocessing_pipeline import (
+E   ImportError: cannot import name 'PipelineConfig' from 'pynomaly.infrastructure.preprocessing.preprocessing_pipeline' (/mnt/c/Users/andre/Pynomaly/src/pynomaly/infrastructure/preprocessing/preprocessing_pipeline.py)</error></testcase><testcase classname="" name="tests.infrastructure.test_repositories_comprehensive" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/Pynomaly/tests/infrastructure/test_repositories_comprehensive.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/infrastructure/test_repositories_comprehensive.py:15: in &lt;module&gt;
+    from pynomaly.domain.exceptions import EntityNotFoundError, RepositoryError
+E   ImportError: cannot import name 'RepositoryError' from 'pynomaly.domain.exceptions' (/mnt/c/Users/andre/Pynomaly/src/pynomaly/domain/exceptions/__init__.py)</error></testcase><testcase classname="" name="tests.infrastructure.test_resilience_comprehensive" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/Pynomaly/tests/infrastructure/test_resilience_comprehensive.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/infrastructure/test_resilience_comprehensive.py:12: in &lt;module&gt;
+    from pynomaly.infrastructure.resilience import (
+E   ImportError: cannot import name 'CircuitBreakerState' from 'pynomaly.infrastructure.resilience' (/mnt/c/Users/andre/Pynomaly/src/pynomaly/infrastructure/resilience/__init__.py)</error></testcase><testcase classname="" name="tests.integration.test_end_to_end_comprehensive" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/Pynomaly/tests/integration/test_end_to_end_comprehensive.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/integration/test_end_to_end_comprehensive.py:20: in &lt;module&gt;
+    from fastapi.testclient import TestClient
+E   ModuleNotFoundError: No module named 'fastapi'</error></testcase><testcase classname="" name="tests.integration.test_property_based" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/andre/Pynomaly/tests/integration/test_property_based.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/integration/test_property_based.py:19: in &lt;module&gt;
+    from pynomaly.application.use_cases import DetectAnomalies, TrainDetector
+E   ImportError: cannot import name 'DetectAnomalies' from 'pynomaly.application.use_cases' (/mnt/c/Users/andre/Pynomaly/src/pynomaly/application/use_cases/__init__.py). Did you mean: 'detect_anomalies'?</error></testcase></testsuite></testsuites>

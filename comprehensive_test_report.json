@@ -1,0 +1,38 @@
+{
+  "timestamp": 1750723775.5302327,
+  "best_coverage": 0,
+  "best_test_type": "local",
+  "coverage_improvement": -18,
+  "results": {
+    "local": {
+      "coverage": 0.0,
+      "tests_passed": 0,
+      "tests_failed": 0,
+      "tests_skipped": 0,
+      "execution_time": 9.86141848564148,
+      "errors": [
+        "Tests failed with return code 1"
+      ]
+    },
+    "docker": {
+      "coverage": 0.0,
+      "tests_passed": 0,
+      "tests_failed": 0,
+      "tests_skipped": 0,
+      "execution_time": 2.9082319736480713,
+      "errors": [
+        "Docker build failed: #0 building with \"default\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile.testing\n#1 transferring dockerfile: 1.80kB 0.1s done\n#1 WARN: FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 1)\n#1 DONE 0.2s\n\n#2 [auth] library/python:pull token for registry-1.docker.io\n#2 DONE 0.0s\n\n#3 [internal] load metadata for docker.io/library/python:3.11-slim\n#3 DONE 0.5s\n\n#4 [internal] load .dockerignore\n#4 transferring context: 795B 0.1s\n#4 transferring context: 797B 0.1s done\n#4 DONE 0.2s\n\n#5 [ 1/14] FROM docker.io/library/python:3.11-slim@sha256:9e1912aab0a30bbd9488eb79063f68f42a68ab0946cbe98fecf197fe5b085506\n#5 resolve docker.io/library/python:3.11-slim@sha256:9e1912aab0a30bbd9488eb79063f68f42a68ab0946cbe98fecf197fe5b085506 0.0s done\n#5 CACHED\n\n#6 [internal] load build context\n#6 transferring context: 4.05MB 1.2s done\n#6 DONE 1.3s\n\n#7 [ 9/14] RUN pip install --no-cache-dir     shap==0.42.1     lime==0.2.0.1     optuna==3.4.0     mlflow==2.8.1     prometheus-client==0.19.0     opentelemetry-api==1.21.0     opentelemetry-sdk==1.21.0\n#7 CACHED\n\n#8 [ 8/14] RUN pip install --no-cache-dir     torch==2.0.0     tensorflow==2.13.0     jax[cpu]==0.4.13     jaxlib==0.4.13     pyod==1.1.0     fastapi==0.104.1     uvicorn==0.24.0     redis==5.0.1     aioredis==2.0.1     celery==5.3.4     pytest-asyncio==0.21.1     pytest-mock==3.12.0     hypothesis==6.88.1     pytest-benchmark==4.0.0     pytest-xdist==3.5.0\n#8 CACHED\n\n#9 [ 3/14] WORKDIR /app\n#9 CACHED\n\n#10 [ 6/14] RUN pip install --no-cache-dir -r requirements.txt\n#10 CACHED\n\n#11 [10/14] COPY src/ src/\n#11 CACHED\n\n#12 [ 5/14] COPY requirements-test.txt ./\n#12 CACHED\n\n#13 [ 7/14] RUN pip install --no-cache-dir -r requirements-test.txt\n#13 CACHED\n\n#14 [11/14] COPY tests/ tests/\n#14 ERROR: failed to calculate checksum of ref 2ymp1n7vhnpezsehfog5jaefj::mt1evrh1lsu8dzeb7z3q6ecvv: \"/tests\": not found\n\n#15 [ 4/14] COPY requirements.txt pyproject.toml ./\n#15 ERROR: failed to calculate checksum of ref 2ymp1n7vhnpezsehfog5jaefj::mt1evrh1lsu8dzeb7z3q6ecvv: \"/pyproject.toml\": not found\n\n#16 [ 2/14] RUN apt-get update && apt-get install -y     build-essential     curl     git     libpq-dev     pkg-config     && rm -rf /var/lib/apt/lists/*\n#16 0.426 Get:1 http://deb.debian.org/debian bookworm InRelease [151 kB]\n#16 0.487 Get:2 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]\n#16 0.513 Get:3 http://deb.debian.org/debian-security bookworm-security InRelease [48.0 kB]\n#16 0.540 Get:4 http://deb.debian.org/debian bookworm/main amd64 Packages [8793 kB]\n#16 0.977 Get:5 http://deb.debian.org/debian bookworm-updates/main amd64 Packages [756 B]\n#16 0.980 Get:6 http://deb.debian.org/debian-security bookworm-security/main amd64 Packages [268 kB]\n#16 CANCELED\n\n#17 [12/14] COPY pytest.ini ./\n#17 ERROR: failed to calculate checksum of ref 2ymp1n7vhnpezsehfog5jaefj::mt1evrh1lsu8dzeb7z3q6ecvv: \"/pytest.ini\": not found\n------\n > [ 4/14] COPY requirements.txt pyproject.toml ./:\n------\n------\n > [11/14] COPY tests/ tests/:\n------\n------\n > [12/14] COPY pytest.ini ./:\n------\n\n \u001b[33m1 warning found (use docker --debug to expand):\n\u001b[0m - FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 1)\nDockerfile.testing:56\n--------------------\n  54 |     COPY src/ src/\n  55 |     COPY tests/ tests/\n  56 | >>> COPY pytest.ini ./\n  57 |     \n  58 |     # Install package in development mode\n--------------------\nERROR: failed to solve: failed to compute cache key: failed to calculate checksum of ref 2ymp1n7vhnpezsehfog5jaefj::mt1evrh1lsu8dzeb7z3q6ecvv: \"/pytest.ini\": not found\n"
+      ]
+    },
+    "docker_compose": {
+      "coverage": 0.0,
+      "tests_passed": 0,
+      "tests_failed": 0,
+      "tests_skipped": 0,
+      "execution_time": 21.155226945877075,
+      "errors": [
+        "Docker Compose tests failed with return code 1"
+      ]
+    }
+  }
+}

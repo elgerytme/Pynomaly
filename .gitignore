@@ -258,3 +258,7 @@ mlruns/
 # Benchmarking
 benchmarks/results/
 *.benchmark
+.venv_testing/lib64
+.venv_testing/bin/python
+.venv_testing/bin/python3
+.venv_testing/bin/python3.12

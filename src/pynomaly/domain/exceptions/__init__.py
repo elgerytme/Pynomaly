@@ -40,6 +40,8 @@ AdapterError = DomainError
 AlgorithmNotFoundError = InvalidAlgorithmError
 AutoMLError = DomainError
 InvalidParameterError = ValidationError
+ProcessingError = DomainError
+EntityNotFoundError = DomainError
 
 __all__ = [
     # Base exceptions
@@ -75,4 +77,6 @@ __all__ = [
     "AlgorithmNotFoundError",
     "AutoMLError",
     "InvalidParameterError",
+    "ProcessingError",
+    "EntityNotFoundError",
 ]

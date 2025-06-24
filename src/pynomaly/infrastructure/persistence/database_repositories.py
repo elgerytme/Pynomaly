@@ -81,7 +81,7 @@ class DatasetModel(Base):
     file_path = Column(String(500))
     target_column = Column(String(100))
     features = Column(JSONType)
-    metadata = Column(JSONType)
+    entity_metadata = Column('metadata', JSONType)
     created_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, nullable=False)
 
@@ -96,7 +96,7 @@ class DetectorModel(Base):
     parameters = Column(JSONType)
     is_fitted = Column(Boolean, default=False)
     model_data = Column(Text)  # Serialized model
-    metadata = Column(JSONType)
+    entity_metadata = Column('metadata', JSONType)
     created_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, nullable=False)
 
@@ -111,7 +111,7 @@ class DetectionResultModel(Base):
     dataset_id = Column(UUIDType, nullable=False)
     scores = Column(JSONType)
     labels = Column(JSONType)
-    metadata = Column(JSONType)
+    entity_metadata = Column('metadata', JSONType)
     created_at = Column(DateTime, nullable=False)
 
 

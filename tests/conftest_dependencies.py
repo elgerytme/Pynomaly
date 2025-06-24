@@ -28,6 +28,9 @@ DEPENDENCY_GROUPS = {
     'pyod': ['pyod'],
     'fastapi': ['fastapi'],
     'uvicorn': ['uvicorn'],
+    'database': ['sqlalchemy', 'psycopg2'],
+    'hypothesis': ['hypothesis'],
+    'testing': ['pytest'],
 }
 
 # Check which dependencies are available
