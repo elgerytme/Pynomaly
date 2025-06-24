@@ -77,8 +77,8 @@ def create_detector(
     
     # Get available algorithms
     try:
-        pyod_adapter = container.pyod_adapter()
-        available_algorithms = pyod_adapter.list_algorithms()
+        from pynomaly.infrastructure.adapters import PyODAdapter
+        available_algorithms = PyODAdapter.list_algorithms()
         
         if algorithm not in available_algorithms:
             console.print(f"[red]Error:[/red] Algorithm '{algorithm}' not available")
@@ -208,10 +208,10 @@ def list_algorithms(
     container = get_cli_container()
     
     try:
-        pyod_adapter = container.pyod_adapter()
+        from pynomaly.infrastructure.adapters import PyODAdapter
         # Get algorithm info
-        algorithms = pyod_adapter.list_algorithms()
-        algorithm_info = pyod_adapter.get_algorithm_info()
+        algorithms = PyODAdapter.list_algorithms()
+        algorithm_info = PyODAdapter.get_algorithm_info()
     except Exception as e:
         console.print(f"[red]Error:[/red] Failed to access PyOD adapter: {str(e)}")
         console.print("No algorithms available - check PyOD installation")

@@ -327,3 +327,76 @@ class PyODAdapter(Detector):
             return pyod.__version__
         except:
             return "unknown"
+    
+    @classmethod
+    def list_algorithms(cls) -> List[str]:
+        """List all available PyOD algorithms.
+        
+        Returns:
+            List of algorithm names
+        """
+        return list(cls.ALGORITHM_MAPPING.keys())
+    
+    @classmethod
+    def get_algorithm_info(cls) -> Dict[str, Dict[str, str]]:
+        """Get detailed information about PyOD algorithms.
+        
+        Returns:
+            Dictionary mapping algorithm names to their information
+        """
+        algorithm_info = {
+            # Linear models
+            "PCA": {"category": "Linear", "type": "Unsupervised", "description": "Principal Component Analysis based outlier detection"},
+            "MCD": {"category": "Linear", "type": "Unsupervised", "description": "Minimum Covariance Determinant outlier detection"},
+            "OCSVM": {"category": "Linear", "type": "Unsupervised", "description": "One-Class Support Vector Machine"},
+            "LMDD": {"category": "Linear", "type": "Unsupervised", "description": "Linear Model with Decorrelation"},
+            
+            # Proximity-based
+            "LOF": {"category": "Proximity", "type": "Unsupervised", "description": "Local Outlier Factor"},
+            "COF": {"category": "Proximity", "type": "Unsupervised", "description": "Connectivity-Based Outlier Factor"},
+            "CBLOF": {"category": "Proximity", "type": "Unsupervised", "description": "Clustering-Based Local Outlier Factor"},
+            "LOCI": {"category": "Proximity", "type": "Unsupervised", "description": "Local Correlation Integral"},
+            "HBOS": {"category": "Proximity", "type": "Unsupervised", "description": "Histogram-Based Outlier Score"},
+            "KNN": {"category": "Proximity", "type": "Unsupervised", "description": "k-Nearest Neighbors outlier detection"},
+            "AvgKNN": {"category": "Proximity", "type": "Unsupervised", "description": "Average k-Nearest Neighbors"},
+            "MedKNN": {"category": "Proximity", "type": "Unsupervised", "description": "Median k-Nearest Neighbors"},
+            "SOD": {"category": "Proximity", "type": "Unsupervised", "description": "Subspace Outlier Detection"},
+            "ROD": {"category": "Proximity", "type": "Unsupervised", "description": "Rotation-Based Outlier Detection"},
+            
+            # Probabilistic
+            "ABOD": {"category": "Probabilistic", "type": "Unsupervised", "description": "Angle-Based Outlier Detection"},
+            "FastABOD": {"category": "Probabilistic", "type": "Unsupervised", "description": "Fast Angle-Based Outlier Detection"},
+            "COPOD": {"category": "Probabilistic", "type": "Unsupervised", "description": "Copula-Based Outlier Detection"},
+            "MAD": {"category": "Probabilistic", "type": "Unsupervised", "description": "Median Absolute Deviation"},
+            "SOS": {"category": "Probabilistic", "type": "Unsupervised", "description": "Stochastic Outlier Selection"},
+            
+            # Ensemble
+            "IsolationForest": {"category": "Ensemble", "type": "Unsupervised", "description": "Isolation Forest for anomaly detection"},
+            "IForest": {"category": "Ensemble", "type": "Unsupervised", "description": "Isolation Forest (alias)"},
+            "FeatureBagging": {"category": "Ensemble", "type": "Unsupervised", "description": "Feature Bagging for outlier detection"},
+            "LSCP": {"category": "Ensemble", "type": "Unsupervised", "description": "Locally Selective Combination"},
+            "XGBOD": {"category": "Ensemble", "type": "Supervised", "description": "Extreme Gradient Boosting Outlier Detection"},
+            "LODA": {"category": "Ensemble", "type": "Unsupervised", "description": "Lightweight On-line Detector of Anomalies"},
+            "SUOD": {"category": "Ensemble", "type": "Unsupervised", "description": "Scalable Unsupervised Outlier Detection"},
+            
+            # Neural networks
+            "AutoEncoder": {"category": "Neural Network", "type": "Unsupervised", "description": "AutoEncoder-based anomaly detection"},
+            "VAE": {"category": "Neural Network", "type": "Unsupervised", "description": "Variational AutoEncoder"},
+            "Beta-VAE": {"category": "Neural Network", "type": "Unsupervised", "description": "Beta Variational AutoEncoder"},
+            "SO_GAAL": {"category": "Neural Network", "type": "Semi-supervised", "description": "Single-Objective Generative Adversarial Active Learning"},
+            "MO_GAAL": {"category": "Neural Network", "type": "Semi-supervised", "description": "Multiple-Objective Generative Adversarial Active Learning"},
+            "DeepSVDD": {"category": "Neural Network", "type": "Unsupervised", "description": "Deep Support Vector Data Description"},
+            
+            # Graph-based
+            "R-Graph": {"category": "Graph", "type": "Unsupervised", "description": "Random Graph-based outlier detection"},
+            "LUNAR": {"category": "Graph", "type": "Unsupervised", "description": "Locally Uniform Network Anomaly Ranking"},
+            
+            # Deep Learning (Additional)
+            "ALAD": {"category": "Deep Learning", "type": "Unsupervised", "description": "Adversarially Learned Anomaly Detection"},
+            "AnoGAN": {"category": "Deep Learning", "type": "Unsupervised", "description": "Anomaly Detection with Generative Adversarial Networks"},
+            "DIF": {"category": "Deep Learning", "type": "Unsupervised", "description": "Deep Isolation Forest"},
+        }
+        
+        # Return info for algorithms that actually exist in our mapping
+        return {algo: algorithm_info.get(algo, {"category": "Unknown", "type": "Unknown", "description": "No description available"}) 
+                for algo in cls.ALGORITHM_MAPPING.keys()}
