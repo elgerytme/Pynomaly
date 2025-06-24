@@ -13,6 +13,7 @@ build/artifacts/
 build/lib/
 develop-eggs/
 dist/
+bin/
 deploy/artifacts/
 !deploy/artifacts/README.md
 downloads/
@@ -266,3 +267,9 @@ benchmarks/results/
 .venv_testing/bin/python
 .venv_testing/bin/python3
 .venv_testing/bin/python3.12
+tests/ui/ui_test_env/bin/python
+tests/ui/ui_test_env/bin/python3
+tests/ui/ui_test_env/bin/python3.12
+tests/ui/ui_test_env/bin/python
+tests/ui/ui_test_env/bin/python3
+tests/ui/ui_test_env/bin/python3.12
