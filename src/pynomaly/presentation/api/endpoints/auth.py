@@ -6,7 +6,8 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
+# from pydantic import EmailStr  # Temporarily disabled due to missing email-validator
 
 from pynomaly.domain.exceptions import AuthenticationError
 from pynomaly.infrastructure.auth import (
@@ -30,7 +31,7 @@ class LoginRequest(BaseModel):
 class RegisterRequest(BaseModel):
     """User registration request."""
     username: str
-    email: EmailStr
+    email: str  # EmailStr temporarily disabled
     password: str
     full_name: str | None = None
 

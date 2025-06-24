@@ -82,8 +82,8 @@ class ExplainChoicesRequest(BaseModel):
 @router.post("/detect")
 async def autonomous_detect(
     request: AutonomousDetectionRequest,
-    file: Optional[UploadFile] = File(None),
     background_tasks: BackgroundTasks,
+    file: Optional[UploadFile] = File(None),
     container: Container = Depends(get_container),
     current_user: Optional[str] = Depends(get_current_user)
 ) -> Dict:
