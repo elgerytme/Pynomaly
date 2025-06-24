@@ -19,6 +19,10 @@ from pynomaly.shared.protocols import (
     DetectorRepositoryProtocol,
     DetectionResultRepositoryProtocol
 )
+from pynomaly.application.services.autonomous_preprocessing import (
+    AutonomousPreprocessingOrchestrator,
+    DataQualityReport
+)
 
 
 @dataclass
@@ -33,6 +37,12 @@ class AutonomousConfig:
     export_results: bool = False
     export_format: str = "csv"
     verbose: bool = False
+    
+    # Preprocessing configuration
+    enable_preprocessing: bool = True
+    quality_threshold: float = 0.8
+    max_preprocessing_time: float = 300.0  # 5 minutes
+    preprocessing_strategy: str = "auto"  # auto, aggressive, conservative, minimal
 
 
 @dataclass
@@ -53,6 +63,13 @@ class DataProfile:
     trend_detected: bool
     recommended_contamination: float
     complexity_score: float
+    
+    # Preprocessing-related fields
+    quality_score: float = 1.0
+    quality_report: Optional[DataQualityReport] = None
+    preprocessing_recommended: bool = False
+    preprocessing_applied: bool = False
+    preprocessing_metadata: Optional[Dict[str, Any]] = None
 
 
 @dataclass
@@ -86,6 +103,9 @@ class AutonomousDetectionService:
         self.result_repository = result_repository
         self.data_loaders = data_loaders
         self.logger = logging.getLogger(__name__)
+        
+        # Initialize preprocessing orchestrator
+        self.preprocessing_orchestrator = AutonomousPreprocessingOrchestrator()
     
     async def detect_autonomous(
         self,
@@ -109,18 +129,21 @@ class AutonomousDetectionService:
         # Step 1: Auto-detect data source and load
         dataset = await self._auto_load_data(data_source, config)
         
-        # Step 2: Profile the data
-        profile = await self._profile_data(dataset, config)
+        # Step 2: Assess data quality and preprocess if needed
+        dataset, profile = await self._assess_and_preprocess_data(dataset, config)
         
-        # Step 3: Recommend algorithms
+        # Step 3: Profile the processed data
+        profile = await self._profile_data(dataset, config, profile)
+        
+        # Step 4: Recommend algorithms
         recommendations = await self._recommend_algorithms(profile, config)
         
-        # Step 4: Auto-tune and run detection
+        # Step 5: Auto-tune and run detection
         results = await self._run_detection_pipeline(
             dataset, recommendations, config
         )
         
-        # Step 5: Post-process and export
+        # Step 6: Post-process and export
         final_results = await self._finalize_results(
             dataset, profile, recommendations, results, config
         )
@@ -240,10 +263,102 @@ class AutonomousDetectionService:
         
         return options
     
+    async def _assess_and_preprocess_data(
+        self,
+        dataset: Dataset,
+        config: AutonomousConfig
+    ) -> Tuple[Dataset, DataProfile]:
+        """Assess data quality and apply preprocessing if needed.
+        
+        Args:
+            dataset: Original dataset
+            config: Autonomous configuration
+            
+        Returns:
+            Tuple of (processed_dataset, initial_profile_with_quality_info)
+        """
+        if config.verbose:
+            self.logger.info("Assessing data quality for preprocessing needs")
+        
+        # Initialize partial profile for quality assessment
+        initial_profile = DataProfile(
+            n_samples=len(dataset.data),
+            n_features=len(dataset.data.columns),
+            numeric_features=0,  # Will be filled later
+            categorical_features=0,  # Will be filled later
+            temporal_features=0,  # Will be filled later
+            missing_values_ratio=0.0,  # Will be filled later
+            data_types={},  # Will be filled later
+            correlation_score=0.0,  # Will be filled later
+            sparsity_ratio=0.0,  # Will be filled later
+            outlier_ratio_estimate=0.0,  # Will be filled later
+            seasonality_detected=False,  # Will be filled later
+            trend_detected=False,  # Will be filled later
+            recommended_contamination=0.1,  # Will be filled later
+            complexity_score=0.0  # Will be filled later
+        )
+        
+        if not config.enable_preprocessing:
+            if config.verbose:
+                self.logger.info("Preprocessing disabled, skipping quality assessment")
+            initial_profile.preprocessing_applied = False
+            return dataset, initial_profile
+        
+        # Assess data quality
+        should_preprocess, quality_report = self.preprocessing_orchestrator.should_preprocess(
+            dataset, config.quality_threshold
+        )
+        
+        # Update profile with quality information
+        initial_profile.quality_score = quality_report.overall_score
+        initial_profile.quality_report = quality_report
+        initial_profile.preprocessing_recommended = should_preprocess
+        
+        if config.verbose:
+            self.logger.info(f"Data quality score: {quality_report.overall_score:.2f}")
+            if quality_report.issues:
+                self.logger.info(f"Found {len(quality_report.issues)} data quality issues")
+        
+        if not should_preprocess:
+            if config.verbose:
+                self.logger.info("Data quality sufficient, skipping preprocessing")
+            initial_profile.preprocessing_applied = False
+            return dataset, initial_profile
+        
+        # Apply preprocessing
+        if config.verbose:
+            self.logger.info("Applying intelligent preprocessing to improve data quality")
+        
+        processed_dataset, preprocessing_metadata = self.preprocessing_orchestrator.preprocess_for_autonomous_detection(
+            dataset, quality_report, config.max_preprocessing_time
+        )
+        
+        # Update profile with preprocessing results
+        initial_profile.preprocessing_applied = preprocessing_metadata.get("preprocessing_applied", False)
+        initial_profile.preprocessing_metadata = preprocessing_metadata
+        
+        if config.verbose:
+            if initial_profile.preprocessing_applied:
+                original_shape = preprocessing_metadata.get("original_shape", (0, 0))
+                final_shape = preprocessing_metadata.get("final_shape", (0, 0))
+                self.logger.info(
+                    f"Preprocessing completed: {original_shape[0]:,}×{original_shape[1]} → {final_shape[0]:,}×{final_shape[1]}"
+                )
+                
+                applied_steps = preprocessing_metadata.get("applied_steps", [])
+                if applied_steps:
+                    self.logger.info(f"Applied {len(applied_steps)} preprocessing steps")
+            else:
+                reason = preprocessing_metadata.get("reason", "Unknown")
+                self.logger.info(f"Preprocessing skipped: {reason}")
+        
+        return processed_dataset, initial_profile
+    
     async def _profile_data(
         self, 
         dataset: Dataset, 
-        config: AutonomousConfig
+        config: AutonomousConfig,
+        initial_profile: Optional[DataProfile] = None
     ) -> DataProfile:
         """Profile dataset to understand its characteristics."""
         
@@ -332,7 +447,8 @@ class AutonomousDetectionService:
         ]
         complexity_score = min(1.0, np.mean(complexity_factors))
         
-        return DataProfile(
+        # Create full profile with preprocessing information if available
+        profile = DataProfile(
             n_samples=n_samples,
             n_features=n_features,
             numeric_features=numeric_features,
@@ -348,6 +464,16 @@ class AutonomousDetectionService:
             recommended_contamination=recommended_contamination,
             complexity_score=complexity_score
         )
+        
+        # Copy preprocessing information from initial profile if available
+        if initial_profile:
+            profile.quality_score = initial_profile.quality_score
+            profile.quality_report = initial_profile.quality_report
+            profile.preprocessing_recommended = initial_profile.preprocessing_recommended
+            profile.preprocessing_applied = initial_profile.preprocessing_applied
+            profile.preprocessing_metadata = initial_profile.preprocessing_metadata
+        
+        return profile
     
     async def _recommend_algorithms(
         self,

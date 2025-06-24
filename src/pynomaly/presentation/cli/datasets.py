@@ -296,6 +296,34 @@ def check_quality(
         console.print("\n[bold]Recommendations:[/bold]")
         for i, suggestion in enumerate(suggestions, 1):
             console.print(f"  {i}. {suggestion}")
+    
+    # Preprocessing command suggestions
+    console.print("\n[bold]Preprocessing Commands:[/bold]")
+    dataset_id_short = str(dataset.id)[:8]
+    
+    # Generate specific command suggestions based on issues found
+    commands = []
+    
+    if quality_report["missing_values"] or quality_report["infinite_values"]:
+        missing_strategy = "drop_rows" if len(quality_report.get("missing_values", {})) < 3 else "fill_median"
+        commands.append(f"pynomaly data clean {dataset_id_short} --missing {missing_strategy} --infinite remove")
+    
+    if quality_report["duplicate_rows"] > 0:
+        commands.append(f"pynomaly data clean {dataset_id_short} --duplicates")
+    
+    # Always suggest a transformation pipeline for better anomaly detection
+    commands.append(f"pynomaly data transform {dataset_id_short} --scaling standard --encoding onehot")
+    
+    # Suggest creating a complete preprocessing pipeline
+    commands.append(f"pynomaly data pipeline create --name {dataset.name.lower().replace(' ', '_')}_pipeline")
+    
+    if commands:
+        console.print("  Suggested commands to improve data quality:")
+        for cmd in commands:
+            console.print(f"    [cyan]{cmd}[/cyan]")
+        
+        console.print(f"\n  To preview changes without applying them, add [yellow]--dry-run[/yellow] to any command.")
+        console.print(f"  To save cleaned data as a new dataset, add [yellow]--save-as new_name[/yellow].")
 
 
 @app.command("split")
