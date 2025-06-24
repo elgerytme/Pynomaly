@@ -15,7 +15,7 @@ from pynomaly.infrastructure.performance import (
     PoolConfiguration,
     PoolStats
 )
-from pynomaly.presentation.api.auth import require_permission
+from pynomaly.infrastructure.auth import require_permission
 
 router = APIRouter(prefix="/performance", tags=["performance"])
 

@@ -212,6 +212,18 @@ require_write = PermissionChecker(["detectors:write", "datasets:write"])
 require_admin = PermissionChecker(["users:write", "settings:write"])
 
 
+def require_permission(permission: str) -> PermissionChecker:
+    """Create a permission checker for a specific permission.
+    
+    Args:
+        permission: Required permission string
+        
+    Returns:
+        PermissionChecker instance
+    """
+    return PermissionChecker([permission])
+
+
 # Rate limiter instances
 default_limiter = RateLimiter(requests=100, window=60)
 strict_limiter = RateLimiter(requests=10, window=60)
