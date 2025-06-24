@@ -10,11 +10,8 @@ from enum import Enum
 
 
 class ExportFormat(Enum):
-    """Supported export formats."""
+    """Supported export formats (simplified)."""
     EXCEL = "excel"
-    POWERBI = "powerbi"
-    GSHEETS = "gsheets"
-    SMARTSHEET = "smartsheet"
     CSV = "csv"
     JSON = "json"
 
@@ -139,26 +136,16 @@ class ExportOptions:
         self.include_charts = True
         return self
     
-    def for_powerbi(self, workspace_id: str, dataset_name: str) -> 'ExportOptions':
-        """Create Power BI-optimized export options."""
-        self.format = ExportFormat.POWERBI
-        self.workspace_id = workspace_id
-        self.dataset_name = dataset_name
-        self.destination = ExportDestination.API_ENDPOINT
+    def for_csv(self) -> 'ExportOptions':
+        """Create CSV-optimized export options."""
+        self.format = ExportFormat.CSV
+        self.include_charts = False
+        self.use_advanced_formatting = False
         return self
     
-    def for_gsheets(self, spreadsheet_id: Optional[str] = None) -> 'ExportOptions':
-        """Create Google Sheets-optimized export options."""
-        self.format = ExportFormat.GSHEETS
-        self.spreadsheet_id = spreadsheet_id
-        self.destination = ExportDestination.CLOUD_STORAGE
-        self.include_charts = True
-        return self
-    
-    def for_smartsheet(self, workspace_name: Optional[str] = None) -> 'ExportOptions':
-        """Create Smartsheet-optimized export options."""
-        self.format = ExportFormat.SMARTSHEET
-        self.workspace_name = workspace_name
-        self.destination = ExportDestination.API_ENDPOINT
-        self.include_charts = False  # Smartsheet has limited chart support
+    def for_json(self) -> 'ExportOptions':
+        """Create JSON-optimized export options."""
+        self.format = ExportFormat.JSON
+        self.include_charts = False
+        self.use_advanced_formatting = False
         return self

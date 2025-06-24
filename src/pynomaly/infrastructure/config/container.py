@@ -58,19 +58,11 @@ except ImportError:
     RedisConnector = None
     STREAMING_AVAILABLE = False
 
-# Optional distributed processing services
-try:
-    from pynomaly.infrastructure.distributed import (
-        DistributedProcessingManager,
-        DetectionCoordinator,
-        LoadBalancer
-    )
-    DISTRIBUTED_AVAILABLE = True
-except ImportError:
-    DistributedProcessingManager = None
-    DetectionCoordinator = None
-    LoadBalancer = None
-    DISTRIBUTED_AVAILABLE = False
+# Distributed processing removed for simplification
+DistributedProcessingManager = None
+DetectionCoordinator = None
+LoadBalancer = None
+DISTRIBUTED_AVAILABLE = False
 from pynomaly.application.use_cases import (
     DetectAnomaliesUseCase,
     EvaluateModelUseCase,
@@ -516,30 +508,7 @@ class Container(containers.DeclarativeContainer):
                 dataset_repository=dataset_repository
             )
     
-    # Distributed processing services - only create if available
-    if DISTRIBUTED_AVAILABLE:
-        # Distributed processing manager
-        distributed_processing_manager = providers.Singleton(
-            DistributedProcessingManager,
-            max_workers=10,
-            task_timeout=300,
-            heartbeat_interval=30
-        )
-        
-        # Detection coordinator for distributed workflows
-        detection_coordinator = providers.Singleton(
-            DetectionCoordinator,
-            processing_manager=distributed_processing_manager
-        )
-        
-        # Load balancer for horizontal scaling
-        load_balancer = providers.Singleton(
-            LoadBalancer,
-            strategy=providers.Object("round_robin"),  # Default strategy
-            health_check_interval=30,
-            health_check_timeout=10,
-            max_retries=3
-        )
+    # Distributed processing removed for simplification
     
     # Use cases
     detect_anomalies_use_case = providers.Factory(

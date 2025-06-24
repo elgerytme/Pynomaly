@@ -39,27 +39,9 @@ try:
 except ImportError:
     pass
 
-# Business Intelligence and Export adapters
+# Basic export adapters (BI integrations removed for simplification)
 try:
     from .excel_adapter import ExcelAdapter
     __all__.append("ExcelAdapter")
-except ImportError:
-    pass
-
-try:
-    from .powerbi_adapter import PowerBIAdapter
-    __all__.append("PowerBIAdapter")
-except ImportError:
-    pass
-
-try:
-    from .gsheets_adapter import GoogleSheetsAdapter
-    __all__.append("GoogleSheetsAdapter")
-except ImportError:
-    pass
-
-try:
-    from .smartsheet_adapter import SmartsheetAdapter
-    __all__.append("SmartsheetAdapter")
 except ImportError:
     pass

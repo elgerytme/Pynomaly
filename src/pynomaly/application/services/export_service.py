@@ -11,9 +11,6 @@ from datetime import datetime
 
 from ...domain.entities.detection_result import DetectionResult
 from ...infrastructure.adapters.excel_adapter import ExcelAdapter
-from ...infrastructure.adapters.powerbi_adapter import PowerBIAdapter
-from ...infrastructure.adapters.gsheets_adapter import GoogleSheetsAdapter
-from ...infrastructure.adapters.smartsheet_adapter import SmartsheetAdapter
 from ...shared.protocols.export_protocol import ExportProtocol
 from ..dto.export_options import ExportOptions, ExportFormat, ExportDestination
 
@@ -44,26 +41,8 @@ class ExportService:
         except ImportError as e:
             logger.warning(f"Excel adapter not available: {e}")
         
-        try:
-            powerbi_adapter = PowerBIAdapter()
-            self._adapters[ExportFormat.POWERBI] = powerbi_adapter
-            logger.info("Registered Power BI adapter")
-        except ImportError as e:
-            logger.warning(f"Power BI adapter not available: {e}")
-        
-        try:
-            gsheets_adapter = GoogleSheetsAdapter()
-            self._adapters[ExportFormat.GSHEETS] = gsheets_adapter
-            logger.info("Registered Google Sheets adapter")
-        except ImportError as e:
-            logger.warning(f"Google Sheets adapter not available: {e}")
-        
-        try:
-            smartsheet_adapter = SmartsheetAdapter()
-            self._adapters[ExportFormat.SMARTSHEET] = smartsheet_adapter
-            logger.info("Registered Smartsheet adapter")
-        except ImportError as e:
-            logger.warning(f"Smartsheet adapter not available: {e}")
+        # Basic CSV and JSON adapters (built-in)
+        logger.info("Basic export formats (CSV, JSON) available")
     
     def export_results(
         self,

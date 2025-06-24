@@ -25,13 +25,9 @@ from pynomaly.presentation.api.endpoints import (
     performance
 )
 
-# Optional distributed processing endpoints - import only if available
-try:
-    from pynomaly.presentation.api import distributed
-    DISTRIBUTED_API_AVAILABLE = True
-except ImportError:
-    distributed = None
-    DISTRIBUTED_API_AVAILABLE = False
+# Distributed processing endpoints removed for simplification
+distributed = None
+DISTRIBUTED_API_AVAILABLE = False
 from pynomaly.presentation.web.app import mount_web_ui
 
 
@@ -164,13 +160,7 @@ def create_app(container: Container | None = None) -> FastAPI:
         tags=["export"]
     )
     
-    # Include distributed processing API if available
-    if DISTRIBUTED_API_AVAILABLE and distributed is not None:
-        app.include_router(
-            distributed.router,
-            prefix="/api/distributed",
-            tags=["distributed"]
-        )
+    # Distributed processing API removed for simplification
     
     # Mount web UI
     mount_web_ui(app)
