@@ -1,0 +1,80 @@
+{
+  "metadata": {
+    "type": "experiment",
+    "created": "2025-06-24T17:12:43.912858",
+    "version": "1.0",
+    "description": "Pynomaly experiment configuration"
+  },
+  "experiment": {
+    "name": "anomaly_detection_experiment",
+    "description": "Comparative anomaly detection experiment",
+    "algorithms": [
+      {
+        "name": "IsolationForest",
+        "parameters": {
+          "contamination": 0.1,
+          "n_estimators": 100
+        }
+      },
+      {
+        "name": "LOF",
+        "parameters": {
+          "contamination": 0.1,
+          "n_neighbors": 20
+        }
+      },
+      {
+        "name": "OneClassSVM",
+        "parameters": {
+          "nu": 0.1,
+          "gamma": "scale"
+        }
+      }
+    ],
+    "dataset": {
+      "source": "data/experiment_dataset.csv",
+      "preprocessing": {
+        "normalization": "standard",
+        "feature_selection": false,
+        "outlier_removal": false
+      }
+    },
+    "evaluation": {
+      "cross_validation": true,
+      "folds": 10,
+      "metrics": [
+        "precision",
+        "recall",
+        "f1",
+        "auc_roc",
+        "auc_pr",
+        "average_precision"
+      ],
+      "statistical_tests": [
+        "wilcoxon",
+        "friedman"
+      ]
+    },
+    "hyperparameter_tuning": {
+      "enabled": true,
+      "method": "grid_search",
+      "cv_folds": 3,
+      "scoring": "average_precision"
+    },
+    "output": {
+      "save_results": true,
+      "export_format": "excel",
+      "include_visualizations": true,
+      "generate_report": true
+    }
+  },
+  "examples": {
+    "usage": [
+      "pynomaly dataset load path/to/experiment_data.csv --name exp_data",
+      "pynomaly detect batch IsolationForest LOF OneClassSVM exp_data",
+      "pynomaly detect evaluate IsolationForest exp_data --cv --folds 5",
+      "pynomaly export excel results.json experiment_results.xlsx"
+    ],
+    "description": "Multi-algorithm experiment with statistical comparison"
+  }
+}
