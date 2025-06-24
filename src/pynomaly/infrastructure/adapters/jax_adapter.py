@@ -208,6 +208,87 @@ def ocsvm_decision_function(params: Dict[str, Any], X: jnp.ndarray) -> jnp.ndarr
     return scores
 
 
+def lof_init(key: jax.random.PRNGKey, n_neighbors: int = 20) -> Dict[str, Any]:
+    """Initialize LOF parameters using JAX."""
+    params = {}
+    params['n_neighbors'] = n_neighbors
+    
+    # Training data and distances will be computed during training
+    params['training_data'] = None
+    params['k_distances'] = None
+    params['lrd'] = None  # Local reachability density
+    
+    return params
+
+
+@jit
+def euclidean_distance_matrix(X1: jnp.ndarray, X2: jnp.ndarray) -> jnp.ndarray:
+    """Compute pairwise euclidean distances between X1 and X2."""
+    # X1: (n1, d), X2: (n2, d) -> output: (n1, n2)
+    X1_sqnorms = jnp.sum(X1**2, axis=1, keepdims=True)  # (n1, 1)
+    X2_sqnorms = jnp.sum(X2**2, axis=1, keepdims=False)  # (n2,)
+    dot_product = jnp.dot(X1, X2.T)  # (n1, n2)
+    
+    distances = jnp.sqrt(jnp.maximum(
+        X1_sqnorms + X2_sqnorms - 2 * dot_product, 
+        0.0  # Ensure non-negative for numerical stability
+    ))
+    return distances
+
+
+@jit
+def compute_k_distance(distances: jnp.ndarray, k: int) -> jnp.ndarray:
+    """Compute k-distance for each point."""
+    # Sort distances and take the k-th neighbor (index k-1, since we include self at index 0)
+    sorted_distances = jnp.sort(distances, axis=1)
+    k_distances = sorted_distances[:, k]  # k-th neighbor distance
+    return k_distances
+
+
+@jit
+def compute_reachability_distance(distances: jnp.ndarray, k_distances: jnp.ndarray, k: int) -> jnp.ndarray:
+    """Compute reachability distance matrix."""
+    # Reachability distance from point i to j = max(k-distance(j), distance(i,j))
+    k_dist_expanded = k_distances[None, :]  # (1, n)
+    reach_dist = jnp.maximum(distances, k_dist_expanded)
+    return reach_dist
+
+
+@jit
+def compute_local_reachability_density(reach_distances: jnp.ndarray, k: int) -> jnp.ndarray:
+    """Compute local reachability density for each point."""
+    # Get k nearest neighbors for each point (excluding self)
+    # Sort and take first k+1 (including self), then exclude self
+    sorted_indices = jnp.argsort(reach_distances, axis=1)
+    k_neighbor_indices = sorted_indices[:, 1:k+1]  # Exclude self (index 0)
+    
+    # Get reachability distances to k nearest neighbors
+    batch_indices = jnp.arange(reach_distances.shape[0])[:, None]
+    k_reach_distances = reach_distances[batch_indices, k_neighbor_indices]
+    
+    # Local reachability density = 1 / (average reachability distance to k neighbors)
+    mean_reach_dist = jnp.mean(k_reach_distances, axis=1)
+    lrd = 1.0 / (mean_reach_dist + 1e-10)  # Add small epsilon for numerical stability
+    
+    return lrd, k_neighbor_indices
+
+
+@jit
+def compute_lof_scores(lrd: jnp.ndarray, k_neighbor_indices: jnp.ndarray) -> jnp.ndarray:
+    """Compute Local Outlier Factor scores."""
+    # LOF(p) = average(LRD(neighbor) / LRD(p)) for all neighbors of p
+    
+    # Get LRD values for all k-neighbors of each point
+    neighbor_lrd = lrd[k_neighbor_indices]  # (n, k)
+    
+    # Compute LOF for each point
+    point_lrd = lrd[:, None]  # (n, 1)
+    lof_ratios = neighbor_lrd / (point_lrd + 1e-10)  # (n, k)
+    lof_scores = jnp.mean(lof_ratios, axis=1)  # (n,)
+    
+    return lof_scores
+
+
 @jit
 def mse_loss(predictions: jnp.ndarray, targets: jnp.ndarray) -> jnp.ndarray:
     """Mean squared error loss."""
@@ -231,6 +312,7 @@ class JAXAdapter(Detector):
         "VAE": "vae", 
         "IsolationForest": "isolation_forest",
         "OCSVM": "ocsvm",
+        "LOF": "lof",
     }
     
     def __init__(
@@ -288,6 +370,7 @@ class JAXAdapter(Detector):
         self.max_depth = kwargs.get('max_depth', 10)
         self.gamma = kwargs.get('gamma', 0.1)  # For OCSVM RBF kernel
         self.nu = kwargs.get('nu', 0.1)  # For OCSVM (anomaly fraction upper bound)
+        self.n_neighbors = kwargs.get('n_neighbors', 20)  # For LOF
         
         # Initialize optimizer
         self.optimizer = optax.adam(self.learning_rate)
@@ -359,6 +442,13 @@ class JAXAdapter(Detector):
                 self.params = ocsvm_init(init_key, self.gamma, self.nu)
                 # OCSVM doesn't use gradient-based training
                 self._fit_ocsvm(X)
+                self._is_fitted = True
+                return
+                
+            elif self.algorithm_type == "lof":
+                self.params = lof_init(init_key, self.n_neighbors)
+                # LOF doesn't use gradient-based training
+                self._fit_lof(X)
                 self._is_fitted = True
                 return
                 
@@ -485,6 +575,68 @@ class JAXAdapter(Detector):
         self.params['support_vectors'] = support_vectors
         self.params['alpha'] = alpha
     
+    def _fit_lof(self, X: jnp.ndarray) -> None:
+        """Fit Local Outlier Factor algorithm."""
+        n_samples = X.shape[0]
+        k = self.params['n_neighbors']
+        
+        # Ensure k is not larger than n_samples - 1
+        k = min(k, n_samples - 1)
+        if k <= 0:
+            raise ValueError(f"n_neighbors must be > 0 and < n_samples, got k={k}, n_samples={n_samples}")
+        
+        # Store training data for prediction
+        self.params['training_data'] = X
+        
+        # Compute distance matrix for training data
+        distances = euclidean_distance_matrix(X, X)
+        
+        # Compute k-distances for all training points
+        k_distances = compute_k_distance(distances, k)
+        
+        # Compute reachability distances
+        reach_distances = compute_reachability_distance(distances, k_distances, k)
+        
+        # Compute local reachability density and k-neighbor indices
+        lrd, k_neighbor_indices = compute_local_reachability_density(reach_distances, k)
+        
+        # Store computed values for prediction
+        self.params['k_distances'] = k_distances
+        self.params['lrd'] = lrd
+        self.params['k_neighbor_indices'] = k_neighbor_indices
+        self.params['k'] = k  # Store the actual k used
+    
+    def _compute_lof_for_new_data(self, X_new: jnp.ndarray, X_train: jnp.ndarray, k: int) -> jnp.ndarray:
+        """Compute LOF scores for new data points relative to training data."""
+        # Compute distances from new points to training points
+        distances_to_train = euclidean_distance_matrix(X_new, X_train)
+        
+        # Find k nearest training neighbors for each new point
+        sorted_indices = jnp.argsort(distances_to_train, axis=1)
+        k_neighbor_indices_new = sorted_indices[:, :k]  # Take first k neighbors
+        
+        # Get distances to k nearest neighbors
+        batch_indices = jnp.arange(X_new.shape[0])[:, None]
+        k_distances_new = distances_to_train[batch_indices, k_neighbor_indices_new]
+        
+        # Compute reachability distances to training neighbors
+        training_k_distances = self.params['k_distances']
+        k_dist_neighbors = training_k_distances[k_neighbor_indices_new]  # (n_new, k)
+        reach_distances_new = jnp.maximum(k_distances_new, k_dist_neighbors)
+        
+        # Compute LRD for new points
+        mean_reach_dist_new = jnp.mean(reach_distances_new, axis=1)
+        lrd_new = 1.0 / (mean_reach_dist_new + 1e-10)
+        
+        # Compute LOF scores for new points
+        training_lrd = self.params['lrd']
+        neighbor_lrd = training_lrd[k_neighbor_indices_new]  # (n_new, k)
+        point_lrd_new = lrd_new[:, None]  # (n_new, 1)
+        lof_ratios = neighbor_lrd / (point_lrd_new + 1e-10)
+        lof_scores_new = jnp.mean(lof_ratios, axis=1)
+        
+        return lof_scores_new
+    
     def _calculate_threshold(self, X: jnp.ndarray) -> None:
         """Calculate anomaly threshold based on training data."""
         scores = self._calculate_anomaly_scores(X)
@@ -532,6 +684,26 @@ class JAXAdapter(Detector):
             # Convert to anomaly scores (higher = more anomalous)
             anomaly_scores = -decision_scores
             return np.array(anomaly_scores)
+            
+        elif self.algorithm_type == "lof":
+            # Validate LOF is fitted
+            if (self.params['training_data'] is None or 
+                self.params['lrd'] is None or 
+                self.params['k_neighbor_indices'] is None):
+                raise DetectorNotFittedError("LOF not fitted - missing training data or parameters")
+            
+            # For prediction, we need to compute LOF scores for new data points
+            training_data = self.params['training_data']
+            k = self.params['k']
+            
+            if jnp.array_equal(X, training_data):
+                # Predicting on training data - use precomputed values
+                lof_scores = compute_lof_scores(self.params['lrd'], self.params['k_neighbor_indices'])
+            else:
+                # Predicting on new data - compute LOF relative to training data
+                lof_scores = self._compute_lof_for_new_data(X, training_data, k)
+            
+            return np.array(lof_scores)
             
         else:
             raise ValueError(f"Unknown algorithm type: {self.algorithm_type}")
@@ -652,6 +824,16 @@ class JAXAdapter(Detector):
             if self.params is not None and self.params.get('support_vectors') is not None:
                 info["n_support_vectors"] = len(self.params['support_vectors'])
         
+        elif self.algorithm_type == "lof":
+            info.update({
+                "n_neighbors": self.n_neighbors,
+            })
+            if self.params is not None:
+                if self.params.get('k') is not None:
+                    info["k_used"] = self.params['k']
+                if self.params.get('training_data') is not None:
+                    info["n_training_samples"] = len(self.params['training_data'])
+        
         if self.params is not None:
             total_params = sum([np.prod(p.shape) for p in jax.tree_util.tree_leaves(self.params)])
             info["total_params"] = int(total_params)
@@ -724,6 +906,17 @@ class JAXAdapter(Detector):
                 "parameters": {
                     "gamma": "Kernel coefficient",
                     "nu": "Upper bound on anomaly fraction"
+                }
+            },
+            "LOF": {
+                "description": "Local Outlier Factor with JAX for density-based anomaly detection",
+                "type": "Density-based",
+                "unsupervised": True,
+                "gpu_support": True,
+                "jit_compiled": True,
+                "parameters": {
+                    "n_neighbors": "Number of neighbors for local density estimation",
+                    "contamination_rate": "Expected fraction of anomalies"
                 }
             }
         }

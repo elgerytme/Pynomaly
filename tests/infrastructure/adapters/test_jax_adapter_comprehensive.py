@@ -69,7 +69,8 @@ class TestJAXAdapterComprehensive:
         "AutoEncoder",
         "VAE", 
         "IsolationForest",
-        "OCSVM"
+        "OCSVM",
+        "LOF"
     ])
     def test_jax_adapter_initialization(self, algorithm_name):
         """Test JAX adapter initialization for all algorithms."""
@@ -217,6 +218,36 @@ class TestJAXAdapterComprehensive:
         assert model_info["gamma"] == 0.1
         assert model_info["nu"] == 0.05
         assert "n_support_vectors" in model_info
+    
+    @requires_jax
+    def test_lof_training_and_prediction(self, sample_dataset):
+        """Test LOF training and prediction."""
+        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        
+        adapter = JAXAdapter(
+            algorithm_name="LOF",
+            contamination_rate=ContaminationRate(0.1),
+            n_neighbors=10
+        )
+        
+        # Test fitting
+        adapter.fit(sample_dataset)
+        assert adapter.is_fitted
+        
+        # Test prediction
+        result = adapter.predict(sample_dataset)
+        
+        assert result is not None
+        assert result.n_samples == len(sample_dataset.data)
+        assert result.anomaly_rate <= 0.2  # Should be reasonable
+        
+        # Test model info
+        model_info = adapter.get_model_info()
+        assert model_info["algorithm"] == "LOF"
+        assert model_info["n_neighbors"] == 10
+        assert "k_used" in model_info
+        assert "n_training_samples" in model_info
+        assert model_info["n_training_samples"] == len(sample_dataset.data)
     
     @requires_jax
     def test_prediction_without_fitting(self, sample_dataset):
