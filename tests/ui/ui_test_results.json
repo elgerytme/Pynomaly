@@ -1,0 +1,60 @@
+{
+  "summary": {
+    "total_tests": 7,
+    "passed_tests": 3,
+    "success_rate": "42.9%",
+    "total_duration": "7.61s",
+    "screenshots_count": 11
+  },
+  "detailed_results": [
+    {
+      "test": "Health Endpoint",
+      "status": "PASS",
+      "details": "API responding",
+      "duration": "0.01s",
+      "timestamp": "2025-06-24T18:46:20.856060"
+    },
+    {
+      "test": "Dashboard Load",
+      "status": "FAIL",
+      "details": "Navigation not visible",
+      "duration": "0.53s",
+      "timestamp": "2025-06-24T18:46:21.381566"
+    },
+    {
+      "test": "Navigation",
+      "status": "PASS",
+      "details": "5/5 pages",
+      "duration": "3.50s",
+      "timestamp": "2025-06-24T18:46:24.877270"
+    },
+    {
+      "test": "Responsive Design",
+      "status": "PARTIAL",
+      "details": "0/3 viewports",
+      "duration": "1.72s",
+      "timestamp": "2025-06-24T18:46:26.601557"
+    },
+    {
+      "test": "Mobile Menu",
+      "status": "FAIL",
+      "details": "Mobile menu button not visible",
+      "duration": "0.52s",
+      "timestamp": "2025-06-24T18:46:27.125854"
+    },
+    {
+      "test": "Interactive Elements",
+      "status": "FAIL",
+      "details": "Only 0/3 elements",
+      "duration": "0.53s",
+      "timestamp": "2025-06-24T18:46:27.651307"
+    },
+    {
+      "test": "Performance",
+      "status": "PASS",
+      "details": "Load time: 0.51s",
+      "duration": "0.51s",
+      "timestamp": "2025-06-24T18:46:28.161011"
+    }
+  ]
+}

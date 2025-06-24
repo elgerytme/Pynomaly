@@ -21,8 +21,8 @@ HTML_TEMPLATE = """
     <title>Pynomaly - State-of-the-art Anomaly Detection</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .fade-in { animation: fadeIn 0.5s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .fade-in {{ animation: fadeIn 0.5s ease-in; }}
+        @keyframes fadeIn {{ from {{ opacity: 0; }} to {{ opacity: 1; }} }}
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
