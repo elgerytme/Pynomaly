@@ -13,6 +13,16 @@ from pynomaly.application.services import (
     ModelPersistenceService
 )
 
+# Phase 2 services (conditionally imported)
+try:
+    from pynomaly.application.services.algorithm_benchmark import AlgorithmBenchmarkService
+    from pynomaly.infrastructure.monitoring.complexity_monitor import ComplexityMonitor
+    PHASE2_SERVICES_AVAILABLE = True
+except ImportError:
+    AlgorithmBenchmarkService = None
+    ComplexityMonitor = None
+    PHASE2_SERVICES_AVAILABLE = False
+
 # Optional AutoML service
 try:
     from pynomaly.application.services.automl_service import AutoMLService
@@ -34,29 +44,16 @@ except ImportError:
     LIME_AVAILABLE = False
     EXPLAINABILITY_AVAILABLE = False
 
-# Optional streaming services
-try:
-    from pynomaly.domain.services.streaming_service import StreamingDetectionService
-    from pynomaly.application.services.streaming_service import ApplicationStreamingService
-    from pynomaly.application.use_cases.streaming_use_case import StreamingUseCase
-    from pynomaly.infrastructure.streaming import (
-        ModelBasedStreamProcessor, 
-        StatisticalStreamProcessor, 
-        EnsembleStreamProcessor,
-        KafkaConnector,
-        RedisConnector
-    )
-    STREAMING_AVAILABLE = True
-except ImportError:
-    StreamingDetectionService = None
-    ApplicationStreamingService = None
-    StreamingUseCase = None
-    ModelBasedStreamProcessor = None
-    StatisticalStreamProcessor = None
-    EnsembleStreamProcessor = None
-    KafkaConnector = None
-    RedisConnector = None
-    STREAMING_AVAILABLE = False
+# Streaming services removed for simplification
+StreamingDetectionService = None
+ApplicationStreamingService = None
+StreamingUseCase = None
+ModelBasedStreamProcessor = None
+StatisticalStreamProcessor = None
+EnsembleStreamProcessor = None
+KafkaConnector = None
+RedisConnector = None
+STREAMING_AVAILABLE = False
 
 # Distributed processing removed for simplification
 DistributedProcessingManager = None
@@ -82,6 +79,7 @@ from pynomaly.domain.services import (
     ThresholdCalculator
 )
 from pynomaly.infrastructure.config.settings import Settings
+from pynomaly.infrastructure.config.feature_flags import FeatureFlagManager, feature_flags
 from pynomaly.infrastructure.data_loaders import CSVLoader, ParquetLoader
 
 # Preprocessing services
@@ -241,6 +239,9 @@ class Container(containers.DeclarativeContainer):
     
     # Configuration
     config = providers.Singleton(Settings)
+    
+    # Feature flag management
+    feature_flag_manager = providers.Singleton(FeatureFlagManager)
     
     # Domain services
     anomaly_scorer = providers.Singleton(AnomalyScorer)
@@ -543,51 +544,7 @@ class Container(containers.DeclarativeContainer):
             automl_service=automl_service
         )
     
-    # Streaming services - only create if available
-    if STREAMING_AVAILABLE:
-        # Domain streaming service
-        domain_streaming_service = providers.Singleton(StreamingDetectionService)
-        
-        # Application streaming service
-        if ApplicationStreamingService is not None:
-            application_streaming_service = providers.Singleton(
-                ApplicationStreamingService,
-                detector_repository=detector_repository,
-                max_concurrent_sessions=10
-            )
-        
-        # Streaming use case
-        if StreamingUseCase is not None and ApplicationStreamingService is not None:
-            streaming_use_case = providers.Factory(
-                StreamingUseCase,
-                streaming_service=application_streaming_service
-            )
-        
-        # Stream processors
-        if ModelBasedStreamProcessor is not None:
-            model_based_stream_processor = providers.Factory(ModelBasedStreamProcessor)
-        
-        if StatisticalStreamProcessor is not None:
-            statistical_stream_processor = providers.Factory(StatisticalStreamProcessor)
-        
-        if EnsembleStreamProcessor is not None:
-            ensemble_stream_processor = providers.Factory(EnsembleStreamProcessor)
-        
-        # Stream connectors
-        if KafkaConnector is not None:
-            kafka_connector = providers.Factory(
-                KafkaConnector,
-                bootstrap_servers=config.provided.kafka_bootstrap_servers,
-                consumer_group="pynomaly-streaming"
-            )
-        
-        if RedisConnector is not None:
-            redis_connector = providers.Factory(
-                RedisConnector,
-                redis_url=config.provided.redis_url,
-                input_stream="anomaly_input",
-                consumer_group="pynomaly-group"
-            )
+    # Streaming services removed for simplification
     
     # Security services - only create if available
     if SECURITY_AVAILABLE:
