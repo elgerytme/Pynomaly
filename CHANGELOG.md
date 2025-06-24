@@ -7,6 +7,80 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **CLI Configuration Generation**: New `generate-config` command for creating test/experiment configuration files
+  - Support for test, experiment, and autonomous configuration types
+  - JSON and YAML output formats with comprehensive CLI options
+  - Includes usage examples and workflow descriptions for each configuration type
+  - Configurable parameters: detector algorithm, dataset path, contamination rate, cross-validation settings
+  - Rich console output with colored formatting and validation
+
+## [0.4.0] - 2025-06-24
+
+### Added
+- **Comprehensive Data Preprocessing CLI**: Complete command-line interface for data preprocessing operations
+  - `pynomaly data clean` - Advanced data cleaning with 10+ missing value strategies, 5+ outlier handling methods
+  - `pynomaly data transform` - Feature transformation with 5+ scaling methods, 6+ encoding strategies, feature engineering
+  - `pynomaly data pipeline` - Pipeline management for creating, saving, loading, and applying preprocessing workflows
+  - Dry-run mode for previewing changes without applying them
+  - Save-as functionality to preserve original datasets while creating cleaned versions
+
+### Added
+- **Enhanced Data Quality Integration**: Seamless integration between quality analysis and preprocessing
+  - Extended `pynomaly dataset quality` command with specific preprocessing command suggestions
+  - Context-aware recommendations based on detected data quality issues
+  - Intelligent strategy selection for missing values, outliers, and duplicates
+  - Direct command generation for immediate preprocessing application
+
+### Added
+- **Production-Ready Preprocessing Infrastructure**: Enterprise-grade data preparation capabilities
+  - Memory-efficient processing with data type optimization
+  - Cross-platform compatibility with error handling and validation
+  - Performance monitoring and progress tracking for large datasets
+  - Comprehensive logging and debugging support
+
+### Added
+- **Reusable Preprocessing Pipelines**: Systematic approach to data preparation
+  - JSON-based pipeline configuration for reproducible preprocessing
+  - Pipeline versioning and management with save/load functionality
+  - Step-by-step pipeline execution with enable/disable controls
+  - Template pipelines for common data types (financial, IoT, e-commerce)
+
+### Added
+- **Advanced Feature Engineering**: Sophisticated transformation capabilities
+  - Polynomial feature generation for interaction modeling
+  - Feature selection with variance, correlation, and statistical methods
+  - Categorical encoding with target, frequency, and binary encoding
+  - Column name normalization and data type optimization
+
+### Changed
+- **Enhanced CLI User Experience**: Improved usability and workflow integration
+  - Updated quickstart guide to include preprocessing steps
+  - Extended help documentation with comprehensive examples
+  - Integration with existing detector training and anomaly detection workflows
+  - Consistent command structure and option naming across all preprocessing operations
+
+### Documentation
+- **Comprehensive Preprocessing Documentation**: Complete reference and examples
+  - `docs/cli/preprocessing.md` - 400+ line comprehensive CLI reference guide
+  - `examples/preprocessing_cli_examples.py` - Complete demonstration script with real-world scenarios
+  - Best practices guide for data cleaning, transformation, and pipeline management
+  - Performance considerations and troubleshooting guidance
+
+### Testing
+- **Extensive CLI Testing**: Comprehensive test coverage for preprocessing functionality
+  - `tests/test_preprocessing_cli.py` - 200+ lines of CLI command testing
+  - Unit tests for data cleaning, transformation, and pipeline management
+  - Integration tests for complete preprocessing workflows
+  - Error handling and edge case validation
+
+### Infrastructure
+- **Modular CLI Architecture**: Clean separation of preprocessing concerns
+  - New `preprocessing.py` CLI module with organized command structure
+  - Integration with existing CLI container and dependency injection
+  - Consistent error handling and user feedback patterns
+  - Extensible design for future preprocessing enhancements
+
 ## [0.3.0] - 2025-06-24
 
 ### Added
