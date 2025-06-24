@@ -329,6 +329,20 @@ async def visualizations_page(
     )
 
 
+@router.get("/exports", response_class=HTMLResponse)
+async def exports_page(
+    request: Request,
+    container: Container = Depends(get_container)
+):
+    """Export manager page."""
+    return templates.TemplateResponse(
+        "exports.html",
+        {
+            "request": request
+        }
+    )
+
+
 # HTMX endpoints for partial updates
 @router.get("/htmx/detector-list", response_class=HTMLResponse)
 async def htmx_detector_list(

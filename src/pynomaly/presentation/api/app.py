@@ -20,6 +20,7 @@ from pynomaly.presentation.api.endpoints import (
     detectors,
     detection,
     experiments,
+    export,
     health,
     performance
 )
@@ -155,6 +156,12 @@ def create_app(container: Container | None = None) -> FastAPI:
         performance.router,
         prefix="/api/performance",
         tags=["performance"]
+    )
+    
+    app.include_router(
+        export.router,
+        prefix="/api",
+        tags=["export"]
     )
     
     # Include distributed processing API if available
