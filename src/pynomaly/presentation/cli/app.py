@@ -12,6 +12,7 @@ from rich.table import Table
 
 from pynomaly.infrastructure.config import create_container
 from pynomaly.presentation.cli import datasets, detectors, detection, server, performance
+from pynomaly.presentation.cli.export import export_app
 
 
 # Create Typer app
@@ -29,6 +30,7 @@ console = Console()
 app.add_typer(detectors.app, name="detector", help="Manage anomaly detectors")
 app.add_typer(datasets.app, name="dataset", help="Manage datasets")
 app.add_typer(detection.app, name="detect", help="Run anomaly detection")
+app.add_typer(export_app, name="export", help="Export results to business intelligence platforms")
 app.add_typer(server.app, name="server", help="Manage API server")
 app.add_typer(performance.app, name="perf", help="Performance monitoring and optimization")
 
@@ -179,9 +181,12 @@ def quickstart():
     console.print("Run detection on new data.")
     console.print("Example: [cyan]pynomaly detect run --detector my_detector --dataset test_data[/cyan]")
     
-    console.print("\n[bold]Step 5: View results[/bold]")
-    console.print("Analyze detection results and export them.")
-    console.print("Example: [cyan]pynomaly detect results --latest[/cyan]")
+    console.print("\n[bold]Step 5: View and export results[/bold]")
+    console.print("Analyze detection results and export them to various platforms.")
+    console.print("Examples:")
+    console.print("  [cyan]pynomaly detect results --latest[/cyan]")
+    console.print("  [cyan]pynomaly export excel results.json output.xlsx[/cyan]")
+    console.print("  [cyan]pynomaly export list-formats[/cyan]")
     
     console.print("\n[green]Ready to start![/green] Use [cyan]pynomaly --help[/cyan] to see all commands.")
 

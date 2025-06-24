@@ -117,6 +117,106 @@ Access the Progressive Web App at http://localhost:8000 after starting the serve
 - Dataset quality analysis
 - HTMX-powered dynamic updates
 
+## Business Intelligence Integrations 📊
+
+Export anomaly detection results to major business intelligence and spreadsheet platforms:
+
+### Supported Platforms
+
+- **Excel**: Advanced formatting, charts, multiple worksheets
+- **Power BI**: Real-time streaming, automated reports, Azure AD integration
+- **Google Sheets**: Collaborative editing, real-time updates, sharing
+- **Smartsheet**: Project tracking, workflow automation, team collaboration
+
+### Installation
+
+```bash
+# Install all BI integrations
+pip install pynomaly[bi-integrations]
+
+# Or install specific platforms
+pip install pynomaly[excel]      # Excel support
+pip install pynomaly[powerbi]    # Power BI support  
+pip install pynomaly[gsheets]    # Google Sheets support
+pip install pynomaly[smartsheet] # Smartsheet support
+```
+
+### CLI Usage
+
+```bash
+# List available export formats
+pynomaly export list-formats
+
+# Export to Excel with charts and formatting
+pynomaly export excel results.json report.xlsx --include-charts
+
+# Export to Power BI workspace
+pynomaly export powerbi results.json \
+    --workspace-id "your-workspace-id" \
+    --dataset-name "Anomaly Detection"
+
+# Export to Google Sheets with sharing
+pynomaly export gsheets results.json \
+    --credentials-file creds.json \
+    --share-emails user@company.com
+
+# Export to multiple formats
+pynomaly export multi results.json \
+    --formats excel powerbi gsheets
+```
+
+### Python API
+
+```python
+from pynomaly.application.services.export_service import ExportService
+from pynomaly.application.dto.export_options import ExportOptions
+
+# Initialize export service
+export_service = ExportService()
+
+# Export to Excel with advanced features
+excel_options = ExportOptions().for_excel()
+excel_options.include_charts = True
+excel_options.highlight_anomalies = True
+
+result = export_service.export_results(
+    detection_results,
+    "anomaly_report.xlsx",
+    excel_options
+)
+
+# Export to Power BI streaming dataset  
+powerbi_options = ExportOptions().for_powerbi(
+    workspace_id="workspace-123",
+    dataset_name="Live Anomaly Feed"
+)
+powerbi_options.streaming_dataset = True
+
+result = export_service.export_results(
+    detection_results,
+    "",  # No file path for cloud services
+    powerbi_options
+)
+
+# Multi-platform export
+results = export_service.export_multiple_formats(
+    detection_results,
+    base_path="anomaly_analysis",
+    formats=[ExportFormat.EXCEL, ExportFormat.GSHEETS]
+)
+```
+
+### Features
+
+- **Real-time Collaboration**: Google Sheets and Smartsheet live updates
+- **Advanced Visualizations**: Charts, conditional formatting, dashboards
+- **Secure Authentication**: Azure AD, OAuth2, API tokens
+- **Batch Processing**: Efficient handling of large datasets
+- **Error Recovery**: Robust retry logic and validation
+- **Template Support**: Pre-configured layouts and workflows
+
+See [examples/bi_integrations_example.py](examples/bi_integrations_example.py) for detailed usage examples.
+
 ## Architecture
 
 Pynomaly follows clean architecture principles with Domain-Driven Design:
