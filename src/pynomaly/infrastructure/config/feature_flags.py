@@ -68,7 +68,7 @@ class FeatureFlags(BaseSettings):
     )
     
     memory_efficiency: bool = Field(
-        default=False, 
+        default=True, 
         description="Enable memory-efficient streaming processing"
     )
     

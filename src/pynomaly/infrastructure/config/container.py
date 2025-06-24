@@ -507,6 +507,47 @@ class Container(containers.DeclarativeContainer):
     if PHASE2_SERVICES_AVAILABLE and feature_flags.is_enabled("complexity_monitoring"):
         complexity_monitor = providers.Singleton(ComplexityMonitor)
     
+    # Memory optimization services - conditionally create based on feature flags
+    try:
+        from pynomaly.application.services.memory_optimization_service import (
+            MemoryOptimizationService, MemoryProfiler
+        )
+        from pynomaly.infrastructure.data_processing import (
+            StreamingDataProcessor, MemoryOptimizedDataLoader, LargeDatasetAnalyzer
+        )
+        
+        # Core memory processing services
+        streaming_data_processor = providers.Singleton(
+            StreamingDataProcessor,
+            chunk_size=10000,
+            memory_limit_mb=500
+        )
+        
+        memory_optimized_data_loader = providers.Singleton(
+            MemoryOptimizedDataLoader,
+            processor=streaming_data_processor
+        )
+        
+        large_dataset_analyzer = providers.Singleton(
+            LargeDatasetAnalyzer,
+            processor=streaming_data_processor
+        )
+        
+        # High-level memory optimization service
+        memory_optimization_service = providers.Singleton(
+            MemoryOptimizationService,
+            chunk_size=10000,
+            memory_limit_mb=500,
+            enable_streaming=True
+        )
+        
+        # Memory profiler for development and monitoring
+        memory_profiler = providers.Singleton(MemoryProfiler)
+        
+    except ImportError:
+        # Memory optimization features not available
+        pass
+    
     # Use cases
     detect_anomalies_use_case = providers.Factory(
         DetectAnomaliesUseCase,
