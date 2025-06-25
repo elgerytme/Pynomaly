@@ -20,8 +20,8 @@ from pynomaly.application.services.automl_service import (
 from pynomaly.domain.entities import Detector, Dataset
 from pynomaly.domain.value_objects import ContaminationRate
 from pynomaly.domain.exceptions import DomainError, AutoMLError
-from pynomaly.infrastructure.persistence.detector_repository import DetectorRepository
-from pynomaly.infrastructure.persistence.dataset_repository import DatasetRepository
+# Use base repository types for now
+from typing import Protocol
 
 
 logger = logging.getLogger(__name__)
@@ -91,8 +91,8 @@ class AutoMLOptimizationUseCase:
     def __init__(
         self,
         automl_service: AutoMLService,
-        detector_repository: DetectorRepository,
-        dataset_repository: DatasetRepository
+        detector_repository,  # Any repository with find_by_id method
+        dataset_repository    # Any repository with find_by_id method
     ):
         self.automl_service = automl_service
         self.detector_repository = detector_repository
