@@ -8,6 +8,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from pynomaly.application.dto.detection_dto import AnomalyDTO
+
 
 class DetectionResultDTO(BaseModel):
     """DTO for detection result."""
