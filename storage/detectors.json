@@ -1,53 +1,29 @@
 {
-  "22ed80bd-c7aa-48d8-a27d-59e7ff218a31": {
-    "id": "22ed80bd-c7aa-48d8-a27d-59e7ff218a31",
-    "name": "test_detector_persistent",
+  "f13d7222-55e1-4733-9d6a-bd966d458214": {
+    "id": "f13d7222-55e1-4733-9d6a-bd966d458214",
+    "name": "auto_lof",
     "algorithm_name": "LOF",
-    "contamination_rate": 0.1,
+    "contamination_rate": 0.01,
     "parameters": {
-      "contamination": 0.1
+      "n_neighbors": 5,
+      "contamination": 0.01
     },
     "metadata": {
-      "description": "Test persistence detector"
+      "auto_generated": true,
+      "confidence": 0.85,
+      "reasoning": "Good for density-based anomalies in numeric data, efficient for smaller datasets"
     },
-    "created_at": "2025-06-25T00:01:48.794339",
-    "trained_at": null,
-    "is_fitted": false
+    "created_at": "2025-06-25T03:21:19.325184",
+    "trained_at": "2025-06-24T23:21:19.473268",
+    "is_fitted": true
   },
-  "b3a2eb03-a5ae-4d63-8804-024f86c0c4f7": {
-    "id": "b3a2eb03-a5ae-4d63-8804-024f86c0c4f7",
-    "name": "test_detector_2",
-    "algorithm_name": "IsolationForest",
-    "contamination_rate": 0.1,
-    "parameters": {
-      "contamination": 0.05
-    },
-    "metadata": {},
-    "created_at": "2025-06-25T00:03:11.924605",
-    "trained_at": null,
-    "is_fitted": false
-  },
-  "2a8db895-60c6-427c-8381-ae13857276a4": {
-    "id": "2a8db895-60c6-427c-8381-ae13857276a4",
-    "name": "test_isolation_forest",
-    "algorithm_name": "IsolationForest",
-    "contamination_rate": 0.1,
-    "parameters": {
-      "contamination": 0.2,
-      "random_state": 42
-    },
-    "metadata": {},
-    "created_at": "2025-06-25T00:16:01.398846",
-    "trained_at": null,
-    "is_fitted": false
-  },
-  "ac0603ff-66e1-453e-879a-9f7426e229bd": {
-    "id": "ac0603ff-66e1-453e-879a-9f7426e229bd",
+  "23563f79-4ed2-4cf0-9069-fa1ae3dfb42b": {
+    "id": "23563f79-4ed2-4cf0-9069-fa1ae3dfb42b",
     "name": "auto_isolationforest",
     "algorithm_name": "IsolationForest",
     "contamination_rate": 0.01,
     "parameters": {
-      "n_estimators": 200,
+      "n_estimators": 100,
       "contamination": 0.01,
       "random_state": 42,
       "max_features": 1.0
@@ -57,8 +33,8 @@
       "confidence": 0.8,
       "reasoning": "General purpose algorithm, works well with mixed data types"
     },
-    "created_at": "2025-06-25T01:01:25.533495",
-    "trained_at": "2025-06-24T21:01:26.307986",
+    "created_at": "2025-06-25T03:21:19.478376",
+    "trained_at": "2025-06-24T23:21:20.042713",
     "is_fitted": true
   }
 }

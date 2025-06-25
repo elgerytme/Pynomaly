@@ -320,18 +320,14 @@ def _load_dataset(dataset_path: Path) -> Dataset:
     try:
         if dataset_path.suffix.lower() == '.csv':
             loader = CSVLoader()
-            data = loader.load(dataset_path)
+            dataset = loader.load(dataset_path)
         elif dataset_path.suffix.lower() in ['.parquet', '.pq']:
             loader = ParquetLoader()
-            data = loader.load(dataset_path)
+            dataset = loader.load(dataset_path)
         else:
             raise ValueError(f"Unsupported file format: {dataset_path.suffix}")
         
-        return Dataset(
-            name=dataset_path.stem,
-            data=data,
-            features=[f"feature_{i}" for i in range(data.shape[1])]
-        )
+        return dataset
         
     except Exception as e:
         raise RuntimeError(f"Failed to load dataset: {e}")
