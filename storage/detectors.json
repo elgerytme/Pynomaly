@@ -144,5 +144,23 @@
     "created_at": "2025-06-25T12:36:36.640406",
     "trained_at": null,
     "is_fitted": false
+  },
+  "5cfee4d7-a22d-4b14-909b-4019ae4980cd": {
+    "id": "5cfee4d7-a22d-4b14-909b-4019ae4980cd",
+    "name": "Windows Test Detector",
+    "algorithm_name": "IsolationForest",
+    "contamination_rate": 0.1,
+    "parameters": {
+      "contamination": 0.05
+    },
+    "metadata": {
+      "time_complexity": "O(n log n)",
+      "space_complexity": "O(n)",
+      "supports_streaming": false,
+      "category": "ensemble"
+    },
+    "created_at": "2025-06-25T12:40:14.244752",
+    "trained_at": null,
+    "is_fitted": false
   }
 }
