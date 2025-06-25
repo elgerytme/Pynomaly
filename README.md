@@ -2,11 +2,14 @@
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
+[![Build System: Hatch](https://img.shields.io/badge/build%20system-hatch-4051b5.svg)](https://hatch.pypa.io/)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Type checked: mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
+[![CI](https://github.com/yourusername/pynomaly/workflows/CI/badge.svg)](https://github.com/yourusername/pynomaly/actions)
 
 State-of-the-art Python anomaly detection package targeting Python 3.11+ with clean architecture principles, integrating multiple ML libraries (PyOD, TODS, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX) through a unified, production-ready interface.
+
+**Built with modern Python tooling**: Hatch for build system and environment management, Ruff for lightning-fast linting and formatting, comprehensive CI/CD pipeline with automated testing and deployment.
 
 ## Features
 
@@ -23,101 +26,98 @@ State-of-the-art Python anomaly detection package targeting Python 3.11+ with cl
 
 ## Installation
 
-### Quick Setup (Python + pip only)
+### Quick Setup (Hatch - Recommended)
 
-If you want to run Pynomaly without Poetry, Docker, or Make:
+Pynomaly uses [Hatch](https://hatch.pypa.io/) for modern Python project management with automatic environment handling:
 
-#### Automated Setup (Recommended)
+#### Prerequisites
 ```bash
-# Run the automated setup script (handles most environment issues)
-python scripts/setup_simple.py
+# Install Hatch (one-time setup)
+pip install hatch
+
+# Verify installation
+hatch --version
 ```
 
-#### Manual Setup
+#### Automated Setup
 ```bash
-# Step 1: Install system dependencies (if needed)
-# For WSL/Ubuntu/Debian:
-sudo apt update && sudo apt install -y python3.12-venv python3-pip
+# Clone and setup (handles everything automatically)
+git clone https://github.com/yourusername/pynomaly.git
+cd pynomaly
 
-# For CentOS/RHEL:
-sudo yum install python3-venv python3-pip
+# Initialize project environments
+make setup
 
-# Step 2: Create virtual environment
+# Install in development mode
+make dev-install
+
+# Run tests to verify installation
+make test
+```
+
+#### Manual Hatch Setup
+```bash
+# Create and activate environments
+hatch env create
+hatch env show
+
+# Install with specific feature sets
+hatch env run dev:setup          # Development environment
+hatch env run prod:setup         # Production environment  
+hatch env run test:setup         # Testing environment
+
+# Or install specific extras
+hatch env run -e ml pip install -e ".[torch,tensorflow]"
+hatch env run -e api pip install -e ".[api,cli]"
+```
+
+### Alternative Setup (Traditional pip/venv)
+
+If you prefer traditional Python environment management:
+
+#### Quick Start
+```bash
+# Create virtual environment
 python -m venv .venv
 
-# Step 3: Activate virtual environment
-# Windows (PowerShell):
-.venv\Scripts\Activate.ps1
-# Windows (Command Prompt):
-.venv\Scripts\activate.bat
+# Activate environment
 # Linux/macOS:
 source .venv/bin/activate
+# Windows:
+.venv\Scripts\activate
 
-# Step 4: Choose your installation level:
-pip install -r requirements.txt          # Minimal (PyOD + NumPy + Pandas + Polars)
-pip install -r requirements-minimal.txt  # + scikit-learn + scipy
-pip install -r requirements-server.txt   # + API + CLI functionality  
-pip install -r requirements-production.txt # Production-ready stack
+# Install with desired features
+pip install -e ".[server]"          # API + CLI + basic features
+pip install -e ".[production]"      # Production-ready stack
+pip install -e ".[ml-all]"          # All ML frameworks
+pip install -e ".[all]"             # Everything
+```
 
-# Step 5: Install package in development mode
+#### Feature-Specific Installation
+```bash
+# Core functionality only
 pip install -e .
-```
 
-#### Troubleshooting Virtual Environment Issues
-```bash
-# If venv creation fails, try with system site packages:
-python -m venv .venv --system-site-packages
+# ML frameworks
+pip install -e ".[torch]"           # PyTorch deep learning
+pip install -e ".[tensorflow]"      # TensorFlow neural networks
+pip install -e ".[jax]"             # JAX high-performance computing
+pip install -e ".[graph]"           # PyGOD graph anomaly detection
 
-# Alternative: Use user installation (not recommended for development):
-pip install --user -r requirements.txt
-pip install --user -e .
+# Application interfaces
+pip install -e ".[api]"             # FastAPI web interface
+pip install -e ".[cli]"             # Command-line interface
+pip install -e ".[web]"             # Progressive Web App
 
-# For CLI-only usage, consider pipx:
-pipx install .
-```
+# Data processing
+pip install -e ".[data-formats]"    # Parquet, Excel, HDF5 support
+pip install -e ".[database]"        # SQL database connectivity
+pip install -e ".[spark]"           # Apache Spark integration
 
-Then run the CLI:
-```bash
-# Primary method (after pip install -e .)
-pynomaly --help
-pynomaly server start
-
-# Alternative methods
-python scripts/cli.py --help
-python -m pynomaly.presentation.cli.app --help
-```
-
-See [docs/getting-started/README_SIMPLE_SETUP.md](docs/getting-started/README_SIMPLE_SETUP.md) for detailed instructions.
-
-### Full Setup (with Poetry)
-
-```bash
-# Minimal installation (PyOD, NumPy, Pandas, Polars + core architecture)
-poetry install
-
-# Or install with extras for specific functionality
-poetry install -E minimal    # Add scikit-learn + scipy
-poetry install -E api        # Web API functionality
-poetry install -E cli        # Command-line interface
-poetry install -E server     # API + CLI + basic features
-poetry install -E production # Production-ready stack
-
-# ML framework extras
-poetry install -E torch      # PyTorch deep learning support
-poetry install -E tensorflow # TensorFlow neural networks
-poetry install -E jax        # JAX high-performance computing
-poetry install -E graph      # PyGOD graph anomaly detection
-poetry install -E automl     # AutoML with auto-sklearn2
-poetry install -E explainability # SHAP/LIME model explanation
-
-# Data processing extras
-poetry install -E data-formats # Parquet, Excel, HDF5 support
-poetry install -E database   # SQL database connectivity
-poetry install -E spark      # Apache Spark integration
-
-# Comprehensive installations
-poetry install -E ml-all     # All ML frameworks and tools
-poetry install -E all        # All optional dependencies
+# Advanced features
+pip install -e ".[automl]"          # AutoML with auto-sklearn2
+pip install -e ".[explainability]" # SHAP/LIME model explanation
+pip install -e ".[monitoring]"      # Prometheus, OpenTelemetry
 ```
 
 ### Cross-Platform Compatibility
@@ -429,134 +429,135 @@ Run `pynomaly detector algorithms` to see all available algorithms with their pa
 
 ## Development
 
-### Environment Setup
-```bash
-# Install development dependencies
-poetry install --with dev,test
+### Modern Development Workflow (Hatch)
 
-# Activate virtual environment
+Pynomaly uses Hatch for streamlined development with automatic environment management:
+
+#### Quick Start
+```bash
+# Initial setup
+make setup              # Install Hatch and create environments
+make dev-install        # Install in development mode
+make pre-commit         # Setup pre-commit hooks
+
+# Daily development workflow
+make format             # Auto-format code with Ruff
+make test               # Run core tests
+make lint               # Check code quality
+make ci                 # Full CI pipeline locally
+```
+
+#### Code Quality & Testing
+```bash
+# Testing
+make test               # Core tests (domain + application)
+make test-all           # All tests including integration
+make test-cov           # Tests with coverage report
+make test-unit          # Unit tests only
+make test-integration   # Integration tests only
+
+# Code Quality
+make lint               # Run all quality checks
+make format             # Auto-format with Ruff
+make style              # Check style only
+make typing             # Type checking with mypy
+
+# Build & Package
+make build              # Build wheel and source distribution
+make version            # Show current version
+make clean              # Clean build artifacts
+```
+
+#### Environment Management
+```bash
+# Environment commands
+make env-show           # List all environments
+make env-clean          # Clean and recreate environments
+make status             # Show project status
+
+# Direct Hatch commands
+hatch env run test:run                    # Run tests
+hatch env run lint:style                  # Code style check
+hatch env run lint:fmt                    # Auto-format code
+hatch env run prod:serve-api              # Start API server
+hatch env run cli:run --help              # CLI help
+```
+
+### Legacy Development (Poetry)
+
+For those preferring Poetry:
+
+```bash
+# Setup
+poetry install --with dev,test
 poetry shell
 
-# Install pre-commit hooks (optional)
-pre-commit install
-```
-
-### Code Quality
-```bash
-# Run full test suite with coverage
+# Quality & Testing
 poetry run pytest --cov=pynomaly --cov-report=html
-
-# Type checking with strict mode
 poetry run mypy --strict src/
-
-# Code formatting
-poetry run black src/ tests/
-poetry run isort src/ tests/
-
-# Linting
-poetry run flake8 src/ tests/
-poetry run bandit -r src/  # Security linting
+poetry run ruff check src/ tests/
+poetry run ruff format src/ tests/
 ```
 
-### Testing
+### Web API & CLI
+
+#### Modern Hatch Commands
 ```bash
-# Unit tests only
-poetry run pytest tests/unit/
+# API Server
+make prod-api           # Production API server
+make prod-api-dev       # Development API server with reload
+hatch env run prod:serve-api-prod    # Direct Hatch command
 
-# Integration tests
-poetry run pytest tests/integration/
-
-# Property-based testing
-poetry run pytest tests/property/
-
-# Performance benchmarks
-poetry run pytest benchmarks/
+# CLI Interface
+make cli-help           # Show CLI help
+hatch env run cli:run --help         # Direct CLI access
+hatch env run cli:test-cli           # Test CLI functionality
 ```
 
-### Web API Server
-
-#### Quick Start (Current Environment)
+#### Traditional Methods
 ```bash
-# Method 1: Set Python path and start server manually
+# Method 1: Direct uvicorn (after installation)
+uvicorn pynomaly.presentation.api.app:app --host 0.0.0.0 --port 8000 --reload
+
+# Method 2: Python module
+python -m uvicorn pynomaly.presentation.api.app:app --reload
+
+# Method 3: With environment setup
 export PYTHONPATH=/path/to/Pynomaly/src
-uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
-
-# Method 2: Use the startup script (automatically detects paths)
-./scripts/start_api_bash.sh
-
-# Method 3: Use Python module directly (if package installed)
-python -m uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
-```
-
-#### PowerShell (Windows)
-```powershell
-# Set environment and start server
-$env:PYTHONPATH = "C:\Users\your-user\Pynomaly\src"
-uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
-
-# Alternative: use Python module directly
-python -m uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
-
-# Or use PowerShell script (if available)
-if (Test-Path "scripts\test_api_powershell.ps1") {
-    pwsh -File scripts\test_api_powershell.ps1
-}
-```
-
-#### Fresh Environment Setup
-```bash
-# Option 1: Automated setup for new environments (recommended)
-python scripts/setup_simple.py
-
-# Option 2: Manual setup with system dependencies
-# For WSL/Ubuntu/Debian:
-sudo apt update && sudo apt install -y python3.12-venv python3-pip
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements-server.txt
-pip install -e .
-
-# Option 3: Direct installation (if virtual environment fails)
-pip install --user fastapi uvicorn pydantic structlog dependency-injector \
-    numpy pandas scikit-learn pyod rich typer httpx aiofiles \
-    pydantic-settings prometheus-fastapi-instrumentator
-
-export PYTHONPATH=/path/to/Pynomaly/src
-uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000
+uvicorn pynomaly.presentation.api.app:app --reload
 ```
 
 #### API Endpoints
 Once running, access these endpoints:
 - **Root API**: http://localhost:8000/
-- **Interactive Documentation**: http://localhost:8000/api/docs
+- **Interactive Documentation**: http://localhost:8000/docs
 - **Health Check**: http://localhost:8000/api/health/
-- **OpenAPI Schema**: http://localhost:8000/api/openapi.json
+- **OpenAPI Schema**: http://localhost:8000/openapi.json
+- **Progressive Web App**: http://localhost:8000/app
 
-#### Testing Multiple Environments
+#### Frontend Development
 ```bash
-# Comprehensive testing across environments
-./scripts/test_all_environments.sh
+# Install frontend dependencies
+npm install -D tailwindcss @tailwindcss/forms @tailwindcss/typography
+npm install htmx.org d3 echarts
+
+# Build assets
+npm run build-css       # Production build
+npm run watch-css       # Development with watch mode
+
+# PWA development
+python -m http.server 8080 --directory src/pynomaly/presentation/web/static
 ```
 
-### Development Commands
+#### CLI Usage
 ```bash
-# Start development server with auto-reload (Unix/Linux/macOS)
-export PYTHONPATH=/path/to/Pynomaly/src
-uvicorn pynomaly.presentation.api:app --reload
-
-# Windows PowerShell
-$env:PYTHONPATH = "C:\path\to\Pynomaly\src"
-uvicorn pynomaly.presentation.api:app --reload
-
-# Build frontend assets
-npm run build-css  # Tailwind CSS compilation
-npm run watch-css  # Development with file watching
-
-# Run CLI in development (after pip install -e .)
+# After installation
 pynomaly --help
+pynomaly detector algorithms
+pynomaly server start
 
-# Or alternative methods
-python scripts/cli.py --help
+# Alternative methods
+python scripts/pynomaly_cli.py --help
 python -m pynomaly.presentation.cli.app --help
 ```
 
