@@ -144,12 +144,12 @@ def recommend_similar(
 
     async def run_similar_recommendation():
         container = get_cli_container()
-        recommendation_service = container.recommendation_service()
+        container.recommendation_service()
 
         try:
             from uuid import UUID
 
-            config_uuid = UUID(config_id)
+            UUID(config_id)
         except ValueError:
             console.print("[red]Error:[/red] Invalid configuration ID format")
             raise typer.Exit(1)

@@ -157,7 +157,7 @@ def optimize(
                         total=len(quick_wins),
                     )
 
-                    for i, rec in enumerate(quick_wins):
+                    for _i, rec in enumerate(quick_wins):
                         result = await cost_service.implement_recommendation(
                             rec.recommendation_id
                         )

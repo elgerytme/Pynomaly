@@ -71,7 +71,7 @@ def comprehensive(
     """Run comprehensive performance benchmark suite."""
 
     async def run_comprehensive_benchmark():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -168,7 +168,7 @@ def scalability(
     """Run scalability test for specific algorithm."""
 
     async def run_scalability_test():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -227,7 +227,7 @@ def memory_stress(
     """Run memory stress test for algorithm."""
 
     async def run_memory_stress():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -284,7 +284,7 @@ def throughput(
     """Run throughput benchmark for algorithms."""
 
     async def run_throughput_test():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -352,7 +352,7 @@ def compare(
     """Compare algorithms across multiple metrics."""
 
     async def run_algorithm_comparison():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -417,7 +417,7 @@ def trends(algorithm: str | None, days: int, output_file: str | None):
     """Analyze performance trends over time."""
 
     async def run_trend_analysis():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),

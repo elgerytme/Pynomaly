@@ -174,7 +174,7 @@ def status(dashboard_id: str | None, detailed: bool):
     """Show dashboard service status and active dashboards."""
 
     async def run_status():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -219,7 +219,7 @@ def monitor(interval: int, websocket_endpoint: str, duration: int | None):
     """Start real-time dashboard monitoring."""
 
     async def run_monitoring():
-        container = Container()
+        Container()
 
         console.print(
             Panel(
@@ -238,7 +238,7 @@ def monitor(interval: int, websocket_endpoint: str, duration: int | None):
         dashboard_service = VisualizationDashboardService(storage_path)
 
         # Generate real-time dashboard
-        dashboard_data = await dashboard_service.generate_real_time_dashboard(
+        await dashboard_service.generate_real_time_dashboard(
             websocket_endpoint
         )
 
@@ -253,7 +253,7 @@ def monitor(interval: int, websocket_endpoint: str, duration: int | None):
 
         start_time = asyncio.get_event_loop().time()
 
-        with Live(layout, refresh_per_second=1 / interval, console=console) as live:
+        with Live(layout, refresh_per_second=1 / interval, console=console):
             try:
                 iteration = 0
                 while True:
@@ -296,7 +296,7 @@ def compare(dashboard_type: str, metrics: list[str], time_period: int):
     """Compare dashboard metrics across different time periods."""
 
     async def run_comparison():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -306,7 +306,7 @@ def compare(dashboard_type: str, metrics: list[str], time_period: int):
             # Initialize dashboard service
             task1 = progress.add_task("Generating comparison analysis...", total=None)
             storage_path = Path("./dashboards")
-            dashboard_service = VisualizationDashboardService(storage_path)
+            VisualizationDashboardService(storage_path)
 
             # Generate comparison data (mock for demonstration)
             comparison_data = {
@@ -353,7 +353,7 @@ def export(
     """Export dashboard to various formats."""
 
     async def run_export():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -434,7 +434,7 @@ def cleanup(clear_cache: bool, reset_metrics: bool, force: bool):
                     console.print("[yellow]Metrics reset cancelled[/yellow]")
                     return
 
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -646,7 +646,7 @@ def _update_live_layout(layout: Layout, metrics: RealTimeMetrics, iteration: int
     # Charts placeholder
     chart_info = """
 [cyan]Live Detection Chart[/cyan]: Streaming anomaly detection results
-[yellow]System Resources[/yellow]: CPU and memory utilization trends  
+[yellow]System Resources[/yellow]: CPU and memory utilization trends
 [green]Throughput Monitor[/green]: Processing rate and latency
 [blue]Alert Stream[/blue]: Real-time alert notifications
     """

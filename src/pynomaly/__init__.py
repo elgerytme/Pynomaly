@@ -78,7 +78,7 @@ def load_dataset(
     import pandas as pd
 
     # Load data if path provided
-    if isinstance(data, (str, Path)):
+    if isinstance(data, str | Path):
         path = Path(data)
         if path.suffix.lower() == ".csv":
             data = pd.read_csv(path)

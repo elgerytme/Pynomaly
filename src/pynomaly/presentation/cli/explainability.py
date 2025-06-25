@@ -764,10 +764,10 @@ def _display_trust_assessment_results(trust_result):
     score_text = f"""
     Overall Trust Score: {trust_result.overall_trust_score:.3f}
     Risk Level: {trust_result.risk_assessment.title()}
-    
+
     Individual Factors:
     • Consistency: {trust_result.consistency_score:.3f}
-    • Stability: {trust_result.stability_score:.3f}  
+    • Stability: {trust_result.stability_score:.3f}
     • Fidelity: {trust_result.fidelity_score:.3f}
     """
 

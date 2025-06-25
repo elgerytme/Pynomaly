@@ -477,7 +477,7 @@ async def explain_algorithm_choices(
         )
 
         # Get AutoML dataset profile for additional insights
-        automl_profile = await automl_service.profile_dataset(
+        await automl_service.profile_dataset(
             str(dataset.id) if hasattr(dataset, "id") else "temp"
         )
 
@@ -606,23 +606,23 @@ async def get_autonomous_status(container: Container = Depends(get_container)) -
     """Get status of autonomous detection capabilities."""
 
     # Check available adapters
-    adapter_registry = container.adapter_registry()
+    container.adapter_registry()
     available_adapters = []
 
     try:
-        pyod_adapter = container.pyod_adapter()
+        container.pyod_adapter()
         available_adapters.append("pyod")
     except:
         pass
 
     try:
-        sklearn_adapter = container.sklearn_adapter()
+        container.sklearn_adapter()
         available_adapters.append("sklearn")
     except:
         pass
 
     try:
-        pytorch_adapter = container.pytorch_adapter()
+        container.pytorch_adapter()
         available_adapters.append("pytorch")
     except:
         pass

@@ -424,7 +424,7 @@ def predict_performance(dataset_path: Path, algorithm: str, confidence_level: fl
             confidence_text = f"""
             Confidence Level: {confidence_level:.1%}
             Prediction Confidence: {predicted_score:.3f}
-            
+
             Note: Predictions are based on historical performance
             and dataset similarity analysis.
             """

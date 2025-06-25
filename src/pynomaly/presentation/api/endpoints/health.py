@@ -184,7 +184,7 @@ async def readiness_check(
     """Kubernetes readiness probe - fast check for readiness to serve requests."""
     try:
         # Check critical components quickly
-        settings = container.config()
+        container.config()
 
         # Check repositories are accessible
         container.detector_repository().count()

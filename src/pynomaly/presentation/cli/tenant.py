@@ -584,7 +584,7 @@ def _display_usage_summary(usage_summary):
 def _display_tenant_metrics(metrics):
     """Display comprehensive tenant metrics."""
     tenant_info = metrics.get("tenant_info", {})
-    quota_status = metrics.get("quota_status", {})
+    metrics.get("quota_status", {})
     resource_usage = metrics.get("resource_usage", {})
     billing = metrics.get("billing", {})
 

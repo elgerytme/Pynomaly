@@ -56,7 +56,7 @@ def audit_report(
     """Generate comprehensive audit trail report."""
 
     async def run_audit_report():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -175,7 +175,7 @@ def create_policy(
     """Create new governance policy."""
 
     async def run_create_policy():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -275,7 +275,7 @@ def assess_risk(
     """Conduct comprehensive risk assessment."""
 
     async def run_risk_assessment():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -374,7 +374,7 @@ def submit_change(
     """Submit change management request."""
 
     async def run_submit_change():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -439,7 +439,7 @@ def approve_change(request_id: str, decision: str, comments: str | None):
     """Approve or reject change request."""
 
     async def run_approve_change():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -515,7 +515,7 @@ def track_compliance(
     """Track compliance metric and performance."""
 
     async def run_track_compliance():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -584,7 +584,7 @@ def dashboard():
     """Display comprehensive governance dashboard."""
 
     async def run_dashboard():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -658,7 +658,7 @@ def log_event(
     """Log governance audit event."""
 
     async def run_log_event():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),

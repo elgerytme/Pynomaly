@@ -340,7 +340,7 @@ def frameworks():
         table.add_column("Use Cases", style="yellow")
         table.add_column("Hardware", style="blue")
 
-        for name, info in frameworks_info.items():
+        for _name, info in frameworks_info.items():
             table.add_row(
                 info.name,
                 ", ".join(info.algorithms),
@@ -433,7 +433,7 @@ def _display_framework_info(dl_service: DeepLearningIntegrationService, algorith
     table.add_column("Supported", style="green")
     table.add_column("Performance", style="yellow")
 
-    for name, info in frameworks.items():
+    for _name, info in frameworks.items():
         supported = "✓" if algorithm in info.algorithms else "✗"
         color = "green" if algorithm in info.algorithms else "red"
 

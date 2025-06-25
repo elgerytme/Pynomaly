@@ -224,7 +224,7 @@ def list_algorithms(
     ),
 ):
     """List available algorithms."""
-    container = get_cli_container()
+    get_cli_container()
 
     try:
         from pynomaly.infrastructure.adapters import PyODAdapter

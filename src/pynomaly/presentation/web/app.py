@@ -274,7 +274,7 @@ async def ensemble_page(
     request: Request, container: Container = Depends(get_container)
 ):
     """Ensemble management page."""
-    ensemble_service = container.ensemble_service()
+    container.ensemble_service()
     detectors = container.detector_repository().find_all()
 
     # Get available ensemble types
@@ -308,7 +308,7 @@ async def ensemble_compare_page(
     request: Request, container: Container = Depends(get_container)
 ):
     """Ensemble strategy comparison page."""
-    ensemble_service = container.ensemble_service()
+    container.ensemble_service()
     detectors = container.detector_repository().find_all()
     datasets = container.dataset_repository().find_all()
 
@@ -757,7 +757,7 @@ async def htmx_ensemble_list(
     request: Request, container: Container = Depends(get_container)
 ):
     """Get ensemble list via HTMX."""
-    ensemble_service = container.ensemble_service()
+    container.ensemble_service()
     detectors = container.detector_repository().find_all()
 
     # Filter ensemble detectors (those with base_detectors)
@@ -806,13 +806,6 @@ async def htmx_automl_optimize(
         objective_list = [obj.strip() for obj in objectives.split(",") if obj.strip()]
 
         # Create optimization configuration
-        optimization_config = {
-            "algorithm": algorithm,
-            "max_trials": max_trials,
-            "max_time": max_time,
-            "objectives": objective_list,
-            "dataset_id": dataset_id,
-        }
 
         # Start optimization (simplified implementation for now)
         # In a real implementation, this would use the actual AutoML service
@@ -944,7 +937,7 @@ async def htmx_explainability_analyze(
                     <h4 class="font-medium text-blue-900 mb-2">🎯 SHAP Feature Importance Analysis</h4>
                     <p class="text-blue-700 text-sm">Analyzing {detector.algorithm_name} model with {num_features} top features...</p>
                 </div>
-                
+
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="bg-white border rounded p-4">
                         <h5 class="font-medium text-gray-900 mb-3">Top Contributing Features</h5>
@@ -952,7 +945,7 @@ async def htmx_explainability_analyze(
                             {"".join([f'<div class="flex justify-between items-center"><span class="text-sm text-gray-600">Feature_{i + 1}</span><span class="text-sm font-medium text-blue-600">{round(0.8 - i * 0.1, 2)}</span></div>' for i in range(min(num_features, 8))])}
                         </div>
                     </div>
-                    
+
                     <div class="bg-white border rounded p-4">
                         <h5 class="font-medium text-gray-900 mb-3">SHAP Summary Statistics</h5>
                         <div class="space-y-2 text-sm">
@@ -963,7 +956,7 @@ async def htmx_explainability_analyze(
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="bg-white border rounded p-4">
                     <h5 class="font-medium text-gray-900 mb-3">Key Insights</h5>
                     <ul class="list-disc list-inside space-y-1 text-sm text-gray-700">
@@ -983,7 +976,7 @@ async def htmx_explainability_analyze(
                     <h4 class="font-medium text-green-900 mb-2">🌿 LIME Local Interpretable Explanations</h4>
                     <p class="text-green-700 text-sm">Local explanations for {num_anomalies} anomalies using LIME...</p>
                 </div>
-                
+
                 <div class="bg-white border rounded p-4">
                     <h5 class="font-medium text-gray-900 mb-3">Local Explanation for Top Anomaly</h5>
                     <div class="space-y-3">
@@ -999,7 +992,7 @@ async def htmx_explainability_analyze(
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="bg-white border rounded p-4">
                     <h5 class="font-medium text-gray-900 mb-3">LIME Analysis Summary</h5>
                     <div class="grid grid-cols-2 gap-4 text-sm">
@@ -1023,7 +1016,7 @@ async def htmx_explainability_analyze(
                     <h4 class="font-medium text-purple-900 mb-2">🌐 Global Feature Importance Analysis</h4>
                     <p class="text-purple-700 text-sm">Overall model behavior across all predictions...</p>
                 </div>
-                
+
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="bg-white border rounded p-4">
                         <h5 class="font-medium text-gray-900 mb-3">Global Feature Rankings</h5>
@@ -1031,7 +1024,7 @@ async def htmx_explainability_analyze(
                             {"".join([f'<div class="flex items-center justify-between py-2 border-b border-gray-100"><div class="flex items-center"><span class="text-sm font-medium text-gray-900">#{i + 1}</span><span class="ml-2 text-sm text-gray-600">Feature_{i + 1}</span></div><div class="w-24 bg-gray-200 rounded-full h-2"><div class="bg-purple-600 h-2 rounded-full" style="width: {round(100 - i * 10)}%"></div></div><span class="text-sm font-medium">{round(1.0 - i * 0.1, 2)}</span></div>' for i in range(min(num_features, 8))])}
                         </div>
                     </div>
-                    
+
                     <div class="bg-white border rounded p-4">
                         <h5 class="font-medium text-gray-900 mb-3">Model Statistics</h5>
                         <div class="space-y-2 text-sm">
@@ -1054,7 +1047,7 @@ async def htmx_explainability_analyze(
                 num_anomalies
             } specific anomalies...</p>
                 </div>
-                
+
                 <div class="space-y-4">
                     {
                 "".join(
@@ -1131,7 +1124,7 @@ async def htmx_explainability_insights(
                     <div class="text-lg font-bold text-green-900">{round(avg_anomaly_rate * 100, 1)}%</div>
                 </div>
             </div>
-            
+
             <div class="space-y-2">
                 <h4 class="font-medium text-gray-900">💡 Key Insights</h4>
                 <ul class="text-sm text-gray-700 space-y-1">
@@ -1141,7 +1134,7 @@ async def htmx_explainability_insights(
                     <li>• Global explanations show overall feature importance</li>
                 </ul>
             </div>
-            
+
             <div class="bg-gray-50 border border-gray-200 rounded p-3">
                 <div class="text-xs text-gray-600">
                     💡 <strong>Tip:</strong> Select a detector and result to generate detailed explanations using SHAP or LIME.
@@ -1167,7 +1160,7 @@ async def htmx_monitoring_health(
     try:
         # Check if health service is available
         if hasattr(container, "health_service"):
-            health_service = container.health_service()
+            container.health_service()
             health_status = "Healthy"
             health_color = "green"
         else:
@@ -1647,7 +1640,7 @@ async def htmx_bulk_export(
                 <h4 class="font-medium text-green-900">Export completed!</h4>
                 <p class="text-sm text-green-700 mt-2">Exported {len(ids)} items in {format.upper()} format</p>
                 <div class="mt-4 space-y-2">
-                    <a href="/web/download/{download_filename}" 
+                    <a href="/web/download/{download_filename}"
                        class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
                         <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>

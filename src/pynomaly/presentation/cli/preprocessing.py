@@ -520,7 +520,7 @@ def manage_pipeline(
     ),
 ):
     """Manage preprocessing pipelines."""
-    container = get_cli_container()
+    get_cli_container()
 
     if action == "create":
         _create_pipeline(name, config_file)

@@ -97,7 +97,7 @@ def predict(
     """Explain a model's prediction for specific instance(s)."""
 
     async def run_explanation():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -236,7 +236,7 @@ def analyze_bias(
     """Analyze model for bias and fairness issues."""
 
     async def run_bias_analysis():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -330,7 +330,7 @@ def feature_importance(
     """Analyze feature importance for the model."""
 
     async def run_feature_analysis():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -416,7 +416,7 @@ def validate_explanations(
     """Validate explanation quality and trustworthiness."""
 
     async def run_validation():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -509,7 +509,7 @@ def summary(model_id: str | None, time_window: int, output_path: str | None):
     """Get explanation summary for a model."""
 
     async def run_summary():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),

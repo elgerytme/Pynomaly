@@ -50,7 +50,7 @@ def assess_compliance(
     """Assess compliance with regulatory frameworks."""
 
     async def run_assessment():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -119,7 +119,7 @@ def encrypt_data(
     """Encrypt sensitive data with compliance controls."""
 
     async def run_encryption():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -199,7 +199,7 @@ def register_data_subject(
     """Register data subject for GDPR compliance."""
 
     async def run_registration():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -263,7 +263,7 @@ def gdpr_request(subject_id: str, request_type: str, output_file: str | None):
     """Handle GDPR data subject rights requests."""
 
     async def run_gdpr_request():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -331,7 +331,7 @@ def detect_breach(access_logs: str, output_file: str | None, alert_threshold: in
     """Detect potential data breaches from access logs."""
 
     async def run_breach_detection():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -386,7 +386,7 @@ def anonymize_data(data_file: str, rules_file: str, output_file: str | None):
     """Anonymize data for privacy compliance."""
 
     async def run_anonymization():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -448,7 +448,7 @@ def status(config_file: str | None, output_file: str | None):
     """Get overall security and compliance status."""
 
     async def run_status_check():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),
@@ -506,7 +506,7 @@ def cleanup(dry_run: bool, force: bool):
     """Clean up expired data per retention policies."""
 
     async def run_cleanup():
-        container = Container()
+        Container()
 
         with Progress(
             SpinnerColumn(),

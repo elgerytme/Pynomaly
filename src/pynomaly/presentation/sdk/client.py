@@ -254,7 +254,7 @@ class PynomaliClient:
         logger.info(f"Creating dataset '{name}' from {data_source}")
 
         # Handle different data source types
-        if isinstance(data_source, (str, Path)):
+        if isinstance(data_source, str | Path):
             # File upload
             file_path = Path(data_source)
             if not file_path.exists():

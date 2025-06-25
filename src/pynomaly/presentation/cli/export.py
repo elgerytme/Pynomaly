@@ -352,10 +352,9 @@ def export_multiple(
             raise typer.Exit(1)
 
         # Load configuration if provided
-        config = {}
         if config_file:
             with open(config_file) as f:
-                config = json.load(f)
+                json.load(f)
 
         console.print("[cyan]Starting multi-format export...[/cyan]")
         console.print(f"📁 Results file: {results_file}")
@@ -372,7 +371,7 @@ def export_multiple(
                 task = progress.add_task(f"Exporting to {format_name}...", total=100)
 
                 # Simulate work
-                for i in range(100):
+                for _i in range(100):
                     progress.update(task, advance=1)
 
                 console.print(

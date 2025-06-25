@@ -72,7 +72,7 @@ def init_tdd(
         tdd_storage.mkdir(exist_ok=True)
 
         # Initialize repository
-        repository = FileTDDRepository(tdd_storage)
+        FileTDDRepository(tdd_storage)
 
         console.print(f"📁 TDD storage initialized at: {tdd_storage}")
         console.print("\n[green]TDD initialization complete![/green]")
@@ -207,7 +207,7 @@ def create_requirement(
         # Parse tags
         tag_set = set()
         if tags:
-            tag_set = set(tag.strip() for tag in tags.split(","))
+            tag_set = {tag.strip() for tag in tags.split(",")}
 
         # Create requirement
         requirement = engine.create_test_requirement(
@@ -461,7 +461,7 @@ def list_requirements(
         elif module:
             requirements = repository.find_requirements_by_module(module)
         elif tags:
-            tag_set = set(tag.strip() for tag in tags.split(","))
+            tag_set = {tag.strip() for tag in tags.split(",")}
             requirements = repository.find_requirements_by_tags(tag_set)
         else:
             requirements = repository.find_all()
@@ -870,7 +870,7 @@ def _generate_html_report(report: dict) -> str:
         <p>Generated: {report["timestamp"]}</p>
         <p>Project: {report["project_root"]}</p>
     </div>
-    
+
     <h2>Summary</h2>
     <div class="metric">
         <strong>Overall Compliance</strong><br>
@@ -884,7 +884,7 @@ def _generate_html_report(report: dict) -> str:
         <strong>Average Coverage</strong><br>
         {report["summary"]["average_coverage"]:.1%}
     </div>
-    
+
     <h2>Violations</h2>
 """
 

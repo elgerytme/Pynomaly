@@ -98,7 +98,7 @@ def optimize(
                     TextColumn("[progress.description]{task.description}"),
                     console=console,
                 ) as progress:
-                    task = progress.add_task(
+                    progress.add_task(
                         "Optimizing hyperparameters...", total=None
                     )
                     result = await automl_service.optimize_hyperparameters(
@@ -136,7 +136,7 @@ def optimize(
                 TextColumn("[progress.description]{task.description}"),
                 console=console,
             ) as progress:
-                task = progress.add_task("Running advanced optimization...", total=None)
+                progress.add_task("Running advanced optimization...", total=None)
                 result = await enhanced_service.advanced_optimize_hyperparameters(
                     dataset_id, algorithm, list(objectives)
                 )
@@ -215,7 +215,7 @@ def auto_optimize(
                     TextColumn("[progress.description]{task.description}"),
                     console=console,
                 ) as progress:
-                    task = progress.add_task("Running AutoML...", total=None)
+                    progress.add_task("Running AutoML...", total=None)
                     result = await automl_service.auto_select_and_optimize(
                         dataset_id, enable_ensemble=enable_ensemble
                     )
@@ -246,7 +246,7 @@ def auto_optimize(
                 TextColumn("[progress.description]{task.description}"),
                 console=console,
             ) as progress:
-                task = progress.add_task("Running advanced AutoML...", total=None)
+                progress.add_task("Running advanced AutoML...", total=None)
                 result = await enhanced_service.auto_select_and_optimize_advanced(
                     dataset_id, list(objectives), max_algorithms, enable_ensemble
                 )
@@ -340,7 +340,7 @@ def multi_objective(
             TextColumn("[progress.description]{task.description}"),
             console=console,
         ) as progress:
-            task = progress.add_task("Finding Pareto optimal solutions...", total=None)
+            progress.add_task("Finding Pareto optimal solutions...", total=None)
 
             if algorithms:
                 # Optimize specified algorithms

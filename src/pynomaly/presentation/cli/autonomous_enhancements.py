@@ -248,7 +248,7 @@ def _run_enhanced_autonomous_detection(
         data_loaders=data_loaders,
     )
 
-    automl_service = AutoMLService(
+    AutoMLService(
         detector_repository=container.detector_repository(),
         dataset_repository=container.dataset_repository(),
         adapter_registry=container.adapter_registry(),
@@ -295,7 +295,6 @@ def _run_family_based_detection(
     console.print("\n[bold blue]🔍 Family-Based Detection Process[/bold blue]")
 
     family_results = {}
-    family_ensembles = {}
 
     # Algorithm family mapping
     family_algorithms = {
@@ -335,7 +334,6 @@ def _run_family_based_detection(
         console.print(
             "\n[purple]Creating meta-ensemble from family results...[/purple]"
         )
-        meta_ensemble_result = "meta_ensemble_placeholder"
 
     # Display family results
     _display_family_results(family_results, meta_ensemble)

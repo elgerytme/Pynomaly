@@ -151,7 +151,7 @@ def validate_contamination_rate(contamination: float) -> float:
     Raises:
         ValidationError: If contamination rate is invalid
     """
-    if not isinstance(contamination, (int, float)):
+    if not isinstance(contamination, int | float):
         raise ValidationError(
             f"Contamination rate must be a number, got {type(contamination).__name__}",
             details={"value": contamination, "type": type(contamination).__name__},

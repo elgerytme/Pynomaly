@@ -235,12 +235,12 @@ async def streaming_detection_example():
         # Simulate streaming data
         async def generate_streaming_data():
             """Generate simulated streaming data."""
-            for batch_idx in range(10):  # 10 batches
+            for _batch_idx in range(10):  # 10 batches
                 batch_size = 20
 
                 # Mostly normal data with occasional anomalies
                 batch_data = []
-                for i in range(batch_size):
+                for _i in range(batch_size):
                     if np.random.random() < 0.1:  # 10% anomalies
                         point = np.random.normal(5, 1, 2).tolist()  # Anomaly
                     else:
@@ -304,7 +304,7 @@ def configuration_example():
     # Method 4: Configuration file
     config_path = Path("pynomaly_config.json")
     if config_path.exists():
-        client4 = PynomaliClient(config_path=str(config_path))
+        PynomaliClient(config_path=str(config_path))
         print("Client 4: File configuration")
 
     # Clean up

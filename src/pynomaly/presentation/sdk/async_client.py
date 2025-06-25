@@ -244,7 +244,7 @@ class AsyncPynomaliClient:
         session = await self._ensure_session()
 
         # Handle different data source types
-        if isinstance(data_source, (str, Path)):
+        if isinstance(data_source, str | Path):
             # File upload
             file_path = Path(data_source)
             if not file_path.exists():
