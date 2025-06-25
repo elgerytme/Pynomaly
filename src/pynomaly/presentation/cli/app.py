@@ -14,6 +14,7 @@ from pynomaly.presentation.cli import datasets, detectors, detection, server, au
 from pynomaly.presentation.cli import automl
 # from pynomaly.presentation.cli import performance  # Temporarily disabled due to Typer type issues
 from pynomaly.presentation.cli.export import export_app
+from pynomaly.presentation.cli import config as config_cli
 # from pynomaly.presentation.cli import deep_learning  # Temporarily disabled due to syntax error
 # from pynomaly.presentation.cli import explainability  # Temporarily disabled due to import error
 # from pynomaly.presentation.cli import selection  # Temporarily disabled
@@ -37,6 +38,7 @@ console = Console()
 # Add subcommands
 app.add_typer(autonomous.app, name="auto", help="🤖 Autonomous anomaly detection (auto-configure and run)")
 app.add_typer(automl.app, name="automl", help="🧠 Advanced AutoML & hyperparameter optimization")
+app.add_typer(config_cli.app, name="config", help="⚙️ Configuration management (capture, export, import)")
 app.add_typer(detectors.app, name="detector", help="Manage anomaly detectors")
 app.add_typer(datasets.app, name="dataset", help="Manage datasets")
 app.add_typer(preprocessing.app, name="data", help="🔧 Data preprocessing (clean, transform, pipeline)")
@@ -64,17 +66,17 @@ def version():
 
 
 @app.command()
-def config(
-    show: bool = typer.Option(False, "--show", help="Show current configuration"),
-    set_key: Optional[str] = typer.Option(None, "--set", help="Set config key=value"),
+def settings(
+    show: bool = typer.Option(False, "--show", help="Show current settings"),
+    set_key: Optional[str] = typer.Option(None, "--set", help="Set setting key=value"),
 ):
-    """Manage configuration."""
+    """Manage application settings."""
     container = get_cli_container()
     settings = container.config()
     
     if show:
         # Show configuration
-        table = Table(title="Pynomaly Configuration")
+        table = Table(title="Pynomaly Settings")
         table.add_column("Key", style="cyan")
         table.add_column("Value", style="green")
         
@@ -105,11 +107,11 @@ def config(
         key, value = set_key.split("=", 1)
         
         # Update config (in real app, would persist this)
-        console.print(f"[yellow]Note:[/yellow] Configuration update not yet implemented")
+        console.print(f"[yellow]Note:[/yellow] Setting update not yet implemented")
         console.print(f"Would set: {key} = {value}")
     
     else:
-        console.print("Use --show to display config or --set key=value to update")
+        console.print("Use --show to display settings or --set key=value to update")
 
 
 @app.command()
