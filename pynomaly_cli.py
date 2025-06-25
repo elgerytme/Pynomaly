@@ -55,6 +55,8 @@ Examples:
   python pynomaly_cli.py auto-select data.csv
   python pynomaly_cli.py explain data.csv
   python pynomaly_cli.py explain data.csv IsolationForest 5
+  python pynomaly_cli.py visualize data.csv
+  python pynomaly_cli.py visualize data.csv IsolationForest summary
   python pynomaly_cli.py server-start
 """
     print(help_text)
@@ -1075,6 +1077,492 @@ def explain_anomaly_detection(file_path, algorithm=None, instance_index=None):
     
     print(f"   python pynomaly_cli.py benchmark {file_path}")
     print(f"   python pynomaly_cli.py validate {file_path}")
+    
+    return True
+
+@handle_cli_errors
+def visualize_anomaly_detection(file_path, algorithm=None, chart_type=None):
+    """Generate visualizations and charts for anomaly detection results"""
+    import pandas as pd
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    from pathlib import Path
+    from pynomaly.domain.entities import Dataset
+    from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+    from pynomaly.domain.value_objects import ContaminationRate
+    
+    # Check if visualization libraries are available
+    try:
+        import matplotlib.pyplot as plt
+        MATPLOTLIB_AVAILABLE = True
+    except ImportError:
+        MATPLOTLIB_AVAILABLE = False
+    
+    try:
+        import seaborn as sns
+        SEABORN_AVAILABLE = True
+    except ImportError:
+        SEABORN_AVAILABLE = False
+    
+    # Validate file
+    file_path = validate_file_exists(file_path)
+    data_format = validate_data_format(file_path)
+    
+    print(f"📊 Generating Visualizations for Anomaly Detection: {file_path}")
+    print("=" * 60)
+    
+    # Load data
+    if data_format == 'csv':
+        data = pd.read_csv(file_path)
+    elif data_format == 'json':
+        data = pd.read_json(file_path)
+    else:
+        raise ValueError(f"Unsupported format: {data_format}")
+    
+    print(f"📈 Data loaded: {data.shape}")
+    
+    # Validate data
+    from pynomaly.shared.error_handling import validate_data_shape
+    validate_data_shape(data, min_samples=2, min_features=1)
+    
+    # Set default algorithm if not provided
+    algorithm = algorithm or "IsolationForest"
+    contamination = 0.1
+    
+    print(f"🤖 Using algorithm: {algorithm}")
+    print(f"📊 Chart type: {chart_type or 'auto'}")
+    
+    # Create dataset
+    dataset = Dataset(
+        name=f"viz_dataset_{file_path.name}",
+        data=data
+    )
+    
+    # Run detection to get anomalies and scores
+    print(f"\n🔬 Running anomaly detection...")
+    adapter = SklearnAdapter(algorithm, contamination_rate=ContaminationRate(contamination))
+    adapter.fit(dataset)
+    result = adapter.detect(dataset)
+    
+    anomaly_count = len(result.anomalies)
+    anomaly_indices = [i for i, label in enumerate(result.labels) if label == 1]
+    normal_indices = [i for i, label in enumerate(result.labels) if label == 0]
+    
+    print(f"   Detection complete: {anomaly_count} anomalies found")
+    
+    # Create output directory for visualizations
+    output_dir = Path("visualizations")
+    output_dir.mkdir(exist_ok=True)
+    
+    print(f"\n📊 Creating Visualizations...")
+    print(f"   Output directory: {output_dir}")
+    
+    created_visualizations = []
+    
+    if not MATPLOTLIB_AVAILABLE:
+        print(f"⚠️ Matplotlib not available - generating text-based visualizations only")
+        
+        # Generate text-based visualizations
+        print(f"\n📈 Text-Based Visualization Summary:")
+        print("-" * 50)
+        
+        # Anomaly distribution by feature
+        print(f"📊 Anomaly Distribution Analysis:")
+        for col in data.columns:
+            if pd.api.types.is_numeric_dtype(data[col]):
+                anomaly_values = data.iloc[anomaly_indices][col]
+                normal_values = data.iloc[normal_indices][col]
+                
+                if len(anomaly_values) > 0 and len(normal_values) > 0:
+                    anomaly_mean = anomaly_values.mean()
+                    normal_mean = normal_values.mean()
+                    difference = abs(anomaly_mean - normal_mean)
+                    
+                    print(f"   {col}:")
+                    print(f"     Normal avg: {normal_mean:.3f}")
+                    print(f"     Anomaly avg: {anomaly_mean:.3f}")
+                    print(f"     Difference: {difference:.3f}")
+                    print(f"     Direction: {'Higher' if anomaly_mean > normal_mean else 'Lower'}")
+        
+        # ASCII histogram for anomaly scores
+        if hasattr(result, 'scores') and result.scores is not None:
+            print(f"\n📊 Anomaly Score Distribution (ASCII):")
+            try:
+                # Get raw scores
+                raw_scores = []
+                for score in result.scores:
+                    if hasattr(score, 'value'):
+                        raw_scores.append(score.value)
+                    elif hasattr(score, '__float__'):
+                        raw_scores.append(float(score))
+                    else:
+                        raw_scores.append(score)
+                
+                scores_array = np.array(raw_scores)
+                
+                # Create simple histogram bins
+                bins = 10
+                hist, bin_edges = np.histogram(scores_array, bins=bins)
+                max_count = max(hist)
+                
+                print(f"   Score range: {scores_array.min():.3f} to {scores_array.max():.3f}")
+                print(f"   Distribution:")
+                
+                for i in range(bins):
+                    bin_start = bin_edges[i]
+                    bin_end = bin_edges[i+1]
+                    count = hist[i]
+                    bar_length = int((count / max_count) * 30) if max_count > 0 else 0
+                    bar = "█" * bar_length
+                    
+                    print(f"     {bin_start:.3f}-{bin_end:.3f}: {bar} ({count})")
+                    
+            except Exception as e:
+                print(f"   Error creating score distribution: {e}")
+        
+        print(f"\n💡 Visualization Recommendations:")
+        print(f"   • Install matplotlib for advanced visualizations: pip install matplotlib")
+        print(f"   • Install seaborn for statistical plots: pip install seaborn")
+        print(f"   • Install plotly for interactive charts: pip install plotly")
+        
+        return True
+    
+    # Generate matplotlib visualizations
+    print(f"   Using matplotlib for advanced visualizations")
+    
+    # Set up plotting style
+    if SEABORN_AVAILABLE:
+        sns.set_style("whitegrid")
+        plt.style.use("seaborn-v0_8")
+    else:
+        plt.style.use("default")
+    
+    # Get numeric columns for visualization
+    numeric_cols = [col for col in data.columns if pd.api.types.is_numeric_dtype(data[col])]
+    
+    if chart_type is None or chart_type == "auto":
+        # Generate multiple chart types automatically
+        chart_types = ["scatter", "distribution", "scores", "correlation", "summary"]
+    else:
+        chart_types = [chart_type.lower()]
+    
+    # 1. Scatter plots (for 2D data)
+    if "scatter" in chart_types and len(numeric_cols) >= 2:
+        try:
+            print(f"   📊 Creating scatter plots...")
+            
+            # Create pairwise scatter plots for first few features
+            n_features = min(4, len(numeric_cols))
+            fig, axes = plt.subplots(1, min(3, n_features-1), figsize=(15, 5))
+            if n_features == 2:
+                axes = [axes]
+            
+            for i in range(min(3, n_features-1)):
+                col1, col2 = numeric_cols[i], numeric_cols[i+1]
+                ax = axes[i] if len(axes) > 1 else axes
+                
+                # Plot normal points
+                normal_data = data.iloc[normal_indices]
+                ax.scatter(normal_data[col1], normal_data[col2], 
+                          c='blue', alpha=0.6, s=30, label='Normal')
+                
+                # Plot anomaly points
+                if len(anomaly_indices) > 0:
+                    anomaly_data = data.iloc[anomaly_indices]
+                    ax.scatter(anomaly_data[col1], anomaly_data[col2], 
+                              c='red', alpha=0.8, s=60, label='Anomaly', marker='x')
+                
+                ax.set_xlabel(col1)
+                ax.set_ylabel(col2)
+                ax.set_title(f'{col1} vs {col2}')
+                ax.legend()
+                ax.grid(True, alpha=0.3)
+            
+            plt.tight_layout()
+            scatter_path = output_dir / "anomaly_scatter_plots.png"
+            plt.savefig(scatter_path, dpi=150, bbox_inches='tight')
+            plt.close()
+            created_visualizations.append(("Scatter Plots", scatter_path))
+            
+        except Exception as e:
+            print(f"   ❌ Error creating scatter plots: {e}")
+    
+    # 2. Distribution plots
+    if "distribution" in chart_types:
+        try:
+            print(f"   📊 Creating distribution plots...")
+            
+            n_cols = min(4, len(numeric_cols))
+            fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+            axes = axes.flatten()
+            
+            for i, col in enumerate(numeric_cols[:n_cols]):
+                ax = axes[i]
+                
+                # Plot distributions
+                normal_values = data.iloc[normal_indices][col]
+                if len(anomaly_indices) > 0:
+                    anomaly_values = data.iloc[anomaly_indices][col]
+                    
+                    ax.hist(normal_values, bins=20, alpha=0.7, label='Normal', color='blue', density=True)
+                    ax.hist(anomaly_values, bins=10, alpha=0.7, label='Anomaly', color='red', density=True)
+                else:
+                    ax.hist(normal_values, bins=20, alpha=0.7, label='Normal', color='blue', density=True)
+                
+                ax.set_xlabel(col)
+                ax.set_ylabel('Density')
+                ax.set_title(f'Distribution of {col}')
+                ax.legend()
+                ax.grid(True, alpha=0.3)
+            
+            # Hide unused subplots
+            for i in range(n_cols, 4):
+                axes[i].set_visible(False)
+            
+            plt.tight_layout()
+            dist_path = output_dir / "feature_distributions.png"
+            plt.savefig(dist_path, dpi=150, bbox_inches='tight')
+            plt.close()
+            created_visualizations.append(("Feature Distributions", dist_path))
+            
+        except Exception as e:
+            print(f"   ❌ Error creating distribution plots: {e}")
+    
+    # 3. Anomaly scores visualization
+    if "scores" in chart_types and hasattr(result, 'scores') and result.scores is not None:
+        try:
+            print(f"   📊 Creating anomaly scores visualization...")
+            
+            # Get raw scores
+            raw_scores = []
+            for score in result.scores:
+                if hasattr(score, 'value'):
+                    raw_scores.append(score.value)
+                elif hasattr(score, '__float__'):
+                    raw_scores.append(float(score))
+                else:
+                    raw_scores.append(score)
+            
+            scores_array = np.array(raw_scores)
+            
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+            
+            # Score distribution histogram
+            ax1.hist(scores_array, bins=30, alpha=0.7, color='skyblue', edgecolor='black')
+            
+            # Add threshold line
+            threshold_value = float(result.threshold) if hasattr(result.threshold, '__float__') else result.threshold
+            ax1.axvline(threshold_value, color='red', linestyle='--', linewidth=2, label=f'Threshold: {threshold_value:.3f}')
+            
+            ax1.set_xlabel('Anomaly Score')
+            ax1.set_ylabel('Frequency')
+            ax1.set_title('Anomaly Score Distribution')
+            ax1.legend()
+            ax1.grid(True, alpha=0.3)
+            
+            # Score sequence plot
+            ax2.plot(scores_array, alpha=0.7, color='blue', marker='.', markersize=4)
+            ax2.axhline(threshold_value, color='red', linestyle='--', linewidth=2, label=f'Threshold: {threshold_value:.3f}')
+            
+            # Highlight anomalies
+            if len(anomaly_indices) > 0:
+                anomaly_scores = scores_array[anomaly_indices]
+                ax2.scatter(anomaly_indices, anomaly_scores, color='red', s=50, marker='x', label='Anomalies', zorder=5)
+            
+            ax2.set_xlabel('Sample Index')
+            ax2.set_ylabel('Anomaly Score')
+            ax2.set_title('Anomaly Scores by Sample')
+            ax2.legend()
+            ax2.grid(True, alpha=0.3)
+            
+            plt.tight_layout()
+            scores_path = output_dir / "anomaly_scores.png"
+            plt.savefig(scores_path, dpi=150, bbox_inches='tight')
+            plt.close()
+            created_visualizations.append(("Anomaly Scores", scores_path))
+            
+        except Exception as e:
+            print(f"   ❌ Error creating scores visualization: {e}")
+    
+    # 4. Correlation matrix
+    if "correlation" in chart_types and len(numeric_cols) >= 2:
+        try:
+            print(f"   📊 Creating correlation matrix...")
+            
+            # Calculate correlation matrix
+            correlation_matrix = data[numeric_cols].corr()
+            
+            fig, ax = plt.subplots(figsize=(10, 8))
+            
+            if SEABORN_AVAILABLE:
+                sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', center=0,
+                           square=True, fmt='.2f', ax=ax)
+            else:
+                im = ax.imshow(correlation_matrix, cmap='coolwarm', aspect='auto')
+                ax.set_xticks(range(len(numeric_cols)))
+                ax.set_yticks(range(len(numeric_cols)))
+                ax.set_xticklabels(numeric_cols, rotation=45, ha='right')
+                ax.set_yticklabels(numeric_cols)
+                
+                # Add correlation values
+                for i in range(len(numeric_cols)):
+                    for j in range(len(numeric_cols)):
+                        ax.text(j, i, f'{correlation_matrix.iloc[i, j]:.2f}',
+                               ha='center', va='center', color='black')
+                
+                plt.colorbar(im, ax=ax)
+            
+            ax.set_title('Feature Correlation Matrix')
+            plt.tight_layout()
+            corr_path = output_dir / "correlation_matrix.png"
+            plt.savefig(corr_path, dpi=150, bbox_inches='tight')
+            plt.close()
+            created_visualizations.append(("Correlation Matrix", corr_path))
+            
+        except Exception as e:
+            print(f"   ❌ Error creating correlation matrix: {e}")
+    
+    # 5. Summary dashboard
+    if "summary" in chart_types:
+        try:
+            print(f"   📊 Creating summary dashboard...")
+            
+            fig = plt.figure(figsize=(16, 12))
+            
+            # Create a 3x3 grid
+            gs = fig.add_gridspec(3, 3, hspace=0.3, wspace=0.3)
+            
+            # Anomaly summary (pie chart)
+            ax1 = fig.add_subplot(gs[0, 0])
+            labels = ['Normal', 'Anomaly']
+            sizes = [len(normal_indices), len(anomaly_indices)]
+            colors = ['lightblue', 'salmon']
+            ax1.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
+            ax1.set_title('Anomaly Distribution')
+            
+            # Feature importance (bar chart)
+            ax2 = fig.add_subplot(gs[0, 1:])
+            # Calculate simple feature importance based on variance
+            if len(anomaly_indices) > 0 and len(normal_indices) > 0:
+                importance_scores = []
+                for col in numeric_cols[:8]:  # Limit to 8 features
+                    anomaly_mean = data.iloc[anomaly_indices][col].mean()
+                    normal_mean = data.iloc[normal_indices][col].mean()
+                    anomaly_std = data.iloc[anomaly_indices][col].std()
+                    normal_std = data.iloc[normal_indices][col].std()
+                    
+                    # Calculate normalized difference
+                    combined_std = (anomaly_std + normal_std) / 2
+                    if combined_std > 0:
+                        importance = abs(anomaly_mean - normal_mean) / combined_std
+                    else:
+                        importance = abs(anomaly_mean - normal_mean)
+                    importance_scores.append(importance)
+                
+                feature_names = numeric_cols[:len(importance_scores)]
+                bars = ax2.bar(feature_names, importance_scores, color='lightgreen')
+                ax2.set_title('Feature Importance (Anomaly Discrimination)')
+                ax2.set_ylabel('Importance Score')
+                ax2.tick_params(axis='x', rotation=45)
+            
+            # Score distribution
+            if hasattr(result, 'scores') and result.scores is not None:
+                ax3 = fig.add_subplot(gs[1, :])
+                try:
+                    raw_scores = []
+                    for score in result.scores:
+                        if hasattr(score, 'value'):
+                            raw_scores.append(score.value)
+                        elif hasattr(score, '__float__'):
+                            raw_scores.append(float(score))
+                        else:
+                            raw_scores.append(score)
+                    
+                    scores_array = np.array(raw_scores)
+                    ax3.plot(scores_array, alpha=0.7, color='blue', marker='.', markersize=3)
+                    
+                    threshold_value = float(result.threshold) if hasattr(result.threshold, '__float__') else result.threshold
+                    ax3.axhline(threshold_value, color='red', linestyle='--', linewidth=2, label=f'Threshold: {threshold_value:.3f}')
+                    
+                    if len(anomaly_indices) > 0:
+                        anomaly_scores = scores_array[anomaly_indices]
+                        ax3.scatter(anomaly_indices, anomaly_scores, color='red', s=30, marker='x', zorder=5)
+                    
+                    ax3.set_xlabel('Sample Index')
+                    ax3.set_ylabel('Anomaly Score')
+                    ax3.set_title('Anomaly Scores Over Samples')
+                    ax3.legend()
+                    ax3.grid(True, alpha=0.3)
+                except Exception as e:
+                    ax3.text(0.5, 0.5, f'Error plotting scores: {str(e)[:50]}', 
+                            transform=ax3.transAxes, ha='center', va='center')
+            
+            # Statistics table
+            ax4 = fig.add_subplot(gs[2, :])
+            ax4.axis('tight')
+            ax4.axis('off')
+            
+            stats_data = [
+                ['Total Samples', len(data)],
+                ['Anomalies Detected', anomaly_count],
+                ['Anomaly Rate', f'{anomaly_count/len(data)*100:.1f}%'],
+                ['Algorithm', algorithm],
+                ['Features Analyzed', len(numeric_cols)],
+                ['Contamination Rate', f'{contamination:.1%}']
+            ]
+            
+            table = ax4.table(cellText=stats_data, colLabels=['Metric', 'Value'],
+                             cellLoc='center', loc='center', colWidths=[0.5, 0.5])
+            table.auto_set_font_size(False)
+            table.set_fontsize(10)
+            table.scale(1, 2)
+            ax4.set_title('Detection Summary Statistics', pad=20)
+            
+            plt.suptitle(f'Anomaly Detection Summary Dashboard\nFile: {file_path.name}', fontsize=16)
+            
+            summary_path = output_dir / "summary_dashboard.png"
+            plt.savefig(summary_path, dpi=150, bbox_inches='tight')
+            plt.close()
+            created_visualizations.append(("Summary Dashboard", summary_path))
+            
+        except Exception as e:
+            print(f"   ❌ Error creating summary dashboard: {e}")
+    
+    # Display results
+    print(f"\n✅ Visualization Creation Complete!")
+    print(f"   Created {len(created_visualizations)} visualizations")
+    
+    if created_visualizations:
+        print(f"\n📁 Generated Visualizations:")
+        for name, path in created_visualizations:
+            print(f"   📊 {name}: {path}")
+        
+        print(f"\n💡 Visualization Insights:")
+        print(f"   • {anomaly_count} anomalies detected out of {len(data)} samples ({anomaly_count/len(data)*100:.1f}%)")
+        print(f"   • Most discriminative features help separate normal from anomaly patterns")
+        print(f"   • Correlation patterns may reveal feature relationships")
+        print(f"   • Score distribution shows threshold effectiveness")
+        
+        print(f"\n🔍 How to Use the Visualizations:")
+        print(f"   • Scatter plots: Look for separated clusters of red (anomaly) points")
+        print(f"   • Distributions: Compare normal vs anomaly feature value ranges")
+        print(f"   • Scores plot: Anomalies should have scores above the red threshold line")
+        print(f"   • Correlation matrix: Identifies strongly related features")
+        print(f"   • Summary dashboard: Complete overview of detection results")
+        
+        print(f"\n📝 Next Steps:")
+        print(f"   • Review visualizations to understand anomaly patterns")
+        print(f"   • Use feature importance to focus monitoring efforts")
+        print(f"   • Adjust contamination rate if needed based on score distribution")
+        print(f"   • Try different algorithms if patterns aren't clear")
+    
+    print(f"\n📊 Available Chart Types for Future Use:")
+    print(f"   python pynomaly_cli.py visualize {file_path} {algorithm} scatter")
+    print(f"   python pynomaly_cli.py visualize {file_path} {algorithm} distribution")
+    print(f"   python pynomaly_cli.py visualize {file_path} {algorithm} scores")
+    print(f"   python pynomaly_cli.py visualize {file_path} {algorithm} correlation")
+    print(f"   python pynomaly_cli.py visualize {file_path} {algorithm} summary")
     
     return True
 

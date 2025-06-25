@@ -446,7 +446,9 @@
       "Bash(./scripts/test-current.sh:*)",
       "Bash(./scripts/test-fresh.sh:*)",
       "Bash(powershell:*)",
-      "Bash(pwsh:*)"
+      "Bash(pwsh:*)",
+      "Bash(bash:*)",
+      "Bash(/home/claude/.local/bin/python -m pytest tests/application/test_services.py::TestDetectionService::test_run_detection_success -v)"
     ],
     "deny": [],
     "//": "This sets the default policy to 'allow' for any action that doesn't have a more specific rule below. This is the top-level 'allow all actions' setting.",

@@ -142,18 +142,11 @@ ti: test-integration ## Quick alias for test-integration
 tv: test-verbose ## Quick alias for test-verbose
 tff: test-fast ## Quick alias for test-fast
 
-# Variables
-PYTHON := python
+# Variables for Poetry-based operations
 POETRY := poetry
 PROJECT := pynomaly
 SRC := src
 TESTS := tests
-
-help: ## Show this help message
-	@echo 'Usage: make [target]'
-	@echo ''
-	@echo 'Targets:'
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-20s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 install: ## Install production dependencies
 	$(POETRY) install
@@ -161,9 +154,6 @@ install: ## Install production dependencies
 dev-install: ## Install all dependencies including dev
 	$(POETRY) install --with dev
 	pre-commit install
-
-test: ## Run tests
-	$(POETRY) run pytest
 
 test-cov: ## Run tests with coverage
 	$(POETRY) run pytest --cov=$(PROJECT) --cov-report=html --cov-report=term
