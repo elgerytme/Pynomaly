@@ -51,7 +51,7 @@ def detect_anomaly_simple(values: List[float], threshold: float = 2.0) -> List[b
     if std_val == 0:
         return [False] * len(values)
     
-    return [abs(val - mean_val) > threshold * std_val for val in values]
+    return [abs(value - mean_val) > threshold * std_val for value in values]
 
 
 def clean_data(data: List[Optional[float]]) -> List[float]:
