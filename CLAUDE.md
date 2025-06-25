@@ -432,11 +432,337 @@ This ensures complete transparency and maintains TODO.md as the authoritative so
 - **Release Process**: Aggregate changelog entries for version releases
 - **TODO Sync Validation**: Ensure TODO.md reflects all Claude Code todo changes
 
-## Important Notes
+## Test-Driven Development (TDD) Configuration
+
+### Overview
+Pynomaly includes an optional but comprehensive Test-Driven Development (TDD) system that enforces test-first development practices. This system ensures code quality, maintainability, and adherence to TDD principles throughout the development lifecycle.
+
+### TDD System Components
+
+#### 1. Configuration Management
+- **Location**: `src/pynomaly/infrastructure/config/tdd_config.py`
+- **Purpose**: Centralized TDD settings with flexible configuration options
+- **Features**:
+  - Enable/disable TDD enforcement globally or per module
+  - Configurable coverage thresholds and quality metrics
+  - Customizable test naming conventions and patterns
+  - Exemption management for legacy code or special cases
+
+#### 2. Test Requirement Tracking
+- **Repository**: `src/pynomaly/infrastructure/persistence/tdd_repository.py`
+- **Purpose**: Track test requirements and implementation progress
+- **Capabilities**:
+  - Store test specifications before implementation
+  - Monitor test-to-implementation compliance
+  - Track coverage metrics and quality indicators
+  - Maintain historical compliance data
+
+#### 3. Enforcement Engine
+- **Engine**: `src/pynomaly/infrastructure/tdd/enforcement.py`
+- **Purpose**: Validate TDD compliance and enforce rules
+- **Functions**:
+  - Real-time file validation during development
+  - Project-wide compliance analysis
+  - Automated violation detection and reporting
+  - Auto-fix capabilities for common violations
+
+#### 4. Git Integration
+- **Hooks**: `src/pynomaly/infrastructure/tdd/git_hooks.py`
+- **Purpose**: Integrate TDD validation into git workflow
+- **Features**:
+  - Pre-commit hooks for immediate feedback
+  - Pre-push validation for comprehensive checks
+  - Pre-commit framework integration
+  - Configurable validation levels
+
+### TDD CLI Commands
+
+#### Basic TDD Management
+```bash
+# Initialize TDD for the project
+pynomaly tdd init --enable --coverage 0.85
+
+# Check current TDD status
+pynomaly tdd status --detailed
+
+# Enable/disable TDD enforcement
+pynomaly tdd enable --strict --coverage 0.9
+pynomaly tdd disable
+```
+
+#### Test Requirements Management
+```bash
+# Create a test requirement
+pynomaly tdd require "src/module.py" "function_name" \
+  --desc "Test user authentication logic" \
+  --spec "Should validate credentials and return user object" \
+  --coverage 0.9 \
+  --tags "auth,security"
+
+# List test requirements
+pynomaly tdd requirements --status pending
+pynomaly tdd requirements --module "src/auth.py"
+pynomaly tdd requirements --tags "security,critical"
+```
+
+#### Validation and Compliance
+```bash
+# Validate TDD compliance
+pynomaly tdd validate --coverage --fix
+pynomaly tdd validate --file "src/specific_file.py"
+
+# Run coverage analysis
+pynomaly tdd coverage --threshold 0.8
+
+# Generate compliance reports
+pynomaly tdd report --output "reports/tdd_compliance.html" --format html
+pynomaly tdd report --format json
+```
+
+#### Git Integration
+```bash
+# Install git hooks
+pynomaly tdd hooks --install --pre-commit
+
+# Check git hooks status
+pynomaly tdd hooks --status
+
+# Uninstall git hooks
+pynomaly tdd hooks --uninstall
+```
+
+#### Configuration Management
+```bash
+# View TDD configuration
+pynomaly tdd config
+
+# Manage exemptions
+pynomaly tdd exempt "migrations/*.py"
+pynomaly tdd exempt --list
+pynomaly tdd exempt "old_code.py" --remove
+
+# Reset configuration
+pynomaly tdd config --reset
+```
+
+### TDD Configuration Options
+
+#### Core Settings
+```python
+# TDD enforcement control
+enabled: bool = False                    # Enable TDD enforcement
+strict_mode: bool = False               # Enforce strict test-first rules
+auto_validation: bool = True            # Automatic compliance validation
+
+# Coverage requirements
+min_test_coverage: float = 0.8          # Minimum required coverage
+coverage_fail_under: float = 0.7        # Coverage threshold for build failure
+branch_coverage_required: bool = True   # Require branch coverage analysis
+```
+
+#### File Pattern Configuration
+```python
+# Test file patterns
+test_file_patterns: List[str] = [
+    "test_*.py", "*_test.py", "tests/*.py"
+]
+
+# Implementation file patterns
+implementation_patterns: List[str] = ["*.py"]
+
+# Exemption patterns (files to skip)
+exemption_patterns: List[str] = [
+    "__init__.py", "setup.py", "conftest.py", 
+    "migrations/*", "scripts/*"
+]
+```
+
+#### Enforcement Scope
+```python
+# Enforce TDD on specific packages
+enforce_on_packages: List[str] = [
+    "src/pynomaly/domain",      # Domain layer (required)
+    "src/pynomaly/application", # Application layer (required)
+    "src/pynomaly/infrastructure/adapters"  # Critical adapters
+]
+
+# Module-specific enforcement
+enforce_on_modules: List[str] = []  # Empty means all applicable modules
+```
+
+#### Naming Conventions
+```python
+# Test function naming
+test_naming_convention: str = "test_{function_name}"
+
+# Test class naming
+test_class_naming_convention: str = "Test{ClassName}"
+
+# Require test docstrings
+require_test_docstrings: bool = True
+```
+
+#### Git and CI Integration
+```python
+# Git hooks
+git_hooks_enabled: bool = True
+pre_commit_validation: bool = True
+pre_push_validation: bool = False
+
+# CI/CD integration
+ci_validation_enabled: bool = True
+fail_on_violations: bool = False        # Fail builds on TDD violations
+```
+
+#### Development Workflow
+```python
+# Development flexibility
+allow_implementation_first: bool = False  # Allow impl before tests in dev
+grace_period_hours: int = 24             # Grace period for compliance
+require_test_plan: bool = True           # Require test plan before impl
+
+# Advanced testing features
+mutation_testing_enabled: bool = False   # Enable mutation testing
+property_testing_enabled: bool = False  # Enable property-based testing
+integration_test_ratio: float = 0.2     # Required ratio of integration tests
+```
+
+### TDD Workflow Integration
+
+#### 1. Development Process
+```bash
+# 1. Create test requirement
+pynomaly tdd require "src/auth/service.py" "authenticate_user" \
+  --desc "Authenticate user with credentials" \
+  --spec "Given valid credentials, return user object. Given invalid credentials, raise AuthenticationError"
+
+# 2. Write failing test
+# Write test in tests/auth/test_service.py following the specification
+
+# 3. Implement minimal code
+# Write just enough code to make the test pass
+
+# 4. Validate compliance
+pynomaly tdd validate --file "src/auth/service.py"
+
+# 5. Refactor and improve
+# Improve code while maintaining test coverage
+```
+
+#### 2. Git Workflow Integration
+```bash
+# Install hooks for automatic validation
+pynomaly tdd hooks --install
+
+# Pre-commit automatically validates:
+# - Critical TDD violations (missing tests, parsing errors)
+# - Naming convention compliance
+# - Test-first violations in strict mode
+
+# Pre-push validates:
+# - Comprehensive TDD compliance
+# - Coverage thresholds
+# - All violation types
+```
+
+#### 3. CI/CD Integration
+The TDD system integrates with CI/CD pipelines:
+
+```yaml
+# .github/workflows/tdd.yml
+name: TDD Compliance
+on: [push, pull_request]
+jobs:
+  tdd-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -e .
+      - name: Run TDD validation
+        run: |
+          pynomaly tdd validate --coverage
+          pynomaly tdd report --output tdd_report.json --format json
+      - name: Upload TDD report
+        uses: actions/upload-artifact@v3
+        with:
+          name: tdd-compliance-report
+          path: tdd_report.json
+```
+
+### TDD Best Practices for Pynomaly
+
+#### 1. Domain Layer TDD (Mandatory)
+- **All domain entities** must have comprehensive test coverage
+- **Value objects** require property-based testing where applicable
+- **Domain services** must be tested with various scenarios
+- **Business rules** must be validated through tests
+
+#### 2. Application Layer TDD (Mandatory)
+- **Use cases** must have test scenarios for all paths
+- **Application services** require integration testing
+- **DTOs** should have validation testing
+- **Error handling** must be thoroughly tested
+
+#### 3. Infrastructure Layer TDD (Selective)
+- **Adapters** require comprehensive testing
+- **Repositories** need both unit and integration tests
+- **External integrations** must have contract tests
+- **Configuration** should be validated
+
+#### 4. Presentation Layer TDD (Recommended)
+- **API endpoints** require comprehensive testing
+- **CLI commands** should have end-to-end tests
+- **Web UI** benefits from component and integration tests
+
+### TDD Violation Types and Resolutions
+
+#### Common Violations
+1. **missing_test**: Implementation file lacks corresponding test file
+   - **Auto-fix**: Generate basic test template
+   - **Manual**: Create comprehensive test file
+
+2. **low_coverage**: Test coverage below threshold
+   - **Resolution**: Add missing test cases
+   - **Analysis**: Use coverage report to identify gaps
+
+3. **implementation_before_test**: Code written before tests (strict mode)
+   - **Resolution**: Restructure development process
+   - **Prevention**: Use TDD workflow consistently
+
+4. **naming_violation**: Test functions don't follow naming convention
+   - **Resolution**: Rename test functions
+   - **Configuration**: Adjust naming patterns if needed
+
+5. **missing_test_requirement**: Function lacks test specification
+   - **Resolution**: Create test requirement with clear specification
+   - **Process**: Define expected behavior before implementation
+
+### TDD Reporting and Metrics
+
+#### Compliance Reports
+- **Overall compliance percentage**: Based on requirements completion
+- **Module-specific compliance**: Track progress per package
+- **Coverage metrics**: Line, branch, and function coverage
+- **Violation trends**: Track improvements over time
+- **Quality indicators**: Test quality and effectiveness metrics
+
+#### Export Formats
+- **JSON**: Machine-readable for CI/CD integration
+- **YAML**: Human-readable configuration format
+- **HTML**: Rich visual reports for stakeholders
+- **CSV**: Data analysis and tracking
+
+### Important Notes
 - Always ensure the virtual environment is activated before installing packages or running code
 - The `.gitignore` currently excludes the VS Code workspace file (`Pynomaly.code-workspace`)
 - Follow the architectural principles strictly to maintain clean separation of concerns
 - **CRITICAL**: Always keep `requirements.txt` in sync with `pyproject.toml` core dependencies. When adding/removing dependencies in `pyproject.toml`, immediately update `requirements.txt` to include only the non-optional dependencies needed for basic functionality
+- **TDD ENFORCEMENT**: When TDD is enabled, follow test-first development strictly for domain and application layers
 
 ## Web UI Technology Stack
 - **HTMX**: Provides dynamic behavior with minimal JavaScript, keeping complexity server-side
