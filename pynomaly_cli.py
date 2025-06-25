@@ -562,6 +562,12 @@ def main():
         test_imports()
     elif command == 'perf-stats':
         show_performance_stats()
+    elif command == 'auto-select':
+        if len(sys.argv) < 3:
+            print("Error: Please provide a file path")
+            print("Usage: python pynomaly_cli.py auto-select <file>")
+        else:
+            auto_select_algorithm(sys.argv[2])
     else:
         print(f"Unknown command: {command}")
         print("Use 'python pynomaly_cli.py help' for available commands")

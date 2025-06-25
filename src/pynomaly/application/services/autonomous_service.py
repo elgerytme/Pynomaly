@@ -642,8 +642,8 @@ class AutonomousDetectionService:
         detector = Detector(
             id=detector_id,
             name=f"auto_{recommendation.algorithm.lower()}",
-            algorithm=recommendation.algorithm,
-            hyperparams=recommendation.hyperparams,
+            algorithm_name=recommendation.algorithm,
+            parameters=recommendation.hyperparams,
             contamination_rate=contamination_rate,
             metadata={
                 "auto_generated": True,
@@ -680,8 +680,8 @@ class AutonomousDetectionService:
                     test_detector = Detector(
                         id=uuid4(),
                         name=detector.name,
-                        algorithm=detector.algorithm,
-                        hyperparams=test_params,
+                        algorithm_name=detector.algorithm_name,
+                        parameters=test_params,
                         contamination_rate=detector.contamination_rate
                     )
                     
