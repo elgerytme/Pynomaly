@@ -255,3 +255,15 @@ class Settings(BaseSettings):
             "allow_methods": ["*"],
             "allow_headers": ["*"],
         }
+
+
+# Global settings instance
+_settings: Optional[Settings] = None
+
+
+def get_settings() -> Settings:
+    """Get application settings singleton."""
+    global _settings
+    if _settings is None:
+        _settings = Settings()
+    return _settings

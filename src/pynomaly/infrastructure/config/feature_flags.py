@@ -431,3 +431,9 @@ def is_advanced_analytics_enabled() -> bool:
     """Check if advanced analytics features are enabled."""
     return (feature_flags.is_enabled("explainability_integration") or 
             feature_flags.is_enabled("statistical_validation"))
+
+
+def get_feature_flags() -> FeatureFlags:
+    """Get the global feature flags instance."""
+    global feature_flags
+    return feature_flags

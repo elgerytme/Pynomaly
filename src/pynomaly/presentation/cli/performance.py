@@ -1,532 +1,733 @@
-"""CLI commands for performance management and optimization."""
-
-from __future__ import annotations
+"""CLI commands for performance testing and benchmarking."""
 
 import asyncio
-from typing import Optional
+import json
+from datetime import datetime
+from pathlib import Path
+from typing import List, Optional
 
-import typer
+import click
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
-from rich.progress import track
-from dependency_injector.wiring import inject, Provide
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
+from rich.tree import Tree
+from rich.layout import Layout
 
-from pynomaly.infrastructure.config.container import Container
-from pynomaly.infrastructure.performance import (
-    ConnectionPoolManager,
-    QueryOptimizer,
-    PerformanceService
+from pynomaly.application.services.performance_testing_service import (
+    PerformanceTestingService, BenchmarkSuite, StressTestConfig
 )
+from pynomaly.infrastructure.config.container import Container
 
-app = typer.Typer(name="performance", help="Performance management and optimization commands")
+
 console = Console()
 
 
-@app.command("pools")
-@inject
-async def list_pools(
-    pool_manager: ConnectionPoolManager = Provide[Container.connection_pool_manager]
+@click.group(name="performance")
+def performance_commands():
+    """Performance testing and benchmarking commands."""
+    pass
+
+
+@performance_commands.command()
+@click.option("--suite", type=click.Choice([
+    "quick", "comprehensive", "scalability", "custom"
+]), default="quick", help="Benchmark suite to run")
+@click.option("--algorithms", multiple=True, help="Specific algorithms to benchmark")
+@click.option("--output-dir", help="Output directory for results")
+@click.option("--iterations", type=int, default=3, help="Number of benchmark iterations")
+@click.option("--timeout", type=int, default=300, help="Timeout per test in seconds")
+@click.option("--export-format", type=click.Choice([
+    "json", "csv", "html", "excel"
+]), multiple=True, default=["json"], help="Export formats for results")
+def benchmark(
+    suite: str,
+    algorithms: List[str],
+    output_dir: Optional[str],
+    iterations: int,
+    timeout: int,
+    export_format: List[str]
 ):
-    """List all connection pools and their statistics."""
-    try:
-        if pool_manager is None:
-            console.print("[red]❌ Connection pool manager not available[/red]")
-            raise typer.Exit(1)
+    """Run comprehensive algorithm benchmarking suite."""
+    
+    async def run_benchmark():
+        container = Container()
         
-        pool_names = pool_manager.list_pools()
-        
-        if not pool_names:
-            console.print("[yellow]No connection pools found[/yellow]")
-            return
-        
-        table = Table(title="Connection Pools")
-        table.add_column("Pool Name", style="cyan")
-        table.add_column("Type", style="magenta")
-        table.add_column("Active", style="green")
-        table.add_column("Total Requests", style="blue")
-        table.add_column("Success Rate", style="green")
-        table.add_column("Avg Response Time", style="yellow")
-        table.add_column("Errors", style="red")
-        
-        for pool_name in pool_names:
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+            console=console
+        ) as progress:
+            
+            # Initialize performance testing service
+            task1 = progress.add_task("Initializing performance testing service...", total=None)
+            storage_path = Path(output_dir) if output_dir else Path("./performance_results")
+            storage_path.mkdir(parents=True, exist_ok=True)
+            
+            perf_service = PerformanceTestingService(
+                storage_path=storage_path,
+                cache_results=True,
+                enable_profiling=True
+            )
+            progress.update(task1, completed=True)
+            
+            # Load detectors
+            task2 = progress.add_task("Loading algorithm detectors...", total=None)
+            detector_service = container.detector_service()
+            
+            # Get available detectors
+            available_algorithms = [
+                "IsolationForest", "LocalOutlierFactor", "OneClassSVM",
+                "EllipticEnvelope"  # Add more as available
+            ]
+            
+            if algorithms:
+                selected_algorithms = [alg for alg in algorithms if alg in available_algorithms]
+            else:
+                selected_algorithms = available_algorithms
+            
+            detectors = {}
+            for alg_name in selected_algorithms:
+                try:
+                    detector = await detector_service.create_detector(
+                        name=f"benchmark_{alg_name}",
+                        algorithm=alg_name,
+                        parameters={}
+                    )
+                    detectors[alg_name] = detector
+                except Exception as e:
+                    console.print(f"[yellow]Warning: Could not load {alg_name}: {e}[/yellow]")
+            
+            progress.update(task2, completed=True)
+            
+            if not detectors:
+                console.print("[red]Error: No detectors available for benchmarking[/red]")
+                return
+            
+            # Customize suite if needed
+            if suite == "custom":
+                # Update suite configuration
+                if suite in perf_service.benchmark_suites:
+                    custom_suite = perf_service.benchmark_suites[suite]
+                    custom_suite.algorithms = list(detectors.keys())
+                    custom_suite.iterations = iterations
+                    custom_suite.timeout_seconds = timeout
+            
+            # Run benchmark suite
+            task3 = progress.add_task(f"Running {suite} benchmark suite...", total=100)
+            
             try:
-                pool_info = pool_manager.get_pool_info(pool_name)
-                stats = pool_info["stats"]
-                
-                success_rate = (
-                    stats.successful_requests / max(1, stats.total_requests) * 100
+                results = await perf_service.run_benchmark_suite(
+                    suite_name=suite,
+                    detectors=detectors
                 )
                 
-                table.add_row(
-                    pool_name,
-                    pool_info["type"],
-                    str(stats.active_connections),
-                    str(stats.total_requests),
-                    f"{success_rate:.1f}%",
-                    f"{stats.avg_response_time:.3f}s",
-                    str(stats.connection_errors)
+                progress.update(task3, completed=100)
+                
+                # Display results summary
+                _display_benchmark_summary(results)
+                
+                # Export results
+                for fmt in export_format:
+                    task4 = progress.add_task(f"Exporting results as {fmt}...", total=None)
+                    
+                    output_file = storage_path / f"benchmark_{suite}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.{fmt}"
+                    
+                    if fmt == "json":
+                        with open(output_file, 'w') as f:
+                            json.dump(results, f, indent=2, default=str)
+                    elif fmt == "csv":
+                        _export_benchmark_csv(results, output_file)
+                    elif fmt == "html":
+                        _export_benchmark_html(results, output_file)
+                    
+                    progress.update(task4, completed=True)
+                    console.print(f"[green]Results exported to {output_file}[/green]")
+                
+            except Exception as e:
+                console.print(f"[red]Benchmark failed: {e}[/red]")
+                return
+    
+    asyncio.run(run_benchmark())
+
+
+@performance_commands.command()
+@click.option("--algorithm", required=True, help="Algorithm to analyze")
+@click.option("--min-size", type=int, default=1000, help="Minimum dataset size")
+@click.option("--max-size", type=int, default=100000, help="Maximum dataset size")
+@click.option("--min-features", type=int, default=10, help="Minimum feature count")
+@click.option("--max-features", type=int, default=200, help="Maximum feature count")
+@click.option("--steps", type=int, default=10, help="Number of test points")
+@click.option("--output-file", help="Output file for scalability analysis")
+def scalability(
+    algorithm: str,
+    min_size: int,
+    max_size: int,
+    min_features: int,
+    max_features: int,
+    steps: int,
+    output_file: Optional[str]
+):
+    """Run detailed scalability analysis for an algorithm."""
+    
+    async def run_scalability():
+        container = Container()
+        
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+            console=console
+        ) as progress:
+            
+            # Initialize services
+            task1 = progress.add_task("Initializing scalability analysis...", total=None)
+            
+            storage_path = Path("./performance_results")
+            perf_service = PerformanceTestingService(storage_path)
+            detector_service = container.detector_service()
+            
+            progress.update(task1, completed=True)
+            
+            # Create detector
+            task2 = progress.add_task(f"Loading {algorithm} detector...", total=None)
+            
+            try:
+                detector = await detector_service.create_detector(
+                    name=f"scalability_{algorithm}",
+                    algorithm=algorithm,
+                    parameters={}
                 )
             except Exception as e:
-                console.print(f"[red]Error getting info for pool {pool_name}: {e}[/red]")
+                console.print(f"[red]Error loading detector: {e}[/red]")
+                return
+            
+            progress.update(task2, completed=True)
+            
+            # Run scalability analysis
+            task3 = progress.add_task("Running scalability analysis...", total=100)
+            
+            try:
+                results = await perf_service.run_scalability_analysis(
+                    detector=detector,
+                    algorithm_name=algorithm,
+                    size_range=(min_size, max_size),
+                    feature_range=(min_features, max_features),
+                    steps=steps
+                )
+                
+                progress.update(task3, completed=100)
+                
+                # Display results
+                _display_scalability_results(results)
+                
+                # Save results
+                if output_file:
+                    with open(output_file, 'w') as f:
+                        json.dump(results, f, indent=2, default=str)
+                    console.print(f"[green]Scalability analysis saved to {output_file}[/green]")
+                
+            except Exception as e:
+                console.print(f"[red]Scalability analysis failed: {e}[/red]")
+                return
+    
+    asyncio.run(run_scalability())
+
+
+@performance_commands.command()
+@click.option("--algorithm", required=True, help="Algorithm to stress test")
+@click.option("--concurrent-requests", type=int, default=10, help="Number of concurrent requests")
+@click.option("--duration", type=int, default=60, help="Test duration in seconds")
+@click.option("--memory-pressure", type=int, default=500, help="Memory pressure in MB")
+@click.option("--cpu-stress", type=int, default=1000, help="CPU intensive operations")
+@click.option("--endurance-hours", type=int, default=0, help="Endurance test duration in hours")
+@click.option("--output-file", help="Output file for stress test results")
+def stress_test(
+    algorithm: str,
+    concurrent_requests: int,
+    duration: int,
+    memory_pressure: int,
+    cpu_stress: int,
+    endurance_hours: int,
+    output_file: Optional[str]
+):
+    """Run comprehensive stress testing for an algorithm."""
+    
+    async def run_stress_test():
+        container = Container()
+        
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+            console=console
+        ) as progress:
+            
+            # Initialize services
+            task1 = progress.add_task("Initializing stress testing...", total=None)
+            
+            storage_path = Path("./performance_results")
+            perf_service = PerformanceTestingService(storage_path)
+            detector_service = container.detector_service()
+            
+            # Create stress test configuration
+            stress_config = StressTestConfig(
+                concurrent_requests=concurrent_requests,
+                request_duration=duration,
+                memory_pressure_mb=memory_pressure,
+                cpu_intensive_operations=cpu_stress,
+                endurance_duration_hours=endurance_hours
+            )
+            
+            progress.update(task1, completed=True)
+            
+            # Create detector
+            task2 = progress.add_task(f"Loading {algorithm} detector...", total=None)
+            
+            try:
+                detector = await detector_service.create_detector(
+                    name=f"stress_{algorithm}",
+                    algorithm=algorithm,
+                    parameters={}
+                )
+            except Exception as e:
+                console.print(f"[red]Error loading detector: {e}[/red]")
+                return
+            
+            progress.update(task2, completed=True)
+            
+            # Run stress test
+            task3 = progress.add_task("Running stress tests...", total=100)
+            
+            try:
+                results = await perf_service.run_stress_test(
+                    detector=detector,
+                    algorithm_name=algorithm,
+                    config=stress_config
+                )
+                
+                progress.update(task3, completed=100)
+                
+                # Display results
+                _display_stress_test_results(results)
+                
+                # Save results
+                if output_file:
+                    with open(output_file, 'w') as f:
+                        json.dump(results, f, indent=2, default=str)
+                    console.print(f"[green]Stress test results saved to {output_file}[/green]")
+                
+            except Exception as e:
+                console.print(f"[red]Stress test failed: {e}[/red]")
+                return
+    
+    asyncio.run(run_stress_test())
+
+
+@performance_commands.command()
+@click.option("--algorithms", multiple=True, help="Algorithms to compare")
+@click.option("--datasets", multiple=True, help="Datasets to use for comparison")
+@click.option("--metrics", multiple=True, help="Metrics to compare")
+@click.option("--output-file", help="Output file for comparison results")
+def compare(
+    algorithms: List[str],
+    datasets: List[str],
+    metrics: List[str],
+    output_file: Optional[str]
+):
+    """Compare multiple algorithms across different datasets and metrics."""
+    
+    async def run_comparison():
+        container = Container()
+        
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+            console=console
+        ) as progress:
+            
+            # Initialize services
+            task1 = progress.add_task("Initializing algorithm comparison...", total=None)
+            
+            storage_path = Path("./performance_results")
+            perf_service = PerformanceTestingService(storage_path)
+            detector_service = container.detector_service()
+            dataset_service = container.dataset_service()
+            
+            progress.update(task1, completed=True)
+            
+            # Load algorithms
+            task2 = progress.add_task("Loading detectors...", total=None)
+            
+            if not algorithms:
+                algorithms = ["IsolationForest", "LocalOutlierFactor", "OneClassSVM"]
+            
+            detectors = {}
+            for alg_name in algorithms:
+                try:
+                    detector = await detector_service.create_detector(
+                        name=f"compare_{alg_name}",
+                        algorithm=alg_name,
+                        parameters={}
+                    )
+                    detectors[alg_name] = detector
+                except Exception as e:
+                    console.print(f"[yellow]Warning: Could not load {alg_name}: {e}[/yellow]")
+            
+            progress.update(task2, completed=True)
+            
+            # Load datasets
+            task3 = progress.add_task("Loading datasets...", total=None)
+            
+            test_datasets = []
+            if datasets:
+                for dataset_name in datasets:
+                    try:
+                        dataset = await dataset_service.get_dataset(dataset_name)
+                        test_datasets.append(dataset)
+                    except Exception as e:
+                        console.print(f"[yellow]Warning: Could not load dataset {dataset_name}: {e}[/yellow]")
+            
+            # Generate synthetic datasets if none provided
+            if not test_datasets:
+                for size in [1000, 5000]:
+                    dataset = await perf_service._generate_synthetic_dataset(
+                        n_samples=size, n_features=20, contamination=0.1
+                    )
+                    test_datasets.append(dataset)
+            
+            progress.update(task3, completed=True)
+            
+            # Run comparison
+            task4 = progress.add_task("Running algorithm comparison...", total=100)
+            
+            try:
+                results = await perf_service.compare_algorithms(
+                    detectors=detectors,
+                    datasets=test_datasets,
+                    metrics=list(metrics) if metrics else None
+                )
+                
+                progress.update(task4, completed=100)
+                
+                # Display results
+                _display_comparison_results(results)
+                
+                # Save results
+                if output_file:
+                    with open(output_file, 'w') as f:
+                        json.dump(results, f, indent=2, default=str)
+                    console.print(f"[green]Comparison results saved to {output_file}[/green]")
+                
+            except Exception as e:
+                console.print(f"[red]Algorithm comparison failed: {e}[/red]")
+                return
+    
+    asyncio.run(run_comparison())
+
+
+@performance_commands.command()
+@click.option("--results-dir", help="Directory containing benchmark results")
+@click.option("--format", "report_format", type=click.Choice([
+    "console", "html", "pdf"
+]), default="console", help="Report format")
+@click.option("--output-file", help="Output file for report")
+def report(
+    results_dir: Optional[str],
+    report_format: str,
+    output_file: Optional[str]
+):
+    """Generate comprehensive performance analysis report."""
+    
+    # Load results
+    if not results_dir:
+        results_dir = "./performance_results"
+    
+    results_path = Path(results_dir)
+    if not results_path.exists():
+        console.print(f"[red]Results directory not found: {results_dir}[/red]")
+        return
+    
+    # Find all result files
+    result_files = list(results_path.glob("benchmark_*.json"))
+    
+    if not result_files:
+        console.print(f"[yellow]No benchmark results found in {results_dir}[/yellow]")
+        return
+    
+    console.print(f"[green]Found {len(result_files)} benchmark result files[/green]")
+    
+    # Generate report based on format
+    if report_format == "console":
+        _generate_console_report(result_files)
+    elif report_format == "html":
+        _generate_html_report(result_files, output_file or "performance_report.html")
+    elif report_format == "pdf":
+        _generate_pdf_report(result_files, output_file or "performance_report.pdf")
+
+
+@performance_commands.command()
+def monitor():
+    """Start real-time performance monitoring dashboard."""
+    
+    console.print(Panel(
+        "[bold blue]Performance Monitoring Dashboard[/bold blue]\n\n"
+        "Real-time monitoring of system resources during anomaly detection.\n"
+        "Press Ctrl+C to stop monitoring.",
+        title="Performance Monitor"
+    ))
+    
+    # Implementation for real-time monitoring would go here
+    console.print("[yellow]Real-time monitoring not yet implemented[/yellow]")
+
+
+# Helper functions for display and export
+
+def _display_benchmark_summary(results: dict):
+    """Display benchmark results summary."""
+    summary = results.get("summary", {})
+    
+    console.print(Panel(
+        f"[bold blue]Benchmark Suite Results[/bold blue]\n"
+        f"Suite: {results.get('suite_name', 'Unknown')}\n"
+        f"Total Tests: {summary.get('total_tests', 0)}\n"
+        f"Successful Tests: {summary.get('successful_tests', 0)}\n"
+        f"Average ROC AUC: {summary.get('avg_roc_auc', 0):.3f}\n"
+        f"Average Training Time: {summary.get('avg_training_time', 0):.2f}s",
+        title="Benchmark Summary"
+    ))
+    
+    # Results table
+    if "results" in results:
+        table = Table(title="Algorithm Performance Results")
+        table.add_column("Algorithm", style="cyan")
+        table.add_column("Dataset", style="green")
+        table.add_column("ROC AUC", style="yellow")
+        table.add_column("Training Time", style="blue")
+        table.add_column("Memory (MB)", style="magenta")
+        table.add_column("Throughput", style="red")
+        
+        for result in results["results"][:10]:  # Show top 10
+            perf = result.get("performance", {})
+            table.add_row(
+                result.get("algorithm", "Unknown"),
+                result.get("dataset", "Unknown"),
+                f"{perf.get('roc_auc', 0):.3f}",
+                f"{perf.get('training_time', 0):.2f}s",
+                f"{perf.get('peak_memory_mb', 0):.1f}",
+                f"{perf.get('throughput', 0):.1f}/s"
+            )
         
         console.print(table)
-        
-    except Exception as e:
-        console.print(f"[red]❌ Error listing pools: {e}[/red]")
-        raise typer.Exit(1)
 
 
-@app.command("pool")
-@inject
-async def show_pool(
-    pool_name: str = typer.Argument(..., help="Pool name to inspect"),
-    pool_manager: ConnectionPoolManager = Provide[Container.connection_pool_manager]
-):
-    """Show detailed information about a specific connection pool."""
-    try:
-        if pool_manager is None:
-            console.print("[red]❌ Connection pool manager not available[/red]")
-            raise typer.Exit(1)
+def _display_scalability_results(results: dict):
+    """Display scalability analysis results."""
+    console.print(Panel(
+        f"[bold blue]Scalability Analysis Results[/bold blue]\n"
+        f"Algorithm: {results.get('algorithm', 'Unknown')}\n"
+        f"Analysis ID: {results.get('analysis_id', 'Unknown')}\n"
+        f"Complexity: {results.get('complexity_analysis', {}).get('time_complexity', 'Unknown')}",
+        title="Scalability Analysis"
+    ))
+    
+    # Size scaling results
+    if "size_scaling" in results:
+        size_table = Table(title="Size Scaling Performance")
+        size_table.add_column("Dataset Size", style="cyan")
+        size_table.add_column("Training Time (s)", style="yellow")
+        size_table.add_column("Memory (MB)", style="green")
+        size_table.add_column("Throughput (/s)", style="blue")
         
-        pool_info = pool_manager.get_pool_info(pool_name)
-        stats = pool_info["stats"]
+        for point in results["size_scaling"]:
+            size_table.add_row(
+                f"{point['size']:,}",
+                f"{point['training_time']:.2f}",
+                f"{point['memory_mb']:.1f}",
+                f"{point['throughput']:.1f}"
+            )
         
-        # Create detailed panel
-        info_text = f"""
-[bold cyan]Pool Type:[/bold cyan] {pool_info['type']}
-[bold cyan]Active Connections:[/bold cyan] {stats.active_connections}
-[bold cyan]Idle Connections:[/bold cyan] {stats.idle_connections}
-[bold cyan]Overflow Connections:[/bold cyan] {stats.overflow_connections}
-
-[bold green]Performance Metrics:[/bold green]
-Total Requests: {stats.total_requests}
-Successful Requests: {stats.successful_requests}
-Failed Requests: {stats.failed_requests}
-Success Rate: {stats.successful_requests / max(1, stats.total_requests) * 100:.2f}%
-Average Response Time: {stats.avg_response_time:.3f}s
-
-[bold red]Error Metrics:[/bold red]
-Connection Errors: {stats.connection_errors}
-Error Rate: {stats.failed_requests / max(1, stats.total_requests) * 100:.2f}%
-
-[bold blue]Connection Lifecycle:[/bold blue]
-Connections Created: {stats.connections_created}
-Connections Closed: {stats.connections_closed}
-Connections Recycled: {stats.connections_recycled}
-"""
-        
-        console.print(Panel(info_text, title=f"Pool: {pool_name}", border_style="blue"))
-        
-        # Show pool-specific info if available
-        if pool_info.get("pool_info"):
-            pool_specific = pool_info["pool_info"]
-            console.print(f"\n[bold]Pool-Specific Information:[/bold]")
-            for key, value in pool_specific.items():
-                console.print(f"  {key}: {value}")
-        
-    except KeyError:
-        console.print(f"[red]❌ Pool '{pool_name}' not found[/red]")
-        raise typer.Exit(1)
-    except Exception as e:
-        console.print(f"[red]❌ Error showing pool: {e}[/red]")
-        raise typer.Exit(1)
+        console.print(size_table)
 
 
-@app.command("reset-pools")
-@inject
-async def reset_pool_stats(
-    pool_name: Optional[str] = typer.Option(None, "--pool", "-p", help="Reset specific pool (default: all)"),
-    pool_manager: ConnectionPoolManager = Provide[Container.connection_pool_manager]
-):
-    """Reset connection pool statistics."""
-    try:
-        if pool_manager is None:
-            console.print("[red]❌ Connection pool manager not available[/red]")
-            raise typer.Exit(1)
-        
-        if pool_name:
-            pool_manager.reset_stats(pool_name)
-            console.print(f"[green]✅ Statistics reset for pool '{pool_name}'[/green]")
-        else:
-            pool_manager.reset_stats()
-            console.print("[green]✅ Statistics reset for all pools[/green]")
-        
-    except KeyError:
-        console.print(f"[red]❌ Pool '{pool_name}' not found[/red]")
-        raise typer.Exit(1)
-    except Exception as e:
-        console.print(f"[red]❌ Error resetting pool statistics: {e}[/red]")
-        raise typer.Exit(1)
+def _display_stress_test_results(results: dict):
+    """Display stress test results."""
+    console.print(Panel(
+        f"[bold blue]Stress Test Results[/bold blue]\n"
+        f"Algorithm: {results.get('algorithm', 'Unknown')}\n"
+        f"Test ID: {results.get('test_id', 'Unknown')}\n"
+        f"Overall Stability: {results.get('overall_stability', 0):.2f}",
+        title="Stress Test Results"
+    ))
+    
+    # Create layout for different test results
+    layout = Layout()
+    layout.split_column(
+        Layout(name="load"),
+        Layout(name="memory"),
+        Layout(name="cpu")
+    )
+    
+    # Load test results
+    load_results = results.get("load_test", {})
+    load_table = Table(title="Load Test Results")
+    load_table.add_column("Metric", style="cyan")
+    load_table.add_column("Value", style="yellow")
+    
+    load_table.add_row("Concurrent Requests", str(load_results.get("concurrent_requests", 0)))
+    load_table.add_row("Success Rate", f"{load_results.get('success_rate', 0):.2%}")
+    load_table.add_row("Avg Response Time", f"{load_results.get('avg_response_time', 0):.3f}s")
+    load_table.add_row("Throughput", f"{load_results.get('throughput', 0):.1f}/s")
+    
+    layout["load"].update(load_table)
+    
+    console.print(layout)
 
 
-@app.command("queries")
-@inject
-async def query_performance(
-    slow_threshold: float = typer.Option(1.0, "--threshold", "-t", help="Slow query threshold in seconds"),
-    limit: int = typer.Option(10, "--limit", "-l", help="Number of queries to show"),
-    optimizer: QueryOptimizer = Provide[Container.query_optimizer]
-):
-    """Show query performance statistics."""
-    try:
-        if optimizer is None:
-            console.print("[red]❌ Query optimizer not available[/red]")
-            raise typer.Exit(1)
+def _display_comparison_results(results: dict):
+    """Display algorithm comparison results."""
+    console.print(Panel(
+        f"[bold blue]Algorithm Comparison Results[/bold blue]\n"
+        f"Comparison ID: {results.get('comparison_id', 'Unknown')}\n"
+        f"Algorithms: {', '.join(results.get('algorithms', []))}\n"
+        f"Datasets: {', '.join(results.get('datasets', []))}",
+        title="Algorithm Comparison"
+    ))
+    
+    # Rankings
+    rankings = results.get("rankings", {})
+    if rankings:
+        console.print(f"\n[bold]Best Overall Algorithm:[/bold] {rankings.get('overall', 'Unknown')}")
         
-        # Get performance summary
-        summary = optimizer.performance_tracker.get_performance_summary()
-        
-        # Display summary
-        summary_text = f"""
-[bold green]Query Performance Summary:[/bold green]
-Total Queries: {summary['total_queries']}
-Unique Queries: {summary['unique_queries']}
-Average Time: {summary['avg_time']:.3f}s
-Total Time: {summary['total_time']:.2f}s
-Slow Queries: {summary['slow_queries']} (>{slow_threshold}s)
-Slowest Query: {summary['slowest_query']:.3f}s
-
-[bold blue]Query Types:[/bold blue]
-"""
-        
-        for query_type, count in summary['query_types'].items():
-            summary_text += f"  {query_type}: {count}\n"
-        
-        console.print(Panel(summary_text, title="Query Performance", border_style="green"))
-        
-        # Show slow queries
-        slow_queries = optimizer.performance_tracker.get_slow_queries(slow_threshold)
-        if slow_queries:
-            console.print(f"\n[bold red]Slow Queries (>{slow_threshold}s):[/bold red]")
+        if "by_metric" in rankings:
+            metrics_table = Table(title="Best Algorithm by Metric")
+            metrics_table.add_column("Metric", style="cyan")
+            metrics_table.add_column("Best Algorithm", style="green")
             
-            table = Table()
-            table.add_column("Query Hash", style="cyan")
-            table.add_column("Type", style="magenta")
-            table.add_column("Count", style="blue")
-            table.add_column("Avg Time", style="red")
-            table.add_column("Max Time", style="red")
+            for metric, algorithm in rankings["by_metric"].items():
+                metrics_table.add_row(metric, algorithm)
             
-            for query in slow_queries[:limit]:
-                table.add_row(
-                    query.query_hash[:12] + "...",
-                    query.query_type.value,
-                    str(query.execution_count),
-                    f"{query.avg_time:.3f}s",
-                    f"{query.max_time:.3f}s"
-                )
-            
-            console.print(table)
-        else:
-            console.print("[green]No slow queries found! 🎉[/green]")
-        
-        # Show most frequent queries
-        frequent_queries = optimizer.performance_tracker.get_most_frequent_queries(limit)
-        if frequent_queries:
-            console.print(f"\n[bold blue]Most Frequent Queries:[/bold blue]")
-            
-            table = Table()
-            table.add_column("Query Hash", style="cyan")
-            table.add_column("Type", style="magenta")
-            table.add_column("Count", style="blue")
-            table.add_column("Avg Time", style="yellow")
-            table.add_column("Total Time", style="yellow")
-            
-            for query in frequent_queries:
-                table.add_row(
-                    query.query_hash[:12] + "...",
-                    query.query_type.value,
-                    str(query.execution_count),
-                    f"{query.avg_time:.3f}s",
-                    f"{query.total_time:.2f}s"
-                )
-            
-            console.print(table)
-        
-    except Exception as e:
-        console.print(f"[red]❌ Error showing query performance: {e}[/red]")
-        raise typer.Exit(1)
+            console.print(metrics_table)
 
 
-@app.command("cache")
-@inject
-async def cache_stats(
-    optimizer: QueryOptimizer = Provide[Container.query_optimizer]
-):
-    """Show query cache statistics."""
-    try:
-        if optimizer is None:
-            console.print("[red]❌ Query optimizer not available[/red]")
-            raise typer.Exit(1)
+def _export_benchmark_csv(results: dict, output_file: Path):
+    """Export benchmark results to CSV."""
+    import csv
+    
+    with open(output_file, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
         
-        stats = optimizer.cache.get_stats()
+        # Write header
+        writer.writerow([
+            'Algorithm', 'Dataset', 'ROC AUC', 'Training Time', 
+            'Memory MB', 'Throughput', 'F1 Score'
+        ])
         
-        cache_text = f"""
-[bold green]Cache Statistics:[/bold green]
-Total Entries: {stats['total_entries']}
-Max Size: {stats['max_size']}
-Total Hits: {stats['total_hits']}
-Hit Rate: {stats['hit_rate']:.2%}
-Memory Usage: {stats['memory_usage_mb']:.2f} MB
-"""
-        
-        console.print(Panel(cache_text, title="Query Cache", border_style="blue"))
-        
-    except Exception as e:
-        console.print(f"[red]❌ Error showing cache statistics: {e}[/red]")
-        raise typer.Exit(1)
+        # Write results
+        for result in results.get("results", []):
+            perf = result.get("performance", {})
+            writer.writerow([
+                result.get("algorithm", ""),
+                result.get("dataset", ""),
+                perf.get("roc_auc", 0),
+                perf.get("training_time", 0),
+                perf.get("peak_memory_mb", 0),
+                perf.get("throughput", 0),
+                perf.get("f1_score", 0)
+            ])
 
 
-@app.command("clear-cache")
-@inject
-async def clear_cache(
-    confirm: bool = typer.Option(False, "--yes", "-y", help="Skip confirmation"),
-    optimizer: QueryOptimizer = Provide[Container.query_optimizer]
-):
-    """Clear query cache."""
-    try:
-        if optimizer is None:
-            console.print("[red]❌ Query optimizer not available[/red]")
-            raise typer.Exit(1)
-        
-        if not confirm:
-            confirm = typer.confirm("Are you sure you want to clear the query cache?")
-            if not confirm:
-                console.print("Cache clear cancelled")
-                return
-        
-        await optimizer.clear_cache()
-        console.print("[green]✅ Query cache cleared[/green]")
-        
-    except Exception as e:
-        console.print(f"[red]❌ Error clearing cache: {e}[/red]")
-        raise typer.Exit(1)
+def _export_benchmark_html(results: dict, output_file: Path):
+    """Export benchmark results to HTML."""
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Benchmark Results</title>
+        <style>
+            body {{ font-family: Arial, sans-serif; margin: 20px; }}
+            .summary {{ background-color: #f0f0f0; padding: 15px; margin-bottom: 20px; }}
+            table {{ border-collapse: collapse; width: 100%; }}
+            th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+            th {{ background-color: #4CAF50; color: white; }}
+        </style>
+    </head>
+    <body>
+        <h1>Benchmark Results</h1>
+        <div class="summary">
+            <h2>Summary</h2>
+            <p><strong>Suite:</strong> {results.get('suite_name', 'Unknown')}</p>
+            <p><strong>Total Tests:</strong> {results.get('summary', {}).get('total_tests', 0)}</p>
+        </div>
+        <h2>Results</h2>
+        <table>
+            <tr>
+                <th>Algorithm</th>
+                <th>Dataset</th>
+                <th>ROC AUC</th>
+                <th>Training Time</th>
+                <th>Memory (MB)</th>
+            </tr>
+    """
+    
+    for result in results.get("results", []):
+        perf = result.get("performance", {})
+        html_content += f"""
+            <tr>
+                <td>{result.get('algorithm', '')}</td>
+                <td>{result.get('dataset', '')}</td>
+                <td>{perf.get('roc_auc', 0):.3f}</td>
+                <td>{perf.get('training_time', 0):.2f}s</td>
+                <td>{perf.get('peak_memory_mb', 0):.1f}</td>
+            </tr>
+        """
+    
+    html_content += """
+        </table>
+    </body>
+    </html>
+    """
+    
+    with open(output_file, 'w') as f:
+        f.write(html_content)
 
 
-@app.command("optimize")
-@inject
-async def optimize_database(
-    dry_run: bool = typer.Option(False, "--dry-run", help="Show recommendations without applying changes"),
-    optimizer: QueryOptimizer = Provide[Container.query_optimizer]
-):
-    """Optimize database performance."""
-    try:
-        if optimizer is None:
-            console.print("[red]❌ Query optimizer not available[/red]")
-            raise typer.Exit(1)
-        
-        console.print("[blue]🔍 Analyzing database performance...[/blue]")
-        
-        if dry_run:
-            # Get recommendations without applying
-            report = await optimizer.get_optimization_report()
+def _generate_console_report(result_files: List[Path]):
+    """Generate console performance report."""
+    console.print("[bold]Performance Analysis Report[/bold]\n")
+    
+    for file_path in result_files[:5]:  # Show latest 5 results
+        try:
+            with open(file_path, 'r') as f:
+                results = json.load(f)
             
-            console.print("[green]✅ Analysis complete[/green]")
+            console.print(f"[cyan]Results from {file_path.name}:[/cyan]")
+            summary = results.get("summary", {})
+            console.print(f"  Total Tests: {summary.get('total_tests', 0)}")
+            console.print(f"  Avg ROC AUC: {summary.get('avg_roc_auc', 0):.3f}")
+            console.print(f"  Avg Training Time: {summary.get('avg_training_time', 0):.2f}s\n")
             
-            # Show recommendations
-            recommendations = report.get("index_recommendations", [])
-            if recommendations:
-                console.print(f"\n[bold blue]Index Recommendations:[/bold blue]")
-                
-                table = Table()
-                table.add_column("Table", style="cyan")
-                table.add_column("Columns", style="magenta")
-                table.add_column("Reason", style="yellow")
-                table.add_column("Benefit", style="green")
-                
-                for rec in recommendations:
-                    table.add_row(
-                        rec["table"],
-                        ", ".join(rec["columns"]),
-                        rec["reason"],
-                        f"{rec['estimated_benefit']:.1%}"
-                    )
-                
-                console.print(table)
-            else:
-                console.print("[green]No index recommendations found - database is already optimized! 🎉[/green]")
-        
-        else:
-            # Perform actual optimization
-            with console.status("[bold blue]Optimizing database..."):
-                result = await optimizer.optimize_database()
-            
-            console.print("[green]✅ Database optimization complete[/green]")
-            
-            # Show results
-            results_text = f"""
-[bold green]Optimization Results:[/bold green]
-Indexes Created: {result['indexes_created']}
-Recommendations: {len(result['recommendations'])}
-"""
-            
-            if result.get('error'):
-                results_text += f"\n[bold red]Error:[/bold red] {result['error']}"
-            
-            console.print(Panel(results_text, title="Optimization Results", border_style="green"))
-            
-            # Show created indexes
-            if result['recommendations']:
-                console.print(f"\n[bold blue]Applied Recommendations:[/bold blue]")
-                
-                for rec in result['recommendations']:
-                    console.print(f"  • {rec['table']}: {', '.join(rec['columns'])} - {rec['reason']}")
-        
-    except Exception as e:
-        console.print(f"[red]❌ Error optimizing database: {e}[/red]")
-        raise typer.Exit(1)
+        except Exception as e:
+            console.print(f"[red]Error reading {file_path}: {e}[/red]")
 
 
-@app.command("monitor")
-@inject
-async def monitor_performance(
-    duration: int = typer.Option(60, "--duration", "-d", help="Monitoring duration in seconds"),
-    interval: int = typer.Option(5, "--interval", "-i", help="Update interval in seconds"),
-    performance_service: PerformanceService = Provide[Container.performance_service]
-):
-    """Monitor performance in real-time."""
-    try:
-        if performance_service is None:
-            console.print("[red]❌ Performance service not available[/red]")
-            raise typer.Exit(1)
-        
-        console.print(f"[blue]📊 Monitoring performance for {duration} seconds (updating every {interval}s)...[/blue]")
-        
-        iterations = duration // interval
-        
-        for i in track(range(iterations), description="Monitoring..."):
-            # Get current performance summary
-            summary = performance_service.get_performance_summary()
-            
-            console.clear()
-            console.print(f"[bold]Performance Monitor - Update {i+1}/{iterations}[/bold]")
-            
-            # Show connection pools
-            if summary.get("connection_pools"):
-                console.print("\n[bold blue]Connection Pools:[/bold blue]")
-                for pool_name, pool_data in summary["connection_pools"].items():
-                    console.print(f"  {pool_name}: {pool_data['active_connections']} active, "
-                                f"{pool_data['avg_response_time']:.3f}s avg time, "
-                                f"{pool_data['success_rate']:.1%} success")
-            
-            # Show query performance
-            if summary.get("query_performance"):
-                qp = summary["query_performance"]
-                console.print(f"\n[bold green]Query Performance:[/bold green]")
-                console.print(f"  Total: {qp.get('total_queries', 0)} queries, "
-                            f"{qp.get('avg_time', 0):.3f}s avg time")
-                console.print(f"  Slow: {qp.get('slow_queries', 0)} queries")
-            
-            # Show cache performance
-            if summary.get("cache_performance"):
-                cp = summary["cache_performance"]
-                console.print(f"\n[bold yellow]Cache Performance:[/bold yellow]")
-                console.print(f"  Entries: {cp.get('total_entries', 0)}, "
-                            f"Hit rate: {cp.get('hit_rate', 0):.1%}")
-            
-            # Show alerts
-            alerts = performance_service.get_alerts(unresolved_only=True, limit=3)
-            if alerts:
-                console.print(f"\n[bold red]Active Alerts ({len(alerts)}):[/bold red]")
-                for alert in alerts:
-                    console.print(f"  ⚠️  {alert['message']}")
-            
-            if i < iterations - 1:  # Don't sleep on last iteration
-                await asyncio.sleep(interval)
-        
-        console.print("\n[green]✅ Monitoring complete[/green]")
-        
-    except KeyboardInterrupt:
-        console.print("\n[yellow]Monitoring interrupted by user[/yellow]")
-    except Exception as e:
-        console.print(f"[red]❌ Error monitoring performance: {e}[/red]")
-        raise typer.Exit(1)
+def _generate_html_report(result_files: List[Path], output_file: str):
+    """Generate HTML performance report."""
+    console.print(f"[yellow]HTML report generation not yet implemented[/yellow]")
+    console.print(f"Would generate: {output_file}")
 
 
-@app.command("report")
-@inject
-async def performance_report(
-    output: Optional[str] = typer.Option(None, "--output", "-o", help="Output file (default: console)"),
-    optimizer: QueryOptimizer = Provide[Container.query_optimizer],
-    performance_service: PerformanceService = Provide[Container.performance_service]
-):
-    """Generate comprehensive performance report."""
-    try:
-        console.print("[blue]📋 Generating performance report...[/blue]")
-        
-        report_data = {}
-        
-        # Get query optimization report
-        if optimizer:
-            report_data["query_optimization"] = await optimizer.get_optimization_report()
-        
-        # Get performance service summary
-        if performance_service:
-            report_data["performance_summary"] = performance_service.get_performance_summary()
-            report_data["alerts"] = performance_service.get_alerts(unresolved_only=False, limit=20)
-        
-        # Format report
-        report_text = "# Pynomaly Performance Report\n\n"
-        
-        if "performance_summary" in report_data:
-            ps = report_data["performance_summary"]
-            report_text += f"## Summary\n"
-            report_text += f"- Monitoring Duration: {ps.get('monitoring_duration', 0):.1f} hours\n"
-            report_text += f"- Active Alerts: {ps.get('active_alerts', 0)}\n\n"
-            
-            # Connection pools
-            if ps.get("connection_pools"):
-                report_text += "## Connection Pools\n"
-                for pool_name, pool_data in ps["connection_pools"].items():
-                    report_text += f"### {pool_name}\n"
-                    report_text += f"- Active Connections: {pool_data['active_connections']}\n"
-                    report_text += f"- Success Rate: {pool_data['success_rate']:.1%}\n"
-                    report_text += f"- Average Response Time: {pool_data['avg_response_time']:.3f}s\n\n"
-        
-        if "query_optimization" in report_data:
-            qo = report_data["query_optimization"]
-            
-            # Query performance
-            if qo.get("performance_summary"):
-                qps = qo["performance_summary"]
-                report_text += "## Query Performance\n"
-                report_text += f"- Total Queries: {qps['total_queries']}\n"
-                report_text += f"- Average Time: {qps['avg_time']:.3f}s\n"
-                report_text += f"- Slow Queries: {qps['slow_queries']}\n\n"
-            
-            # Index recommendations
-            if qo.get("index_recommendations"):
-                report_text += "## Index Recommendations\n"
-                for rec in qo["index_recommendations"]:
-                    report_text += f"- {rec['table']}.{', '.join(rec['columns'])}: {rec['reason']}\n"
-                report_text += "\n"
-        
-        # Alerts
-        if "alerts" in report_data and report_data["alerts"]:
-            report_text += "## Recent Alerts\n"
-            for alert in report_data["alerts"][-10:]:  # Last 10 alerts
-                timestamp = alert.get('timestamp', 0)
-                status = "✅ Resolved" if alert.get('resolved') else "⚠️  Active"
-                report_text += f"- {status}: {alert['message']} (Type: {alert['type']})\n"
-            report_text += "\n"
-        
-        # Output report
-        if output:
-            with open(output, 'w') as f:
-                f.write(report_text)
-            console.print(f"[green]✅ Report saved to {output}[/green]")
-        else:
-            console.print(report_text)
-        
-    except Exception as e:
-        console.print(f"[red]❌ Error generating report: {e}[/red]")
-        raise typer.Exit(1)
+def _generate_pdf_report(result_files: List[Path], output_file: str):
+    """Generate PDF performance report."""
+    console.print(f"[yellow]PDF report generation not yet implemented[/yellow]")
+    console.print(f"Would generate: {output_file}")
 
 
-def run_async_command(func):
-    """Wrapper to run async CLI commands."""
-    def wrapper(*args, **kwargs):
-        return asyncio.run(func(*args, **kwargs))
-    return wrapper
-
-
-# Note: Async commands are handled individually in their decorators
+if __name__ == "__main__":
+    performance_commands()

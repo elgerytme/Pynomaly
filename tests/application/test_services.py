@@ -23,6 +23,8 @@ from pynomaly.infrastructure.repositories import (
     InMemoryDetectorRepository,
     InMemoryResultRepository,
     InMemoryDatasetRepository,
+    AsyncDetectorRepositoryWrapper,
+    AsyncDetectionResultRepositoryWrapper,
 )
 
 
@@ -59,8 +61,13 @@ def sample_detector():
 @pytest.fixture
 def detection_service():
     """Create a DetectionService with mocked dependencies."""
-    detector_repo = InMemoryDetectorRepository()
-    result_repo = InMemoryResultRepository()
+    sync_detector_repo = InMemoryDetectorRepository()
+    sync_result_repo = InMemoryResultRepository()
+    
+    # Wrap sync repositories with async wrappers
+    detector_repo = AsyncDetectorRepositoryWrapper(sync_detector_repo)
+    result_repo = AsyncDetectionResultRepositoryWrapper(sync_result_repo)
+    
     scorer = AnomalyScorer()
     threshold_calc = ThresholdCalculator()
     
