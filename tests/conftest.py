@@ -23,6 +23,25 @@ from .conftest_dependencies import (
     AVAILABLE_DEPENDENCIES
 )
 
+# Import database fixtures if available
+try:
+    from .conftest_database import (
+        test_database_url,
+        test_database_settings, 
+        test_database_manager,
+        test_container_with_database,
+        test_async_database_repositories
+    )
+except ImportError:
+    # Database fixtures not available, create skip fixtures
+    @pytest.fixture
+    def test_async_database_repositories():
+        pytest.skip("Database dependencies not available")
+    
+    @pytest.fixture  
+    def test_database_manager():
+        pytest.skip("Database dependencies not available")
+
 
 @pytest.fixture(scope="session")
 def event_loop():
