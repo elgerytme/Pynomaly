@@ -69,7 +69,7 @@ class TestAutoMLService:
         df = pd.DataFrame(all_data, columns=['feature_1', 'feature_2', 'feature_3'])
         
         dataset = Dataset(name="Sample Dataset", data=df)
-        dataset.features = df  # Ensure features are available
+        # Features are automatically available through the features property
         
         return dataset
 
@@ -97,7 +97,7 @@ class TestAutoMLService:
         df.loc[::10, 'num_0'] = np.nan
         
         dataset = Dataset(name="Complex Dataset", data=df)
-        dataset.features = df
+        # Features are automatically available through the features property
         
         return dataset
 
