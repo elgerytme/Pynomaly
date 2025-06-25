@@ -28,6 +28,14 @@ def main():
     print("🔍 Pynomaly Simple Setup (without Poetry)")
     print("=" * 60)
     
+    # Check for clean flag
+    clean_install = len(sys.argv) > 1 and sys.argv[1] == "--clean"
+    if clean_install:
+        print("\n🧹 Clean install requested - removing existing .venv")
+        if os.path.exists('.venv'):
+            shutil.rmtree(".venv", ignore_errors=True)
+            print("✅ Removed existing virtual environment")
+    
     # Check Python version
     print("\n📌 Checking Python version...")
     if sys.version_info < (3, 11):
@@ -74,50 +82,79 @@ def main():
                 print("💡 For WSL/Ubuntu/Debian: sudo apt install python3.12-venv python3-pip")
                 print("💡 For CentOS/RHEL: sudo yum install python3-venv python3-pip")
                 print("💡 For macOS: brew install python@3.12")
-                print("\n⚠️  Continuing without virtual environment (not recommended for development)")
-                return
+                print("\n⚠️  Continuing with system Python (not recommended for development)")
+                # Continue with system Python
+                python_path = sys.executable
+                pip_path = "pip3" if shutil.which("pip3") else "pip"
+                # Clean up broken venv
+                if os.path.exists('.venv'):
+                    shutil.rmtree(".venv", ignore_errors=True)
     else:
         print("\n✅ Virtual environment already exists and functional")
     
-    # Determine pip path based on OS
-    if sys.platform == "win32":
-        pip_path = os.path.join(".venv", "Scripts", "pip.exe")
-        python_path = os.path.join(".venv", "Scripts", "python.exe")
+    # Determine pip path based on OS (only if venv exists)
+    if os.path.exists('.venv'):
+        if sys.platform == "win32":
+            pip_path = os.path.join(".venv", "Scripts", "pip.exe")
+            python_path = os.path.join(".venv", "Scripts", "python.exe")
+            
+            # Check if files exist
+            if not os.path.exists(python_path):
+                # Try without .exe extension
+                python_path = os.path.join(".venv", "Scripts", "python")
+                pip_path = os.path.join(".venv", "Scripts", "pip")
+        else:
+            pip_path = os.path.join(".venv", "bin", "pip")
+            python_path = os.path.join(".venv", "bin", "python")
         
-        # Check if files exist
+        # Ensure virtual environment python exists
         if not os.path.exists(python_path):
-            # Try without .exe extension
-            python_path = os.path.join(".venv", "Scripts", "python")
-            pip_path = os.path.join(".venv", "Scripts", "pip")
+            print(f"❌ Virtual environment python not found at {python_path}")
+            print("⚠️  Using system python instead (not recommended)")
+            python_path = sys.executable
+            pip_path = "pip3" if shutil.which("pip3") else "pip"
     else:
-        pip_path = os.path.join(".venv", "bin", "pip")
-        python_path = os.path.join(".venv", "bin", "python")
-    
-    # Ensure virtual environment python exists
-    if not os.path.exists(python_path):
-        print(f"❌ Virtual environment python not found at {python_path}")
-        print("⚠️  Using system python instead (not recommended)")
+        # No virtual environment, use system Python
         python_path = sys.executable
-        pip_path = "pip"
+        pip_path = "pip3" if shutil.which("pip3") else "pip"
+    
+    # Check if we're using system Python and it's externally managed (PEP 668)
+    if python_path == sys.executable and not os.path.exists('.venv'):
+        print("\n⚠️  Using system Python - checking if externally managed (PEP 668)...")
+        test_pip = run_command([python_path, "-c", "import pip; print('pip available')"], allow_failure=True)
+        if test_pip.returncode != 0:
+            print("❌ System Python doesn't have pip or is externally managed")
+            print("💡 Recommended solutions:")
+            print("   1. Install python3-venv: sudo apt install python3-venv")
+            print("   2. Use pipx: pipx install pynomaly")
+            print("   3. Use conda/mamba virtual environment")
+            print("   4. Override with --break-system-packages (not recommended)")
+            print("\n🛑 Cannot proceed without proper package management")
+            return
     
     # Upgrade pip and ensure it's available
     print("\n📌 Upgrading pip...")
     pip_result = run_command([python_path, "-m", "pip", "install", "--upgrade", "pip"], allow_failure=True)
     if pip_result.returncode != 0:
-        print("\n⚠️  pip upgrade failed. Trying to bootstrap pip...")
-        # Try to install pip first
-        import urllib.request
-        import tempfile
-        try:
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.py') as f:
-                urllib.request.urlretrieve('https://bootstrap.pypa.io/get-pip.py', f.name)
-                run_command([python_path, f.name])
-                os.unlink(f.name)
-            print("✅ pip bootstrapped successfully")
-        except Exception as e:
-            print(f"❌ Failed to bootstrap pip: {e}")
-            print("💡 Try: python -m ensurepip --upgrade")
+        if "externally-managed-environment" in pip_result.stderr:
+            print("❌ Python environment is externally managed (PEP 668)")
+            print("💡 Solutions:")
+            print("   1. Create virtual environment: python3 -m venv .venv")
+            print("   2. Install python3-venv: sudo apt install python3-venv")
+            print("   3. Use pipx: pipx install pynomaly")
+            print("   4. Override (risky): add --break-system-packages")
             return
+        
+        print("\n⚠️  pip not available. Trying to install pip...")
+        # Try ensurepip first (simpler and more reliable)
+        ensurepip_result = run_command([python_path, "-m", "ensurepip", "--upgrade"], allow_failure=True)
+        if ensurepip_result.returncode != 0:
+            print("⚠️  ensurepip failed. Virtual environment may need to be recreated.")
+            print("💡 Try manually: python -m ensurepip --upgrade")
+            print("💡 Or recreate virtual environment with: rm -rf .venv && python -m venv .venv")
+            return
+        else:
+            print("✅ pip installed via ensurepip")
     
     # Install dependencies
     print("\n📌 Installing dependencies from requirements.txt...")
