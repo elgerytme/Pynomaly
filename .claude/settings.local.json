@@ -493,7 +493,11 @@
       "Bash(buck2:*)",
       "Bash(hatch:*)",
       "Bash(npm run build:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(flake8:*)",
+      "Bash(. environments/.venv/bin/activate)",
+      "Bash(./environments/.venv/bin/python -m pytest tests/application/use_cases/test_detect_anomalies.py::TestDetectAnomaliesUseCase::test_execute_handles_detection_errors -v)",
+      "Bash(hatch run test:run:*)"
     ],
     "deny": [],
     "//": "This sets the default policy to 'allow' for any action that doesn't have a more specific rule below. This is the top-level 'allow all actions' setting.",
