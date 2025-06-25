@@ -73,6 +73,20 @@ class SecurityMetric:
     metadata: Dict[str, Any] = field(default_factory=dict)
 
 
+@dataclass
+class SecurityMetrics:
+    """Collection of security metrics."""
+    
+    total_requests: int = 0
+    failed_authentications: int = 0
+    blocked_requests: int = 0
+    threat_detections: int = 0
+    active_sessions: int = 0
+    suspicious_activities: int = 0
+    metrics_by_type: Dict[SecurityMetricType, List[SecurityMetric]] = field(default_factory=dict)
+    last_updated: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+
+
 @dataclass 
 class SecurityAlert:
     """Security alert data structure."""

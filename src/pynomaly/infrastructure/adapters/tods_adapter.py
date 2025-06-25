@@ -26,6 +26,7 @@ class TODSAdapter(Detector):
     
     # Lazy imports to avoid import errors if TODS not installed
     _algorithm_map: Optional[Dict[str, Type]] = None
+    ALGORITHM_MAPPING: Dict[str, Type] = {}
     
     @classmethod
     def _get_algorithm_map(cls) -> Dict[str, Type]:
@@ -57,9 +58,12 @@ class TODSAdapter(Detector):
                     "OCSVMTS": OCSVMPrimitive,
                     "IsolationForestTS": IsolationForestPrimitive,
                 }
+                # Update class attribute for backward compatibility
+                cls.ALGORITHM_MAPPING = cls._algorithm_map
             except ImportError as e:
                 logger.error(f"Failed to import TODS: {e}")
                 cls._algorithm_map = {}
+                cls.ALGORITHM_MAPPING = {}
                 
         return cls._algorithm_map
     
@@ -70,7 +74,11 @@ class TODSAdapter(Detector):
             algorithm: Algorithm name
             parameters: Algorithm parameters
         """
-        super().__init__(algorithm=algorithm, parameters=parameters or {})
+        super().__init__(
+            name=f"TODS_{algorithm}",
+            algorithm_name=algorithm,
+            parameters=parameters or {}
+        )
         self._model = None
         self._init_algorithm()
     

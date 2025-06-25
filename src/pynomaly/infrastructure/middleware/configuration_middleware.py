@@ -16,7 +16,7 @@ from typing import Dict, Any, Optional, List, Callable, Awaitable, Union
 from uuid import uuid4
 
 from fastapi import Request, Response
-from fastapi.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 from starlette.responses import Response as StarletteResponse
 

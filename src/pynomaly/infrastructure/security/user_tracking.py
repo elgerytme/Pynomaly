@@ -21,7 +21,7 @@ from dataclasses import dataclass
 from urllib.parse import urlparse, parse_qs
 
 from fastapi import Request, Response
-from fastapi.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from pydantic import BaseModel
 
 from .audit_logger import AuditLogger, SecurityEventType, AuditLevel, audit_context
