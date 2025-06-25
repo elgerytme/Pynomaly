@@ -7,14 +7,14 @@ from .parquet_loader import ParquetLoader
 
 # High-performance data loaders (optional dependencies)
 try:
-    from .polars_loader import PolarsLoader, compare_performance, load_with_polars
+    from .polars_loader import PolarsLoader, load_with_polars
 
     _POLARS_AVAILABLE = True
 except ImportError:
     _POLARS_AVAILABLE = False
 
 try:
-    from .arrow_loader import ArrowLoader, load_with_arrow, stream_with_arrow
+    from .arrow_loader import ArrowLoader, stream_with_arrow
 
     _ARROW_AVAILABLE = True
 except ImportError:
@@ -42,10 +42,10 @@ __all__ = [
 
 # Optional high-performance loaders
 if _POLARS_AVAILABLE:
-    __all__.extend(["PolarsLoader", "load_with_polars", "compare_performance"])
+    __all__.extend(["PolarsLoader", "load_with_polars"])
 
 if _ARROW_AVAILABLE:
-    __all__.extend(["ArrowLoader", "load_with_arrow", "stream_with_arrow"])
+    __all__.extend(["ArrowLoader", "stream_with_arrow"])
 
 if _SPARK_AVAILABLE:
     __all__.extend(

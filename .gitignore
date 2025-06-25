@@ -374,3 +374,5 @@ benchmarks/results/
 /build_*
 /dist_*
 reports/project_structure_analysis.json
+buck2_workflow_results_*.json
+buck2_workflow_results_1750872960.json
