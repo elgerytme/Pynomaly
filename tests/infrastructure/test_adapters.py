@@ -51,10 +51,6 @@ try:
 except ImportError:
     pass
 
-try:
-    from pynomaly.infrastructure.adapters import TODSAdapter
-except ImportError:
-    pass
 
 
 @pytest.fixture
@@ -277,25 +273,6 @@ class TestPyGODAdapter:
         assert hasattr(adapter, "fit")
         assert hasattr(adapter, "detect")
 
-
-@requires_dependency('pyod')
-class TestTODSAdapter:
-    """Test TODSAdapter for time-series anomaly detection."""
-    
-    def test_list_algorithms(self):
-        """Test listing available algorithms."""
-        algorithms = list(TODSAdapter.ALGORITHM_MAPPING.keys())
-        assert len(algorithms) > 0
-        # Check for common TODS algorithms
-        assert any(algo in algorithms for algo in ["IsolationForest", "LOF", "KNN"])
-    
-    def test_create_model(self):
-        """Test creating TODS adapter instance."""
-        adapter = TODSAdapter("IsolationForest")
-        assert adapter.algorithm_name == "IsolationForest"
-        assert adapter.name == "TODS_IsolationForest"
-        assert hasattr(adapter, "fit")
-        assert hasattr(adapter, "detect")
 
 
 class TestAdapterIntegration:

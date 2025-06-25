@@ -283,7 +283,7 @@ def _check_adapters(container: Container) -> Dict[str, Any]:
             adapters["sklearn"] = "unavailable"
         
         # Check optional adapters
-        optional_adapters = ["pytorch_adapter", "tods_adapter", "pygod_adapter"]
+        optional_adapters = ["pytorch_adapter", "pygod_adapter"]
         for adapter_name in optional_adapters:
             try:
                 if hasattr(container, adapter_name):

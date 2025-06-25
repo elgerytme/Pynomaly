@@ -56,24 +56,34 @@ fi
 
 # Step 3: Install dependencies
 print_status "Installing dependencies..."
-if [ -f "$REQUIREMENTS_FILE" ]; then
-    pip install --break-system-packages -r "$REQUIREMENTS_FILE" || {
-        print_error "Failed to install from requirements.txt, installing core dependencies..."
+if [ -f "$PROJECT_ROOT/requirements-server.txt" ]; then
+    print_status "Installing server requirements (API + CLI functionality)..."
+    pip install --break-system-packages -r "$PROJECT_ROOT/requirements-server.txt" || {
+        print_error "Failed to install from requirements-server.txt, installing core dependencies..."
+        # Install minimal core first
         pip install --break-system-packages \
-            fastapi uvicorn pydantic structlog dependency-injector \
-            numpy pandas scikit-learn pyod rich typer httpx aiofiles \
-            pydantic-settings redis prometheus-client \
-            opentelemetry-api opentelemetry-sdk opentelemetry-instrumentation-fastapi \
-            jinja2 python-multipart passlib bcrypt prometheus-fastapi-instrumentator
+            pyod numpy pandas polars pydantic structlog dependency-injector
+        # Add server components
+        pip install --break-system-packages \
+            fastapi uvicorn httpx requests python-multipart jinja2 aiofiles \
+            pydantic-settings typer rich scikit-learn scipy pyarrow
     }
+elif [ -f "$REQUIREMENTS_FILE" ]; then
+    print_status "Installing minimal requirements..."
+    pip install --break-system-packages -r "$REQUIREMENTS_FILE"
+    # Add server components for API testing
+    pip install --break-system-packages \
+        fastapi uvicorn httpx requests python-multipart jinja2 aiofiles \
+        pydantic-settings typer rich scikit-learn scipy
 else
     print_status "Installing core dependencies directly..."
+    # Install minimal core
     pip install --break-system-packages \
-        fastapi uvicorn pydantic structlog dependency-injector \
-        numpy pandas scikit-learn pyod rich typer httpx aiofiles \
-        pydantic-settings redis prometheus-client \
-        opentelemetry-api opentelemetry-sdk opentelemetry-instrumentation-fastapi \
-        jinja2 python-multipart passlib bcrypt prometheus-fastapi-instrumentator
+        pyod numpy pandas polars pydantic structlog dependency-injector
+    # Add server components for API functionality
+    pip install --break-system-packages \
+        fastapi uvicorn httpx requests python-multipart jinja2 aiofiles \
+        pydantic-settings typer rich scikit-learn scipy pyarrow
 fi
 
 print_success "Dependencies installed"
