@@ -644,12 +644,12 @@ class AutonomousDetectionService:
                     threshold = np.percentile(score_values, 95)
                 
                 result = DetectionResult(
-                    detector_id=detector.id,
-                    dataset_id=dataset.id,
-                    anomalies=anomalies,
-                    scores=scores,
-                    labels=predictions,
-                    threshold=threshold,
+                    detector.id,
+                    dataset.id,
+                    anomalies,
+                    scores,
+                    predictions,
+                    threshold,
                     metadata={
                         "algorithm": detector.algorithm_name,
                         "auto_generated": True
