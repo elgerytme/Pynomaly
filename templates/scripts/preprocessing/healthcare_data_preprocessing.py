@@ -791,7 +791,7 @@ class HealthcareDataPreprocessor:
         self, df: pd.DataFrame, medical_columns: dict[str, list[str]]
     ) -> pd.DataFrame:
         """Process and standardize medical codes."""
-        encoding_config = self.config["encoding"]
+        self.config["encoding"]
 
         # Process ICD codes
         icd_columns = medical_columns["diagnoses"]
@@ -978,7 +978,7 @@ class HealthcareDataPreprocessor:
         numeric_df = df.select_dtypes(include=[np.number])
         if len(numeric_df.columns) > 1:
             selector = VarianceThreshold(threshold=0.01)
-            selected_features = selector.fit_transform(numeric_df)
+            selector.fit_transform(numeric_df)
 
             selected_columns = numeric_df.columns[selector.get_support()]
             non_numeric_columns = df.select_dtypes(exclude=[np.number]).columns

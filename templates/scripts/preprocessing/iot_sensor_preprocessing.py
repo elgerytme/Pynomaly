@@ -780,7 +780,7 @@ class IoTSensorPreprocessor:
         numeric_df = df.select_dtypes(include=[np.number])
         if len(numeric_df.columns) > 1:
             selector = VarianceThreshold(threshold=0.01)
-            selected_features = selector.fit_transform(numeric_df)
+            selector.fit_transform(numeric_df)
 
             # Get selected column names
             selected_columns = numeric_df.columns[selector.get_support()]

@@ -364,13 +364,6 @@ class TemplateValidator:
     ) -> dict[str, Any]:
         """Run a specific validation check."""
 
-        check_result = {
-            "status": "passed",
-            "errors": [],
-            "warnings": [],
-            "recommendations": [],
-            "metrics": {},
-        }
 
         # Route to appropriate validation method
         validation_method = f"_validate_{category_name}_{check_name}"
@@ -1259,7 +1252,7 @@ class TemplateValidator:
                     <h1>Pynomaly Template Validation Report</h1>
                     <p>Generated on {summary.get("validation_timestamp", datetime.now()).strftime("%Y-%m-%d %H:%M:%S")}</p>
                 </div>
-                
+
                 <div class="summary">
                     <div class="stat-card">
                         <div class="stat-value">{summary.get("total_templates", 0)}</div>
@@ -1295,7 +1288,7 @@ class TemplateValidator:
                     </div>
                     <div class="content">
                         <p><strong>Path:</strong> {result.template_path}</p>
-                        
+
                         <div class="metrics">
                             <h4>Category Scores:</h4>
             """

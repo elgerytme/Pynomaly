@@ -557,7 +557,7 @@ class FinancialDataPreprocessor:
         variance_threshold = self.config["feature_selection"]["variance_threshold"]
         if variance_threshold > 0:
             selector = VarianceThreshold(threshold=variance_threshold)
-            feature_mask = selector.fit_transform(df.select_dtypes(include=[np.number]))
+            selector.fit_transform(df.select_dtypes(include=[np.number]))
 
             # Get selected columns
             numeric_cols = df.select_dtypes(include=[np.number]).columns

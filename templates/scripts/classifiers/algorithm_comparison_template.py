@@ -343,9 +343,9 @@ class AlgorithmComparator:
         cv_scores = {metric: [] for metric in self.config["evaluation"]["metrics"]}
         fold_times = []
 
-        for fold, (train_idx, test_idx) in enumerate(cv.split(X, y)):
+        for _fold, (train_idx, test_idx) in enumerate(cv.split(X, y)):
             X_train, X_test = X[train_idx], X[test_idx]
-            y_train, y_test = y[train_idx], y[test_idx]
+            _y_train, y_test = y[train_idx], y[test_idx]
 
             # Train model
             fold_start = time.time()
@@ -925,7 +925,7 @@ class AlgorithmComparator:
         # Calculate pairwise similarities
         similarity_matrix = {}
 
-        for i, algo1 in enumerate(predictions.keys()):
+        for _i, algo1 in enumerate(predictions.keys()):
             similarity_matrix[algo1] = {}
             for algo2 in predictions.keys():
                 if algo1 == algo2:
@@ -1145,7 +1145,7 @@ class AlgorithmComparator:
 
         # Collect all performance metrics
         all_metrics = {}
-        for algo_name, result in successful_results.items():
+        for _algo_name, result in successful_results.items():
             metrics = result.get("metrics", {})
             for metric_name, value in metrics.items():
                 if metric_name not in all_metrics:
@@ -1179,7 +1179,7 @@ class AlgorithmComparator:
 
         for metric_name, stats in statistics.items():
             metric_range = stats.get("range", 0)
-            metric_mean = stats.get("mean", 0)
+            stats.get("mean", 0)
 
             if metric_range > 0.3:
                 trends[metric_name] = "high_variance"

@@ -705,7 +705,7 @@ class EnsembleSelector:
 
         for train_idx, val_idx in cv.split(meta_features, y):
             X_train_meta, X_val_meta = meta_features[train_idx], meta_features[val_idx]
-            y_train, y_val = y[train_idx], y[val_idx]
+            y_train, _y_val = y[train_idx], y[val_idx]
 
             meta_learner.fit(X_train_meta, y_train)
             meta_predictions[val_idx] = meta_learner.predict(X_val_meta)
@@ -751,7 +751,7 @@ class EnsembleSelector:
 
             # Calculate competence of each algorithm on neighbors
             competences = []
-            for j, algo_name in enumerate(ensemble_algorithms):
+            for j, _algo_name in enumerate(ensemble_algorithms):
                 algo_predictions = predictions[j]
                 # Competence = accuracy on neighbors
                 competence = np.mean(
@@ -945,7 +945,7 @@ class EnsembleSelector:
         best_fitness = 0
         best_individual = None
 
-        for generation in range(generations):
+        for _generation in range(generations):
             # Evaluate fitness
             fitness_scores = []
             for individual in population:
@@ -1165,7 +1165,7 @@ class EnsembleSelector:
 
         for train_idx, test_idx in cv.split(X, y):
             X_train, X_test = X[train_idx], X[test_idx]
-            y_train, y_test = y[train_idx], y[test_idx]
+            _y_train, y_test = y[train_idx], y[test_idx]
 
             # Train ensemble members on training set
             ensemble_predictions = []

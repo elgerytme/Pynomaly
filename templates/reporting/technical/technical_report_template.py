@@ -176,7 +176,7 @@ class TechnicalReportGenerator:
         analysis = {}
 
         # Extract F1 scores for comparison
-        f1_scores = {alg.name: alg.f1_score for alg in data.algorithms}
+        {alg.name: alg.f1_score for alg in data.algorithms}
 
         # If cross-validation results are available, use them
         if data.cross_validation_results:
@@ -334,7 +334,7 @@ class TechnicalReportGenerator:
         metrics = ["precision", "recall", "f1_score", "auc_roc", "auc_pr"]
 
         if len(data.algorithms) <= 5:  # Radar chart works best with few algorithms
-            fig, ax = plt.subplots(figsize=(10, 8), subplot_kw=dict(projection="polar"))
+            fig, ax = plt.subplots(figsize=(10, 8), subplot_kw={"projection": "polar"})
 
             angles = np.linspace(0, 2 * np.pi, len(metrics), endpoint=False).tolist()
             angles += angles[:1]  # Complete the circle
@@ -449,7 +449,7 @@ class TechnicalReportGenerator:
             if n_algorithms == 1:
                 axes = [axes]
             elif rows == 1:
-                axes = axes if isinstance(axes, (list, np.ndarray)) else [axes]
+                axes = axes if isinstance(axes, list | np.ndarray) else [axes]
             else:
                 axes = axes.flatten()
 
@@ -487,7 +487,7 @@ class TechnicalReportGenerator:
             training_times = [alg.training_time_seconds or 0 for alg in data.algorithms]
             f1_scores = [alg.f1_score for alg in data.algorithms]
 
-            scatter = ax.scatter(training_times, f1_scores, s=100, alpha=0.7, c=colors)
+            ax.scatter(training_times, f1_scores, s=100, alpha=0.7, c=colors)
 
             # Add algorithm labels
             for i, alg in enumerate(data.algorithms):
@@ -641,7 +641,7 @@ class TechnicalReportGenerator:
             )
 
         # Algorithm count and types
-        algorithm_types = list(set([alg.name.split("(")[0] for alg in data.algorithms]))
+        algorithm_types = list({alg.name.split("(")[0] for alg in data.algorithms})
         notes.append(
             f"🤖 **Algorithms Tested**: {len(data.algorithms)} configurations across "
             f"{len(algorithm_types)} algorithm types"
