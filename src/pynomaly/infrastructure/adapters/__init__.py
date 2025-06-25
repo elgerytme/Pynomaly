@@ -57,3 +57,16 @@ try:
     __all__.append("ExcelAdapter")
 except ImportError:
     pass
+
+# Time series and ensemble adapters
+try:
+    from .time_series_adapter import TimeSeriesAdapter
+    __all__.append("TimeSeriesAdapter")
+except ImportError:
+    pass
+
+try:
+    from .ensemble_adapter import EnsembleAdapter
+    __all__.append("EnsembleAdapter")
+except ImportError:
+    pass
