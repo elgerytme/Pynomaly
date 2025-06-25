@@ -38,7 +38,7 @@ Commands:
   test-imports       Test core system imports
   benchmark FILE     Run performance benchmark on dataset
   perf-stats         Show performance statistics and system info
-  auto-select FILE   Automatically select best algorithm and parameters
+  auto-select FILE   Automatically select best algorithm and parameters (requires optuna)
 
 Examples:
   python pynomaly_cli.py version

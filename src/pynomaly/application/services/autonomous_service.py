@@ -23,6 +23,7 @@ from pynomaly.application.services.autonomous_preprocessing import (
     AutonomousPreprocessingOrchestrator,
     DataQualityReport
 )
+from pynomaly.application.services.algorithm_adapter_registry import AlgorithmAdapterRegistry
 
 
 @dataclass
@@ -90,7 +91,8 @@ class AutonomousDetectionService:
         self,
         detector_repository: DetectorRepositoryProtocol,
         result_repository: DetectionResultRepositoryProtocol,
-        data_loaders: Dict[str, DataLoaderProtocol]
+        data_loaders: Dict[str, DataLoaderProtocol],
+        adapter_registry: Optional[AlgorithmAdapterRegistry] = None
     ):
         """Initialize autonomous service.
         
@@ -98,10 +100,12 @@ class AutonomousDetectionService:
             detector_repository: Repository for detectors
             result_repository: Repository for results
             data_loaders: Data loaders by format
+            adapter_registry: Registry for algorithm adapters
         """
         self.detector_repository = detector_repository
         self.result_repository = result_repository
         self.data_loaders = data_loaders
+        self.adapter_registry = adapter_registry or AlgorithmAdapterRegistry()
         self.logger = logging.getLogger(__name__)
         
         # Initialize preprocessing orchestrator
