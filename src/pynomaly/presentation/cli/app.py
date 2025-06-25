@@ -11,7 +11,7 @@ from rich.console import Console
 from rich.table import Table
 
 from pynomaly.presentation.cli import datasets, detectors, detection, server, autonomous, preprocessing
-from pynomaly.presentation.cli import automl
+from pynomaly.presentation.cli import automl, tdd
 # from pynomaly.presentation.cli import performance  # Temporarily disabled due to Typer type issues
 from pynomaly.presentation.cli.export import export_app
 from pynomaly.presentation.cli import config as config_cli
@@ -21,6 +21,15 @@ from pynomaly.presentation.cli import config as config_cli
 # from pynomaly.presentation.cli.security import security_commands  # Temporarily disabled
 # from pynomaly.presentation.cli.dashboard import dashboard_commands  # Temporarily disabled
 # from pynomaly.presentation.cli.governance import governance_commands  # Temporarily disabled
+
+# Configuration management CLI
+try:
+    from pynomaly.presentation.cli import recommendation
+    RECOMMENDATION_CLI_AVAILABLE = True
+except ImportError:
+    recommendation = None
+    RECOMMENDATION_CLI_AVAILABLE = False
+
 from pynomaly.presentation.cli.container import get_cli_container
 
 
@@ -43,6 +52,7 @@ app.add_typer(detectors.app, name="detector", help="Manage anomaly detectors")
 app.add_typer(datasets.app, name="dataset", help="Manage datasets")
 app.add_typer(preprocessing.app, name="data", help="🔧 Data preprocessing (clean, transform, pipeline)")
 app.add_typer(detection.app, name="detect", help="Run anomaly detection")
+app.add_typer(tdd.app, name="tdd", help="🧪 Test-Driven Development (TDD) management and enforcement")
 # app.add_typer(deep_learning.deep_learning, name="deep-learning", help="🧠 Deep learning anomaly detection (PyTorch, TensorFlow, JAX)")  # Temporarily disabled
 # app.add_typer(explainability.explainability, name="explainability", help="🔍 Explainable AI (model interpretability, bias analysis)")  # Temporarily disabled
 # app.add_typer(selection.selection, name="selection", help="🧠 Intelligent algorithm selection with learning capabilities")  # Temporarily disabled
@@ -52,6 +62,10 @@ app.add_typer(detection.app, name="detect", help="Run anomaly detection")
 app.add_typer(export_app, name="export", help="Export results to business intelligence platforms")
 app.add_typer(server.app, name="server", help="Manage API server")
 # app.add_typer(performance.app, name="perf", help="Performance monitoring and optimization")  # Disabled
+
+# Configuration recommendation commands
+if RECOMMENDATION_CLI_AVAILABLE:
+    app.add_typer(recommendation.app, name="recommend", help="🧠 Intelligent configuration recommendations")
 
 
 @app.command()

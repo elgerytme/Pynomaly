@@ -187,6 +187,28 @@ try:
     from pynomaly.infrastructure.data_loaders import SparkLoader
 except ImportError:
     SparkLoader = None
+
+# Configuration integration services
+try:
+    from pynomaly.application.services.configuration_capture_service import ConfigurationCaptureService
+    from pynomaly.application.services.automl_configuration_integration import AutoMLConfigurationIntegration
+    from pynomaly.application.services.autonomous_configuration_integration import AutonomousConfigurationIntegration
+    from pynomaly.application.services.configuration_template_service import ConfigurationTemplateService
+    from pynomaly.application.services.configuration_discovery_service import ConfigurationDiscoveryService
+    from pynomaly.application.services.configuration_recommendation_service import ConfigurationRecommendationService
+    from pynomaly.infrastructure.persistence.configuration_repository import ConfigurationRepository
+    from pynomaly.infrastructure.monitoring.cli_parameter_interceptor import CLIParameterInterceptor
+    CONFIGURATION_SERVICES_AVAILABLE = True
+except ImportError:
+    ConfigurationCaptureService = None
+    AutoMLConfigurationIntegration = None
+    AutonomousConfigurationIntegration = None
+    ConfigurationTemplateService = None
+    ConfigurationDiscoveryService = None
+    ConfigurationRecommendationService = None
+    ConfigurationRepository = None
+    CLIParameterInterceptor = None
+    CONFIGURATION_SERVICES_AVAILABLE = False
 from pynomaly.infrastructure.repositories import (
     InMemoryDatasetRepository,
     InMemoryDetectorRepository,
@@ -558,7 +580,81 @@ class Container(containers.DeclarativeContainer):
         except ImportError:
             pass
     
-    
+    # Configuration management services - only create if available
+    if CONFIGURATION_SERVICES_AVAILABLE and feature_flags.is_enabled("advanced_automl"):
+        # Configuration repository
+        configuration_repository = providers.Singleton(
+            ConfigurationRepository,
+            storage_path=config.provided.storage_path / "configurations"
+        )
+        
+        # Configuration capture service
+        configuration_capture_service = providers.Singleton(
+            ConfigurationCaptureService,
+            repository=configuration_repository,
+            storage_path=config.provided.storage_path / "configurations",
+            auto_capture=True
+        )
+        
+        # Template service
+        configuration_template_service = providers.Singleton(
+            ConfigurationTemplateService,
+            configuration_service=configuration_capture_service,
+            repository=configuration_repository,
+            template_storage_path=config.provided.storage_path / "templates"
+        )
+        
+        # Discovery service
+        configuration_discovery_service = providers.Singleton(
+            ConfigurationDiscoveryService,
+            configuration_service=configuration_capture_service,
+            repository=configuration_repository,
+            enable_similarity_analysis=True,
+            enable_auto_tagging=True,
+            enable_clustering=True
+        )
+        
+        # Recommendation service
+        recommendation_service = providers.Singleton(
+            ConfigurationRecommendationService,
+            configuration_service=configuration_capture_service,
+            repository=configuration_repository,
+            enable_ml_recommendations=True,
+            enable_similarity_recommendations=True,
+            enable_performance_prediction=True
+        )
+        
+        # AutoML configuration integration
+        if AutoMLService is not None:
+            automl_configuration_integration = providers.Singleton(
+                AutoMLConfigurationIntegration,
+                automl_service=automl_service,
+                configuration_service=configuration_capture_service,
+                auto_save_successful=True,
+                auto_save_threshold=0.8
+            )
+        
+        # Autonomous configuration integration
+        try:
+            from pynomaly.application.services.autonomous_service import AutonomousService
+            autonomous_configuration_integration = providers.Singleton(
+                AutonomousConfigurationIntegration,
+                autonomous_service=providers.Object("autonomous_service"),  # Will be injected
+                configuration_service=configuration_capture_service,
+                auto_save_successful=True,
+                auto_save_threshold=0.7
+            )
+        except ImportError:
+            pass
+        
+        # CLI parameter interceptor
+        cli_parameter_interceptor = providers.Singleton(
+            CLIParameterInterceptor,
+            configuration_service=configuration_capture_service,
+            enable_automatic_capture=True,
+            min_execution_time=1.0,
+            capture_successful_only=True
+        )
     
     # Use cases
     detect_anomalies_use_case = providers.Factory(
