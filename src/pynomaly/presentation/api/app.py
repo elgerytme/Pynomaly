@@ -24,10 +24,13 @@ from pynomaly.presentation.api.endpoints import (
     datasets,
     detection,
     detectors,
+    events,
     experiments,
     export,
     health,
+    model_lineage,
     performance,
+    streaming,
 )
 
 # Distributed processing endpoints removed for simplification
@@ -192,6 +195,13 @@ def create_app(container: Container | None = None) -> FastAPI:
     )
 
     app.include_router(export.router, prefix="/api", tags=["export"])
+
+    # Advanced model management endpoints
+    app.include_router(model_lineage.router, prefix="/api", tags=["model_lineage"])
+
+    # Real-time streaming and event processing endpoints
+    app.include_router(streaming.router, prefix="/api", tags=["streaming"])
+    app.include_router(events.router, prefix="/api", tags=["events"])
 
     # Distributed processing API removed for simplification
 
