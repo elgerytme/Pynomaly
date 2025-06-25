@@ -235,6 +235,8 @@
       "Bash(poetry run:*)",
       "Bash(.venv/Scripts/python.exe:*)",
       "Bash(grep:*)",
+      "Bash(export*:*)",
+      "Bash(poetry shell:*)",
       "Bash(poetry export:*)",
       "Bash(python:*)",
       "Bash(.venv/Scripts/python.exe:*)",

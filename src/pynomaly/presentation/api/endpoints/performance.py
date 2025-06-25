@@ -265,10 +265,10 @@ async def reset_all_pool_stats(
         #     raise HTTPException(
         #         status_code=503,
         #         detail="Connection pool manager not available"
-            )
-        
-        pool_manager.reset_stats()
-        return {"message": "Statistics reset for all pools"}
+        #     )
+        # 
+        # pool_manager.reset_stats()
+        # return {"message": "Statistics reset for all pools"}
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to reset pool statistics: {str(e)}")
@@ -540,10 +540,10 @@ async def get_system_metrics(
         
         # metrics = {
         #     "timestamp": __import__("time").time(),
-            "connection_pools": {},
-            "query_performance": {},
-            "cache_performance": {}
-        }
+        #     "connection_pools": {},
+        #     "query_performance": {},
+        #     "cache_performance": {}
+        # }
         
         # Get pool statistics
         if pool_manager is not None:
