@@ -5,13 +5,9 @@ from __future__ import annotations
 # Export deep learning adapters with fallbacks
 try:
     from .pytorch_adapter import PyTorchAdapter
-except ImportError:
-    # Fallback stub when PyTorch is not available
-    class PyTorchAdapter:
-        """Dummy PyTorchAdapter when PyTorch is not available."""
-        
-        def __init__(self, *args, **kwargs):
-            raise ImportError("PyTorch is required for PyTorchAdapter. Install with: pip install torch")
+except (ImportError, SyntaxError, IndentationError):
+    # Fallback to stub when PyTorch is not available or there are syntax issues
+    from .pytorch_stub import PyTorchAdapter
 
 try:
     from .tensorflow_adapter import TensorFlowAdapter
