@@ -454,7 +454,10 @@
       "Bash(test_env/bin/python -m pip install -e .)",
       "Bash(POETRY_VENV_PATH=/usr/bin/python3 poetry install --only main)",
       "Bash(PATH=\"/usr/bin:$PATH\" poetry env use python3)",
-      "Bash(cmd.exe:*)"
+      "Bash(cmd.exe:*)",
+      "Bash(./.venv/bin/python -m pip check:*)",
+      "Bash(pip index versions:*)",
+      "Bash(git restore:*)"
     ],
     "deny": [],
     "//": "This sets the default policy to 'allow' for any action that doesn't have a more specific rule below. This is the top-level 'allow all actions' setting.",
