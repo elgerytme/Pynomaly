@@ -39,6 +39,7 @@ Commands:
   benchmark FILE     Run performance benchmark on dataset
   perf-stats         Show performance statistics and system info
   auto-select FILE   Automatically select best algorithm and parameters (requires optuna)
+  explain FILE       Generate explanations for anomaly detection results
 
 Examples:
   python pynomaly_cli.py version
@@ -901,6 +902,15 @@ def main():
             print("Usage: python pynomaly_cli.py auto-select <file>")
         else:
             auto_select_algorithm(sys.argv[2])
+    elif command == 'explain':
+        if len(sys.argv) < 3:
+            print("Error: Please provide a file path")
+            print("Usage: python pynomaly_cli.py explain <file> [algorithm] [instance_index]")
+        else:
+            file_path = sys.argv[2]
+            algorithm = sys.argv[3] if len(sys.argv) > 3 else None
+            instance_index = int(sys.argv[4]) if len(sys.argv) > 4 else None
+            explain_anomaly_detection(file_path, algorithm, instance_index)
     else:
         print(f"Unknown command: {command}")
         print("Use 'python pynomaly_cli.py help' for available commands")

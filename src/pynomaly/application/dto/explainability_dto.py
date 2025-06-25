@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Optional, List, Dict, Any, Union
-from pydantic import BaseModel, Field, ConfigDict
+from typing import Optional, List, Dict, Any, Union, Literal, Tuple
+from pydantic import BaseModel, Field, ConfigDict, validator
 from datetime import datetime
+from enum import Enum
+from uuid import UUID
 
 
 class FeatureContributionDTO(BaseModel):
