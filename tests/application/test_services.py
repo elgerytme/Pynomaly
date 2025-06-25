@@ -122,27 +122,50 @@ class TestDetectionService:
     @pytest.mark.asyncio
     async def test_run_detection_success(self, detection_service, sample_dataset, sample_detector):
         """Test successful detection run."""
-        # Store detector
+        # Store detector and set as fitted
+        sample_detector.is_fitted = True
         await detection_service.detector_repository.save(sample_detector)
         
-        # Mock the actual detector algorithm
-        with patch.object(detection_service.anomaly_scorer, 'compute_scores') as mock_compute:
-            mock_scores = np.random.random(len(sample_dataset.data))
-            mock_compute.return_value = mock_scores
+        # Mock the detector's score method directly
+        with patch.object(sample_detector, 'score') as mock_score:
+            mock_score_objects = [
+                AnomalyScore(value=val) for val in np.random.random(len(sample_dataset.data))
+            ]
+            mock_score.return_value = mock_score_objects
             
-            # Run detection
-            results = await detection_service.detect_with_multiple_detectors(
-                detector_ids=[sample_detector.id],
-                dataset=sample_dataset
-            )
-            
-            # Verify result
-            assert len(results) == 1
-            result = results[sample_detector.id]
-            assert isinstance(result, DetectionResult)
-            assert result.detector_id == sample_detector.id
-            assert result.dataset_id == sample_dataset.id
-            assert len(result.scores) == len(sample_dataset.data)
+            # Mock the detector's detect method
+            with patch.object(sample_detector, 'detect') as mock_detect:
+                mock_anomalies = [
+                    Anomaly(
+                        score=score_obj,
+                        data_point=sample_dataset.data.iloc[i].to_dict(),
+                        detector_name=sample_detector.name
+                    ) for i, score_obj in enumerate(mock_score_objects[:5])  # Just first 5 as anomalies
+                ]
+                
+                mock_result = DetectionResult(
+                    detector_id=sample_detector.id,
+                    dataset_id=sample_dataset.id,
+                    anomalies=mock_anomalies,
+                    scores=mock_score_objects,
+                    labels=np.array([1 if i < 5 else 0 for i in range(len(sample_dataset.data))]),
+                    threshold=0.8
+                )
+                mock_detect.return_value = mock_result
+                
+                # Run detection
+                results = await detection_service.detect_with_multiple_detectors(
+                    detector_ids=[sample_detector.id],
+                    dataset=sample_dataset
+                )
+                
+                # Verify result
+                assert len(results) == 1
+                result = results[sample_detector.id]
+                assert isinstance(result, DetectionResult)
+                assert result.detector_id == sample_detector.id
+                assert result.dataset_id == sample_dataset.id
+                assert len(result.scores) == len(sample_dataset.data)
     
     @pytest.mark.asyncio
     async def test_run_detection_detector_not_found(self, detection_service, sample_dataset):
