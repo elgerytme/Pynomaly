@@ -176,7 +176,8 @@ async def update_detector(
     detector_id: UUID,
     update_data: UpdateDetectorDTO,
     container: Container = Depends(get_container),
-    current_user: Optional[str] = Depends(get_current_user)
+    current_user: Optional[str] = Depends(get_current_user),
+    _permissions: str = Depends(require_write)
 ) -> DetectorDTO:
     """Update detector parameters."""
     detector_repo = container.detector_repository()
@@ -224,7 +225,8 @@ async def update_detector(
 async def delete_detector(
     detector_id: UUID,
     container: Container = Depends(get_container),
-    current_user: Optional[str] = Depends(get_current_user)
+    current_user: Optional[str] = Depends(get_current_user),
+    _permissions: str = Depends(PermissionChecker(["detectors:delete"]))
 ) -> dict:
     """Delete a detector."""
     detector_repo = container.detector_repository()

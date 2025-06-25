@@ -16,6 +16,7 @@ from pynomaly.infrastructure.cache import init_cache
 # Temporarily disabled telemetry
 # from pynomaly.infrastructure.monitoring import init_telemetry
 from pynomaly.presentation.api.endpoints import (
+    admin,
     auth,
     autonomous,
     datasets,
@@ -127,6 +128,12 @@ def create_app(container: Container | None = None) -> FastAPI:
         auth.router,
         prefix="/api/auth",
         tags=["authentication"]
+    )
+    
+    app.include_router(
+        admin.router,
+        prefix="/api/admin",
+        tags=["administration"]
     )
     
     app.include_router(
