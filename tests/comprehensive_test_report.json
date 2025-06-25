@@ -4,7 +4,7 @@
     "passed_tests": 17,
     "failed_tests": 5,
     "success_rate": 77.27,
-    "execution_time": 2.3933563232421875
+    "execution_time": 2.2863266468048096
   },
   "categories": {
     "infrastructure": {
@@ -43,7 +43,7 @@
       "name": "container_creation",
       "category": "infrastructure",
       "passed": true,
-      "execution_time": 2.2026193141937256,
+      "execution_time": 2.109128475189209,
       "error_message": null,
       "details": {
         "container_type": "<class 'dependency_injector.containers.DynamicContainer'>"
@@ -61,7 +61,7 @@
       "name": "adapter_import_sklearn_adapter",
       "category": "infrastructure",
       "passed": true,
-      "execution_time": 1.1920928955078125e-06,
+      "execution_time": 1.6689300537109375e-06,
       "error_message": null,
       "details": null
     },
@@ -69,7 +69,7 @@
       "name": "adapter_import_pytorch_adapter",
       "category": "infrastructure",
       "passed": false,
-      "execution_time": 0.006519794464111328,
+      "execution_time": 0.006446123123168945,
       "error_message": "Optional adapter pytorch_adapter not available",
       "details": null
     },
@@ -77,7 +77,7 @@
       "name": "adapter_import_tensorflow_adapter",
       "category": "infrastructure",
       "passed": false,
-      "execution_time": 0.009712457656860352,
+      "execution_time": 0.007813453674316406,
       "error_message": "Optional adapter tensorflow_adapter not available",
       "details": null
     },
@@ -85,7 +85,7 @@
       "name": "domain_service_anomaly_scorer",
       "category": "algorithm",
       "passed": true,
-      "execution_time": 3.5762786865234375e-06,
+      "execution_time": 3.814697265625e-06,
       "error_message": null,
       "details": null
     },
@@ -93,7 +93,7 @@
       "name": "domain_service_threshold_calculator",
       "category": "algorithm",
       "passed": true,
-      "execution_time": 1.1920928955078125e-06,
+      "execution_time": 1.430511474609375e-06,
       "error_message": null,
       "details": null
     },
@@ -101,7 +101,7 @@
       "name": "domain_service_feature_validator",
       "category": "algorithm",
       "passed": true,
-      "execution_time": 1.1920928955078125e-06,
+      "execution_time": 7.152557373046875e-07,
       "error_message": null,
       "details": null
     },
@@ -109,7 +109,7 @@
       "name": "domain_service_ensemble_aggregator",
       "category": "algorithm",
       "passed": true,
-      "execution_time": 1.430511474609375e-06,
+      "execution_time": 9.5367431640625e-07,
       "error_message": null,
       "details": null
     },
@@ -117,7 +117,7 @@
       "name": "dependency_numpy",
       "category": "dependencies",
       "passed": true,
-      "execution_time": 1.9073486328125e-06,
+      "execution_time": 9.5367431640625e-07,
       "error_message": null,
       "details": null
     },
@@ -125,7 +125,7 @@
       "name": "dependency_pandas",
       "category": "dependencies",
       "passed": true,
-      "execution_time": 1.430511474609375e-06,
+      "execution_time": 1.6689300537109375e-06,
       "error_message": null,
       "details": null
     },
@@ -141,7 +141,7 @@
       "name": "dependency_pyod",
       "category": "dependencies",
       "passed": true,
-      "execution_time": 0.09671473503112793,
+      "execution_time": 0.0922996997833252,
       "error_message": null,
       "details": null
     },
@@ -149,7 +149,7 @@
       "name": "dependency_fastapi",
       "category": "dependencies",
       "passed": true,
-      "execution_time": 1.430511474609375e-06,
+      "execution_time": 1.9073486328125e-06,
       "error_message": null,
       "details": null
     },
@@ -157,7 +157,7 @@
       "name": "dependency_typer",
       "category": "dependencies",
       "passed": true,
-      "execution_time": 0.02137136459350586,
+      "execution_time": 0.019864559173583984,
       "error_message": null,
       "details": null
     },
@@ -165,7 +165,7 @@
       "name": "optional_dependency_torch",
       "category": "dependencies",
       "passed": false,
-      "execution_time": 0.0027513504028320312,
+      "execution_time": 0.0014674663543701172,
       "error_message": "Optional dependency torch not installed",
       "details": null
     },
@@ -173,7 +173,7 @@
       "name": "optional_dependency_tensorflow",
       "category": "dependencies",
       "passed": false,
-      "execution_time": 0.002858877182006836,
+      "execution_time": 0.0011546611785888672,
       "error_message": "Optional dependency tensorflow not installed",
       "details": null
     },
@@ -181,7 +181,7 @@
       "name": "optional_dependency_jax",
       "category": "dependencies",
       "passed": false,
-      "execution_time": 0.0015213489532470703,
+      "execution_time": 0.0010502338409423828,
       "error_message": "Optional dependency jax not installed",
       "details": null
     },
@@ -189,7 +189,7 @@
       "name": "optional_dependency_polars",
       "category": "dependencies",
       "passed": true,
-      "execution_time": 0.04821491241455078,
+      "execution_time": 0.04604959487915039,
       "error_message": null,
       "details": null
     },
@@ -207,11 +207,11 @@
       "name": "container_memory_usage",
       "category": "memory",
       "passed": true,
-      "execution_time": 0.0010519027709960938,
+      "execution_time": 0.001032114028930664,
       "error_message": null,
       "details": {
-        "initial_memory_mb": 384.05078125,
-        "final_memory_mb": 384.05078125,
+        "initial_memory_mb": 375.94140625,
+        "final_memory_mb": 375.94140625,
         "memory_increase_mb": 0.0
       }
     },
@@ -219,7 +219,7 @@
       "name": "health_service_import",
       "category": "health",
       "passed": true,
-      "execution_time": 2.384185791015625e-06,
+      "execution_time": 2.6226043701171875e-06,
       "error_message": null,
       "details": null
     }

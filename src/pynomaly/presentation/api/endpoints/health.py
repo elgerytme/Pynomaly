@@ -114,7 +114,7 @@ async def health_check(
     return HealthResponse(
         overall_status=overall_status.value,
         timestamp=datetime.utcnow(),
-        version=settings.version,
+        version=settings.app.version,
         uptime_seconds=metrics.uptime_seconds,
         checks=check_responses,
         summary=summary
