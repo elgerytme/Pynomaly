@@ -604,9 +604,11 @@ class TestCostOptimizationService:
         # Create resources with different tenants
         resource1 = CloudResource(name="resource1", tenant_id=tenant_id)
         resource1.cost_info = ResourceCost(monthly_cost=100.0)
+        resource1.usage_metrics = ResourceUsageMetrics()  # Add metrics
         
         resource2 = CloudResource(name="resource2", tenant_id=uuid4())  # Different tenant
         resource2.cost_info = ResourceCost(monthly_cost=200.0)
+        resource2.usage_metrics = ResourceUsageMetrics()  # Add metrics
         
         await cost_service.register_resource(resource1)
         await cost_service.register_resource(resource2)
