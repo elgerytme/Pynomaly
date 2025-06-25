@@ -31,6 +31,18 @@ from .result_exceptions import (
     ThresholdError,
     InconsistentResultError,
 )
+from .entity_exceptions import (
+    EntityNotFoundError,
+    InvalidEntityStateError,
+    ModelNotFoundError,
+    InvalidModelStateError,
+    ExperimentNotFoundError,
+    InvalidExperimentStateError,
+    PipelineNotFoundError,
+    InvalidPipelineStateError,
+    AlertNotFoundError,
+    InvalidAlertStateError,
+)
 
 # Import InvalidValueError from base
 from .base import InvalidValueError
@@ -72,6 +84,17 @@ __all__ = [
     "ScoreCalculationError",
     "ThresholdError",
     "InconsistentResultError",
+    # Entity exceptions
+    "EntityNotFoundError",
+    "InvalidEntityStateError",
+    "ModelNotFoundError",
+    "InvalidModelStateError",
+    "ExperimentNotFoundError",
+    "InvalidExperimentStateError",
+    "PipelineNotFoundError",
+    "InvalidPipelineStateError",
+    "AlertNotFoundError",
+    "InvalidAlertStateError",
     # Aliases
     "InvalidDataError",
     "InvalidValueError",
@@ -80,5 +103,4 @@ __all__ = [
     "AutoMLError",
     "InvalidParameterError",
     "ProcessingError",
-    "EntityNotFoundError",
 ]

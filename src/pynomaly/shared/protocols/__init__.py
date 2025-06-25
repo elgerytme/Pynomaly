@@ -10,7 +10,15 @@ from .repository_protocol import (
     RepositoryProtocol,
     DetectorRepositoryProtocol,
     DatasetRepositoryProtocol,
-    DetectionResultRepositoryProtocol
+    DetectionResultRepositoryProtocol,
+    ModelRepositoryProtocol,
+    ModelVersionRepositoryProtocol,
+    ExperimentRepositoryProtocol,
+    ExperimentRunRepositoryProtocol,
+    PipelineRepositoryProtocol,
+    PipelineRunRepositoryProtocol,
+    AlertRepositoryProtocol,
+    AlertNotificationRepositoryProtocol
 )
 from .data_loader_protocol import (
     DataLoaderProtocol,
@@ -28,6 +36,14 @@ __all__ = [
     "DetectorRepositoryProtocol",
     "DatasetRepositoryProtocol",
     "DetectionResultRepositoryProtocol",
+    "ModelRepositoryProtocol",
+    "ModelVersionRepositoryProtocol",
+    "ExperimentRepositoryProtocol",
+    "ExperimentRunRepositoryProtocol",
+    "PipelineRepositoryProtocol",
+    "PipelineRunRepositoryProtocol",
+    "AlertRepositoryProtocol",
+    "AlertNotificationRepositoryProtocol",
     "DataLoaderProtocol",
     "BatchDataLoaderProtocol",
     "StreamingDataLoaderProtocol",

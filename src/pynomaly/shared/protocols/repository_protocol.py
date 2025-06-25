@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Protocol, TypeVar, runtime_checkable
 from uuid import UUID
 
-from pynomaly.domain.entities import Dataset, Detector, DetectionResult
+from pynomaly.domain.entities import Dataset, Detector, DetectionResult, Model, ModelVersion, Experiment, ExperimentRun, Pipeline, PipelineRun, Alert, AlertNotification
 
 T = TypeVar("T")
 
@@ -227,5 +227,289 @@ class DetectionResultRepositoryProtocol(RepositoryProtocol[DetectionResult], Pro
             
         Returns:
             Dictionary of statistics
+        """
+        ...
+
+
+@runtime_checkable  
+class ModelRepositoryProtocol(RepositoryProtocol[Model], Protocol):
+    """Protocol for model repository implementations."""
+    
+    def find_by_name(self, name: str) -> List[Model]:
+        """Find models by name.
+        
+        Args:
+            name: The model name
+            
+        Returns:
+            List of models with that name
+        """
+        ...
+    
+    def find_by_stage(self, stage) -> List[Model]:
+        """Find models by stage.
+        
+        Args:
+            stage: The model stage
+            
+        Returns:
+            List of models in that stage
+        """
+        ...
+    
+    def find_by_type(self, model_type) -> List[Model]:
+        """Find models by type.
+        
+        Args:
+            model_type: The model type
+            
+        Returns:
+            List of models of that type
+        """
+        ...
+
+
+@runtime_checkable
+class ModelVersionRepositoryProtocol(RepositoryProtocol[ModelVersion], Protocol):
+    """Protocol for model version repository implementations."""
+    
+    def find_by_model_id(self, model_id: UUID) -> List[ModelVersion]:
+        """Find all versions for a model.
+        
+        Args:
+            model_id: ID of the model
+            
+        Returns:
+            List of model versions
+        """
+        ...
+    
+    def find_by_model_and_version(self, model_id: UUID, version) -> Optional[ModelVersion]:
+        """Find a specific version of a model.
+        
+        Args:
+            model_id: ID of the model
+            version: The version to find
+            
+        Returns:
+            Model version if found
+        """
+        ...
+
+
+@runtime_checkable
+class ExperimentRepositoryProtocol(RepositoryProtocol[Experiment], Protocol):
+    """Protocol for experiment repository implementations."""
+    
+    def find_by_name(self, name: str) -> List[Experiment]:
+        """Find experiments by name.
+        
+        Args:
+            name: The experiment name
+            
+        Returns:
+            List of experiments with that name
+        """
+        ...
+    
+    def find_by_status(self, status) -> List[Experiment]:
+        """Find experiments by status.
+        
+        Args:
+            status: The experiment status
+            
+        Returns:
+            List of experiments with that status
+        """
+        ...
+    
+    def find_by_type(self, experiment_type) -> List[Experiment]:
+        """Find experiments by type.
+        
+        Args:
+            experiment_type: The experiment type
+            
+        Returns:
+            List of experiments of that type
+        """
+        ...
+
+
+@runtime_checkable
+class ExperimentRunRepositoryProtocol(RepositoryProtocol[ExperimentRun], Protocol):
+    """Protocol for experiment run repository implementations."""
+    
+    def find_by_experiment_id(self, experiment_id: UUID) -> List[ExperimentRun]:
+        """Find all runs for an experiment.
+        
+        Args:
+            experiment_id: ID of the experiment
+            
+        Returns:
+            List of experiment runs
+        """
+        ...
+    
+    def find_by_status(self, status: str) -> List[ExperimentRun]:
+        """Find runs by status.
+        
+        Args:
+            status: The run status
+            
+        Returns:
+            List of runs with that status
+        """
+        ...
+
+
+@runtime_checkable
+class PipelineRepositoryProtocol(RepositoryProtocol[Pipeline], Protocol):
+    """Protocol for pipeline repository implementations."""
+    
+    def find_by_name(self, name: str) -> List[Pipeline]:
+        """Find pipelines by name.
+        
+        Args:
+            name: The pipeline name
+            
+        Returns:
+            List of pipelines with that name
+        """
+        ...
+    
+    def find_by_name_and_environment(self, name: str, environment: str) -> List[Pipeline]:
+        """Find pipelines by name and environment.
+        
+        Args:
+            name: The pipeline name
+            environment: The environment
+            
+        Returns:
+            List of pipelines with that name and environment
+        """
+        ...
+    
+    def find_by_status(self, status) -> List[Pipeline]:
+        """Find pipelines by status.
+        
+        Args:
+            status: The pipeline status
+            
+        Returns:
+            List of pipelines with that status
+        """
+        ...
+    
+    def find_by_type(self, pipeline_type) -> List[Pipeline]:
+        """Find pipelines by type.
+        
+        Args:
+            pipeline_type: The pipeline type
+            
+        Returns:
+            List of pipelines of that type
+        """
+        ...
+
+
+@runtime_checkable
+class PipelineRunRepositoryProtocol(RepositoryProtocol[PipelineRun], Protocol):
+    """Protocol for pipeline run repository implementations."""
+    
+    def find_by_pipeline_id(self, pipeline_id: UUID) -> List[PipelineRun]:
+        """Find all runs for a pipeline.
+        
+        Args:
+            pipeline_id: ID of the pipeline
+            
+        Returns:
+            List of pipeline runs
+        """
+        ...
+    
+    def find_by_status(self, status: str) -> List[PipelineRun]:
+        """Find runs by status.
+        
+        Args:
+            status: The run status
+            
+        Returns:
+            List of runs with that status
+        """
+        ...
+
+
+@runtime_checkable
+class AlertRepositoryProtocol(RepositoryProtocol[Alert], Protocol):
+    """Protocol for alert repository implementations."""
+    
+    def find_by_name(self, name: str) -> List[Alert]:
+        """Find alerts by name.
+        
+        Args:
+            name: The alert name
+            
+        Returns:
+            List of alerts with that name
+        """
+        ...
+    
+    def find_by_status(self, status) -> List[Alert]:
+        """Find alerts by status.
+        
+        Args:
+            status: The alert status
+            
+        Returns:
+            List of alerts with that status
+        """
+        ...
+    
+    def find_by_type(self, alert_type) -> List[Alert]:
+        """Find alerts by type.
+        
+        Args:
+            alert_type: The alert type
+            
+        Returns:
+            List of alerts of that type
+        """
+        ...
+    
+    def find_by_severity(self, severity) -> List[Alert]:
+        """Find alerts by severity.
+        
+        Args:
+            severity: The alert severity
+            
+        Returns:
+            List of alerts with that severity
+        """
+        ...
+
+
+@runtime_checkable
+class AlertNotificationRepositoryProtocol(RepositoryProtocol[AlertNotification], Protocol):
+    """Protocol for alert notification repository implementations."""
+    
+    def find_by_alert_id(self, alert_id: UUID) -> List[AlertNotification]:
+        """Find all notifications for an alert.
+        
+        Args:
+            alert_id: ID of the alert
+            
+        Returns:
+            List of alert notifications
+        """
+        ...
+    
+    def find_by_status(self, status: str) -> List[AlertNotification]:
+        """Find notifications by status.
+        
+        Args:
+            status: The notification status
+            
+        Returns:
+            List of notifications with that status
         """
         ...
