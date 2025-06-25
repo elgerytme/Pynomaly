@@ -442,7 +442,10 @@
       "Bash(./run_pynomaly.py --help)",
       "Bash(./run_pynomaly.py version)",
       "Bash(./run_pynomaly.py detector list)",
-      "Bash(/mnt/c/Users/andre/Pynomaly/.venv/bin/python -m uvicorn pynomaly.presentation.api.app:app --host 127.0.0.1 --port 8000 --log-level info --timeout-graceful-shutdown 5)"
+      "Bash(/mnt/c/Users/andre/Pynomaly/.venv/bin/python -m uvicorn pynomaly.presentation.api.app:app --host 127.0.0.1 --port 8000 --log-level info --timeout-graceful-shutdown 5)",
+      "Bash(./scripts/test-current.sh:*)",
+      "Bash(./scripts/test-fresh.sh:*)",
+      "Bash(powershell:*)"
     ],
     "deny": [],
     "//": "This sets the default policy to 'allow' for any action that doesn't have a more specific rule below. This is the top-level 'allow all actions' setting.",
