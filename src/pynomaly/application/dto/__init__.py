@@ -18,6 +18,10 @@ from .explainability_dto import (
     FeatureRankingDTO, ExplanationSummaryDTO
 )
 
+# Backward compatibility aliases
+DetectorConfig = CreateDetectorDTO
+OptimizationConfig = HyperparameterOptimizationRequestDTO
+
 __all__ = [
     # Detector DTOs
     "DetectorDTO",
@@ -65,4 +69,7 @@ __all__ = [
     "CompareMethodsRequestDTO",
     "FeatureRankingDTO",
     "ExplanationSummaryDTO",
+    # Backward compatibility aliases
+    "DetectorConfig",
+    "OptimizationConfig",
 ]

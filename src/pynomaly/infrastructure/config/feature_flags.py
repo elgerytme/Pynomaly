@@ -156,10 +156,57 @@ class FeatureFlags(BaseSettings):
         description="Enable Prometheus/Grafana integration"
     )
     
+    # Phase 3A: Advanced ML/AI Features (Enabled for development)
+    advanced_automl: bool = Field(
+        default=True,
+        description="Enable advanced AutoML with multi-objective optimization"
+    )
+    
+    meta_learning: bool = Field(
+        default=True,
+        description="Enable meta-learning from optimization history"
+    )
+    
+    ensemble_optimization: bool = Field(
+        default=True,
+        description="Enable advanced ensemble optimization"
+    )
+    
+    deep_learning_adapters: bool = Field(
+        default=False,
+        description="Enable PyTorch/TensorFlow deep learning adapters"
+    )
+    
+    advanced_explainability: bool = Field(
+        default=True,
+        description="Enable advanced explainable AI features"
+    )
+    
+    # Phase 3C: User Experience Features (Enabled for development)
+    real_time_dashboards: bool = Field(
+        default=True,
+        description="Enable real-time analytics dashboards"
+    )
+    
+    progressive_web_app: bool = Field(
+        default=True,
+        description="Enable PWA features with offline capabilities"
+    )
+    
+    mobile_interface: bool = Field(
+        default=True,
+        description="Enable mobile-responsive interface"
+    )
+    
+    business_intelligence: bool = Field(
+        default=True,
+        description="Enable advanced BI reporting and analytics"
+    )
+    
     # Phase 4: Advanced Capabilities (Disabled by default)
     automl_framework: bool = Field(
         default=False,
-        description="Enable AutoML and hyperparameter optimization"
+        description="Enable legacy AutoML framework (superseded by advanced_automl)"
     )
     
     streaming_analytics: bool = Field(
@@ -285,12 +332,87 @@ class FeatureFlagManager:
                 required_packages={"shap", "lime"}
             ),
             
+            # Phase 3A: Advanced ML/AI Features
+            "advanced_automl": FeatureDefinition(
+                name="advanced_automl",
+                description="Advanced AutoML with multi-objective optimization",
+                category=FeatureCategory.AUTOMATION,
+                stage=FeatureStage.BETA,
+                dependencies={"algorithm_optimization", "performance_monitoring"},
+                required_packages={"optuna"}
+            ),
+            
+            "meta_learning": FeatureDefinition(
+                name="meta_learning",
+                description="Meta-learning from optimization history",
+                category=FeatureCategory.AUTOMATION,
+                stage=FeatureStage.BETA,
+                dependencies={"advanced_automl"}
+            ),
+            
+            "ensemble_optimization": FeatureDefinition(
+                name="ensemble_optimization",
+                description="Advanced ensemble optimization",
+                category=FeatureCategory.AUTOMATION,
+                stage=FeatureStage.BETA,
+                dependencies={"algorithm_optimization"}
+            ),
+            
+            "deep_learning_adapters": FeatureDefinition(
+                name="deep_learning_adapters",
+                description="PyTorch/TensorFlow deep learning adapters",
+                category=FeatureCategory.INTEGRATIONS,
+                stage=FeatureStage.EXPERIMENTAL,
+                dependencies={"algorithm_optimization"},
+                required_packages={"torch", "tensorflow"}
+            ),
+            
+            "advanced_explainability": FeatureDefinition(
+                name="advanced_explainability",
+                description="Advanced explainable AI features",
+                category=FeatureCategory.ANALYTICS,
+                stage=FeatureStage.BETA,
+                required_packages={"shap", "lime"}
+            ),
+            
+            # Phase 3C: User Experience Features
+            "real_time_dashboards": FeatureDefinition(
+                name="real_time_dashboards",
+                description="Real-time analytics dashboards",
+                category=FeatureCategory.ANALYTICS,
+                stage=FeatureStage.BETA,
+                dependencies={"performance_monitoring"}
+            ),
+            
+            "progressive_web_app": FeatureDefinition(
+                name="progressive_web_app",
+                description="PWA features with offline capabilities",
+                category=FeatureCategory.INTEGRATIONS,
+                stage=FeatureStage.BETA
+            ),
+            
+            "mobile_interface": FeatureDefinition(
+                name="mobile_interface",
+                description="Mobile-responsive interface",
+                category=FeatureCategory.CORE,
+                stage=FeatureStage.BETA,
+                dependencies={"progressive_web_app"}
+            ),
+            
+            "business_intelligence": FeatureDefinition(
+                name="business_intelligence",
+                description="Advanced BI reporting and analytics",
+                category=FeatureCategory.ANALYTICS,
+                stage=FeatureStage.BETA,
+                dependencies={"real_time_dashboards"}
+            ),
+            
             # Phase 4: Advanced Capabilities
             "automl_framework": FeatureDefinition(
                 name="automl_framework",
-                description="AutoML and hyperparameter optimization",
+                description="Legacy AutoML framework (superseded by advanced_automl)",
                 category=FeatureCategory.AUTOMATION,
-                stage=FeatureStage.EXPERIMENTAL,
+                stage=FeatureStage.DEPRECATED,
                 dependencies={"algorithm_optimization", "performance_monitoring"},
                 required_packages={"optuna", "hyperopt"}
             ),

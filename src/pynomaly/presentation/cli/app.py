@@ -11,6 +11,7 @@ from rich.console import Console
 from rich.table import Table
 
 from pynomaly.presentation.cli import datasets, detectors, detection, server, autonomous, preprocessing
+# from pynomaly.presentation.cli import automl  # Temporarily disabled due to Typer compatibility
 # from pynomaly.presentation.cli import performance  # Temporarily disabled due to Typer type issues
 from pynomaly.presentation.cli.export import export_app
 # from pynomaly.presentation.cli.explain import explain_commands  # Temporarily disabled
@@ -33,6 +34,7 @@ console = Console()
 
 # Add subcommands
 app.add_typer(autonomous.app, name="auto", help="🤖 Autonomous anomaly detection (auto-configure and run)")
+# app.add_typer(automl.automl, name="automl", help="🧠 Advanced AutoML & hyperparameter optimization")  # Temporarily disabled
 app.add_typer(detectors.app, name="detector", help="Manage anomaly detectors")
 app.add_typer(datasets.app, name="dataset", help="Manage datasets")
 app.add_typer(preprocessing.app, name="data", help="🔧 Data preprocessing (clean, transform, pipeline)")
