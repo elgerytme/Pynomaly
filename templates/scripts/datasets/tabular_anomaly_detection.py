@@ -6,35 +6,44 @@ This template provides a comprehensive framework for detecting anomalies in tabu
 including feature engineering, multiple algorithm comparison, and business-focused reporting.
 """
 
+import warnings
+from datetime import datetime
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import seaborn as sns
-from datetime import datetime
-import warnings
+
 warnings.filterwarnings('ignore')
 
-# Machine learning imports
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, LabelEncoder, OneHotEncoder
-from sklearn.feature_selection import VarianceThreshold, SelectKBest, f_classif
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.metrics import classification_report, confusion_matrix, roc_curve, auc
-from sklearn.decomposition import PCA
-from sklearn.cluster import KMeans
+import os
+
+# Pynomaly imports (adjust path as needed)
+import sys
 
 # Statistical imports
 from scipy import stats
 from scipy.stats import chi2_contingency
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+from sklearn.feature_selection import SelectKBest, VarianceThreshold, f_classif
+from sklearn.metrics import auc, classification_report, confusion_matrix, roc_curve
+from sklearn.model_selection import cross_val_score, train_test_split
 
-# Pynomaly imports (adjust path as needed)
-import sys
-import os
+# Machine learning imports
+from sklearn.preprocessing import (
+    LabelEncoder,
+    MinMaxScaler,
+    OneHotEncoder,
+    StandardScaler,
+)
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'src'))
 
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
 from pynomaly.domain.entities.dataset import Dataset
 from pynomaly.domain.value_objects.contamination_rate import ContaminationRate
+from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
 
 class TabularAnomalyDetector:

@@ -212,9 +212,11 @@ class TechnicalReportGenerator:
                             "statistic": statistic,
                             "p_value": p_value,
                             "significant": p_value < 0.05,
-                            "better_algorithm": alg1
-                            if np.mean(cv_results[alg1]) > np.mean(cv_results[alg2])
-                            else alg2,
+                            "better_algorithm": (
+                                alg1
+                                if np.mean(cv_results[alg1]) > np.mean(cv_results[alg2])
+                                else alg2
+                            ),
                         }
                     except Exception as e:
                         pairwise_tests[f"{alg1}_vs_{alg2}"] = {"error": str(e)}
@@ -271,9 +273,9 @@ class TechnicalReportGenerator:
                 "min": min(values),
                 "gap": max(values) - min(values),
                 "std": np.std(values),
-                "coefficient_of_variation": np.std(values) / np.mean(values)
-                if np.mean(values) > 0
-                else 0,
+                "coefficient_of_variation": (
+                    np.std(values) / np.mean(values) if np.mean(values) > 0 else 0
+                ),
             }
 
         return comparison

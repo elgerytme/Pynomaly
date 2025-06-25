@@ -252,9 +252,9 @@ class IoTSensorPreprocessor:
         quality_results = {
             "total_sensors": len(sensor_columns),
             "time_range": (df.index.min(), df.index.max()),
-            "sampling_rate_seconds": (df.index[1] - df.index[0]).total_seconds()
-            if len(df) > 1
-            else None,
+            "sampling_rate_seconds": (
+                (df.index[1] - df.index[0]).total_seconds() if len(df) > 1 else None
+            ),
             "sensor_analysis": {},
         }
 

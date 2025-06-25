@@ -27,7 +27,6 @@ from statsmodels.tsa.stattools import adfuller
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "..", "src"))
 
 
-
 class TimeSeriesAnomalyDetector:
     """
     Comprehensive time series anomaly detection with seasonal handling and context awareness.
@@ -155,12 +154,14 @@ class TimeSeriesAnomalyDetector:
         analysis["frequency"] = {
             "most_common_interval": most_common_freq,
             "irregular_intervals": (time_diff != most_common_freq).sum(),
-            "missing_timestamps": len(
-                pd.date_range(df.index.min(), df.index.max(), freq=most_common_freq)
-            )
-            - len(df)
-            if most_common_freq
-            else None,
+            "missing_timestamps": (
+                len(
+                    pd.date_range(df.index.min(), df.index.max(), freq=most_common_freq)
+                )
+                - len(df)
+                if most_common_freq
+                else None
+            ),
         }
 
         print("\n⏰ Frequency Analysis:")

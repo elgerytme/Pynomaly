@@ -296,9 +296,7 @@ class ModelVersionRepositoryProtocol(RepositoryProtocol[ModelVersion], Protocol)
         """
         ...
 
-    def find_by_model_and_version(
-        self, model_id: UUID, version
-    ) -> ModelVersion | None:
+    def find_by_model_and_version(self, model_id: UUID, version) -> ModelVersion | None:
         """Find a specific version of a model.
 
         Args:

@@ -369,9 +369,7 @@ class ExecutiveReportGenerator:
         """Generate recommended next steps."""
         next_steps = []
 
-        (
-            data.anomaly_count / data.total_records if data.total_records > 0 else 0
-        )
+        (data.anomaly_count / data.total_records if data.total_records > 0 else 0)
         risk_level = self._calculate_risk_level(data)
 
         # Immediate actions based on risk level

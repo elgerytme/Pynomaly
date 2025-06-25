@@ -478,9 +478,9 @@ class EnsembleSelector:
                     )
 
                 strategy_results[strategy_name]["best_ensemble"] = best_ensemble
-                strategy_results[strategy_name]["ensemble_performances"] = (
-                    ensemble_performances
-                )
+                strategy_results[strategy_name][
+                    "ensemble_performances"
+                ] = ensemble_performances
 
                 # Calculate average performance
                 if y is not None:
@@ -812,11 +812,11 @@ class EnsembleSelector:
         return {
             "optimization_method": "exhaustive_search",
             "best_ensembles_per_strategy": best_ensembles,
-            "global_best": max(
-                best_ensembles.items(), key=lambda x: x[1]["performance"]
-            )
-            if best_ensembles
-            else None,
+            "global_best": (
+                max(best_ensembles.items(), key=lambda x: x[1]["performance"])
+                if best_ensembles
+                else None
+            ),
         }
 
     def _greedy_search_optimization(

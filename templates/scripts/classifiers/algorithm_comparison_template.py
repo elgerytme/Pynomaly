@@ -298,9 +298,9 @@ class AlgorithmComparator:
             "fit_time": fit_time,
             "predict_time": predict_time,
             "total_time": time.time() - start_time,
-            "predictions_per_second": len(X) / predict_time
-            if predict_time > 0
-            else float("inf"),
+            "predictions_per_second": (
+                len(X) / predict_time if predict_time > 0 else float("inf")
+            ),
             "scalability_score": self._calculate_scalability_score(
                 X.shape, fit_time, predict_time
             ),
@@ -777,9 +777,11 @@ class AlgorithmComparator:
                                     < self.config["evaluation"]["statistical_tests"][
                                         "significance_level"
                                     ],
-                                    "winner": algo1
-                                    if np.mean(scores1) > np.mean(scores2)
-                                    else algo2,
+                                    "winner": (
+                                        algo1
+                                        if np.mean(scores1) > np.mean(scores2)
+                                        else algo2
+                                    ),
                                 }
                             except Exception as e:
                                 pairwise_tests[f"{algo1}_vs_{algo2}"] = {
@@ -902,9 +904,9 @@ class AlgorithmComparator:
             "ranking_criteria": ranking_criteria,
             "algorithm_scores": algorithm_scores,
             "ranked_list": ranked_algorithms,
-            "recommended_algorithm": ranked_algorithms[0][0]
-            if ranked_algorithms
-            else None,
+            "recommended_algorithm": (
+                ranked_algorithms[0][0] if ranked_algorithms else None
+            ),
         }
 
     def _analyze_algorithm_similarity(self, results: dict[str, Any]) -> dict[str, Any]:
@@ -956,9 +958,9 @@ class AlgorithmComparator:
             "similarity_matrix": similarity_matrix,
             "most_similar_pair": similarities[-1] if similarities else None,
             "least_similar_pair": similarities[0] if similarities else None,
-            "average_similarity": np.mean([s[2] for s in similarities])
-            if similarities
-            else 0,
+            "average_similarity": (
+                np.mean([s[2] for s in similarities]) if similarities else 0
+            ),
         }
 
     def _generate_comparison_report(

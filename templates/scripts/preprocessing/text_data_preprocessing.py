@@ -601,9 +601,9 @@ class TextDataPreprocessor:
                         lambda x: textstat.flesch_kincaid_grade(x) if x.strip() else 0
                     )
                     df[f"{col}_automated_readability_index"] = original_text.apply(
-                        lambda x: textstat.automated_readability_index(x)
-                        if x.strip()
-                        else 0
+                        lambda x: (
+                            textstat.automated_readability_index(x) if x.strip() else 0
+                        )
                     )
 
                 # Complexity metrics
@@ -615,11 +615,13 @@ class TextDataPreprocessor:
                         lambda x: len(word_tokenize(x)) if x.strip() else 0
                     )
                     df[f"{col}_avg_sentence_length"] = original_text.apply(
-                        lambda x: np.mean(
-                            [len(word_tokenize(sent)) for sent in sent_tokenize(x)]
+                        lambda x: (
+                            np.mean(
+                                [len(word_tokenize(sent)) for sent in sent_tokenize(x)]
+                            )
+                            if x.strip() and sent_tokenize(x)
+                            else 0
                         )
-                        if x.strip() and sent_tokenize(x)
-                        else 0
                     )
                     df[f"{col}_syllable_count"] = original_text.apply(
                         lambda x: textstat.syllable_count(x) if x.strip() else 0
@@ -1187,7 +1189,9 @@ def main():
                 "_cluster",
             ]
         )
-    ][:10]  # Show first 10 feature columns
+    ][
+        :10
+    ]  # Show first 10 feature columns
 
     if feature_cols:
         print(processed_df[feature_cols].head())
