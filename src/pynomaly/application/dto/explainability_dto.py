@@ -311,10 +311,26 @@ class GlobalExplanationDTO(BaseModel):
     model_name: str = Field(..., description="Model name")
     feature_importances: Dict[str, float] = Field(..., description="Feature importance scores")
     top_features: List[str] = Field(..., description="Top important features")
-    explanation_method: str = Field(..., description="Explanation method used")
+    explanation_method: ExplanationMethod = Field(..., description="Explanation method used")
     model_performance: Dict[str, float] = Field(..., description="Model performance metrics")
-    timestamp: str = Field(..., description="Explanation timestamp")
+    timestamp: datetime = Field(default_factory=datetime.now, description="Explanation timestamp")
     summary: str = Field(..., description="Explanation summary")
+    
+    # Enhanced fields
+    feature_statistics: Optional[Dict[str, Any]] = Field(default=None, description="Feature statistics across dataset")
+    feature_interactions_global: Optional[List[FeatureInteractionDTO]] = Field(default=None, description="Global feature interactions")
+    partial_dependence_plots: Optional[Dict[str, Any]] = Field(default=None, description="Partial dependence plot data")
+    decision_boundary_data: Optional[Dict[str, Any]] = Field(default=None, description="Decision boundary visualization data")
+    
+    # Model insights
+    model_complexity_score: Optional[float] = Field(default=None, description="Model complexity score")
+    interpretability_score: Optional[float] = Field(default=None, description="Overall interpretability score")
+    fairness_assessment: Optional[BiasAnalysisResultDTO] = Field(default=None, description="Fairness assessment results")
+    
+    # Metadata
+    samples_analyzed: int = Field(..., description="Number of samples used for global explanation")
+    computation_time: float = Field(..., description="Time to compute explanation (seconds)")
+    explanation_config: Optional[ExplanationConfigDTO] = Field(default=None, description="Configuration used")
 
 
 class CohortExplanationDTO(BaseModel):

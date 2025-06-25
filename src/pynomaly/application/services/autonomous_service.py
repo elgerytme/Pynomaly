@@ -643,13 +643,17 @@ class AutonomousDetectionService:
                 else:
                     threshold = np.percentile(score_values, 95)
                 
+                # Debug output
+                if config.verbose:
+                    self.logger.info(f"Creating DetectionResult: anomalies={len(anomalies)}, scores={len(scores)}, predictions={len(predictions)}")
+                
                 result = DetectionResult(
-                    detector.id,
-                    dataset.id,
-                    anomalies,
-                    scores,
-                    predictions,
-                    threshold,
+                    detector_id=detector.id,
+                    dataset_id=dataset.id,
+                    anomalies=anomalies,
+                    scores=scores,
+                    labels=predictions,
+                    threshold=threshold,
                     metadata={
                         "algorithm": detector.algorithm_name,
                         "auto_generated": True

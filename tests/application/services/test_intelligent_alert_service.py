@@ -10,7 +10,7 @@ from pynomaly.application.services.intelligent_alert_service import (
     IntelligentAlertService, AlertCorrelationEngine, NoiseClassificationModel
 )
 from pynomaly.domain.entities.alert import (
-    Alert, AlertSeverity, AlertStatus, AlertCategory, AlertSource,
+    Alert, AlertSeverity, AlertStatus, AlertType, NotificationChannel,
     NoiseClassification, MLNoiseFeatures, AlertMetadata, AlertCorrelation
 )
 
@@ -38,8 +38,8 @@ class TestAlertCorrelationEngine:
             title="Test Alert",
             description="Test alert for correlation",
             severity=AlertSeverity.HIGH,
-            category=AlertCategory.ANOMALY_DETECTION,
-            source=AlertSource.DETECTOR,
+            category=AlertType.ANOMALY_DETECTION,
+            source=NotificationChannel.DETECTOR,
             metadata=metadata
         )
     
@@ -62,16 +62,16 @@ class TestAlertCorrelationEngine:
             title="Alert 1",
             description="First alert",
             severity=AlertSeverity.HIGH,
-            category=AlertCategory.ANOMALY_DETECTION,
-            source=AlertSource.DETECTOR
+            category=AlertType.ANOMALY_DETECTION,
+            source=NotificationChannel.DETECTOR
         )
         
         alert2 = Alert(
             title="Alert 2", 
             description="Second alert",
             severity=AlertSeverity.MEDIUM,
-            category=AlertCategory.SYSTEM_PERFORMANCE,
-            source=AlertSource.SYSTEM_MONITOR
+            category=AlertType.SYSTEM_PERFORMANCE,
+            source=NotificationChannel.SYSTEM_MONITOR
         )
         # Set second alert to be 5 minutes after first
         alert2.created_at = alert1.created_at + timedelta(minutes=5)
@@ -108,8 +108,8 @@ class TestAlertCorrelationEngine:
             title="Pattern Alert 1",
             description="First pattern alert",
             severity=AlertSeverity.HIGH,
-            category=AlertCategory.ANOMALY_DETECTION,
-            source=AlertSource.DETECTOR,
+            category=AlertType.ANOMALY_DETECTION,
+            source=NotificationChannel.DETECTOR,
             metadata=metadata1
         )
         
@@ -117,8 +117,8 @@ class TestAlertCorrelationEngine:
             title="Pattern Alert 2",
             description="Second pattern alert", 
             severity=AlertSeverity.HIGH,  # Same severity
-            category=AlertCategory.ANOMALY_DETECTION,  # Same category
-            source=AlertSource.DETECTOR,  # Same source
+            category=AlertType.ANOMALY_DETECTION,  # Same category
+            source=NotificationChannel.DETECTOR,  # Same source
             metadata=metadata2
         )
         
@@ -142,16 +142,16 @@ class TestAlertCorrelationEngine:
             title="Infrastructure Issue",
             description="Database server down",
             severity=AlertSeverity.CRITICAL,
-            category=AlertCategory.INFRASTRUCTURE,
-            source=AlertSource.SYSTEM_MONITOR
+            category=AlertType.INFRASTRUCTURE,
+            source=NotificationChannel.SYSTEM_MONITOR
         )
         
         effect_alert = Alert(
             title="Anomaly Detected",
             description="Anomalies in user behavior",
             severity=AlertSeverity.HIGH,
-            category=AlertCategory.ANOMALY_DETECTION,
-            source=AlertSource.DETECTOR
+            category=AlertType.ANOMALY_DETECTION,
+            source=NotificationChannel.DETECTOR
         )
         # Effect occurs 10 minutes after cause
         effect_alert.created_at = cause_alert.created_at + timedelta(minutes=10)
@@ -219,8 +219,8 @@ class TestNoiseClassificationModel:
             title="Test Alert",
             description="Test for feature extraction",
             severity=AlertSeverity.MEDIUM,
-            category=AlertCategory.ANOMALY_DETECTION,
-            source=AlertSource.DETECTOR
+            category=AlertType.ANOMALY_DETECTION,
+            source=NotificationChannel.DETECTOR
         )
         
         alert_history = []  # Empty history for simplicity
@@ -321,8 +321,8 @@ class TestIntelligentAlertService:
             title="Test Alert",
             description="Test alert creation",
             severity=AlertSeverity.HIGH,
-            category=AlertCategory.ANOMALY_DETECTION,
-            source=AlertSource.DETECTOR,
+            category=AlertType.ANOMALY_DETECTION,
+            source=NotificationChannel.DETECTOR,
             metadata=sample_metadata,
             message="Test message"
         )
@@ -330,7 +330,7 @@ class TestIntelligentAlertService:
         assert isinstance(alert, Alert)
         assert alert.title == "Test Alert"
         assert alert.severity == AlertSeverity.HIGH
-        assert alert.category == AlertCategory.ANOMALY_DETECTION
+        assert alert.category == AlertType.ANOMALY_DETECTION
         assert alert.metadata.tenant_id == sample_metadata.tenant_id
         
         # Check that alert was stored
@@ -345,8 +345,8 @@ class TestIntelligentAlertService:
             title="Intelligence Test Alert",
             description="Test intelligent processing",
             severity=AlertSeverity.MEDIUM,
-            category=AlertCategory.ANOMALY_DETECTION,
-            source=AlertSource.DETECTOR,
+            category=AlertType.ANOMALY_DETECTION,
+            source=NotificationChannel.DETECTOR,
             metadata=sample_metadata
         )
         
@@ -370,8 +370,8 @@ class TestIntelligentAlertService:
             title="Noisy Alert",
             description="Alert classified as noise",
             severity=AlertSeverity.LOW,
-            category=AlertCategory.ANOMALY_DETECTION,
-            source=AlertSource.DETECTOR
+            category=AlertType.ANOMALY_DETECTION,
+            source=NotificationChannel.DETECTOR
         )
         
         # Set high noise classification
@@ -391,8 +391,8 @@ class TestIntelligentAlertService:
             title="Duplicate Alert",
             description="First alert",
             severity=AlertSeverity.MEDIUM,
-            category=AlertCategory.SYSTEM_PERFORMANCE,
-            source=AlertSource.SYSTEM_MONITOR
+            category=AlertType.SYSTEM_PERFORMANCE,
+            source=NotificationChannel.SYSTEM_MONITOR
         )
         alert1.metadata.tenant_id = uuid4()
         
@@ -404,8 +404,8 @@ class TestIntelligentAlertService:
             title="Duplicate Alert 2",
             description="Second similar alert",
             severity=AlertSeverity.MEDIUM,
-            category=AlertCategory.SYSTEM_PERFORMANCE,
-            source=AlertSource.SYSTEM_MONITOR
+            category=AlertType.SYSTEM_PERFORMANCE,
+            source=NotificationChannel.SYSTEM_MONITOR
         )
         alert2.metadata.tenant_id = alert1.metadata.tenant_id
         alert2.created_at = alert1.created_at + timedelta(minutes=2)
@@ -424,8 +424,8 @@ class TestIntelligentAlertService:
             title="Acknowledge Test",
             description="Test acknowledgment",
             severity=AlertSeverity.HIGH,
-            category=AlertCategory.ANOMALY_DETECTION,
-            source=AlertSource.DETECTOR,
+            category=AlertType.ANOMALY_DETECTION,
+            source=NotificationChannel.DETECTOR,
             metadata=sample_metadata
         )
         
@@ -448,8 +448,8 @@ class TestIntelligentAlertService:
             title="Resolve Test",
             description="Test resolution",
             severity=AlertSeverity.MEDIUM,
-            category=AlertCategory.ANOMALY_DETECTION,
-            source=AlertSource.DETECTOR,
+            category=AlertType.ANOMALY_DETECTION,
+            source=NotificationChannel.DETECTOR,
             metadata=sample_metadata
         )
         
@@ -473,8 +473,8 @@ class TestIntelligentAlertService:
             title="Suppress Test",
             description="Test suppression",
             severity=AlertSeverity.LOW,
-            category=AlertCategory.ANOMALY_DETECTION,
-            source=AlertSource.DETECTOR,
+            category=AlertType.ANOMALY_DETECTION,
+            source=NotificationChannel.DETECTOR,
             metadata=sample_metadata
         )
         
@@ -498,8 +498,8 @@ class TestIntelligentAlertService:
             title="Escalate Test",
             description="Test escalation",
             severity=AlertSeverity.CRITICAL,
-            category=AlertCategory.SECURITY,
-            source=AlertSource.SECURITY_SERVICE,
+            category=AlertType.SECURITY,
+            source=NotificationChannel.SECURITY_SERVICE,
             metadata=sample_metadata
         )
         
@@ -523,8 +523,8 @@ class TestIntelligentAlertService:
             title="Critical Alert",
             description="Critical severity",
             severity=AlertSeverity.CRITICAL,
-            category=AlertCategory.SECURITY,
-            source=AlertSource.SECURITY_SERVICE,
+            category=AlertType.SECURITY,
+            source=NotificationChannel.SECURITY_SERVICE,
             metadata=sample_metadata
         )
         
@@ -532,8 +532,8 @@ class TestIntelligentAlertService:
             title="Medium Alert",
             description="Medium severity",
             severity=AlertSeverity.MEDIUM,
-            category=AlertCategory.ANOMALY_DETECTION,
-            source=AlertSource.DETECTOR,
+            category=AlertType.ANOMALY_DETECTION,
+            source=NotificationChannel.DETECTOR,
             metadata=sample_metadata
         )
         
@@ -546,10 +546,10 @@ class TestIntelligentAlertService:
         
         # Test category filter
         security_alerts = await alert_service.list_alerts(
-            category_filter=AlertCategory.SECURITY
+            category_filter=AlertType.SECURITY
         )
         assert len(security_alerts) >= 1
-        assert all(alert.category == AlertCategory.SECURITY for alert in security_alerts)
+        assert all(alert.category == AlertType.SECURITY for alert in security_alerts)
         
         # Test tenant filter
         tenant_alerts = await alert_service.list_alerts(
@@ -563,7 +563,7 @@ class TestIntelligentAlertService:
         """Test getting alert analytics."""
         # Create several alerts for analytics
         severities = [AlertSeverity.CRITICAL, AlertSeverity.HIGH, AlertSeverity.MEDIUM]
-        categories = [AlertCategory.ANOMALY_DETECTION, AlertCategory.SECURITY, AlertCategory.SYSTEM_PERFORMANCE]
+        categories = [AlertType.ANOMALY_DETECTION, AlertType.SECURITY, AlertType.SYSTEM_PERFORMANCE]
         
         for i in range(5):
             await alert_service.create_alert(
@@ -571,7 +571,7 @@ class TestIntelligentAlertService:
                 description=f"Alert {i} for analytics",
                 severity=severities[i % 3],
                 category=categories[i % 3],
-                source=AlertSource.DETECTOR,
+                source=NotificationChannel.DETECTOR,
                 metadata=sample_metadata
             )
         
@@ -604,8 +604,8 @@ class TestIntelligentAlertService:
             title="Duplicate Test 1",
             description="First duplicate",
             severity=AlertSeverity.MEDIUM,
-            category=AlertCategory.SYSTEM_PERFORMANCE,
-            source=AlertSource.SYSTEM_MONITOR
+            category=AlertType.SYSTEM_PERFORMANCE,
+            source=NotificationChannel.SYSTEM_MONITOR
         )
         alert1.metadata.tenant_id = tenant_id
         alert1.metadata.affected_resources = ["server1", "server2"]
@@ -614,8 +614,8 @@ class TestIntelligentAlertService:
             title="Duplicate Test 2",
             description="Second duplicate",
             severity=AlertSeverity.MEDIUM,
-            category=AlertCategory.SYSTEM_PERFORMANCE,
-            source=AlertSource.SYSTEM_MONITOR
+            category=AlertType.SYSTEM_PERFORMANCE,
+            source=NotificationChannel.SYSTEM_MONITOR
         )
         alert2.metadata.tenant_id = tenant_id
         alert2.metadata.affected_resources = ["server1", "server2"]  # Same resources
@@ -625,7 +625,7 @@ class TestIntelligentAlertService:
         assert are_duplicates
         
         # Change one property to make them not duplicates
-        alert2.category = AlertCategory.SECURITY
+        alert2.category = AlertType.SECURITY
         are_duplicates = alert_service._are_alerts_duplicate(alert1, alert2)
         assert not are_duplicates
     
@@ -637,8 +637,8 @@ class TestIntelligentAlertService:
             title="Base Alert",
             description="Base for similarity test",
             severity=AlertSeverity.HIGH,
-            category=AlertCategory.ANOMALY_DETECTION,
-            source=AlertSource.DETECTOR
+            category=AlertType.ANOMALY_DETECTION,
+            source=NotificationChannel.DETECTOR
         )
         
         # Add some similar alerts to history
@@ -647,8 +647,8 @@ class TestIntelligentAlertService:
                 title=f"Similar Alert {i}",
                 description=f"Similar alert {i}",
                 severity=AlertSeverity.HIGH,  # Same severity
-                category=AlertCategory.ANOMALY_DETECTION,  # Same category
-                source=AlertSource.DETECTOR
+                category=AlertType.ANOMALY_DETECTION,  # Same category
+                source=NotificationChannel.DETECTOR
             )
             similar_alert.created_at = datetime.utcnow() - timedelta(minutes=i*10)
             alert_service.alert_history.append(similar_alert)
@@ -658,8 +658,8 @@ class TestIntelligentAlertService:
             title="Different Alert",
             description="Different alert",
             severity=AlertSeverity.LOW,  # Different severity
-            category=AlertCategory.SECURITY,  # Different category
-            source=AlertSource.SECURITY_SERVICE
+            category=AlertType.SECURITY,  # Different category
+            source=NotificationChannel.SECURITY_SERVICE
         )
         alert_service.alert_history.append(different_alert)
         

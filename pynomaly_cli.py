@@ -942,14 +942,38 @@ def explain_anomaly_detection(file_path, algorithm=None, instance_index=None):
         
         instance = data.iloc[instance_index]
         is_anomaly = instance_index in anomaly_indices
-        anomaly_score = result.scores[instance_index] if hasattr(result, 'scores') else None
+        # Get raw anomaly score value
+        try:
+            if hasattr(result, 'scores') and result.scores is not None:
+                raw_score = result.scores[instance_index]
+                # Convert to float if it's a value object
+                if hasattr(raw_score, 'value'):
+                    anomaly_score = raw_score.value
+                elif hasattr(raw_score, '__float__'):
+                    anomaly_score = float(raw_score)
+                else:
+                    anomaly_score = raw_score
+            else:
+                anomaly_score = None
+        except (IndexError, TypeError):
+            anomaly_score = None
         
         print(f"📝 Instance Details:")
         print(f"   Index: {instance_index}")
         print(f"   Label: {'ANOMALY' if is_anomaly else 'NORMAL'}")
         if anomaly_score is not None:
             print(f"   Anomaly Score: {anomaly_score:.6f}")
-            print(f"   Threshold: {result.threshold:.6f}")
+            # Handle threshold formatting
+            try:
+                if hasattr(result.threshold, 'value'):
+                    threshold_value = result.threshold.value
+                elif hasattr(result.threshold, '__float__'):
+                    threshold_value = float(result.threshold)
+                else:
+                    threshold_value = result.threshold
+                print(f"   Threshold: {threshold_value:.6f}")
+            except (AttributeError, TypeError):
+                print(f"   Threshold: {result.threshold}")
         
         print(f"\n📋 Feature Values vs Dataset Statistics:")
         print(f"{'Feature':<20} {'Value':<12} {'Dataset Mean':<15} {'Percentile':<12} {'Status':<10}")
