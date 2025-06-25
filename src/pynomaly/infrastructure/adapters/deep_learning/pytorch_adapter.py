@@ -184,6 +184,12 @@ if PYTORCH_AVAILABLE:
         """Encode input to latent space."""
         return self.encoder(x)
 
+else:
+    # Fallback class when PyTorch is not available
+    class AutoEncoder:
+        def __init__(self, *args, **kwargs):
+            raise ImportError("PyTorch is required for AutoEncoder. Install with: pip install torch")
+
 
 if PYTORCH_AVAILABLE:
     class VAE(nn.Module):
@@ -247,6 +253,12 @@ if PYTORCH_AVAILABLE:
         recon = self.decode(z)
         return recon, mu, logvar
 
+else:
+    # Fallback class when PyTorch is not available
+    class VAE:
+        def __init__(self, *args, **kwargs):
+            raise ImportError("PyTorch is required for VAE. Install with: pip install torch")
+
 
 if PYTORCH_AVAILABLE:
     class LSTMAutoEncoder(nn.Module):
@@ -299,6 +311,12 @@ if PYTORCH_AVAILABLE:
         output = self.output_layer(self.dropout(decoded))
 
         return output
+
+else:
+    # Fallback classes when PyTorch is not available
+    class LSTMAutoEncoder:
+        def __init__(self, *args, **kwargs):
+            raise ImportError("PyTorch is required for LSTMAutoEncoder. Install with: pip install torch")
 
 
 class PyTorchAdapter(DetectorProtocol):
@@ -730,14 +748,4 @@ class PyTorchAdapter(DetectorProtocol):
             )
 
         return info
-
-else:
-    # Fallback classes when PyTorch is not available
-    class VAE:
-        def __init__(self, *args, **kwargs):
-            raise ImportError("PyTorch is required for VAE. Install with: pip install torch")
-    
-    class LSTMAutoEncoder:
-        def __init__(self, *args, **kwargs):
-            raise ImportError("PyTorch is required for LSTMAutoEncoder. Install with: pip install torch")
 

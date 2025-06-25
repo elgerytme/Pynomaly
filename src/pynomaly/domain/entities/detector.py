@@ -262,10 +262,14 @@ class Detector:
             anomalies = []
             for i, (pred, score) in enumerate(zip(predictions, scores)):
                 if pred == 1:  # Anomaly detected
+                    # Extract data point as dictionary
+                    data_point = dataset.data.iloc[i].to_dict()
+                    
                     anomaly = Anomaly(
-                        data_index=i,
                         score=score,
-                        detector_id=self.id
+                        data_point=data_point,
+                        detector_name=self.name,
+                        metadata={'index': i, 'detector_id': str(self.id)}
                     )
                     anomalies.append(anomaly)
             

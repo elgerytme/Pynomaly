@@ -137,15 +137,18 @@ class DetectAnomaliesUseCase:
             # Calculate threshold (approximate from scores and predictions)
             import numpy as np
 
-            score_values = [s.value for s in scores]
-            anomaly_score_values = [
-                score_values[i] for i in range(len(predictions)) if predictions[i] == 1
-            ]
-
-            if anomaly_score_values:
-                threshold = min(anomaly_score_values)
+            if len(scores) == 0:  # Handle empty scores
+                threshold = 0.0
             else:
-                threshold = np.percentile(score_values, 95)  # Default threshold
+                score_values = [s.value for s in scores]
+                anomaly_score_values = [
+                    score_values[i] for i in range(len(predictions)) if predictions[i] == 1
+                ]
+
+                if anomaly_score_values:
+                    threshold = min(anomaly_score_values)
+                else:
+                    threshold = np.percentile(score_values, 95) if score_values else 0.0
 
             # Create detection result
             result = DetectionResult(
