@@ -501,6 +501,60 @@ async def monitoring_page(
     )
 
 
+@router.get("/users", response_class=HTMLResponse)
+async def users_page(
+    request: Request,
+    container: Container = Depends(get_container),
+    current_user: Optional[str] = Depends(get_current_user)
+):
+    """User management page - requires admin permissions."""
+    settings = container.config()
+    
+    # Check if auth is enabled
+    if not settings.auth_enabled:
+        raise HTTPException(status_code=404, detail="User management not available when authentication is disabled")
+    
+    # Check if user is authenticated and has admin permissions
+    if not current_user:
+        return RedirectResponse(url="/web/login", status_code=302)
+    
+    # Check admin permissions
+    from pynomaly.infrastructure.auth import get_auth
+    auth_service = get_auth()
+    if not auth_service:
+        raise HTTPException(status_code=503, detail="Authentication service not available")
+    
+    # Get current user object to check permissions
+    current_user_obj = None
+    for user in auth_service._users.values():
+        if user.username == current_user:
+            current_user_obj = user
+            break
+    
+    if not current_user_obj or not auth_service.check_permissions(current_user_obj, ["users:read", "users:write"]):
+        raise HTTPException(status_code=403, detail="Admin permissions required")
+    
+    # Get available roles and permissions
+    roles = ["admin", "user", "viewer"]
+    permissions = {
+        "detectors": ["detectors:read", "detectors:write", "detectors:delete"],
+        "datasets": ["datasets:read", "datasets:write", "datasets:delete"],
+        "experiments": ["experiments:read", "experiments:write", "experiments:delete"],
+        "users": ["users:read", "users:write", "users:delete"],
+        "settings": ["settings:read", "settings:write"]
+    }
+    
+    return templates.TemplateResponse(
+        "users.html",
+        {
+            "request": request,
+            "current_user": current_user,
+            "roles": roles,
+            "permissions": permissions
+        }
+    )
+
+
 # HTMX endpoints for partial updates
 @router.get("/htmx/detector-list", response_class=HTMLResponse)
 async def htmx_detector_list(
