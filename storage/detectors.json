@@ -36,5 +36,41 @@
     "created_at": "2025-06-25T03:21:19.478376",
     "trained_at": "2025-06-24T23:21:20.042713",
     "is_fitted": true
+  },
+  "4021a350-61f1-4be9-b614-786c251b0dc4": {
+    "id": "4021a350-61f1-4be9-b614-786c251b0dc4",
+    "name": "Test Detector",
+    "algorithm_name": "IsolationForest",
+    "contamination_rate": 0.1,
+    "parameters": {
+      "contamination": 0.1
+    },
+    "metadata": {
+      "time_complexity": "O(n log n)",
+      "space_complexity": "O(n)",
+      "supports_streaming": false,
+      "category": "ensemble"
+    },
+    "created_at": "2025-06-25T12:30:24.791187",
+    "trained_at": null,
+    "is_fitted": false
+  },
+  "776e75bb-f99c-4ff7-bb01-d5479c502e15": {
+    "id": "776e75bb-f99c-4ff7-bb01-d5479c502e15",
+    "name": "Test Detector",
+    "algorithm_name": "IsolationForest",
+    "contamination_rate": 0.1,
+    "parameters": {
+      "contamination": 0.1
+    },
+    "metadata": {
+      "time_complexity": "O(n log n)",
+      "space_complexity": "O(n)",
+      "supports_streaming": false,
+      "category": "ensemble"
+    },
+    "created_at": "2025-06-25T12:30:36.049316",
+    "trained_at": null,
+    "is_fitted": false
   }
 }

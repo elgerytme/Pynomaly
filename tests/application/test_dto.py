@@ -7,6 +7,7 @@ import pytest
 from datetime import datetime
 from typing import Optional, Dict, Any
 from unittest.mock import Mock
+from pydantic import ValidationError
 
 from pynomaly.application.dto import (
     CreateDetectorDTO,
@@ -66,10 +67,10 @@ class TestCreateDetectorDTO:
         CreateDetectorDTO(name="Valid Name 123", algorithm_name="test", contamination_rate=0.1)
         
         # Invalid names
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError):
             CreateDetectorDTO(name="", algorithm_name="test", contamination_rate=0.1)
         
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError):
             CreateDetectorDTO(name="   ", algorithm_name="test", contamination_rate=0.1)
     
     def test_algorithm_validation(self):
