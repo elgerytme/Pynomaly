@@ -182,6 +182,48 @@ class OptionalServiceManager:
             "ObservabilityService",
         )
 
+        # Performance optimization services
+        self._register_service(
+            "cache_manager",
+            "pynomaly.infrastructure.cache.cache_manager",
+            "CacheManager",
+        )
+        self._register_service(
+            "in_memory_cache",
+            "pynomaly.infrastructure.cache.cache_manager",
+            "InMemoryCache",
+        )
+        self._register_service(
+            "redis_cache_backend",
+            "pynomaly.infrastructure.cache.cache_manager",
+            "RedisCache",
+        )
+        self._register_service(
+            "performance_profiler",
+            "pynomaly.infrastructure.performance.profiler",
+            "PerformanceProfiler",
+        )
+        self._register_service(
+            "system_monitor",
+            "pynomaly.infrastructure.performance.profiler",
+            "SystemMonitor",
+        )
+        self._register_service(
+            "query_optimizer",
+            "pynomaly.infrastructure.performance.query_optimizer",
+            "QueryOptimizer",
+        )
+        self._register_service(
+            "dataframe_optimizer",
+            "pynomaly.infrastructure.performance.query_optimizer",
+            "DataFrameOptimizer",
+        )
+        self._register_service(
+            "query_cache",
+            "pynomaly.infrastructure.performance.query_optimizer",
+            "QueryCache",
+        )
+
         # Distributed processing services
         self._register_service(
             "task_distributor",
@@ -503,20 +545,19 @@ class Container(containers.DeclarativeContainer):
         # Observability services
         if service_manager.is_available("observability_service"):
             from pynomaly.infrastructure.logging.observability_service import ObservabilityConfig
-            from pathlib import Path
             
             cls.observability_service = service_manager.create_provider(
                 "observability_service",
                 "singleton",
                 config=ObservabilityConfig(
-                    logs_storage_path=Path("./logs") if cls.config.provided.storage_path else None,
-                    metrics_storage_path=Path("./metrics") if cls.config.provided.storage_path else None,
-                    traces_storage_path=Path("./traces") if cls.config.provided.storage_path else None,
-                    log_level=cls.config.provided.log_level if hasattr(cls.config.provided, 'log_level') else providers.Object("INFO"),
+                    logs_storage_path=None,  # Simplified for now
+                    metrics_storage_path=None,  # Simplified for now
+                    traces_storage_path=None,  # Simplified for now
+                    log_level="INFO",
                     enable_console_logging=True,
                     enable_json_logging=True,
                     enable_system_metrics=True,
-                    enable_tracing=cls.config.provided.monitoring.tracing_enabled if hasattr(cls.config.provided, 'monitoring') else False,
+                    enable_tracing=False,
                     enable_log_analysis=True,
                     enable_anomaly_detection=True,
                     enable_alerts=False,
@@ -528,15 +569,15 @@ class Container(containers.DeclarativeContainer):
             cls.structured_logger = service_manager.create_provider(
                 "structured_logger",
                 "factory",
-                name=providers.Object("pynomaly"),
-                output_path=cls.config.provided.storage_path / "app.log" if cls.config.provided.storage_path else None,
+                logger_name=providers.Object("pynomaly"),
+                output_path=providers.Object(None),  # Simplified for now
             )
 
         if service_manager.is_available("metrics_collector"):
             cls.metrics_collector = service_manager.create_provider(
                 "metrics_collector",
                 "singleton",
-                storage_path=cls.config.provided.storage_path / "metrics" if cls.config.provided.storage_path else None,
+                storage_path=providers.Object(None),  # Simplified for now
                 enable_system_metrics=True,
             )
 
@@ -544,7 +585,7 @@ class Container(containers.DeclarativeContainer):
             cls.log_aggregator = service_manager.create_provider(
                 "log_aggregator",
                 "singleton",
-                storage_path=cls.config.provided.storage_path / "logs" if cls.config.provided.storage_path else None,
+                storage_path=providers.Object(None),  # Simplified for now
             )
 
         if service_manager.is_available("log_analyzer"):
@@ -555,7 +596,7 @@ class Container(containers.DeclarativeContainer):
                 enable_background_analysis=True,
             )
 
-        # Performance monitoring services
+        # Performance optimization services
         cls._register_performance_services(service_manager)
 
         # Security services
@@ -691,18 +732,87 @@ class Container(containers.DeclarativeContainer):
 
     @classmethod
     def _register_performance_services(cls, service_manager):
-        """Register performance monitoring services."""
-        # Create stub providers for connection pool manager and query optimizer
-        # These are placeholders until the actual performance infrastructure is implemented
+        """Register performance optimization services."""
+        # Cache management services
+        if service_manager.is_available("cache_manager"):
+            # Create primary in-memory cache
+            cls.primary_cache_backend = service_manager.create_provider(
+                "in_memory_cache",
+                "singleton",
+                max_size=1000,
+                max_memory_mb=100,
+            )
+            
+            # Create Redis fallback cache if available
+            redis_cache_backend = None
+            if service_manager.is_available("redis_cache_backend"):
+                redis_cache_backend = service_manager.create_provider(
+                    "redis_cache_backend",
+                    "singleton",
+                    host="localhost",
+                    port=6379,
+                    default_ttl=3600,
+                )
+            
+            # Create cache manager with fallback
+            cls.cache_manager = service_manager.create_provider(
+                "cache_manager",
+                "singleton",
+                primary_backend=cls.primary_cache_backend,
+                fallback_backend=redis_cache_backend,
+                enable_write_through=True,
+                enable_metrics=True,
+            )
 
-        # Connection pool manager provider (stub implementation)
+        # Performance profiling services
+        if service_manager.is_available("performance_profiler"):
+            cls.performance_profiler = service_manager.create_provider(
+                "performance_profiler",
+                "singleton",
+                enable_cpu_profiling=True,
+                enable_memory_profiling=True,
+                max_results=1000,
+                output_dir=None,
+            )
+
+        if service_manager.is_available("system_monitor"):
+            cls.system_monitor = service_manager.create_provider(
+                "system_monitor",
+                "singleton",
+                monitoring_interval=5,
+                history_size=1000,
+                enable_alerts=False,  # Disable alerts by default
+            )
+
+        # Query optimization services
+        if service_manager.is_available("query_optimizer"):
+            cls.query_optimizer = service_manager.create_provider(
+                "query_optimizer",
+                "singleton",
+                enable_caching=True,
+                enable_optimization=True,
+                cache_ttl=3600,
+                max_cache_size=1000,
+            )
+
+        if service_manager.is_available("dataframe_optimizer"):
+            cls.dataframe_optimizer = service_manager.create_provider(
+                "dataframe_optimizer",
+                "singleton"
+            )
+
+        if service_manager.is_available("query_cache"):
+            cls.query_cache = service_manager.create_provider(
+                "query_cache",
+                "singleton",
+                max_size=1000,
+                default_ttl=3600,
+            )
+
+        # Legacy compatibility providers for connection pool manager
+        # Provide a simple stub that returns None - endpoints handle this gracefully
         cls.connection_pool_manager = providers.Singleton(
-            lambda: None  # Return None for now - endpoints handle this gracefully
-        )
-
-        # Query optimizer provider (stub implementation)
-        cls.query_optimizer = providers.Singleton(
-            lambda: None  # Return None for now - endpoints handle this gracefully
+            lambda: None
         )
 
     # Application services
