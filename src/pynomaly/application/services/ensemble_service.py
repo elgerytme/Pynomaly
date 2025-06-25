@@ -56,12 +56,20 @@ class EnsembleService:
             Ensemble detector instance
         """
         # Load detectors
+        import asyncio
         detectors = []
         for detector_id in detector_ids:
-            detector = self.detector_repository.find_by_id(detector_id)
+            # Handle async repository pattern
+            if hasattr(self.detector_repository, 'find_by_id') and asyncio.iscoroutinefunction(self.detector_repository.find_by_id):
+                detector = await self.detector_repository.find_by_id(detector_id)
+            else:
+                detector = self.detector_repository.find_by_id(detector_id)
             if detector is None:
                 raise ValueError(f"Detector {detector_id} not found")
             detectors.append(detector)
+        
+        if not detectors:
+            raise ValueError("No detectors provided for ensemble creation")
         
         # Create ensemble
         ensemble = EnsembleDetector(

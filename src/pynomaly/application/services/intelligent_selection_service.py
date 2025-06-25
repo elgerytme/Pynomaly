@@ -66,9 +66,19 @@ class IntelligentSelectionService:
         # Algorithm registry
         self.algorithm_registry = self._initialize_algorithm_registry()
         
-        # Load existing data
-        self._load_selection_history()
-        self._load_meta_models()
+        # Load existing data (handled lazily)
+        self._selection_history_loaded = False
+        self._meta_models_loaded = False
+    
+    async def _ensure_data_loaded(self) -> None:
+        """Ensure selection history and meta models are loaded."""
+        if not self._selection_history_loaded:
+            await self._load_selection_history()
+            self._selection_history_loaded = True
+        
+        if not self._meta_models_loaded:
+            await self._load_meta_models()
+            self._meta_models_loaded = True
     
     async def recommend_algorithm(
         self,
@@ -87,6 +97,9 @@ class IntelligentSelectionService:
             Algorithm selection recommendation
         """
         logger.info(f"Generating algorithm recommendation for dataset: {dataset.name}")
+        
+        # Ensure data is loaded
+        await self._ensure_data_loaded()
         
         # Extract dataset characteristics
         characteristics = await self._extract_dataset_characteristics(dataset)
@@ -140,6 +153,9 @@ class IntelligentSelectionService:
             selection_context: Context of selection decision
         """
         logger.info(f"Learning from result: {algorithm} on {dataset.name}")
+        
+        # Ensure data is loaded
+        await self._ensure_data_loaded()
         
         # Create history entry
         characteristics = await self._extract_dataset_characteristics(dataset)
@@ -218,6 +234,9 @@ class IntelligentSelectionService:
             Learning insights and trends
         """
         logger.info("Generating learning insights from selection history")
+        
+        # Ensure data is loaded
+        await self._ensure_data_loaded()
         
         if len(self.selection_history) < min_samples:
             logger.warning(f"Insufficient history for insights: {len(self.selection_history)} < {min_samples}")
@@ -597,7 +616,7 @@ class IntelligentSelectionService:
     
     def _compute_dataset_hash(self, dataset: Dataset) -> str:
         """Compute hash for dataset identification."""
-        data_str = str(dataset.data.shape) + str(list(dataset.features))
+        data_str = str(dataset.data.shape) + str(list(dataset.feature_names or []))
         return hashlib.md5(data_str.encode()).hexdigest()
     
     async def _update_meta_models(self) -> None:

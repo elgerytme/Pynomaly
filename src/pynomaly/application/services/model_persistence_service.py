@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import pickle
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 from uuid import UUID
@@ -50,7 +51,11 @@ class ModelPersistenceService:
             Path where model was saved
         """
         # Load detector
-        detector = self.detector_repository.find_by_id(detector_id)
+        import asyncio
+        if hasattr(self.detector_repository, 'find_by_id') and asyncio.iscoroutinefunction(self.detector_repository.find_by_id):
+            detector = await self.detector_repository.find_by_id(detector_id)
+        else:
+            detector = self.detector_repository.find_by_id(detector_id)
         if detector is None:
             raise ValueError(f"Detector {detector_id} not found")
         
@@ -81,7 +86,7 @@ class ModelPersistenceService:
             "detector_id": str(detector_id),
             "detector_name": detector.name,
             "algorithm": detector.algorithm_name,
-            "saved_at": datetime.utcnow().isoformat(),
+            "saved_at": datetime.now(timezone.utc).isoformat(),
             "format": format,
             "is_fitted": detector.is_fitted,
             "parameters": detector.parameters,
@@ -93,7 +98,10 @@ class ModelPersistenceService:
             json.dump(meta, f, indent=2)
         
         # Save to repository as well
-        self.detector_repository.save(detector)
+        if hasattr(self.detector_repository, 'save') and asyncio.iscoroutinefunction(self.detector_repository.save):
+            await self.detector_repository.save(detector)
+        else:
+            self.detector_repository.save(detector)
         
         return str(model_path)
     
@@ -129,7 +137,10 @@ class ModelPersistenceService:
             raise ValueError(f"Unknown format: {format}")
         
         # Update repository
-        self.detector_repository.save(detector)
+        if hasattr(self.detector_repository, 'save') and asyncio.iscoroutinefunction(self.detector_repository.save):
+            await self.detector_repository.save(detector)
+        else:
+            self.detector_repository.save(detector)
         
         return detector
     
@@ -150,7 +161,11 @@ class ModelPersistenceService:
             Paths of exported files
         """
         # Load detector
-        detector = self.detector_repository.find_by_id(detector_id)
+        import asyncio
+        if hasattr(self.detector_repository, 'find_by_id') and asyncio.iscoroutinefunction(self.detector_repository.find_by_id):
+            detector = await self.detector_repository.find_by_id(detector_id)
+        else:
+            detector = self.detector_repository.find_by_id(detector_id)
         if detector is None:
             raise ValueError(f"Detector {detector_id} not found")
         
@@ -171,7 +186,7 @@ class ModelPersistenceService:
             "contamination_rate": detector.contamination_rate.value,
             "requires_fitting": detector.requires_fitting,
             "supports_streaming": detector.supports_streaming,
-            "exported_at": datetime.utcnow().isoformat()
+            "exported_at": datetime.now(timezone.utc).isoformat()
         }
         
         config_path = export_path / "config.json"
