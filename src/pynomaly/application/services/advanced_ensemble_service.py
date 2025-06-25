@@ -27,7 +27,6 @@ from pynomaly.domain.entities import Dataset, Detector
 # Infrastructure imports - handle optional dependencies
 try:
     from sklearn.metrics import accuracy_score, roc_auc_score
-    from sklearn.model_selection import cross_val_score
 
     SKLEARN_AVAILABLE = True
 except ImportError:
@@ -35,7 +34,6 @@ except ImportError:
 
 try:
     from scipy import stats
-    from scipy.spatial.distance import pdist, squareform
 
     SCIPY_AVAILABLE = True
 except ImportError:

@@ -28,8 +28,7 @@ except ImportError:
     OPTUNA_AVAILABLE = False
 
 try:
-    from sklearn.metrics import auc, precision_recall_curve, roc_auc_score
-    from sklearn.model_selection import TimeSeriesSplit, cross_val_score
+    from sklearn.metrics import roc_auc_score
 
     SKLEARN_AVAILABLE = True
 except ImportError:

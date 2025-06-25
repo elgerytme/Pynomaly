@@ -34,8 +34,7 @@ except ImportError:
     OPTUNA_AVAILABLE = False
 
 try:
-    from sklearn.metrics import average_precision_score, f1_score, roc_auc_score
-    from sklearn.model_selection import StratifiedKFold, TimeSeriesSplit
+    from sklearn.metrics import roc_auc_score
 
     SKLEARN_AVAILABLE = True
 except ImportError:
@@ -43,8 +42,6 @@ except ImportError:
 
 try:
     import ray
-    from ray import tune
-    from ray.tune.schedulers import ASHAScheduler, HyperBandScheduler
 
     RAY_AVAILABLE = True
 except ImportError:
