@@ -5,12 +5,18 @@ from __future__ import annotations
 # Removed ABC and abstractmethod - Detector is a concrete domain entity
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Protocol
+from typing import Any, Protocol, TYPE_CHECKING
 from uuid import UUID, uuid4
+import time
 
 import pandas as pd
 
 from pynomaly.domain.value_objects import ContaminationRate
+
+if TYPE_CHECKING:
+    from pynomaly.domain.entities.dataset import Dataset
+    from pynomaly.domain.entities.training_result import TrainingResult
+    from pynomaly.domain.entities.detection_result import DetectionResult
 
 
 class DetectorAlgorithm(Protocol):
@@ -132,6 +138,156 @@ class Detector:
             "time_complexity": self.time_complexity,
             "space_complexity": self.space_complexity,
         }
+
+    def train(self, dataset: "Dataset", algorithm_adapter: DetectorAlgorithm) -> "TrainingResult":
+        """Train the detector with provided dataset.
+        
+        Args:
+            dataset: The dataset to train on
+            algorithm_adapter: The algorithm implementation to use
+            
+        Returns:
+            TrainingResult: Comprehensive training metrics and status
+            
+        Raises:
+            ValueError: If dataset is empty or invalid
+            RuntimeError: If training fails
+        """
+        from pynomaly.domain.entities.training_result import TrainingResult
+        
+        # Validate inputs
+        if dataset.data.empty:
+            raise ValueError("Dataset cannot be empty")
+        
+        start_time = time.time()
+        
+        try:
+            # Perform training
+            algorithm_adapter.fit(dataset.data)
+            
+            # Calculate training metrics
+            training_duration = time.time() - start_time
+            
+            # Get anomaly scores for validation
+            scores = algorithm_adapter.score(dataset.data)
+            
+            metrics = {
+                'n_samples': len(dataset.data),
+                'n_features': len(dataset.data.columns),
+                'training_time': training_duration,
+                'algorithm': self.algorithm_name,
+                'parameters': self.parameters.copy(),
+                'mean_score': sum(scores) / len(scores) if scores else 0.0,
+                'max_score': max(scores) if scores else 0.0,
+                'min_score': min(scores) if scores else 0.0
+            }
+            
+            # Update detector state
+            self.is_fitted = True
+            self.trained_at = datetime.utcnow()
+            
+            return TrainingResult.success_result(
+                detector_id=self.id,
+                dataset_id=dataset.id,
+                metrics=metrics,
+                training_duration=training_duration,
+                algorithm=self.algorithm_name,
+                contamination_rate=self.contamination_rate.value
+            )
+            
+        except Exception as e:
+            training_duration = time.time() - start_time
+            
+            return TrainingResult.failure_result(
+                detector_id=self.id,
+                dataset_id=dataset.id,
+                error_message=str(e),
+                training_duration=training_duration,
+                algorithm=self.algorithm_name
+            )
+
+    def detect(self, dataset: "Dataset", algorithm_adapter: DetectorAlgorithm) -> "DetectionResult":
+        """Detect anomalies in provided dataset.
+        
+        Args:
+            dataset: The dataset to analyze
+            algorithm_adapter: The algorithm implementation to use
+            
+        Returns:
+            DetectionResult: Anomaly predictions, scores, and metadata
+            
+        Raises:
+            ValueError: If detector is not fitted
+        """
+        from pynomaly.domain.entities.detection_result import DetectionResult
+        
+        # Validate detector state
+        if not self.is_fitted:
+            raise ValueError("Detector must be fitted before detection")
+        
+        # Handle empty dataset
+        if dataset.data.empty:
+            return DetectionResult(
+                predictions=[],
+                scores=[],
+                detector_id=self.id,
+                dataset_id=dataset.id,
+                metadata={
+                    'n_samples': 0,
+                    'algorithm': self.algorithm_name,
+                    'detection_time': 0.0
+                }
+            )
+        
+        start_time = time.time()
+        
+        try:
+            # Get predictions and scores
+            predictions = algorithm_adapter.predict(dataset.data)
+            scores = algorithm_adapter.score(dataset.data)
+            
+            detection_time = time.time() - start_time
+            
+            # Calculate confidence intervals (simple implementation)
+            confidence_intervals = None
+            if scores:
+                mean_score = sum(scores) / len(scores)
+                std_score = (sum((s - mean_score) ** 2 for s in scores) / len(scores)) ** 0.5
+                confidence_intervals = {
+                    'lower_bound': mean_score - 1.96 * std_score,
+                    'upper_bound': mean_score + 1.96 * std_score
+                }
+            
+            metadata = {
+                'n_samples': len(dataset.data),
+                'n_features': len(dataset.data.columns),
+                'algorithm': self.algorithm_name,
+                'detection_time': detection_time,
+                'contamination_rate': self.contamination_rate.value
+            }
+            
+            return DetectionResult(
+                predictions=predictions,
+                scores=scores,
+                detector_id=self.id,
+                dataset_id=dataset.id,
+                confidence_intervals=confidence_intervals,
+                metadata=metadata
+            )
+            
+        except Exception as e:
+            # Return failed detection result
+            return DetectionResult(
+                predictions=[],
+                scores=[],
+                detector_id=self.id,
+                dataset_id=dataset.id,
+                error=str(e),
+                metadata={
+                    'algorithm': self.algorithm_name,
+                    'detection_time': time.time() - start_time
+                }
+            )
 
     def __repr__(self) -> str:
         """Developer representation."""
