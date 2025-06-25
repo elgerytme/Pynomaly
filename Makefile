@@ -269,6 +269,97 @@ prod-api-dev: ## Start development API server
 cli-help: ## Show CLI help
 	hatch env run cli:run --help
 
+# === BUCK2 + NPM INTEGRATION ===
+
+# Buck2 configuration
+ENABLE_BUCK2 ?= $(shell command -v buck2 >/dev/null 2>&1 && echo true || echo false)
+BUCK2_CACHE_DIR ?= .buck-cache
+
+deps: ## Install all dependencies (Python + npm)
+	@echo "📦 Installing all dependencies..."
+	@echo "1️⃣ Installing Python dependencies..."
+	hatch env create
+	@echo "2️⃣ Installing npm dependencies..."
+	npm install
+	@echo "✅ All dependencies installed!"
+
+buck-build: ## Build with Buck2 (if available)
+ifeq ($(ENABLE_BUCK2), true)
+	@echo "🚀 Building with Buck2..."
+	@mkdir -p $(BUCK2_CACHE_DIR)
+	buck2 build //... --local-cache $(BUCK2_CACHE_DIR)
+	@echo "✅ Buck2 build completed!"
+else
+	@echo "⚠️  Buck2 not available, falling back to Hatch build..."
+	$(MAKE) build
+endif
+
+buck-test: ## Run tests with Buck2 (if available)
+ifeq ($(ENABLE_BUCK2), true)
+	@echo "🧪 Running tests with Buck2..."
+	buck2 test //tests:unit_tests //tests:integration_tests --verbose
+else
+	@echo "⚠️  Buck2 not available, falling back to pytest..."
+	$(MAKE) test-all
+endif
+
+buck-clean: ## Clean Buck2 artifacts
+ifeq ($(ENABLE_BUCK2), true)
+	@echo "🧹 Cleaning Buck2 artifacts..."
+	-buck2 clean
+	-rm -rf $(BUCK2_CACHE_DIR)
+	-rm -rf buck-out/
+	@echo "✅ Buck2 artifacts cleaned!"
+endif
+
+npm-install: ## Install npm dependencies
+	@echo "📦 Installing npm dependencies..."
+	npm install
+	@echo "✅ npm dependencies installed!"
+
+npm-build: npm-install ## Build web assets
+	@echo "🎨 Building web assets..."
+	npm run build
+	@echo "✅ Web assets built successfully!"
+
+npm-watch: npm-install ## Watch and rebuild web assets
+	@echo "👀 Starting web asset watch mode..."
+	npm run watch
+
+npm-clean: ## Clean npm artifacts
+	@echo "🧹 Cleaning npm artifacts..."
+	-rm -rf node_modules/
+	-rm -rf src/pynomaly/presentation/web/static/css/styles.css
+	-rm -rf src/pynomaly/presentation/web/static/js/app.js
+	@echo "✅ npm artifacts cleaned!"
+
+dev: ## Start development environment with watch mode
+	@echo "🚀 Starting development environment..."
+	@echo "This will start web asset watch mode"
+	@echo "Press Ctrl+C to stop"
+	@trap 'kill 0' EXIT; npm run watch
+
+# Update existing targets to include Buck2 + npm integration
+build: npm-build ## Build package and web assets
+	@echo "🏗️  Building complete project..."
+	@echo "1️⃣ Building web assets..."
+	@$(MAKE) npm-build
+	@echo "2️⃣ Building Python package..."
+ifeq ($(ENABLE_BUCK2), true)
+	@$(MAKE) buck-build
+else
+	hatch build --clean
+endif
+	@echo "✅ Complete build finished!"
+
+clean: npm-clean buck-clean ## Clean all build artifacts
+	@echo "🧹 Cleaning all build artifacts..."
+	hatch clean
+	rm -rf dist/
+	rm -rf .pytest_cache/
+	rm -rf htmlcov/
+	@echo "✅ All artifacts cleaned!"
+
 # === QUICK ALIASES ===
 
 l: lint     ## Alias for lint
