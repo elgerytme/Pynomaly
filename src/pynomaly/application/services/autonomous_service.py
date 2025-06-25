@@ -504,7 +504,7 @@ class AutonomousDetectionService:
             iso_reasoning += ", handles high-dimensional data well"
         
         recommendations.append(AlgorithmRecommendation(
-            algorithm="IsolationForest",
+            algorithm="sklearn_IsolationForest",
             confidence=iso_confidence,
             reasoning=iso_reasoning,
             hyperparams=iso_hyperparams,
@@ -525,7 +525,7 @@ class AutonomousDetectionService:
                 lof_reasoning += ", efficient for smaller datasets"
             
             recommendations.append(AlgorithmRecommendation(
-                algorithm="LocalOutlierFactor",
+                algorithm="sklearn_LocalOutlierFactor",
                 confidence=lof_confidence,
                 reasoning=lof_reasoning,
                 hyperparams=lof_hyperparams,
@@ -543,7 +543,7 @@ class AutonomousDetectionService:
             }
             
             recommendations.append(AlgorithmRecommendation(
-                algorithm="OneClassSVM",
+                algorithm="sklearn_OneClassSVM",
                 confidence=svm_confidence,
                 reasoning=svm_reasoning,
                 hyperparams=svm_hyperparams,
@@ -560,7 +560,7 @@ class AutonomousDetectionService:
             }
             
             recommendations.append(AlgorithmRecommendation(
-                algorithm="EllipticEnvelope",
+                algorithm="sklearn_EllipticEnvelope",
                 confidence=ee_confidence,
                 reasoning=ee_reasoning,
                 hyperparams=ee_hyperparams,
@@ -612,9 +612,49 @@ class AutonomousDetectionService:
                 if config.auto_tune_hyperparams:
                     detector = await self._auto_tune_detector(detector, dataset, config)
                 
-                # Train and detect
-                detector.fit(dataset)
-                result = detector.detect(dataset)
+                # Train and detect using adapter registry
+                self.adapter_registry.fit_detector(detector, dataset)
+                detector.is_fitted = True
+                detector.trained_at = pd.Timestamp.now().to_pydatetime()
+                
+                # Perform detection
+                scores = self.adapter_registry.score_with_detector(detector, dataset)
+                predictions = self.adapter_registry.predict_with_detector(detector, dataset)
+                
+                # Create detection result
+                from pynomaly.domain.entities import Anomaly
+                anomalies = []
+                for i, (score, pred) in enumerate(zip(scores, predictions)):
+                    if pred == 1:  # Is anomaly
+                        anomaly = Anomaly(
+                            score=score,
+                            data_point=dataset.data.iloc[i].to_dict(),
+                            detector_name=detector.name
+                        )
+                        anomalies.append(anomaly)
+                
+                # Calculate threshold
+                import numpy as np
+                score_values = [s.value for s in scores]
+                anomaly_score_values = [score_values[i] for i in range(len(predictions)) if predictions[i] == 1]
+                
+                if anomaly_score_values:
+                    threshold = min(anomaly_score_values)
+                else:
+                    threshold = np.percentile(score_values, 95)
+                
+                result = DetectionResult(
+                    detector_id=detector.id,
+                    dataset_id=dataset.id,
+                    anomalies=anomalies,
+                    scores=scores,
+                    labels=predictions,
+                    threshold=threshold,
+                    metadata={
+                        "algorithm": detector.algorithm_name,
+                        "auto_generated": True
+                    }
+                )
                 
                 # Store result
                 results[rec.algorithm] = result
@@ -690,8 +730,8 @@ class AutonomousDetectionService:
                     )
                     
                     try:
-                        test_detector.fit(dataset)
-                        scores = test_detector.score(dataset)
+                        self.adapter_registry.fit_detector(test_detector, dataset)
+                        scores = self.adapter_registry.score_with_detector(test_detector, dataset)
                         score_values = [s.value for s in scores]
                         
                         # Use variance of scores as a simple quality metric
