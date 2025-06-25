@@ -196,8 +196,10 @@ try:
     from pynomaly.application.services.configuration_template_service import ConfigurationTemplateService
     from pynomaly.application.services.configuration_discovery_service import ConfigurationDiscoveryService
     from pynomaly.application.services.configuration_recommendation_service import ConfigurationRecommendationService
+    from pynomaly.application.services.web_api_configuration_integration import WebAPIConfigurationIntegration
     from pynomaly.infrastructure.persistence.configuration_repository import ConfigurationRepository
     from pynomaly.infrastructure.monitoring.cli_parameter_interceptor import CLIParameterInterceptor
+    from pynomaly.infrastructure.middleware.configuration_middleware import ConfigurationCaptureMiddleware, ConfigurationAPIMiddleware
     CONFIGURATION_SERVICES_AVAILABLE = True
 except ImportError:
     ConfigurationCaptureService = None
@@ -206,8 +208,11 @@ except ImportError:
     ConfigurationTemplateService = None
     ConfigurationDiscoveryService = None
     ConfigurationRecommendationService = None
+    WebAPIConfigurationIntegration = None
     ConfigurationRepository = None
     CLIParameterInterceptor = None
+    ConfigurationCaptureMiddleware = None
+    ConfigurationAPIMiddleware = None
     CONFIGURATION_SERVICES_AVAILABLE = False
 from pynomaly.infrastructure.repositories import (
     InMemoryDatasetRepository,
@@ -654,6 +659,21 @@ class Container(containers.DeclarativeContainer):
             enable_automatic_capture=True,
             min_execution_time=1.0,
             capture_successful_only=True
+        )
+        
+        # Web API configuration integration
+        web_api_configuration_integration = providers.Singleton(
+            WebAPIConfigurationIntegration,
+            configuration_service=configuration_capture_service,
+            auto_analyze_patterns=True,
+            pattern_analysis_interval_hours=24,
+            performance_threshold_ms=1000.0
+        )
+        
+        # Configuration middleware factory
+        configuration_middleware_factory = providers.Factory(
+            ConfigurationAPIMiddleware.create_middleware,
+            configuration_service=configuration_capture_service
         )
     
     # Use cases
