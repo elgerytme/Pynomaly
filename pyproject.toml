@@ -21,11 +21,6 @@ classifiers = [
     "Typing :: Typed"
 ]
 
-[project.urls]
-homepage = "https://github.com/pynomaly/pynomaly"
-repository = "https://github.com/pynomaly/pynomaly"
-documentation = "https://pynomaly.readthedocs.io"
-
 dependencies = [
     "pyod>=2.0.5",
     "numpy>=1.26.0,<2.2.0",
@@ -35,6 +30,11 @@ dependencies = [
     "structlog>=24.4.0",
     "dependency-injector>=4.42.0",
 ]
+
+[project.urls]
+homepage = "https://github.com/pynomaly/pynomaly"
+repository = "https://github.com/pynomaly/pynomaly"
+documentation = "https://pynomaly.readthedocs.io"
 
 [project.optional-dependencies]
 # Core functionality extras
