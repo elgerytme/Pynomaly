@@ -1,64 +1,24 @@
-"""Dependency injection container using dependency-injector."""
+"""Simplified dependency injection container using service registry pattern."""
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 from dependency_injector import containers, providers
 
+# Core imports (always available)
 from pynomaly.application.services import (
     DetectionService,
     EnsembleService,
     ExperimentTrackingService,
     ModelPersistenceService
 )
-
-# Phase 2 services (conditionally imported)
-try:
-    from pynomaly.application.services.algorithm_benchmark import AlgorithmBenchmarkService
-    from pynomaly.infrastructure.monitoring.complexity_monitor import ComplexityMonitor
-    PHASE2_SERVICES_AVAILABLE = True
-except ImportError:
-    AlgorithmBenchmarkService = None
-    ComplexityMonitor = None
-    PHASE2_SERVICES_AVAILABLE = False
-
-# Optional AutoML service
-try:
-    from pynomaly.application.services.automl_service import AutoMLService
-except ImportError:
-    AutoMLService = None
-
-# Optional explainability services
-try:
-    from pynomaly.domain.services.explainability_service import ExplainabilityService
-    from pynomaly.application.services.explainability_service import ApplicationExplainabilityService
-    from pynomaly.infrastructure.explainers import SHAPExplainer, LIMEExplainer, SHAP_AVAILABLE, LIME_AVAILABLE
-    EXPLAINABILITY_AVAILABLE = True
-except ImportError:
-    ExplainabilityService = None
-    ApplicationExplainabilityService = None
-    SHAPExplainer = None
-    LIMEExplainer = None
-    SHAP_AVAILABLE = False
-    LIME_AVAILABLE = False
-    EXPLAINABILITY_AVAILABLE = False
-
-# Streaming infrastructure completely removed for simplification
-
-# Distributed processing infrastructure completely removed for simplification
 from pynomaly.application.use_cases import (
     DetectAnomaliesUseCase,
     EvaluateModelUseCase,
-    ExplainAnomalyUseCase,
     TrainDetectorUseCase
 )
-
-# Optional AutoML use case
-try:
-    from pynomaly.application.use_cases.automl_use_case import AutoMLUseCase
-except ImportError:
-    AutoMLUseCase = None
 from pynomaly.domain.services import (
     AnomalyScorer,
     EnsembleAggregator,
@@ -66,154 +26,7 @@ from pynomaly.domain.services import (
     ThresholdCalculator
 )
 from pynomaly.infrastructure.config.settings import Settings
-from pynomaly.infrastructure.config.feature_flags import FeatureFlagManager, feature_flags
-from pynomaly.infrastructure.data_loaders import CSVLoader, ParquetLoader
-
-# Preprocessing services
-try:
-    from pynomaly.infrastructure.preprocessing import DataCleaner, DataTransformer, PreprocessingPipeline
-except ImportError:
-    DataCleaner = None
-    DataTransformer = None
-    PreprocessingPipeline = None
-
-# Authentication and security
-try:
-    from pynomaly.infrastructure.auth import JWTAuthService, PermissionChecker, RateLimiter
-except ImportError:
-    JWTAuthService = None
-    PermissionChecker = None
-    RateLimiter = None
-
-# Cache services
-try:
-    from pynomaly.infrastructure.cache import RedisCache, DetectorCacheDecorator
-except ImportError:
-    RedisCache = None
-    DetectorCacheDecorator = None
-
-# Monitoring services
-try:
-    from pynomaly.infrastructure.monitoring import TelemetryService, HealthService
-except ImportError:
-    TelemetryService = None
-    HealthService = None
-
-# Database repositories
-try:
-    from pynomaly.infrastructure.persistence import (
-        DatabaseManager,
-        DatabaseDetectorRepository,
-        DatabaseDatasetRepository,
-        DatabaseDetectionResultRepository
-    )
-except ImportError:
-    DatabaseManager = None
-    DatabaseDetectorRepository = None
-    DatabaseDatasetRepository = None
-    DatabaseDetectionResultRepository = None
-
-# Resilience services
-try:
-    from pynomaly.infrastructure.resilience.service import ResilienceService
-except ImportError:
-    ResilienceService = None
-
-# Lifecycle services
-try:
-    from pynomaly.infrastructure.lifecycle import ShutdownService
-except ImportError:
-    ShutdownService = None
-
-# Security services
-try:
-    from pynomaly.infrastructure.security import (
-        InputSanitizer, SanitizationConfig,
-        SQLInjectionProtector, QuerySanitizer, SafeQueryBuilder,
-        EncryptionService, DataEncryption, FieldEncryption, EncryptionConfig,
-        SecurityHeadersMiddleware, SecurityHeaders, CSPConfig,
-        AuditLogger, SecurityMonitor, UserActionTracker,
-        create_development_headers, create_production_headers
-    )
-    SECURITY_AVAILABLE = True
-except ImportError:
-    InputSanitizer = None
-    SanitizationConfig = None
-    SQLInjectionProtector = None
-    QuerySanitizer = None
-    SafeQueryBuilder = None
-    EncryptionService = None
-    DataEncryption = None
-    FieldEncryption = None
-    EncryptionConfig = None
-    SecurityHeadersMiddleware = None
-    SecurityHeaders = None
-    CSPConfig = None
-    AuditLogger = None
-    SecurityMonitor = None
-    UserActionTracker = None
-    create_development_headers = None
-    create_production_headers = None
-    SECURITY_AVAILABLE = False
-
-# Performance optimization services
-try:
-    from pynomaly.infrastructure.performance import (
-        ConnectionPoolManager,
-        QueryOptimizer,
-        QueryCache,
-        PoolConfiguration,
-        PerformanceService
-    )
-except ImportError:
-    ConnectionPoolManager = None
-    QueryOptimizer = None
-    QueryCache = None
-    PoolConfiguration = None
-    PerformanceService = None
-
-# Optional high-performance data loaders - import only if available
-try:
-    from pynomaly.infrastructure.data_loaders import PolarsLoader
-except ImportError:
-    PolarsLoader = None
-
-try:
-    from pynomaly.infrastructure.data_loaders import ArrowLoader
-except ImportError:
-    ArrowLoader = None
-
-try:
-    from pynomaly.infrastructure.data_loaders import SparkLoader
-except ImportError:
-    SparkLoader = None
-
-# Configuration integration services
-try:
-    from pynomaly.application.services.configuration_capture_service import ConfigurationCaptureService
-    from pynomaly.application.services.automl_configuration_integration import AutoMLConfigurationIntegration
-    from pynomaly.application.services.autonomous_configuration_integration import AutonomousConfigurationIntegration
-    from pynomaly.application.services.configuration_template_service import ConfigurationTemplateService
-    from pynomaly.application.services.configuration_discovery_service import ConfigurationDiscoveryService
-    from pynomaly.application.services.configuration_recommendation_service import ConfigurationRecommendationService
-    from pynomaly.application.services.web_api_configuration_integration import WebAPIConfigurationIntegration
-    from pynomaly.infrastructure.persistence.configuration_repository import ConfigurationRepository
-    from pynomaly.infrastructure.monitoring.cli_parameter_interceptor import CLIParameterInterceptor
-    from pynomaly.infrastructure.middleware.configuration_middleware import ConfigurationCaptureMiddleware, ConfigurationAPIMiddleware
-    CONFIGURATION_SERVICES_AVAILABLE = True
-except ImportError:
-    ConfigurationCaptureService = None
-    AutoMLConfigurationIntegration = None
-    AutonomousConfigurationIntegration = None
-    ConfigurationTemplateService = None
-    ConfigurationDiscoveryService = None
-    ConfigurationRecommendationService = None
-    WebAPIConfigurationIntegration = None
-    ConfigurationRepository = None
-    CLIParameterInterceptor = None
-    ConfigurationCaptureMiddleware = None
-    ConfigurationAPIMiddleware = None
-    CONFIGURATION_SERVICES_AVAILABLE = False
+from pynomaly.infrastructure.config.feature_flags import FeatureFlagManager
 from pynomaly.infrastructure.repositories import (
     InMemoryDatasetRepository,
     InMemoryDetectorRepository,
@@ -222,45 +35,176 @@ from pynomaly.infrastructure.repositories import (
     FileDatasetRepository,
     FileResultRepository
 )
-
-# Async repository wrappers for application services
 from pynomaly.infrastructure.repositories.async_wrappers import (
     AsyncDetectorRepositoryWrapper,
     AsyncDatasetRepositoryWrapper,
     AsyncDetectionResultRepositoryWrapper
 )
-from pynomaly.infrastructure.adapters import PyODAdapter, SklearnAdapter
 
-# Optional adapters - import only if available
-try:
-    from pynomaly.infrastructure.adapters import PyGODAdapter  
-except ImportError:
-    PyGODAdapter = None
+logger = logging.getLogger(__name__)
 
-try:
-    from pynomaly.infrastructure.adapters import PyTorchAdapter
-except ImportError:
-    PyTorchAdapter = None
 
-try:
-    from pynomaly.infrastructure.adapters import TensorFlowAdapter
-except ImportError:
-    TensorFlowAdapter = None
+class OptionalServiceManager:
+    """Manages optional service creation with graceful degradation."""
+    
+    def __init__(self):
+        self._services = {}
+        self._availability = {}
+        self._initialize_services()
+    
+    def _initialize_services(self):
+        """Initialize all optional services."""
+        # Data loaders
+        self._register_service('csv_loader', 'pynomaly.infrastructure.data_loaders', 'CSVLoader')
+        self._register_service('parquet_loader', 'pynomaly.infrastructure.data_loaders', 'ParquetLoader')
+        self._register_service('polars_loader', 'pynomaly.infrastructure.data_loaders', 'PolarsLoader')
+        self._register_service('arrow_loader', 'pynomaly.infrastructure.data_loaders', 'ArrowLoader')
+        self._register_service('spark_loader', 'pynomaly.infrastructure.data_loaders', 'SparkLoader')
+        
+        # Algorithm adapters
+        self._register_service('pyod_adapter', 'pynomaly.infrastructure.adapters', 'PyODAdapter')
+        self._register_service('sklearn_adapter', 'pynomaly.infrastructure.adapters', 'SklearnAdapter')
+        self._register_service('pygod_adapter', 'pynomaly.infrastructure.adapters', 'PyGODAdapter')
+        self._register_service('pytorch_adapter', 'pynomaly.infrastructure.adapters', 'PyTorchAdapter')
+        self._register_service('tensorflow_adapter', 'pynomaly.infrastructure.adapters', 'TensorFlowAdapter')
+        self._register_service('jax_adapter', 'pynomaly.infrastructure.adapters', 'JAXAdapter')
+        
+        # Authentication services
+        self._register_service('jwt_auth_service', 'pynomaly.infrastructure.auth.jwt_auth', 'JWTAuthService')
+        self._register_service('permission_checker', 'pynomaly.infrastructure.auth.middleware', 'PermissionChecker')
+        self._register_service('rate_limiter', 'pynomaly.infrastructure.auth.middleware', 'RateLimiter')
+        
+        # Security services
+        self._register_service('security_monitor', 'pynomaly.infrastructure.security.security_monitor', 'SecurityMonitor')
+        self._register_service('audit_logger', 'pynomaly.infrastructure.security.audit_logger', 'AuditLogger')
+        self._register_service('security_middleware_stack', 'pynomaly.infrastructure.security.middleware_integration', 'SecurityMiddlewareStack')
+        
+        # Cache services
+        self._register_service('redis_cache', 'pynomaly.infrastructure.cache', 'RedisCache')
+        self._register_service('detector_cache_decorator', 'pynomaly.infrastructure.cache', 'DetectorCacheDecorator')
+        
+        # Monitoring services
+        self._register_service('telemetry_service', 'pynomaly.infrastructure.monitoring', 'TelemetryService')
+        self._register_service('health_service', 'pynomaly.infrastructure.monitoring', 'HealthService')
+        
+        # Database services
+        self._register_service('database_manager', 'pynomaly.infrastructure.persistence', 'DatabaseManager')
+        self._register_service('database_detector_repository', 'pynomaly.infrastructure.persistence', 'DatabaseDetectorRepository')
+        self._register_service('database_dataset_repository', 'pynomaly.infrastructure.persistence', 'DatabaseDatasetRepository')
+        self._register_service('database_result_repository', 'pynomaly.infrastructure.persistence', 'DatabaseDetectionResultRepository')
+        
+        # Application services
+        self._register_service('automl_service', 'pynomaly.application.services.automl_service', 'AutoMLService')
+        self._register_service('explainability_service', 'pynomaly.domain.services.explainability_service', 'ExplainabilityService')
+        self._register_service('application_explainability_service', 'pynomaly.application.services.explainability_service', 'ApplicationExplainabilityService')
+        
+        # Explainers
+        self._register_service('shap_explainer', 'pynomaly.infrastructure.explainers', 'SHAPExplainer')
+        self._register_service('lime_explainer', 'pynomaly.infrastructure.explainers', 'LIMEExplainer')
+        
+        # Use cases
+        self._register_service('explain_anomaly_use_case', 'pynomaly.application.use_cases', 'ExplainAnomalyUseCase')
+        self._register_service('automl_use_case', 'pynomaly.application.use_cases.automl_use_case', 'AutoMLUseCase')
+    
+    def _register_service(self, name: str, module_path: str, class_name: str):
+        """Register a service with optional import."""
+        try:
+            import importlib
+            module = importlib.import_module(module_path)
+            service_class = getattr(module, class_name)
+            self._services[name] = service_class
+            self._availability[name] = True
+            logger.debug(f"Registered optional service: {name}")
+        except (ImportError, AttributeError) as e:
+            self._availability[name] = False
+            logger.debug(f"Optional service {name} not available: {e}")
+    
+    def is_available(self, name: str) -> bool:
+        """Check if a service is available."""
+        return self._availability.get(name, False)
+    
+    def get_service(self, name: str):
+        """Get service class if available."""
+        return self._services.get(name) if self.is_available(name) else None
+    
+    def create_provider(self, name: str, provider_type: str = 'singleton', **kwargs):
+        """Create a provider for the service if available."""
+        service_class = self.get_service(name)
+        if not service_class:
+            return None
+        
+        if provider_type == 'singleton':
+            return providers.Singleton(service_class, **kwargs)
+        elif provider_type == 'factory':
+            return providers.Factory(service_class, **kwargs)
+        else:
+            raise ValueError(f"Unknown provider type: {provider_type}")
 
-try:
-    from pynomaly.infrastructure.adapters import JAXAdapter
-except ImportError:
-    JAXAdapter = None
+
+def _create_repository(config, repo_type: str):
+    """Unified repository creation logic."""
+    service_manager = OptionalServiceManager()
+    
+    # Try database repository first if configured
+    if config.use_database_repositories and config.database_configured:
+        db_repo_class = service_manager.get_service(f'database_{repo_type}_repository')
+        if db_repo_class and service_manager.is_available('database_manager'):
+            try:
+                db_manager_class = service_manager.get_service('database_manager')
+                db_manager = db_manager_class(
+                    database_url=config.database_url,
+                    echo=config.database_echo or config.app.debug
+                )
+                
+                # Initialize database if needed
+                try:
+                    from pynomaly.infrastructure.persistence.migrations import DatabaseMigrator
+                    migrator = DatabaseMigrator(db_manager)
+                    if not migrator.check_tables_exist():
+                        migrator.create_all_tables()
+                except Exception as e:
+                    logger.warning(f"Database initialization failed, falling back to file: {e}")
+                    return _create_file_repository(config, repo_type)
+                
+                return db_repo_class(db_manager.get_session)
+            except Exception as e:
+                logger.warning(f"Database repository creation failed, falling back to file: {e}")
+    
+    # Fall back to file repository
+    return _create_file_repository(config, repo_type)
+
+
+def _create_file_repository(config, repo_type: str):
+    """Create file-based repository."""
+    repo_mapping = {
+        'detector': FileDetectorRepository,
+        'dataset': FileDatasetRepository,
+        'result': FileResultRepository
+    }
+    
+    repo_class = repo_mapping.get(repo_type)
+    if repo_class:
+        return repo_class(config.storage_path)
+    
+    # Fall back to in-memory
+    memory_mapping = {
+        'detector': InMemoryDetectorRepository,
+        'dataset': InMemoryDatasetRepository,
+        'result': InMemoryResultRepository
+    }
+    
+    return memory_mapping[repo_type]()
 
 
 class Container(containers.DeclarativeContainer):
-    """Main dependency injection container."""
+    """Main dependency injection container with simplified architecture."""
     
     # Configuration
     config = providers.Singleton(Settings)
-    
-    # Feature flag management
     feature_flag_manager = providers.Singleton(FeatureFlagManager)
+    
+    # Initialize service manager
+    _service_manager = OptionalServiceManager()
     
     # Domain services
     anomaly_scorer = providers.Singleton(AnomalyScorer)
@@ -268,18 +212,18 @@ class Container(containers.DeclarativeContainer):
     feature_validator = providers.Singleton(FeatureValidator)
     ensemble_aggregator = providers.Singleton(EnsembleAggregator)
     
-    # Repositories - Select based on configuration
+    # Repositories using unified creation logic
     detector_repository = providers.Singleton(
-        lambda: _create_detector_repository(Settings())
+        lambda: _create_repository(Settings(), 'detector')
     )
     dataset_repository = providers.Singleton(
-        lambda: _create_dataset_repository(Settings())
+        lambda: _create_repository(Settings(), 'dataset')
     )
     result_repository = providers.Singleton(
-        lambda: _create_result_repository(Settings())
+        lambda: _create_repository(Settings(), 'result')
     )
     
-    # Async repository wrappers for application services
+    # Async repository wrappers
     async_detector_repository = providers.Singleton(
         AsyncDetectorRepositoryWrapper,
         sync_repository=detector_repository
@@ -293,190 +237,129 @@ class Container(containers.DeclarativeContainer):
         sync_repository=result_repository
     )
     
-    # Data loaders
-    csv_loader = providers.Factory(
-        CSVLoader,
-        delimiter=",",
-        encoding="utf-8"
-    )
+    # Create optional service providers dynamically
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls._setup_optional_providers()
     
-    parquet_loader = providers.Factory(
-        ParquetLoader,
-        use_pyarrow=True
-    )
-    
-    # High-performance data loaders - only create providers if loaders are available
-    if PolarsLoader is not None:
-        polars_loader = providers.Factory(
-            PolarsLoader,
-            lazy=True,
-            streaming=False
-        )
-    
-    if ArrowLoader is not None:
-        arrow_loader = providers.Factory(
-            ArrowLoader,
-            use_threads=True
-        )
-    
-    if SparkLoader is not None:
-        spark_loader = providers.Factory(
-            SparkLoader,
-            app_name="Pynomaly",
-            master="local[*]"
-        )
-    
-    # Algorithm adapters (factories - require algorithm_name parameter)
-    pyod_adapter = providers.Factory(PyODAdapter)
-    sklearn_adapter = providers.Factory(SklearnAdapter)
-    
-    # Optional adapters - only create providers if adapters are available
-    if PyGODAdapter is not None:
-        pygod_adapter = providers.Factory(PyGODAdapter)
-    
-    if PyTorchAdapter is not None:
-        pytorch_adapter = providers.Factory(PyTorchAdapter)
-    
-    if TensorFlowAdapter is not None:
-        tensorflow_adapter = providers.Factory(TensorFlowAdapter)
-    
-    if JAXAdapter is not None:
-        jax_adapter = providers.Factory(JAXAdapter)
-    
-    # Authentication services - only create if available
-    if JWTAuthService is not None:
-        jwt_auth_service = providers.Singleton(
-            JWTAuthService,
-            secret_key=config.provided.secret_key,
-            algorithm=config.provided.jwt_algorithm,
-            access_token_expire_minutes=config.provided.jwt_expiration
-        )
-    
-    if PermissionChecker is not None:
-        permission_checker = providers.Singleton(PermissionChecker)
-    
-    if RateLimiter is not None:
-        rate_limiter = providers.Singleton(
-            RateLimiter,
-            default_requests_per_minute=config.provided.api_rate_limit
-        )
-    
-    # Cache services - only create if available
-    if RedisCache is not None:
-        redis_cache = providers.Singleton(
-            RedisCache,
-            redis_url=config.provided.redis_url,
-            default_ttl=config.provided.cache_ttl
-        )
-    
-    if DetectorCacheDecorator is not None and RedisCache is not None:
-        detector_cache_decorator = providers.Singleton(
-            DetectorCacheDecorator,
-            cache=redis_cache
-        )
-    
-    # Monitoring services - only create if available
-    if TelemetryService is not None:
-        telemetry_service = providers.Singleton(
-            TelemetryService,
-            service_name="pynomaly",
-            environment=config.provided.app.environment,
-            otlp_endpoint=config.provided.monitoring.otlp_endpoint
-        )
-    
-    if HealthService is not None:
-        health_service = providers.Singleton(
-            HealthService,
-            max_history=100
-        )
-    
-    # Database services - only create if available and configured
-    if DatabaseManager is not None:
-        database_manager = providers.Singleton(
-            DatabaseManager,
-            database_url=config.provided.database_url
-        )
+    @classmethod
+    def _setup_optional_providers(cls):
+        """Setup optional service providers."""
+        service_manager = OptionalServiceManager()
         
-        # Alternative database repositories - only if database is configured
-        if DatabaseDetectorRepository is not None:
-            database_detector_repository = providers.Singleton(
-                DatabaseDetectorRepository,
-                session_factory=database_manager.provided.get_session
+        # Data loaders
+        for loader_name, config_params in [
+            ('csv_loader', {'delimiter': ',', 'encoding': 'utf-8'}),
+            ('parquet_loader', {'use_pyarrow': True}),
+            ('polars_loader', {'lazy': True, 'streaming': False}),
+            ('arrow_loader', {'use_threads': True}),
+            ('spark_loader', {'app_name': 'Pynomaly', 'master': 'local[*]'})
+        ]:
+            provider = service_manager.create_provider(loader_name, 'factory', **config_params)
+            if provider:
+                setattr(cls, loader_name, provider)
+        
+        # Algorithm adapters
+        for adapter_name in ['pyod_adapter', 'sklearn_adapter', 'pygod_adapter', 
+                           'pytorch_adapter', 'tensorflow_adapter', 'jax_adapter']:
+            provider = service_manager.create_provider(adapter_name, 'factory')
+            if provider:
+                setattr(cls, adapter_name, provider)
+        
+        # Authentication services
+        if service_manager.is_available('jwt_auth_service'):
+            cls.jwt_auth_service = service_manager.create_provider(
+                'jwt_auth_service',
+                'singleton',
+                secret_key=cls.config.provided.secret_key,
+                algorithm=cls.config.provided.jwt_algorithm,
+                access_token_expire_minutes=cls.config.provided.jwt_expiration
             )
         
-        if DatabaseDatasetRepository is not None:
-            database_dataset_repository = providers.Singleton(
-                DatabaseDatasetRepository,
-                session_factory=database_manager.provided.get_session
+        if service_manager.is_available('permission_checker'):
+            cls.permission_checker = service_manager.create_provider('permission_checker', 'singleton')
+        
+        if service_manager.is_available('rate_limiter'):
+            cls.rate_limiter = service_manager.create_provider(
+                'rate_limiter',
+                'singleton',
+                default_requests_per_minute=cls.config.provided.api_rate_limit
             )
         
-        if DatabaseDetectionResultRepository is not None:
-            database_result_repository = providers.Singleton(
-                DatabaseDetectionResultRepository,
-                session_factory=database_manager.provided.get_session
+        # Cache services
+        if service_manager.is_available('redis_cache'):
+            cls.redis_cache = service_manager.create_provider(
+                'redis_cache',
+                'singleton',
+                redis_url=cls.config.provided.redis_url,
+                default_ttl=cls.config.provided.cache_ttl
             )
-    
-    # Resilience services - only create if available
-    if ResilienceService is not None:
-        resilience_service = providers.Singleton(ResilienceService)
-    
-    # Lifecycle services - only create if available
-    if ShutdownService is not None:
-        shutdown_service = providers.Singleton(
-            ShutdownService,
-            shutdown_timeout=60.0
-        )
-    
-    # Performance optimization services - only create if available
-    if ConnectionPoolManager is not None:
-        connection_pool_manager = providers.Singleton(ConnectionPoolManager)
         
-        # Pool configuration for different environments
-        pool_config = providers.Singleton(
-            PoolConfiguration,
-            min_size=5,
-            max_size=20,
-            timeout=30.0,
-            max_overflow=10,
-            recycle_time=3600,
-            health_check_interval=60
-        )
-    
-    # Initialize query_optimizer as None
-    query_optimizer = None
-    if QueryOptimizer is not None and DatabaseManager is not None:
-        query_optimizer = providers.Singleton(
-            QueryOptimizer,
-            engine=database_manager.provided.engine,
-            cache_size=1000,
-            cache_ttl=3600
-        )
-    
-    if PerformanceService is not None and ConnectionPoolManager is not None:
-        performance_service = providers.Singleton(
-            PerformanceService,
-            pool_manager=connection_pool_manager,
-            query_optimizer=query_optimizer,
-            monitoring_interval=300.0
-        )
-    
-    # Preprocessing services - only create if available
-    if DataCleaner is not None:
-        data_cleaner = providers.Singleton(DataCleaner)
-    
-    if DataTransformer is not None:
-        data_transformer = providers.Singleton(DataTransformer)
-    
-    if PreprocessingPipeline is not None:
-        # Basic preprocessing pipeline
-        basic_preprocessing_pipeline = providers.Factory(
-            PreprocessingPipeline.create_basic_pipeline
-        )
+        # Monitoring services
+        if service_manager.is_available('telemetry_service'):
+            cls.telemetry_service = service_manager.create_provider(
+                'telemetry_service',
+                'singleton',
+                service_name="pynomaly",
+                environment=cls.config.provided.app.environment,
+                otlp_endpoint=cls.config.provided.monitoring.otlp_endpoint
+            )
         
-        # Anomaly detection optimized pipeline
-        anomaly_preprocessing_pipeline = providers.Factory(
-            PreprocessingPipeline.create_anomaly_detection_pipeline
-        )
+        if service_manager.is_available('health_service'):
+            cls.health_service = service_manager.create_provider(
+                'health_service',
+                'singleton',
+                max_history=100
+            )
+        
+        # Security services
+        if service_manager.is_available('audit_logger'):
+            cls.audit_logger = service_manager.create_provider(
+                'audit_logger',
+                'singleton',
+                enable_structured_logging=True,
+                enable_compliance_logging=True
+            )
+        
+        if service_manager.is_available('security_monitor'):
+            cls.security_monitor = service_manager.create_provider(
+                'security_monitor',
+                'singleton',
+                audit_logger=cls.audit_logger if hasattr(cls, 'audit_logger') else None
+            )
+        
+        # AutoML service
+        if service_manager.is_available('automl_service'):
+            cls.automl_service = service_manager.create_provider(
+                'automl_service',
+                'singleton',
+                detector_repository=cls.async_detector_repository,
+                dataset_repository=cls.async_dataset_repository,
+                adapter_registry=providers.Object("adapter_registry"),
+                max_optimization_time=3600,
+                n_trials=100,
+                cv_folds=3,
+                random_state=42
+            )
+        
+        # Explainability services
+        if service_manager.is_available('explainability_service'):
+            cls.domain_explainability_service = service_manager.create_provider('explainability_service', 'singleton')
+            
+            if service_manager.is_available('shap_explainer'):
+                cls.shap_explainer = service_manager.create_provider('shap_explainer', 'singleton')
+            
+            if service_manager.is_available('lime_explainer'):
+                cls.lime_explainer = service_manager.create_provider('lime_explainer', 'singleton')
+            
+            if service_manager.is_available('application_explainability_service'):
+                cls.application_explainability_service = service_manager.create_provider(
+                    'application_explainability_service',
+                    'singleton',
+                    domain_explainability_service=cls.domain_explainability_service,
+                    detector_repository=cls.async_detector_repository,
+                    dataset_repository=cls.async_dataset_repository
+                )
     
     # Application services
     detection_service = providers.Singleton(
@@ -505,169 +388,6 @@ class Container(containers.DeclarativeContainer):
         tracking_path=config.provided.experiment_storage_path
     )
     
-    # AutoML service - only create if available
-    if AutoMLService is not None:
-        automl_service = providers.Singleton(
-            AutoMLService,
-            detector_repository=async_detector_repository,
-            dataset_repository=async_dataset_repository,
-            adapter_registry=providers.Object("adapter_registry"),  # Will be injected
-            max_optimization_time=3600,
-            n_trials=100,
-            cv_folds=3,
-            random_state=42
-        )
-    
-    # Explainability services - only create if available
-    if EXPLAINABILITY_AVAILABLE:
-        # Domain explainability service
-        domain_explainability_service = providers.Singleton(ExplainabilityService)
-        
-        # Register explainers if available
-        if SHAP_AVAILABLE and SHAPExplainer is not None:
-            shap_explainer = providers.Singleton(SHAPExplainer)
-        
-        if LIME_AVAILABLE and LIMEExplainer is not None:
-            lime_explainer = providers.Singleton(LIMEExplainer)
-        
-        # Application explainability service
-        if ApplicationExplainabilityService is not None:
-            application_explainability_service = providers.Singleton(
-                ApplicationExplainabilityService,
-                domain_explainability_service=domain_explainability_service,
-                detector_repository=async_detector_repository,
-                dataset_repository=async_dataset_repository
-            )
-    
-    # Phase 2 services - only create if available and feature flags enabled
-    if PHASE2_SERVICES_AVAILABLE and feature_flags.is_enabled("algorithm_optimization"):
-        algorithm_benchmark_service = providers.Singleton(AlgorithmBenchmarkService)
-        
-        # Algorithm optimization service
-        try:
-            from pynomaly.application.services.algorithm_optimization_service import AlgorithmOptimizationService
-            algorithm_optimization_service = providers.Singleton(AlgorithmOptimizationService)
-        except ImportError:
-            pass
-    
-    if PHASE2_SERVICES_AVAILABLE and feature_flags.is_enabled("complexity_monitoring"):
-        complexity_monitor = providers.Singleton(ComplexityMonitor)
-    
-    # Memory efficiency services
-    if PHASE2_SERVICES_AVAILABLE and feature_flags.is_enabled("memory_efficiency"):
-        try:
-            from pynomaly.application.services.memory_optimization_service import MemoryOptimizationService
-            memory_optimization_service = providers.Singleton(MemoryOptimizationService)
-        except ImportError:
-            pass
-    
-    # Performance monitoring services
-    if PHASE2_SERVICES_AVAILABLE and feature_flags.is_enabled("performance_monitoring"):
-        try:
-            from pynomaly.application.services.performance_monitoring_service import PerformanceMonitoringService
-            performance_monitoring_service = providers.Singleton(PerformanceMonitoringService)
-        except ImportError:
-            pass
-    
-    # Workflow simplification services
-    if PHASE2_SERVICES_AVAILABLE and feature_flags.is_enabled("cli_simplification"):
-        try:
-            from pynomaly.application.services.workflow_simplification_service import WorkflowSimplificationService
-            workflow_simplification_service = providers.Singleton(WorkflowSimplificationService)
-        except ImportError:
-            pass
-    
-    # Configuration management services - only create if available
-    if CONFIGURATION_SERVICES_AVAILABLE and feature_flags.is_enabled("advanced_automl"):
-        # Configuration repository
-        configuration_repository = providers.Singleton(
-            ConfigurationRepository,
-            storage_path=config.provided.storage_path / "configurations"
-        )
-        
-        # Configuration capture service
-        configuration_capture_service = providers.Singleton(
-            ConfigurationCaptureService,
-            repository=configuration_repository,
-            storage_path=config.provided.storage_path / "configurations",
-            auto_capture=True
-        )
-        
-        # Template service
-        configuration_template_service = providers.Singleton(
-            ConfigurationTemplateService,
-            configuration_service=configuration_capture_service,
-            repository=configuration_repository,
-            template_storage_path=config.provided.storage_path / "templates"
-        )
-        
-        # Discovery service
-        configuration_discovery_service = providers.Singleton(
-            ConfigurationDiscoveryService,
-            configuration_service=configuration_capture_service,
-            repository=configuration_repository,
-            enable_similarity_analysis=True,
-            enable_auto_tagging=True,
-            enable_clustering=True
-        )
-        
-        # Recommendation service
-        recommendation_service = providers.Singleton(
-            ConfigurationRecommendationService,
-            configuration_service=configuration_capture_service,
-            repository=configuration_repository,
-            enable_ml_recommendations=True,
-            enable_similarity_recommendations=True,
-            enable_performance_prediction=True
-        )
-        
-        # AutoML configuration integration
-        if AutoMLService is not None:
-            automl_configuration_integration = providers.Singleton(
-                AutoMLConfigurationIntegration,
-                automl_service=automl_service,
-                configuration_service=configuration_capture_service,
-                auto_save_successful=True,
-                auto_save_threshold=0.8
-            )
-        
-        # Autonomous configuration integration
-        try:
-            from pynomaly.application.services.autonomous_service import AutonomousService
-            autonomous_configuration_integration = providers.Singleton(
-                AutonomousConfigurationIntegration,
-                autonomous_service=providers.Object("autonomous_service"),  # Will be injected
-                configuration_service=configuration_capture_service,
-                auto_save_successful=True,
-                auto_save_threshold=0.7
-            )
-        except ImportError:
-            pass
-        
-        # CLI parameter interceptor
-        cli_parameter_interceptor = providers.Singleton(
-            CLIParameterInterceptor,
-            configuration_service=configuration_capture_service,
-            enable_automatic_capture=True,
-            min_execution_time=1.0,
-            capture_successful_only=True
-        )
-        
-        # Web API configuration integration
-        web_api_configuration_integration = providers.Singleton(
-            WebAPIConfigurationIntegration,
-            configuration_service=configuration_capture_service,
-            auto_analyze_patterns=True,
-            pattern_analysis_interval_hours=24,
-            performance_threshold_ms=1000.0
-        )
-        
-        # Configuration middleware factory
-        configuration_middleware_factory = providers.Factory(
-            ConfigurationAPIMiddleware.create_middleware,
-            configuration_service=configuration_capture_service
-        )
-    
     # Use cases
     detect_anomalies_use_case = providers.Factory(
         DetectAnomaliesUseCase,
@@ -686,152 +406,10 @@ class Container(containers.DeclarativeContainer):
         EvaluateModelUseCase,
         detector_repository=detector_repository
     )
-    
-    # Explainability use case - only create if available
-    if EXPLAINABILITY_AVAILABLE and ApplicationExplainabilityService is not None:
-        explain_anomaly_use_case = providers.Factory(
-            ExplainAnomalyUseCase,
-            explainability_service=application_explainability_service
-        )
-    
-    # AutoML use case - only create if available
-    if AutoMLUseCase is not None and AutoMLService is not None:
-        automl_use_case = providers.Factory(
-            AutoMLUseCase,
-            automl_service=automl_service
-        )
-    
-    
-    # Security services - only create if available
-    if SECURITY_AVAILABLE:
-        # Input sanitization
-        sanitization_config = providers.Singleton(
-            SanitizationConfig,
-            level=config.provided.security.sanitization_level,
-            max_length=config.provided.security.max_input_length,
-            allow_html=config.provided.security.allow_html
-        )
-        
-        input_sanitizer = providers.Singleton(
-            InputSanitizer,
-            config=sanitization_config
-        )
-        
-        # SQL injection protection
-        sql_injection_protector = providers.Singleton(SQLInjectionProtector)
-        query_sanitizer = providers.Singleton(QuerySanitizer)
-        
-        if DatabaseManager is not None:
-            safe_query_builder = providers.Singleton(
-                SafeQueryBuilder,
-                metadata=database_manager.provided.metadata
-            )
-        
-        # Encryption services
-        encryption_config = providers.Singleton(
-            EncryptionConfig,
-            algorithm=config.provided.security.encryption_algorithm,
-            key_length=config.provided.security.encryption_key_length,
-            enable_key_rotation=config.provided.security.enable_key_rotation
-        )
-        
-        encryption_service = providers.Singleton(
-            EncryptionService,
-            config=encryption_config
-        )
-        
-        data_encryption = providers.Singleton(
-            DataEncryption,
-            config=encryption_config
-        )
-        
-        field_encryption = providers.Singleton(
-            FieldEncryption,
-            encryption_service=encryption_service
-        )
-        
-        # Security headers
-        security_headers_config = providers.Factory(
-            lambda config=config: create_development_headers() if config.app.environment == "development" 
-            else create_production_headers()
-        )
-        
-        # Audit logging
-        audit_logger = providers.Singleton(
-            AuditLogger,
-            logger_name="pynomaly.audit",
-            enable_structured_logging=True,
-            enable_compliance_logging=config.provided.security.enable_compliance_logging
-        )
-        
-        # Security monitoring
-        security_monitor = providers.Singleton(
-            SecurityMonitor,
-            audit_logger=audit_logger
-        )
-        
-        # User action tracking
-        user_action_tracker = providers.Singleton(
-            UserActionTracker,
-            audit_logger=audit_logger,
-            security_monitor=security_monitor
-        )
 
 
-def _create_detector_repository(config):
-    """Create appropriate detector repository based on configuration."""
-    if config.use_database_repositories and config.database_configured:
-        if DatabaseDetectorRepository is not None and DatabaseManager is not None:
-            # Create database manager and repository
-            db_manager = DatabaseManager(
-                database_url=config.database_url,
-                echo=config.database_echo or config.app.debug
-            )
-            # Initialize database if needed
-            try:
-                from pynomaly.infrastructure.persistence.migrations import DatabaseMigrator
-                migrator = DatabaseMigrator(db_manager)
-                if not migrator.check_tables_exist():
-                    migrator.create_all_tables()
-            except Exception as e:
-                import logging
-                logging.warning(f"Database initialization failed, falling back to in-memory: {e}")
-                return InMemoryDetectorRepository()
-            
-            return DatabaseDetectorRepository(db_manager.get_session)
-    
-    # Default to file-based repository for persistence
-    return FileDetectorRepository(config.storage_path)
-
-
-def _create_dataset_repository(config):
-    """Create appropriate dataset repository based on configuration."""
-    if config.use_database_repositories and config.database_configured:
-        if DatabaseDatasetRepository is not None and DatabaseManager is not None:
-            # Create database manager and repository
-            db_manager = DatabaseManager(
-                database_url=config.database_url,
-                echo=config.database_echo or config.app.debug
-            )
-            return DatabaseDatasetRepository(db_manager.get_session)
-    
-    # Default to file-based repository for persistence
-    return FileDatasetRepository(config.storage_path)
-
-
-def _create_result_repository(config):
-    """Create appropriate result repository based on configuration."""
-    if config.use_database_repositories and config.database_configured:
-        if DatabaseDetectionResultRepository is not None and DatabaseManager is not None:
-            # Create database manager and repository
-            db_manager = DatabaseManager(
-                database_url=config.database_url,
-                echo=config.database_echo or config.app.debug
-            )
-            return DatabaseDetectionResultRepository(db_manager.get_session)
-    
-    # Default to file-based repository for persistence
-    return FileResultRepository(config.storage_path)
+# Initialize optional providers
+Container._setup_optional_providers()
 
 
 class TestContainer(Container):
