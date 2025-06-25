@@ -28,6 +28,7 @@ except ImportError:
     TensorDataset = None
     PYTORCH_AVAILABLE = False
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -113,15 +114,16 @@ class LSTMConfig(BaseModel):
     )
 
 
-class AutoEncoder(nn.Module):
-    """AutoEncoder neural network for anomaly detection."""
+if PYTORCH_AVAILABLE:
+    class AutoEncoder(nn.Module):
+        """AutoEncoder neural network for anomaly detection."""
 
-    def __init__(self, config: AutoEncoderConfig):
-        super().__init__()
-        if not PYTORCH_AVAILABLE:
-            raise ImportError("PyTorch is required for AutoEncoder")
+        def __init__(self, config: AutoEncoderConfig):
+            super().__init__()
+            if not PYTORCH_AVAILABLE:
+                raise ImportError("PyTorch is required for AutoEncoder")
 
-        self.config = config
+            self.config = config
 
         # Build encoder
         encoder_layers = []
@@ -183,7 +185,8 @@ class AutoEncoder(nn.Module):
         return self.encoder(x)
 
 
-class VAE(nn.Module):
+if PYTORCH_AVAILABLE:
+    class VAE(nn.Module):
     """Variational AutoEncoder for anomaly detection."""
 
     def __init__(self, config: VAEConfig):
@@ -726,3 +729,4 @@ class PyTorchAdapter(DetectorProtocol):
             )
 
         return info
+
