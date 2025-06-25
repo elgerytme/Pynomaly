@@ -24,9 +24,9 @@ logger = logging.getLogger(__name__)
 PYTHON_VERSIONS = {
     "3.11.4": {"status": "stable", "priority": "high", "description": "Specific compatibility target"},
     "3.11.9": {"status": "stable", "priority": "high", "description": "Latest 3.11.x stable"},
-    "3.12.7": {"status": "stable", "priority": "high", "description": "Latest 3.12.x stable"},
-    "3.13.0": {"status": "stable", "priority": "medium", "description": "Latest 3.13.x stable"},
-    "3.14.0": {"status": "dev", "priority": "low", "description": "Development version"},
+    "3.12.8": {"status": "stable", "priority": "high", "description": "Latest 3.12.x stable (Dec 2024)"},
+    "3.13.1": {"status": "stable", "priority": "medium", "description": "Latest 3.13.x stable (Dec 2024)"},
+    "3.14.0a3": {"status": "alpha", "priority": "low", "description": "Alpha 3 development version (Dec 2024)"},
 }
 
 class MultiPythonManager:

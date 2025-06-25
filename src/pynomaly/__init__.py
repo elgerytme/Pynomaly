@@ -9,6 +9,10 @@ This package provides a comprehensive anomaly detection platform with:
 
 from __future__ import annotations
 
+import pandas as pd
+from pathlib import Path
+from typing import Any
+
 __version__ = "0.1.0"
 __author__ = "Pynomaly Team"
 __email__ = "team@pynomaly.io"
@@ -25,7 +29,7 @@ def create_detector(
     name: str,
     algorithm: str = "IsolationForest",
     contamination: float = 0.1,
-    **parameters,
+    **parameters: dict[str, Any],
 ) -> Detector:
     """Create a new anomaly detector.
 
@@ -53,7 +57,7 @@ def create_detector(
 
 
 def load_dataset(
-    data, name: str = "Dataset", target_column: str = None, **kwargs
+    data, name: str = "Dataset", target_column: str = None, **kwargs: dict[str, Any]
 ) -> Dataset:
     """Load a dataset for anomaly detection.
 

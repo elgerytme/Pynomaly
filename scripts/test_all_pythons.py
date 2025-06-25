@@ -55,7 +55,7 @@ class MultiVersionTester:
         
         # Python versions to test
         self.python_versions = [
-            "3.11.4", "3.11.9", "3.12.7", "3.13.0", "3.14.0"
+            "3.11.4", "3.11.9", "3.12.8", "3.13.1", "3.14.0a3"
         ]
         
         # Test configurations
