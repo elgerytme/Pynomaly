@@ -97,7 +97,7 @@ def explain(
             explanation_type=explanation_type,
             method=methods[0] if methods else "shap",
             n_samples=n_samples,
-            feature_names=dataset.features,
+            feature_names=dataset.feature_names,
             target_audience=audience,
             generate_plots=visualizations
         )
@@ -376,17 +376,17 @@ def feature_importance(
             task = progress.add_task("Computing feature importance...", total=None)
             
             X = dataset.data.values if hasattr(dataset.data, 'values') else dataset.data
-            feature_names = dataset.features or [f"feature_{i}" for i in range(X.shape[1])]
+            feature_names = dataset.feature_names or [f"feature_{i}" for i in range(X.shape[1])]
             
             # Compute feature importance based on method
             if method == "permutation":
-                importance = await explainability_service._compute_permutation_importance(
+                importance = asyncio.run(explainability_service._compute_permutation_importance(
                     detector, X, feature_names
-                )
+                ))
             elif method == "shap":
-                importance = await explainability_service._compute_shap_global_importance(
+                importance = asyncio.run(explainability_service._compute_shap_global_importance(
                     detector, X, feature_names
-                )
+                ))
             else:  # lime or fallback
                 importance = explainability_service._compute_variance_importance(X, feature_names)
             
@@ -533,7 +533,7 @@ def _load_dataset(dataset_path: Path) -> Dataset:
         return Dataset(
             name=dataset_path.stem,
             data=data,
-            features=list(data.columns) if hasattr(data, 'columns') else [f"feature_{i}" for i in range(data.shape[1])]
+            feature_names=list(data.columns) if hasattr(data, 'columns') else [f"feature_{i}" for i in range(data.shape[1])]
         )
         
     except Exception as e:

@@ -48,8 +48,130 @@ class TrustMetric(str, Enum):
     STABILITY = "stability"
     FIDELITY = "fidelity"
     ROBUSTNESS = "robustness"
-    PLAUSIBILITY = "plausibility"
-    UNCERTAINTY = "uncertainty"
+
+
+# ============================================================================
+# Autonomous Mode Explainability DTOs
+# ============================================================================
+
+class AlgorithmExplanationDTO(BaseModel):
+    """DTO for algorithm selection explanations."""
+    
+    algorithm: str = Field(..., description="Algorithm name")
+    selected: bool = Field(..., description="Whether algorithm was selected")
+    confidence: float = Field(..., ge=0.0, le=1.0, description="Selection confidence score")
+    reasoning: str = Field(..., description="Human-readable explanation for selection/rejection")
+    data_characteristics: Dict[str, Any] = Field(default_factory=dict, description="Relevant data characteristics")
+    decision_factors: Dict[str, float] = Field(default_factory=dict, description="Quantified decision factors")
+    alternatives_considered: List[str] = Field(default_factory=list, description="Alternative algorithms considered")
+    performance_prediction: float = Field(..., ge=0.0, le=1.0, description="Expected performance score")
+    computational_complexity: str = Field(..., description="Computational complexity description")
+    memory_requirements: str = Field(..., description="Memory requirements description")
+    interpretability_score: float = Field(..., ge=0.0, le=1.0, description="Algorithm interpretability score")
+
+
+class AnomalyExplanationDTO(BaseModel):
+    """DTO for individual anomaly explanations."""
+    
+    sample_id: int = Field(..., description="Sample identifier")
+    anomaly_score: float = Field(..., description="Anomaly score")
+    contributing_features: Dict[str, float] = Field(default_factory=dict, description="Feature contributions to anomaly score")
+    feature_importances: Dict[str, float] = Field(default_factory=dict, description="Feature importance scores")
+    normal_range_deviations: Dict[str, float] = Field(default_factory=dict, description="Deviations from normal ranges")
+    similar_normal_samples: List[int] = Field(default_factory=list, description="Similar normal sample indices")
+    explanation_confidence: float = Field(..., ge=0.0, le=1.0, description="Explanation confidence")
+    explanation_method: str = Field(..., description="Method used for explanation")
+
+
+class AutonomousExplanationReportDTO(BaseModel):
+    """DTO for comprehensive autonomous detection explanation report."""
+    
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
+    dataset_profile: Dict[str, Any] = Field(..., description="Dataset characteristics profile")
+    algorithm_explanations: List[AlgorithmExplanationDTO] = Field(default_factory=list, description="Algorithm selection explanations")
+    selected_algorithms: List[str] = Field(default_factory=list, description="List of selected algorithms")
+    rejected_algorithms: List[str] = Field(default_factory=list, description="List of rejected algorithms")
+    ensemble_explanation: Optional[str] = Field(None, description="Ensemble method explanation")
+    anomaly_explanations: List[AnomalyExplanationDTO] = Field(default_factory=list, description="Individual anomaly explanations")
+    processing_explanation: str = Field(..., description="Data processing explanation")
+    recommendations: List[str] = Field(default_factory=list, description="Actionable recommendations")
+    decision_tree: Dict[str, Any] = Field(default_factory=dict, description="Decision tree for algorithm selection")
+    generated_at: datetime = Field(default_factory=datetime.now, description="Report generation timestamp")
+
+
+class ExplainChoicesRequestDTO(BaseModel):
+    """DTO for explaining algorithm choices request."""
+    
+    dataset_id: str = Field(..., description="Dataset identifier")
+    include_rejected: bool = Field(default=True, description="Include explanations for rejected algorithms")
+    include_decision_tree: bool = Field(default=True, description="Include decision tree visualization")
+    max_alternatives: int = Field(default=3, ge=1, le=10, description="Maximum alternatives to show per algorithm")
+
+
+class ExplainChoicesResponseDTO(BaseModel):
+    """DTO for explaining algorithm choices response."""
+    
+    algorithm_explanations: List[AlgorithmExplanationDTO] = Field(..., description="Algorithm explanations")
+    decision_summary: str = Field(..., description="High-level decision summary")
+    confidence_analysis: Dict[str, float] = Field(..., description="Overall confidence analysis")
+    recommendations: List[str] = Field(default_factory=list, description="Recommendations for improvement")
+
+
+class ExplainAnomaliesRequestDTO(BaseModel):
+    """DTO for explaining detected anomalies request."""
+    
+    result_id: str = Field(..., description="Detection result identifier")
+    max_anomalies: int = Field(default=10, ge=1, le=100, description="Maximum anomalies to explain")
+    explanation_method: str = Field(default="auto", description="Explanation method to use")
+    include_feature_importance: bool = Field(default=True, description="Include feature importance analysis")
+    include_similar_samples: bool = Field(default=True, description="Include similar normal samples")
+
+
+class ExplainAnomaliesResponseDTO(BaseModel):
+    """DTO for explaining detected anomalies response."""
+    
+    anomaly_explanations: List[AnomalyExplanationDTO] = Field(..., description="Individual anomaly explanations")
+    global_insights: Dict[str, Any] = Field(default_factory=dict, description="Global patterns and insights")
+    feature_summary: Dict[str, float] = Field(default_factory=dict, description="Overall feature importance summary")
+    explanation_confidence: float = Field(..., ge=0.0, le=1.0, description="Overall explanation confidence")
+
+
+class AutonomousConfigExplainabilityDTO(BaseModel):
+    """DTO for autonomous mode explainability configuration."""
+    
+    enable_explainability: bool = Field(default=True, description="Enable explainability features")
+    explain_algorithm_choices: bool = Field(default=True, description="Explain algorithm selection decisions")
+    explain_anomalies: bool = Field(default=True, description="Explain individual anomalies")
+    explanation_method: str = Field(default="auto", description="Explanation method to use")
+    max_anomaly_explanations: int = Field(default=10, ge=1, le=100, description="Maximum anomalies to explain")
+    include_decision_tree: bool = Field(default=True, description="Include decision tree visualization")
+    explanation_confidence_threshold: float = Field(default=0.5, ge=0.0, le=1.0, description="Minimum explanation confidence")
+
+
+# Update existing AutonomousDetectionRequestDTO to include explainability config
+class AutonomousDetectionWithExplainabilityRequestDTO(BaseModel):
+    """Enhanced autonomous detection request with explainability."""
+    
+    dataset_id: str = Field(..., description="Dataset identifier")
+    max_algorithms: int = Field(default=5, ge=1, le=10, description="Maximum algorithms to test")
+    confidence_threshold: float = Field(default=0.8, ge=0.0, le=1.0, description="Minimum confidence threshold")
+    auto_tune_hyperparams: bool = Field(default=True, description="Enable automatic hyperparameter tuning")
+    enable_ensemble: bool = Field(default=False, description="Create ensemble from best algorithms")
+    explainability_config: AutonomousConfigExplainabilityDTO = Field(default_factory=AutonomousConfigExplainabilityDTO, description="Explainability configuration")
+    save_results: bool = Field(default=True, description="Save detection results")
+    export_results: bool = Field(default=False, description="Export results to file")
+
+
+class AutonomousDetectionWithExplainabilityResponseDTO(BaseModel):
+    """Enhanced autonomous detection response with explainability."""
+    
+    detection_results: Dict[str, Any] = Field(..., description="Detection results")
+    best_algorithm: str = Field(..., description="Best performing algorithm")
+    explanation_report: Optional[AutonomousExplanationReportDTO] = Field(None, description="Comprehensive explanation report")
+    performance_summary: Dict[str, float] = Field(default_factory=dict, description="Performance summary across algorithms")
+    execution_time_ms: float = Field(..., description="Total execution time in milliseconds")
+    recommendations: List[str] = Field(default_factory=list, description="Actionable recommendations")
 
 
 class VisualizationType(str, Enum):

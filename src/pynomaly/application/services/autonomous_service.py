@@ -954,5 +954,526 @@ class AutonomousDetectionService:
             df.to_csv(f"{filename}.csv", index=False)
         elif config.export_format.lower() == "parquet":
             df.to_parquet(f"{filename}.parquet", index=False)
-        elif config.export_format.lower() == "excel":
-            df.to_excel(f"{filename}.xlsx", index=False)
+    
+    async def explain_algorithm_choices(
+        self,
+        profile: DataProfile,
+        recommendations: List[AlgorithmRecommendation],
+        config: AutonomousConfig
+    ) -> List[AlgorithmExplanation]:
+        """Generate detailed explanations for algorithm selection decisions."""
+        
+        explanations = []
+        all_algorithms = [
+            "IsolationForest", "LOF", "OneClassSVM", "EllipticEnvelope", 
+            "AutoEncoder", "ECOD", "COPOD", "KNN", "ABOD"
+        ]
+        
+        selected_algos = [rec.algorithm for rec in recommendations]
+        
+        for algo in all_algorithms:
+            is_selected = algo in selected_algos
+            
+            if is_selected:
+                rec = next(r for r in recommendations if r.algorithm == algo)
+                confidence = rec.confidence
+                reasoning = rec.reasoning
+                prediction = rec.expected_performance
+            else:
+                confidence, reasoning, prediction = self._explain_rejection(algo, profile)
+            
+            # Calculate decision factors
+            decision_factors = self._calculate_decision_factors(algo, profile)
+            
+            explanation = AlgorithmExplanation(
+                algorithm=algo,
+                selected=is_selected,
+                confidence=confidence,
+                reasoning=reasoning,
+                data_characteristics=self._extract_relevant_characteristics(algo, profile),
+                decision_factors=decision_factors,
+                alternatives_considered=self._get_algorithm_alternatives(algo),
+                performance_prediction=prediction,
+                computational_complexity=self._get_computational_complexity(algo, profile),
+                memory_requirements=self._get_memory_requirements(algo, profile),
+                interpretability_score=self._get_interpretability_score(algo)
+            )
+            
+            explanations.append(explanation)
+        
+        return explanations
+    
+    def _explain_rejection(self, algorithm: str, profile: DataProfile) -> Tuple[float, str, float]:
+        """Explain why an algorithm was rejected."""
+        
+        rejections = {
+            "LOF": {
+                "condition": profile.numeric_features < profile.n_features * 0.7,
+                "reason": "Dataset contains too many categorical features for LOF (requires 70%+ numeric)",
+                "confidence": 0.3,
+                "performance": 0.45
+            },
+            "OneClassSVM": {
+                "condition": profile.n_samples >= 50000 or profile.complexity_score <= 0.5,
+                "reason": "Dataset too large for efficient SVM computation or insufficient complexity",
+                "confidence": 0.35,
+                "performance": 0.50
+            },
+            "EllipticEnvelope": {
+                "condition": profile.correlation_score >= 0.8 or profile.numeric_features <= 2,
+                "reason": "High feature correlation or insufficient numeric features for robust covariance estimation",
+                "confidence": 0.25,
+                "performance": 0.40
+            },
+            "AutoEncoder": {
+                "condition": profile.n_samples <= 10000 or profile.complexity_score <= 0.6,
+                "reason": "Insufficient data size for deep learning or low complexity doesn't justify neural approach",
+                "confidence": 0.30,
+                "performance": 0.55
+            }
+        }
+        
+        if algorithm in rejections:
+            rejection = rejections[algorithm]
+            if rejection["condition"]:
+                return rejection["confidence"], rejection["reason"], rejection["performance"]
+        
+        return 0.20, f"Algorithm {algorithm} did not meet selection criteria for this dataset", 0.35
+    
+    def _calculate_decision_factors(self, algorithm: str, profile: DataProfile) -> Dict[str, float]:
+        """Calculate the decision factors that influenced algorithm selection."""
+        
+        factors = {
+            "dataset_size_match": 0.0,
+            "feature_type_compatibility": 0.0,
+            "complexity_alignment": 0.0,
+            "performance_expectation": 0.0,
+            "computational_efficiency": 0.0,
+            "interpretability_requirement": 0.0
+        }
+        
+        # Dataset size matching
+        if algorithm == "IsolationForest":
+            factors["dataset_size_match"] = min(1.0, profile.n_samples / 10000)
+        elif algorithm == "LOF":
+            factors["dataset_size_match"] = 1.0 - min(1.0, profile.n_samples / 50000)
+        elif algorithm == "AutoEncoder":
+            factors["dataset_size_match"] = min(1.0, profile.n_samples / 5000)
+        
+        # Feature type compatibility
+        if algorithm in ["LOF", "OneClassSVM", "EllipticEnvelope"]:
+            factors["feature_type_compatibility"] = profile.numeric_features / profile.n_features
+        else:
+            factors["feature_type_compatibility"] = 0.8  # Generally robust
+        
+        # Complexity alignment
+        if algorithm in ["IsolationForest", "AutoEncoder"]:
+            factors["complexity_alignment"] = profile.complexity_score
+        elif algorithm in ["ECOD", "COPOD"]:
+            factors["complexity_alignment"] = 1.0 - profile.complexity_score
+        
+        # Performance expectation (based on algorithm characteristics)
+        performance_map = {
+            "IsolationForest": 0.85,
+            "LOF": 0.80,
+            "AutoEncoder": 0.90,
+            "OneClassSVM": 0.75,
+            "EllipticEnvelope": 0.70,
+            "ECOD": 0.75,
+            "COPOD": 0.70
+        }
+        factors["performance_expectation"] = performance_map.get(algorithm, 0.65)
+        
+        # Computational efficiency
+        efficiency_map = {
+            "IsolationForest": 0.90,
+            "ECOD": 0.95,
+            "COPOD": 0.90,
+            "LOF": 0.60,
+            "OneClassSVM": 0.40,
+            "AutoEncoder": 0.30,
+            "EllipticEnvelope": 0.85
+        }
+        factors["computational_efficiency"] = efficiency_map.get(algorithm, 0.50)
+        
+        # Interpretability
+        interpretability_map = {
+            "IsolationForest": 0.70,
+            "LOF": 0.85,
+            "ECOD": 0.90,
+            "COPOD": 0.85,
+            "OneClassSVM": 0.40,
+            "AutoEncoder": 0.20,
+            "EllipticEnvelope": 0.80
+        }
+        factors["interpretability_requirement"] = interpretability_map.get(algorithm, 0.50)
+        
+        return factors
+    
+    def _extract_relevant_characteristics(self, algorithm: str, profile: DataProfile) -> Dict[str, Any]:
+        """Extract data characteristics relevant to the specific algorithm."""
+        
+        base_chars = {
+            "n_samples": profile.n_samples,
+            "n_features": profile.n_features,
+            "numeric_ratio": profile.numeric_features / profile.n_features
+        }
+        
+        if algorithm in ["LOF", "OneClassSVM"]:
+            base_chars.update({
+                "sparsity": profile.sparsity_ratio,
+                "correlation_score": profile.correlation_score
+            })
+        
+        if algorithm == "EllipticEnvelope":
+            base_chars.update({
+                "correlation_score": profile.correlation_score,
+                "outlier_ratio": profile.outlier_ratio
+            })
+        
+        if algorithm == "AutoEncoder":
+            base_chars.update({
+                "complexity_score": profile.complexity_score,
+                "missing_ratio": profile.missing_ratio
+            })
+        
+        return base_chars
+    
+    def _get_algorithm_alternatives(self, algorithm: str) -> List[str]:
+        """Get alternative algorithms for the given algorithm."""
+        
+        alternatives = {
+            "IsolationForest": ["LOF", "OneClassSVM", "ECOD"],
+            "LOF": ["IsolationForest", "KNN", "ABOD"],
+            "OneClassSVM": ["IsolationForest", "EllipticEnvelope", "LOF"],
+            "EllipticEnvelope": ["OneClassSVM", "COPOD", "IsolationForest"],
+            "AutoEncoder": ["IsolationForest", "VAE", "OneClassSVM"],
+            "ECOD": ["IsolationForest", "COPOD", "LOF"],
+            "COPOD": ["ECOD", "EllipticEnvelope", "IsolationForest"]
+        }
+        
+        return alternatives.get(algorithm, ["IsolationForest"])
+    
+    def _get_computational_complexity(self, algorithm: str, profile: DataProfile) -> str:
+        """Get computational complexity description for the algorithm."""
+        
+        n, d = profile.n_samples, profile.n_features
+        
+        complexities = {
+            "IsolationForest": f"O(n log n) ≈ O({n} log {n}) - Efficient for large datasets",
+            "LOF": f"O(n²) ≈ O({n}²) - Quadratic complexity, may be slow for large datasets",
+            "OneClassSVM": f"O(n²) to O(n³) - Depends on kernel, can be very slow for large datasets",
+            "EllipticEnvelope": f"O(nd²) ≈ O({n}×{d}²) - Depends on feature count",
+            "AutoEncoder": f"O(epochs × batch_count × layer_complexity) - Training intensive",
+            "ECOD": f"O(nd) ≈ O({n}×{d}) - Linear complexity, very efficient",
+            "COPOD": f"O(nd²) ≈ O({n}×{d}²) - Moderate complexity"
+        }
+        
+        return complexities.get(algorithm, "O(n) - Linear complexity")
+    
+    def _get_memory_requirements(self, algorithm: str, profile: DataProfile) -> str:
+        """Get memory requirements description for the algorithm."""
+        
+        n, d = profile.n_samples, profile.n_features
+        
+        requirements = {
+            "IsolationForest": f"Low - O(n) storage for {n} samples",
+            "LOF": f"High - O(n²) for distance matrix of {n}² elements",
+            "OneClassSVM": f"Medium - O(n×support_vectors) depends on complexity",
+            "EllipticEnvelope": f"Low - O(d²) for covariance matrix of {d}×{d}",
+            "AutoEncoder": f"High - O(model_parameters + batch_size×features)",
+            "ECOD": f"Very Low - O(d) for feature statistics",
+            "COPOD": f"Low - O(d²) for copula computations"
+        }
+        
+        return requirements.get(algorithm, "Medium - Standard memory usage")
+    
+    def _get_interpretability_score(self, algorithm: str) -> float:
+        """Get interpretability score for the algorithm (0-1, higher is more interpretable)."""
+        
+        scores = {
+            "IsolationForest": 0.7,  # Feature importance available, tree-based
+            "LOF": 0.85,            # Local density intuitive
+            "OneClassSVM": 0.4,     # Kernel methods less interpretable
+            "EllipticEnvelope": 0.8,  # Statistical approach, clear assumptions
+            "AutoEncoder": 0.2,     # Neural networks are black boxes
+            "ECOD": 0.9,           # Statistical, very interpretable
+            "COPOD": 0.85,         # Copula-based, statistical foundation
+            "KNN": 0.9,            # Nearest neighbors very intuitive
+            "ABOD": 0.75           # Angle-based, geometrically interpretable
+        }
+        
+        return scores.get(algorithm, 0.5)
+    
+    async def explain_anomalies(
+        self,
+        dataset: Dataset,
+        result: DetectionResult,
+        detector: Detector,
+        config: AutonomousConfig,
+        max_explanations: int = 10
+    ) -> List[AnomalyExplanation]:
+        """Generate explanations for detected anomalies."""
+        
+        explanations = []
+        
+        # Get top anomalies by score
+        anomaly_indices = []
+        anomaly_scores = []
+        
+        for i, anomaly in enumerate(result.anomalies[:max_explanations]):
+            anomaly_indices.append(anomaly.index)
+            anomaly_scores.append(anomaly.score.value)
+        
+        if not anomaly_indices:
+            return explanations
+        
+        # Calculate feature-level explanations
+        for i, (idx, score) in enumerate(zip(anomaly_indices, anomaly_scores)):
+            try:
+                explanation = await self._explain_single_anomaly(
+                    dataset, idx, score, detector, config
+                )
+                explanations.append(explanation)
+            except Exception as e:
+                self.logger.warning(f"Failed to explain anomaly at index {idx}: {e}")
+                continue
+        
+        return explanations
+    
+    async def _explain_single_anomaly(
+        self,
+        dataset: Dataset,
+        sample_idx: int,
+        anomaly_score: float,
+        detector: Detector,
+        config: AutonomousConfig
+    ) -> AnomalyExplanation:
+        """Explain a single anomaly."""
+        
+        sample = dataset.data.iloc[sample_idx]
+        
+        # Calculate feature contributions (basic implementation)
+        feature_contributions = {}
+        feature_importances = {}
+        normal_range_deviations = {}
+        
+        # Get normal samples for comparison
+        normal_indices = self._find_similar_normal_samples(dataset, sample_idx, sample)
+        
+        # Calculate feature-level explanations
+        for col in dataset.data.columns:
+            if pd.api.types.is_numeric_dtype(dataset.data[col]):
+                # Calculate deviation from normal range
+                normal_values = dataset.data.iloc[normal_indices][col]
+                sample_value = sample[col]
+                
+                mean_normal = normal_values.mean()
+                std_normal = normal_values.std()
+                
+                if std_normal > 0:
+                    z_score = abs(sample_value - mean_normal) / std_normal
+                    normal_range_deviations[col] = float(z_score)
+                    
+                    # Feature contribution (simplified)
+                    contribution = min(1.0, z_score / 3.0)  # Normalize by 3-sigma rule
+                    feature_contributions[col] = float(contribution)
+                    
+                    # Feature importance (how much this feature typically contributes)
+                    feature_importances[col] = float(min(1.0, z_score * 0.1))
+        
+        return AnomalyExplanation(
+            sample_id=sample_idx,
+            anomaly_score=anomaly_score,
+            contributing_features=feature_contributions,
+            feature_importances=feature_importances,
+            normal_range_deviations=normal_range_deviations,
+            similar_normal_samples=normal_indices[:5],  # Top 5 similar normal samples
+            explanation_confidence=0.75,  # Basic implementation confidence
+            explanation_method="statistical_deviation"
+        )
+    
+    def _find_similar_normal_samples(
+        self,
+        dataset: Dataset,
+        anomaly_idx: int,
+        anomaly_sample: pd.Series,
+        n_similar: int = 20
+    ) -> List[int]:
+        """Find normal samples similar to the anomaly for comparison."""
+        
+        # Simple implementation: find samples with smallest Euclidean distance
+        numeric_cols = dataset.data.select_dtypes(include=[np.number]).columns
+        
+        if len(numeric_cols) == 0:
+            return list(range(min(n_similar, len(dataset.data))))
+        
+        # Calculate distances
+        distances = []
+        anomaly_values = anomaly_sample[numeric_cols].values
+        
+        for i, row in dataset.data[numeric_cols].iterrows():
+            if i != anomaly_idx:  # Exclude the anomaly itself
+                distance = np.linalg.norm(row.values - anomaly_values)
+                distances.append((i, distance))
+        
+        # Sort by distance and return indices
+        distances.sort(key=lambda x: x[1])
+        return [idx for idx, _ in distances[:n_similar]]
+    
+    async def generate_explanation_report(
+        self,
+        dataset: Dataset,
+        profile: DataProfile,
+        recommendations: List[AlgorithmRecommendation],
+        results: Dict[str, DetectionResult],
+        config: AutonomousConfig
+    ) -> AutonomousExplanationReport:
+        """Generate a comprehensive explanation report."""
+        
+        # Algorithm explanations
+        algorithm_explanations = await self.explain_algorithm_choices(
+            profile, recommendations, config
+        )
+        
+        # Anomaly explanations for best result
+        anomaly_explanations = []
+        if results:
+            best_result = max(results.values(), key=lambda r: len(r.anomalies))
+            best_detector = None  # Would need to pass this in
+            
+            if config.explain_anomalies and best_result.anomalies:
+                anomaly_explanations = await self.explain_anomalies(
+                    dataset, best_result, best_detector, config
+                )
+        
+        # Generate recommendations
+        recommendations_text = self._generate_recommendations(
+            profile, algorithm_explanations, results
+        )
+        
+        # Build decision tree
+        decision_tree = self._build_decision_tree(profile, recommendations)
+        
+        return AutonomousExplanationReport(
+            dataset_profile=profile,
+            algorithm_explanations=algorithm_explanations,
+            selected_algorithms=[rec.algorithm for rec in recommendations],
+            rejected_algorithms=[exp.algorithm for exp in algorithm_explanations if not exp.selected],
+            ensemble_explanation=self._generate_ensemble_explanation(recommendations),
+            anomaly_explanations=anomaly_explanations,
+            processing_explanation=self._generate_processing_explanation(profile, config),
+            recommendations=recommendations_text,
+            decision_tree=decision_tree
+        )
+    
+    def _generate_recommendations(
+        self,
+        profile: DataProfile,
+        algorithm_explanations: List[AlgorithmExplanation],
+        results: Dict[str, DetectionResult]
+    ) -> List[str]:
+        """Generate actionable recommendations based on analysis."""
+        
+        recommendations = []
+        
+        # Data quality recommendations
+        if profile.missing_ratio > 0.1:
+            recommendations.append(
+                f"Consider improving data quality - {profile.missing_ratio:.1%} missing values detected"
+            )
+        
+        if profile.outlier_ratio > 0.2:
+            recommendations.append(
+                "High outlier ratio detected - consider data cleaning before anomaly detection"
+            )
+        
+        # Algorithm recommendations
+        selected_algos = [exp for exp in algorithm_explanations if exp.selected]
+        if len(selected_algos) < 3:
+            recommendations.append(
+                "Consider ensemble methods with additional algorithms for improved performance"
+            )
+        
+        # Performance recommendations
+        if results:
+            best_result = max(results.values(), key=lambda r: len(r.anomalies))
+            if len(best_result.anomalies) == 0:
+                recommendations.append(
+                    "No anomalies detected - consider lowering contamination parameter or trying different algorithms"
+                )
+            elif len(best_result.anomalies) > len(results) * 0.1:
+                recommendations.append(
+                    "High anomaly rate detected - verify results and consider increasing threshold"
+                )
+        
+        return recommendations
+    
+    def _generate_ensemble_explanation(self, recommendations: List[AlgorithmRecommendation]) -> Optional[str]:
+        """Generate explanation for ensemble approach."""
+        
+        if len(recommendations) < 2:
+            return None
+        
+        return (
+            f"Ensemble of {len(recommendations)} algorithms recommended for improved robustness. "
+            f"Combining {', '.join(rec.algorithm for rec in recommendations)} "
+            f"balances different detection approaches and reduces false positives."
+        )
+    
+    def _generate_processing_explanation(self, profile: DataProfile, config: AutonomousConfig) -> str:
+        """Generate explanation for data processing decisions."""
+        
+        explanations = []
+        
+        if config.enable_preprocessing:
+            explanations.append(f"Preprocessing enabled with {config.preprocessing_strategy} strategy")
+        
+        if profile.missing_ratio > 0:
+            explanations.append(f"Missing value handling required ({profile.missing_ratio:.1%} missing)")
+        
+        if profile.categorical_features > 0:
+            explanations.append(f"Categorical encoding needed for {profile.categorical_features} features")
+        
+        return "; ".join(explanations) if explanations else "Minimal preprocessing required"
+    
+    def _build_decision_tree(
+        self,
+        profile: DataProfile,
+        recommendations: List[AlgorithmRecommendation]
+    ) -> Dict[str, Any]:
+        """Build a decision tree explaining the selection process."""
+        
+        tree = {
+            "root": "Algorithm Selection Process",
+            "dataset_analysis": {
+                "sample_size": {
+                    "value": profile.n_samples,
+                    "category": "large" if profile.n_samples > 10000 else "medium" if profile.n_samples > 1000 else "small"
+                },
+                "feature_count": {
+                    "value": profile.n_features,
+                    "category": "high" if profile.n_features > 50 else "medium" if profile.n_features > 10 else "low"
+                },
+                "data_complexity": {
+                    "value": profile.complexity_score,
+                    "category": "high" if profile.complexity_score > 0.7 else "medium" if profile.complexity_score > 0.4 else "low"
+                }
+            },
+            "algorithm_decisions": [
+                {
+                    "algorithm": rec.algorithm,
+                    "decision": "selected",
+                    "confidence": rec.confidence,
+                    "primary_reason": rec.reasoning.split(",")[0]  # First part of reasoning
+                }
+                for rec in recommendations
+            ],
+            "selection_criteria": {
+                "confidence_threshold": 0.8,
+                "max_algorithms": len(recommendations),
+                "primary_factors": ["dataset_size", "feature_types", "complexity", "computational_efficiency"]
+            }
+        }
+        
+        return tree
