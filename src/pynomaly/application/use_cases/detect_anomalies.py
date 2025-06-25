@@ -166,7 +166,9 @@ class DetectAnomaliesUseCase:
 
         except Exception as e:
             raise DatasetError(
-                dataset_name=request.dataset.name, operation="detection", reason=str(e)
+                message=f"Detection failed for dataset '{request.dataset.name}': {str(e)}",
+                details={"dataset_name": request.dataset.name, "operation": "detection"},
+                cause=e
             ) from e
 
         # Save results if requested
