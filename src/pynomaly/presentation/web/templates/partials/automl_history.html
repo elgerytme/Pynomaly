@@ -1,0 +1,74 @@
+{% if history %}
+<div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+    <table class="min-w-full divide-y divide-gray-300">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Algorithm</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dataset</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Best Score</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trials</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for experiment in history %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">{{ experiment.algorithm }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-500">{{ experiment.dataset_name }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-green-600">{{ experiment.best_score|round(4) }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-500">{{ experiment.completed_trials }}/{{ experiment.total_trials }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-500">{{ experiment.duration }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    {% if experiment.status == 'completed' %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        ✓ Completed
+                    </span>
+                    {% elif experiment.status == 'failed' %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        ✗ Failed
+                    </span>
+                    {% else %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        ⏸️ Stopped
+                    </span>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <a href="/web/automl/experiment/{{ experiment.id }}" class="text-primary hover:text-blue-900">View</a>
+                    <span class="text-gray-300 mx-2">|</span>
+                    <button onclick="downloadResults('{{ experiment.id }}')" class="text-green-600 hover:text-green-900">Download</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="text-center py-12">
+    <div class="text-6xl mb-4">📊</div>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">No optimization history</h3>
+    <p class="text-gray-500 mb-4">Start your first optimization to see results here</p>
+    <button onclick="window.location='/web/automl/optimize'" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-blue-700">
+        Start First Optimization
+    </button>
+</div>
+{% endif %}
+
+<script>
+function downloadResults(experimentId) {
+    // In a real implementation, this would download the optimization results
+    alert('Download results for experiment: ' + experimentId);
+}
+</script>
