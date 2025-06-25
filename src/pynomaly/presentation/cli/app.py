@@ -14,6 +14,7 @@ from pynomaly.presentation.cli import datasets, detectors, detection, server, au
 # from pynomaly.presentation.cli import automl  # Temporarily disabled due to Typer compatibility
 # from pynomaly.presentation.cli import performance  # Temporarily disabled due to Typer type issues
 from pynomaly.presentation.cli.export import export_app
+# from pynomaly.presentation.cli import deep_learning  # Temporarily disabled due to syntax error
 # from pynomaly.presentation.cli.explain import explain_commands  # Temporarily disabled
 # from pynomaly.presentation.cli.security import security_commands  # Temporarily disabled
 # from pynomaly.presentation.cli.dashboard import dashboard_commands  # Temporarily disabled
@@ -39,6 +40,7 @@ app.add_typer(detectors.app, name="detector", help="Manage anomaly detectors")
 app.add_typer(datasets.app, name="dataset", help="Manage datasets")
 app.add_typer(preprocessing.app, name="data", help="🔧 Data preprocessing (clean, transform, pipeline)")
 app.add_typer(detection.app, name="detect", help="Run anomaly detection")
+# app.add_typer(deep_learning.deep_learning, name="deep-learning", help="🧠 Deep learning anomaly detection (PyTorch, TensorFlow, JAX)")  # Temporarily disabled
 # app.add_typer(explain_commands, name="explain", help="🔍 Explainable AI (model interpretability, bias analysis)")  # Temporarily disabled
 # app.add_typer(security_commands, name="security", help="🔒 Security & compliance (SOC2, GDPR, HIPAA, encryption)")  # Temporarily disabled
 # app.add_typer(dashboard_commands, name="dashboard", help="📊 Advanced visualization dashboards (executive, operational, analytical)")  # Temporarily disabled

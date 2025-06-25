@@ -564,3 +564,16 @@ def mount_web_ui(app):
     
     # Include web routes
     app.include_router(router, prefix="/web", tags=["Web UI"])
+
+
+def create_web_app():
+    """Create complete web application with API and UI."""
+    from pynomaly.presentation.api.app import create_app
+    
+    # Create API app
+    app = create_app()
+    
+    # Mount web UI
+    mount_web_ui(app)
+    
+    return app

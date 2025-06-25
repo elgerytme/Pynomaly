@@ -177,6 +177,11 @@ class FeatureFlags(BaseSettings):
         description="Enable PyTorch/TensorFlow deep learning adapters"
     )
     
+    deep_learning: bool = Field(
+        default=True,
+        description="Enable deep learning anomaly detection with PyTorch, TensorFlow, and JAX"
+    )
+    
     advanced_explainability: bool = Field(
         default=True,
         description="Enable advanced explainable AI features"
@@ -365,6 +370,14 @@ class FeatureFlagManager:
                 stage=FeatureStage.EXPERIMENTAL,
                 dependencies={"algorithm_optimization"},
                 required_packages={"torch", "tensorflow"}
+            ),
+            
+            "deep_learning": FeatureDefinition(
+                name="deep_learning",
+                description="Deep learning anomaly detection with PyTorch, TensorFlow, and JAX",
+                category=FeatureCategory.INTEGRATIONS,
+                stage=FeatureStage.BETA,
+                dependencies={"algorithm_optimization"}
             ),
             
             "advanced_explainability": FeatureDefinition(
