@@ -31,14 +31,19 @@ If you want to run Pynomaly without Poetry, Docker, or Make:
 # Run the automated setup script
 python scripts/setup_simple.py
 
-# Or manually:
+# Or manually with different requirement levels:
 python -m venv .venv
 # Windows:
 .venv\Scripts\activate  
 # Linux/macOS:
 source .venv/bin/activate
 
-pip install -r requirements.txt
+# Choose your installation level:
+pip install -r requirements.txt          # Minimal (PyOD + NumPy + Pandas + Polars)
+pip install -r requirements-minimal.txt  # + scikit-learn + scipy
+pip install -r requirements-server.txt   # + API + CLI functionality  
+pip install -r requirements-production.txt # Production-ready stack
+
 pip install -e .
 ```
 
@@ -58,16 +63,31 @@ See [docs/getting-started/README_SIMPLE_SETUP.md](docs/getting-started/README_SI
 ### Full Setup (with Poetry)
 
 ```bash
-# Install with Poetry
+# Minimal installation (PyOD, NumPy, Pandas, Polars + core architecture)
 poetry install
 
-# Or install with extras for specific ML frameworks
+# Or install with extras for specific functionality
+poetry install -E minimal    # Add scikit-learn + scipy
+poetry install -E api        # Web API functionality
+poetry install -E cli        # Command-line interface
+poetry install -E server     # API + CLI + basic features
+poetry install -E production # Production-ready stack
+
+# ML framework extras
 poetry install -E torch      # PyTorch deep learning support
 poetry install -E tensorflow # TensorFlow neural networks
 poetry install -E jax        # JAX high-performance computing
 poetry install -E graph      # PyGOD graph anomaly detection
-poetry install -E timeseries # Advanced time-series detection
-poetry install -E web        # Progressive Web App dependencies
+poetry install -E automl     # AutoML with auto-sklearn2
+poetry install -E explainability # SHAP/LIME model explanation
+
+# Data processing extras
+poetry install -E data-formats # Parquet, Excel, HDF5 support
+poetry install -E database   # SQL database connectivity
+poetry install -E spark      # Apache Spark integration
+
+# Comprehensive installations
+poetry install -E ml-all     # All ML frameworks and tools
 poetry install -E all        # All optional dependencies
 ```
 

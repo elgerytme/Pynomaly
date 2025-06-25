@@ -262,7 +262,6 @@ class ModelPersistenceService:
             "IsolationForest": [],
             "LocalOutlierFactor": [],
             "OneClassSVM": [],
-            "TODS": ["tods>=0.1.0"],
             "PyGOD": ["pygod>=1.0.0"],
         }
         

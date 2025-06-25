@@ -76,11 +76,15 @@ def main():
         print("   source .venv/bin/activate")
     
     print("\n2. Run the CLI directly:")
+    print("   pynomaly --help")
+    print("   # or")
     print("   python -m pynomaly.presentation.cli.app --help")
     print("   # or")
-    print("   python cli.py --help")
+    print("   python scripts/cli.py --help")
     
     print("\n3. Start the API server:")
+    print("   pynomaly server start")
+    print("   # or")
     print("   python -m uvicorn pynomaly.presentation.api.app:app --reload")
     print("   # or")
     print("   python -m pynomaly.presentation.cli.app server start")
@@ -90,11 +94,11 @@ def main():
     
     print("\n📖 Example commands:")
     print("   # List available algorithms")
-    print("   python cli.py detector algorithms")
+    print("   pynomaly detector algorithms")
     print("\n   # Create a detector")
-    print("   python cli.py detector create --name 'My Detector' --algorithm IsolationForest")
+    print("   pynomaly detector create --name 'My Detector' --algorithm IsolationForest")
     print("\n   # Start the server")
-    print("   python cli.py server start")
+    print("   pynomaly server start")
 
 if __name__ == "__main__":
     main()
