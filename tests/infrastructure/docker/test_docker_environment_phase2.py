@@ -78,9 +78,9 @@ class TestDockerInfrastructurePhase2:
 
     def test_docker_compose_testing_exists(self, docker_compose_testing_path):
         """Test that docker-compose.testing.yml exists and is valid."""
-        assert docker_compose_testing_path.exists(), (
-            "docker-compose.testing.yml should exist"
-        )
+        assert (
+            docker_compose_testing_path.exists()
+        ), "docker-compose.testing.yml should exist"
 
         with open(docker_compose_testing_path) as f:
             content = yaml.safe_load(f)
@@ -107,9 +107,9 @@ class TestDockerInfrastructurePhase2:
         assert "build" in test_service, "Test service should have build configuration"
         assert "volumes" in test_service, "Test service should mount volumes"
         assert "environment" in test_service, "Test service should set environment"
-        assert "depends_on" in test_service, (
-            "Test service should depend on other services"
-        )
+        assert (
+            "depends_on" in test_service
+        ), "Test service should depend on other services"
 
     def test_docker_compose_testing_database_config(self, docker_compose_testing_path):
         """Test database configuration in docker-compose.testing.yml."""
@@ -122,9 +122,9 @@ class TestDockerInfrastructurePhase2:
         postgres_service = services.get("postgres-test", {})
         assert "image" in postgres_service, "PostgreSQL service should specify image"
         assert "postgres" in postgres_service["image"], "Should use PostgreSQL image"
-        assert "environment" in postgres_service, (
-            "PostgreSQL should set environment variables"
-        )
+        assert (
+            "environment" in postgres_service
+        ), "PostgreSQL should set environment variables"
 
         postgres_env = postgres_service.get("environment", {})
         assert "POSTGRES_USER" in postgres_env, "Should set PostgreSQL user"
@@ -157,9 +157,9 @@ class TestDockerInfrastructurePhase2:
         for service_name in ["pynomaly-test", "postgres-test", "redis-test"]:
             service = services.get(service_name, {})
             service_networks = service.get("networks", [])
-            assert "pynomaly-test-network" in service_networks, (
-                f"{service_name} should be on test network"
-            )
+            assert (
+                "pynomaly-test-network" in service_networks
+            ), f"{service_name} should be on test network"
 
     def test_docker_compose_testing_health_checks(self, docker_compose_testing_path):
         """Test health check configuration in docker-compose.testing.yml."""
@@ -173,24 +173,24 @@ class TestDockerInfrastructurePhase2:
         assert "healthcheck" in postgres_service, "PostgreSQL should have health check"
 
         postgres_healthcheck = postgres_service.get("healthcheck", {})
-        assert "test" in postgres_healthcheck, (
-            "PostgreSQL health check should have test command"
-        )
-        assert "pg_isready" in str(postgres_healthcheck.get("test", "")), (
-            "Should use pg_isready"
-        )
+        assert (
+            "test" in postgres_healthcheck
+        ), "PostgreSQL health check should have test command"
+        assert "pg_isready" in str(
+            postgres_healthcheck.get("test", "")
+        ), "Should use pg_isready"
 
         # Check Redis health check
         redis_service = services.get("redis-test", {})
         assert "healthcheck" in redis_service, "Redis should have health check"
 
         redis_healthcheck = redis_service.get("healthcheck", {})
-        assert "test" in redis_healthcheck, (
-            "Redis health check should have test command"
-        )
-        assert "redis-cli" in str(redis_healthcheck.get("test", "")), (
-            "Should use redis-cli"
-        )
+        assert (
+            "test" in redis_healthcheck
+        ), "Redis health check should have test command"
+        assert "redis-cli" in str(
+            redis_healthcheck.get("test", "")
+        ), "Should use redis-cli"
 
 
 class TestDockerContainerOperationsPhase2:
@@ -232,13 +232,13 @@ class TestDockerContainerOperationsPhase2:
         """
 
         # Check for optimization patterns
-        assert "rm -rf /var/lib/apt/lists/*" in dockerfile_content, (
-            "Should clean apt cache"
-        )
+        assert (
+            "rm -rf /var/lib/apt/lists/*" in dockerfile_content
+        ), "Should clean apt cache"
         assert "--no-cache-dir" in dockerfile_content, "Should use no-cache-dir for pip"
-        assert "COPY requirements.txt" in dockerfile_content, (
-            "Should copy requirements first for layer caching"
-        )
+        assert (
+            "COPY requirements.txt" in dockerfile_content
+        ), "Should copy requirements first for layer caching"
 
     def test_docker_security_considerations(self):
         """Test Docker security best practices."""
@@ -363,12 +363,12 @@ class TestDockerTestExecutionPhase2:
 
         # Check coverage reporting
         assert "--cov=pynomaly" in command, "Should generate coverage"
-        assert any("--cov-report=html" in item for item in command), (
-            "Should generate HTML coverage report"
-        )
-        assert any("--junit-xml" in item for item in command), (
-            "Should generate JUnit XML report"
-        )
+        assert any(
+            "--cov-report=html" in item for item in command
+        ), "Should generate HTML coverage report"
+        assert any(
+            "--junit-xml" in item for item in command
+        ), "Should generate JUnit XML report"
 
     def test_docker_test_isolation(self):
         """Test Docker test environment isolation."""
@@ -469,9 +469,9 @@ class TestDockerDependencyManagementPhase2:
         for framework, version in test_dependencies.items():
             assert isinstance(framework, str), f"{framework} should be string"
             assert isinstance(version, str), f"{version} should be string"
-            assert framework.startswith("pytest") or framework in ["hypothesis"], (
-                f"{framework} should be testing-related"
-            )
+            assert framework.startswith("pytest") or framework in [
+                "hypothesis"
+            ], f"{framework} should be testing-related"
 
     def test_docker_optional_dependency_handling(self):
         """Test optional dependency handling in Docker."""
@@ -545,12 +545,12 @@ class TestDockerIntegrationWorkflowPhase2:
         # Check development commands
         for command_name, command in dev_commands.items():
             assert isinstance(command, str), f"{command_name} should be string"
-            assert "docker-compose" in command, (
-                f"{command_name} should use docker-compose"
-            )
-            assert "docker-compose.testing.yml" in command, (
-                f"{command_name} should use testing config"
-            )
+            assert (
+                "docker-compose" in command
+            ), f"{command_name} should use docker-compose"
+            assert (
+                "docker-compose.testing.yml" in command
+            ), f"{command_name} should use testing config"
 
     def test_docker_production_readiness(self):
         """Test Docker production readiness features."""
@@ -611,9 +611,9 @@ class TestDockerIntegrationWorkflowPhase2:
             assert len(requirement) > 0, f"{requirement} should not be empty"
 
         # Verify comprehensive coverage
-        assert len(phase2_requirements) >= 10, (
-            "Should have comprehensive Phase 2 coverage"
-        )
+        assert (
+            len(phase2_requirements) >= 10
+        ), "Should have comprehensive Phase 2 coverage"
 
 
 if __name__ == "__main__":

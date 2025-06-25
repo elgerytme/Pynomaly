@@ -615,9 +615,9 @@ class TestSDKErrorHandling:
                     "recent_errors": len(recent_errors),
                     "open_circuits": len(open_circuits),
                     "circuit_details": open_circuits,
-                    "error_rate": len(recent_errors) / 5
-                    if len(recent_errors) > 0
-                    else 0,  # errors per minute
+                    "error_rate": (
+                        len(recent_errors) / 5 if len(recent_errors) > 0 else 0
+                    ),  # errors per minute
                 }
 
         return MockRobustSDK()

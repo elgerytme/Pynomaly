@@ -52,7 +52,8 @@ class TestAccessibility:
             tab_count += 1
 
             # Get currently focused element
-            focused_info = page.evaluate("""
+            focused_info = page.evaluate(
+                """
                 () => {
                     const element = document.activeElement;
                     return {
@@ -65,7 +66,8 @@ class TestAccessibility:
                         href: element.href || null
                     };
                 }
-            """)
+            """
+            )
 
             # Skip if we've cycled back to body or similar
             if focused_info["tagName"] in ["BODY", "HTML"]:
@@ -82,9 +84,9 @@ class TestAccessibility:
             el for el in focusable_elements if el["tagName"] in interactive_tags
         ]
 
-        assert len(interactive_focused) > 0, (
-            "Should be able to focus interactive elements"
-        )
+        assert (
+            len(interactive_focused) > 0
+        ), "Should be able to focus interactive elements"
 
         # Test skip links if they exist
         skip_links = page.locator("a[href^='#']").filter(has_text="skip")
@@ -162,7 +164,8 @@ class TestAccessibility:
         page.wait_for_load_state("networkidle")
 
         # Get computed styles for key elements
-        contrast_checks = page.evaluate("""
+        contrast_checks = page.evaluate(
+            """
             () => {
                 const elements = [
                     document.querySelector('nav'),
@@ -181,7 +184,8 @@ class TestAccessibility:
                     };
                 });
             }
-        """)
+        """
+        )
 
         # Basic check that colors are different
         for check in contrast_checks:
@@ -189,9 +193,9 @@ class TestAccessibility:
             text_color = check["color"]
 
             # Colors should be different (basic check)
-            assert bg_color != text_color, (
-                f"{check['tagName']} background and text colors should be different"
-            )
+            assert (
+                bg_color != text_color
+            ), f"{check['tagName']} background and text colors should be different"
 
     def test_focus_indicators(self, page: Page):
         """Test focus indicators visibility."""
@@ -299,9 +303,9 @@ class TestAccessibility:
                 button_text = button.text_content() or ""
 
                 # Submit button should have clear text
-                assert len(button_text.strip()) > 0, (
-                    f"Submit button {i} should have text"
-                )
+                assert (
+                    len(button_text.strip()) > 0
+                ), f"Submit button {i} should have text"
 
     def test_table_accessibility(self, page: Page):
         """Test table accessibility."""
@@ -375,9 +379,9 @@ class TestAccessibility:
             assert len(title) > 0, f"Page {page_info['url']} title should not be empty"
 
             # Title should be descriptive
-            assert len(title) >= 5, (
-                f"Page {page_info['url']} title should be descriptive"
-            )
+            assert (
+                len(title) >= 5
+            ), f"Page {page_info['url']} title should be descriptive"
 
     def test_error_message_accessibility(self, page: Page):
         """Test error message accessibility."""
@@ -402,9 +406,9 @@ class TestAccessibility:
 
                 # Error should have text content
                 assert error_text is not None, f"Error {i} should have text"
-                assert len(error_text.strip()) > 0, (
-                    f"Error {i} should have meaningful text"
-                )
+                assert (
+                    len(error_text.strip()) > 0
+                ), f"Error {i} should have meaningful text"
 
                 # Check for proper ARIA attributes
                 error.get_attribute("role")

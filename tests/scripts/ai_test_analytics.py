@@ -437,11 +437,15 @@ class TestAnalyticsEngine:
             "trends": {
                 "execution_time_change": f"{time_trend:+.1f}%",
                 "success_rate_change": f"{success_trend:+.1f}%",
-                "trend_direction": "improving"
-                if time_trend < 0 and success_trend > 0
-                else "degrading"
-                if time_trend > 0 and success_trend < 0
-                else "stable",
+                "trend_direction": (
+                    "improving"
+                    if time_trend < 0 and success_trend > 0
+                    else (
+                        "degrading"
+                        if time_trend > 0 and success_trend < 0
+                        else "stable"
+                    )
+                ),
             },
             "category_performance": category_performance.to_dict("records"),
             "performance_hotspots": hotspots,

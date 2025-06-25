@@ -275,9 +275,9 @@ CMD ["python", "-m", "pynomaly", "--help"]
                             build_result["layers"].append(
                                 {
                                     "layer_id": layer_id,
-                                    "instruction": line[:50] + "..."
-                                    if len(line) > 50
-                                    else line,
+                                    "instruction": (
+                                        line[:50] + "..." if len(line) > 50 else line
+                                    ),
                                     "size": layer_size,
                                 }
                             )

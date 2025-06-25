@@ -100,7 +100,8 @@ class TestDatabaseRepositories:
         # Create basic tables (simplified)
         with db.get_session() as session:
             session.execute(
-                sa.text("""
+                sa.text(
+                    """
                 CREATE TABLE IF NOT EXISTS detectors (
                     id TEXT PRIMARY KEY,
                     name TEXT NOT NULL,
@@ -111,11 +112,13 @@ class TestDatabaseRepositories:
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
-            """)
+            """
+                )
             )
 
             session.execute(
-                sa.text("""
+                sa.text(
+                    """
                 CREATE TABLE IF NOT EXISTS datasets (
                     id TEXT PRIMARY KEY,
                     name TEXT NOT NULL,
@@ -124,11 +127,13 @@ class TestDatabaseRepositories:
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
-            """)
+            """
+                )
             )
 
             session.execute(
-                sa.text("""
+                sa.text(
+                    """
                 CREATE TABLE IF NOT EXISTS experiments (
                     id TEXT PRIMARY KEY,
                     name TEXT NOT NULL,
@@ -138,7 +143,8 @@ class TestDatabaseRepositories:
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
-            """)
+            """
+                )
             )
 
             session.commit()
@@ -215,7 +221,8 @@ class TestPropertyBasedDatabaseTests:
 
         with db.get_session() as session:
             session.execute(
-                sa.text("""
+                sa.text(
+                    """
                 CREATE TABLE IF NOT EXISTS detectors (
                     id TEXT PRIMARY KEY,
                     name TEXT NOT NULL,
@@ -226,7 +233,8 @@ class TestPropertyBasedDatabaseTests:
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
-            """)
+            """
+                )
             )
             session.commit()
 
@@ -317,12 +325,14 @@ class TestDatabaseErrorHandling:
 
         with db.get_session() as session:
             session.execute(
-                sa.text("""
+                sa.text(
+                    """
                 CREATE TABLE test_table (
                     id INTEGER PRIMARY KEY,
                     value TEXT NOT NULL
                 )
-            """)
+            """
+                )
             )
             session.commit()
 

@@ -99,9 +99,9 @@ def verify_anomaly_percentage(percentage):
         actual_percentage = (
             np.sum(pytest.dataset.targets == 1) / len(pytest.dataset.targets)
         ) * 100
-        assert abs(actual_percentage - percentage) < 5, (
-            f"Expected {percentage}% anomalies, got {actual_percentage:.1f}%"
-        )
+        assert (
+            abs(actual_percentage - percentage) < 5
+        ), f"Expected {percentage}% anomalies, got {actual_percentage:.1f}%"
 
 
 # Detector creation steps
@@ -257,20 +257,20 @@ def verify_anomaly_count(expected):
     # Count anomalies (sklearn uses -1 for anomalies)
     n_anomalies = np.sum(pytest.predictions == -1)
     tolerance = max(2, expected * 0.3)  # Allow 30% tolerance
-    assert abs(n_anomalies - expected) <= tolerance, (
-        f"Expected ~{expected} anomalies, got {n_anomalies}"
-    )
+    assert (
+        abs(n_anomalies - expected) <= tolerance
+    ), f"Expected ~{expected} anomalies, got {n_anomalies}"
 
 
 @then("all anomaly scores should be between 0 and 1")
 def verify_score_range():
     """Verify all scores are in valid range."""
-    assert np.all(pytest.scores >= 0), (
-        f"Found negative scores: {pytest.scores[pytest.scores < 0]}"
-    )
-    assert np.all(pytest.scores <= 1), (
-        f"Found scores > 1: {pytest.scores[pytest.scores > 1]}"
-    )
+    assert np.all(
+        pytest.scores >= 0
+    ), f"Found negative scores: {pytest.scores[pytest.scores < 0]}"
+    assert np.all(
+        pytest.scores <= 1
+    ), f"Found scores > 1: {pytest.scores[pytest.scores > 1]}"
     assert np.all(np.isfinite(pytest.scores)), "Found non-finite scores"
 
 
@@ -285,9 +285,9 @@ def verify_anomaly_scores_higher():
             avg_normal_score = np.mean(pytest.scores[normal_mask])
             avg_anomaly_score = np.mean(pytest.scores[anomaly_mask])
 
-            assert avg_anomaly_score > avg_normal_score, (
-                f"Anomaly scores ({avg_anomaly_score:.3f}) should be higher than normal scores ({avg_normal_score:.3f})"
-            )
+            assert (
+                avg_anomaly_score > avg_normal_score
+            ), f"Anomaly scores ({avg_anomaly_score:.3f}) should be higher than normal scores ({avg_normal_score:.3f})"
 
 
 @then("the contamination rate should be respected")
@@ -297,9 +297,9 @@ def verify_contamination_rate():
     expected_rate = 0.05  # From the scenario
     actual_rate = n_anomalies / len(pytest.predictions)
 
-    assert abs(actual_rate - expected_rate) < 0.03, (
-        f"Expected contamination rate ~{expected_rate:.2f}, got {actual_rate:.3f}"
-    )
+    assert (
+        abs(actual_rate - expected_rate) < 0.03
+    ), f"Expected contamination rate ~{expected_rate:.2f}, got {actual_rate:.3f}"
 
 
 @then("the results should be deterministic with fixed random seed")
@@ -310,9 +310,9 @@ def verify_deterministic_results():
     predictions2 = pytest.detector.predict(pytest.dataset.features)
 
     assert np.array_equal(pytest.scores, scores2), "Scores should be deterministic"
-    assert np.array_equal(pytest.predictions, predictions2), (
-        "Predictions should be deterministic"
-    )
+    assert np.array_equal(
+        pytest.predictions, predictions2
+    ), "Predictions should be deterministic"
 
 
 @then("the ensemble should outperform individual detectors")
@@ -334,21 +334,21 @@ def verify_ensemble_performance():
         max_individual_auc = max(individual_aucs)
 
         # Ensemble should be at least as good as the best individual detector
-        assert ensemble_auc >= max_individual_auc - 0.05, (
-            f"Ensemble AUC ({ensemble_auc:.3f}) should be >= best individual AUC ({max_individual_auc:.3f})"
-        )
+        assert (
+            ensemble_auc >= max_individual_auc - 0.05
+        ), f"Ensemble AUC ({ensemble_auc:.3f}) should be >= best individual AUC ({max_individual_auc:.3f})"
 
 
 @then("the final scores should be aggregated properly")
 def verify_score_aggregation():
     """Verify ensemble scores are properly aggregated."""
     assert hasattr(pytest, "ensemble_scores"), "Ensemble scores should be computed"
-    assert len(pytest.ensemble_scores) == len(pytest.dataset.features), (
-        "Ensemble scores should match dataset size"
-    )
-    assert np.all(np.isfinite(pytest.ensemble_scores)), (
-        "Ensemble scores should be finite"
-    )
+    assert len(pytest.ensemble_scores) == len(
+        pytest.dataset.features
+    ), "Ensemble scores should match dataset size"
+    assert np.all(
+        np.isfinite(pytest.ensemble_scores)
+    ), "Ensemble scores should be finite"
 
 
 @then("confidence intervals should be provided for anomalies")
@@ -359,9 +359,9 @@ def verify_confidence_intervals():
     anomaly_indices = np.where(
         pytest.ensemble_scores > np.percentile(pytest.ensemble_scores, 90)
     )[0]
-    assert len(anomaly_indices) > 0, (
-        "Should identify some anomalies for confidence intervals"
-    )
+    assert (
+        len(anomaly_indices) > 0
+    ), "Should identify some anomalies for confidence intervals"
 
 
 @then(parsers.parse("each score should be computed quickly (< {max_time:d}ms)"))
@@ -369,9 +369,9 @@ def verify_streaming_performance(max_time):
     """Verify streaming performance meets requirements."""
     max_time_seconds = max_time / 1000.0
     for i, time_taken in enumerate(pytest.streaming_times):
-        assert time_taken < max_time_seconds, (
-            f"Point {i} took {time_taken * 1000:.1f}ms, expected < {max_time}ms"
-        )
+        assert (
+            time_taken < max_time_seconds
+        ), f"Point {i} took {time_taken * 1000:.1f}ms, expected < {max_time}ms"
 
 
 @then("scores should be consistent with batch processing")
@@ -385,9 +385,9 @@ def verify_streaming_consistency():
     for i, (stream_score, batch_score) in enumerate(
         zip(pytest.streaming_scores, batch_scores, strict=False)
     ):
-        assert abs(stream_score - batch_score) < 1e-10, (
-            f"Point {i}: streaming score {stream_score} != batch score {batch_score}"
-        )
+        assert (
+            abs(stream_score - batch_score) < 1e-10
+        ), f"Point {i}: streaming score {stream_score} != batch score {batch_score}"
 
 
 @then("the system should handle data drift gracefully")
@@ -395,6 +395,6 @@ def verify_data_drift_handling():
     """Verify the system handles data drift."""
     # This is a placeholder - in practice you'd implement drift detection
     # For now, just verify the system continues to produce valid scores
-    assert all(0 <= score <= 1 for score in pytest.streaming_scores), (
-        "Scores should remain valid despite potential data drift"
-    )
+    assert all(
+        0 <= score <= 1 for score in pytest.streaming_scores
+    ), "Scores should remain valid despite potential data drift"

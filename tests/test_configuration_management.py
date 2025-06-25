@@ -363,13 +363,15 @@ class TestConfigurationCaptureService:
         # Create some test configurations
         for i in range(5):
             request = ConfigurationCaptureRequestDTO(
-                source=ConfigurationSource.AUTOML
-                if i % 2 == 0
-                else ConfigurationSource.CLI,
+                source=(
+                    ConfigurationSource.AUTOML
+                    if i % 2 == 0
+                    else ConfigurationSource.CLI
+                ),
                 raw_parameters={
-                    "algorithm": "isolation_forest"
-                    if i < 3
-                    else "local_outlier_factor",
+                    "algorithm": (
+                        "isolation_forest" if i < 3 else "local_outlier_factor"
+                    ),
                     "contamination": 0.1,
                     "dataset_path": f"/test/data_{i}.csv",
                 },

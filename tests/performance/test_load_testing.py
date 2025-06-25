@@ -121,9 +121,9 @@ class PerformanceMonitor:
             "total_operations": len(self.metrics),
             "successful_operations": len(successful_metrics),
             "failed_operations": len(failed_metrics),
-            "success_rate": len(successful_metrics) / len(self.metrics)
-            if self.metrics
-            else 0,
+            "success_rate": (
+                len(successful_metrics) / len(self.metrics) if self.metrics else 0
+            ),
         }
 
         if durations:

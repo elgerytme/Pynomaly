@@ -275,18 +275,20 @@ class TestSDKStreamingDetection:
                     / max(1, stats["samples_processed"]),
                     "current_threshold": threshold_info.get("current_threshold"),
                     "buffer_size": len(self.data_buffers.get(detector_id, [])),
-                    "avg_processing_time": np.mean(processing_times)
-                    if processing_times
-                    else 0,
-                    "max_processing_time": np.max(processing_times)
-                    if processing_times
-                    else 0,
-                    "samples_per_second": 1.0 / np.mean(processing_times)
-                    if processing_times
-                    else 0,
-                    "last_update": stats["last_update"].isoformat()
-                    if stats["last_update"]
-                    else None,
+                    "avg_processing_time": (
+                        np.mean(processing_times) if processing_times else 0
+                    ),
+                    "max_processing_time": (
+                        np.max(processing_times) if processing_times else 0
+                    ),
+                    "samples_per_second": (
+                        1.0 / np.mean(processing_times) if processing_times else 0
+                    ),
+                    "last_update": (
+                        stats["last_update"].isoformat()
+                        if stats["last_update"]
+                        else None
+                    ),
                 }
 
             def create_streaming_pipeline(
@@ -636,7 +638,9 @@ class TestSDKStreamingDetection:
             expected_updates = [25, 50, 75]  # At these sample counts
             assert len(samples_with_updates) == 3
 
-            for expected, actual in zip(expected_updates, samples_with_updates, strict=False):
+            for expected, actual in zip(
+                expected_updates, samples_with_updates, strict=False
+            ):
                 assert actual == expected
 
             # Verify final statistics

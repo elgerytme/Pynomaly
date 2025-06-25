@@ -5,17 +5,18 @@ package managers, Python distributions, and optional dependencies
 to ensure robust deployment across various environments.
 """
 
-import pytest
-import sys
 import importlib
-import subprocess
-import tempfile
 import json
+import subprocess
+import sys
+import tempfile
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
+from unittest.mock import MagicMock, Mock, patch
+
 import numpy as np
 import pandas as pd
-from unittest.mock import Mock, patch, MagicMock
+import pytest
 
 
 class TestCoreDepend​encyCompatibility:
@@ -61,7 +62,7 @@ class TestCoreDepend​encyCompatibility:
     def test_numpy_compatibility(self):
         """Test NumPy compatibility across versions."""
         import numpy as np
-        
+
         # Check NumPy version
         numpy_version = tuple(map(int, np.__version__.split('.')[:2]))
         assert numpy_version >= (1, 21), f"NumPy 1.21+ required, found {np.__version__}"
@@ -102,7 +103,7 @@ class TestCoreDepend​encyCompatibility:
     def test_pandas_compatibility(self):
         """Test Pandas compatibility across versions."""
         import pandas as pd
-        
+
         # Check Pandas version
         pandas_version = tuple(map(int, pd.__version__.split('.')[:2]))
         assert pandas_version >= (1, 5), f"Pandas 1.5+ required, found {pd.__version__}"
@@ -158,10 +159,10 @@ class TestCoreDepend​encyCompatibility:
         try:
             import sklearn
             from sklearn.ensemble import IsolationForest
+            from sklearn.metrics import classification_report, confusion_matrix
+            from sklearn.model_selection import train_test_split
             from sklearn.neighbors import LocalOutlierFactor
             from sklearn.preprocessing import StandardScaler
-            from sklearn.model_selection import train_test_split
-            from sklearn.metrics import classification_report, confusion_matrix
         except ImportError:
             pytest.skip("scikit-learn not available")
         
@@ -201,7 +202,7 @@ class TestCoreDepend​encyCompatibility:
         # Test model persistence (if available)
         try:
             import joblib
-            
+
             # Test model serialization
             with tempfile.NamedTemporaryFile(suffix='.pkl', delete=False) as f:
                 joblib.dump(iso_forest, f.name)
@@ -350,9 +351,9 @@ class TestOptionalDependencyCompatibility:
         # Test Dask
         try:
             import dask
-            import dask.dataframe as dd
             import dask.array as da
-            
+            import dask.dataframe as dd
+
             # Test Dask DataFrame
             df = pd.DataFrame({
                 'x': np.random.random(1000),
@@ -375,7 +376,7 @@ class TestOptionalDependencyCompatibility:
         # Test Ray
         try:
             import ray
-            
+
             # Test Ray initialization (if not already initialized)
             if not ray.is_initialized():
                 ray.init(ignore_reinit_error=True)
@@ -400,7 +401,7 @@ class TestOptionalDependencyCompatibility:
         try:
             import matplotlib
             import matplotlib.pyplot as plt
-            
+
             # Test basic plotting (without display)
             matplotlib.use('Agg')  # Use non-interactive backend
             
@@ -421,7 +422,7 @@ class TestOptionalDependencyCompatibility:
         # Test Seaborn
         try:
             import seaborn as sns
-            
+
             # Test seaborn functionality
             tips = sns.load_dataset("tips")
             assert tips is not None
@@ -431,9 +432,9 @@ class TestOptionalDependencyCompatibility:
         
         # Test Plotly
         try:
-            import plotly.graph_objects as go
             import plotly.express as px
-            
+            import plotly.graph_objects as go
+
             # Test Plotly functionality
             fig = go.Figure(data=go.Scatter(x=[1, 2, 3], y=[4, 5, 6]))
             assert fig is not None
@@ -768,7 +769,7 @@ class TestDependencyConflictResolution:
             # NumPy and Pandas should be compatible
             import numpy as np
             import pandas as pd
-            
+
             # Test that Pandas can use NumPy arrays
             np_array = np.array([1, 2, 3, 4, 5])
             pd_series = pd.Series(np_array)
@@ -788,7 +789,7 @@ class TestDependencyConflictResolution:
         # Test basic import functionality
         try:
             import importlib.util
-            
+
             # Test dynamic import capability
             spec = importlib.util.find_spec("sys")
             assert spec is not None

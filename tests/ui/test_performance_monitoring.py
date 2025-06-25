@@ -15,7 +15,8 @@ class TestPerformanceMonitoring:
         page.goto("http://pynomaly-app:8000/web/", wait_until="networkidle")
 
         # Get performance metrics
-        metrics = page.evaluate("""
+        metrics = page.evaluate(
+            """
             () => {
                 const navigation = performance.getEntriesByType('navigation')[0];
                 const paint = performance.getEntriesByType('paint');
@@ -46,18 +47,19 @@ class TestPerformanceMonitoring:
 
                 return metrics;
             }
-        """)
+        """
+        )
 
         # Performance assertions
-        assert metrics["domContentLoaded"] < 1000, (
-            f"DOM content loaded too slow: {metrics['domContentLoaded']}ms"
-        )
-        assert metrics["loadComplete"] < 3000, (
-            f"Page load too slow: {metrics['loadComplete']}ms"
-        )
-        assert metrics["firstContentfulPaint"] < 2000, (
-            f"FCP too slow: {metrics['firstContentfulPaint']}ms"
-        )
+        assert (
+            metrics["domContentLoaded"] < 1000
+        ), f"DOM content loaded too slow: {metrics['domContentLoaded']}ms"
+        assert (
+            metrics["loadComplete"] < 3000
+        ), f"Page load too slow: {metrics['loadComplete']}ms"
+        assert (
+            metrics["firstContentfulPaint"] < 2000
+        ), f"FCP too slow: {metrics['firstContentfulPaint']}ms"
 
         # Take screenshot with performance overlay
         page.screenshot(path="screenshots/performance_dashboard.png")
@@ -88,9 +90,9 @@ class TestPerformanceMonitoring:
             form_input.fill("Performance Test Detector")
             input_response = (time.time() - start_time) * 1000
 
-            assert input_response < 100, (
-                f"Form input response too slow: {input_response}ms"
-            )
+            assert (
+                input_response < 100
+            ), f"Form input response too slow: {input_response}ms"
 
     def test_chart_rendering_performance(self, visualizations_page):
         """Test chart rendering performance."""
@@ -102,9 +104,9 @@ class TestPerformanceMonitoring:
         chart_load_time = (time.time() - start_time) * 1000
 
         if charts_loaded:
-            assert chart_load_time < 5000, (
-                f"Chart rendering too slow: {chart_load_time}ms"
-            )
+            assert (
+                chart_load_time < 5000
+            ), f"Chart rendering too slow: {chart_load_time}ms"
 
             # Test chart interaction performance
             charts = visualizations_page.get_available_charts()
@@ -117,9 +119,9 @@ class TestPerformanceMonitoring:
                     first_chart.hover()
                     hover_response = (time.time() - start_time) * 1000
 
-                    assert hover_response < 200, (
-                        f"Chart hover response too slow: {hover_response}ms"
-                    )
+                    assert (
+                        hover_response < 200
+                    ), f"Chart hover response too slow: {hover_response}ms"
 
     def test_htmx_performance(self, dashboard_page):
         """Test HTMX interaction performance."""
@@ -136,9 +138,9 @@ class TestPerformanceMonitoring:
 
             htmx_response_time = (time.time() - start_time) * 1000
 
-            assert htmx_response_time < 2000, (
-                f"HTMX response too slow: {htmx_response_time}ms"
-            )
+            assert (
+                htmx_response_time < 2000
+            ), f"HTMX response too slow: {htmx_response_time}ms"
 
     def test_memory_usage(self, page: Page):
         """Test memory usage and potential leaks."""
@@ -146,7 +148,8 @@ class TestPerformanceMonitoring:
         page.wait_for_load_state("networkidle")
 
         # Get initial memory usage
-        initial_memory = page.evaluate("""
+        initial_memory = page.evaluate(
+            """
             () => {
                 if (performance.memory) {
                     return {
@@ -157,7 +160,8 @@ class TestPerformanceMonitoring:
                 }
                 return null;
             }
-        """)
+        """
+        )
 
         if initial_memory:
             # Navigate through several pages
@@ -169,7 +173,8 @@ class TestPerformanceMonitoring:
                 page.wait_for_timeout(1000)
 
             # Get final memory usage
-            final_memory = page.evaluate("""
+            final_memory = page.evaluate(
+                """
                 () => {
                     if (performance.memory) {
                         return {
@@ -180,7 +185,8 @@ class TestPerformanceMonitoring:
                     }
                     return null;
                 }
-            """)
+            """
+            )
 
             if final_memory:
                 memory_increase = (
@@ -189,9 +195,9 @@ class TestPerformanceMonitoring:
                 memory_increase_mb = memory_increase / (1024 * 1024)
 
                 # Memory increase should be reasonable (less than 20MB)
-                assert memory_increase_mb < 20, (
-                    f"Excessive memory usage increase: {memory_increase_mb:.2f}MB"
-                )
+                assert (
+                    memory_increase_mb < 20
+                ), f"Excessive memory usage increase: {memory_increase_mb:.2f}MB"
 
     def test_resource_loading_efficiency(self, page: Page):
         """Test resource loading efficiency."""
@@ -240,7 +246,8 @@ class TestPerformanceMonitoring:
         page.wait_for_timeout(3000)  # Allow time for metrics to stabilize
 
         # Get Core Web Vitals
-        vitals = page.evaluate("""
+        vitals = page.evaluate(
+            """
             () => new Promise((resolve) => {
                 let vitals = {};
 
@@ -270,18 +277,19 @@ class TestPerformanceMonitoring:
                     resolve(vitals);
                 }, 2000);
             })
-        """)
+        """
+        )
 
         # Core Web Vitals thresholds (Google recommendations)
         if "lcp" in vitals and vitals["lcp"] > 0:
-            assert vitals["lcp"] < 2500, (
-                f"LCP too slow: {vitals['lcp']}ms (should be < 2.5s)"
-            )
+            assert (
+                vitals["lcp"] < 2500
+            ), f"LCP too slow: {vitals['lcp']}ms (should be < 2.5s)"
 
         if "cls" in vitals:
-            assert vitals["cls"] < 0.1, (
-                f"CLS too high: {vitals['cls']} (should be < 0.1)"
-            )
+            assert (
+                vitals["cls"] < 0.1
+            ), f"CLS too high: {vitals['cls']} (should be < 0.1)"
 
         # First Input Delay is hard to test in automation, but we can check for it
         # assert vitals.get("fid", 0) < 100, f"FID too slow: {vitals['fid']}ms"
@@ -292,7 +300,8 @@ class TestPerformanceMonitoring:
         page.wait_for_load_state("networkidle")
 
         # Collect comprehensive performance data
-        performance_data = page.evaluate("""
+        performance_data = page.evaluate(
+            """
             () => {
                 const navigation = performance.getEntriesByType('navigation')[0];
                 const paint = performance.getEntriesByType('paint');
@@ -347,6 +356,7 @@ class TestPerformanceMonitoring:
 
                 return timing;
             }
-        """)
+        """
+        )
 
         return performance_data

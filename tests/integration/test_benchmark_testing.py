@@ -624,9 +624,7 @@ class TestPerformanceBenchmarking:
         algorithms = ["IsolationForest"]
         dataset_sizes = [(50, 3)]
 
-        benchmark.run_comprehensive_benchmark(
-            algorithms, dataset_sizes, n_runs=1
-        )
+        benchmark.run_comprehensive_benchmark(algorithms, dataset_sizes, n_runs=1)
 
         # Generate report
         report = benchmark.generate_performance_report()
@@ -703,9 +701,9 @@ class TestPerformanceBenchmarking:
 
         # All metrics should be between 0 and 1
         for metric_name, value in metrics.items():
-            assert 0 <= value <= 1, (
-                f"Metric {metric_name} = {value} is out of range [0, 1]"
-            )
+            assert (
+                0 <= value <= 1
+            ), f"Metric {metric_name} = {value} is out of range [0, 1]"
 
     def test_benchmark_error_handling(self):
         """Test error handling in benchmarks."""
@@ -887,9 +885,9 @@ class TestPerformanceRegression:
             if result.success:
                 results.append(result)
 
-        assert len(results) >= 2, (
-            "Need at least 2 successful results to test scalability"
-        )
+        assert (
+            len(results) >= 2
+        ), "Need at least 2 successful results to test scalability"
 
         # Analyze scaling behavior
         for i in range(1, len(results)):
@@ -907,14 +905,14 @@ class TestPerformanceRegression:
             )
 
             # Time scaling should be reasonable (not exponential)
-            assert time_factor < size_factor**2, (
-                f"Time scaling too poor: {time_factor} vs {size_factor}^2"
-            )
+            assert (
+                time_factor < size_factor**2
+            ), f"Time scaling too poor: {time_factor} vs {size_factor}^2"
 
             # Memory scaling should be reasonable
-            assert memory_factor < size_factor * 2, (
-                f"Memory scaling too poor: {memory_factor} vs {size_factor}*2"
-            )
+            assert (
+                memory_factor < size_factor * 2
+            ), f"Memory scaling too poor: {memory_factor} vs {size_factor}*2"
 
 
 if __name__ == "__main__":

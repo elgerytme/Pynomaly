@@ -658,14 +658,14 @@ class TestComponentIntegrationPhase3:
             # Verify each integration requirement is addressed
             assert isinstance(requirement, str), f"{requirement} should be defined"
             assert len(requirement) > 0, f"{requirement} should not be empty"
-            assert "integration" in requirement or "workflow" in requirement, (
-                f"{requirement} should be integration-related"
-            )
+            assert (
+                "integration" in requirement or "workflow" in requirement
+            ), f"{requirement} should be integration-related"
 
         # Verify comprehensive integration coverage
-        assert len(phase3_requirements) >= 12, (
-            "Should have comprehensive Phase 3 integration coverage"
-        )
+        assert (
+            len(phase3_requirements) >= 12
+        ), "Should have comprehensive Phase 3 integration coverage"
 
 
 if __name__ == "__main__":

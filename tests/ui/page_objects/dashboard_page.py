@@ -65,9 +65,11 @@ class DashboardPage(BasePage):
                             "detector": cells.nth(0).text_content() or "",
                             "dataset": cells.nth(1).text_content() or "",
                             "timestamp": cells.nth(2).text_content() or "",
-                            "anomalies": cells.nth(3).text_content() or ""
-                            if cells.count() > 3
-                            else "",
+                            "anomalies": (
+                                cells.nth(3).text_content() or ""
+                                if cells.count() > 3
+                                else ""
+                            ),
                         }
                     )
 
@@ -94,12 +96,14 @@ class DashboardPage(BasePage):
 
             actions.append(
                 {
-                    "title": title_elem.text_content() or ""
-                    if title_elem.count() > 0
-                    else "",
-                    "description": desc_elem.text_content() or ""
-                    if desc_elem.count() > 0
-                    else "",
+                    "title": (
+                        title_elem.text_content() or ""
+                        if title_elem.count() > 0
+                        else ""
+                    ),
+                    "description": (
+                        desc_elem.text_content() or "" if desc_elem.count() > 0 else ""
+                    ),
                     "href": link.get_attribute("href") or "",
                 }
             )
@@ -137,13 +141,9 @@ class DashboardPage(BasePage):
 
         # Test refresh button
         if self.page.locator(self.REFRESH_BUTTON).count() > 0:
-            self.page.locator(
-                self.RECENT_RESULTS_TABLE
-            ).text_content()
+            self.page.locator(self.RECENT_RESULTS_TABLE).text_content()
             self.refresh_results()
-            self.page.locator(
-                self.RECENT_RESULTS_TABLE
-            ).text_content()
+            self.page.locator(self.RECENT_RESULTS_TABLE).text_content()
             results["refresh_works"] = True  # If no error occurred
         else:
             results["refresh_works"] = False

@@ -258,9 +258,9 @@ def run_data_validation():
 def verify_csv_loading():
     """Verify CSV data was loaded correctly."""
     assert hasattr(pytest, "loaded_csv"), "CSV data should be loaded"
-    assert pytest.loaded_csv.features.shape == pytest.expected_utf8_shape, (
-        f"Expected shape {pytest.expected_utf8_shape}, got {pytest.loaded_csv.features.shape}"
-    )
+    assert (
+        pytest.loaded_csv.features.shape == pytest.expected_utf8_shape
+    ), f"Expected shape {pytest.expected_utf8_shape}, got {pytest.loaded_csv.features.shape}"
 
 
 @then("the feature matrix should have the expected shape")
@@ -269,9 +269,10 @@ def verify_feature_matrix_shape():
     if hasattr(pytest, "loaded_csv"):
         expected_rows, expected_cols = pytest.expected_utf8_shape
         actual_shape = pytest.loaded_csv.features.shape
-        assert actual_shape == (expected_rows, expected_cols - 1), (
-            f"Expected feature matrix shape {(expected_rows, expected_cols - 1)}, got {actual_shape}"
-        )
+        assert actual_shape == (
+            expected_rows,
+            expected_cols - 1,
+        ), f"Expected feature matrix shape {(expected_rows, expected_cols - 1)}, got {actual_shape}"
 
 
 @then("all numeric values should be preserved")
@@ -284,9 +285,9 @@ def verify_numeric_values():
         assert len(numeric_cols) > 0, "Should have numeric columns"
 
         for col in numeric_cols:
-            assert not pytest.loaded_csv.features[col].isnull().all(), (
-                f"Column {col} should have values"
-            )
+            assert (
+                not pytest.loaded_csv.features[col].isnull().all()
+            ), f"Column {col} should have values"
 
 
 @then("the data should load without character encoding errors")
@@ -307,17 +308,17 @@ def verify_special_characters():
         if len(text_cols) > 0:
             text_data = pytest.loaded_windows1252.features[text_cols[0]].astype(str)
             # At least some special characters should be present
-            assert any(char in text_data.str.cat() for char in ["é", "ç", "ñ"]), (
-                "Special characters should be preserved"
-            )
+            assert any(
+                char in text_data.str.cat() for char in ["é", "ç", "ñ"]
+            ), "Special characters should be preserved"
 
 
 @then("the data should load without memory errors")
 def verify_memory_efficient_loading():
     """Verify large data loads without memory errors."""
-    assert not hasattr(pytest, "load_error"), (
-        f"Loading failed: {getattr(pytest, 'load_error', '')}"
-    )
+    assert not hasattr(
+        pytest, "load_error"
+    ), f"Loading failed: {getattr(pytest, 'load_error', '')}"
     assert hasattr(pytest, "loaded_large_chunked"), "Large data should be loaded"
 
 
@@ -334,9 +335,9 @@ def verify_complete_dataset():
     """Verify the dataset is complete."""
     if hasattr(pytest, "loaded_large_chunked"):
         assert len(pytest.loaded_large_chunked) > 0, "Dataset should have rows"
-        assert len(pytest.loaded_large_chunked.columns) > 0, (
-            "Dataset should have columns"
-        )
+        assert (
+            len(pytest.loaded_large_chunked.columns) > 0
+        ), "Dataset should have columns"
 
 
 @then("the data types should be preserved from the file")
@@ -408,9 +409,9 @@ def verify_polars_lazy_filtering():
 def verify_missing_value_detection():
     """Verify missing values are detected."""
     if hasattr(pytest, "validation_results"):
-        assert "missing_values" in pytest.validation_results, (
-            "Missing values should be tracked"
-        )
+        assert (
+            "missing_values" in pytest.validation_results
+        ), "Missing values should be tracked"
         assert isinstance(
             pytest.validation_results["missing_values"], int | np.integer
         ), "Missing value count should be numeric"
@@ -420,30 +421,30 @@ def verify_missing_value_detection():
 def verify_data_type_validation():
     """Verify data types are validated."""
     if hasattr(pytest, "validation_results"):
-        assert "data_types" in pytest.validation_results, (
-            "Data types should be validated"
-        )
-        assert len(pytest.validation_results["data_types"]) > 0, (
-            "Should have data type information"
-        )
+        assert (
+            "data_types" in pytest.validation_results
+        ), "Data types should be validated"
+        assert (
+            len(pytest.validation_results["data_types"]) > 0
+        ), "Should have data type information"
 
 
 @then("outliers beyond reasonable ranges should be flagged")
 def verify_outlier_detection():
     """Verify outliers are flagged."""
     if hasattr(pytest, "validation_results"):
-        assert "value_ranges" in pytest.validation_results, (
-            "Value ranges should be checked"
-        )
+        assert (
+            "value_ranges" in pytest.validation_results
+        ), "Value ranges should be checked"
 
 
 @then("duplicate rows should be detected")
 def verify_duplicate_detection():
     """Verify duplicate rows are detected."""
     if hasattr(pytest, "validation_results"):
-        assert "duplicate_rows" in pytest.validation_results, (
-            "Duplicate rows should be tracked"
-        )
+        assert (
+            "duplicate_rows" in pytest.validation_results
+        ), "Duplicate rows should be tracked"
         assert isinstance(
             pytest.validation_results["duplicate_rows"], int | np.integer
         ), "Duplicate count should be numeric"

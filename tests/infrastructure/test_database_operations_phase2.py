@@ -59,7 +59,8 @@ def temp_database():
     try:
         # Initialize database
         conn = sqlite3.connect(db_path)
-        conn.execute("""
+        conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS datasets (
                 id TEXT PRIMARY KEY,
                 name TEXT NOT NULL,
@@ -70,9 +71,11 @@ def temp_database():
                 created_at TIMESTAMP,
                 updated_at TIMESTAMP
             )
-        """)
+        """
+        )
 
-        conn.execute("""
+        conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS detectors (
                 id TEXT PRIMARY KEY,
                 name TEXT NOT NULL,
@@ -83,9 +86,11 @@ def temp_database():
                 created_at TIMESTAMP,
                 updated_at TIMESTAMP
             )
-        """)
+        """
+        )
 
-        conn.execute("""
+        conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS detection_results (
                 id TEXT PRIMARY KEY,
                 detector_id TEXT NOT NULL,
@@ -100,7 +105,8 @@ def temp_database():
                 FOREIGN KEY (detector_id) REFERENCES detectors (id),
                 FOREIGN KEY (dataset_id) REFERENCES datasets (id)
             )
-        """)
+        """
+        )
 
         conn.commit()
         conn.close()
@@ -318,12 +324,12 @@ class TestInMemoryRepositories(DatabaseTestBase):
 
         # Verify results
         assert len(errors) == 0, f"Concurrent access errors: {errors}"
-        assert len(results) == 10, (
-            f"Expected 10 successful operations, got {len(results)}"
-        )
-        assert len(repo._data) == 10, (
-            f"Expected 10 datasets in repository, got {len(repo._data)}"
-        )
+        assert (
+            len(results) == 10
+        ), f"Expected 10 successful operations, got {len(results)}"
+        assert (
+            len(repo._data) == 10
+        ), f"Expected 10 datasets in repository, got {len(repo._data)}"
 
 
 class TestSQLiteRepository(DatabaseTestBase):
@@ -583,9 +589,9 @@ class TestDatabasePerformance(DatabaseTestBase):
         detector_results = repo.find_by_detector(sample_detection_result.detector_id)
         detector_query_time = time.time() - start_time
 
-        assert detector_query_time < 1, (
-            f"Detector query took too long: {detector_query_time}s"
-        )
+        assert (
+            detector_query_time < 1
+        ), f"Detector query took too long: {detector_query_time}s"
         assert len(detector_results) == 1000
 
         # Query recent results
@@ -593,9 +599,9 @@ class TestDatabasePerformance(DatabaseTestBase):
         recent_results = repo.find_recent(limit=10)
         recent_query_time = time.time() - start_time
 
-        assert recent_query_time < 0.1, (
-            f"Recent query took too long: {recent_query_time}s"
-        )
+        assert (
+            recent_query_time < 0.1
+        ), f"Recent query took too long: {recent_query_time}s"
         assert len(recent_results) == 10
 
     def test_memory_usage_optimization(self):
@@ -687,9 +693,9 @@ class TestDatabaseErrorHandling:
 
                 # Verify rollback
                 found = repo.find_by_id(sample_dataset.id)
-                assert found.name == original_name, (
-                    "Transaction should have been rolled back"
-                )
+                assert (
+                    found.name == original_name
+                ), "Transaction should have been rolled back"
 
             except (ImportError, AttributeError):
                 pytest.skip("SQLite transaction support not available")

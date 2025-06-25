@@ -116,9 +116,9 @@ class TestVisualRegression:
             dashboard_page.page, "dashboard_full", full_page=True, threshold=0.95
         )
 
-        assert result["similar"], (
-            f"Dashboard visual regression detected. Similarity: {result.get('similarity', 0)}"
-        )
+        assert result[
+            "similar"
+        ], f"Dashboard visual regression detected. Similarity: {result.get('similarity', 0)}"
 
         # Capture specific sections
         stats_section = dashboard_page.page.locator(
@@ -132,9 +132,9 @@ class TestVisualRegression:
                 stats_result = self.visual_tester.compare_images(
                     baseline_stats, Path("screenshots/dashboard_stats.png")
                 )
-                assert stats_result["similar"], (
-                    "Stats section visual regression detected"
-                )
+                assert stats_result[
+                    "similar"
+                ], "Stats section visual regression detected"
 
     def test_navigation_visual_consistency(self, page: Page):
         """Test navigation visual consistency across pages."""
@@ -160,9 +160,9 @@ class TestVisualRegression:
 
                 if baseline_path.exists():
                     result = self.visual_tester.compare_images(baseline_path, test_path)
-                    assert result["similar"], (
-                        f"Navigation visual regression on {page_info['path']}"
-                    )
+                    assert result[
+                        "similar"
+                    ], f"Navigation visual regression on {page_info['path']}"
 
     def test_form_visual_consistency(self, detectors_page):
         """Test form visual consistency."""
@@ -276,17 +276,13 @@ class TestVisualRegression:
 
         if run_button.count() > 0:
             # Capture before action
-            self.visual_tester.capture_and_compare(
-                page, "detection_before_action"
-            )
+            self.visual_tester.capture_and_compare(page, "detection_before_action")
 
             # Trigger action and try to capture loading state
             run_button.click()
             page.wait_for_timeout(500)  # Quick capture during loading
 
-            self.visual_tester.capture_and_compare(
-                page, "detection_loading_state"
-            )
+            self.visual_tester.capture_and_compare(page, "detection_loading_state")
 
     def test_error_state_visual_consistency(self, detectors_page):
         """Test error states visual consistency."""
@@ -342,9 +338,7 @@ class TestVisualRegression:
 
         if animated_elements.count() > 0:
             # Capture before interaction
-            self.visual_tester.capture_and_compare(
-                page, "before_animation"
-            )
+            self.visual_tester.capture_and_compare(page, "before_animation")
 
             # Trigger animation (hover, click, etc.)
             first_element = animated_elements.first
@@ -352,9 +346,7 @@ class TestVisualRegression:
             page.wait_for_timeout(1000)  # Wait for animation
 
             # Capture after animation
-            self.visual_tester.capture_and_compare(
-                page, "after_animation"
-            )
+            self.visual_tester.capture_and_compare(page, "after_animation")
 
     def generate_visual_report(self) -> dict[str, any]:
         """Generate a visual regression test report."""

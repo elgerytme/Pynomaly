@@ -43,7 +43,7 @@ class UITestRunner:
 
         try:
             # Create server startup script
-            server_script = f'''
+            server_script = f"""
 import sys
 sys.path.insert(0, "{self.project_root}/src")
 import uvicorn
@@ -51,7 +51,7 @@ from pynomaly.presentation.api import app
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port={self.server_port}, log_level="info")
-'''
+"""
 
             # Write server script
             server_script_path = self.project_root / "temp_server.py"

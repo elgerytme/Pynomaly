@@ -119,7 +119,9 @@ class TestSklearnAdapterIntegration:
                 loaded_scores = loaded_adapter.score(dataset)
 
                 # Scores should be identical
-                for orig_score, loaded_score in zip(scores, loaded_scores, strict=False):
+                for orig_score, loaded_score in zip(
+                    scores, loaded_scores, strict=False
+                ):
                     assert abs(orig_score.value - loaded_score.value) < 1e-10
 
                 # Clean up
@@ -389,9 +391,9 @@ class TestCrossAdapterCompatibility:
 
                             # Different algorithms might have different approaches,
                             # but there should be some positive correlation for anomaly detection
-                            assert correlation > -0.5, (
-                                f"Negative correlation between {algo1} and {algo2}: {correlation}"
-                            )
+                            assert (
+                                correlation > -0.5
+                            ), f"Negative correlation between {algo1} and {algo2}: {correlation}"
 
         except ImportError:
             pytest.skip("scikit-learn not available")
@@ -446,12 +448,12 @@ class TestCrossAdapterCompatibility:
                     }
 
                     # Performance should be reasonable
-                    assert training_time < 30.0, (
-                        f"{algorithm_name} training too slow: {training_time}s"
-                    )
-                    assert scoring_time < 10.0, (
-                        f"{algorithm_name} scoring too slow: {scoring_time}s"
-                    )
+                    assert (
+                        training_time < 30.0
+                    ), f"{algorithm_name} training too slow: {training_time}s"
+                    assert (
+                        scoring_time < 10.0
+                    ), f"{algorithm_name} scoring too slow: {scoring_time}s"
 
                 except Exception:
                     continue
@@ -723,9 +725,9 @@ class TestAdapterErrorHandlingIntegration:
             avg_scores = [r["avg_score"] for r in successful_results]
             if len(avg_scores) > 1:
                 score_variance = np.var(avg_scores)
-                assert score_variance < 0.01, (
-                    "High variance in concurrent scoring results"
-                )
+                assert (
+                    score_variance < 0.01
+                ), "High variance in concurrent scoring results"
 
         except ImportError:
             pytest.skip("scikit-learn not available")

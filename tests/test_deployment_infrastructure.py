@@ -634,9 +634,7 @@ class TestDeploymentIntegration:
         )
 
         # Check if automatic rollback was triggered
-        await deployment_service.get_deployment(
-            production_deployment.id
-        )
+        await deployment_service.get_deployment(production_deployment.id)
         # Note: In this test, automatic rollback might not trigger due to request count threshold
 
         # 5. Manual rollback

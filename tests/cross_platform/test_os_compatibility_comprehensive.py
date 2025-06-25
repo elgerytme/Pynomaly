@@ -236,9 +236,9 @@ class TestPythonVersionCompatibility:
         # Verify minimum Python version (3.11+)
         version_info = sys.version_info
         assert version_info.major == 3
-        assert version_info.minor >= 11, (
-            f"Python 3.11+ required, found {version_info.major}.{version_info.minor}"
-        )
+        assert (
+            version_info.minor >= 11
+        ), f"Python 3.11+ required, found {version_info.major}.{version_info.minor}"
 
     def test_type_hints_compatibility(self):
         """Test type hints compatibility across Python versions."""

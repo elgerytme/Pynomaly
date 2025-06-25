@@ -5,21 +5,22 @@ Advanced performance testing covering load testing, stress testing, memory profi
 scalability analysis, and performance regression detection across all system components.
 """
 
-import pytest
 import asyncio
-import time
-import threading
-import multiprocessing
-import psutil
-import os
 import gc
-import numpy as np
-from typing import List, Dict, Any, Callable
-from unittest.mock import Mock, patch, MagicMock
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
-from dataclasses import dataclass
-from contextlib import contextmanager
+import multiprocessing
+import os
 import statistics
+import threading
+import time
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from contextlib import contextmanager
+from dataclasses import dataclass
+from typing import Any, Callable, Dict, List
+from unittest.mock import MagicMock, Mock, patch
+
+import numpy as np
+import psutil
+import pytest
 
 
 @dataclass
@@ -116,6 +117,7 @@ class TestAPIPerformance:
     def test_client(self):
         """Create test client for performance testing."""
         from fastapi.testclient import TestClient
+
         from pynomaly.presentation.api.app import create_app
         
         app = create_app(testing=True)
@@ -901,6 +903,7 @@ class TestSystemPerformance:
         """Test end-to-end system performance."""
         
         from fastapi.testclient import TestClient
+
         from pynomaly.presentation.api.app import create_app
         
         app = create_app(testing=True)
@@ -1006,6 +1009,7 @@ class TestSystemPerformance:
         
         # API response time
         from fastapi.testclient import TestClient
+
         from pynomaly.presentation.api.app import create_app
         
         app = create_app(testing=True)

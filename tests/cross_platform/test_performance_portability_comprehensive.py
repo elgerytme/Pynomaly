@@ -103,9 +103,9 @@ class TestCPUPerformancePortability:
             # Even with GIL, some speedup might be observed for I/O-bound parts
             best_parallel_time = min(parallel_times)
             speedup_ratio = sequential_time / best_parallel_time
-            assert speedup_ratio >= 0.8, (
-                f"Parallel processing too slow: {speedup_ratio}"
-            )
+            assert (
+                speedup_ratio >= 0.8
+            ), f"Parallel processing too slow: {speedup_ratio}"
 
     def test_cpu_architecture_compatibility(self):
         """Test compatibility across different CPU architectures."""
@@ -207,17 +207,17 @@ class TestCPUPerformancePortability:
 
             # Performance should be relatively stable
             coefficient_of_variation = std_performance / avg_performance
-            assert coefficient_of_variation < 0.5, (
-                f"High performance variation: {coefficient_of_variation}"
-            )
+            assert (
+                coefficient_of_variation < 0.5
+            ), f"High performance variation: {coefficient_of_variation}"
 
             # No severe performance drops (thermal throttling indicator)
             min_performance = np.min(performance_data)
             max_performance = np.max(performance_data)
             performance_ratio = min_performance / max_performance
-            assert performance_ratio > 0.3, (
-                f"Severe performance drop detected: {performance_ratio}"
-            )
+            assert (
+                performance_ratio > 0.3
+            ), f"Severe performance drop detected: {performance_ratio}"
 
 
 class TestMemoryPerformancePortability:
@@ -248,9 +248,9 @@ class TestMemoryPerformancePortability:
         large_alloc_time = time.time() - start_time
 
         # Small allocations should not be excessively slow
-        assert small_alloc_time < 5.0, (
-            f"Small allocations too slow: {small_alloc_time}s"
-        )
+        assert (
+            small_alloc_time < 5.0
+        ), f"Small allocations too slow: {small_alloc_time}s"
         assert large_alloc_time < 2.0, f"Large allocation too slow: {large_alloc_time}s"
 
         # Clean up
@@ -327,12 +327,12 @@ class TestMemoryPerformancePortability:
             operation_time = time.time() - start_time
 
             # Verify allocation and operation completed
-            assert allocation_time < 30.0, (
-                f"Large allocation too slow: {allocation_time}s"
-            )
-            assert operation_time < 10.0, (
-                f"Large array operation too slow: {operation_time}s"
-            )
+            assert (
+                allocation_time < 30.0
+            ), f"Large allocation too slow: {allocation_time}s"
+            assert (
+                operation_time < 10.0
+            ), f"Large array operation too slow: {operation_time}s"
             assert isinstance(mean_value, float | np.floating)
 
             # Clean up
@@ -367,9 +367,9 @@ class TestMemoryPerformancePortability:
         post_frag_time = time.time() - start_time
 
         # Should still allocate reasonably quickly
-        assert post_frag_time < 5.0, (
-            f"Post-fragmentation allocation slow: {post_frag_time}s"
-        )
+        assert (
+            post_frag_time < 5.0
+        ), f"Post-fragmentation allocation slow: {post_frag_time}s"
 
         # Clean up
         del arrays
@@ -581,9 +581,9 @@ class TestNetworkPerformancePortability:
             assert response == test_message
 
             # Localhost communication should be fast
-            assert communication_time < 1.0, (
-                f"Localhost communication slow: {communication_time}s"
-            )
+            assert (
+                communication_time < 1.0
+            ), f"Localhost communication slow: {communication_time}s"
 
         except (TimeoutError, OSError):
             pytest.skip("Localhost communication not available")
@@ -631,18 +631,18 @@ class TestNetworkPerformancePortability:
         assert loaded_pickle_data == test_data
 
         # Performance should be reasonable
-        assert json_serialize_time < 1.0, (
-            f"JSON serialization slow: {json_serialize_time}s"
-        )
-        assert json_deserialize_time < 1.0, (
-            f"JSON deserialization slow: {json_deserialize_time}s"
-        )
-        assert pickle_serialize_time < 1.0, (
-            f"Pickle serialization slow: {pickle_serialize_time}s"
-        )
-        assert pickle_deserialize_time < 1.0, (
-            f"Pickle deserialization slow: {pickle_deserialize_time}s"
-        )
+        assert (
+            json_serialize_time < 1.0
+        ), f"JSON serialization slow: {json_serialize_time}s"
+        assert (
+            json_deserialize_time < 1.0
+        ), f"JSON deserialization slow: {json_deserialize_time}s"
+        assert (
+            pickle_serialize_time < 1.0
+        ), f"Pickle serialization slow: {pickle_serialize_time}s"
+        assert (
+            pickle_deserialize_time < 1.0
+        ), f"Pickle deserialization slow: {pickle_deserialize_time}s"
 
         # Compare sizes
         json_size = len(json_data.encode("utf-8"))
@@ -726,15 +726,15 @@ class TestConcurrencyPerformancePortability:
         # Multiprocessing may provide speedup for CPU-bound tasks
         speedup = sequential_time / parallel_time
         # Note: Speedup depends on system capabilities and overhead
-        assert speedup > 0.5, (
-            f"Multiprocessing severely degraded performance: {speedup}x"
-        )
+        assert (
+            speedup > 0.5
+        ), f"Multiprocessing severely degraded performance: {speedup}x"
 
         # Don't expect linear speedup due to overhead and system constraints
         max_expected_speedup = num_tasks + 1  # Allow some overhead
-        assert speedup < max_expected_speedup, (
-            f"Unrealistic speedup reported: {speedup}x"
-        )
+        assert (
+            speedup < max_expected_speedup
+        ), f"Unrealistic speedup reported: {speedup}x"
 
     def test_async_performance_characteristics(self):
         """Test async/await performance characteristics."""
@@ -834,12 +834,14 @@ class TestScalabilityPortability:
             ]
 
             # Performance should scale reasonably (not exponentially worse)
-            for i, (time_ratio, size_ratio) in enumerate(zip(time_ratios, size_ratios, strict=False)):
+            for i, (time_ratio, size_ratio) in enumerate(
+                zip(time_ratios, size_ratios, strict=False)
+            ):
                 # Allow for some overhead, but not quadratic scaling
                 max_acceptable_ratio = size_ratio * 2
-                assert time_ratio <= max_acceptable_ratio, (
-                    f"Poor scalability at {size_multipliers[i + 1]}x size: {time_ratio}x time"
-                )
+                assert (
+                    time_ratio <= max_acceptable_ratio
+                ), f"Poor scalability at {size_multipliers[i + 1]}x size: {time_ratio}x time"
 
     def test_concurrent_user_scalability(self):
         """Test scalability with multiple concurrent operations."""
@@ -887,9 +889,9 @@ class TestScalabilityPortability:
 
             # Performance should degrade gracefully
             avg_time_per_user = total_time / user_count
-            assert avg_time_per_user < 5.0, (
-                f"Poor per-user performance with {user_count} users: {avg_time_per_user}s"
-            )
+            assert (
+                avg_time_per_user < 5.0
+            ), f"Poor per-user performance with {user_count} users: {avg_time_per_user}s"
 
     def test_memory_usage_scalability(self):
         """Test memory usage scalability."""

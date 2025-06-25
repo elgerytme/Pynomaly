@@ -68,9 +68,9 @@ class TestAlgorithmMathematicalProperties:
             scores2 = detector2.decision_function(data)
 
             # Scores should be identical (or very close due to numerical precision)
-            assert np.allclose(scores1, scores2, rtol=1e-10, atol=1e-10), (
-                "Same algorithm with same parameters should produce identical results"
-            )
+            assert np.allclose(
+                scores1, scores2, rtol=1e-10, atol=1e-10
+            ), "Same algorithm with same parameters should produce identical results"
 
         except Exception:
             assume(False)
@@ -100,9 +100,9 @@ class TestAlgorithmMathematicalProperties:
 
             # Allow reasonable tolerance due to discrete nature
             tolerance = max(1, int(len(data) * 0.1))
-            assert abs(n_anomalies - expected_anomalies) <= tolerance, (
-                f"Expected ~{expected_anomalies} anomalies, got {n_anomalies}"
-            )
+            assert (
+                abs(n_anomalies - expected_anomalies) <= tolerance
+            ), f"Expected ~{expected_anomalies} anomalies, got {n_anomalies}"
 
         except Exception:
             assume(False)
@@ -141,9 +141,9 @@ class TestAlgorithmMathematicalProperties:
 
             # Relative ranking should be preserved (correlation should be high)
             correlation = np.corrcoef(scores1, scores2)[0, 1]
-            assert correlation > 0.8, (
-                f"Scale invariance violated: correlation = {correlation}"
-            )
+            assert (
+                correlation > 0.8
+            ), f"Scale invariance violated: correlation = {correlation}"
 
         except Exception:
             assume(False)
@@ -190,9 +190,9 @@ class TestAlgorithmPerformanceProperties:
             # Algorithm should not be exponentially slower (allow for some polynomial growth)
             # This is a relaxed test - in practice you'd have tighter bounds
             max_acceptable_ratio = size_ratio**2  # Allow quadratic growth
-            assert time_ratio <= max_acceptable_ratio, (
-                f"Algorithm too slow: {time_ratio:.2f}x time for {size_ratio:.2f}x data"
-            )
+            assert (
+                time_ratio <= max_acceptable_ratio
+            ), f"Algorithm too slow: {time_ratio:.2f}x time for {size_ratio:.2f}x data"
 
             # Scores should still be valid for both datasets
             assert np.all((scores_small >= 0) & (scores_small <= 1))
@@ -234,9 +234,9 @@ class TestAlgorithmPerformanceProperties:
             data_size_mb = data.nbytes / 1024 / 1024
             max_acceptable_memory = data_size_mb * 10  # Allow 10x data size
 
-            assert memory_increase <= max_acceptable_memory, (
-                f"Excessive memory usage: {memory_increase:.2f}MB for {data_size_mb:.2f}MB data"
-            )
+            assert (
+                memory_increase <= max_acceptable_memory
+            ), f"Excessive memory usage: {memory_increase:.2f}MB for {data_size_mb:.2f}MB data"
 
         except Exception:
             assume(False)
@@ -288,9 +288,9 @@ class TestAlgorithmRobustnessProperties:
                 0.5, 1.0 - noise_level * 2
             )  # Higher noise allows lower correlation
 
-            assert correlation >= min_correlation, (
-                f"Algorithm not robust to noise: correlation = {correlation:.3f} with noise level {noise_level:.3f}"
-            )
+            assert (
+                correlation >= min_correlation
+            ), f"Algorithm not robust to noise: correlation = {correlation:.3f} with noise level {noise_level:.3f}"
 
         except Exception:
             assume(False)
@@ -367,9 +367,9 @@ class TestAlgorithmContractProperties:
             try:
                 # All adapters should support these basic operations
                 available_algorithms = adapter.list_algorithms()
-                assert len(available_algorithms) > 0, (
-                    "Adapter should provide algorithms"
-                )
+                assert (
+                    len(available_algorithms) > 0
+                ), "Adapter should provide algorithms"
 
                 # Test with first available algorithm
                 algorithm = available_algorithms[0]
@@ -379,9 +379,9 @@ class TestAlgorithmContractProperties:
 
                 # All detectors should support fit and decision_function
                 assert hasattr(detector, "fit"), "Detector must have fit method"
-                assert hasattr(detector, "decision_function"), (
-                    "Detector must have decision_function method"
-                )
+                assert hasattr(
+                    detector, "decision_function"
+                ), "Detector must have decision_function method"
 
                 # Fit and score
                 detector.fit(data)
@@ -427,12 +427,12 @@ class TestAlgorithmContractProperties:
             predictions2 = detector.predict(data)
 
             # Results should be identical
-            assert np.array_equal(scores1, scores2), (
-                "decision_function should be deterministic after fit"
-            )
-            assert np.array_equal(predictions1, predictions2), (
-                "predict should be deterministic after fit"
-            )
+            assert np.array_equal(
+                scores1, scores2
+            ), "decision_function should be deterministic after fit"
+            assert np.array_equal(
+                predictions1, predictions2
+            ), "predict should be deterministic after fit"
 
             # Predictions should be consistent with scores
             # In sklearn, higher scores typically mean more anomalous
@@ -444,9 +444,9 @@ class TestAlgorithmContractProperties:
                 # Average score of anomalies should be higher than normal points
                 avg_anomaly_score = np.mean(scores1[anomaly_mask])
                 avg_normal_score = np.mean(scores1[normal_mask])
-                assert avg_anomaly_score >= avg_normal_score, (
-                    "Anomaly scores should be higher than normal scores"
-                )
+                assert (
+                    avg_anomaly_score >= avg_normal_score
+                ), "Anomaly scores should be higher than normal scores"
 
         except Exception:
             assume(False)

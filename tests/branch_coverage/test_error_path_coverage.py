@@ -389,9 +389,7 @@ class TestValidationErrorPaths:
         nested_params = {
             "algorithm": {
                 "name": "IsolationForest",
-                "params": {
-                    "n_estimators": "invalid_number"  # Should be int
-                },
+                "params": {"n_estimators": "invalid_number"},  # Should be int
             }
         }
 

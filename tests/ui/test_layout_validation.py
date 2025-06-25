@@ -14,9 +14,9 @@ class TestLayoutValidation:
 
         assert layout_check["has_title"], "Dashboard should have proper title"
         assert layout_check["has_stats_cards"], "Dashboard should have stats cards"
-        assert layout_check["has_recent_results"], (
-            "Dashboard should have recent results section"
-        )
+        assert layout_check[
+            "has_recent_results"
+        ], "Dashboard should have recent results section"
         assert layout_check["has_quick_actions"], "Dashboard should have quick actions"
 
         # Take screenshot for visual verification
@@ -62,9 +62,9 @@ class TestLayoutValidation:
         nav_counts = [
             result["nav_links_count"] for result in navigation_results.values()
         ]
-        assert all(count == nav_counts[0] for count in nav_counts), (
-            "Navigation link count should be consistent across pages"
-        )
+        assert all(
+            count == nav_counts[0] for count in nav_counts
+        ), "Navigation link count should be consistent across pages"
 
     def test_responsive_navigation(self, mobile_page: Page):
         """Test responsive navigation on mobile viewport."""
@@ -73,9 +73,9 @@ class TestLayoutValidation:
 
         # Desktop nav should be hidden on mobile
         desktop_nav = mobile_page.locator("nav .hidden.sm\\:flex")
-        assert not desktop_nav.is_visible(), (
-            "Desktop navigation should be hidden on mobile"
-        )
+        assert (
+            not desktop_nav.is_visible()
+        ), "Desktop navigation should be hidden on mobile"
 
         # Mobile menu button should be visible
         mobile_button = mobile_page.locator("nav .sm\\:hidden button")
@@ -106,16 +106,16 @@ class TestLayoutValidation:
 
         # Test form accessibility
         name_input = detectors_page.page.locator(detectors_page.DETECTOR_NAME_INPUT)
-        assert name_input.get_attribute("name") is not None, (
-            "Name input should have name attribute"
-        )
+        assert (
+            name_input.get_attribute("name") is not None
+        ), "Name input should have name attribute"
 
         algorithm_select = detectors_page.page.locator(
             detectors_page.DETECTOR_ALGORITHM_SELECT
         )
-        assert algorithm_select.get_attribute("name") is not None, (
-            "Algorithm select should have name attribute"
-        )
+        assert (
+            algorithm_select.get_attribute("name") is not None
+        ), "Algorithm select should have name attribute"
 
     def test_table_structure(self, dashboard_page):
         """Test table structure and accessibility."""
@@ -138,9 +138,9 @@ class TestLayoutValidation:
             # Check if rows have same number of cells as headers
             if tbody.locator("tr").count() > 0:
                 first_row_cells = tbody.locator("tr").first.locator("td")
-                assert first_row_cells.count() == headers.count(), (
-                    "Row cells should match header count"
-                )
+                assert (
+                    first_row_cells.count() == headers.count()
+                ), "Row cells should match header count"
 
     def test_button_states(self, page: Page):
         """Test button states and styling."""
@@ -159,15 +159,15 @@ class TestLayoutValidation:
 
             # Buttons should have text or aria-label
             aria_label = button.get_attribute("aria-label")
-            assert button_text or aria_label, (
-                f"Button {i} should have text or aria-label"
-            )
+            assert (
+                button_text or aria_label
+            ), f"Button {i} should have text or aria-label"
 
             # Submit buttons should have type="submit"
             if button_text and "submit" in button_text.lower():
-                assert button_type == "submit", (
-                    "Submit buttons should have type='submit'"
-                )
+                assert (
+                    button_type == "submit"
+                ), "Submit buttons should have type='submit'"
 
     def test_loading_states(self, detection_page):
         """Test loading states and indicators."""
@@ -183,9 +183,9 @@ class TestLayoutValidation:
                 indicator = htmx_indicators.nth(i)
                 # Should have proper CSS for showing/hiding
                 indicator_class = indicator.get_attribute("class") or ""
-                assert "htmx-indicator" in indicator_class, (
-                    "Should have htmx-indicator class"
-                )
+                assert (
+                    "htmx-indicator" in indicator_class
+                ), "Should have htmx-indicator class"
 
     def test_error_message_display(self, detectors_page):
         """Test error message display areas."""
@@ -234,9 +234,9 @@ class TestLayoutValidation:
                 role = svg.get_attribute("role")
 
                 # Icons should either be hidden from screen readers or have proper role
-                assert aria_hidden == "true" or role is not None, (
-                    "SVG icons should have proper accessibility attributes"
-                )
+                assert (
+                    aria_hidden == "true" or role is not None
+                ), "SVG icons should have proper accessibility attributes"
 
     def test_color_contrast_elements(self, page: Page):
         """Test color contrast for key elements."""
@@ -244,7 +244,8 @@ class TestLayoutValidation:
         page.wait_for_load_state("networkidle")
 
         # Get computed styles for key elements
-        nav_styles = page.evaluate("""
+        nav_styles = page.evaluate(
+            """
             () => {
                 const nav = document.querySelector('nav');
                 if (!nav) return null;
@@ -254,12 +255,13 @@ class TestLayoutValidation:
                     color: styles.color
                 };
             }
-        """)
+        """
+        )
 
         assert nav_styles is not None, "Should be able to get navigation styles"
-        assert nav_styles["backgroundColor"] != nav_styles["color"], (
-            "Navigation background and text should have different colors"
-        )
+        assert (
+            nav_styles["backgroundColor"] != nav_styles["color"]
+        ), "Navigation background and text should have different colors"
 
     def test_layout_consistency_viewport_sizes(self, page: Page):
         """Test layout consistency across different viewport sizes."""
@@ -295,9 +297,9 @@ class TestLayoutValidation:
 
         # All viewports should have main content and navigation
         for result in layout_results.values():
-            assert result["main_visible"], (
-                "Main content should be visible on all viewports"
-            )
-            assert result["nav_visible"], (
-                "Navigation should be visible on all viewports"
-            )
+            assert result[
+                "main_visible"
+            ], "Main content should be visible on all viewports"
+            assert result[
+                "nav_visible"
+            ], "Navigation should be visible on all viewports"

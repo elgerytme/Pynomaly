@@ -14,16 +14,16 @@ class TestUXFlows:
 
         # Step 1: User arrives at detectors page
         layout_check = detectors_page.verify_detectors_page_layout()
-        assert layout_check["has_create_form"], (
-            "Detector creation form should be available"
-        )
+        assert layout_check[
+            "has_create_form"
+        ], "Detector creation form should be available"
 
         # Step 2: User views available algorithms
         algorithms = detectors_page.get_available_algorithms()
         assert len(algorithms) > 0, "Should have available algorithms"
-        assert sample_detector_data["algorithm"] in algorithms, (
-            f"Test algorithm {sample_detector_data['algorithm']} should be available"
-        )
+        assert (
+            sample_detector_data["algorithm"] in algorithms
+        ), f"Test algorithm {sample_detector_data['algorithm']} should be available"
 
         # Step 3: User fills out form
         initial_detector_count = len(detectors_page.get_detector_list())
@@ -35,9 +35,9 @@ class TestUXFlows:
         detectors_page.page.wait_for_timeout(2000)  # Wait for HTMX update
 
         updated_detector_count = len(detectors_page.get_detector_list())
-        assert updated_detector_count > initial_detector_count, (
-            "Detector list should be updated with new detector"
-        )
+        assert (
+            updated_detector_count > initial_detector_count
+        ), "Detector list should be updated with new detector"
 
         # Take screenshot of final state
         detectors_page.take_screenshot("detector_creation_complete")
@@ -76,9 +76,9 @@ class TestUXFlows:
                 expected_title_part != "Dashboard"
             ):  # Dashboard doesn't always have title in content
                 page_content = dashboard_page.page.text_content()
-                assert expected_title_part in page_content, (
-                    f"Page should contain {expected_title_part}"
-                )
+                assert (
+                    expected_title_part in page_content
+                ), f"Page should contain {expected_title_part}"
 
         # Take screenshot of final state
         dashboard_page.take_screenshot("navigation_flow_complete")
@@ -198,14 +198,14 @@ class TestUXFlows:
             dataset_select = detection_page.page.locator(detection_page.DATASET_SELECT)
 
             if detector_select.count() > 0:
-                assert detector_select.is_enabled(), (
-                    "Form should remain usable after error"
-                )
+                assert (
+                    detector_select.is_enabled()
+                ), "Form should remain usable after error"
 
             if dataset_select.count() > 0:
-                assert dataset_select.is_enabled(), (
-                    "Form should remain usable after error"
-                )
+                assert (
+                    dataset_select.is_enabled()
+                ), "Form should remain usable after error"
 
         detection_page.take_screenshot("error_recovery_flow")
 
@@ -228,9 +228,9 @@ class TestUXFlows:
             responsiveness = visualizations_page.test_chart_responsiveness()
 
             # Charts should maintain functionality after resize
-            assert responsiveness["charts_respond_to_resize"], (
-                "Charts should respond to viewport changes"
-            )
+            assert responsiveness[
+                "charts_respond_to_resize"
+            ], "Charts should respond to viewport changes"
 
         visualizations_page.take_screenshot("visualization_interaction_flow")
 
@@ -261,9 +261,9 @@ class TestUXFlows:
                 break
 
         # Should have found focusable elements
-        assert tab_count < max_tabs, (
-            "Should be able to navigate to interactive elements"
-        )
+        assert (
+            tab_count < max_tabs
+        ), "Should be able to navigate to interactive elements"
 
         page.screenshot(path="screenshots/accessibility_navigation_flow.png")
 
@@ -274,9 +274,9 @@ class TestUXFlows:
         dashboard_metrics = dashboard_page.measure_dashboard_load_time()
 
         # Dashboard should load reasonably quickly
-        assert dashboard_metrics["dashboard_elements_load_time"] < 5000, (
-            "Dashboard elements should load within 5 seconds"
-        )
+        assert (
+            dashboard_metrics["dashboard_elements_load_time"] < 5000
+        ), "Dashboard elements should load within 5 seconds"
 
         # Step 2: Navigate to other pages and measure
         pages_to_test = ["/detectors", "/datasets", "/detection"]

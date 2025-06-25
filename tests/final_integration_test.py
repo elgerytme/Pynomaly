@@ -81,7 +81,7 @@ class FinalIntegrationTester:
         print("\n🌐 Testing API Functionality...")
 
         # Start server
-        server_script = f'''
+        server_script = f"""
 import sys
 sys.path.insert(0, "{self.project_root}/src")
 import uvicorn
@@ -89,7 +89,7 @@ from pynomaly.presentation.api import create_app
 
 app = create_app()
 uvicorn.run(app, host="127.0.0.1", port=8006, log_level="error")
-'''
+"""
 
         server_file = self.project_root / "temp_api_test_server.py"
         with open(server_file, "w") as f:

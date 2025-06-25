@@ -429,7 +429,9 @@ class TestExplainabilityService:
             else:
                 explainer_result = {"explainer_type": "KernelExplainer"}
 
-            explainability_service.shap_explainer.get_explainer_for_model.return_value = explainer_result
+            explainability_service.shap_explainer.get_explainer_for_model.return_value = (
+                explainer_result
+            )
             explainability_service.shap_explainer.explain_instance.return_value = {
                 "feature_contributions": {"feature1": 0.6, "feature2": -0.3},
                 "explanation_metadata": explainer_result,

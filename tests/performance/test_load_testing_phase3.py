@@ -112,16 +112,16 @@ class TestLoadTestingPhase3:
 
         # Performance assertions
         assert len(successful_requests) == len(results), "All requests should succeed"
-        assert performance_monitor.execution_time < 5.0, (
-            "Load test should complete within 5 seconds"
-        )
-        assert statistics.mean(response_times) < 0.1, (
-            "Average response time should be under 100ms"
-        )
+        assert (
+            performance_monitor.execution_time < 5.0
+        ), "Load test should complete within 5 seconds"
+        assert (
+            statistics.mean(response_times) < 0.1
+        ), "Average response time should be under 100ms"
         assert max(response_times) < 0.5, "Maximum response time should be under 500ms"
-        assert performance_monitor.memory_delta < 100, (
-            "Memory usage should not increase by more than 100MB"
-        )
+        assert (
+            performance_monitor.memory_delta < 100
+        ), "Memory usage should not increase by more than 100MB"
 
     def test_database_connection_pool_performance(self, performance_monitor):
         """Test database connection pool performance under load."""
@@ -220,21 +220,21 @@ class TestLoadTestingPhase3:
         query_times = pool.query_times
 
         # Performance assertions
-        assert len(successful_operations) == concurrent_operations, (
-            "All database operations should succeed"
-        )
-        assert performance_monitor.execution_time < 10.0, (
-            "Database load test should complete within 10 seconds"
-        )
-        assert statistics.mean(connection_times) < 0.01, (
-            "Average connection time should be under 10ms"
-        )
-        assert statistics.mean(query_times) < 0.01, (
-            "Average query time should be under 10ms"
-        )
-        assert pool.active_connections == 0, (
-            "All connections should be returned to pool"
-        )
+        assert (
+            len(successful_operations) == concurrent_operations
+        ), "All database operations should succeed"
+        assert (
+            performance_monitor.execution_time < 10.0
+        ), "Database load test should complete within 10 seconds"
+        assert (
+            statistics.mean(connection_times) < 0.01
+        ), "Average connection time should be under 10ms"
+        assert (
+            statistics.mean(query_times) < 0.01
+        ), "Average query time should be under 10ms"
+        assert (
+            pool.active_connections == 0
+        ), "All connections should be returned to pool"
 
     def test_machine_learning_algorithm_performance(self, performance_monitor):
         """Test ML algorithm performance benchmarking."""
@@ -321,22 +321,22 @@ class TestLoadTestingPhase3:
             prediction_times = list(results["prediction"].values())
 
             # Performance assertions
-            assert all(t > 0 for t in training_times), (
-                f"{algo_name} should have positive training times"
-            )
-            assert all(t > 0 for t in prediction_times), (
-                f"{algo_name} should have positive prediction times"
-            )
+            assert all(
+                t > 0 for t in training_times
+            ), f"{algo_name} should have positive training times"
+            assert all(
+                t > 0 for t in prediction_times
+            ), f"{algo_name} should have positive prediction times"
 
             # Training time should scale with data size
-            assert training_times[-1] > training_times[0], (
-                f"{algo_name} training should scale with data size"
-            )
+            assert (
+                training_times[-1] > training_times[0]
+            ), f"{algo_name} training should scale with data size"
 
             # Prediction should be relatively fast
-            assert max(prediction_times) < 1.0, (
-                f"{algo_name} prediction should be under 1 second"
-            )
+            assert (
+                max(prediction_times) < 1.0
+            ), f"{algo_name} prediction should be under 1 second"
 
     def test_memory_usage_profiling(self, performance_monitor):
         """Test memory usage profiling for different operations."""
@@ -377,27 +377,25 @@ class TestLoadTestingPhase3:
             # Memory usage assertions
             assert profile["peak_memory_mb"] > 0, "Should measure peak memory usage"
             assert profile["execution_time"] > 0, "Should measure execution time"
-            assert profile["processed_items"] == size, (
-                "Should process correct number of items"
-            )
+            assert (
+                profile["processed_items"] == size
+            ), "Should process correct number of items"
 
             # Memory growth should be reasonable
-            assert profile["memory_delta_mb"] < 500, (
-                f"Memory delta should be under 500MB for size {size}"
-            )
+            assert (
+                profile["memory_delta_mb"] < 500
+            ), f"Memory delta should be under 500MB for size {size}"
 
         # Memory usage should scale reasonably with data size
-        [
-            profile["memory_delta_mb"] for profile in memory_profiles.values()
-        ]
+        [profile["memory_delta_mb"] for profile in memory_profiles.values()]
         execution_times = [
             profile["execution_time"] for profile in memory_profiles.values()
         ]
 
         # Check scaling patterns
-        assert execution_times[-1] > execution_times[0], (
-            "Execution time should scale with data size"
-        )
+        assert (
+            execution_times[-1] > execution_times[0]
+        ), "Execution time should scale with data size"
 
     def test_concurrent_processing_performance(self, performance_monitor):
         """Test concurrent processing performance."""
@@ -463,18 +461,18 @@ class TestLoadTestingPhase3:
 
         # Performance assertions
         for approach, results in performance_results.items():
-            assert results["completed_tasks"] == task_count, (
-                f"{approach} should complete all tasks"
-            )
-            assert results["total_time"] > 0, (
-                f"{approach} should measure execution time"
-            )
+            assert (
+                results["completed_tasks"] == task_count
+            ), f"{approach} should complete all tasks"
+            assert (
+                results["total_time"] > 0
+            ), f"{approach} should measure execution time"
 
         # Threading should be faster than sequential for CPU-bound tasks
         # (Note: In practice, this depends on task characteristics and GIL)
-        assert threading_time <= sequential_time * 1.2, (
-            "Threading should not be significantly slower"
-        )
+        assert (
+            threading_time <= sequential_time * 1.2
+        ), "Threading should not be significantly slower"
 
     def test_caching_performance_impact(self, performance_monitor):
         """Test caching performance impact."""
@@ -585,9 +583,9 @@ class TestLoadTestingPhase3:
             ), f"{requirement} should be performance-related"
 
         # Verify comprehensive performance coverage
-        assert len(phase3_requirements) >= 10, (
-            "Should have comprehensive Phase 3 performance coverage"
-        )
+        assert (
+            len(phase3_requirements) >= 10
+        ), "Should have comprehensive Phase 3 performance coverage"
 
 
 class TestBenchmarkingPhase3:
@@ -647,24 +645,24 @@ class TestBenchmarkingPhase3:
         )
 
         # Benchmark assertions
-        assert fastest_training["training_time_ms"] < 10, (
-            "Fastest algorithm should train in under 10ms"
-        )
-        assert fastest_prediction["prediction_time_ms"] < 1, (
-            "Fastest prediction should be under 1ms"
-        )
-        assert most_memory_efficient["memory_usage_mb"] < 50, (
-            "Most efficient should use under 50MB"
-        )
+        assert (
+            fastest_training["training_time_ms"] < 10
+        ), "Fastest algorithm should train in under 10ms"
+        assert (
+            fastest_prediction["prediction_time_ms"] < 1
+        ), "Fastest prediction should be under 1ms"
+        assert (
+            most_memory_efficient["memory_usage_mb"] < 50
+        ), "Most efficient should use under 50MB"
 
         # All algorithms should have measurable performance
         for algo_name, results in benchmark_results.items():
-            assert results["training_time_ms"] > 0, (
-                f"{algo_name} should have measurable training time"
-            )
-            assert results["throughput_samples_per_sec"] > 0, (
-                f"{algo_name} should have measurable throughput"
-            )
+            assert (
+                results["training_time_ms"] > 0
+            ), f"{algo_name} should have measurable training time"
+            assert (
+                results["throughput_samples_per_sec"] > 0
+            ), f"{algo_name} should have measurable throughput"
 
     def test_scalability_benchmarking(self):
         """Benchmark system scalability with increasing load."""
@@ -707,15 +705,15 @@ class TestBenchmarkingPhase3:
         ]
 
         # Scalability assertions
-        assert response_times[0] < response_times[-1], (
-            "Response time should increase with load"
-        )
-        assert memory_usage[0] < memory_usage[-1], (
-            "Memory usage should increase with load"
-        )
-        assert all(error_rate < 5 for error_rate in error_rates), (
-            "Error rate should stay under 5%"
-        )
+        assert (
+            response_times[0] < response_times[-1]
+        ), "Response time should increase with load"
+        assert (
+            memory_usage[0] < memory_usage[-1]
+        ), "Memory usage should increase with load"
+        assert all(
+            error_rate < 5 for error_rate in error_rates
+        ), "Error rate should stay under 5%"
 
         # Performance should remain acceptable under reasonable load
         moderate_load_index = 2  # 100 concurrent requests
@@ -770,24 +768,24 @@ class TestBenchmarkingPhase3:
         # Resource utilization assertions
         assert min(cpu_utilizations) < 10, "Should have low CPU usage during idle"
         assert max(cpu_utilizations) < 100, "Should not reach 100% CPU utilization"
-        assert max(efficiency_scores) > min(efficiency_scores), (
-            "Efficiency should vary with load"
-        )
+        assert max(efficiency_scores) > min(
+            efficiency_scores
+        ), "Efficiency should vary with load"
 
         # Resource usage should be reasonable for each scenario
         for scenario, results in utilization_results.items():
             if scenario == "idle":
-                assert results["cpu_utilization_percent"] < 10, (
-                    "Idle should have low CPU"
-                )
+                assert (
+                    results["cpu_utilization_percent"] < 10
+                ), "Idle should have low CPU"
                 assert results["memory_usage_mb"] < 100, "Idle should have low memory"
             elif scenario == "peak_load":
-                assert results["cpu_utilization_percent"] > 90, (
-                    "Peak load should have high CPU"
-                )
-                assert results["sustainability_score"] > 0, (
-                    "Peak load should still be sustainable"
-                )
+                assert (
+                    results["cpu_utilization_percent"] > 90
+                ), "Peak load should have high CPU"
+                assert (
+                    results["sustainability_score"] > 0
+                ), "Peak load should still be sustainable"
 
 
 if __name__ == "__main__":

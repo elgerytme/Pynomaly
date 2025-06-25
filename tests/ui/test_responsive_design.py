@@ -1,8 +1,9 @@
 """Responsive Design Testing Suite."""
 
+from typing import Any, Dict, List, Tuple
+
 import pytest
 from playwright.sync_api import Page
-from typing import Dict, List, Any, Tuple
 
 
 class TestResponsiveDesign:

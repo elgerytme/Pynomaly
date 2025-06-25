@@ -345,9 +345,7 @@ class TestDatasetEndpoints:
         mock_repo = mock_container.dataset_repository.return_value
         mock_repo.find_by_id.return_value = sample_dataset_dto
 
-        invalid_data = {
-            "contamination_rate": 1.5  # Invalid: should be between 0 and 1
-        }
+        invalid_data = {"contamination_rate": 1.5}  # Invalid: should be between 0 and 1
 
         dataset_id = str(sample_dataset_dto.id)
         response = client.put(f"/api/v1/datasets/{dataset_id}", json=invalid_data)

@@ -742,9 +742,11 @@ class TestSDKPerformanceOptimization:
                         "memory_usage_mb": memory_delta / (1024 * 1024),
                         "dataset_samples": dataset.n_samples,
                         "dataset_features": dataset.n_features,
-                        "samples_per_second": dataset.n_samples / training_time
-                        if training_time > 0
-                        else 0,
+                        "samples_per_second": (
+                            dataset.n_samples / training_time
+                            if training_time > 0
+                            else 0
+                        ),
                     }
 
                 except Exception as e:
@@ -784,9 +786,9 @@ class TestSDKPerformanceOptimization:
                         "model_id": model_id,
                         "prediction_time": prediction_time,
                         "samples_predicted": len(scores),
-                        "predictions_per_second": len(scores) / prediction_time
-                        if prediction_time > 0
-                        else 0,
+                        "predictions_per_second": (
+                            len(scores) / prediction_time if prediction_time > 0 else 0
+                        ),
                         "contamination_rate": float(np.mean(result.labels)),
                         "avg_score": float(np.mean([score.value for score in scores])),
                     }

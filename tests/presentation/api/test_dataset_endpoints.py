@@ -652,9 +652,7 @@ class TestDatasetEndpointsIntegration:
 
         # 6. Export dataset
         export_data = {"format": "csv"}
-        authenticated_client.post(
-            f"/datasets/{dataset_id}/export", json=export_data
-        )
+        authenticated_client.post(f"/datasets/{dataset_id}/export", json=export_data)
 
         # 7. Delete dataset
         delete_response = authenticated_client.delete(f"/datasets/{dataset_id}")

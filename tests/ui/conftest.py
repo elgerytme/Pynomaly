@@ -53,9 +53,9 @@ def context(browser: Browser) -> Generator[BrowserContext, None, None]:
         viewport={"width": 1920, "height": 1080},
         user_agent="Mozilla/5.0 (compatible; Pynomaly-UI-Tests/1.0)",
         ignore_https_errors=True,
-        record_video_dir=str(TEST_RESULTS_DIR / "videos")
-        if os.getenv("RECORD_VIDEO")
-        else None,
+        record_video_dir=(
+            str(TEST_RESULTS_DIR / "videos") if os.getenv("RECORD_VIDEO") else None
+        ),
     )
     yield context
     context.close()

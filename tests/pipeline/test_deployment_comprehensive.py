@@ -79,9 +79,11 @@ class TestDeploymentPipeline:
                             f"node-{i}"
                             for i in range(infrastructure_config["compute"]["replicas"])
                         ],
-                        "database_endpoint": "db.internal.com:5432"
-                        if infrastructure_config["storage"]["database"]
-                        else None,
+                        "database_endpoint": (
+                            "db.internal.com:5432"
+                            if infrastructure_config["storage"]["database"]
+                            else None
+                        ),
                     },
                 }
 
@@ -158,9 +160,9 @@ class TestDeploymentPipeline:
                     "success": deployment_success,
                     "total_duration": total_duration,
                     "step_results": step_results,
-                    "endpoints": infrastructure["endpoints"]
-                    if deployment_success
-                    else {},
+                    "endpoints": (
+                        infrastructure["endpoints"] if deployment_success else {}
+                    ),
                     "deployment_time": time.time(),
                     "version": config.get("version", "latest"),
                     "rollback_available": True,
@@ -436,9 +438,11 @@ class TestDeploymentPipeline:
                 return {
                     "passed": all_healthy,
                     "details": health_results,
-                    "message": "All endpoints healthy"
-                    if all_healthy
-                    else "Some endpoints unhealthy",
+                    "message": (
+                        "All endpoints healthy"
+                        if all_healthy
+                        else "Some endpoints unhealthy"
+                    ),
                 }
 
             def _check_service_availability(
@@ -483,9 +487,11 @@ class TestDeploymentPipeline:
                 return {
                     "passed": connection_successful,
                     "response_time_ms": response_time,
-                    "message": "Database connection successful"
-                    if connection_successful
-                    else "Database connection failed",
+                    "message": (
+                        "Database connection successful"
+                        if connection_successful
+                        else "Database connection failed"
+                    ),
                 }
 
             def _check_external_dependencies(
@@ -520,9 +526,11 @@ class TestDeploymentPipeline:
                 return {
                     "passed": all_available,
                     "dependencies": dependency_results,
-                    "message": "All dependencies available"
-                    if all_available
-                    else "Some dependencies unavailable",
+                    "message": (
+                        "All dependencies available"
+                        if all_available
+                        else "Some dependencies unavailable"
+                    ),
                 }
 
             def _check_performance_baseline(
@@ -561,9 +569,11 @@ class TestDeploymentPipeline:
                     "passed": performance_passed,
                     "current_metrics": current_metrics,
                     "baseline_metrics": baseline_metrics,
-                    "message": "Performance within baseline"
-                    if performance_passed
-                    else "Performance below baseline",
+                    "message": (
+                        "Performance within baseline"
+                        if performance_passed
+                        else "Performance below baseline"
+                    ),
                 }
 
             def _check_security_configuration(
@@ -585,9 +595,11 @@ class TestDeploymentPipeline:
                 return {
                     "passed": all_secure,
                     "security_checks": security_checks,
-                    "message": "Security configuration valid"
-                    if all_secure
-                    else "Security issues found",
+                    "message": (
+                        "Security configuration valid"
+                        if all_secure
+                        else "Security issues found"
+                    ),
                 }
 
             def rollback_deployment(

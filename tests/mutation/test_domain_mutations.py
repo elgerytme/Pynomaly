@@ -1,6 +1,5 @@
 """Mutation tests for domain layer business logic."""
 
-
 import pytest
 
 from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult

@@ -509,12 +509,8 @@ class TestConfigurationValidation:
                 "cors_origins": ["*"],  # Too permissive
                 "debug": True,  # Debug enabled
             },
-            "database": {
-                "password": None  # No password
-            },
-            "jwt": {
-                "secret": "weak"  # Weak secret
-            },
+            "database": {"password": None},  # No password
+            "jwt": {"secret": "weak"},  # Weak secret
         }
 
         settings = Settings(**insecure_config)

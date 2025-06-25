@@ -70,7 +70,9 @@ def multiple_detectors():
     algorithms = ["isolation_forest", "local_outlier_factor", "one_class_svm"]
     contamination_rates = [0.05, 0.1, 0.15]
 
-    for i, (algo, cont_rate) in enumerate(zip(algorithms, contamination_rates, strict=False)):
+    for i, (algo, cont_rate) in enumerate(
+        zip(algorithms, contamination_rates, strict=False)
+    ):
         detector = Detector(
             name=f"detector_{i}",
             algorithm=algo,

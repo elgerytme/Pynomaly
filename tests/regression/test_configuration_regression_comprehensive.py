@@ -62,9 +62,9 @@ class TestParameterValidationRegression:
                 actual_contamination = np.mean(result.labels)
 
                 # Allow some tolerance
-                assert abs(actual_contamination - contamination) < 0.1, (
-                    f"Contamination rate not respected: expected {contamination}, got {actual_contamination}"
-                )
+                assert (
+                    abs(actual_contamination - contamination) < 0.1
+                ), f"Contamination rate not respected: expected {contamination}, got {actual_contamination}"
 
             except ImportError:
                 pytest.skip("scikit-learn not available")
@@ -205,9 +205,9 @@ class TestParameterValidationRegression:
 
             # Scores should be identical with same random state
             for s1, s2 in zip(scores1, scores2, strict=False):
-                assert abs(s1.value - s2.value) < 1e-10, (
-                    "Random state not providing reproducibility"
-                )
+                assert (
+                    abs(s1.value - s2.value) < 1e-10
+                ), "Random state not providing reproducibility"
 
         except ImportError:
             pass

@@ -268,9 +268,7 @@ class TestDataExfiltrationDetector:
             "user_id": user_id,
             "ip_address": "192.168.1.100",
             "endpoint": "/api/data/export",
-            "details": {
-                "data_size_bytes": 150 * 1024 * 1024  # 150MB, above threshold
-            },
+            "details": {"data_size_bytes": 150 * 1024 * 1024},  # 150MB, above threshold
         }
 
         # First access shouldn't trigger (need at least 2 accesses)
@@ -296,9 +294,7 @@ class TestDataExfiltrationDetector:
                 "user_id": user_id,
                 "ip_address": "192.168.1.100",
                 "endpoint": f"/api/data/item_{i}",
-                "details": {
-                    "data_size_bytes": 1024  # 1KB each
-                },
+                "details": {"data_size_bytes": 1024},  # 1KB each
             }
 
             alert = await detector.analyze(event_data)
@@ -318,9 +314,7 @@ class TestDataExfiltrationDetector:
             "user_id": "normal_user",
             "ip_address": "192.168.1.100",
             "endpoint": "/api/data/read",
-            "details": {
-                "data_size_bytes": 1024  # 1KB, well below threshold
-            },
+            "details": {"data_size_bytes": 1024},  # 1KB, well below threshold
         }
 
         # Multiple normal accesses

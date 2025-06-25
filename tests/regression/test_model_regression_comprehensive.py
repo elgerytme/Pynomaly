@@ -217,7 +217,9 @@ class TestModelOutputConsistency:
             pickled_scores = pickled_adapter.score(reference_dataset)
 
             # Scores should be identical
-            for orig_score, pickled_score in zip(original_scores, pickled_scores, strict=False):
+            for orig_score, pickled_score in zip(
+                original_scores, pickled_scores, strict=False
+            ):
                 assert abs(orig_score.value - pickled_score.value) < 1e-10
 
             # Clean up
@@ -235,7 +237,9 @@ class TestModelOutputConsistency:
                 joblib_scores = joblib_adapter.score(reference_dataset)
 
                 # Scores should be identical
-                for orig_score, joblib_score in zip(original_scores, joblib_scores, strict=False):
+                for orig_score, joblib_score in zip(
+                    original_scores, joblib_scores, strict=False
+                ):
                     assert abs(orig_score.value - joblib_score.value) < 1e-10
 
                 # Clean up
@@ -705,10 +709,12 @@ class TestModelOutputStability:
 
             # All runs should produce identical results
             for run_idx in range(1, len(results)):
-                for i, (score1, score2) in enumerate(zip(results[0], results[run_idx], strict=False)):
-                    assert abs(score1 - score2) < 1e-10, (
-                        f"Non-deterministic behavior at sample {i}, run {run_idx}"
-                    )
+                for i, (score1, score2) in enumerate(
+                    zip(results[0], results[run_idx], strict=False)
+                ):
+                    assert (
+                        abs(score1 - score2) < 1e-10
+                    ), f"Non-deterministic behavior at sample {i}, run {run_idx}"
 
         except ImportError:
             pytest.skip("scikit-learn not available")

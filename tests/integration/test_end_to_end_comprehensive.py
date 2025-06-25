@@ -131,9 +131,9 @@ def performance_monitor():
         def get_stats(self):
             return {
                 "elapsed_time": time.time() - self.start_time if self.start_time else 0,
-                "memory_usage_mb": self.peak_memory - self.start_memory
-                if self.start_memory
-                else 0,
+                "memory_usage_mb": (
+                    self.peak_memory - self.start_memory if self.start_memory else 0
+                ),
                 "peak_memory_mb": self.peak_memory if self.peak_memory else 0,
             }
 

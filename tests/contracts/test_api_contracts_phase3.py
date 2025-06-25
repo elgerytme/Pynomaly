@@ -448,9 +448,9 @@ class TestInterfaceCompliancePhase3:
             # Test required methods exist
             assert hasattr(detector, "fit"), "Detector should have fit method"
             assert hasattr(detector, "predict"), "Detector should have predict method"
-            assert hasattr(detector, "fit_predict"), (
-                "Detector should have fit_predict method"
-            )
+            assert hasattr(
+                detector, "fit_predict"
+            ), "Detector should have fit_predict method"
             assert callable(detector.fit), "fit should be callable"
             assert callable(detector.predict), "predict should be callable"
 
@@ -465,9 +465,9 @@ class TestInterfaceCompliancePhase3:
             # Test predict method
             predictions = detector.predict(test_data)
             assert isinstance(predictions, list), "predict should return list"
-            assert len(predictions) == len(test_data), (
-                "predictions should match input length"
-            )
+            assert len(predictions) == len(
+                test_data
+            ), "predictions should match input length"
 
             # Test unfitted detector error
             unfitted_detector = MockDetectorAdapter("LOF")
@@ -522,9 +522,9 @@ class TestInterfaceCompliancePhase3:
 
         # Test required methods exist
         assert hasattr(loader, "load"), "Data loader should have load method"
-        assert hasattr(loader, "get_features"), (
-            "Data loader should have get_features method"
-        )
+        assert hasattr(
+            loader, "get_features"
+        ), "Data loader should have get_features method"
         assert hasattr(loader, "validate"), "Data loader should have validate method"
 
         # Test method behavior
@@ -597,12 +597,12 @@ class TestInterfaceCompliancePhase3:
         # Test required methods exist
         required_methods = ["save", "find_by_id", "find_all", "delete", "count"]
         for method_name in required_methods:
-            assert hasattr(repo, method_name), (
-                f"Repository should have {method_name} method"
-            )
-            assert callable(getattr(repo, method_name)), (
-                f"{method_name} should be callable"
-            )
+            assert hasattr(
+                repo, method_name
+            ), f"Repository should have {method_name} method"
+            assert callable(
+                getattr(repo, method_name)
+            ), f"{method_name} should be callable"
 
         # Test repository behavior
         entity = MockEntity("Test Entity")
@@ -618,12 +618,12 @@ class TestInterfaceCompliancePhase3:
         assert found_entity.name == "Test Entity", "found entity should match saved"
 
         # Test exists
-        assert repo.exists(saved_entity.id) is True, (
-            "exists should return True for saved entity"
-        )
-        assert repo.exists("nonexistent") is False, (
-            "exists should return False for nonexistent"
-        )
+        assert (
+            repo.exists(saved_entity.id) is True
+        ), "exists should return True for saved entity"
+        assert (
+            repo.exists("nonexistent") is False
+        ), "exists should return False for nonexistent"
 
         # Test find_all
         all_entities = repo.find_all()
@@ -728,9 +728,9 @@ class TestInterfaceCompliancePhase3:
             ), f"{requirement} should be contract-related"
 
         # Verify comprehensive contract coverage
-        assert len(phase3_requirements) >= 10, (
-            "Should have comprehensive Phase 3 contract coverage"
-        )
+        assert (
+            len(phase3_requirements) >= 10
+        ), "Should have comprehensive Phase 3 contract coverage"
 
 
 if __name__ == "__main__":

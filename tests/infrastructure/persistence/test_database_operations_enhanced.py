@@ -563,9 +563,7 @@ class TestDatabaseIntegration:
 
             # Read
             mock_execute.return_value = [{"id": 1, "name": "test_dataset"}]
-            await db_manager.execute_query(
-                "SELECT * FROM datasets WHERE id = $1", 1
-            )
+            await db_manager.execute_query("SELECT * FROM datasets WHERE id = $1", 1)
 
             # Update
             mock_execute.return_value = 1
@@ -575,9 +573,7 @@ class TestDatabaseIntegration:
 
             # Delete
             mock_execute.return_value = 1
-            await db_manager.execute_query(
-                "DELETE FROM datasets WHERE id = $1", 1
-            )
+            await db_manager.execute_query("DELETE FROM datasets WHERE id = $1", 1)
 
             assert mock_execute.call_count == 4
 

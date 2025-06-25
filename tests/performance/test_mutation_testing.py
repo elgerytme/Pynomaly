@@ -1115,14 +1115,14 @@ class TestOverallMutationTestQuality:
         min_scenario_quality = 0.7  # Each scenario should have 70% quality
 
         # Assertions
-        assert overall_mutation_score >= min_mutation_score, (
-            f"Overall mutation score {overall_mutation_score:.2f} below threshold {min_mutation_score}"
-        )
+        assert (
+            overall_mutation_score >= min_mutation_score
+        ), f"Overall mutation score {overall_mutation_score:.2f} below threshold {min_mutation_score}"
 
         for scenario_name, summary in overall_results:
-            assert summary.test_quality_score >= min_scenario_quality, (
-                f"Scenario {scenario_name} quality {summary.test_quality_score:.2f} below threshold {min_scenario_quality}"
-            )
+            assert (
+                summary.test_quality_score >= min_scenario_quality
+            ), f"Scenario {scenario_name} quality {summary.test_quality_score:.2f} below threshold {min_scenario_quality}"
 
         # Recommendations based on results
         recommendations = []
@@ -1151,9 +1151,9 @@ class TestOverallMutationTestQuality:
 
         print(f"Overall test quality assessment: {quality_level}")
 
-        assert overall_mutation_score >= 0.7, (
-            "Minimum acceptable mutation score not met"
-        )
+        assert (
+            overall_mutation_score >= 0.7
+        ), "Minimum acceptable mutation score not met"
 
 
 if __name__ == "__main__":

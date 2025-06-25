@@ -185,7 +185,9 @@ class TestCSVLoader:
     def test_load_batch_processing(self):
         """Test batch loading functionality."""
         csv_data = """feature1,feature2
-""" + "\n".join([f"{i},{i + 1}" for i in range(100)])
+""" + "\n".join(
+            [f"{i},{i + 1}" for i in range(100)]
+        )
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
             f.write(csv_data)

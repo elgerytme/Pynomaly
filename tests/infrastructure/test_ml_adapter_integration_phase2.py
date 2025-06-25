@@ -132,18 +132,18 @@ class MLAdapterTestBase:
         # Check required methods exist
         required_methods = ["fit", "predict", "decision_function", "get_algorithm_info"]
         for method in required_methods:
-            assert hasattr(adapter_instance, method), (
-                f"Missing required method: {method}"
-            )
-            assert callable(getattr(adapter_instance, method)), (
-                f"Method {method} is not callable"
-            )
+            assert hasattr(
+                adapter_instance, method
+            ), f"Missing required method: {method}"
+            assert callable(
+                getattr(adapter_instance, method)
+            ), f"Method {method} is not callable"
 
         # Check properties
         assert hasattr(adapter_instance, "is_fitted"), "Missing is_fitted property"
-        assert hasattr(adapter_instance, "contamination"), (
-            "Missing contamination property"
-        )
+        assert hasattr(
+            adapter_instance, "contamination"
+        ), "Missing contamination property"
 
     def benchmark_adapter_performance(self, adapter_instance: Any, sample_data: dict):
         """Benchmark adapter performance with different data sizes."""
@@ -170,12 +170,12 @@ class MLAdapterTestBase:
                 results[size] = {
                     "fit_time": fit_time,
                     "predict_time": predict_time,
-                    "samples_per_second_fit": size / fit_time
-                    if fit_time > 0
-                    else float("inf"),
-                    "samples_per_second_predict": 50 / predict_time
-                    if predict_time > 0
-                    else float("inf"),
+                    "samples_per_second_fit": (
+                        size / fit_time if fit_time > 0 else float("inf")
+                    ),
+                    "samples_per_second_predict": (
+                        50 / predict_time if predict_time > 0 else float("inf")
+                    ),
                 }
             except Exception as e:
                 results[size] = {"error": str(e)}
@@ -348,9 +348,9 @@ class TestPyTorchAdapterIntegration(MLAdapterTestBase):
             # Test reconstruction scores
             scores = adapter.decision_function(sample_data["X_test"])
             assert len(scores) == len(sample_data["X_test"])
-            assert all(score >= 0 for score in scores), (
-                "Reconstruction scores should be non-negative"
-            )
+            assert all(
+                score >= 0 for score in scores
+            ), "Reconstruction scores should be non-negative"
 
     @requires_dependency("PyTorch", "torch")
     def test_pytorch_vae_implementation(self, sample_data):
@@ -537,9 +537,9 @@ class TestMLAdapterInteroperability:
             pyod_rate = np.mean(results["pyod"])
 
             # Allow for reasonable variance between implementations
-            assert abs(sklearn_rate - pyod_rate) < 0.3, (
-                "Adapters should produce similar results"
-            )
+            assert (
+                abs(sklearn_rate - pyod_rate) < 0.3
+            ), "Adapters should produce similar results"
 
     def test_adapter_memory_cleanup(self, sample_data):
         """Test that adapters properly clean up resources."""

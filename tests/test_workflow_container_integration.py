@@ -1,7 +1,6 @@
 """Test workflow simplification service container integration."""
 
 
-
 def test_workflow_simplification_service_availability():
     """Test that workflow simplification service is available in container."""
     try:

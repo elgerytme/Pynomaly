@@ -90,27 +90,27 @@ class TestTrainingPerformanceRegression:
 
                 # Performance thresholds based on dataset size
                 if dataset_name == "small":
-                    assert training_time < 5.0, (
-                        f"Small dataset training too slow: {training_time}s"
-                    )
+                    assert (
+                        training_time < 5.0
+                    ), f"Small dataset training too slow: {training_time}s"
                 elif dataset_name == "medium":
-                    assert training_time < 30.0, (
-                        f"Medium dataset training too slow: {training_time}s"
-                    )
+                    assert (
+                        training_time < 30.0
+                    ), f"Medium dataset training too slow: {training_time}s"
                 elif dataset_name == "large":
-                    assert training_time < 120.0, (
-                        f"Large dataset training too slow: {training_time}s"
-                    )
+                    assert (
+                        training_time < 120.0
+                    ), f"Large dataset training too slow: {training_time}s"
                 elif dataset_name == "wide":
-                    assert training_time < 60.0, (
-                        f"Wide dataset training too slow: {training_time}s"
-                    )
+                    assert (
+                        training_time < 60.0
+                    ), f"Wide dataset training too slow: {training_time}s"
 
                 # Throughput should be reasonable
                 samples_per_second = dataset.n_samples / training_time
-                assert samples_per_second > 100, (
-                    f"Training throughput too low: {samples_per_second} samples/s"
-                )
+                assert (
+                    samples_per_second > 100
+                ), f"Training throughput too low: {samples_per_second} samples/s"
 
             except ImportError:
                 pytest.skip("scikit-learn not available")
@@ -145,13 +145,13 @@ class TestTrainingPerformanceRegression:
 
                 # LOF performance thresholds (more lenient)
                 if dataset_name == "small":
-                    assert training_time < 10.0, (
-                        f"LOF small dataset training too slow: {training_time}s"
-                    )
+                    assert (
+                        training_time < 10.0
+                    ), f"LOF small dataset training too slow: {training_time}s"
                 elif dataset_name == "medium":
-                    assert training_time < 60.0, (
-                        f"LOF medium dataset training too slow: {training_time}s"
-                    )
+                    assert (
+                        training_time < 60.0
+                    ), f"LOF medium dataset training too slow: {training_time}s"
 
             except ImportError:
                 continue
@@ -209,9 +209,9 @@ class TestTrainingPerformanceRegression:
 
                 # Time should not increase faster than O(n^2)
                 max_acceptable_ratio = size_ratio**2
-                assert time_ratio <= max_acceptable_ratio, (
-                    f"Poor time scalability: {time_ratio}x time for {size_ratio}x data"
-                )
+                assert (
+                    time_ratio <= max_acceptable_ratio
+                ), f"Poor time scalability: {time_ratio}x time for {size_ratio}x data"
 
 
 class TestInferencePerformanceRegression:
@@ -266,9 +266,9 @@ class TestInferencePerformanceRegression:
             inference_time = time.time() - start_time
 
             # Single sample inference should be very fast
-            assert inference_time < 1.0, (
-                f"{model_name} single sample inference too slow: {inference_time}s"
-            )
+            assert (
+                inference_time < 1.0
+            ), f"{model_name} single sample inference too slow: {inference_time}s"
             assert len(scores) == 1
             assert isinstance(scores[0], AnomalyScore)
 
@@ -293,22 +293,22 @@ class TestInferencePerformanceRegression:
 
                     # Performance thresholds
                     if batch_size == 100:
-                        assert inference_time < 2.0, (
-                            f"{model_name} batch 100 inference too slow: {inference_time}s"
-                        )
+                        assert (
+                            inference_time < 2.0
+                        ), f"{model_name} batch 100 inference too slow: {inference_time}s"
                     elif batch_size == 1000:
-                        assert inference_time < 10.0, (
-                            f"{model_name} batch 1000 inference too slow: {inference_time}s"
-                        )
+                        assert (
+                            inference_time < 10.0
+                        ), f"{model_name} batch 1000 inference too slow: {inference_time}s"
                     elif batch_size == 5000:
-                        assert inference_time < 30.0, (
-                            f"{model_name} batch 5000 inference too slow: {inference_time}s"
-                        )
+                        assert (
+                            inference_time < 30.0
+                        ), f"{model_name} batch 5000 inference too slow: {inference_time}s"
 
                     # Throughput should be reasonable
-                    assert throughput > 50, (
-                        f"{model_name} throughput too low: {throughput} samples/s"
-                    )
+                    assert (
+                        throughput > 50
+                    ), f"{model_name} throughput too low: {throughput} samples/s"
 
                     # Verify results
                     assert len(scores) == batch_size
@@ -359,9 +359,9 @@ class TestInferencePerformanceRegression:
 
                 # Inference time should scale roughly linearly
                 max_acceptable_ratio = size_ratio * 1.5  # Allow 50% overhead
-                assert time_ratio <= max_acceptable_ratio, (
-                    f"Poor inference scalability: {time_ratio}x time for {size_ratio}x data"
-                )
+                assert (
+                    time_ratio <= max_acceptable_ratio
+                ), f"Poor inference scalability: {time_ratio}x time for {size_ratio}x data"
 
 
 class TestMemoryPerformanceRegression:
@@ -421,22 +421,22 @@ class TestMemoryPerformanceRegression:
 
                 # Memory usage should be reasonable
                 if dataset_name == "small":
-                    assert training_mb < 100, (
-                        f"Small dataset training uses too much memory: {training_mb} MB"
-                    )
+                    assert (
+                        training_mb < 100
+                    ), f"Small dataset training uses too much memory: {training_mb} MB"
                 elif dataset_name == "medium":
-                    assert training_mb < 500, (
-                        f"Medium dataset training uses too much memory: {training_mb} MB"
-                    )
+                    assert (
+                        training_mb < 500
+                    ), f"Medium dataset training uses too much memory: {training_mb} MB"
                 elif dataset_name == "wide":
-                    assert training_mb < 200, (
-                        f"Wide dataset training uses too much memory: {training_mb} MB"
-                    )
+                    assert (
+                        training_mb < 200
+                    ), f"Wide dataset training uses too much memory: {training_mb} MB"
 
                 # Scoring should not significantly increase memory
-                assert scoring_mb < 50, (
-                    f"Scoring increases memory too much: {scoring_mb} MB"
-                )
+                assert (
+                    scoring_mb < 50
+                ), f"Scoring increases memory too much: {scoring_mb} MB"
 
                 # Memory leak should be minimal
                 assert leak_mb < 20, f"Memory leak detected: {leak_mb} MB"
@@ -508,9 +508,9 @@ class TestMemoryPerformanceRegression:
         assert all(result > 0 for result in results if result is not None)
 
         # Concurrent memory usage should not be excessive
-        assert concurrent_mb < 300, (
-            f"Concurrent operations use too much memory: {concurrent_mb} MB"
-        )
+        assert (
+            concurrent_mb < 300
+        ), f"Concurrent operations use too much memory: {concurrent_mb} MB"
 
         # Memory leak should be minimal
         assert leak_mb < 50, f"Concurrent operations cause memory leak: {leak_mb} MB"
@@ -565,9 +565,9 @@ class TestConcurrencyPerformanceRegression:
 
             # Concurrent inference should not be significantly slower
             slowdown_ratio = avg_concurrent_time / avg_sequential_time
-            assert slowdown_ratio < 3.0, (
-                f"Concurrent inference too slow: {slowdown_ratio}x slower"
-            )
+            assert (
+                slowdown_ratio < 3.0
+            ), f"Concurrent inference too slow: {slowdown_ratio}x slower"
 
         except ImportError:
             pytest.skip("scikit-learn not available")
@@ -626,9 +626,9 @@ class TestConcurrencyPerformanceRegression:
         assert speedup > 0.8, f"Multiprocessing provides no benefit: {speedup}x speedup"
 
         # Should not be slower than sequential (accounting for overhead)
-        assert parallel_time < sequential_time * 1.5, (
-            "Multiprocessing significantly slower than sequential"
-        )
+        assert (
+            parallel_time < sequential_time * 1.5
+        ), "Multiprocessing significantly slower than sequential"
 
 
 class TestIOPerformanceRegression:
@@ -675,12 +675,12 @@ class TestIOPerformanceRegression:
             assert len(scores) == len(dataset.data)
 
             # Performance thresholds
-            assert serialization_time < 5.0, (
-                f"Model serialization too slow: {serialization_time}s"
-            )
-            assert deserialization_time < 3.0, (
-                f"Model deserialization too slow: {deserialization_time}s"
-            )
+            assert (
+                serialization_time < 5.0
+            ), f"Model serialization too slow: {serialization_time}s"
+            assert (
+                deserialization_time < 3.0
+            ), f"Model deserialization too slow: {deserialization_time}s"
 
             # Clean up
             Path(pickle_path).unlink()
@@ -700,12 +700,12 @@ class TestIOPerformanceRegression:
                 joblib_deserialize_time = time.time() - start_time
 
                 # Joblib should be reasonably fast
-                assert joblib_serialize_time < 5.0, (
-                    f"Joblib serialization too slow: {joblib_serialize_time}s"
-                )
-                assert joblib_deserialize_time < 3.0, (
-                    f"Joblib deserialization too slow: {joblib_deserialize_time}s"
-                )
+                assert (
+                    joblib_serialize_time < 5.0
+                ), f"Joblib serialization too slow: {joblib_serialize_time}s"
+                assert (
+                    joblib_deserialize_time < 3.0
+                ), f"Joblib deserialization too slow: {joblib_deserialize_time}s"
 
                 # Clean up
                 Path(joblib_path).unlink()
@@ -753,26 +753,26 @@ class TestIOPerformanceRegression:
 
             # Performance thresholds based on size
             if size <= 1000:
-                assert csv_write_time < 2.0, (
-                    f"CSV write too slow for {size} rows: {csv_write_time}s"
-                )
-                assert csv_read_time < 1.0, (
-                    f"CSV read too slow for {size} rows: {csv_read_time}s"
-                )
+                assert (
+                    csv_write_time < 2.0
+                ), f"CSV write too slow for {size} rows: {csv_write_time}s"
+                assert (
+                    csv_read_time < 1.0
+                ), f"CSV read too slow for {size} rows: {csv_read_time}s"
             elif size <= 10000:
-                assert csv_write_time < 5.0, (
-                    f"CSV write too slow for {size} rows: {csv_write_time}s"
-                )
-                assert csv_read_time < 3.0, (
-                    f"CSV read too slow for {size} rows: {csv_read_time}s"
-                )
+                assert (
+                    csv_write_time < 5.0
+                ), f"CSV write too slow for {size} rows: {csv_write_time}s"
+                assert (
+                    csv_read_time < 3.0
+                ), f"CSV read too slow for {size} rows: {csv_read_time}s"
             elif size <= 50000:
-                assert csv_write_time < 15.0, (
-                    f"CSV write too slow for {size} rows: {csv_write_time}s"
-                )
-                assert csv_read_time < 10.0, (
-                    f"CSV read too slow for {size} rows: {csv_read_time}s"
-                )
+                assert (
+                    csv_write_time < 15.0
+                ), f"CSV write too slow for {size} rows: {csv_write_time}s"
+                assert (
+                    csv_read_time < 10.0
+                ), f"CSV read too slow for {size} rows: {csv_read_time}s"
 
             # Clean up
             Path(csv_path).unlink()
@@ -792,9 +792,9 @@ class TestIOPerformanceRegression:
 
                 # Parquet should be faster than CSV for larger datasets
                 if size >= 10000:
-                    assert parquet_read_time <= csv_read_time, (
-                        "Parquet not faster than CSV for large data"
-                    )
+                    assert (
+                        parquet_read_time <= csv_read_time
+                    ), "Parquet not faster than CSV for large data"
 
                 # Clean up
                 Path(parquet_path).unlink()

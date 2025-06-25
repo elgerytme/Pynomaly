@@ -3,26 +3,30 @@ Branch Coverage Enhancement - Conditional Logic Testing
 Comprehensive tests targeting conditional branches, error paths, and edge cases to improve branch coverage from 2.4% to 60%+.
 """
 
-import pytest
+import json
+import os
+import sys
+import tempfile
+from datetime import datetime, timedelta, timezone
+from typing import Any, Dict, List, Optional, Union
+from unittest.mock import MagicMock, Mock, patch
+
 import numpy as np
 import pandas as pd
-from unittest.mock import Mock, patch, MagicMock
-from datetime import datetime, timezone, timedelta
-import sys
-import os
-from typing import Dict, List, Any, Optional, Union
-import tempfile
-import json
+import pytest
 
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../src'))
 
-from pynomaly.domain.entities import Dataset, Detector, DetectionResult, Anomaly
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
+from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
 from pynomaly.domain.exceptions import (
-    DetectorNotFittedError, FittingError, InvalidAlgorithmError,
-    ValidationError, ConfigurationError
+    ConfigurationError,
+    DetectorNotFittedError,
+    FittingError,
+    InvalidAlgorithmError,
+    ValidationError,
 )
+from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
 
 
 class TestDomainEntityBranches:
@@ -31,7 +35,7 @@ class TestDomainEntityBranches:
     def test_dataset_validation_branches(self):
         """Test Dataset validation conditional branches."""
         from pynomaly.domain.entities import Dataset
-        
+
         # Test valid dataset creation
         valid_data = pd.DataFrame({
             'feature1': [1, 2, 3, 4, 5],
@@ -107,7 +111,7 @@ class TestDomainEntityBranches:
     def test_contamination_rate_validation_branches(self):
         """Test ContaminationRate validation branches."""
         from pynomaly.domain.value_objects import ContaminationRate
-        
+
         # Test valid contamination rates
         valid_rates = [0.01, 0.1, 0.3, 0.49]
         for rate in valid_rates:
@@ -140,7 +144,7 @@ class TestDomainEntityBranches:
     def test_anomaly_score_validation_branches(self):
         """Test AnomalyScore validation branches."""
         from pynomaly.domain.value_objects import AnomalyScore
-        
+
         # Test valid scores
         valid_scores = [0.0, 0.5, 1.0, 0.123, 0.999]
         for score in valid_scores:
@@ -181,7 +185,7 @@ class TestDomainEntityBranches:
     def test_detector_state_branches(self):
         """Test Detector state management branches."""
         from pynomaly.domain.entities import Detector
-        
+
         # Test detector creation with minimal parameters
         detector = Detector(
             name="test_detector",
@@ -229,9 +233,9 @@ class TestDomainEntityBranches:
 
     def test_detection_result_branches(self):
         """Test DetectionResult conditional branches."""
-        from pynomaly.domain.entities import DetectionResult, Anomaly
+        from pynomaly.domain.entities import Anomaly, DetectionResult
         from pynomaly.domain.value_objects import AnomalyScore
-        
+
         # Create test data
         scores = [AnomalyScore(0.1, "test"), AnomalyScore(0.9, "test"), AnomalyScore(0.3, "test")]
         labels = [0, 1, 0]
@@ -286,7 +290,7 @@ class TestExceptionHandlingBranches:
     def test_detector_not_fitted_branches(self):
         """Test DetectorNotFittedError branches."""
         from pynomaly.domain.exceptions import DetectorNotFittedError
-        
+
         # Test with operation specified
         error_with_operation = DetectorNotFittedError(
             detector_name="test_detector",
@@ -306,7 +310,7 @@ class TestExceptionHandlingBranches:
     def test_fitting_error_branches(self):
         """Test FittingError branches."""
         from pynomaly.domain.exceptions import FittingError
-        
+
         # Test with all parameters
         full_error = FittingError(
             detector_name="failing_detector",
@@ -340,7 +344,7 @@ class TestExceptionHandlingBranches:
     def test_invalid_algorithm_error_branches(self):
         """Test InvalidAlgorithmError branches."""
         from pynomaly.domain.exceptions import InvalidAlgorithmError
-        
+
         # Test with available algorithms list
         available_algorithms = ["algo1", "algo2", "algo3"]
         error_with_list = InvalidAlgorithmError(
@@ -361,7 +365,7 @@ class TestExceptionHandlingBranches:
     def test_validation_error_branches(self):
         """Test ValidationError branches."""
         from pynomaly.domain.exceptions import ValidationError
-        
+
         # Test simple validation error
         simple_error = ValidationError("Simple validation failed")
         assert "Simple validation failed" in str(simple_error)
@@ -379,7 +383,7 @@ class TestExceptionHandlingBranches:
     def test_configuration_error_branches(self):
         """Test ConfigurationError branches."""
         from pynomaly.domain.exceptions import ConfigurationError
-        
+
         # Test configuration error with context
         config_error = ConfigurationError(
             message="Invalid configuration",
@@ -450,7 +454,7 @@ class TestDataProcessingBranches:
     def test_feature_selection_branches(self):
         """Test feature selection conditional logic."""
         from pynomaly.infrastructure.data.feature_selector import FeatureSelector
-        
+
         # Create test data with various feature types
         test_data = pd.DataFrame({
             'numeric_int': [1, 2, 3, 4, 5],
@@ -586,7 +590,9 @@ class TestAlgorithmSelectionBranches:
 
     def test_parameter_validation_branches(self):
         """Test parameter validation conditional paths."""
-        from pynomaly.infrastructure.algorithms.parameter_validator import ParameterValidator
+        from pynomaly.infrastructure.algorithms.parameter_validator import (
+            ParameterValidator,
+        )
         
         validator = ParameterValidator()
         

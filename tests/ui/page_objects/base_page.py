@@ -202,7 +202,8 @@ class BasePage:
     def measure_performance(self) -> dict[str, Any]:
         """Measure basic performance metrics."""
         # Get performance metrics using JavaScript
-        metrics = self.page.evaluate("""
+        metrics = self.page.evaluate(
+            """
             () => {
                 const navigation = performance.getEntriesByType('navigation')[0];
                 const paint = performance.getEntriesByType('paint');
@@ -224,7 +225,8 @@ class BasePage:
 
                 return result;
             }
-        """)
+        """
+        )
 
         return metrics
 

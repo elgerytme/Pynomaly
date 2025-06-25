@@ -469,9 +469,7 @@ class TestLoggingMiddleware:
                 "token": "bearer_token_here",
             }
 
-            client_with_middleware.post(
-                "/api/auth/login", json=sensitive_data
-            )
+            client_with_middleware.post("/api/auth/login", json=sensitive_data)
 
             # Check that sensitive data is masked in logs
             all_calls = (

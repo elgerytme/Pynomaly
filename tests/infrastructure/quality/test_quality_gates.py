@@ -109,7 +109,8 @@ class TestQualityGateValidator:
         """Test validation of high-quality code."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             # Write high-quality code
-            code = dedent('''
+            code = dedent(
+                '''
                 """High-quality module with good practices."""
 
                 from __future__ import annotations
@@ -158,7 +159,8 @@ class TestQualityGateValidator:
                         True if positive, False otherwise
                     """
                     return value > 0
-            ''')
+            '''
+            )
             f.write(code)
             f.flush()
 
@@ -182,7 +184,8 @@ class TestQualityGateValidator:
         """Test validation of poor-quality code."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             # Write poor-quality code
-            code = dedent("""
+            code = dedent(
+                """
                 # No module docstring
                 # No future imports
                 # No type hints
@@ -211,7 +214,8 @@ class TestQualityGateValidator:
                         risky_operation()
                     except:
                         pass
-            """)
+            """
+            )
             f.write(code)
             f.flush()
 
@@ -240,7 +244,8 @@ class TestQualityGateValidator:
         """Test cyclomatic complexity gate specifically."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             # Write code with high complexity
-            code = dedent('''
+            code = dedent(
+                '''
                 """Module with complex function."""
 
                 def complex_function(x):
@@ -258,7 +263,8 @@ class TestQualityGateValidator:
                             return "low-medium"
                         return "low"
                     return "zero or negative"
-            ''')
+            '''
+            )
             f.write(code)
             f.flush()
 
@@ -274,7 +280,8 @@ class TestQualityGateValidator:
         """Test docstring coverage gate specifically."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             # Write code with partial docstring coverage
-            code = dedent('''
+            code = dedent(
+                '''
                 """Module docstring."""
 
                 class DocumentedClass:
@@ -293,7 +300,8 @@ class TestQualityGateValidator:
 
                 def undocumented_function():
                     pass
-            ''')
+            '''
+            )
             f.write(code)
             f.flush()
 
@@ -314,7 +322,8 @@ class TestQualityGateValidator:
         """Test type hints coverage gate specifically."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             # Write code with partial type hints
-            code = dedent('''
+            code = dedent(
+                '''
                 """Module with mixed type hints."""
 
                 from typing import List, Optional
@@ -330,7 +339,8 @@ class TestQualityGateValidator:
                 def partially_typed_function(data: List[int]):
                     """Function with partial type hints."""
                     return data[0] if data else None
-            ''')
+            '''
+            )
             f.write(code)
             f.flush()
 
@@ -347,7 +357,8 @@ class TestQualityGateValidator:
         """Test security patterns gate specifically."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             # Write code with security issues
-            code = dedent('''
+            code = dedent(
+                '''
                 """Module with security issues."""
 
                 import subprocess
@@ -368,7 +379,8 @@ class TestQualityGateValidator:
                     except:
                         # Bare except clause
                         return None
-            ''')
+            '''
+            )
             f.write(code)
             f.flush()
 
@@ -387,7 +399,8 @@ class TestQualityGateValidator:
             f.name = "/test/domain/entities/test_entity.py"  # Simulate domain layer
 
             # Write code that violates clean architecture
-            code = dedent('''
+            code = dedent(
+                '''
                 """Domain entity that incorrectly imports from infrastructure."""
 
                 from ...infrastructure.database import DatabaseConnection
@@ -399,7 +412,8 @@ class TestQualityGateValidator:
                     def __init__(self):
                         self.db = DatabaseConnection()  # Domain shouldn't depend on infrastructure
                         self.service = SomeService()    # Domain shouldn't depend on application
-            ''')
+            '''
+            )
             f.write(code)
             f.flush()
 
@@ -464,13 +478,15 @@ class TestQualityGateValidator:
     def test_convenience_function(self):
         """Test convenience function for feature validation."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
-            code = dedent('''
+            code = dedent(
+                '''
                 """Simple test module."""
 
                 def simple_function():
                     """A simple function."""
                     return "hello world"
-            ''')
+            '''
+            )
             f.write(code)
             f.flush()
 
@@ -509,7 +525,8 @@ class TestQualityGateIntegration:
         """Test complete validation workflow."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             # Write a realistic feature file
-            code = dedent('''
+            code = dedent(
+                '''
                 """User authentication service.
 
                 This module provides secure user authentication capabilities
@@ -600,7 +617,8 @@ class TestQualityGateIntegration:
                         """
                         combined = f"{password}{salt}".encode('utf-8')
                         return hashlib.sha256(combined).hexdigest()
-            ''')
+            '''
+            )
             f.write(code)
             f.flush()
 

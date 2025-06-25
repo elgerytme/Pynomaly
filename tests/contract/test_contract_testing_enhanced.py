@@ -158,9 +158,7 @@ class TestAPIContractTesting:
         ]
 
         invalid_requests = [
-            {
-                "algorithm": "IsolationForest"  # Missing dataset_id
-            },
+            {"algorithm": "IsolationForest"},  # Missing dataset_id
             {
                 "dataset_id": "dataset_123",
                 "algorithm": "UnsupportedAlgorithm",  # Invalid algorithm
@@ -196,9 +194,7 @@ class TestAPIContractTesting:
         ]
 
         invalid_requests = [
-            {
-                "data": [[1.0, 2.0]]  # Missing detector_id
-            },
+            {"data": [[1.0, 2.0]]},  # Missing detector_id
             {
                 "detector_id": "detector_123",
                 "data": "invalid_data_format",  # Wrong data format

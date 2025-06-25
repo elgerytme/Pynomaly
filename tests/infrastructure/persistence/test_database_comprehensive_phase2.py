@@ -758,9 +758,7 @@ class TestDatabasePerformancePhase2:
         # Verify updates
         with db_manager.session() as session:
             fitted_count = (
-                session.query(DetectorModel)
-                .filter(DetectorModel.is_fitted)
-                .count()
+                session.query(DetectorModel).filter(DetectorModel.is_fitted).count()
             )
             assert fitted_count == 20
 

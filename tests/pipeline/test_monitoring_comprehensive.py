@@ -640,9 +640,9 @@ class TestMonitoringPipeline:
                     "status_code": status_code,
                     "response_time_ms": response_time,
                     "expected_status": config["expected_status"],
-                    "message": "Health check passed"
-                    if healthy
-                    else "Health check failed",
+                    "message": (
+                        "Health check passed" if healthy else "Health check failed"
+                    ),
                 }
 
             def setup_slo_monitoring(
@@ -727,11 +727,11 @@ class TestMonitoringPipeline:
                         "error_budget_consumed_percentage": min(
                             100, error_budget_consumed * 100
                         ),
-                        "status": "meeting"
-                        if compliance >= 99
-                        else "at_risk"
-                        if compliance >= 95
-                        else "violated",
+                        "status": (
+                            "meeting"
+                            if compliance >= 99
+                            else "at_risk" if compliance >= 95 else "violated"
+                        ),
                     }
 
                 # Update stored data

@@ -388,9 +388,7 @@ class TestDetectorEndpoints:
         mock_repo = mock_container.detector_repository.return_value
         mock_repo.find_by_id.return_value = sample_detector_dto
 
-        invalid_data = {
-            "contamination_rate": 2.0  # Invalid: should be between 0 and 1
-        }
+        invalid_data = {"contamination_rate": 2.0}  # Invalid: should be between 0 and 1
 
         detector_id = str(sample_detector_dto.id)
         response = client.put(f"/api/v1/detectors/{detector_id}", json=invalid_data)

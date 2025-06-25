@@ -137,7 +137,9 @@ class TestDatasetDetectorIntegration:
         assert len(result.labels) == sample_dataset.n_samples
 
         # Verify anomaly detection consistency
-        for _i, (score, label) in enumerate(zip(result.scores, result.labels, strict=False)):
+        for _i, (score, label) in enumerate(
+            zip(result.scores, result.labels, strict=False)
+        ):
             if score.value > result.threshold:
                 assert label == 1  # Anomaly
             else:
@@ -320,7 +322,9 @@ class TestEnsembleDetectionIntegration:
         assert len(ensemble_labels) == 100
 
         # Check voting logic
-        for i, (_score, label) in enumerate(zip(ensemble_scores, ensemble_labels, strict=False)):
+        for i, (_score, label) in enumerate(
+            zip(ensemble_scores, ensemble_labels, strict=False)
+        ):
             # Count individual detector votes
             individual_votes = sum(
                 1

@@ -39,9 +39,9 @@ class TestMultiEnvironmentCompatibilityPhase3:
         current_version_str = f"{current_version.major}.{current_version.minor}"
 
         # Test version requirements
-        assert current_version >= minimum_version, (
-            f"Python {minimum_version[0]}.{minimum_version[1]}+ required, got {current_version_str}"
-        )
+        assert (
+            current_version >= minimum_version
+        ), f"Python {minimum_version[0]}.{minimum_version[1]}+ required, got {current_version_str}"
 
         # Test version-specific features
         version_features = {
@@ -77,9 +77,9 @@ class TestMultiEnvironmentCompatibilityPhase3:
                 try:
                     from typing import override
 
-                    assert override is not None, (
-                        "typing.override should be available in 3.12+"
-                    )
+                    assert (
+                        override is not None
+                    ), "typing.override should be available in 3.12+"
                 except ImportError:
                     # override might not be available in all 3.12 versions
                     pass
@@ -119,9 +119,9 @@ class TestMultiEnvironmentCompatibilityPhase3:
 
             # Test path handling
             expected_separator = os_config["path_separator"]
-            assert os.path.sep == expected_separator, (
-                f"Path separator should be '{expected_separator}' on {current_os}"
-            )
+            assert (
+                os.path.sep == expected_separator
+            ), f"Path separator should be '{expected_separator}' on {current_os}"
 
             # Test line ending handling
             with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
@@ -162,9 +162,9 @@ class TestMultiEnvironmentCompatibilityPhase3:
         available_managers = [
             name for name, config in package_managers.items() if config["available"]
         ]
-        assert len(available_managers) > 0, (
-            "At least one package manager should be available"
-        )
+        assert (
+            len(available_managers) > 0
+        ), "At least one package manager should be available"
 
         # Test core dependencies
         core_dependencies = [
@@ -185,9 +185,9 @@ class TestMultiEnvironmentCompatibilityPhase3:
 
             # Core dependencies should be available or gracefully handled
             if package_name in ["numpy", "pandas", "pytest"]:
-                assert dependency_available or True, (
-                    f"Core dependency {package_name} should be available or handled"
-                )
+                assert (
+                    dependency_available or True
+                ), f"Core dependency {package_name} should be available or handled"
 
     def test_environment_variable_handling(self):
         """Test environment variable handling across platforms."""
@@ -205,15 +205,15 @@ class TestMultiEnvironmentCompatibilityPhase3:
 
             # Get environment variable
             retrieved_value = os.environ.get(var_name)
-            assert retrieved_value == var_value, (
-                f"Environment variable {var_name} should be retrievable"
-            )
+            assert (
+                retrieved_value == var_value
+            ), f"Environment variable {var_name} should be retrievable"
 
             # Test default value handling
             default_value = os.environ.get(f"{var_name}_NONEXISTENT", "default")
-            assert default_value == "default", (
-                "Should return default for nonexistent env var"
-            )
+            assert (
+                default_value == "default"
+            ), "Should return default for nonexistent env var"
 
             # Clean up
             del os.environ[var_name]
@@ -235,9 +235,9 @@ class TestMultiEnvironmentCompatibilityPhase3:
             retrieved = os.environ.get("PYNOMALY_BOOL_TEST", "false").lower()
             parsed_bool = retrieved in ["true", "1", "yes", "on"]
 
-            assert parsed_bool == expected_bool, (
-                f"Boolean parsing failed for '{env_value}'"
-            )
+            assert (
+                parsed_bool == expected_bool
+            ), f"Boolean parsing failed for '{env_value}'"
 
             del os.environ["PYNOMALY_BOOL_TEST"]
 
@@ -268,9 +268,9 @@ class TestMultiEnvironmentCompatibilityPhase3:
 
                 # Test file reading
                 content = full_path.read_text()
-                assert content == "test content", (
-                    f"Should be able to read file: {test_path}"
-                )
+                assert (
+                    content == "test content"
+                ), f"Should be able to read file: {test_path}"
 
                 # Test file properties
                 stat_info = full_path.stat()
@@ -295,13 +295,13 @@ class TestMultiEnvironmentCompatibilityPhase3:
 
             # Verify behavior matches expectation
             if filesystem_case_sensitive:
-                assert case_file1.exists() and case_file2.exists(), (
-                    "Both files should exist on case-sensitive filesystem"
-                )
+                assert (
+                    case_file1.exists() and case_file2.exists()
+                ), "Both files should exist on case-sensitive filesystem"
             else:
-                assert case_file1.exists(), (
-                    "File should exist on case-insensitive filesystem"
-                )
+                assert (
+                    case_file1.exists()
+                ), "File should exist on case-insensitive filesystem"
 
         finally:
             # Clean up
@@ -327,9 +327,9 @@ class TestMultiEnvironmentCompatibilityPhase3:
                 # Encode to UTF-8 and decode back
                 encoded = test_string.encode("utf-8")
                 decoded = encoded.decode("utf-8")
-                assert decoded == test_string, (
-                    f"UTF-8 encoding/decoding failed for: {test_string}"
-                )
+                assert (
+                    decoded == test_string
+                ), f"UTF-8 encoding/decoding failed for: {test_string}"
 
                 # Test file I/O with Unicode
                 with tempfile.NamedTemporaryFile(
@@ -341,9 +341,9 @@ class TestMultiEnvironmentCompatibilityPhase3:
                 try:
                     with open(temp_file, encoding="utf-8") as f:
                         read_content = f.read()
-                    assert read_content == test_string, (
-                        f"File I/O failed for Unicode: {test_string}"
-                    )
+                    assert (
+                        read_content == test_string
+                    ), f"File I/O failed for Unicode: {test_string}"
                 finally:
                     os.unlink(temp_file)
 
@@ -380,9 +380,9 @@ class TestMultiEnvironmentCompatibilityPhase3:
             futures = [executor.submit(simple_task, i) for i in range(3)]
             thread_pool_results = [future.result() for future in futures]
 
-        assert len(thread_pool_results) == 3, (
-            "ThreadPoolExecutor should handle all tasks"
-        )
+        assert (
+            len(thread_pool_results) == 3
+        ), "ThreadPoolExecutor should handle all tasks"
 
         # Test ProcessPoolExecutor (if available)
         try:
@@ -392,9 +392,9 @@ class TestMultiEnvironmentCompatibilityPhase3:
                 ]  # Reduced for testing
                 process_pool_results = [future.result() for future in futures]
 
-            assert len(process_pool_results) == 2, (
-                "ProcessPoolExecutor should handle tasks"
-            )
+            assert (
+                len(process_pool_results) == 2
+            ), "ProcessPoolExecutor should handle tasks"
         except (OSError, RuntimeError):
             # ProcessPoolExecutor might not be available in some environments
             pytest.skip("ProcessPoolExecutor not available in this environment")
@@ -435,9 +435,9 @@ class TestMultiEnvironmentCompatibilityPhase3:
                     pass
 
         # At least SQLite should be available
-        assert "sqlite3" in available_drivers, (
-            "SQLite should be available as built-in driver"
-        )
+        assert (
+            "sqlite3" in available_drivers
+        ), "SQLite should be available as built-in driver"
 
         # Test SQLite operations (cross-platform)
         import sqlite3
@@ -496,9 +496,9 @@ class TestMultiEnvironmentCompatibilityPhase3:
             ), f"{requirement} should be compatibility-related"
 
         # Verify comprehensive cross-platform coverage
-        assert len(phase3_requirements) >= 10, (
-            "Should have comprehensive Phase 3 cross-platform coverage"
-        )
+        assert (
+            len(phase3_requirements) >= 10
+        ), "Should have comprehensive Phase 3 cross-platform coverage"
 
 
 class TestDeploymentScenarioTestingPhase3:
@@ -531,23 +531,23 @@ class TestDeploymentScenarioTestingPhase3:
         for config_name, config in container_configs.items():
             # Test container configuration
             assert "base_image" in config, f"{config_name} should specify base image"
-            assert "dependencies" in config, (
-                f"{config_name} should specify dependencies"
-            )
-            assert "memory_limit" in config, (
-                f"{config_name} should specify memory limit"
-            )
+            assert (
+                "dependencies" in config
+            ), f"{config_name} should specify dependencies"
+            assert (
+                "memory_limit" in config
+            ), f"{config_name} should specify memory limit"
 
             # Test resource constraints
             memory_limit = config["memory_limit"]
-            assert memory_limit.endswith(("m", "g")), (
-                f"Memory limit should have valid unit: {memory_limit}"
-            )
+            assert memory_limit.endswith(
+                ("m", "g")
+            ), f"Memory limit should have valid unit: {memory_limit}"
 
             cpu_limit = config["cpu_limit"]
-            assert isinstance(cpu_limit, int | float | str), (
-                f"CPU limit should be numeric: {cpu_limit}"
-            )
+            assert isinstance(
+                cpu_limit, int | float | str
+            ), f"CPU limit should be numeric: {cpu_limit}"
 
     def test_cloud_deployment_simulation(self):
         """Test cloud deployment scenarios."""
@@ -574,20 +574,20 @@ class TestDeploymentScenarioTestingPhase3:
             # Test provider configuration
             assert "services" in config, f"{provider_name} should specify services"
             assert "regions" in config, f"{provider_name} should specify regions"
-            assert len(config["services"]) > 0, (
-                f"{provider_name} should have available services"
-            )
-            assert len(config["regions"]) > 0, (
-                f"{provider_name} should have available regions"
-            )
+            assert (
+                len(config["services"]) > 0
+            ), f"{provider_name} should have available services"
+            assert (
+                len(config["regions"]) > 0
+            ), f"{provider_name} should have available regions"
 
             # Test service types
             services = config["services"]
 
             # Each provider should support different deployment types
-            assert len(services) >= 2, (
-                f"{provider_name} should support multiple service types"
-            )
+            assert (
+                len(services) >= 2
+            ), f"{provider_name} should support multiple service types"
 
     def test_kubernetes_deployment_simulation(self):
         """Test Kubernetes deployment scenarios."""
@@ -634,18 +634,18 @@ class TestDeploymentScenarioTestingPhase3:
             limits = resources["limits"]
 
             # Test resource format
-            assert "memory" in requests and "cpu" in requests, (
-                f"{env_name} should specify memory and CPU requests"
-            )
-            assert "memory" in limits and "cpu" in limits, (
-                f"{env_name} should specify memory and CPU limits"
-            )
+            assert (
+                "memory" in requests and "cpu" in requests
+            ), f"{env_name} should specify memory and CPU requests"
+            assert (
+                "memory" in limits and "cpu" in limits
+            ), f"{env_name} should specify memory and CPU limits"
 
             # Test scaling based on environment
             if env_name == "production":
-                assert config["replicas"] >= 3, (
-                    "Production should have high availability"
-                )
+                assert (
+                    config["replicas"] >= 3
+                ), "Production should have high availability"
             elif env_name == "development":
                 assert config["replicas"] == 1, "Development can have single replica"
 
@@ -681,12 +681,12 @@ class TestDeploymentScenarioTestingPhase3:
 
         for scenario_name, config in config_scenarios.items():
             # Test configuration structure
-            assert "config_source" in config, (
-                f"{scenario_name} should specify config source"
-            )
-            assert "database_url" in config, (
-                f"{scenario_name} should specify database URL"
-            )
+            assert (
+                "config_source" in config
+            ), f"{scenario_name} should specify config source"
+            assert (
+                "database_url" in config
+            ), f"{scenario_name} should specify database URL"
             assert "debug" in config, f"{scenario_name} should specify debug flag"
             assert "log_level" in config, f"{scenario_name} should specify log level"
 
@@ -696,19 +696,20 @@ class TestDeploymentScenarioTestingPhase3:
 
             # Production-like environments should have debug disabled
             if scenario_name in ["kubernetes", "cloud_managed"]:
-                assert debug_flag is False, (
-                    f"{scenario_name} should have debug disabled"
-                )
-                assert log_level in ["WARNING", "ERROR"], (
-                    f"{scenario_name} should have appropriate log level"
-                )
+                assert (
+                    debug_flag is False
+                ), f"{scenario_name} should have debug disabled"
+                assert log_level in [
+                    "WARNING",
+                    "ERROR",
+                ], f"{scenario_name} should have appropriate log level"
 
             # Development environment should allow debug
             if scenario_name == "local_development":
                 assert debug_flag is True, f"{scenario_name} should allow debug"
-                assert log_level == "DEBUG", (
-                    f"{scenario_name} should have debug log level"
-                )
+                assert (
+                    log_level == "DEBUG"
+                ), f"{scenario_name} should have debug log level"
 
     def test_monitoring_deployment_scenarios(self):
         """Test monitoring setup across deployment scenarios."""
@@ -745,30 +746,30 @@ class TestDeploymentScenarioTestingPhase3:
             # Test monitoring configuration
             assert "metrics" in config, f"{scenario_name} should specify metrics"
             assert "logging" in config, f"{scenario_name} should specify logging"
-            assert "health_checks" in config, (
-                f"{scenario_name} should specify health checks"
-            )
+            assert (
+                "health_checks" in config
+            ), f"{scenario_name} should specify health checks"
 
             # Test health checks
-            assert config["health_checks"] is True, (
-                f"{scenario_name} should enable health checks"
-            )
+            assert (
+                config["health_checks"] is True
+            ), f"{scenario_name} should enable health checks"
 
             # Test metrics collection
             metrics = config["metrics"]
             assert len(metrics) > 0, f"{scenario_name} should collect metrics"
-            assert "application_metrics" in metrics, (
-                f"{scenario_name} should collect application metrics"
-            )
+            assert (
+                "application_metrics" in metrics
+            ), f"{scenario_name} should collect application metrics"
 
             # Enterprise scenarios should have comprehensive monitoring
             if scenario_name == "enterprise":
-                assert "business_metrics" in metrics, (
-                    "Enterprise should collect business metrics"
-                )
-                assert "monitoring_tools" in config, (
-                    "Enterprise should specify monitoring tools"
-                )
+                assert (
+                    "business_metrics" in metrics
+                ), "Enterprise should collect business metrics"
+                assert (
+                    "monitoring_tools" in config
+                ), "Enterprise should specify monitoring tools"
                 assert "compliance" in config, "Enterprise should address compliance"
 
 

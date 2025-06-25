@@ -35,9 +35,9 @@ class AdapterContractTest(ABC):
 
         assert isinstance(algorithms, list), "list_algorithms() must return a list"
         assert len(algorithms) > 0, "Adapter must provide at least one algorithm"
-        assert all(isinstance(algo, str) for algo in algorithms), (
-            "Algorithm names must be strings"
-        )
+        assert all(
+            isinstance(algo, str) for algo in algorithms
+        ), "Algorithm names must be strings"
 
     def test_adapter_creates_valid_detector(self):
         """Contract: Adapter must create valid detector instances."""
@@ -50,17 +50,17 @@ class AdapterContractTest(ABC):
 
         # Test with contamination parameter
         detector = adapter.create_detector(algorithm, contamination=0.1)
-        assert detector is not None, (
-            "create_detector() must handle contamination parameter"
-        )
+        assert (
+            detector is not None
+        ), "create_detector() must handle contamination parameter"
 
         # Test with additional parameters
         detector = adapter.create_detector(
             algorithm, contamination=0.05, random_state=42
         )
-        assert detector is not None, (
-            "create_detector() must handle additional parameters"
-        )
+        assert (
+            detector is not None
+        ), "create_detector() must handle additional parameters"
 
     def test_detector_has_required_methods(self):
         """Contract: Detectors must implement required interface methods."""
@@ -71,16 +71,16 @@ class AdapterContractTest(ABC):
         # Required methods
         assert hasattr(detector, "fit"), "Detector must have fit() method"
         assert hasattr(detector, "predict"), "Detector must have predict() method"
-        assert hasattr(detector, "decision_function"), (
-            "Detector must have decision_function() method"
-        )
+        assert hasattr(
+            detector, "decision_function"
+        ), "Detector must have decision_function() method"
 
         # Methods should be callable
         assert callable(detector.fit), "fit() must be callable"
         assert callable(detector.predict), "predict() must be callable"
-        assert callable(detector.decision_function), (
-            "decision_function() must be callable"
-        )
+        assert callable(
+            detector.decision_function
+        ), "decision_function() must be callable"
 
     def test_fit_predict_workflow(self):
         """Contract: fit() followed by predict() must work correctly."""
@@ -93,28 +93,29 @@ class AdapterContractTest(ABC):
         # Fit the detector
         fit_result = detector.fit(data)
         # fit() may return self or None
-        assert fit_result is None or fit_result is detector, (
-            "fit() must return None or self"
-        )
+        assert (
+            fit_result is None or fit_result is detector
+        ), "fit() must return None or self"
 
         # Predict on the same data
         predictions = detector.predict(data)
         assert isinstance(predictions, np.ndarray), "predict() must return numpy array"
-        assert predictions.shape == (len(data),), (
-            f"predictions shape must be ({len(data)},)"
-        )
-        assert predictions.dtype in [np.int32, np.int64], (
-            "predictions must be integer type"
-        )
+        assert predictions.shape == (
+            len(data),
+        ), f"predictions shape must be ({len(data)},)"
+        assert predictions.dtype in [
+            np.int32,
+            np.int64,
+        ], "predictions must be integer type"
 
         # Predictions should be binary (-1 for anomaly, 1 for normal in sklearn convention)
         unique_predictions = np.unique(predictions)
-        assert len(unique_predictions) <= 2, (
-            "Should have at most 2 unique prediction values"
-        )
-        assert all(pred in [-1, 1] for pred in unique_predictions), (
-            "Predictions must be -1 or 1"
-        )
+        assert (
+            len(unique_predictions) <= 2
+        ), "Should have at most 2 unique prediction values"
+        assert all(
+            pred in [-1, 1] for pred in unique_predictions
+        ), "Predictions must be -1 or 1"
 
     def test_decision_function_workflow(self):
         """Contract: decision_function() must return valid anomaly scores."""
@@ -128,9 +129,9 @@ class AdapterContractTest(ABC):
         detector.fit(data)
         scores = detector.decision_function(data)
 
-        assert isinstance(scores, np.ndarray), (
-            "decision_function() must return numpy array"
-        )
+        assert isinstance(
+            scores, np.ndarray
+        ), "decision_function() must return numpy array"
         assert scores.shape == (len(data),), f"scores shape must be ({len(data)},)"
         assert scores.dtype in [np.float32, np.float64], "scores must be float type"
         assert np.all(np.isfinite(scores)), "All scores must be finite"
@@ -165,9 +166,9 @@ class AdapterContractTest(ABC):
 
         # Results should be identical
         assert np.array_equal(pred1, pred2), "Predictions should be deterministic"
-        assert np.allclose(scores1, scores2, rtol=1e-10), (
-            "Scores should be deterministic"
-        )
+        assert np.allclose(
+            scores1, scores2, rtol=1e-10
+        ), "Scores should be deterministic"
 
     def test_contamination_parameter_effect(self):
         """Contract: Contamination parameter should affect number of anomalies."""
@@ -192,15 +193,15 @@ class AdapterContractTest(ABC):
             # Rough check that contamination is respected
             expected_anomalies = int(len(data) * contamination)
             tolerance = max(2, len(data) * 0.1)  # Allow reasonable tolerance
-            assert abs(n_anomalies - expected_anomalies) <= tolerance, (
-                f"Contamination {contamination}: expected ~{expected_anomalies}, got {n_anomalies}"
-            )
+            assert (
+                abs(n_anomalies - expected_anomalies) <= tolerance
+            ), f"Contamination {contamination}: expected ~{expected_anomalies}, got {n_anomalies}"
 
         # Higher contamination should generally result in more anomalies
         # (though this may not be strictly monotonic due to algorithm specifics)
-        assert anomaly_counts[-1] >= anomaly_counts[0], (
-            f"Higher contamination should detect more anomalies: {anomaly_counts}"
-        )
+        assert (
+            anomaly_counts[-1] >= anomaly_counts[0]
+        ), f"Higher contamination should detect more anomalies: {anomaly_counts}"
 
     def test_input_validation(self):
         """Contract: Adapters should validate inputs appropriately."""
@@ -309,28 +310,28 @@ class TestAdapterInteroperability:
 
         # All adapters should have the same interface
         for name, adapter in adapters:
-            assert hasattr(adapter, "list_algorithms"), (
-                f"{name} adapter missing list_algorithms()"
-            )
-            assert hasattr(adapter, "create_detector"), (
-                f"{name} adapter missing create_detector()"
-            )
+            assert hasattr(
+                adapter, "list_algorithms"
+            ), f"{name} adapter missing list_algorithms()"
+            assert hasattr(
+                adapter, "create_detector"
+            ), f"{name} adapter missing create_detector()"
 
             # Methods should return expected types
             algorithms = adapter.list_algorithms()
-            assert isinstance(algorithms, list), (
-                f"{name} adapter list_algorithms() should return list"
-            )
+            assert isinstance(
+                algorithms, list
+            ), f"{name} adapter list_algorithms() should return list"
 
             if algorithms:  # If algorithms are available
                 detector = adapter.create_detector(algorithms[0])
                 assert hasattr(detector, "fit"), f"{name} detector missing fit()"
-                assert hasattr(detector, "predict"), (
-                    f"{name} detector missing predict()"
-                )
-                assert hasattr(detector, "decision_function"), (
-                    f"{name} detector missing decision_function()"
-                )
+                assert hasattr(
+                    detector, "predict"
+                ), f"{name} detector missing predict()"
+                assert hasattr(
+                    detector, "decision_function"
+                ), f"{name} detector missing decision_function()"
 
     def test_cross_adapter_result_correlation(self):
         """Test that different adapters produce correlated results on same data."""
@@ -371,9 +372,9 @@ class TestAdapterInteroperability:
             correlation = np.corrcoef(scores1, scores2)[0, 1]
 
             # Results should be reasonably correlated for same algorithm type
-            assert correlation > 0.3, (
-                f"Adapter results should be correlated: {correlation:.3f}"
-            )
+            assert (
+                correlation > 0.3
+            ), f"Adapter results should be correlated: {correlation:.3f}"
 
 
 class TestAdapterErrorHandling:

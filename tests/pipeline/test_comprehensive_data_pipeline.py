@@ -1061,10 +1061,7 @@ class TestFeatureEngineeringStage:
     def test_feature_selection(self):
         """Test feature selection during engineering."""
         high_dim_data = {
-            "data": [
-                [i + j for j in range(20)]  # 20 features
-                for i in range(100)
-            ],
+            "data": [[i + j for j in range(20)] for i in range(100)],  # 20 features
             "features": [f"feature_{i}" for i in range(20)],
         }
 

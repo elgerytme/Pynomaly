@@ -57,9 +57,9 @@ class TestWebAppAutomation:
 
                 # Verify URL
                 current_url = dashboard_page.page.url
-                assert expected_url in current_url, (
-                    f"Expected {expected_url} in {current_url}"
-                )
+                assert (
+                    expected_url in current_url
+                ), f"Expected {expected_url} in {current_url}"
 
                 # Take screenshot of each page
                 dashboard_page.take_screenshot(f"nav_{link_text.lower()}")
@@ -207,9 +207,11 @@ class TestWebAppAutomation:
         page.goto("http://localhost:8000/web/")
 
         # Check for service worker registration
-        page.evaluate("""
+        page.evaluate(
+            """
             navigator.serviceWorker.getRegistrations().then(registrations => registrations.length > 0)
-        """)
+        """
+        )
 
         # Check for manifest
         manifest_link = page.locator('link[rel="manifest"]')
@@ -315,7 +317,8 @@ class TestWebAppAutomation:
         load_time = time.time() - start_time
 
         # Get performance metrics
-        metrics = page.evaluate("""
+        metrics = page.evaluate(
+            """
             () => {
                 const perfData = performance.getEntriesByType('navigation')[0];
                 return {
@@ -325,7 +328,8 @@ class TestWebAppAutomation:
                     firstContentfulPaint: performance.getEntriesByType('paint').find(p => p.name === 'first-contentful-paint')?.startTime || 0
                 };
             }
-        """)
+        """
+        )
 
         print(f"Page load time: {load_time:.2f}s")
         print(f"Performance metrics: {metrics}")

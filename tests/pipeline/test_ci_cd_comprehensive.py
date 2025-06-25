@@ -127,9 +127,9 @@ class TestCICDPipeline:
                     "stdout": f"Collected {test_results['tests_collected']} tests, {test_results['tests_passed']} passed, {test_results['tests_failed']} failed",
                     "stderr": "",
                     "duration": test_results["duration"],
-                    "artifacts": ["coverage.xml", "pytest_report.html"]
-                    if success
-                    else [],
+                    "artifacts": (
+                        ["coverage.xml", "pytest_report.html"] if success else []
+                    ),
                     "metadata": test_results,
                 }
 
@@ -144,9 +144,11 @@ class TestCICDPipeline:
                     "command": command,
                     "success": success,
                     "exit_code": 0 if success else 1,
-                    "stdout": "Success: no issues found in 45 source files"
-                    if success
-                    else f"Found {type_errors} errors in 2 files",
+                    "stdout": (
+                        "Success: no issues found in 45 source files"
+                        if success
+                        else f"Found {type_errors} errors in 2 files"
+                    ),
                     "stderr": "",
                     "duration": 12.3,
                     "artifacts": ["mypy_report.txt"],
@@ -164,9 +166,11 @@ class TestCICDPipeline:
                     "command": command,
                     "success": success,
                     "exit_code": 0 if success else 1,
-                    "stdout": "All done! ✨ 🍰 ✨"
-                    if success
-                    else f"would reformat {formatting_issues} files",
+                    "stdout": (
+                        "All done! ✨ 🍰 ✨"
+                        if success
+                        else f"would reformat {formatting_issues} files"
+                    ),
                     "stderr": "",
                     "duration": 3.1,
                     "artifacts": [],
@@ -184,9 +188,11 @@ class TestCICDPipeline:
                     "command": command,
                     "success": success,
                     "exit_code": 0 if success else 1,
-                    "stdout": "Skipped 1 file"
-                    if success
-                    else f"ERROR: {import_issues} files would be reformatted",
+                    "stdout": (
+                        "Skipped 1 file"
+                        if success
+                        else f"ERROR: {import_issues} files would be reformatted"
+                    ),
                     "stderr": "",
                     "duration": 2.5,
                     "artifacts": [],
@@ -204,9 +210,11 @@ class TestCICDPipeline:
                     "command": command,
                     "success": success,
                     "exit_code": 0 if success else 1,
-                    "stdout": ""
-                    if success
-                    else "./src/file.py:10:1: E302 expected 2 blank lines",
+                    "stdout": (
+                        ""
+                        if success
+                        else "./src/file.py:10:1: E302 expected 2 blank lines"
+                    ),
                     "stderr": "",
                     "duration": 4.7,
                     "artifacts": ["flake8_report.txt"],
@@ -224,9 +232,11 @@ class TestCICDPipeline:
                     "command": command,
                     "success": success,
                     "exit_code": 0 if success else 1,
-                    "stdout": "No issues identified."
-                    if success
-                    else f">> Issue: [B101:assert_used] {security_issues} issues found",
+                    "stdout": (
+                        "No issues identified."
+                        if success
+                        else f">> Issue: [B101:assert_used] {security_issues} issues found"
+                    ),
                     "stderr": "",
                     "duration": 8.2,
                     "artifacts": ["bandit_report.json"],
@@ -251,9 +261,11 @@ class TestCICDPipeline:
                     "command": command,
                     "success": success,
                     "exit_code": 0 if success else 1,
-                    "stdout": "Successfully built pynomaly-1.0.0.tar.gz and pynomaly-1.0.0-py3-none-any.whl"
-                    if success
-                    else "Build failed",
+                    "stdout": (
+                        "Successfully built pynomaly-1.0.0.tar.gz and pynomaly-1.0.0-py3-none-any.whl"
+                        if success
+                        else "Build failed"
+                    ),
                     "stderr": "",
                     "duration": 15.6,
                     "artifacts": artifacts,
@@ -269,9 +281,11 @@ class TestCICDPipeline:
                     "command": command,
                     "success": success,
                     "exit_code": 0 if success else 1,
-                    "stdout": "Successfully installed pynomaly-1.0.0"
-                    if success
-                    else "Installation failed",
+                    "stdout": (
+                        "Successfully installed pynomaly-1.0.0"
+                        if success
+                        else "Installation failed"
+                    ),
                     "stderr": "",
                     "duration": 8.9,
                     "artifacts": [],
@@ -528,9 +542,11 @@ class TestCICDPipeline:
                     "step": step,
                     "success": success,
                     "duration": step_duration,
-                    "message": f"Step '{step}' completed successfully"
-                    if success
-                    else f"Step '{step}' failed",
+                    "message": (
+                        f"Step '{step}' completed successfully"
+                        if success
+                        else f"Step '{step}' failed"
+                    ),
                     "environment": environment,
                 }
 

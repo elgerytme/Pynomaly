@@ -337,8 +337,8 @@ class TestPropertyBasedAlgorithmBehavior:
             )
 
             # Set up repository returns
-            detector_repo.get.side_effect = (
-                lambda det_id: detector1 if det_id == "test_det_1" else detector2
+            detector_repo.get.side_effect = lambda det_id: (
+                detector1 if det_id == "test_det_1" else detector2
             )
             detector_repo.update.return_value = None
 

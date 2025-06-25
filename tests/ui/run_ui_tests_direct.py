@@ -48,13 +48,13 @@ class UITestRunner:
             assert "Pynomaly" in title or title == "", "Title check failed"
 
             # Check key elements
-            assert page.locator("#main-navigation").is_visible(), (
-                "Navigation not visible"
-            )
+            assert page.locator(
+                "#main-navigation"
+            ).is_visible(), "Navigation not visible"
             assert page.locator("#logo").is_visible(), "Logo not visible"
-            assert page.locator("#main-content").is_visible(), (
-                "Main content not visible"
-            )
+            assert page.locator(
+                "#main-content"
+            ).is_visible(), "Main content not visible"
 
             # Take screenshot
             page.screenshot(
@@ -151,12 +151,12 @@ class UITestRunner:
                     )
 
                     # Basic visibility checks
-                    assert page.locator("#logo").is_visible(), (
-                        f"Logo not visible on {device_name}"
-                    )
-                    assert page.locator("#main-content").is_visible(), (
-                        f"Content not visible on {device_name}"
-                    )
+                    assert page.locator(
+                        "#logo"
+                    ).is_visible(), f"Logo not visible on {device_name}"
+                    assert page.locator(
+                        "#main-content"
+                    ).is_visible(), f"Content not visible on {device_name}"
 
                     responsive_success += 1
                 except Exception as e:

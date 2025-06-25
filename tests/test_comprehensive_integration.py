@@ -106,9 +106,9 @@ class TestComprehensiveIntegration:
 
             # Should detect some anomalies in the artificially created anomalous region
             anomalies_in_region = len([idx for idx in anomaly_indices if idx >= 950])
-            assert anomalies_in_region > 0, (
-                "Should detect some anomalies in the anomalous region"
-            )
+            assert (
+                anomalies_in_region > 0
+            ), "Should detect some anomalies in the anomalous region"
 
     def test_streaming_processing_integration(self):
         """Test streaming processing with validation and monitoring."""
@@ -158,20 +158,14 @@ class TestComprehensiveIntegration:
         monitor = get_monitor()
 
         # Test nested monitoring operations
-        with monitor.monitor_operation(
-            "outer_operation", "integration_test"
-        ):
+        with monitor.monitor_operation("outer_operation", "integration_test"):
             # Simulate data loading with monitoring
-            with monitor.monitor_operation(
-                "data_loading", "data_processor"
-            ):
+            with monitor.monitor_operation("data_loading", "data_processor"):
                 dataset = Dataset(id="test", name="Test", data=self.test_data)
                 assert dataset.data is not None
 
             # Simulate validation with monitoring
-            with monitor.monitor_operation(
-                "validation", "data_validator"
-            ):
+            with monitor.monitor_operation("validation", "data_validator"):
                 validator = DataValidator()
                 result = validator.validate_dataset(dataset)
                 assert result.is_valid
@@ -338,9 +332,10 @@ class TestComprehensiveIntegration:
                     # Validate results
                     assert len(scores) == len(self.test_data)
                     assert len(probabilities) == len(self.test_data)
-                    assert set(scores) <= {-1, 1}, (
-                        f"Scores should be -1 or 1 for {algorithm_name}"
-                    )
+                    assert set(scores) <= {
+                        -1,
+                        1,
+                    }, f"Scores should be -1 or 1 for {algorithm_name}"
 
                 except Exception as e:
                     # Log error but continue with other algorithms
@@ -432,9 +427,9 @@ class TestComprehensiveIntegration:
             )
 
             # Should achieve high production readiness
-            assert readiness_score >= 80.0, (
-                f"Production readiness score too low: {readiness_score}%"
-            )
+            assert (
+                readiness_score >= 80.0
+            ), f"Production readiness score too low: {readiness_score}%"
             assert checklist_results["core_detection"], "Core detection must work"
             assert checklist_results["monitoring"], "Monitoring must be functional"
 

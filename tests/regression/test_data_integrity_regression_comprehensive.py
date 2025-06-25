@@ -104,9 +104,9 @@ class TestDataConsistencyRegression:
             for col in dataset.data.columns:
                 col_bytes = str(dataset.data[col].values).encode("utf-8")
                 current_checksum = hashlib.md5(col_bytes).hexdigest()
-                assert current_checksum == original_checksums[col], (
-                    f"Data modified during training for column {col}"
-                )
+                assert (
+                    current_checksum == original_checksums[col]
+                ), f"Data modified during training for column {col}"
 
             # Score the data
             scores = adapter.score(dataset)
@@ -115,9 +115,9 @@ class TestDataConsistencyRegression:
             for col in dataset.data.columns:
                 col_bytes = str(dataset.data[col].values).encode("utf-8")
                 current_checksum = hashlib.md5(col_bytes).hexdigest()
-                assert current_checksum == original_checksums[col], (
-                    f"Data modified during scoring for column {col}"
-                )
+                assert (
+                    current_checksum == original_checksums[col]
+                ), f"Data modified during scoring for column {col}"
 
             # Verify scores are valid
             assert len(scores) == len(dataset.data)
@@ -173,9 +173,9 @@ class TestDataConsistencyRegression:
                         current_count = current_missing_counts.get(col, 0)
                         # Algorithm might have handled missing values differently
                         # but should not have introduced new missing values
-                        assert current_count <= original_count or current_count == 0, (
-                            f"New missing values introduced in column {col}"
-                        )
+                        assert (
+                            current_count <= original_count or current_count == 0
+                        ), f"New missing values introduced in column {col}"
 
                     # Scores should be valid for non-missing data points
                     valid_scores = [s for s in scores if s is not None]
@@ -212,14 +212,14 @@ class TestDataConsistencyRegression:
             assert len(scores) == len(dataset.data)
 
             for i, score in enumerate(scores):
-                assert isinstance(score, AnomalyScore), (
-                    f"Invalid score type at index {i}"
-                )
+                assert isinstance(
+                    score, AnomalyScore
+                ), f"Invalid score type at index {i}"
                 assert not np.isnan(score.value), f"NaN score at index {i}"
                 assert not np.isinf(score.value), f"Inf score at index {i}"
-                assert 0.0 <= score.value <= 1.0, (
-                    f"Score out of range at index {i}: {score.value}"
-                )
+                assert (
+                    0.0 <= score.value <= 1.0
+                ), f"Score out of range at index {i}: {score.value}"
 
             # Extreme values should generally have higher anomaly scores
             score_values = [score.value for score in scores]
@@ -275,9 +275,9 @@ class TestDataConsistencyRegression:
 
                     # Allow for some dtype flexibility (e.g., int64 -> float64)
                     # but ensure numeric types remain numeric
-                    assert pd.api.types.is_numeric_dtype(current_dtype), (
-                        f"Numeric column {col} became non-numeric: {original_dtype} -> {current_dtype}"
-                    )
+                    assert pd.api.types.is_numeric_dtype(
+                        current_dtype
+                    ), f"Numeric column {col} became non-numeric: {original_dtype} -> {current_dtype}"
 
                 # Verify scores
                 assert len(scores) == len(numeric_data)
@@ -347,10 +347,12 @@ class TestSerializationIntegrityRegression:
         # Scores should be identical
         assert len(original_values) == len(loaded_values)
 
-        for i, (orig, loaded) in enumerate(zip(original_values, loaded_values, strict=False)):
-            assert abs(orig - loaded) < 1e-10, (
-                f"Score mismatch at index {i}: {orig} vs {loaded}"
-            )
+        for i, (orig, loaded) in enumerate(
+            zip(original_values, loaded_values, strict=False)
+        ):
+            assert (
+                abs(orig - loaded) < 1e-10
+            ), f"Score mismatch at index {i}: {orig} vs {loaded}"
 
         # Clean up
         Path(pickle_path).unlink()
@@ -437,9 +439,9 @@ class TestSerializationIntegrityRegression:
         for col in ["int_col", "float_col"]:
             col_bytes = str(loaded_data[col].values).encode("utf-8")
             loaded_checksum = hashlib.md5(col_bytes).hexdigest()
-            assert loaded_checksum == original_checksums[col], (
-                f"Data integrity lost for column {col}"
-            )
+            assert (
+                loaded_checksum == original_checksums[col]
+            ), f"Data integrity lost for column {col}"
 
         # Verify string data
         assert loaded_data["string_col"].tolist() == test_data["string_col"].tolist()
@@ -499,9 +501,9 @@ class TestConcurrentDataIntegrityRegression:
                 current_checksum = hashlib.md5(
                     str(dataset.data.values).encode("utf-8")
                 ).hexdigest()
-                assert current_checksum == reference_checksum, (
-                    f"Data integrity compromised in thread {thread_id}"
-                )
+                assert (
+                    current_checksum == reference_checksum
+                ), f"Data integrity compromised in thread {thread_id}"
 
                 return len(scores)
 
@@ -531,9 +533,9 @@ class TestConcurrentDataIntegrityRegression:
             final_checksum = hashlib.md5(
                 str(dataset.data.values).encode("utf-8")
             ).hexdigest()
-            assert final_checksum == reference_checksum, (
-                "Data integrity compromised after concurrent operations"
-            )
+            assert (
+                final_checksum == reference_checksum
+            ), "Data integrity compromised after concurrent operations"
 
         except ImportError:
             pytest.skip("scikit-learn not available")
@@ -578,9 +580,9 @@ class TestConcurrentDataIntegrityRegression:
                 current_checksum = hashlib.md5(
                     str(dataset.data.values).encode("utf-8")
                 ).hexdigest()
-                assert current_checksum == reference_checksum, (
-                    f"Data integrity compromised by model {model_id}"
-                )
+                assert (
+                    current_checksum == reference_checksum
+                ), f"Data integrity compromised by model {model_id}"
 
                 return {
                     "model_id": model_id,
@@ -621,9 +623,9 @@ class TestConcurrentDataIntegrityRegression:
             final_checksum = hashlib.md5(
                 str(dataset.data.values).encode("utf-8")
             ).hexdigest()
-            assert final_checksum == reference_checksum, (
-                "Data integrity compromised after concurrent model operations"
-            )
+            assert (
+                final_checksum == reference_checksum
+            ), "Data integrity compromised after concurrent model operations"
 
         except ImportError:
             pytest.skip("scikit-learn not available")
@@ -733,9 +735,9 @@ class TestEdgeCaseDataIntegrityRegression:
             # With identical samples, scores should be very similar
             score_values = [score.value for score in scores]
             score_variance = np.var(score_values)
-            assert score_variance < 0.01, (
-                "High variance in scores for identical samples"
-            )
+            assert (
+                score_variance < 0.01
+            ), "High variance in scores for identical samples"
 
         except ImportError:
             pytest.skip("scikit-learn not available")

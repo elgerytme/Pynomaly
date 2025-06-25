@@ -315,9 +315,7 @@ class TestInputValidationSecurity:
     def test_json_size_bomb_prevention(self, validator):
         """Test prevention of JSON size bomb attacks."""
         # Create large JSON payload
-        large_payload = {
-            "data": "x" * (10 * 1024 * 1024)  # 10MB string
-        }
+        large_payload = {"data": "x" * (10 * 1024 * 1024)}  # 10MB string
 
         json_string = json.dumps(large_payload)
 

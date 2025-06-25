@@ -215,9 +215,9 @@ class TestAPIResponseFormatRegression:
         # Standard error fields
         error_fields = ["detail", "error_code", "timestamp"]
         present_fields = [field for field in error_fields if field in error_data]
-        assert len(present_fields) >= 1, (
-            "At least one standard error field should be present"
-        )
+        assert (
+            len(present_fields) >= 1
+        ), "At least one standard error field should be present"
 
         # Test 422 validation error format
         invalid_payload = {"invalid": "data"}
@@ -315,12 +315,12 @@ class TestAPIPerformanceRegression:
         max_response_time = max(response_times)
 
         # Performance thresholds
-        assert avg_response_time < 1.0, (
-            f"Average response time too slow: {avg_response_time}s"
-        )
-        assert max_response_time < 2.0, (
-            f"Maximum response time too slow: {max_response_time}s"
-        )
+        assert (
+            avg_response_time < 1.0
+        ), f"Average response time too slow: {avg_response_time}s"
+        assert (
+            max_response_time < 2.0
+        ), f"Maximum response time too slow: {max_response_time}s"
 
     def test_api_info_endpoint_response_time(self, client):
         """Test API info endpoint response time."""
@@ -479,17 +479,19 @@ class TestAPIDeprecationRegression:
                 deprecation_indicators = [
                     "Deprecation" in response.headers,
                     "X-Deprecated" in response.headers,
-                    "deprecated" in response.json().get("warnings", [])
-                    if response.headers.get("content-type", "").startswith(
-                        "application/json"
-                    )
-                    else False,
+                    (
+                        "deprecated" in response.json().get("warnings", [])
+                        if response.headers.get("content-type", "").startswith(
+                            "application/json"
+                        )
+                        else False
+                    ),
                 ]
 
                 # At least one deprecation indicator should be present
-                assert any(deprecation_indicators), (
-                    f"No deprecation warning for {endpoint}"
-                )
+                assert any(
+                    deprecation_indicators
+                ), f"No deprecation warning for {endpoint}"
 
     def test_api_version_header_support(self, client):
         """Test API version header support."""

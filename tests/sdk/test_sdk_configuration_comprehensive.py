@@ -216,9 +216,9 @@ class TestSDKConfigurationManagement:
                         return False
 
                     self.configurations[config_id]["config"] = updated_config
-                    self.configurations[config_id]["updated_at"] = (
-                        "2023-10-01T11:00:00Z"
-                    )
+                    self.configurations[config_id][
+                        "updated_at"
+                    ] = "2023-10-01T11:00:00Z"
 
                     return True
 
@@ -619,11 +619,7 @@ class TestSDKConfigurationManagement:
                 "default": "IsolationForest",
                 "IsolationForest": {"contamination": 0.1},
             },
-            "data": {
-                "validation": {
-                    "min_samples": -10  # Negative
-                }
-            },
+            "data": {"validation": {"min_samples": -10}},  # Negative
             "output": {"format": "json"},
         }
 
@@ -782,11 +778,7 @@ class TestSDKConfigurationManagement:
 
         # Test invalid update
         invalid_updates = {
-            "algorithms": {
-                "IsolationForest": {
-                    "contamination": 0.8  # Invalid value
-                }
-            }
+            "algorithms": {"IsolationForest": {"contamination": 0.8}}  # Invalid value
         }
 
         invalid_update_success = sdk.update_configuration(config_id, invalid_updates)
