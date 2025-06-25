@@ -1,17 +1,17 @@
 """Infrastructure caching layer."""
 
 from .redis_cache import (
-    RedisCache,
-    CacheKeys,
     CachedRepository,
+    CacheKeys,
     DetectorCacheDecorator,
+    RedisCache,
+    get_cache,
     init_cache,
-    get_cache
 )
 
 __all__ = [
     "RedisCache",
-    "CacheKeys", 
+    "CacheKeys",
     "CachedRepository",
     "DetectorCacheDecorator",
     "init_cache",

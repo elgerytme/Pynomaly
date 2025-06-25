@@ -3,44 +3,39 @@
 from __future__ import annotations
 
 import io
-from typing import List, Optional
 from uuid import UUID
 
-from fastapi import (
-    APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
-)
 import pandas as pd
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 
-from pynomaly.application.dto import CreateDatasetDTO, DatasetDTO, DataQualityReportDTO
+from pynomaly.application.dto import DataQualityReportDTO, DatasetDTO
 from pynomaly.domain.entities import Dataset
-from pynomaly.domain.services import FeatureValidator
 from pynomaly.infrastructure.config import Container
 from pynomaly.presentation.api.deps import get_container, get_current_user
-
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[DatasetDTO])
+@router.get("/", response_model=list[DatasetDTO])
 async def list_datasets(
-    has_target: Optional[bool] = Query(None, description="Filter by target presence"),
+    has_target: bool | None = Query(None, description="Filter by target presence"),
     limit: int = Query(100, ge=1, le=1000),
     container: Container = Depends(get_container),
-    current_user: Optional[str] = Depends(get_current_user)
-) -> List[DatasetDTO]:
+    current_user: str | None = Depends(get_current_user),
+) -> list[DatasetDTO]:
     """List all datasets."""
     dataset_repo = container.dataset_repository()
-    
+
     # Get all datasets
     datasets = dataset_repo.find_all()
-    
+
     # Apply filters
     if has_target is not None:
         datasets = [d for d in datasets if d.has_target == has_target]
-    
+
     # Limit results
     datasets = datasets[:limit]
-    
+
     # Convert to DTOs
     return [
         DatasetDTO(
@@ -57,7 +52,7 @@ async def list_datasets(
             description=d.description,
             memory_usage_mb=d.memory_usage / 1024 / 1024,
             numeric_features=len(d.get_numeric_features()),
-            categorical_features=len(d.get_categorical_features())
+            categorical_features=len(d.get_categorical_features()),
         )
         for d in datasets
     ]
@@ -67,15 +62,15 @@ async def list_datasets(
 async def get_dataset(
     dataset_id: UUID,
     container: Container = Depends(get_container),
-    current_user: Optional[str] = Depends(get_current_user)
+    current_user: str | None = Depends(get_current_user),
 ) -> DatasetDTO:
     """Get a specific dataset."""
     dataset_repo = container.dataset_repository()
-    
+
     dataset = dataset_repo.find_by_id(dataset_id)
     if not dataset:
         raise HTTPException(status_code=404, detail="Dataset not found")
-    
+
     return DatasetDTO(
         id=dataset.id,
         name=dataset.name,
@@ -90,32 +85,32 @@ async def get_dataset(
         description=dataset.description,
         memory_usage_mb=dataset.memory_usage / 1024 / 1024,
         numeric_features=len(dataset.get_numeric_features()),
-        categorical_features=len(dataset.get_categorical_features())
+        categorical_features=len(dataset.get_categorical_features()),
     )
 
 
 @router.post("/upload", response_model=DatasetDTO)
 async def upload_dataset(
     file: UploadFile = File(...),
-    name: Optional[str] = Form(None),
-    description: Optional[str] = Form(None),
-    target_column: Optional[str] = Form(None),
+    name: str | None = Form(None),
+    description: str | None = Form(None),
+    target_column: str | None = Form(None),
     container: Container = Depends(get_container),
-    current_user: Optional[str] = Depends(get_current_user)
+    current_user: str | None = Depends(get_current_user),
 ) -> DatasetDTO:
     """Upload a dataset from file."""
     settings = container.config()
-    
+
     # Check file size
     file_size_mb = len(await file.read()) / 1024 / 1024
     await file.seek(0)  # Reset file pointer
-    
+
     if file_size_mb > settings.max_dataset_size_mb:
         raise HTTPException(
             status_code=413,
-            detail=f"File too large. Maximum size: {settings.max_dataset_size_mb}MB"
+            detail=f"File too large. Maximum size: {settings.max_dataset_size_mb}MB",
         )
-    
+
     # Determine file type and load
     if file.filename.endswith((".csv", ".tsv", ".txt")):
         # Load CSV
@@ -124,8 +119,7 @@ async def upload_dataset(
             df = pd.read_csv(io.BytesIO(content))
         except Exception as e:
             raise HTTPException(
-                status_code=400,
-                detail=f"Failed to parse CSV: {str(e)}"
+                status_code=400, detail=f"Failed to parse CSV: {str(e)}"
             )
     elif file.filename.endswith((".parquet", ".pq")):
         # Load Parquet
@@ -134,18 +128,16 @@ async def upload_dataset(
             df = pd.read_parquet(io.BytesIO(content))
         except Exception as e:
             raise HTTPException(
-                status_code=400,
-                detail=f"Failed to parse Parquet: {str(e)}"
+                status_code=400, detail=f"Failed to parse Parquet: {str(e)}"
             )
     else:
         raise HTTPException(
-            status_code=400,
-            detail="Unsupported file format. Use CSV or Parquet."
+            status_code=400, detail="Unsupported file format. Use CSV or Parquet."
         )
-    
+
     # Create dataset
     dataset_name = name or file.filename.rsplit(".", 1)[0]
-    
+
     try:
         dataset = Dataset(
             name=dataset_name,
@@ -155,19 +147,18 @@ async def upload_dataset(
             metadata={
                 "source": "upload",
                 "original_filename": file.filename,
-                "file_size_mb": file_size_mb
-            }
+                "file_size_mb": file_size_mb,
+            },
         )
     except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail=f"Failed to create dataset: {str(e)}"
+            status_code=400, detail=f"Failed to create dataset: {str(e)}"
         )
-    
+
     # Save to repository
     dataset_repo = container.dataset_repository()
     dataset_repo.save(dataset)
-    
+
     return DatasetDTO(
         id=dataset.id,
         name=dataset.name,
@@ -182,7 +173,7 @@ async def upload_dataset(
         description=dataset.description,
         memory_usage_mb=dataset.memory_usage / 1024 / 1024,
         numeric_features=len(dataset.get_numeric_features()),
-        categorical_features=len(dataset.get_categorical_features())
+        categorical_features=len(dataset.get_categorical_features()),
     )
 
 
@@ -190,20 +181,20 @@ async def upload_dataset(
 async def check_dataset_quality(
     dataset_id: UUID,
     container: Container = Depends(get_container),
-    current_user: Optional[str] = Depends(get_current_user)
+    current_user: str | None = Depends(get_current_user),
 ) -> DataQualityReportDTO:
     """Check dataset quality."""
     dataset_repo = container.dataset_repository()
     feature_validator = container.feature_validator()
-    
+
     dataset = dataset_repo.find_by_id(dataset_id)
     if not dataset:
         raise HTTPException(status_code=404, detail="Dataset not found")
-    
+
     # Run quality check
     quality_report = feature_validator.check_data_quality(dataset)
     suggestions = feature_validator.suggest_preprocessing(quality_report)
-    
+
     return DataQualityReportDTO(
         n_samples=quality_report["n_samples"],
         n_features=quality_report["n_features"],
@@ -213,7 +204,7 @@ async def check_dataset_quality(
         infinite_values=quality_report["infinite_values"],
         duplicate_rows=quality_report["duplicate_rows"],
         quality_score=quality_report["quality_score"],
-        suggestions=suggestions
+        suggestions=suggestions,
     )
 
 
@@ -222,26 +213,26 @@ async def get_dataset_sample(
     dataset_id: UUID,
     n: int = Query(10, ge=1, le=100, description="Number of rows to return"),
     container: Container = Depends(get_container),
-    current_user: Optional[str] = Depends(get_current_user)
+    current_user: str | None = Depends(get_current_user),
 ) -> dict:
     """Get a sample of dataset rows."""
     dataset_repo = container.dataset_repository()
-    
+
     dataset = dataset_repo.find_by_id(dataset_id)
     if not dataset:
         raise HTTPException(status_code=404, detail="Dataset not found")
-    
+
     # Get sample
     sample_size = min(n, dataset.n_samples)
     sample_df = dataset.data.sample(n=sample_size, random_state=42)
-    
+
     return {
         "dataset_id": str(dataset.id),
         "dataset_name": dataset.name,
         "sample_size": sample_size,
         "total_rows": dataset.n_samples,
         "columns": list(dataset.data.columns),
-        "data": sample_df.to_dict(orient="records")
+        "data": sample_df.to_dict(orient="records"),
     }
 
 
@@ -249,41 +240,39 @@ async def get_dataset_sample(
 async def split_dataset(
     dataset_id: UUID,
     test_size: float = Query(0.2, ge=0.1, le=0.5),
-    random_state: Optional[int] = Query(None),
+    random_state: int | None = Query(None),
     container: Container = Depends(get_container),
-    current_user: Optional[str] = Depends(get_current_user)
+    current_user: str | None = Depends(get_current_user),
 ) -> dict:
     """Split dataset into train and test sets."""
     dataset_repo = container.dataset_repository()
-    
+
     dataset = dataset_repo.find_by_id(dataset_id)
     if not dataset:
         raise HTTPException(status_code=404, detail="Dataset not found")
-    
+
     try:
         # Split dataset
         train_dataset, test_dataset = dataset.split(
-            test_size=test_size,
-            random_state=random_state
+            test_size=test_size, random_state=random_state
         )
-        
+
         # Save both datasets
         dataset_repo.save(train_dataset)
         dataset_repo.save(test_dataset)
-        
+
         return {
             "train_dataset_id": str(train_dataset.id),
             "test_dataset_id": str(test_dataset.id),
             "train_size": train_dataset.n_samples,
             "test_size": test_dataset.n_samples,
             "train_name": train_dataset.name,
-            "test_name": test_dataset.name
+            "test_name": test_dataset.name,
         }
-        
+
     except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail=f"Failed to split dataset: {str(e)}"
+            status_code=400, detail=f"Failed to split dataset: {str(e)}"
         )
 
 
@@ -291,14 +280,14 @@ async def split_dataset(
 async def delete_dataset(
     dataset_id: UUID,
     container: Container = Depends(get_container),
-    current_user: Optional[str] = Depends(get_current_user)
+    current_user: str | None = Depends(get_current_user),
 ) -> dict:
     """Delete a dataset."""
     dataset_repo = container.dataset_repository()
-    
+
     if not dataset_repo.exists(dataset_id):
         raise HTTPException(status_code=404, detail="Dataset not found")
-    
+
     success = dataset_repo.delete(dataset_id)
-    
+
     return {"success": success, "message": "Dataset deleted"}

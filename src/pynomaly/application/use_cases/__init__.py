@@ -1,21 +1,21 @@
 """Application use cases."""
 
 from .detect_anomalies import (
-    DetectAnomaliesUseCase,
     DetectAnomaliesRequest,
-    DetectAnomaliesResponse
-)
-from .train_detector import (
-    TrainDetectorUseCase,
-    TrainDetectorRequest,
-    TrainDetectorResponse
+    DetectAnomaliesResponse,
+    DetectAnomaliesUseCase,
 )
 from .evaluate_model import (
-    EvaluateModelUseCase,
     EvaluateModelRequest,
-    EvaluateModelResponse
+    EvaluateModelResponse,
+    EvaluateModelUseCase,
 )
 from .explain_anomaly import ExplainAnomalyUseCase
+from .train_detector import (
+    TrainDetectorRequest,
+    TrainDetectorResponse,
+    TrainDetectorUseCase,
+)
 
 __all__ = [
     "DetectAnomaliesUseCase",

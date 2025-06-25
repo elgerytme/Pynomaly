@@ -3,27 +3,25 @@
 from .connection_pooling import (
     ConnectionPoolManager,
     DatabasePool,
-    RedisPool,
     HTTPConnectionPool,
     PoolConfiguration,
     PoolStats,
-    get_connection_pool_manager
+    RedisPool,
+    get_connection_pool_manager,
 )
-
-from .query_optimization import (
-    QueryOptimizer,
-    QueryCache,
-    QueryAnalyzer,
-    IndexManager,
-    QueryPerformanceTracker,
-    get_query_optimizer
-)
-
 from .performance_service import PerformanceService
+from .query_optimization import (
+    IndexManager,
+    QueryAnalyzer,
+    QueryCache,
+    QueryOptimizer,
+    QueryPerformanceTracker,
+    get_query_optimizer,
+)
 
 __all__ = [
     "ConnectionPoolManager",
-    "DatabasePool", 
+    "DatabasePool",
     "RedisPool",
     "HTTPConnectionPool",
     "PoolConfiguration",
@@ -35,5 +33,5 @@ __all__ = [
     "IndexManager",
     "QueryPerformanceTracker",
     "get_query_optimizer",
-    "PerformanceService"
+    "PerformanceService",
 ]

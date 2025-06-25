@@ -18,4 +18,4 @@ try:
 except ImportError:
     JAXAdapter = None
 
-__all__ = ['PyTorchAdapter', 'TensorFlowAdapter', 'JAXAdapter']
+__all__ = ["PyTorchAdapter", "TensorFlowAdapter", "JAXAdapter"]

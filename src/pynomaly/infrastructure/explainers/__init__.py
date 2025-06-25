@@ -3,6 +3,7 @@
 # Optional explainer imports
 try:
     from .shap_explainer import SHAPExplainer
+
     SHAP_AVAILABLE = True
 except ImportError:
     SHAPExplainer = None
@@ -10,6 +11,7 @@ except ImportError:
 
 try:
     from .lime_explainer import LIMEExplainer
+
     LIME_AVAILABLE = True
 except ImportError:
     LIMEExplainer = None
@@ -17,7 +19,7 @@ except ImportError:
 
 __all__ = [
     "SHAPExplainer",
-    "LIMEExplainer", 
+    "LIMEExplainer",
     "SHAP_AVAILABLE",
     "LIME_AVAILABLE",
 ]

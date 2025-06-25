@@ -2,11 +2,11 @@
 
 from .circuit_breaker import CircuitBreaker, CircuitBreakerError
 from .retry import RetryPolicy, retry_with_backoff
-from .timeout import timeout_handler, TimeoutError
+from .timeout import TimeoutError, timeout_handler
 
 __all__ = [
     "CircuitBreaker",
-    "CircuitBreakerError", 
+    "CircuitBreakerError",
     "RetryPolicy",
     "retry_with_backoff",
     "timeout_handler",

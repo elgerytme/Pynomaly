@@ -15,28 +15,29 @@ __email__ = "team@pynomaly.io"
 __license__ = "MIT"
 
 # Core imports for convenience
-from pynomaly.domain.entities import Anomaly, Dataset, Detector, DetectionResult
+from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
 from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
 from pynomaly.infrastructure.config import Settings, create_container
+
 
 # High-level API
 def create_detector(
     name: str,
     algorithm: str = "IsolationForest",
     contamination: float = 0.1,
-    **parameters
+    **parameters,
 ) -> Detector:
     """Create a new anomaly detector.
-    
+
     Args:
         name: Detector name
         algorithm: Algorithm to use (default: IsolationForest)
         contamination: Expected contamination rate (default: 0.1)
         **parameters: Additional algorithm parameters
-        
+
     Returns:
         Detector instance
-        
+
     Example:
         >>> detector = create_detector(
         ...     "My Detector",
@@ -47,31 +48,24 @@ def create_detector(
     """
     params = {"contamination": contamination}
     params.update(parameters)
-    
-    return Detector(
-        name=name,
-        algorithm=algorithm,
-        parameters=params
-    )
+
+    return Detector(name=name, algorithm=algorithm, parameters=params)
 
 
 def load_dataset(
-    data,
-    name: str = "Dataset",
-    target_column: str = None,
-    **kwargs
+    data, name: str = "Dataset", target_column: str = None, **kwargs
 ) -> Dataset:
     """Load a dataset for anomaly detection.
-    
+
     Args:
         data: Data as DataFrame or file path
         name: Dataset name
         target_column: Column with labels (optional)
         **kwargs: Additional dataset parameters
-        
+
     Returns:
         Dataset instance
-        
+
     Example:
         >>> dataset = load_dataset(
         ...     "data.csv",
@@ -79,9 +73,10 @@ def load_dataset(
         ...     target_column="is_fraud"
         ... )
     """
-    import pandas as pd
     from pathlib import Path
-    
+
+    import pandas as pd
+
     # Load data if path provided
     if isinstance(data, (str, Path)):
         path = Path(data)
@@ -91,61 +86,54 @@ def load_dataset(
             data = pd.read_parquet(path)
         else:
             raise ValueError(f"Unsupported file format: {path.suffix}")
-    
-    return Dataset(
-        name=name,
-        data=data,
-        target_column=target_column,
-        **kwargs
-    )
+
+    return Dataset(name=name, data=data, target_column=target_column, **kwargs)
 
 
 async def detect_anomalies(
-    detector: Detector,
-    dataset: Dataset,
-    container=None
+    detector: Detector, dataset: Dataset, container=None
 ) -> DetectionResult:
     """Detect anomalies using a trained detector.
-    
+
     Args:
         detector: Trained detector instance
         dataset: Dataset to analyze
         container: DI container (optional)
-        
+
     Returns:
         Detection results
-        
+
     Example:
         >>> results = await detect_anomalies(detector, dataset)
         >>> print(f"Found {results.n_anomalies} anomalies")
     """
     if container is None:
         container = create_container()
-    
+
     # Ensure detector is trained
     if not detector.is_fitted:
         train_use_case = container.train_detector_use_case()
         from pynomaly.application.use_cases import TrainDetectorRequest
-        
+
         train_request = TrainDetectorRequest(
             detector_id=detector.id,
             dataset=dataset,
             validate_data=True,
-            save_model=True
+            save_model=True,
         )
         await train_use_case.execute(train_request)
-    
+
     # Run detection
     detect_use_case = container.detect_anomalies_use_case()
     from pynomaly.application.use_cases import DetectAnomaliesRequest
-    
+
     detect_request = DetectAnomaliesRequest(
         detector_id=detector.id,
         dataset=dataset,
         validate_features=True,
-        save_results=True
+        save_results=True,
     )
-    
+
     response = await detect_use_case.execute(detect_request)
     return response.result
 
@@ -156,7 +144,7 @@ __all__ = [
     "__version__",
     # Entities
     "Anomaly",
-    "Dataset", 
+    "Dataset",
     "Detector",
     "DetectionResult",
     # Value Objects

@@ -1,30 +1,30 @@
 """Protocol definitions for clean architecture interfaces."""
 
+from .data_loader_protocol import (
+    BatchDataLoaderProtocol,
+    DatabaseLoaderProtocol,
+    DataLoaderProtocol,
+    StreamingDataLoaderProtocol,
+)
 from .detector_protocol import (
     DetectorProtocol,
-    ExplainableDetectorProtocol,
     EnsembleDetectorProtocol,
-    StreamingDetectorProtocol
+    ExplainableDetectorProtocol,
+    StreamingDetectorProtocol,
 )
 from .repository_protocol import (
-    RepositoryProtocol,
-    DetectorRepositoryProtocol,
+    AlertNotificationRepositoryProtocol,
+    AlertRepositoryProtocol,
     DatasetRepositoryProtocol,
     DetectionResultRepositoryProtocol,
-    ModelRepositoryProtocol,
-    ModelVersionRepositoryProtocol,
+    DetectorRepositoryProtocol,
     ExperimentRepositoryProtocol,
     ExperimentRunRepositoryProtocol,
+    ModelRepositoryProtocol,
+    ModelVersionRepositoryProtocol,
     PipelineRepositoryProtocol,
     PipelineRunRepositoryProtocol,
-    AlertRepositoryProtocol,
-    AlertNotificationRepositoryProtocol
-)
-from .data_loader_protocol import (
-    DataLoaderProtocol,
-    BatchDataLoaderProtocol,
-    StreamingDataLoaderProtocol,
-    DatabaseLoaderProtocol
+    RepositoryProtocol,
 )
 
 __all__ = [
@@ -47,5 +47,5 @@ __all__ = [
     "DataLoaderProtocol",
     "BatchDataLoaderProtocol",
     "StreamingDataLoaderProtocol",
-    "DatabaseLoaderProtocol"
+    "DatabaseLoaderProtocol",
 ]

@@ -1,22 +1,22 @@
 """Application layer - orchestrates use cases and services."""
 
-from .use_cases import (
-    DetectAnomaliesUseCase,
-    TrainDetectorUseCase,
-    EvaluateModelUseCase,
-    ExplainAnomalyUseCase,
-)
 from .services import (
     DetectionService,
     EnsembleService,
-    ModelPersistenceService,
     ExperimentTrackingService,
+    ModelPersistenceService,
+)
+from .use_cases import (
+    DetectAnomaliesUseCase,
+    EvaluateModelUseCase,
+    ExplainAnomalyUseCase,
+    TrainDetectorUseCase,
 )
 
 __all__ = [
     # Use cases
     "DetectAnomaliesUseCase",
-    "TrainDetectorUseCase", 
+    "TrainDetectorUseCase",
     "EvaluateModelUseCase",
     "ExplainAnomalyUseCase",
     # Services

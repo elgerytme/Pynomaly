@@ -6,10 +6,10 @@ Provides both synchronous and asynchronous interfaces for all major operations.
 
 Usage:
     from pynomaly.presentation.sdk import PynomaliClient, AsyncPynomaliClient
-    
+
     # Synchronous client
     client = PynomaliClient(base_url="http://localhost:8000", api_key="your-api-key")
-    
+
     # Asynchronous client
     async_client = AsyncPynomaliClient(base_url="http://localhost:8000", api_key="your-api-key")
 """
@@ -21,23 +21,23 @@ try:
     from .async_client import AsyncPynomaliClient
 except ImportError:
     AsyncPynomaliClient = None
-from .config import SDKConfig, ClientConfig
+from .config import ClientConfig, SDKConfig
 from .exceptions import (
-    PynomaliSDKError,
     AuthenticationError,
-    ValidationError,
+    PynomaliSDKError,
     ResourceNotFoundError,
     ServerError,
-    TimeoutError
+    TimeoutError,
+    ValidationError,
 )
 from .models import (
-    Dataset,
-    Detector,
-    DetectionResult,
-    TrainingJob,
-    ExperimentResult,
     AnomalyScore,
-    PerformanceMetrics
+    Dataset,
+    DetectionResult,
+    Detector,
+    ExperimentResult,
+    PerformanceMetrics,
+    TrainingJob,
 )
 
 __version__ = "1.0.0"
@@ -47,19 +47,16 @@ __all__ = [
     # Main client classes
     "PynomaliClient",
     "AsyncPynomaliClient",
-    
     # Configuration
     "SDKConfig",
     "ClientConfig",
-    
     # Exceptions
     "PynomaliSDKError",
-    "AuthenticationError", 
+    "AuthenticationError",
     "ValidationError",
     "ResourceNotFoundError",
     "ServerError",
     "TimeoutError",
-    
     # Models
     "Dataset",
     "Detector",
@@ -67,5 +64,5 @@ __all__ = [
     "TrainingJob",
     "ExperimentResult",
     "AnomalyScore",
-    "PerformanceMetrics"
+    "PerformanceMetrics",
 ]

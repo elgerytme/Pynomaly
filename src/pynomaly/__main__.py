@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import sys
-import typer
 
 from pynomaly.presentation.cli.app import app
 

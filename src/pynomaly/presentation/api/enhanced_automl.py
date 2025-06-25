@@ -1,44 +1,63 @@
 """Enhanced AutoML API endpoints with advanced optimization capabilities."""
 
-from typing import List, Optional, Dict, Any
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
-from pydantic import BaseModel, Field
-import asyncio
+from typing import Any
 
-from pynomaly.infrastructure.config.container import Container
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from pydantic import BaseModel, Field
+
 from pynomaly.application.services.enhanced_automl_service import (
-    EnhancedAutoMLService,
     EnhancedAutoMLConfig,
-    EnhancedAutoMLResult
+    EnhancedAutoMLResult,
+    EnhancedAutoMLService,
 )
+from pynomaly.infrastructure.config.container import Container
 
 
 # Request/Response Models
 class OptimizationObjectiveRequest(BaseModel):
     """Request model for optimization objective."""
-    name: str = Field(..., description="Objective name (auc, precision, recall, training_time, etc.)")
-    direction: str = Field("maximize", description="Optimization direction (maximize/minimize)")
-    weight: float = Field(1.0, description="Objective weight for multi-objective optimization")
+
+    name: str = Field(
+        ..., description="Objective name (auc, precision, recall, training_time, etc.)"
+    )
+    direction: str = Field(
+        "maximize", description="Optimization direction (maximize/minimize)"
+    )
+    weight: float = Field(
+        1.0, description="Objective weight for multi-objective optimization"
+    )
 
 
 class AdvancedOptimizationRequest(BaseModel):
     """Request model for advanced hyperparameter optimization."""
+
     dataset_id: str = Field(..., description="Dataset identifier")
     algorithm: str = Field(..., description="Algorithm name")
-    objectives: List[str] = Field(default=["auc"], description="Optimization objectives")
+    objectives: list[str] = Field(
+        default=["auc"], description="Optimization objectives"
+    )
     strategy: str = Field(default="bayesian", description="Optimization strategy")
-    acquisition_function: str = Field(default="expected_improvement", description="Acquisition function")
+    acquisition_function: str = Field(
+        default="expected_improvement", description="Acquisition function"
+    )
     n_trials: int = Field(default=100, description="Number of optimization trials")
     timeout: int = Field(default=3600, description="Optimization timeout in seconds")
     enable_meta_learning: bool = Field(default=True, description="Enable meta-learning")
-    enable_parallel: bool = Field(default=True, description="Enable parallel optimization")
-    enable_early_stopping: bool = Field(default=True, description="Enable early stopping")
+    enable_parallel: bool = Field(
+        default=True, description="Enable parallel optimization"
+    )
+    enable_early_stopping: bool = Field(
+        default=True, description="Enable early stopping"
+    )
 
 
 class AutoMLRequest(BaseModel):
     """Request model for automatic algorithm selection and optimization."""
+
     dataset_id: str = Field(..., description="Dataset identifier")
-    objectives: List[str] = Field(default=["auc"], description="Optimization objectives")
+    objectives: list[str] = Field(
+        default=["auc"], description="Optimization objectives"
+    )
     max_algorithms: int = Field(default=3, description="Maximum algorithms to try")
     strategy: str = Field(default="bayesian", description="Optimization strategy")
     n_trials: int = Field(default=100, description="Number of trials per algorithm")
@@ -49,59 +68,67 @@ class AutoMLRequest(BaseModel):
 
 class MultiObjectiveRequest(BaseModel):
     """Request model for multi-objective optimization."""
+
     dataset_id: str = Field(..., description="Dataset identifier")
-    objectives: List[OptimizationObjectiveRequest] = Field(..., description="Multiple objectives")
-    algorithms: Optional[List[str]] = Field(None, description="Specific algorithms to optimize")
+    objectives: list[OptimizationObjectiveRequest] = Field(
+        ..., description="Multiple objectives"
+    )
+    algorithms: list[str] | None = Field(
+        None, description="Specific algorithms to optimize"
+    )
     n_trials: int = Field(default=150, description="Number of optimization trials")
     timeout: int = Field(default=7200, description="Optimization timeout in seconds")
 
 
 class OptimizationInsightsResponse(BaseModel):
     """Response model for optimization insights."""
-    performance_analysis: Dict[str, Any]
-    optimization_analysis: Dict[str, Any]
-    efficiency_analysis: Dict[str, Any]
-    recommendations: List[str]
-    next_steps: List[str]
-    parameter_sensitivity: Dict[str, float]
+
+    performance_analysis: dict[str, Any]
+    optimization_analysis: dict[str, Any]
+    efficiency_analysis: dict[str, Any]
+    recommendations: list[str]
+    next_steps: list[str]
+    parameter_sensitivity: dict[str, float]
 
 
 class EnhancedAutoMLResultResponse(BaseModel):
     """Response model for enhanced AutoML results."""
+
     best_algorithm: str
-    best_params: Dict[str, Any]
+    best_params: dict[str, Any]
     best_score: float
     optimization_time: float
     trials_completed: int
-    algorithm_rankings: List[tuple]
-    
+    algorithm_rankings: list[tuple]
+
     # Enhanced fields
     optimization_strategy_used: str
-    meta_learning_effectiveness: Optional[float] = None
+    meta_learning_effectiveness: float | None = None
     exploration_score: float
     exploitation_score: float
     convergence_stability: float
-    parameter_sensitivity: Dict[str, float]
-    
+    parameter_sensitivity: dict[str, float]
+
     # Multi-objective results
-    pareto_front: Optional[List[Dict[str, Any]]] = None
-    objective_trade_offs: Optional[Dict[str, float]] = None
-    
+    pareto_front: list[dict[str, Any]] | None = None
+    objective_trade_offs: dict[str, float] | None = None
+
     # Performance analysis
-    training_time_breakdown: Dict[str, float]
-    optimization_recommendations: List[str]
-    next_steps: List[str]
+    training_time_breakdown: dict[str, float]
+    optimization_recommendations: list[str]
+    next_steps: list[str]
 
 
 # Dependency injection
-def get_enhanced_automl_service(container: Container = Depends()) -> EnhancedAutoMLService:
+def get_enhanced_automl_service(
+    container: Container = Depends(),
+) -> EnhancedAutoMLService:
     """Get enhanced AutoML service from container."""
-    if hasattr(container, 'enhanced_automl_service'):
+    if hasattr(container, "enhanced_automl_service"):
         return container.enhanced_automl_service()
     else:
         raise HTTPException(
-            status_code=503,
-            detail="Enhanced AutoML service not available"
+            status_code=503, detail="Enhanced AutoML service not available"
         )
 
 
@@ -113,11 +140,11 @@ router = APIRouter(prefix="/api/v1/enhanced-automl", tags=["Enhanced AutoML"])
 async def optimize_hyperparameters(
     request: AdvancedOptimizationRequest,
     background_tasks: BackgroundTasks,
-    service: EnhancedAutoMLService = Depends(get_enhanced_automl_service)
+    service: EnhancedAutoMLService = Depends(get_enhanced_automl_service),
 ):
     """
     Run advanced hyperparameter optimization for a specific algorithm.
-    
+
     This endpoint provides state-of-the-art hyperparameter optimization with:
     - Bayesian optimization with advanced acquisition functions
     - Meta-learning for warm starts
@@ -127,11 +154,14 @@ async def optimize_hyperparameters(
     """
     try:
         # Configure enhanced AutoML
-        from pynomaly.infrastructure.automl import OptimizationStrategy, AcquisitionFunction
-        
+        from pynomaly.infrastructure.automl import (
+            AcquisitionFunction,
+            OptimizationStrategy,
+        )
+
         strategy_enum = OptimizationStrategy(request.strategy)
         acquisition_enum = AcquisitionFunction(request.acquisition_function)
-        
+
         config = EnhancedAutoMLConfig(
             optimization_strategy=strategy_enum,
             acquisition_function=acquisition_enum,
@@ -141,21 +171,21 @@ async def optimize_hyperparameters(
             enable_multi_objective=len(request.objectives) > 1,
             objectives=request.objectives,
             enable_parallel=request.enable_parallel,
-            enable_early_stopping=request.enable_early_stopping
+            enable_early_stopping=request.enable_early_stopping,
         )
-        
+
         # Update service configuration
         service.config = config
-        
+
         # Run optimization
         result = await service.advanced_optimize_hyperparameters(
             dataset_id=request.dataset_id,
             algorithm=request.algorithm,
-            objectives=request.objectives
+            objectives=request.objectives,
         )
-        
+
         return _convert_result_to_response(result)
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Optimization failed: {str(e)}")
 
@@ -164,11 +194,11 @@ async def optimize_hyperparameters(
 async def auto_optimize(
     request: AutoMLRequest,
     background_tasks: BackgroundTasks,
-    service: EnhancedAutoMLService = Depends(get_enhanced_automl_service)
+    service: EnhancedAutoMLService = Depends(get_enhanced_automl_service),
 ):
     """
     Automatically select and optimize the best algorithms for a dataset.
-    
+
     This endpoint provides comprehensive AutoML capabilities:
     - Automatic algorithm recommendation based on dataset characteristics
     - Advanced hyperparameter optimization for multiple algorithms
@@ -178,9 +208,9 @@ async def auto_optimize(
     try:
         # Configure enhanced AutoML
         from pynomaly.infrastructure.automl import OptimizationStrategy
-        
+
         strategy_enum = OptimizationStrategy(request.strategy)
-        
+
         config = EnhancedAutoMLConfig(
             optimization_strategy=strategy_enum,
             n_trials=request.n_trials,
@@ -188,22 +218,22 @@ async def auto_optimize(
             enable_meta_learning=request.enable_meta_learning,
             enable_multi_objective=len(request.objectives) > 1,
             objectives=request.objectives,
-            enable_ensemble_optimization=request.enable_ensemble
+            enable_ensemble_optimization=request.enable_ensemble,
         )
-        
+
         # Update service configuration
         service.config = config
-        
+
         # Run auto-optimization
         result = await service.auto_select_and_optimize_advanced(
             dataset_id=request.dataset_id,
             objectives=request.objectives,
             max_algorithms=request.max_algorithms,
-            enable_ensemble=request.enable_ensemble
+            enable_ensemble=request.enable_ensemble,
         )
-        
+
         return _convert_result_to_response(result)
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"AutoML failed: {str(e)}")
 
@@ -212,11 +242,11 @@ async def auto_optimize(
 async def multi_objective_optimization(
     request: MultiObjectiveRequest,
     background_tasks: BackgroundTasks,
-    service: EnhancedAutoMLService = Depends(get_enhanced_automl_service)
+    service: EnhancedAutoMLService = Depends(get_enhanced_automl_service),
 ):
     """
     Run multi-objective optimization to find Pareto optimal solutions.
-    
+
     This endpoint finds trade-offs between multiple objectives such as:
     - Performance vs Speed
     - Accuracy vs Memory Usage
@@ -227,7 +257,7 @@ async def multi_objective_optimization(
         # Extract objective names and weights
         objective_names = [obj.name for obj in request.objectives]
         objective_weights = {obj.name: obj.weight for obj in request.objectives}
-        
+
         # Configure for multi-objective optimization
         config = EnhancedAutoMLConfig(
             optimization_strategy="multi_objective",
@@ -236,12 +266,12 @@ async def multi_objective_optimization(
             enable_multi_objective=True,
             objectives=objective_names,
             objective_weights=objective_weights,
-            enable_meta_learning=True
+            enable_meta_learning=True,
         )
-        
+
         # Update service configuration
         service.config = config
-        
+
         if request.algorithms:
             # Optimize specified algorithms
             results = []
@@ -250,19 +280,19 @@ async def multi_objective_optimization(
                     result = await service.advanced_optimize_hyperparameters(
                         dataset_id=request.dataset_id,
                         algorithm=algorithm,
-                        objectives=objective_names
+                        objectives=objective_names,
                     )
                     results.append(result)
-                except Exception as e:
+                except Exception:
                     # Log warning but continue with other algorithms
                     pass
-            
+
             if not results:
                 raise HTTPException(
                     status_code=400,
-                    detail="No algorithms could be successfully optimized"
+                    detail="No algorithms could be successfully optimized",
                 )
-            
+
             # Return best result (could be extended to return all results)
             best_result = max(results, key=lambda x: x.best_score)
         else:
@@ -270,23 +300,25 @@ async def multi_objective_optimization(
             best_result = await service.auto_select_and_optimize_advanced(
                 dataset_id=request.dataset_id,
                 objectives=objective_names,
-                max_algorithms=5
+                max_algorithms=5,
             )
-        
+
         return _convert_result_to_response(best_result)
-        
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Multi-objective optimization failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Multi-objective optimization failed: {str(e)}"
+        )
 
 
 @router.get("/insights/{optimization_id}", response_model=OptimizationInsightsResponse)
 async def get_optimization_insights(
     optimization_id: str,
-    service: EnhancedAutoMLService = Depends(get_enhanced_automl_service)
+    service: EnhancedAutoMLService = Depends(get_enhanced_automl_service),
 ):
     """
     Get detailed insights and recommendations from optimization results.
-    
+
     Provides analysis of:
     - Optimization quality metrics (exploration/exploitation balance)
     - Parameter sensitivity analysis
@@ -300,36 +332,36 @@ async def get_optimization_insights(
         insights = {
             "performance_analysis": {
                 "score_category": "good",
-                "ensemble_available": False
+                "ensemble_available": False,
             },
             "optimization_analysis": {
                 "strategy_used": "bayesian",
                 "exploration_score": 0.7,
                 "exploitation_score": 0.8,
-                "convergence_stability": 0.75
+                "convergence_stability": 0.75,
             },
             "efficiency_analysis": {
                 "total_optimization_time": 120.0,
                 "trials_completed": 50,
-                "time_per_trial": 2.4
+                "time_per_trial": 2.4,
             },
             "recommendations": [
                 "Consider increasing n_trials for better exploration",
-                "Current configuration shows good convergence"
+                "Current configuration shows good convergence",
             ],
             "next_steps": [
                 "Try ensemble methods for improved performance",
-                "Consider feature engineering for better results"
+                "Consider feature engineering for better results",
             ],
             "parameter_sensitivity": {
                 "contamination": 0.8,
                 "n_estimators": 0.6,
-                "max_features": 0.4
-            }
+                "max_features": 0.4,
+            },
         }
-        
+
         return OptimizationInsightsResponse(**insights)
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get insights: {str(e)}")
 
@@ -338,11 +370,11 @@ async def get_optimization_insights(
 async def get_algorithm_recommendations(
     dataset_id: str,
     max_algorithms: int = 5,
-    service: EnhancedAutoMLService = Depends(get_enhanced_automl_service)
+    service: EnhancedAutoMLService = Depends(get_enhanced_automl_service),
 ):
     """
     Get algorithm recommendations based on dataset characteristics.
-    
+
     Analyzes dataset properties and recommends the most suitable algorithms
     considering factors like:
     - Dataset size and dimensionality
@@ -353,10 +385,10 @@ async def get_algorithm_recommendations(
     try:
         # Profile dataset
         profile = await service.profile_dataset(dataset_id)
-        
+
         # Get recommendations
         recommendations = service.recommend_algorithms(profile, max_algorithms)
-        
+
         # Get algorithm details
         algorithm_details = []
         for algorithm in recommendations:
@@ -371,10 +403,10 @@ async def get_algorithm_recommendations(
                     "recommended_min_samples": config.recommended_min_samples,
                     "recommended_max_samples": config.recommended_max_samples,
                     "supports_streaming": config.supports_streaming,
-                    "supports_categorical": config.supports_categorical
+                    "supports_categorical": config.supports_categorical,
                 }
                 algorithm_details.append(details)
-        
+
         return {
             "dataset_profile": {
                 "n_samples": profile.n_samples,
@@ -382,20 +414,22 @@ async def get_algorithm_recommendations(
                 "contamination_estimate": profile.contamination_estimate,
                 "complexity_score": profile.complexity_score,
                 "has_temporal_structure": profile.has_temporal_structure,
-                "has_graph_structure": profile.has_graph_structure
+                "has_graph_structure": profile.has_graph_structure,
             },
-            "recommendations": algorithm_details
+            "recommendations": algorithm_details,
         }
-        
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get recommendations: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get recommendations: {str(e)}"
+        )
 
 
 @router.get("/strategies")
 async def get_optimization_strategies():
     """
     Get available optimization strategies and their descriptions.
-    
+
     Returns information about different optimization approaches:
     - Bayesian optimization variants
     - Hyperband and BOHB
@@ -406,39 +440,65 @@ async def get_optimization_strategies():
         "bayesian": {
             "name": "Bayesian Optimization",
             "description": "Uses Gaussian processes to model the objective function and select promising parameters",
-            "best_for": ["Small to medium parameter spaces", "Expensive evaluations", "Continuous parameters"],
-            "acquisition_functions": ["expected_improvement", "probability_improvement", "upper_confidence_bound"]
+            "best_for": [
+                "Small to medium parameter spaces",
+                "Expensive evaluations",
+                "Continuous parameters",
+            ],
+            "acquisition_functions": [
+                "expected_improvement",
+                "probability_improvement",
+                "upper_confidence_bound",
+            ],
         },
         "hyperband": {
             "name": "Hyperband",
             "description": "Bandit-based approach that efficiently allocates resources across configurations",
-            "best_for": ["Large parameter spaces", "Iterative algorithms", "Quick elimination of poor configs"],
-            "acquisition_functions": ["random"]
+            "best_for": [
+                "Large parameter spaces",
+                "Iterative algorithms",
+                "Quick elimination of poor configs",
+            ],
+            "acquisition_functions": ["random"],
         },
         "bohb": {
             "name": "BOHB (Bayesian Optimization and Hyperband)",
             "description": "Combines Bayesian optimization with Hyperband for efficient search",
-            "best_for": ["Large parameter spaces", "Expensive evaluations", "Best of both worlds"],
-            "acquisition_functions": ["expected_improvement"]
+            "best_for": [
+                "Large parameter spaces",
+                "Expensive evaluations",
+                "Best of both worlds",
+            ],
+            "acquisition_functions": ["expected_improvement"],
         },
         "multi_objective": {
             "name": "Multi-Objective Optimization",
             "description": "Optimizes multiple conflicting objectives simultaneously",
-            "best_for": ["Trade-off analysis", "Multiple performance metrics", "Pareto optimization"],
-            "acquisition_functions": ["nsga2", "hypervolume"]
+            "best_for": [
+                "Trade-off analysis",
+                "Multiple performance metrics",
+                "Pareto optimization",
+            ],
+            "acquisition_functions": ["nsga2", "hypervolume"],
         },
         "evolutionary": {
             "name": "Evolutionary Algorithm",
             "description": "Population-based search inspired by natural evolution",
-            "best_for": ["Complex parameter spaces", "Non-convex objectives", "Parallel evaluation"],
-            "acquisition_functions": ["cma_es"]
-        }
+            "best_for": [
+                "Complex parameter spaces",
+                "Non-convex objectives",
+                "Parallel evaluation",
+            ],
+            "acquisition_functions": ["cma_es"],
+        },
     }
-    
+
     return strategies
 
 
-def _convert_result_to_response(result: EnhancedAutoMLResult) -> EnhancedAutoMLResultResponse:
+def _convert_result_to_response(
+    result: EnhancedAutoMLResult,
+) -> EnhancedAutoMLResultResponse:
     """Convert enhanced AutoML result to API response."""
     return EnhancedAutoMLResultResponse(
         best_algorithm=result.best_algorithm,
@@ -457,5 +517,5 @@ def _convert_result_to_response(result: EnhancedAutoMLResult) -> EnhancedAutoMLR
         objective_trade_offs=result.objective_trade_offs,
         training_time_breakdown=result.training_time_breakdown,
         optimization_recommendations=result.optimization_recommendations,
-        next_steps=result.next_steps
+        next_steps=result.next_steps,
     )

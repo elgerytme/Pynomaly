@@ -2,27 +2,25 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from .base import DomainError, ValidationError
 
 
 class DatasetError(DomainError):
     """Base exception for dataset-related errors."""
+
     pass
 
 
 class DataValidationError(ValidationError, DatasetError):
     """Exception raised when data validation fails."""
-    
+
     def __init__(
-        self,
-        message: str,
-        dataset_name: Optional[str] = None,
-        **kwargs: Any
+        self, message: str, dataset_name: str | None = None, **kwargs: Any
     ) -> None:
         """Initialize data validation error.
-        
+
         Args:
             message: Error message
             dataset_name: Name of the dataset
@@ -31,23 +29,23 @@ class DataValidationError(ValidationError, DatasetError):
         full_message = message
         if dataset_name:
             full_message = f"Validation failed for dataset '{dataset_name}': {message}"
-        
+
         super().__init__(full_message, dataset_name=dataset_name, **kwargs)
 
 
 class InsufficientDataError(DatasetError):
     """Exception raised when dataset has insufficient data."""
-    
+
     def __init__(
         self,
         dataset_name: str,
         n_samples: int,
         min_required: int,
-        operation: Optional[str] = None,
-        **kwargs: Any
+        operation: str | None = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize insufficient data error.
-        
+
         Args:
             dataset_name: Name of the dataset
             n_samples: Number of samples in dataset
@@ -59,10 +57,10 @@ class InsufficientDataError(DatasetError):
             f"Dataset '{dataset_name}' has insufficient data: "
             f"{n_samples} samples, but {min_required} required"
         )
-        
+
         if operation:
             message += f" for {operation}"
-        
+
         super().__init__(
             message,
             details={
@@ -70,24 +68,24 @@ class InsufficientDataError(DatasetError):
                 "n_samples": n_samples,
                 "min_required": min_required,
                 "operation": operation,
-                **kwargs
-            }
+                **kwargs,
+            },
         )
 
 
 class DataTypeError(DatasetError):
     """Exception raised when data types are invalid."""
-    
+
     def __init__(
         self,
         message: str,
-        feature: Optional[str] = None,
-        expected_type: Optional[str] = None,
-        actual_type: Optional[str] = None,
-        **kwargs: Any
+        feature: str | None = None,
+        expected_type: str | None = None,
+        actual_type: str | None = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize data type error.
-        
+
         Args:
             message: Error message
             feature: Feature with wrong type
@@ -96,31 +94,31 @@ class DataTypeError(DatasetError):
             **kwargs: Additional details
         """
         details = kwargs
-        
+
         if feature:
             details["feature"] = feature
         if expected_type:
             details["expected_type"] = expected_type
         if actual_type:
             details["actual_type"] = actual_type
-        
+
         super().__init__(message, details)
 
 
 class FeatureMismatchError(DatasetError):
     """Exception raised when features don't match between datasets."""
-    
+
     def __init__(
         self,
         message: str,
-        expected_features: Optional[list[str]] = None,
-        actual_features: Optional[list[str]] = None,
-        missing_features: Optional[list[str]] = None,
-        extra_features: Optional[list[str]] = None,
-        **kwargs: Any
+        expected_features: list[str] | None = None,
+        actual_features: list[str] | None = None,
+        missing_features: list[str] | None = None,
+        extra_features: list[str] | None = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize feature mismatch error.
-        
+
         Args:
             message: Error message
             expected_features: Expected feature names
@@ -130,7 +128,7 @@ class FeatureMismatchError(DatasetError):
             **kwargs: Additional details
         """
         details = kwargs
-        
+
         if expected_features:
             details["expected_features"] = expected_features
         if actual_features:
@@ -139,5 +137,5 @@ class FeatureMismatchError(DatasetError):
             details["missing_features"] = missing_features
         if extra_features:
             details["extra_features"] = extra_features
-        
+
         super().__init__(message, details)

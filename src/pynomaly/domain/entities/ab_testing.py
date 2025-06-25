@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 from uuid import UUID, uuid4
 
 import numpy as np
@@ -13,6 +13,7 @@ import numpy as np
 
 class TestType(Enum):
     """Type of A/B test."""
+
     MODEL_COMPARISON = "model_comparison"
     ALGORITHM_COMPARISON = "algorithm_comparison"
     HYPERPARAMETER_OPTIMIZATION = "hyperparameter_optimization"
@@ -23,6 +24,7 @@ class TestType(Enum):
 
 class TestPhase(Enum):
     """Phase of A/B test lifecycle."""
+
     DESIGN = "design"
     PLANNING = "planning"
     VALIDATION = "validation"
@@ -36,6 +38,7 @@ class TestPhase(Enum):
 
 class SignificanceTestType(Enum):
     """Type of statistical significance test."""
+
     TWO_SAMPLE_T_TEST = "two_sample_t_test"
     WELCH_T_TEST = "welch_t_test"
     MANN_WHITNEY_U = "mann_whitney_u"
@@ -50,6 +53,7 @@ class SignificanceTestType(Enum):
 
 class EffectSizeMeasure(Enum):
     """Type of effect size measurement."""
+
     COHENS_D = "cohens_d"
     HEDGES_G = "hedges_g"
     GLASS_DELTA = "glass_delta"
@@ -63,6 +67,7 @@ class EffectSizeMeasure(Enum):
 @dataclass
 class HypothesisTest:
     """Statistical hypothesis test configuration."""
+
     test_id: UUID = field(default_factory=uuid4)
     test_type: SignificanceTestType = SignificanceTestType.TWO_SAMPLE_T_TEST
     null_hypothesis: str = ""
@@ -72,8 +77,8 @@ class HypothesisTest:
     effect_size_measure: EffectSizeMeasure = EffectSizeMeasure.COHENS_D
     minimum_detectable_effect: float = 0.1
     two_tailed: bool = True
-    assumptions: List[str] = field(default_factory=list)
-    
+    assumptions: list[str] = field(default_factory=list)
+
     def __post_init__(self):
         """Validate hypothesis test configuration."""
         if not (0.0 < self.significance_level < 1.0):
@@ -82,7 +87,7 @@ class HypothesisTest:
             raise ValueError("Power must be between 0.0 and 1.0")
         if self.minimum_detectable_effect <= 0.0:
             raise ValueError("Minimum detectable effect must be positive")
-    
+
     def get_critical_value(self) -> float:
         """Get critical value for the test."""
         # This would implement critical value calculation based on test type
@@ -92,30 +97,31 @@ class HypothesisTest:
 @dataclass
 class ExperimentalDesign:
     """Experimental design configuration for A/B tests."""
+
     design_id: UUID = field(default_factory=uuid4)
     design_type: str = "randomized_controlled_trial"
     randomization_strategy: str = "simple_randomization"
-    stratification_variables: List[str] = field(default_factory=list)
-    blocking_variables: List[str] = field(default_factory=list)
+    stratification_variables: list[str] = field(default_factory=list)
+    blocking_variables: list[str] = field(default_factory=list)
     covariate_adjustment: bool = False
     crossover_design: bool = False
     factorial_design: bool = False
-    sample_size_calculation: Dict[str, Any] = field(default_factory=dict)
-    allocation_ratio: Tuple[float, ...] = field(default_factory=lambda: (0.5, 0.5))
-    
+    sample_size_calculation: dict[str, Any] = field(default_factory=dict)
+    allocation_ratio: tuple[float, ...] = field(default_factory=lambda: (0.5, 0.5))
+
     def __post_init__(self):
         """Validate experimental design."""
         if abs(sum(self.allocation_ratio) - 1.0) > 1e-6:
             raise ValueError("Allocation ratios must sum to 1.0")
         if len(self.allocation_ratio) < 2:
             raise ValueError("Must have at least 2 allocation groups")
-    
+
     def get_allocation_for_variant(self, variant_index: int) -> float:
         """Get allocation ratio for specific variant."""
         if 0 <= variant_index < len(self.allocation_ratio):
             return self.allocation_ratio[variant_index]
         return 0.0
-    
+
     def is_balanced_design(self) -> bool:
         """Check if design has balanced allocation."""
         return len(set(self.allocation_ratio)) == 1
@@ -124,6 +130,7 @@ class ExperimentalDesign:
 @dataclass
 class PowerAnalysis:
     """Statistical power analysis for sample size determination."""
+
     analysis_id: UUID = field(default_factory=uuid4)
     test_type: SignificanceTestType = SignificanceTestType.TWO_SAMPLE_T_TEST
     effect_size: float = 0.0
@@ -132,9 +139,9 @@ class PowerAnalysis:
     sample_size_per_group: int = 0
     total_sample_size: int = 0
     allocation_ratio: float = 1.0
-    variance_estimate: Optional[float] = None
-    baseline_rate: Optional[float] = None
-    
+    variance_estimate: float | None = None
+    baseline_rate: float | None = None
+
     def __post_init__(self):
         """Validate and compute power analysis."""
         if self.effect_size <= 0.0:
@@ -143,53 +150,60 @@ class PowerAnalysis:
             raise ValueError("Alpha must be between 0.0 and 1.0")
         if not (0.0 < self.power < 1.0):
             raise ValueError("Power must be between 0.0 and 1.0")
-        
+
         # Calculate sample size if not provided
         if self.sample_size_per_group == 0:
             self.sample_size_per_group = self._calculate_sample_size()
-            self.total_sample_size = int(self.sample_size_per_group * (1 + self.allocation_ratio))
-    
+            self.total_sample_size = int(
+                self.sample_size_per_group * (1 + self.allocation_ratio)
+            )
+
     def _calculate_sample_size(self) -> int:
         """Calculate required sample size per group."""
         # Simplified sample size calculation for two-sample t-test
         # In practice, would use proper statistical formulas
         from scipy import stats
-        
-        z_alpha = stats.norm.ppf(1 - self.alpha/2)
+
+        z_alpha = stats.norm.ppf(1 - self.alpha / 2)
         z_beta = stats.norm.ppf(self.power)
-        
+
         # Cohen's formula
         n = 2 * ((z_alpha + z_beta) / self.effect_size) ** 2
-        
+
         return max(int(np.ceil(n)), 30)  # Minimum of 30 per group
-    
+
     def get_achieved_power(self, actual_sample_size: int) -> float:
         """Calculate achieved power given actual sample size."""
         if actual_sample_size <= 0:
             return 0.0
-        
+
         # Simplified power calculation
         from scipy import stats
-        
-        z_alpha = stats.norm.ppf(1 - self.alpha/2)
+
+        z_alpha = stats.norm.ppf(1 - self.alpha / 2)
         ncp = self.effect_size * np.sqrt(actual_sample_size / 2)
-        
+
         power = 1 - stats.norm.cdf(z_alpha - ncp) + stats.norm.cdf(-z_alpha - ncp)
         return float(np.clip(power, 0.0, 1.0))
-    
+
     def update_with_observed_variance(self, observed_variance: float) -> None:
         """Update analysis with observed variance."""
         self.variance_estimate = observed_variance
         # Recalculate sample size with observed variance
         if observed_variance > 0:
             adjustment_factor = np.sqrt(observed_variance)
-            self.sample_size_per_group = int(self.sample_size_per_group * adjustment_factor)
-            self.total_sample_size = int(self.sample_size_per_group * (1 + self.allocation_ratio))
+            self.sample_size_per_group = int(
+                self.sample_size_per_group * adjustment_factor
+            )
+            self.total_sample_size = int(
+                self.sample_size_per_group * (1 + self.allocation_ratio)
+            )
 
 
 @dataclass
 class MetricDefinition:
     """Definition of a metric for A/B testing."""
+
     metric_id: UUID = field(default_factory=uuid4)
     metric_name: str = ""
     metric_type: str = "continuous"  # continuous, binary, count, time_to_event
@@ -202,19 +216,25 @@ class MetricDefinition:
     minimum_change_threshold: float = 0.0
     practical_significance_threshold: float = 0.0
     units: str = ""
-    transformation: Optional[str] = None  # log, sqrt, inverse, etc.
-    
+    transformation: str | None = None  # log, sqrt, inverse, etc.
+
     def __post_init__(self):
         """Validate metric definition."""
         if not self.metric_name:
             raise ValueError("Metric name cannot be empty")
         if self.metric_type not in ["continuous", "binary", "count", "time_to_event"]:
             raise ValueError("Invalid metric type")
-        if self.aggregation_method not in ["mean", "median", "sum", "rate", "proportion"]:
+        if self.aggregation_method not in [
+            "mean",
+            "median",
+            "sum",
+            "rate",
+            "proportion",
+        ]:
             raise ValueError("Invalid aggregation method")
         if self.direction_of_improvement not in ["higher", "lower", "no_change"]:
             raise ValueError("Invalid direction of improvement")
-    
+
     def is_improvement(self, baseline_value: float, test_value: float) -> bool:
         """Check if test value represents an improvement over baseline."""
         if self.direction_of_improvement == "higher":
@@ -223,12 +243,14 @@ class MetricDefinition:
             return test_value < baseline_value - self.minimum_change_threshold
         else:  # no_change
             return abs(test_value - baseline_value) <= self.minimum_change_threshold
-    
-    def calculate_improvement_magnitude(self, baseline_value: float, test_value: float) -> float:
+
+    def calculate_improvement_magnitude(
+        self, baseline_value: float, test_value: float
+    ) -> float:
         """Calculate magnitude of improvement."""
         if baseline_value == 0:
             return 0.0
-        
+
         if self.direction_of_improvement == "higher":
             return (test_value - baseline_value) / baseline_value
         elif self.direction_of_improvement == "lower":
@@ -240,18 +262,19 @@ class MetricDefinition:
 @dataclass
 class TestVariant:
     """Test variant in A/B test."""
+
     variant_id: UUID = field(default_factory=uuid4)
     variant_name: str = ""
     variant_type: str = "model"  # model, algorithm, configuration, feature_set
     description: str = ""
-    configuration: Dict[str, Any] = field(default_factory=dict)
+    configuration: dict[str, Any] = field(default_factory=dict)
     is_control: bool = False
     is_treatment: bool = False
     allocation_percentage: float = 0.0
     minimum_sample_size: int = 100
     created_at: datetime = field(default_factory=datetime.utcnow)
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    
+    metadata: dict[str, Any] = field(default_factory=dict)
+
     def __post_init__(self):
         """Validate test variant."""
         if not self.variant_name:
@@ -260,16 +283,16 @@ class TestVariant:
             raise ValueError("Allocation percentage must be between 0.0 and 100.0")
         if self.minimum_sample_size < 0:
             raise ValueError("Minimum sample size must be non-negative")
-    
+
     def get_allocation_fraction(self) -> float:
         """Get allocation as fraction (0.0 to 1.0)."""
         return self.allocation_percentage / 100.0
-    
+
     def set_as_control(self) -> None:
         """Set this variant as the control group."""
         self.is_control = True
         self.is_treatment = False
-    
+
     def set_as_treatment(self) -> None:
         """Set this variant as a treatment group."""
         self.is_control = False
@@ -279,42 +302,47 @@ class TestVariant:
 @dataclass
 class ObservationUnit:
     """Unit of observation in A/B test."""
+
     unit_id: UUID = field(default_factory=uuid4)
     unit_type: str = "request"  # request, user, session, transaction
     variant_id: UUID = field(default_factory=uuid4)
     assignment_timestamp: datetime = field(default_factory=datetime.utcnow)
-    exposure_timestamp: Optional[datetime] = None
-    outcome_timestamp: Optional[datetime] = None
-    stratification_variables: Dict[str, Any] = field(default_factory=dict)
-    covariates: Dict[str, Any] = field(default_factory=dict)
-    outcomes: Dict[str, Any] = field(default_factory=dict)
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    
+    exposure_timestamp: datetime | None = None
+    outcome_timestamp: datetime | None = None
+    stratification_variables: dict[str, Any] = field(default_factory=dict)
+    covariates: dict[str, Any] = field(default_factory=dict)
+    outcomes: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
     def __post_init__(self):
         """Validate observation unit."""
         if self.assignment_timestamp and self.exposure_timestamp:
             if self.exposure_timestamp < self.assignment_timestamp:
-                raise ValueError("Exposure timestamp cannot be before assignment timestamp")
+                raise ValueError(
+                    "Exposure timestamp cannot be before assignment timestamp"
+                )
         if self.exposure_timestamp and self.outcome_timestamp:
             if self.outcome_timestamp < self.exposure_timestamp:
-                raise ValueError("Outcome timestamp cannot be before exposure timestamp")
-    
-    def get_exposure_delay(self) -> Optional[timedelta]:
+                raise ValueError(
+                    "Outcome timestamp cannot be before exposure timestamp"
+                )
+
+    def get_exposure_delay(self) -> timedelta | None:
         """Get delay between assignment and exposure."""
         if self.assignment_timestamp and self.exposure_timestamp:
             return self.exposure_timestamp - self.assignment_timestamp
         return None
-    
-    def get_outcome_delay(self) -> Optional[timedelta]:
+
+    def get_outcome_delay(self) -> timedelta | None:
         """Get delay between exposure and outcome."""
         if self.exposure_timestamp and self.outcome_timestamp:
             return self.outcome_timestamp - self.exposure_timestamp
         return None
-    
+
     def has_outcome(self, metric_name: str) -> bool:
         """Check if unit has outcome for specific metric."""
         return metric_name in self.outcomes
-    
+
     def get_outcome_value(self, metric_name: str) -> Any:
         """Get outcome value for specific metric."""
         return self.outcomes.get(metric_name)
@@ -323,81 +351,85 @@ class ObservationUnit:
 @dataclass
 class VariantPerformance:
     """Performance metrics for a test variant."""
+
     variant_id: UUID
     variant_name: str
     sample_size: int = 0
-    metric_values: Dict[str, List[float]] = field(default_factory=dict)
-    aggregated_metrics: Dict[str, float] = field(default_factory=dict)
-    confidence_intervals: Dict[str, Tuple[float, float]] = field(default_factory=dict)
-    standard_errors: Dict[str, float] = field(default_factory=dict)
-    percentiles: Dict[str, Dict[str, float]] = field(default_factory=dict)
+    metric_values: dict[str, list[float]] = field(default_factory=dict)
+    aggregated_metrics: dict[str, float] = field(default_factory=dict)
+    confidence_intervals: dict[str, tuple[float, float]] = field(default_factory=dict)
+    standard_errors: dict[str, float] = field(default_factory=dict)
+    percentiles: dict[str, dict[str, float]] = field(default_factory=dict)
     last_updated: datetime = field(default_factory=datetime.utcnow)
-    
+
     def add_observation(self, metric_name: str, value: float) -> None:
         """Add metric observation."""
         if metric_name not in self.metric_values:
             self.metric_values[metric_name] = []
-        
+
         self.metric_values[metric_name].append(value)
         self.sample_size = max(self.sample_size, len(self.metric_values[metric_name]))
         self.last_updated = datetime.utcnow()
-    
-    def calculate_aggregated_metrics(self, metrics: List[MetricDefinition]) -> None:
+
+    def calculate_aggregated_metrics(self, metrics: list[MetricDefinition]) -> None:
         """Calculate aggregated metrics."""
         for metric in metrics:
             if metric.metric_name in self.metric_values:
                 values = np.array(self.metric_values[metric.metric_name])
-                
+
                 if metric.aggregation_method == "mean":
                     self.aggregated_metrics[metric.metric_name] = float(np.mean(values))
                 elif metric.aggregation_method == "median":
-                    self.aggregated_metrics[metric.metric_name] = float(np.median(values))
+                    self.aggregated_metrics[metric.metric_name] = float(
+                        np.median(values)
+                    )
                 elif metric.aggregation_method == "sum":
                     self.aggregated_metrics[metric.metric_name] = float(np.sum(values))
                 elif metric.aggregation_method == "rate":
                     self.aggregated_metrics[metric.metric_name] = float(np.mean(values))
                 elif metric.aggregation_method == "proportion":
                     self.aggregated_metrics[metric.metric_name] = float(np.mean(values))
-                
+
                 # Calculate confidence interval
                 if len(values) > 1:
                     mean_val = np.mean(values)
                     std_err = np.std(values, ddof=1) / np.sqrt(len(values))
                     ci_margin = 1.96 * std_err  # 95% CI
-                    
+
                     self.confidence_intervals[metric.metric_name] = (
                         float(mean_val - ci_margin),
-                        float(mean_val + ci_margin)
+                        float(mean_val + ci_margin),
                     )
                     self.standard_errors[metric.metric_name] = float(std_err)
-                    
+
                     # Calculate percentiles
                     self.percentiles[metric.metric_name] = {
                         "p5": float(np.percentile(values, 5)),
                         "p25": float(np.percentile(values, 25)),
                         "p50": float(np.percentile(values, 50)),
                         "p75": float(np.percentile(values, 75)),
-                        "p95": float(np.percentile(values, 95))
+                        "p95": float(np.percentile(values, 95)),
                     }
-    
-    def get_metric_summary(self, metric_name: str) -> Dict[str, Any]:
+
+    def get_metric_summary(self, metric_name: str) -> dict[str, Any]:
         """Get comprehensive summary for a metric."""
         if metric_name not in self.metric_values:
             return {}
-        
+
         return {
             "sample_size": len(self.metric_values[metric_name]),
             "aggregated_value": self.aggregated_metrics.get(metric_name),
             "confidence_interval": self.confidence_intervals.get(metric_name),
             "standard_error": self.standard_errors.get(metric_name),
             "percentiles": self.percentiles.get(metric_name, {}),
-            "raw_values": self.metric_values[metric_name][:100]  # Limit for display
+            "raw_values": self.metric_values[metric_name][:100],  # Limit for display
         }
 
 
 @dataclass
 class ComparisonResult:
     """Result of comparing two variants."""
+
     comparison_id: UUID = field(default_factory=uuid4)
     control_variant_id: UUID = field(default_factory=uuid4)
     treatment_variant_id: UUID = field(default_factory=uuid4)
@@ -411,26 +443,28 @@ class ComparisonResult:
     effect_size_measure: EffectSizeMeasure = EffectSizeMeasure.COHENS_D
     test_statistic: float = 0.0
     p_value: float = 1.0
-    confidence_interval: Tuple[float, float] = field(default_factory=lambda: (0.0, 0.0))
+    confidence_interval: tuple[float, float] = field(default_factory=lambda: (0.0, 0.0))
     is_significant: bool = False
     power: float = 0.0
     interpretation: str = ""
     practical_significance: bool = False
-    
+
     def __post_init__(self):
         """Validate comparison result."""
         if not (0.0 <= self.p_value <= 1.0):
             raise ValueError("P-value must be between 0.0 and 1.0")
         if not (0.0 <= self.power <= 1.0):
             raise ValueError("Power must be between 0.0 and 1.0")
-        
+
         # Calculate relative difference
         if self.control_value != 0:
-            self.relative_difference = (self.treatment_value - self.control_value) / self.control_value
-        
+            self.relative_difference = (
+                self.treatment_value - self.control_value
+            ) / self.control_value
+
         # Calculate absolute difference
         self.difference = self.treatment_value - self.control_value
-    
+
     def get_effect_interpretation(self) -> str:
         """Get interpretation of effect size."""
         if self.effect_size_measure == EffectSizeMeasure.COHENS_D:
@@ -442,18 +476,18 @@ class ComparisonResult:
                 return "medium"
             else:
                 return "large"
-        
+
         return "unknown"
-    
+
     def is_practically_significant(self, threshold: float = 0.05) -> bool:
         """Check if result is practically significant."""
         return abs(self.relative_difference) >= threshold
-    
+
     def get_confidence_level(self) -> float:
         """Get confidence level from p-value."""
         return 1.0 - self.p_value
-    
-    def get_result_summary(self) -> Dict[str, Any]:
+
+    def get_result_summary(self) -> dict[str, Any]:
         """Get comprehensive summary of comparison result."""
         return {
             "metric": self.metric_name,
@@ -468,24 +502,27 @@ class ComparisonResult:
             "practical_significance": self.practical_significance,
             "confidence_interval": self.confidence_interval,
             "power": self.power,
-            "interpretation": self.interpretation
+            "interpretation": self.interpretation,
         }
 
 
 @dataclass
 class TestEvidence:
     """Evidence collected during A/B test."""
+
     evidence_id: UUID = field(default_factory=uuid4)
     test_id: UUID = field(default_factory=uuid4)
-    evidence_type: str = "performance_data"  # performance_data, user_feedback, system_logs
+    evidence_type: str = (
+        "performance_data"  # performance_data, user_feedback, system_logs
+    )
     collection_timestamp: datetime = field(default_factory=datetime.utcnow)
     variant_id: UUID = field(default_factory=uuid4)
-    evidence_data: Dict[str, Any] = field(default_factory=dict)
+    evidence_data: dict[str, Any] = field(default_factory=dict)
     quality_score: float = 1.0
     reliability_score: float = 1.0
-    bias_indicators: List[str] = field(default_factory=list)
+    bias_indicators: list[str] = field(default_factory=list)
     validation_status: str = "pending"  # pending, validated, rejected
-    
+
     def __post_init__(self):
         """Validate test evidence."""
         if not (0.0 <= self.quality_score <= 1.0):
@@ -494,15 +531,15 @@ class TestEvidence:
             raise ValueError("Reliability score must be between 0.0 and 1.0")
         if self.validation_status not in ["pending", "validated", "rejected"]:
             raise ValueError("Invalid validation status")
-    
+
     def is_high_quality(self, threshold: float = 0.8) -> bool:
         """Check if evidence meets high quality threshold."""
         return self.quality_score >= threshold and self.reliability_score >= threshold
-    
+
     def has_bias_indicators(self) -> bool:
         """Check if evidence has bias indicators."""
         return len(self.bias_indicators) > 0
-    
+
     def get_credibility_score(self) -> float:
         """Calculate overall credibility score."""
         bias_penalty = len(self.bias_indicators) * 0.1
@@ -513,15 +550,16 @@ class TestEvidence:
 @dataclass
 class DecisionFramework:
     """Framework for making decisions based on A/B test results."""
+
     framework_id: UUID = field(default_factory=uuid4)
-    decision_criteria: Dict[str, Any] = field(default_factory=dict)
+    decision_criteria: dict[str, Any] = field(default_factory=dict)
     risk_tolerance: float = 0.05
     minimum_practical_effect: float = 0.02
     required_confidence: float = 0.95
-    business_constraints: List[str] = field(default_factory=list)
-    cost_benefit_analysis: Dict[str, float] = field(default_factory=dict)
-    stakeholder_weights: Dict[str, float] = field(default_factory=dict)
-    
+    business_constraints: list[str] = field(default_factory=list)
+    cost_benefit_analysis: dict[str, float] = field(default_factory=dict)
+    stakeholder_weights: dict[str, float] = field(default_factory=dict)
+
     def __post_init__(self):
         """Validate decision framework."""
         if not (0.0 < self.risk_tolerance < 1.0):
@@ -530,39 +568,50 @@ class DecisionFramework:
             raise ValueError("Required confidence must be between 0.0 and 1.0")
         if self.minimum_practical_effect < 0.0:
             raise ValueError("Minimum practical effect must be non-negative")
-    
-    def evaluate_decision(self, comparison_results: List[ComparisonResult]) -> Dict[str, Any]:
+
+    def evaluate_decision(
+        self, comparison_results: list[ComparisonResult]
+    ) -> dict[str, Any]:
         """Evaluate decision based on test results."""
         decision = {
             "recommendation": "no_change",
             "confidence": 0.0,
             "rationale": [],
             "risks": [],
-            "benefits": []
+            "benefits": [],
         }
-        
+
         significant_results = [r for r in comparison_results if r.is_significant]
-        practically_significant = [r for r in comparison_results 
-                                 if r.is_practically_significant(self.minimum_practical_effect)]
-        
+        practically_significant = [
+            r
+            for r in comparison_results
+            if r.is_practically_significant(self.minimum_practical_effect)
+        ]
+
         if significant_results and practically_significant:
             positive_effects = [r for r in practically_significant if r.difference > 0]
             if positive_effects:
                 decision["recommendation"] = "deploy_treatment"
-                decision["confidence"] = min([r.get_confidence_level() for r in positive_effects])
-                decision["rationale"].append("Statistically and practically significant improvement")
-        
+                decision["confidence"] = min(
+                    [r.get_confidence_level() for r in positive_effects]
+                )
+                decision["rationale"].append(
+                    "Statistically and practically significant improvement"
+                )
+
         return decision
-    
-    def assess_deployment_risk(self, comparison_results: List[ComparisonResult]) -> float:
+
+    def assess_deployment_risk(
+        self, comparison_results: list[ComparisonResult]
+    ) -> float:
         """Assess risk of deploying treatment variant."""
         risk_factors = []
-        
+
         for result in comparison_results:
             if result.is_significant and result.difference < 0:
                 risk_factors.append(abs(result.relative_difference))
-        
+
         if not risk_factors:
             return 0.0
-        
+
         return min(1.0, np.mean(risk_factors))

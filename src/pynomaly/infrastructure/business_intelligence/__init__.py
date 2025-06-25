@@ -5,10 +5,6 @@ reporting, algorithm recommendations, and executive dashboards as part of
 Phase 2 strategic enhancement.
 """
 
-from .reporting_service import ReportingService, ExecutiveReport, TechnicalReport
+from .reporting_service import ExecutiveReport, ReportingService, TechnicalReport
 
-__all__ = [
-    'ReportingService',
-    'ExecutiveReport', 
-    'TechnicalReport'
-]
+__all__ = ["ReportingService", "ExecutiveReport", "TechnicalReport"]

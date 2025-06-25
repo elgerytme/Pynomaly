@@ -2,20 +2,20 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class PynamolyError(Exception):
     """Base exception for all Pynomaly errors."""
-    
+
     def __init__(
         self,
         message: str,
-        details: Optional[Dict[str, Any]] = None,
-        cause: Optional[Exception] = None
+        details: dict[str, Any] | None = None,
+        cause: Exception | None = None,
     ) -> None:
         """Initialize exception with optional details and cause.
-        
+
         Args:
             message: Error message
             details: Additional error details
@@ -25,26 +25,26 @@ class PynamolyError(Exception):
         self.message = message
         self.details = details or {}
         self.cause = cause
-    
+
     def __str__(self) -> str:
         """String representation of the error."""
         parts = [self.message]
-        
+
         if self.details:
             details_str = ", ".join(f"{k}={v}" for k, v in self.details.items())
             parts.append(f"Details: {details_str}")
-        
+
         if self.cause:
             parts.append(f"Caused by: {type(self.cause).__name__}: {str(self.cause)}")
-        
+
         return " | ".join(parts)
-    
+
     def with_context(self, **kwargs: Any) -> PynamolyError:
         """Add context information to the exception.
-        
+
         Args:
             **kwargs: Context key-value pairs
-            
+
         Returns:
             The exception with added context
         """
@@ -54,21 +54,22 @@ class PynamolyError(Exception):
 
 class DomainError(PynamolyError):
     """Base exception for domain-specific errors."""
+
     pass
 
 
 class ValidationError(DomainError):
     """Exception raised when validation fails."""
-    
+
     def __init__(
         self,
         message: str,
-        field: Optional[str] = None,
-        value: Optional[Any] = None,
-        **kwargs: Any
+        field: str | None = None,
+        value: Any | None = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize validation error.
-        
+
         Args:
             message: Error message
             field: Field that failed validation
@@ -80,26 +81,27 @@ class ValidationError(DomainError):
             details["field"] = field
         if value is not None:
             details["value"] = value
-        
+
         super().__init__(message, details)
 
 
 class InvalidValueError(ValidationError):
     """Exception raised when a value is invalid."""
+
     pass
 
 
 class NotFittedError(DomainError):
     """Exception raised when using an unfitted model."""
-    
+
     def __init__(
         self,
         message: str = "Detector must be fitted before use",
-        detector_name: Optional[str] = None,
-        **kwargs: Any
+        detector_name: str | None = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize not fitted error.
-        
+
         Args:
             message: Error message
             detector_name: Name of the unfitted detector
@@ -108,23 +110,23 @@ class NotFittedError(DomainError):
         details = kwargs
         if detector_name:
             details["detector_name"] = detector_name
-        
+
         super().__init__(message, details)
 
 
 class ConfigurationError(DomainError):
     """Exception raised when configuration is invalid."""
-    
+
     def __init__(
         self,
         message: str,
-        parameter: Optional[str] = None,
-        expected: Optional[Any] = None,
-        actual: Optional[Any] = None,
-        **kwargs: Any
+        parameter: str | None = None,
+        expected: Any | None = None,
+        actual: Any | None = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize configuration error.
-        
+
         Args:
             message: Error message
             parameter: Configuration parameter name
@@ -139,22 +141,22 @@ class ConfigurationError(DomainError):
             details["expected"] = expected
         if actual is not None:
             details["actual"] = actual
-        
+
         super().__init__(message, details)
 
 
 class AuthenticationError(PynamolyError):
     """Exception raised when authentication fails."""
-    
+
     def __init__(
         self,
         message: str = "Authentication failed",
-        username: Optional[str] = None,
-        reason: Optional[str] = None,
-        **kwargs: Any
+        username: str | None = None,
+        reason: str | None = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize authentication error.
-        
+
         Args:
             message: Error message
             username: Username that failed authentication
@@ -166,23 +168,23 @@ class AuthenticationError(PynamolyError):
             details["username"] = username
         if reason:
             details["reason"] = reason
-        
+
         super().__init__(message, details)
 
 
 class AuthorizationError(PynamolyError):
     """Exception raised when authorization fails."""
-    
+
     def __init__(
         self,
         message: str = "Authorization failed",
-        user_id: Optional[str] = None,
-        required_permission: Optional[str] = None,
-        required_role: Optional[str] = None,
-        **kwargs: Any
+        user_id: str | None = None,
+        required_permission: str | None = None,
+        required_role: str | None = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize authorization error.
-        
+
         Args:
             message: Error message
             user_id: User ID that failed authorization
@@ -197,22 +199,22 @@ class AuthorizationError(PynamolyError):
             details["required_permission"] = required_permission
         if required_role:
             details["required_role"] = required_role
-        
+
         super().__init__(message, details)
 
 
 class CacheError(PynamolyError):
     """Exception raised when cache operations fail."""
-    
+
     def __init__(
         self,
         message: str = "Cache operation failed",
-        operation: Optional[str] = None,
-        key: Optional[str] = None,
-        **kwargs: Any
+        operation: str | None = None,
+        key: str | None = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize cache error.
-        
+
         Args:
             message: Error message
             operation: Cache operation that failed
@@ -224,22 +226,22 @@ class CacheError(PynamolyError):
             details["operation"] = operation
         if key:
             details["key"] = key
-        
+
         super().__init__(message, details)
 
 
 class InfrastructureError(PynamolyError):
     """Exception raised when infrastructure operations fail."""
-    
+
     def __init__(
         self,
         message: str = "Infrastructure operation failed",
-        component: Optional[str] = None,
-        operation: Optional[str] = None,
-        **kwargs: Any
+        component: str | None = None,
+        operation: str | None = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize infrastructure error.
-        
+
         Args:
             message: Error message
             component: Infrastructure component that failed
@@ -251,5 +253,5 @@ class InfrastructureError(PynamolyError):
             details["component"] = component
         if operation:
             details["operation"] = operation
-        
+
         super().__init__(message, details)

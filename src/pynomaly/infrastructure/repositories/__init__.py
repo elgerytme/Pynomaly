@@ -1,21 +1,21 @@
 """Repository implementations."""
 
-from .in_memory_repositories import (
-    InMemoryDetectorRepository,
-    InMemoryDatasetRepository,
-    InMemoryResultRepository
-)
-from .file_repositories import (
-    FileDetectorRepository,
-    FileDatasetRepository,
-    FileResultRepository
-)
-from .detector_repository import DetectorRepository
-from .dataset_repository import DatasetRepository
 from .async_wrappers import (
-    AsyncDetectorRepositoryWrapper,
     AsyncDatasetRepositoryWrapper,
-    AsyncDetectionResultRepositoryWrapper
+    AsyncDetectionResultRepositoryWrapper,
+    AsyncDetectorRepositoryWrapper,
+)
+from .dataset_repository import DatasetRepository
+from .detector_repository import DetectorRepository
+from .file_repositories import (
+    FileDatasetRepository,
+    FileDetectorRepository,
+    FileResultRepository,
+)
+from .in_memory_repositories import (
+    InMemoryDatasetRepository,
+    InMemoryDetectorRepository,
+    InMemoryResultRepository,
 )
 
 __all__ = [

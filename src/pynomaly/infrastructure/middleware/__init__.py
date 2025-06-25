@@ -1,11 +1,8 @@
 """Infrastructure middleware components."""
 
 from .configuration_middleware import (
+    ConfigurationAPIMiddleware,
     ConfigurationCaptureMiddleware,
-    ConfigurationAPIMiddleware
 )
 
-__all__ = [
-    "ConfigurationCaptureMiddleware",
-    "ConfigurationAPIMiddleware"
-]
+__all__ = ["ConfigurationCaptureMiddleware", "ConfigurationAPIMiddleware"]

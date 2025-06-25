@@ -2,28 +2,29 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from .base import DomainError
 
 
 class ResultError(DomainError):
     """Base exception for detection result-related errors."""
+
     pass
 
 
 class ScoreCalculationError(ResultError):
     """Exception raised when score calculation fails."""
-    
+
     def __init__(
         self,
         message: str,
-        detector_name: Optional[str] = None,
-        dataset_name: Optional[str] = None,
-        **kwargs: Any
+        detector_name: str | None = None,
+        dataset_name: str | None = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize score calculation error.
-        
+
         Args:
             message: Error message
             detector_name: Name of the detector
@@ -31,28 +32,28 @@ class ScoreCalculationError(ResultError):
             **kwargs: Additional details
         """
         details = kwargs
-        
+
         if detector_name:
             details["detector_name"] = detector_name
         if dataset_name:
             details["dataset_name"] = dataset_name
-        
+
         super().__init__(message, details)
 
 
 class ThresholdError(ResultError):
     """Exception raised when threshold calculation or application fails."""
-    
+
     def __init__(
         self,
         message: str,
-        threshold_value: Optional[float] = None,
-        contamination_rate: Optional[float] = None,
-        n_samples: Optional[int] = None,
-        **kwargs: Any
+        threshold_value: float | None = None,
+        contamination_rate: float | None = None,
+        n_samples: int | None = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize threshold error.
-        
+
         Args:
             message: Error message
             threshold_value: The problematic threshold
@@ -61,31 +62,31 @@ class ThresholdError(ResultError):
             **kwargs: Additional details
         """
         details = kwargs
-        
+
         if threshold_value is not None:
             details["threshold_value"] = threshold_value
         if contamination_rate is not None:
             details["contamination_rate"] = contamination_rate
         if n_samples is not None:
             details["n_samples"] = n_samples
-        
+
         super().__init__(message, details)
 
 
 class InconsistentResultError(ResultError):
     """Exception raised when detection result is internally inconsistent."""
-    
+
     def __init__(
         self,
         message: str,
-        n_scores: Optional[int] = None,
-        n_labels: Optional[int] = None,
-        n_anomalies_expected: Optional[int] = None,
-        n_anomalies_actual: Optional[int] = None,
-        **kwargs: Any
+        n_scores: int | None = None,
+        n_labels: int | None = None,
+        n_anomalies_expected: int | None = None,
+        n_anomalies_actual: int | None = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize inconsistent result error.
-        
+
         Args:
             message: Error message
             n_scores: Number of scores
@@ -95,7 +96,7 @@ class InconsistentResultError(ResultError):
             **kwargs: Additional details
         """
         details = kwargs
-        
+
         if n_scores is not None:
             details["n_scores"] = n_scores
         if n_labels is not None:
@@ -104,5 +105,5 @@ class InconsistentResultError(ResultError):
             details["n_anomalies_expected"] = n_anomalies_expected
         if n_anomalies_actual is not None:
             details["n_anomalies_actual"] = n_anomalies_actual
-        
+
         super().__init__(message, details)

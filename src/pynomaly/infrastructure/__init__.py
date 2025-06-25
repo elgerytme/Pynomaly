@@ -3,9 +3,9 @@
 from .adapters import PyODAdapter, SklearnAdapter
 from .data_loaders import CSVLoader, ParquetLoader
 from .repositories import (
-    InMemoryDetectorRepository,
     InMemoryDatasetRepository,
-    InMemoryResultRepository
+    InMemoryDetectorRepository,
+    InMemoryResultRepository,
 )
 
 __all__ = [
