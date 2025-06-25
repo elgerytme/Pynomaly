@@ -93,9 +93,39 @@ poetry install -E ml-all     # All ML frameworks and tools
 poetry install -E all        # All optional dependencies
 ```
 
-### Compatibility Note
+### Cross-Platform Compatibility
 
-**NumPy Version**: Pynomaly uses `numpy>=1.26.0,<2.2.0` to ensure compatibility with TensorFlow and other ML libraries. This constraint supports the latest NumPy features while maintaining compatibility with the broader ML ecosystem.
+Pynomaly is designed to work seamlessly across different operating systems and environments:
+
+**Supported Platforms:**
+- **Linux/Unix**: Full compatibility with bash shell environments
+- **macOS**: Complete support for all features and commands
+- **Windows**: Full compatibility with PowerShell and Command Prompt
+- **WSL/WSL2**: Tested and verified on Windows Subsystem for Linux
+
+**Shell Compatibility:**
+- **Bash**: All commands and scripts tested and verified
+- **PowerShell**: Cross-platform PowerShell support (Core 6.0+)
+- **Command Prompt**: Basic functionality available
+- **Zsh/Fish**: Compatible with alternative Unix shells
+
+**Python Environment Support:**
+- **Virtual Environments**: `venv`, `virtualenv`, `conda`, `pipenv`, `poetry`
+- **Python Versions**: 3.11, 3.12, 3.13+
+- **Package Managers**: pip, conda, poetry, pipenv
+
+**Installation Methods:**
+- **Package Installation**: `pip install -e .` (cross-platform)
+- **Development Setup**: Poetry-based development environment
+- **Container Deployment**: Docker support for all platforms
+- **Cloud Deployment**: AWS, Azure, GCP compatible
+
+**Path Handling:**
+- Automatic cross-platform path normalization
+- Windows backslash (`\`) and Unix forward slash (`/`) support
+- Environment variable handling across all platforms
+
+**NumPy Compatibility**: Uses `numpy>=1.26.0,<2.2.0` to ensure compatibility with TensorFlow and other ML libraries across all platforms.
 
 ## Quick Start
 
