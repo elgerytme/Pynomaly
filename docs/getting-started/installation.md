@@ -1,107 +1,129 @@
 # Installation
 
-This guide will help you install Pynomaly and its dependencies.
+This guide will help you install Pynomaly and its dependencies using modern Python tooling.
 
 ## Requirements
 
-- Python 3.11 or higher
-- Poetry (recommended) or pip
-- Optional: Docker for containerized deployment
+- **Python 3.11 or higher** (3.12 recommended)
+- **Hatch** (recommended) or pip for package management
+- **Git** for version control
+- **Optional**: Docker for containerized deployment
 
-## Install with Poetry (Recommended)
+## Install with Hatch (Recommended)
 
-Poetry provides better dependency management and virtual environment handling.
+Pynomaly uses **Hatch** for modern Python project management with automatic environment handling and PEP 621 compliance.
 
-### Install Poetry
+### Install Hatch
 
 ```bash
-# Using the official installer
-curl -sSL https://install.python-poetry.org | python3 -
+# Install Hatch (one-time setup)
+pip install hatch
 
-# Or with pip
-pip install poetry
+# Verify installation
+hatch --version
 ```
 
-### Install Pynomaly
+### Quick Setup
 
 ```bash
 # Clone the repository
-git clone https://github.com/pynomaly/pynomaly.git
+git clone https://github.com/yourusername/pynomaly.git
 cd pynomaly
 
-# Install dependencies
-poetry install
-
-# Install with optional ML backends
-poetry install -E torch      # PyTorch support
-poetry install -E tensorflow # TensorFlow support
-poetry install -E jax        # JAX support
-poetry install -E all        # All optional dependencies
+# Automated setup (recommended)
+make setup              # Install Hatch and create environments
+make dev-install        # Install in development mode
+make test               # Verify installation
 ```
 
-### Activate Virtual Environment
+### Manual Hatch Setup
 
 ```bash
-# Activate the poetry shell
-poetry shell
+# Create environments
+hatch env create
+hatch env show
 
-# Or run commands with poetry run
-poetry run pynomaly --help
+# Install with specific features
+hatch env run dev:setup          # Development environment
+hatch env run prod:setup         # Production environment
+
+# Install with ML backends
+hatch env run -e ml pip install -e ".[torch]"
+hatch env run -e ml pip install -e ".[tensorflow]"
+hatch env run -e ml pip install -e ".[all]"
 ```
 
-## Install with pip
+### Using Hatch Environments
 
-### Simple Setup (No Poetry/Docker/Make required)
+```bash
+# Run commands in environments
+hatch env run test:run           # Run tests
+hatch env run lint:style         # Check code style
+hatch env run prod:serve-api     # Start API server
+hatch env run cli:run --help     # CLI help
+```
 
-For the simplest setup using only Python and pip:
+## Alternative: Traditional pip Installation
+
+### Simple pip Setup
+
+For those preferring traditional Python environment management:
 
 ```bash
 # Clone the repository
-git clone https://github.com/pynomaly/pynomaly.git
+git clone https://github.com/yourusername/pynomaly.git
 cd pynomaly
 
-# Run the automated setup script
+# Create virtual environment
+python -m venv .venv
+
+# Activate environment
+# Linux/macOS:
+source .venv/bin/activate
+# Windows:
+.venv\Scripts\activate
+
+# Install with desired features
+pip install -e ".[server]"          # API + CLI + basic features
+pip install -e ".[production]"      # Production-ready stack
+pip install -e ".[all]"             # Everything
+```
+
+### Feature-Specific Installation
+
+```bash
+# Core functionality only
+pip install -e .
+
+# ML frameworks
+pip install -e ".[torch]"           # PyTorch deep learning
+pip install -e ".[tensorflow]"      # TensorFlow neural networks
+pip install -e ".[jax]"             # JAX high-performance computing
+pip install -e ".[graph]"           # PyGOD graph anomaly detection
+
+# Application interfaces
+pip install -e ".[api]"             # FastAPI web interface
+pip install -e ".[cli]"             # Command-line interface
+pip install -e ".[web]"             # Progressive Web App
+
+# Advanced features
+pip install -e ".[automl]"          # AutoML with auto-sklearn2
+pip install -e ".[explainability]" # SHAP/LIME model explanation
+pip install -e ".[monitoring]"      # Prometheus, OpenTelemetry
+```
+
+### Automated pip Setup
+
+```bash
+# Run the automated setup script (handles environment issues)
 python scripts/setup_simple.py
 ```
 
 This script will:
 - Create a virtual environment
-- Install all dependencies from requirements.txt
+- Install core dependencies
 - Set up Pynomaly in development mode
-- Show you how to run the application
-
-After setup:
-```bash
-# Windows
-.venv\Scripts\activate
-
-# Linux/Mac
-source .venv/bin/activate
-
-# Run the app
-pynomaly --help
-pynomaly server start
-```
-
-### Manual pip Installation
-
-If you prefer manual setup:
-
-```bash
-# Clone the repository
-git clone https://github.com/pynomaly/pynomaly.git
-cd pynomaly
-
-# Create virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-# Install from requirements.txt
-pip install -r requirements.txt
-
-# Install package in development mode
-pip install -e .
-```
+- Provide usage instructions
 
 For more details, see [README_SIMPLE_SETUP.md](README_SIMPLE_SETUP.md)
 
@@ -139,38 +161,99 @@ docker-compose up -d
 
 For contributing to Pynomaly:
 
+### Hatch Development Setup
+
 ```bash
 # Clone your fork
 git clone https://github.com/your-username/pynomaly.git
 cd pynomaly
 
+# Complete development setup
+make setup              # Install Hatch and create environments
+make dev-install        # Install in development mode
+make pre-commit         # Setup pre-commit hooks
+
+# Install Node.js dependencies for web UI
+npm install -D tailwindcss @tailwindcss/forms @tailwindcss/typography
+npm install htmx.org d3 echarts
+```
+
+### Development Workflow
+
+```bash
+# Daily development commands
+make format             # Auto-format code
+make test               # Run core tests
+make lint               # Check code quality
+make ci                 # Full CI pipeline locally
+
+# Build and package
+make build              # Build wheel and source distribution
+make version            # Show current version
+```
+
+### Legacy Poetry Development
+
+For those still using Poetry:
+
+```bash
 # Install with dev dependencies
-poetry install --with dev
+poetry install --with dev,test
+poetry shell
 
 # Install pre-commit hooks
 pre-commit install
-
-# Install Node.js dependencies for web UI
-npm install
 ```
 
 ## Verify Installation
 
 Check that Pynomaly is installed correctly:
 
+### Basic Verification
+
 ```bash
-# Check CLI
+# Check CLI (after installation)
 pynomaly --version
 pynomaly --help
 
 # Check Python import
-python -c "import pynomaly; print(pynomaly.__version__)"
+python -c "import pynomaly; print('✅ Pynomaly installed successfully')"
 
-# Run tests
-pytest
+# Test core functionality
+python -c "from pynomaly.domain.entities import Dataset, Anomaly; print('✅ Core imports successful')"
+```
 
+### Testing
+
+```bash
+# With Hatch
+make test               # Core tests
+make test-all           # All tests
+make ci                 # Full CI pipeline
+
+# Direct Hatch commands
+hatch env run test:run                    # Run tests
+hatch env run test:run-cov               # With coverage
+
+# Traditional pytest
+pytest tests/domain/ tests/application/  # Core tests only
+```
+
+### API Server
+
+```bash
 # Start API server
-pynomaly server start
+# Method 1: Using Hatch
+make prod-api-dev
+
+# Method 2: Direct Hatch command
+hatch env run prod:serve-api
+
+# Method 3: Traditional uvicorn
+uvicorn pynomaly.presentation.api.app:app --reload
+
+# Access at: http://localhost:8000
+# API docs: http://localhost:8000/docs
 ```
 
 ## Platform-Specific Notes
@@ -249,16 +332,28 @@ Edit `.env` to configure:
 
 ## Troubleshooting
 
-### Poetry Issues
+### Hatch Issues
 
 ```bash
-# Clear cache
+# Environment problems
+make env-clean          # Clean and recreate environments
+make setup              # Reinitialize project
+
+# Build issues
+hatch build --clean --verbose  # Verbose build output
+hatch env prune                 # Remove unused environments
+
+# Check project status
+make status             # Project overview
+hatch env show          # List environments
+```
+
+### Legacy Poetry Issues
+
+```bash
+# Clear cache (if still using Poetry)
 poetry cache clear pypi --all
-
-# Update dependencies
 poetry update
-
-# Reinstall
 poetry install --sync
 ```
 

@@ -1,25 +1,55 @@
 # Quick Start Guide
 
-Get started with anomaly detection in minutes using Pynomaly.
+Get started with anomaly detection in minutes using Pynomaly's modern development stack.
 
 ## Prerequisites
 
-Make sure you have Python 3.11+ installed. No need for Poetry, Docker, or Make!
+- **Python 3.11+** (3.12 recommended)
+- **Hatch** for environment management (recommended)
+- **Git** for cloning the repository
 
-### Simple Setup (Python + pip only)
+## Installation Methods
+
+### Method 1: Hatch (Recommended)
+
+```bash
+# Install Hatch (one-time setup)
+pip install hatch
+
+# Clone and setup
+git clone https://github.com/yourusername/pynomaly.git
+cd pynomaly
+
+# Automated setup
+make setup              # Install Hatch and create environments
+make dev-install        # Install in development mode
+make test               # Verify installation
+```
+
+### Method 2: Traditional pip
 
 ```bash
 # Clone and setup
-git clone https://github.com/pynomaly/pynomaly.git
+git clone https://github.com/yourusername/pynomaly.git
 cd pynomaly
-python scripts/setup_simple.py
 
-# Activate virtual environment
-.venv\Scripts\activate  # Windows
+# Create virtual environment
+python -m venv .venv
 source .venv/bin/activate  # Linux/Mac
+# .venv\Scripts\activate  # Windows
+
+# Install with features
+pip install -e ".[server]"  # API + CLI + basic ML
 
 # Test installation
 pynomaly --help
+```
+
+### Method 3: Simple pip Setup
+
+```bash
+# Automated setup script (handles environment issues)
+python scripts/setup_simple.py
 ```
 
 ## Basic Workflow
@@ -46,8 +76,9 @@ pynomaly dataset load transactions.csv \
   --target fraud_label \
   --sample 10000
 
-# Alternative method
-python scripts/cli.py dataset load data.csv --name "Sales Data"
+# Alternative methods
+python scripts/pynomaly_cli.py dataset load data.csv --name "Sales Data"
+hatch env run cli:run dataset load data.csv --name "Sales Data"
 ```
 
 ### Step 2: Create a Detector
@@ -109,8 +140,17 @@ pynomaly detect results --latest
 pynomaly detect results --detector <detector_id>
 
 # Start web UI to visualize
+# Method 1: Using Hatch
+make prod-api-dev
+
+# Method 2: Traditional CLI
 pynomaly server start
-# Open http://localhost:8000
+
+# Method 3: Direct Hatch command
+hatch env run prod:serve-api
+
+# Access at: http://localhost:8000
+# API docs: http://localhost:8000/docs
 ```
 
 ## Using the Python API
@@ -232,38 +272,49 @@ print(f"Ensemble found {ensemble_result.n_anomalies} anomalies")
 ### Start the Server
 
 ```bash
-# Using simple Python CLI
-python cli.py server start
+# Hatch methods (recommended)
+make prod-api           # Production server
+make prod-api-dev       # Development server with reload
 
-# Or if package is installed
-pynomaly server start
+# Direct Hatch commands
+hatch env run prod:serve-api-prod    # Production with workers
+hatch env run prod:serve-api         # Development mode
 
-# Start with custom host/port
-python cli.py server start --host 0.0.0.0 --port 8080
+# Traditional methods
+pynomaly server start               # If installed with pip
+python scripts/pynomaly_cli.py server start  # Alternative CLI
 
-# Start with auto-reload for development
-python cli.py server start --reload
-
-# Or run directly with uvicorn
-python -m uvicorn pynomaly.presentation.api.app:app --reload
+# Direct uvicorn
+uvicorn pynomaly.presentation.api.app:app --reload
 ```
 
 ### Access the UI
 
-1. Open http://localhost:8000 in your browser
-2. Navigate through:
-   - **Dashboard** - Overview and recent results
-   - **Detectors** - Manage algorithms
-   - **Datasets** - Upload and explore data
-   - **Detection** - Run anomaly detection
-   - **Visualizations** - Interactive charts
+1. **Main Application**: http://localhost:8000
+2. **API Documentation**: http://localhost:8000/docs  
+3. **Progressive Web App**: http://localhost:8000/app
+4. **Health Check**: http://localhost:8000/api/health
 
-### Key Features
+### Web Interface Features
 
-- **Real-time Updates** - HTMX-powered dynamic content
-- **Interactive Charts** - D3.js and ECharts visualizations
-- **Experiment Tracking** - Compare model performance
-- **Progressive Web App** - Install as desktop app
+- **📊 Real-time Dashboard** - Live anomaly detection with WebSocket updates
+- **🎯 Interactive Visualizations** - D3.js custom charts and Apache ECharts
+- **📱 Progressive Web App** - Install on desktop and mobile like a native app
+- **⚡ HTMX Simplicity** - Server-side rendering with minimal JavaScript
+- **🎨 Modern UI** - Tailwind CSS for responsive, accessible design
+- **🔄 Offline Capability** - Service worker enables offline operation
+- **📈 Experiment Tracking** - Compare models, track performance metrics
+- **🔍 Dataset Analysis** - Data quality reports, drift detection
+
+### Navigation
+
+- **Dashboard** - Overview and recent results
+- **Detectors** - Manage algorithms and parameters
+- **Datasets** - Upload, explore, and validate data
+- **Detection** - Run anomaly detection workflows
+- **Experiments** - Track and compare model performance
+- **Visualizations** - Interactive charts and analysis
+- **Settings** - Configuration and preferences
 
 ## Example: Credit Card Fraud Detection
 
@@ -317,9 +368,52 @@ if dataset.has_target:
     print(f"Performance metrics: {eval_response.metrics}")
 ```
 
+## Development Workflow
+
+### Daily Development Commands
+
+```bash
+# Code quality and testing
+make format             # Auto-format code with Ruff
+make test               # Run core tests
+make lint               # Check code quality
+make ci                 # Full CI pipeline locally
+
+# Environment management
+make status             # Show project status
+make env-show           # List environments
+make clean              # Clean build artifacts
+```
+
+### Building and Deployment
+
+```bash
+# Build package
+make build              # Build wheel and source distribution
+make version            # Show current version
+
+# Docker deployment
+make docker             # Build Docker image
+
+# Production deployment
+hatch env run prod:serve-api-prod  # Production server with workers
+```
+
 ## Next Steps
 
-- Explore [available algorithms](../guide/algorithms.md)
-- Learn about [data preprocessing](../guide/datasets.md)
-- Set up [experiment tracking](../guide/experiments.md)
-- Deploy to [production](../advanced/deployment.md)
+### Learn More
+- **[Development Guide](../development/README.md)** - Modern development workflow
+- **[Hatch Guide](../development/HATCH_GUIDE.md)** - Detailed Hatch usage
+- **[Available Algorithms](../guides/algorithms.md)** - Algorithm selection guide
+- **[Data Processing](../guides/datasets.md)** - Data preparation and validation
+
+### Advanced Usage
+- **[Production Deployment](../deployment/PRODUCTION_DEPLOYMENT_GUIDE.md)** - Deploy to production
+- **[Docker Guide](../deployment/DOCKER_DEPLOYMENT_GUIDE.md)** - Containerized deployment
+- **[API Reference](../api/rest-api.md)** - Complete API documentation
+- **[Troubleshooting](../guides/troubleshooting.md)** - Common issues and solutions
+
+### Integrations
+- **[Business Intelligence](../../README.md#business-intelligence-integrations)** - Export to Excel, Power BI, Google Sheets
+- **[Monitoring](../guides/monitoring.md)** - Observability and metrics
+- **[Security](../deployment/SECURITY.md)** - Security best practices

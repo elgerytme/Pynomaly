@@ -1,10 +1,80 @@
-# Welcome to Pynomaly
+# Pynomaly Documentation
 
-State-of-the-art Python anomaly detection platform with clean architecture.
+Welcome to the Pynomaly documentation! This guide will help you get started with state-of-the-art anomaly detection using modern Python tooling.
 
-## Overview
+## 🚀 Quick Start
 
-Pynomaly is a comprehensive anomaly detection platform that brings together the best algorithms from various libraries under a unified, production-ready interface. Built with clean architecture principles, it provides a robust foundation for detecting anomalies in your data.
+### New to Pynomaly?
+- **[Installation Guide](getting-started/installation.md)** - Set up Pynomaly with Hatch or pip
+- **[Quick Start Guide](getting-started/quickstart.md)** - Get up and running in minutes
+- **[Development Setup](development/README.md)** - Modern development environment
+
+### For Developers
+- **[Hatch Workflow Guide](development/HATCH_GUIDE.md)** - Comprehensive Hatch usage
+- **[File Organization Standards](development/FILE_ORGANIZATION_STANDARDS.md)** - Project structure guidelines
+- **[Contributing Guidelines](CONTRIBUTING.md)** - How to contribute to Pynomaly
+
+## 📚 Documentation Structure
+
+### 🏁 Getting Started
+Essential guides for new users and developers.
+
+- **[Installation](getting-started/installation.md)** - Install with Hatch, pip, or Docker
+- **[Quick Start](getting-started/quickstart.md)** - Complete workflow walkthrough
+- **[CLI Setup](getting-started/SETUP_CLI.md)** - Command-line interface setup
+
+### 🔧 Development
+Modern development practices and tools.
+
+- **[Development Environment](development/README.md)** - Modern Python development with Hatch
+- **[Hatch Guide](development/HATCH_GUIDE.md)** - Build system and environment management
+- **[Implementation Guide](development/IMPLEMENTATION_GUIDE.md)** - Architecture and patterns
+- **[File Organization](development/FILE_ORGANIZATION_STANDARDS.md)** - Project structure standards
+
+### 🏗️ Architecture
+System design and architectural decisions.
+
+- **[Architecture Overview](architecture/overview.md)** - Clean architecture principles
+- **[Model Persistence Framework](architecture/model-persistence-framework.md)** - ML model management
+- **[Deployment Pipeline](architecture/deployment-pipeline-framework.md)** - CI/CD architecture
+- **[Continuous Learning](architecture/continuous-learning-framework.md)** - Online learning systems
+
+### 📡 API Reference
+Complete API documentation and integration guides.
+
+- **[REST API](api/rest-api.md)** - Complete HTTP API reference
+- **[Python SDK](api/python-sdk.md)** - Python client library
+- **[CLI Reference](api/cli.md)** - Command-line interface
+- **[Authentication](api/authentication.md)** - Security and auth patterns
+
+### 📖 User Guides
+Feature guides and best practices.
+
+- **[Algorithm Selection](guides/algorithms.md)** - Choose the right detection algorithm
+- **[Dataset Management](guides/datasets.md)** - Data preparation and validation
+- **[Performance Tuning](guides/performance-tuning.md)** - Optimization strategies
+- **[Monitoring](guides/monitoring.md)** - Observability and alerting
+- **[Explainability](guides/explainability.md)** - Understanding anomaly predictions
+- **[Troubleshooting](guides/troubleshooting.md)** - Common issues and solutions
+
+### 🚀 Deployment
+Production deployment and operations.
+
+- **[Production Deployment](deployment/PRODUCTION_DEPLOYMENT_GUIDE.md)** - Deploy to production
+- **[Docker Guide](deployment/DOCKER_DEPLOYMENT_GUIDE.md)** - Containerized deployment
+- **[Kubernetes](deployment/kubernetes.md)** - Orchestrated deployment
+- **[Security](deployment/SECURITY.md)** - Security best practices
+
+### 📋 Examples
+Practical examples and tutorials.
+
+- **[Basic Usage](examples/README.md)** - Simple anomaly detection examples
+- **[Advanced Tutorials](tutorials/advanced.md)** - Complex scenarios and patterns
+- **[Business Intelligence Integration](../README.md#business-intelligence-integrations)** - Export to Excel, Power BI, etc.
+
+## 🛠️ Modern Development Stack
+
+Pynomaly is built with cutting-edge Python tooling:
 
 ## Key Features
 

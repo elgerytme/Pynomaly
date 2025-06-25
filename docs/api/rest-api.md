@@ -2,12 +2,79 @@
 
 ## Overview
 
-The Pynomaly REST API provides a comprehensive interface for anomaly detection operations, including detector management, dataset handling, model training, and real-time prediction. The API follows RESTful principles and returns JSON responses.
+The Pynomaly REST API provides a comprehensive interface for anomaly detection operations, including detector management, dataset handling, model training, and real-time prediction. Built with FastAPI, the API follows RESTful principles and returns JSON responses.
 
-## Base URL
+**🏗️ Built with Modern Stack:**
+- **FastAPI** - High-performance async web framework
+- **Pydantic** - Data validation and serialization  
+- **Hatch** - Modern build system and environment management
+- **OpenTelemetry** - Observability and monitoring
+- **Prometheus** - Metrics collection
 
-- **Development**: `http://localhost:8000/api`
-- **Production**: `https://api.pynomaly.io`
+## Base URLs
+
+- **Development**: `http://localhost:8000`
+- **API Endpoints**: `http://localhost:8000/api`
+- **Interactive Documentation**: `http://localhost:8000/docs`
+- **Alternative Documentation**: `http://localhost:8000/redoc`
+- **OpenAPI Schema**: `http://localhost:8000/openapi.json`
+
+## Starting the API Server
+
+Before using the API, start the server:
+
+### Using Hatch (Recommended)
+
+```bash
+# Development server with auto-reload
+hatch env run prod:serve-api
+
+# Production server with workers
+hatch env run prod:serve-api-prod
+
+# Using Makefile shortcuts
+make prod-api-dev       # Development mode
+make prod-api           # Production mode
+```
+
+### Traditional Methods
+
+```bash
+# Direct uvicorn
+uvicorn pynomaly.presentation.api.app:app --reload
+
+# Using CLI (if installed)
+pynomaly server start
+
+# Alternative CLI
+python scripts/pynomaly_cli.py server start
+```
+
+### Docker Deployment
+
+```bash
+# Build and run with Docker
+make docker
+docker run -p 8000:8000 pynomaly:latest
+
+# Or use docker-compose
+docker-compose up -d
+```
+
+## API Endpoint Groups
+
+The API is organized into the following endpoint groups:
+
+- **`/api/health`** - Health checks and system status
+- **`/api/auth`** - Authentication and authorization
+- **`/api/detectors`** - Anomaly detector management
+- **`/api/datasets`** - Dataset upload and management
+- **`/api/detection`** - Training and anomaly detection
+- **`/api/experiments`** - Experiment tracking and comparison
+- **`/api/export`** - Data export and business intelligence
+- **`/api/performance`** - Performance monitoring and optimization
+- **`/api/admin`** - Administrative functions
+- **`/api/autonomous`** - Autonomous mode operations
 
 ## Authentication
 
