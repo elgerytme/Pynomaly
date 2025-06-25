@@ -296,7 +296,7 @@ class CreditCardAnomalyDetector:
                 category_sums = (
                     anomalies[category_cols].sum().sort_values(ascending=False)
                 )
-                for i, (cat, count) in enumerate(category_sums.head().items()):
+                for _i, (cat, count) in enumerate(category_sums.head().items()):
                     if count > 0:
                         cat_name = cat.replace("category_", "")
                         print(f"  {cat_name}: {count} transactions")

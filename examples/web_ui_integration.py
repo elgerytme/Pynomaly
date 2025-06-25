@@ -622,9 +622,9 @@ async def create_htmx_examples():
     htmx_examples = {
         "real_time_alerts": """
 <!-- Real-time alert panel that updates every 5 seconds -->
-<div id="alert-panel" 
-     hx-get="/api/alerts/recent?limit=5" 
-     hx-trigger="every 5s" 
+<div id="alert-panel"
+     hx-get="/api/alerts/recent?limit=5"
+     hx-trigger="every 5s"
      hx-swap="innerHTML">
     <div class="loading">Loading alerts...</div>
 </div>
@@ -638,8 +638,8 @@ async def create_htmx_examples():
         <span class="score">Score: {{anomaly_score}}</span>
     </div>
     <div class="alert-message">{{message}}</div>
-    <button hx-post="/api/alerts/{{id}}/acknowledge" 
-            hx-swap="outerHTML" 
+    <button hx-post="/api/alerts/{{id}}/acknowledge"
+            hx-swap="outerHTML"
             hx-confirm="Acknowledge this alert?">
         Acknowledge
     </button>
@@ -648,8 +648,8 @@ async def create_htmx_examples():
         "detector_status": """
 <!-- Detector status cards with live updates -->
 <div class="detector-grid">
-    <div hx-get="/api/detectors" 
-         hx-trigger="load, every 30s" 
+    <div hx-get="/api/detectors"
+         hx-trigger="load, every 30s"
          hx-swap="innerHTML">
         Loading detectors...
     </div>
@@ -666,7 +666,7 @@ async def create_htmx_examples():
         <span>Algorithm: {{algorithm}}</span>
         <span>Last used: {{last_used}}</span>
     </div>
-    <button hx-post="/api/detectors/{{id}}/retrain" 
+    <button hx-post="/api/detectors/{{id}}/retrain"
             hx-swap="closest .detector-card"
             hx-confirm="Retrain this detector?">
         Retrain
@@ -675,12 +675,12 @@ async def create_htmx_examples():
         """,
         "data_upload": """
 <!-- Drag and drop file upload with progress -->
-<div id="upload-zone" 
+<div id="upload-zone"
      hx-encoding="multipart/form-data"
      hx-post="/api/datasets/{{dataset_id}}/upload"
      hx-swap="innerHTML"
      class="upload-zone">
-    
+
     <form>
         <input type="file" name="datafile" accept=".csv,.json" required>
         <div class="upload-progress" style="display: none;">
@@ -703,8 +703,8 @@ async def create_htmx_examples():
         "anomaly_details": """
 <!-- Expandable anomaly details -->
 <div class="anomaly-item">
-    <div class="anomaly-summary" 
-         hx-get="/api/anomalies/{{id}}/details" 
+    <div class="anomaly-summary"
+         hx-get="/api/anomalies/{{id}}/details"
          hx-trigger="click"
          hx-target="next .anomaly-details"
          hx-swap="innerHTML">
@@ -740,13 +740,13 @@ async def create_htmx_examples():
         """,
         "live_chart_updates": """
 <!-- Live updating chart with server-sent events -->
-<div id="anomaly-chart" 
-     hx-ext="sse" 
+<div id="anomaly-chart"
+     hx-ext="sse"
      sse-connect="/sse/anomaly-scores/{{detector_id}}"
      sse-swap="chart-update">
-    
+
     <canvas id="chart-canvas" width="800" height="400"></canvas>
-    
+
     <!-- Chart data template (updates via SSE) -->
     <script type="application/json" id="chart-data">
     {
@@ -770,7 +770,7 @@ document.body.addEventListener('htmx:sseMessage', function(e) {
     }
 
     print("⚡ HTMX Integration Patterns:")
-    for pattern, code in htmx_examples.items():
+    for pattern, _code in htmx_examples.items():
         print(f"\n   📝 {pattern.replace('_', ' ').title()}:")
         print("      - Server-side rendering with dynamic updates")
         print("      - Minimal JavaScript required")

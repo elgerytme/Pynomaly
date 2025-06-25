@@ -185,12 +185,6 @@ def manual_algorithm_comparison(df):
     # This would typically use actual Pynomaly algorithms
     # For demonstration, we'll show the comparison framework
 
-    algorithms_to_test = [
-        "IsolationForest",
-        "LocalOutlierFactor",
-        "EllipticEnvelope",
-        "OneClassSVM",
-    ]
 
     # Simulate results
     results = {
@@ -373,10 +367,10 @@ def main():
     df_enhanced = feature_engineering(df)
 
     # Autonomous detection example
-    recommendations = autonomous_detection_example(df_enhanced)
+    autonomous_detection_example(df_enhanced)
 
     # Manual algorithm comparison
-    algorithm_results = manual_algorithm_comparison(df_enhanced)
+    manual_algorithm_comparison(df_enhanced)
 
     # Insights and recommendations
     fraud_detection_insights(df_enhanced, analysis_results)

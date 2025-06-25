@@ -129,7 +129,7 @@ async def ensemble_detect(
 ):
     """Perform ensemble detection using specified method."""
     detection_service = container.detection_service()
-    ensemble_service = container.ensemble_service()
+    container.ensemble_service()
 
     # Get individual predictions
     all_predictions = []

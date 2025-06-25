@@ -117,7 +117,7 @@ class AdvancedEnsembleDetector:
         """Calculate performance-based weights using multiple metrics."""
         weights = []
 
-        for i, pred in enumerate(predictions):
+        for _i, pred in enumerate(predictions):
             # Calculate multiple performance metrics
             tp = np.sum((pred == 1) & (true_labels == 1))
             fp = np.sum((pred == 1) & (true_labels == 0))
@@ -333,7 +333,7 @@ class AdvancedEnsembleDetector:
             return self.weighted_voting(predictions, weights), weights
 
         # Initialize or update adaptive weights
-        detector_names = [f"detector_{i}" for i in range(len(scores))]
+        [f"detector_{i}" for i in range(len(scores))]
 
         if not hasattr(self, "adaptive_weights"):
             self.adaptive_weights = np.ones(len(scores)) / len(scores)

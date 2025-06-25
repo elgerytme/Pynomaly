@@ -599,8 +599,8 @@ def analyze_high_dimensional():
     print(f"Total feature pairs: {len(feature_cols) * (len(feature_cols) - 1) // 2}")
 
     # Distance analysis
-    normal_data = df[df["is_anomaly"] == 0][feature_cols]
-    anomaly_data = df[df["is_anomaly"] == 1][feature_cols]
+    df[df["is_anomaly"] == 0][feature_cols]
+    df[df["is_anomaly"] == 1][feature_cols]
 
     print("\n3. DISTANCE AND DENSITY ANALYSIS")
     print("-" * 40)

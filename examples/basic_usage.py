@@ -101,7 +101,7 @@ async def main():
     detection_service = container.detection_service()
 
     # Train the model
-    trained_detector = await detection_service.train_detector(
+    await detection_service.train_detector(
         detector_id=detector.id, dataset=dataset
     )
     print("   Training completed!")

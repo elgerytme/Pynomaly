@@ -52,7 +52,7 @@ def network_traffic_analysis(df):
     # Protocol analysis
     print("\nProtocol Distribution:")
     protocol_dist = df.groupby(["protocol", "is_anomaly"]).size().unstack(fill_value=0)
-    protocol_rates = protocol_dist.div(protocol_dist.sum(axis=1), axis=0)
+    protocol_dist.div(protocol_dist.sum(axis=1), axis=0)
 
     for protocol in protocol_dist.index:
         normal_count = (
@@ -139,7 +139,7 @@ def intrusion_pattern_detection(df):
     print(f"  Attack rate in pattern: {ddos_attack_rate:.1%}")
 
     # Port scanning pattern (many different ports, small packets)
-    port_variety = df.groupby(df.index // 100)[
+    df.groupby(df.index // 100)[
         "destination_port"
     ].nunique()  # Port variety in chunks
     small_packets = df["bytes_per_packet"] < df["bytes_per_packet"].quantile(0.25)
@@ -554,13 +554,13 @@ def main():
     analysis_results = network_traffic_analysis(df)
 
     # Intrusion pattern detection
-    pattern_results = intrusion_pattern_detection(df)
+    intrusion_pattern_detection(df)
 
     # Feature engineering
     df_enhanced = feature_engineering_network(df)
 
     # Algorithm recommendations
-    algorithms = algorithm_recommendations_network(df_enhanced)
+    algorithm_recommendations_network(df_enhanced)
 
     # Real-time detection strategy
     real_time_detection_strategy(df)

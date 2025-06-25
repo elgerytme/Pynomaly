@@ -266,7 +266,7 @@ class FXAnomalyDetector:
             curr_cols = [col for col in anomalies.columns if col.startswith("curr_")]
             if curr_cols:
                 curr_sums = anomalies[curr_cols].sum().sort_values(ascending=False)
-                for i, (curr, count) in enumerate(curr_sums.head().items()):
+                for _i, (curr, count) in enumerate(curr_sums.head().items()):
                     if count > 0:
                         curr_name = curr.replace("curr_", "")
                         print(f"  {curr_name}: {count} transactions")

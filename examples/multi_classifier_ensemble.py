@@ -477,7 +477,7 @@ class MultiClassifierEnsemble:
 
         # Individual detector agreement filter
         agreement_counts = np.zeros(n_samples)
-        for name, predictions in result.individual_predictions.items():
+        for _name, predictions in result.individual_predictions.items():
             agreement_counts += predictions
 
         agreement_mask = agreement_counts >= min_detectors_agree
@@ -907,7 +907,7 @@ class DatasetGenerator:
         }
 
         # Anomalous readings
-        anomaly_time = np.linspace(0, 100, anomaly_samples)
+        np.linspace(0, 100, anomaly_samples)
         anomaly_data = {
             "temperature": np.concatenate(
                 [
