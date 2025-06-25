@@ -192,6 +192,7 @@ class AnomalyScorer:
         std = score_values.std()
         
         # For normal approximation
+        from scipy import stats
         z_score = stats.norm.ppf((1 + confidence_level) / 2)
         margin = z_score * std / np.sqrt(len(score_values))
         
