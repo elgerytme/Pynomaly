@@ -15,7 +15,7 @@ from typing import Dict, List, Set, Optional, Tuple, Union
 import argparse
 import logging
 from collections import defaultdict, Counter
-import networkx as nx
+# import networkx as nx  # Not currently used
 
 # Import our existing tools
 from buck2_change_detector import Buck2ChangeDetector, ChangeAnalysis

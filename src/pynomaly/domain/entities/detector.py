@@ -227,11 +227,15 @@ class Detector:
         
         # Handle empty dataset
         if dataset.data.empty:
+            from pynomaly.domain.entities.anomaly import Anomaly
             return DetectionResult(
-                predictions=[],
-                scores=[],
                 detector_id=self.id,
                 dataset_id=dataset.id,
+                anomalies=[],
+                scores=[],
+                labels=[],
+                threshold=0.5,
+                execution_time_ms=0.0,
                 metadata={
                     'n_samples': 0,
                     'algorithm': self.algorithm_name,
@@ -244,19 +248,29 @@ class Detector:
         try:
             # Get predictions and scores
             predictions = algorithm_adapter.predict(dataset.data)
-            scores = algorithm_adapter.score(dataset.data)
+            raw_scores = algorithm_adapter.score(dataset.data)
             
             detection_time = time.time() - start_time
             
-            # Calculate confidence intervals (simple implementation)
-            confidence_intervals = None
-            if scores:
-                mean_score = sum(scores) / len(scores)
-                std_score = (sum((s - mean_score) ** 2 for s in scores) / len(scores)) ** 0.5
-                confidence_intervals = {
-                    'lower_bound': mean_score - 1.96 * std_score,
-                    'upper_bound': mean_score + 1.96 * std_score
-                }
+            # Convert to domain objects
+            from pynomaly.domain.value_objects import AnomalyScore
+            from pynomaly.domain.entities.anomaly import Anomaly
+            
+            scores = [AnomalyScore(score) for score in raw_scores]
+            
+            # Create anomaly objects for positive predictions
+            anomalies = []
+            for i, (pred, score) in enumerate(zip(predictions, scores)):
+                if pred == 1:  # Anomaly detected
+                    anomaly = Anomaly(
+                        data_index=i,
+                        score=score,
+                        detector_id=self.id
+                    )
+                    anomalies.append(anomaly)
+            
+            # Use contamination rate as threshold
+            threshold = self.contamination_rate.value
             
             metadata = {
                 'n_samples': len(dataset.data),
@@ -267,25 +281,30 @@ class Detector:
             }
             
             return DetectionResult(
-                predictions=predictions,
-                scores=scores,
                 detector_id=self.id,
                 dataset_id=dataset.id,
-                confidence_intervals=confidence_intervals,
+                anomalies=anomalies,
+                scores=scores,
+                labels=predictions,
+                threshold=threshold,
+                execution_time_ms=detection_time * 1000,  # Convert to milliseconds
                 metadata=metadata
             )
             
         except Exception as e:
             # Return failed detection result
             return DetectionResult(
-                predictions=[],
-                scores=[],
                 detector_id=self.id,
                 dataset_id=dataset.id,
-                error=str(e),
+                anomalies=[],
+                scores=[],
+                labels=[],
+                threshold=0.5,
+                execution_time_ms=(time.time() - start_time) * 1000,
                 metadata={
                     'algorithm': self.algorithm_name,
-                    'detection_time': time.time() - start_time
+                    'detection_time': time.time() - start_time,
+                    'error': str(e)
                 }
             )
 
