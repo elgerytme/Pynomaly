@@ -2,8 +2,6 @@
 requires = [
     "hatchling", 
     "hatch-vcs",
-    # Buck2 plugin - enable when Buck2 is available
-    # "hatch-buck2-plugin @ file:///path/to/hatch_buck2_plugin",
 ]
 build-backend = "hatchling.build"
 
@@ -262,11 +260,10 @@ source = "vcs"
 [tool.hatch.build.hooks.vcs]
 version-file = "src/pynomaly/_version.py"
 
-# Buck2 integration (optional, requires Buck2 to be installed)
-# Uncomment the section below when Buck2 is available
+# Buck2 integration (Buck2 is installed and available)
 # [tool.hatch.build.hooks.buck2]
 # Buck2 build hook configuration - accelerated builds with caching
-# executable = "buck2"
+# executable = "/mnt/c/Users/andre/buck2.exe"
 # targets = [
 #     "//:pynomaly-lib",
 #     "//:pynomaly-cli", 
