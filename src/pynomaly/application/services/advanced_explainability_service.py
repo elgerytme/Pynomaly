@@ -24,25 +24,18 @@ except ImportError:
 
 try:
     import lime
-    from lime.explanation import Explanation
-    from lime.lime_base import LimeBase
 
     LIME_AVAILABLE = True
 except ImportError:
     lime = None
-    LimeBase = None
-    Explanation = None
     LIME_AVAILABLE = False
 
 try:
     from sklearn.inspection import permutation_importance
-    from sklearn.metrics import average_precision_score, roc_auc_score
 
     SKLEARN_AVAILABLE = True
 except ImportError:
     permutation_importance = None
-    roc_auc_score = None
-    average_precision_score = None
     SKLEARN_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
