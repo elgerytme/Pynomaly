@@ -253,33 +253,33 @@ if PYTORCH_AVAILABLE:
         """LSTM-based AutoEncoder for time series anomaly detection."""
 
         def __init__(self, config: LSTMConfig):
-        super().__init__()
-        if not PYTORCH_AVAILABLE:
-            raise ImportError("PyTorch is required for LSTM")
+            super().__init__()
+            if not PYTORCH_AVAILABLE:
+                raise ImportError("PyTorch is required for LSTM")
 
-        self.config = config
+            self.config = config
 
-        # Encoder LSTM
-        self.encoder_lstm = nn.LSTM(
-            config.input_dim,
-            config.hidden_dim,
-            config.num_layers,
-            batch_first=True,
-            dropout=config.dropout if config.num_layers > 1 else 0,
-        )
+            # Encoder LSTM
+            self.encoder_lstm = nn.LSTM(
+                config.input_dim,
+                config.hidden_dim,
+                config.num_layers,
+                batch_first=True,
+                dropout=config.dropout if config.num_layers > 1 else 0,
+            )
 
-        # Decoder LSTM
-        self.decoder_lstm = nn.LSTM(
-            config.hidden_dim,
-            config.hidden_dim,
-            config.num_layers,
-            batch_first=True,
-            dropout=config.dropout if config.num_layers > 1 else 0,
-        )
+            # Decoder LSTM
+            self.decoder_lstm = nn.LSTM(
+                config.hidden_dim,
+                config.hidden_dim,
+                config.num_layers,
+                batch_first=True,
+                dropout=config.dropout if config.num_layers > 1 else 0,
+            )
 
-        # Output layer
-        self.output_layer = nn.Linear(config.hidden_dim, config.input_dim)
-        self.dropout = nn.Dropout(config.dropout)
+            # Output layer
+            self.output_layer = nn.Linear(config.hidden_dim, config.input_dim)
+            self.dropout = nn.Dropout(config.dropout)
 
     def forward(self, x):
         """Forward pass for sequence reconstruction."""
