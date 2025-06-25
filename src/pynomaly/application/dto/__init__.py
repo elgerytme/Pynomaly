@@ -63,6 +63,10 @@ __all__ = [
     "UpdateDetectorDTO",
     "DetectorResponseDTO",
     "DetectionRequestDTO",
+    "DetectionSummaryDTO",
+    "ExplanationResultDTO",
+    "TrainingRequestDTO",
+    "TrainingResultDTO",
     # Dataset DTOs
     "DatasetDTO",
     "CreateDatasetDTO",
