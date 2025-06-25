@@ -21,11 +21,12 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 try:
-    from pynomaly.presentation.api.main import create_app
+    from pynomaly.presentation.api.app import create_app
     from pynomaly.infrastructure.config.settings import get_settings
 except ImportError as e:
     print(f"Failed to import Pynomaly API modules: {e}")
     print("Please ensure the package is installed with: poetry install")
+    print("For API functionality, install with: pip install -e \".[api]\"")
     sys.exit(1)
 
 # Configure logging
