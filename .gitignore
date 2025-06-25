@@ -274,3 +274,6 @@ tests/ui_integration_results.json
 fresh_env/
 fresh_test_env/
 test_venv_bash/
+coverage.json
+storage/detectors.json
+storage/detectors.json
