@@ -104,16 +104,54 @@ class SystemMetricsResponse(BaseModel):
         }
 
 
-@router.get("/", response_model=HealthResponse)
+@router.get(
+    "/",
+    response_model=HealthResponse,
+    summary="Comprehensive Health Check",
+    description="""
+    Perform a comprehensive health check of all system components.
+    
+    This endpoint checks:
+    - **System Resources**: CPU, memory, disk usage
+    - **Database Connectivity**: Database connection and response time  
+    - **Cache Connectivity**: Redis/cache service availability
+    - **Repository Access**: Data access layer functionality
+    - **Algorithm Adapters**: ML library availability
+    - **Configuration**: Security and environment settings
+    
+    The response includes individual check results and an overall status.
+    Use this endpoint for detailed monitoring and troubleshooting.
+    
+    **Rate Limit**: 60 requests per minute
+    """,
+    responses={
+        200: {
+            "description": "Health check completed successfully",
+            "content": {
+                "application/json": {
+                    "example": SchemaExamples.health_check_response()["value"]
+                }
+            }
+        },
+        503: HTTPResponses.server_error_500("Service unhealthy or unavailable"),
+    }
+)
 async def health_check(
     container: Container = Depends(get_container),
-    include_system: bool = Query(True, description="Include system resource checks"),
-    include_database: bool = Query(
-        True, description="Include database connectivity checks"
+    include_system: bool = Query(
+        True, 
+        description="Include system resource checks (CPU, memory, disk)"
     ),
-    include_cache: bool = Query(True, description="Include cache connectivity checks"),
+    include_database: bool = Query(
+        True, 
+        description="Include database connectivity checks"
+    ),
+    include_cache: bool = Query(
+        True, 
+        description="Include cache connectivity checks (Redis)"
+    ),
 ) -> HealthResponse:
-    """Comprehensive application health check."""
+    """Comprehensive application health check with detailed component status."""
     settings = container.config()
 
     # Get database engine if available
