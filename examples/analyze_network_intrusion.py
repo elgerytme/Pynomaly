@@ -139,9 +139,7 @@ def intrusion_pattern_detection(df):
     print(f"  Attack rate in pattern: {ddos_attack_rate:.1%}")
 
     # Port scanning pattern (many different ports, small packets)
-    df.groupby(df.index // 100)[
-        "destination_port"
-    ].nunique()  # Port variety in chunks
+    df.groupby(df.index // 100)["destination_port"].nunique()  # Port variety in chunks
     small_packets = df["bytes_per_packet"] < df["bytes_per_packet"].quantile(0.25)
 
     print("\n🔍 Port Scanning Indicators:")

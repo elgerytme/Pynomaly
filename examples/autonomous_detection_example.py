@@ -72,21 +72,27 @@ def create_sample_datasets():
         record = {
             "user_id": i,
             "profile": {
-                "age": np.random.randint(18, 80)
-                if not is_anomaly
-                else np.random.randint(100, 200),
-                "score": np.random.normal(0.5, 0.1)
-                if not is_anomaly
-                else np.random.normal(2.0, 0.5),
+                "age": (
+                    np.random.randint(18, 80)
+                    if not is_anomaly
+                    else np.random.randint(100, 200)
+                ),
+                "score": (
+                    np.random.normal(0.5, 0.1)
+                    if not is_anomaly
+                    else np.random.normal(2.0, 0.5)
+                ),
                 "category": np.random.choice(["premium", "basic", "trial"]),
             },
             "activity": {
-                "sessions": np.random.poisson(10)
-                if not is_anomaly
-                else np.random.poisson(100),
-                "duration_minutes": np.random.exponential(30)
-                if not is_anomaly
-                else np.random.exponential(300),
+                "sessions": (
+                    np.random.poisson(10) if not is_anomaly else np.random.poisson(100)
+                ),
+                "duration_minutes": (
+                    np.random.exponential(30)
+                    if not is_anomaly
+                    else np.random.exponential(300)
+                ),
                 "last_login": f"2023-01-{np.random.randint(1, 31):02d}",
             },
         }

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Fix package installation and environment issues"""
 
+import os
 import subprocess
 import sys
-import os
 from pathlib import Path
+
 
 def run_command(cmd, description, use_venv=True):
     """Run a command and handle errors"""

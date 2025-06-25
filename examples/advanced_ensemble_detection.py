@@ -511,7 +511,8 @@ def create_comprehensive_dataset():
                     np.linspace(3, 6, 18),
                     np.random.randn(18),
                     np.random.randn(18),
-                    np.random.randn(18), strict=False,
+                    np.random.randn(18),
+                    strict=False,
                 )
             ]
         ),

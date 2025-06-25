@@ -101,9 +101,7 @@ async def main():
     detection_service = container.detection_service()
 
     # Train the model
-    await detection_service.train_detector(
-        detector_id=detector.id, dataset=dataset
-    )
+    await detection_service.train_detector(detector_id=detector.id, dataset=dataset)
     print("   Training completed!")
 
     # Step 5: Detect anomalies

@@ -433,9 +433,11 @@ class AnomalyRankingSystem:
             "selected": len(filtered),
             "rejection_rate": (len(ranked_anomalies) - len(filtered))
             / len(ranked_anomalies),
-            "score_range_selected": (filtered[0].final_score, filtered[-1].final_score)
-            if filtered
-            else (0, 0),
+            "score_range_selected": (
+                (filtered[0].final_score, filtered[-1].final_score)
+                if filtered
+                else (0, 0)
+            ),
         }
 
         return FilteringResult(
@@ -466,11 +468,11 @@ class AnomalyRankingSystem:
         statistics = {
             "total_candidates": len(ranked_anomalies),
             "selected": len(filtered),
-            "avg_confidence_selected": np.mean(
-                [1 - a.confidence_interval.width() for a in filtered]
-            )
-            if filtered
-            else 0,
+            "avg_confidence_selected": (
+                np.mean([1 - a.confidence_interval.width() for a in filtered])
+                if filtered
+                else 0
+            ),
             "confidence_threshold": confidence_threshold,
         }
 
@@ -499,9 +501,9 @@ class AnomalyRankingSystem:
         statistics = {
             "total_candidates": len(ranked_anomalies),
             "selected": len(filtered),
-            "avg_consensus_selected": np.mean([a.consensus_level for a in filtered])
-            if filtered
-            else 0,
+            "avg_consensus_selected": (
+                np.mean([a.consensus_level for a in filtered]) if filtered else 0
+            ),
             "min_consensus": min_consensus,
         }
 
@@ -620,7 +622,9 @@ def create_multi_pattern_dataset():
             [
                 [x, -x * 2, y, z, w, v, u, t]
                 for x, y, z, w, v, u, t in zip(
-                    np.linspace(4, 7, 25), *[np.random.randn(25) for _ in range(6)], strict=False
+                    np.linspace(4, 7, 25),
+                    *[np.random.randn(25) for _ in range(6)],
+                    strict=False,
                 )
             ]
         ),

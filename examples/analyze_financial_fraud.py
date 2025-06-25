@@ -185,7 +185,6 @@ def manual_algorithm_comparison(df):
     # This would typically use actual Pynomaly algorithms
     # For demonstration, we'll show the comparison framework
 
-
     # Simulate results
     results = {
         "IsolationForest": {"precision": 0.89, "recall": 0.76, "f1": 0.82, "time": 2.3},

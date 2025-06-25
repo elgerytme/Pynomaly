@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Test script to validate pyproject.toml setup"""
 
-import sys
-import subprocess
 import os
+import subprocess
+import sys
 from pathlib import Path
+
 
 def test_setup():
     print("🔍 Testing pyproject.toml setup validation...")

@@ -104,9 +104,11 @@ class BankingDataGenerator:
                     "amount": round(amount, 2),
                     "source_type": source_type,
                     "branch_id": f"BR_{random.randint(1, 50):03d}",
-                    "teller_id": f"T_{random.randint(1, 200):04d}"
-                    if source_type != "ach"
-                    else None,
+                    "teller_id": (
+                        f"T_{random.randint(1, 200):04d}"
+                        if source_type != "ach"
+                        else None
+                    ),
                     "description": f"Deposit via {source_type}",
                     "is_anomaly": i >= n_records * 0.95,
                 }
@@ -172,9 +174,11 @@ class BankingDataGenerator:
                     "term_months": term_months,
                     "interest_rate": max(0.5, round(interest_rate, 2)),
                     "credit_score": max(300, min(850, int(credit_score))),
-                    "loan_to_value": round(np.random.uniform(0.6, 0.95), 3)
-                    if loan_type in ["mortgage", "auto"]
-                    else None,
+                    "loan_to_value": (
+                        round(np.random.uniform(0.6, 0.95), 3)
+                        if loan_type in ["mortgage", "auto"]
+                        else None
+                    ),
                     "debt_to_income": round(np.random.uniform(0.1, 0.5), 3),
                     "employment_years": random.randint(0, 20),
                     "status": np.random.choice(
@@ -482,9 +486,11 @@ class BankingDataGenerator:
                         minutes=random.randint(0, 59),
                     ),
                     "location": atm_location,
-                    "fee": 2.50
-                    if customer["location"] != "domestic" or random.random() < 0.3
-                    else 0,
+                    "fee": (
+                        2.50
+                        if customer["location"] != "domestic" or random.random() < 0.3
+                        else 0
+                    ),
                     "status": np.random.choice(
                         ["success", "declined", "error"], p=[0.9, 0.08, 0.02]
                     ),
