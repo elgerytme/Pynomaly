@@ -25,8 +25,7 @@ try:
     import jax
     import jax.numpy as jnp
     import optax
-    from jax import grad, jit, random, vmap
-    from jax.example_libraries import optimizers
+    from jax import jit, random
 
     HAS_JAX = True
 except ImportError:

@@ -41,7 +41,7 @@ except ImportError:
     AUTONOMOUS_AVAILABLE = False
 
 try:
-    from pynomaly.infrastructure.monitoring.autonomous_monitor import get_monitor
+    from pynomaly.infrastructure.monitoring import autonomous_monitor
 
     MONITORING_AVAILABLE = True
 except ImportError:
