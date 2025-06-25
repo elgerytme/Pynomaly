@@ -278,3 +278,6 @@ coverage.json
 storage/detectors.json
 storage/detectors.json
 storage/detectors.json
+test_env_check/
+test_env_check/lib64
+test_env_check/pyvenv.cfg
