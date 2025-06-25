@@ -12,8 +12,7 @@
   fbcode_macros = none
   buck = none
 
-# Uses a copy of the prelude bundled with the buck2 binary. You can alternatively delete this
-# section and vendor a copy of the prelude to the `prelude` directory of your project.
+# Uses a copy of the prelude bundled with the buck2 binary
 [external_cells]
   prelude = bundled
 
@@ -22,3 +21,30 @@
 
 [build]
   execution_platforms = prelude//platforms:default
+  
+# Python-specific configuration
+[python]
+  interpreter = python3
+  pex_extension = .pex
+
+# Build optimizations
+[cache]
+  mode = dir
+  dir = .buck-cache
+  
+[project]
+  ignore = .git, __pycache__, *.pyc, .pytest_cache, node_modules, .hatch, dist, build
+
+# Development tools
+[test]
+  engine = unittest
+
+[repositories]
+  pypi = https://pypi.org/simple/
+
+# Performance settings
+[download]
+  max_downloads = 8
+
+[buck2]
+  materializations = deferred
