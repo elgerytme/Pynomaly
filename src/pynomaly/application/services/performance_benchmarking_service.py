@@ -16,7 +16,14 @@ from uuid import UUID, uuid4
 import numpy as np
 import pandas as pd
 import psutil
-from memory_profiler import profile
+try:
+    from memory_profiler import profile
+    MEMORY_PROFILER_AVAILABLE = True
+except ImportError:
+    MEMORY_PROFILER_AVAILABLE = False
+    def profile(func):
+        """Dummy decorator when memory_profiler is not available."""
+        return func
 
 
 @dataclass
