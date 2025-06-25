@@ -16,7 +16,6 @@ from pynomaly.infrastructure.config import Container
 # Temporarily disabled telemetry
 # from pynomaly.infrastructure.monitoring import init_telemetry
 from pynomaly.presentation.api.docs import configure_openapi_docs
-from pynomaly.presentation.api.docs.api_docs import router as docs_router
 from pynomaly.presentation.api.endpoints import (
     admin,
     auth,
@@ -150,7 +149,7 @@ def create_app(container: Container | None = None) -> FastAPI:
 
     # Store container in app state
     app.state.container = container
-    
+
     # Configure comprehensive OpenAPI documentation
     configure_openapi_docs(app, settings)
 

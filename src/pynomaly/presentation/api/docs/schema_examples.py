@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 
 class SchemaExamples:
     """Comprehensive schema examples for API documentation."""
 
     @staticmethod
-    def dataset_upload_request() -> Dict[str, Any]:
+    def dataset_upload_request() -> dict[str, Any]:
         """Dataset upload request example."""
         return {
             "summary": "Upload a CSV dataset",
@@ -28,7 +28,7 @@ class SchemaExamples:
         }
 
     @staticmethod
-    def dataset_response() -> Dict[str, Any]:
+    def dataset_response() -> dict[str, Any]:
         """Dataset response example."""
         return {
             "summary": "Dataset information",
@@ -42,7 +42,7 @@ class SchemaExamples:
                     "rows": 10000,
                     "columns": 15,
                     "features": [
-                        "timestamp", "bytes_in", "bytes_out", "packets_in", 
+                        "timestamp", "bytes_in", "bytes_out", "packets_in",
                         "packets_out", "connections", "bandwidth_util"
                     ],
                     "statistics": {
@@ -61,7 +61,7 @@ class SchemaExamples:
         }
 
     @staticmethod
-    def detector_create_request() -> Dict[str, Any]:
+    def detector_create_request() -> dict[str, Any]:
         """Detector creation request example."""
         return {
             "summary": "Create Isolation Forest detector",
@@ -81,7 +81,7 @@ class SchemaExamples:
         }
 
     @staticmethod
-    def detector_response() -> Dict[str, Any]:
+    def detector_response() -> dict[str, Any]:
         """Detector response example."""
         return {
             "summary": "Detector configuration",
@@ -109,7 +109,7 @@ class SchemaExamples:
         }
 
     @staticmethod
-    def detection_train_request() -> Dict[str, Any]:
+    def detection_train_request() -> dict[str, Any]:
         """Detection training request example."""
         return {
             "summary": "Train detector on dataset",
@@ -131,7 +131,7 @@ class SchemaExamples:
         }
 
     @staticmethod
-    def detection_train_response() -> Dict[str, Any]:
+    def detection_train_response() -> dict[str, Any]:
         """Detection training response example."""
         return {
             "summary": "Training initiated",
@@ -152,7 +152,7 @@ class SchemaExamples:
         }
 
     @staticmethod
-    def detection_predict_request() -> Dict[str, Any]:
+    def detection_predict_request() -> dict[str, Any]:
         """Detection prediction request example."""
         return {
             "summary": "Detect anomalies in new data",
@@ -183,7 +183,7 @@ class SchemaExamples:
         }
 
     @staticmethod
-    def detection_predict_response() -> Dict[str, Any]:
+    def detection_predict_response() -> dict[str, Any]:
         """Detection prediction response example."""
         return {
             "summary": "Anomaly detection results",
@@ -233,7 +233,7 @@ class SchemaExamples:
         }
 
     @staticmethod
-    def experiment_create_request() -> Dict[str, Any]:
+    def experiment_create_request() -> dict[str, Any]:
         """Experiment creation request example."""
         return {
             "summary": "Create new experiment",
@@ -249,7 +249,7 @@ class SchemaExamples:
         }
 
     @staticmethod
-    def user_login_request() -> Dict[str, Any]:
+    def user_login_request() -> dict[str, Any]:
         """User login request example."""
         return {
             "summary": "User authentication",
@@ -262,7 +262,7 @@ class SchemaExamples:
         }
 
     @staticmethod
-    def user_login_response() -> Dict[str, Any]:
+    def user_login_response() -> dict[str, Any]:
         """User login response example."""
         return {
             "summary": "Authentication successful",
@@ -287,7 +287,7 @@ class SchemaExamples:
         }
 
     @staticmethod
-    def health_check_response() -> Dict[str, Any]:
+    def health_check_response() -> dict[str, Any]:
         """Health check response example."""
         return {
             "summary": "System health status",
@@ -314,7 +314,7 @@ class SchemaExamples:
         }
 
     @staticmethod
-    def error_response_example() -> Dict[str, Any]:
+    def error_response_example() -> dict[str, Any]:
         """Generic error response example."""
         return {
             "summary": "Error response",
@@ -334,7 +334,7 @@ class SchemaExamples:
         }
 
     @staticmethod
-    def pagination_response_example() -> Dict[str, Any]:
+    def pagination_response_example() -> dict[str, Any]:
         """Paginated response example."""
         return {
             "summary": "Paginated results",

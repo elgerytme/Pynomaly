@@ -5,7 +5,7 @@ from __future__ import annotations
 
 class TensorFlowAdapter:
     """Stub TensorFlowAdapter when TensorFlow is not available."""
-    
+
     def __init__(self, *args, **kwargs):
         raise ImportError(
             "TensorFlow is required for TensorFlowAdapter. "
@@ -15,7 +15,7 @@ class TensorFlowAdapter:
 
 class AutoEncoder:
     """Stub AutoEncoder when TensorFlow is not available."""
-    
+
     def __init__(self, *args, **kwargs):
         raise ImportError(
             "TensorFlow is required for AutoEncoder. "

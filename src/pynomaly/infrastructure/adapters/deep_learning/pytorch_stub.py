@@ -5,7 +5,7 @@ from __future__ import annotations
 
 class PyTorchAdapter:
     """Stub PyTorchAdapter when PyTorch is not available."""
-    
+
     def __init__(self, *args, **kwargs):
         raise ImportError(
             "PyTorch is required for PyTorchAdapter. "
@@ -15,7 +15,7 @@ class PyTorchAdapter:
 
 class AutoEncoder:
     """Stub AutoEncoder when PyTorch is not available."""
-    
+
     def __init__(self, *args, **kwargs):
         raise ImportError(
             "PyTorch is required for AutoEncoder. "
@@ -25,7 +25,7 @@ class AutoEncoder:
 
 class VAE:
     """Stub VAE when PyTorch is not available."""
-    
+
     def __init__(self, *args, **kwargs):
         raise ImportError(
             "PyTorch is required for VAE. "
@@ -35,7 +35,7 @@ class VAE:
 
 class LSTMAutoEncoder:
     """Stub LSTMAutoEncoder when PyTorch is not available."""
-    
+
     def __init__(self, *args, **kwargs):
         raise ImportError(
             "PyTorch is required for LSTMAutoEncoder. "

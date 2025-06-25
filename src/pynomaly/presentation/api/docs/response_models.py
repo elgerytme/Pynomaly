@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Dict, Generic, List, Optional, TypeVar
+from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -12,12 +12,12 @@ T = TypeVar("T")
 
 class BaseResponse(BaseModel):
     """Base response model with common metadata."""
-    
+
     timestamp: datetime = Field(
         default_factory=datetime.utcnow,
         description="Response timestamp in UTC"
     )
-    request_id: Optional[str] = Field(
+    request_id: str | None = Field(
         None,
         description="Unique request identifier for tracking"
     )
@@ -25,11 +25,11 @@ class BaseResponse(BaseModel):
 
 class SuccessResponse(BaseResponse, Generic[T]):
     """Generic success response wrapper."""
-    
+
     success: bool = Field(True, description="Indicates successful operation")
     data: T = Field(..., description="Response data")
-    message: Optional[str] = Field(None, description="Optional success message")
-    
+    message: str | None = Field(None, description="Optional success message")
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -44,12 +44,12 @@ class SuccessResponse(BaseResponse, Generic[T]):
 
 class ErrorResponse(BaseResponse):
     """Standard error response model."""
-    
+
     success: bool = Field(False, description="Indicates failed operation")
     error: str = Field(..., description="Error message")
-    error_code: Optional[str] = Field(None, description="Specific error code")
-    details: Optional[Dict[str, Any]] = Field(None, description="Additional error details")
-    
+    error_code: str | None = Field(None, description="Specific error code")
+    details: dict[str, Any] | None = Field(None, description="Additional error details")
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -68,12 +68,12 @@ class ErrorResponse(BaseResponse):
 
 class ValidationErrorResponse(ErrorResponse):
     """Validation error response with field details."""
-    
-    validation_errors: List[Dict[str, Any]] = Field(
-        ..., 
+
+    validation_errors: list[dict[str, Any]] = Field(
+        ...,
         description="List of validation errors"
     )
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -87,7 +87,7 @@ class ValidationErrorResponse(ErrorResponse):
                         "value": "invalid-email"
                     },
                     {
-                        "field": "age", 
+                        "field": "age",
                         "message": "Must be a positive integer",
                         "value": -5
                     }
@@ -100,14 +100,14 @@ class ValidationErrorResponse(ErrorResponse):
 
 class PaginationMeta(BaseModel):
     """Pagination metadata."""
-    
+
     page: int = Field(..., description="Current page number (1-based)")
     page_size: int = Field(..., description="Number of items per page")
     total_items: int = Field(..., description="Total number of items")
     total_pages: int = Field(..., description="Total number of pages")
     has_next: bool = Field(..., description="Whether there is a next page")
     has_previous: bool = Field(..., description="Whether there is a previous page")
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -123,11 +123,11 @@ class PaginationMeta(BaseModel):
 
 class PaginationResponse(BaseResponse, Generic[T]):
     """Paginated response wrapper."""
-    
+
     success: bool = Field(True, description="Indicates successful operation")
-    data: List[T] = Field(..., description="List of items for current page")
+    data: list[T] = Field(..., description="List of items for current page")
     pagination: PaginationMeta = Field(..., description="Pagination metadata")
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -152,13 +152,13 @@ class PaginationResponse(BaseResponse, Generic[T]):
 
 class HealthResponse(BaseResponse):
     """Health check response model."""
-    
+
     status: str = Field(..., description="Overall health status")
     version: str = Field(..., description="Application version")
     environment: str = Field(..., description="Environment name")
     uptime: float = Field(..., description="Uptime in seconds")
-    services: Dict[str, str] = Field(..., description="Individual service statuses")
-    
+    services: dict[str, str] = Field(..., description="Individual service statuses")
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -179,16 +179,16 @@ class HealthResponse(BaseResponse):
 
 class TaskResponse(BaseResponse):
     """Asynchronous task response model."""
-    
+
     task_id: str = Field(..., description="Unique task identifier")
     status: str = Field(..., description="Task status")
-    progress: Optional[float] = Field(None, description="Task progress (0.0 to 1.0)")
-    estimated_completion: Optional[datetime] = Field(
-        None, 
+    progress: float | None = Field(None, description="Task progress (0.0 to 1.0)")
+    estimated_completion: datetime | None = Field(
+        None,
         description="Estimated completion time"
     )
-    result_url: Optional[str] = Field(None, description="URL to retrieve task result")
-    
+    result_url: str | None = Field(None, description="URL to retrieve task result")
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -205,11 +205,11 @@ class TaskResponse(BaseResponse):
 
 class MetricsResponse(BaseResponse):
     """Metrics and statistics response model."""
-    
-    metrics: Dict[str, Any] = Field(..., description="Metrics data")
+
+    metrics: dict[str, Any] = Field(..., description="Metrics data")
     period: str = Field(..., description="Time period for metrics")
     aggregation: str = Field(..., description="Aggregation method used")
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -230,9 +230,9 @@ class MetricsResponse(BaseResponse):
 # Common HTTP status code responses for OpenAPI documentation
 class HTTPResponses:
     """Common HTTP response definitions for OpenAPI docs."""
-    
+
     @staticmethod
-    def success_200(description: str = "Successful operation") -> Dict[str, Any]:
+    def success_200(description: str = "Successful operation") -> dict[str, Any]:
         """200 OK response."""
         return {
             "description": description,
@@ -242,9 +242,9 @@ class HTTPResponses:
                 }
             }
         }
-    
+
     @staticmethod
-    def created_201(description: str = "Resource created successfully") -> Dict[str, Any]:
+    def created_201(description: str = "Resource created successfully") -> dict[str, Any]:
         """201 Created response."""
         return {
             "description": description,
@@ -254,14 +254,14 @@ class HTTPResponses:
                 }
             }
         }
-    
+
     @staticmethod
-    def no_content_204(description: str = "Operation completed, no content") -> Dict[str, Any]:
+    def no_content_204(description: str = "Operation completed, no content") -> dict[str, Any]:
         """204 No Content response."""
         return {"description": description}
-    
+
     @staticmethod
-    def bad_request_400(description: str = "Bad request") -> Dict[str, Any]:
+    def bad_request_400(description: str = "Bad request") -> dict[str, Any]:
         """400 Bad Request response."""
         return {
             "description": description,
@@ -271,9 +271,9 @@ class HTTPResponses:
                 }
             }
         }
-    
+
     @staticmethod
-    def unauthorized_401(description: str = "Authentication required") -> Dict[str, Any]:
+    def unauthorized_401(description: str = "Authentication required") -> dict[str, Any]:
         """401 Unauthorized response."""
         return {
             "description": description,
@@ -283,9 +283,9 @@ class HTTPResponses:
                 }
             }
         }
-    
+
     @staticmethod
-    def forbidden_403(description: str = "Insufficient permissions") -> Dict[str, Any]:
+    def forbidden_403(description: str = "Insufficient permissions") -> dict[str, Any]:
         """403 Forbidden response."""
         return {
             "description": description,
@@ -295,9 +295,9 @@ class HTTPResponses:
                 }
             }
         }
-    
+
     @staticmethod
-    def not_found_404(description: str = "Resource not found") -> Dict[str, Any]:
+    def not_found_404(description: str = "Resource not found") -> dict[str, Any]:
         """404 Not Found response."""
         return {
             "description": description,
@@ -307,9 +307,9 @@ class HTTPResponses:
                 }
             }
         }
-    
+
     @staticmethod
-    def conflict_409(description: str = "Resource conflict") -> Dict[str, Any]:
+    def conflict_409(description: str = "Resource conflict") -> dict[str, Any]:
         """409 Conflict response."""
         return {
             "description": description,
@@ -319,9 +319,9 @@ class HTTPResponses:
                 }
             }
         }
-    
+
     @staticmethod
-    def rate_limit_429(description: str = "Rate limit exceeded") -> Dict[str, Any]:
+    def rate_limit_429(description: str = "Rate limit exceeded") -> dict[str, Any]:
         """429 Too Many Requests response."""
         return {
             "description": description,
@@ -331,9 +331,9 @@ class HTTPResponses:
                 }
             }
         }
-    
+
     @staticmethod
-    def server_error_500(description: str = "Internal server error") -> Dict[str, Any]:
+    def server_error_500(description: str = "Internal server error") -> dict[str, Any]:
         """500 Internal Server Error response."""
         return {
             "description": description,

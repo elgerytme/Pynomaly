@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
@@ -25,7 +25,7 @@ class OpenAPIConfig:
         self.app_version = settings.app.version
         self.app_description = settings.app.description or "Advanced anomaly detection API"
 
-    def get_openapi_schema(self, app: FastAPI) -> Dict[str, Any]:
+    def get_openapi_schema(self, app: FastAPI) -> dict[str, Any]:
         """Generate comprehensive OpenAPI schema.
         
         Args:
@@ -47,13 +47,13 @@ class OpenAPIConfig:
 
         # Add custom OpenAPI extensions
         openapi_schema.update(self._get_openapi_extensions())
-        
+
         # Add security schemes
         openapi_schema["components"]["securitySchemes"] = self._get_security_schemes()
-        
+
         # Add custom tags
         openapi_schema["tags"] = self._get_api_tags()
-        
+
         app.openapi_schema = openapi_schema
         return app.openapi_schema
 
@@ -128,7 +128,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
 - **Issues**: [https://github.com/pynomaly/pynomaly/issues](https://github.com/pynomaly/pynomaly/issues)
         """
 
-    def _get_servers(self) -> List[Dict[str, str]]:
+    def _get_servers(self) -> list[dict[str, str]]:
         """Get API server configurations."""
         servers = [
             {
@@ -136,7 +136,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
                 "description": "Current server"
             }
         ]
-        
+
         # Add additional servers based on environment
         if self.settings.app.environment == "development":
             servers.extend([
@@ -145,7 +145,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
                     "description": "Development server"
                 },
                 {
-                    "url": "http://localhost:8080", 
+                    "url": "http://localhost:8080",
                     "description": "Development server (alternative port)"
                 }
             ])
@@ -159,10 +159,10 @@ The API uses standard HTTP status codes and returns detailed error messages:
                 "url": "https://api.pynomaly.io",
                 "description": "Production server"
             })
-            
+
         return servers
 
-    def _get_openapi_extensions(self) -> Dict[str, Any]:
+    def _get_openapi_extensions(self) -> dict[str, Any]:
         """Get OpenAPI extensions and metadata."""
         return {
             "info": {
@@ -187,7 +187,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
             }
         }
 
-    def _get_security_schemes(self) -> Dict[str, Any]:
+    def _get_security_schemes(self) -> dict[str, Any]:
         """Get security scheme definitions."""
         return {
             "BearerAuth": {
@@ -221,7 +221,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
             }
         }
 
-    def _get_api_tags(self) -> List[Dict[str, Any]]:
+    def _get_api_tags(self) -> list[dict[str, Any]]:
         """Get API endpoint tags with descriptions."""
         return [
             {
@@ -248,7 +248,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
                 "name": "Detectors",
                 "description": "Anomaly detector configuration and management",
                 "externalDocs": {
-                    "description": "Detector Guide", 
+                    "description": "Detector Guide",
                     "url": "https://pynomaly.readthedocs.io/detectors"
                 }
             },
@@ -273,7 +273,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
                 "description": "Data and model export operations"
             },
             {
-                "name": "Performance", 
+                "name": "Performance",
                 "description": "Performance monitoring and profiling endpoints"
             },
             {
@@ -299,13 +299,13 @@ def configure_openapi_docs(app: FastAPI, settings: Settings) -> None:
         settings: Application settings
     """
     config = OpenAPIConfig(settings)
-    
+
     # Set custom OpenAPI schema generator
     def custom_openapi():
         return config.get_openapi_schema(app)
-    
+
     app.openapi = custom_openapi
-    
+
     # Configure documentation URLs and settings
     app.docs_url = "/docs" if settings.docs_enabled else None
     app.redoc_url = "/redoc" if settings.docs_enabled else None

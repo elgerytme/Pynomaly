@@ -139,15 +139,15 @@ class SystemMetricsResponse(BaseModel):
 async def health_check(
     container: Container = Depends(get_container),
     include_system: bool = Query(
-        True, 
+        True,
         description="Include system resource checks (CPU, memory, disk)"
     ),
     include_database: bool = Query(
-        True, 
+        True,
         description="Include database connectivity checks"
     ),
     include_cache: bool = Query(
-        True, 
+        True,
         description="Include cache connectivity checks (Redis)"
     ),
 ) -> HealthResponse:

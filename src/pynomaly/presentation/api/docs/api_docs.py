@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import json
-from typing import Dict, List
 
-from fastapi import APIRouter, Request, Response
+from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from pynomaly.presentation.api.docs.openapi_config import (
@@ -20,7 +19,7 @@ router = APIRouter(prefix="/docs", include_in_schema=False)
 async def custom_swagger_ui_html(request: Request) -> HTMLResponse:
     """Custom Swagger UI with Pynomaly branding."""
     openapi_url = str(request.url_for("openapi"))
-    
+
     return HTMLResponse(
         get_custom_swagger_ui_html(
             openapi_url=openapi_url,
@@ -33,7 +32,7 @@ async def custom_swagger_ui_html(request: Request) -> HTMLResponse:
 async def custom_redoc_html(request: Request) -> HTMLResponse:
     """Custom ReDoc documentation with Pynomaly branding."""
     openapi_url = str(request.url_for("openapi"))
-    
+
     return HTMLResponse(
         get_custom_redoc_html(
             openapi_url=openapi_url,
@@ -48,7 +47,7 @@ async def generate_postman_collection(request: Request) -> JSONResponse:
     # Get the OpenAPI schema
     openapi_url = str(request.url_for("openapi"))
     base_url = str(request.base_url).rstrip("/")
-    
+
     # Generate basic Postman collection structure
     collection = {
         "info": {
@@ -81,7 +80,7 @@ async def generate_postman_collection(request: Request) -> JSONResponse:
         ],
         "item": _generate_postman_items()
     }
-    
+
     return JSONResponse(
         content=collection,
         headers={
@@ -91,7 +90,7 @@ async def generate_postman_collection(request: Request) -> JSONResponse:
 
 
 @router.get("/openapi-summary")
-async def openapi_summary(request: Request) -> Dict:
+async def openapi_summary(request: Request) -> dict:
     """Get a summary of the OpenAPI specification."""
     # This would analyze the OpenAPI spec and provide a summary
     # For now, return a basic summary
@@ -102,7 +101,7 @@ async def openapi_summary(request: Request) -> Dict:
         "endpoint_categories": [
             "Authentication",
             "Health",
-            "Datasets", 
+            "Datasets",
             "Detectors",
             "Detection",
             "Experiments",
@@ -121,7 +120,7 @@ async def openapi_summary(request: Request) -> Dict:
 
 
 @router.get("/sdk-info")
-async def sdk_information() -> Dict:
+async def sdk_information() -> dict:
     """Get information about available SDKs and code generation."""
     return {
         "available_sdks": [
@@ -150,7 +149,7 @@ async def sdk_information() -> Dict:
         "code_generation": {
             "openapi_generator": {
                 "supported_languages": [
-                    "python", "javascript", "typescript", "java", "csharp", 
+                    "python", "javascript", "typescript", "java", "csharp",
                     "php", "ruby", "go", "rust", "kotlin", "swift"
                 ],
                 "command": "openapi-generator-cli generate -i {openapi_url} -g {language} -o ./generated-client",
@@ -167,7 +166,7 @@ async def sdk_information() -> Dict:
     }
 
 
-def _generate_postman_items() -> List[Dict]:
+def _generate_postman_items() -> list[dict]:
     """Generate Postman collection items for major API endpoints."""
     return [
         {
@@ -328,7 +327,7 @@ def _generate_postman_items() -> List[Dict]:
                         "method": "POST",
                         "header": [
                             {
-                                "key": "Authorization", 
+                                "key": "Authorization",
                                 "value": "Bearer {{jwt_token}}"
                             },
                             {
@@ -360,7 +359,7 @@ def _generate_postman_items() -> List[Dict]:
                                 "value": "Bearer {{jwt_token}}"
                             },
                             {
-                                "key": "Content-Type", 
+                                "key": "Content-Type",
                                 "value": "application/json"
                             }
                         ],

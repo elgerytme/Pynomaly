@@ -5,7 +5,7 @@ from __future__ import annotations
 
 class JAXAdapter:
     """Stub JAXAdapter when JAX is not available."""
-    
+
     def __init__(self, *args, **kwargs):
         raise ImportError(
             "JAX is required for JAXAdapter. "
@@ -15,7 +15,7 @@ class JAXAdapter:
 
 class AutoEncoder:
     """Stub AutoEncoder when JAX is not available."""
-    
+
     def __init__(self, *args, **kwargs):
         raise ImportError(
             "JAX is required for AutoEncoder. "
