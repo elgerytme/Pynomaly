@@ -15,9 +15,7 @@ import pandas as pd
 
 try:
     import openpyxl
-    from openpyxl.chart import Reference, ScatterChart, Series
-    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
-    from openpyxl.utils.dataframe import dataframe_to_rows
+    from openpyxl.styles import Font, PatternFill
 
     OPENPYXL_AVAILABLE = True
 except ImportError:
