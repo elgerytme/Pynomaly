@@ -402,7 +402,7 @@ class AdvancedAutoMLService:
                     "mean_correlation": 0.0,
                     "high_correlation_ratio": 0.0,
                 }
-        except:
+        except Exception:
             return {
                 "max_correlation": 0.0,
                 "mean_correlation": 0.0,
