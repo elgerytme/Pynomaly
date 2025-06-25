@@ -127,9 +127,7 @@ class QueryCache:
         query_str = json.dumps(query_data, sort_keys=True)
         return hashlib.sha256(query_str.encode()).hexdigest()[:16]
 
-    async def get(
-        self, query: str, params: dict[str, Any] | None = None
-    ) -> Any | None:
+    async def get(self, query: str, params: dict[str, Any] | None = None) -> Any | None:
         """Get cached query result.
 
         Args:
@@ -729,11 +727,11 @@ class QueryPerformanceTracker:
             "avg_time": avg_time,
             "slow_queries": len(slow_queries),
             "query_types": dict(query_types),
-            "slowest_query": max(
-                self.metrics.values(), key=lambda m: m.avg_time
-            ).avg_time
-            if self.metrics
-            else 0,
+            "slowest_query": (
+                max(self.metrics.values(), key=lambda m: m.avg_time).avg_time
+                if self.metrics
+                else 0
+            ),
         }
 
 

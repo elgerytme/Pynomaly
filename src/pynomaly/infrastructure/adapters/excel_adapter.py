@@ -404,9 +404,11 @@ class ExcelAdapter(ExportProtocol, ImportProtocol):
             ["Anomalies Detected", sum(anomalies)],
             [
                 "Anomaly Rate (%)",
-                f"{(sum(anomalies) / len(anomalies) * 100):.2f}"
-                if anomalies
-                else "0.00",
+                (
+                    f"{(sum(anomalies) / len(anomalies) * 100):.2f}"
+                    if anomalies
+                    else "0.00"
+                ),
             ],
             [
                 "Average Score",

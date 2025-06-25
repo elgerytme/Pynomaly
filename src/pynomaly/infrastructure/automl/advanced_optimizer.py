@@ -402,9 +402,11 @@ class AdvancedHyperparameterOptimizer:
             optuna_objective,
             n_trials=self.config.n_trials,
             timeout=self.config.timeout,
-            callbacks=[self._trial_callback]
-            if self.config.save_intermediate_results
-            else None,
+            callbacks=(
+                [self._trial_callback]
+                if self.config.save_intermediate_results
+                else None
+            ),
         )
 
     def _run_parallel_optimization(
@@ -660,14 +662,18 @@ class AdvancedHyperparameterOptimizer:
         best_trial = OptimizationTrial(
             trial_id=str(best_trial_data.number),
             parameters=best_trial_data.params,
-            objectives={"primary": best_trial_data.value}
-            if best_trial_data.value is not None
-            else {},
+            objectives=(
+                {"primary": best_trial_data.value}
+                if best_trial_data.value is not None
+                else {}
+            ),
             constraints={},
             state=best_trial_data.state.name,
-            duration=best_trial_data.duration.total_seconds()
-            if best_trial_data.duration
-            else 0,
+            duration=(
+                best_trial_data.duration.total_seconds()
+                if best_trial_data.duration
+                else 0
+            ),
             intermediate_values=list(best_trial_data.intermediate_values),
         )
 
@@ -677,14 +683,16 @@ class AdvancedHyperparameterOptimizer:
             trial = OptimizationTrial(
                 trial_id=str(trial_data.number),
                 parameters=trial_data.params,
-                objectives={"primary": trial_data.value}
-                if trial_data.value is not None
-                else {},
+                objectives=(
+                    {"primary": trial_data.value}
+                    if trial_data.value is not None
+                    else {}
+                ),
                 constraints={},
                 state=trial_data.state.name,
-                duration=trial_data.duration.total_seconds()
-                if trial_data.duration
-                else 0,
+                duration=(
+                    trial_data.duration.total_seconds() if trial_data.duration else 0
+                ),
                 intermediate_values=list(trial_data.intermediate_values),
             )
             all_trials.append(trial)

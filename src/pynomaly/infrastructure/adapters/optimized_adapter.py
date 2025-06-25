@@ -150,9 +150,9 @@ class OptimizedAdapter:
             "is_optimized": self.is_optimized,
             "optimization_level": self.optimization_level,
             "auto_optimize": self.auto_optimize,
-            "base_adapter_class": self.base_adapter_class.__name__
-            if self.base_adapter_class
-            else None,
+            "base_adapter_class": (
+                self.base_adapter_class.__name__ if self.base_adapter_class else None
+            ),
             "optimization_results": self.optimization_results,
             "optimized_parameters": (
                 self.optimized_detector.parameters if self.optimized_detector else None
@@ -179,7 +179,9 @@ class OptimizedAdapter:
             # If optimization fails, continue with original detector
             import warnings
 
-            warnings.warn(f"Optimization failed, using original detector: {e}", stacklevel=2)
+            warnings.warn(
+                f"Optimization failed, using original detector: {e}", stacklevel=2
+            )
             self.is_optimized = False
 
     def _determine_base_adapter_class(self) -> type:
@@ -313,7 +315,8 @@ class OptimizedEnsembleAdapter:
 
         # Weighted average
         weighted_score = sum(
-            score * weight for score, weight in zip(scores, self.ensemble_weights, strict=False)
+            score * weight
+            for score, weight in zip(scores, self.ensemble_weights, strict=False)
         )
 
         return weighted_score

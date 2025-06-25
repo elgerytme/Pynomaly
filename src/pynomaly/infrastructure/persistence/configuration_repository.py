@@ -345,9 +345,7 @@ class ConfigurationRepository:
             logger.error(f"Failed to save template {template.id}: {e}")
             return False
 
-    async def load_template(
-        self, template_id: UUID
-    ) -> ConfigurationTemplateDTO | None:
+    async def load_template(self, template_id: UUID) -> ConfigurationTemplateDTO | None:
         """Load configuration template by ID.
 
         Args:
@@ -628,9 +626,11 @@ class ConfigurationRepository:
         ):
             return sorted(
                 configurations,
-                key=lambda x: x.performance_results.accuracy
-                if x.performance_results and x.performance_results.accuracy
-                else 0,
+                key=lambda x: (
+                    x.performance_results.accuracy
+                    if x.performance_results and x.performance_results.accuracy
+                    else 0
+                ),
                 reverse=reverse,
             )
         else:

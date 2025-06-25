@@ -156,9 +156,7 @@ class SecurityEvent(BaseModel):
 
     # Compliance
     compliance_standards: list[ComplianceStandard] | None = None
-    data_classification: str | None = (
-        None  # PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED
-    )
+    data_classification: str | None = None  # PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED
 
     # Technical details
     source_component: str | None = None
@@ -299,9 +297,9 @@ class AuditLogger:
             details=details or {},
             risk_score=risk_score,
             compliance_standards=compliance_standards,
-            correlation_id=context.correlation_id
-            if context
-            else self._generate_correlation_id(),
+            correlation_id=(
+                context.correlation_id if context else self._generate_correlation_id()
+            ),
             session_id=context.session_id if context else None,
             user_id=context.user_id if context else None,
             user_name=context.user_name if context else None,
@@ -360,9 +358,9 @@ class AuditLogger:
             after_state=after_state,
             compliance_standards=compliance_standards,
             retention_period_days=self.default_retention_days,
-            correlation_id=context.correlation_id
-            if context
-            else self._generate_correlation_id(),
+            correlation_id=(
+                context.correlation_id if context else self._generate_correlation_id()
+            ),
             user_id=context.user_id if context else None,
             user_name=context.user_name if context else None,
             **kwargs,
@@ -375,9 +373,7 @@ class AuditLogger:
         if self.enable_compliance_logging and compliance_standards:
             self._handle_compliance_logging(event, compliance_standards)
 
-    def _log_event(
-        self, event: SecurityEvent | AuditEvent, is_security: bool
-    ) -> None:
+    def _log_event(self, event: SecurityEvent | AuditEvent, is_security: bool) -> None:
         """Log an event to the audit trail."""
         event_dict = event.dict()
 

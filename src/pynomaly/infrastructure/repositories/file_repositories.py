@@ -67,15 +67,17 @@ class FileDetectorRepository(DetectorRepositoryProtocol):
             "id": str(detector.id),
             "name": detector.name,
             "algorithm_name": detector.algorithm_name,
-            "contamination_rate": detector.contamination_rate.value
-            if detector.contamination_rate
-            else None,
+            "contamination_rate": (
+                detector.contamination_rate.value
+                if detector.contamination_rate
+                else None
+            ),
             "parameters": detector.parameters,
             "metadata": detector.metadata,
             "created_at": detector.created_at.isoformat(),
-            "trained_at": detector.trained_at.isoformat()
-            if detector.trained_at
-            else None,
+            "trained_at": (
+                detector.trained_at.isoformat() if detector.trained_at else None
+            ),
             "is_fitted": detector.is_fitted,
         }
 
@@ -302,9 +304,11 @@ class FileResultRepository(DetectionResultRepositoryProtocol):
             "dataset_id": str(result.dataset_id),
             "anomalies": anomalies_data,
             "scores": scores_data,
-            "labels": result.labels.tolist()
-            if hasattr(result.labels, "tolist")
-            else list(result.labels),
+            "labels": (
+                result.labels.tolist()
+                if hasattr(result.labels, "tolist")
+                else list(result.labels)
+            ),
             "threshold": result.threshold,
             "timestamp": result.timestamp.isoformat(),
             "metadata": result.metadata,

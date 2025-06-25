@@ -431,9 +431,11 @@ class TDDEnforcementEngine:
                     file_path=file_path,
                     line_number=None,
                     description=f"Test coverage {coverage:.1%} is below minimum threshold {self.settings.min_test_coverage:.1%}",
-                    severity="error"
-                    if coverage < self.settings.coverage_fail_under
-                    else "warning",
+                    severity=(
+                        "error"
+                        if coverage < self.settings.coverage_fail_under
+                        else "warning"
+                    ),
                     rule_name="minimum_coverage_threshold",
                     suggestion=f"Add more tests to reach {self.settings.min_test_coverage:.1%} coverage",
                     auto_fixable=False,

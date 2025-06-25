@@ -197,9 +197,9 @@ class RepositoryFactory:
             "db_type": self.config.db_type.value,
             "using_database": using_database,
             "repository_type": "database" if using_database else "memory",
-            "connection_url": self.config.get_connection_url()
-            if using_database
-            else None,
+            "connection_url": (
+                self.config.get_connection_url() if using_database else None
+            ),
             "database_available": DATABASE_REPOSITORIES_AVAILABLE,
             "config_valid": get_database_config_manager().validate_config(self.config),
         }

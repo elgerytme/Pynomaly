@@ -72,7 +72,6 @@ def autoencoder_forward(
         if i < encoder_layers - 1:  # No activation on last layer
             h = jax.nn.relu(h)
 
-
     # Decoder
     decoder_layers = len([k for k in params.keys() if "decoder_w" in k])
     for i in range(decoder_layers):
@@ -777,17 +776,23 @@ class JAXAdapter(Detector):
 
             # Create anomaly objects
             anomalies = []
-            for idx, (score, anomaly_flag) in enumerate(zip(scores, is_anomaly, strict=False)):
+            for idx, (score, anomaly_flag) in enumerate(
+                zip(scores, is_anomaly, strict=False)
+            ):
                 if anomaly_flag:
                     anomaly = Anomaly(
                         index=int(idx),
                         score=AnomalyScore(float(score)),
-                        timestamp=dataset.features.index[idx]
-                        if hasattr(dataset.features.index, "__getitem__")
-                        else None,
-                        feature_names=list(dataset.features.columns)
-                        if dataset.features is not None
-                        else None,
+                        timestamp=(
+                            dataset.features.index[idx]
+                            if hasattr(dataset.features.index, "__getitem__")
+                            else None
+                        ),
+                        feature_names=(
+                            list(dataset.features.columns)
+                            if dataset.features is not None
+                            else None
+                        ),
                     )
                     anomalies.append(anomaly)
 
@@ -847,9 +852,11 @@ class JAXAdapter(Detector):
             info.update(
                 {
                     "hidden_dims": self.hidden_dims,
-                    "encoding_dim": self.encoding_dim
-                    if self.algorithm_type == "autoencoder"
-                    else self.latent_dim,
+                    "encoding_dim": (
+                        self.encoding_dim
+                        if self.algorithm_type == "autoencoder"
+                        else self.latent_dim
+                    ),
                 }
             )
 

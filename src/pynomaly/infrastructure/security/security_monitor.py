@@ -300,9 +300,9 @@ class AnomalousAccessDetector(ThreatDetector):
             return SecurityAlert(
                 alert_id=f"aa_{user_id}_{int(current_time)}",
                 alert_type=AlertType.ANOMALOUS_ACCESS,
-                threat_level=ThreatLevel.MEDIUM
-                if len(anomalies) == 1
-                else ThreatLevel.HIGH,
+                threat_level=(
+                    ThreatLevel.MEDIUM if len(anomalies) == 1 else ThreatLevel.HIGH
+                ),
                 title="Anomalous Access Pattern Detected",
                 description=f"User {user_id} login shows unusual patterns",
                 timestamp=datetime.now(UTC),
@@ -574,9 +574,11 @@ class SecurityMonitor:
         self.audit_logger.log_security_event(
             SecurityEventType.SECURITY_SUSPICIOUS_ACTIVITY,
             f"Security alert: {alert.title}",
-            level=AuditLevel.WARNING
-            if alert.threat_level in [ThreatLevel.LOW, ThreatLevel.MEDIUM]
-            else AuditLevel.ERROR,
+            level=(
+                AuditLevel.WARNING
+                if alert.threat_level in [ThreatLevel.LOW, ThreatLevel.MEDIUM]
+                else AuditLevel.ERROR
+            ),
             details={
                 "alert_id": alert.alert_id,
                 "alert_type": alert.alert_type,

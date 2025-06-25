@@ -21,6 +21,7 @@ try:
     from opentelemetry.sdk.trace import TracerProvider
     from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
     from opentelemetry.trace import Status, StatusCode
+
     OPENTELEMETRY_AVAILABLE = True
 except ImportError:
     OPENTELEMETRY_AVAILABLE = False
@@ -28,6 +29,7 @@ except ImportError:
 
 class SpanStatus(Enum):
     """Span status enumeration."""
+
     UNSET = "unset"
     OK = "ok"
     ERROR = "error"
@@ -36,6 +38,7 @@ class SpanStatus(Enum):
 @dataclass
 class SpanAttribute:
     """Span attribute with type information."""
+
     key: str
     value: Any
     type: str = field(init=False)
@@ -47,6 +50,7 @@ class SpanAttribute:
 @dataclass
 class SpanEvent:
     """Span event with timestamp and attributes."""
+
     name: str
     timestamp: datetime = field(default_factory=datetime.utcnow)
     attributes: dict[str, Any] = field(default_factory=dict)
@@ -56,13 +60,14 @@ class SpanEvent:
         return {
             "name": self.name,
             "timestamp": self.timestamp.isoformat(),
-            "attributes": self.attributes
+            "attributes": self.attributes,
         }
 
 
 @dataclass
 class TraceContext:
     """Trace context with correlation information."""
+
     trace_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     span_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     parent_span_id: str | None = None
@@ -76,7 +81,7 @@ class TraceContext:
             "span_id": self.span_id,
             "parent_span_id": self.parent_span_id,
             "flags": self.flags,
-            "baggage": self.baggage
+            "baggage": self.baggage,
         }
 
 
@@ -111,11 +116,13 @@ class Span:
 
     def __post_init__(self):
         """Initialize span with default attributes."""
-        self.attributes.update({
-            "service.name": self.service_name,
-            "span.kind": self.span_kind,
-            "component": self.component or "unknown"
-        })
+        self.attributes.update(
+            {
+                "service.name": self.service_name,
+                "span.kind": self.span_kind,
+                "component": self.component or "unknown",
+            }
+        )
 
     def set_attribute(self, key: str, value: Any) -> Span:
         """Set span attribute."""
@@ -139,7 +146,7 @@ class Span:
             "timestamp": datetime.utcnow().isoformat(),
             "level": level,
             "message": message,
-            **kwargs
+            **kwargs,
         }
         self.logs.append(log_entry)
         return self
@@ -154,12 +161,16 @@ class Span:
         """Set span error status with exception details."""
         self.status = SpanStatus.ERROR
         self.status_message = str(error)
-        self.attributes.update({
-            "error": True,
-            "error.type": type(error).__name__,
-            "error.message": str(error),
-            "error.stack": str(error.__traceback__) if error.__traceback__ else None
-        })
+        self.attributes.update(
+            {
+                "error": True,
+                "error.type": type(error).__name__,
+                "error.message": str(error),
+                "error.stack": (
+                    str(error.__traceback__) if error.__traceback__ else None
+                ),
+            }
+        )
         return self
 
     def finish(self) -> Span:
@@ -167,7 +178,9 @@ class Span:
         if self.end_time is None:
             self.end_time = datetime.utcnow()
             if self.start_time:
-                self.duration_ms = (self.end_time - self.start_time).total_seconds() * 1000
+                self.duration_ms = (
+                    self.end_time - self.start_time
+                ).total_seconds() * 1000
         return self
 
     def to_dict(self) -> dict[str, Any]:
@@ -187,7 +200,7 @@ class Span:
             "duration_ms": self.duration_ms,
             "attributes": self.attributes,
             "events": [event.to_dict() for event in self.events],
-            "logs": self.logs
+            "logs": self.logs,
         }
 
 
@@ -202,7 +215,7 @@ class TracingManager:
         max_spans_in_memory: int = 1000,
         enable_console_export: bool = False,
         storage_path: Path | None = None,
-        flush_interval_seconds: int = 30
+        flush_interval_seconds: int = 30,
     ):
         """Initialize tracing manager.
 
@@ -239,7 +252,7 @@ class TracingManager:
             "spans_finished": 0,
             "spans_exported": 0,
             "export_errors": 0,
-            "traces_created": 0
+            "traces_created": 0,
         }
 
         # Initialize tracing
@@ -256,10 +269,9 @@ class TracingManager:
         """Set up OpenTelemetry tracing."""
         try:
             # Create resource
-            resource = Resource.create({
-                "service.name": self.service_name,
-                "service.version": "1.0.0"
-            })
+            resource = Resource.create(
+                {"service.name": self.service_name, "service.version": "1.0.0"}
+            )
 
             # Create tracer provider
             self._tracer_provider = TracerProvider(resource=resource)
@@ -275,7 +287,7 @@ class TracingManager:
                 jaeger_exporter = JaegerExporter(
                     agent_host_name="localhost",
                     agent_port=14268,
-                    collector_endpoint=self.jaeger_endpoint
+                    collector_endpoint=self.jaeger_endpoint,
                 )
                 jaeger_processor = BatchSpanProcessor(jaeger_exporter)
                 self._tracer_provider.add_span_processor(jaeger_processor)
@@ -287,7 +299,9 @@ class TracingManager:
             print(f"Failed to setup OpenTelemetry: {e}")
             self._tracer = None
 
-    def start_trace(self, operation_name: str, trace_context: TraceContext | None = None) -> TraceContext:
+    def start_trace(
+        self, operation_name: str, trace_context: TraceContext | None = None
+    ) -> TraceContext:
         """Start a new trace."""
         if trace_context is None:
             trace_context = TraceContext()
@@ -308,7 +322,7 @@ class TracingManager:
         trace_context: TraceContext | None = None,
         component: str | None = None,
         span_kind: str = "internal",
-        attributes: dict[str, Any] | None = None
+        attributes: dict[str, Any] | None = None,
     ) -> Span:
         """Start a new span."""
 
@@ -336,7 +350,7 @@ class TracingManager:
             parent_span_id=parent_span_id,
             service_name=self.service_name,
             component=component,
-            span_kind=span_kind
+            span_kind=span_kind,
         )
 
         # Set attributes
@@ -382,14 +396,14 @@ class TracingManager:
         operation_name: str,
         component: str | None = None,
         span_kind: str = "internal",
-        attributes: dict[str, Any] | None = None
+        attributes: dict[str, Any] | None = None,
     ) -> Generator[Span, None, None]:
         """Context manager for automatic span management."""
         span = self.start_span(
             operation_name=operation_name,
             component=component,
             span_kind=span_kind,
-            attributes=attributes
+            attributes=attributes,
         )
 
         try:
@@ -406,7 +420,7 @@ class TracingManager:
             "x-trace-id": span.trace_id,
             "x-span-id": span.span_id,
             "x-parent-span-id": span.parent_span_id or "",
-            "x-service-name": span.service_name
+            "x-service-name": span.service_name,
         }
 
     def extract_context(self, headers: dict[str, str]) -> TraceContext | None:
@@ -418,7 +432,7 @@ class TracingManager:
         return TraceContext(
             trace_id=trace_id,
             span_id=headers.get("x-span-id", str(uuid.uuid4())),
-            parent_span_id=headers.get("x-parent-span-id") or None
+            parent_span_id=headers.get("x-parent-span-id") or None,
         )
 
     def get_all_spans(self) -> list[Span]:
@@ -449,11 +463,7 @@ class TracingManager:
             self.stats["spans_exported"] += len(self._spans)
 
             return [
-                {
-                    "trace_id": trace_id,
-                    "spans": spans,
-                    "span_count": len(spans)
-                }
+                {"trace_id": trace_id, "spans": spans, "span_count": len(spans)}
                 for trace_id, spans in traces.items()
             ]
 
@@ -475,13 +485,17 @@ class TracingManager:
             filename = self.storage_path.parent / f"traces_{timestamp}.json"
 
             # Write traces to file
-            with open(filename, 'w') as f:
-                json.dump({
-                    "timestamp": datetime.utcnow().isoformat(),
-                    "service_name": self.service_name,
-                    "trace_count": len(traces),
-                    "traces": traces
-                }, f, indent=2)
+            with open(filename, "w") as f:
+                json.dump(
+                    {
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "service_name": self.service_name,
+                        "trace_count": len(traces),
+                        "traces": traces,
+                    },
+                    f,
+                    indent=2,
+                )
 
         except Exception as e:
             self.stats["export_errors"] += 1
@@ -491,7 +505,8 @@ class TracingManager:
         """Clear finished spans from memory to prevent memory leaks."""
         with self._lock:
             finished_spans = [
-                span_id for span_id, span in self._spans.items()
+                span_id
+                for span_id, span in self._spans.items()
                 if span.end_time is not None
             ]
 
@@ -501,11 +516,11 @@ class TracingManager:
                 sorted_spans = sorted(
                     [(span_id, self._spans[span_id]) for span_id in finished_spans],
                     key=lambda x: x[1].end_time or datetime.min,
-                    reverse=True
+                    reverse=True,
                 )
 
                 # Remove oldest spans
-                to_remove = sorted_spans[self.max_spans_in_memory:]
+                to_remove = sorted_spans[self.max_spans_in_memory :]
                 for span_id, _ in to_remove:
                     del self._spans[span_id]
 
@@ -515,9 +530,11 @@ class TracingManager:
             return {
                 "service_name": self.service_name,
                 "spans_in_memory": len(self._spans),
-                "current_span": self._current_span.operation_name if self._current_span else None,
+                "current_span": (
+                    self._current_span.operation_name if self._current_span else None
+                ),
                 "opentelemetry_available": OPENTELEMETRY_AVAILABLE,
-                **self.stats
+                **self.stats,
             }
 
     def shutdown(self):
@@ -540,9 +557,10 @@ def trace_decorator(
     operation_name: str | None = None,
     component: str | None = None,
     span_kind: str = "internal",
-    tracer: TracingManager | None = None
+    tracer: TracingManager | None = None,
 ):
     """Decorator for automatic tracing of functions."""
+
     def decorator(func: Callable):
         def wrapper(*args, **kwargs):
             # Get tracer (use provided or create default)
@@ -560,8 +578,8 @@ def trace_decorator(
                 span_kind=span_kind,
                 attributes={
                     "function.name": func.__name__,
-                    "function.module": func.__module__
-                }
+                    "function.module": func.__module__,
+                },
             ) as span:
                 try:
                     result = func(*args, **kwargs)
@@ -572,6 +590,7 @@ def trace_decorator(
                     raise
 
         return wrapper
+
     return decorator
 
 
@@ -592,7 +611,7 @@ def configure_tracing(
     jaeger_endpoint: str | None = None,
     sampling_rate: float = 1.0,
     storage_path: Path | None = None,
-    enable_console_export: bool = False
+    enable_console_export: bool = False,
 ) -> TracingManager:
     """Configure the global tracer."""
     global _default_tracer
@@ -601,6 +620,6 @@ def configure_tracing(
         jaeger_endpoint=jaeger_endpoint,
         sampling_rate=sampling_rate,
         storage_path=storage_path,
-        enable_console_export=enable_console_export
+        enable_console_export=enable_console_export,
     )
     return _default_tracer

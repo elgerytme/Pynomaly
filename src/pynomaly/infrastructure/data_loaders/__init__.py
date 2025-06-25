@@ -73,16 +73,18 @@ def get_available_loaders() -> dict:
         },
         "polars": {
             "available": _POLARS_AVAILABLE,
-            "formats": [".csv", ".parquet", ".json", ".xlsx"]
-            if _POLARS_AVAILABLE
-            else [],
+            "formats": (
+                [".csv", ".parquet", ".json", ".xlsx"] if _POLARS_AVAILABLE else []
+            ),
             "description": "High-performance lazy evaluation with Polars",
         },
         "arrow": {
             "available": _ARROW_AVAILABLE,
-            "formats": [".parquet", ".csv", ".json", ".arrow", ".feather"]
-            if _ARROW_AVAILABLE
-            else [],
+            "formats": (
+                [".parquet", ".csv", ".json", ".arrow", ".feather"]
+                if _ARROW_AVAILABLE
+                else []
+            ),
             "description": "Native Arrow columnar processing with compute functions",
         },
         "spark": {

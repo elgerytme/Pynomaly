@@ -602,8 +602,8 @@ class StreamingProcessor:
             "mode": self.config.mode.value,
             "metrics": self._metrics.to_dict(),
             "queue_size": len(self._message_queue),
-            "last_checkpoint": self._last_checkpoint.isoformat()
-            if self._last_checkpoint
-            else None,
+            "last_checkpoint": (
+                self._last_checkpoint.isoformat() if self._last_checkpoint else None
+            ),
             "memory_usage": get_memory_usage().to_dict(),
         }

@@ -544,8 +544,10 @@ class Container(containers.DeclarativeContainer):
 
         # Observability services
         if service_manager.is_available("observability_service"):
-            from pynomaly.infrastructure.logging.observability_service import ObservabilityConfig
-            
+            from pynomaly.infrastructure.logging.observability_service import (
+                ObservabilityConfig,
+            )
+
             cls.observability_service = service_manager.create_provider(
                 "observability_service",
                 "singleton",
@@ -561,7 +563,7 @@ class Container(containers.DeclarativeContainer):
                     enable_log_analysis=True,
                     enable_anomaly_detection=True,
                     enable_alerts=False,
-                )
+                ),
             )
 
         # Individual logging services for direct access
@@ -635,15 +637,15 @@ class Container(containers.DeclarativeContainer):
             cls.distributed_detector = service_manager.create_provider(
                 "distributed_detector",
                 "singleton",
-                task_distributor=cls.task_distributor
-                if hasattr(cls, "task_distributor")
-                else None,
-                worker_manager=cls.worker_manager
-                if hasattr(cls, "worker_manager")
-                else None,
-                data_partitioner=cls.data_partitioner
-                if hasattr(cls, "data_partitioner")
-                else None,
+                task_distributor=(
+                    cls.task_distributor if hasattr(cls, "task_distributor") else None
+                ),
+                worker_manager=(
+                    cls.worker_manager if hasattr(cls, "worker_manager") else None
+                ),
+                data_partitioner=(
+                    cls.data_partitioner if hasattr(cls, "data_partitioner") else None
+                ),
             )
 
         if service_manager.is_available("cluster_coordinator"):
@@ -687,20 +689,26 @@ class Container(containers.DeclarativeContainer):
                 dataset_repository=cls.async_dataset_repository,
                 adapter_registry=providers.Object("adapter_registry"),
                 config=EnhancedAutoMLConfig(
-                    max_optimization_time=cls.config.provided.automl_max_time
-                    if hasattr(cls.config.provided, "automl_max_time")
-                    else 3600,
-                    n_trials=cls.config.provided.automl_n_trials
-                    if hasattr(cls.config.provided, "automl_n_trials")
-                    else 100,
+                    max_optimization_time=(
+                        cls.config.provided.automl_max_time
+                        if hasattr(cls.config.provided, "automl_max_time")
+                        else 3600
+                    ),
+                    n_trials=(
+                        cls.config.provided.automl_n_trials
+                        if hasattr(cls.config.provided, "automl_n_trials")
+                        else 100
+                    ),
                     enable_meta_learning=True,
                     enable_multi_objective=True,
                     enable_parallel=True,
                     random_state=42,
                 ),
-                storage_path=cls.config.provided.automl_storage_path
-                if hasattr(cls.config.provided, "automl_storage_path")
-                else Path("./automl_storage"),
+                storage_path=(
+                    cls.config.provided.automl_storage_path
+                    if hasattr(cls.config.provided, "automl_storage_path")
+                    else Path("./automl_storage")
+                ),
             )
 
         # Explainability services
@@ -742,7 +750,7 @@ class Container(containers.DeclarativeContainer):
                 max_size=1000,
                 max_memory_mb=100,
             )
-            
+
             # Create Redis fallback cache if available
             redis_cache_backend = None
             if service_manager.is_available("redis_cache_backend"):
@@ -753,7 +761,7 @@ class Container(containers.DeclarativeContainer):
                     port=6379,
                     default_ttl=3600,
                 )
-            
+
             # Create cache manager with fallback
             cls.cache_manager = service_manager.create_provider(
                 "cache_manager",
@@ -797,8 +805,7 @@ class Container(containers.DeclarativeContainer):
 
         if service_manager.is_available("dataframe_optimizer"):
             cls.dataframe_optimizer = service_manager.create_provider(
-                "dataframe_optimizer",
-                "singleton"
+                "dataframe_optimizer", "singleton"
             )
 
         if service_manager.is_available("query_cache"):
@@ -811,9 +818,7 @@ class Container(containers.DeclarativeContainer):
 
         # Legacy compatibility providers for connection pool manager
         # Provide a simple stub that returns None - endpoints handle this gracefully
-        cls.connection_pool_manager = providers.Singleton(
-            lambda: None
-        )
+        cls.connection_pool_manager = providers.Singleton(lambda: None)
 
     # Application services
     detection_service = providers.Singleton(

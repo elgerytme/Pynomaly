@@ -184,7 +184,10 @@ class PolarsLoader(DataLoaderProtocol):
             "n_rows": len(df) if hasattr(df, "__len__") else None,
             "n_columns": df.width if hasattr(df, "width") else len(df.columns),
             "column_names": df.columns,
-            "dtypes": {col: str(dtype) for col, dtype in zip(df.columns, df.dtypes, strict=False)},
+            "dtypes": {
+                col: str(dtype)
+                for col, dtype in zip(df.columns, df.dtypes, strict=False)
+            },
             "lazy_evaluation": self.lazy,
             "streaming_mode": self.streaming,
         }

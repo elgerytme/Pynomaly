@@ -503,17 +503,23 @@ class TensorFlowAdapter(Detector):
 
             # Create anomaly objects
             anomalies = []
-            for idx, (score, anomaly_flag) in enumerate(zip(scores, is_anomaly, strict=False)):
+            for idx, (score, anomaly_flag) in enumerate(
+                zip(scores, is_anomaly, strict=False)
+            ):
                 if anomaly_flag:
                     anomaly = Anomaly(
                         index=int(idx),
                         score=AnomalyScore(float(score)),
-                        timestamp=dataset.features.index[idx]
-                        if hasattr(dataset.features.index, "__getitem__")
-                        else None,
-                        feature_names=list(dataset.features.columns)
-                        if dataset.features is not None
-                        else None,
+                        timestamp=(
+                            dataset.features.index[idx]
+                            if hasattr(dataset.features.index, "__getitem__")
+                            else None
+                        ),
+                        feature_names=(
+                            list(dataset.features.columns)
+                            if dataset.features is not None
+                            else None
+                        ),
                     )
                     anomalies.append(anomaly)
 

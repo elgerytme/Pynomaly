@@ -731,12 +731,14 @@ class TensorFlowAdapter(DetectorProtocol):
             "model_config": self.model_config,
             "threshold": float(self.threshold),
             "random_state": self.random_state,
-            "scaler_params": {
-                "mean_": self.scaler.mean_.tolist(),
-                "scale_": self.scaler.scale_.tolist(),
-            }
-            if self.scaler
-            else None,
+            "scaler_params": (
+                {
+                    "mean_": self.scaler.mean_.tolist(),
+                    "scale_": self.scaler.scale_.tolist(),
+                }
+                if self.scaler
+                else None
+            ),
         }
 
         with open(path / "metadata.json", "w") as f:

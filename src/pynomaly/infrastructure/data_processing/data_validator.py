@@ -62,12 +62,12 @@ class ValidationIssue:
             "severity": self.severity.value,
             "message": self.message,
             "column": self.column,
-            "row_indices": self.row_indices[:10]
-            if self.row_indices
-            else None,  # Limit sample
-            "value_sample": self.value_sample[:5]
-            if self.value_sample
-            else None,  # Limit sample
+            "row_indices": (
+                self.row_indices[:10] if self.row_indices else None
+            ),  # Limit sample
+            "value_sample": (
+                self.value_sample[:5] if self.value_sample else None
+            ),  # Limit sample
             "suggestion": self.suggestion,
             "metadata": self.metadata,
         }

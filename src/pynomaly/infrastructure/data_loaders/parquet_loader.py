@@ -95,9 +95,11 @@ class ParquetLoader(BatchDataLoaderProtocol):
                 "compression": str(
                     parquet_file.metadata.row_group(0).column(0).compression
                 ),
-                "created_by": str(parquet_file.metadata.created_by)
-                if parquet_file.metadata.created_by
-                else None,
+                "created_by": (
+                    str(parquet_file.metadata.created_by)
+                    if parquet_file.metadata.created_by
+                    else None
+                ),
             }
 
             dataset = Dataset(

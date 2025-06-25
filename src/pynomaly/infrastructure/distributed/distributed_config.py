@@ -79,12 +79,8 @@ class NetworkConfig(BaseModel):
     # Security settings
     enable_tls: bool = Field(default=False, description="Enable TLS/SSL")
     verify_ssl: bool = Field(default=True, description="Verify SSL certificates")
-    cert_file: str | None = Field(
-        default=None, description="SSL certificate file path"
-    )
-    key_file: str | None = Field(
-        default=None, description="SSL private key file path"
-    )
+    cert_file: str | None = Field(default=None, description="SSL certificate file path")
+    key_file: str | None = Field(default=None, description="SSL private key file path")
     ca_file: str | None = Field(default=None, description="CA certificate file path")
 
     # Authentication
@@ -97,9 +93,7 @@ class WorkerConfig(BaseModel):
     """Configuration for worker nodes."""
 
     # Basic settings
-    worker_id: str | None = Field(
-        default=None, description="Unique worker identifier"
-    )
+    worker_id: str | None = Field(default=None, description="Unique worker identifier")
     max_concurrent_tasks: int = Field(
         default=4, ge=1, le=100, description="Maximum concurrent tasks"
     )

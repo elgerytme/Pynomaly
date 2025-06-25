@@ -396,9 +396,9 @@ class IntelligentAlertingEngine:
         self.alert_history: deque = deque(maxlen=10000)
 
         # Notification providers
-        self.notification_providers: dict[
-            NotificationChannel, NotificationProvider
-        ] = {}
+        self.notification_providers: dict[NotificationChannel, NotificationProvider] = (
+            {}
+        )
 
         # Intelligent features
         self.alert_rate_limiter: deque = deque(maxlen=1000)
@@ -773,9 +773,7 @@ class IntelligentAlertingEngine:
 
         return False
 
-    def get_active_alerts(
-        self, category: AlertCategory | None = None
-    ) -> list[Alert]:
+    def get_active_alerts(self, category: AlertCategory | None = None) -> list[Alert]:
         """Get active alerts, optionally filtered by category."""
 
         alerts = list(self.active_alerts.values())

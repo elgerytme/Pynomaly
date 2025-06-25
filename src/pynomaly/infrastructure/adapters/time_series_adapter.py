@@ -406,9 +406,11 @@ class TimeSeriesAdapter(DetectorProtocol):
                     "contamination_rate": float(np.sum(labels) / len(labels)),
                     "model_type": "time_series",
                     "data_length": len(time_series_data),
-                    "detected_period": getattr(self._model, "period", None)
-                    if hasattr(self._model, "period")
-                    else None,
+                    "detected_period": (
+                        getattr(self._model, "period", None)
+                        if hasattr(self._model, "period")
+                        else None
+                    ),
                 },
             )
 

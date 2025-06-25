@@ -430,7 +430,9 @@ class DatabaseHealthMonitor:
             "recent_database_availability": database_availability,
             "recent_pool_health": pool_health,
             "last_check": self._health_history[-1] if self._health_history else None,
-            "status": "healthy"
-            if database_availability > 0.9 and pool_health > 0.8
-            else "unhealthy",
+            "status": (
+                "healthy"
+                if database_availability > 0.9 and pool_health > 0.8
+                else "unhealthy"
+            ),
         }

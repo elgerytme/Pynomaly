@@ -48,13 +48,15 @@ class JSONFormatter(logging.Formatter):
         # Add timestamp
         if self.include_timestamp:
             if self.timestamp_format == "ISO":
-                log_entry["timestamp"] = datetime.fromtimestamp(record.created).isoformat()
+                log_entry["timestamp"] = datetime.fromtimestamp(
+                    record.created
+                ).isoformat()
             elif self.timestamp_format == "epoch":
                 log_entry["timestamp"] = record.created
             else:
-                log_entry["timestamp"] = datetime.fromtimestamp(record.created).strftime(
-                    self.timestamp_format
-                )
+                log_entry["timestamp"] = datetime.fromtimestamp(
+                    record.created
+                ).strftime(self.timestamp_format)
 
         # Add log level
         if self.include_level:
@@ -82,10 +84,27 @@ class JSONFormatter(logging.Formatter):
 
         # Add record attributes (excluding standard ones)
         standard_attrs = {
-            "name", "msg", "args", "levelname", "levelno", "pathname", "filename",
-            "module", "lineno", "funcName", "created", "msecs", "relativeCreated",
-            "thread", "threadName", "processName", "process", "getMessage",
-            "exc_info", "exc_text", "stack_info"
+            "name",
+            "msg",
+            "args",
+            "levelname",
+            "levelno",
+            "pathname",
+            "filename",
+            "module",
+            "lineno",
+            "funcName",
+            "created",
+            "msecs",
+            "relativeCreated",
+            "thread",
+            "threadName",
+            "processName",
+            "process",
+            "getMessage",
+            "exc_info",
+            "exc_text",
+            "stack_info",
         }
 
         for key, value in record.__dict__.items():
@@ -97,7 +116,9 @@ class JSONFormatter(logging.Formatter):
             log_entry["exception"] = {
                 "type": record.exc_info[0].__name__ if record.exc_info[0] else None,
                 "message": str(record.exc_info[1]) if record.exc_info[1] else None,
-                "traceback": self.formatException(record.exc_info) if record.exc_info else None
+                "traceback": (
+                    self.formatException(record.exc_info) if record.exc_info else None
+                ),
             }
 
         # Add stack info if available
@@ -110,10 +131,10 @@ class JSONFormatter(logging.Formatter):
             "line": record.lineno,
             "function": record.funcName,
             "module": record.module,
-            "pathname": record.pathname
+            "pathname": record.pathname,
         }
 
-        return json.dumps(log_entry, ensure_ascii=False, separators=(',', ':'))
+        return json.dumps(log_entry, ensure_ascii=False, separators=(",", ":"))
 
 
 class ConsoleFormatter(logging.Formatter):
@@ -121,12 +142,12 @@ class ConsoleFormatter(logging.Formatter):
 
     # ANSI color codes
     COLORS = {
-        'DEBUG': '\033[36m',     # Cyan
-        'INFO': '\033[32m',      # Green
-        'WARNING': '\033[33m',   # Yellow
-        'ERROR': '\033[31m',     # Red
-        'CRITICAL': '\033[35m',  # Magenta
-        'RESET': '\033[0m'       # Reset
+        "DEBUG": "\033[36m",  # Cyan
+        "INFO": "\033[32m",  # Green
+        "WARNING": "\033[33m",  # Yellow
+        "ERROR": "\033[31m",  # Red
+        "CRITICAL": "\033[35m",  # Magenta
+        "RESET": "\033[0m",  # Reset
     }
 
     def __init__(
@@ -165,15 +186,17 @@ class ConsoleFormatter(logging.Formatter):
 
         # Add timestamp
         if self.include_timestamp:
-            timestamp = datetime.fromtimestamp(record.created).strftime(self.timestamp_format)
+            timestamp = datetime.fromtimestamp(record.created).strftime(
+                self.timestamp_format
+            )
             parts.append(f"[{timestamp}]")
 
         # Add log level with color
         if self.include_level:
             level = record.levelname
             if self.use_colors:
-                color = self.COLORS.get(level, self.COLORS['RESET'])
-                reset = self.COLORS['RESET']
+                color = self.COLORS.get(level, self.COLORS["RESET"])
+                reset = self.COLORS["RESET"]
                 level_str = f"{color}{level:8}{reset}"
             else:
                 level_str = f"{level:8}"
@@ -183,7 +206,7 @@ class ConsoleFormatter(logging.Formatter):
         if self.include_logger_name:
             logger_name = record.name
             if len(logger_name) > self.max_logger_name_length:
-                logger_name = "..." + logger_name[-(self.max_logger_name_length-3):]
+                logger_name = "..." + logger_name[-(self.max_logger_name_length - 3) :]
             parts.append(f"[{logger_name:{self.max_logger_name_length}}]")
 
         # Add caller info
@@ -234,16 +257,32 @@ class StructuredConsoleFormatter(logging.Formatter):
         self.show_metadata = show_metadata
 
         # Colors for different data types
-        self.colors = {
-            'timestamp': '\033[90m',    # Dark gray
-            'level': '\033[1m',         # Bold
-            'logger': '\033[94m',       # Blue
-            'message': '\033[97m',      # White
-            'key': '\033[96m',          # Cyan
-            'value': '\033[93m',        # Yellow
-            'error': '\033[91m',        # Light red
-            'reset': '\033[0m'          # Reset
-        } if use_colors else dict.fromkeys(['timestamp', 'level', 'logger', 'message', 'key', 'value', 'error', 'reset'], '')
+        self.colors = (
+            {
+                "timestamp": "\033[90m",  # Dark gray
+                "level": "\033[1m",  # Bold
+                "logger": "\033[94m",  # Blue
+                "message": "\033[97m",  # White
+                "key": "\033[96m",  # Cyan
+                "value": "\033[93m",  # Yellow
+                "error": "\033[91m",  # Light red
+                "reset": "\033[0m",  # Reset
+            }
+            if use_colors
+            else dict.fromkeys(
+                [
+                    "timestamp",
+                    "level",
+                    "logger",
+                    "message",
+                    "key",
+                    "value",
+                    "error",
+                    "reset",
+                ],
+                "",
+            )
+        )
 
     def format(self, record: logging.LogRecord) -> str:
         """Format log record with structured data display."""
@@ -253,34 +292,66 @@ class StructuredConsoleFormatter(logging.Formatter):
         header_parts = []
 
         if self.show_metadata:
-            timestamp = datetime.fromtimestamp(record.created).strftime("%H:%M:%S.%f")[:-3]
-            header_parts.append(f"{self.colors['timestamp']}{timestamp}{self.colors['reset']}")
+            timestamp = datetime.fromtimestamp(record.created).strftime("%H:%M:%S.%f")[
+                :-3
+            ]
+            header_parts.append(
+                f"{self.colors['timestamp']}{timestamp}{self.colors['reset']}"
+            )
 
-            level_color = {
-                'DEBUG': self.colors['reset'],
-                'INFO': '\033[32m',
-                'WARNING': '\033[33m',
-                'ERROR': '\033[31m',
-                'CRITICAL': '\033[35m'
-            }.get(record.levelname, self.colors['level']) if self.use_colors else ''
+            level_color = (
+                {
+                    "DEBUG": self.colors["reset"],
+                    "INFO": "\033[32m",
+                    "WARNING": "\033[33m",
+                    "ERROR": "\033[31m",
+                    "CRITICAL": "\033[35m",
+                }.get(record.levelname, self.colors["level"])
+                if self.use_colors
+                else ""
+            )
 
-            header_parts.append(f"{level_color}{record.levelname:8}{self.colors['reset']}")
-            header_parts.append(f"{self.colors['logger']}{record.name}{self.colors['reset']}")
+            header_parts.append(
+                f"{level_color}{record.levelname:8}{self.colors['reset']}"
+            )
+            header_parts.append(
+                f"{self.colors['logger']}{record.name}{self.colors['reset']}"
+            )
 
         # Main message
         message = record.getMessage()
         if header_parts:
-            lines.append(" ".join(header_parts) + f" {self.colors['message']}{message}{self.colors['reset']}")
+            lines.append(
+                " ".join(header_parts)
+                + f" {self.colors['message']}{message}{self.colors['reset']}"
+            )
         else:
             lines.append(f"{self.colors['message']}{message}{self.colors['reset']}")
 
         # Add structured data from record
         structured_data = {}
         standard_attrs = {
-            "name", "msg", "args", "levelname", "levelno", "pathname", "filename",
-            "module", "lineno", "funcName", "created", "msecs", "relativeCreated",
-            "thread", "threadName", "processName", "process", "getMessage",
-            "exc_info", "exc_text", "stack_info"
+            "name",
+            "msg",
+            "args",
+            "levelname",
+            "levelno",
+            "pathname",
+            "filename",
+            "module",
+            "lineno",
+            "funcName",
+            "created",
+            "msecs",
+            "relativeCreated",
+            "thread",
+            "threadName",
+            "processName",
+            "process",
+            "getMessage",
+            "exc_info",
+            "exc_text",
+            "stack_info",
         }
 
         for key, value in record.__dict__.items():
@@ -294,10 +365,12 @@ class StructuredConsoleFormatter(logging.Formatter):
         # Add exception info
         if record.exc_info:
             lines.append(f"{self.colors['error']}Exception:{self.colors['reset']}")
-            exception_lines = self.formatException(record.exc_info).split('\n')
+            exception_lines = self.formatException(record.exc_info).split("\n")
             for line in exception_lines:
                 if line.strip():
-                    lines.append(f"{' ' * self.indent_size}{self.colors['error']}{line}{self.colors['reset']}")
+                    lines.append(
+                        f"{' ' * self.indent_size}{self.colors['error']}{line}{self.colors['reset']}"
+                    )
 
         return "\n".join(lines)
 
@@ -308,23 +381,33 @@ class StructuredConsoleFormatter(logging.Formatter):
 
         for key, value in data.items():
             if isinstance(value, dict):
-                lines.append(f"{indent_str}{self.colors['key']}{key}:{self.colors['reset']}")
+                lines.append(
+                    f"{indent_str}{self.colors['key']}{key}:{self.colors['reset']}"
+                )
                 lines.append(self._format_dict(value, indent + self.indent_size))
             elif isinstance(value, list | tuple):
-                lines.append(f"{indent_str}{self.colors['key']}{key}:{self.colors['reset']}")
+                lines.append(
+                    f"{indent_str}{self.colors['key']}{key}:{self.colors['reset']}"
+                )
                 for i, item in enumerate(value):
                     if isinstance(item, dict):
                         lines.append(f"{indent_str}  [{i}]:")
-                        lines.append(self._format_dict(item, indent + self.indent_size + 2))
+                        lines.append(
+                            self._format_dict(item, indent + self.indent_size + 2)
+                        )
                     else:
-                        lines.append(f"{indent_str}  [{i}] {self.colors['value']}{item}{self.colors['reset']}")
+                        lines.append(
+                            f"{indent_str}  [{i}] {self.colors['value']}{item}{self.colors['reset']}"
+                        )
             else:
                 # Truncate very long values
                 str_value = str(value)
                 if len(str_value) > 100:
                     str_value = str_value[:97] + "..."
 
-                lines.append(f"{indent_str}{self.colors['key']}{key}:{self.colors['reset']} {self.colors['value']}{str_value}{self.colors['reset']}")
+                lines.append(
+                    f"{indent_str}{self.colors['key']}{key}:{self.colors['reset']} {self.colors['value']}{str_value}{self.colors['reset']}"
+                )
 
         return "\n".join(lines)
 
@@ -335,7 +418,7 @@ class MetricsFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         """Format metrics log record."""
         # Check if this is a metrics log
-        if not hasattr(record, 'metric_name'):
+        if not hasattr(record, "metric_name"):
             return super().format(record)
 
         datetime.fromtimestamp(record.created).isoformat()
@@ -344,7 +427,7 @@ class MetricsFormatter(logging.Formatter):
         metric_line = f"{record.metric_name}"
 
         # Add labels if present
-        if hasattr(record, 'labels') and record.labels:
+        if hasattr(record, "labels") and record.labels:
             label_str = ",".join(f'{k}="{v}"' for k, v in record.labels.items())
             metric_line += f"{{{label_str}}}"
 
@@ -357,10 +440,7 @@ class MetricsFormatter(logging.Formatter):
         return metric_line
 
 
-def create_formatter(
-    format_type: str = "json",
-    **kwargs
-) -> logging.Formatter:
+def create_formatter(format_type: str = "json", **kwargs) -> logging.Formatter:
     """Factory function to create formatters.
 
     Args:

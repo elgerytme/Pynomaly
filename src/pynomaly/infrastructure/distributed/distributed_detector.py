@@ -425,9 +425,11 @@ class DistributedDetector:
             for i, score in enumerate(anomaly_scores):
                 if i < len(anomaly_indices):
                     anomaly = Anomaly(
-                        index=anomaly_indices[i]
-                        if isinstance(anomaly_indices, list)
-                        else i,
+                        index=(
+                            anomaly_indices[i]
+                            if isinstance(anomaly_indices, list)
+                            else i
+                        ),
                         score=float(score),
                         features={},  # Would be populated with actual feature values
                     )

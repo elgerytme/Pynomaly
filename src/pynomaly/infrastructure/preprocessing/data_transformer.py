@@ -272,7 +272,8 @@ class DataTransformer:
                     # Target encoding (requires target column)
                     if not dataset.has_target:
                         warnings.warn(
-                            f"Target encoding skipped for {col} - no target column available", stacklevel=2
+                            f"Target encoding skipped for {col} - no target column available",
+                            stacklevel=2,
                         )
                         continue
 
@@ -300,7 +301,8 @@ class DataTransformer:
 
             except Exception as e:
                 warnings.warn(
-                    f"Failed to encode column {col} with {strategy.value}: {e}", stacklevel=2
+                    f"Failed to encode column {col} with {strategy.value}: {e}",
+                    stacklevel=2,
                 )
                 continue
 
@@ -387,7 +389,9 @@ class DataTransformer:
     def select_features(
         self,
         dataset: Dataset,
-        strategy: FeatureSelectionStrategy | str = FeatureSelectionStrategy.VARIANCE_THRESHOLD,
+        strategy: (
+            FeatureSelectionStrategy | str
+        ) = FeatureSelectionStrategy.VARIANCE_THRESHOLD,
         k: int = 10,
         threshold: float = 0.01,
         columns: list[str] | None = None,
@@ -468,7 +472,9 @@ class DataTransformer:
         ]:
             # Univariate feature selection (requires target)
             if not dataset.has_target:
-                warnings.warn("Univariate feature selection requires target column", stacklevel=2)
+                warnings.warn(
+                    "Univariate feature selection requires target column", stacklevel=2
+                )
                 return dataset
 
             numeric_cols = [
@@ -565,7 +571,9 @@ class DataTransformer:
                             "method": "explicit",
                         }
                     except Exception as e:
-                        warnings.warn(f"Failed to convert {col} to {dtype}: {e}", stacklevel=2)
+                        warnings.warn(
+                            f"Failed to convert {col} to {dtype}: {e}", stacklevel=2
+                        )
 
         # Infer optimal types
         if infer_types:

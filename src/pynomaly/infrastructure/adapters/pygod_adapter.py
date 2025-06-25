@@ -219,12 +219,16 @@ class PyGODAdapter(Detector):
                     "n_anomalies": int(np.sum(labels)),
                     "contamination_rate": float(np.sum(labels) / len(labels)),
                     "is_graph": True,
-                    "n_nodes": graph_data.x.shape[0]
-                    if hasattr(graph_data, "x")
-                    else len(dataset.data),
-                    "n_edges": graph_data.edge_index.shape[1]
-                    if hasattr(graph_data, "edge_index")
-                    else 0,
+                    "n_nodes": (
+                        graph_data.x.shape[0]
+                        if hasattr(graph_data, "x")
+                        else len(dataset.data)
+                    ),
+                    "n_edges": (
+                        graph_data.edge_index.shape[1]
+                        if hasattr(graph_data, "edge_index")
+                        else 0
+                    ),
                 },
             )
 

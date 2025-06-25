@@ -369,9 +369,9 @@ class AutonomousDetectionMonitor:
             avg_confidence,
             "ratio",
             labels={
-                "top_algorithm": selected_algorithms[0]
-                if selected_algorithms
-                else "none"
+                "top_algorithm": (
+                    selected_algorithms[0] if selected_algorithms else "none"
+                )
             },
         )
 

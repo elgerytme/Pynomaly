@@ -338,9 +338,9 @@ class DatabaseTenantRepository(Repository[Tenant]):
                 "limit": quota.limit,
                 "used": quota.used,
                 "period_start": quota.period_start.isoformat(),
-                "period_end": quota.period_end.isoformat()
-                if quota.period_end
-                else None,
+                "period_end": (
+                    quota.period_end.isoformat() if quota.period_end else None
+                ),
                 "is_unlimited": quota.is_unlimited,
             }
             for quota_type, quota in quotas.items()
@@ -358,9 +358,11 @@ class DatabaseTenantRepository(Repository[Tenant]):
                     limit=quota_data["limit"],
                     used=quota_data["used"],
                     period_start=datetime.fromisoformat(quota_data["period_start"]),
-                    period_end=datetime.fromisoformat(quota_data["period_end"])
-                    if quota_data.get("period_end")
-                    else None,
+                    period_end=(
+                        datetime.fromisoformat(quota_data["period_end"])
+                        if quota_data.get("period_end")
+                        else None
+                    ),
                     is_unlimited=quota_data.get("is_unlimited", False),
                 )
                 quotas[quota_type] = quota

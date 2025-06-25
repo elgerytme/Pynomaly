@@ -176,9 +176,7 @@ class EncryptionService:
         key = kdf.derive(password.encode())
         return key, salt
 
-    def create_key(
-        self, password: str | None = None, key_id: str | None = None
-    ) -> str:
+    def create_key(self, password: str | None = None, key_id: str | None = None) -> str:
         """Create a new encryption key.
 
         Args:
@@ -243,9 +241,7 @@ class EncryptionService:
 
         return key
 
-    def encrypt(
-        self, data: str | bytes, key_id: str | None = None
-    ) -> dict[str, Any]:
+    def encrypt(self, data: str | bytes, key_id: str | None = None) -> dict[str, Any]:
         """Encrypt data.
 
         Args:

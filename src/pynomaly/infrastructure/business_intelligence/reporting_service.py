@@ -558,9 +558,7 @@ class ReportingService:
 
         # Time and cost savings
         time_savings = self._calculate_time_savings(benchmark_results, business_context)
-        self._calculate_cost_reduction(
-            benchmark_results, business_context
-        )
+        self._calculate_cost_reduction(benchmark_results, business_context)
 
         # Implementation costs (estimated)
         implementation_cost = business_context.get("implementation_cost", 50000)
@@ -584,9 +582,11 @@ class ReportingService:
             "first_year_roi_percent": max(0, first_year_roi),
             "three_year_roi_percent": max(0, three_year_roi),
             "annual_savings_usd": annual_savings,
-            "payback_period_months": max(1, implementation_cost / (annual_savings / 12))
-            if annual_savings > 0
-            else 0,
+            "payback_period_months": (
+                max(1, implementation_cost / (annual_savings / 12))
+                if annual_savings > 0
+                else 0
+            ),
         }
 
     def _create_algorithm_rankings(
@@ -612,11 +612,11 @@ class ReportingService:
                     "f1_score": result.f1_score,
                     "processing_time": result.total_time,
                     "efficiency_score": result.efficiency_score(),
-                    "recommendation": "Primary choice"
-                    if i == 0
-                    else "Alternative option"
-                    if i < 3
-                    else "Specialized use case",
+                    "recommendation": (
+                        "Primary choice"
+                        if i == 0
+                        else "Alternative option" if i < 3 else "Specialized use case"
+                    ),
                 }
             )
 
@@ -733,9 +733,7 @@ class ReportingService:
             "annually": "Full performance audit and algorithm lifecycle review",
         }
 
-    def _generate_html_report(
-        self, report: ExecutiveReport | TechnicalReport
-    ) -> str:
+    def _generate_html_report(self, report: ExecutiveReport | TechnicalReport) -> str:
         """Generate HTML version of the report."""
         report_data = report.to_dict()
         report_type = (

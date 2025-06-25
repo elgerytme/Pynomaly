@@ -18,6 +18,7 @@ import psutil
 
 class MetricType(Enum):
     """Types of metrics that can be collected."""
+
     COUNTER = "counter"
     GAUGE = "gauge"
     HISTOGRAM = "histogram"
@@ -28,6 +29,7 @@ class MetricType(Enum):
 @dataclass
 class Metric:
     """Individual metric data point."""
+
     name: str
     value: int | float
     metric_type: MetricType
@@ -45,13 +47,14 @@ class Metric:
             "timestamp": self.timestamp.isoformat(),
             "labels": self.labels,
             "unit": self.unit,
-            "description": self.description
+            "description": self.description,
         }
 
 
 @dataclass
 class MetricsSummary:
     """Summary statistics for a metric."""
+
     name: str
     count: int
     sum: float
@@ -73,7 +76,7 @@ class MetricsCollector:
         auto_flush: bool = True,
         enable_system_metrics: bool = True,
         system_metrics_interval: int = 30,
-        storage_path: Path | None = None
+        storage_path: Path | None = None,
     ):
         """Initialize metrics collector.
 
@@ -114,7 +117,7 @@ class MetricsCollector:
             "metrics_flushed": 0,
             "flush_errors": 0,
             "last_flush_time": None,
-            "collection_errors": 0
+            "collection_errors": 0,
         }
 
         # Start background tasks
@@ -126,6 +129,7 @@ class MetricsCollector:
 
     def _start_flush_thread(self):
         """Start background thread for flushing metrics."""
+
         def flush_worker():
             while not self._shutdown_event.wait(self.flush_interval_seconds):
                 try:
@@ -139,6 +143,7 @@ class MetricsCollector:
 
     def _start_system_metrics_thread(self):
         """Start background thread for collecting system metrics."""
+
         def system_metrics_worker():
             while not self._shutdown_event.wait(self.system_metrics_interval):
                 try:
@@ -147,7 +152,9 @@ class MetricsCollector:
                     self.stats["collection_errors"] += 1
                     print(f"Error collecting system metrics: {e}")
 
-        self._system_metrics_thread = threading.Thread(target=system_metrics_worker, daemon=True)
+        self._system_metrics_thread = threading.Thread(
+            target=system_metrics_worker, daemon=True
+        )
         self._system_metrics_thread.start()
 
     def _collect_system_metrics(self):
@@ -164,7 +171,7 @@ class MetricsCollector:
             self.gauge("system.memory.used_mb", memory.used / (1024 * 1024))
 
             # Disk metrics
-            disk = psutil.disk_usage('/')
+            disk = psutil.disk_usage("/")
             self.gauge("system.disk.usage_percent", (disk.used / disk.total) * 100)
             self.gauge("system.disk.free_gb", disk.free / (1024 * 1024 * 1024))
 
@@ -176,15 +183,21 @@ class MetricsCollector:
             # Process metrics
             process = psutil.Process()
             self.gauge("process.cpu.percent", process.cpu_percent())
-            self.gauge("process.memory.rss_mb", process.memory_info().rss / (1024 * 1024))
-            self.gauge("process.memory.vms_mb", process.memory_info().vms / (1024 * 1024))
+            self.gauge(
+                "process.memory.rss_mb", process.memory_info().rss / (1024 * 1024)
+            )
+            self.gauge(
+                "process.memory.vms_mb", process.memory_info().vms / (1024 * 1024)
+            )
             self.gauge("process.num_threads", process.num_threads())
 
         except Exception as e:
             self.stats["collection_errors"] += 1
             print(f"Error collecting system metrics: {e}")
 
-    def counter(self, name: str, value: int | float = 1, labels: dict[str, str] | None = None):
+    def counter(
+        self, name: str, value: int | float = 1, labels: dict[str, str] | None = None
+    ):
         """Increment a counter metric."""
         labels = labels or {}
         metric_key = self._get_metric_key(name, labels)
@@ -193,14 +206,13 @@ class MetricsCollector:
             self._counters[metric_key] += value
 
             metric = Metric(
-                name=name,
-                value=value,
-                metric_type=MetricType.COUNTER,
-                labels=labels
+                name=name, value=value, metric_type=MetricType.COUNTER, labels=labels
             )
             self._add_metric(metric)
 
-    def gauge(self, name: str, value: int | float, labels: dict[str, str] | None = None):
+    def gauge(
+        self, name: str, value: int | float, labels: dict[str, str] | None = None
+    ):
         """Set a gauge metric value."""
         labels = labels or {}
         metric_key = self._get_metric_key(name, labels)
@@ -209,14 +221,13 @@ class MetricsCollector:
             self._gauges[metric_key] = value
 
             metric = Metric(
-                name=name,
-                value=value,
-                metric_type=MetricType.GAUGE,
-                labels=labels
+                name=name, value=value, metric_type=MetricType.GAUGE, labels=labels
             )
             self._add_metric(metric)
 
-    def histogram(self, name: str, value: int | float, labels: dict[str, str] | None = None):
+    def histogram(
+        self, name: str, value: int | float, labels: dict[str, str] | None = None
+    ):
         """Add a value to a histogram metric."""
         labels = labels or {}
         metric_key = self._get_metric_key(name, labels)
@@ -229,14 +240,13 @@ class MetricsCollector:
                 self._histograms[metric_key] = self._histograms[metric_key][-1000:]
 
             metric = Metric(
-                name=name,
-                value=value,
-                metric_type=MetricType.HISTOGRAM,
-                labels=labels
+                name=name, value=value, metric_type=MetricType.HISTOGRAM, labels=labels
             )
             self._add_metric(metric)
 
-    def timer(self, name: str, value: int | float, labels: dict[str, str] | None = None):
+    def timer(
+        self, name: str, value: int | float, labels: dict[str, str] | None = None
+    ):
         """Record a timing metric."""
         labels = labels or {}
         metric_key = self._get_metric_key(name, labels)
@@ -253,7 +263,7 @@ class MetricsCollector:
                 value=value,
                 metric_type=MetricType.TIMER,
                 labels=labels,
-                unit="milliseconds"
+                unit="milliseconds",
             )
             self._add_metric(metric)
 
@@ -270,21 +280,27 @@ class MetricsCollector:
         self._metrics.append(metric)
         self.stats["metrics_collected"] += 1
 
-    def get_counter_value(self, name: str, labels: dict[str, str] | None = None) -> float:
+    def get_counter_value(
+        self, name: str, labels: dict[str, str] | None = None
+    ) -> float:
         """Get current counter value."""
         labels = labels or {}
         metric_key = self._get_metric_key(name, labels)
         with self._lock:
             return self._counters.get(metric_key, 0)
 
-    def get_gauge_value(self, name: str, labels: dict[str, str] | None = None) -> float | None:
+    def get_gauge_value(
+        self, name: str, labels: dict[str, str] | None = None
+    ) -> float | None:
         """Get current gauge value."""
         labels = labels or {}
         metric_key = self._get_metric_key(name, labels)
         with self._lock:
             return self._gauges.get(metric_key)
 
-    def get_histogram_summary(self, name: str, labels: dict[str, str] | None = None) -> MetricsSummary | None:
+    def get_histogram_summary(
+        self, name: str, labels: dict[str, str] | None = None
+    ) -> MetricsSummary | None:
         """Get histogram summary statistics."""
         labels = labels or {}
         metric_key = self._get_metric_key(name, labels)
@@ -296,7 +312,9 @@ class MetricsCollector:
 
             return self._calculate_summary(name, values, labels)
 
-    def get_timer_summary(self, name: str, labels: dict[str, str] | None = None) -> MetricsSummary | None:
+    def get_timer_summary(
+        self, name: str, labels: dict[str, str] | None = None
+    ) -> MetricsSummary | None:
         """Get timer summary statistics."""
         labels = labels or {}
         metric_key = self._get_metric_key(name, labels)
@@ -308,7 +326,9 @@ class MetricsCollector:
 
             return self._calculate_summary(name, values, labels)
 
-    def _calculate_summary(self, name: str, values: list[float], labels: dict[str, str]) -> MetricsSummary:
+    def _calculate_summary(
+        self, name: str, values: list[float], labels: dict[str, str]
+    ) -> MetricsSummary:
         """Calculate summary statistics for a list of values."""
         if not values:
             return MetricsSummary(
@@ -320,7 +340,7 @@ class MetricsCollector:
                 mean=0,
                 std=0,
                 percentiles={},
-                labels=labels
+                labels=labels,
             )
 
         import numpy as np
@@ -340,9 +360,9 @@ class MetricsCollector:
                 "p75": float(np.percentile(values_array, 75)),
                 "p90": float(np.percentile(values_array, 90)),
                 "p95": float(np.percentile(values_array, 95)),
-                "p99": float(np.percentile(values_array, 99))
+                "p99": float(np.percentile(values_array, 99)),
             },
-            labels=labels
+            labels=labels,
         )
 
     def get_all_metrics(self) -> list[Metric]:
@@ -396,13 +416,17 @@ class MetricsCollector:
             filename = self.storage_path.parent / f"metrics_{timestamp}.json"
 
             # Write metrics to file
-            with open(filename, 'w') as f:
+            with open(filename, "w") as f:
                 metrics_data = [metric.to_dict() for metric in metrics_to_flush]
-                json.dump({
-                    "timestamp": datetime.utcnow().isoformat(),
-                    "metrics_count": len(metrics_data),
-                    "metrics": metrics_data
-                }, f, indent=2)
+                json.dump(
+                    {
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "metrics_count": len(metrics_data),
+                        "metrics": metrics_data,
+                    },
+                    f,
+                    indent=2,
+                )
 
             self.stats["metrics_flushed"] += len(metrics_to_flush)
             self.stats["last_flush_time"] = datetime.utcnow()
@@ -420,7 +444,7 @@ class MetricsCollector:
                 "gauges_count": len(self._gauges),
                 "histograms_count": len(self._histograms),
                 "timers_count": len(self._timers),
-                **self.stats
+                **self.stats,
             }
 
     def shutdown(self):
@@ -445,7 +469,12 @@ class MetricsCollector:
 class TimerContext:
     """Context manager for timing operations."""
 
-    def __init__(self, collector: MetricsCollector, name: str, labels: dict[str, str] | None = None):
+    def __init__(
+        self,
+        collector: MetricsCollector,
+        name: str,
+        labels: dict[str, str] | None = None,
+    ):
         """Initialize timer context.
 
         Args:
@@ -470,8 +499,13 @@ class TimerContext:
             self.collector.timer(self.name, duration_ms, self.labels)
 
 
-def timer_decorator(collector: MetricsCollector, name: str | None = None, labels: dict[str, str] | None = None):
+def timer_decorator(
+    collector: MetricsCollector,
+    name: str | None = None,
+    labels: dict[str, str] | None = None,
+):
     """Decorator for automatic timing of functions."""
+
     def decorator(func: Callable):
         metric_name = name or f"{func.__module__}.{func.__name__}.duration"
 
@@ -480,6 +514,7 @@ def timer_decorator(collector: MetricsCollector, name: str | None = None, labels
                 return func(*args, **kwargs)
 
         return wrapper
+
     return decorator
 
 
@@ -499,7 +534,7 @@ def configure_metrics(
     storage_path: Path | None = None,
     enable_system_metrics: bool = True,
     flush_interval_seconds: int = 60,
-    max_metrics_in_memory: int = 10000
+    max_metrics_in_memory: int = 10000,
 ) -> MetricsCollector:
     """Configure the global metrics collector."""
     global _default_collector
@@ -507,6 +542,6 @@ def configure_metrics(
         storage_path=storage_path,
         enable_system_metrics=enable_system_metrics,
         flush_interval_seconds=flush_interval_seconds,
-        max_metrics_in_memory=max_metrics_in_memory
+        max_metrics_in_memory=max_metrics_in_memory,
     )
     return _default_collector

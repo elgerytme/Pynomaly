@@ -208,9 +208,7 @@ class ThreatDetectionManager:
             alert_threshold=1.0,  # Always alert on injection
         )
 
-    def get_detector_config(
-        self, detector_name: str
-    ) -> ThreatDetectorSettings | None:
+    def get_detector_config(self, detector_name: str) -> ThreatDetectorSettings | None:
         """Get configuration for a specific detector.
 
         Args:

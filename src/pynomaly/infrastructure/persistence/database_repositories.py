@@ -142,9 +142,9 @@ class DatabaseDetectorRepository(DetectorRepositoryProtocol):
                     algorithm=detector.algorithm_name,
                     parameters=detector.parameters,
                     is_fitted=detector.is_fitted,
-                    model_data=detector.model_data
-                    if hasattr(detector, "model_data")
-                    else None,
+                    model_data=(
+                        detector.model_data if hasattr(detector, "model_data") else None
+                    ),
                     metadata=detector.metadata,
                     created_at=detector.created_at,
                     updated_at=detector.updated_at,

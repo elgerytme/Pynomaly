@@ -654,9 +654,9 @@ class TaskDistributor:
                 worker_id=worker_id,
                 status=TaskStatus.COMPLETED,
                 result={"simulated": True, "task_type": task.task_type},
-                started_at=task.metadata.started_at
-                if task.metadata
-                else datetime.now(UTC),
+                started_at=(
+                    task.metadata.started_at if task.metadata else datetime.now(UTC)
+                ),
                 completed_at=datetime.now(UTC),
                 execution_time_seconds=execution_time,
                 memory_used_mb=task.resource_requirements.get("memory_mb", 512),
@@ -672,9 +672,9 @@ class TaskDistributor:
                 worker_id=worker_id,
                 status=TaskStatus.FAILED,
                 error=str(e),
-                started_at=task.metadata.started_at
-                if task.metadata
-                else datetime.now(UTC),
+                started_at=(
+                    task.metadata.started_at if task.metadata else datetime.now(UTC)
+                ),
                 completed_at=datetime.now(UTC),
                 execution_time_seconds=0.0,
             )

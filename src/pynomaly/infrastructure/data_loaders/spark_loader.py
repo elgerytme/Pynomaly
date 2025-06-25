@@ -348,9 +348,7 @@ class SparkLoader(DataLoaderProtocol):
 
         return metadata
 
-    async def load_distributed(
-        self, file_paths: list[str | Path], **kwargs
-    ) -> Dataset:
+    async def load_distributed(self, file_paths: list[str | Path], **kwargs) -> Dataset:
         """Load multiple files in a distributed manner.
 
         Args:

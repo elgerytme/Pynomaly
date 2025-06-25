@@ -106,9 +106,7 @@ class LogContext:
         new_context.cpu_usage_percent = cpu_usage_percent
         return new_context
 
-    def with_error(
-        self, error: Exception, error_code: str | None = None
-    ) -> LogContext:
+    def with_error(self, error: Exception, error_code: str | None = None) -> LogContext:
         """Create new context with error information."""
         new_context = LogContext(**asdict(self))
         new_context.error_type = type(error).__name__
@@ -202,23 +200,27 @@ class StructuredLogger:
             # Add logger name
             structlog.processors.add_logger_name,
             # Add caller info if enabled
-            structlog.processors.CallsiteParameterAdder(
-                parameters=[
-                    structlog.processors.CallsiteParameter.FILENAME,
-                    structlog.processors.CallsiteParameter.FUNC_NAME,
-                    structlog.processors.CallsiteParameter.LINENO,
-                ]
-            )
-            if self.include_caller_info
-            else None,
+            (
+                structlog.processors.CallsiteParameterAdder(
+                    parameters=[
+                        structlog.processors.CallsiteParameter.FILENAME,
+                        structlog.processors.CallsiteParameter.FUNC_NAME,
+                        structlog.processors.CallsiteParameter.LINENO,
+                    ]
+                )
+                if self.include_caller_info
+                else None
+            ),
             # Process context variables
             self._context_processor,
             # Sanitize sensitive data
             self._sanitizer_processor if self.sanitize_sensitive_data else None,
             # Format for output
-            structlog.processors.JSONRenderer()
-            if self.enable_json
-            else structlog.dev.ConsoleRenderer(),
+            (
+                structlog.processors.JSONRenderer()
+                if self.enable_json
+                else structlog.dev.ConsoleRenderer()
+            ),
         ]
 
         # Remove None processors

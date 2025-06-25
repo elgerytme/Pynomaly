@@ -635,12 +635,14 @@ class PyTorchAdapter(DetectorProtocol):
             "model_config": self.model_config,
             "algorithm": self.algorithm,
             "threshold": self.threshold,
-            "scaler_params": {
-                "mean_": self.scaler.mean_.tolist(),
-                "scale_": self.scaler.scale_.tolist(),
-            }
-            if self.scaler
-            else None,
+            "scaler_params": (
+                {
+                    "mean_": self.scaler.mean_.tolist(),
+                    "scale_": self.scaler.scale_.tolist(),
+                }
+                if self.scaler
+                else None
+            ),
             "device": str(self.device),
             "random_state": self.random_state,
         }

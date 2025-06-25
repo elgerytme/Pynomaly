@@ -213,7 +213,9 @@ class PreprocessingPipeline:
 
     def add_feature_selection(
         self,
-        strategy: FeatureSelectionStrategy | str = FeatureSelectionStrategy.VARIANCE_THRESHOLD,
+        strategy: (
+            FeatureSelectionStrategy | str
+        ) = FeatureSelectionStrategy.VARIANCE_THRESHOLD,
         k: int = 10,
         threshold: float = 0.01,
         columns: list[str] | None = None,
@@ -312,7 +314,10 @@ class PreprocessingPipeline:
             Transformed dataset
         """
         if not self._fitted:
-            warnings.warn("Pipeline not fitted. Use fit_transform() for training data.", stacklevel=2)
+            warnings.warn(
+                "Pipeline not fitted. Use fit_transform() for training data.",
+                stacklevel=2,
+            )
             return self.fit_transform(dataset)
 
         current_dataset = dataset

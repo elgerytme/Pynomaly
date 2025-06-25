@@ -638,12 +638,14 @@ class JAXAdapter(DetectorProtocol):
             "model_config": self.model_config,
             "threshold": float(self.threshold),
             "random_state": self.random_state,
-            "scaler_params": {
-                "mean_": self.scaler.mean_.tolist(),
-                "scale_": self.scaler.scale_.tolist(),
-            }
-            if self.scaler
-            else None,
+            "scaler_params": (
+                {
+                    "mean_": self.scaler.mean_.tolist(),
+                    "scale_": self.scaler.scale_.tolist(),
+                }
+                if self.scaler
+                else None
+            ),
         }
 
         # Save JAX parameters
@@ -691,9 +693,7 @@ class JAXAdapter(DetectorProtocol):
         self.is_trained = True
         logger.info(f"Model loaded from {path}")
 
-    async def async_fit(
-        self, X: np.ndarray, y: np.ndarray | None = None
-    ) -> JAXAdapter:
+    async def async_fit(self, X: np.ndarray, y: np.ndarray | None = None) -> JAXAdapter:
         """Asynchronous training."""
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, self.fit, X, y)

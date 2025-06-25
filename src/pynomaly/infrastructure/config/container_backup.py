@@ -790,9 +790,11 @@ class Container(containers.DeclarativeContainer):
 
         # Security headers
         security_headers_config = providers.Factory(
-            lambda config=config: create_development_headers()
-            if config.app.environment == "development"
-            else create_production_headers()
+            lambda config=config: (
+                create_development_headers()
+                if config.app.environment == "development"
+                else create_production_headers()
+            )
         )
 
         # Audit logging

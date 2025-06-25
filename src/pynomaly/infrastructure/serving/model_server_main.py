@@ -23,9 +23,11 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler("/app/logs/model_server.log")
-        if os.path.exists("/app/logs")
-        else logging.NullHandler(),
+        (
+            logging.FileHandler("/app/logs/model_server.log")
+            if os.path.exists("/app/logs")
+            else logging.NullHandler()
+        ),
     ],
 )
 
@@ -61,9 +63,9 @@ class ModelServerManager:
             model_registry_service=model_registry_service,
             storage_path=storage_path / "deployments",
             container_registry_url=container_registry,
-            kubernetes_config_path=Path(kubernetes_config)
-            if kubernetes_config
-            else None,
+            kubernetes_config_path=(
+                Path(kubernetes_config) if kubernetes_config else None
+            ),
         )
 
         return deployment_service, model_registry_service

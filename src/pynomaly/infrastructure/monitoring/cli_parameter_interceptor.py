@@ -247,9 +247,9 @@ class CLIParameterInterceptor:
             capture_request = ConfigurationCaptureRequestDTO(
                 source=ConfigurationSource.CLI,
                 raw_parameters=command_context["parameters"],
-                execution_results=performance_results.model_dump()
-                if performance_results
-                else None,
+                execution_results=(
+                    performance_results.model_dump() if performance_results else None
+                ),
                 source_context={
                     "command_type": command_context["command_type"],
                     "cli_intercepted": True,
@@ -515,9 +515,11 @@ class CLIConfigurationAnalytics:
             "analysis_period_days": days_back,
             "total_cli_configurations": len(configurations),
             "command_type_usage": command_types,
-            "most_used_command": max(command_types.items(), key=lambda x: x[1])[0]
-            if command_types
-            else None,
+            "most_used_command": (
+                max(command_types.items(), key=lambda x: x[1])[0]
+                if command_types
+                else None
+            ),
             "average_execution_times": avg_execution_times,
             "common_parameter_patterns": parameter_patterns,
             "analysis_timestamp": datetime.now().isoformat(),

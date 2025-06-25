@@ -88,9 +88,7 @@ class RateLimiter:
 
 
 async def get_current_user(
-    credentials: Annotated[
-        HTTPAuthorizationCredentials | None, Depends(bearer_scheme)
-    ],
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)],
     api_key: Annotated[str | None, Depends(api_key_scheme)],
     auth_service: Annotated[JWTAuthService | None, Depends(get_auth)],
 ) -> UserModel | None:

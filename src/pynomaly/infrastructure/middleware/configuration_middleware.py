@@ -422,9 +422,7 @@ class ConfigurationCaptureMiddleware(BaseHTTPMiddleware):
             "client_type": self._determine_client_type(request_data.user_agent),
         }
 
-    def _extract_session_id(
-        self, request_data: RequestConfigurationDTO
-    ) -> str | None:
+    def _extract_session_id(self, request_data: RequestConfigurationDTO) -> str | None:
         """Extract session ID from request."""
         # Check headers
         for key, value in request_data.headers.items():
@@ -476,9 +474,11 @@ class ConfigurationCaptureMiddleware(BaseHTTPMiddleware):
         """Recursively anonymize sensitive data."""
         if isinstance(data, dict):
             return {
-                key: "***REDACTED***"
-                if self._is_sensitive_field(key)
-                else self._anonymize_data(value)
+                key: (
+                    "***REDACTED***"
+                    if self._is_sensitive_field(key)
+                    else self._anonymize_data(value)
+                )
                 for key, value in data.items()
             }
         elif isinstance(data, list):

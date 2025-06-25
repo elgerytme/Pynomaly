@@ -16,6 +16,7 @@ from .log_aggregator import LogEntry
 
 class PatternType(Enum):
     """Types of log patterns."""
+
     ERROR_SPIKE = "error_spike"
     PERFORMANCE_DEGRADATION = "performance_degradation"
     UNUSUAL_ACTIVITY = "unusual_activity"
@@ -26,6 +27,7 @@ class PatternType(Enum):
 
 class Severity(Enum):
     """Severity levels for detected patterns."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -35,6 +37,7 @@ class Severity(Enum):
 @dataclass
 class LogPattern:
     """Detected log pattern."""
+
     id: str
     pattern_type: PatternType
     severity: Severity
@@ -62,13 +65,14 @@ class LogPattern:
             "confidence_score": self.confidence_score,
             "affected_loggers": self.affected_loggers,
             "sample_entries": [entry.to_dict() for entry in self.sample_entries],
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
 
 @dataclass
 class PatternRule:
     """Rule for pattern detection."""
+
     id: str
     name: str
     pattern_type: PatternType
@@ -101,7 +105,11 @@ class PatternRule:
                 if not any(entry.level == condition_value for entry in entries):
                     return False
             elif condition_type == "levels":
-                required_levels = condition_value if isinstance(condition_value, list) else [condition_value]
+                required_levels = (
+                    condition_value
+                    if isinstance(condition_value, list)
+                    else [condition_value]
+                )
                 if not any(entry.level in required_levels for entry in entries):
                     return False
             elif condition_type == "message_pattern":
@@ -138,7 +146,7 @@ class LogAnalyzer:
         analysis_interval: int = 60,
         max_patterns: int = 1000,
         enable_realtime: bool = True,
-        enable_background_analysis: bool = True
+        enable_background_analysis: bool = True,
     ):
         """Initialize log analyzer.
 
@@ -169,7 +177,7 @@ class LogAnalyzer:
             "patterns_detected": 0,
             "rules_count": 0,
             "last_analysis_time": None,
-            "analysis_errors": 0
+            "analysis_errors": 0,
         }
 
         # Initialize default rules
@@ -189,7 +197,7 @@ class LogAnalyzer:
                 conditions={"levels": ["ERROR", "CRITICAL"], "min_count": 10},
                 severity=Severity.HIGH,
                 threshold=10,
-                time_window=timedelta(minutes=5)
+                time_window=timedelta(minutes=5),
             ),
             PatternRule(
                 id="authentication_failures",
@@ -197,11 +205,11 @@ class LogAnalyzer:
                 pattern_type=PatternType.SECURITY_THREAT,
                 conditions={
                     "message_pattern": r"(authentication|login|auth).*fail",
-                    "min_count": 5
+                    "min_count": 5,
                 },
                 severity=Severity.HIGH,
                 threshold=5,
-                time_window=timedelta(minutes=2)
+                time_window=timedelta(minutes=2),
             ),
             PatternRule(
                 id="performance_degradation",
@@ -209,11 +217,11 @@ class LogAnalyzer:
                 pattern_type=PatternType.PERFORMANCE_DEGRADATION,
                 conditions={
                     "message_pattern": r"(slow|timeout|performance|latency)",
-                    "min_count": 3
+                    "min_count": 3,
                 },
                 severity=Severity.MEDIUM,
                 threshold=3,
-                time_window=timedelta(minutes=5)
+                time_window=timedelta(minutes=5),
             ),
             PatternRule(
                 id="system_resource_exhaustion",
@@ -221,11 +229,11 @@ class LogAnalyzer:
                 pattern_type=PatternType.SYSTEM_ANOMALY,
                 conditions={
                     "message_pattern": r"(memory|disk|cpu|resource).*exhaust|full|limit",
-                    "levels": ["WARNING", "ERROR", "CRITICAL"]
+                    "levels": ["WARNING", "ERROR", "CRITICAL"],
                 },
                 severity=Severity.CRITICAL,
                 threshold=2,
-                time_window=timedelta(minutes=10)
+                time_window=timedelta(minutes=10),
             ),
             PatternRule(
                 id="database_connection_issues",
@@ -233,11 +241,11 @@ class LogAnalyzer:
                 pattern_type=PatternType.SYSTEM_ANOMALY,
                 conditions={
                     "message_pattern": r"database|db|connection.*error|timeout|fail",
-                    "levels": ["ERROR", "CRITICAL"]
+                    "levels": ["ERROR", "CRITICAL"],
                 },
                 severity=Severity.HIGH,
                 threshold=3,
-                time_window=timedelta(minutes=5)
+                time_window=timedelta(minutes=5),
             ),
             PatternRule(
                 id="unusual_error_rate",
@@ -246,8 +254,8 @@ class LogAnalyzer:
                 conditions={"error_rate": 0.1},  # 10% error rate
                 severity=Severity.MEDIUM,
                 threshold=20,
-                time_window=timedelta(minutes=5)
-            )
+                time_window=timedelta(minutes=5),
+            ),
         ]
 
         for rule in default_rules:
@@ -311,8 +319,11 @@ class LogAnalyzer:
 
     def _check_critical_patterns(self, entries: list[LogEntry]):
         """Check for critical patterns that need immediate attention."""
-        critical_rules = [rule for rule in self._pattern_rules.values()
-                         if rule.severity == Severity.CRITICAL and rule.enabled]
+        critical_rules = [
+            rule
+            for rule in self._pattern_rules.values()
+            if rule.severity == Severity.CRITICAL and rule.enabled
+        ]
 
         for rule in critical_rules:
             if rule.matches(entries):
@@ -320,6 +331,7 @@ class LogAnalyzer:
 
     def _start_analysis_thread(self):
         """Start background analysis thread."""
+
         def analysis_worker():
             while not self._shutdown_event.wait(self.analysis_interval):
                 try:
@@ -373,14 +385,14 @@ class LogAnalyzer:
                 # Update sample entries (keep most recent)
                 pattern.sample_entries.extend(entries[:3])
                 pattern.sample_entries = sorted(
-                    pattern.sample_entries,
-                    key=lambda x: x.timestamp,
-                    reverse=True
+                    pattern.sample_entries, key=lambda x: x.timestamp, reverse=True
                 )[:10]
 
                 # Update affected loggers
                 new_loggers = {entry.logger_name for entry in entries}
-                pattern.affected_loggers = list(set(pattern.affected_loggers) | new_loggers)
+                pattern.affected_loggers = list(
+                    set(pattern.affected_loggers) | new_loggers
+                )
             else:
                 # Create new pattern
                 from uuid import uuid4
@@ -400,8 +412,8 @@ class LogAnalyzer:
                     metadata={
                         "rule_id": rule.id,
                         "detection_time": datetime.utcnow().isoformat(),
-                        "entry_count": len(entries)
-                    }
+                        "entry_count": len(entries),
+                    },
                 )
 
                 self._detected_patterns[pattern_key] = pattern
@@ -410,10 +422,14 @@ class LogAnalyzer:
         # Cleanup old patterns
         self._cleanup_old_patterns()
 
-    def _generate_pattern_description(self, rule: PatternRule, entries: list[LogEntry]) -> str:
+    def _generate_pattern_description(
+        self, rule: PatternRule, entries: list[LogEntry]
+    ) -> str:
         """Generate description for detected pattern."""
         entry_count = len(entries)
-        time_span = max(entry.timestamp for entry in entries) - min(entry.timestamp for entry in entries)
+        time_span = max(entry.timestamp for entry in entries) - min(
+            entry.timestamp for entry in entries
+        )
         unique_loggers = len({entry.logger_name for entry in entries})
 
         description = f"Detected {rule.name.lower()} with {entry_count} entries"
@@ -424,7 +440,9 @@ class LogAnalyzer:
 
         return description
 
-    def _calculate_confidence_score(self, rule: PatternRule, entries: list[LogEntry]) -> float:
+    def _calculate_confidence_score(
+        self, rule: PatternRule, entries: list[LogEntry]
+    ) -> float:
         """Calculate confidence score for pattern detection."""
         base_score = 0.5
 
@@ -435,7 +453,9 @@ class LogAnalyzer:
 
         # Factor in time concentration
         if len(entries) > 1:
-            time_span = max(entry.timestamp for entry in entries) - min(entry.timestamp for entry in entries)
+            time_span = max(entry.timestamp for entry in entries) - min(
+                entry.timestamp for entry in entries
+            )
             if time_span.total_seconds() < rule.time_window.total_seconds() / 2:
                 base_score *= 1.5  # High concentration increases confidence
 
@@ -444,7 +464,7 @@ class LogAnalyzer:
             Severity.LOW: 0.8,
             Severity.MEDIUM: 1.0,
             Severity.HIGH: 1.3,
-            Severity.CRITICAL: 1.5
+            Severity.CRITICAL: 1.5,
         }
         base_score *= severity_multiplier.get(rule.severity, 1.0)
 
@@ -459,11 +479,11 @@ class LogAnalyzer:
         patterns_by_time = sorted(
             self._detected_patterns.items(),
             key=lambda x: x[1].last_occurrence,
-            reverse=True
+            reverse=True,
         )
 
         # Keep most recent patterns
-        patterns_to_keep = dict(patterns_by_time[:self.max_patterns])
+        patterns_to_keep = dict(patterns_by_time[: self.max_patterns])
         self._detected_patterns = patterns_to_keep
 
     def get_patterns(
@@ -471,7 +491,7 @@ class LogAnalyzer:
         severity: Severity | None = None,
         pattern_type: PatternType | None = None,
         since: datetime | None = None,
-        limit: int | None = None
+        limit: int | None = None,
     ) -> list[LogPattern]:
         """Get detected patterns with optional filtering."""
         with self._lock:
@@ -509,7 +529,8 @@ class LogAnalyzer:
         with self._lock:
             if before:
                 patterns_to_keep = {
-                    k: v for k, v in self._detected_patterns.items()
+                    k: v
+                    for k, v in self._detected_patterns.items()
                     if v.last_occurrence >= before
                 }
                 self._detected_patterns = patterns_to_keep
@@ -521,15 +542,21 @@ class LogAnalyzer:
         with self._lock:
             pattern_stats = {
                 "total_patterns": len(self._detected_patterns),
-                "by_severity": Counter(p.severity.value for p in self._detected_patterns.values()),
-                "by_type": Counter(p.pattern_type.value for p in self._detected_patterns.values())
+                "by_severity": Counter(
+                    p.severity.value for p in self._detected_patterns.values()
+                ),
+                "by_type": Counter(
+                    p.pattern_type.value for p in self._detected_patterns.values()
+                ),
             }
 
             return {
                 "analyzer_stats": self.stats,
                 "pattern_stats": pattern_stats,
                 "buffer_size": len(self._log_buffer),
-                "rules_enabled": sum(1 for rule in self._pattern_rules.values() if rule.enabled)
+                "rules_enabled": sum(
+                    1 for rule in self._pattern_rules.values() if rule.enabled
+                ),
             }
 
     def shutdown(self):
@@ -544,10 +571,7 @@ class AnomalyDetector:
     """Statistical anomaly detection for log patterns."""
 
     def __init__(
-        self,
-        window_size: int = 100,
-        sensitivity: float = 2.0,
-        min_samples: int = 20
+        self, window_size: int = 100, sensitivity: float = 2.0, min_samples: int = 20
     ):
         """Initialize anomaly detector.
 
@@ -583,14 +607,20 @@ class AnomalyDetector:
                 # Log count
                 self._log_counts[logger].append(len(logger_entries))
                 if len(self._log_counts[logger]) > self.window_size:
-                    self._log_counts[logger] = self._log_counts[logger][-self.window_size:]
+                    self._log_counts[logger] = self._log_counts[logger][
+                        -self.window_size :
+                    ]
 
                 # Error rate
-                error_count = sum(1 for e in logger_entries if e.level in ["ERROR", "CRITICAL"])
+                error_count = sum(
+                    1 for e in logger_entries if e.level in ["ERROR", "CRITICAL"]
+                )
                 error_rate = error_count / len(logger_entries) if logger_entries else 0
                 self._error_rates[logger].append(error_rate)
                 if len(self._error_rates[logger]) > self.window_size:
-                    self._error_rates[logger] = self._error_rates[logger][-self.window_size:]
+                    self._error_rates[logger] = self._error_rates[logger][
+                        -self.window_size :
+                    ]
 
                 # Response times (if available)
                 response_times = []
@@ -602,7 +632,9 @@ class AnomalyDetector:
                     avg_response_time = sum(response_times) / len(response_times)
                     self._response_times[logger].append(avg_response_time)
                     if len(self._response_times[logger]) > self.window_size:
-                        self._response_times[logger] = self._response_times[logger][-self.window_size:]
+                        self._response_times[logger] = self._response_times[logger][
+                            -self.window_size :
+                        ]
 
     def detect_anomalies(self) -> list[dict[str, Any]]:
         """Detect statistical anomalies in log patterns."""
@@ -678,7 +710,7 @@ class AnomalyDetector:
                     "z_score": z_score,
                     "severity": "high" if z_score > 3.0 else "medium",
                     "timestamp": datetime.utcnow().isoformat(),
-                    "confidence": min(z_score / 3.0, 1.0)
+                    "confidence": min(z_score / 3.0, 1.0),
                 }
 
         return None
@@ -688,8 +720,10 @@ class AnomalyDetector:
         with self._lock:
             return {
                 "tracked_loggers": len(self._log_counts),
-                "total_samples": sum(len(counts) for counts in self._log_counts.values()),
+                "total_samples": sum(
+                    len(counts) for counts in self._log_counts.values()
+                ),
                 "window_size": self.window_size,
                 "sensitivity": self.sensitivity,
-                "min_samples": self.min_samples
+                "min_samples": self.min_samples,
             }

@@ -20,6 +20,7 @@ from .tracing_manager import TracingManager
 @dataclass
 class ObservabilityConfig:
     """Configuration for observability service."""
+
     # Storage paths
     logs_storage_path: Path | None = None
     metrics_storage_path: Path | None = None
@@ -66,6 +67,7 @@ class ObservabilityConfig:
 @dataclass
 class ObservabilityMetrics:
     """Comprehensive metrics for observability service."""
+
     # Service metrics
     service_uptime: float = 0.0
     total_log_entries: int = 0
@@ -116,7 +118,7 @@ class ObservabilityMetrics:
             "logging_errors": self.logging_errors,
             "metrics_errors": self.metrics_errors,
             "tracing_errors": self.tracing_errors,
-            "analysis_errors": self.analysis_errors
+            "analysis_errors": self.analysis_errors,
         }
 
 
@@ -184,7 +186,9 @@ class ObservabilityService:
 
             except Exception as e:
                 if self.logger:
-                    self.logger.error("Failed to initialize observability service", error=e)
+                    self.logger.error(
+                        "Failed to initialize observability service", error=e
+                    )
                 raise
 
     def _initialize_logger(self):
@@ -193,11 +197,15 @@ class ObservabilityService:
             self.logger = StructuredLogger(
                 name="pynomaly.observability",
                 level=self.config.log_level,
-                output_path=self.config.logs_storage_path / "observability.log" if self.config.logs_storage_path else None,
+                output_path=(
+                    self.config.logs_storage_path / "observability.log"
+                    if self.config.logs_storage_path
+                    else None
+                ),
                 enable_console=self.config.enable_console_logging,
                 enable_json=self.config.enable_json_logging,
                 max_file_size_mb=self.config.max_log_file_size_mb,
-                backup_count=self.config.log_backup_count
+                backup_count=self.config.log_backup_count,
             )
             self.metrics.logger_status = "active"
         except Exception:
@@ -212,7 +220,7 @@ class ObservabilityService:
                 storage_path=self.config.metrics_storage_path,
                 enable_system_metrics=self.config.enable_system_metrics,
                 flush_interval_seconds=self.config.metrics_flush_interval,
-                max_metrics_in_memory=self.config.max_metrics_in_memory
+                max_metrics_in_memory=self.config.max_metrics_in_memory,
             )
             self.metrics.metrics_collector_status = "active"
         except Exception as e:
@@ -232,7 +240,7 @@ class ObservabilityService:
             self.tracer = TracingManager(
                 service_name="pynomaly",
                 sampling_rate=self.config.trace_sampling_rate,
-                jaeger_endpoint=self.config.jaeger_endpoint
+                jaeger_endpoint=self.config.jaeger_endpoint,
             )
             self.metrics.tracer_status = "active"
         except Exception as e:
@@ -253,7 +261,7 @@ class ObservabilityService:
                 storage_path=self.config.logs_storage_path,
                 max_streams=self.config.max_log_streams,
                 aggregation_interval=self.config.aggregation_interval,
-                enable_persistence=self.config.logs_storage_path is not None
+                enable_persistence=self.config.logs_storage_path is not None,
             )
 
             # Create default streams
@@ -275,7 +283,7 @@ class ObservabilityService:
             self.log_analyzer = LogAnalyzer(
                 analysis_interval=self.config.analysis_interval,
                 enable_realtime=True,
-                enable_background_analysis=self.config.enable_background_tasks
+                enable_background_analysis=self.config.enable_background_tasks,
             )
             self.metrics.analyzer_status = "active"
         except Exception as e:
@@ -309,7 +317,7 @@ class ObservabilityService:
             ("security", LogStreamType.REALTIME, LogFilter(tags=["security"])),
             ("performance", LogStreamType.BATCH, LogFilter(tags=["performance"])),
             ("audit", LogStreamType.BATCH, LogFilter(tags=["audit"])),
-            ("all_logs", LogStreamType.BATCH, LogFilter())
+            ("all_logs", LogStreamType.BATCH, LogFilter()),
         ]
 
         for name, stream_type, filter_config in default_streams:
@@ -317,10 +325,13 @@ class ObservabilityService:
                 self.log_aggregator.create_stream(name, stream_type, filter_config)
             except Exception as e:
                 if self.logger:
-                    self.logger.warning(f"Failed to create default stream '{name}'", error=e)
+                    self.logger.warning(
+                        f"Failed to create default stream '{name}'", error=e
+                    )
 
     def _start_monitoring_thread(self):
         """Start background monitoring thread."""
+
         def monitoring_worker():
             while not self._shutdown_event.wait(30):  # Check every 30 seconds
                 try:
@@ -330,7 +341,9 @@ class ObservabilityService:
                     if self.logger:
                         self.logger.error("Error in monitoring thread", error=e)
 
-        self._monitoring_thread = threading.Thread(target=monitoring_worker, daemon=True)
+        self._monitoring_thread = threading.Thread(
+            target=monitoring_worker, daemon=True
+        )
         self._monitoring_thread.start()
 
     def _update_service_metrics(self):
@@ -343,8 +356,12 @@ class ObservabilityService:
         # Update processing rates
         time_since_last = current_time - self._last_minute_timestamp
         if time_since_last >= 60:  # Update every minute
-            self.metrics.log_processing_rate = self._log_count_last_minute / time_since_last
-            self.metrics.metrics_processing_rate = self._metrics_count_last_minute / time_since_last
+            self.metrics.log_processing_rate = (
+                self._log_count_last_minute / time_since_last
+            )
+            self.metrics.metrics_processing_rate = (
+                self._metrics_count_last_minute / time_since_last
+            )
 
             # Reset counters
             self._log_count_last_minute = 0
@@ -354,13 +371,19 @@ class ObservabilityService:
         # Collect metrics from components
         if self.metrics_collector:
             collector_stats = self.metrics_collector.get_stats()
-            self.metrics.total_metrics_collected = collector_stats.get("metrics_collected", 0)
+            self.metrics.total_metrics_collected = collector_stats.get(
+                "metrics_collected", 0
+            )
             self.metrics.metrics_errors += collector_stats.get("collection_errors", 0)
 
         if self.log_analyzer:
             analyzer_stats = self.log_analyzer.get_stats()
-            self.metrics.patterns_detected = analyzer_stats["analyzer_stats"]["patterns_detected"]
-            self.metrics.analysis_errors += analyzer_stats["analyzer_stats"]["analysis_errors"]
+            self.metrics.patterns_detected = analyzer_stats["analyzer_stats"][
+                "patterns_detected"
+            ]
+            self.metrics.analysis_errors += analyzer_stats["analyzer_stats"][
+                "analysis_errors"
+            ]
 
         if self.tracer:
             tracer_stats = self.tracer.get_stats()
@@ -377,36 +400,40 @@ class ObservabilityService:
         if self.log_analyzer and self.config.critical_pattern_alert:
             critical_patterns = self.log_analyzer.get_patterns(
                 severity=None,  # Will be filtered below
-                since=datetime.utcnow() - timedelta(minutes=5)
+                since=datetime.utcnow() - timedelta(minutes=5),
             )
 
             for pattern in critical_patterns:
                 if pattern.severity.value in ["high", "critical"]:
-                    alerts.append({
-                        "type": "critical_pattern",
-                        "severity": pattern.severity.value,
-                        "title": pattern.title,
-                        "description": pattern.description,
-                        "pattern_id": pattern.id,
-                        "occurrence_count": pattern.occurrence_count,
-                        "timestamp": pattern.last_occurrence.isoformat()
-                    })
+                    alerts.append(
+                        {
+                            "type": "critical_pattern",
+                            "severity": pattern.severity.value,
+                            "title": pattern.title,
+                            "description": pattern.description,
+                            "pattern_id": pattern.id,
+                            "occurrence_count": pattern.occurrence_count,
+                            "timestamp": pattern.last_occurrence.isoformat(),
+                        }
+                    )
 
         # Check for anomalies
         if self.anomaly_detector:
             anomalies = self.anomaly_detector.detect_anomalies()
             for anomaly in anomalies:
                 if anomaly.get("severity") in ["high", "critical"]:
-                    alerts.append({
-                        "type": "anomaly",
-                        "severity": anomaly["severity"],
-                        "title": f"Anomaly: {anomaly['metric']}",
-                        "description": f"Detected statistical anomaly in {anomaly['metric']} (z-score: {anomaly['z_score']:.2f})",
-                        "metric_id": anomaly["metric_id"],
-                        "value": anomaly["value"],
-                        "z_score": anomaly["z_score"],
-                        "timestamp": anomaly["timestamp"]
-                    })
+                    alerts.append(
+                        {
+                            "type": "anomaly",
+                            "severity": anomaly["severity"],
+                            "title": f"Anomaly: {anomaly['metric']}",
+                            "description": f"Detected statistical anomaly in {anomaly['metric']} (z-score: {anomaly['z_score']:.2f})",
+                            "metric_id": anomaly["metric_id"],
+                            "value": anomaly["value"],
+                            "z_score": anomaly["z_score"],
+                            "timestamp": anomaly["timestamp"],
+                        }
+                    )
 
         # Process alerts
         for alert in alerts:
@@ -421,7 +448,7 @@ class ObservabilityService:
                 f"ALERT: {alert['title']}",
                 alert_type=alert["type"],
                 severity=alert["severity"],
-                description=alert["description"]
+                description=alert["description"],
             )
 
         # Notify alert callbacks
@@ -445,7 +472,7 @@ class ObservabilityService:
                 "Alert webhook triggered",
                 webhook_url=self.config.alert_webhook_url,
                 alert_type=alert["type"],
-                severity=alert["severity"]
+                severity=alert["severity"],
             )
 
     # Public API methods
@@ -459,10 +486,12 @@ class ObservabilityService:
         self.metrics.total_log_entries += 1
 
         # Add observability context
-        kwargs.update({
-            "observability_service": True,
-            "service_uptime": self.metrics.service_uptime
-        })
+        kwargs.update(
+            {
+                "observability_service": True,
+                "service_uptime": self.metrics.service_uptime,
+            }
+        )
 
         # Log through structured logger
         log_method = getattr(self.logger, level.lower(), self.logger.info)
@@ -475,7 +504,7 @@ class ObservabilityService:
             logger_name="pynomaly.observability",
             message=message,
             context=kwargs,
-            tags=kwargs.get("tags", [])
+            tags=kwargs.get("tags", []),
         )
 
         # Feed to aggregator and analyzer
@@ -485,7 +514,9 @@ class ObservabilityService:
         if self.log_analyzer:
             self.log_analyzer.analyze_entry(log_entry)
 
-    def record_metric(self, name: str, value: float, metric_type: str = "gauge", **labels):
+    def record_metric(
+        self, name: str, value: float, metric_type: str = "gauge", **labels
+    ):
         """Record a metric."""
         if not self.metrics_collector:
             return
@@ -567,10 +598,12 @@ class ObservabilityService:
             issues.append("Tracer has errors")
 
         # Check error rates
-        total_errors = (self.metrics.logging_errors +
-                       self.metrics.metrics_errors +
-                       self.metrics.tracing_errors +
-                       self.metrics.analysis_errors)
+        total_errors = (
+            self.metrics.logging_errors
+            + self.metrics.metrics_errors
+            + self.metrics.tracing_errors
+            + self.metrics.analysis_errors
+        )
 
         if total_errors > 10:
             status = "degraded"
@@ -582,7 +615,7 @@ class ObservabilityService:
             "initialized": self._initialized,
             "running": self._running,
             "issues": issues,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     def shutdown(self):

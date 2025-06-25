@@ -118,9 +118,11 @@ class HealthService:
             cpu_status = (
                 HealthStatus.HEALTHY
                 if cpu_percent < 70
-                else HealthStatus.DEGRADED
-                if cpu_percent < 90
-                else HealthStatus.UNHEALTHY
+                else (
+                    HealthStatus.DEGRADED
+                    if cpu_percent < 90
+                    else HealthStatus.UNHEALTHY
+                )
             )
 
             checks["cpu"] = HealthCheck(
@@ -136,9 +138,11 @@ class HealthService:
             memory_status = (
                 HealthStatus.HEALTHY
                 if memory.percent < 80
-                else HealthStatus.DEGRADED
-                if memory.percent < 95
-                else HealthStatus.UNHEALTHY
+                else (
+                    HealthStatus.DEGRADED
+                    if memory.percent < 95
+                    else HealthStatus.UNHEALTHY
+                )
             )
 
             checks["memory"] = HealthCheck(
@@ -159,9 +163,11 @@ class HealthService:
             disk_status = (
                 HealthStatus.HEALTHY
                 if disk_percent < 85
-                else HealthStatus.DEGRADED
-                if disk_percent < 95
-                else HealthStatus.UNHEALTHY
+                else (
+                    HealthStatus.DEGRADED
+                    if disk_percent < 95
+                    else HealthStatus.UNHEALTHY
+                )
             )
 
             checks["disk"] = HealthCheck(
@@ -203,9 +209,11 @@ class HealthService:
                     status = (
                         HealthStatus.HEALTHY
                         if duration < 100
-                        else HealthStatus.DEGRADED
-                        if duration < 500
-                        else HealthStatus.UNHEALTHY
+                        else (
+                            HealthStatus.DEGRADED
+                            if duration < 500
+                            else HealthStatus.UNHEALTHY
+                        )
                     )
 
                     checks["database"] = HealthCheck(
@@ -248,9 +256,11 @@ class HealthService:
                 status = (
                     HealthStatus.HEALTHY
                     if duration < 10
-                    else HealthStatus.DEGRADED
-                    if duration < 50
-                    else HealthStatus.UNHEALTHY
+                    else (
+                        HealthStatus.DEGRADED
+                        if duration < 50
+                        else HealthStatus.UNHEALTHY
+                    )
                 )
 
                 # Get Redis info
@@ -318,9 +328,11 @@ class HealthService:
             memory_status = (
                 HealthStatus.HEALTHY
                 if memory_mb < 512
-                else HealthStatus.DEGRADED
-                if memory_mb < 1024
-                else HealthStatus.UNHEALTHY
+                else (
+                    HealthStatus.DEGRADED
+                    if memory_mb < 1024
+                    else HealthStatus.UNHEALTHY
+                )
             )
 
             checks["application_memory"] = HealthCheck(
@@ -373,9 +385,9 @@ class HealthService:
                 else:
                     checks[name] = HealthCheck(
                         name=name,
-                        status=HealthStatus.HEALTHY
-                        if result
-                        else HealthStatus.UNHEALTHY,
+                        status=(
+                            HealthStatus.HEALTHY if result else HealthStatus.UNHEALTHY
+                        ),
                         message=f"Custom check returned: {result}",
                         duration_ms=(time.time() - start_time) * 1000,
                     )

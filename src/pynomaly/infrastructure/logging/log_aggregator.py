@@ -17,6 +17,7 @@ from uuid import uuid4
 
 class LogStreamType(Enum):
     """Types of log streams."""
+
     REALTIME = "realtime"
     BATCH = "batch"
     FILTERED = "filtered"
@@ -26,6 +27,7 @@ class LogStreamType(Enum):
 @dataclass
 class LogEntry:
     """Individual log entry."""
+
     id: str = field(default_factory=lambda: str(uuid4()))
     timestamp: datetime = field(default_factory=datetime.utcnow)
     level: str = "INFO"
@@ -45,7 +47,7 @@ class LogEntry:
             "message": self.message,
             "context": self.context,
             "tags": self.tags,
-            "source": self.source
+            "source": self.source,
         }
 
     @classmethod
@@ -53,19 +55,24 @@ class LogEntry:
         """Create from dictionary."""
         return cls(
             id=data.get("id", str(uuid4())),
-            timestamp=datetime.fromisoformat(data["timestamp"]) if isinstance(data.get("timestamp"), str) else data.get("timestamp", datetime.utcnow()),
+            timestamp=(
+                datetime.fromisoformat(data["timestamp"])
+                if isinstance(data.get("timestamp"), str)
+                else data.get("timestamp", datetime.utcnow())
+            ),
             level=data.get("level", "INFO"),
             logger_name=data.get("logger_name", ""),
             message=data.get("message", ""),
             context=data.get("context", {}),
             tags=data.get("tags", []),
-            source=data.get("source", "")
+            source=data.get("source", ""),
         )
 
 
 @dataclass
 class LogFilter:
     """Filter configuration for log streams."""
+
     levels: list[str] = field(default_factory=list)
     loggers: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
@@ -80,7 +87,9 @@ class LogFilter:
             return False
 
         # Logger filter
-        if self.loggers and not any(logger in entry.logger_name for logger in self.loggers):
+        if self.loggers and not any(
+            logger in entry.logger_name for logger in self.loggers
+        ):
             return False
 
         # Tags filter
@@ -90,7 +99,11 @@ class LogFilter:
         # Message pattern filter
         if self.message_patterns:
             import re
-            if not any(re.search(pattern, entry.message, re.IGNORECASE) for pattern in self.message_patterns):
+
+            if not any(
+                re.search(pattern, entry.message, re.IGNORECASE)
+                for pattern in self.message_patterns
+            ):
                 return False
 
         # Time range filter
@@ -105,6 +118,7 @@ class LogFilter:
 @dataclass
 class LogAggregation:
     """Aggregated log statistics."""
+
     time_window: timedelta
     start_time: datetime
     end_time: datetime
@@ -124,7 +138,7 @@ class LogAggregation:
             "level_counts": dict(self.level_counts),
             "logger_counts": dict(self.logger_counts),
             "tag_counts": dict(self.tag_counts),
-            "error_patterns": dict(self.error_patterns)
+            "error_patterns": dict(self.error_patterns),
         }
 
 
@@ -138,7 +152,7 @@ class LogStream:
         filter_config: LogFilter | None = None,
         buffer_size: int = 1000,
         batch_size: int = 100,
-        batch_timeout: float = 5.0
+        batch_timeout: float = 5.0,
     ):
         """Initialize log stream.
 
@@ -174,7 +188,7 @@ class LogStream:
             "entries_filtered": 0,
             "subscribers_count": 0,
             "batch_subscribers_count": 0,
-            "last_entry_time": None
+            "last_entry_time": None,
         }
 
     def add_entry(self, entry: LogEntry):
@@ -288,7 +302,7 @@ class LogStream:
                 "type": self.stream_type.value,
                 "buffer_size": len(self._buffer),
                 "batch_buffer_size": len(self._batch_buffer),
-                **self.stats
+                **self.stats,
             }
 
 
@@ -301,7 +315,7 @@ class LogAggregator:
         max_streams: int = 100,
         default_buffer_size: int = 1000,
         aggregation_interval: int = 300,  # 5 minutes
-        enable_persistence: bool = True
+        enable_persistence: bool = True,
     ):
         """Initialize log aggregator.
 
@@ -337,7 +351,7 @@ class LogAggregator:
             "streams_count": 0,
             "aggregations_count": 0,
             "persistence_errors": 0,
-            "last_aggregation_time": None
+            "last_aggregation_time": None,
         }
 
         # Start background tasks
@@ -352,12 +366,14 @@ class LogAggregator:
         name: str,
         stream_type: LogStreamType = LogStreamType.REALTIME,
         filter_config: LogFilter | None = None,
-        **kwargs
+        **kwargs,
     ) -> LogStream:
         """Create a new log stream."""
         with self._lock:
             if len(self._streams) >= self.max_streams:
-                raise ValueError(f"Maximum number of streams ({self.max_streams}) reached")
+                raise ValueError(
+                    f"Maximum number of streams ({self.max_streams}) reached"
+                )
 
             if name in self._streams:
                 raise ValueError(f"Stream '{name}' already exists")
@@ -367,7 +383,7 @@ class LogAggregator:
                 stream_type=stream_type,
                 filter_config=filter_config,
                 buffer_size=kwargs.get("buffer_size", self.default_buffer_size),
-                **kwargs
+                **kwargs,
             )
 
             self._streams[name] = stream
@@ -406,18 +422,21 @@ class LogAggregator:
     def add_log_from_record(self, record: dict[str, Any]):
         """Add log entry from log record."""
         entry = LogEntry(
-            timestamp=datetime.fromisoformat(record.get("timestamp", datetime.utcnow().isoformat())),
+            timestamp=datetime.fromisoformat(
+                record.get("timestamp", datetime.utcnow().isoformat())
+            ),
             level=record.get("level", "INFO"),
             logger_name=record.get("logger_name", ""),
             message=record.get("message", ""),
             context=record.get("context", {}),
             tags=record.get("tags", []),
-            source=record.get("source", "")
+            source=record.get("source", ""),
         )
         self.add_log_entry(entry)
 
     def _start_aggregation_thread(self):
         """Start background aggregation thread."""
+
         def aggregation_worker():
             while not self._shutdown_event.wait(self.aggregation_interval):
                 try:
@@ -425,7 +444,9 @@ class LogAggregator:
                 except Exception as e:
                     print(f"Error in aggregation: {e}")
 
-        self._aggregation_thread = threading.Thread(target=aggregation_worker, daemon=True)
+        self._aggregation_thread = threading.Thread(
+            target=aggregation_worker, daemon=True
+        )
         self._aggregation_thread.start()
 
     def _perform_aggregation(self):
@@ -436,7 +457,7 @@ class LogAggregator:
         aggregation = LogAggregation(
             time_window=timedelta(seconds=self.aggregation_interval),
             start_time=window_start,
-            end_time=now
+            end_time=now,
         )
 
         # Collect statistics from all streams
@@ -464,7 +485,9 @@ class LogAggregator:
 
         # Cleanup old aggregations (keep last 100)
         if len(self._aggregations) > 100:
-            oldest_keys = sorted(self._aggregations.keys())[:len(self._aggregations) - 100]
+            oldest_keys = sorted(self._aggregations.keys())[
+                : len(self._aggregations) - 100
+            ]
             for key in oldest_keys:
                 del self._aggregations[key]
 
@@ -473,6 +496,7 @@ class LogAggregator:
 
     def _start_persistence_thread(self):
         """Start background persistence thread."""
+
         def persistence_worker():
             while not self._shutdown_event.is_set():
                 try:
@@ -482,7 +506,9 @@ class LogAggregator:
                     self.stats["persistence_errors"] += 1
                     print(f"Error in log persistence: {e}")
 
-        self._persistence_thread = threading.Thread(target=persistence_worker, daemon=True)
+        self._persistence_thread = threading.Thread(
+            target=persistence_worker, daemon=True
+        )
         self._persistence_thread.start()
 
     def _persist_logs(self):
@@ -503,12 +529,14 @@ class LogAggregator:
 
         # Create filename with timestamp
         timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-        filename = self.storage_path.parent / f"logs_{timestamp}_{uuid4().hex[:8]}.jsonl"
+        filename = (
+            self.storage_path.parent / f"logs_{timestamp}_{uuid4().hex[:8]}.jsonl"
+        )
 
         # Write entries as JSON lines
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             for entry in entries_to_persist:
-                f.write(json.dumps(entry.to_dict()) + '\n')
+                f.write(json.dumps(entry.to_dict()) + "\n")
 
     def get_aggregations(self, since: datetime | None = None) -> list[LogAggregation]:
         """Get log aggregations."""
@@ -523,9 +551,11 @@ class LogAggregator:
         with self._lock:
             return {
                 "aggregator_stats": self.stats,
-                "streams": {name: stream.get_stats() for name, stream in self._streams.items()},
+                "streams": {
+                    name: stream.get_stats() for name, stream in self._streams.items()
+                },
                 "persistence_queue_size": len(self._persistence_queue),
-                "aggregations_count": len(self._aggregations)
+                "aggregations_count": len(self._aggregations),
             }
 
     def shutdown(self):
@@ -569,7 +599,7 @@ def configure_log_aggregation(
     storage_path: Path | None = None,
     max_streams: int = 100,
     aggregation_interval: int = 300,
-    enable_persistence: bool = True
+    enable_persistence: bool = True,
 ) -> LogAggregator:
     """Configure global log aggregation."""
     global _global_aggregator
@@ -577,6 +607,6 @@ def configure_log_aggregation(
         storage_path=storage_path,
         max_streams=max_streams,
         aggregation_interval=aggregation_interval,
-        enable_persistence=enable_persistence
+        enable_persistence=enable_persistence,
     )
     return _global_aggregator

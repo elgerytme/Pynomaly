@@ -86,9 +86,7 @@ class DataPartition(BaseModel):
     is_processed: bool = Field(
         default=False, description="Whether partition has been processed"
     )
-    assigned_worker: str | None = Field(
-        default=None, description="Assigned worker ID"
-    )
+    assigned_worker: str | None = Field(default=None, description="Assigned worker ID")
     processing_started_at: datetime | None = Field(
         default=None, description="Processing start time"
     )

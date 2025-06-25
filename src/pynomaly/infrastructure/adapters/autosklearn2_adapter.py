@@ -163,9 +163,7 @@ class AutoSklearn2Adapter(DetectorProtocol):
                 # Type validation
                 if param_type == "int" and not isinstance(param_value, int):
                     return False
-                elif param_type == "float" and not isinstance(
-                    param_value, int | float
-                ):
+                elif param_type == "float" and not isinstance(param_value, int | float):
                     return False
                 elif param_type == "str" and not isinstance(param_value, str):
                     return False

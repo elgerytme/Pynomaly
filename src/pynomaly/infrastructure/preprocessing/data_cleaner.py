@@ -258,7 +258,8 @@ class DataCleaner:
                     df[col] = np.log1p(df[col])
                 else:
                     warnings.warn(
-                        f"Cannot apply log transform to {col} with non-positive values", stacklevel=2
+                        f"Cannot apply log transform to {col} with non-positive values",
+                        stacklevel=2,
                     )
 
             elif strategy == OutlierStrategy.TRANSFORM_SQRT:
@@ -267,7 +268,8 @@ class DataCleaner:
                     df[col] = np.sqrt(df[col])
                 else:
                     warnings.warn(
-                        f"Cannot apply sqrt transform to {col} with negative values", stacklevel=2
+                        f"Cannot apply sqrt transform to {col} with negative values",
+                        stacklevel=2,
                     )
 
             elif strategy == OutlierStrategy.WINSORIZE:

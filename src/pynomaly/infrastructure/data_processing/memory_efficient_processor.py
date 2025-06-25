@@ -142,9 +142,7 @@ class MemoryOptimizedDataLoader:
         self.auto_optimize = auto_optimize
         self._optimal_chunk_size: int | None = None
 
-    def load_csv(
-        self, file_path: str | Path, **pandas_kwargs
-    ) -> Iterator[DataChunk]:
+    def load_csv(self, file_path: str | Path, **pandas_kwargs) -> Iterator[DataChunk]:
         """Load CSV file in chunks.
 
         Args:
@@ -248,7 +246,9 @@ class MemoryOptimizedDataLoader:
 
             except ImportError:
                 # Fallback to pandas chunking if pyarrow not available
-                warnings.warn("PyArrow not available, using pandas chunking", stacklevel=2)
+                warnings.warn(
+                    "PyArrow not available, using pandas chunking", stacklevel=2
+                )
                 df = pd.read_parquet(file_path, **pandas_kwargs)
                 yield from self._chunk_dataframe(df, str(file_path))
 
@@ -592,9 +592,11 @@ class LargeDatasetAnalyzer:
                 count = stats["missing_values"][col]
                 stats["missing_values"][col] = {
                     "count": count,
-                    "percentage": (count / stats["total_rows"] * 100)
-                    if stats["total_rows"] > 0
-                    else 0,
+                    "percentage": (
+                        (count / stats["total_rows"] * 100)
+                        if stats["total_rows"] > 0
+                        else 0
+                    ),
                 }
 
             get_monitor().info(
