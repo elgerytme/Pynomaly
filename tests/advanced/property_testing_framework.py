@@ -19,6 +19,7 @@ import traceback
 
 try:
     from hypothesis import given, strategies as st, settings, HealthCheck, Phase
+    from hypothesis.strategies import SearchStrategy
     from hypothesis.control import assume
     from hypothesis.errors import InvalidArgument, Unsatisfiable
     HYPOTHESIS_AVAILABLE = True
@@ -98,7 +99,7 @@ class PropertyTestGenerator:
             ),
         }
     
-    def _get_strategy(self, type_hint: Type) -> st.SearchStrategy:
+    def _get_strategy(self, type_hint: Type) -> SearchStrategy:
         """Get Hypothesis strategy for a given type."""
         if type_hint in self.strategies:
             return self.strategies[type_hint]()
@@ -535,15 +536,16 @@ class PropertyTester:
         examples_tested = 0
         
         @given(**strategies)
-        @settings(max_examples=self.max_examples, deadline=self.timeout * 1000)
+        @settings(max_examples=self.max_examples, deadline=self.timeout * 1000, suppress_health_check=[HealthCheck.return_value])
         def test_function(**kwargs):
             nonlocal examples_tested
             examples_tested += 1
             try:
                 result = func(**kwargs)
-                return True
+                # Don't return anything - Hypothesis functions should return None
             except Exception as e:
-                return False
+                # Raise exception to fail the test
+                raise e
         
         try:
             test_function()
@@ -556,7 +558,7 @@ class PropertyTester:
         examples_tested = 0
         
         @given(**strategies)
-        @settings(max_examples=self.max_examples // 2, deadline=self.timeout * 1000)
+        @settings(max_examples=self.max_examples // 2, deadline=self.timeout * 1000, suppress_health_check=[HealthCheck.return_value])
         def test_function(**kwargs):
             nonlocal examples_tested
             examples_tested += 2
@@ -566,16 +568,16 @@ class PropertyTester:
                 
                 # Handle different types of results
                 if isinstance(result1, np.ndarray) and isinstance(result2, np.ndarray):
-                    return np.array_equal(result1, result2)
+                    assert np.array_equal(result1, result2), "Results should be deterministic"
                 elif isinstance(result1, pd.DataFrame) and isinstance(result2, pd.DataFrame):
-                    return result1.equals(result2)
+                    assert result1.equals(result2), "Results should be deterministic"
                 elif isinstance(result1, pd.Series) and isinstance(result2, pd.Series):
-                    return result1.equals(result2)
+                    assert result1.equals(result2), "Results should be deterministic"
                 else:
-                    return result1 == result2
+                    assert result1 == result2, "Results should be deterministic"
                     
             except Exception:
-                return True  # If function crashes, determinism is not the issue
+                pass  # If function crashes, determinism is not the issue
         
         try:
             test_function()

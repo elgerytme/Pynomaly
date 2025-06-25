@@ -272,7 +272,7 @@ class LIMEExplainer(ExplainerProtocol):
             try:
                 if hasattr(model, "score"):
                     model_performance["score"] = float(model.score(data))
-            except:
+            except Exception:
                 pass
 
             # Create summary

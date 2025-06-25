@@ -301,7 +301,7 @@ class WorkerTaskExecutor:
         try:
             process = psutil.Process()
             return process.memory_info().rss / (1024 * 1024)
-        except:
+        except Exception:
             return 0.0
 
     # Task execution functions (placeholders for actual implementations)
@@ -781,7 +781,7 @@ class WorkerManager:
                     pkg.project_name for pkg in pkg_resources.working_set
                 }
                 capabilities.installed_packages = installed_packages
-            except:
+            except Exception:
                 pass
 
             # Set reasonable defaults
