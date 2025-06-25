@@ -14,8 +14,7 @@ from pynomaly.infrastructure.adapters import (
     PyODAdapter, 
     SklearnAdapter, 
     PyTorchAdapter, 
-    PyGODAdapter, 
-    TODSAdapter
+    PyGODAdapter
 )
 
 
