@@ -18,7 +18,6 @@ except ImportError:
     REDIS_AVAILABLE = False
 
 try:
-    import memcache
 
     MEMCACHED_AVAILABLE = True
 except ImportError:
