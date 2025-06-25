@@ -86,10 +86,10 @@ T010,42.15,Supermarket,Local,10,3,0"""
             start_time = time.time()
             
             cmd = [
-                "python3", "-m", "pynomaly", "detect",
+                "python3", "-m", "pynomaly", "auto", "detect",
                 str(simple_file),
-                "--algorithm", "IsolationForest",
-                "--output", str(Path(self.demo_data_dir) / "basic_results.json")
+                "--output", str(Path(self.demo_data_dir) / "basic_results.json"),
+                "--format", "json"
             ]
             
             env = {**os.environ, "PYTHONPATH": str(self.project_root / "src")}

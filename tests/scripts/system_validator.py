@@ -11,6 +11,7 @@ Consolidates validation functionality from:
 """
 
 import sys
+import os
 import json
 import subprocess
 import time
@@ -121,12 +122,14 @@ class SystemValidator:
         
         # Test autonomous CLI commands
         try:
+            env = {**os.environ, "PYTHONPATH": str(self.project_root / "src")}
             result = subprocess.run(
-                ["python", "-m", "pynomaly", "auto", "--help"],
+                ["python3", "-m", "pynomaly", "auto", "--help"],
                 capture_output=True,
                 text=True,
                 timeout=10,
-                cwd=self.project_root
+                cwd=self.project_root,
+                env=env
             )
             
             if result.returncode == 0:
@@ -154,7 +157,7 @@ class SystemValidator:
         
         # Test autonomous service
         try:
-            from pynomaly.application.services.autonomous_service import AutonomousService
+            from pynomaly.application.services.autonomous_service import AutonomousDetectionService
             auto_results.append(ValidationResult(
                 component="autonomous_service",
                 status="pass",
@@ -179,7 +182,7 @@ class SystemValidator:
         
         # Test FastAPI app creation
         try:
-            from pynomaly.presentation.api.main import create_app
+            from pynomaly.presentation.api.app import create_app
             app = create_app()
             
             api_results.append(ValidationResult(
@@ -349,12 +352,14 @@ class SystemValidator:
         
         # Check if pytest is available and tests can run
         try:
+            env = {**os.environ, "PYTHONPATH": str(self.project_root / "src")}
             result = subprocess.run(
-                ["python", "-m", "pytest", "--version"],
+                ["python3", "-m", "pytest", "--version"],
                 capture_output=True,
                 text=True,
                 timeout=10,
-                cwd=self.project_root
+                cwd=self.project_root,
+                env=env
             )
             
             if result.returncode == 0:
