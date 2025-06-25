@@ -1,23 +1,23 @@
 # Core ML/Anomaly Detection
 pyod>=2.0.5
 scikit-learn>=1.5.0
-numpy>=1.26.0
-pandas>=2.2.0
+numpy>=2.1.0
+pandas>=2.3.0
 scipy>=1.11.0
 
 # Architecture & Infrastructure
-pydantic>=2.5.0
+pydantic>=2.9.0
 pydantic-settings>=2.1.0
-structlog>=24.1.0
+structlog>=24.4.0
 dependency-injector>=4.41.0
 
 # API & CLI
-fastapi>=0.109.0
+fastapi>=0.115.0
 typer[all]>=0.9.0
-uvicorn[standard]>=0.27.0
+uvicorn[standard]>=0.32.0
 
 # Utilities
-httpx>=0.27.0
+httpx>=0.28.0
 requests>=2.31.0
 rich>=13.7.0
 python-multipart>=0.0.18
@@ -30,17 +30,17 @@ pyjwt>=2.8.0
 passlib[bcrypt]>=1.7.4
 
 # Caching
-redis>=5.0.0
+redis>=5.1.0
 
 # Data processing
-pyarrow>=14.0.0
+pyarrow>=17.0.0
 
 # Infrastructure resilience
 tenacity>=8.2.0
 circuitbreaker>=1.4.0
 
 # Monitoring & Observability
-opentelemetry-api>=1.22.0
-opentelemetry-sdk>=1.22.0
-opentelemetry-instrumentation-fastapi>=0.43b0
+opentelemetry-api>=1.30.0
+opentelemetry-sdk>=1.30.0
+opentelemetry-instrumentation-fastapi>=0.51b0
 prometheus-client>=0.19.0

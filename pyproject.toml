@@ -1,3 +1,4 @@
+
 [project]
 name = "pynomaly"
 version = "0.1.0"
@@ -26,30 +27,10 @@ homepage = "https://github.com/pynomaly/pynomaly"
 repository = "https://github.com/pynomaly/pynomaly"
 documentation = "https://pynomaly.readthedocs.io"
 
+[project.scripts]
+pynomaly = "pynomaly.presentation.cli.app:app"
+
 [tool.poetry]
-name = "pynomaly"
-version = "0.1.0"
-description = "State-of-the-art Python anomaly detection package with clean architecture"
-authors = ["Pynomaly Team <team@pynomaly.io>"]
-license = "MIT"
-readme = "README.md"
-homepage = "https://github.com/pynomaly/pynomaly"
-repository = "https://github.com/pynomaly/pynomaly"
-documentation = "https://pynomaly.readthedocs.io"
-keywords = ["anomaly-detection", "outlier-detection", "machine-learning", "clean-architecture"]
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Developers",
-    "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Typing :: Typed"
-]
 packages = [{include = "pynomaly", from = "src"}]
 
 [tool.poetry.dependencies]
@@ -57,20 +38,20 @@ python = "^3.11"
 # Core ML/Anomaly Detection
 pyod = "^2.0.5"
 scikit-learn = "^1.5.0"
-numpy = "^1.26.0"
-pandas = "^2.2.0"
+numpy = "^2.1.0"
+pandas = "^2.3.0"
 scipy = "^1.11.0"
 # Architecture & Infrastructure
-pydantic = "^2.5.0"
+pydantic = "^2.9.0"
 pydantic-settings = "^2.1.0"
-structlog = "^24.1.0"
+structlog = "^24.4.0"
 dependency-injector = "^4.41.0"
 # API & CLI
-fastapi = "^0.109.0"
+fastapi = "^0.115.0"
 typer = {extras = ["all"], version = "^0.9.0"}
-uvicorn = {extras = ["standard"], version = "^0.27.0"}
+uvicorn = {extras = ["standard"], version = "^0.32.0"}
 # Utilities
-httpx = "^0.27.0"
+httpx = "^0.28.0"
 requests = "^2.31.0"
 rich = "^13.7.0"
 python-multipart = "^0.0.18"
@@ -81,16 +62,16 @@ aiofiles = "^23.2.0"
 pyjwt = "^2.8.0"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 # Caching
-redis = "^5.0.0"
+redis = "^5.1.0"
 # Data processing
-pyarrow = "^14.0.0"
+pyarrow = "^17.0.0"
 # Infrastructure resilience
 tenacity = "^8.2.0"
 circuitbreaker = "^1.4.0"
 # Monitoring & Observability
-opentelemetry-api = "^1.22.0"
-opentelemetry-sdk = "^1.22.0"
-opentelemetry-instrumentation-fastapi = "^0.43b0"
+opentelemetry-api = "^1.30.0"
+opentelemetry-sdk = "^1.30.0"
+opentelemetry-instrumentation-fastapi = "^0.51b0"
 prometheus-client = "^0.19.0"
 # Optional ML backends
 torch = {version = "^2.1.0", optional = true}
@@ -153,36 +134,6 @@ types-requests = "^2.31.0"
 pandas-stubs = "^2.1.0"
 
 [tool.poetry.extras]
-# Development dependencies
-dev = [
-    "pytest>=8.0.0",
-    "pytest-cov>=4.1.0",
-    "pytest-asyncio>=0.23.0",
-    "pytest-xdist>=3.5.0",
-    "pytest-benchmark>=4.0.0",
-    "pytest-mock>=3.12.0",
-    "hypothesis>=6.92.0",
-    "faker>=22.0.0",
-    "pytest-bdd>=7.0.0",
-    "mutmut>=2.4.0",
-    "mypy>=1.8.0",
-    "black>=23.12.0",
-    "isort>=5.13.0",
-    "flake8>=7.0.0",
-    "flake8-docstrings>=1.7.0",
-    "flake8-annotations>=3.0.1",
-    "bandit[toml]>=1.7.5",
-    "safety>=3.0.0",
-    "pre-commit>=3.6.0",
-    "mkdocs>=1.5.3",
-    "mkdocs-material>=9.5.0",
-    "mkdocstrings[python]>=0.24.0",
-    "ipython>=8.19.0",
-    "jupyter>=1.0.0",
-    "notebook>=7.0.0",
-    "types-requests>=2.31.0",
-    "pandas-stubs>=2.1.0",
-]
 # ML backends
 torch = ["torch"]
 tensorflow = ["tensorflow"]
@@ -207,8 +158,6 @@ automl = ["optuna", "hyperopt", "auto-sklearn"]
 explainability = ["shap", "lime"]
 all = ["torch", "tensorflow", "keras", "jax", "jaxlib", "optax", "polars", "pyspark", "h5py", "sqlalchemy", "psycopg2-binary", "pygod", "torch-geometric", "tods", "fastparquet", "openpyxl", "xlsxwriter", "optuna", "hyperopt", "auto-sklearn", "shap", "lime"]
 
-[tool.poetry.scripts]
-pynomaly = "pynomaly.presentation.cli.app:app"
 
 [build-system]
 requires = ["poetry-core>=1.7.0"]
