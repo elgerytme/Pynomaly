@@ -4,7 +4,7 @@ name = "pynomaly"
 version = "0.1.0"
 description = "State-of-the-art Python anomaly detection package with clean architecture"
 authors = [{name = "Pynomaly Team", email = "team@pynomaly.io"}]
-license = {text = "MIT"}
+license = "MIT"
 readme = "README.md"
 requires-python = ">=3.11"
 keywords = ["anomaly-detection", "outlier-detection", "machine-learning", "clean-architecture"]
@@ -12,7 +12,6 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -26,6 +25,52 @@ classifiers = [
 homepage = "https://github.com/pynomaly/pynomaly"
 repository = "https://github.com/pynomaly/pynomaly"
 documentation = "https://pynomaly.readthedocs.io"
+
+dependencies = [
+    "pyod>=2.0.5",
+    "numpy>=1.26.0,<2.2.0",
+    "pandas>=2.2.3",
+    "polars>=1.19.0",
+    "pydantic>=2.10.4",
+    "structlog>=24.5.0",
+    "dependency-injector>=4.42.0",
+]
+
+[project.optional-dependencies]
+# Core functionality extras
+ml = ["scikit-learn>=1.6.0", "scipy>=1.15.0"]
+api = ["fastapi>=0.117.0", "uvicorn[standard]>=0.34.0", "httpx>=0.28.1", "requests>=2.32.3", "python-multipart>=0.0.20", "jinja2>=3.1.5", "aiofiles>=24.1.0", "pydantic-settings>=2.8.0"]
+cli = ["typer[all]>=0.15.1", "rich>=13.9.4"]
+auth = ["pyjwt>=2.10.1", "passlib[bcrypt]>=1.7.4"]
+caching = ["redis>=5.2.1"]
+monitoring = ["opentelemetry-api>=1.29.0", "opentelemetry-sdk>=1.29.0", "opentelemetry-instrumentation-fastapi>=0.50b0", "prometheus-client>=0.21.1", "psutil>=6.1.1"]
+infrastructure = ["tenacity>=9.0.0", "circuitbreaker>=2.0.0", "pydantic-settings>=2.8.0"]
+
+# Data processing extras
+data-formats = ["pyarrow>=18.1.0", "fastparquet>=2024.11.0", "openpyxl>=3.1.5", "xlsxwriter>=3.2.0", "h5py>=3.12.1"]
+database = ["sqlalchemy>=2.0.36", "psycopg2-binary>=2.9.10"]
+spark = ["pyspark>=3.5.4"]
+
+# ML backend extras  
+torch = ["torch>=2.5.1"]
+tensorflow = ["tensorflow>=2.18.0,<2.20.0", "keras>=3.8.0"]
+jax = ["jax>=0.4.37", "jaxlib>=0.4.37", "optax>=0.2.4"]
+
+# Specialized ML extras
+graph = ["pygod>=1.1.0", "torch-geometric>=2.6.1"]
+automl = ["optuna>=4.1.0", "hyperopt>=0.2.7", "auto-sklearn2>=1.0.0", "scikit-learn>=1.6.0"]
+explainability = ["shap>=0.46.0", "lime>=0.2.0.1"]
+
+# Combined extras for common use cases
+minimal = ["scikit-learn>=1.6.0", "scipy>=1.15.0"]
+standard = ["scikit-learn>=1.6.0", "scipy>=1.15.0", "pyarrow>=18.1.0"]
+server = ["fastapi>=0.117.0", "uvicorn[standard]>=0.34.0", "httpx>=0.28.1", "requests>=2.32.3", "python-multipart>=0.0.20", "jinja2>=3.1.5", "aiofiles>=24.1.0", "pydantic-settings>=2.8.0", "typer[all]>=0.15.1", "rich>=13.9.4", "scikit-learn>=1.6.0", "scipy>=1.15.0", "pyarrow>=18.1.0"]
+production = ["fastapi>=0.117.0", "uvicorn[standard]>=0.34.0", "redis>=5.2.1", "opentelemetry-api>=1.29.0", "opentelemetry-sdk>=1.29.0", "opentelemetry-instrumentation-fastapi>=0.50b0", "prometheus-client>=0.21.1", "psutil>=6.1.1", "tenacity>=9.0.0", "circuitbreaker>=2.0.0", "pydantic-settings>=2.8.0", "pyjwt>=2.10.1", "passlib[bcrypt]>=1.7.4"]
+
+# Comprehensive extras
+ml-all = ["scikit-learn>=1.6.0", "scipy>=1.15.0", "torch>=2.5.1", "tensorflow>=2.18.0,<2.20.0", "keras>=3.8.0", "jax>=0.4.37", "jaxlib>=0.4.37", "optax>=0.2.4", "pygod>=1.1.0", "torch-geometric>=2.6.1", "optuna>=4.1.0", "hyperopt>=0.2.7", "auto-sklearn2>=1.0.0", "shap>=0.46.0", "lime>=0.2.0.1"]
+data-all = ["pyarrow>=18.1.0", "fastparquet>=2024.11.0", "openpyxl>=3.1.5", "xlsxwriter>=3.2.0", "h5py>=3.12.1", "sqlalchemy>=2.0.36", "psycopg2-binary>=2.9.10", "pyspark>=3.5.4"]
+all = ["scikit-learn>=1.6.0", "scipy>=1.15.0", "fastapi>=0.117.0", "uvicorn[standard]>=0.34.0", "httpx>=0.28.1", "requests>=2.32.3", "python-multipart>=0.0.20", "jinja2>=3.1.5", "aiofiles>=24.1.0", "typer[all]>=0.15.1", "rich>=13.9.4", "pyjwt>=2.10.1", "passlib[bcrypt]>=1.7.4", "redis>=5.2.1", "pyarrow>=18.1.0", "opentelemetry-api>=1.29.0", "opentelemetry-sdk>=1.29.0", "opentelemetry-instrumentation-fastapi>=0.50b0", "prometheus-client>=0.21.1", "psutil>=6.1.1", "tenacity>=9.0.0", "circuitbreaker>=2.0.0", "pydantic-settings>=2.8.0", "torch>=2.5.1", "tensorflow>=2.18.0,<2.20.0", "keras>=3.8.0", "jax>=0.4.37", "jaxlib>=0.4.37", "optax>=0.2.4", "fastparquet>=2024.11.0", "openpyxl>=3.1.5", "xlsxwriter>=3.2.0", "h5py>=3.12.1", "sqlalchemy>=2.0.36", "psycopg2-binary>=2.9.10", "pyspark>=3.5.4", "pygod>=1.1.0", "torch-geometric>=2.6.1", "optuna>=4.1.0", "hyperopt>=0.2.7", "auto-sklearn2>=1.0.0", "shap>=0.46.0", "lime>=0.2.0.1"]
 
 [project.scripts]
 pynomaly = "pynomaly.presentation.cli.app:app"

@@ -33,8 +33,10 @@ python scripts/setup_simple.py
 
 # Or manually with different requirement levels:
 python -m venv .venv
-# Windows:
-.venv\Scripts\activate  
+# Windows (PowerShell):
+.venv\Scripts\Activate.ps1
+# Windows (Command Prompt):
+.venv\Scripts\activate.bat
 # Linux/macOS:
 source .venv/bin/activate
 
@@ -136,7 +138,7 @@ async def main():
     # Create detector with algorithm-specific parameters
     detector = Detector(
         name="Isolation Forest Detector",
-        algorithm="IsolationForest",
+        algorithm_name="IsolationForest",
         parameters={
             "contamination": 0.1,
             "n_estimators": 100,
@@ -432,8 +434,13 @@ uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
 $env:PYTHONPATH = "C:\Users\your-user\Pynomaly\src"
 uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
 
-# Or use PowerShell script
-pwsh -File scripts/test_api_powershell.ps1
+# Alternative: use Python module directly
+python -m uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
+
+# Or use PowerShell script (if available)
+if (Test-Path "scripts\test_api_powershell.ps1") {
+    pwsh -File scripts\test_api_powershell.ps1
+}
 ```
 
 #### Fresh Environment Setup
@@ -467,8 +474,12 @@ Once running, access these endpoints:
 
 ### Development Commands
 ```bash
-# Start development server with auto-reload
+# Start development server with auto-reload (Unix/Linux/macOS)
 export PYTHONPATH=/path/to/Pynomaly/src
+uvicorn pynomaly.presentation.api:app --reload
+
+# Windows PowerShell
+$env:PYTHONPATH = "C:\path\to\Pynomaly\src"
 uvicorn pynomaly.presentation.api:app --reload
 
 # Build frontend assets
