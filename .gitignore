@@ -281,3 +281,6 @@ storage/detectors.json
 test_env_check/
 test_env_check/lib64
 test_env_check/pyvenv.cfg
+=0.2.0.1
+=0.46.0
+=7.0.0
