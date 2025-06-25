@@ -30,7 +30,8 @@ from pynomaly.presentation.api.endpoints import (
 # Distributed processing endpoints removed for simplification
 distributed = None
 DISTRIBUTED_API_AVAILABLE = False
-from pynomaly.presentation.web.app import mount_web_ui
+# Temporarily disabled web UI mounting due to circular import
+# from pynomaly.presentation.web.app import mount_web_ui
 
 
 @asynccontextmanager
@@ -172,14 +173,18 @@ def create_app(container: Container | None = None) -> FastAPI:
     
     # Distributed processing API removed for simplification
     
-    # Mount web UI
-    mount_web_ui(app)
+    # Temporarily disabled web UI mounting due to circular import
+    # mount_web_ui(app)
     
     @app.get("/", include_in_schema=False)
     async def root():
-        """Redirect to web UI."""
-        from fastapi.responses import RedirectResponse
-        return RedirectResponse(url="/web/")
+        """API root endpoint."""
+        return {
+            "message": "Pynomaly API",
+            "version": settings.app.version,
+            "docs": "/api/docs",
+            "health": "/api/health"
+        }
     
     return app
 

@@ -11,6 +11,11 @@ from .file_repositories import (
     FileResultRepository
 )
 from .detector_repository import DetectorRepository
+from .async_wrappers import (
+    AsyncDetectorRepositoryWrapper,
+    AsyncDatasetRepositoryWrapper,
+    AsyncDetectionResultRepositoryWrapper
+)
 
 __all__ = [
     "InMemoryDetectorRepository",
@@ -20,4 +25,7 @@ __all__ = [
     "FileDatasetRepository",
     "FileResultRepository",
     "DetectorRepository",
+    "AsyncDetectorRepositoryWrapper",
+    "AsyncDatasetRepositoryWrapper",
+    "AsyncDetectionResultRepositoryWrapper",
 ]

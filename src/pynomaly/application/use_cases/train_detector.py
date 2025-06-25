@@ -12,6 +12,7 @@ from pynomaly.domain.exceptions import FittingError, InsufficientDataError
 from pynomaly.domain.services import FeatureValidator
 from pynomaly.domain.value_objects import ContaminationRate
 from pynomaly.shared.protocols import DetectorProtocol, DetectorRepositoryProtocol
+from pynomaly.application.services.algorithm_adapter_registry import AlgorithmAdapterRegistry
 
 
 @dataclass
@@ -88,6 +89,7 @@ class TrainDetectorUseCase:
         self,
         detector_repository: DetectorRepositoryProtocol,
         feature_validator: FeatureValidator,
+        adapter_registry: Optional[AlgorithmAdapterRegistry] = None,
         min_samples: int = 10
     ):
         """Initialize the use case.
@@ -95,10 +97,12 @@ class TrainDetectorUseCase:
         Args:
             detector_repository: Repository for detectors
             feature_validator: Service for validating features
+            adapter_registry: Registry for algorithm adapters
             min_samples: Minimum samples required for training
         """
         self.detector_repository = detector_repository
         self.feature_validator = feature_validator
+        self.adapter_registry = adapter_registry or AlgorithmAdapterRegistry()
         self.min_samples = min_samples
     
     async def execute(self, request: TrainDetectorRequest) -> TrainDetectorResponse:
@@ -195,9 +199,9 @@ class TrainDetectorUseCase:
             # For now, we'll just note that validation split was requested
             warnings.append(f"Validation split {request.validation_split} requested but not implemented")
         
-        # Train the detector
+        # Train the detector using the adapter registry
         try:
-            detector.fit(training_dataset)
+            self.adapter_registry.fit_detector(detector, training_dataset)
         except Exception as e:
             raise FittingError(
                 detector_name=detector.name,

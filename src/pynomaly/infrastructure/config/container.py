@@ -195,6 +195,13 @@ from pynomaly.infrastructure.repositories import (
     FileDatasetRepository,
     FileResultRepository
 )
+
+# Async repository wrappers for application services
+from pynomaly.infrastructure.repositories.async_wrappers import (
+    AsyncDetectorRepositoryWrapper,
+    AsyncDatasetRepositoryWrapper,
+    AsyncDetectionResultRepositoryWrapper
+)
 from pynomaly.infrastructure.adapters import PyODAdapter, SklearnAdapter
 
 # Optional adapters - import only if available
@@ -248,6 +255,20 @@ class Container(containers.DeclarativeContainer):
     )
     result_repository = providers.Singleton(
         lambda: _create_result_repository(Settings())
+    )
+    
+    # Async repository wrappers for application services
+    async_detector_repository = providers.Singleton(
+        AsyncDetectorRepositoryWrapper,
+        sync_repository=detector_repository
+    )
+    async_dataset_repository = providers.Singleton(
+        AsyncDatasetRepositoryWrapper,
+        sync_repository=dataset_repository
+    )
+    async_result_repository = providers.Singleton(
+        AsyncDetectionResultRepositoryWrapper,
+        sync_repository=result_repository
     )
     
     # Data loaders
@@ -469,8 +490,8 @@ class Container(containers.DeclarativeContainer):
     if AutoMLService is not None:
         automl_service = providers.Singleton(
             AutoMLService,
-            detector_repository=detector_repository,
-            dataset_repository=dataset_repository,
+            detector_repository=async_detector_repository,
+            dataset_repository=async_dataset_repository,
             adapter_registry=providers.Object("adapter_registry"),  # Will be injected
             max_optimization_time=3600,
             n_trials=100,
@@ -495,8 +516,8 @@ class Container(containers.DeclarativeContainer):
             application_explainability_service = providers.Singleton(
                 ApplicationExplainabilityService,
                 domain_explainability_service=domain_explainability_service,
-                detector_repository=detector_repository,
-                dataset_repository=dataset_repository
+                detector_repository=async_detector_repository,
+                dataset_repository=async_dataset_repository
             )
     
     # Phase 2 services - only create if available and feature flags enabled

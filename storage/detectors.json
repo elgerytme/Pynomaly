@@ -26,5 +26,19 @@
     "created_at": "2025-06-25T00:03:11.924605",
     "trained_at": null,
     "is_fitted": false
+  },
+  "2a8db895-60c6-427c-8381-ae13857276a4": {
+    "id": "2a8db895-60c6-427c-8381-ae13857276a4",
+    "name": "test_isolation_forest",
+    "algorithm_name": "IsolationForest",
+    "contamination_rate": 0.1,
+    "parameters": {
+      "contamination": 0.2,
+      "random_state": 42
+    },
+    "metadata": {},
+    "created_at": "2025-06-25T00:16:01.398846",
+    "trained_at": null,
+    "is_fitted": false
   }
 }
