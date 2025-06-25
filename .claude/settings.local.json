@@ -457,7 +457,11 @@
       "Bash(cmd.exe:*)",
       "Bash(./.venv/bin/python -m pip check:*)",
       "Bash(pip index versions:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(pynomaly:*)",
+      "Bash(env:*)",
+      "Bash(./scripts/setup_fresh_environment.sh:*)",
+      "Bash(./scripts/test_all_environments.sh:*)"
     ],
     "deny": [],
     "//": "This sets the default policy to 'allow' for any action that doesn't have a more specific rule below. This is the top-level 'allow all actions' setting.",

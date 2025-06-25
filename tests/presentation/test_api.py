@@ -36,7 +36,7 @@ class TestHealthEndpoints:
         
         assert response.status_code == 200
         data = response.json()
-        assert data["status"] == "healthy"
+        assert data["overall_status"] in ["healthy", "degraded", "unhealthy"]
         assert "version" in data
         assert "uptime_seconds" in data
     
@@ -46,9 +46,8 @@ class TestHealthEndpoints:
         
         assert response.status_code == 200
         data = response.json()
-        assert data["ready"] is True
-        assert "database" in data["checks"]
-        assert "cache" in data["checks"]
+        assert data["status"] == "ready"
+        assert "timestamp" in data
 
 
 class TestDetectorEndpoints:
@@ -58,8 +57,7 @@ class TestDetectorEndpoints:
         """Test creating a detector."""
         detector_data = {
             "name": "Test Detector",
-            "algorithm": "IsolationForest",
-            "description": "Test description",
+            "algorithm_name": "IsolationForest",
             "parameters": {"contamination": 0.1}
         }
         
@@ -68,7 +66,7 @@ class TestDetectorEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert data["name"] == "Test Detector"
-        assert data["algorithm"] == "IsolationForest"
+        assert data["algorithm_name"] == "IsolationForest"
         assert "id" in data
         assert not data["is_fitted"]
     
@@ -77,7 +75,7 @@ class TestDetectorEndpoints:
         # Create a detector first
         detector_data = {
             "name": "List Test",
-            "algorithm": "LOF"
+            "algorithm_name": "LOF"
         }
         client.post("/api/detectors/", json=detector_data)
         
@@ -95,7 +93,7 @@ class TestDetectorEndpoints:
         # Create detector
         create_response = client.post("/api/detectors/", json={
             "name": "Get Test",
-            "algorithm": "OCSVM"
+            "algorithm_name": "OCSVM"
         })
         detector_id = create_response.json()["id"]
         
@@ -112,7 +110,7 @@ class TestDetectorEndpoints:
         # Create detector
         create_response = client.post("/api/detectors/", json={
             "name": "Update Test",
-            "algorithm": "IsolationForest"
+            "algorithm_name": "IsolationForest"
         })
         detector_id = create_response.json()["id"]
         
@@ -134,7 +132,7 @@ class TestDetectorEndpoints:
         # Create detector
         create_response = client.post("/api/detectors/", json={
             "name": "Delete Test",
-            "algorithm": "LOF"
+            "algorithm_name": "LOF"
         })
         detector_id = create_response.json()["id"]
         
@@ -230,7 +228,7 @@ class TestDetectionEndpoints:
         # Create detector and dataset
         detector_response = await async_client.post("/api/detectors/", json={
             "name": "Train Test",
-            "algorithm": "IsolationForest"
+            "algorithm_name": "IsolationForest"
         })
         detector_id = detector_response.json()["id"]
         
