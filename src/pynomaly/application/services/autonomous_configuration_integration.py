@@ -16,6 +16,7 @@ import pandas as pd
 
 from pynomaly.application.dto.configuration_dto import (
     ConfigurationCaptureRequestDTO,
+    ConfigurationSearchRequestDTO,
     ConfigurationSource,
     PerformanceResultsDTO,
 )

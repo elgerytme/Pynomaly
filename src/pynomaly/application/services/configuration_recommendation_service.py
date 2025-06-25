@@ -835,7 +835,7 @@ class ConfigurationRecommendationService:
         )
 
     def _calculate_dataset_similarity(
-        self, ds1: DatasetCharacteristicsDTO, ds2: DatasetConfigurationDTO
+        self, ds1: DatasetCharacteristicsDTO, ds2: DatasetCharacteristicsDTO
     ) -> float:
         """Calculate similarity between dataset characteristics."""
         similarity = 0.0
