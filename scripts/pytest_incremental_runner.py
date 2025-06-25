@@ -289,7 +289,7 @@ class PytestIncrementalRunner:
                 timeout=5
             )
             return result.stdout.strip() if result.returncode == 0 else "unknown"
-        except:
+        except Exception:
             return "unknown"
     
     def save_results(self, summary: IncrementalPytestSummary, output_file: Path = None) -> Path:
