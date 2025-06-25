@@ -257,7 +257,7 @@ class AlgorithmBenchmarkService:
                     algorithm, dataset, n_runs=n_runs
                 )
             except Exception as e:
-                warnings.warn(f"Failed to benchmark {algorithm}: {e}")
+                warnings.warn(f"Failed to benchmark {algorithm}: {e}", stacklevel=2)
                 results[algorithm] = []
 
         return results
@@ -298,7 +298,7 @@ class AlgorithmBenchmarkService:
                 )[0]
                 results.append(result)
             except Exception as e:
-                warnings.warn(f"Failed parameter combination {params}: {e}")
+                warnings.warn(f"Failed parameter combination {params}: {e}", stacklevel=2)
 
         # Sort by overall score
         results.sort(key=lambda x: x.overall_score(), reverse=True)
@@ -325,7 +325,7 @@ class AlgorithmBenchmarkService:
                 results = self.benchmark_algorithm(algorithm_name, dataset, n_runs=1)
                 algorithm_results[algorithm_name] = results[0]
             except Exception as e:
-                warnings.warn(f"Failed to evaluate {algorithm_name}: {e}")
+                warnings.warn(f"Failed to evaluate {algorithm_name}: {e}", stacklevel=2)
 
         if not algorithm_results:
             raise RuntimeError("No algorithms could be successfully evaluated")
@@ -469,7 +469,7 @@ class AlgorithmBenchmarkService:
                     result.average_precision = average_precision_score(y, scores)
 
             except Exception as e:
-                warnings.warn(f"Error calculating metrics: {e}")
+                warnings.warn(f"Error calculating metrics: {e}", stacklevel=2)
 
         return result
 

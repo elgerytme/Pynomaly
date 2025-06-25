@@ -280,7 +280,6 @@ class Tenant:
 
     def upgrade_subscription(self, new_tier: SubscriptionTier):
         """Upgrade subscription tier and update quotas."""
-        old_tier = self.subscription_tier
         self.subscription_tier = new_tier
         self.updated_at = datetime.utcnow()
 

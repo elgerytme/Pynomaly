@@ -382,7 +382,7 @@ class ContinuousLearningService:
             raise LearningSessionNotFoundError(f"Session {session_id} not found")
 
         session = self.active_sessions[session_id]
-        tracker = self.performance_trackers[session_id]
+        self.performance_trackers[session_id]
 
         # Calculate effectiveness metrics
         performance_trend = session.get_performance_trend()

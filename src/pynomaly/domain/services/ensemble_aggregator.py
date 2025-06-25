@@ -171,7 +171,7 @@ class EnsembleAggregator:
 
         # Convert to list of arrays for easier processing
         all_labels = list(labels_dict.values())
-        n_samples = len(all_labels[0])
+        len(all_labels[0])
 
         if method == "majority":
             return EnsembleAggregator._majority_vote(labels_dict, weights)

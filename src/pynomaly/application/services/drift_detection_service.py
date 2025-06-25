@@ -487,7 +487,7 @@ class DriftDetectionService:
 
         # Weight by significance
         weighted_scores = []
-        for i, result in enumerate(univariate_results):
+        for _i, result in enumerate(univariate_results):
             if result.drift_detected:
                 weight = 1.0 / max(result.p_value, 1e-10)
                 weighted_scores.append(result.drift_score * weight)

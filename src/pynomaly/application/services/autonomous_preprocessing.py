@@ -685,7 +685,7 @@ class AutonomousQualityAnalyzer:
         self, df: pd.DataFrame, issues: list[QualityIssue]
     ) -> str:
         """Estimate memory impact of preprocessing."""
-        current_memory = df.memory_usage(deep=True).sum()
+        df.memory_usage(deep=True).sum()
 
         # Estimate memory changes based on operations
         memory_change = 1.0

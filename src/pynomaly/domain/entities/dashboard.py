@@ -242,7 +242,7 @@ class DashboardFilter:
         """Apply filter value."""
         if (
             self.filter_type == "range"
-            and isinstance(value, (list, tuple))
+            and isinstance(value, list | tuple)
             and len(value) == 2
         ):
             self.current_value = value

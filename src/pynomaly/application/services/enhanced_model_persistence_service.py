@@ -492,7 +492,7 @@ class EnhancedModelPersistenceService:
 
             # Create zip archive
             with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED) as zf:
-                for file_type, file_path in exported_files.items():
+                for _file_type, file_path in exported_files.items():
                     zf.write(file_path, Path(file_path).name)
 
         return str(archive_path)
@@ -742,23 +742,23 @@ from typing import Dict, List
 
 class ModelDeployment:
     """Production model deployment wrapper."""
-    
+
     def __init__(self, model_path: str = "model.pkl", config_path: str = "model_config.json"):
         """Initialize deployment."""
         self.model_path = model_path
         self.config_path = config_path
-        
+
         # Load configuration
         with open(config_path, "r") as f:
             self.config = json.load(f)
-        
+
         # Load model (implement based on format)
         self.detector = self._load_model()
-    
+
     def _load_model(self):
         """Load the model based on format."""
         format_type = self.config["format"]
-        
+
         if format_type == "pickle":
             import pickle
             with open(self.model_path, "rb") as f:
@@ -768,14 +768,14 @@ class ModelDeployment:
             return joblib.load(self.model_path)
         else:
             raise ValueError(f"Unsupported format: {{format_type}}")
-    
+
     def predict(self, data: pd.DataFrame) -> Dict[str, any]:
         """Predict anomalies."""
         from pynomaly.domain.entities import Dataset
-        
+
         dataset = Dataset(name="inference", data=data)
         result = self.detector.detect(dataset)
-        
+
         return {{
             "anomalies": result.n_anomalies,
             "scores": [s.value for s in result.scores],
@@ -783,7 +783,7 @@ class ModelDeployment:
             "threshold": result.threshold,
             "model_version": self.config["version"]
         }}
-    
+
     def health_check(self) -> Dict[str, any]:
         """Health check endpoint."""
         return {{
@@ -795,22 +795,22 @@ class ModelDeployment:
 
 if __name__ == "__main__":
     import sys
-    
+
     if len(sys.argv) < 2:
         print("Usage: python deploy.py <input_csv>")
         sys.exit(1)
-    
+
     # Initialize deployment
     deployment = ModelDeployment()
-    
+
     # Load and process data
     data = pd.read_csv(sys.argv[1])
     results = deployment.predict(data)
-    
+
     print(f"Processed {{len(data)}} samples")
     print(f"Found {{results['anomalies']}} anomalies")
     print(f"Model version: {{results['model_version']}}")
-    
+
     # Save results
     output_df = pd.DataFrame({{
         "anomaly_score": results["scores"],

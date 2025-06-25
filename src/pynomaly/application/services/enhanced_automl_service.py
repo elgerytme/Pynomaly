@@ -344,7 +344,7 @@ class EnhancedAutoMLService(AutoMLService):
         ) -> float | dict[str, float]:
             """Advanced objective function with multiple objectives."""
             try:
-                start_time = time.time()
+                time.time()
 
                 # Create detector with parameters
                 detector = Detector(

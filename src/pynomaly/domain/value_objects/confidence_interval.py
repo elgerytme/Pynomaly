@@ -23,12 +23,12 @@ class ConfidenceInterval:
 
     def __post_init__(self) -> None:
         """Validate confidence interval after initialization."""
-        if not isinstance(self.lower, (int, float)):
+        if not isinstance(self.lower, int | float):
             raise InvalidValueError(
                 f"Lower bound must be numeric, got {type(self.lower)}"
             )
 
-        if not isinstance(self.upper, (int, float)):
+        if not isinstance(self.upper, int | float):
             raise InvalidValueError(
                 f"Upper bound must be numeric, got {type(self.upper)}"
             )
@@ -46,8 +46,8 @@ class ConfidenceInterval:
     def is_valid(self) -> bool:
         """Check if the confidence interval is valid."""
         return (
-            isinstance(self.lower, (int, float))
-            and isinstance(self.upper, (int, float))
+            isinstance(self.lower, int | float)
+            and isinstance(self.upper, int | float)
             and self.lower <= self.upper
             and 0.0 <= self.confidence_level <= 1.0
         )

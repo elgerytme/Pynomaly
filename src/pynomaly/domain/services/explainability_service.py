@@ -146,7 +146,7 @@ class ExplainabilityService:
             raise ValueError(f"Explainer for method {method.value} not available")
 
         # Convert input to numpy array
-        if isinstance(instance, (pd.Series, dict)):
+        if isinstance(instance, pd.Series | dict):
             instance_array = self._convert_to_array(instance, feature_names)
         else:
             instance_array = np.array(instance).reshape(1, -1)

@@ -274,7 +274,7 @@ class InstanceExplanation(ModelExplanation):
         explained_value = self.base_value + total_attribution
 
         if (
-            isinstance(self.prediction_value, (int, float))
+            isinstance(self.prediction_value, int | float)
             and self.prediction_value != 0
         ):
             completeness = min(1.0, abs(explained_value / self.prediction_value))

@@ -313,9 +313,9 @@ class ExperimentTrackingService:
         """Generate markdown report for experiment."""
         report = f"""# Experiment: {experiment["name"]}
 
-**ID**: {experiment["id"]}  
-**Created**: {experiment["created_at"]}  
-**Description**: {experiment.get("description", "N/A")}  
+**ID**: {experiment["id"]}
+**Created**: {experiment["created_at"]}
+**Description**: {experiment.get("description", "N/A")}
 **Tags**: {", ".join(experiment.get("tags", []))}
 
 ## Summary

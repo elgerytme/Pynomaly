@@ -1314,7 +1314,7 @@ class AutonomousDetectionService:
         anomaly_indices = []
         anomaly_scores = []
 
-        for i, anomaly in enumerate(result.anomalies[:max_explanations]):
+        for _i, anomaly in enumerate(result.anomalies[:max_explanations]):
             anomaly_indices.append(anomaly.index)
             anomaly_scores.append(anomaly.score.value)
 
@@ -1322,7 +1322,7 @@ class AutonomousDetectionService:
             return explanations
 
         # Calculate feature-level explanations
-        for i, (idx, score) in enumerate(zip(anomaly_indices, anomaly_scores, strict=False)):
+        for _i, (idx, score) in enumerate(zip(anomaly_indices, anomaly_scores, strict=False)):
             try:
                 explanation = await self._explain_single_anomaly(
                     dataset, idx, score, detector, config

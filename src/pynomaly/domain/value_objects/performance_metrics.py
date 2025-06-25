@@ -60,14 +60,14 @@ class PerformanceMetrics:
         }
 
         for name, value in score_metrics.items():
-            if not isinstance(value, (int, float)):
+            if not isinstance(value, int | float):
                 raise TypeError(f"{name} must be numeric, got {type(value)}")
             if not 0.0 <= value <= 1.0:
                 raise ValueError(f"{name} must be between 0.0 and 1.0, got {value}")
 
         # Validate optional AUC scores
         if self.roc_auc is not None:
-            if not isinstance(self.roc_auc, (int, float)):
+            if not isinstance(self.roc_auc, int | float):
                 raise TypeError(f"ROC AUC must be numeric, got {type(self.roc_auc)}")
             if not 0.0 <= self.roc_auc <= 1.0:
                 raise ValueError(
@@ -75,7 +75,7 @@ class PerformanceMetrics:
                 )
 
         if self.pr_auc is not None:
-            if not isinstance(self.pr_auc, (int, float)):
+            if not isinstance(self.pr_auc, int | float):
                 raise TypeError(f"PR AUC must be numeric, got {type(self.pr_auc)}")
             if not 0.0 <= self.pr_auc <= 1.0:
                 raise ValueError(
@@ -83,12 +83,12 @@ class PerformanceMetrics:
                 )
 
         # Validate time metrics (positive values)
-        if not isinstance(self.training_time, (int, float)) or self.training_time < 0:
+        if not isinstance(self.training_time, int | float) or self.training_time < 0:
             raise ValueError(
                 f"Training time must be non-negative, got {self.training_time}"
             )
 
-        if not isinstance(self.inference_time, (int, float)) or self.inference_time < 0:
+        if not isinstance(self.inference_time, int | float) or self.inference_time < 0:
             raise ValueError(
                 f"Inference time must be non-negative, got {self.inference_time}"
             )
@@ -101,14 +101,14 @@ class PerformanceMetrics:
 
         # Validate optional metrics
         if self.memory_usage is not None:
-            if not isinstance(self.memory_usage, (int, float)) or self.memory_usage < 0:
+            if not isinstance(self.memory_usage, int | float) or self.memory_usage < 0:
                 raise ValueError(
                     f"Memory usage must be non-negative, got {self.memory_usage}"
                 )
 
         if self.cpu_usage is not None:
             if (
-                not isinstance(self.cpu_usage, (int, float))
+                not isinstance(self.cpu_usage, int | float)
                 or not 0 <= self.cpu_usage <= 100
             ):
                 raise ValueError(
@@ -117,7 +117,7 @@ class PerformanceMetrics:
 
         if self.throughput_rps is not None:
             if (
-                not isinstance(self.throughput_rps, (int, float))
+                not isinstance(self.throughput_rps, int | float)
                 or self.throughput_rps < 0
             ):
                 raise ValueError(

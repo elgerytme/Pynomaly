@@ -220,7 +220,7 @@ class AlgorithmOptimizationService:
 
         # Benchmark original detector
         original_results = []
-        for i in range(n_iterations):
+        for _i in range(n_iterations):
             result = benchmark_service.benchmark_algorithm(
                 detector.algorithm_name, dataset, detector.parameters, n_runs=1
             )
@@ -234,7 +234,7 @@ class AlgorithmOptimizationService:
 
         # Benchmark optimized detector
         optimized_results = []
-        for i in range(n_iterations):
+        for _i in range(n_iterations):
             result = benchmark_service.benchmark_algorithm(
                 optimized_detector.algorithm_name,
                 dataset,
@@ -658,7 +658,7 @@ class AlgorithmOptimizationService:
             }
 
         except Exception as e:
-            warnings.warn(f"Optimization failed: {e}")
+            warnings.warn(f"Optimization failed: {e}", stacklevel=2)
             return self._get_default_parameters(algorithm_name)
 
     def _generate_limited_param_combinations(

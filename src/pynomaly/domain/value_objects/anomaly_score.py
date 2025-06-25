@@ -24,7 +24,7 @@ class AnomalyScore:
 
     def __post_init__(self) -> None:
         """Validate score after initialization."""
-        if not isinstance(self.value, (int, float)):
+        if not isinstance(self.value, int | float):
             raise InvalidValueError(
                 f"Score value must be numeric, got {type(self.value)}"
             )
@@ -43,7 +43,7 @@ class AnomalyScore:
 
     def is_valid(self) -> bool:
         """Check if the score is valid."""
-        return isinstance(self.value, (int, float)) and not (
+        return isinstance(self.value, int | float) and not (
             hasattr(self.value, "__isnan__") and self.value.__isnan__()
         )
 
@@ -85,7 +85,7 @@ class AnomalyScore:
         """Compare scores by value."""
         if isinstance(other, AnomalyScore):
             return self.value < other.value
-        if isinstance(other, (int, float)):
+        if isinstance(other, int | float):
             return self.value < other
         return NotImplemented
 
@@ -93,7 +93,7 @@ class AnomalyScore:
         """Compare scores by value."""
         if isinstance(other, AnomalyScore):
             return self.value <= other.value
-        if isinstance(other, (int, float)):
+        if isinstance(other, int | float):
             return self.value <= other
         return NotImplemented
 
@@ -101,7 +101,7 @@ class AnomalyScore:
         """Compare scores by value."""
         if isinstance(other, AnomalyScore):
             return self.value > other.value
-        if isinstance(other, (int, float)):
+        if isinstance(other, int | float):
             return self.value > other
         return NotImplemented
 
@@ -109,7 +109,7 @@ class AnomalyScore:
         """Compare scores by value."""
         if isinstance(other, AnomalyScore):
             return self.value >= other.value
-        if isinstance(other, (int, float)):
+        if isinstance(other, int | float):
             return self.value >= other
         return NotImplemented
 

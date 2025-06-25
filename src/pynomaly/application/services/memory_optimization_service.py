@@ -147,7 +147,7 @@ class MemoryOptimizationService:
                 total_samples += len(chunk_dataset.data)
 
             except Exception as e:
-                warnings.warn(f"Failed to process chunk: {e}")
+                warnings.warn(f"Failed to process chunk: {e}", stacklevel=2)
                 continue
 
         # Aggregate results

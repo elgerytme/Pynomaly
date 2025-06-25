@@ -541,7 +541,7 @@ class ConfigurationTemplateService:
             return False
 
         # Include numeric parameters
-        if isinstance(value, (int, float)):
+        if isinstance(value, int | float):
             return True
 
         # Include boolean parameters
@@ -1254,7 +1254,7 @@ class ConfigurationTemplateService:
         numeric_params = {}
         for config in configurations:
             for param, value in config.algorithm_config.hyperparameters.items():
-                if isinstance(value, (int, float)):
+                if isinstance(value, int | float):
                     if param not in numeric_params:
                         numeric_params[param] = []
                     numeric_params[param].append(value)
@@ -1290,7 +1290,7 @@ class ConfigurationTemplateService:
                 values.append(param_info.get("default"))
 
             # Include if values vary
-            if len(set(str(v) for v in values if v is not None)) > 1:
+            if len({str(v) for v in values if v is not None}) > 1:
                 variable_parameters[param_path] = param_info
                 parameter_constraints[param_path] = self._get_parameter_constraints(
                     param_path.split(".")[-1], param_info.get("default")
@@ -1382,7 +1382,7 @@ class ConfigurationTemplateService:
                             f"{param_path}: expected integer, got {type(value).__name__}"
                         )
                     elif expected_type == "float" and not isinstance(
-                        value, (int, float)
+                        value, int | float
                     ):
                         errors.append(
                             f"{param_path}: expected float, got {type(value).__name__}"
@@ -1397,7 +1397,7 @@ class ConfigurationTemplateService:
                         )
 
                 # Range validation
-                if isinstance(value, (int, float)):
+                if isinstance(value, int | float):
                     if "min" in constraints and value < constraints["min"]:
                         errors.append(
                             f"{param_path}: value {value} below minimum {constraints['min']}"

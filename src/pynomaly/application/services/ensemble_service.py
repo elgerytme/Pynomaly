@@ -252,7 +252,7 @@ class EnsembleService:
             ensemble_label = ensemble_result.labels[idx]
 
             # Mark agreement
-            for name, opinion in detector_opinions.items():
+            for _name, opinion in detector_opinions.items():
                 opinion["agrees_with_ensemble"] = opinion["label"] == ensemble_label
 
             # Calculate consensus
@@ -337,7 +337,7 @@ class EnsembleDetector:
         )
 
         # Calculate threshold from aggregated scores
-        score_values = [s.value for s in aggregated_scores]
+        [s.value for s in aggregated_scores]
         contamination_rate = np.mean(aggregated_labels)
         threshold = self.scorer.calculate_threshold(
             aggregated_scores, contamination_rate

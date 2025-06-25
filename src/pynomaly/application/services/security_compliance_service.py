@@ -344,7 +344,7 @@ class SecurityComplianceService:
                         del anonymized_data[field]
                     elif rule == "generalize":
                         # Generalize the value (simplified)
-                        if isinstance(anonymized_data[field], (int, float)):
+                        if isinstance(anonymized_data[field], int | float):
                             # Round to nearest 10
                             anonymized_data[field] = (
                                 round(anonymized_data[field] / 10) * 10

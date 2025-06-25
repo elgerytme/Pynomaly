@@ -93,7 +93,6 @@ class AutoMLConfigurationIntegration:
         )
 
         start_time = datetime.now()
-        optimization_success = False
         configuration_id = None
 
         try:
@@ -113,7 +112,6 @@ class AutoMLConfigurationIntegration:
                 enable_learning=enable_learning,
             )
 
-            optimization_success = True
             end_time = datetime.now()
             optimization_duration = (end_time - start_time).total_seconds()
 

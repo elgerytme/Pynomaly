@@ -463,7 +463,7 @@ class PerformanceBenchmarkingService:
                 # Run multiple iterations
                 iteration_results = []
 
-                for i in range(config.iterations):
+                for _i in range(config.iterations):
                     try:
                         metrics = await self._benchmark_single_run(
                             algorithm_name=algorithm,
@@ -516,7 +516,7 @@ class PerformanceBenchmarkingService:
             monitor = await self.system_monitor.start_monitoring()
 
             start_time = time.time()
-            memory_before = psutil.virtual_memory().used / 1024 / 1024
+            psutil.virtual_memory().used / 1024 / 1024
 
             # Run the actual algorithm (placeholder - would integrate with actual detection service)
             await self._run_detection_algorithm(
@@ -946,7 +946,7 @@ class PerformanceBenchmarkingService:
             for algorithm, algorithm_results in results.items():
                 metric_values = []
 
-                for size, result in algorithm_results.items():
+                for _size, result in algorithm_results.items():
                     if metric == "execution_time":
                         metric_values.append(result.execution_time_seconds)
                     elif metric == "memory_usage":
@@ -1087,7 +1087,7 @@ class PerformanceBenchmarkingService:
                 <p><strong>Generated:</strong> {datetime.utcnow().isoformat()}</p>
                 <p><strong>Duration:</strong> {suite.total_duration_seconds:.2f} seconds</p>
             </div>
-            
+
             <div class="summary">
                 <h3>Executive Summary</h3>
                 <p><strong>Total Test Runs:</strong> {len(suite.individual_results)}</p>

@@ -895,8 +895,8 @@ class PerformanceTestingService:
         """Analyze algorithmic complexity."""
 
         # Time complexity analysis
-        sizes = [point["size"] for point in size_scaling]
-        times = [point["training_time"] for point in size_scaling]
+        [point["size"] for point in size_scaling]
+        [point["training_time"] for point in size_scaling]
 
         # Fit polynomial to estimate complexity
         complexity_analysis = {

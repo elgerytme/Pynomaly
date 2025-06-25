@@ -946,9 +946,9 @@ class ABTestingService:
         if challenger_metrics.confidence_intervals:
             # Calculate risk based on lower bounds of confidence intervals
             performance_risk = 0.0
-            for metric, (
+            for _metric, (
                 lower,
-                upper,
+                _upper,
             ) in challenger_metrics.confidence_intervals.items():
                 if lower < 0.8:  # Threshold for acceptable performance
                     performance_risk += 0.2

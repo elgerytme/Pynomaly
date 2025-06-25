@@ -386,7 +386,7 @@ class DeepLearningIntegrationService:
                 # Measure inference time
                 sample_data = dataset.data.values[:100]  # Use subset for timing
                 start_time = datetime.now()
-                predictions = await detector.async_predict(sample_data)
+                await detector.async_predict(sample_data)
                 end_time = datetime.now()
                 inference_time = (end_time - start_time).total_seconds() / len(
                     sample_data

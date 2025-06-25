@@ -530,7 +530,7 @@ class ConfigurationRecommendationService:
         # Sort by probability
         sorted_indices = np.argsort(algorithm_probs)[::-1]
 
-        for i, idx in enumerate(sorted_indices[:max_recommendations]):
+        for _i, idx in enumerate(sorted_indices[:max_recommendations]):
             algorithm = algorithm_classes[idx]
             confidence = algorithm_probs[idx]
 
@@ -962,7 +962,7 @@ class ConfigurationRecommendationService:
 
         # Keep best recommendation per algorithm
         unique_recommendations = []
-        for algorithm, group in algorithm_groups.items():
+        for _algorithm, group in algorithm_groups.items():
             best_rec = max(group, key=lambda r: r.confidence_score)
 
             # Adjust confidence based on performance requirements

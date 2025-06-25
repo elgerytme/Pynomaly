@@ -523,7 +523,7 @@ class AlertManagementService:
 
         # Check for recent duplicate alerts
         duplicate_window = alert.suppression_rules.get("duplicate_window_minutes", 5)
-        cutoff_time = datetime.utcnow() - timedelta(minutes=duplicate_window)
+        datetime.utcnow() - timedelta(minutes=duplicate_window)
 
         # For now, assume no recent duplicates (would need to check repository)
         return False

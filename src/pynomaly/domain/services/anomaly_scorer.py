@@ -181,7 +181,7 @@ class AnomalyScorer:
         score_values = np.array([s.value for s in scores])
 
         # Use empirical distribution
-        mean = score_values.mean()
+        score_values.mean()
         std = score_values.std()
 
         # For normal approximation

@@ -289,44 +289,44 @@ from pathlib import Path
 
 class {detector.name.replace(" ", "")}Detector:
     """Wrapper for deployed anomaly detector."""
-    
+
     def __init__(self, model_path: str = "model.pkl"):
         """Load the detector model."""
         with open(model_path, "rb") as f:
             self.detector = pickle.load(f)
-    
+
     def detect(self, data: pd.DataFrame) -> dict:
         """Detect anomalies in data.
-        
+
         Args:
             data: DataFrame with features
-            
+
         Returns:
             Dictionary with scores and labels
         """
         from pynomaly.domain.entities import Dataset
-        
+
         dataset = Dataset(name="input", data=data)
         result = self.detector.detect(dataset)
-        
+
         return {{
             "scores": [s.value for s in result.scores],
             "labels": result.labels.tolist(),
             "n_anomalies": result.n_anomalies,
             "threshold": result.threshold
         }}
-    
+
     def predict_proba(self, data: pd.DataFrame) -> list[float]:
         """Get anomaly scores.
-        
+
         Args:
             data: DataFrame with features
-            
+
         Returns:
             List of anomaly scores
         """
         from pynomaly.domain.entities import Dataset
-        
+
         dataset = Dataset(name="input", data=data)
         scores = self.detector.score(dataset)
         return [s.value for s in scores]
@@ -335,23 +335,23 @@ class {detector.name.replace(" ", "")}Detector:
 if __name__ == "__main__":
     # Example usage
     import sys
-    
+
     if len(sys.argv) < 2:
         print("Usage: python deploy.py <input_csv>")
         sys.exit(1)
-    
+
     # Load data
     data = pd.read_csv(sys.argv[1])
-    
+
     # Initialize detector
     detector = {detector.name.replace(" ", "")}Detector()
-    
+
     # Detect anomalies
     results = detector.detect(data)
-    
+
     print(f"Found {{results['n_anomalies']}} anomalies")
     print(f"Threshold: {{results['threshold']:.3f}}")
-    
+
     # Save results
     output = pd.DataFrame({{
         "score": results["scores"],

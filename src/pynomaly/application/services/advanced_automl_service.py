@@ -624,7 +624,7 @@ class AdvancedAutoMLService:
             for param, value in initial_suggestions.items():
                 if param in params:
                     # Use suggestion as a hint (add some variation)
-                    if isinstance(value, (int, float)):
+                    if isinstance(value, int | float):
                         current_value = params[param]
                         if isinstance(current_value, int):
                             # For integer parameters, use suggestion ± 20%
@@ -979,7 +979,7 @@ class AdvancedAutoMLService:
             if not values:
                 continue
 
-            if all(isinstance(v, (int, float)) for v in values):
+            if all(isinstance(v, int | float) for v in values):
                 # Numeric parameter
                 preferences[param] = {
                     "type": "numeric",

@@ -257,7 +257,7 @@ class CostAnalysisEngine:
             return anomalies
 
         mean_cost = statistics.mean(costs)
-        std_cost = statistics.stdev(costs) if len(costs) > 1 else 0
+        statistics.stdev(costs) if len(costs) > 1 else 0
 
         # Identify outliers using IQR method
         costs_sorted = sorted(costs)
@@ -544,7 +544,6 @@ class RecommendationEngine:
             return recommendations
 
         current_cost = resource.cost_info.monthly_cost
-        metrics = resource.usage_metrics
 
         # Recommend spot instances for fault-tolerant workloads
         if (

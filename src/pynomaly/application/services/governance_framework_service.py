@@ -729,9 +729,9 @@ class GovernanceFrameworkService:
                 audit_summary={
                     "total_audit_entries": total_entries,
                     "violation_entries": len(violation_entries),
-                    "unique_users": len(set(entry.user_id for entry in period_entries)),
+                    "unique_users": len({entry.user_id for entry in period_entries}),
                     "resource_types": len(
-                        set(entry.resource_type for entry in period_entries)
+                        {entry.resource_type for entry in period_entries}
                     ),
                     "high_risk_actions": len(
                         [e for e in period_entries if e.risk_level == RiskLevel.HIGH]
@@ -918,7 +918,7 @@ class GovernanceFrameworkService:
             )
 
         # Check for missing policies
-        resource_types = set(e.resource_type for e in audit_entries)
+        resource_types = {e.resource_type for e in audit_entries}
         for resource_type in resource_types:
             applicable_policies = [
                 p

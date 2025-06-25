@@ -414,7 +414,7 @@ class ExplainableAIService:
             counterfactuals = []
             original_prediction = model.predict(instance.reshape(1, -1))[0]
 
-            for i in range(num_counterfactuals):
+            for _i in range(num_counterfactuals):
                 # Generate perturbation
                 perturbation = np.random.normal(0, 0.1, size=instance.shape)
                 counterfactual = instance + perturbation

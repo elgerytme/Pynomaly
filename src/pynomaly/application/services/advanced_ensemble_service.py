@@ -583,7 +583,7 @@ class AdvancedEnsembleService:
             val1 = chars1.get(feature, 0)
             val2 = chars2.get(feature, 0)
 
-            if isinstance(val1, (int, float)) and isinstance(val2, (int, float)):
+            if isinstance(val1, int | float) and isinstance(val2, int | float):
                 # Normalize similarity for numeric values
                 max_val = max(abs(val1), abs(val2), 1e-8)
                 similarity = 1.0 - abs(val1 - val2) / max_val
@@ -1351,7 +1351,7 @@ class AdvancedEnsembleService:
                 )
 
             # Track performance trends
-            ensemble_perf = knowledge.performance_metrics.get(
+            knowledge.performance_metrics.get(
                 "ensemble_performance", 0.5
             )
             for algorithm, perf in knowledge.algorithm_performance.items():

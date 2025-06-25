@@ -358,7 +358,7 @@ class AutonomousConfigurationIntegration:
         }
 
         # Add data source information
-        if isinstance(data_source, (str, Path)):
+        if isinstance(data_source, str | Path):
             params["dataset_path"] = str(data_source)
             params["dataset_name"] = Path(data_source).stem
         elif isinstance(data_source, pd.DataFrame):
@@ -377,7 +377,7 @@ class AutonomousConfigurationIntegration:
         """Get data source type for configuration."""
         if isinstance(data_source, pd.DataFrame):
             return "dataframe"
-        elif isinstance(data_source, (str, Path)):
+        elif isinstance(data_source, str | Path):
             extension = Path(data_source).suffix.lower()
             if extension in [".csv", ".tsv", ".txt"]:
                 return "csv"

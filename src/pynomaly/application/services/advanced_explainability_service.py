@@ -308,7 +308,7 @@ class AdvancedExplainabilityService:
             # Select representative samples
             indices = self._select_representative_samples(X, n_samples)
 
-            for i, idx in enumerate(indices):
+            for _i, idx in enumerate(indices):
                 sample = X[idx : idx + 1]
                 prediction = detector.decision_function(sample)[0]
 
@@ -900,7 +900,7 @@ class AdvancedExplainabilityService:
 
             for idx in indices:
                 sample = X[idx : idx + 1]
-                original_pred = detector.decision_function(sample)[0]
+                detector.decision_function(sample)[0]
 
                 # Generate perturbations
                 perturbations = []

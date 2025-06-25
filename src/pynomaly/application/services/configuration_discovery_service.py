@@ -671,7 +671,7 @@ class ConfigurationDiscoveryService:
 
         # Calculate final scores (average of all search strategy scores)
         final_results = []
-        for config_id, config_score_list in config_scores.items():
+        for _config_id, config_score_list in config_scores.items():
             config = config_score_list[0][0]  # All configs are the same
             scores = [score for _, score in config_score_list]
 
@@ -822,7 +822,7 @@ class ConfigurationDiscoveryService:
             if key in params1 and key in params2:
                 val1, val2 = params1[key], params2[key]
 
-                if isinstance(val1, (int, float)) and isinstance(val2, (int, float)):
+                if isinstance(val1, int | float) and isinstance(val2, int | float):
                     # Numeric similarity
                     max_val = max(abs(val1), abs(val2), 1)  # Avoid division by zero
                     similarity = 1.0 - abs(val1 - val2) / max_val
@@ -1022,17 +1022,17 @@ class ConfigurationDiscoveryService:
 
         # Get all unique algorithms
         all_algorithms = list(
-            set(config.algorithm_config.algorithm_name for config in configurations)
+            {config.algorithm_config.algorithm_name for config in configurations}
         )
         algorithm_to_idx = {algo: i for i, algo in enumerate(all_algorithms)}
 
         # Get all unique sources
-        all_sources = list(set(config.metadata.source for config in configurations))
+        all_sources = list({config.metadata.source for config in configurations})
         source_to_idx = {source: i for i, source in enumerate(all_sources)}
 
         # Get all unique tags
         all_tags = list(
-            set(tag for config in configurations for tag in config.metadata.tags)
+            {tag for config in configurations for tag in config.metadata.tags}
         )
         tag_to_idx = {tag: i for i, tag in enumerate(all_tags)}
 
