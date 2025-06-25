@@ -36,8 +36,20 @@ def main():
     # Create virtual environment if it doesn't exist
     if not os.path.exists('.venv'):
         print("\n📌 Creating virtual environment...")
-        run_command([sys.executable, "-m", "venv", ".venv"])
-        print("✅ Virtual environment created")
+        try:
+            run_command([sys.executable, "-m", "venv", ".venv"])
+            print("✅ Virtual environment created")
+        except SystemExit:
+            print("\n⚠️  Standard venv creation failed. Trying alternatives...")
+            try:
+                run_command([sys.executable, "-m", "venv", ".venv", "--system-site-packages"])
+                print("✅ Virtual environment created with system site packages")
+            except SystemExit:
+                print("\n❌ Virtual environment creation failed.")
+                print("💡 For WSL/Ubuntu/Debian: sudo apt install python3.12-venv python3-pip")
+                print("💡 For CentOS/RHEL: sudo yum install python3-venv python3-pip")
+                print("💡 For macOS: brew install python@3.12")
+                print("\n⚠️  Continuing without virtual environment (not recommended for development)")
     else:
         print("\n✅ Virtual environment already exists")
     
