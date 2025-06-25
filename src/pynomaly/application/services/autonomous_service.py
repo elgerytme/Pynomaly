@@ -665,14 +665,14 @@ class AutonomousDetectionService:
         # Simple grid search for key parameters
         # In a full implementation, this would use more sophisticated optimization
         
-        if detector.algorithm == "IsolationForest":
+        if detector.algorithm_name == "IsolationForest":
             # Tune n_estimators and max_features
             best_score = -np.inf
-            best_params = detector.hyperparams.copy()
+            best_params = detector.parameters.copy()
             
             for n_est in [50, 100, 200]:
                 for max_feat in [0.5, 0.7, 1.0]:
-                    test_params = detector.hyperparams.copy()
+                    test_params = detector.parameters.copy()
                     test_params["n_estimators"] = n_est
                     test_params["max_features"] = max_feat
                     
@@ -700,7 +700,7 @@ class AutonomousDetectionService:
                     except Exception:
                         continue
             
-            detector.hyperparams = best_params
+            detector.parameters = best_params
         
         return detector
     

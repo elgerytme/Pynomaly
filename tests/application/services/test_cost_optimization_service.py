@@ -421,6 +421,7 @@ class TestCostOptimizationService:
             memory_gb=8.0
         )
         resource.cost_info = ResourceCost(monthly_cost=150.0)
+        resource.usage_metrics = ResourceUsageMetrics()  # Add default usage metrics
         return resource
     
     @pytest.fixture
