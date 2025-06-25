@@ -257,6 +257,10 @@ source = "vcs"
 [tool.hatch.build.hooks.vcs]
 version-file = "src/pynomaly/_version.py"
 
+[tool.hatch.build.hooks.buck2]
+requires = ["hatch-buck2"]
+dependencies = ["buck2_build_hook"]
+
 [tool.hatch.build]
 include = [
     "src/pynomaly/**/*.py",

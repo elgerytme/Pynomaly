@@ -1,13 +1,17 @@
-# Makefile for Pynomaly - Hatch-based Development Workflow
-# 
-# Prerequisites: 
+# Pynomaly Makefile with Buck2 + Hatch integration
+# Production-ready build and development workflow
+#
+# Prerequisites:
 #   - Hatch installed (pip install hatch)
+#   - Buck2 installed (optional, for accelerated builds)
+#   - Node.js 18+ and npm (for web assets)
 #   - Git repository initialized
 #
 # Quick start:
-#   make setup    - Initial project setup
-#   make test     - Run tests
-#   make lint     - Check code quality
+#   make deps     - Install all dependencies
+#   make build    - Build entire project (Buck2 + Hatch + npm)
+#   make test     - Run all tests with Buck2 acceleration
+#   make dev      - Start development environment
 #   make build    - Build package
 #   make clean    - Clean up artifacts
 

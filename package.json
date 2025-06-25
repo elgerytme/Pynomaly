@@ -1,12 +1,17 @@
 {
-  "name": "pynomaly-web",
-  "version": "0.1.0",
-  "description": "Pynomaly Web UI",
+  "name": "pynomaly-web-assets",
+  "version": "1.0.0",
+  "description": "Web assets build pipeline for Pynomaly Progressive Web App",
   "scripts": {
-    "build-css": "tailwindcss -i ./src/pynomaly/presentation/web/static/css/input.css -o ./src/pynomaly/presentation/web/static/css/tailwind.css --minify",
-    "watch-css": "tailwindcss -i ./src/pynomaly/presentation/web/static/css/input.css -o ./src/pynomaly/presentation/web/static/css/tailwind.css --watch",
-    "build": "npm run build-css",
-    "dev": "npm run watch-css"
+    "build-css": "tailwindcss -i ./src/pynomaly/presentation/web/assets/css/input.css -o ./src/pynomaly/presentation/web/static/css/styles.css --minify",
+    "watch-css": "tailwindcss -i ./src/pynomaly/presentation/web/assets/css/input.css -o ./src/pynomaly/presentation/web/static/css/styles.css --watch",
+    "build-js": "esbuild src/pynomaly/presentation/web/assets/js/main.js --bundle --minify --outfile=src/pynomaly/presentation/web/static/js/app.js",
+    "watch-js": "esbuild src/pynomaly/presentation/web/assets/js/main.js --bundle --watch --outfile=src/pynomaly/presentation/web/static/js/app.js",
+    "build": "npm run build-css && npm run build-js",
+    "watch": "npm run watch-css & npm run watch-js",
+    "clean": "rm -rf src/pynomaly/presentation/web/static/css/styles.css src/pynomaly/presentation/web/static/js/app.js",
+    "prebuild": "npm run clean",
+    "dev": "npm run watch"
   },
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.4.2",
@@ -14,11 +19,30 @@
     "@tailwindcss/typography": "^0.5.10",
     "autoprefixer": "^10.4.16",
     "cssnano": "^6.0.2",
+    "esbuild": "^0.19.8",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.4.0"
   },
   "dependencies": {
+    "d3": "^7.8.5",
+    "echarts": "^5.4.3",
+    "htmx.org": "^1.9.9",
     "sharp": "^0.34.2",
     "svg2png": "^4.1.1"
-  }
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "keywords": [
+    "pynomaly",
+    "anomaly-detection",
+    "web-ui",
+    "progressive-web-app",
+    "tailwindcss",
+    "htmx",
+    "d3",
+    "echarts"
+  ],
+  "license": "MIT"
 }
