@@ -19,7 +19,6 @@ from pynomaly.shared.protocols import DetectorProtocol
 # Optional auto-sklearn2 import
 try:
     from autosklearn2.classification import AutoSklearnClassifier
-    from autosklearn2.regression import AutoSklearnRegressor
 
     AUTOSKLEARN2_AVAILABLE = True
 except ImportError:
