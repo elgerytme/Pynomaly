@@ -1562,6 +1562,60 @@ async def htmx_monitoring_performance_stats(
         )
 
 
+# Advanced UI routes
+@router.get("/workflows", response_class=HTMLResponse)
+async def workflows_page(
+    request: Request,
+    container: Container = Depends(get_container)
+):
+    """Workflow management page."""
+    return templates.TemplateResponse(
+        "workflows.html",
+        {
+            "request": request,
+            "workflows": [],  # Will be populated from workflow service
+        }
+    )
+
+
+@router.get("/collaboration", response_class=HTMLResponse)
+async def collaboration_page(
+    request: Request,
+    container: Container = Depends(get_container)
+):
+    """Collaboration hub page."""
+    return templates.TemplateResponse(
+        "collaboration.html",
+        {
+            "request": request,
+            "active_users": [],  # Will be populated from user service
+            "recent_activity": [],  # Will be populated from activity service
+        }
+    )
+
+
+@router.get("/advanced-visualizations", response_class=HTMLResponse)
+async def advanced_visualizations_page(
+    request: Request,
+    container: Container = Depends(get_container)
+):
+    """Advanced visualizations page."""
+    # Get data for advanced visualizations
+    results = container.result_repository().find_recent(100)
+    detectors = container.detector_repository().find_all()
+    datasets = container.dataset_repository().find_all()
+    
+    return templates.TemplateResponse(
+        "advanced_visualizations.html",
+        {
+            "request": request,
+            "results": results,
+            "detectors": detectors,
+            "datasets": datasets
+        }
+    )
+
+
 # Bulk Operations HTMX endpoints
 @router.post("/htmx/bulk-train", response_class=HTMLResponse)
 async def htmx_bulk_train(
