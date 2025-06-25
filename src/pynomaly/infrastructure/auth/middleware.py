@@ -240,7 +240,7 @@ async def track_request_metrics(request: Request, call_next):
     response = await call_next(request)
 
     # Track metrics
-    duration = time.time() - start_time
+    time.time() - start_time
 
     # Record metrics if telemetry available (temporarily disabled)
     # from pynomaly.infrastructure.monitoring import get_telemetry

@@ -22,7 +22,7 @@ class JSONFormatter(logging.Formatter):
         extra_fields: dict[str, Any] | None = None,
     ):
         """Initialize JSON formatter.
-        
+
         Args:
             include_timestamp: Whether to include timestamp
             timestamp_format: Format for timestamp ('ISO', 'epoch', or custom format)
@@ -87,7 +87,7 @@ class JSONFormatter(logging.Formatter):
             "thread", "threadName", "processName", "process", "getMessage",
             "exc_info", "exc_text", "stack_info"
         }
-        
+
         for key, value in record.__dict__.items():
             if key not in standard_attrs and not key.startswith("_"):
                 log_entry[key] = value
@@ -140,7 +140,7 @@ class ConsoleFormatter(logging.Formatter):
         max_logger_name_length: int = 20,
     ):
         """Initialize console formatter.
-        
+
         Args:
             use_colors: Whether to use ANSI colors
             include_timestamp: Whether to include timestamp
@@ -220,7 +220,7 @@ class StructuredConsoleFormatter(logging.Formatter):
         show_metadata: bool = True,
     ):
         """Initialize structured console formatter.
-        
+
         Args:
             use_colors: Whether to use ANSI colors
             indent_size: Number of spaces for indentation
@@ -243,7 +243,7 @@ class StructuredConsoleFormatter(logging.Formatter):
             'value': '\033[93m',        # Yellow
             'error': '\033[91m',        # Light red
             'reset': '\033[0m'          # Reset
-        } if use_colors else {k: '' for k in ['timestamp', 'level', 'logger', 'message', 'key', 'value', 'error', 'reset']}
+        } if use_colors else dict.fromkeys(['timestamp', 'level', 'logger', 'message', 'key', 'value', 'error', 'reset'], '')
 
     def format(self, record: logging.LogRecord) -> str:
         """Format log record with structured data display."""
@@ -251,19 +251,19 @@ class StructuredConsoleFormatter(logging.Formatter):
 
         # Header line with timestamp, level, logger
         header_parts = []
-        
+
         if self.show_metadata:
             timestamp = datetime.fromtimestamp(record.created).strftime("%H:%M:%S.%f")[:-3]
             header_parts.append(f"{self.colors['timestamp']}{timestamp}{self.colors['reset']}")
-            
+
             level_color = {
                 'DEBUG': self.colors['reset'],
                 'INFO': '\033[32m',
-                'WARNING': '\033[33m', 
+                'WARNING': '\033[33m',
                 'ERROR': '\033[31m',
                 'CRITICAL': '\033[35m'
             }.get(record.levelname, self.colors['level']) if self.use_colors else ''
-            
+
             header_parts.append(f"{level_color}{record.levelname:8}{self.colors['reset']}")
             header_parts.append(f"{self.colors['logger']}{record.name}{self.colors['reset']}")
 
@@ -282,7 +282,7 @@ class StructuredConsoleFormatter(logging.Formatter):
             "thread", "threadName", "processName", "process", "getMessage",
             "exc_info", "exc_text", "stack_info"
         }
-        
+
         for key, value in record.__dict__.items():
             if key not in standard_attrs and not key.startswith("_"):
                 structured_data[key] = value
@@ -310,7 +310,7 @@ class StructuredConsoleFormatter(logging.Formatter):
             if isinstance(value, dict):
                 lines.append(f"{indent_str}{self.colors['key']}{key}:{self.colors['reset']}")
                 lines.append(self._format_dict(value, indent + self.indent_size))
-            elif isinstance(value, (list, tuple)):
+            elif isinstance(value, list | tuple):
                 lines.append(f"{indent_str}{self.colors['key']}{key}:{self.colors['reset']}")
                 for i, item in enumerate(value):
                     if isinstance(item, dict):
@@ -323,7 +323,7 @@ class StructuredConsoleFormatter(logging.Formatter):
                 str_value = str(value)
                 if len(str_value) > 100:
                     str_value = str_value[:97] + "..."
-                
+
                 lines.append(f"{indent_str}{self.colors['key']}{key}:{self.colors['reset']} {self.colors['value']}{str_value}{self.colors['reset']}")
 
         return "\n".join(lines)
@@ -338,22 +338,22 @@ class MetricsFormatter(logging.Formatter):
         if not hasattr(record, 'metric_name'):
             return super().format(record)
 
-        timestamp = datetime.fromtimestamp(record.created).isoformat()
-        
+        datetime.fromtimestamp(record.created).isoformat()
+
         # Format as Prometheus-style metrics
         metric_line = f"{record.metric_name}"
-        
+
         # Add labels if present
         if hasattr(record, 'labels') and record.labels:
             label_str = ",".join(f'{k}="{v}"' for k, v in record.labels.items())
             metric_line += f"{{{label_str}}}"
-        
+
         # Add value
         metric_line += f" {record.metric_value}"
-        
+
         # Add timestamp
         metric_line += f" {int(record.created * 1000)}"
-        
+
         return metric_line
 
 
@@ -362,11 +362,11 @@ def create_formatter(
     **kwargs
 ) -> logging.Formatter:
     """Factory function to create formatters.
-    
+
     Args:
         format_type: Type of formatter ('json', 'console', 'structured', 'metrics')
         **kwargs: Additional formatter-specific arguments
-        
+
     Returns:
         Configured formatter instance
     """
@@ -376,9 +376,9 @@ def create_formatter(
         "structured": StructuredConsoleFormatter,
         "metrics": MetricsFormatter,
     }
-    
+
     formatter_class = formatters.get(format_type)
     if not formatter_class:
         raise ValueError(f"Unknown formatter type: {format_type}")
-    
+
     return formatter_class(**kwargs)

@@ -279,7 +279,7 @@ class ComplexityMonitor:
                 # Count functions and docstrings
                 for node in ast.walk(tree):
                     if isinstance(
-                        node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
+                        node, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef
                     ):
                         total_functions += 1
                         if ast.get_docstring(node) is not None:
@@ -393,7 +393,7 @@ Generated: {metrics.measured_at.strftime("%Y-%m-%d %H:%M:%S")}
 - Test Files: {metrics.test_files:,}
 - Total Lines: {metrics.total_lines:,}
 
-## Dependency Metrics  
+## Dependency Metrics
 - Total Dependencies: {metrics.total_dependencies} (Target: ≤{self.targets["max_dependencies"]}) {"✅" if targets["dependencies_within_target"] else "❌"}
 - Optional Dependencies: {metrics.optional_dependencies}
 - Dev Dependencies: {metrics.dev_dependencies}
@@ -441,11 +441,11 @@ Generated: {metrics.measured_at.strftime("%Y-%m-%d %H:%M:%S")}
         complexity = 1  # Base complexity
 
         for node in ast.walk(tree):
-            if isinstance(node, (ast.If, ast.While, ast.For, ast.AsyncFor)):
+            if isinstance(node, ast.If | ast.While | ast.For | ast.AsyncFor):
                 complexity += 1
             elif isinstance(node, ast.BoolOp):
                 complexity += len(node.values) - 1
-            elif isinstance(node, (ast.Try, ast.ExceptHandler)):
+            elif isinstance(node, ast.Try | ast.ExceptHandler):
                 complexity += 1
 
         return complexity

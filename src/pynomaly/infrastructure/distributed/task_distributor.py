@@ -517,7 +517,7 @@ class TaskDistributor:
 
         # Move any running tasks back to pending
         tasks_to_reassign = []
-        for task_id, task in self.running_tasks.items():
+        for _task_id, task in self.running_tasks.items():
             if task.metadata and task.metadata.assigned_worker == worker_id:
                 tasks_to_reassign.append(task)
 

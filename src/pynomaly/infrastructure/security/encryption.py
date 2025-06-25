@@ -521,7 +521,7 @@ class DataEncryption:
         import json
 
         # Convert data to JSON string
-        if isinstance(data, (dict, list)):
+        if isinstance(data, dict | list):
             json_data = json.dumps(data)
         else:
             json_data = str(data)

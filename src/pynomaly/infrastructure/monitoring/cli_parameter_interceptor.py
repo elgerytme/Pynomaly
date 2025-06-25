@@ -201,9 +201,9 @@ class CLIParameterInterceptor:
         """Serialize parameter value for storage."""
         if value is None:
             return None
-        elif isinstance(value, (str, int, float, bool)):
+        elif isinstance(value, str | int | float | bool):
             return value
-        elif isinstance(value, (list, tuple)):
+        elif isinstance(value, list | tuple):
             return [self._serialize_parameter_value(item) for item in value]
         elif isinstance(value, dict):
             return {k: self._serialize_parameter_value(v) for k, v in value.items()}

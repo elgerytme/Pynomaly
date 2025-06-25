@@ -76,7 +76,7 @@ class MetricsCollector:
         storage_path: Path | None = None
     ):
         """Initialize metrics collector.
-        
+
         Args:
             max_metrics_in_memory: Maximum metrics to keep in memory
             flush_interval_seconds: How often to flush metrics to storage
@@ -447,7 +447,7 @@ class TimerContext:
 
     def __init__(self, collector: MetricsCollector, name: str, labels: dict[str, str] | None = None):
         """Initialize timer context.
-        
+
         Args:
             collector: Metrics collector instance
             name: Timer metric name

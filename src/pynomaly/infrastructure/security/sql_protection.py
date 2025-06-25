@@ -498,7 +498,7 @@ class SafeQueryBuilder:
             safe_column = self._validate_identifier(column)
             param_name = f"where_param_{i}"
 
-            if isinstance(value, (list, tuple)):
+            if isinstance(value, list | tuple):
                 # Handle IN clause
                 in_params = []
                 for j, v in enumerate(value):

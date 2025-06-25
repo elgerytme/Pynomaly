@@ -485,7 +485,7 @@ class DistributedDetector:
         result.peak_memory_usage_mb = max(
             [cr.memory_used_mb for cr in successful_chunks], default=0.0
         )
-        result.workers_used = len(set(cr.worker_id for cr in successful_chunks))
+        result.workers_used = len({cr.worker_id for cr in successful_chunks})
 
         # Calculate confidence metrics
         if successful_chunks:
@@ -528,7 +528,7 @@ class DistributedDetector:
         # Speedup factor (compared to estimated sequential processing)
         estimated_sequential_time = sum(
             chunk.partition.metadata.estimated_processing_time
-            for chunk in [cr for cr in result.chunk_results]
+            for chunk in list(result.chunk_results)
         )
         if estimated_sequential_time > 0:
             result.speedup_factor = (

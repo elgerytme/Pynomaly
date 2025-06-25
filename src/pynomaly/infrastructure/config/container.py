@@ -145,6 +145,43 @@ class OptionalServiceManager:
             "health_service", "pynomaly.infrastructure.monitoring", "HealthService"
         )
 
+        # Logging and observability services
+        self._register_service(
+            "structured_logger",
+            "pynomaly.infrastructure.logging.structured_logger",
+            "StructuredLogger",
+        )
+        self._register_service(
+            "metrics_collector",
+            "pynomaly.infrastructure.logging.metrics_collector",
+            "MetricsCollector",
+        )
+        self._register_service(
+            "tracing_manager",
+            "pynomaly.infrastructure.logging.tracing_manager",
+            "TracingManager",
+        )
+        self._register_service(
+            "log_aggregator",
+            "pynomaly.infrastructure.logging.log_aggregator",
+            "LogAggregator",
+        )
+        self._register_service(
+            "log_analyzer",
+            "pynomaly.infrastructure.logging.log_analysis",
+            "LogAnalyzer",
+        )
+        self._register_service(
+            "log_anomaly_detector",
+            "pynomaly.infrastructure.logging.log_analysis",
+            "AnomalyDetector",
+        )
+        self._register_service(
+            "observability_service",
+            "pynomaly.infrastructure.logging.observability_service",
+            "ObservabilityService",
+        )
+
         # Distributed processing services
         self._register_service(
             "task_distributor",
@@ -461,6 +498,61 @@ class Container(containers.DeclarativeContainer):
         if service_manager.is_available("health_service"):
             cls.health_service = service_manager.create_provider(
                 "health_service", "singleton", max_history=100
+            )
+
+        # Observability services
+        if service_manager.is_available("observability_service"):
+            from pynomaly.infrastructure.logging.observability_service import ObservabilityConfig
+            from pathlib import Path
+            
+            cls.observability_service = service_manager.create_provider(
+                "observability_service",
+                "singleton",
+                config=ObservabilityConfig(
+                    logs_storage_path=Path("./logs") if cls.config.provided.storage_path else None,
+                    metrics_storage_path=Path("./metrics") if cls.config.provided.storage_path else None,
+                    traces_storage_path=Path("./traces") if cls.config.provided.storage_path else None,
+                    log_level=cls.config.provided.log_level if hasattr(cls.config.provided, 'log_level') else providers.Object("INFO"),
+                    enable_console_logging=True,
+                    enable_json_logging=True,
+                    enable_system_metrics=True,
+                    enable_tracing=cls.config.provided.monitoring.tracing_enabled if hasattr(cls.config.provided, 'monitoring') else False,
+                    enable_log_analysis=True,
+                    enable_anomaly_detection=True,
+                    enable_alerts=False,
+                )
+            )
+
+        # Individual logging services for direct access
+        if service_manager.is_available("structured_logger"):
+            cls.structured_logger = service_manager.create_provider(
+                "structured_logger",
+                "factory",
+                name=providers.Object("pynomaly"),
+                output_path=cls.config.provided.storage_path / "app.log" if cls.config.provided.storage_path else None,
+            )
+
+        if service_manager.is_available("metrics_collector"):
+            cls.metrics_collector = service_manager.create_provider(
+                "metrics_collector",
+                "singleton",
+                storage_path=cls.config.provided.storage_path / "metrics" if cls.config.provided.storage_path else None,
+                enable_system_metrics=True,
+            )
+
+        if service_manager.is_available("log_aggregator"):
+            cls.log_aggregator = service_manager.create_provider(
+                "log_aggregator",
+                "singleton",
+                storage_path=cls.config.provided.storage_path / "logs" if cls.config.provided.storage_path else None,
+            )
+
+        if service_manager.is_available("log_analyzer"):
+            cls.log_analyzer = service_manager.create_provider(
+                "log_analyzer",
+                "singleton",
+                enable_realtime=True,
+                enable_background_analysis=True,
             )
 
         # Performance monitoring services

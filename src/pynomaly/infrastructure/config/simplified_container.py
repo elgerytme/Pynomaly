@@ -75,7 +75,7 @@ class SimplifiedContainer(containers.DeclarativeContainer):
 
     def _setup_repositories(self):
         """Setup repositories using factory pattern."""
-        config_instance = Settings()
+        Settings()
 
         # Repository class mappings
         repository_classes = {

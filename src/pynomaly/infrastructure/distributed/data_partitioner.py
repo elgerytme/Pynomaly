@@ -264,11 +264,11 @@ class RoundRobinStrategy(PartitioningStrategy):
         """Estimate round-robin partition characteristics."""
         if isinstance(data, pd.DataFrame):
             total_samples = len(data)
-            feature_count = len(data.columns)
+            len(data.columns)
             data_size = data.memory_usage(deep=True).sum()
         elif isinstance(data, np.ndarray):
             total_samples = len(data)
-            feature_count = data.shape[1] if data.ndim > 1 else 1
+            data.shape[1] if data.ndim > 1 else 1
             data_size = data.nbytes
         else:
             raise ValueError(f"Unsupported data type: {type(data)}")
@@ -433,7 +433,7 @@ class HashBasedStrategy(PartitioningStrategy):
             raise ValueError("Hash-based partitioning only supports DataFrames")
 
         total_samples = len(data)
-        feature_count = len(data.columns)
+        len(data.columns)
         data_size = data.memory_usage(deep=True).sum()
 
         # Hash-based partitioning can be uneven
@@ -793,8 +793,7 @@ class DataPartitioner:
         # Sort by chunk index for ordered processing
         sorted_partitions = sorted(partitions, key=lambda p: p.chunk_index)
 
-        for partition in sorted_partitions:
-            yield partition
+        yield from sorted_partitions
 
     def merge_partition_results(
         self, partition_results: list[tuple[DataPartition, Any]]

@@ -103,7 +103,7 @@ class AdvancedBehaviorAnalyzer(ThreatDetector):
         if not user_id:
             return None
 
-        event_type = event_data.get("event_type")
+        event_data.get("event_type")
 
         # Update behavior profile
         await self._update_behavior_profile(user_id, event_data)
@@ -577,7 +577,7 @@ class DataExfiltrationDetector(ThreatDetector):
                         evidence=[
                             f"Accessed {total_size_mb:.2f} MB in {self.time_window / 60} minutes",
                             f"Made {request_count} data requests",
-                            f"Endpoints: {', '.join(set(a['endpoint'] for a in recent_accesses))}",
+                            f"Endpoints: {', '.join({a['endpoint'] for a in recent_accesses})}",
                         ],
                         affected_resources=["data", "database"],
                         recommended_actions=[
