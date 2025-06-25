@@ -16,7 +16,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 try:
-    from pynomaly.presentation.cli.main import main as cli_main
+    from pynomaly.presentation.cli.app import app as cli_app
     from pynomaly.infrastructure.config.settings import get_settings
 except ImportError as e:
     print(f"Failed to import Pynomaly CLI modules: {e}")
@@ -55,13 +55,13 @@ def run_cli(args: Optional[List[str]] = None):
         original_argv = sys.argv.copy()
         sys.argv = ["pynomaly"] + args
         try:
-            cli_main()
+            cli_app()
         finally:
             sys.argv = original_argv
     else:
         # Use existing sys.argv, but replace script name
         sys.argv[0] = "pynomaly"
-        cli_main()
+        cli_app()
 
 def main():
     """Main entry point for the CLI runner."""
