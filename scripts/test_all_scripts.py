@@ -45,7 +45,7 @@ SCRIPT_ARGS = {
     "scripts/run_web_app.py": ["--help"],
     "scripts/run_web_ui.py": ["--help"],
     "scripts/setup_simple.py": ["--help"],
-    "scripts/setup_standalone.py": [],  # No help option
+    "scripts/setup_standalone.py": ["--help"],  # Test with help option
     "scripts/setup_windows.ps1": [],  # No help option
 }
 
