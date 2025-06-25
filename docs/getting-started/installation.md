@@ -61,7 +61,7 @@ git clone https://github.com/pynomaly/pynomaly.git
 cd pynomaly
 
 # Run the automated setup script
-python setup_simple.py
+python scripts/setup_simple.py
 ```
 
 This script will:
@@ -79,8 +79,8 @@ After setup:
 source .venv/bin/activate
 
 # Run the app
-python cli.py --help
-python cli.py server start
+pynomaly --help
+pynomaly server start
 ```
 
 ### Manual pip Installation
@@ -103,7 +103,7 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-For more details, see [README_SIMPLE_SETUP.md](../../README_SIMPLE_SETUP.md)
+For more details, see [README_SIMPLE_SETUP.md](README_SIMPLE_SETUP.md)
 
 ## Install from PyPI
 

@@ -12,14 +12,14 @@ Make sure you have Python 3.11+ installed. No need for Poetry, Docker, or Make!
 # Clone and setup
 git clone https://github.com/pynomaly/pynomaly.git
 cd pynomaly
-python setup_simple.py
+python scripts/setup_simple.py
 
 # Activate virtual environment
 .venv\Scripts\activate  # Windows
 source .venv/bin/activate  # Linux/Mac
 
 # Test installation
-python cli.py --help
+pynomaly --help
 ```
 
 ## Basic Workflow
@@ -37,17 +37,17 @@ The typical anomaly detection workflow consists of:
 ### Step 1: Load Your Data
 
 ```bash
-# Using the simple Python CLI
-python cli.py dataset load data.csv --name "Sales Data"
-
-# Or if you have the package installed properly
+# Primary method (recommended)
 pynomaly dataset load data.csv --name "Sales Data"
 
 # Load with specific options
-python cli.py dataset load transactions.csv \
+pynomaly dataset load transactions.csv \
   --name "Transactions" \
   --target fraud_label \
   --sample 10000
+
+# Alternative method
+python scripts/cli.py dataset load data.csv --name "Sales Data"
 ```
 
 ### Step 2: Create a Detector
