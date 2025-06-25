@@ -27,12 +27,25 @@ State-of-the-art Python anomaly detection package targeting Python 3.11+ with cl
 
 If you want to run Pynomaly without Poetry, Docker, or Make:
 
+#### Automated Setup (Recommended)
 ```bash
-# Run the automated setup script
+# Run the automated setup script (handles most environment issues)
 python scripts/setup_simple.py
+```
 
-# Or manually with different requirement levels:
+#### Manual Setup
+```bash
+# Step 1: Install system dependencies (if needed)
+# For WSL/Ubuntu/Debian:
+sudo apt update && sudo apt install -y python3.12-venv python3-pip
+
+# For CentOS/RHEL:
+sudo yum install python3-venv python3-pip
+
+# Step 2: Create virtual environment
 python -m venv .venv
+
+# Step 3: Activate virtual environment
 # Windows (PowerShell):
 .venv\Scripts\Activate.ps1
 # Windows (Command Prompt):
@@ -40,13 +53,27 @@ python -m venv .venv
 # Linux/macOS:
 source .venv/bin/activate
 
-# Choose your installation level:
+# Step 4: Choose your installation level:
 pip install -r requirements.txt          # Minimal (PyOD + NumPy + Pandas + Polars)
 pip install -r requirements-minimal.txt  # + scikit-learn + scipy
 pip install -r requirements-server.txt   # + API + CLI functionality  
 pip install -r requirements-production.txt # Production-ready stack
 
+# Step 5: Install package in development mode
 pip install -e .
+```
+
+#### Troubleshooting Virtual Environment Issues
+```bash
+# If venv creation fails, try with system site packages:
+python -m venv .venv --system-site-packages
+
+# Alternative: Use user installation (not recommended for development):
+pip install --user -r requirements.txt
+pip install --user -e .
+
+# For CLI-only usage, consider pipx:
+pipx install .
 ```
 
 Then run the CLI:
@@ -450,12 +477,15 @@ poetry run pytest benchmarks/
 
 #### Quick Start (Current Environment)
 ```bash
-# Set Python path and start server
+# Method 1: Set Python path and start server manually
 export PYTHONPATH=/path/to/Pynomaly/src
 uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
 
-# Or use the startup script
+# Method 2: Use the startup script (automatically detects paths)
 ./scripts/start_api_bash.sh
+
+# Method 3: Use Python module directly (if package installed)
+python -m uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 #### PowerShell (Windows)
@@ -475,15 +505,21 @@ if (Test-Path "scripts\test_api_powershell.ps1") {
 
 #### Fresh Environment Setup
 ```bash
-# Automated setup for new environments
-./scripts/setup_fresh_environment.sh
+# Option 1: Automated setup for new environments (recommended)
+python scripts/setup_simple.py
 
-# Manual setup
-pip install --break-system-packages fastapi uvicorn pydantic structlog dependency-injector \
+# Option 2: Manual setup with system dependencies
+# For WSL/Ubuntu/Debian:
+sudo apt update && sudo apt install -y python3.12-venv python3-pip
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-server.txt
+pip install -e .
+
+# Option 3: Direct installation (if virtual environment fails)
+pip install --user fastapi uvicorn pydantic structlog dependency-injector \
     numpy pandas scikit-learn pyod rich typer httpx aiofiles \
-    pydantic-settings redis prometheus-client \
-    opentelemetry-api opentelemetry-sdk opentelemetry-instrumentation-fastapi \
-    jinja2 python-multipart passlib bcrypt prometheus-fastapi-instrumentator
+    pydantic-settings prometheus-fastapi-instrumentator
 
 export PYTHONPATH=/path/to/Pynomaly/src
 uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000
