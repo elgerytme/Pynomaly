@@ -14,6 +14,11 @@ from .performance_monitor import (
     PerformanceMonitor, PerformanceMetrics, PerformanceAlert, PerformanceTracker,
     monitor_performance, monitor_async_performance
 )
+from .production_monitor import (
+    ProductionMonitor, LogLevel, MonitoringType, LogEntry, ErrorReport, AuditEvent,
+    get_monitor, init_monitor, log_info, log_error, log_warning, report_error, 
+    audit_event, monitor_operation, monitor_async_operation
+)
 
 __all__ = [
     # "TelemetryService",  # Temporarily disabled
@@ -33,5 +38,20 @@ __all__ = [
     "PerformanceAlert",
     "PerformanceTracker",
     "monitor_performance",
-    "monitor_async_performance"
+    "monitor_async_performance",
+    "ProductionMonitor",
+    "LogLevel",
+    "MonitoringType",
+    "LogEntry",
+    "ErrorReport",
+    "AuditEvent",
+    "get_monitor",
+    "init_monitor",
+    "log_info",
+    "log_error",
+    "log_warning",
+    "report_error",
+    "audit_event",
+    "monitor_operation",
+    "monitor_async_operation"
 ]
