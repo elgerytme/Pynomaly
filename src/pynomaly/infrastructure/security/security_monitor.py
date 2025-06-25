@@ -418,6 +418,16 @@ class SecurityMonitor:
         self.register_detector(BruteForceDetector())
         self.register_detector(AnomalousAccessDetector())
         self.register_detector(InjectionAttackDetector())
+        
+        # Register advanced threat detectors
+        try:
+            from .advanced_threat_detection import create_advanced_threat_detectors
+            advanced_detectors = create_advanced_threat_detectors()
+            for detector in advanced_detectors:
+                self.register_detector(detector)
+            logger.info(f"Registered {len(advanced_detectors)} advanced threat detectors")
+        except ImportError as e:
+            logger.warning(f"Advanced threat detection not available: {e}")
     
     def register_detector(self, detector: ThreatDetector) -> None:
         """Register a threat detector.

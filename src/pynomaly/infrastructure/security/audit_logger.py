@@ -76,6 +76,10 @@ class SecurityEventType(str, Enum):
     API_ENDPOINT_ACCESS = "api.endpoint.access"
     API_RATE_LIMITED = "api.rate_limited"
     API_ERROR = "api.error"
+    API_REQUEST = "api.request"
+    
+    # Generic Data Access (for advanced threat detection)
+    DATA_ACCESS = "data.access"
     
     # Model Events
     MODEL_TRAINED = "model.trained"

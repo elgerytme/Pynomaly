@@ -71,6 +71,15 @@ from .middleware_integration import (
     decrypt_sensitive_data,
 )
 
+from .advanced_threat_detection import (
+    AdvancedBehaviorAnalyzer,
+    ThreatIntelligenceDetector,
+    DataExfiltrationDetector,
+    ThreatIntelligence,
+    BehaviorProfile,
+    create_advanced_threat_detectors,
+)
+
 __all__ = [
     # Input Sanitization
     "InputSanitizer",
@@ -125,4 +134,12 @@ __all__ = [
     "validate_sql_query",
     "encrypt_sensitive_data",
     "decrypt_sensitive_data",
+    
+    # Advanced Threat Detection
+    "AdvancedBehaviorAnalyzer",
+    "ThreatIntelligenceDetector", 
+    "DataExfiltrationDetector",
+    "ThreatIntelligence",
+    "BehaviorProfile",
+    "create_advanced_threat_detectors",
 ]
