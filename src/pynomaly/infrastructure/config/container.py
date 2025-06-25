@@ -510,6 +510,30 @@ class Container(containers.DeclarativeContainer):
     if PHASE2_SERVICES_AVAILABLE and feature_flags.is_enabled("complexity_monitoring"):
         complexity_monitor = providers.Singleton(ComplexityMonitor)
     
+    # Memory efficiency services
+    if PHASE2_SERVICES_AVAILABLE and feature_flags.is_enabled("memory_efficiency"):
+        try:
+            from pynomaly.application.services.memory_optimization_service import MemoryOptimizationService
+            memory_optimization_service = providers.Singleton(MemoryOptimizationService)
+        except ImportError:
+            pass
+    
+    # Performance monitoring services
+    if PHASE2_SERVICES_AVAILABLE and feature_flags.is_enabled("performance_monitoring"):
+        try:
+            from pynomaly.application.services.performance_monitoring_service import PerformanceMonitoringService
+            performance_monitoring_service = providers.Singleton(PerformanceMonitoringService)
+        except ImportError:
+            pass
+    
+    # Workflow simplification services
+    if PHASE2_SERVICES_AVAILABLE and feature_flags.is_enabled("cli_simplification"):
+        try:
+            from pynomaly.application.services.workflow_simplification_service import WorkflowSimplificationService
+            workflow_simplification_service = providers.Singleton(WorkflowSimplificationService)
+        except ImportError:
+            pass
+    
     
     
     # Use cases

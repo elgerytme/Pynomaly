@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+# Removed ABC and abstractmethod - Detector is a concrete domain entity
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Protocol
@@ -33,10 +33,10 @@ class DetectorAlgorithm(Protocol):
 
 
 @dataclass
-class Detector(ABC):
-    """Abstract base entity for anomaly detectors.
+class Detector:
+    """Domain entity for anomaly detectors.
     
-    This is a domain entity that represents the concept of an anomaly detector,
+    This is a concrete domain entity that represents the concept of an anomaly detector,
     independent of any specific implementation or algorithm.
     
     Attributes:
@@ -75,34 +75,8 @@ class Detector(ABC):
                 f"got {type(self.contamination_rate)}"
             )
     
-    @abstractmethod
-    def fit(self, dataset: Dataset) -> None:
-        """Fit the detector on a dataset.
-        
-        This method should be implemented by infrastructure adapters.
-        """
-        pass
-    
-    @abstractmethod
-    def detect(self, dataset: Dataset) -> DetectionResult:
-        """Detect anomalies in a dataset.
-        
-        This method should be implemented by infrastructure adapters.
-        """
-        pass
-    
-    @abstractmethod
-    def score(self, dataset: Dataset) -> List[AnomalyScore]:
-        """Calculate anomaly scores for a dataset.
-        
-        This method should be implemented by infrastructure adapters.
-        """
-        pass
-    
-    def fit_detect(self, dataset: Dataset) -> DetectionResult:
-        """Fit the detector and detect anomalies in one step."""
-        self.fit(dataset)
-        return self.detect(dataset)
+    # Note: fit, detect, and score methods are implemented by infrastructure adapters
+    # The domain entity only contains data and domain logic
     
     @property
     def requires_fitting(self) -> bool:

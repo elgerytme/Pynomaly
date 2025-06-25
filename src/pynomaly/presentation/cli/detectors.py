@@ -93,10 +93,13 @@ def create_detector(
     try:
         detector = Detector(
             name=name,
-            algorithm=algorithm,
-            description=description,
+            algorithm_name=algorithm,
             parameters={"contamination": contamination}
         )
+        
+        # Set description in metadata if provided
+        if description:
+            detector.metadata["description"] = description
         
         detector_repo.save(detector)
         

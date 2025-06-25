@@ -113,6 +113,7 @@ class Settings(BaseSettings):
     model_storage_path: Path = Path("./storage/models")
     experiment_storage_path: Path = Path("./storage/experiments")
     temp_path: Path = Path("./storage/temp")
+    log_path: Path = Path("./storage/logs")
     
     # Database settings
     database_url: Optional[str] = None
