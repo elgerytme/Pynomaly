@@ -1,0 +1,609 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: database
+data:
+  POSTGRES_DB: "pynomaly_prod"
+  POSTGRES_USER: "pynomaly_user"
+  PGDATA: "/var/lib/postgresql/data/pgdata"
+  # Performance tuning
+  shared_buffers: "256MB"
+  effective_cache_size: "1GB"
+  maintenance_work_mem: "64MB"
+  checkpoint_completion_target: "0.9"
+  wal_buffers: "16MB"
+  default_statistics_target: "100"
+  random_page_cost: "1.1"
+  effective_io_concurrency: "200"
+  work_mem: "4MB"
+  min_wal_size: "1GB"
+  max_wal_size: "4GB"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: database
+type: Opaque
+stringData:
+  POSTGRES_PASSWORD: "REPLACE_WITH_ACTUAL_POSTGRES_PASSWORD"
+  POSTGRES_REPLICATION_USER: "replicator"
+  POSTGRES_REPLICATION_PASSWORD: "REPLACE_WITH_ACTUAL_REPLICATION_PASSWORD"
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: database
+    app.kubernetes.io/version: "15.5"
+spec:
+  serviceName: postgres-headless
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgres
+      app.kubernetes.io/instance: production
+      app.kubernetes.io/component: database
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: postgres
+        app.kubernetes.io/instance: production
+        app.kubernetes.io/component: database
+        app.kubernetes.io/version: "15.5"
+    spec:
+      serviceAccountName: postgres-service-account
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: postgres
+        image: postgres:15.5-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: postgres
+          containerPort: 5432
+          protocol: TCP
+        envFrom:
+        - configMapRef:
+            name: postgres-config
+        - secretRef:
+            name: postgres-secret
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          runAsUser: 999
+          runAsGroup: 999
+          capabilities:
+            drop:
+            - ALL
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - exec pg_isready -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" -h 127.0.0.1 -p 5432
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+          successThreshold: 1
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - exec pg_isready -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" -h 127.0.0.1 -p 5432
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+        startupProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - exec pg_isready -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" -h 127.0.0.1 -p 5432
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 12
+          successThreshold: 1
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+        - name: postgres-config-volume
+          mountPath: /etc/postgresql/postgresql.conf
+          subPath: postgresql.conf
+        - name: postgres-init
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: postgres-config-volume
+        configMap:
+          name: postgres-config
+      - name: postgres-init
+        configMap:
+          name: postgres-init-scripts
+          defaultMode: 0755
+      terminationGracePeriodSeconds: 60
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-storage
+      labels:
+        app.kubernetes.io/name: postgres
+        app.kubernetes.io/instance: production
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: "gp3-encrypted"
+      resources:
+        requests:
+          storage: 100Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: database
+spec:
+  type: ClusterIP
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: postgres
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: database
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-headless
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: database
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: postgres
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: database
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: postgres-service-account
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: database
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-scripts
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: database
+data:
+  01-init-pynomaly.sql: |
+    -- Create extensions
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS "pg_stat_statements";
+    CREATE EXTENSION IF NOT EXISTS "pg_trgm";
+    
+    -- Create schema for pynomaly
+    CREATE SCHEMA IF NOT EXISTS pynomaly;
+    
+    -- Grant permissions
+    GRANT ALL PRIVILEGES ON SCHEMA pynomaly TO pynomaly_user;
+    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA pynomaly TO pynomaly_user;
+    GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA pynomaly TO pynomaly_user;
+    
+    -- Set default schema
+    ALTER USER pynomaly_user SET search_path TO pynomaly,public;
+  02-create-tables.sql: |
+    -- Pynomaly database schema
+    SET search_path TO pynomaly;
+    
+    -- Experiments table
+    CREATE TABLE IF NOT EXISTS experiments (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        config JSONB NOT NULL,
+        status VARCHAR(50) NOT NULL DEFAULT 'pending',
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        completed_at TIMESTAMP WITH TIME ZONE,
+        error_message TEXT,
+        metrics JSONB
+    );
+    
+    -- Models table
+    CREATE TABLE IF NOT EXISTS models (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        experiment_id UUID REFERENCES experiments(id) ON DELETE CASCADE,
+        name VARCHAR(255) NOT NULL,
+        algorithm VARCHAR(100) NOT NULL,
+        version VARCHAR(50) NOT NULL DEFAULT '1.0.0',
+        parameters JSONB NOT NULL,
+        metrics JSONB,
+        model_path VARCHAR(500),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        trained_at TIMESTAMP WITH TIME ZONE,
+        is_active BOOLEAN DEFAULT FALSE
+    );
+    
+    -- Detection results table
+    CREATE TABLE IF NOT EXISTS detection_results (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        model_id UUID REFERENCES models(id) ON DELETE CASCADE,
+        dataset_name VARCHAR(255) NOT NULL,
+        anomaly_scores JSONB NOT NULL,
+        anomaly_count INTEGER NOT NULL DEFAULT 0,
+        total_samples INTEGER NOT NULL,
+        contamination_rate REAL,
+        execution_time REAL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        metadata JSONB
+    );
+    
+    -- Datasets table
+    CREATE TABLE IF NOT EXISTS datasets (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        name VARCHAR(255) NOT NULL UNIQUE,
+        description TEXT,
+        schema_info JSONB NOT NULL,
+        size_bytes BIGINT,
+        row_count INTEGER,
+        column_count INTEGER,
+        file_path VARCHAR(500),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        metadata JSONB
+    );
+    
+    -- Create indexes
+    CREATE INDEX IF NOT EXISTS idx_experiments_status ON experiments(status);
+    CREATE INDEX IF NOT EXISTS idx_experiments_created_at ON experiments(created_at);
+    CREATE INDEX IF NOT EXISTS idx_models_experiment_id ON models(experiment_id);
+    CREATE INDEX IF NOT EXISTS idx_models_algorithm ON models(algorithm);
+    CREATE INDEX IF NOT EXISTS idx_models_is_active ON models(is_active);
+    CREATE INDEX IF NOT EXISTS idx_detection_results_model_id ON detection_results(model_id);
+    CREATE INDEX IF NOT EXISTS idx_detection_results_created_at ON detection_results(created_at);
+    CREATE INDEX IF NOT EXISTS idx_datasets_name ON datasets(name);
+    
+    -- Create GIN indexes for JSONB columns
+    CREATE INDEX IF NOT EXISTS idx_experiments_config ON experiments USING GIN(config);
+    CREATE INDEX IF NOT EXISTS idx_models_parameters ON models USING GIN(parameters);
+    CREATE INDEX IF NOT EXISTS idx_detection_results_scores ON detection_results USING GIN(anomaly_scores);
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: cache
+data:
+  redis.conf: |
+    # Network
+    bind 0.0.0.0
+    port 6379
+    tcp-backlog 511
+    timeout 0
+    tcp-keepalive 300
+    
+    # General
+    daemonize no
+    supervised no
+    pidfile /var/run/redis_6379.pid
+    loglevel notice
+    logfile ""
+    databases 16
+    
+    # Snapshotting
+    save 900 1
+    save 300 10
+    save 60 10000
+    stop-writes-on-bgsave-error yes
+    rdbcompression yes
+    rdbchecksum yes
+    dbfilename dump.rdb
+    dir /data
+    
+    # Replication
+    replica-serve-stale-data yes
+    replica-read-only yes
+    repl-diskless-sync no
+    repl-diskless-sync-delay 5
+    repl-ping-replica-period 10
+    repl-timeout 60
+    
+    # Security
+    requirepass REDIS_PASSWORD_PLACEHOLDER
+    
+    # Memory management
+    maxmemory 1gb
+    maxmemory-policy allkeys-lru
+    maxmemory-samples 5
+    
+    # Append only file
+    appendonly yes
+    appendfilename "appendonly.aof"
+    appendfsync everysec
+    no-appendfsync-on-rewrite no
+    auto-aof-rewrite-percentage 100
+    auto-aof-rewrite-min-size 64mb
+    
+    # Slow log
+    slowlog-log-slower-than 10000
+    slowlog-max-len 128
+    
+    # Client output buffer limits
+    client-output-buffer-limit normal 0 0 0
+    client-output-buffer-limit replica 256mb 64mb 60
+    client-output-buffer-limit pubsub 32mb 8mb 60
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: redis-secret
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: cache
+type: Opaque
+stringData:
+  REDIS_PASSWORD: "REPLACE_WITH_ACTUAL_REDIS_PASSWORD"
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: cache
+    app.kubernetes.io/version: "7.2"
+spec:
+  serviceName: redis-headless
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+      app.kubernetes.io/instance: production
+      app.kubernetes.io/component: cache
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: redis
+        app.kubernetes.io/instance: production
+        app.kubernetes.io/component: cache
+        app.kubernetes.io/version: "7.2"
+    spec:
+      serviceAccountName: redis-service-account
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+      - name: config-setup
+        image: redis:7.2-alpine
+        command: ['sh', '-c']
+        args:
+        - |
+          cp /tmp/redis/redis.conf /etc/redis/redis.conf
+          sed -i "s/REDIS_PASSWORD_PLACEHOLDER/$REDIS_PASSWORD/g" /etc/redis/redis.conf
+        envFrom:
+        - secretRef:
+            name: redis-secret
+        volumeMounts:
+        - name: redis-config-volume
+          mountPath: /tmp/redis
+        - name: redis-config
+          mountPath: /etc/redis
+      containers:
+      - name: redis
+        image: redis:7.2-alpine
+        imagePullPolicy: IfNotPresent
+        command:
+        - redis-server
+        - /etc/redis/redis.conf
+        ports:
+        - name: redis
+          containerPort: 6379
+          protocol: TCP
+        env:
+        - name: REDIS_REPLICATION_MODE
+          value: master
+        envFrom:
+        - secretRef:
+            name: redis-secret
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 999
+          runAsGroup: 999
+          capabilities:
+            drop:
+            - ALL
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - redis-cli -h 127.0.0.1 -p 6379 -a $REDIS_PASSWORD ping
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+        readinessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - redis-cli -h 127.0.0.1 -p 6379 -a $REDIS_PASSWORD ping
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+          successThreshold: 1
+        startupProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - redis-cli -h 127.0.0.1 -p 6379 -a $REDIS_PASSWORD ping
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 6
+          successThreshold: 1
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+        - name: redis-config
+          mountPath: /etc/redis
+      volumes:
+      - name: redis-config-volume
+        configMap:
+          name: redis-config
+      - name: redis-config
+        emptyDir: {}
+      terminationGracePeriodSeconds: 30
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-data
+      labels:
+        app.kubernetes.io/name: redis
+        app.kubernetes.io/instance: production
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: "gp3-encrypted"
+      resources:
+        requests:
+          storage: 20Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: cache
+spec:
+  type: ClusterIP
+  ports:
+  - name: redis
+    port: 6379
+    targetPort: redis
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: cache
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-headless
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: cache
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name: redis
+    port: 6379
+    targetPort: redis
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: cache
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: redis-service-account
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: cache
+automountServiceAccountToken: false
