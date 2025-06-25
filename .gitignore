@@ -302,3 +302,11 @@ benchmarks/results/
 
 # Docker
 .dockerignore
+
+# Dependency Resolution Artifacts & Temp Files
+# --------------------------------------------
+# Version-like files that may be created during pip/dependency errors
+=*
+[0-9]*.[0-9]*
+[0-9]*.[0-9]*.[0-9]*
+[0-9]*.[0-9]*.[0-9]*.*
