@@ -15,7 +15,12 @@ Usage:
 """
 
 from .client import PynomaliClient
-from .async_client import AsyncPynomaliClient
+
+# Optional async client (requires aiohttp)
+try:
+    from .async_client import AsyncPynomaliClient
+except ImportError:
+    AsyncPynomaliClient = None
 from .config import SDKConfig, ClientConfig
 from .exceptions import (
     PynomaliSDKError,

@@ -45,14 +45,14 @@ app = typer.Typer(
 console = Console()
 
 # Add subcommands
-app.add_typer(autonomous.app, name="auto", help="🤖 Autonomous anomaly detection (auto-configure and run)")
-app.add_typer(automl.app, name="automl", help="🧠 Advanced AutoML & hyperparameter optimization")
-app.add_typer(config_cli.app, name="config", help="⚙️ Configuration management (capture, export, import)")
+app.add_typer(autonomous.app, name="auto", help="Autonomous anomaly detection (auto-configure and run)")
+app.add_typer(automl.app, name="automl", help="Advanced AutoML & hyperparameter optimization")
+app.add_typer(config_cli.app, name="config", help="Configuration management (capture, export, import)")
 app.add_typer(detectors.app, name="detector", help="Manage anomaly detectors")
 app.add_typer(datasets.app, name="dataset", help="Manage datasets")
-app.add_typer(preprocessing.app, name="data", help="🔧 Data preprocessing (clean, transform, pipeline)")
+app.add_typer(preprocessing.app, name="data", help="Data preprocessing (clean, transform, pipeline)")
 app.add_typer(detection.app, name="detect", help="Run anomaly detection")
-app.add_typer(tdd.app, name="tdd", help="🧪 Test-Driven Development (TDD) management and enforcement")
+app.add_typer(tdd.app, name="tdd", help="Test-Driven Development (TDD) management and enforcement")
 # app.add_typer(deep_learning.deep_learning, name="deep-learning", help="🧠 Deep learning anomaly detection (PyTorch, TensorFlow, JAX)")  # Temporarily disabled
 # app.add_typer(explainability.explainability, name="explainability", help="🔍 Explainable AI (model interpretability, bias analysis)")  # Temporarily disabled
 # app.add_typer(selection.selection, name="selection", help="🧠 Intelligent algorithm selection with learning capabilities")  # Temporarily disabled

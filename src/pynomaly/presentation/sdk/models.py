@@ -208,7 +208,7 @@ class DetectionResult(BaseSDKModel):
             raise ValueError('Predictions must be 0 or 1')
         return v
     
-    @root_validator
+    @root_validator(skip_on_failure=True)
     def validate_consistency(cls, values):
         predictions = values.get('predictions', [])
         anomaly_scores = values.get('anomaly_scores', [])
