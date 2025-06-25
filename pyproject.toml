@@ -7,7 +7,7 @@ name = "pynomaly"
 dynamic = ["version"]
 description = "State-of-the-art Python anomaly detection package with clean architecture"
 authors = [{name = "Pynomaly Team", email = "team@pynomaly.io"}]
-license = "MIT"
+license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.11"
 keywords = ["anomaly-detection", "outlier-detection", "machine-learning", "clean-architecture"]
@@ -294,7 +294,7 @@ dependencies = [
     "pytest-cov>=6.0.0",
     "pytest-asyncio>=0.24.0",
 ]
-path = ".venv"
+path = "environments/.venv"
 
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:tests}"
@@ -404,7 +404,14 @@ test-cli = "pynomaly --help"
 [tool.ruff]
 target-version = "py311"
 line-length = 88
-extend-exclude = ["migrations"]
+extend-exclude = [
+    "migrations", 
+    "environments", 
+    ".env*", 
+    ".venv*", 
+    "test_env*", 
+    "venv*"
+]
 
 [tool.ruff.lint]
 select = [
@@ -421,11 +428,27 @@ select = [
 target-version = ["py311"]
 line-length = 88
 include = '\.pyi?$'
+extend-exclude = '''
+(
+    environments
+    | \.env.*
+    | \.venv.*
+    | test_env.*
+    | venv.*
+)
+'''
 
 [tool.isort]
 profile = "black"
 line_length = 88
 known_first_party = ["pynomaly"]
+skip_glob = [
+    "environments/*",
+    ".env*",
+    ".venv*", 
+    "test_env*",
+    "venv*"
+]
 
 [tool.mypy]
 python_version = "3.11"
@@ -433,6 +456,13 @@ strict = true
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
+exclude = [
+    "environments/",
+    "\\.env.*",
+    "\\.venv.*",
+    "test_env.*",
+    "venv.*"
+]
 
 [tool.pytest.ini_options]
 minversion = "8.0"
@@ -450,6 +480,13 @@ markers = [
 [tool.coverage.run]
 source = ["src"]
 branch = true
+omit = [
+    "environments/*",
+    ".env*/*",
+    ".venv*/*",
+    "test_env*/*",
+    "venv*/*"
+]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -463,4 +500,45 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "class .*\\\\bProtocol\\\\):",
     "@(abc\\\\.)?abstractmethod",
+]
+
+# Additional tool configurations for environment exclusion
+[tool.bandit]
+exclude_dirs = [
+    "environments",
+    ".env*",
+    ".venv*",
+    "test_env*",
+    "venv*"
+]
+
+# PyLyzer configuration
+[tool.pylyzer]
+exclude = [
+    "environments/",
+    ".env*/",
+    ".venv*/",
+    "test_env*/",
+    "venv*/"
+]
+
+# PyRight configuration  
+[tool.pyright]
+exclude = [
+    "environments/",
+    ".env*/",
+    ".venv*/", 
+    "test_env*/",
+    "venv*/"
+]
+
+# YAPF configuration
+[tool.yapf]
+based_on_style = "black"
+exclude = [
+    "environments/**/*.py",
+    ".env*/**/*.py",
+    ".venv*/**/*.py",
+    "test_env*/**/*.py",
+    "venv*/**/*.py"
 ]

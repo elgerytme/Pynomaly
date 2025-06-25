@@ -141,8 +141,49 @@ pynomaly/
 
 ### Python Version
 - Python 3.11+ (managed via pyenv-win)
-- Virtual environment located at `.venv/`
+- Virtual environments centralized in `environments/` directory
 - Use Poetry for dependency management
+
+### Environment Management Rules
+
+#### **MANDATORY RULE**: All Python environments MUST be placed in `environments/` directory
+✅ **Correct**: `environments/.venv/`, `environments/.test_env/`
+❌ **Incorrect**: `.venv/`, `test_env/` (project root)
+
+#### **MANDATORY RULE**: All environment names MUST use dot-prefix naming
+✅ **Correct**: `.venv`, `.venv_testing`, `.test_env`, `.dev_environment`
+❌ **Incorrect**: `venv`, `test_env`, `my_environment` (no dot prefix)
+
+#### Environment Directory Structure
+```
+environments/
+├── README.md              # Documentation and conventions
+├── .venv/                 # Main development environment
+├── .venv_testing/         # Testing environment with extended dependencies
+├── .test_env/             # Minimal test environment 
+├── .test_env_check/       # Environment validation testing
+└── .test_venv_*           # Additional testing environments
+```
+
+#### Environment Usage Guidelines
+1. **Creating New Environments**: Always use dot-prefix naming in environments/ directory
+   ```bash
+   python -m venv environments/.my_new_env
+   ```
+
+2. **Documentation**: Update `environments/README.md` when adding new environments
+
+3. **Git Management**: All environments automatically excluded from Git except README.md
+
+4. **Tool Integration**: All code quality tools configured to ignore environment directories
+
+#### Code Quality Tool Exclusions
+The following tools are configured to ignore environment directories:
+- **Formatters**: Black, YAPF, isort
+- **Linters**: Ruff, Flake8, Pylint, PyLyzer
+- **Type Checkers**: MyPy, PyRight  
+- **Security**: Bandit, Safety
+- **Coverage**: pytest-cov, coverage.py
 
 ### Common Commands
 
