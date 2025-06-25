@@ -51,6 +51,9 @@ Examples:
   python pynomaly_cli.py detect data.csv LocalOutlierFactor 0.1
   python pynomaly_cli.py benchmark data.csv
   python pynomaly_cli.py perf-stats
+  python pynomaly_cli.py auto-select data.csv
+  python pynomaly_cli.py explain data.csv
+  python pynomaly_cli.py explain data.csv IsolationForest 5
   python pynomaly_cli.py server-start
 """
     print(help_text)

@@ -333,6 +333,207 @@ class GlobalExplanationDTO(BaseModel):
     explanation_config: Optional[ExplanationConfigDTO] = Field(default=None, description="Configuration used")
 
 
+# ============================================================================
+# Visualization DTOs
+# ============================================================================
+
+class VisualizationDataDTO(BaseModel):
+    """DTO for visualization data."""
+    model_config = ConfigDict(from_attributes=True)
+    
+    visualization_type: VisualizationType = Field(..., description="Type of visualization")
+    title: str = Field(..., description="Visualization title")
+    data: Dict[str, Any] = Field(..., description="Visualization data")
+    layout: Dict[str, Any] = Field(default_factory=dict, description="Layout configuration")
+    style: Dict[str, Any] = Field(default_factory=dict, description="Style configuration")
+    
+    # Metadata
+    created_at: datetime = Field(default_factory=datetime.now, description="Creation timestamp")
+    dimensions: Optional[Tuple[int, int]] = Field(default=None, description="Visualization dimensions (width, height)")
+    interactive: bool = Field(default=True, description="Whether visualization is interactive")
+    export_formats: List[str] = Field(default_factory=lambda: ["png", "svg", "html"], description="Supported export formats")
+
+
+class ExplanationVisualizationDTO(BaseModel):
+    """DTO for explanation visualization package."""
+    model_config = ConfigDict(from_attributes=True)
+    
+    explanation_id: str = Field(..., description="Explanation identifier")
+    visualizations: List[VisualizationDataDTO] = Field(..., description="List of visualizations")
+    
+    # Summary visualizations
+    feature_importance_chart: Optional[VisualizationDataDTO] = Field(default=None, description="Feature importance chart")
+    waterfall_chart: Optional[VisualizationDataDTO] = Field(default=None, description="Waterfall chart for contributions")
+    force_plot: Optional[VisualizationDataDTO] = Field(default=None, description="SHAP force plot")
+    decision_plot: Optional[VisualizationDataDTO] = Field(default=None, description="Decision plot")
+    
+    # Advanced visualizations
+    partial_dependence_plots: Optional[List[VisualizationDataDTO]] = Field(default=None, description="Partial dependence plots")
+    interaction_heatmap: Optional[VisualizationDataDTO] = Field(default=None, description="Feature interaction heatmap")
+    correlation_matrix: Optional[VisualizationDataDTO] = Field(default=None, description="Feature correlation matrix")
+    
+    # Metadata
+    created_at: datetime = Field(default_factory=datetime.now, description="Creation timestamp")
+    total_visualizations: int = Field(..., description="Total number of visualizations")
+
+
+class ReportGenerationConfigDTO(BaseModel):
+    """Configuration for report generation."""
+    model_config = ConfigDict(from_attributes=True)
+    
+    report_type: Literal["summary", "detailed", "executive", "technical"] = Field(..., description="Type of report")
+    include_visualizations: bool = Field(default=True, description="Include visualizations in report")
+    include_raw_data: bool = Field(default=False, description="Include raw data in report")
+    include_methodology: bool = Field(default=True, description="Include methodology section")
+    include_recommendations: bool = Field(default=True, description="Include recommendations")
+    
+    # Formatting options
+    format: Literal["html", "pdf", "markdown", "json"] = Field(default="html", description="Report format")
+    template: Optional[str] = Field(default=None, description="Custom template to use")
+    language: str = Field(default="en", description="Report language")
+    
+    # Content options
+    max_features_in_summary: int = Field(default=10, ge=5, le=50, description="Maximum features in summary")
+    include_statistical_tests: bool = Field(default=True, description="Include statistical significance tests")
+    confidence_level: float = Field(default=0.95, ge=0.5, le=0.99, description="Confidence level for statistical tests")
+
+
+class ExplanationReportDTO(BaseModel):
+    """DTO for comprehensive explanation report."""
+    model_config = ConfigDict(from_attributes=True)
+    
+    report_id: UUID = Field(..., description="Report identifier")
+    title: str = Field(..., description="Report title")
+    created_at: datetime = Field(default_factory=datetime.now, description="Report creation timestamp")
+    generated_by: str = Field(..., description="User or system that generated the report")
+    
+    # Report content
+    executive_summary: str = Field(..., description="Executive summary")
+    methodology: str = Field(..., description="Methodology used")
+    key_findings: List[str] = Field(..., description="Key findings")
+    recommendations: List[str] = Field(..., description="Recommendations")
+    
+    # Explanations included
+    local_explanations: Optional[List[LocalExplanationDTO]] = Field(default=None, description="Local explanations")
+    global_explanation: Optional[GlobalExplanationDTO] = Field(default=None, description="Global explanation")
+    bias_analysis: Optional[BiasAnalysisResultDTO] = Field(default=None, description="Bias analysis results")
+    trust_assessment: Optional[TrustAssessmentResultDTO] = Field(default=None, description="Trust assessment results")
+    
+    # Visualizations
+    visualizations: Optional[ExplanationVisualizationDTO] = Field(default=None, description="Report visualizations")
+    
+    # Metadata
+    report_config: ReportGenerationConfigDTO = Field(..., description="Report generation configuration")
+    file_paths: Optional[Dict[str, str]] = Field(default=None, description="Generated file paths by format")
+    size_mb: Optional[float] = Field(default=None, description="Report size in MB")
+
+
+# ============================================================================
+# Audit and Feedback DTOs
+# ============================================================================
+
+class ExplanationAuditLogDTO(BaseModel):
+    """DTO for explanation audit log entry."""
+    model_config = ConfigDict(from_attributes=True)
+    
+    audit_id: UUID = Field(..., description="Audit entry identifier")
+    timestamp: datetime = Field(default_factory=datetime.now, description="Audit timestamp")
+    user_id: Optional[str] = Field(default=None, description="User identifier")
+    session_id: Optional[str] = Field(default=None, description="Session identifier")
+    
+    # Action details
+    action: Literal["generate", "view", "export", "feedback", "modify", "delete"] = Field(..., description="Action performed")
+    explanation_id: str = Field(..., description="Explanation identifier")
+    explanation_type: ExplanationType = Field(..., description="Type of explanation")
+    
+    # Context
+    detector_id: UUID = Field(..., description="Detector identifier")
+    dataset_id: Optional[UUID] = Field(default=None, description="Dataset identifier")
+    instance_id: Optional[str] = Field(default=None, description="Instance identifier")
+    
+    # Details
+    parameters: Dict[str, Any] = Field(default_factory=dict, description="Parameters used")
+    success: bool = Field(..., description="Whether action was successful")
+    error_message: Optional[str] = Field(default=None, description="Error message if failed")
+    execution_time: float = Field(..., description="Execution time in seconds")
+    
+    # Metadata
+    ip_address: Optional[str] = Field(default=None, description="Client IP address")
+    user_agent: Optional[str] = Field(default=None, description="Client user agent")
+    request_id: Optional[str] = Field(default=None, description="Request identifier")
+
+
+class ExplanationFeedbackDTO(BaseModel):
+    """DTO for user feedback on explanations."""
+    model_config = ConfigDict(from_attributes=True)
+    
+    feedback_id: UUID = Field(..., description="Feedback identifier")
+    explanation_id: str = Field(..., description="Explanation identifier")
+    user_id: Optional[str] = Field(default=None, description="User identifier")
+    timestamp: datetime = Field(default_factory=datetime.now, description="Feedback timestamp")
+    
+    # Feedback content
+    rating: int = Field(..., ge=1, le=5, description="Overall rating (1-5)")
+    usefulness: int = Field(..., ge=1, le=5, description="Usefulness rating (1-5)")
+    clarity: int = Field(..., ge=1, le=5, description="Clarity rating (1-5)")
+    accuracy: int = Field(..., ge=1, le=5, description="Perceived accuracy rating (1-5)")
+    completeness: int = Field(..., ge=1, le=5, description="Completeness rating (1-5)")
+    
+    # Detailed feedback
+    comments: Optional[str] = Field(default=None, description="User comments")
+    suggestions: Optional[str] = Field(default=None, description="User suggestions for improvement")
+    missing_information: Optional[List[str]] = Field(default=None, description="Information user felt was missing")
+    
+    # Specific feedback
+    most_helpful_features: Optional[List[str]] = Field(default=None, description="Most helpful features identified")
+    least_helpful_features: Optional[List[str]] = Field(default=None, description="Least helpful features identified")
+    trust_level: Optional[int] = Field(default=None, ge=1, le=5, description="Trust level in explanation (1-5)")
+    
+    # Context
+    use_case: Optional[str] = Field(default=None, description="Use case or context")
+    expertise_level: Optional[Literal["beginner", "intermediate", "expert"]] = Field(default=None, description="User expertise level")
+    
+    # Follow-up
+    would_recommend: Optional[bool] = Field(default=None, description="Would recommend this explanation approach")
+    contact_for_followup: bool = Field(default=False, description="User agrees to be contacted for follow-up")
+
+
+class FeedbackSummaryDTO(BaseModel):
+    """DTO for feedback summary and analytics."""
+    model_config = ConfigDict(from_attributes=True)
+    
+    summary_id: UUID = Field(..., description="Summary identifier")
+    period_start: datetime = Field(..., description="Summary period start")
+    period_end: datetime = Field(..., description="Summary period end")
+    created_at: datetime = Field(default_factory=datetime.now, description="Summary creation timestamp")
+    
+    # Aggregate statistics
+    total_feedback_count: int = Field(..., description="Total feedback entries")
+    average_rating: float = Field(..., description="Average overall rating")
+    average_usefulness: float = Field(..., description="Average usefulness rating")
+    average_clarity: float = Field(..., description="Average clarity rating")
+    average_accuracy: float = Field(..., description="Average accuracy rating")
+    average_completeness: float = Field(..., description="Average completeness rating")
+    
+    # Breakdown by explanation type
+    feedback_by_type: Dict[str, Dict[str, float]] = Field(..., description="Feedback statistics by explanation type")
+    feedback_by_method: Dict[str, Dict[str, float]] = Field(..., description="Feedback statistics by explanation method")
+    
+    # Common themes
+    common_complaints: List[str] = Field(default_factory=list, description="Most common complaints")
+    common_suggestions: List[str] = Field(default_factory=list, description="Most common suggestions")
+    most_helpful_features: List[str] = Field(default_factory=list, description="Most frequently mentioned helpful features")
+    least_helpful_features: List[str] = Field(default_factory=list, description="Most frequently mentioned unhelpful features")
+    
+    # Trends
+    rating_trend: Dict[str, float] = Field(default_factory=dict, description="Rating trends over time")
+    improvement_areas: List[str] = Field(default_factory=list, description="Identified areas for improvement")
+    
+    # Recommendations
+    system_recommendations: List[str] = Field(default_factory=list, description="System improvement recommendations")
+    priority_actions: List[str] = Field(default_factory=list, description="Priority actions based on feedback")
+
+
 class CohortExplanationDTO(BaseModel):
     """DTO for cohort explanation."""
     model_config = ConfigDict(from_attributes=True)
