@@ -137,7 +137,7 @@ echo "4,5,6" >> test_data.csv
 echo "100,200,300" >> test_data.csv  # Outlier
 
 # Run autonomous detection
-poetry run python -m pynomaly.presentation.cli.main auto detect test_data.csv
+pynomaly auto detect test_data.csv
 
 # Clean up
 rm test_data.csv
