@@ -4,7 +4,7 @@ This guide provides comprehensive information about the anomaly detection algori
 
 ## Overview
 
-Pynomaly integrates multiple state-of-the-art anomaly detection algorithms from various libraries including PyOD, TODS, PyGOD, and scikit-learn. Each algorithm has specific strengths and is suitable for different types of data and anomaly patterns.
+Pynomaly integrates multiple state-of-the-art anomaly detection algorithms from various libraries including PyOD, PyGOD, and scikit-learn. Each algorithm has specific strengths and is suitable for different types of data and anomaly patterns.
 
 ## Algorithm Categories
 
