@@ -19,9 +19,7 @@ def test_direct_imports():
 
         print("✅ Domain entities import successful")
 
-
         print("✅ Application services import successful")
-
 
         print("✅ Infrastructure adapters import successful")
 

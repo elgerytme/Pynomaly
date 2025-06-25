@@ -70,9 +70,9 @@ class PerformanceRegression:
                                 "current": current_value,
                                 "baseline": baseline_value,
                                 "change_percent": change_percent,
-                                "severity": "critical"
-                                if change_percent > 50
-                                else "warning",
+                                "severity": (
+                                    "critical" if change_percent > 50 else "warning"
+                                ),
                             }
                         )
                     else:
@@ -218,7 +218,6 @@ def run_startup_performance_test() -> dict[str, float]:
     try:
         # Test CLI startup time
         start_time = time.time()
-
 
         end_time = time.time()
         results["cli_startup_time"] = (end_time - start_time) * 1000  # ms

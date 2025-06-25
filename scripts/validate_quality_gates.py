@@ -96,7 +96,8 @@ def test_quality_validation():
 
         # Create high-quality sample code
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
-            good_code = dedent('''
+            good_code = dedent(
+                '''
                 """High-quality authentication service.
 
                 This module provides secure user authentication with proper
@@ -190,7 +191,8 @@ def test_quality_validation():
                         """
                         combined = f"{password}{salt}".encode('utf-8')
                         return hashlib.sha256(combined).hexdigest()
-            ''')
+            '''
+            )
             f.write(good_code)
             f.flush()
 
@@ -214,7 +216,8 @@ def test_quality_validation():
 
         # Create poor-quality sample code
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
-            bad_code = dedent("""
+            bad_code = dedent(
+                """
                 # No module docstring, no future imports, poor practices
 
                 import *
@@ -242,7 +245,8 @@ def test_quality_validation():
                         dangerous_operation()
                     except:  # Bare except
                         pass
-            """)
+            """
+            )
             f.write(bad_code)
             f.flush()
 
@@ -276,7 +280,8 @@ def test_specific_quality_gates():
 
         # Test cyclomatic complexity gate
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
-            complex_code = dedent('''
+            complex_code = dedent(
+                '''
                 """Module with complex function."""
 
                 def complex_function(x):
@@ -294,7 +299,8 @@ def test_specific_quality_gates():
                             return "low-medium"
                         return "low"
                     return "zero or negative"
-            ''')
+            '''
+            )
             f.write(complex_code)
             f.flush()
 
@@ -306,7 +312,8 @@ def test_specific_quality_gates():
 
         # Test docstring coverage gate
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
-            docstring_code = dedent('''
+            docstring_code = dedent(
+                '''
                 """Module docstring."""
 
                 class DocumentedClass:
@@ -325,7 +332,8 @@ def test_specific_quality_gates():
 
                 def undocumented_function():
                     pass
-            ''')
+            '''
+            )
             f.write(docstring_code)
             f.flush()
 
@@ -337,7 +345,8 @@ def test_specific_quality_gates():
 
         # Test type hints coverage gate
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
-            type_hints_code = dedent('''
+            type_hints_code = dedent(
+                '''
                 """Module with mixed type hints."""
 
                 from typing import List
@@ -349,7 +358,8 @@ def test_specific_quality_gates():
                 def untyped_function(data):
                     """Function without type hints."""
                     return len(data)
-            ''')
+            '''
+            )
             f.write(type_hints_code)
             f.flush()
 
@@ -360,7 +370,8 @@ def test_specific_quality_gates():
 
         # Test security patterns gate
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
-            security_code = dedent('''
+            security_code = dedent(
+                '''
                 """Module with security issues."""
 
                 import subprocess
@@ -374,7 +385,8 @@ def test_specific_quality_gates():
                         return result
                     except:  # Bare except
                         return None
-            ''')
+            '''
+            )
             f.write(security_code)
             f.flush()
 
@@ -477,13 +489,15 @@ def test_convenience_functions():
 
         # Test convenience function
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
-            simple_code = dedent('''
+            simple_code = dedent(
+                '''
                 """Simple test module."""
 
                 def simple_function() -> str:
                     """A simple function with type hints."""
                     return "hello world"
-            ''')
+            '''
+            )
             f.write(simple_code)
             f.flush()
 

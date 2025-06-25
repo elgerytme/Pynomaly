@@ -14,7 +14,6 @@ try:
     score = AnomalyScore(value=0.95, confidence=0.88)
     print("SUCCESS - Model creation:", score.value)
 
-
     print("SUCCESS - Client import")
 
     print("FRESH POWERSHELL - Complete success!")

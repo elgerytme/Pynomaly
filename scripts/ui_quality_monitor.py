@@ -24,7 +24,8 @@ class UIQualityMonitor:
         cursor = conn.cursor()
 
         # Create metrics table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS ui_metrics (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 timestamp TEXT NOT NULL,
@@ -44,10 +45,12 @@ class UIQualityMonitor:
                 lighthouse_accessibility REAL,
                 report_path TEXT
             )
-        """)
+        """
+        )
 
         # Create issues table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS ui_issues (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 metric_id INTEGER,
@@ -59,7 +62,8 @@ class UIQualityMonitor:
                 wcag_criteria TEXT,
                 FOREIGN KEY (metric_id) REFERENCES ui_metrics (id)
             )
-        """)
+        """
+        )
 
         conn.commit()
         conn.close()
@@ -192,12 +196,14 @@ class UIQualityMonitor:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT *
             FROM ui_metrics
             ORDER BY timestamp DESC
             LIMIT 1
-        """)
+        """
+        )
 
         row = cursor.fetchone()
         if not row:
@@ -225,9 +231,7 @@ class UIQualityMonitor:
             trend_direction = (
                 "📈"
                 if recent_score > older_score
-                else "📉"
-                if recent_score < older_score
-                else "➡️"
+                else "📉" if recent_score < older_score else "➡️"
             )
             score_change = recent_score - older_score
         else:

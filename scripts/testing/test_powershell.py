@@ -23,7 +23,6 @@ def test_powershell_env():
             sys.path.insert(0, "/mnt/c/Users/andre/Pynomaly/src")
             print("✅ Added WSL path")
 
-
         print("✅ POWERSHELL - Package import successful")
 
         from pynomaly.presentation.sdk.models import AnomalyScore, PerformanceMetrics
@@ -37,7 +36,6 @@ def test_powershell_env():
             precision=0.88, recall=0.82, f1_score=0.84, accuracy=0.87
         )
         print(f"✅ POWERSHELL - PerformanceMetrics created: F1={metrics.f1_score}")
-
 
         print("✅ POWERSHELL - Client import successful")
 

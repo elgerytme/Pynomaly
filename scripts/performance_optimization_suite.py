@@ -255,9 +255,9 @@ class PerformanceOptimizer:
                 memory_results[chunk_size] = {
                     "memory_usage_mb": memory_used,
                     "execution_time": execution_time,
-                    "memory_efficiency": chunk_size / memory_used
-                    if memory_used > 0
-                    else 0,
+                    "memory_efficiency": (
+                        chunk_size / memory_used if memory_used > 0 else 0
+                    ),
                     "success": results.get("autonomous_detection_results", {}).get(
                         "success", False
                     ),
@@ -482,16 +482,12 @@ class PerformanceOptimizer:
 
             # First run (cold cache)
             start_time = time.time()
-            await self.autonomous_service.detect_autonomous(
-                dataset_path, config
-            )
+            await self.autonomous_service.detect_autonomous(dataset_path, config)
             cold_time = time.time() - start_time
 
             # Second run (warm cache - simulated)
             start_time = time.time()
-            await self.autonomous_service.detect_autonomous(
-                dataset_path, config
-            )
+            await self.autonomous_service.detect_autonomous(dataset_path, config)
             warm_time = time.time() - start_time
 
             # Cache effectiveness (in real implementation, would show actual cache hits)
@@ -555,9 +551,9 @@ class PerformanceOptimizer:
             )
 
             report["performance_summary"]["fastest_algorithm"] = fastest_algorithm
-            report["performance_summary"]["most_memory_efficient"] = (
-                most_memory_efficient
-            )
+            report["performance_summary"][
+                "most_memory_efficient"
+            ] = most_memory_efficient
 
         # Memory optimization recommendations
         if memory_results:
@@ -578,9 +574,9 @@ class PerformanceOptimizer:
                     f"   Memory efficiency: {valid_results[optimal_chunk]['memory_efficiency']:.1f} samples/MB"
                 )
 
-                report["configuration_recommendations"]["optimal_chunk_size"] = (
-                    optimal_chunk
-                )
+                report["configuration_recommendations"][
+                    "optimal_chunk_size"
+                ] = optimal_chunk
 
         # Parallel processing recommendations
         if parallel_results:
@@ -630,9 +626,9 @@ class PerformanceOptimizer:
                 "enable_preprocessing": False,
             }
 
-        report["configuration_recommendations"]["autonomous_config"] = (
-            recommended_config
-        )
+        report["configuration_recommendations"][
+            "autonomous_config"
+        ] = recommended_config
 
         print("\n🎯 Recommended Configuration:")
         for key, value in recommended_config.items():

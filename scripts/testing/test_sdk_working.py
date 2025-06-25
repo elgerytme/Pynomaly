@@ -19,9 +19,7 @@ def test_working_sdk():
 
         print("✅ Domain entities import successful")
 
-
         print("✅ Application services import successful")
-
 
         print("✅ Infrastructure adapters import successful")
 

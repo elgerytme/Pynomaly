@@ -881,9 +881,7 @@ def auto_select_algorithm(file_path):
                 if automl_result.best_score >= 0.8:
                     print("   • Excellent performance achieved - ready for production")
                 elif automl_result.best_score >= 0.7:
-                    print(
-                        "   • Good performance - consider fine-tuning for production"
-                    )
+                    print("   • Good performance - consider fine-tuning for production")
                 else:
                     print(
                         "   • Moderate performance - consider collecting more data or feature engineering"
@@ -1822,9 +1820,7 @@ def visualize_anomaly_detection(file_path, algorithm=None, chart_type=None):
         print("   • Score distribution shows threshold effectiveness")
 
         print("\n🔍 How to Use the Visualizations:")
-        print(
-            "   • Scatter plots: Look for separated clusters of red (anomaly) points"
-        )
+        print("   • Scatter plots: Look for separated clusters of red (anomaly) points")
         print("   • Distributions: Compare normal vs anomaly feature value ranges")
         print(
             "   • Scores plot: Anomalies should have scores above the red threshold line"

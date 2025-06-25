@@ -147,11 +147,11 @@ def calculate_complexity_trends(current_metrics, baseline_metrics) -> dict:
                 "baseline": baseline_value,
                 "change_percent": round(change_percent, 2),
                 "change_absolute": change_abs,
-                "trend": "increasing"
-                if change_percent > 0
-                else "decreasing"
-                if change_percent < 0
-                else "stable",
+                "trend": (
+                    "increasing"
+                    if change_percent > 0
+                    else "decreasing" if change_percent < 0 else "stable"
+                ),
                 "severity": assess_change_severity(metric_key, change_percent),
             }
 

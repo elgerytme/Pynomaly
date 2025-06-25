@@ -193,7 +193,8 @@ class MultiEnvironmentTester:
             script_rel_path = script_path
 
             with open(test_script, "w") as f:
-                f.write(f"""#!/bin/bash
+                f.write(
+                    f"""#!/bin/bash
 set -e
 
 echo "=== Linux Environment Test ==="
@@ -219,7 +220,8 @@ else
     echo "Unsupported script type: {script_rel_path}"
     exit 1
 fi
-""")
+"""
+                )
 
             # Make script executable
             os.chmod(test_script, 0o755)
@@ -272,7 +274,8 @@ fi
             script_rel_path = script_path
 
             with open(test_script, "w") as f:
-                f.write(f"""# PowerShell Environment Test
+                f.write(
+                    f"""# PowerShell Environment Test
 Write-Host "=== Windows Environment Test ===" -ForegroundColor Cyan
 Write-Host "Working directory: $(Get-Location)"
 Write-Host "Python version: $(python --version 2>&1 | Out-String)"
@@ -307,14 +310,16 @@ catch {{
     Write-Host "Script failed: $($_.Exception.Message)" -ForegroundColor Red
     exit 1
 }}
-""")
+"""
+                )
 
             # On Linux/WSL, we'll simulate this by running through bash
             if sys.platform != "win32":
                 # Create a bash wrapper that simulates PowerShell behavior
                 bash_wrapper = test_dir / "run_test_wrapper.sh"
                 with open(bash_wrapper, "w") as f:
-                    f.write(f"""#!/bin/bash
+                    f.write(
+                        f"""#!/bin/bash
 echo "=== Simulated Windows Environment Test ==="
 echo "Note: This is a simulation of Windows environment on Linux"
 echo "Working directory: $(pwd)"
@@ -341,7 +346,8 @@ else
     echo "Unsupported script type: {script_rel_path}"
     exit 1
 fi
-""")
+"""
+                    )
                 os.chmod(bash_wrapper, 0o755)
 
                 returncode, stdout, stderr = self.run_command(
@@ -367,9 +373,11 @@ fi
                 "stdout": stdout,
                 "stderr": stderr,
                 "test_dir": str(test_dir),
-                "command": f"powershell {test_script}"
-                if sys.platform == "win32"
-                else "bash wrapper simulation",
+                "command": (
+                    f"powershell {test_script}"
+                    if sys.platform == "win32"
+                    else "bash wrapper simulation"
+                ),
             }
 
         except Exception as e:
@@ -677,9 +685,9 @@ Examples:
                 "overall_success": result["current_env"].get("success", False),
                 "total_duration": time.time() - script_start_time,
                 "environments_tested": 1,
-                "environments_passed": 1
-                if result["current_env"].get("success", False)
-                else 0,
+                "environments_passed": (
+                    1 if result["current_env"].get("success", False) else 0
+                ),
             }
         else:
             # Full comprehensive test

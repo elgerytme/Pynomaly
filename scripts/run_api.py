@@ -71,9 +71,9 @@ class APIServer:
             host=host,
             port=port,
             reload=reload,
-            workers=workers
-            if not reload
-            else 1,  # Reload doesn't work with multiple workers
+            workers=(
+                workers if not reload else 1
+            ),  # Reload doesn't work with multiple workers
             log_level=log_level,
             access_log=True,
             use_colors=True,
