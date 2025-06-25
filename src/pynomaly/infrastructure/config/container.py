@@ -104,6 +104,7 @@ class OptionalServiceManager:
         
         # Application services
         self._register_service('automl_service', 'pynomaly.application.services.automl_service', 'AutoMLService')
+        self._register_service('enhanced_automl_service', 'pynomaly.application.services.enhanced_automl_service', 'EnhancedAutoMLService')
         self._register_service('explainability_service', 'pynomaly.domain.services.explainability_service', 'ExplainabilityService')
         self._register_service('application_explainability_service', 'pynomaly.application.services.explainability_service', 'ApplicationExplainabilityService')
         
@@ -385,7 +386,7 @@ class Container(containers.DeclarativeContainer):
                 'singleton'
             )
         
-        # AutoML service
+        # AutoML services
         if service_manager.is_available('automl_service'):
             cls.automl_service = service_manager.create_provider(
                 'automl_service',
@@ -397,6 +398,25 @@ class Container(containers.DeclarativeContainer):
                 n_trials=100,
                 cv_folds=3,
                 random_state=42
+            )
+        
+        if service_manager.is_available('enhanced_automl_service'):
+            from pynomaly.application.services.enhanced_automl_service import EnhancedAutoMLConfig
+            cls.enhanced_automl_service = service_manager.create_provider(
+                'enhanced_automl_service',
+                'singleton',
+                detector_repository=cls.async_detector_repository,
+                dataset_repository=cls.async_dataset_repository,
+                adapter_registry=providers.Object("adapter_registry"),
+                config=EnhancedAutoMLConfig(
+                    max_optimization_time=cls.config.provided.automl_max_time if hasattr(cls.config.provided, 'automl_max_time') else 3600,
+                    n_trials=cls.config.provided.automl_n_trials if hasattr(cls.config.provided, 'automl_n_trials') else 100,
+                    enable_meta_learning=True,
+                    enable_multi_objective=True,
+                    enable_parallel=True,
+                    random_state=42
+                ),
+                storage_path=cls.config.provided.automl_storage_path if hasattr(cls.config.provided, 'automl_storage_path') else Path("./automl_storage")
             )
         
         # Explainability services
