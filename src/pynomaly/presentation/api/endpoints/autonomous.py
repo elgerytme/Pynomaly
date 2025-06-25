@@ -620,19 +620,19 @@ async def get_autonomous_status(container: Container = Depends(get_container)) -
     try:
         container.pyod_adapter()
         available_adapters.append("pyod")
-    except:
+    except Exception:
         pass
 
     try:
         container.sklearn_adapter()
         available_adapters.append("sklearn")
-    except:
+    except Exception:
         pass
 
     try:
         container.pytorch_adapter()
         available_adapters.append("pytorch")
-    except:
+    except Exception:
         pass
 
     return {

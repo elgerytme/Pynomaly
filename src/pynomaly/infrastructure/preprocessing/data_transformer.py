@@ -596,7 +596,7 @@ class DataTransformer:
                                 "method": "inferred_numeric",
                             }
                             continue
-                    except:
+                    except Exception:
                         pass
 
                     # Try datetime conversion
@@ -610,7 +610,7 @@ class DataTransformer:
                                 "method": "inferred_datetime",
                             }
                             continue
-                    except:
+                    except Exception:
                         pass
 
                     # Convert to category if low cardinality
