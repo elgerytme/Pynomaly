@@ -1,0 +1,234 @@
+{
+  "summary": {
+    "total_tests": 22,
+    "passed_tests": 17,
+    "failed_tests": 5,
+    "success_rate": 77.27,
+    "execution_time": 2.3933563232421875
+  },
+  "categories": {
+    "infrastructure": {
+      "passed": 3,
+      "failed": 2,
+      "total": 5
+    },
+    "algorithm": {
+      "passed": 4,
+      "failed": 0,
+      "total": 4
+    },
+    "dependencies": {
+      "passed": 7,
+      "failed": 3,
+      "total": 10
+    },
+    "performance": {
+      "passed": 1,
+      "failed": 0,
+      "total": 1
+    },
+    "memory": {
+      "passed": 1,
+      "failed": 0,
+      "total": 1
+    },
+    "health": {
+      "passed": 1,
+      "failed": 0,
+      "total": 1
+    }
+  },
+  "detailed_results": [
+    {
+      "name": "container_creation",
+      "category": "infrastructure",
+      "passed": true,
+      "execution_time": 2.2026193141937256,
+      "error_message": null,
+      "details": {
+        "container_type": "<class 'dependency_injector.containers.DynamicContainer'>"
+      }
+    },
+    {
+      "name": "adapter_import_pyod_adapter",
+      "category": "infrastructure",
+      "passed": true,
+      "execution_time": 1.9073486328125e-06,
+      "error_message": null,
+      "details": null
+    },
+    {
+      "name": "adapter_import_sklearn_adapter",
+      "category": "infrastructure",
+      "passed": true,
+      "execution_time": 1.1920928955078125e-06,
+      "error_message": null,
+      "details": null
+    },
+    {
+      "name": "adapter_import_pytorch_adapter",
+      "category": "infrastructure",
+      "passed": false,
+      "execution_time": 0.006519794464111328,
+      "error_message": "Optional adapter pytorch_adapter not available",
+      "details": null
+    },
+    {
+      "name": "adapter_import_tensorflow_adapter",
+      "category": "infrastructure",
+      "passed": false,
+      "execution_time": 0.009712457656860352,
+      "error_message": "Optional adapter tensorflow_adapter not available",
+      "details": null
+    },
+    {
+      "name": "domain_service_anomaly_scorer",
+      "category": "algorithm",
+      "passed": true,
+      "execution_time": 3.5762786865234375e-06,
+      "error_message": null,
+      "details": null
+    },
+    {
+      "name": "domain_service_threshold_calculator",
+      "category": "algorithm",
+      "passed": true,
+      "execution_time": 1.1920928955078125e-06,
+      "error_message": null,
+      "details": null
+    },
+    {
+      "name": "domain_service_feature_validator",
+      "category": "algorithm",
+      "passed": true,
+      "execution_time": 1.1920928955078125e-06,
+      "error_message": null,
+      "details": null
+    },
+    {
+      "name": "domain_service_ensemble_aggregator",
+      "category": "algorithm",
+      "passed": true,
+      "execution_time": 1.430511474609375e-06,
+      "error_message": null,
+      "details": null
+    },
+    {
+      "name": "dependency_numpy",
+      "category": "dependencies",
+      "passed": true,
+      "execution_time": 1.9073486328125e-06,
+      "error_message": null,
+      "details": null
+    },
+    {
+      "name": "dependency_pandas",
+      "category": "dependencies",
+      "passed": true,
+      "execution_time": 1.430511474609375e-06,
+      "error_message": null,
+      "details": null
+    },
+    {
+      "name": "dependency_scikit-learn",
+      "category": "dependencies",
+      "passed": true,
+      "execution_time": 1.1920928955078125e-06,
+      "error_message": null,
+      "details": null
+    },
+    {
+      "name": "dependency_pyod",
+      "category": "dependencies",
+      "passed": true,
+      "execution_time": 0.09671473503112793,
+      "error_message": null,
+      "details": null
+    },
+    {
+      "name": "dependency_fastapi",
+      "category": "dependencies",
+      "passed": true,
+      "execution_time": 1.430511474609375e-06,
+      "error_message": null,
+      "details": null
+    },
+    {
+      "name": "dependency_typer",
+      "category": "dependencies",
+      "passed": true,
+      "execution_time": 0.02137136459350586,
+      "error_message": null,
+      "details": null
+    },
+    {
+      "name": "optional_dependency_torch",
+      "category": "dependencies",
+      "passed": false,
+      "execution_time": 0.0027513504028320312,
+      "error_message": "Optional dependency torch not installed",
+      "details": null
+    },
+    {
+      "name": "optional_dependency_tensorflow",
+      "category": "dependencies",
+      "passed": false,
+      "execution_time": 0.002858877182006836,
+      "error_message": "Optional dependency tensorflow not installed",
+      "details": null
+    },
+    {
+      "name": "optional_dependency_jax",
+      "category": "dependencies",
+      "passed": false,
+      "execution_time": 0.0015213489532470703,
+      "error_message": "Optional dependency jax not installed",
+      "details": null
+    },
+    {
+      "name": "optional_dependency_polars",
+      "category": "dependencies",
+      "passed": true,
+      "execution_time": 0.04821491241455078,
+      "error_message": null,
+      "details": null
+    },
+    {
+      "name": "detection_service_import",
+      "category": "performance",
+      "passed": true,
+      "execution_time": 1.430511474609375e-06,
+      "error_message": null,
+      "details": {
+        "import_time_threshold": 2.0
+      }
+    },
+    {
+      "name": "container_memory_usage",
+      "category": "memory",
+      "passed": true,
+      "execution_time": 0.0010519027709960938,
+      "error_message": null,
+      "details": {
+        "initial_memory_mb": 384.05078125,
+        "final_memory_mb": 384.05078125,
+        "memory_increase_mb": 0.0
+      }
+    },
+    {
+      "name": "health_service_import",
+      "category": "health",
+      "passed": true,
+      "execution_time": 2.384185791015625e-06,
+      "error_message": null,
+      "details": null
+    }
+  ],
+  "recommendations": [
+    "Fix infrastructure.adapter_import_pytorch_adapter: Optional adapter pytorch_adapter not available",
+    "Fix infrastructure.adapter_import_tensorflow_adapter: Optional adapter tensorflow_adapter not available",
+    "Fix dependencies.optional_dependency_torch: Optional dependency torch not installed",
+    "Fix dependencies.optional_dependency_tensorflow: Optional dependency tensorflow not installed",
+    "Fix dependencies.optional_dependency_jax: Optional dependency jax not installed"
+  ]
+}

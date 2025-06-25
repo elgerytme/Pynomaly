@@ -1,0 +1,104 @@
+{
+  "success_rates": {
+    "overall": {
+      "total": 11,
+      "passed": 9,
+      "failed": 2,
+      "success_rate": 81.82
+    },
+    "by_category": {
+      "Core": {
+        "passed": 6,
+        "total": 6,
+        "failed": 0,
+        "success_rate": 100.0
+      },
+      "CLI": {
+        "passed": 2,
+        "total": 3,
+        "failed": 1,
+        "success_rate": 66.66666666666666
+      },
+      "API": {
+        "passed": 0,
+        "total": 1,
+        "failed": 1,
+        "success_rate": 0.0
+      },
+      "Integration": {
+        "passed": 1,
+        "total": 1,
+        "failed": 0,
+        "success_rate": 100.0
+      }
+    }
+  },
+  "detailed_results": [
+    [
+      "Core",
+      "import_container",
+      true,
+      ""
+    ],
+    [
+      "Core",
+      "import_entities",
+      true,
+      ""
+    ],
+    [
+      "Core",
+      "import_sklearn_adapter",
+      true,
+      ""
+    ],
+    [
+      "Core",
+      "import_pyod_adapter",
+      true,
+      ""
+    ],
+    [
+      "Core",
+      "import_cli_app",
+      true,
+      ""
+    ],
+    [
+      "Core",
+      "import_api_app",
+      true,
+      ""
+    ],
+    [
+      "CLI",
+      "help",
+      true,
+      ""
+    ],
+    [
+      "CLI",
+      "version",
+      false,
+      "Usage: python -m pynomaly [OPTIONS] COMMAND [ARGS]...\nTry 'python -m pynomaly --help' for help.\n\u256d\u2500 Error \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 No such option: --version Did you mean --verbose?                            \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n"
+    ],
+    [
+      "CLI",
+      "detect_help",
+      true,
+      ""
+    ],
+    [
+      "API",
+      "app_creation",
+      false,
+      "create_app() got an unexpected keyword argument 'testing'"
+    ],
+    [
+      "Integration",
+      "autonomous_detection",
+      true,
+      ""
+    ]
+  ]
+}
