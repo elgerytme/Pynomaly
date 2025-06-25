@@ -9,9 +9,10 @@ import tempfile
 import time
 from pathlib import Path
 
+
 def create_mock_ui():
     """Create a mock Pynomaly UI for testing demonstration."""
-    
+
     html_content = """
     <!DOCTYPE html>
     <html lang="en">
@@ -247,106 +248,122 @@ def create_mock_ui():
     </body>
     </html>
     """
-    
+
     # Create temporary HTML file
-    temp_file = tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False)
+    temp_file = tempfile.NamedTemporaryFile(mode="w", suffix=".html", delete=False)
     temp_file.write(html_content)
     temp_file.close()
-    
+
     return temp_file.name
+
 
 def run_ui_demo():
     """Run UI automation demo with mock interface."""
-    
+
     print("🎭 Pynomaly UI Automation Demo")
     print("=" * 50)
-    
+
     # Create mock UI
     mock_html_path = create_mock_ui()
     file_url = f"file://{mock_html_path}"
-    
+
     print(f"📄 Mock UI created: {file_url}")
-    
+
     try:
         # Try to install and use playwright for the demo
         import subprocess
         import sys
-        
+
         print("📦 Installing Playwright...")
-        subprocess.run([sys.executable, "-m", "pip", "install", "playwright"], 
-                      capture_output=True, check=True)
-        subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"], 
-                      capture_output=True, check=True)
-        
+        subprocess.run(
+            [sys.executable, "-m", "pip", "install", "playwright"],
+            capture_output=True,
+            check=True,
+        )
+        subprocess.run(
+            [sys.executable, "-m", "playwright", "install", "chromium"],
+            capture_output=True,
+            check=True,
+        )
+
         print("🚀 Running UI automation demo...")
-        
+
         from playwright.sync_api import sync_playwright
-        
+
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()
-            
+
             # Navigate to mock UI
             page.goto(file_url)
-            
+
             # Take screenshots
             screenshots_dir = Path("tests/ui/screenshots")
             screenshots_dir.mkdir(parents=True, exist_ok=True)
-            
+
             print("📸 Capturing screenshots...")
-            
+
             # Desktop screenshot
             page.set_viewport_size({"width": 1920, "height": 1080})
-            page.screenshot(path=str(screenshots_dir / "demo_desktop_dashboard.png"), full_page=True)
-            
+            page.screenshot(
+                path=str(screenshots_dir / "demo_desktop_dashboard.png"), full_page=True
+            )
+
             # Test mobile menu
             page.set_viewport_size({"width": 375, "height": 667})
-            page.screenshot(path=str(screenshots_dir / "demo_mobile_dashboard.png"), full_page=True)
-            
+            page.screenshot(
+                path=str(screenshots_dir / "demo_mobile_dashboard.png"), full_page=True
+            )
+
             # Click mobile menu
             page.click("#mobile-menu-btn")
-            page.screenshot(path=str(screenshots_dir / "demo_mobile_menu_open.png"), full_page=True)
-            
+            page.screenshot(
+                path=str(screenshots_dir / "demo_mobile_menu_open.png"), full_page=True
+            )
+
             # Test navigation hover states
             page.set_viewport_size({"width": 1920, "height": 1080})
             page.hover('nav a:has-text("Detectors")')
             page.screenshot(path=str(screenshots_dir / "demo_navigation_hover.png"))
-            
+
             # Test button interactions
             page.hover('button:has-text("Quick Detection")')
             page.screenshot(path=str(screenshots_dir / "demo_button_hover.png"))
-            
+
             # Wait for the status update animation
             print("⏳ Waiting for status update animation...")
             time.sleep(4)
-            page.screenshot(path=str(screenshots_dir / "demo_status_updated.png"), full_page=True)
-            
+            page.screenshot(
+                path=str(screenshots_dir / "demo_status_updated.png"), full_page=True
+            )
+
             browser.close()
-            
+
             print("✅ Demo completed successfully!")
             print(f"📸 Screenshots saved to: {screenshots_dir}")
-            
+
             # List captured screenshots
             screenshots = list(screenshots_dir.glob("demo_*.png"))
             print(f"📋 Captured {len(screenshots)} screenshots:")
             for screenshot in screenshots:
                 print(f"   • {screenshot.name}")
-                
+
     except ImportError:
         print("⚠️ Playwright not available for demo")
         print("💡 To run the full demo, install Playwright:")
         print("   pip install playwright")
         print("   playwright install")
-        
+
     except Exception as e:
         print(f"❌ Demo failed: {e}")
-        
+
     finally:
         # Cleanup
         try:
             os.unlink(mock_html_path)
         except:
             pass
+
 
 if __name__ == "__main__":
     run_ui_demo()

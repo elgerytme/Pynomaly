@@ -1,15 +1,14 @@
 """Configuration for mutation testing."""
 
+
+import numpy as np
+import pandas as pd
 import pytest
-from typing import Generator
 
 from pynomaly.domain.entities import Dataset, Detector
 from pynomaly.domain.value_objects import ContaminationRate
 from pynomaly.infrastructure.adapters import PyODAdapter
 from pynomaly.infrastructure.repositories import InMemoryDatasetRepository
-
-import pandas as pd
-import numpy as np
 
 
 @pytest.fixture
@@ -17,25 +16,21 @@ def sample_dataset() -> Dataset:
     """Create a sample dataset for mutation testing."""
     # Generate synthetic data with known anomalies
     np.random.seed(42)
-    
+
     # Normal data
     normal_data = np.random.multivariate_normal([0, 0], [[1, 0.5], [0.5, 1]], 80)
-    
+
     # Anomalous data
     anomaly_data = np.random.multivariate_normal([3, 3], [[0.5, 0], [0, 0.5]], 20)
-    
+
     # Combine data
     data = np.vstack([normal_data, anomaly_data])
     labels = np.hstack([np.zeros(80), np.ones(20)])
-    
-    df = pd.DataFrame(data, columns=['feature_1', 'feature_2'])
-    df['label'] = labels
-    
-    return Dataset(
-        name="mutation_test_dataset",
-        data=df,
-        target_column="label"
-    )
+
+    df = pd.DataFrame(data, columns=["feature_1", "feature_2"])
+    df["label"] = labels
+
+    return Dataset(name="mutation_test_dataset", data=df, target_column="label")
 
 
 @pytest.fixture
@@ -45,7 +40,7 @@ def basic_detector() -> Detector:
         algorithm_name="IsolationForest",
         contamination_rate=ContaminationRate(0.2),
         n_estimators=10,
-        random_state=42
+        random_state=42,
     )
 
 

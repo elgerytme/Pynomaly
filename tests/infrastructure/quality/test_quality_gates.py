@@ -1,30 +1,33 @@
 """Tests for quality gates system."""
 
-import pytest
 import tempfile
 from pathlib import Path
 from textwrap import dedent
 
 from pynomaly.infrastructure.quality.quality_gates import (
-    QualityGateValidator, QualityGateResult, QualityGateReport,
-    QualityGateType, QualityLevel, validate_feature_quality
+    QualityGateReport,
+    QualityGateResult,
+    QualityGateType,
+    QualityGateValidator,
+    QualityLevel,
+    validate_feature_quality,
 )
 
 
 class TestQualityGateValidator:
     """Test quality gate validator functionality."""
-    
+
     def setup_method(self):
         """Set up test fixtures."""
         self.validator = QualityGateValidator()
-    
+
     def test_validator_initialization(self):
         """Test validator initialization."""
         assert self.validator is not None
-        assert hasattr(self.validator, 'thresholds')
-        assert 'cyclomatic_complexity' in self.validator.thresholds
-        assert 'test_coverage' in self.validator.thresholds
-    
+        assert hasattr(self.validator, "thresholds")
+        assert "cyclomatic_complexity" in self.validator.thresholds
+        assert "test_coverage" in self.validator.thresholds
+
     def test_quality_gate_result_creation(self):
         """Test quality gate result data class."""
         result = QualityGateResult(
@@ -33,20 +36,20 @@ class TestQualityGateValidator:
             quality_level=QualityLevel.HIGH,
             passed=True,
             score=8.5,
-            max_score=10.0
+            max_score=10.0,
         )
-        
+
         assert result.gate_name == "Test Gate"
         assert result.gate_type == QualityGateType.CODE_QUALITY
         assert result.quality_level == QualityLevel.HIGH
         assert result.passed is True
         assert result.percentage_score == 85.0
-        
+
         # Test serialization
         result_dict = result.to_dict()
-        assert result_dict['gate_name'] == "Test Gate"
-        assert result_dict['percentage_score'] == 85.0
-    
+        assert result_dict["gate_name"] == "Test Gate"
+        assert result_dict["percentage_score"] == 85.0
+
     def test_quality_gate_report_creation(self):
         """Test quality gate report data class."""
         results = [
@@ -56,7 +59,7 @@ class TestQualityGateValidator:
                 quality_level=QualityLevel.HIGH,
                 passed=True,
                 score=9.0,
-                max_score=10.0
+                max_score=10.0,
             ),
             QualityGateResult(
                 gate_name="Gate 2",
@@ -64,10 +67,10 @@ class TestQualityGateValidator:
                 quality_level=QualityLevel.CRITICAL,
                 passed=False,
                 score=6.0,
-                max_score=10.0
-            )
+                max_score=10.0,
+            ),
         ]
-        
+
         report = QualityGateReport(
             feature_name="test_feature",
             feature_path="/test/path",
@@ -77,34 +80,34 @@ class TestQualityGateValidator:
             critical_failures=1,
             overall_score=15.0,
             max_overall_score=20.0,
-            gate_results=results
+            gate_results=results,
         )
-        
+
         assert report.feature_name == "test_feature"
         assert report.success_rate == 50.0  # 1/2 * 100
         assert report.overall_percentage == 75.0  # 15/20 * 100
         assert report.integration_approved is False  # Has critical failures
-        
+
         # Test serialization
         report_dict = report.to_dict()
-        assert report_dict['feature_name'] == "test_feature"
-        assert report_dict['success_rate'] == 50.0
-        assert len(report_dict['gate_results']) == 2
-    
+        assert report_dict["feature_name"] == "test_feature"
+        assert report_dict["success_rate"] == 50.0
+        assert len(report_dict["gate_results"]) == 2
+
     def test_validate_non_existent_file(self):
         """Test validation of non-existent file."""
         non_existent_path = Path("/non/existent/file.py")
         report = self.validator.validate_feature(non_existent_path)
-        
+
         assert report is not None
         assert report.feature_name == "file"
         assert report.total_gates > 0
         # Most gates should pass for non-existent files (skipped)
         assert report.success_rate >= 80.0
-    
+
     def test_validate_good_quality_code(self):
         """Test validation of high-quality code."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             # Write high-quality code
             code = dedent('''
                 """High-quality module with good practices."""
@@ -158,26 +161,28 @@ class TestQualityGateValidator:
             ''')
             f.write(code)
             f.flush()
-            
+
             # Validate the high-quality code
-            report = self.validator.validate_feature(Path(f.name), "high_quality_feature")
-            
+            report = self.validator.validate_feature(
+                Path(f.name), "high_quality_feature"
+            )
+
             assert report is not None
             assert report.feature_name == "high_quality_feature"
             assert report.total_gates > 0
-            
+
             # Should have high success rate for good code
             assert report.success_rate >= 70.0
             assert report.overall_percentage >= 70.0
-            
+
             # Should have no critical failures
             assert report.critical_failures == 0
-    
+
     def test_validate_poor_quality_code(self):
         """Test validation of poor-quality code."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             # Write poor-quality code
-            code = dedent('''
+            code = dedent("""
                 # No module docstring
                 # No future imports
                 # No type hints
@@ -206,32 +211,34 @@ class TestQualityGateValidator:
                         risky_operation()
                     except:
                         pass
-            ''')
+            """)
             f.write(code)
             f.flush()
-            
+
             # Validate the poor-quality code
-            report = self.validator.validate_feature(Path(f.name), "poor_quality_feature")
-            
+            report = self.validator.validate_feature(
+                Path(f.name), "poor_quality_feature"
+            )
+
             assert report is not None
             assert report.feature_name == "poor_quality_feature"
             assert report.total_gates > 0
-            
+
             # Should have lower success rate for poor code
             assert report.success_rate < 100.0
-            
+
             # Should have some failures
             assert report.failed_gates > 0
-            
+
             # Check specific gate failures
             gate_names = [result.gate_name for result in report.gate_results]
             assert "Security Patterns" in gate_names
             assert "Import Quality" in gate_names
             assert "Type Hints" in gate_names
-    
+
     def test_cyclomatic_complexity_gate(self):
         """Test cyclomatic complexity gate specifically."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             # Write code with high complexity
             code = dedent('''
                 """Module with complex function."""
@@ -254,18 +261,18 @@ class TestQualityGateValidator:
             ''')
             f.write(code)
             f.flush()
-            
+
             # Test complexity gate
             result = self.validator._check_cyclomatic_complexity(Path(f.name))
-            
+
             assert result.gate_name == "Cyclomatic Complexity"
             assert result.gate_type == QualityGateType.CODE_QUALITY
-            assert 'average_complexity' in result.details
-            assert 'max_complexity' in result.details
-    
+            assert "average_complexity" in result.details
+            assert "max_complexity" in result.details
+
     def test_docstring_coverage_gate(self):
         """Test docstring coverage gate specifically."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             # Write code with partial docstring coverage
             code = dedent('''
                 """Module docstring."""
@@ -289,23 +296,23 @@ class TestQualityGateValidator:
             ''')
             f.write(code)
             f.flush()
-            
+
             # Test docstring coverage gate
             result = self.validator._check_docstring_coverage(Path(f.name))
-            
+
             assert result.gate_name == "Docstring Coverage"
             assert result.gate_type == QualityGateType.DOCUMENTATION
-            assert 'coverage_percentage' in result.details
-            assert 'total_items' in result.details
-            assert 'documented_items' in result.details
-            
+            assert "coverage_percentage" in result.details
+            assert "total_items" in result.details
+            assert "documented_items" in result.details
+
             # Should have partial coverage (module + 1 class + 2/4 methods)
-            coverage = result.details['coverage_percentage']
+            coverage = result.details["coverage_percentage"]
             assert 0 < coverage < 100
-    
+
     def test_type_hints_coverage_gate(self):
         """Test type hints coverage gate specifically."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             # Write code with partial type hints
             code = dedent('''
                 """Module with mixed type hints."""
@@ -326,19 +333,19 @@ class TestQualityGateValidator:
             ''')
             f.write(code)
             f.flush()
-            
+
             # Test type hints coverage gate
             result = self.validator._check_type_hints(Path(f.name))
-            
+
             assert result.gate_name == "Type Hints"
             assert result.gate_type == QualityGateType.CODE_QUALITY
-            assert 'coverage_percentage' in result.details
-            assert 'total_functions' in result.details
-            assert 'functions_with_hints' in result.details
-    
+            assert "coverage_percentage" in result.details
+            assert "total_functions" in result.details
+            assert "functions_with_hints" in result.details
+
     def test_security_patterns_gate(self):
         """Test security patterns gate specifically."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             # Write code with security issues
             code = dedent('''
                 """Module with security issues."""
@@ -364,21 +371,21 @@ class TestQualityGateValidator:
             ''')
             f.write(code)
             f.flush()
-            
+
             # Test security patterns gate
             result = self.validator._check_security_patterns(Path(f.name))
-            
+
             assert result.gate_name == "Security Patterns"
             assert result.gate_type == QualityGateType.SECURITY
             assert result.passed is False  # Should fail due to security issues
-            assert 'issues' in result.details
-            assert len(result.details['issues']) > 0
-    
+            assert "issues" in result.details
+            assert len(result.details["issues"]) > 0
+
     def test_clean_architecture_gate(self):
         """Test clean architecture gate specifically."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             f.name = "/test/domain/entities/test_entity.py"  # Simulate domain layer
-            
+
             # Write code that violates clean architecture
             code = dedent('''
                 """Domain entity that incorrectly imports from infrastructure."""
@@ -395,17 +402,17 @@ class TestQualityGateValidator:
             ''')
             f.write(code)
             f.flush()
-            
+
             # Create a path that looks like domain layer
             domain_path = Path(f.name).parent / "domain" / "entities" / "test_entity.py"
-            
+
             # Test clean architecture gate (this will pass since it's a mock path)
             result = self.validator._check_clean_architecture(domain_path)
-            
+
             assert result.gate_name == "Clean Architecture"
             assert result.gate_type == QualityGateType.ARCHITECTURE
             assert result.quality_level == QualityLevel.CRITICAL
-    
+
     def test_generate_html_report(self):
         """Test HTML report generation."""
         # Create a sample report
@@ -417,7 +424,7 @@ class TestQualityGateValidator:
                 passed=True,
                 score=9.0,
                 max_score=10.0,
-                recommendations=["Keep up the good work"]
+                recommendations=["Keep up the good work"],
             ),
             QualityGateResult(
                 gate_name="Test Gate 2",
@@ -426,10 +433,10 @@ class TestQualityGateValidator:
                 passed=False,
                 score=5.0,
                 max_score=10.0,
-                recommendations=["Add more tests", "Improve coverage"]
-            )
+                recommendations=["Add more tests", "Improve coverage"],
+            ),
         ]
-        
+
         report = QualityGateReport(
             feature_name="test_feature",
             feature_path="/test/path/feature.py",
@@ -439,12 +446,12 @@ class TestQualityGateValidator:
             critical_failures=1,
             overall_score=14.0,
             max_overall_score=20.0,
-            gate_results=results
+            gate_results=results,
         )
-        
+
         # Generate HTML report
         html = self.validator.generate_report_html(report)
-        
+
         assert html is not None
         assert isinstance(html, str)
         assert "Quality Gate Report" in html
@@ -453,10 +460,10 @@ class TestQualityGateValidator:
         assert "Test Gate 2" in html
         assert "Keep up the good work" in html
         assert "Add more tests" in html
-    
+
     def test_convenience_function(self):
         """Test convenience function for feature validation."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             code = dedent('''
                 """Simple test module."""
                 
@@ -466,10 +473,10 @@ class TestQualityGateValidator:
             ''')
             f.write(code)
             f.flush()
-            
+
             # Test convenience function
             report = validate_feature_quality(Path(f.name), "test_feature")
-            
+
             assert report is not None
             assert report.feature_name == "test_feature"
             assert report.total_gates > 0
@@ -477,7 +484,7 @@ class TestQualityGateValidator:
 
 class TestQualityGateEnums:
     """Test quality gate enumerations."""
-    
+
     def test_quality_gate_type_enum(self):
         """Test quality gate type enumeration."""
         assert QualityGateType.CODE_QUALITY.value == "code_quality"
@@ -486,7 +493,7 @@ class TestQualityGateEnums:
         assert QualityGateType.ARCHITECTURE.value == "architecture"
         assert QualityGateType.TESTING.value == "testing"
         assert QualityGateType.SECURITY.value == "security"
-    
+
     def test_quality_level_enum(self):
         """Test quality level enumeration."""
         assert QualityLevel.CRITICAL.value == "critical"
@@ -497,10 +504,10 @@ class TestQualityGateEnums:
 
 class TestQualityGateIntegration:
     """Test quality gate system integration."""
-    
+
     def test_full_validation_workflow(self):
         """Test complete validation workflow."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             # Write a realistic feature file
             code = dedent('''
                 """User authentication service.
@@ -596,37 +603,37 @@ class TestQualityGateIntegration:
             ''')
             f.write(code)
             f.flush()
-            
+
             # Validate the realistic feature
             validator = QualityGateValidator()
             report = validator.validate_feature(Path(f.name), "user_authentication")
-            
+
             # Verify report structure
             assert report is not None
             assert report.feature_name == "user_authentication"
             assert report.total_gates > 10  # Should have many gates
-            
+
             # Should have good scores for well-written code
             assert report.overall_percentage > 60.0
             assert report.success_rate > 60.0
-            
+
             # Should have no critical failures for good code
             assert report.critical_failures == 0
-            
+
             # Should be approved for integration
             assert report.integration_approved is True
-            
+
             # Verify specific gates are present
             gate_names = [result.gate_name for result in report.gate_results]
             expected_gates = [
                 "Cyclomatic Complexity",
-                "Code Style", 
+                "Code Style",
                 "Type Hints",
                 "Import Quality",
                 "Docstring Coverage",
                 "Clean Architecture",
-                "Security Patterns"
+                "Security Patterns",
             ]
-            
+
             for expected_gate in expected_gates:
                 assert expected_gate in gate_names

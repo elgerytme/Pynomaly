@@ -1,12 +1,10 @@
 """Database test configuration for improved test coverage."""
 
 import tempfile
-import pytest
-from pathlib import Path
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
-from pynomaly.infrastructure.config import Settings, create_container
+import pytest
+
+from pynomaly.infrastructure.config import Settings
 from pynomaly.infrastructure.config.container import Container
 from pynomaly.infrastructure.persistence import DatabaseManager
 
@@ -30,7 +28,7 @@ def test_database_settings(test_database_url):
         app__debug=True,
         auth_enabled=False,
         cache_enabled=False,
-        monitoring__metrics_enabled=False
+        monitoring__metrics_enabled=False,
     )
 
 
@@ -39,13 +37,14 @@ def test_database_manager(test_database_settings):
     """Create a test database manager with SQLite."""
     try:
         manager = DatabaseManager(database_url=test_database_settings.database_url)
-        
+
         # Create all tables for testing
         from pynomaly.infrastructure.persistence.database_repositories import Base
+
         Base.metadata.create_all(manager.engine)
-        
+
         yield manager
-        
+
         # Cleanup
         manager.close()
     except ImportError:
@@ -71,9 +70,9 @@ def test_async_database_repositories(test_container_with_database):
     try:
         container = test_container_with_database
         return {
-            'detector_repository': container.async_detector_repository(),
-            'dataset_repository': container.async_dataset_repository(),
-            'result_repository': container.async_result_repository()
+            "detector_repository": container.async_detector_repository(),
+            "dataset_repository": container.async_dataset_repository(),
+            "result_repository": container.async_result_repository(),
         }
     except Exception:
         pytest.skip("Database repositories not available")

@@ -4,27 +4,21 @@ Mutation Testing Setup for Critical Code Paths
 Implements mutation testing to validate test quality and improve coverage effectiveness.
 """
 
-import subprocess
-import json
-import os
-import sys
 from pathlib import Path
-from typing import Dict, List, Any, Optional
-import configparser
 
 
 class MutationTestingSetup:
     """Sets up and configures mutation testing for critical code paths."""
-    
+
     def __init__(self, project_root: Path):
         self.project_root = project_root
         self.config_file = project_root / "setup.cfg"
         self.mutmut_config = project_root / ".mutmut.toml"
-        
+
     def create_mutmut_config(self):
         """Create mutation testing configuration."""
         print("🧬 Creating mutation testing configuration...")
-        
+
         mutmut_config = """
 [tool.mutmut]
 # Mutation testing configuration for Pynomaly
@@ -70,18 +64,18 @@ max_mutations = 500
 # Timeout for each test run (seconds)
 timeout = 300
 """
-        
-        with open(self.mutmut_config, 'w') as f:
+
+        with open(self.mutmut_config, "w") as f:
             f.write(mutmut_config)
-        
+
         print(f"✅ Mutation testing config created: {self.mutmut_config}")
-    
-    def create_critical_path_targets(self) -> Dict[str, List[str]]:
+
+    def create_critical_path_targets(self) -> dict[str, list[str]]:
         """Define critical code paths for targeted mutation testing."""
         critical_paths = {
             "domain_entities": [
                 "src/pynomaly/domain/entities/anomaly.py",
-                "src/pynomaly/domain/entities/detector.py", 
+                "src/pynomaly/domain/entities/detector.py",
                 "src/pynomaly/domain/entities/detection_result.py",
                 "src/pynomaly/domain/value_objects/anomaly_score.py",
                 "src/pynomaly/domain/value_objects/contamination_rate.py",
@@ -101,18 +95,18 @@ timeout = 300
                 "src/pynomaly/infrastructure/auth/jwt_auth.py",
                 "src/pynomaly/infrastructure/security/input_sanitizer.py",
                 "src/pynomaly/presentation/api/middleware.py",
-            ]
+            ],
         }
-        
+
         return critical_paths
-    
+
     def create_mutation_test_scripts(self):
         """Create scripts for running mutation tests on critical paths."""
         print("📝 Creating mutation test scripts...")
-        
+
         scripts_dir = self.project_root / "scripts" / "mutation"
         scripts_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Script for domain mutation testing
         domain_script = scripts_dir / "test_domain_mutations.py"
         domain_content = '''#!/usr/bin/env python3
@@ -163,10 +157,10 @@ def run_domain_mutations():
 if __name__ == "__main__":
     run_domain_mutations()
 '''
-        
-        with open(domain_script, 'w') as f:
+
+        with open(domain_script, "w") as f:
             f.write(domain_content)
-        
+
         # Script for ML adapter mutation testing
         ml_script = scripts_dir / "test_ml_adapter_mutations.py"
         ml_content = '''#!/usr/bin/env python3
@@ -218,21 +212,23 @@ def run_ml_adapter_mutations():
 if __name__ == "__main__":
     run_ml_adapter_mutations()
 '''
-        
-        with open(ml_script, 'w') as f:
+
+        with open(ml_script, "w") as f:
             f.write(ml_content)
-        
+
         # Make scripts executable
         domain_script.chmod(0o755)
         ml_script.chmod(0o755)
-        
+
         print(f"✅ Mutation test scripts created in {scripts_dir}")
-    
+
     def create_mutation_ci_workflow(self):
         """Create CI workflow for mutation testing."""
         print("🔄 Creating mutation testing CI workflow...")
-        
-        workflow_file = self.project_root / ".github" / "workflows" / "mutation-testing.yml"
+
+        workflow_file = (
+            self.project_root / ".github" / "workflows" / "mutation-testing.yml"
+        )
         workflow_content = """name: Mutation Testing
 
 on:
@@ -357,20 +353,20 @@ jobs:
         echo ""
         echo "✅ Mutation testing analysis completed"
 """
-        
+
         workflow_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(workflow_file, 'w') as f:
+        with open(workflow_file, "w") as f:
             f.write(workflow_content)
-        
+
         print(f"✅ Mutation testing workflow created: {workflow_file}")
-    
+
     def create_pytest_plugins(self):
         """Create custom pytest plugins for enhanced testing."""
         print("🔌 Creating custom pytest plugins...")
-        
+
         plugins_dir = self.project_root / "tests" / "plugins"
         plugins_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Plugin for test timing and performance monitoring
         timing_plugin = plugins_dir / "test_timing.py"
         timing_content = '''"""
@@ -462,10 +458,10 @@ def pytest_configure(config):
     """Register the timing plugin."""
     config.pluginmanager.register(TestTimingPlugin(), "test_timing")
 '''
-        
-        with open(timing_plugin, 'w') as f:
+
+        with open(timing_plugin, "w") as f:
             f.write(timing_content)
-        
+
         # Plugin for memory usage monitoring
         memory_plugin = plugins_dir / "memory_monitor.py"
         memory_content = '''"""
@@ -552,28 +548,28 @@ def pytest_configure(config):
     if psutil:
         config.pluginmanager.register(MemoryMonitorPlugin(), "memory_monitor")
 '''
-        
-        with open(memory_plugin, 'w') as f:
+
+        with open(memory_plugin, "w") as f:
             f.write(memory_content)
-        
+
         # Create plugin init file
         init_file = plugins_dir / "__init__.py"
-        with open(init_file, 'w') as f:
+        with open(init_file, "w") as f:
             f.write('"""Custom pytest plugins for enhanced testing."""\n')
-        
+
         print(f"✅ Custom pytest plugins created in {plugins_dir}")
-    
+
     def run_setup(self):
         """Run the complete mutation testing setup."""
         print("🧬 Setting up mutation testing infrastructure...")
         print("=" * 60)
-        
+
         self.create_mutmut_config()
         self.create_critical_path_targets()
         self.create_mutation_test_scripts()
         self.create_mutation_ci_workflow()
         self.create_pytest_plugins()
-        
+
         print("=" * 60)
         print("✅ MUTATION TESTING SETUP COMPLETE")
         print("=" * 60)
@@ -585,7 +581,9 @@ def pytest_configure(config):
         print("")
         print("🚀 Next Steps:")
         print("   1. Install mutmut: poetry add --group dev mutmut")
-        print("   2. Run domain mutations: python scripts/mutation/test_domain_mutations.py")
+        print(
+            "   2. Run domain mutations: python scripts/mutation/test_domain_mutations.py"
+        )
         print("   3. Review mutation testing results")
         print("   4. Improve tests for surviving mutations")
         print("=" * 60)

@@ -1,13 +1,13 @@
 """UI Test Configuration and Fixtures."""
 
 import os
-import pytest
-from pathlib import Path
-from typing import Generator, Dict, Any
+from collections.abc import Generator
 from datetime import datetime
+from pathlib import Path
+from typing import Any
 
-from playwright.sync_api import Playwright, Browser, BrowserContext, Page
-
+import pytest
+from playwright.sync_api import Browser, BrowserContext, Page, Playwright
 
 # Configuration
 BASE_URL = os.getenv("PYNOMALY_BASE_URL", "http://localhost:8000")
@@ -28,7 +28,9 @@ def browser_type_name() -> str:
 
 
 @pytest.fixture(scope="session")
-def browser(playwright: Playwright, browser_type_name: str) -> Generator[Browser, None, None]:
+def browser(
+    playwright: Playwright, browser_type_name: str
+) -> Generator[Browser, None, None]:
     """Create browser instance."""
     browser_type = getattr(playwright, browser_type_name)
     browser = browser_type.launch(
@@ -37,8 +39,8 @@ def browser(playwright: Playwright, browser_type_name: str) -> Generator[Browser
             "--no-sandbox",
             "--disable-dev-shm-usage",
             "--disable-web-security",
-            "--disable-features=VizDisplayCompositor"
-        ]
+            "--disable-features=VizDisplayCompositor",
+        ],
     )
     yield browser
     browser.close()
@@ -51,7 +53,9 @@ def context(browser: Browser) -> Generator[BrowserContext, None, None]:
         viewport={"width": 1920, "height": 1080},
         user_agent="Mozilla/5.0 (compatible; Pynomaly-UI-Tests/1.0)",
         ignore_https_errors=True,
-        record_video_dir=str(TEST_RESULTS_DIR / "videos") if os.getenv("RECORD_VIDEO") else None,
+        record_video_dir=str(TEST_RESULTS_DIR / "videos")
+        if os.getenv("RECORD_VIDEO")
+        else None,
     )
     yield context
     context.close()
@@ -61,11 +65,11 @@ def context(browser: Browser) -> Generator[BrowserContext, None, None]:
 def page(context: BrowserContext) -> Generator[Page, None, None]:
     """Create a new page."""
     page = context.new_page()
-    
+
     # Set up console logging
     page.on("console", lambda msg: print(f"Console {msg.type}: {msg.text}"))
     page.on("pageerror", lambda error: print(f"Page error: {error}"))
-    
+
     yield page
     page.close()
 
@@ -129,23 +133,23 @@ def pytest_runtest_makereport(item, call):
 
 # Test data fixtures
 @pytest.fixture
-def sample_detector_data() -> Dict[str, Any]:
+def sample_detector_data() -> dict[str, Any]:
     """Sample detector data for testing."""
     return {
         "name": "Test Detector",
         "algorithm": "IsolationForest",
         "description": "Test detector for UI automation",
-        "contamination": 0.1
+        "contamination": 0.1,
     }
 
 
 @pytest.fixture
-def sample_dataset_data() -> Dict[str, Any]:
+def sample_dataset_data() -> dict[str, Any]:
     """Sample dataset data for testing."""
     return {
         "name": "Test Dataset",
         "description": "Test dataset for UI automation",
-        "features": ["feature1", "feature2", "feature3"]
+        "features": ["feature1", "feature2", "feature3"],
     }
 
 
@@ -154,6 +158,7 @@ def sample_dataset_data() -> Dict[str, Any]:
 def dashboard_page(page: Page):
     """Dashboard page object."""
     from tests.ui.page_objects.dashboard_page import DashboardPage
+
     return DashboardPage(page, BASE_URL)
 
 
@@ -161,6 +166,7 @@ def dashboard_page(page: Page):
 def detectors_page(page: Page):
     """Detectors page object."""
     from tests.ui.page_objects.detectors_page import DetectorsPage
+
     return DetectorsPage(page, BASE_URL)
 
 
@@ -168,6 +174,7 @@ def detectors_page(page: Page):
 def datasets_page(page: Page):
     """Datasets page object."""
     from tests.ui.page_objects.datasets_page import DatasetsPage
+
     return DatasetsPage(page, BASE_URL)
 
 
@@ -175,6 +182,7 @@ def datasets_page(page: Page):
 def detection_page(page: Page):
     """Detection page object."""
     from tests.ui.page_objects.detection_page import DetectionPage
+
     return DetectionPage(page, BASE_URL)
 
 
@@ -182,4 +190,5 @@ def detection_page(page: Page):
 def visualizations_page(page: Page):
     """Visualizations page object."""
     from tests.ui.page_objects.visualizations_page import VisualizationsPage
+
     return VisualizationsPage(page, BASE_URL)

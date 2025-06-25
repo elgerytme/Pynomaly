@@ -4,10 +4,9 @@ Simple FastAPI server for UI testing demonstration.
 This creates a minimal Pynomaly-like web interface for testing purposes.
 """
 
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
 import uvicorn
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
 
 app = FastAPI(title="Pynomaly UI Test Server", version="1.0.0")
 
@@ -192,13 +191,12 @@ DASHBOARD_CONTENT = """
 </div>
 """
 
+
 # Route handlers
 @app.get("/", response_class=HTMLResponse)
 async def dashboard():
-    return HTML_TEMPLATE.format(
-        page_title="Dashboard",
-        content=DASHBOARD_CONTENT
-    )
+    return HTML_TEMPLATE.format(page_title="Dashboard", content=DASHBOARD_CONTENT)
+
 
 @app.get("/detectors", response_class=HTMLResponse)
 async def detectors():
@@ -217,10 +215,8 @@ async def detectors():
         </div>
     </div>
     """
-    return HTML_TEMPLATE.format(
-        page_title="Detectors",
-        content=content
-    )
+    return HTML_TEMPLATE.format(page_title="Detectors", content=content)
+
 
 @app.get("/datasets", response_class=HTMLResponse)
 async def datasets():
@@ -239,10 +235,8 @@ async def datasets():
         </div>
     </div>
     """
-    return HTML_TEMPLATE.format(
-        page_title="Datasets",
-        content=content
-    )
+    return HTML_TEMPLATE.format(page_title="Datasets", content=content)
+
 
 @app.get("/detection", response_class=HTMLResponse)
 async def detection():
@@ -271,10 +265,8 @@ async def detection():
         </form>
     </div>
     """
-    return HTML_TEMPLATE.format(
-        page_title="Detection",
-        content=content
-    )
+    return HTML_TEMPLATE.format(page_title="Detection", content=content)
+
 
 @app.get("/visualizations", response_class=HTMLResponse)
 async def visualizations():
@@ -297,10 +289,8 @@ async def visualizations():
         </div>
     </div>
     """
-    return HTML_TEMPLATE.format(
-        page_title="Visualizations",
-        content=content
-    )
+    return HTML_TEMPLATE.format(page_title="Visualizations", content=content)
+
 
 @app.get("/exports", response_class=HTMLResponse)
 async def exports():
@@ -323,19 +313,18 @@ async def exports():
         </div>
     </div>
     """
-    return HTML_TEMPLATE.format(
-        page_title="Exports",
-        content=content
-    )
+    return HTML_TEMPLATE.format(page_title="Exports", content=content)
+
 
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "service": "Pynomaly UI Test Server"}
+
 
 if __name__ == "__main__":
     print("🚀 Starting Pynomaly UI Test Server...")
     print("📍 Server will be available at: http://localhost:8000")
     print("🏠 Dashboard: http://localhost:8000/")
     print("🛠️ Health check: http://localhost:8000/health")
-    
+
     uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")

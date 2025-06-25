@@ -5,17 +5,16 @@ Generates HTML reports from all test artifacts including coverage, performance, 
 """
 
 import argparse
+import html
 import json
 import xml.etree.ElementTree as ET
-from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Any, Optional
-import html
+from pathlib import Path
 
 
 class TestReportGenerator:
     """Generates comprehensive test reports from CI/CD artifacts."""
-    
+
     def __init__(self, input_dir: Path, output_file: Path):
         self.input_dir = input_dir
         self.output_file = output_file
@@ -23,167 +22,170 @@ class TestReportGenerator:
         self.coverage_data = {}
         self.performance_data = {}
         self.security_data = {}
-    
+
     def collect_test_artifacts(self):
         """Collect all test artifacts from the input directory."""
         print("🔍 Collecting test artifacts...")
-        
+
         # Collect JUnit XML files
         for junit_file in self.input_dir.rglob("junit-*.xml"):
             self._parse_junit_xml(junit_file)
-        
+
         # Collect coverage XML files
         for coverage_file in self.input_dir.rglob("coverage-*.xml"):
             self._parse_coverage_xml(coverage_file)
-        
+
         # Collect performance JSON files
         for perf_file in self.input_dir.rglob("benchmark-results.json"):
             self._parse_performance_json(perf_file)
-        
+
         # Collect security reports
         for sec_file in self.input_dir.rglob("security-report.json"):
             self._parse_security_json(sec_file)
-        
+
         print(f"✅ Collected {len(self.test_results)} test suites")
-    
+
     def _parse_junit_xml(self, file_path: Path):
         """Parse JUnit XML test results."""
         try:
             tree = ET.parse(file_path)
             root = tree.getroot()
-            
-            suite_name = root.get('name', file_path.stem)
-            
+
+            suite_name = root.get("name", file_path.stem)
+
             self.test_results[suite_name] = {
-                'tests': int(root.get('tests', 0)),
-                'failures': int(root.get('failures', 0)),
-                'errors': int(root.get('errors', 0)),
-                'skipped': int(root.get('skipped', 0)),
-                'time': float(root.get('time', 0)),
-                'testcases': []
+                "tests": int(root.get("tests", 0)),
+                "failures": int(root.get("failures", 0)),
+                "errors": int(root.get("errors", 0)),
+                "skipped": int(root.get("skipped", 0)),
+                "time": float(root.get("time", 0)),
+                "testcases": [],
             }
-            
-            for testcase in root.findall('.//testcase'):
+
+            for testcase in root.findall(".//testcase"):
                 case_data = {
-                    'name': testcase.get('name'),
-                    'classname': testcase.get('classname'),
-                    'time': float(testcase.get('time', 0)),
-                    'status': 'passed'
+                    "name": testcase.get("name"),
+                    "classname": testcase.get("classname"),
+                    "time": float(testcase.get("time", 0)),
+                    "status": "passed",
                 }
-                
-                if testcase.find('failure') is not None:
-                    case_data['status'] = 'failed'
-                    case_data['failure'] = testcase.find('failure').text
-                elif testcase.find('error') is not None:
-                    case_data['status'] = 'error'
-                    case_data['error'] = testcase.find('error').text
-                elif testcase.find('skipped') is not None:
-                    case_data['status'] = 'skipped'
-                
-                self.test_results[suite_name]['testcases'].append(case_data)
-        
+
+                if testcase.find("failure") is not None:
+                    case_data["status"] = "failed"
+                    case_data["failure"] = testcase.find("failure").text
+                elif testcase.find("error") is not None:
+                    case_data["status"] = "error"
+                    case_data["error"] = testcase.find("error").text
+                elif testcase.find("skipped") is not None:
+                    case_data["status"] = "skipped"
+
+                self.test_results[suite_name]["testcases"].append(case_data)
+
         except Exception as e:
             print(f"⚠️ Error parsing {file_path}: {e}")
-    
+
     def _parse_coverage_xml(self, file_path: Path):
         """Parse coverage XML reports."""
         try:
             tree = ET.parse(file_path)
             root = tree.getroot()
-            
-            coverage_type = file_path.stem.replace('coverage-', '')
-            
+
+            coverage_type = file_path.stem.replace("coverage-", "")
+
             # Extract overall coverage metrics
-            coverage_elem = root.find('.//coverage')
+            coverage_elem = root.find(".//coverage")
             if coverage_elem is not None:
                 self.coverage_data[coverage_type] = {
-                    'line_rate': float(coverage_elem.get('line-rate', 0)) * 100,
-                    'branch_rate': float(coverage_elem.get('branch-rate', 0)) * 100,
-                    'lines_covered': int(coverage_elem.get('lines-covered', 0)),
-                    'lines_valid': int(coverage_elem.get('lines-valid', 0)),
-                    'branches_covered': int(coverage_elem.get('branches-covered', 0)),
-                    'branches_valid': int(coverage_elem.get('branches-valid', 0)),
-                    'packages': []
+                    "line_rate": float(coverage_elem.get("line-rate", 0)) * 100,
+                    "branch_rate": float(coverage_elem.get("branch-rate", 0)) * 100,
+                    "lines_covered": int(coverage_elem.get("lines-covered", 0)),
+                    "lines_valid": int(coverage_elem.get("lines-valid", 0)),
+                    "branches_covered": int(coverage_elem.get("branches-covered", 0)),
+                    "branches_valid": int(coverage_elem.get("branches-valid", 0)),
+                    "packages": [],
                 }
-                
+
                 # Extract package-level details
-                for package in root.findall('.//package'):
+                for package in root.findall(".//package"):
                     package_data = {
-                        'name': package.get('name'),
-                        'line_rate': float(package.get('line-rate', 0)) * 100,
-                        'branch_rate': float(package.get('branch-rate', 0)) * 100,
-                        'classes': []
+                        "name": package.get("name"),
+                        "line_rate": float(package.get("line-rate", 0)) * 100,
+                        "branch_rate": float(package.get("branch-rate", 0)) * 100,
+                        "classes": [],
                     }
-                    
-                    for class_elem in package.findall('.//class'):
+
+                    for class_elem in package.findall(".//class"):
                         class_data = {
-                            'name': class_elem.get('name'),
-                            'filename': class_elem.get('filename'),
-                            'line_rate': float(class_elem.get('line-rate', 0)) * 100,
-                            'branch_rate': float(class_elem.get('branch-rate', 0)) * 100
+                            "name": class_elem.get("name"),
+                            "filename": class_elem.get("filename"),
+                            "line_rate": float(class_elem.get("line-rate", 0)) * 100,
+                            "branch_rate": float(class_elem.get("branch-rate", 0))
+                            * 100,
                         }
-                        package_data['classes'].append(class_data)
-                    
-                    self.coverage_data[coverage_type]['packages'].append(package_data)
-        
+                        package_data["classes"].append(class_data)
+
+                    self.coverage_data[coverage_type]["packages"].append(package_data)
+
         except Exception as e:
             print(f"⚠️ Error parsing coverage {file_path}: {e}")
-    
+
     def _parse_performance_json(self, file_path: Path):
         """Parse performance benchmark results."""
         try:
-            with open(file_path, 'r') as f:
+            with open(file_path) as f:
                 data = json.load(f)
-            
+
             self.performance_data = {
-                'benchmarks': data.get('benchmarks', []),
-                'machine_info': data.get('machine_info', {}),
-                'commit_info': data.get('commit_info', {})
+                "benchmarks": data.get("benchmarks", []),
+                "machine_info": data.get("machine_info", {}),
+                "commit_info": data.get("commit_info", {}),
             }
-        
+
         except Exception as e:
             print(f"⚠️ Error parsing performance data {file_path}: {e}")
-    
+
     def _parse_security_json(self, file_path: Path):
         """Parse security scan results."""
         try:
-            with open(file_path, 'r') as f:
+            with open(file_path) as f:
                 data = json.load(f)
-            
+
             self.security_data = {
-                'results': data.get('results', []),
-                'metrics': data.get('metrics', {}),
-                'generated_at': data.get('generated_at', '')
+                "results": data.get("results", []),
+                "metrics": data.get("metrics", {}),
+                "generated_at": data.get("generated_at", ""),
             }
-        
+
         except Exception as e:
             print(f"⚠️ Error parsing security data {file_path}: {e}")
-    
-    def generate_html_report(self, include_coverage=True, include_performance=True, include_security=True):
+
+    def generate_html_report(
+        self, include_coverage=True, include_performance=True, include_security=True
+    ):
         """Generate comprehensive HTML test report."""
         print("📊 Generating HTML report...")
-        
+
         html_content = self._generate_html_structure()
         html_content += self._generate_summary_section()
         html_content += self._generate_test_results_section()
-        
+
         if include_coverage and self.coverage_data:
             html_content += self._generate_coverage_section()
-        
+
         if include_performance and self.performance_data:
             html_content += self._generate_performance_section()
-        
+
         if include_security and self.security_data:
             html_content += self._generate_security_section()
-        
+
         html_content += self._generate_html_footer()
-        
+
         # Write to file
-        with open(self.output_file, 'w', encoding='utf-8') as f:
+        with open(self.output_file, "w", encoding="utf-8") as f:
             f.write(html_content)
-        
+
         print(f"✅ Report generated: {self.output_file}")
-    
+
     def _generate_html_structure(self) -> str:
         """Generate HTML structure and CSS."""
         return f"""
@@ -355,31 +357,33 @@ class TestReportGenerator:
         <div class="header">
             <h1>🎯 Pynomaly Test Report</h1>
             <div class="subtitle">Comprehensive Testing Results</div>
-            <div class="timestamp">Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}</div>
+            <div class="timestamp">Generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC")}</div>
         </div>
 """
-    
+
     def _generate_summary_section(self) -> str:
         """Generate executive summary section."""
-        total_tests = sum(suite['tests'] for suite in self.test_results.values())
-        total_failures = sum(suite['failures'] for suite in self.test_results.values())
-        total_errors = sum(suite['errors'] for suite in self.test_results.values())
+        total_tests = sum(suite["tests"] for suite in self.test_results.values())
+        total_failures = sum(suite["failures"] for suite in self.test_results.values())
+        total_errors = sum(suite["errors"] for suite in self.test_results.values())
         total_passed = total_tests - total_failures - total_errors
-        
+
         pass_rate = (total_passed / total_tests * 100) if total_tests > 0 else 0
-        
+
         # Calculate overall coverage
         avg_line_coverage = 0
         avg_branch_coverage = 0
         if self.coverage_data:
-            line_rates = [data['line_rate'] for data in self.coverage_data.values()]
-            branch_rates = [data['branch_rate'] for data in self.coverage_data.values()]
+            line_rates = [data["line_rate"] for data in self.coverage_data.values()]
+            branch_rates = [data["branch_rate"] for data in self.coverage_data.values()]
             avg_line_coverage = sum(line_rates) / len(line_rates) if line_rates else 0
-            avg_branch_coverage = sum(branch_rates) / len(branch_rates) if branch_rates else 0
-        
+            avg_branch_coverage = (
+                sum(branch_rates) / len(branch_rates) if branch_rates else 0
+            )
+
         return f"""
         <div class="summary-grid">
-            <div class="metric-card {'success' if pass_rate >= 95 else 'warning' if pass_rate >= 80 else 'error'}">
+            <div class="metric-card {"success" if pass_rate >= 95 else "warning" if pass_rate >= 80 else "error"}">
                 <div class="metric-value">{pass_rate:.1f}%</div>
                 <div class="metric-label">Test Pass Rate</div>
             </div>
@@ -387,17 +391,17 @@ class TestReportGenerator:
                 <div class="metric-value">{total_tests:,}</div>
                 <div class="metric-label">Total Tests</div>
             </div>
-            <div class="metric-card {'success' if avg_line_coverage >= 80 else 'warning' if avg_line_coverage >= 60 else 'error'}">
+            <div class="metric-card {"success" if avg_line_coverage >= 80 else "warning" if avg_line_coverage >= 60 else "error"}">
                 <div class="metric-value">{avg_line_coverage:.1f}%</div>
                 <div class="metric-label">Line Coverage</div>
             </div>
-            <div class="metric-card {'success' if avg_branch_coverage >= 65 else 'warning' if avg_branch_coverage >= 45 else 'error'}">
+            <div class="metric-card {"success" if avg_branch_coverage >= 65 else "warning" if avg_branch_coverage >= 45 else "error"}">
                 <div class="metric-value">{avg_branch_coverage:.1f}%</div>
                 <div class="metric-label">Branch Coverage</div>
             </div>
         </div>
 """
-    
+
     def _generate_test_results_section(self) -> str:
         """Generate detailed test results section."""
         content = """
@@ -405,18 +409,30 @@ class TestReportGenerator:
             <div class="section-header">📋 Test Results by Suite</div>
             <div class="section-content">
 """
-        
+
         for suite_name, results in self.test_results.items():
-            pass_rate = ((results['tests'] - results['failures'] - results['errors']) / results['tests'] * 100) if results['tests'] > 0 else 0
-            
-            status_class = 'success' if results['failures'] == 0 and results['errors'] == 0 else 'error'
-            
+            pass_rate = (
+                (
+                    (results["tests"] - results["failures"] - results["errors"])
+                    / results["tests"]
+                    * 100
+                )
+                if results["tests"] > 0
+                else 0
+            )
+
+            status_class = (
+                "success"
+                if results["failures"] == 0 and results["errors"] == 0
+                else "error"
+            )
+
             content += f"""
                 <div class="test-suite">
                     <div class="test-suite-header">
                         <span>{suite_name}</span>
-                        <span class="status-badge status-{'passed' if status_class == 'success' else 'failed'}">
-                            {results['tests']} tests, {results['failures']} failures, {results['errors']} errors
+                        <span class="status-badge status-{"passed" if status_class == "success" else "failed"}">
+                            {results["tests"]} tests, {results["failures"]} failures, {results["errors"]} errors
                         </span>
                     </div>
                     <div style="padding: 15px;">
@@ -424,21 +440,21 @@ class TestReportGenerator:
                             <div class="progress-fill" style="width: {pass_rate}%">{pass_rate:.1f}%</div>
                         </div>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px;">
-                            <div>✅ Passed: {results['tests'] - results['failures'] - results['errors']}</div>
-                            <div>❌ Failed: {results['failures']}</div>
-                            <div>⚠️ Errors: {results['errors']}</div>
-                            <div>⏱️ Time: {results['time']:.2f}s</div>
+                            <div>✅ Passed: {results["tests"] - results["failures"] - results["errors"]}</div>
+                            <div>❌ Failed: {results["failures"]}</div>
+                            <div>⚠️ Errors: {results["errors"]}</div>
+                            <div>⏱️ Time: {results["time"]:.2f}s</div>
                         </div>
                     </div>
                 </div>
 """
-        
+
         content += """
             </div>
         </div>
 """
         return content
-    
+
     def _generate_coverage_section(self) -> str:
         """Generate coverage analysis section."""
         content = """
@@ -458,11 +474,11 @@ class TestReportGenerator:
                         </thead>
                         <tbody>
 """
-        
+
         for component, data in self.coverage_data.items():
-            line_coverage = data['line_rate']
-            branch_coverage = data['branch_rate']
-            
+            line_coverage = data["line_rate"]
+            branch_coverage = data["branch_rate"]
+
             content += f"""
                             <tr>
                                 <td><strong>{component.title()}</strong></td>
@@ -480,11 +496,11 @@ class TestReportGenerator:
                                         </div>
                                     </div>
                                 </td>
-                                <td>{data['lines_covered']} / {data['lines_valid']}</td>
-                                <td>{data['branches_covered']} / {data['branches_valid']}</td>
+                                <td>{data["lines_covered"]} / {data["lines_valid"]}</td>
+                                <td>{data["branches_covered"]} / {data["branches_valid"]}</td>
                             </tr>
 """
-        
+
         content += """
                         </tbody>
                     </table>
@@ -493,12 +509,12 @@ class TestReportGenerator:
         </div>
 """
         return content
-    
+
     def _generate_performance_section(self) -> str:
         """Generate performance benchmark section."""
-        if not self.performance_data.get('benchmarks'):
+        if not self.performance_data.get("benchmarks"):
             return ""
-        
+
         content = """
         <div class="section">
             <div class="section-header">⚡ Performance Benchmarks</div>
@@ -517,18 +533,18 @@ class TestReportGenerator:
                         </thead>
                         <tbody>
 """
-        
-        for benchmark in self.performance_data['benchmarks']:
-            stats = benchmark.get('stats', {})
-            mean_time = stats.get('mean', 0)
-            min_time = stats.get('min', 0)
-            max_time = stats.get('max', 0)
-            stddev = stats.get('stddev', 0)
+
+        for benchmark in self.performance_data["benchmarks"]:
+            stats = benchmark.get("stats", {})
+            mean_time = stats.get("mean", 0)
+            min_time = stats.get("min", 0)
+            max_time = stats.get("max", 0)
+            stddev = stats.get("stddev", 0)
             ops_per_sec = 1 / mean_time if mean_time > 0 else 0
-            
+
             content += f"""
                             <tr>
-                                <td><strong>{html.escape(benchmark.get('name', 'Unknown'))}</strong></td>
+                                <td><strong>{html.escape(benchmark.get("name", "Unknown"))}</strong></td>
                                 <td>{mean_time:.4f}s</td>
                                 <td>{min_time:.4f}s</td>
                                 <td>{max_time:.4f}s</td>
@@ -536,7 +552,7 @@ class TestReportGenerator:
                                 <td>{ops_per_sec:.2f}</td>
                             </tr>
 """
-        
+
         content += """
                         </tbody>
                     </table>
@@ -545,39 +561,39 @@ class TestReportGenerator:
         </div>
 """
         return content
-    
+
     def _generate_security_section(self) -> str:
         """Generate security scan results section."""
-        if not self.security_data.get('results'):
+        if not self.security_data.get("results"):
             return ""
-        
+
         # Count security issues by severity
-        severity_counts = {'HIGH': 0, 'MEDIUM': 0, 'LOW': 0}
-        for result in self.security_data['results']:
-            severity = result.get('issue_severity', 'LOW').upper()
+        severity_counts = {"HIGH": 0, "MEDIUM": 0, "LOW": 0}
+        for result in self.security_data["results"]:
+            severity = result.get("issue_severity", "LOW").upper()
             if severity in severity_counts:
                 severity_counts[severity] += 1
-        
+
         content = f"""
         <div class="section">
             <div class="section-header">🔒 Security Scan Results</div>
             <div class="section-content">
                 <div class="summary-grid">
-                    <div class="metric-card {'error' if severity_counts['HIGH'] > 0 else 'success'}">
-                        <div class="metric-value">{severity_counts['HIGH']}</div>
+                    <div class="metric-card {"error" if severity_counts["HIGH"] > 0 else "success"}">
+                        <div class="metric-value">{severity_counts["HIGH"]}</div>
                         <div class="metric-label">High Severity</div>
                     </div>
-                    <div class="metric-card {'warning' if severity_counts['MEDIUM'] > 0 else 'success'}">
-                        <div class="metric-value">{severity_counts['MEDIUM']}</div>
+                    <div class="metric-card {"warning" if severity_counts["MEDIUM"] > 0 else "success"}">
+                        <div class="metric-value">{severity_counts["MEDIUM"]}</div>
                         <div class="metric-label">Medium Severity</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value">{severity_counts['LOW']}</div>
+                        <div class="metric-value">{severity_counts["LOW"]}</div>
                         <div class="metric-label">Low Severity</div>
                     </div>
                 </div>
 """
-        
+
         if any(severity_counts.values()):
             content += """
                 <div class="table-responsive">
@@ -593,16 +609,22 @@ class TestReportGenerator:
                         </thead>
                         <tbody>
 """
-            
-            for result in self.security_data['results']:
-                severity = result.get('issue_severity', 'LOW').upper()
-                issue_text = result.get('issue_text', 'Unknown issue')
-                filename = result.get('filename', 'Unknown file')
-                line_number = result.get('line_number', 'N/A')
-                description = result.get('issue_description', '')
-                
-                severity_class = 'error' if severity == 'HIGH' else 'warning' if severity == 'MEDIUM' else ''
-                
+
+            for result in self.security_data["results"]:
+                severity = result.get("issue_severity", "LOW").upper()
+                issue_text = result.get("issue_text", "Unknown issue")
+                filename = result.get("filename", "Unknown file")
+                line_number = result.get("line_number", "N/A")
+                description = result.get("issue_description", "")
+
+                severity_class = (
+                    "error"
+                    if severity == "HIGH"
+                    else "warning"
+                    if severity == "MEDIUM"
+                    else ""
+                )
+
                 content += f"""
                             <tr>
                                 <td><span class="status-badge status-{severity_class}">{severity}</span></td>
@@ -612,19 +634,19 @@ class TestReportGenerator:
                                 <td>{html.escape(description)}</td>
                             </tr>
 """
-            
+
             content += """
                         </tbody>
                     </table>
                 </div>
 """
-        
+
         content += """
             </div>
         </div>
 """
         return content
-    
+
     def _generate_html_footer(self) -> str:
         """Generate HTML footer."""
         return """
@@ -639,32 +661,49 @@ class TestReportGenerator:
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Generate comprehensive test report')
-    parser.add_argument('--input-dir', type=Path, required=True,
-                       help='Directory containing test artifacts')
-    parser.add_argument('--output-file', type=Path, required=True,
-                       help='Output HTML report file')
-    parser.add_argument('--include-coverage', action='store_true', default=True,
-                       help='Include coverage analysis')
-    parser.add_argument('--include-performance', action='store_true', default=True,
-                       help='Include performance benchmarks')
-    parser.add_argument('--include-security', action='store_true', default=True,
-                       help='Include security scan results')
-    
+    parser = argparse.ArgumentParser(description="Generate comprehensive test report")
+    parser.add_argument(
+        "--input-dir",
+        type=Path,
+        required=True,
+        help="Directory containing test artifacts",
+    )
+    parser.add_argument(
+        "--output-file", type=Path, required=True, help="Output HTML report file"
+    )
+    parser.add_argument(
+        "--include-coverage",
+        action="store_true",
+        default=True,
+        help="Include coverage analysis",
+    )
+    parser.add_argument(
+        "--include-performance",
+        action="store_true",
+        default=True,
+        help="Include performance benchmarks",
+    )
+    parser.add_argument(
+        "--include-security",
+        action="store_true",
+        default=True,
+        help="Include security scan results",
+    )
+
     args = parser.parse_args()
-    
+
     # Create output directory if it doesn't exist
     args.output_file.parent.mkdir(parents=True, exist_ok=True)
-    
+
     # Generate report
     generator = TestReportGenerator(args.input_dir, args.output_file)
     generator.collect_test_artifacts()
     generator.generate_html_report(
         include_coverage=args.include_coverage,
         include_performance=args.include_performance,
-        include_security=args.include_security
+        include_security=args.include_security,
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

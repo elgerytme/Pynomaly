@@ -3,11 +3,12 @@
 Simple working FastAPI server for UI testing.
 """
 
+import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
-import uvicorn
 
 app = FastAPI(title="Pynomaly UI Test Server", version="1.0.0")
+
 
 @app.get("/", response_class=HTMLResponse)
 async def dashboard():
@@ -146,6 +147,7 @@ async def dashboard():
     </html>
     """
 
+
 @app.get("/detectors", response_class=HTMLResponse)
 async def detectors():
     return """
@@ -164,6 +166,7 @@ async def detectors():
     </div></main></body></html>
     """
 
+
 @app.get("/datasets", response_class=HTMLResponse)
 async def datasets():
     return """
@@ -179,6 +182,7 @@ async def datasets():
     <button id="upload-btn" class="px-4 py-2 bg-blue-600 text-white rounded">Upload Files</button>
     </div></div></main></body></html>
     """
+
 
 @app.get("/detection", response_class=HTMLResponse)
 async def detection():
@@ -198,6 +202,7 @@ async def detection():
     </form></div></div></main></body></html>
     """
 
+
 @app.get("/visualizations", response_class=HTMLResponse)
 async def visualizations():
     return """
@@ -213,6 +218,7 @@ async def visualizations():
     <h2 class="text-xl font-semibold mb-4">Visualizations</h2>
     </div></div></main></body></html>
     """
+
 
 @app.get("/exports", response_class=HTMLResponse)
 async def exports():
@@ -231,9 +237,11 @@ async def exports():
     </div></div></main></body></html>
     """
 
+
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "service": "Pynomaly UI Test Server"}
+
 
 if __name__ == "__main__":
     print("🚀 Starting Pynomaly UI Test Server...")
