@@ -391,7 +391,7 @@ class PerformancePredictionDTO(BaseModel):
     predicted_performance: float = Field(
         ..., ge=0, le=1, description="Predicted performance"
     )
-    confidence_interval: Tuple[float, float] = Field(
+    confidence_interval: tuple[float, float] = Field(
         ..., description="Confidence interval"
     )
 
@@ -407,7 +407,7 @@ class PerformancePredictionDTO(BaseModel):
     similar_datasets_count: int = Field(
         default=0, ge=0, description="Number of similar datasets in history"
     )
-    historical_performance_range: Tuple[float, float] | None = Field(
+    historical_performance_range: tuple[float, float] | None = Field(
         default=None, description="Historical performance range for similar datasets"
     )
 
