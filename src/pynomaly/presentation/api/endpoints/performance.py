@@ -545,47 +545,47 @@ async def get_system_metrics(
         #     "cache_performance": {}
         # }
         
-        # Get pool statistics
-        if pool_manager is not None:
-            try:
-                all_stats = pool_manager.get_all_stats()
-                metrics["connection_pools"] = {
-                    name: {
-                        "type": stats.pool_type.value,
-                        "active_connections": stats.active_connections,
-                        "total_requests": stats.total_requests,
-                        "success_rate": stats.successful_requests / max(1, stats.total_requests),
-                        "avg_response_time": stats.avg_response_time,
-                        "connection_errors": stats.connection_errors
-                    }
-                    for name, stats in all_stats.items()
-                }
-            except Exception:
-                metrics["connection_pools"] = {"error": "Unable to retrieve pool statistics"}
-        
-        # Get query performance
-        if optimizer is not None:
-            try:
-                query_summary = optimizer.performance_tracker.get_performance_summary()
-                metrics["query_performance"] = {
-                    "total_queries": query_summary["total_queries"],
-                    "avg_time": query_summary["avg_time"],
-                    "slow_queries": query_summary["slow_queries"],
-                    "unique_queries": query_summary["unique_queries"]
-                }
-                
-                # Get cache stats
-                cache_stats = optimizer.cache.get_stats()
-                metrics["cache_performance"] = {
-                    "total_entries": cache_stats["total_entries"],
-                    "hit_rate": cache_stats["hit_rate"],
-                    "memory_usage_mb": cache_stats["memory_usage_mb"]
-                }
-            except Exception:
-                metrics["query_performance"] = {"error": "Unable to retrieve query statistics"}
-                metrics["cache_performance"] = {"error": "Unable to retrieve cache statistics"}
-        
-        return metrics
+        # # Get pool statistics
+        # if pool_manager is not None:
+        #     try:
+        #         all_stats = pool_manager.get_all_stats()
+        #         metrics["connection_pools"] = {
+        #             name: {
+        #                 "type": stats.pool_type.value,
+        #                 "active_connections": stats.active_connections,
+        #                 "total_requests": stats.total_requests,
+        #                 "success_rate": stats.successful_requests / max(1, stats.total_requests),
+        #                 "avg_response_time": stats.avg_response_time,
+        #                 "connection_errors": stats.connection_errors
+        #             }
+        #             for name, stats in all_stats.items()
+        #         }
+        #     except Exception:
+        #         metrics["connection_pools"] = {"error": "Unable to retrieve pool statistics"}
+        # 
+        # # Get query performance
+        # if optimizer is not None:
+        #     try:
+        #         query_summary = optimizer.performance_tracker.get_performance_summary()
+        #         metrics["query_performance"] = {
+        #             "total_queries": query_summary["total_queries"],
+        #             "avg_time": query_summary["avg_time"],
+        #             "slow_queries": query_summary["slow_queries"],
+        #             "unique_queries": query_summary["unique_queries"]
+        #         }
+        #         
+        #         # Get cache stats
+        #         cache_stats = optimizer.cache.get_stats()
+        #         metrics["cache_performance"] = {
+        #             "total_entries": cache_stats["total_entries"],
+        #             "hit_rate": cache_stats["hit_rate"],
+        #             "memory_usage_mb": cache_stats["memory_usage_mb"]
+        #         }
+        #     except Exception:
+        #         metrics["query_performance"] = {"error": "Unable to retrieve query statistics"}
+        #         metrics["cache_performance"] = {"error": "Unable to retrieve cache statistics"}
+        # 
+        # return metrics
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get system metrics: {str(e)}")
