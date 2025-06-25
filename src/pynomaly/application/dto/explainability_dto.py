@@ -139,7 +139,144 @@ class FeatureContributionDTO(BaseModel):
     importance: float = Field(..., description="Absolute importance score")
     rank: int = Field(..., description="Importance rank")
     description: Optional[str] = Field(default=None, description="Description of contribution")
+    confidence_interval: Optional[Tuple[float, float]] = Field(default=None, description="Confidence interval for contribution")
+    p_value: Optional[float] = Field(default=None, description="Statistical significance p-value")
+    normalized_contribution: Optional[float] = Field(default=None, description="Normalized contribution (0-1)")
 
+
+class FeatureInteractionDTO(BaseModel):
+    """DTO for feature interaction information."""
+    model_config = ConfigDict(from_attributes=True)
+    
+    feature_1: str = Field(..., description="First feature name")
+    feature_2: str = Field(..., description="Second feature name")
+    interaction_value: float = Field(..., description="Interaction contribution")
+    interaction_strength: float = Field(..., description="Strength of interaction")
+    statistical_significance: Optional[float] = Field(default=None, description="Statistical significance")
+
+
+# ============================================================================
+# Bias Analysis DTOs
+# ============================================================================
+
+class BiasMetricResultDTO(BaseModel):
+    """DTO for individual bias metric result."""
+    model_config = ConfigDict(from_attributes=True)
+    
+    metric_name: BiasMetric = Field(..., description="Bias metric name")
+    overall_score: float = Field(..., description="Overall bias score")
+    group_scores: Dict[str, float] = Field(..., description="Scores by protected group")
+    disparity_ratio: float = Field(..., description="Ratio of max to min group performance")
+    statistical_significance: Optional[float] = Field(default=None, description="Statistical significance p-value")
+    confidence_interval: Optional[Tuple[float, float]] = Field(default=None, description="Confidence interval for overall score")
+    interpretation: str = Field(..., description="Human-readable interpretation")
+    is_biased: bool = Field(..., description="Whether bias is detected based on threshold")
+    severity: Literal["low", "medium", "high", "critical"] = Field(..., description="Bias severity level")
+
+
+class GroupComparisonDTO(BaseModel):
+    """DTO for comparing groups in bias analysis."""
+    model_config = ConfigDict(from_attributes=True)
+    
+    group_name: str = Field(..., description="Group identifier")
+    group_size: int = Field(..., description="Number of samples in group")
+    mean_prediction: float = Field(..., description="Mean prediction for group")
+    std_prediction: float = Field(..., description="Standard deviation of predictions")
+    positive_rate: float = Field(..., description="Positive prediction rate")
+    false_positive_rate: Optional[float] = Field(default=None, description="False positive rate")
+    false_negative_rate: Optional[float] = Field(default=None, description="False negative rate")
+    accuracy: Optional[float] = Field(default=None, description="Group-specific accuracy")
+
+
+class BiasAnalysisResultDTO(BaseModel):
+    """DTO for comprehensive bias analysis results."""
+    model_config = ConfigDict(from_attributes=True)
+    
+    detector_id: UUID = Field(..., description="Detector identifier")
+    dataset_id: UUID = Field(..., description="Dataset identifier")
+    analysis_id: UUID = Field(..., description="Analysis identifier")
+    timestamp: datetime = Field(default_factory=datetime.now, description="Analysis timestamp")
+    
+    protected_attributes: List[str] = Field(..., description="Protected attributes analyzed")
+    total_samples: int = Field(..., description="Total number of samples")
+    group_comparisons: Dict[str, List[GroupComparisonDTO]] = Field(..., description="Group comparison results by attribute")
+    bias_metrics: List[BiasMetricResultDTO] = Field(..., description="Bias metric results")
+    
+    overall_bias_score: float = Field(..., description="Overall bias score (0-1, lower is better)")
+    is_fair: bool = Field(..., description="Whether model is considered fair")
+    fairness_threshold: float = Field(..., description="Threshold used for fairness determination")
+    
+    recommendations: List[str] = Field(default_factory=list, description="Bias mitigation recommendations")
+    mitigation_strategies: Dict[str, Any] = Field(default_factory=dict, description="Suggested mitigation strategies")
+    
+    execution_time: float = Field(..., description="Analysis execution time in seconds")
+    configuration: BiasAnalysisConfigDTO = Field(..., description="Analysis configuration used")
+
+
+# ============================================================================
+# Trust Assessment DTOs
+# ============================================================================
+
+class TrustMetricResultDTO(BaseModel):
+    """DTO for individual trust metric result."""
+    model_config = ConfigDict(from_attributes=True)
+    
+    metric_name: TrustMetric = Field(..., description="Trust metric name")
+    score: float = Field(ge=0, le=1, description="Trust metric score (0-1, higher is better)")
+    details: Dict[str, Any] = Field(default_factory=dict, description="Detailed metric information")
+    interpretation: str = Field(..., description="Human-readable interpretation")
+    confidence_level: Literal["low", "medium", "high"] = Field(..., description="Confidence in metric assessment")
+    
+    # Metric-specific fields
+    consistency_variance: Optional[float] = Field(default=None, description="Variance in explanations for consistency")
+    stability_correlation: Optional[float] = Field(default=None, description="Correlation between perturbed explanations")
+    fidelity_accuracy: Optional[float] = Field(default=None, description="Accuracy of explanation approximation")
+    robustness_degradation: Optional[float] = Field(default=None, description="Performance degradation under perturbations")
+
+
+class UncertaintyQuantificationDTO(BaseModel):
+    """DTO for uncertainty quantification results."""
+    model_config = ConfigDict(from_attributes=True)
+    
+    epistemic_uncertainty: float = Field(..., description="Model uncertainty (epistemic)")
+    aleatoric_uncertainty: float = Field(..., description="Data uncertainty (aleatoric)")
+    total_uncertainty: float = Field(..., description="Total uncertainty")
+    confidence_score: float = Field(ge=0, le=1, description="Confidence in prediction")
+    prediction_interval: Tuple[float, float] = Field(..., description="Prediction interval")
+    entropy: float = Field(..., description="Prediction entropy")
+    
+    # Method-specific uncertainty measures
+    mc_dropout_variance: Optional[float] = Field(default=None, description="Monte Carlo dropout variance")
+    ensemble_variance: Optional[float] = Field(default=None, description="Ensemble prediction variance")
+    bayesian_uncertainty: Optional[float] = Field(default=None, description="Bayesian uncertainty estimate")
+
+
+class TrustAssessmentResultDTO(BaseModel):
+    """DTO for comprehensive trust assessment results."""
+    model_config = ConfigDict(from_attributes=True)
+    
+    detector_id: UUID = Field(..., description="Detector identifier")
+    dataset_id: Optional[UUID] = Field(default=None, description="Dataset identifier")
+    assessment_id: UUID = Field(..., description="Assessment identifier")
+    timestamp: datetime = Field(default_factory=datetime.now, description="Assessment timestamp")
+    
+    trust_metrics: List[TrustMetricResultDTO] = Field(..., description="Individual trust metric results")
+    uncertainty_quantification: Optional[UncertaintyQuantificationDTO] = Field(default=None, description="Uncertainty analysis")
+    
+    overall_trust_score: float = Field(ge=0, le=1, description="Overall trust score (0-1, higher is better)")
+    trust_level: Literal["very_low", "low", "medium", "high", "very_high"] = Field(..., description="Categorical trust level")
+    
+    key_strengths: List[str] = Field(default_factory=list, description="Key trust strengths identified")
+    key_concerns: List[str] = Field(default_factory=list, description="Key trust concerns identified")
+    improvement_suggestions: List[str] = Field(default_factory=list, description="Suggestions for improving trust")
+    
+    execution_time: float = Field(..., description="Assessment execution time in seconds")
+    configuration: TrustAssessmentConfigDTO = Field(..., description="Assessment configuration used")
+
+
+# ============================================================================
+# Enhanced Explanation DTOs
+# ============================================================================
 
 class LocalExplanationDTO(BaseModel):
     """DTO for local explanation."""
@@ -150,9 +287,21 @@ class LocalExplanationDTO(BaseModel):
     prediction: str = Field(..., description="Prediction label")
     confidence: float = Field(..., description="Prediction confidence")
     feature_contributions: List[FeatureContributionDTO] = Field(..., description="Feature contributions")
-    explanation_method: str = Field(..., description="Explanation method used")
+    feature_interactions: Optional[List[FeatureInteractionDTO]] = Field(default=None, description="Feature interactions")
+    explanation_method: ExplanationMethod = Field(..., description="Explanation method used")
     model_name: str = Field(..., description="Model name")
-    timestamp: str = Field(..., description="Explanation timestamp")
+    timestamp: datetime = Field(default_factory=datetime.now, description="Explanation timestamp")
+    
+    # Enhanced fields
+    baseline_score: Optional[float] = Field(default=None, description="Baseline prediction score")
+    counterfactual_examples: Optional[List[Dict[str, Any]]] = Field(default=None, description="Counterfactual examples")
+    similar_instances: Optional[List[str]] = Field(default=None, description="Similar instance identifiers")
+    explanation_quality_score: Optional[float] = Field(default=None, description="Quality of explanation (0-1)")
+    uncertainty: Optional[UncertaintyQuantificationDTO] = Field(default=None, description="Uncertainty quantification")
+    
+    # Metadata
+    computation_time: float = Field(..., description="Time to compute explanation (seconds)")
+    explanation_config: Optional[ExplanationConfigDTO] = Field(default=None, description="Configuration used")
 
 
 class GlobalExplanationDTO(BaseModel):
