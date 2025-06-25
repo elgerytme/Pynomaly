@@ -7,6 +7,10 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+test_env/
+test_environments/
+test_venv/
+fresh_env/
 .Python
 build/artifacts/
 !build/artifacts/README.md
@@ -263,10 +267,12 @@ mlruns/
 # Benchmarking
 benchmarks/results/
 *.benchmark
+.venv_testing/
 .venv_testing/lib64
 .venv_testing/bin/python
 .venv_testing/bin/python3
 .venv_testing/bin/python3.12
+tests/ui/ui_test_env/
 tests/ui/ui_test_env/bin/python
 tests/ui/ui_test_env/bin/python3
 tests/ui/ui_test_env/bin/python3.12
@@ -274,3 +280,7 @@ tests/ui/ui_test_env/bin/python
 tests/ui/ui_test_env/bin/python3
 tests/ui/ui_test_env/bin/python3.12
 tests/ui_integration_results.json
+2.0
+fresh_env/lib64
+test_venv_bash/
+test_venv_bash/lib64

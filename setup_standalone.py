@@ -1,20 +1,16 @@
-"""Minimal setup.py for pip installation"""
+"""Standalone setup.py for pip installation without pyproject.toml conflicts"""
 
 from setuptools import setup, find_packages
 
-# Read version from pyproject.toml (simplified approach)
-import re
-try:
-    with open("pyproject.toml", "r") as f:
-        content = f.read()
-        version_match = re.search(r'version = "([^"]+)"', content)
-        version = version_match.group(1) if version_match else "0.1.0"
-except FileNotFoundError:
-    version = "0.1.0"
+# Version
+version = "0.1.0"
 
 # Read long description from README
-with open("README.md", "r", encoding="utf-8") as f:
-    long_description = f.read()
+try:
+    with open("README.md", "r", encoding="utf-8") as f:
+        long_description = f.read()
+except FileNotFoundError:
+    long_description = "State-of-the-art Python anomaly detection package with clean architecture"
 
 setup(
     name="pynomaly",
@@ -57,9 +53,9 @@ setup(
         "fastapi>=0.109.0",
         "typer[all]>=0.9.0",
         "uvicorn[standard]>=0.27.0",
-        "httpx>=0.27.0",
+        "httpx>=0.26.0",
         "rich>=13.7.0",
-        "python-multipart>=0.0.18",
+        "python-multipart>=0.0.6",
         "jinja2>=3.1.0",
         "aiofiles>=23.2.0",
         "pyarrow>=14.0.0",
@@ -67,11 +63,14 @@ setup(
         "opentelemetry-sdk>=1.22.0",
         "opentelemetry-instrumentation-fastapi>=0.43b0",
         "prometheus-client>=0.19.0",
+        "prometheus-fastapi-instrumentator>=5.9.1",
     ],
     extras_require={
         "torch": ["torch>=2.1.0"],
         "tensorflow": ["tensorflow>=2.15.0"],
         "jax": ["jax>=0.4.23", "jaxlib>=0.4.23"],
+        "graph": ["pygod>=1.1.0"],
+        "timeseries": ["tods>=1.0.0"],
         "distributed": ["dask>=2024.1.0"],
         "dev": [
             "pytest>=8.0.0",
