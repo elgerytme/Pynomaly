@@ -14,7 +14,8 @@ from pynomaly.presentation.cli import datasets, detectors, detection, server, au
 # from pynomaly.presentation.cli import performance  # Temporarily disabled due to Typer type issues
 from pynomaly.presentation.cli.export import export_app
 # from pynomaly.presentation.cli.explain import explain_commands  # Temporarily disabled
-from pynomaly.presentation.cli.security import security_commands
+# from pynomaly.presentation.cli.security import security_commands  # Temporarily disabled
+from pynomaly.presentation.cli.dashboard import dashboard_commands
 from pynomaly.presentation.cli.container import get_cli_container
 
 
@@ -36,7 +37,8 @@ app.add_typer(datasets.app, name="dataset", help="Manage datasets")
 app.add_typer(preprocessing.app, name="data", help="🔧 Data preprocessing (clean, transform, pipeline)")
 app.add_typer(detection.app, name="detect", help="Run anomaly detection")
 # app.add_typer(explain_commands, name="explain", help="🔍 Explainable AI (model interpretability, bias analysis)")  # Temporarily disabled
-app.add_typer(security_commands, name="security", help="🔒 Security & compliance (SOC2, GDPR, HIPAA, encryption)")
+# app.add_typer(security_commands, name="security", help="🔒 Security & compliance (SOC2, GDPR, HIPAA, encryption)")  # Temporarily disabled
+app.add_typer(dashboard_commands, name="dashboard", help="📊 Advanced visualization dashboards (executive, operational, analytical)")
 app.add_typer(export_app, name="export", help="Export results to business intelligence platforms")
 app.add_typer(server.app, name="server", help="Manage API server")
 # app.add_typer(performance.app, name="perf", help="Performance monitoring and optimization")  # Disabled

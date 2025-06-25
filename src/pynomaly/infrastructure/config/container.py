@@ -190,7 +190,10 @@ except ImportError:
 from pynomaly.infrastructure.repositories import (
     InMemoryDatasetRepository,
     InMemoryDetectorRepository,
-    InMemoryResultRepository
+    InMemoryResultRepository,
+    FileDetectorRepository,
+    FileDatasetRepository,
+    FileResultRepository
 )
 from pynomaly.infrastructure.adapters import PyODAdapter, SklearnAdapter
 
@@ -668,8 +671,8 @@ def _create_detector_repository(config):
             
             return DatabaseDetectorRepository(db_manager.get_session)
     
-    # Default to in-memory repository
-    return InMemoryDetectorRepository()
+    # Default to file-based repository for persistence
+    return FileDetectorRepository(config.storage_path)
 
 
 def _create_dataset_repository(config):
@@ -683,8 +686,8 @@ def _create_dataset_repository(config):
             )
             return DatabaseDatasetRepository(db_manager.get_session)
     
-    # Default to in-memory repository
-    return InMemoryDatasetRepository()
+    # Default to file-based repository for persistence
+    return FileDatasetRepository(config.storage_path)
 
 
 def _create_result_repository(config):
@@ -698,8 +701,8 @@ def _create_result_repository(config):
             )
             return DatabaseDetectionResultRepository(db_manager.get_session)
     
-    # Default to in-memory repository
-    return InMemoryResultRepository()
+    # Default to file-based repository for persistence
+    return FileResultRepository(config.storage_path)
 
 
 class TestContainer(Container):

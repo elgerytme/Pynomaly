@@ -56,7 +56,7 @@ def list_detectors(
         table.add_row(
             str(detector.id)[:8],
             detector.name,
-            detector.algorithm,
+            detector.algorithm_name,
             "✓" if detector.is_fitted else "✗",
             detector.created_at.strftime("%Y-%m-%d %H:%M")
         )

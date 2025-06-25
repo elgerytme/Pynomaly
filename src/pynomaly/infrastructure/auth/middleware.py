@@ -247,16 +247,16 @@ async def track_request_metrics(request: Request, call_next):
     # Track metrics
     duration = time.time() - start_time
     
-    # Record metrics if telemetry available
-    from pynomaly.infrastructure.monitoring import get_telemetry
-    telemetry = get_telemetry()
-    if telemetry:
-        telemetry.record_request(
-            method=request.method,
-            endpoint=request.url.path,
-            status_code=response.status_code,
-            duration=duration
-        )
+    # Record metrics if telemetry available (temporarily disabled)
+    # from pynomaly.infrastructure.monitoring import get_telemetry
+    # telemetry = get_telemetry()
+    # if telemetry:
+    #     telemetry.record_request(
+    #         method=request.method,
+    #         endpoint=request.url.path,
+    #         status_code=response.status_code,
+    #         duration=duration
+    #     )
     
     return response
 

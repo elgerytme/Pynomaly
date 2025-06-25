@@ -84,17 +84,17 @@ class FeatureFlags(BaseSettings):
     
     # Phase 2: User Experience Features
     cli_simplification: bool = Field(
-        default=False,
+        default=True,
         description="Enable simplified CLI workflows"
     )
     
     interactive_guidance: bool = Field(
-        default=False,
+        default=True,
         description="Enable step-by-step workflow guidance"
     )
     
     error_recovery: bool = Field(
-        default=False,
+        default=True,
         description="Enable advanced error recovery"
     )
     

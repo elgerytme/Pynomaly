@@ -543,19 +543,30 @@ class WorkflowSimplificationService:
         """Perform comprehensive dataset analysis for workflow automation."""
         data = dataset.data
         
+        # Handle pandas DataFrame vs numpy array
+        if hasattr(data, 'values'):
+            data_array = data.values
+            n_rows, n_cols = data.shape
+            missing_count = data.isnull().sum().sum() if hasattr(data, 'isnull') else 0
+        else:
+            data_array = data
+            n_rows = len(data)
+            n_cols = data.shape[1] if len(data.shape) > 1 else 1
+            missing_count = 0  # Assume no missing values in raw arrays
+        
         analysis = {
             'basic_stats': {
-                'n_rows': len(data),
-                'n_columns': data.shape[1] if len(data.shape) > 1 else 1,
-                'memory_usage_mb': data.nbytes / 1024 / 1024 if hasattr(data, 'nbytes') else 0
+                'n_rows': int(n_rows),
+                'n_columns': int(n_cols),
+                'memory_usage_mb': data_array.nbytes / 1024 / 1024 if hasattr(data_array, 'nbytes') else 0
             },
             'data_quality': {
-                'missing_values': np.sum(pd.isna(data)) if hasattr(pd, 'isna') else 0,
+                'missing_values': int(missing_count),
                 'duplicate_rows': 0,
                 'data_types': 'numeric'  # Simplified
             },
             'anomaly_indicators': {
-                'potential_outliers': self._estimate_outlier_count(data),
+                'potential_outliers': self._estimate_outlier_count(data_array),
                 'data_distribution': 'normal',  # Simplified
                 'recommended_contamination': 0.1
             }
