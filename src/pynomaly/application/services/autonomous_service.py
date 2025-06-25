@@ -504,7 +504,7 @@ class AutonomousDetectionService:
             iso_reasoning += ", handles high-dimensional data well"
         
         recommendations.append(AlgorithmRecommendation(
-            algorithm="sklearn_IsolationForest",
+            algorithm="IsolationForest",
             confidence=iso_confidence,
             reasoning=iso_reasoning,
             hyperparams=iso_hyperparams,
@@ -525,7 +525,7 @@ class AutonomousDetectionService:
                 lof_reasoning += ", efficient for smaller datasets"
             
             recommendations.append(AlgorithmRecommendation(
-                algorithm="sklearn_LocalOutlierFactor",
+                algorithm="LOF",
                 confidence=lof_confidence,
                 reasoning=lof_reasoning,
                 hyperparams=lof_hyperparams,
@@ -543,7 +543,7 @@ class AutonomousDetectionService:
             }
             
             recommendations.append(AlgorithmRecommendation(
-                algorithm="sklearn_OneClassSVM",
+                algorithm="OneClassSVM",
                 confidence=svm_confidence,
                 reasoning=svm_reasoning,
                 hyperparams=svm_hyperparams,
@@ -560,7 +560,7 @@ class AutonomousDetectionService:
             }
             
             recommendations.append(AlgorithmRecommendation(
-                algorithm="sklearn_EllipticEnvelope",
+                algorithm="EllipticEnvelope",
                 confidence=ee_confidence,
                 reasoning=ee_reasoning,
                 hyperparams=ee_hyperparams,
@@ -605,21 +605,36 @@ class AutonomousDetectionService:
                 self.logger.info(f"Running {rec.algorithm} (confidence: {rec.confidence:.2f})")
             
             try:
+                if config.verbose:
+                    self.logger.info(f"Creating detector for {rec.algorithm}")
+                
                 # Create detector
                 detector = self._create_detector(rec, dataset)
+                
+                if config.verbose:
+                    self.logger.info(f"Auto-tuning {rec.algorithm}")
                 
                 # Auto-tune if requested
                 if config.auto_tune_hyperparams:
                     detector = await self._auto_tune_detector(detector, dataset, config)
+                
+                if config.verbose:
+                    self.logger.info(f"Training {rec.algorithm}")
                 
                 # Train and detect using adapter registry
                 self.adapter_registry.fit_detector(detector, dataset)
                 detector.is_fitted = True
                 detector.trained_at = pd.Timestamp.now().to_pydatetime()
                 
+                if config.verbose:
+                    self.logger.info(f"Running detection with {rec.algorithm}")
+                
                 # Perform detection
                 scores = self.adapter_registry.score_with_detector(detector, dataset)
                 predictions = self.adapter_registry.predict_with_detector(detector, dataset)
+                
+                if config.verbose:
+                    self.logger.info(f"Processing results for {rec.algorithm}")
                 
                 # Create detection result
                 from pynomaly.domain.entities import Anomaly
@@ -643,9 +658,8 @@ class AutonomousDetectionService:
                 else:
                     threshold = np.percentile(score_values, 95)
                 
-                # Debug output
                 if config.verbose:
-                    self.logger.info(f"Creating DetectionResult: anomalies={len(anomalies)}, scores={len(scores)}, predictions={len(predictions)}")
+                    self.logger.info(f"Creating DetectionResult for {rec.algorithm}: anomalies={len(anomalies)}, scores={len(scores)}, predictions={len(predictions)}")
                 
                 result = DetectionResult(
                     detector_id=detector.id,
@@ -660,6 +674,9 @@ class AutonomousDetectionService:
                     }
                 )
                 
+                if config.verbose:
+                    self.logger.info(f"DetectionResult created successfully for {rec.algorithm}")
+                
                 # Store result
                 results[rec.algorithm] = result
                 
@@ -671,6 +688,8 @@ class AutonomousDetectionService:
             except Exception as e:
                 if config.verbose:
                     self.logger.warning(f"Failed to run {rec.algorithm}: {e}")
+                    import traceback
+                    self.logger.warning(f"Traceback: {traceback.format_exc()}")
                 continue
         
         return results

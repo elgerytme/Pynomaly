@@ -183,16 +183,13 @@ class TestDetectionService:
         """Test detection with invalid dataset."""
         await detection_service.detector_repository.save(sample_detector)
         
-        # Create invalid dataset
+        # Create invalid dataset should raise an exception
         import pandas as pd
-        invalid_dataset = Dataset(
-            name="invalid",
-            data=pd.DataFrame()  # Empty DataFrame
-        )
-        
         with pytest.raises(Exception):  # InvalidDataError should be raised from Dataset constructor
-            # This should fail when creating the dataset, not in the service
-            pass
+            invalid_dataset = Dataset(
+                name="invalid",
+                data=pd.DataFrame()  # Empty DataFrame
+            )
     
     @pytest.mark.asyncio
     async def test_batch_detection(self, detection_service, sample_dataset, sample_detector):
@@ -207,8 +204,37 @@ class TestDetectionService:
             dataset = Dataset(name=f"dataset_{i}", data=df)
             datasets.append(dataset)
         
-        with patch.object(detection_service.anomaly_scorer, 'compute_scores') as mock_compute:
-            mock_compute.return_value = np.random.random(50)
+        # Store detector and set as fitted
+        sample_detector.is_fitted = True
+        await detection_service.detector_repository.save(sample_detector)
+        
+        with patch.object(sample_detector, 'detect') as mock_detect:
+            
+            # Mock detection results for each dataset
+            mock_results = []
+            for i, dataset in enumerate(datasets):
+                labels = np.array([1 if j < 5 else 0 for j in range(len(dataset.data))])
+                anomaly_indices = np.where(labels == 1)[0]
+                
+                mock_anomalies = [
+                    Anomaly(
+                        score=AnomalyScore(value=0.9),
+                        data_point=dataset.data.iloc[idx].to_dict(),
+                        detector_name=sample_detector.name
+                    ) for idx in anomaly_indices
+                ]
+                
+                mock_result = DetectionResult(
+                    detector_id=sample_detector.id,
+                    dataset_id=dataset.id,
+                    anomalies=mock_anomalies,
+                    scores=[AnomalyScore(s) for s in np.random.random(len(dataset.data))],
+                    labels=labels,
+                    threshold=0.8
+                )
+                mock_results.append(mock_result)
+            
+            mock_detect.side_effect = mock_results
             
             # Run detection for each dataset separately
             results = []
@@ -234,13 +260,22 @@ class TestDetectionService:
             df = pd.DataFrame(features, columns=[f"feature_{j}" for j in range(5)])
             dataset = Dataset(name=f"dataset_{i}", data=df)
             scores = np.random.random(20)
-            anomalies = [Anomaly(score=AnomalyScore(0.9))]
+            anomalies = [
+                Anomaly(
+                    score=AnomalyScore(value=0.9),
+                    data_point={"feature_0": 1.0, "feature_1": 2.0},
+                    detector_name=sample_detector.name
+                )
+            ]
             
+            labels = np.array([1 if j < 1 else 0 for j in range(len(scores))])  # Just first one as anomaly
             result = DetectionResult(
                 detector_id=sample_detector.id,
                 dataset_id=dataset.id,
                 anomalies=anomalies,
-                scores=[AnomalyScore(s) for s in scores]
+                scores=[AnomalyScore(s) for s in scores],
+                labels=labels,
+                threshold=0.8
             )
             await detection_service.result_repository.save(result)
             mock_results.append(result)
@@ -249,7 +284,7 @@ class TestDetectionService:
         history = await detection_service.get_detection_history(sample_detector.id)
         
         assert len(history) == 3
-        assert all(r.detector.id == sample_detector.id for r in history)
+        assert all(r.detector_id == sample_detector.id for r in history)
 
 
 class TestEnsembleService:
