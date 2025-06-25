@@ -14,6 +14,7 @@ class AppSettings(BaseModel):
 
     name: str = "Pynomaly"
     version: str = "0.1.0"
+    description: str = "Advanced anomaly detection API with unified multi-algorithm interface"
     environment: str = "development"
     debug: bool = False
 
@@ -137,6 +138,9 @@ class Settings(BaseSettings):
     cache_enabled: bool = True
     cache_ttl: int = 3600  # seconds
     redis_url: str | None = None
+
+    # Documentation settings
+    docs_enabled: bool = True  # Enable OpenAPI documentation
 
     # Security settings
     secret_key: str = Field(default="change-me-in-production")

@@ -263,6 +263,10 @@ class TestDetectorValidation:
         mock_adapter = Mock()
         mock_adapter.fit.side_effect = ValueError("Cannot fit on non-numeric data")
         
-        # Act & Assert
-        with pytest.raises(ValueError, match="Cannot fit on non-numeric data"):
-            detector.train(dataset, algorithm_adapter=mock_adapter)
+        # Act
+        result = detector.train(dataset, algorithm_adapter=mock_adapter)
+        
+        # Assert - should return failure result
+        assert isinstance(result, TrainingResult)
+        assert result.success is False
+        assert "Cannot fit on non-numeric data" in result.error_message
