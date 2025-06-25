@@ -274,5 +274,5 @@ class SklearnAdapter(Detector):
             import sklearn
 
             return sklearn.__version__
-        except:
+        except ImportError:
             return "unknown"

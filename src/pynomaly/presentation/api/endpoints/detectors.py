@@ -7,8 +7,9 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from pynomaly.application.dto import CreateDetectorDTO, DetectorDTO, UpdateDetectorDTO
+from pynomaly.domain.entities import Detector
 from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.infrastructure.adapters import PyODAdapter, SklearnAdapter
+from pynomaly.application.services.algorithm_adapter_registry import AlgorithmAdapterRegistry
 from pynomaly.infrastructure.auth import (
     PermissionChecker,
     require_read,
@@ -70,9 +71,19 @@ async def list_detectors(
 @router.get("/algorithms")
 async def list_algorithms() -> dict:
     """List available algorithms."""
+    registry = AlgorithmAdapterRegistry()
+    
+    # Get algorithms and group by adapter type
+    algorithms = registry.get_supported_algorithms()
+    
+    pyod_algorithms = [alg for alg in algorithms if not alg.startswith("sklearn_")]
+    sklearn_algorithms = [alg.replace("sklearn_", "") for alg in algorithms if alg.startswith("sklearn_")]
+    
     return {
-        "pyod": list(PyODAdapter.ALGORITHM_MAPPING.keys()),
-        "sklearn": list(SklearnAdapter.ALGORITHM_MAPPING.keys()),
+        "pyod": pyod_algorithms,
+        "sklearn": sklearn_algorithms,
+        "all_supported": algorithms,
+        "total_count": len(algorithms)
     }
 
 
@@ -120,27 +131,22 @@ async def create_detector(
 
     # Check if algorithm is supported
     algorithm_name = detector_data.algorithm_name
+    registry = AlgorithmAdapterRegistry()
+    
+    if algorithm_name not in registry.get_supported_algorithms():
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Unsupported algorithm: {algorithm_name}. Supported algorithms: {registry.get_supported_algorithms()}"
+        )
 
-    # Create appropriate adapter
+    # Create detector domain entity
     try:
-        if algorithm_name in PyODAdapter.ALGORITHM_MAPPING:
-            detector = PyODAdapter(
-                algorithm_name=algorithm_name,
-                name=detector_data.name,
-                contamination_rate=ContaminationRate(detector_data.contamination_rate),
-                **detector_data.parameters,
-            )
-        elif algorithm_name in SklearnAdapter.ALGORITHM_MAPPING:
-            detector = SklearnAdapter(
-                algorithm_name=algorithm_name,
-                name=detector_data.name,
-                contamination_rate=ContaminationRate(detector_data.contamination_rate),
-                **detector_data.parameters,
-            )
-        else:
-            raise HTTPException(
-                status_code=400, detail=f"Unsupported algorithm: {algorithm_name}"
-            )
+        detector = Detector(
+            name=detector_data.name,
+            algorithm_name=algorithm_name,
+            contamination_rate=ContaminationRate(detector_data.contamination_rate),
+            parameters=detector_data.parameters,
+        )
     except Exception as e:
         raise HTTPException(
             status_code=400, detail=f"Failed to create detector: {str(e)}"

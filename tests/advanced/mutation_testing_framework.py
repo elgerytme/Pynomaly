@@ -99,12 +99,12 @@ class ComparisonOperatorMutation(MutationOperator):
     def __init__(self):
         super().__init__("ComparisonOperator")
         self.mutations = {
-            ast.Lt: [ast.Le, ast.Gt, ast.Ge, ast.Eq, ast.NotEq],
-            ast.Le: [ast.Lt, ast.Gt, ast.Ge, ast.Eq, ast.NotEq],
-            ast.Gt: [ast.Lt, ast.Le, ast.Ge, ast.Eq, ast.NotEq],
-            ast.Ge: [ast.Lt, ast.Le, ast.Gt, ast.Eq, ast.NotEq],
-            ast.Eq: [ast.NotEq, ast.Lt, ast.Le, ast.Gt, ast.Ge],
-            ast.NotEq: [ast.Eq, ast.Lt, ast.Le, ast.Gt, ast.Ge],
+            ast.Lt: [ast.LtE, ast.Gt, ast.GtE, ast.Eq, ast.NotEq],
+            ast.LtE: [ast.Lt, ast.Gt, ast.GtE, ast.Eq, ast.NotEq],
+            ast.Gt: [ast.Lt, ast.LtE, ast.GtE, ast.Eq, ast.NotEq],
+            ast.GtE: [ast.Lt, ast.LtE, ast.Gt, ast.Eq, ast.NotEq],
+            ast.Eq: [ast.NotEq, ast.Lt, ast.LtE, ast.Gt, ast.GtE],
+            ast.NotEq: [ast.Eq, ast.Lt, ast.LtE, ast.Gt, ast.GtE],
             ast.Is: [ast.IsNot, ast.Eq],
             ast.IsNot: [ast.Is, ast.NotEq],
             ast.In: [ast.NotIn],
@@ -242,10 +242,10 @@ class ConditionalBoundaryMutation(MutationOperator):
     def __init__(self):
         super().__init__("ConditionalBoundary")
         self.mutations = {
-            ast.Lt: [ast.Le],
-            ast.Le: [ast.Lt],
-            ast.Gt: [ast.Ge],
-            ast.Ge: [ast.Gt],
+            ast.Lt: [ast.LtE],
+            ast.LtE: [ast.Lt],
+            ast.Gt: [ast.GtE],
+            ast.GtE: [ast.Gt],
         }
     
     def can_mutate(self, node: ast.AST) -> bool:
@@ -452,8 +452,10 @@ class MutationTester:
         logger.info("Running baseline tests...")
         
         try:
+            # Split test command properly
+            cmd_parts = self.test_command.split()
             result = subprocess.run(
-                [self.test_command, str(self.test_dir), "-x"],  # -x stops on first failure
+                cmd_parts + [str(self.test_dir), "-x"],  # -x stops on first failure
                 capture_output=True,
                 text=True,
                 timeout=300,
@@ -491,8 +493,9 @@ class MutationTester:
                     f.write(mutation['code'])
                 
                 # Run tests
+                cmd_parts = self.test_command.split()
                 result = subprocess.run(
-                    [self.test_command, str(self.test_dir), "-x", "--tb=no"],
+                    cmd_parts + [str(self.test_dir), "-x", "--tb=no"],
                     capture_output=True,
                     text=True,
                     timeout=60,
@@ -531,7 +534,7 @@ class MutationTester:
         try:
             # Run tests with coverage
             result = subprocess.run(
-                ["python", "-m", "pytest", str(self.test_dir), "--cov=" + str(self.source_dir), "--cov-report=json"],
+                ["python3", "-m", "pytest", str(self.test_dir), "--cov=" + str(self.source_dir), "--cov-report=json"],
                 capture_output=True,
                 text=True,
                 timeout=300,

@@ -317,7 +317,7 @@ class PyODAdapter(Detector):
             import pyod
 
             return pyod.__version__
-        except:
+        except ImportError:
             return "unknown"
 
     @classmethod

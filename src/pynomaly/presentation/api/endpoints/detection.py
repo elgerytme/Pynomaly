@@ -80,7 +80,7 @@ async def train_detector(
     # Create use case request
     train_request = TrainDetectorRequest(
         detector_id=request.detector_id,
-        dataset=dataset,
+        training_data=dataset,
         validate_data=request.validate_data,
         save_model=request.save_model,
     )
@@ -91,7 +91,7 @@ async def train_detector(
 
         return {
             "success": True,
-            "detector_id": str(response.detector_id),
+            "detector_id": str(response.trained_detector.id),
             "training_time_ms": response.training_time_ms,
             "dataset_summary": response.dataset_summary,
             "parameters_used": response.parameters_used,

@@ -724,7 +724,7 @@ class WorkflowSimplificationService:
                     (data[:, 0] < Q1 - 1.5 * IQR) | (data[:, 0] > Q3 + 1.5 * IQR)
                 )
             return int(outliers)
-        except:
+        except Exception:
             return int(len(data) * 0.05)  # Default 5% estimate
 
     def _get_workflow_by_id(self, workflow_id: str) -> WorkflowRecommendation | None:
