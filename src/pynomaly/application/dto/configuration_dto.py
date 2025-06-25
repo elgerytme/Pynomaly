@@ -609,3 +609,39 @@ def validate_configuration_compatibility(
         issues.append("Different preprocessing scaling methods")
     
     return issues
+
+
+@dataclass
+class RequestConfigurationDTO:
+    """Request configuration data transfer object."""
+    method: str
+    path: str
+    query_parameters: Dict[str, Any]
+    headers: Dict[str, str]
+    body: Optional[Union[Dict[str, Any], str]]
+    client_ip: str
+    user_agent: Optional[str]
+    content_type: Optional[str]
+    content_length: Optional[str]
+
+
+@dataclass
+class ResponseConfigurationDTO:
+    """Response configuration data transfer object."""
+    status_code: int
+    headers: Dict[str, str]
+    body: Optional[Union[Dict[str, Any], str]]
+    processing_time_ms: float
+    content_type: Optional[str]
+    content_length: Optional[str]
+
+
+@dataclass
+class WebAPIContextDTO:
+    """Web API context data transfer object."""
+    request_config: RequestConfigurationDTO
+    response_config: ResponseConfigurationDTO
+    endpoint: str
+    api_version: Optional[str]
+    client_info: Dict[str, Any]
+    session_id: Optional[str]
