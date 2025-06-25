@@ -22,12 +22,6 @@ if OPTIMIZED_ADAPTERS_AVAILABLE:
 
 # Optional ML adapters - only import if dependencies are available
 try:
-    from .tods_adapter import TODSAdapter
-    __all__.append("TODSAdapter")
-except ImportError:
-    pass
-
-try:
     from .pygod_adapter import PyGODAdapter
     __all__.append("PyGODAdapter")
 except ImportError:

@@ -233,11 +233,6 @@ from pynomaly.infrastructure.adapters import PyODAdapter, SklearnAdapter
 
 # Optional adapters - import only if available
 try:
-    from pynomaly.infrastructure.adapters import TODSAdapter
-except ImportError:
-    TODSAdapter = None
-
-try:
     from pynomaly.infrastructure.adapters import PyGODAdapter  
 except ImportError:
     PyGODAdapter = None
@@ -336,9 +331,6 @@ class Container(containers.DeclarativeContainer):
     sklearn_adapter = providers.Singleton(SklearnAdapter)
     
     # Optional adapters - only create providers if adapters are available
-    if TODSAdapter is not None:
-        tods_adapter = providers.Singleton(TODSAdapter)
-    
     if PyGODAdapter is not None:
         pygod_adapter = providers.Singleton(PyGODAdapter)
     
