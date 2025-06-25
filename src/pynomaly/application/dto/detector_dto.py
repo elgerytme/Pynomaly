@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 
 
 class DetectorDTO(BaseModel):
@@ -40,6 +40,14 @@ class CreateDetectorDTO(BaseModel):
     contamination_rate: float = Field(default=0.1, ge=0, le=1)
     parameters: Dict[str, Any] = Field(default_factory=dict)
     metadata: Dict[str, Any] = Field(default_factory=dict)
+    
+    @field_validator('name')
+    @classmethod
+    def validate_name(cls, v: str) -> str:
+        """Validate name is not empty or whitespace only."""
+        if not v or not v.strip():
+            raise ValueError('Name cannot be empty or whitespace only')
+        return v.strip()
 
 
 class UpdateDetectorDTO(BaseModel):
