@@ -20,7 +20,14 @@ from uuid import UUID, uuid4
 
 import numpy as np
 import pandas as pd
-from memory_profiler import profile
+try:
+    from memory_profiler import profile
+    MEMORY_PROFILER_AVAILABLE = True
+except ImportError:
+    MEMORY_PROFILER_AVAILABLE = False
+    def profile(func):
+        """Dummy decorator when memory_profiler is not available."""
+        return func
 from sklearn.datasets import make_classification, make_blobs
 from sklearn.metrics import roc_auc_score, average_precision_score, f1_score, precision_score, recall_score
 

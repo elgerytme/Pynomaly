@@ -484,6 +484,246 @@ def start_server():
         import traceback
         traceback.print_exc()
 
+@handle_cli_errors
+def auto_select_algorithm(file_path):
+    """Automatically select best algorithm and parameters using AutoML"""
+    import pandas as pd
+    import asyncio
+    import time
+    from pynomaly.domain.entities import Dataset
+    from pynomaly.application.services.automl_service import AutoMLService, OptimizationObjective
+    from pynomaly.infrastructure.config import Container
+    
+    # Validate file
+    file_path = validate_file_exists(file_path)
+    data_format = validate_data_format(file_path)
+    
+    print(f"🧠 AutoML Algorithm Selection for: {file_path}")
+    print("=" * 60)
+    
+    # Load data
+    if data_format == 'csv':
+        data = pd.read_csv(file_path)
+    elif data_format == 'json':
+        data = pd.read_json(file_path)
+    else:
+        raise ValueError(f"Unsupported format: {data_format}")
+    
+    print(f"📊 Data loaded: {data.shape}")
+    
+    # Validate data
+    from pynomaly.shared.error_handling import validate_data_shape
+    validate_data_shape(data, min_samples=10, min_features=1)
+    
+    async def run_automl():
+        try:
+            # Create container and dependencies (simplified for CLI)
+            print("🔧 Initializing AutoML service...")
+            
+            # For CLI usage, we'll create a simplified AutoML service
+            # In production, this would use the full container setup
+            from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+            from collections import defaultdict
+            
+            class MockRepository:
+                def __init__(self):
+                    self.data = {}
+                async def get(self, id): 
+                    return self.data.get(id)
+                async def save(self, obj):
+                    self.data[obj.id] = obj
+            
+            class MockRegistry:
+                def get_adapter(self, adapter_type):
+                    if adapter_type == "sklearn":
+                        return SklearnAdapter("IsolationForest")
+                    return None
+            
+            # Create dataset
+            dataset = Dataset(
+                name=f"automl_dataset_{file_path.name}",
+                data=data
+            )
+            
+            # Mock repositories for CLI
+            dataset_repo = MockRepository()
+            detector_repo = MockRepository()
+            adapter_registry = MockRegistry()
+            
+            # Save dataset
+            dataset.id = "automl-dataset-1"
+            await dataset_repo.save(dataset)
+            
+            # Create AutoML service
+            automl_service = AutoMLService(
+                detector_repository=detector_repo,
+                dataset_repository=dataset_repo,
+                adapter_registry=adapter_registry,
+                max_optimization_time=300,  # 5 minutes for CLI
+                n_trials=20,  # Reduced for CLI speed
+                cv_folds=3
+            )
+            
+            # Profile dataset
+            print("🔍 Profiling dataset characteristics...")
+            profile = await automl_service.profile_dataset("automl-dataset-1")
+            
+            print(f"\n📋 Dataset Profile:")
+            print(f"  Samples: {profile.n_samples:,}")
+            print(f"  Features: {profile.n_features}")
+            print(f"  Estimated contamination: {profile.contamination_estimate:.2%}")
+            print(f"  Missing values: {profile.missing_values_ratio:.2%}")
+            print(f"  Complexity score: {profile.complexity_score:.3f}")
+            print(f"  Data size: {profile.dataset_size_mb:.1f} MB")
+            
+            if profile.numerical_features:
+                print(f"  Numerical features: {len(profile.numerical_features)}")
+            if profile.categorical_features:
+                print(f"  Categorical features: {len(profile.categorical_features)}")
+            if profile.time_series_features:
+                print(f"  Time series features: {len(profile.time_series_features)}")
+            
+            # Get algorithm recommendations
+            print(f"\n🎯 Recommending algorithms...")
+            recommended_algorithms = automl_service.recommend_algorithms(profile, max_algorithms=5)
+            
+            print(f"\n📊 Recommended Algorithms (in order of suitability):")
+            for i, algorithm in enumerate(recommended_algorithms, 1):
+                config = automl_service.algorithm_configs[algorithm]
+                print(f"  {i}. {algorithm}")
+                print(f"     Family: {config.family.value}")
+                print(f"     Complexity: {config.complexity_score:.2f}")
+                print(f"     Training time factor: {config.training_time_factor:.2f}")
+                print(f"     Memory factor: {config.memory_factor:.2f}")
+            
+            # Run AutoML optimization (simplified for CLI)
+            print(f"\n⚡ Running AutoML optimization...")
+            print(f"   Max algorithms to test: 3")
+            print(f"   Max trials per algorithm: 20")
+            print(f"   Timeout: 5 minutes")
+            print(f"   Objective: AUC")
+            
+            start_time = time.time()
+            
+            try:
+                automl_result = await automl_service.auto_select_and_optimize(
+                    dataset_id="automl-dataset-1",
+                    objective=OptimizationObjective.AUC,
+                    max_algorithms=3,
+                    enable_ensemble=True
+                )
+                
+                optimization_time = time.time() - start_time
+                
+                # Display results
+                print(f"\n🎉 AutoML Optimization Complete!")
+                print(f"   Total time: {optimization_time:.1f}s")
+                print(f"   Trials completed: {automl_result.trials_completed}")
+                
+                print(f"\n🏆 Best Algorithm: {automl_result.best_algorithm}")
+                print(f"   Score: {automl_result.best_score:.4f}")
+                print(f"   Parameters:")
+                for param, value in automl_result.best_params.items():
+                    if isinstance(value, float):
+                        print(f"     {param}: {value:.4f}")
+                    else:
+                        print(f"     {param}: {value}")
+                
+                print(f"\n📈 Algorithm Rankings:")
+                for i, (algorithm, score) in enumerate(automl_result.algorithm_rankings, 1):
+                    print(f"   {i}. {algorithm}: {score:.4f}")
+                
+                if automl_result.ensemble_config:
+                    print(f"\n🎭 Ensemble Configuration:")
+                    print(f"   Method: {automl_result.ensemble_config['method']}")
+                    print(f"   Voting: {automl_result.ensemble_config['voting_strategy']}")
+                    print(f"   Algorithms in ensemble:")
+                    for algo_config in automl_result.ensemble_config['algorithms']:
+                        print(f"     - {algo_config['name']} (weight: {algo_config['weight']:.3f})")
+                
+                # Demonstrate the best algorithm
+                print(f"\n🔬 Testing Best Algorithm on Your Data:")
+                print("-" * 50)
+                
+                from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+                from pynomaly.domain.value_objects import ContaminationRate
+                
+                best_contamination = automl_result.best_params.get('contamination', 0.1)
+                adapter = SklearnAdapter(
+                    automl_result.best_algorithm, 
+                    contamination_rate=ContaminationRate(best_contamination)
+                )
+                
+                # Apply optimized parameters
+                for param, value in automl_result.best_params.items():
+                    if param != 'contamination' and hasattr(adapter, param):
+                        setattr(adapter, param, value)
+                
+                # Train and detect
+                adapter.fit(dataset)
+                result = adapter.detect(dataset)
+                
+                anomaly_count = len(result.anomalies)
+                print(f"   Total samples: {len(result.labels)}")
+                print(f"   Anomalies detected: {anomaly_count}")
+                print(f"   Anomaly rate: {anomaly_count/len(result.labels)*100:.1f}%")
+                print(f"   Threshold: {result.threshold:.6f}")
+                print(f"   Execution time: {result.execution_time_ms:.1f}ms")
+                
+                if anomaly_count > 0 and anomaly_count <= 20:
+                    anomaly_indices = [i for i, label in enumerate(result.labels) if label == 1]
+                    print(f"   Anomaly sample indices: {anomaly_indices}")
+                elif anomaly_count > 20:
+                    anomaly_indices = [i for i, label in enumerate(result.labels) if label == 1]
+                    print(f"   First 20 anomaly indices: {anomaly_indices[:20]}")
+                
+                # Summary and recommendations
+                print(f"\n💡 AutoML Recommendations:")
+                summary = automl_service.get_optimization_summary(automl_result)
+                for rec in summary['recommendations']:
+                    print(f"   • {rec}")
+                
+                if automl_result.best_score >= 0.8:
+                    print(f"   • Excellent performance achieved - ready for production")
+                elif automl_result.best_score >= 0.7:
+                    print(f"   • Good performance - consider fine-tuning for production")
+                else:
+                    print(f"   • Moderate performance - consider collecting more data or feature engineering")
+                
+                print(f"\n📝 Command to Reproduce Best Results:")
+                cmd = f"python pynomaly_cli.py detect {file_path} {automl_result.best_algorithm} {best_contamination:.3f}"
+                print(f"   {cmd}")
+                
+                return True
+                
+            except Exception as e:
+                print(f"❌ AutoML optimization failed: {str(e)}")
+                print(f"   Falling back to basic algorithm recommendation...")
+                
+                # Fallback: just show recommendations
+                print(f"\n🎯 Recommended algorithms for your data:")
+                for i, algorithm in enumerate(recommended_algorithms[:3], 1):
+                    print(f"   {i}. {algorithm}")
+                    print(f"      Try: python pynomaly_cli.py detect {file_path} {algorithm}")
+                
+                return False
+                
+        except Exception as e:
+            print(f"❌ AutoML service initialization failed: {str(e)}")
+            print(f"   Please check your data format and try again")
+            return False
+    
+    # Run the async AutoML process
+    print("🚀 Starting AutoML process...")
+    success = asyncio.run(run_automl())
+    
+    if success:
+        print(f"\n✅ AutoML completed successfully!")
+    else:
+        print(f"\n⚠️ AutoML completed with issues - see recommendations above")
+    
+    return success
+
 def test_imports():
     """Test core system imports"""
     tests = [
