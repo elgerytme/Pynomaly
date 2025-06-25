@@ -441,6 +441,22 @@ class Container(containers.DeclarativeContainer):
                     dataset_repository=cls.async_dataset_repository
                 )
     
+    @classmethod
+    def _register_performance_services(cls, service_manager):
+        """Register performance monitoring services."""
+        # Create stub providers for connection pool manager and query optimizer
+        # These are placeholders until the actual performance infrastructure is implemented
+        
+        # Connection pool manager provider (stub implementation)
+        cls.connection_pool_manager = providers.Singleton(
+            lambda: None  # Return None for now - endpoints handle this gracefully
+        )
+        
+        # Query optimizer provider (stub implementation) 
+        cls.query_optimizer = providers.Singleton(
+            lambda: None  # Return None for now - endpoints handle this gracefully
+        )
+    
     # Application services
     detection_service = providers.Singleton(
         DetectionService,
