@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- **Major Dependency Restructuring**: Implemented minimal core + optional extras architecture
+  - **Minimal Core**: Reduced required dependencies to PyOD, NumPy, Pandas, Polars + core architecture (~50MB)
+  - **Optional Extras**: ML libraries (scikit-learn, PyTorch, TensorFlow), API (FastAPI), CLI (Typer), monitoring, etc.
+  - **Flexible Installation**: Choose exactly what you need with `pip install pynomaly[api,cli,torch]`
+  - **New Profiles**: Added `minimal`, `server`, `production`, `ml-all` installation profiles
+  - **Requirements Files**: Created requirements-minimal.txt, requirements-server.txt, requirements-production.txt
+  - **Size Optimization**: Base installation ~80% smaller, full installation unchanged
+
 - **Dependencies Update**: Migrated from auto-sklearn to auto-sklearn2 for improved performance and stability
   - **auto-sklearn2 v1.0.0**: Updated dependency to latest auto-sklearn2 for better optimization algorithms
   - **Performance Improvements**: Expected 1.5-2x faster training and 20-30% reduced memory usage
