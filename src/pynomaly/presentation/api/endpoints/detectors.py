@@ -12,6 +12,7 @@ from pynomaly.domain.value_objects import ContaminationRate
 from pynomaly.infrastructure.adapters import PyODAdapter, SklearnAdapter
 from pynomaly.infrastructure.config import Container
 from pynomaly.presentation.api.deps import get_container, get_current_user
+from pynomaly.infrastructure.auth import require_read, require_write, require_admin, PermissionChecker
 
 
 router = APIRouter()
@@ -23,7 +24,8 @@ async def list_detectors(
     is_fitted: Optional[bool] = Query(None, description="Filter by fitted status"),
     limit: int = Query(100, ge=1, le=1000),
     container: Container = Depends(get_container),
-    current_user: Optional[str] = Depends(get_current_user)
+    current_user: Optional[str] = Depends(get_current_user),
+    _permissions: str = Depends(require_read)
 ) -> List[DetectorDTO]:
     """List all detectors."""
     detector_repo = container.detector_repository()
@@ -76,7 +78,8 @@ async def list_algorithms() -> dict:
 async def get_detector(
     detector_id: UUID,
     container: Container = Depends(get_container),
-    current_user: Optional[str] = Depends(get_current_user)
+    current_user: Optional[str] = Depends(get_current_user),
+    _permissions: str = Depends(require_read)
 ) -> DetectorDTO:
     """Get a specific detector."""
     detector_repo = container.detector_repository()
@@ -107,7 +110,8 @@ async def get_detector(
 async def create_detector(
     detector_data: CreateDetectorDTO,
     container: Container = Depends(get_container),
-    current_user: Optional[str] = Depends(get_current_user)
+    current_user: Optional[str] = Depends(get_current_user),
+    _permissions: str = Depends(require_write)
 ) -> DetectorDTO:
     """Create a new detector."""
     detector_repo = container.detector_repository()
