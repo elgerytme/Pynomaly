@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-You are developing Pynomaly, a state-of-the-art Python anomaly detection package targeting Python 3.11+. This package integrates multiple anomaly detection libraries (PyOD, TODS, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX) through a unified, production-ready interface following clean architecture principles.
+You are developing Pynomaly, a state-of-the-art Python anomaly detection package targeting Python 3.11+. This package integrates multiple anomaly detection libraries (PyOD, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX) through a unified, production-ready interface following clean architecture principles.
 
 ## Core Architectural Principles
 
@@ -20,7 +20,7 @@ Follow **Clean Architecture**, **Domain-Driven Design (DDD)**, and **Hexagonal A
    - Services: `DetectionService`, `EnsembleService`, `ModelPersistenceService`
 
 3. **Infrastructure Layer**: All external integrations
-   - Adapters: `PyODAdapter`, `TODSAdapter`, `PyGODAdapter`, `SklearnAdapter`
+   - Adapters: `PyODAdapter`, `PyGODAdapter`, `SklearnAdapter`
    - Data Sources: `CSVLoader`, `ParquetLoader`, `DatabaseLoader`, `StreamingLoader`
    - Persistence: `ModelRepository`, `ResultRepository`
 
