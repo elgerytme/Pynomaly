@@ -303,7 +303,7 @@ def analyze_complexity_distribution(source_path: Path) -> dict:
                     distribution["high_complexity"] += 1
                 else:
                     distribution["very_high_complexity"] += 1
-            except:
+            except Exception:
                 continue
 
     except Exception as e:
@@ -333,7 +333,7 @@ def identify_complexity_hotspots(source_path: Path) -> list[dict]:
                         "complexity_estimate": lines / 50,
                     }
                 )
-            except:
+            except Exception:
                 continue
 
         # Sort by complexity estimate
@@ -580,7 +580,7 @@ def get_git_ref() -> str:
             ["git", "rev-parse", "--abbrev-ref", "HEAD"], capture_output=True, text=True
         )
         return result.stdout.strip() if result.returncode == 0 else "unknown"
-    except:
+    except Exception:
         return "unknown"
 
 
@@ -593,7 +593,7 @@ def get_git_commit() -> str:
             ["git", "rev-parse", "HEAD"], capture_output=True, text=True
         )
         return result.stdout.strip()[:8] if result.returncode == 0 else "unknown"
-    except:
+    except Exception:
         return "unknown"
 
 

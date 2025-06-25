@@ -207,7 +207,7 @@ def main():
         )
         if verify_result.returncode != 0:
             print("⚠️  Core imports failed, but package was installed")
-    except:
+    except Exception:
         print("⚠️  Verification failed, but continuing...")
 
     print("\n" + "=" * 60)
