@@ -6,18 +6,17 @@ This script provides a dedicated entry point for running the Pynomaly CLI
 with proper environment setup and error handling.
 """
 
-import sys
 import logging
+import sys
 from pathlib import Path
-from typing import List, Optional
 
 # Add the src directory to the Python path
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 try:
-    from pynomaly.presentation.cli.app import app as cli_app
     from pynomaly.infrastructure.config.settings import get_settings
+    from pynomaly.presentation.cli.app import app as cli_app
 except ImportError as e:
     print(f"Failed to import Pynomaly CLI modules: {e}")
     print("Please ensure the package is installed with: poetry install")
@@ -26,9 +25,10 @@ except ImportError as e:
 # Configure logging for CLI
 logging.basicConfig(
     level=logging.WARNING,  # Less verbose for CLI usage
-    format="%(levelname)s: %(message)s"
+    format="%(levelname)s: %(message)s",
 )
 logger = logging.getLogger(__name__)
+
 
 def setup_cli_environment():
     """Setup environment for CLI execution."""
@@ -40,16 +40,17 @@ def setup_cli_environment():
         logger.error(f"Failed to setup CLI environment: {e}")
         return False
 
-def run_cli(args: Optional[List[str]] = None):
+
+def run_cli(args: list[str] | None = None):
     """
     Run the Pynomaly CLI.
-    
+
     Args:
         args: Optional list of CLI arguments. If None, uses sys.argv
     """
     if not setup_cli_environment():
         sys.exit(1)
-    
+
     # Set up sys.argv for the CLI
     if args is not None:
         original_argv = sys.argv.copy()
@@ -63,6 +64,7 @@ def run_cli(args: Optional[List[str]] = None):
         sys.argv[0] = "pynomaly"
         cli_app()
 
+
 def main():
     """Main entry point for the CLI runner."""
     try:
@@ -75,6 +77,7 @@ def main():
     except Exception as e:
         logger.error(f"CLI execution failed: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

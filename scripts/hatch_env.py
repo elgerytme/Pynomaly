@@ -3,16 +3,19 @@
 
 import subprocess
 import sys
-from pathlib import Path
+
 
 def list_envs():
     """List all Hatch environments."""
     try:
-        result = subprocess.run(["hatch", "env", "show"], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["hatch", "env", "show"], capture_output=True, text=True, check=True
+        )
         print("Available environments:")
         print(result.stdout)
     except subprocess.CalledProcessError as e:
         print(f"Error listing environments: {e}")
+
 
 def create_env(env_name: str):
     """Create a new Hatch environment."""
@@ -22,6 +25,7 @@ def create_env(env_name: str):
     except subprocess.CalledProcessError as e:
         print(f"❌ Error creating environment: {e}")
 
+
 def remove_env(env_name: str):
     """Remove a Hatch environment."""
     try:
@@ -30,12 +34,16 @@ def remove_env(env_name: str):
     except subprocess.CalledProcessError as e:
         print(f"❌ Error removing environment: {e}")
 
+
 def run_in_env(env_name: str, command: str):
     """Run a command in a specific environment."""
     try:
-        subprocess.run(["hatch", "env", "run", "-e", env_name] + command.split(), check=True)
+        subprocess.run(
+            ["hatch", "env", "run", "-e", env_name] + command.split(), check=True
+        )
     except subprocess.CalledProcessError as e:
         print(f"❌ Error running command in {env_name}: {e}")
+
 
 def main():
     if len(sys.argv) == 1:
@@ -52,6 +60,7 @@ def main():
         print("  python scripts/hatch_env.py create <name>      # Create environment")
         print("  python scripts/hatch_env.py remove <name>      # Remove environment")
         print("  python scripts/hatch_env.py run <env> <cmd>    # Run command in env")
+
 
 if __name__ == "__main__":
     main()

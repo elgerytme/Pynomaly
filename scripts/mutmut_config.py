@@ -1,5 +1,6 @@
 """Configuration for mutation testing with mutmut."""
 
+
 def pre_mutation(context):
     """Run before each mutation."""
     pass
@@ -32,7 +33,7 @@ minimum_mutation_score = 70
 # Focus on critical business logic
 focus_modules = [
     "src/pynomaly/domain/value_objects/",
-    "src/pynomaly/domain/entities/", 
+    "src/pynomaly/domain/entities/",
     "src/pynomaly/domain/services/",
     "src/pynomaly/application/use_cases/",
     "src/pynomaly/application/services/",

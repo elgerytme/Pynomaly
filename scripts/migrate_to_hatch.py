@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """Migrate Pynomaly from Poetry to Hatch build system."""
 
-import os
-import sys
 import shutil
 import subprocess
+import sys
 from pathlib import Path
-from typing import Dict, List, Optional
-import json
 
-def run_command(cmd: List[str], description: str = "", check: bool = True) -> subprocess.CompletedProcess:
+
+def run_command(
+    cmd: list[str], description: str = "", check: bool = True
+) -> subprocess.CompletedProcess:
     """Run a command with error handling."""
     if description:
         print(f"🔷 {description}")
         print(f"   Running: {' '.join(cmd)}")
-    
+
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, check=check)
         if result.stdout.strip():
@@ -26,6 +26,7 @@ def run_command(cmd: List[str], description: str = "", check: bool = True) -> su
             raise
         return e
 
+
 def check_hatch_installed() -> bool:
     """Check if Hatch is installed."""
     try:
@@ -34,21 +35,25 @@ def check_hatch_installed() -> bool:
     except FileNotFoundError:
         return False
 
+
 def install_hatch() -> bool:
     """Install Hatch if not present."""
     if check_hatch_installed():
         print("✅ Hatch is already installed")
         return True
-    
+
     print("📦 Installing Hatch...")
-    
+
     # Try different installation methods
     install_methods = [
         (["pip", "install", "hatch"], "Installing via pip"),
         (["pipx", "install", "hatch"], "Installing via pipx"),
-        ([sys.executable, "-m", "pip", "install", "hatch"], "Installing via python -m pip")
+        (
+            [sys.executable, "-m", "pip", "install", "hatch"],
+            "Installing via python -m pip",
+        ),
     ]
-    
+
     for cmd, desc in install_methods:
         try:
             run_command(cmd, desc)
@@ -57,41 +62,43 @@ def install_hatch() -> bool:
                 return True
         except (subprocess.CalledProcessError, FileNotFoundError):
             continue
-    
+
     print("❌ Failed to install Hatch. Please install manually:")
     print("   pip install hatch")
     print("   # or")
     print("   pipx install hatch")
     return False
 
+
 def backup_current_config():
     """Backup current Poetry configuration."""
     backup_dir = Path("backup_poetry_config")
     backup_dir.mkdir(exist_ok=True)
-    
+
     files_to_backup = [
         "pyproject.toml",
         "poetry.lock",
         "requirements.txt",
-        "requirements-minimal.txt", 
+        "requirements-minimal.txt",
         "requirements-server.txt",
         "requirements-production.txt",
-        "requirements-test.txt"
+        "requirements-test.txt",
     ]
-    
+
     print("📂 Backing up current configuration...")
     for file_name in files_to_backup:
         if Path(file_name).exists():
             shutil.copy2(file_name, backup_dir / file_name)
             print(f"   📄 Backed up {file_name}")
-    
+
     print(f"✅ Configuration backed up to {backup_dir}")
+
 
 def create_hatch_pyproject():
     """Create enhanced pyproject.toml with Hatch configuration."""
     print("📝 Creating Hatch-based pyproject.toml...")
-    
-    config = '''[build-system]
+
+    config = """[build-system]
 requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
@@ -557,17 +564,18 @@ exclude_lines = [
     "class .*\\bProtocol\\):",
     "@(abc\\.)?abstractmethod",
 ]
-'''
-    
+"""
+
     with open("pyproject.toml", "w") as f:
         f.write(config)
-    
+
     print("✅ Created Hatch-based pyproject.toml")
+
 
 def create_hatch_scripts():
     """Create Hatch-specific utility scripts."""
     print("📜 Creating Hatch utility scripts...")
-    
+
     # Create version management script
     version_script = '''#!/usr/bin/env python3
 """Version management utilities for Hatch."""
@@ -606,11 +614,11 @@ def main():
 if __name__ == "__main__":
     main()
 '''
-    
+
     scripts_dir = Path("scripts")
     with open(scripts_dir / "hatch_version.py", "w") as f:
         f.write(version_script)
-    
+
     # Create environment management script
     env_script = '''#!/usr/bin/env python3
 """Hatch environment management utilities."""
@@ -670,19 +678,20 @@ def main():
 if __name__ == "__main__":
     main()
 '''
-    
+
     with open(scripts_dir / "hatch_env.py", "w") as f:
         f.write(env_script)
-    
+
     print("✅ Created Hatch utility scripts")
+
 
 def create_version_file():
     """Create version file for VCS versioning."""
     print("📝 Creating version file...")
-    
+
     version_dir = Path("src/pynomaly")
     version_dir.mkdir(parents=True, exist_ok=True)
-    
+
     version_content = '''"""Version information for Pynomaly."""
 
 try:
@@ -693,10 +702,10 @@ except ImportError:
 
 __all__ = ["__version__"]
 '''
-    
+
     init_file = version_dir / "__init__.py"
     if init_file.exists():
-        with open(init_file, "r") as f:
+        with open(init_file) as f:
             content = f.read()
         if "__version__" not in content:
             with open(init_file, "a") as f:
@@ -704,78 +713,86 @@ __all__ = ["__version__"]
     else:
         with open(init_file, "w") as f:
             f.write(version_content)
-    
+
     # Create py.typed marker for type checking
     with open(version_dir / "py.typed", "w") as f:
         f.write("")
-    
+
     print("✅ Created version and typing files")
+
 
 def initialize_hatch_project():
     """Initialize Hatch project."""
     print("🚀 Initializing Hatch project...")
-    
+
     try:
         # Create environments
-        run_command(["hatch", "env", "create", "default"], "Creating default environment")
+        run_command(
+            ["hatch", "env", "create", "default"], "Creating default environment"
+        )
         run_command(["hatch", "env", "create", "test"], "Creating test environment")
         run_command(["hatch", "env", "create", "lint"], "Creating lint environment")
-        
+
         # Install project in development mode
-        run_command(["hatch", "env", "run", "pip", "install", "-e", "."], "Installing project in development mode")
-        
+        run_command(
+            ["hatch", "env", "run", "pip", "install", "-e", "."],
+            "Installing project in development mode",
+        )
+
         print("✅ Hatch project initialized successfully")
         return True
-        
+
     except subprocess.CalledProcessError as e:
         print(f"❌ Error initializing Hatch project: {e}")
         return False
 
+
 def test_hatch_installation():
     """Test that Hatch is working correctly."""
     print("🧪 Testing Hatch installation...")
-    
+
     try:
         # Test basic commands
         run_command(["hatch", "version"], "Getting project version")
         run_command(["hatch", "env", "show"], "Showing environments")
-        
+
         # Test building
         run_command(["hatch", "build", "--clean"], "Testing build process")
-        
+
         print("✅ Hatch installation test passed")
         return True
-        
+
     except subprocess.CalledProcessError as e:
         print(f"❌ Hatch installation test failed: {e}")
         return False
+
 
 def main():
     """Main migration function."""
     print("🔄 Migrating Pynomaly to Hatch")
     print("=" * 50)
-    
+
     # Check current directory
     if not Path("pyproject.toml").exists():
         print("❌ Not in a Python project directory (no pyproject.toml found)")
         sys.exit(1)
-    
+
     # Install Hatch
     if not install_hatch():
         sys.exit(1)
-    
+
     # Backup current configuration
     backup_current_config()
-    
+
     # Create new Hatch configuration
     create_hatch_pyproject()
     create_version_file()
     create_hatch_scripts()
-    
+
     # Initialize Hatch project
     if not initialize_hatch_project():
         print("⚠️  Project creation had issues, but configuration is ready")
-    
+
     # Test installation
     if test_hatch_installation():
         print("\n🎉 Migration to Hatch completed successfully!")
@@ -786,7 +803,10 @@ def main():
         print("4. Build package: hatch build")
         print("5. Update CI/CD workflows (see docs/development/HATCH_GUIDE.md)")
     else:
-        print("\n⚠️  Migration completed but with issues. Please review the configuration.")
+        print(
+            "\n⚠️  Migration completed but with issues. Please review the configuration."
+        )
+
 
 if __name__ == "__main__":
     main()

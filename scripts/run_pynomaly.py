@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import sys
-import os
 from pathlib import Path
 
 # Add the src directory to the Python path

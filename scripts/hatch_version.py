@@ -3,16 +3,19 @@
 
 import subprocess
 import sys
-from pathlib import Path
+
 
 def get_version():
     """Get current version from Hatch."""
     try:
-        result = subprocess.run(["hatch", "version"], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["hatch", "version"], capture_output=True, text=True, check=True
+        )
         return result.stdout.strip()
     except subprocess.CalledProcessError as e:
         print(f"Error getting version: {e}")
         return None
+
 
 def set_version(version: str):
     """Set version using Hatch."""
@@ -21,6 +24,7 @@ def set_version(version: str):
         print(f"✅ Version set to {version}")
     except subprocess.CalledProcessError as e:
         print(f"❌ Error setting version: {e}")
+
 
 def main():
     if len(sys.argv) == 1:
@@ -31,6 +35,7 @@ def main():
         set_version(sys.argv[1])
     else:
         print("Usage: python scripts/hatch_version.py [new_version]")
+
 
 if __name__ == "__main__":
     main()

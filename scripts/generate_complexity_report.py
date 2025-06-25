@@ -8,35 +8,35 @@ including Markdown, HTML, and text for easier consumption and sharing.
 import argparse
 import json
 import sys
-from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
 
 
-def generate_markdown_report(data: Dict) -> str:
+def generate_markdown_report(data: dict) -> str:
     """Generate Markdown format report."""
     lines = []
-    
+
     # Header
     lines.append("# Complexity Analysis Report")
     lines.append("")
     lines.append(f"**Generated:** {data.get('timestamp', 'Unknown')}")
     lines.append(f"**Project:** {data.get('project_path', 'Unknown')}")
     lines.append("")
-    
+
     # Executive Summary
-    quality = data.get('quality_assessment', {})
-    maintainability = data.get('detailed_analysis', {}).get('maintainability_score', {})
-    
+    quality = data.get("quality_assessment", {})
+    maintainability = data.get("detailed_analysis", {}).get("maintainability_score", {})
+
     lines.append("## 📊 Executive Summary")
     lines.append("")
     lines.append(f"- **Quality Status:** {quality.get('overall', 'Unknown').upper()}")
     lines.append(f"- **Maintainability Grade:** {maintainability.get('grade', 'N/A')}")
-    lines.append(f"- **Maintainability Score:** {maintainability.get('overall_score', 0):.1f}/100")
+    lines.append(
+        f"- **Maintainability Score:** {maintainability.get('overall_score', 0):.1f}/100"
+    )
     lines.append("")
-    
+
     # Key Metrics
-    metrics = data.get('metrics', {})
+    metrics = data.get("metrics", {})
     lines.append("## 📈 Key Metrics")
     lines.append("")
     lines.append("| Metric | Value |")
@@ -44,72 +44,92 @@ def generate_markdown_report(data: Dict) -> str:
     lines.append(f"| Total Files | {metrics.get('total_files', 0):,} |")
     lines.append(f"| Python Files | {metrics.get('python_files', 0):,} |")
     lines.append(f"| Total Lines | {metrics.get('total_lines', 0):,} |")
-    lines.append(f"| Cyclomatic Complexity | {metrics.get('cyclomatic_complexity', 0):.1f} |")
+    lines.append(
+        f"| Cyclomatic Complexity | {metrics.get('cyclomatic_complexity', 0):.1f} |"
+    )
     lines.append(f"| Dependencies | {metrics.get('total_dependencies', 0)} |")
     lines.append("")
-    
+
     # Trends (if available)
-    trends = data.get('baseline_comparison')
+    trends = data.get("baseline_comparison")
     if trends:
         lines.append("## 📈 Changes from Baseline")
         lines.append("")
-        
+
         critical_trends = []
         warning_trends = []
         info_trends = []
-        
+
         for metric_key, trend in trends.items():
-            if trend['severity'] == 'critical':
+            if trend["severity"] == "critical":
                 critical_trends.append(trend)
-            elif trend['severity'] == 'warning':
+            elif trend["severity"] == "warning":
                 warning_trends.append(trend)
             else:
                 info_trends.append(trend)
-        
+
         if critical_trends:
             lines.append("### 🚨 Critical Changes")
             for trend in critical_trends:
-                icon = "📈" if trend['trend'] == 'increasing' else "📉" if trend['trend'] == 'decreasing' else "➡️"
-                lines.append(f"- {icon} **{trend['name']}**: {trend['change_percent']:+.1f}% ({trend['current']} vs {trend['baseline']})")
+                icon = (
+                    "📈"
+                    if trend["trend"] == "increasing"
+                    else "📉"
+                    if trend["trend"] == "decreasing"
+                    else "➡️"
+                )
+                lines.append(
+                    f"- {icon} **{trend['name']}**: {trend['change_percent']:+.1f}% ({trend['current']} vs {trend['baseline']})"
+                )
             lines.append("")
-        
+
         if warning_trends:
             lines.append("### ⚠️ Warning Changes")
             for trend in warning_trends:
-                icon = "📈" if trend['trend'] == 'increasing' else "📉" if trend['trend'] == 'decreasing' else "➡️"
-                lines.append(f"- {icon} **{trend['name']}**: {trend['change_percent']:+.1f}% ({trend['current']} vs {trend['baseline']})")
+                icon = (
+                    "📈"
+                    if trend["trend"] == "increasing"
+                    else "📉"
+                    if trend["trend"] == "decreasing"
+                    else "➡️"
+                )
+                lines.append(
+                    f"- {icon} **{trend['name']}**: {trend['change_percent']:+.1f}% ({trend['current']} vs {trend['baseline']})"
+                )
             lines.append("")
-    
+
     # Quality Issues
-    if quality.get('critical_issues') or quality.get('warnings'):
+    if quality.get("critical_issues") or quality.get("warnings"):
         lines.append("## 🚨 Quality Issues")
         lines.append("")
-        
-        if quality.get('critical_issues'):
+
+        if quality.get("critical_issues"):
             lines.append("### Critical Issues")
-            for issue in quality['critical_issues']:
+            for issue in quality["critical_issues"]:
                 lines.append(f"- ❌ {issue}")
             lines.append("")
-        
-        if quality.get('warnings'):
+
+        if quality.get("warnings"):
             lines.append("### Warnings")
-            for warning in quality['warnings']:
+            for warning in quality["warnings"]:
                 lines.append(f"- ⚠️ {warning}")
             lines.append("")
-    
+
     # Complexity Hotspots
-    hotspots = data.get('detailed_analysis', {}).get('hotspots', [])
+    hotspots = data.get("detailed_analysis", {}).get("hotspots", [])
     if hotspots:
         lines.append("## 🔥 Complexity Hotspots")
         lines.append("")
         lines.append("| File | Lines | Complexity | Recommendation |")
         lines.append("|------|-------|------------|----------------|")
         for hotspot in hotspots[:5]:  # Top 5
-            lines.append(f"| `{hotspot['file']}` | {hotspot['lines']} | {hotspot['estimated_complexity']:.1f} | {hotspot['recommendation']} |")
+            lines.append(
+                f"| `{hotspot['file']}` | {hotspot['lines']} | {hotspot['estimated_complexity']:.1f} | {hotspot['recommendation']} |"
+            )
         lines.append("")
-    
+
     # Technical Debt
-    debt = data.get('detailed_analysis', {}).get('technical_debt', {})
+    debt = data.get("detailed_analysis", {}).get("technical_debt", {})
     if debt:
         lines.append("## 💳 Technical Debt Assessment")
         lines.append("")
@@ -117,24 +137,24 @@ def generate_markdown_report(data: Dict) -> str:
         lines.append(f"- **Debt Score:** {debt.get('score', 0):.1f}")
         lines.append(f"- **Estimated Days:** {debt.get('estimated_days', 0):.1f}")
         lines.append("")
-        
-        if debt.get('factors'):
+
+        if debt.get("factors"):
             lines.append("### Contributing Factors")
-            for factor in debt['factors']:
+            for factor in debt["factors"]:
                 lines.append(f"- {factor}")
             lines.append("")
-    
+
     # Recommendations
-    recommendations = data.get('recommendations', [])
+    recommendations = data.get("recommendations", [])
     if recommendations:
         lines.append("## 💡 Recommendations")
         lines.append("")
         for i, rec in enumerate(recommendations, 1):
             lines.append(f"{i}. {rec}")
         lines.append("")
-    
+
     # CI Metadata
-    ci_meta = data.get('ci_metadata', {})
+    ci_meta = data.get("ci_metadata", {})
     if ci_meta:
         lines.append("## 🔧 Build Information")
         lines.append("")
@@ -142,26 +162,24 @@ def generate_markdown_report(data: Dict) -> str:
         lines.append(f"- **Git Commit:** {ci_meta.get('git_commit', 'Unknown')}")
         lines.append(f"- **Run ID:** {ci_meta.get('run_id', 'Unknown')}")
         lines.append("")
-    
+
     lines.append("---")
     lines.append("*Generated by Pynomaly automated complexity monitoring*")
-    
+
     return "\n".join(lines)
 
 
-def generate_html_report(data: Dict) -> str:
+def generate_html_report(data: dict) -> str:
     """Generate HTML format report."""
-    quality = data.get('quality_assessment', {})
-    maintainability = data.get('detailed_analysis', {}).get('maintainability_score', {})
-    metrics = data.get('metrics', {})
-    
+    quality = data.get("quality_assessment", {})
+    maintainability = data.get("detailed_analysis", {}).get("maintainability_score", {})
+    metrics = data.get("metrics", {})
+
     # Determine status color
-    status_color = {
-        'good': '#28a745',
-        'warning': '#ffc107', 
-        'critical': '#dc3545'
-    }.get(quality.get('overall', 'good'), '#6c757d')
-    
+    status_color = {"good": "#28a745", "warning": "#ffc107", "critical": "#dc3545"}.get(
+        quality.get("overall", "good"), "#6c757d"
+    )
+
     html = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -246,106 +264,106 @@ def generate_html_report(data: Dict) -> str:
 <body>
     <div class="header">
         <h1>📊 Complexity Analysis Report</h1>
-        <p><strong>Generated:</strong> {data.get('timestamp', 'Unknown')}</p>
-        <p><strong>Project:</strong> {data.get('project_path', 'Unknown')}</p>
-        <p><strong>Status:</strong> <span class="status">{quality.get('overall', 'Unknown').upper()}</span></p>
+        <p><strong>Generated:</strong> {data.get("timestamp", "Unknown")}</p>
+        <p><strong>Project:</strong> {data.get("project_path", "Unknown")}</p>
+        <p><strong>Status:</strong> <span class="status">{quality.get("overall", "Unknown").upper()}</span></p>
     </div>
     
     <div class="section">
         <h2>📈 Key Metrics</h2>
         <div class="metric-grid">
             <div class="metric-card">
-                <div class="metric-value">{metrics.get('total_files', 0):,}</div>
+                <div class="metric-value">{metrics.get("total_files", 0):,}</div>
                 <div>Total Files</div>
             </div>
             <div class="metric-card">
-                <div class="metric-value">{metrics.get('python_files', 0):,}</div>
+                <div class="metric-value">{metrics.get("python_files", 0):,}</div>
                 <div>Python Files</div>
             </div>
             <div class="metric-card">
-                <div class="metric-value">{metrics.get('total_lines', 0):,}</div>
+                <div class="metric-value">{metrics.get("total_lines", 0):,}</div>
                 <div>Total Lines</div>
             </div>
             <div class="metric-card">
-                <div class="metric-value">{metrics.get('cyclomatic_complexity', 0):.1f}</div>
+                <div class="metric-value">{metrics.get("cyclomatic_complexity", 0):.1f}</div>
                 <div>Cyclomatic Complexity</div>
             </div>
             <div class="metric-card">
-                <div class="metric-value">{maintainability.get('grade', 'N/A')}</div>
+                <div class="metric-value">{maintainability.get("grade", "N/A")}</div>
                 <div>Maintainability Grade</div>
             </div>
             <div class="metric-card">
-                <div class="metric-value">{maintainability.get('overall_score', 0):.1f}</div>
+                <div class="metric-value">{maintainability.get("overall_score", 0):.1f}</div>
                 <div>Maintainability Score</div>
             </div>
         </div>
     </div>
     """
-    
+
     # Quality Issues
-    if quality.get('critical_issues') or quality.get('warnings'):
+    if quality.get("critical_issues") or quality.get("warnings"):
         html += '<div class="section critical">'
-        html += '<h2>🚨 Quality Issues</h2>'
-        
-        if quality.get('critical_issues'):
-            html += '<h3>Critical Issues</h3><ul>'
-            for issue in quality['critical_issues']:
-                html += f'<li>❌ {issue}</li>'
-            html += '</ul>'
-        
-        if quality.get('warnings'):
-            html += '<h3>Warnings</h3><ul>'
-            for warning in quality['warnings']:
-                html += f'<li>⚠️ {warning}</li>'
-            html += '</ul>'
-        
-        html += '</div>'
-    
+        html += "<h2>🚨 Quality Issues</h2>"
+
+        if quality.get("critical_issues"):
+            html += "<h3>Critical Issues</h3><ul>"
+            for issue in quality["critical_issues"]:
+                html += f"<li>❌ {issue}</li>"
+            html += "</ul>"
+
+        if quality.get("warnings"):
+            html += "<h3>Warnings</h3><ul>"
+            for warning in quality["warnings"]:
+                html += f"<li>⚠️ {warning}</li>"
+            html += "</ul>"
+
+        html += "</div>"
+
     # Complexity Hotspots
-    hotspots = data.get('detailed_analysis', {}).get('hotspots', [])
+    hotspots = data.get("detailed_analysis", {}).get("hotspots", [])
     if hotspots:
         html += '<div class="section warning">'
-        html += '<h2>🔥 Complexity Hotspots</h2>'
-        html += '<table><tr><th>File</th><th>Lines</th><th>Complexity</th><th>Recommendation</th></tr>'
-        
+        html += "<h2>🔥 Complexity Hotspots</h2>"
+        html += "<table><tr><th>File</th><th>Lines</th><th>Complexity</th><th>Recommendation</th></tr>"
+
         for hotspot in hotspots[:5]:
-            html += f'''
+            html += f"""
             <tr>
-                <td><span class="code">{hotspot['file']}</span></td>
-                <td>{hotspot['lines']}</td>
-                <td>{hotspot['estimated_complexity']:.1f}</td>
-                <td>{hotspot['recommendation']}</td>
+                <td><span class="code">{hotspot["file"]}</span></td>
+                <td>{hotspot["lines"]}</td>
+                <td>{hotspot["estimated_complexity"]:.1f}</td>
+                <td>{hotspot["recommendation"]}</td>
             </tr>
-            '''
-        
-        html += '</table></div>'
-    
+            """
+
+        html += "</table></div>"
+
     # Recommendations
-    recommendations = data.get('recommendations', [])
+    recommendations = data.get("recommendations", [])
     if recommendations:
         html += '<div class="section info">'
-        html += '<h2>💡 Recommendations</h2><ol>'
-        
+        html += "<h2>💡 Recommendations</h2><ol>"
+
         for rec in recommendations:
-            html += f'<li>{rec}</li>'
-        
-        html += '</ol></div>'
-    
-    html += '''
+            html += f"<li>{rec}</li>"
+
+        html += "</ol></div>"
+
+    html += """
     <div class="footer">
         <p><em>Generated by Pynomaly automated complexity monitoring</em></p>
     </div>
 </body>
 </html>
-    '''
-    
+    """
+
     return html
 
 
-def generate_text_report(data: Dict) -> str:
+def generate_text_report(data: dict) -> str:
     """Generate plain text format report."""
     lines = []
-    
+
     # Header
     lines.append("=" * 60)
     lines.append("COMPLEXITY ANALYSIS REPORT")
@@ -353,97 +371,112 @@ def generate_text_report(data: Dict) -> str:
     lines.append(f"Generated: {data.get('timestamp', 'Unknown')}")
     lines.append(f"Project: {data.get('project_path', 'Unknown')}")
     lines.append("")
-    
+
     # Summary
-    quality = data.get('quality_assessment', {})
-    maintainability = data.get('detailed_analysis', {}).get('maintainability_score', {})
-    
+    quality = data.get("quality_assessment", {})
+    maintainability = data.get("detailed_analysis", {}).get("maintainability_score", {})
+
     lines.append("EXECUTIVE SUMMARY")
     lines.append("-" * 20)
     lines.append(f"Quality Status: {quality.get('overall', 'Unknown').upper()}")
     lines.append(f"Maintainability Grade: {maintainability.get('grade', 'N/A')}")
-    lines.append(f"Maintainability Score: {maintainability.get('overall_score', 0):.1f}/100")
+    lines.append(
+        f"Maintainability Score: {maintainability.get('overall_score', 0):.1f}/100"
+    )
     lines.append("")
-    
+
     # Metrics
-    metrics = data.get('metrics', {})
+    metrics = data.get("metrics", {})
     lines.append("KEY METRICS")
     lines.append("-" * 15)
     lines.append(f"Total Files: {metrics.get('total_files', 0):,}")
     lines.append(f"Python Files: {metrics.get('python_files', 0):,}")
     lines.append(f"Total Lines: {metrics.get('total_lines', 0):,}")
-    lines.append(f"Cyclomatic Complexity: {metrics.get('cyclomatic_complexity', 0):.1f}")
+    lines.append(
+        f"Cyclomatic Complexity: {metrics.get('cyclomatic_complexity', 0):.1f}"
+    )
     lines.append(f"Dependencies: {metrics.get('total_dependencies', 0)}")
     lines.append("")
-    
+
     # Quality Issues
-    if quality.get('critical_issues') or quality.get('warnings'):
+    if quality.get("critical_issues") or quality.get("warnings"):
         lines.append("QUALITY ISSUES")
         lines.append("-" * 15)
-        
-        if quality.get('critical_issues'):
+
+        if quality.get("critical_issues"):
             lines.append("Critical Issues:")
-            for issue in quality['critical_issues']:
+            for issue in quality["critical_issues"]:
                 lines.append(f"  ❌ {issue}")
             lines.append("")
-        
-        if quality.get('warnings'):
+
+        if quality.get("warnings"):
             lines.append("Warnings:")
-            for warning in quality['warnings']:
+            for warning in quality["warnings"]:
                 lines.append(f"  ⚠️ {warning}")
             lines.append("")
-    
+
     # Recommendations
-    recommendations = data.get('recommendations', [])
+    recommendations = data.get("recommendations", [])
     if recommendations:
         lines.append("RECOMMENDATIONS")
         lines.append("-" * 15)
         for i, rec in enumerate(recommendations, 1):
             lines.append(f"{i}. {rec}")
         lines.append("")
-    
+
     lines.append("=" * 60)
     lines.append("Generated by Pynomaly automated complexity monitoring")
-    
+
     return "\n".join(lines)
 
 
 def main():
     """Main entry point."""
-    parser = argparse.ArgumentParser(description='Generate complexity reports')
-    parser.add_argument('--input', '-i', type=Path, required=True,
-                       help='Input JSON file from complexity analysis')
-    parser.add_argument('--format', '-f', choices=['markdown', 'html', 'text'],
-                       default='markdown', help='Output format')
-    parser.add_argument('--output', '-o', type=Path,
-                       help='Output file path (stdout if not specified)')
-    
+    parser = argparse.ArgumentParser(description="Generate complexity reports")
+    parser.add_argument(
+        "--input",
+        "-i",
+        type=Path,
+        required=True,
+        help="Input JSON file from complexity analysis",
+    )
+    parser.add_argument(
+        "--format",
+        "-f",
+        choices=["markdown", "html", "text"],
+        default="markdown",
+        help="Output format",
+    )
+    parser.add_argument(
+        "--output", "-o", type=Path, help="Output file path (stdout if not specified)"
+    )
+
     args = parser.parse_args()
-    
+
     try:
         # Load analysis data
-        with open(args.input, 'r') as f:
+        with open(args.input) as f:
             data = json.load(f)
-        
+
         # Generate report
-        if args.format == 'markdown':
+        if args.format == "markdown":
             report = generate_markdown_report(data)
-        elif args.format == 'html':
+        elif args.format == "html":
             report = generate_html_report(data)
-        elif args.format == 'text':
+        elif args.format == "text":
             report = generate_text_report(data)
         else:
             raise ValueError(f"Unsupported format: {args.format}")
-        
+
         # Output report
         if args.output:
             args.output.parent.mkdir(parents=True, exist_ok=True)
-            with open(args.output, 'w') as f:
+            with open(args.output, "w") as f:
                 f.write(report)
             print(f"✅ Report generated: {args.output}")
         else:
             print(report)
-            
+
     except Exception as e:
         print(f"❌ Failed to generate report: {e}")
         sys.exit(1)

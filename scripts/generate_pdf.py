@@ -3,41 +3,54 @@
 Generate PDF version of Banking Anomaly Detection Guide
 """
 
-import sys
 import os
+import sys
 from pathlib import Path
+
 
 # Try different PDF generation approaches
 def generate_pdf_from_markdown():
     """Generate PDF from the markdown file using available tools."""
-    
+
     # Path to the markdown file
-    markdown_file = Path(__file__).parent.parent / "docs" / "Banking_Anomaly_Detection_Guide.md"
-    pdf_file = Path(__file__).parent.parent / "docs" / "Banking_Anomaly_Detection_Guide.pdf"
-    
+    markdown_file = (
+        Path(__file__).parent.parent / "docs" / "Banking_Anomaly_Detection_Guide.md"
+    )
+    pdf_file = (
+        Path(__file__).parent.parent / "docs" / "Banking_Anomaly_Detection_Guide.pdf"
+    )
+
     if not markdown_file.exists():
         print(f"Markdown file not found: {markdown_file}")
         return False
-    
+
     # Try different approaches in order of preference
     approaches = [
         ("pandoc", f"pandoc '{markdown_file}' -o '{pdf_file}' --pdf-engine=pdflatex"),
-        ("pandoc-xelatex", f"pandoc '{markdown_file}' -o '{pdf_file}' --pdf-engine=xelatex"),
-        ("pandoc-wkhtmltopdf", f"pandoc '{markdown_file}' -o '{pdf_file}' --pdf-engine=wkhtmltopdf"),
+        (
+            "pandoc-xelatex",
+            f"pandoc '{markdown_file}' -o '{pdf_file}' --pdf-engine=xelatex",
+        ),
+        (
+            "pandoc-wkhtmltopdf",
+            f"pandoc '{markdown_file}' -o '{pdf_file}' --pdf-engine=wkhtmltopdf",
+        ),
         ("markdown-to-html-to-pdf", None),  # Custom approach
     ]
-    
+
     for approach_name, command in approaches:
         if command:
             try:
                 result = os.system(command)
                 if result == 0 and pdf_file.exists():
-                    print(f"Successfully generated PDF using {approach_name}: {pdf_file}")
+                    print(
+                        f"Successfully generated PDF using {approach_name}: {pdf_file}"
+                    )
                     return True
             except Exception as e:
                 print(f"Failed with {approach_name}: {e}")
                 continue
-    
+
     # If all else fails, create a simple text-based PDF instruction file
     create_pdf_instructions()
     return False
@@ -45,9 +58,11 @@ def generate_pdf_from_markdown():
 
 def create_pdf_instructions():
     """Create instructions for manual PDF generation."""
-    
-    instructions_file = Path(__file__).parent.parent / "docs" / "PDF_Generation_Instructions.md"
-    
+
+    instructions_file = (
+        Path(__file__).parent.parent / "docs" / "PDF_Generation_Instructions.md"
+    )
+
     instructions = """# PDF Generation Instructions
 
 Since automated PDF generation tools are not available in this environment, please follow these steps to create a PDF version of the Banking Anomaly Detection Guide:
@@ -89,23 +104,23 @@ pandoc Banking_Anomaly_Detection_Guide.md -o Banking_Anomaly_Detection_Guide.pdf
 
 The resulting PDF will be suitable for business presentations and distribution to banking stakeholders.
 """
-    
-    with open(instructions_file, 'w') as f:
+
+    with open(instructions_file, "w") as f:
         f.write(instructions)
-    
+
     print(f"Created PDF generation instructions: {instructions_file}")
 
 
 def main():
     """Main function to generate PDF."""
     print("Attempting to generate PDF from Banking Anomaly Detection Guide...")
-    
+
     success = generate_pdf_from_markdown()
-    
+
     if not success:
         print("Automated PDF generation not available in this environment.")
         print("Created instructions for manual PDF generation.")
-    
+
     return 0 if success else 1
 
 

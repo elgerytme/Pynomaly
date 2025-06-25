@@ -12,7 +12,6 @@ import logging
 import signal
 import sys
 from pathlib import Path
-from typing import Optional
 
 import uvicorn
 
@@ -21,84 +20,86 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 try:
-    from pynomaly.presentation.api.app import create_app
     from pynomaly.infrastructure.config.settings import get_settings
+    from pynomaly.presentation.api.app import create_app
 except ImportError as e:
     print(f"Failed to import Pynomaly API modules: {e}")
     print("Please ensure the package is installed with: poetry install")
-    print("For API functionality, install with: pip install -e \".[api]\"")
+    print('For API functionality, install with: pip install -e ".[api]"')
     sys.exit(1)
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
+
 class APIServer:
     """Manages the Pynomaly API server."""
-    
+
     def __init__(self):
         self.settings = get_settings()
-        self.server: Optional[uvicorn.Server] = None
+        self.server: uvicorn.Server | None = None
         self.shutdown_event = asyncio.Event()
-        
+
     def setup_signal_handlers(self):
         """Setup signal handlers for graceful shutdown."""
         for sig in (signal.SIGTERM, signal.SIGINT):
             signal.signal(sig, self._signal_handler)
-    
+
     def _signal_handler(self, signum, frame):
         """Handle shutdown signals."""
         logger.info(f"Received signal {signum}, initiating shutdown...")
         self.shutdown_event.set()
         if self.server:
             self.server.should_exit = True
-    
+
     def create_uvicorn_config(
         self,
         host: str = "0.0.0.0",
         port: int = 8000,
         reload: bool = False,
         workers: int = 1,
-        log_level: str = "info"
+        log_level: str = "info",
     ) -> uvicorn.Config:
         """Create Uvicorn configuration."""
         app = create_app()
-        
+
         config = uvicorn.Config(
             app,
             host=host,
             port=port,
             reload=reload,
-            workers=workers if not reload else 1,  # Reload doesn't work with multiple workers
+            workers=workers
+            if not reload
+            else 1,  # Reload doesn't work with multiple workers
             log_level=log_level,
             access_log=True,
             use_colors=True,
             server_header=False,  # Security: don't expose server info
-            date_header=False,    # Security: don't expose date info
+            date_header=False,  # Security: don't expose date info
         )
-        
+
         return config
-    
+
     async def run_server(
         self,
         host: str = "0.0.0.0",
         port: int = 8000,
         reload: bool = False,
         workers: int = 1,
-        log_level: str = "info"
+        log_level: str = "info",
     ):
         """Run the API server."""
         config = self.create_uvicorn_config(host, port, reload, workers, log_level)
         self.server = uvicorn.Server(config)
-        
+
         logger.info(f"Starting Pynomaly API server on {host}:{port}")
         logger.info(f"Workers: {workers}, Reload: {reload}, Log Level: {log_level}")
         logger.info(f"API Documentation: http://{host}:{port}/docs")
         logger.info(f"Health Check: http://{host}:{port}/health")
-        
+
         try:
             await self.server.serve()
         except Exception as e:
@@ -106,6 +107,7 @@ class APIServer:
             raise
         finally:
             logger.info("API server shutdown complete")
+
 
 def main():
     """Main entry point for the API server."""
@@ -119,48 +121,48 @@ Examples:
   python run_api.py --reload                 # Run with auto-reload for development
   python run_api.py --workers 4              # Run with 4 workers for production
   python run_api.py --host 127.0.0.1         # Run on localhost only
-        """
+        """,
     )
-    
+
     parser.add_argument(
         "--host",
         default="0.0.0.0",
-        help="Host to bind the server to (default: 0.0.0.0)"
+        help="Host to bind the server to (default: 0.0.0.0)",
     )
-    
+
     parser.add_argument(
         "--port",
         type=int,
         default=8000,
-        help="Port to bind the server to (default: 8000)"
+        help="Port to bind the server to (default: 8000)",
     )
-    
+
     parser.add_argument(
         "--reload",
         action="store_true",
-        help="Enable auto-reload for development (default: False)"
+        help="Enable auto-reload for development (default: False)",
     )
-    
+
     parser.add_argument(
         "--workers",
         type=int,
         default=1,
-        help="Number of worker processes (default: 1, ignored if --reload is used)"
+        help="Number of worker processes (default: 1, ignored if --reload is used)",
     )
-    
+
     parser.add_argument(
         "--log-level",
         choices=["critical", "error", "warning", "info", "debug", "trace"],
         default="info",
-        help="Log level (default: info)"
+        help="Log level (default: info)",
     )
-    
+
     args = parser.parse_args()
-    
+
     # Create and setup server
     server = APIServer()
     server.setup_signal_handlers()
-    
+
     try:
         asyncio.run(
             server.run_server(
@@ -168,7 +170,7 @@ Examples:
                 port=args.port,
                 reload=args.reload,
                 workers=args.workers,
-                log_level=args.log_level
+                log_level=args.log_level,
             )
         )
     except KeyboardInterrupt:
@@ -176,6 +178,7 @@ Examples:
     except Exception as e:
         logger.error(f"Failed to start API server: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
