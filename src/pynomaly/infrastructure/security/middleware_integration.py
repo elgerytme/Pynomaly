@@ -13,7 +13,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .security_headers import SecurityHeadersMiddleware, SecurityHeaders
 from .user_tracking import UserTrackingMiddleware, UserActionTracker
-from .audit_logger import AuditLogger, SecurityMonitor
+from .audit_logger import AuditLogger
+from .security_monitor import SecurityMonitor
 from .input_sanitizer import InputSanitizer
 from .sql_protection import SQLInjectionProtector
 from .encryption import DataEncryption

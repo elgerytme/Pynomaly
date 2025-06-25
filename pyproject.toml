@@ -27,12 +27,33 @@ repository = "https://github.com/pynomaly/pynomaly"
 documentation = "https://pynomaly.readthedocs.io"
 
 [tool.poetry]
+name = "pynomaly"
+version = "0.1.0"
+description = "State-of-the-art Python anomaly detection package with clean architecture"
+authors = ["Pynomaly Team <team@pynomaly.io>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/pynomaly/pynomaly"
+repository = "https://github.com/pynomaly/pynomaly"
+documentation = "https://pynomaly.readthedocs.io"
+keywords = ["anomaly-detection", "outlier-detection", "machine-learning", "clean-architecture"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed"
+]
 packages = [{include = "pynomaly", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-
-[project.dependencies]
 # Core ML/Anomaly Detection
 pyod = "^2.0.5"
 scikit-learn = "^1.5.0"
@@ -61,37 +82,9 @@ pyjwt = "^2.8.0"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 # Caching
 redis = "^5.0.0"
-# Optional ML backends
-torch = {version = "^2.1.0", optional = true}
-tensorflow = {version = "^2.15.0", optional = true}
-keras = {version = "^3.0.0", optional = true}
-jax = {version = "^0.4.23", optional = true}
-jaxlib = {version = "^0.4.23", optional = true}
-optax = {version = "^0.1.7", optional = true}
 # Data processing
 pyarrow = "^14.0.0"
-polars = {version = "^0.20.0", optional = true}
-pyspark = {version = "^3.5.0", optional = true}
-h5py = {version = "^3.9.0", optional = true}
-sqlalchemy = {version = "^2.0.0", optional = true}
-psycopg2-binary = {version = "^2.9.0", optional = true}
-# dask removed for simplification (distributed computing)
-fastparquet = {version = "^2024.2.0", optional = true}
-openpyxl = {version = "^3.1.0", optional = true}
-xlsxwriter = {version = "^3.1.0", optional = true}
-# BI integrations removed for simplification
-# Specialized ML libraries
-pygod = {version = "^1.1.0", optional = true}
-tods = {version = "^1.0.0", optional = true}
-torch-geometric = {version = "^2.4.0", optional = true}
-# AutoML libraries
-optuna = {version = "^3.5.0", optional = true}
-hyperopt = {version = "^0.2.7", optional = true}
-auto-sklearn = {version = "^0.15.0", optional = true}
-# Explainability libraries
-shap = {version = "^0.42.0", optional = true}
-lime = {version = "^0.2.0", optional = true}
-# Infrastructure resilience (simplified)
+# Infrastructure resilience
 tenacity = "^8.2.0"
 circuitbreaker = "^1.4.0"
 # Monitoring & Observability
@@ -99,8 +92,67 @@ opentelemetry-api = "^1.22.0"
 opentelemetry-sdk = "^1.22.0"
 opentelemetry-instrumentation-fastapi = "^0.43b0"
 prometheus-client = "^0.19.0"
+# Optional ML backends
+torch = {version = "^2.1.0", optional = true}
+tensorflow = {version = "^2.15.0", optional = true}
+keras = {version = "^3.0.0", optional = true}
+jax = {version = "^0.4.23", optional = true}
+jaxlib = {version = "^0.4.23", optional = true}
+optax = {version = "^0.1.7", optional = true}
+polars = {version = "^0.20.0", optional = true}
+pyspark = {version = "^3.5.0", optional = true}
+h5py = {version = "^3.9.0", optional = true}
+sqlalchemy = {version = "^2.0.0", optional = true}
+psycopg2-binary = {version = "^2.9.0", optional = true}
+fastparquet = {version = "^2024.2.0", optional = true}
+openpyxl = {version = "^3.1.0", optional = true}
+xlsxwriter = {version = "^3.1.0", optional = true}
+pygod = {version = "^1.1.0", optional = true}
+tods = {version = "^1.0.0", optional = true}
+torch-geometric = {version = "^2.4.0", optional = true}
+optuna = {version = "^3.5.0", optional = true}
+hyperopt = {version = "^0.2.7", optional = true}
+auto-sklearn = {version = "^0.15.0", optional = true}
+shap = {version = "^0.42.0", optional = true}
+lime = {version = "^0.2.0", optional = true}
 
-[project.optional-dependencies]
+
+[tool.poetry.group.dev.dependencies]
+# Testing
+pytest = "^8.0.0"
+pytest-cov = "^4.1.0"
+pytest-asyncio = "^0.23.0"
+pytest-xdist = "^3.5.0"
+pytest-benchmark = "^4.0.0"
+pytest-mock = "^3.12.0"
+hypothesis = "^6.92.0"
+faker = "^22.0.0"
+pytest-bdd = "^7.0.0"
+mutmut = "^2.4.0"
+# Code Quality
+mypy = "^1.8.0"
+black = "^23.12.0"
+isort = "^5.13.0"
+flake8 = "^7.0.0"
+flake8-docstrings = "^1.7.0"
+flake8-annotations = "^3.0.1"
+bandit = {extras = ["toml"], version = "^1.7.5"}
+safety = "^3.0.0"
+# Pre-commit
+pre-commit = "^3.6.0"
+# Documentation
+mkdocs = "^1.5.3"
+mkdocs-material = "^9.5.0"
+mkdocstrings = {extras = ["python"], version = "^0.24.0"}
+# Development tools
+ipython = "^8.19.0"
+jupyter = "^1.0.0"
+notebook = "^7.0.0"
+# Type stubs
+types-requests = "^2.31.0"
+pandas-stubs = "^2.1.0"
+
+[tool.poetry.extras]
 # Development dependencies
 dev = [
     "pytest>=8.0.0",
@@ -155,7 +207,7 @@ automl = ["optuna", "hyperopt", "auto-sklearn"]
 explainability = ["shap", "lime"]
 all = ["torch", "tensorflow", "keras", "jax", "jaxlib", "optax", "polars", "pyspark", "h5py", "sqlalchemy", "psycopg2-binary", "pygod", "torch-geometric", "tods", "fastparquet", "openpyxl", "xlsxwriter", "optuna", "hyperopt", "auto-sklearn", "shap", "lime"]
 
-[project.scripts]
+[tool.poetry.scripts]
 pynomaly = "pynomaly.presentation.cli.app:app"
 
 [build-system]
