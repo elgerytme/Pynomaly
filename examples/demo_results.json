@@ -1,0 +1,13 @@
+{
+  "summary": {
+    "total_demos": 1,
+    "successful_demos": 0,
+    "demo_directory": "/tmp/pynomaly_demo_kz__a__8"
+  },
+  "demo_results": {
+    "basic_detection": {
+      "status": "error",
+      "message": "Results file not generated"
+    }
+  }
+}
