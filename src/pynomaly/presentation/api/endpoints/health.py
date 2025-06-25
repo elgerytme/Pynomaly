@@ -1,4 +1,4 @@
-"""Health check endpoints."""
+"""Health check endpoints with comprehensive OpenAPI documentation."""
 
 from __future__ import annotations
 
@@ -6,15 +6,23 @@ from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from pynomaly.infrastructure.config import Container
 from pynomaly.infrastructure.monitoring.health_service import (
     HealthService,
 )
 from pynomaly.presentation.api.deps import get_container
+from pynomaly.presentation.api.docs import HTTPResponses, SchemaExamples
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/health",
+    tags=["Health"],
+    responses={
+        500: HTTPResponses.server_error_500("Health check service unavailable"),
+        503: HTTPResponses.server_error_500("Service temporarily unavailable"),
+    }
+)
 
 # Global health service instance
 health_service = HealthService()
@@ -23,37 +31,77 @@ health_service = HealthService()
 class HealthCheckResponse(BaseModel):
     """Individual health check response."""
 
-    name: str
-    status: str
-    message: str
-    duration_ms: float
-    timestamp: datetime
-    details: dict[str, Any]
+    name: str = Field(..., description="Name of the health check")
+    status: str = Field(..., description="Health check status", enum=["healthy", "degraded", "unhealthy"])
+    message: str = Field(..., description="Human-readable status message")
+    duration_ms: float = Field(..., description="Check execution time in milliseconds", ge=0)
+    timestamp: datetime = Field(..., description="Check execution timestamp")
+    details: dict[str, Any] = Field(default_factory=dict, description="Additional check details")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "name": "database",
+                "status": "healthy",
+                "message": "Database connection successful",
+                "duration_ms": 15.2,
+                "timestamp": "2024-12-25T10:30:00Z",
+                "details": {
+                    "connection_pool_size": 10,
+                    "active_connections": 3
+                }
+            }
+        }
 
 
 class HealthResponse(BaseModel):
     """Comprehensive health check response."""
 
-    overall_status: str
-    timestamp: datetime
-    version: str
-    uptime_seconds: float
-    checks: dict[str, HealthCheckResponse]
-    summary: dict[str, Any]
+    overall_status: str = Field(..., description="Overall system health status", enum=["healthy", "degraded", "unhealthy"])
+    timestamp: datetime = Field(..., description="Response generation timestamp")
+    version: str = Field(..., description="Application version")
+    uptime_seconds: float = Field(..., description="System uptime in seconds", ge=0)
+    checks: dict[str, HealthCheckResponse] = Field(..., description="Individual health check results")
+    summary: dict[str, Any] = Field(..., description="Health summary statistics")
+
+    class Config:
+        json_schema_extra = {
+            "example": SchemaExamples.health_check_response()["value"]
+        }
 
 
 class SystemMetricsResponse(BaseModel):
-    """System metrics response."""
+    """System resource metrics response."""
 
-    cpu_percent: float
-    memory_percent: float
-    disk_percent: float
-    memory_available_mb: float
-    disk_available_gb: float
-    load_average: list[float]
-    network_io: dict[str, int]
-    process_count: int
-    uptime_seconds: float
+    cpu_percent: float = Field(..., description="CPU utilization percentage", ge=0, le=100)
+    memory_percent: float = Field(..., description="Memory utilization percentage", ge=0, le=100)
+    disk_percent: float = Field(..., description="Disk utilization percentage", ge=0, le=100)
+    memory_available_mb: float = Field(..., description="Available memory in MB", ge=0)
+    disk_available_gb: float = Field(..., description="Available disk space in GB", ge=0)
+    load_average: list[float] = Field(..., description="System load average (1, 5, 15 minutes)")
+    network_io: dict[str, int] = Field(..., description="Network I/O statistics")
+    process_count: int = Field(..., description="Number of active processes", ge=0)
+    uptime_seconds: float = Field(..., description="System uptime in seconds", ge=0)
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "cpu_percent": 23.5,
+                "memory_percent": 68.2,
+                "disk_percent": 45.8,
+                "memory_available_mb": 2048.0,
+                "disk_available_gb": 128.5,
+                "load_average": [0.85, 0.92, 1.15],
+                "network_io": {
+                    "bytes_sent": 1048576,
+                    "bytes_recv": 2097152,
+                    "packets_sent": 1024,
+                    "packets_recv": 2048
+                },
+                "process_count": 127,
+                "uptime_seconds": 86400.0
+            }
+        }
 
 
 @router.get("/", response_model=HealthResponse)
