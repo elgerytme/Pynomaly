@@ -152,10 +152,10 @@ class TestDetectorDetection:
         
         # Assert
         assert isinstance(result, DetectionResult)
-        assert len(result.predictions) == 4
+        assert len(result.labels) == 4
         assert len(result.scores) == 4
-        assert result.predictions == [0, 0, 0, 1]
-        assert all(isinstance(score, (int, float)) for score in result.scores)
+        assert list(result.labels) == [0, 0, 0, 1]
+        assert all(isinstance(score, AnomalyScore) for score in result.scores)
         assert result.n_anomalies == 1
         assert result.anomaly_rate == 0.25
         
@@ -199,7 +199,7 @@ class TestDetectorDetection:
         
         # Assert
         assert isinstance(result, DetectionResult)
-        assert len(result.predictions) == 0
+        assert len(result.labels) == 0
         assert len(result.scores) == 0
         assert result.n_anomalies == 0
         assert result.anomaly_rate == 0.0
