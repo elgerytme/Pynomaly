@@ -343,12 +343,12 @@ class AdvancedAutoMLService:
         total_sampled = integer_features + continuous_features
 
         return {
-            "integer_ratio": integer_features / total_sampled
-            if total_sampled > 0
-            else 0,
-            "continuous_ratio": continuous_features / total_sampled
-            if total_sampled > 0
-            else 0,
+            "integer_ratio": (
+                integer_features / total_sampled if total_sampled > 0 else 0
+            ),
+            "continuous_ratio": (
+                continuous_features / total_sampled if total_sampled > 0 else 0
+            ),
         }
 
     def _analyze_distribution(self, data: np.ndarray) -> dict[str, float]:
@@ -937,9 +937,9 @@ class AdvancedAutoMLService:
 
             trends_analysis[algorithm] = {
                 "total_optimizations": len(data["optimizations"]),
-                "average_performance": np.mean(performance_trend)
-                if performance_trend
-                else 0,
+                "average_performance": (
+                    np.mean(performance_trend) if performance_trend else 0
+                ),
                 "performance_improvement": self._calculate_trend(performance_trend),
                 "preferred_parameters": self._analyze_parameter_preferences(
                     data["parameter_preferences"]

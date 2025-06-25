@@ -626,9 +626,11 @@ class EnhancedModelPersistenceService:
             storage_info=storage_info,
             metadata=data["metadata"],
             status=ModelStatus(data["status"]),
-            parent_version_id=UUID(data["parent_version_id"])
-            if data.get("parent_version_id")
-            else None,
+            parent_version_id=(
+                UUID(data["parent_version_id"])
+                if data.get("parent_version_id")
+                else None
+            ),
             description=data.get("description", ""),
             tags=data.get("tags", []),
         )

@@ -66,9 +66,9 @@ class CostAnalysisEngine:
             total_cost += monthly_cost
 
             # Aggregate by dimensions
-            analysis["cost_by_resource_type"][resource.resource_type.value] += (
-                monthly_cost
-            )
+            analysis["cost_by_resource_type"][
+                resource.resource_type.value
+            ] += monthly_cost
             analysis["cost_by_provider"][resource.provider.value] += monthly_cost
             analysis["cost_by_environment"][resource.environment] += monthly_cost
 
@@ -117,9 +117,9 @@ class CostAnalysisEngine:
 
         # Inefficiency indicators
         analysis["inefficiency_indicators"]["idle_resources"] = idle_count
-        analysis["inefficiency_indicators"]["underutilized_resources"] = (
-            underutilized_count
-        )
+        analysis["inefficiency_indicators"][
+            "underutilized_resources"
+        ] = underutilized_count
         analysis["inefficiency_indicators"]["total_waste"] = total_waste
 
         return analysis
@@ -851,9 +851,9 @@ class CostOptimizationService:
                     [r for r in resources if r.can_be_optimized()]
                 ),
                 "total_potential_score": optimization_potential,
-                "avg_potential_score": optimization_potential / len(resources)
-                if resources
-                else 0,
+                "avg_potential_score": (
+                    optimization_potential / len(resources) if resources else 0
+                ),
             }
 
             return analysis
@@ -966,11 +966,11 @@ class CostOptimizationService:
                         "current_spend": budget.current_monthly_spend,
                         "budget_limit": budget.monthly_limit,
                         "days_until_exhausted": budget.days_until_budget_exhausted(),
-                        "severity": "critical"
-                        if threshold >= 1.0
-                        else "high"
-                        if threshold >= 0.9
-                        else "medium",
+                        "severity": (
+                            "critical"
+                            if threshold >= 1.0
+                            else "high" if threshold >= 0.9 else "medium"
+                        ),
                     }
                 )
 
@@ -1022,9 +1022,9 @@ class CostOptimizationService:
 
             # Estimate potential savings (simplified)
             if resource.is_idle():
-                summary["optimization_summary"]["total_potential_savings"] += (
-                    resource.cost_info.monthly_cost
-                )
+                summary["optimization_summary"][
+                    "total_potential_savings"
+                ] += resource.cost_info.monthly_cost
             elif resource.usage_metrics.is_underutilized():
                 efficiency = resource.usage_metrics.get_efficiency_score()
                 summary["optimization_summary"]["total_potential_savings"] += (

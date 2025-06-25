@@ -591,9 +591,11 @@ class WorkflowSimplificationService:
             "basic_stats": {
                 "n_rows": int(n_rows),
                 "n_columns": int(n_cols),
-                "memory_usage_mb": data_array.nbytes / 1024 / 1024
-                if hasattr(data_array, "nbytes")
-                else 0,
+                "memory_usage_mb": (
+                    data_array.nbytes / 1024 / 1024
+                    if hasattr(data_array, "nbytes")
+                    else 0
+                ),
             },
             "data_quality": {
                 "missing_values": int(missing_count),
@@ -653,9 +655,9 @@ class WorkflowSimplificationService:
             "execution_type": "fully_automated",
             "detector_used": recommendations["algorithms"][0],
             "parameters_used": recommendations["parameters"],
-            "anomalies_detected": np.sum(result.labels)
-            if hasattr(result, "labels")
-            else 0,
+            "anomalies_detected": (
+                np.sum(result.labels) if hasattr(result, "labels") else 0
+            ),
             "confidence_score": recommendations["confidence"],
             "processing_time_seconds": 2.5,  # Mock timing
             "recommendations_applied": recommendations,

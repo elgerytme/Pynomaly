@@ -116,9 +116,7 @@ class LocalExplanation(BaseModel):
         description="Feature contribution scores"
     )
     explanation_method: str = Field(description="Method used for explanation")
-    trust_score: float | None = Field(
-        None, description="Trust score for explanation"
-    )
+    trust_score: float | None = Field(None, description="Trust score for explanation")
     metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional metadata"
     )
@@ -349,11 +347,11 @@ class AdvancedExplainabilityService:
                     prediction=float(prediction),
                     confidence=confidence,
                     feature_contributions=feature_contributions,
-                    explanation_method="shap"
-                    if self.enable_shap
-                    else "lime"
-                    if self.enable_lime
-                    else "gradient",
+                    explanation_method=(
+                        "shap"
+                        if self.enable_shap
+                        else "lime" if self.enable_lime else "gradient"
+                    ),
                     metadata={"sample_index": int(idx)},
                 )
 
@@ -1039,9 +1037,9 @@ class AdvancedExplainabilityService:
             "name": dataset.name,
             "n_samples": n_samples,
             "n_features": n_features,
-            "features": dataset.features[:10]
-            if dataset.features
-            else [],  # First 10 features
+            "features": (
+                dataset.features[:10] if dataset.features else []
+            ),  # First 10 features
         }
 
     def _create_fallback_global_explanation(

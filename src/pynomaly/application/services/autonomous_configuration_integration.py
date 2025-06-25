@@ -295,14 +295,16 @@ class AutonomousConfigurationIntegration:
                 "minimum": min_performance,
                 "distribution": performance_distribution,
             },
-            "most_used_algorithm": max(algorithm_usage.items(), key=lambda x: x[1])[0]
-            if algorithm_usage
-            else None,
-            "most_used_preprocessing": max(
-                preprocessing_patterns.items(), key=lambda x: x[1]
-            )[0]
-            if preprocessing_patterns
-            else None,
+            "most_used_algorithm": (
+                max(algorithm_usage.items(), key=lambda x: x[1])[0]
+                if algorithm_usage
+                else None
+            ),
+            "most_used_preprocessing": (
+                max(preprocessing_patterns.items(), key=lambda x: x[1])[0]
+                if preprocessing_patterns
+                else None
+            ),
             "integration_statistics": self.integration_stats,
         }
 
@@ -469,9 +471,9 @@ class AutonomousConfigurationIntegration:
             capture_request = ConfigurationCaptureRequestDTO(
                 source=ConfigurationSource.AUTONOMOUS,
                 raw_parameters=initial_params,
-                execution_results=performance_results.model_dump()
-                if performance_results
-                else None,
+                execution_results=(
+                    performance_results.model_dump() if performance_results else None
+                ),
                 source_context={
                     "autonomous_config": config.__dict__,
                     "detection_summary": self._create_detection_summary(
@@ -518,9 +520,11 @@ class AutonomousConfigurationIntegration:
             training_time_seconds=detection_duration,
             prediction_time_ms=getattr(detection_result, "prediction_time_ms", None),
             memory_usage_mb=getattr(detection_result, "memory_usage_mb", None),
-            anomaly_scores=detection_result.scores.tolist()
-            if hasattr(detection_result.scores, "tolist")
-            else None,
+            anomaly_scores=(
+                detection_result.scores.tolist()
+                if hasattr(detection_result.scores, "tolist")
+                else None
+            ),
             # Additional autonomous-specific metrics
             stability_score=getattr(detection_result, "stability_score", None),
             robustness_score=getattr(detection_result, "robustness_score", None),
@@ -537,14 +541,18 @@ class AutonomousConfigurationIntegration:
             return {}
 
         return {
-            "n_samples": len(detection_result.scores)
-            if detection_result.scores is not None
-            else 0,
+            "n_samples": (
+                len(detection_result.scores)
+                if detection_result.scores is not None
+                else 0
+            ),
             "n_anomalies": detection_result.n_anomalies,
             "anomaly_rate": detection_result.anomaly_rate,
-            "detector_algorithm": detection_result.detector_name
-            if hasattr(detection_result, "detector_name")
-            else None,
+            "detector_algorithm": (
+                detection_result.detector_name
+                if hasattr(detection_result, "detector_name")
+                else None
+            ),
             "timestamp": detection_result.timestamp.isoformat(),
             "has_explanations": hasattr(detection_result, "explanations")
             and detection_result.explanations is not None,
@@ -666,9 +674,11 @@ class AutonomousConfigurationManager:
         search_request = ConfigurationSearchRequestDTO(
             source=ConfigurationSource.AUTONOMOUS,
             tags=["successful"],
-            min_accuracy=performance_requirements.get("min_accuracy", 0.7)
-            if performance_requirements
-            else 0.7,
+            min_accuracy=(
+                performance_requirements.get("min_accuracy", 0.7)
+                if performance_requirements
+                else 0.7
+            ),
             limit=50,
             sort_by="accuracy",
             sort_order="desc",

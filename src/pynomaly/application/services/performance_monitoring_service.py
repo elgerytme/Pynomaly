@@ -201,9 +201,9 @@ class PerformanceMonitoringService:
         # Calculate comparison statistics
         comparison = {
             "comparison_timestamp": datetime.utcnow().isoformat(),
-            "time_window_hours": time_window.total_seconds() / 3600
-            if time_window
-            else None,
+            "time_window_hours": (
+                time_window.total_seconds() / 3600 if time_window else None
+            ),
             "algorithms": {},
         }
 
@@ -219,15 +219,17 @@ class PerformanceMonitoringService:
 
             algorithm_stats = {
                 "operation_count": len(metrics),
-                "avg_execution_time": sum(execution_times) / len(execution_times)
-                if execution_times
-                else 0,
-                "avg_memory_usage": sum(memory_usages) / len(memory_usages)
-                if memory_usages
-                else 0,
-                "avg_throughput": sum(throughputs) / len(throughputs)
-                if throughputs
-                else 0,
+                "avg_execution_time": (
+                    sum(execution_times) / len(execution_times)
+                    if execution_times
+                    else 0
+                ),
+                "avg_memory_usage": (
+                    sum(memory_usages) / len(memory_usages) if memory_usages else 0
+                ),
+                "avg_throughput": (
+                    sum(throughputs) / len(throughputs) if throughputs else 0
+                ),
                 "reliability_score": self._calculate_reliability_score(metrics),
             }
 
@@ -481,7 +483,9 @@ class PerformanceMonitoringService:
                 / len(memory_usages)
             )
             ** 0.5
-        ) / (sum(memory_usages) / len(memory_usages) + 1e-8)  # Avoid division by zero
+        ) / (
+            sum(memory_usages) / len(memory_usages) + 1e-8
+        )  # Avoid division by zero
 
         # Convert to reliability score (0-1, higher is better)
         avg_cv = (exec_time_cv + memory_cv) / 2

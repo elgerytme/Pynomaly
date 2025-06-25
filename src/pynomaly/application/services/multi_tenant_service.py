@@ -307,9 +307,7 @@ class MultiTenantService:
 
         return success
 
-    async def get_tenant_usage_summary(
-        self, tenant_id: UUID
-    ) -> dict[str, any] | None:
+    async def get_tenant_usage_summary(self, tenant_id: UUID) -> dict[str, any] | None:
         """Get comprehensive usage summary for a tenant."""
         tenant = self.tenants.get(tenant_id)
         if not tenant:
@@ -328,11 +326,11 @@ class MultiTenantService:
         # Add billing information
         billing_info = self.billing_tracker.get(tenant_id, {})
         base_summary["billing"] = {
-            "current_period_start": billing_info.get(
-                "current_period_start", ""
-            ).isoformat()
-            if billing_info.get("current_period_start")
-            else "",
+            "current_period_start": (
+                billing_info.get("current_period_start", "").isoformat()
+                if billing_info.get("current_period_start")
+                else ""
+            ),
             "current_period_charges": billing_info.get("current_period_charges", 0.0),
             "estimated_monthly_cost": await self._estimate_monthly_cost(tenant_id),
         }
@@ -413,9 +411,9 @@ class MultiTenantService:
                 "subscription_tier": tenant.subscription_tier.value,
                 "status": tenant.status.value,
                 "created_at": tenant.created_at.isoformat(),
-                "last_activity": tenant.last_activity.isoformat()
-                if tenant.last_activity
-                else None,
+                "last_activity": (
+                    tenant.last_activity.isoformat() if tenant.last_activity else None
+                ),
             },
             "resource_usage": await self.resource_manager.get_resource_usage(tenant_id),
             "quota_status": {

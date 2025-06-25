@@ -229,9 +229,7 @@ class AlgorithmBenchmarkDTO(BaseModel):
 
     # Algorithm identification
     algorithm_name: str = Field(..., description="Algorithm name")
-    algorithm_version: str | None = Field(
-        default=None, description="Algorithm version"
-    )
+    algorithm_version: str | None = Field(default=None, description="Algorithm version")
 
     # Performance metrics
     mean_score: float = Field(..., ge=0, le=1, description="Mean performance score")
@@ -486,9 +484,7 @@ class SelectionRequestDTO(BaseModel):
     use_meta_learning: bool = Field(default=True, description="Use meta-learning")
 
     # Context
-    user_expertise: str | None = Field(
-        default=None, description="User expertise level"
-    )
+    user_expertise: str | None = Field(default=None, description="User expertise level")
     use_case: str | None = Field(default=None, description="Intended use case")
     deployment_environment: str | None = Field(
         default=None, description="Deployment environment"

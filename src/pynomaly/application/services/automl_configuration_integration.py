@@ -342,9 +342,9 @@ class AutoMLConfigurationIntegration:
         params = {
             "dataset_path": getattr(dataset, "path", None),
             "dataset_name": dataset.name,
-            "dataset_shape": dataset.data.shape
-            if hasattr(dataset.data, "shape")
-            else None,
+            "dataset_shape": (
+                dataset.data.shape if hasattr(dataset.data, "shape") else None
+            ),
             "algorithm": algorithm_name,
             "objectives": [
                 obj.name if hasattr(obj, "name") else str(obj)
@@ -404,18 +404,22 @@ class AutoMLConfigurationIntegration:
             capture_request = ConfigurationCaptureRequestDTO(
                 source=ConfigurationSource.AUTOML,
                 raw_parameters=optimization_params,
-                execution_results=performance_results.model_dump()
-                if performance_results
-                else None,
+                execution_results=(
+                    performance_results.model_dump() if performance_results else None
+                ),
                 source_context={
                     "optimization_report": optimization_report,
                     "success": success,
-                    "detector_algorithm": optimized_detector.algorithm_name
-                    if optimized_detector
-                    else None,
-                    "detector_params": getattr(optimized_detector, "params", {})
-                    if optimized_detector
-                    else {},
+                    "detector_algorithm": (
+                        optimized_detector.algorithm_name
+                        if optimized_detector
+                        else None
+                    ),
+                    "detector_params": (
+                        getattr(optimized_detector, "params", {})
+                        if optimized_detector
+                        else {}
+                    ),
                     **(capture_config or {}),
                 },
                 auto_save=True,
@@ -459,9 +463,9 @@ class AutoMLConfigurationIntegration:
                 "timestamp": datetime.now().isoformat(),
                 "configuration_id": configuration_id,
                 "optimization_params": optimization_params,
-                "performance_results": performance_results.model_dump()
-                if performance_results
-                else None,
+                "performance_results": (
+                    performance_results.model_dump() if performance_results else None
+                ),
                 "optimization_report_summary": {
                     "n_trials": optimization_report.get("n_trials"),
                     "optimization_time": optimization_report.get("optimization_time"),

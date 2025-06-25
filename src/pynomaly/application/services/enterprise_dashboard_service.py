@@ -502,9 +502,11 @@ class EnterpriseDashboardService:
                     "status": metric.status,
                     "threshold_warning": metric.threshold_warning,
                     "threshold_critical": metric.threshold_critical,
-                    "trend": metric.history[-10:]
-                    if len(metric.history) >= 10
-                    else metric.history,
+                    "trend": (
+                        metric.history[-10:]
+                        if len(metric.history) >= 10
+                        else metric.history
+                    ),
                 }
                 for name, metric in self.operational_metrics.items()
             },
@@ -528,9 +530,9 @@ class EnterpriseDashboardService:
                 for name, stats in self.algorithm_performance.items()
             },
             "system_status": {
-                "overall_health": "healthy"
-                if len(self.active_alerts) == 0
-                else "warning",
+                "overall_health": (
+                    "healthy" if len(self.active_alerts) == 0 else "warning"
+                ),
                 "active_alerts_count": len(self.active_alerts),
                 "detections_today": self.detection_stats["today"]["total"],
                 "uptime_percentage": 99.9,  # Would be calculated from actual uptime

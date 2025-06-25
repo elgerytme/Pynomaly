@@ -298,7 +298,9 @@ class AlgorithmBenchmarkService:
                 )[0]
                 results.append(result)
             except Exception as e:
-                warnings.warn(f"Failed parameter combination {params}: {e}", stacklevel=2)
+                warnings.warn(
+                    f"Failed parameter combination {params}: {e}", stacklevel=2
+                )
 
         # Sort by overall score
         results.sort(key=lambda x: x.overall_score(), reverse=True)

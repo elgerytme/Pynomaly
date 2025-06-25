@@ -380,11 +380,11 @@ class ModelManagementService:
                     change = latest_version[metric] - first_version[metric]
                     history["performance_trend"][metric] = {
                         "change": change,
-                        "trend": "improving"
-                        if change > 0
-                        else "declining"
-                        if change < 0
-                        else "stable",
+                        "trend": (
+                            "improving"
+                            if change > 0
+                            else "declining" if change < 0 else "stable"
+                        ),
                     }
 
         return history

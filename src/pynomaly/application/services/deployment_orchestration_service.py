@@ -154,9 +154,9 @@ class DeploymentOrchestrationService:
             deployment_config=deployment_config,
             strategy=strategy,
             created_by=user,
-            rollback_version_id=existing_deployment.model_version_id
-            if existing_deployment
-            else None,
+            rollback_version_id=(
+                existing_deployment.model_version_id if existing_deployment else None
+            ),
         )
 
         # Start deployment process
@@ -402,9 +402,11 @@ class DeploymentOrchestrationService:
                     "status": active_deployment.status.value,
                     "health_score": active_deployment.health_score,
                     "traffic_percentage": active_deployment.traffic_percentage,
-                    "deployed_at": active_deployment.deployed_at.isoformat()
-                    if active_deployment.deployed_at
-                    else None,
+                    "deployed_at": (
+                        active_deployment.deployed_at.isoformat()
+                        if active_deployment.deployed_at
+                        else None
+                    ),
                 }
             )
 

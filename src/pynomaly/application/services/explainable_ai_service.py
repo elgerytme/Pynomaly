@@ -425,7 +425,9 @@ class ExplainableAIService:
                 if cf_prediction != original_prediction:
                     # Calculate feature changes
                     changes = {}
-                    for j, (orig, cf) in enumerate(zip(instance, counterfactual, strict=False)):
+                    for j, (orig, cf) in enumerate(
+                        zip(instance, counterfactual, strict=False)
+                    ):
                         if abs(orig - cf) > 0.01:  # Threshold for meaningful change
                             feature_name = (
                                 feature_names[j] if feature_names else f"feature_{j}"
@@ -499,11 +501,11 @@ class ExplainableAIService:
                     max(0.0, overall_trust - 0.1),
                     min(1.0, overall_trust + 0.1),
                 ),
-                trust_level="high"
-                if overall_trust > 0.8
-                else "medium"
-                if overall_trust > 0.6
-                else "low",
+                trust_level=(
+                    "high"
+                    if overall_trust > 0.8
+                    else "medium" if overall_trust > 0.6 else "low"
+                ),
             )
 
             logger.info(
@@ -631,9 +633,9 @@ class ExplainableAIService:
             if model_id in self.explanation_cache:
                 cache = self.explanation_cache[model_id]
                 if cache.creation_timestamp >= cutoff_time:
-                    summary["explanation_stats"]["total_explanations"] = (
-                        cache.access_count
-                    )
+                    summary["explanation_stats"][
+                        "total_explanations"
+                    ] = cache.access_count
                     summary["explanation_stats"]["cache_hit_rate"] = min(
                         1.0, cache.access_count / 100
                     )
@@ -867,9 +869,11 @@ class SHAPExplainer:
                 prediction_value=model.predict(instance.reshape(1, -1))[0],
                 feature_importances=feature_importances,
                 explanation_method=ExplanationMethod.SHAP_TREE,
-                base_value=float(shap_values.base_values[0])
-                if hasattr(shap_values, "base_values")
-                else 0.0,
+                base_value=(
+                    float(shap_values.base_values[0])
+                    if hasattr(shap_values, "base_values")
+                    else 0.0
+                ),
             )
 
             return explanation
@@ -904,7 +908,9 @@ class SHAPExplainer:
 
             # Create global feature importances
             global_importances = []
-            for i, (name, importance) in enumerate(zip(feature_names, mean_importance, strict=False)):
+            for i, (name, importance) in enumerate(
+                zip(feature_names, mean_importance, strict=False)
+            ):
                 feature_importance = FeatureImportance(
                     feature_name=name,
                     importance_value=float(importance),
@@ -995,9 +1001,11 @@ class LIMEExplainer:
             # Generate explanation
             explanation = explainer.explain_instance(
                 instance,
-                model.predict_proba
-                if hasattr(model, "predict_proba")
-                else model.predict,
+                (
+                    model.predict_proba
+                    if hasattr(model, "predict_proba")
+                    else model.predict
+                ),
                 num_features=len(feature_names),
             )
 
@@ -1124,7 +1132,8 @@ class PermutationImportanceExplainer:
                 zip(
                     feature_names,
                     perm_importance.importances_mean,
-                    perm_importance.importances_std, strict=False,
+                    perm_importance.importances_std,
+                    strict=False,
                 )
             ):
                 feature_importance = FeatureImportance(

@@ -840,7 +840,10 @@ class IntelligentSelectionService:
             ]
 
             importances = self.meta_learner.feature_importances_
-            return {name: float(imp) for name, imp in zip(feature_names, importances, strict=False)}
+            return {
+                name: float(imp)
+                for name, imp in zip(feature_names, importances, strict=False)
+            }
         except Exception:
             return {}
 

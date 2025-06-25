@@ -121,9 +121,11 @@ class RetrainingPlan:
         return [
             "data_curation_and_validation",
             "baseline_performance_measurement",
-            "hyperparameter_optimization"
-            if self.hyperparameter_optimization
-            else "skip_hyperopt",
+            (
+                "hyperparameter_optimization"
+                if self.hyperparameter_optimization
+                else "skip_hyperopt"
+            ),
             "model_training_with_validation",
             "performance_comparison_and_testing",
             "champion_challenger_deployment",
@@ -200,9 +202,11 @@ class CuratedDataset:
             "feature_count": self.data.shape[1] if len(self.data.shape) > 1 else 1,
             "has_labels": self.labels is not None,
             "diversity_score": self.diversity_score,
-            "average_quality": float(np.mean(self.quality_scores))
-            if self.quality_scores is not None
-            else 0.0,
+            "average_quality": (
+                float(np.mean(self.quality_scores))
+                if self.quality_scores is not None
+                else 0.0
+            ),
             "temporal_coverage": self.temporal_coverage,
             "curation_metadata": self.metadata,
         }

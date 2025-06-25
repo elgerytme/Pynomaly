@@ -305,9 +305,11 @@ class DriftDetectionService:
             )
 
             result = ConceptDriftResult(
-                detection_method=DriftDetectionMethod.NEURAL_DRIFT_DETECTOR
-                if self.enable_ai_detection
-                else DriftDetectionMethod.STATISTICAL_PROCESS_CONTROL,
+                detection_method=(
+                    DriftDetectionMethod.NEURAL_DRIFT_DETECTOR
+                    if self.enable_ai_detection
+                    else DriftDetectionMethod.STATISTICAL_PROCESS_CONTROL
+                ),
                 drift_probability=combined_probability,
                 drift_detected=drift_detected,
                 confidence=confidence,

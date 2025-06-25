@@ -191,9 +191,11 @@ class ExplainAnomalyUseCase:
                         detector_id=request.detector_id,
                         dataset_id=request.dataset_id,
                         instance_data=request.instance_data,
-                        instance_indices=request.anomaly_indices[:1]
-                        if request.anomaly_indices
-                        else None,
+                        instance_indices=(
+                            request.anomaly_indices[:1]
+                            if request.anomaly_indices
+                            else None
+                        ),
                         max_features=request.max_features,
                     )
 
@@ -205,9 +207,9 @@ class ExplainAnomalyUseCase:
                     method_comparison = {
                         method_name: {
                             "success": result.success,
-                            "explanation": result.explanation
-                            if result.success
-                            else None,
+                            "explanation": (
+                                result.explanation if result.success else None
+                            ),
                             "error": result.error,
                             "execution_time": result.execution_time,
                         }

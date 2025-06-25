@@ -311,9 +311,9 @@ class AlgorithmOptimizationService:
         base_params = {
             "n_estimators": [50, 100, 200],
             "max_samples": ["auto", 0.5, 0.8],
-            "contamination": [0.05, 0.1, 0.15]
-            if not contamination_rate
-            else [contamination_rate],
+            "contamination": (
+                [0.05, 0.1, 0.15] if not contamination_rate else [contamination_rate]
+            ),
             "max_features": [0.5, 1.0],
         }
 
@@ -350,9 +350,9 @@ class AlgorithmOptimizationService:
         """Optimize Local Outlier Factor parameters."""
         base_params = {
             "n_neighbors": [10, 20, 30, 50],
-            "contamination": [0.05, 0.1, 0.15]
-            if not contamination_rate
-            else [contamination_rate],
+            "contamination": (
+                [0.05, 0.1, 0.15] if not contamination_rate else [contamination_rate]
+            ),
             "algorithm": ["auto", "ball_tree", "kd_tree"],
             "leaf_size": [20, 30, 50],
         }
@@ -431,9 +431,9 @@ class AlgorithmOptimizationService:
     ) -> dict[str, Any]:
         """Optimize Elliptic Envelope parameters."""
         base_params = {
-            "contamination": [0.05, 0.1, 0.15]
-            if not contamination_rate
-            else [contamination_rate],
+            "contamination": (
+                [0.05, 0.1, 0.15] if not contamination_rate else [contamination_rate]
+            ),
             "support_fraction": [None, 0.8, 0.9],
             "assume_centered": [False, True],
         }
@@ -464,9 +464,11 @@ class AlgorithmOptimizationService:
         try:
             base_params = {
                 "n_neighbors": [3, 5, 10, 20, 30],
-                "contamination": [0.05, 0.1, 0.15]
-                if not contamination_rate
-                else [contamination_rate],
+                "contamination": (
+                    [0.05, 0.1, 0.15]
+                    if not contamination_rate
+                    else [contamination_rate]
+                ),
                 "method": ["largest", "mean", "median"],
             }
 
@@ -499,9 +501,11 @@ class AlgorithmOptimizationService:
         """Optimize ABOD parameters for PyOD."""
         try:
             base_params = {
-                "contamination": [0.05, 0.1, 0.15]
-                if not contamination_rate
-                else [contamination_rate],
+                "contamination": (
+                    [0.05, 0.1, 0.15]
+                    if not contamination_rate
+                    else [contamination_rate]
+                ),
                 "n_neighbors": [3, 5, 10, 20],
             }
 
@@ -532,9 +536,11 @@ class AlgorithmOptimizationService:
         """Optimize HBOS parameters for PyOD."""
         try:
             base_params = {
-                "contamination": [0.05, 0.1, 0.15]
-                if not contamination_rate
-                else [contamination_rate],
+                "contamination": (
+                    [0.05, 0.1, 0.15]
+                    if not contamination_rate
+                    else [contamination_rate]
+                ),
                 "n_bins": [5, 10, 20, 30],
                 "alpha": [0.1, 0.5, 0.9],
                 "tol": [0.1, 0.5, 1.0],
@@ -567,9 +573,11 @@ class AlgorithmOptimizationService:
         """Optimize PCA parameters for PyOD."""
         try:
             base_params = {
-                "contamination": [0.05, 0.1, 0.15]
-                if not contamination_rate
-                else [contamination_rate],
+                "contamination": (
+                    [0.05, 0.1, 0.15]
+                    if not contamination_rate
+                    else [contamination_rate]
+                ),
                 "n_components": [None, 0.5, 0.8, 0.95],
                 "whiten": [True, False],
                 "svd_solver": ["auto", "full", "randomized"],
@@ -603,9 +611,9 @@ class AlgorithmOptimizationService:
         """Generic optimization for unknown algorithms."""
         # Return basic contamination rate optimization
         base_params = {
-            "contamination": [0.05, 0.1, 0.15]
-            if not contamination_rate
-            else [contamination_rate]
+            "contamination": (
+                [0.05, 0.1, 0.15] if not contamination_rate else [contamination_rate]
+            )
         }
 
         # Add detector's current parameters as baseline
@@ -937,12 +945,14 @@ class AlgorithmOptimizationService:
         # Calculate improvements
         improvements = {
             "execution_time_improvement": (
-                (orig_avg["execution_time"] - opt_avg["execution_time"])
-                / orig_avg["execution_time"]
-                * 100
-            )
-            if orig_avg["execution_time"] > 0
-            else 0,
+                (
+                    (orig_avg["execution_time"] - opt_avg["execution_time"])
+                    / orig_avg["execution_time"]
+                    * 100
+                )
+                if orig_avg["execution_time"] > 0
+                else 0
+            ),
             "memory_improvement": (
                 (orig_avg["memory_usage"] - opt_avg["memory_usage"])
                 / max(orig_avg["memory_usage"], 1e-6)

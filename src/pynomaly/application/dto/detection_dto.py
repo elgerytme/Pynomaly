@@ -109,7 +109,7 @@ class DetectionResultDTO(BaseModel):
                     "std": 0.22,
                 },
             }
-        }
+        },
     )
 
     id: UUID

@@ -669,9 +669,11 @@ class ConfigurationTemplateService:
             f"{description}\n",
             "## Overview\n",
             f"This template is based on a successful {base_config.algorithm_config.algorithm_name} configuration ",
-            f"that achieved {base_config.performance_results.accuracy:.3f} accuracy.\n"
-            if base_config.performance_results
-            else "",
+            (
+                f"that achieved {base_config.performance_results.accuracy:.3f} accuracy.\n"
+                if base_config.performance_results
+                else ""
+            ),
             "\n## Algorithm Details\n",
             f"- **Algorithm**: {base_config.algorithm_config.algorithm_name}\n",
             f"- **Source**: {base_config.metadata.source}\n",
@@ -697,12 +699,16 @@ class ConfigurationTemplateService:
                 [
                     "\n## Expected Performance\n",
                     "Based on the original configuration, you can expect:\n",
-                    f"- **Accuracy**: {base_config.performance_results.accuracy:.3f}\n"
-                    if base_config.performance_results.accuracy
-                    else "",
-                    f"- **Training Time**: {base_config.performance_results.training_time_seconds:.1f}s\n"
-                    if base_config.performance_results.training_time_seconds
-                    else "",
+                    (
+                        f"- **Accuracy**: {base_config.performance_results.accuracy:.3f}\n"
+                        if base_config.performance_results.accuracy
+                        else ""
+                    ),
+                    (
+                        f"- **Training Time**: {base_config.performance_results.training_time_seconds:.1f}s\n"
+                        if base_config.performance_results.training_time_seconds
+                        else ""
+                    ),
                 ]
             )
 
@@ -1214,9 +1220,11 @@ class ConfigurationTemplateService:
         # Use the best performing configuration as base
         best_config = max(
             configurations,
-            key=lambda c: c.performance_results.accuracy
-            if c.performance_results and c.performance_results.accuracy
-            else 0,
+            key=lambda c: (
+                c.performance_results.accuracy
+                if c.performance_results and c.performance_results.accuracy
+                else 0
+            ),
         )
 
         ensemble_config = best_config.model_copy(deep=True)
@@ -1236,9 +1244,11 @@ class ConfigurationTemplateService:
         """Select best configuration from collection."""
         return max(
             configurations,
-            key=lambda c: c.performance_results.accuracy
-            if c.performance_results and c.performance_results.accuracy
-            else 0,
+            key=lambda c: (
+                c.performance_results.accuracy
+                if c.performance_results and c.performance_results.accuracy
+                else 0
+            ),
         )
 
     def _average_configurations(

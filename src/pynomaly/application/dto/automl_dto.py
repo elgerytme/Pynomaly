@@ -140,9 +140,7 @@ class EnsembleConfigDTO(BaseModel):
     normalize_scores: bool = Field(
         default=True, description="Whether to normalize scores"
     )
-    weights: list[float] | None = Field(
-        default=None, description="Algorithm weights"
-    )
+    weights: list[float] | None = Field(default=None, description="Algorithm weights")
 
 
 class AutoMLResultDTO(BaseModel):

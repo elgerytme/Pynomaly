@@ -327,9 +327,7 @@ class AlgorithmAdapterRegistry:
         """Register an algorithm adapter."""
         self._adapters[name] = adapter
 
-    def get_adapter_for_algorithm(
-        self, algorithm_name: str
-    ) -> AlgorithmAdapter | None:
+    def get_adapter_for_algorithm(self, algorithm_name: str) -> AlgorithmAdapter | None:
         """Get the appropriate adapter for an algorithm."""
         adapter_name = self._algorithm_map.get(algorithm_name)
         if adapter_name:

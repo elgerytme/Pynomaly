@@ -548,9 +548,11 @@ class PipelineOrchestrationService:
         return {
             "total_failures": total_failures,
             "step_failure_counts": step_failures,
-            "most_problematic_step": max(step_failures.items(), key=lambda x: x[1])[0]
-            if step_failures
-            else None,
+            "most_problematic_step": (
+                max(step_failures.items(), key=lambda x: x[1])[0]
+                if step_failures
+                else None
+            ),
         }
 
     def _calculate_performance_trend(self, runs: list[PipelineRun]) -> dict[str, Any]:
@@ -582,11 +584,11 @@ class PipelineOrchestrationService:
             "trend": trend,
             "recent_success_rate": recent_success_rate,
             "historical_success_rate": historical_success_rate,
-            "recent_performance": "good"
-            if recent_success_rate > 0.8
-            else "poor"
-            if recent_success_rate < 0.5
-            else "moderate",
+            "recent_performance": (
+                "good"
+                if recent_success_rate > 0.8
+                else "poor" if recent_success_rate < 0.5 else "moderate"
+            ),
         }
 
     def _get_last_successful_run(

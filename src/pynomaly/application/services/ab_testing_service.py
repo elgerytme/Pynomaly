@@ -697,9 +697,11 @@ class ABTestingService:
                 "status": test.status.value,
                 "created_at": test.created_at.isoformat(),
                 "started_at": test.started_at.isoformat() if test.started_at else None,
-                "duration": str(datetime.utcnow() - test.started_at)
-                if test.started_at
-                else None,
+                "duration": (
+                    str(datetime.utcnow() - test.started_at)
+                    if test.started_at
+                    else None
+                ),
                 "total_predictions": len(records),
                 "required_sample_size": test.required_sample_size,
                 "completion_percentage": min(
@@ -979,9 +981,9 @@ class ABTestingService:
             "status": test.status.value,
             "created_at": test.created_at.isoformat(),
             "started_at": test.started_at.isoformat() if test.started_at else None,
-            "completed_at": test.completed_at.isoformat()
-            if test.completed_at
-            else None,
+            "completed_at": (
+                test.completed_at.isoformat() if test.completed_at else None
+            ),
             "required_sample_size": test.required_sample_size,
             "configuration": {
                 "test_name": test.configuration.test_name,

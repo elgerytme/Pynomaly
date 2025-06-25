@@ -441,10 +441,11 @@ class ConfigurationRecommendationService:
                 "mean_accuracy": np.mean(accuracies) if accuracies else 0,
                 "median_accuracy": np.median(accuracies) if accuracies else 0,
                 "std_accuracy": np.std(accuracies) if accuracies else 0,
-                "high_performance_rate": len([a for a in accuracies if a > 0.85])
-                / len(accuracies)
-                if accuracies
-                else 0,
+                "high_performance_rate": (
+                    len([a for a in accuracies if a > 0.85]) / len(accuracies)
+                    if accuracies
+                    else 0
+                ),
             },
             "recommendation_trends": self._analyze_recommendation_trends(
                 recent_configs
@@ -545,9 +546,11 @@ class ConfigurationRecommendationService:
                 # Use best performing configuration as template
                 best_config = max(
                     similar_configs,
-                    key=lambda c: c.performance_results.accuracy
-                    if c.performance_results and c.performance_results.accuracy
-                    else 0,
+                    key=lambda c: (
+                        c.performance_results.accuracy
+                        if c.performance_results and c.performance_results.accuracy
+                        else 0
+                    ),
                 )
 
                 # Predict performance
@@ -607,9 +610,11 @@ class ConfigurationRecommendationService:
         similar_configs.sort(
             key=lambda x: (
                 x[1],
-                x[0].performance_results.accuracy
-                if x[0].performance_results and x[0].performance_results.accuracy
-                else 0,
+                (
+                    x[0].performance_results.accuracy
+                    if x[0].performance_results and x[0].performance_results.accuracy
+                    else 0
+                ),
             ),
             reverse=True,
         )

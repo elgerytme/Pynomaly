@@ -157,7 +157,11 @@ class ExplainAnomalyUseCase:
 
         # Global importance
         global_importance = dict(
-            zip(dataset.feature_names or [], np.abs(shap_values).mean(axis=0), strict=False)
+            zip(
+                dataset.feature_names or [],
+                np.abs(shap_values).mean(axis=0),
+                strict=False,
+            )
         )
 
         return ExplainAnomalyResponse(

@@ -124,7 +124,11 @@ class EnsembleService:
 
             # Set weights
             test_weights = dict(
-                zip([d.name for d in ensemble.base_detectors], weight_combo, strict=False)
+                zip(
+                    [d.name for d in ensemble.base_detectors],
+                    weight_combo,
+                    strict=False,
+                )
             )
             ensemble.update_weights(test_weights)
 

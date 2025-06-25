@@ -792,9 +792,9 @@ class AutonomousPreprocessingOrchestrator:
                 name=f"{dataset.name}_preprocessed",
                 description=f"Preprocessed version of {dataset.name}",
                 data=df,
-                target_column=dataset.target_column
-                if hasattr(dataset, "target_column")
-                else None,
+                target_column=(
+                    dataset.target_column if hasattr(dataset, "target_column") else None
+                ),
                 metadata={
                     **dataset.metadata,
                     "preprocessing_applied": True,

@@ -76,9 +76,9 @@ class TaskInfo:
             "description": self.description,
             "started_at": self.started_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
-            "completed_at": self.completed_at.isoformat()
-            if self.completed_at
-            else None,
+            "completed_at": (
+                self.completed_at.isoformat() if self.completed_at else None
+            ),
             "progress": {
                 "current": self.progress.current,
                 "total": self.progress.total,
@@ -357,8 +357,6 @@ class TaskContext:
         else:
             self.task_service.fail_task(self.task_id, str(exc_val))
 
-    def update(
-        self, current: int | None = None, message: str | None = None, **details
-    ):
+    def update(self, current: int | None = None, message: str | None = None, **details):
         """Update task progress."""
         self.task_service.update_progress(self.task_id, current, message, details)

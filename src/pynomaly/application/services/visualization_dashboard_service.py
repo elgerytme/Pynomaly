@@ -703,7 +703,9 @@ class VisualizationDashboardService:
             # Create multiple gauge charts for KPIs
             series = []
 
-            for i, (name, value) in enumerate(zip(data["x_data"], data["y_data"], strict=False)):
+            for i, (name, value) in enumerate(
+                zip(data["x_data"], data["y_data"], strict=False)
+            ):
                 series.append(
                     {
                         "name": name,

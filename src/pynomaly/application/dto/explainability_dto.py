@@ -520,9 +520,7 @@ class GroupComparisonDTO(BaseModel):
     false_negative_rate: float | None = Field(
         default=None, description="False negative rate"
     )
-    accuracy: float | None = Field(
-        default=None, description="Group-specific accuracy"
-    )
+    accuracy: float | None = Field(default=None, description="Group-specific accuracy")
 
 
 class BiasAnalysisResultDTO(BaseModel):
@@ -1479,7 +1477,9 @@ class MethodComparisonDTO(BaseModel):
 
     method_name: str = Field(..., description="Method name")
     success: bool = Field(..., description="Whether explanation succeeded")
-    explanation: LocalExplanationDTO | GlobalExplanationDTO | CohortExplanationDTO | None = Field(default=None, description="Generated explanation")
+    explanation: (
+        LocalExplanationDTO | GlobalExplanationDTO | CohortExplanationDTO | None
+    ) = Field(default=None, description="Generated explanation")
     error: str | None = Field(default=None, description="Error message if failed")
     execution_time: float = Field(..., description="Execution time in seconds")
 

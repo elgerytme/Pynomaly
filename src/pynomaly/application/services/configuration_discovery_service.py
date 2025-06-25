@@ -307,9 +307,11 @@ class ConfigurationDiscoveryService:
         if matching_configs:
             featured_config = max(
                 matching_configs,
-                key=lambda c: c.performance_results.accuracy
-                if c.performance_results and c.performance_results.accuracy
-                else 0,
+                key=lambda c: (
+                    c.performance_results.accuracy
+                    if c.performance_results and c.performance_results.accuracy
+                    else 0
+                ),
             ).id
 
         # Create collection
@@ -471,9 +473,11 @@ class ConfigurationDiscoveryService:
                 "count": len(group_configs),
                 "daily_counts": dict(daily_counts),
                 "performance_trend": performance_trend,
-                "average_performance": sum(performance_trend) / len(performance_trend)
-                if performance_trend
-                else 0,
+                "average_performance": (
+                    sum(performance_trend) / len(performance_trend)
+                    if performance_trend
+                    else 0
+                ),
                 "latest_configs": [
                     c.id
                     for c in sorted(
@@ -484,14 +488,15 @@ class ConfigurationDiscoveryService:
 
         # Summary statistics
         trends["summary"] = {
-            "most_active_group": max(groups.keys(), key=lambda k: len(groups[k]))
-            if groups
-            else None,
+            "most_active_group": (
+                max(groups.keys(), key=lambda k: len(groups[k])) if groups else None
+            ),
             "total_groups": len(groups),
-            "average_group_size": sum(len(configs) for configs in groups.values())
-            / len(groups)
-            if groups
-            else 0,
+            "average_group_size": (
+                sum(len(configs) for configs in groups.values()) / len(groups)
+                if groups
+                else 0
+            ),
             "trend_direction": self._calculate_trend_direction(recent_configs),
         }
 

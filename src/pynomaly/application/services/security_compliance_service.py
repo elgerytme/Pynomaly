@@ -151,9 +151,7 @@ class SecurityComplianceService:
     - Compliance reporting and assessments
     """
 
-    def __init__(
-        self, storage_path: Path, config: SecurityConfiguration | None = None
-    ):
+    def __init__(self, storage_path: Path, config: SecurityConfiguration | None = None):
         """Initialize security and compliance service.
 
         Args:
@@ -454,9 +452,9 @@ class SecurityComplianceService:
                     "data_types": list(subject.data_types),
                     "processing_purposes": list(subject.processing_purposes),
                     "consent_given": subject.consent_given,
-                    "last_access": subject.last_access.isoformat()
-                    if subject.last_access
-                    else None,
+                    "last_access": (
+                        subject.last_access.isoformat() if subject.last_access else None
+                    ),
                 }
 
             elif request_type == "erasure":
@@ -597,9 +595,9 @@ class SecurityComplianceService:
             for pattern in suspicious_patterns:
                 incident = SecurityIncident(
                     incident_type="potential_data_breach",
-                    severity="high"
-                    if pattern["type"] == "excessive_access"
-                    else "medium",
+                    severity=(
+                        "high" if pattern["type"] == "excessive_access" else "medium"
+                    ),
                     description=f"Suspicious {pattern['type']} detected for user {pattern['user_id']}",
                     affected_data_types=["personal_data"],
                     detection_method="automated_analysis",

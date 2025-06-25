@@ -961,9 +961,11 @@ class PerformanceBenchmarkingService:
                         "average": statistics.mean(metric_values),
                         "min": min(metric_values),
                         "max": max(metric_values),
-                        "std": statistics.stdev(metric_values)
-                        if len(metric_values) > 1
-                        else 0,
+                        "std": (
+                            statistics.stdev(metric_values)
+                            if len(metric_values) > 1
+                            else 0
+                        ),
                     }
 
             comparison[metric] = metric_comparison

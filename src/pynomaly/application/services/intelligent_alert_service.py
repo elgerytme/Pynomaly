@@ -866,11 +866,11 @@ class IntelligentAlertService:
                 "correlation_types": defaultdict(int),
             },
             "performance_metrics": {
-                "avg_processing_time": statistics.mean(
-                    self.metrics["processing_times"][-1000:]
-                )
-                if self.metrics["processing_times"]
-                else 0.0,
+                "avg_processing_time": (
+                    statistics.mean(self.metrics["processing_times"][-1000:])
+                    if self.metrics["processing_times"]
+                    else 0.0
+                ),
                 "total_processed": self.metrics["total_alerts"],
                 "suppression_rate": self.metrics["suppressed_alerts"]
                 / max(1, self.metrics["total_alerts"]),

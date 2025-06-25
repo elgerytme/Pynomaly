@@ -182,9 +182,9 @@ class WebAPIConfigurationIntegration:
             "total_requests": len(configurations),
             "success_count": success_count,
             "error_count": error_count,
-            "success_rate": success_count / len(configurations)
-            if configurations
-            else 0,
+            "success_rate": (
+                success_count / len(configurations) if configurations else 0
+            ),
             "performance_metrics": self._calculate_performance_metrics(response_times),
         }
 
@@ -434,10 +434,11 @@ class WebAPIConfigurationIntegration:
             ),
             "status_code_distribution": dict(status_codes),
             "total_requests": len(configurations),
-            "success_rate": sum(1 for code in status_codes if code < 400)
-            / len(configurations)
-            if configurations
-            else 0,
+            "success_rate": (
+                sum(1 for code in status_codes if code < 400) / len(configurations)
+                if configurations
+                else 0
+            ),
         }
 
     def _analyze_temporal_patterns(self, configurations: list) -> dict[str, Any]:
@@ -484,9 +485,9 @@ class WebAPIConfigurationIntegration:
 
         return {
             "total_errors": len(error_configs),
-            "error_rate": len(error_configs) / len(configurations)
-            if configurations
-            else 0,
+            "error_rate": (
+                len(error_configs) / len(configurations) if configurations else 0
+            ),
             "error_type_distribution": dict(error_types),
             "top_error_endpoints": dict(error_endpoints.most_common(5)),
         }

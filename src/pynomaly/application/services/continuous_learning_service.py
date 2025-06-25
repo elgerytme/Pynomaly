@@ -481,9 +481,9 @@ class ContinuousLearningService:
                 adaptation_type=f"drift_adaptation_{drift_event.drift_type.value}",
                 performance_before=performance_before.compare_with(performance_before),
                 performance_after=performance_after.compare_with(performance_before),
-                samples_processed=len(adaptation_data)
-                if adaptation_data is not None
-                else 0,
+                samples_processed=(
+                    len(adaptation_data) if adaptation_data is not None else 0
+                ),
                 adaptation_time_seconds=(
                     datetime.utcnow() - start_time
                 ).total_seconds(),

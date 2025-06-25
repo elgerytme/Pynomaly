@@ -70,9 +70,7 @@ class DatasetConfigDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     # Dataset identification
-    dataset_path: str | None = Field(
-        default=None, description="Path to dataset file"
-    )
+    dataset_path: str | None = Field(default=None, description="Path to dataset file")
     dataset_name: str | None = Field(
         default=None, description="Dataset name identifier"
     )
@@ -113,9 +111,7 @@ class DatasetConfigDTO(BaseModel):
     sample_size: int | None = Field(
         default=None, description="Sample size for large datasets"
     )
-    sampling_method: str | None = Field(
-        default="random", description="Sampling method"
-    )
+    sampling_method: str | None = Field(default="random", description="Sampling method")
     random_seed: int | None = Field(
         default=42, description="Random seed for reproducibility"
     )
@@ -131,9 +127,7 @@ class AlgorithmConfigDTO(BaseModel):
     algorithm_family: str | None = Field(
         default=None, description="Algorithm family (statistical, distance, etc.)"
     )
-    algorithm_version: str | None = Field(
-        default=None, description="Algorithm version"
-    )
+    algorithm_version: str | None = Field(default=None, description="Algorithm version")
 
     # Hyperparameters
     hyperparameters: dict[str, Any] = Field(
@@ -300,9 +294,7 @@ class EnvironmentConfigDTO(BaseModel):
 
     # Hardware configuration
     cpu_count: int | None = Field(default=None, description="Number of CPU cores")
-    memory_gb: float | None = Field(
-        default=None, description="Available memory in GB"
-    )
+    memory_gb: float | None = Field(default=None, description="Available memory in GB")
     gpu_available: bool = Field(default=False, description="GPU availability")
     gpu_model: str | None = Field(default=None, description="GPU model")
 
@@ -318,9 +310,7 @@ class EnvironmentConfigDTO(BaseModel):
     )
 
     # Platform information
-    operating_system: str | None = Field(
-        default=None, description="Operating system"
-    )
+    operating_system: str | None = Field(default=None, description="Operating system")
     architecture: str | None = Field(default=None, description="System architecture")
     container_runtime: str | None = Field(
         default=None, description="Container runtime (docker, podman)"
@@ -356,9 +346,7 @@ class ConfigurationMetadataDTO(BaseModel):
 
     # Versioning
     version: str = Field(default="1.0.0", description="Configuration version")
-    parent_id: UUID | None = Field(
-        default=None, description="Parent configuration ID"
-    )
+    parent_id: UUID | None = Field(default=None, description="Parent configuration ID")
     derived_from: list[UUID] | None = Field(
         default=None, description="Configurations this was derived from"
     )
@@ -367,9 +355,7 @@ class ConfigurationMetadataDTO(BaseModel):
     usage_count: int = Field(
         default=0, description="Number of times configuration was used"
     )
-    last_used: datetime | None = Field(
-        default=None, description="Last usage timestamp"
-    )
+    last_used: datetime | None = Field(default=None, description="Last usage timestamp")
     success_rate: float | None = Field(
         default=None, description="Success rate of this configuration"
     )
@@ -379,9 +365,7 @@ class ConfigurationMetadataDTO(BaseModel):
         default=None, description="Configuration description"
     )
     notes: str | None = Field(default=None, description="Additional notes")
-    documentation_url: str | None = Field(
-        default=None, description="Documentation URL"
-    )
+    documentation_url: str | None = Field(default=None, description="Documentation URL")
 
 
 class PerformanceResultsDTO(BaseModel):
@@ -480,9 +464,7 @@ class ConfigurationLineageDTO(BaseModel):
     code_version: str | None = Field(default=None, description="Code version")
 
     # Experiment tracking
-    experiment_id: str | None = Field(
-        default=None, description="Experiment identifier"
-    )
+    experiment_id: str | None = Field(default=None, description="Experiment identifier")
     run_id: str | None = Field(default=None, description="Run identifier")
     mlflow_run_id: str | None = Field(default=None, description="MLflow run ID")
 
@@ -570,9 +552,7 @@ class ConfigurationCollectionDTO(BaseModel):
     # Collection identification
     id: UUID = Field(default_factory=uuid4, description="Collection ID")
     name: str = Field(..., description="Collection name")
-    description: str | None = Field(
-        default=None, description="Collection description"
-    )
+    description: str | None = Field(default=None, description="Collection description")
 
     # Configuration references
     configurations: list[UUID] = Field(
@@ -600,9 +580,7 @@ class ConfigurationCollectionDTO(BaseModel):
     total_configurations: int = Field(
         default=0, description="Total number of configurations"
     )
-    success_rate: float | None = Field(
-        default=None, description="Average success rate"
-    )
+    success_rate: float | None = Field(default=None, description="Average success rate")
     average_performance: float | None = Field(
         default=None, description="Average performance score"
     )

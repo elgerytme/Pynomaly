@@ -468,9 +468,9 @@ class AlertManagementService:
                 "total_alerts": total_alerts,
                 "active_alerts": active_alerts,
                 "resolved_alerts": resolved_alerts,
-                "resolution_rate": resolved_alerts / total_alerts
-                if total_alerts > 0
-                else 0,
+                "resolution_rate": (
+                    resolved_alerts / total_alerts if total_alerts > 0 else 0
+                ),
             },
             "severity_breakdown": severity_counts,
             "type_breakdown": type_counts,

@@ -730,7 +730,9 @@ class AutonomousDetectionService:
                 from pynomaly.domain.entities import Anomaly
 
                 anomalies = []
-                for i, (score, pred) in enumerate(zip(scores, predictions, strict=False)):
+                for i, (score, pred) in enumerate(
+                    zip(scores, predictions, strict=False)
+                ):
                     if pred == 1:  # Is anomaly
                         anomaly = Anomaly(
                             score=score,
@@ -962,9 +964,11 @@ class AutonomousDetectionService:
                     {
                         "index": i,
                         "score": anomaly.score.value,
-                        "confidence": anomaly.score.confidence
-                        if hasattr(anomaly.score, "confidence")
-                        else None,
+                        "confidence": (
+                            anomaly.score.confidence
+                            if hasattr(anomaly.score, "confidence")
+                            else None
+                        ),
                     }
                     for i, anomaly in enumerate(best_result.anomalies)
                 ],
@@ -1322,7 +1326,9 @@ class AutonomousDetectionService:
             return explanations
 
         # Calculate feature-level explanations
-        for _i, (idx, score) in enumerate(zip(anomaly_indices, anomaly_scores, strict=False)):
+        for _i, (idx, score) in enumerate(
+            zip(anomaly_indices, anomaly_scores, strict=False)
+        ):
             try:
                 explanation = await self._explain_single_anomaly(
                     dataset, idx, score, detector, config
@@ -1558,27 +1564,27 @@ class AutonomousDetectionService:
             "dataset_analysis": {
                 "sample_size": {
                     "value": profile.n_samples,
-                    "category": "large"
-                    if profile.n_samples > 10000
-                    else "medium"
-                    if profile.n_samples > 1000
-                    else "small",
+                    "category": (
+                        "large"
+                        if profile.n_samples > 10000
+                        else "medium" if profile.n_samples > 1000 else "small"
+                    ),
                 },
                 "feature_count": {
                     "value": profile.n_features,
-                    "category": "high"
-                    if profile.n_features > 50
-                    else "medium"
-                    if profile.n_features > 10
-                    else "low",
+                    "category": (
+                        "high"
+                        if profile.n_features > 50
+                        else "medium" if profile.n_features > 10 else "low"
+                    ),
                 },
                 "data_complexity": {
                     "value": profile.complexity_score,
-                    "category": "high"
-                    if profile.complexity_score > 0.7
-                    else "medium"
-                    if profile.complexity_score > 0.4
-                    else "low",
+                    "category": (
+                        "high"
+                        if profile.complexity_score > 0.7
+                        else "medium" if profile.complexity_score > 0.4 else "low"
+                    ),
                 },
             },
             "algorithm_decisions": [

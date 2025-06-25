@@ -275,9 +275,9 @@ class ExperimentManagementService:
             "runs": [run.get_info() for run in runs],
             "run_count": len(runs),
             "success_rate": experiment.success_rate,
-            "best_run": experiment.get_best_run_info()
-            if experiment.best_run_id
-            else None,
+            "best_run": (
+                experiment.get_best_run_info() if experiment.best_run_id else None
+            ),
             "metric_summaries": self._get_metric_summaries(experiment, runs),
         }
 
@@ -449,12 +449,12 @@ class ExperimentManagementService:
                 {
                     "run_id": str(run.id),
                     "run_name": run.name,
-                    "started_at": run.started_at.isoformat()
-                    if run.started_at
-                    else None,
-                    "completed_at": run.completed_at.isoformat()
-                    if run.completed_at
-                    else None,
+                    "started_at": (
+                        run.started_at.isoformat() if run.started_at else None
+                    ),
+                    "completed_at": (
+                        run.completed_at.isoformat() if run.completed_at else None
+                    ),
                     "status": run.status,
                     "key_metrics": {
                         k: v

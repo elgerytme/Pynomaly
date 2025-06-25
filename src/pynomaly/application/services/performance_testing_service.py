@@ -599,9 +599,11 @@ class PerformanceTestingService:
             dataset_name=dataset.name,
             dataset_config={
                 "samples": len(dataset.features),
-                "features": len(dataset.features.columns)
-                if hasattr(dataset.features, "columns")
-                else dataset.features.shape[1],
+                "features": (
+                    len(dataset.features.columns)
+                    if hasattr(dataset.features, "columns")
+                    else dataset.features.shape[1]
+                ),
                 "contamination": getattr(dataset, "contamination_rate", 0.1),
             },
         )
@@ -984,12 +986,16 @@ class SystemMonitor:
                 "timestamp": datetime.utcnow().isoformat(),
                 "cpu_percent": psutil.cpu_percent(),
                 "memory_percent": psutil.virtual_memory().percent,
-                "disk_io": psutil.disk_io_counters()._asdict()
-                if psutil.disk_io_counters()
-                else {},
-                "network_io": psutil.net_io_counters()._asdict()
-                if psutil.net_io_counters()
-                else {},
+                "disk_io": (
+                    psutil.disk_io_counters()._asdict()
+                    if psutil.disk_io_counters()
+                    else {}
+                ),
+                "network_io": (
+                    psutil.net_io_counters()._asdict()
+                    if psutil.net_io_counters()
+                    else {}
+                ),
             }
             self.stats.append(stats)
 

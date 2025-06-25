@@ -1351,9 +1351,7 @@ class AdvancedEnsembleService:
                 )
 
             # Track performance trends
-            knowledge.performance_metrics.get(
-                "ensemble_performance", 0.5
-            )
+            knowledge.performance_metrics.get("ensemble_performance", 0.5)
             for algorithm, perf in knowledge.algorithm_performance.items():
                 if algorithm not in performance_trends:
                     performance_trends[algorithm] = []
@@ -1433,9 +1431,7 @@ class AdvancedEnsembleService:
             "predicted_performance": predicted_performance,
             "confidence": confidence,
             "similar_cases_found": len(similar_cases),
-            "recommendation_strength": "high"
-            if confidence > 0.7
-            else "medium"
-            if confidence > 0.4
-            else "low",
+            "recommendation_strength": (
+                "high" if confidence > 0.7 else "medium" if confidence > 0.4 else "low"
+            ),
         }

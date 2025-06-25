@@ -153,9 +153,9 @@ class AuditTrailEntry:
             "policy_violations": self.policy_violations,
             "approval_required": self.approval_required,
             "approved_by": self.approved_by,
-            "approval_timestamp": self.approval_timestamp.isoformat()
-            if self.approval_timestamp
-            else None,
+            "approval_timestamp": (
+                self.approval_timestamp.isoformat() if self.approval_timestamp else None
+            ),
             "changes": self.get_change_summary(),
         }
 
@@ -267,14 +267,14 @@ class GovernancePolicy:
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
             "effective_date": self.effective_date.isoformat(),
-            "expiration_date": self.expiration_date.isoformat()
-            if self.expiration_date
-            else None,
+            "expiration_date": (
+                self.expiration_date.isoformat() if self.expiration_date else None
+            ),
             "approval_required": self.approval_required,
             "approved_by": self.approved_by,
-            "approval_date": self.approval_date.isoformat()
-            if self.approval_date
-            else None,
+            "approval_date": (
+                self.approval_date.isoformat() if self.approval_date else None
+            ),
             "enforcement_level": self.enforcement_level,
             "is_active": self.is_active(),
             "scope": self.scope,
