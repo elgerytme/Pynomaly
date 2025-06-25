@@ -1,0 +1,178 @@
+/* Pynomaly PWA Tailwind CSS Input File */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Custom CSS for Pynomaly PWA */
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+}
+
+@layer components {
+  /* Button Components */
+  .btn-primary {
+    @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .btn-danger {
+    @apply bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  /* Card Components */
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+  }
+  
+  .card-header {
+    @apply border-b border-gray-200 pb-4 mb-4;
+  }
+  
+  /* Form Components */
+  .form-input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  }
+  
+  .form-label {
+    @apply block text-sm font-medium text-gray-700 mb-2;
+  }
+  
+  /* Navigation */
+  .nav-link {
+    @apply text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200;
+  }
+  
+  .nav-link.active {
+    @apply text-blue-600 bg-blue-50;
+  }
+  
+  /* Status indicators */
+  .status-success {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800;
+  }
+  
+  .status-warning {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800;
+  }
+  
+  .status-error {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800;
+  }
+  
+  /* Loading states */
+  .loading-spinner {
+    @apply animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600;
+  }
+  
+  /* Anomaly detection specific */
+  .anomaly-score-high {
+    @apply text-red-600 font-semibold;
+  }
+  
+  .anomaly-score-medium {
+    @apply text-yellow-600 font-semibold;
+  }
+  
+  .anomaly-score-low {
+    @apply text-green-600 font-semibold;
+  }
+  
+  /* Chart containers */
+  .chart-container {
+    @apply w-full h-64 bg-white rounded-lg border border-gray-200 p-4;
+  }
+  
+  .chart-large {
+    @apply h-96;
+  }
+  
+  /* Progress bars */
+  .progress-bar {
+    @apply w-full bg-gray-200 rounded-full h-2.5;
+  }
+  
+  .progress-fill {
+    @apply bg-blue-600 h-2.5 rounded-full transition-all duration-300;
+  }
+}
+
+@layer utilities {
+  /* Custom utilities for Pynomaly */
+  .text-anomaly {
+    color: #dc2626; /* red-600 */
+  }
+  
+  .bg-anomaly {
+    background-color: #fef2f2; /* red-50 */
+  }
+  
+  .border-anomaly {
+    border-color: #fecaca; /* red-200 */
+  }
+  
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* HTMX loading states */
+  .htmx-indicator {
+    opacity: 0;
+    transition: opacity 200ms ease-in;
+  }
+  
+  .htmx-request .htmx-indicator {
+    opacity: 1;
+  }
+  
+  .htmx-request.htmx-indicator {
+    opacity: 1;
+  }
+  
+  /* PWA specific */
+  .pwa-install-prompt {
+    @apply fixed bottom-4 left-4 right-4 bg-blue-600 text-white p-4 rounded-lg shadow-lg z-50;
+  }
+  
+  @media (min-width: 768px) {
+    .pwa-install-prompt {
+      @apply left-auto right-4 w-80;
+    }
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-break-before {
+    page-break-before: always;
+  }
+  
+  .print-break-after {
+    page-break-after: always;
+  }
+}
