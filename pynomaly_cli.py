@@ -818,6 +818,238 @@ def auto_select_algorithm(file_path):
     
     return success
 
+@handle_cli_errors
+def explain_anomaly_detection(file_path, algorithm=None, instance_index=None):
+    """Generate explanations for anomaly detection results"""
+    import pandas as pd
+    import numpy as np
+    from pynomaly.domain.entities import Dataset
+    from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+    from pynomaly.domain.value_objects import ContaminationRate
+    
+    # Validate file
+    file_path = validate_file_exists(file_path)
+    data_format = validate_data_format(file_path)
+    
+    print(f"🔍 Generating Anomaly Detection Explanations for: {file_path}")
+    print("=" * 60)
+    
+    # Load data
+    if data_format == 'csv':
+        data = pd.read_csv(file_path)
+    elif data_format == 'json':
+        data = pd.read_json(file_path)
+    else:
+        raise ValueError(f"Unsupported format: {data_format}")
+    
+    print(f"📊 Data loaded: {data.shape}")
+    
+    # Validate data
+    from pynomaly.shared.error_handling import validate_data_shape
+    validate_data_shape(data, min_samples=2, min_features=1)
+    
+    # Set default algorithm if not provided
+    algorithm = algorithm or "IsolationForest"
+    contamination = 0.1
+    
+    print(f"🤖 Using algorithm: {algorithm}")
+    print(f"📈 Contamination rate: {contamination}")
+    
+    # Create dataset
+    dataset = Dataset(
+        name=f"explain_dataset_{file_path.name}",
+        data=data
+    )
+    
+    # Run detection to get anomalies
+    print(f"\n🔬 Running anomaly detection...")
+    adapter = SklearnAdapter(algorithm, contamination_rate=ContaminationRate(contamination))
+    adapter.fit(dataset)
+    result = adapter.detect(dataset)
+    
+    anomaly_count = len(result.anomalies)
+    anomaly_indices = [i for i, label in enumerate(result.labels) if label == 1]
+    normal_indices = [i for i, label in enumerate(result.labels) if label == 0]
+    
+    print(f"   Detection complete: {anomaly_count} anomalies found")
+    print(f"   Anomaly indices: {anomaly_indices[:10]}{'...' if len(anomaly_indices) > 10 else ''}")
+    
+    # Feature importance analysis
+    print(f"\n🧠 Analyzing Feature Importance...")
+    print("-" * 50)
+    
+    # Get feature names
+    feature_names = data.columns.tolist()
+    n_features = len(feature_names)
+    
+    # Calculate basic feature statistics for anomalies vs normal
+    print(f"📋 Feature Analysis Summary:")
+    print(f"   Total features: {n_features}")
+    print(f"   Numerical features: {len([col for col in data.columns if pd.api.types.is_numeric_dtype(data[col])])}")
+    
+    # Simplified feature importance using statistical analysis
+    anomaly_data = data.iloc[anomaly_indices]
+    normal_data = data.iloc[normal_indices]
+    
+    feature_importance = []
+    
+    for col in data.columns:
+        if pd.api.types.is_numeric_dtype(data[col]):
+            # Calculate statistical difference between anomalies and normal data
+            if len(anomaly_data) > 0 and len(normal_data) > 0:
+                anomaly_mean = anomaly_data[col].mean()
+                normal_mean = normal_data[col].mean()
+                anomaly_std = anomaly_data[col].std()
+                normal_std = normal_data[col].std()
+                
+                # Calculate normalized difference
+                combined_std = (anomaly_std + normal_std) / 2
+                if combined_std > 0:
+                    importance = abs(anomaly_mean - normal_mean) / combined_std
+                else:
+                    importance = abs(anomaly_mean - normal_mean)
+                
+                direction = "Higher" if anomaly_mean > normal_mean else "Lower"
+                
+                feature_importance.append({
+                    'feature': col,
+                    'importance': importance,
+                    'anomaly_mean': anomaly_mean,
+                    'normal_mean': normal_mean,
+                    'direction': direction,
+                    'difference': anomaly_mean - normal_mean
+                })
+    
+    # Sort by importance
+    feature_importance.sort(key=lambda x: x['importance'], reverse=True)
+    
+    # Display feature importance
+    print(f"\n📊 Top 10 Most Important Features:")
+    print(f"{'Rank':<4} {'Feature':<20} {'Importance':<12} {'Direction':<10} {'Difference':<12}")
+    print("-" * 70)
+    
+    for i, feat in enumerate(feature_importance[:10], 1):
+        print(f"{i:<4} {feat['feature']:<20} {feat['importance']:<12.4f} {feat['direction']:<10} {feat['difference']:<12.4f}")
+    
+    # Instance-specific explanation
+    if instance_index is not None:
+        print(f"\n🎯 Instance-Specific Explanation (Index: {instance_index})")
+        print("-" * 50)
+        
+        if instance_index >= len(data):
+            print(f"❌ Error: Instance index {instance_index} is out of range (max: {len(data)-1})")
+            return False
+        
+        instance = data.iloc[instance_index]
+        is_anomaly = instance_index in anomaly_indices
+        anomaly_score = result.scores[instance_index] if hasattr(result, 'scores') else None
+        
+        print(f"📝 Instance Details:")
+        print(f"   Index: {instance_index}")
+        print(f"   Label: {'ANOMALY' if is_anomaly else 'NORMAL'}")
+        if anomaly_score is not None:
+            print(f"   Anomaly Score: {anomaly_score:.6f}")
+            print(f"   Threshold: {result.threshold:.6f}")
+        
+        print(f"\n📋 Feature Values vs Dataset Statistics:")
+        print(f"{'Feature':<20} {'Value':<12} {'Dataset Mean':<15} {'Percentile':<12} {'Status':<10}")
+        print("-" * 80)
+        
+        for col in data.columns:
+            if pd.api.types.is_numeric_dtype(data[col]):
+                value = instance[col]
+                dataset_mean = data[col].mean()
+                dataset_std = data[col].std()
+                
+                # Calculate percentile
+                percentile = (data[col] <= value).mean() * 100
+                
+                # Determine status
+                z_score = abs(value - dataset_mean) / dataset_std if dataset_std > 0 else 0
+                if z_score > 2:
+                    status = "OUTLIER"
+                elif z_score > 1.5:
+                    status = "UNUSUAL"
+                else:
+                    status = "NORMAL"
+                
+                print(f"{col:<20} {value:<12.4f} {dataset_mean:<15.4f} {percentile:<12.1f}% {status:<10}")
+        
+        # Explanation reasoning
+        print(f"\n💡 Explanation Reasoning:")
+        if is_anomaly:
+            print(f"   ✅ This instance was classified as an ANOMALY")
+            contributing_features = []
+            for feat in feature_importance[:5]:  # Top 5 features
+                col = feat['feature']
+                if col in instance.index:
+                    value = instance[col]
+                    if feat['direction'] == "Higher" and value > feat['normal_mean']:
+                        contributing_features.append(f"{col} is unusually high ({value:.3f} vs avg {feat['normal_mean']:.3f})")
+                    elif feat['direction'] == "Lower" and value < feat['normal_mean']:
+                        contributing_features.append(f"{col} is unusually low ({value:.3f} vs avg {feat['normal_mean']:.3f})")
+            
+            if contributing_features:
+                print(f"   🔍 Key contributing factors:")
+                for factor in contributing_features:
+                    print(f"     • {factor}")
+            else:
+                print(f"   🔍 This instance shows subtle patterns that deviate from normal behavior")
+        else:
+            print(f"   ❌ This instance was classified as NORMAL")
+            print(f"   🔍 Feature values fall within expected ranges for normal instances")
+    
+    # Global explanation summary
+    print(f"\n🌍 Global Model Explanation:")
+    print("-" * 50)
+    
+    print(f"📊 Algorithm Characteristics:")
+    print(f"   Algorithm: {algorithm}")
+    print(f"   Type: {'Isolation-based' if 'Isolation' in algorithm else 'Distance-based' if 'OutlierFactor' in algorithm else 'Boundary-based'}")
+    print(f"   Sensitivity: {'High' if contamination < 0.05 else 'Medium' if contamination < 0.15 else 'Low'}")
+    
+    print(f"\n📈 Detection Summary:")
+    print(f"   Total samples: {len(data)}")
+    print(f"   Anomalies detected: {anomaly_count} ({anomaly_count/len(data)*100:.1f}%)")
+    print(f"   Features analyzed: {n_features}")
+    print(f"   Most discriminative feature: {feature_importance[0]['feature'] if feature_importance else 'N/A'}")
+    
+    if feature_importance:
+        top_features = [f['feature'] for f in feature_importance[:3]]
+        print(f"   Top 3 important features: {', '.join(top_features)}")
+    
+    # Recommendations
+    print(f"\n💡 Interpretation Guidelines:")
+    print(f"   • Higher importance scores indicate features that better distinguish anomalies")
+    print(f"   • Direction shows whether anomalies tend to have higher or lower values")
+    print(f"   • Consider domain knowledge when interpreting feature importance")
+    print(f"   • Outlier features (>2 standard deviations) are strong anomaly indicators")
+    
+    # Actionable insights
+    print(f"\n🚀 Actionable Insights:")
+    if feature_importance:
+        most_important = feature_importance[0]
+        print(f"   • Focus monitoring on '{most_important['feature']}' (highest importance: {most_important['importance']:.3f})")
+        print(f"   • Anomalies typically have {most_important['direction'].lower()} values for this feature")
+        
+        if len(feature_importance) > 1:
+            second_important = feature_importance[1] 
+            print(f"   • Secondary indicator: '{second_important['feature']}' (importance: {second_important['importance']:.3f})")
+    
+    print(f"   • Set alerts for instances with anomaly scores > {result.threshold:.3f}")
+    print(f"   • Consider investigating instances with multiple outlier features")
+    
+    # Example commands for further analysis
+    print(f"\n📝 Example Commands for Further Analysis:")
+    if anomaly_indices:
+        example_anomaly = anomaly_indices[0]
+        print(f"   python pynomaly_cli.py explain {file_path} {algorithm} {example_anomaly}")
+    
+    print(f"   python pynomaly_cli.py benchmark {file_path}")
+    print(f"   python pynomaly_cli.py validate {file_path}")
+    
+    return True
+
 def test_imports():
     """Test core system imports"""
     tests = [
