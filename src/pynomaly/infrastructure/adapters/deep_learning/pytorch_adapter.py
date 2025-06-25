@@ -187,14 +187,14 @@ if PYTORCH_AVAILABLE:
 
 if PYTORCH_AVAILABLE:
     class VAE(nn.Module):
-    """Variational AutoEncoder for anomaly detection."""
+        """Variational AutoEncoder for anomaly detection."""
 
-    def __init__(self, config: VAEConfig):
-        super().__init__()
-        if not PYTORCH_AVAILABLE:
-            raise ImportError("PyTorch is required for VAE")
+        def __init__(self, config: VAEConfig):
+            super().__init__()
+            if not PYTORCH_AVAILABLE:
+                raise ImportError("PyTorch is required for VAE")
 
-        self.config = config
+            self.config = config
 
         # Encoder
         encoder_layers = []
@@ -248,10 +248,11 @@ if PYTORCH_AVAILABLE:
         return recon, mu, logvar
 
 
-class LSTMAutoEncoder(nn.Module):
-    """LSTM-based AutoEncoder for time series anomaly detection."""
+if PYTORCH_AVAILABLE:
+    class LSTMAutoEncoder(nn.Module):
+        """LSTM-based AutoEncoder for time series anomaly detection."""
 
-    def __init__(self, config: LSTMConfig):
+        def __init__(self, config: LSTMConfig):
         super().__init__()
         if not PYTORCH_AVAILABLE:
             raise ImportError("PyTorch is required for LSTM")
@@ -729,4 +730,14 @@ class PyTorchAdapter(DetectorProtocol):
             )
 
         return info
+
+else:
+    # Fallback classes when PyTorch is not available
+    class VAE:
+        def __init__(self, *args, **kwargs):
+            raise ImportError("PyTorch is required for VAE. Install with: pip install torch")
+    
+    class LSTMAutoEncoder:
+        def __init__(self, *args, **kwargs):
+            raise ImportError("PyTorch is required for LSTMAutoEncoder. Install with: pip install torch")
 
