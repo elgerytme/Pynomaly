@@ -1,8 +1,7 @@
-# Buck2 Build Configuration for Pynomaly
-# Comprehensive build system supporting clean architecture with multiple output formats
+# Buck2 Build Configuration for Pynomaly (Python-only version for Phase 2)
+# Simplified build system focusing on Python components
 
 load("@prelude//python:defs.bzl", "python_binary", "python_library", "python_test")
-load("@prelude//js:defs.bzl", "js_bundle")
 
 # ==========================================
 # Python Package Definitions by Architecture Layer
@@ -115,49 +114,6 @@ python_binary(
 )
 
 # ==========================================
-# Web Assets Build Pipeline
-# ==========================================
-
-# Tailwind CSS Build
-genrule(
-    name = "tailwind-build",
-    srcs = [
-        "config/web/tailwind.config.js",
-        "config/web/postcss.config.js",
-    ] + glob([
-        "src/pynomaly/presentation/web/templates/**/*.html",
-        "src/pynomaly/presentation/web/static/css/**/*.css",
-    ]),
-    out = "static/css/tailwind.css",
-    cmd = "cd $(location .) && npm run build-css && cp src/pynomaly/presentation/web/static/css/tailwind.css $OUT",
-    visibility = ["PUBLIC"],
-)
-
-# JavaScript Bundle
-js_bundle(
-    name = "pynomaly-js",
-    srcs = glob([
-        "src/pynomaly/presentation/web/static/js/**/*.js",
-    ]),
-    entry_point = "src/pynomaly/presentation/web/static/js/main.js",
-    visibility = ["PUBLIC"],
-)
-
-# Web Assets Bundle
-genrule(
-    name = "web-assets",
-    srcs = [
-        ":tailwind-build",
-        ":pynomaly-js",
-    ] + glob([
-        "src/pynomaly/presentation/web/static/**/*",
-    ]),
-    out = "web-assets.tar.gz",
-    cmd = "tar -czf $OUT -C $(location :tailwind-build) . -C $(location :pynomaly-js) .",
-    visibility = ["PUBLIC"],
-)
-
-# ==========================================
 # Test Targets
 # ==========================================
 
@@ -240,112 +196,7 @@ python_library(
 )
 
 # ==========================================
-# Performance and Quality Targets
-# ==========================================
-
-# Performance Benchmarks
-python_test(
-    name = "benchmarks",
-    srcs = glob([
-        "tests/benchmarks/**/*.py",
-        "tests/performance/**/*.py",
-    ]),
-    deps = [
-        ":pynomaly-lib",
-        ":test-utils",
-    ],
-)
-
-# Property-Based Tests
-python_test(
-    name = "property-tests",
-    srcs = glob([
-        "tests/property/**/*.py",
-    ]),
-    deps = [
-        ":pynomaly-lib", 
-        ":test-utils",
-    ],
-)
-
-# Mutation Tests
-python_test(
-    name = "mutation-tests",
-    srcs = glob([
-        "tests/mutation/**/*.py",
-    ]),
-    deps = [
-        ":pynomaly-lib",
-        ":test-utils", 
-    ],
-)
-
-# Security Tests
-python_test(
-    name = "security-tests",
-    srcs = glob([
-        "tests/security/**/*.py",
-    ]),
-    deps = [
-        ":pynomaly-lib",
-        ":test-utils",
-    ],
-)
-
-# ==========================================
 # Development and Utility Targets
-# ==========================================
-
-# Code Generation
-genrule(
-    name = "generate-version",
-    out = "version.py",
-    cmd = "echo '__version__ = \"$(shell git describe --tags --always)\"' > $OUT",
-)
-
-# Documentation Generation
-genrule(
-    name = "docs",
-    srcs = glob([
-        "docs/**/*.md",
-        "src/pynomaly/**/*.py",
-    ]),
-    out = "docs-site.tar.gz",
-    cmd = "cd docs && mkdocs build && tar -czf $OUT -C site .",
-    visibility = ["PUBLIC"],
-)
-
-# Development Environment Setup
-genrule(
-    name = "dev-setup",
-    out = "dev-ready.txt",
-    cmd = "echo 'Development environment configured' > $OUT",
-)
-
-# ==========================================
-# Package Distribution Targets
-# ==========================================
-
-# Wheel Distribution
-genrule(
-    name = "wheel",
-    srcs = [":pynomaly-lib"],
-    out = "pynomaly.whl",
-    cmd = "cd $(location .) && python -m build --wheel --outdir $(dirname $OUT) && mv dist/*.whl $OUT",
-    visibility = ["PUBLIC"],
-)
-
-# Source Distribution
-genrule(
-    name = "sdist",
-    srcs = [":pynomaly-lib"],
-    out = "pynomaly.tar.gz",
-    cmd = "cd $(location .) && python -m build --sdist --outdir $(dirname $OUT) && mv dist/*.tar.gz $OUT",
-    visibility = ["PUBLIC"],
-)
-
-# ==========================================
-# Convenience Targets
 # ==========================================
 
 # All Tests
@@ -360,27 +211,6 @@ genrule(
         ":test-infrastructure",
         ":test-presentation",
         ":test-integration",
-        ":benchmarks",
-        ":property-tests",
-        ":security-tests",
-    ],
-)
-
-# Full Build
-genrule(
-    name = "build-all",
-    srcs = [],
-    out = "build-complete.txt", 
-    cmd = "echo 'Build completed successfully' > $OUT",
-    deps = [
-        ":pynomaly-lib",
-        ":pynomaly-cli",
-        ":pynomaly-api",
-        ":pynomaly-web",
-        ":web-assets",
-        ":wheel",
-        ":sdist",
-        ":docs",
     ],
 )
 
@@ -393,40 +223,5 @@ genrule(
     deps = [
         ":pynomaly-lib",
         ":test-utils",
-        ":dev-setup",
-    ],
-)
-
-# ==========================================
-# CI/CD Integration Targets
-# ==========================================
-
-# CI Test Suite
-genrule(
-    name = "ci-tests",
-    srcs = [],
-    out = "ci-test-results.txt",
-    cmd = "echo 'CI tests passed' > $OUT",
-    deps = [
-        ":test-domain",
-        ":test-application",
-        ":test-infrastructure", 
-        ":test-integration",
-        ":security-tests",
-    ],
-)
-
-# Release Build
-genrule(
-    name = "release",
-    srcs = [],
-    out = "release-artifacts.txt",
-    cmd = "echo 'Release artifacts generated' > $OUT",
-    deps = [
-        ":test-all",
-        ":build-all",
-        ":wheel",
-        ":sdist",
-        ":docs",
     ],
 )
