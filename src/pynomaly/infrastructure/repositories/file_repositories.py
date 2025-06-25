@@ -263,11 +263,29 @@ class FileResultRepository(DetectionResultRepositoryProtocol):
     
     def _result_to_dict(self, result: DetectionResult) -> Dict[str, Any]:
         """Convert result to dictionary for JSON serialization."""
+        # Serialize anomalies
+        anomalies_data = []
+        for anomaly in result.anomalies:
+            anomalies_data.append({
+                'index': anomaly.index,
+                'score': anomaly.score.value,
+                'explanation': anomaly.explanation
+            })
+        
+        # Serialize scores
+        scores_data = []
+        for score in result.scores:
+            if hasattr(score, 'value'):
+                scores_data.append(score.value)
+            else:
+                scores_data.append(float(score))
+        
         return {
             'id': str(result.id),
             'detector_id': str(result.detector_id),
             'dataset_id': str(result.dataset_id),
-            'scores': result.scores.tolist() if hasattr(result.scores, 'tolist') else list(result.scores),
+            'anomalies': anomalies_data,
+            'scores': scores_data,
             'labels': result.labels.tolist() if hasattr(result.labels, 'tolist') else list(result.labels),
             'threshold': result.threshold,
             'timestamp': result.timestamp.isoformat(),
@@ -277,16 +295,40 @@ class FileResultRepository(DetectionResultRepositoryProtocol):
     def _dict_to_result(self, data: Dict[str, Any]) -> DetectionResult:
         """Convert dictionary to result object."""
         import numpy as np
+        from pynomaly.domain.entities.anomaly import Anomaly
+        from pynomaly.domain.value_objects import AnomalyScore
         
         timestamp = datetime.fromisoformat(data['timestamp'])
         
+        # Convert anomalies data back to Anomaly objects
+        anomalies = []
+        if 'anomalies' in data:
+            for anomaly_data in data['anomalies']:
+                anomaly = Anomaly(
+                    index=anomaly_data['index'],
+                    score=AnomalyScore(anomaly_data['score']),
+                    explanation=anomaly_data.get('explanation', '')
+                )
+                anomalies.append(anomaly)
+        
+        # Convert scores to AnomalyScore objects if they're not already
+        scores = []
+        if 'scores' in data:
+            for score_val in data['scores']:
+                if isinstance(score_val, dict):
+                    scores.append(AnomalyScore(float(score_val['value'])))
+                else:
+                    # Handle both string and numeric scores
+                    scores.append(AnomalyScore(float(score_val)))
+        
         return DetectionResult(
-            id=UUID(data['id']),
             detector_id=UUID(data['detector_id']),
             dataset_id=UUID(data['dataset_id']),
-            scores=np.array(data['scores']),
+            anomalies=anomalies,
+            scores=scores,
             labels=np.array(data['labels']),
             threshold=data['threshold'],
+            id=UUID(data['id']),
             timestamp=timestamp,
             metadata=data.get('metadata', {})
         )

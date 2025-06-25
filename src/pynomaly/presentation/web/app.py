@@ -295,6 +295,115 @@ async def experiments_page(
     )
 
 
+# Ensemble routes
+@router.get("/ensemble", response_class=HTMLResponse)
+async def ensemble_page(
+    request: Request,
+    container: Container = Depends(get_container)
+):
+    """Ensemble management page."""
+    ensemble_service = container.ensemble_service()
+    detectors = container.detector_repository().find_all()
+    
+    # Get available ensemble types
+    ensemble_types = ["voting", "stacking", "adaptive", "average", "max", "median"]
+    
+    return templates.TemplateResponse(
+        "ensemble.html",
+        {
+            "request": request,
+            "detectors": detectors,
+            "ensemble_types": ensemble_types
+        }
+    )
+
+
+@router.get("/ensemble/create", response_class=HTMLResponse)
+async def ensemble_create_page(
+    request: Request,
+    container: Container = Depends(get_container)
+):
+    """Ensemble creation wizard."""
+    detectors = container.detector_repository().find_all()
+    datasets = container.dataset_repository().find_all()
+    
+    # Filter trained detectors
+    trained_detectors = [d for d in detectors if d.is_fitted]
+    
+    return templates.TemplateResponse(
+        "ensemble_create.html",
+        {
+            "request": request,
+            "detectors": trained_detectors,
+            "datasets": datasets
+        }
+    )
+
+
+@router.get("/ensemble/compare", response_class=HTMLResponse)
+async def ensemble_compare_page(
+    request: Request,
+    container: Container = Depends(get_container)
+):
+    """Ensemble strategy comparison page."""
+    ensemble_service = container.ensemble_service()
+    detectors = container.detector_repository().find_all()
+    datasets = container.dataset_repository().find_all()
+    
+    return templates.TemplateResponse(
+        "ensemble_compare.html",
+        {
+            "request": request,
+            "detectors": detectors,
+            "datasets": datasets
+        }
+    )
+
+
+# AutoML routes
+@router.get("/automl", response_class=HTMLResponse)
+async def automl_page(
+    request: Request,
+    container: Container = Depends(get_container)
+):
+    """AutoML dashboard page."""
+    automl_service = container.advanced_automl_service()
+    datasets = container.dataset_repository().find_all()
+    
+    # Get available algorithms for optimization
+    algorithms = ["IsolationForest", "LocalOutlierFactor", "OneClassSVM", "EllipticEnvelope", "ECOD", "COPOD"]
+    
+    return templates.TemplateResponse(
+        "automl.html",
+        {
+            "request": request,
+            "datasets": datasets,
+            "algorithms": algorithms
+        }
+    )
+
+
+@router.get("/automl/optimize", response_class=HTMLResponse)
+async def automl_optimize_page(
+    request: Request,
+    container: Container = Depends(get_container)
+):
+    """AutoML optimization setup page."""
+    datasets = container.dataset_repository().find_all()
+    algorithms = ["IsolationForest", "LocalOutlierFactor", "OneClassSVM", "EllipticEnvelope", "ECOD", "COPOD"]
+    objectives = ["accuracy", "speed", "interpretability", "memory_efficiency"]
+    
+    return templates.TemplateResponse(
+        "automl_optimize.html",
+        {
+            "request": request,
+            "datasets": datasets,
+            "algorithms": algorithms,
+            "objectives": objectives
+        }
+    )
+
+
 @router.get("/visualizations", response_class=HTMLResponse)
 async def visualizations_page(
     request: Request,
@@ -555,6 +664,147 @@ async def htmx_detect_anomalies(
         return HTMLResponse(
             f'<div class="alert alert-error">Detection failed: {str(e)}</div>'
         )
+
+
+# Ensemble HTMX endpoints
+@router.post("/htmx/ensemble-create", response_class=HTMLResponse)
+async def htmx_ensemble_create(
+    request: Request,
+    name: str = Form(...),
+    detector_ids: str = Form(...),
+    aggregation_method: str = Form("weighted_voting"),
+    container: Container = Depends(get_container)
+):
+    """Create ensemble via HTMX."""
+    try:
+        ensemble_service = container.ensemble_service()
+        
+        # Parse detector IDs
+        detector_id_list = [id.strip() for id in detector_ids.split(",") if id.strip()]
+        
+        # Create ensemble
+        ensemble = await ensemble_service.create_ensemble(
+            name=name,
+            detector_ids=detector_id_list,
+            aggregation_method=aggregation_method
+        )
+        
+        return templates.TemplateResponse(
+            "partials/ensemble_created.html",
+            {
+                "request": request,
+                "ensemble": ensemble,
+                "success": True
+            }
+        )
+        
+    except Exception as e:
+        return HTMLResponse(
+            f'<div class="alert alert-error">Ensemble creation failed: {str(e)}</div>'
+        )
+
+
+@router.get("/htmx/ensemble-list", response_class=HTMLResponse)
+async def htmx_ensemble_list(
+    request: Request,
+    container: Container = Depends(get_container)
+):
+    """Get ensemble list via HTMX."""
+    ensemble_service = container.ensemble_service()
+    detectors = container.detector_repository().find_all()
+    
+    # Filter ensemble detectors (those with base_detectors)
+    ensembles = [d for d in detectors if hasattr(d, 'base_detectors') and d.base_detectors]
+    
+    return templates.TemplateResponse(
+        "partials/ensemble_list.html",
+        {
+            "request": request,
+            "ensembles": ensembles
+        }
+    )
+
+
+# AutoML HTMX endpoints
+@router.post("/htmx/automl-optimize", response_class=HTMLResponse)
+async def htmx_automl_optimize(
+    request: Request,
+    dataset_id: str = Form(...),
+    algorithm: str = Form(...),
+    max_trials: int = Form(50),
+    max_time: int = Form(1800),
+    objectives: str = Form("accuracy"),
+    container: Container = Depends(get_container)
+):
+    """Start AutoML optimization via HTMX."""
+    try:
+        from uuid import UUID
+        automl_service = container.advanced_automl_service()
+        dataset = container.dataset_repository().find_by_id(UUID(dataset_id))
+        
+        if not dataset:
+            return HTMLResponse(
+                '<div class="alert alert-error">Dataset not found</div>'
+            )
+        
+        # Parse objectives
+        objective_list = [obj.strip() for obj in objectives.split(",") if obj.strip()]
+        
+        # Start optimization (simplified implementation)
+        # In a real implementation, this would be async with task tracking
+        optimization_id = f"opt_{dataset_id}_{algorithm}"
+        
+        return templates.TemplateResponse(
+            "partials/automl_optimization_started.html",
+            {
+                "request": request,
+                "optimization_id": optimization_id,
+                "algorithm": algorithm,
+                "dataset_name": dataset.name,
+                "max_trials": max_trials
+            }
+        )
+        
+    except Exception as e:
+        return HTMLResponse(
+            f'<div class="alert alert-error">Optimization failed: {str(e)}</div>'
+        )
+
+
+@router.get("/htmx/automl-active", response_class=HTMLResponse)
+async def htmx_automl_active(
+    request: Request,
+    container: Container = Depends(get_container)
+):
+    """Get active optimizations via HTMX."""
+    # In a real implementation, this would track actual running optimizations
+    active_optimizations = []
+    
+    return templates.TemplateResponse(
+        "partials/automl_active.html",
+        {
+            "request": request,
+            "optimizations": active_optimizations
+        }
+    )
+
+
+@router.get("/htmx/automl-history", response_class=HTMLResponse)
+async def htmx_automl_history(
+    request: Request,
+    container: Container = Depends(get_container)
+):
+    """Get optimization history via HTMX."""
+    # In a real implementation, this would load from optimization storage
+    history = []
+    
+    return templates.TemplateResponse(
+        "partials/automl_history.html",
+        {
+            "request": request,
+            "history": history
+        }
+    )
 
 
 def mount_web_ui(app):
