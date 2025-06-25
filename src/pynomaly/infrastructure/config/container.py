@@ -87,6 +87,15 @@ class OptionalServiceManager:
         self._register_service('telemetry_service', 'pynomaly.infrastructure.monitoring', 'TelemetryService')
         self._register_service('health_service', 'pynomaly.infrastructure.monitoring', 'HealthService')
         
+        # Distributed processing services
+        self._register_service('task_distributor', 'pynomaly.infrastructure.distributed.task_distributor', 'TaskDistributor')
+        self._register_service('worker_manager', 'pynomaly.infrastructure.distributed.worker_manager', 'WorkerManager')
+        self._register_service('data_partitioner', 'pynomaly.infrastructure.distributed.data_partitioner', 'DataPartitioner')
+        self._register_service('distributed_detector', 'pynomaly.infrastructure.distributed.distributed_detector', 'DistributedDetector')
+        self._register_service('cluster_coordinator', 'pynomaly.infrastructure.distributed.cluster_coordinator', 'ClusterCoordinator')
+        self._register_service('result_aggregator', 'pynomaly.infrastructure.distributed.result_aggregator', 'ResultAggregator')
+        self._register_service('load_balancer', 'pynomaly.infrastructure.distributed.load_balancer', 'LoadBalancer')
+        
         # Database services
         self._register_service('database_manager', 'pynomaly.infrastructure.persistence', 'DatabaseManager')
         self._register_service('database_detector_repository', 'pynomaly.infrastructure.persistence', 'DatabaseDetectorRepository')
@@ -326,6 +335,54 @@ class Container(containers.DeclarativeContainer):
                 'security_monitor',
                 'singleton',
                 audit_logger=cls.audit_logger if hasattr(cls, 'audit_logger') else None
+            )
+        
+        # Distributed processing services
+        if service_manager.is_available('task_distributor'):
+            cls.task_distributor = service_manager.create_provider(
+                'task_distributor',
+                'singleton',
+                config=cls.config.provided
+            )
+        
+        if service_manager.is_available('worker_manager'):
+            cls.worker_manager = service_manager.create_provider(
+                'worker_manager',
+                'singleton',
+                config=cls.config.provided
+            )
+        
+        if service_manager.is_available('data_partitioner'):
+            cls.data_partitioner = service_manager.create_provider(
+                'data_partitioner',
+                'singleton'
+            )
+        
+        if service_manager.is_available('distributed_detector'):
+            cls.distributed_detector = service_manager.create_provider(
+                'distributed_detector',
+                'singleton',
+                task_distributor=cls.task_distributor if hasattr(cls, 'task_distributor') else None,
+                worker_manager=cls.worker_manager if hasattr(cls, 'worker_manager') else None,
+                data_partitioner=cls.data_partitioner if hasattr(cls, 'data_partitioner') else None
+            )
+        
+        if service_manager.is_available('cluster_coordinator'):
+            cls.cluster_coordinator = service_manager.create_provider(
+                'cluster_coordinator',
+                'singleton'
+            )
+        
+        if service_manager.is_available('result_aggregator'):
+            cls.result_aggregator = service_manager.create_provider(
+                'result_aggregator',
+                'singleton'
+            )
+        
+        if service_manager.is_available('load_balancer'):
+            cls.load_balancer = service_manager.create_provider(
+                'load_balancer',
+                'singleton'
             )
         
         # AutoML service
