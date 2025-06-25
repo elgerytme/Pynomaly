@@ -6,12 +6,12 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
-from pynomaly.application.dto.automl_dto import (
-    AutoMLOptimizationRequest,
-    AutoMLOptimizationResponse,
-    DatasetProfileResponse,
-    AlgorithmRecommendationResponse
-)
+import numpy as np
+import pandas as pd
+
+# Import the existing DTOs and create our own response classes for now
+from dataclasses import dataclass
+from typing import Dict, Any, List
 from pynomaly.application.services.automl_service import (
     AutoMLService,
     OptimizationObjective,
@@ -25,6 +25,64 @@ from pynomaly.infrastructure.persistence.dataset_repository import DatasetReposi
 
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class AutoMLOptimizationRequest:
+    """Request for AutoML optimization."""
+    dataset_id: str
+    optimization_objective: str = "auc"
+    max_algorithms_to_try: int = 3
+    max_optimization_time_minutes: int = 60
+    enable_ensemble: bool = True
+    detector_name: Optional[str] = None
+    cross_validation_folds: int = 3
+    random_state: int = 42
+
+
+@dataclass
+class AutoMLOptimizationResponse:
+    """Response from AutoML optimization."""
+    success: bool
+    dataset_id: str
+    optimized_detector_id: Optional[str] = None
+    best_algorithm: Optional[str] = None
+    best_parameters: Optional[Dict[str, Any]] = None
+    best_score: Optional[float] = None
+    optimization_time_seconds: Optional[float] = None
+    trials_completed: Optional[int] = None
+    algorithm_rankings: Optional[List[tuple]] = None
+    ensemble_config: Optional[Dict[str, Any]] = None
+    optimization_summary: Optional[Dict[str, Any]] = None
+    error_message: Optional[str] = None
+    recommendations: List[str] = None
+
+
+@dataclass
+class DatasetProfileResponse:
+    """Response containing dataset profile information."""
+    dataset_id: str
+    dataset_name: str
+    n_samples: int
+    n_features: int
+    feature_types: Dict[str, str]
+    contamination_estimate: float
+    complexity_score: float
+    has_missing_values: bool
+    has_temporal_structure: bool
+    has_categorical_features: bool
+    recommended_algorithms: List[str]
+    profile_metadata: Dict[str, Any]
+
+
+@dataclass
+class AlgorithmRecommendationResponse:
+    """Response containing algorithm recommendations."""
+    dataset_id: str
+    recommended_algorithms: List[str]
+    algorithm_scores: Dict[str, float]
+    reasoning: Dict[str, str]
+    dataset_characteristics: Dict[str, Any]
 
 
 class AutoMLOptimizationUseCase:
@@ -58,8 +116,8 @@ class AutoMLOptimizationUseCase:
             if not dataset:
                 raise DomainError(f"Dataset {dataset_id} not found")
             
-            # Profile the dataset
-            profile = await self.automl_service.profile_dataset(dataset_id)
+            # Create profile from dataset characteristics
+            profile = self._create_dataset_profile(dataset)
             
             # Get algorithm recommendations
             recommendations = self.automl_service.recommend_algorithms(
@@ -399,3 +457,82 @@ class AutoMLOptimizationUseCase:
             recommendations.append("Neural network model may benefit from more training data")
         
         return recommendations
+    
+    def _create_dataset_profile(self, dataset: Dataset):
+        """Create a dataset profile from a Dataset entity."""
+        from pynomaly.application.services.automl_service import DatasetProfile
+        
+        df = dataset.features
+        n_samples, n_features = df.shape
+        
+        # Feature types
+        feature_types = {}
+        categorical_features = []
+        numerical_features = []
+        time_series_features = []
+        
+        for col in df.columns:
+            if pd.api.types.is_numeric_dtype(df[col]):
+                feature_types[col] = "numerical"
+                numerical_features.append(col)
+            elif pd.api.types.is_datetime64_any_dtype(df[col]):
+                feature_types[col] = "datetime"
+                time_series_features.append(col)
+            else:
+                feature_types[col] = "categorical"
+                categorical_features.append(col)
+        
+        # Data quality metrics
+        missing_values_ratio = df.isnull().sum().sum() / (n_samples * n_features)
+        
+        # Sparsity analysis (for numerical features)
+        if numerical_features:
+            numerical_df = df[numerical_features]
+            zero_ratio = (numerical_df == 0).sum().sum() / (n_samples * len(numerical_features))
+            sparsity_ratio = zero_ratio
+        else:
+            sparsity_ratio = 0.0
+        
+        # Dimensionality ratio
+        dimensionality_ratio = n_features / n_samples
+        
+        # Contamination estimation using IQR method
+        contamination_estimate = 0.1  # Default
+        if numerical_features:
+            numerical_data = df[numerical_features].select_dtypes(include=[np.number])
+            if not numerical_data.empty:
+                q1 = numerical_data.quantile(0.25)
+                q3 = numerical_data.quantile(0.75)
+                iqr = q3 - q1
+                lower_bound = q1 - 1.5 * iqr
+                upper_bound = q3 + 1.5 * iqr
+                
+                outliers = ((numerical_data < lower_bound) | (numerical_data > upper_bound)).any(axis=1)
+                contamination_estimate = min(outliers.sum() / n_samples, 0.5)
+        
+        # Dataset size
+        dataset_size_mb = df.memory_usage(deep=True).sum() / (1024 * 1024)
+        
+        # Temporal structure detection
+        has_temporal_structure = len(time_series_features) > 0
+        
+        # Graph structure detection (heuristic)
+        has_graph_structure = False
+        if any("edge" in col.lower() or "node" in col.lower() or "graph" in col.lower() for col in df.columns):
+            has_graph_structure = True
+        
+        return DatasetProfile(
+            n_samples=n_samples,
+            n_features=n_features,
+            contamination_estimate=contamination_estimate,
+            feature_types=feature_types,
+            missing_values_ratio=missing_values_ratio,
+            categorical_features=categorical_features,
+            numerical_features=numerical_features,
+            time_series_features=time_series_features,
+            sparsity_ratio=sparsity_ratio,
+            dimensionality_ratio=dimensionality_ratio,
+            dataset_size_mb=dataset_size_mb,
+            has_temporal_structure=has_temporal_structure,
+            has_graph_structure=has_graph_structure
+        )
