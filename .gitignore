@@ -1,3 +1,8 @@
+# Pynomaly .gitignore
+# ====================
+
+# Python
+# --------
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -7,19 +12,10 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-test_env/
-test_environments/
-test_venv/
-fresh_env/
 .Python
-build/artifacts/
-!build/artifacts/README.md
-build/lib/
+build/
 develop-eggs/
 dist/
-bin/
-deploy/artifacts/
-!deploy/artifacts/README.md
 downloads/
 eggs/
 .eggs/
@@ -57,6 +53,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+coverage.json
 
 # Translations
 *.mo
@@ -113,7 +110,8 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
-# Environments
+# Virtual Environments
+# --------------------
 .env
 .venv
 env/
@@ -121,6 +119,24 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.venv_testing/
+test_env/
+test_environments/
+test_venv/
+fresh_env/
+fresh_test_env/
+test_venv_bash/
+test_env_check/
+test_venv_fresh/
+
+# IDEs and Editors
+# ----------------
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+Pynomaly.code-workspace
 
 # Spyder project settings
 .spyderproject
@@ -129,30 +145,8 @@ venv.bak/
 # Rope project settings
 .ropeproject
 
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# PyCharm
-.idea/
-
-# VS Code
-.vscode/
-Pynomaly.code-workspace
-
+# Operating Systems
+# -----------------
 # macOS
 .DS_Store
 .AppleDouble
@@ -180,6 +174,46 @@ $RECYCLE.BIN/
 .Trash-*
 .nfs*
 
+# Documentation
+# -------------
+# mkdocs documentation
+/site
+
+# Type Checkers
+# --------------
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# Project Specific
+# ----------------
+# Build artifacts
+build/artifacts/
+!build/artifacts/README.md
+deploy/artifacts/
+!deploy/artifacts/README.md
+
+# Test output
+test-results/
+test-reports/
+tests/enhanced-coverage-reports/
+tests/ui/ui_test_env/
+tests/ui_integration_results.json
+
+# Profiling
+*.prof
+*.lprof
+
 # Backup files
 *.bak
 *.backup
@@ -190,48 +224,50 @@ $RECYCLE.BIN/
 *.orig
 *.rej
 
-# Test output
-test-results/
-test-reports/
-
-# Profiling
-*.prof
-*.lprof
-
 # Local development
 .local/
 scratch/
 
 # Data files (customize as needed)
+data/
 *.csv
 *.parquet
 *.h5
 *.hdf5
-data/
 
 # Model files
+models/
+storage/
 *.pkl
 *.pickle
 *.joblib
-*.h5
 *.pt
 *.pth
 *.onnx
-models/
 
 # Logs
 logs/
 *.log.*
 *.log-*
 
-# Secrets
+# Configuration & Secrets
+# ------------------------
 secrets/
+.secrets/
 *.key
 *.pem
 *.p12
 *.pfx
-.secrets/
 
+# Database
+# --------
+*.db
+*.sqlite
+*.sqlite3
+storage/detectors.json
+
+# Web Development
+# ---------------
 # Node modules (for web UI)
 node_modules/
 npm-debug.log*
@@ -244,11 +280,8 @@ yarn-error.log*
 *.min.css
 dist-web/
 
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
+# Machine Learning & Data Science
+# --------------------------------
 # DVC
 .dvc/
 .dvcignore
@@ -256,6 +289,12 @@ dist-web/
 # MLflow
 mlruns/
 
+# Benchmarking
+benchmarks/results/
+*.benchmark
+
+# Infrastructure
+# --------------
 # Terraform
 *.tfstate
 *.tfstate.*
@@ -263,24 +302,3 @@ mlruns/
 
 # Docker
 .dockerignore
-
-# Benchmarking
-benchmarks/results/
-*.benchmark
-.venv_testing/
-tests/ui/ui_test_env/
-tests/ui_integration_results.json
-2.0
-fresh_env/
-fresh_test_env/
-test_venv_bash/
-coverage.json
-storage/detectors.json
-storage/detectors.json
-storage/detectors.json
-test_env_check/
-test_env_check/lib64
-test_env_check/pyvenv.cfg
-=0.2.0.1
-=0.46.0
-=7.0.0
