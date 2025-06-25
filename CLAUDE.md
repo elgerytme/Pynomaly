@@ -229,53 +229,197 @@ poetry run python -m http.server 8080 --directory src/pynomaly/presentation/web/
 
 ## Project Organization Rules
 
-### File Organization Standards
-- **Root Directory**: Keep only essential project files (pyproject.toml, README.md, LICENSE, etc.)
-- **scripts/**: All Python scripts, utilities, and CLI tools
+### 🚨 CRITICAL FILE ORGANIZATION ENFORCEMENT 🚨
+
+**MANDATORY COMPLIANCE**: All file organization rules are STRICTLY ENFORCED through automated validation. Violations will prevent commits and deployments.
+
+### Root Directory Restrictions (ENFORCED)
+**ONLY these files are allowed in the project root:**
+
+#### Essential Project Files
+- `README.md`, `LICENSE`, `CHANGELOG.md`, `TODO.md`, `CLAUDE.md`, `CONTRIBUTING.md`
+- `MANIFEST.in`, `Makefile`
+
+#### Package Configuration
+- `pyproject.toml`, `setup.py`, `setup.cfg`
+
+#### Requirements Files
+- `requirements.txt`, `requirements-minimal.txt`, `requirements-server.txt`
+- `requirements-production.txt`, `requirements-test.txt`
+
+#### Build & Development
+- `package.json`, `package-lock.json`
+- `.gitignore`, `.gitattributes`, `.pre-commit-config.yaml`
+- `Pynomaly.code-workspace`
+
+### 🚫 PROHIBITED IN ROOT DIRECTORY (ENFORCED)
+
+#### Files That MUST BE MOVED:
+- **Testing Files** → `tests/`
+  - `test_*.py`, `test_*.sh`, `test_*.ps1`
+  - `*_test.py`, `*_test.sh`, `*_test.ps1`
+  - `testing_*`, `*_testing_*`
+  - `execute_*_test*`
+
+- **Script Files** → `scripts/`
+  - `fix_*.py`, `fix_*.sh`, `fix_*.ps1`
+  - `setup_*.py`, `setup_*.sh`, `setup_*.ps1`
+  - `install_*.py`, `run_*.py`, `deploy_*.py`
+
+- **Documentation** → `docs/`
+  - `*_REPORT.md`, `*_SUMMARY.md`, `*_GUIDE.md`
+  - `*_ANALYSIS*.md`, `*_PLAN.md`
+  - `TESTING_*.md`, `DEPLOYMENT_*.md`, `IMPLEMENTATION_*.md`
+
+- **Reports** → `reports/`
+  - `*_report.json`, `*_results.json`, `*_analysis.json`
+
+#### Files That MUST BE DELETED:
+- **Version Artifacts**: `=*`, `2.0`, `=0.2.0.1`, etc.
+- **Temporary Files**: `*.backup`, `*.bak`, `*.tmp`, `*.temp`
+- **Virtual Environments**: `.venv*`, `venv*`, `env*`, `test_env*`
+- **Build Artifacts**: `build_*`, `dist_*`, `*.egg-info`
+
+### Directory Organization Standards (ENFORCED)
+
+#### Mandatory Directory Structure
+```
+📁 src/           # Source code ONLY
+📁 tests/         # ALL testing files and directories
+📁 docs/          # ALL documentation
+📁 scripts/       # ALL utility scripts
+📁 deploy/        # ALL deployment configurations
+📁 examples/      # Sample code and usage
+📁 templates/     # Templates and scaffolding
+📁 config/        # Configuration files
+📁 reports/       # Generated reports and analysis
+📁 storage/       # Runtime data (gitignored)
+📄 [Essential project files ONLY]
+```
+
+#### Specific Subdirectory Rules
+- **scripts/** - ALL Python scripts, utilities, and CLI tools
   - Development and testing scripts
   - Build and deployment automation
   - Database initialization scripts
   - Benchmarking and performance tools
-- **deploy/docker/**: All Docker-related files
+
+- **deploy/docker/** - ALL Docker-related files
   - Dockerfiles (main, hardened, testing variants)
-  - docker-compose files for different environments
+  - All docker-compose files (development, production, testing)
   - Docker-specific Makefiles and configurations
-- **deploy/kubernetes/**: All Kubernetes-related files
-  - Pod definitions, services, ingress configurations
+  - Docker environment configuration files
+
+- **deploy/kubernetes/** - ALL Kubernetes-related files
+  - Deployment manifests and pod specifications
+  - Service definitions and ingress configurations
   - ConfigMaps, secrets, persistent volumes
   - Helm charts and Kustomize overlays
   - RBAC configurations and network policies
-  - **Exception**: Kubernetes files required only for Docker development may remain in docker/
-- **tests/**: All testing code organized by test type
-- **docs/**: All documentation files
-- **examples/**: Sample code and usage demonstrations
-- **src/**: Source code following clean architecture structure
-- **benchmarks/**: Performance testing and benchmarking code
 
-### Deployment Organization Rules
-- **deploy/docker/**: ALL Docker-related files must be placed here
-  - Dockerfiles for all environments (main, hardened, testing, UI testing)
-  - All docker-compose files (development, production, testing variants)
-  - Docker-specific Makefiles and build scripts
-  - Docker environment configuration files
-  - Docker health check scripts
-- **deploy/kubernetes/**: ALL Kubernetes-related files must be placed here
-  - Deployment manifests and pod specifications
-  - Service definitions and ingress configurations
-  - ConfigMaps, secrets, and persistent volume claims
-  - Helm charts, values files, and templates
-  - Kustomize base configurations and overlays
-  - RBAC policies, network policies, and security contexts
-  - Kubernetes-specific monitoring and logging configurations
-  - **Exception**: Kubernetes files used exclusively for Docker development (e.g., local development clusters) may remain in deploy/docker/
+- **tests/** - ALL testing code organized by test type
+  - Unit, integration, e2e, performance tests
+  - Test configuration files
+  - Test reports and results
 
-### Maintenance Rules
-- **Never clutter the root directory** with utility scripts or temporary files
-- **Group related files** in appropriate subdirectories
-- **Use descriptive directory names** that clearly indicate their purpose
-- **Maintain consistency** in file naming and organization patterns
+- **docs/** - ALL documentation files
+  - User guides, API documentation
+  - Architecture decisions (ADRs)
+  - Deployment and development guides
+
+### Automated Enforcement Mechanisms
+
+#### 1. Pre-commit Hooks (ACTIVE)
+- **File organization validation** - Blocks commits with stray files
+- **Root directory protection** - Prevents prohibited files in root
+- **Stray file detection** - Identifies misplaced files
+- **Directory structure validation** - Ensures proper organization
+
+#### 2. .gitignore Enforcement (ACTIVE)
+- Patterns prevent common stray files from being committed
+- Root-specific ignore rules for testing, scripts, documentation
+- Automatic exclusion of temporary and build artifacts
+
+#### 3. CI/CD Validation (ACTIVE)
+- GitHub Actions workflow validates repository structure
+- Blocks deployments with organization violations
+- Generates automated cleanup reports
+
+### File Organization Commands
+
+#### Validation Commands
+```bash
+# Analyze current structure
+python scripts/analyze_project_structure.py
+
+# Validate organization compliance
+python scripts/validate_file_organization.py
+
+# Detect stray files
+python scripts/detect_stray_files.py
+
+# Protect root directory
+python scripts/protect_root_directory.py
+```
+
+#### Automated Organization
+```bash
+# Install pre-commit hooks (REQUIRED for development)
+pre-commit install
+
+# Run manual validation
+pre-commit run --all-files
+
+# Generate structure report
+python scripts/generate_structure_report.py
+```
+
+### Maintenance Rules (STRICTLY ENFORCED)
+
+#### Development Rules
+- **NEVER place utility scripts in root directory**
+- **NEVER commit temporary files, backups, or build artifacts**
+- **NEVER create multiple virtual environments in repository**
+- **ALWAYS use appropriate subdirectories for file types**
+- **ALWAYS run pre-commit hooks before committing**
+
+#### File Naming Conventions
+- **Tests**: `test_<module>_<function>.py`
+- **Scripts**: `<action>_<purpose>.py` (e.g., `setup_database.py`)
+- **Documentation**: `<TOPIC>_<TYPE>.md` (e.g., `API_REFERENCE.md`)
+- **Configuration**: `<environment>_<service>.yaml`
+
+#### Cleanup Requirements
 - **Regular cleanup**: Remove obsolete files and reorganize as needed
-- **Deployment separation**: Strictly enforce Docker vs. Kubernetes file placement rules
+- **Deployment separation**: Strictly enforce Docker vs. Kubernetes file placement
+- **Version control hygiene**: No build artifacts, logs, or temporary files
+- **Virtual environment management**: Single .venv, not committed to repo
+
+### Claude Assistant Compliance
+
+#### When Working on Files
+- **ALWAYS check file location appropriateness**
+- **NEVER create files in root unless essential**
+- **AUTOMATICALLY suggest proper file placement**
+- **VALIDATE organization before suggesting commits**
+
+#### Before Creating New Files
+1. Determine file purpose and category
+2. Identify appropriate target directory
+3. Follow naming conventions
+4. Verify no similar files exist in wrong locations
+
+#### When Suggesting File Operations
+- **Prefer existing appropriate directories**
+- **Suggest file organization improvements**
+- **Warn about potential violations**
+- **Recommend cleanup of obsolete files**
+
+### Documentation References
+- **Detailed Standards**: `docs/development/FILE_ORGANIZATION_STANDARDS.md`
+- **Pre-commit Configuration**: `.pre-commit-config.yaml`
+- **Validation Scripts**: `scripts/validate_*.py`
+- **Project Structure Analysis**: `reports/project_structure_analysis.json`
 
 ## Changelog Management Rules
 
