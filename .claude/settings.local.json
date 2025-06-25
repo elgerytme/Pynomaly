@@ -472,7 +472,9 @@
       "Bash(./scripts/test_presentation_components.sh:*)",
       "Bash(./test_new_environment_comprehensive.sh:*)",
       "Bash(./test_powershell_simulation_comprehensive.sh:*)",
-      "Bash(pip show:*)"
+      "Bash(pip show:*)",
+      "Bash(/mnt/c/Users/andre/Pynomaly/test_environments/fresh_bash_test/test_readme_fresh_bash.sh)",
+      "Bash(/mnt/c/Users/andre/Pynomaly/test_environments/test_readme_powershell_simulation.sh)"
     ],
     "deny": [],
     "//": "This sets the default policy to 'allow' for any action that doesn't have a more specific rule below. This is the top-level 'allow all actions' setting.",
