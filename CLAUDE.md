@@ -620,7 +620,9 @@ This ensures complete transparency and maintains TODO.md as the authoritative so
 ## Test-Driven Development (TDD) Configuration
 
 ### Overview
-Pynomaly includes an optional but comprehensive Test-Driven Development (TDD) system that enforces test-first development practices. This system ensures code quality, maintainability, and adherence to TDD principles throughout the development lifecycle.
+✅ **STATUS: ENABLED** - TDD is currently active with 85% coverage threshold and enforcement on domain/application layers.
+
+Pynomaly includes a comprehensive Test-Driven Development (TDD) system that enforces test-first development practices. This system ensures code quality, maintainability, and adherence to TDD principles throughout the development lifecycle.
 
 ### TDD System Components
 
@@ -947,7 +949,7 @@ jobs:
 - The `.gitignore` currently excludes the VS Code workspace file (`Pynomaly.code-workspace`)
 - Follow the architectural principles strictly to maintain clean separation of concerns
 - **CRITICAL**: Always keep `requirements.txt` in sync with `pyproject.toml` core dependencies. When adding/removing dependencies in `pyproject.toml`, immediately update `requirements.txt` to include only the non-optional dependencies needed for basic functionality
-- **TDD ENFORCEMENT**: When TDD is enabled, follow test-first development strictly for domain and application layers
+- **TDD ENFORCEMENT**: ✅ **ENABLED** - TDD is actively enforced with 85% coverage threshold. Follow test-first development strictly for domain and application layers
 
 ## Web UI Technology Stack
 - **HTMX**: Provides dynamic behavior with minimal JavaScript, keeping complexity server-side

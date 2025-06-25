@@ -119,22 +119,22 @@ repos:
       - id: commitizen
         stages: [commit-msg]
 
-# Pre-push hooks (more comprehensive)
-- repo: local
-  hooks:
-    - id: hatch-integration-tests
-      name: 🧪 Hatch Integration Tests
-      entry: bash -c 'hatch env run test:run tests/infrastructure/ --tb=short -q --ignore=tests/infrastructure/test_*_performance* || (echo "❌ Integration tests failed" && exit 1)'
-      language: system
-      pass_filenames: false
-      stages: [push]
+  # Pre-push hooks (more comprehensive)
+  - repo: local
+    hooks:
+      - id: hatch-integration-tests
+        name: 🧪 Hatch Integration Tests
+        entry: bash -c 'hatch env run test:run tests/infrastructure/ --tb=short -q --ignore=tests/infrastructure/test_*_performance* || (echo "❌ Integration tests failed" && exit 1)'
+        language: system
+        pass_filenames: false
+        stages: [push]
 
-    - id: hatch-security-scan
-      name: 🔒 Security Scan
-      entry: bash -c 'bandit -r src/ -f txt -l || true && safety check || true'
-      language: system
-      pass_filenames: false
-      stages: [push]
+      - id: hatch-security-scan
+        name: 🔒 Security Scan
+        entry: bash -c 'bandit -r src/ -f txt -l || true && safety check || true'
+        language: system
+        pass_filenames: false
+        stages: [push]
 
 # Configuration
 default_install_hook_types: [pre-commit, pre-push, commit-msg]
