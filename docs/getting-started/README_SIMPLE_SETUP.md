@@ -12,7 +12,7 @@ This guide shows how to run Pynomaly using only Python and pip, without Poetry, 
 ### Option 1: Using the setup script
 
 ```bash
-python setup_simple.py
+python scripts/setup_simple.py
 ```
 
 This script will:
@@ -54,30 +54,31 @@ pip install -e .
 After activation, you can use the CLI in several ways:
 
 ```bash
-# Using the installed command
+# Primary method (recommended after pip install -e .)
 pynomaly --help
 
-# Using Python module
+# Alternative methods
+python scripts/cli.py --help
 python -m pynomaly.presentation.cli.app --help
-
-# Using the cli.py script
-python cli.py --help
 ```
 
 ### Example CLI Usage
 
 ```bash
+# Show all commands
+pynomaly --help
+
 # List available algorithms
-python cli.py detector algorithms
+pynomaly detector algorithms
 
 # Create a detector
-python cli.py detector create --name "My Detector" --algorithm IsolationForest
+pynomaly detector create --name "My Detector" --algorithm IsolationForest
 
 # Load a dataset
-python cli.py dataset load data.csv --name "My Data"
+pynomaly dataset load data.csv --name "My Data"
 
 # Start the web server
-python cli.py server start
+pynomaly server start
 ```
 
 ### API Server

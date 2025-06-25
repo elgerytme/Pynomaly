@@ -107,6 +107,7 @@ graph TB
 ## Next Steps
 
 - [Installation Guide](getting-started/installation.md) - Get Pynomaly up and running
+- [Web API Setup Guide](WEB_API_SETUP_GUIDE.md) - Complete web API setup and testing
 - [Quick Start Tutorial](getting-started/quickstart.md) - Your first anomaly detection
 - [Architecture Deep Dive](getting-started/architecture.md) - Understand the design
 - [API Reference](api/domain.md) - Detailed API documentation

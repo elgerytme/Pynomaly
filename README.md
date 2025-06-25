@@ -28,23 +28,32 @@ State-of-the-art Python anomaly detection package targeting Python 3.11+ with cl
 If you want to run Pynomaly without Poetry, Docker, or Make:
 
 ```bash
-# Run the setup script
-python setup_simple.py
+# Run the automated setup script
+python scripts/setup_simple.py
 
 # Or manually:
 python -m venv .venv
-.venv\Scripts\activate  # Windows (or source .venv/bin/activate on Linux/Mac)
+# Windows:
+.venv\Scripts\activate  
+# Linux/macOS:
+source .venv/bin/activate
+
 pip install -r requirements.txt
 pip install -e .
 ```
 
-Then run the app:
+Then run the CLI:
 ```bash
-python cli.py --help
-python cli.py server start
+# Primary method (after pip install -e .)
+pynomaly --help
+pynomaly server start
+
+# Alternative methods
+python scripts/cli.py --help
+python -m pynomaly.presentation.cli.app --help
 ```
 
-See [README_SIMPLE_SETUP.md](README_SIMPLE_SETUP.md) for detailed instructions.
+See [docs/getting-started/README_SIMPLE_SETUP.md](docs/getting-started/README_SIMPLE_SETUP.md) for detailed instructions.
 
 ### Full Setup (with Poetry)
 
@@ -67,6 +76,9 @@ poetry install -E all        # All optional dependencies
 ### CLI Usage
 
 ```bash
+# Show all available commands
+pynomaly --help
+
 # List available algorithms
 pynomaly detector algorithms
 
@@ -80,7 +92,7 @@ pynomaly dataset load data.csv --name "My Data"
 pynomaly detect train <detector_id> <dataset_id>
 pynomaly detect run <detector_id> <dataset_id>
 
-# Start web UI
+# Start web UI server
 pynomaly server start
 ```
 
@@ -138,9 +150,13 @@ async def main():
 asyncio.run(main())
 ```
 
-### Web Interface
+### Web API & Interface
 
-Access the Progressive Web App at http://localhost:8000 after starting the server:
+Access the API and Progressive Web App at http://localhost:8000 after starting the server.
+
+**📚 Complete Setup Guide**: See [docs/WEB_API_SETUP_GUIDE.md](docs/WEB_API_SETUP_GUIDE.md) for detailed instructions across all environments.
+
+**⚡ Quick Reference**: See [docs/API_QUICK_REFERENCE.md](docs/API_QUICK_REFERENCE.md) for commands and endpoints.
 
 - **Real-time Dashboard**: Live anomaly detection with WebSocket updates
 - **Interactive Visualizations**: D3.js custom charts and Apache ECharts statistical plots
@@ -374,17 +390,73 @@ poetry run pytest tests/property/
 poetry run pytest benchmarks/
 ```
 
+### Web API Server
+
+#### Quick Start (Current Environment)
+```bash
+# Set Python path and start server
+export PYTHONPATH=/path/to/Pynomaly/src
+uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
+
+# Or use the startup script
+./scripts/start_api_bash.sh
+```
+
+#### PowerShell (Windows)
+```powershell
+# Set environment and start server
+$env:PYTHONPATH = "C:\Users\your-user\Pynomaly\src"
+uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
+
+# Or use PowerShell script
+pwsh -File scripts/test_api_powershell.ps1
+```
+
+#### Fresh Environment Setup
+```bash
+# Automated setup for new environments
+./scripts/setup_fresh_environment.sh
+
+# Manual setup
+pip install --break-system-packages fastapi uvicorn pydantic structlog dependency-injector \
+    numpy pandas scikit-learn pyod rich typer httpx aiofiles \
+    pydantic-settings redis prometheus-client \
+    opentelemetry-api opentelemetry-sdk opentelemetry-instrumentation-fastapi \
+    jinja2 python-multipart passlib bcrypt prometheus-fastapi-instrumentator
+
+export PYTHONPATH=/path/to/Pynomaly/src
+uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000
+```
+
+#### API Endpoints
+Once running, access these endpoints:
+- **Root API**: http://localhost:8000/
+- **Interactive Documentation**: http://localhost:8000/api/docs
+- **Health Check**: http://localhost:8000/api/health/
+- **OpenAPI Schema**: http://localhost:8000/api/openapi.json
+
+#### Testing Multiple Environments
+```bash
+# Comprehensive testing across environments
+./scripts/test_all_environments.sh
+```
+
 ### Development Commands
 ```bash
 # Start development server with auto-reload
-poetry run uvicorn pynomaly.presentation.api:app --reload
+export PYTHONPATH=/path/to/Pynomaly/src
+uvicorn pynomaly.presentation.api:app --reload
 
 # Build frontend assets
 npm run build-css  # Tailwind CSS compilation
 npm run watch-css  # Development with file watching
 
-# Run CLI in development
-poetry run python -m pynomaly.presentation.cli
+# Run CLI in development (after pip install -e .)
+pynomaly --help
+
+# Or alternative methods
+python scripts/cli.py --help
+python -m pynomaly.presentation.cli.app --help
 ```
 
 ## Contributing
