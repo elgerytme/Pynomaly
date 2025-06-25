@@ -419,7 +419,7 @@ class TestModelPersistenceService:
     async def test_load_nonexistent_model(self, model_persistence_service):
         """Test loading a non-existent model."""
         from uuid import uuid4
-        with pytest.raises(FileNotFoundError):
+        with pytest.raises(ValueError, match="No saved model found"):
             await model_persistence_service.load_model(uuid4())
     
     @pytest.mark.asyncio
