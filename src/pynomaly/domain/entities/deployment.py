@@ -343,9 +343,9 @@ class Deployment:
             "namespace": self.namespace,
             "cluster_name": self.cluster_name,
             "traffic_percentage": self.traffic_percentage,
-            "rollback_version_id": str(self.rollback_version_id)
-            if self.rollback_version_id
-            else None,
+            "rollback_version_id": (
+                str(self.rollback_version_id) if self.rollback_version_id else None
+            ),
             "metadata": self.metadata.copy(),
         }
 

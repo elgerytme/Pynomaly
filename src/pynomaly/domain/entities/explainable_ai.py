@@ -421,7 +421,9 @@ class TrustScore:
 
         # Weighted average (can be customized)
         weights = [0.25, 0.25, 0.25, 0.15, 0.10]
-        weighted_sum = sum(score * weight for score, weight in zip(components, weights, strict=False))
+        weighted_sum = sum(
+            score * weight for score, weight in zip(components, weights, strict=False)
+        )
 
         return min(1.0, weighted_sum)
 
@@ -708,18 +710,26 @@ class ExplanationValidation:
             "explanation_id": str(self.explanation_id),
             "overall_score": self.overall_validation_score,
             "validation_passed": self.validation_passed,
-            "consistency_score": np.mean(list(self.consistency_tests.values()))
-            if self.consistency_tests
-            else 0.0,
-            "stability_score": np.mean(list(self.stability_tests.values()))
-            if self.stability_tests
-            else 0.0,
-            "fidelity_score": np.mean(list(self.fidelity_tests.values()))
-            if self.fidelity_tests
-            else 0.0,
-            "robustness_score": np.mean(list(self.robustness_tests.values()))
-            if self.robustness_tests
-            else 0.0,
+            "consistency_score": (
+                np.mean(list(self.consistency_tests.values()))
+                if self.consistency_tests
+                else 0.0
+            ),
+            "stability_score": (
+                np.mean(list(self.stability_tests.values()))
+                if self.stability_tests
+                else 0.0
+            ),
+            "fidelity_score": (
+                np.mean(list(self.fidelity_tests.values()))
+                if self.fidelity_tests
+                else 0.0
+            ),
+            "robustness_score": (
+                np.mean(list(self.robustness_tests.values()))
+                if self.robustness_tests
+                else 0.0
+            ),
             "has_ground_truth": self.ground_truth_comparison is not None,
             "has_human_evaluation": len(self.human_evaluation_scores) > 0,
             "timestamp": self.validation_timestamp.isoformat(),

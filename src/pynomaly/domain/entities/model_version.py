@@ -163,9 +163,9 @@ class ModelVersion:
             "status": self.status.value,
             "tags": self.tags.copy(),
             "description": self.description,
-            "parent_version_id": str(self.parent_version_id)
-            if self.parent_version_id
-            else None,
+            "parent_version_id": (
+                str(self.parent_version_id) if self.parent_version_id else None
+            ),
             "performance_metrics": self.performance_metrics.to_dict(),
             "storage_info": self.storage_info.to_dict(),
             "metadata": self.metadata.copy(),

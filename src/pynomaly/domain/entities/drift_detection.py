@@ -607,20 +607,28 @@ class DriftAnalysisResult:
                 "critical_features": self.get_critical_features(),
             },
             "multivariate_drift": {
-                "detected": self.multivariate_drift_result.drift_detected
-                if self.multivariate_drift_result
-                else False,
-                "score": self.multivariate_drift_result.drift_score
-                if self.multivariate_drift_result
-                else 0.0,
+                "detected": (
+                    self.multivariate_drift_result.drift_detected
+                    if self.multivariate_drift_result
+                    else False
+                ),
+                "score": (
+                    self.multivariate_drift_result.drift_score
+                    if self.multivariate_drift_result
+                    else 0.0
+                ),
             },
             "concept_drift": {
-                "detected": self.concept_drift_result.drift_detected
-                if self.concept_drift_result
-                else False,
-                "probability": self.concept_drift_result.drift_probability
-                if self.concept_drift_result
-                else 0.0,
+                "detected": (
+                    self.concept_drift_result.drift_detected
+                    if self.concept_drift_result
+                    else False
+                ),
+                "probability": (
+                    self.concept_drift_result.drift_probability
+                    if self.concept_drift_result
+                    else 0.0
+                ),
             },
             "recommended_actions": self.recommended_actions,
             "analysis_metadata": self.analysis_metadata,

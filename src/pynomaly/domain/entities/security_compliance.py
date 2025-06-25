@@ -138,9 +138,9 @@ class SecurityPolicy:
             "frameworks": [f.value for f in self.applicable_frameworks],
             "controls_count": len(self.controls),
             "effective_date": self.effective_date.isoformat(),
-            "expiration_date": self.expiration_date.isoformat()
-            if self.expiration_date
-            else None,
+            "expiration_date": (
+                self.expiration_date.isoformat() if self.expiration_date else None
+            ),
         }
 
 
@@ -277,9 +277,9 @@ class AuditEvent:
             "is_security_relevant": self.is_security_relevant(),
             "is_privacy_relevant": self.is_privacy_relevant(),
             "frameworks": [f.value for f in self.compliance_frameworks],
-            "data_classification": self.data_classification.value
-            if self.data_classification
-            else None,
+            "data_classification": (
+                self.data_classification.value if self.data_classification else None
+            ),
         }
 
 
@@ -350,17 +350,21 @@ class SecurityIncident:
             "severity": self.severity.value,
             "status": self.status,
             "detection_timestamp": self.detection_timestamp.isoformat(),
-            "resolution_timestamp": self.resolution_timestamp.isoformat()
-            if self.resolution_timestamp
-            else None,
+            "resolution_timestamp": (
+                self.resolution_timestamp.isoformat()
+                if self.resolution_timestamp
+                else None
+            ),
             "is_data_breach": self.is_data_breach(),
             "requires_notification": self.requires_notification(),
             "affected_systems_count": len(self.affected_systems),
             "affected_users_count": len(self.affected_users),
             "compliance_frameworks": [f.value for f in self.compliance_implications],
-            "time_to_resolution": str(self.get_time_to_resolution())
-            if self.get_time_to_resolution()
-            else None,
+            "time_to_resolution": (
+                str(self.get_time_to_resolution())
+                if self.get_time_to_resolution()
+                else None
+            ),
         }
 
 
@@ -418,9 +422,11 @@ class ComplianceViolation:
             "severity": self.severity,
             "status": self.status,
             "detection_date": self.detection_date.isoformat(),
-            "remediation_deadline": self.remediation_deadline.isoformat()
-            if self.remediation_deadline
-            else None,
+            "remediation_deadline": (
+                self.remediation_deadline.isoformat()
+                if self.remediation_deadline
+                else None
+            ),
             "is_overdue": self.is_overdue(),
             "days_until_deadline": self.get_days_until_deadline(),
             "has_remediation_plan": bool(self.remediation_plan),
@@ -503,9 +509,11 @@ class ComplianceReport:
             "high_violations": len(self.get_high_violations()),
             "recommendations_count": len(self.recommendations),
             "certification_status": self.certification_status,
-            "next_assessment": self.next_assessment_date.isoformat()
-            if self.next_assessment_date
-            else None,
+            "next_assessment": (
+                self.next_assessment_date.isoformat()
+                if self.next_assessment_date
+                else None
+            ),
         }
 
 
@@ -633,9 +641,9 @@ class DataRetentionPolicy:
             "is_due_for_review": self.is_due_for_review(),
             "applicable_regulations": [r.value for r in self.applicable_regulations],
             "legal_hold_exceptions_count": len(self.legal_hold_exceptions),
-            "next_review_date": self.next_review_date.isoformat()
-            if self.next_review_date
-            else None,
+            "next_review_date": (
+                self.next_review_date.isoformat() if self.next_review_date else None
+            ),
         }
 
 

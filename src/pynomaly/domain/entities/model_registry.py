@@ -300,9 +300,9 @@ class Model:
             "total_versions": len(self.versions),
             "active_versions": len(self.active_versions),
             "latest_version": latest_version.version_string if latest_version else None,
-            "production_version": production_version.version_string
-            if production_version
-            else None,
+            "production_version": (
+                production_version.version_string if production_version else None
+            ),
             "is_public": self.is_public,
             "is_archived": self.is_archived,
         }
@@ -327,12 +327,12 @@ class Model:
                 for version_str, version in self.versions.items()
             },
             "active_versions": [str(vid) for vid in self.active_versions],
-            "production_version_id": str(self.production_version_id)
-            if self.production_version_id
-            else None,
-            "staging_version_id": str(self.staging_version_id)
-            if self.staging_version_id
-            else None,
+            "production_version_id": (
+                str(self.production_version_id) if self.production_version_id else None
+            ),
+            "staging_version_id": (
+                str(self.staging_version_id) if self.staging_version_id else None
+            ),
         }
 
 

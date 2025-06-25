@@ -338,12 +338,12 @@ class Tenant:
             "admin_user_id": str(self.admin_user_id) if self.admin_user_id else None,
             "billing_contact": self.billing_contact,
             "created_at": self.created_at.isoformat(),
-            "activated_at": self.activated_at.isoformat()
-            if self.activated_at
-            else None,
-            "last_activity": self.last_activity.isoformat()
-            if self.last_activity
-            else None,
+            "activated_at": (
+                self.activated_at.isoformat() if self.activated_at else None
+            ),
+            "last_activity": (
+                self.last_activity.isoformat() if self.last_activity else None
+            ),
             "updated_at": self.updated_at.isoformat(),
             "database_schema": self.database_schema,
             "encryption_key_id": self.encryption_key_id,
@@ -351,9 +351,9 @@ class Tenant:
             "total_api_requests": self.total_api_requests,
             "total_cpu_hours": self.total_cpu_hours,
             "total_storage_gb": self.total_storage_gb,
-            "last_billing_date": self.last_billing_date.isoformat()
-            if self.last_billing_date
-            else None,
+            "last_billing_date": (
+                self.last_billing_date.isoformat() if self.last_billing_date else None
+            ),
             "tags": self.tags,
             "metadata": self.metadata,
             "configuration": {
@@ -374,9 +374,9 @@ class Tenant:
                     "limit": quota.limit,
                     "used": quota.used,
                     "period_start": quota.period_start.isoformat(),
-                    "period_end": quota.period_end.isoformat()
-                    if quota.period_end
-                    else None,
+                    "period_end": (
+                        quota.period_end.isoformat() if quota.period_end else None
+                    ),
                     "is_unlimited": quota.is_unlimited,
                 }
                 for quota_type, quota in self.resource_quotas.items()

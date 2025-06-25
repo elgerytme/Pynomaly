@@ -455,12 +455,12 @@ class Alert:
             "status": self.status.value,
             "created_at": self.created_at.isoformat(),
             "created_by": self.created_by,
-            "triggered_at": self.triggered_at.isoformat()
-            if self.triggered_at
-            else None,
-            "acknowledged_at": self.acknowledged_at.isoformat()
-            if self.acknowledged_at
-            else None,
+            "triggered_at": (
+                self.triggered_at.isoformat() if self.triggered_at else None
+            ),
+            "acknowledged_at": (
+                self.acknowledged_at.isoformat() if self.acknowledged_at else None
+            ),
             "resolved_at": self.resolved_at.isoformat() if self.resolved_at else None,
             "acknowledged_by": self.acknowledged_by,
             "resolved_by": self.resolved_by,

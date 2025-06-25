@@ -369,9 +369,9 @@ class Experiment:
                     "run1": val1,
                     "run2": val2,
                     "difference": val1 - val2,
-                    "percent_change": ((val1 - val2) / val2) * 100
-                    if val2 != 0
-                    else None,
+                    "percent_change": (
+                        ((val1 - val2) / val2) * 100 if val2 != 0 else None
+                    ),
                 }
             else:
                 metric_comparison[metric] = {
@@ -408,9 +408,9 @@ class Experiment:
             "successful_runs": len(self.successful_runs),
             "failed_runs": len(self.failed_runs),
             "success_rate": self.success_rate,
-            "baseline_run_id": str(self.baseline_run_id)
-            if self.baseline_run_id
-            else None,
+            "baseline_run_id": (
+                str(self.baseline_run_id) if self.baseline_run_id else None
+            ),
             "best_run_id": str(self.best_run_id) if self.best_run_id else None,
             "metrics_to_optimize": self.metrics_to_optimize.copy(),
             "tags": self.tags.copy(),

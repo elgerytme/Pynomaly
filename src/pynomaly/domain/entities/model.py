@@ -204,12 +204,12 @@ class Model:
             "stage": self.stage.value,
             "is_in_production": self.is_in_production,
             "has_current_version": self.has_current_version,
-            "current_version_id": str(self.current_version_id)
-            if self.current_version_id
-            else None,
-            "latest_version_id": str(self.latest_version_id)
-            if self.latest_version_id
-            else None,
+            "current_version_id": (
+                str(self.current_version_id) if self.current_version_id else None
+            ),
+            "latest_version_id": (
+                str(self.latest_version_id) if self.latest_version_id else None
+            ),
             "version_count": self.version_count,
             "tags": self.tags.copy(),
             "use_cases": self.use_cases.copy(),

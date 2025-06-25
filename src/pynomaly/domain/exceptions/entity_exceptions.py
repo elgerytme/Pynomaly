@@ -10,9 +10,7 @@ from .base import DomainError
 class EntityNotFoundError(DomainError):
     """Base exception for entity not found errors."""
 
-    def __init__(
-        self, entity_type: str, entity_id: UUID, message: str | None = None
-    ):
+    def __init__(self, entity_type: str, entity_id: UUID, message: str | None = None):
         self.entity_type = entity_type
         self.entity_id = entity_id
 

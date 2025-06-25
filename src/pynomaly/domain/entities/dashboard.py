@@ -528,9 +528,9 @@ class Dashboard:
             "created_by": self.created_by,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
-            "last_accessed": self.last_accessed_at.isoformat()
-            if self.last_accessed_at
-            else None,
+            "last_accessed": (
+                self.last_accessed_at.isoformat() if self.last_accessed_at else None
+            ),
             "current_version": self.current_version,
             "visualizations_count": len(self.visualizations),
             "filters_count": len(self.filters),

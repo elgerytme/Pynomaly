@@ -311,9 +311,11 @@ class AuditFinding:
             "status": self.status,
             "is_overdue": self.is_overdue(),
             "responsible_party": self.responsible_party,
-            "target_completion": self.target_completion_date.isoformat()
-            if self.target_completion_date
-            else None,
+            "target_completion": (
+                self.target_completion_date.isoformat()
+                if self.target_completion_date
+                else None
+            ),
             "evidence_count": len(self.evidence),
         }
 
@@ -415,17 +417,19 @@ class ComplianceAssessment:
             "assessment_type": self.assessment_type.value,
             "assessor": self.assessor,
             "assessment_date": self.assessment_date.isoformat(),
-            "completion_date": self.completion_date.isoformat()
-            if self.completion_date
-            else None,
+            "completion_date": (
+                self.completion_date.isoformat() if self.completion_date else None
+            ),
             "overall_status": self.overall_status.value,
             "compliance_score": self.compliance_score,
             "controls_assessed": len(self.controls_assessed),
             "findings_count": len(self.findings),
             "evidence_count": len(self.evidence_collected),
-            "next_assessment": self.next_assessment_date.isoformat()
-            if self.next_assessment_date
-            else None,
+            "next_assessment": (
+                self.next_assessment_date.isoformat()
+                if self.next_assessment_date
+                else None
+            ),
         }
 
 
@@ -654,13 +658,13 @@ class GovernanceWorkflow:
             "total_steps": len(self.steps),
             "completion_percentage": self.completion_percentage,
             "created_date": self.created_date.isoformat(),
-            "started_date": self.started_date.isoformat()
-            if self.started_date
-            else None,
+            "started_date": (
+                self.started_date.isoformat() if self.started_date else None
+            ),
             "due_date": self.due_date.isoformat() if self.due_date else None,
-            "completed_date": self.completed_date.isoformat()
-            if self.completed_date
-            else None,
+            "completed_date": (
+                self.completed_date.isoformat() if self.completed_date else None
+            ),
             "is_overdue": self.is_overdue(),
             "should_escalate": self.should_escalate(),
             "escalated": self.escalated,
