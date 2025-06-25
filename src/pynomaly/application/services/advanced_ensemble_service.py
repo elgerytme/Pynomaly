@@ -352,7 +352,7 @@ class AdvancedEnsembleService:
             if mean_variance > 0:
                 return np.mean(feature_variances / mean_variance)
             return 1.0
-        except:
+        except Exception:
             return 1.0
 
     def _estimate_data_complexity(self, data: np.ndarray) -> float:
@@ -377,7 +377,7 @@ class AdvancedEnsembleService:
             # Complexity as ratio of intrinsic to actual dimensions
             return intrinsic_dim / data.shape[1] if data.shape[1] > 0 else 1.0
 
-        except:
+        except Exception:
             # Fallback to simple complexity estimate
             return min(1.0, data.shape[1] / 10.0)
 
@@ -411,7 +411,7 @@ class AdvancedEnsembleService:
             # Normalize to [0, 1]
             return min(1.0, noise_level)
 
-        except:
+        except Exception:
             return 0.5  # Default moderate noise level
 
     def _analyze_cluster_structure(self, data: np.ndarray) -> dict[str, float]:
@@ -437,7 +437,7 @@ class AdvancedEnsembleService:
                     cluster_labels = kmeans.fit_predict(sample_data)
                     score = silhouette_score(sample_data, cluster_labels)
                     silhouette_scores.append(score)
-                except:
+                except Exception:
                     continue
 
             if silhouette_scores:
@@ -452,7 +452,7 @@ class AdvancedEnsembleService:
                 "separability": max(0.0, separability),
             }
 
-        except:
+        except Exception:
             return {"cluster_tendency": 0.5, "separability": 0.5}
 
     def _estimate_anomaly_likelihood(self, data: np.ndarray) -> float:
@@ -480,7 +480,7 @@ class AdvancedEnsembleService:
             # Cap at reasonable maximum
             return min(0.5, anomaly_likelihood)
 
-        except:
+        except Exception:
             return 0.1  # Default low anomaly likelihood
 
     def _categorize_dimensionality(self, n_features: int) -> str:
@@ -933,7 +933,7 @@ class AdvancedEnsembleService:
 
             return np.mean(agreements)
 
-        except:
+        except Exception:
             return 0.5  # Default moderate agreement
 
     def _calculate_entropy_diversity(self, predictions_matrix: np.ndarray) -> float:
@@ -963,7 +963,7 @@ class AdvancedEnsembleService:
             max_entropy = 1.0  # log2(2) for binary classification
             return np.mean(entropies) / max_entropy if max_entropy > 0 else 0
 
-        except:
+        except Exception:
             return 0.5  # Default moderate entropy
 
     async def _optimize_ensemble_composition(
@@ -1071,7 +1071,7 @@ class AdvancedEnsembleService:
                             np.mean(binary_pred == labels) if len(labels) > 0 else 0.5
                         )
                         return -accuracy
-                except:
+                except Exception:
                     return 1.0  # High loss for invalid predictions
 
             # Initialize with equal weights

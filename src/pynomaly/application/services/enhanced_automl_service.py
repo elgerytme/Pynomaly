@@ -388,7 +388,7 @@ class EnhancedAutoMLService(AutoMLService):
                                 results[objective] = roc_auc_score(y_true, scores)
                             else:
                                 results[objective] = 0.5
-                        except:
+                        except Exception:
                             results[objective] = 0.5
 
                     elif objective == "training_time":

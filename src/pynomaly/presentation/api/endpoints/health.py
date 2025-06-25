@@ -161,7 +161,7 @@ async def health_check(
         try:
             if hasattr(container, "database_manager") and container.database_manager():
                 database_engine = container.database_manager().engine
-        except:
+        except Exception:
             pass  # Database not configured
 
     # Get Redis client if available
@@ -170,7 +170,7 @@ async def health_check(
         try:
             if hasattr(container, "redis_cache") and container.redis_cache():
                 redis_client = container.redis_cache().client
-        except:
+        except Exception:
             pass  # Redis not configured
 
     # Custom application checks
@@ -282,7 +282,7 @@ async def readiness_check(
             if hasattr(container, "database_manager") and container.database_manager():
                 with container.database_manager().engine.connect() as conn:
                     conn.execute("SELECT 1").fetchone()
-        except:
+        except Exception:
             pass  # Database not critical for readiness
 
         return {"status": "ready", "timestamp": datetime.utcnow().isoformat()}
@@ -369,14 +369,14 @@ def _check_adapters(container: Container) -> dict[str, Any]:
         try:
             container.pyod_adapter()
             adapters["pyod"] = "available"
-        except:
+        except Exception:
             adapters["pyod"] = "unavailable"
 
         # Check sklearn adapter
         try:
             container.sklearn_adapter()
             adapters["sklearn"] = "available"
-        except:
+        except Exception:
             adapters["sklearn"] = "unavailable"
 
         # Check optional adapters
@@ -388,7 +388,7 @@ def _check_adapters(container: Container) -> dict[str, Any]:
                     adapters[adapter_name.replace("_adapter", "")] = "available"
                 else:
                     adapters[adapter_name.replace("_adapter", "")] = "not_configured"
-            except:
+            except Exception:
                 adapters[adapter_name.replace("_adapter", "")] = "unavailable"
 
         available_count = sum(
