@@ -1,0 +1,288 @@
+<!-- Bulk Operations Component -->
+<div class="bg-white shadow rounded-lg p-4 mb-6" x-data="{ bulkMode: false, selectedItems: [] }">
+    <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+            <h3 class="text-lg font-medium text-gray-900">📦 Bulk Operations</h3>
+            <button @click="bulkMode = !bulkMode" 
+                    class="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded hover:bg-gray-200"
+                    :class="bulkMode ? 'bg-primary text-white' : ''">
+                <span x-text="bulkMode ? 'Exit Bulk Mode' : 'Enter Bulk Mode'"></span>
+            </button>
+            <span x-show="bulkMode && selectedItems.length > 0" 
+                  x-text="`${selectedItems.length} items selected`"
+                  class="text-sm text-gray-600"></span>
+        </div>
+        
+        <div x-show="bulkMode && selectedItems.length > 0" class="flex space-x-2">
+            <!-- Bulk Actions Dropdown -->
+            <div class="relative" x-data="{ dropdownOpen: false }">
+                <button @click="dropdownOpen = !dropdownOpen"
+                        class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    Bulk Actions
+                    <svg class="ml-2 -mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                
+                <div x-show="dropdownOpen" @click.away="dropdownOpen = false"
+                     x-transition
+                     class="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+                    <div class="py-1">
+                        <button @click="bulkTrain()" 
+                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            🚀 Train Selected Detectors
+                        </button>
+                        <button @click="bulkDelete()" 
+                                class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                            🗑️ Delete Selected Items
+                        </button>
+                        <button @click="bulkExport()" 
+                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            📥 Export Selected Items
+                        </button>
+                        <button @click="bulkCreateEnsemble()" 
+                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            🤖 Create Ensemble from Selected
+                        </button>
+                        <hr class="my-1">
+                        <button @click="selectAll()" 
+                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            ✅ Select All
+                        </button>
+                        <button @click="clearSelection()" 
+                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            ❌ Clear Selection
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bulk Selection Info -->
+    <div x-show="bulkMode" x-transition class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div class="ml-3 flex-1">
+                <h3 class="text-sm font-medium text-blue-800">Bulk Mode Active</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    <p>Click checkboxes to select items for batch operations. Use the Bulk Actions menu to perform operations on multiple items at once.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Operations Progress Modal -->
+<div id="bulk-progress-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Bulk Operation Progress</h3>
+            <div id="bulk-progress-content">
+                <!-- Progress content will be inserted here -->
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeBulkModal()" 
+                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Bulk operations functionality
+window.bulkOperations = {
+    selectedItems: [],
+    bulkMode: false,
+    
+    toggleBulkMode() {
+        this.bulkMode = !this.bulkMode;
+        if (!this.bulkMode) {
+            this.clearSelection();
+        }
+        this.updateCheckboxVisibility();
+    },
+    
+    updateCheckboxVisibility() {
+        const checkboxes = document.querySelectorAll('.bulk-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.style.display = this.bulkMode ? 'block' : 'none';
+        });
+    },
+    
+    toggleSelection(itemId, checked) {
+        if (checked) {
+            if (!this.selectedItems.includes(itemId)) {
+                this.selectedItems.push(itemId);
+            }
+        } else {
+            this.selectedItems = this.selectedItems.filter(id => id !== itemId);
+        }
+        this.updateSelectionDisplay();
+    },
+    
+    selectAll() {
+        const checkboxes = document.querySelectorAll('.bulk-checkbox input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = true;
+            const itemId = checkbox.value;
+            if (!this.selectedItems.includes(itemId)) {
+                this.selectedItems.push(itemId);
+            }
+        });
+        this.updateSelectionDisplay();
+    },
+    
+    clearSelection() {
+        this.selectedItems = [];
+        const checkboxes = document.querySelectorAll('.bulk-checkbox input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        this.updateSelectionDisplay();
+    },
+    
+    updateSelectionDisplay() {
+        const countElement = document.querySelector('.selection-count');
+        if (countElement) {
+            countElement.textContent = `${this.selectedItems.length} items selected`;
+        }
+    }
+};
+
+function bulkTrain() {
+    if (bulkOperations.selectedItems.length === 0) {
+        alert('Please select items to train');
+        return;
+    }
+    
+    showBulkModal('Training Selected Detectors', 'Initializing bulk training...');
+    
+    // Start bulk training via HTMX
+    htmx.post('/web/htmx/bulk-train', {
+        values: { detector_ids: bulkOperations.selectedItems.join(',') },
+        target: '#bulk-progress-content'
+    });
+}
+
+function bulkDelete() {
+    if (bulkOperations.selectedItems.length === 0) {
+        alert('Please select items to delete');
+        return;
+    }
+    
+    if (!confirm(`Are you sure you want to delete ${bulkOperations.selectedItems.length} items?`)) {
+        return;
+    }
+    
+    showBulkModal('Deleting Selected Items', 'Preparing to delete items...');
+    
+    // Start bulk deletion via HTMX
+    htmx.post('/web/htmx/bulk-delete', {
+        values: { item_ids: bulkOperations.selectedItems.join(',') },
+        target: '#bulk-progress-content'
+    });
+}
+
+function bulkExport() {
+    if (bulkOperations.selectedItems.length === 0) {
+        alert('Please select items to export');
+        return;
+    }
+    
+    // Create export form
+    const exportOptions = `
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Export Format</label>
+                <select id="export-format" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <option value="json">JSON</option>
+                    <option value="csv">CSV</option>
+                    <option value="excel">Excel</option>
+                    <option value="yaml">YAML</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Include</label>
+                <div class="mt-2 space-y-2">
+                    <label class="flex items-center">
+                        <input type="checkbox" id="include-results" checked class="mr-2">
+                        <span class="text-sm">Detection Results</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="include-metadata" checked class="mr-2">
+                        <span class="text-sm">Metadata</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="include-performance" class="mr-2">
+                        <span class="text-sm">Performance Metrics</span>
+                    </label>
+                </div>
+            </div>
+            <button onclick="startBulkExport()" class="w-full bg-primary text-white py-2 px-4 rounded hover:bg-blue-700">
+                Start Export
+            </button>
+        </div>
+    `;
+    
+    showBulkModal('Export Selected Items', exportOptions);
+}
+
+function bulkCreateEnsemble() {
+    if (bulkOperations.selectedItems.length < 2) {
+        alert('Please select at least 2 detectors to create an ensemble');
+        return;
+    }
+    
+    // Redirect to ensemble creation with selected detectors
+    const detectorIds = bulkOperations.selectedItems.join(',');
+    window.location.href = `/web/ensemble/create?detectors=${detectorIds}`;
+}
+
+function startBulkExport() {
+    const format = document.getElementById('export-format').value;
+    const includeResults = document.getElementById('include-results').checked;
+    const includeMetadata = document.getElementById('include-metadata').checked;
+    const includePerformance = document.getElementById('include-performance').checked;
+    
+    const exportData = {
+        item_ids: bulkOperations.selectedItems.join(','),
+        format: format,
+        include_results: includeResults,
+        include_metadata: includeMetadata,
+        include_performance: includePerformance
+    };
+    
+    // Start export via HTMX
+    htmx.post('/web/htmx/bulk-export', {
+        values: exportData,
+        target: '#bulk-progress-content'
+    });
+}
+
+function showBulkModal(title, content) {
+    const modal = document.getElementById('bulk-progress-modal');
+    const titleElement = modal.querySelector('h3');
+    const contentElement = modal.querySelector('#bulk-progress-content');
+    
+    titleElement.textContent = title;
+    contentElement.innerHTML = content;
+    modal.classList.remove('hidden');
+}
+
+function closeBulkModal() {
+    const modal = document.getElementById('bulk-progress-modal');
+    modal.classList.add('hidden');
+}
+
+// Initialize bulk mode on page load
+document.addEventListener('DOMContentLoaded', function() {
+    bulkOperations.updateCheckboxVisibility();
+});
+</script>
