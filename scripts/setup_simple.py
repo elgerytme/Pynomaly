@@ -45,6 +45,20 @@ def main():
     if sys.platform == "win32":
         pip_path = os.path.join(".venv", "Scripts", "pip.exe")
         python_path = os.path.join(".venv", "Scripts", "python.exe")
+        
+        # Check if files exist
+        if not os.path.exists(python_path):
+            print(f"⚠️  Python not found at {python_path}")
+            # Try without .exe extension
+            python_path = os.path.join(".venv", "Scripts", "python")
+            pip_path = os.path.join(".venv", "Scripts", "pip")
+            
+        if not os.path.exists(python_path):
+            print("❌ Virtual environment appears broken. Recreating...")
+            import shutil
+            shutil.rmtree(".venv", ignore_errors=True)
+            run_command([sys.executable, "-m", "venv", ".venv"])
+            
     else:
         pip_path = os.path.join(".venv", "bin", "pip")
         python_path = os.path.join(".venv", "bin", "python")
