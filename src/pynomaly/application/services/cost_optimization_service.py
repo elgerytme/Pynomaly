@@ -84,11 +84,11 @@ class CostAnalysisEngine:
         analysis["total_monthly_cost"] = total_cost
         analysis["projected_annual_cost"] = total_cost * 12
         
-        # Calculate trends
+        # Calculate trends (handle empty lists)
         if cost_trends_7d:
-            analysis["cost_trends"]["7d_change"] = statistics.mean(cost_trends_7d)
+            analysis["cost_trends"]["7d_change"] = statistics.mean(cost_trends_7d) if cost_trends_7d else 0.0
         if cost_trends_30d:
-            analysis["cost_trends"]["30d_change"] = statistics.mean(cost_trends_30d)
+            analysis["cost_trends"]["30d_change"] = statistics.mean(cost_trends_30d) if cost_trends_30d else 0.0
             analysis["cost_trends"]["growth_rate"] = analysis["cost_trends"]["30d_change"] / 30  # Daily growth rate
         
         # Top cost drivers
@@ -148,7 +148,8 @@ class CostAnalysisEngine:
         if len(features) < 10:  # Not enough data for ML prediction
             # Use simple trend extrapolation
             current_total = sum(r.cost_info.monthly_cost for r in resources)
-            avg_growth_rate = statistics.mean([r.cost_info.cost_trend_30d for r in resources if r.cost_info.cost_trend_30d != 0]) or 0.0
+            trend_values = [r.cost_info.cost_trend_30d for r in resources if r.cost_info.cost_trend_30d != 0]
+            avg_growth_rate = statistics.mean(trend_values) if trend_values else 0.0
             
             for month in range(1, months_ahead + 1):
                 predicted_cost = current_total * (1 + avg_growth_rate) ** month
