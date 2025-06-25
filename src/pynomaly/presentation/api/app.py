@@ -15,6 +15,8 @@ from pynomaly.infrastructure.config import Container
 
 # Temporarily disabled telemetry
 # from pynomaly.infrastructure.monitoring import init_telemetry
+from pynomaly.presentation.api.docs import configure_openapi_docs
+from pynomaly.presentation.api.docs.api_docs import router as docs_router
 from pynomaly.presentation.api.endpoints import (
     admin,
     auth,
@@ -90,19 +92,67 @@ def create_app(container: Container | None = None) -> FastAPI:
 
     settings = container.config()
 
-    # Create app
+    # Create app with enhanced documentation configuration
     app = FastAPI(
         title=settings.app.name,
         version=settings.app.version,
-        description="State-of-the-art anomaly detection platform",
-        docs_url="/api/docs",
-        redoc_url="/api/redoc",
-        openapi_url="/api/openapi.json",
+        description="""
+# Pynomaly - Advanced Anomaly Detection Platform
+
+**Pynomaly** is a state-of-the-art Python anomaly detection package that provides a unified, production-ready interface for multiple anomaly detection algorithms.
+
+## Key Features
+
+🚀 **Multi-Algorithm Support**: Integrates PyOD, TODS, PyGOD, scikit-learn, PyTorch, TensorFlow, and JAX  
+🏗️ **Clean Architecture**: Domain-driven design with hexagonal architecture  
+🔒 **Enterprise Security**: JWT authentication, RBAC, audit logging, and encryption  
+⚡ **High Performance**: Distributed processing, caching, and performance optimization  
+📊 **Advanced Analytics**: AutoML, explainability, and comprehensive visualization  
+🌐 **Progressive Web App**: Modern UI with offline capabilities  
+📈 **Production Ready**: Monitoring, observability, and enterprise deployment features
+
+## Quick Start
+
+1. **Authenticate**: Use `/auth/login` to get a JWT token
+2. **Upload Data**: Use `/datasets/upload` to upload your dataset  
+3. **Create Detector**: Use `/detectors/create` to configure an anomaly detector
+4. **Train Model**: Use `/detection/train` to train the detector
+5. **Detect Anomalies**: Use `/detection/predict` to find anomalies
+
+## Documentation
+
+- **Interactive API Explorer**: `/docs/swagger`
+- **API Reference**: `/docs/redoc`
+- **Postman Collection**: `/docs/postman`
+- **SDK Information**: `/docs/sdk-info`
+
+## Support
+
+- **GitHub**: [https://github.com/pynomaly/pynomaly](https://github.com/pynomaly/pynomaly)
+- **Documentation**: [https://pynomaly.readthedocs.io](https://pynomaly.readthedocs.io)
+- **Issues**: [https://github.com/pynomaly/pynomaly/issues](https://github.com/pynomaly/pynomaly/issues)
+        """,
+        docs_url="/api/docs" if settings.docs_enabled else None,
+        redoc_url="/api/redoc" if settings.docs_enabled else None,
+        openapi_url="/api/openapi.json" if settings.docs_enabled else None,
         lifespan=lifespan,
+        contact={
+            "name": "Pynomaly Team",
+            "url": "https://github.com/pynomaly/pynomaly",
+            "email": "team@pynomaly.io"
+        },
+        license_info={
+            "name": "MIT",
+            "url": "https://github.com/pynomaly/pynomaly/blob/main/LICENSE"
+        },
+        terms_of_service="https://pynomaly.io/terms",
     )
 
     # Store container in app state
     app.state.container = container
+    
+    # Configure comprehensive OpenAPI documentation
+    configure_openapi_docs(app, settings)
 
     # Add CORS middleware
     app.add_middleware(CORSMiddleware, **settings.get_cors_config())

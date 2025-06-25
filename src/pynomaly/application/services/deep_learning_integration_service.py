@@ -15,7 +15,7 @@ from pynomaly.shared.protocols import DetectorProtocol
 # Import deep learning adapters with fallbacks
 try:
     from pynomaly.infrastructure.adapters.deep_learning import PyTorchAdapter
-    
+
     # Check if PyTorch is actually available by trying to instantiate
     try:
         import torch
@@ -28,7 +28,7 @@ except ImportError:
 
 try:
     from pynomaly.infrastructure.adapters.deep_learning import TensorFlowAdapter
-    
+
     # Check if TensorFlow is actually available
     try:
         import tensorflow
@@ -41,7 +41,7 @@ except ImportError:
 
 try:
     from pynomaly.infrastructure.adapters.deep_learning import JAXAdapter
-    
+
     # Check if JAX is actually available
     try:
         import jax

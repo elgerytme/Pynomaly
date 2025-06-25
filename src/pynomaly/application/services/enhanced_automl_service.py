@@ -36,13 +36,11 @@ try:
         MetaLearningConfig,
         MetaLearningStrategy,
         OptimizationConstraint,
+        OptimizationResult,
+        OptimizationStrategy,
     )
     from pynomaly.infrastructure.automl import (
         OptimizationObjective as AdvancedObjective,
-    )
-    from pynomaly.infrastructure.automl import (
-        OptimizationResult,
-        OptimizationStrategy,
     )
 
     ADVANCED_OPTIMIZER_AVAILABLE = True
