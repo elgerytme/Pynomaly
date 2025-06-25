@@ -372,9 +372,7 @@ def search_configurations(
     storage_path: Path | None = typer.Option(
         None, "--storage", "-s", help="Configuration storage path"
     ),
-    tags: list[str] | None = typer.Option(
-        None, "--tag", "-t", help="Filter by tags"
-    ),
+    tags: list[str] | None = typer.Option(None, "--tag", "-t", help="Filter by tags"),
     source: str | None = typer.Option(None, "--source", help="Filter by source"),
     algorithm: str | None = typer.Option(
         None, "--algorithm", help="Filter by algorithm"

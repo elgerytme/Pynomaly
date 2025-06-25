@@ -365,9 +365,11 @@ def _display_results(results: dict, verbose: bool) -> None:
             rec_table.add_row(
                 rec.get("algorithm", "Unknown"),
                 confidence_str,
-                rec.get("reasoning", "")[:60] + "..."
-                if len(rec.get("reasoning", "")) > 60
-                else rec.get("reasoning", ""),
+                (
+                    rec.get("reasoning", "")[:60] + "..."
+                    if len(rec.get("reasoning", "")) > 60
+                    else rec.get("reasoning", "")
+                ),
             )
 
         console.print(rec_table)
@@ -494,9 +496,7 @@ def _display_profile(profile, recommendations, verbose: bool) -> None:
         quality_color = (
             "green"
             if quality_score >= 0.8
-            else "yellow"
-            if quality_score >= 0.6
-            else "red"
+            else "yellow" if quality_score >= 0.6 else "red"
         )
         quality_table.add_row(
             "Quality Score", f"[{quality_color}]{quality_score:.2f}[/{quality_color}]"
@@ -575,9 +575,7 @@ def _display_profile(profile, recommendations, verbose: bool) -> None:
                 severity_color = (
                     "red"
                     if issue.severity > 0.7
-                    else "yellow"
-                    if issue.severity > 0.4
-                    else "green"
+                    else "yellow" if issue.severity > 0.4 else "green"
                 )
                 console.print(
                     f"• [{severity_color}]{issue.issue_type.value.replace('_', ' ').title()}[/{severity_color}]: {issue.description}"
@@ -596,9 +594,7 @@ def _display_profile(profile, recommendations, verbose: bool) -> None:
             confidence_color = (
                 "green"
                 if rec.confidence > 0.8
-                else "yellow"
-                if rec.confidence > 0.6
-                else "red"
+                else "yellow" if rec.confidence > 0.6 else "red"
             )
 
             console.print(

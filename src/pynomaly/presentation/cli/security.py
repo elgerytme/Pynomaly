@@ -521,9 +521,11 @@ def cleanup(dry_run: bool, force: bool):
 
             # Run cleanup
             task2 = progress.add_task(
-                "Analyzing data for cleanup..."
-                if dry_run
-                else "Cleaning up expired data...",
+                (
+                    "Analyzing data for cleanup..."
+                    if dry_run
+                    else "Cleaning up expired data..."
+                ),
                 total=None,
             )
 
@@ -647,17 +649,17 @@ def _display_compliance_violations(framework: str, violations: list):
         severity_color = (
             "red"
             if violation.severity == "critical"
-            else "yellow"
-            if violation.severity == "high"
-            else "white"
+            else "yellow" if violation.severity == "high" else "white"
         )
 
         table.add_row(
             violation.control_id,
             f"[{severity_color}]{violation.severity.upper()}[/{severity_color}]",
-            violation.description[:60] + "..."
-            if len(violation.description) > 60
-            else violation.description,
+            (
+                violation.description[:60] + "..."
+                if len(violation.description) > 60
+                else violation.description
+            ),
             violation.status,
         )
 
@@ -698,9 +700,11 @@ def _display_security_incidents(incidents: list, alert_threshold: int):
             table.add_row(
                 incident.incident_type,
                 f"[{severity_color}]{incident.severity.value.upper()}[/{severity_color}]",
-                incident.description[:50] + "..."
-                if len(incident.description) > 50
-                else incident.description,
+                (
+                    incident.description[:50] + "..."
+                    if len(incident.description) > 50
+                    else incident.description
+                ),
                 ", ".join(incident.affected_data_types),
                 incident.detection_method,
             )

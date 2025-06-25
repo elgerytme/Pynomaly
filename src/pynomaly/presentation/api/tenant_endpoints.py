@@ -376,9 +376,11 @@ async def get_tenant_usage(
             quota_type=quota_type,
             limit=quota_info["limit"] if quota_info["limit"] != "unlimited" else -1,
             used=quota_info["used"],
-            remaining=quota_info["remaining"]
-            if quota_info["remaining"] != "unlimited"
-            else -1,
+            remaining=(
+                quota_info["remaining"]
+                if quota_info["remaining"] != "unlimited"
+                else -1
+            ),
             usage_percentage=quota_info["usage_percentage"],
             is_exceeded=quota_info["is_exceeded"],
             is_unlimited=quota_info["limit"] == "unlimited",

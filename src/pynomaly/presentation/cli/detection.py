@@ -254,9 +254,7 @@ def detect_anomalies(
             elif output.suffix.lower() in [".parquet", ".pq"]:
                 results_df.to_parquet(output, index=False)
             else:
-                console.print(
-                    "[yellow]Warning:[/yellow] Unknown format, saving as CSV"
-                )
+                console.print("[yellow]Warning:[/yellow] Unknown format, saving as CSV")
                 results_df.to_csv(output, index=False)
 
             console.print(f"\n[green]✓[/green] Results exported to {output}")

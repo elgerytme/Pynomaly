@@ -232,9 +232,9 @@ def analyze_bias(
         # Configure bias analysis
         config = BiasAnalysisConfig(
             protected_attributes=list(protected_attributes),
-            fairness_metrics=list(metrics)
-            if metrics
-            else ["demographic_parity", "equalized_odds"],
+            fairness_metrics=(
+                list(metrics) if metrics else ["demographic_parity", "equalized_odds"]
+            ),
             threshold=threshold,
             min_group_size=min_group_size,
         )
@@ -613,9 +613,11 @@ def _load_dataset(dataset_path: Path) -> Dataset:
         return Dataset(
             name=dataset_path.stem,
             data=data,
-            feature_names=list(data.columns)
-            if hasattr(data, "columns")
-            else [f"feature_{i}" for i in range(data.shape[1])],
+            feature_names=(
+                list(data.columns)
+                if hasattr(data, "columns")
+                else [f"feature_{i}" for i in range(data.shape[1])]
+            ),
         )
 
     except Exception as e:
@@ -727,9 +729,7 @@ def _display_bias_analysis_results(bias_results):
                 status = (
                     "✓ Pass"
                     if value >= 0.8
-                    else "⚠️ Concerning"
-                    if value >= 0.6
-                    else "❌ Fail"
+                    else "⚠️ Concerning" if value >= 0.6 else "❌ Fail"
                 )
                 color = "green" if value >= 0.8 else "yellow" if value >= 0.6 else "red"
 
@@ -797,9 +797,7 @@ def _display_trust_assessment_results(trust_result):
     risk_color = (
         "green"
         if trust_result.risk_assessment == "low"
-        else "yellow"
-        if trust_result.risk_assessment == "medium"
-        else "red"
+        else "yellow" if trust_result.risk_assessment == "medium" else "red"
     )
     console.print(
         f"\n🚨 Risk Assessment: [{risk_color}]{trust_result.risk_assessment.upper()}[/{risk_color}]"
@@ -964,14 +962,16 @@ def _save_explanation_report(report, output_path: Path, format_type: str):
                         }
                         for exp in report.local_explanations
                     ],
-                    "global_explanation": {
-                        "feature_importance": report.global_explanation.feature_importance,
-                        "explanation_method": report.global_explanation.explanation_method,
-                        "coverage": report.global_explanation.coverage,
-                        "reliability": report.global_explanation.reliability,
-                    }
-                    if report.global_explanation
-                    else None,
+                    "global_explanation": (
+                        {
+                            "feature_importance": report.global_explanation.feature_importance,
+                            "explanation_method": report.global_explanation.explanation_method,
+                            "coverage": report.global_explanation.coverage,
+                            "reliability": report.global_explanation.reliability,
+                        }
+                        if report.global_explanation
+                        else None
+                    ),
                     "trust_assessment": {
                         "overall_trust_score": report.trust_assessment.overall_trust_score,
                         "consistency_score": report.trust_assessment.consistency_score,

@@ -98,9 +98,7 @@ def optimize(
                     TextColumn("[progress.description]{task.description}"),
                     console=console,
                 ) as progress:
-                    progress.add_task(
-                        "Optimizing hyperparameters...", total=None
-                    )
+                    progress.add_task("Optimizing hyperparameters...", total=None)
                     result = await automl_service.optimize_hyperparameters(
                         dataset_id, algorithm
                     )

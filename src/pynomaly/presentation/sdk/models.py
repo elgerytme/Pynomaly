@@ -176,9 +176,7 @@ class Detector(BaseSDKModel):
     # Model metadata
     version: str = Field("1.0", description="Model version")
     framework: str | None = Field(None, description="ML framework used")
-    model_size_bytes: int | None = Field(
-        None, ge=0, description="Model size in bytes"
-    )
+    model_size_bytes: int | None = Field(None, ge=0, description="Model size in bytes")
 
     # Performance
     performance_metrics: PerformanceMetrics | None = None
@@ -302,9 +300,7 @@ class TrainingJob(BaseSDKModel):
 
     # Resource usage
     cpu_usage: float | None = Field(None, ge=0.0, description="CPU usage percentage")
-    memory_usage: float | None = Field(
-        None, ge=0.0, description="Memory usage in MB"
-    )
+    memory_usage: float | None = Field(None, ge=0.0, description="Memory usage in MB")
     gpu_usage: float | None = Field(None, ge=0.0, description="GPU usage percentage")
 
 

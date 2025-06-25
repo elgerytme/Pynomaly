@@ -811,14 +811,15 @@ def _save_benchmark_results(results: list, output_path: Path):
             for result in results
         ],
         "summary": {
-            "fastest_framework": min(results, key=lambda x: x.training_time).framework
-            if results
-            else None,
+            "fastest_framework": (
+                min(results, key=lambda x: x.training_time).framework
+                if results
+                else None
+            ),
             "total_frameworks_tested": len(results),
-            "average_training_time": sum(r.training_time for r in results)
-            / len(results)
-            if results
-            else 0,
+            "average_training_time": (
+                sum(r.training_time for r in results) / len(results) if results else 0
+            ),
         },
     }
 

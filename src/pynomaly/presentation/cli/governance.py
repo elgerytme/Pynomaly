@@ -300,9 +300,9 @@ def assess_risk(
                     impact=RiskLevel(impact),
                     affected_assets=list(affected_assets),
                     threat_sources=list(threat_sources) if threat_sources else None,
-                    existing_controls=list(existing_controls)
-                    if existing_controls
-                    else None,
+                    existing_controls=(
+                        list(existing_controls) if existing_controls else None
+                    ),
                 )
 
                 progress.update(task2, completed=True)
@@ -840,9 +840,7 @@ def _display_governance_dashboard(dashboard_data: dict):
     rate_color = (
         "green"
         if compliance_rate >= 95
-        else "yellow"
-        if compliance_rate >= 80
-        else "red"
+        else "yellow" if compliance_rate >= 80 else "red"
     )
 
     compliance_table.add_row(

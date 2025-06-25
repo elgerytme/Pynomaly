@@ -90,18 +90,22 @@ def comprehensive(
             config = BenchmarkConfig(
                 benchmark_name=suite_name,
                 description=description or f"Comprehensive benchmark: {suite_name}",
-                dataset_sizes=list(dataset_sizes)
-                if dataset_sizes
-                else [1000, 5000, 10000],
-                feature_dimensions=list(feature_dimensions)
-                if feature_dimensions
-                else [10, 50, 100],
-                contamination_rates=list(contamination_rates)
-                if contamination_rates
-                else [0.05, 0.1, 0.15],
-                algorithms=list(algorithms)
-                if algorithms
-                else ["IsolationForest", "LOF", "OneClassSVM"],
+                dataset_sizes=(
+                    list(dataset_sizes) if dataset_sizes else [1000, 5000, 10000]
+                ),
+                feature_dimensions=(
+                    list(feature_dimensions) if feature_dimensions else [10, 50, 100]
+                ),
+                contamination_rates=(
+                    list(contamination_rates)
+                    if contamination_rates
+                    else [0.05, 0.1, 0.15]
+                ),
+                algorithms=(
+                    list(algorithms)
+                    if algorithms
+                    else ["IsolationForest", "LOF", "OneClassSVM"]
+                ),
                 iterations=iterations,
                 timeout_seconds=timeout,
             )

@@ -438,9 +438,7 @@ def list_requirements(
     status: str | None = typer.Option(
         None, "--status", help="Filter by status (pending, implemented, validated)"
     ),
-    module: str | None = typer.Option(
-        None, "--module", help="Filter by module path"
-    ),
+    module: str | None = typer.Option(None, "--module", help="Filter by module path"),
     tags: str | None = typer.Option(
         None, "--tags", help="Filter by tags (comma-separated)"
     ),
@@ -492,9 +490,11 @@ def list_requirements(
                 req.function_name,
                 f"[{status_color}]{req.status}[/{status_color}]",
                 f"{req.coverage_target:.1%}",
-                req.description[:50] + "..."
-                if len(req.description) > 50
-                else req.description,
+                (
+                    req.description[:50] + "..."
+                    if len(req.description) > 50
+                    else req.description
+                ),
             )
 
         console.print(table)
@@ -798,9 +798,11 @@ def generate_report(
                 "auto_fixable_violations": len(
                     [v for v in violations if v.auto_fixable]
                 ),
-                "average_coverage": sum(coverage_data.values()) / len(coverage_data)
-                if coverage_data
-                else 0,
+                "average_coverage": (
+                    sum(coverage_data.values()) / len(coverage_data)
+                    if coverage_data
+                    else 0
+                ),
             },
         }
 

@@ -471,9 +471,11 @@ def transform_data(
                     name=save_as,
                     description=f"Transformed version of {dataset.name}",
                     data=df,
-                    target_column=dataset.target_column
-                    if dataset.target_column in df.columns
-                    else None,
+                    target_column=(
+                        dataset.target_column
+                        if dataset.target_column in df.columns
+                        else None
+                    ),
                     created_at=datetime.now(),
                 )
 

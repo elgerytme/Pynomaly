@@ -12,6 +12,9 @@ from rich.table import Table
 from pynomaly.presentation.cli import (
     automl,
     autonomous,
+)
+from pynomaly.presentation.cli import config as config_cli
+from pynomaly.presentation.cli import (
     datasets,
     detection,
     detectors,
@@ -19,7 +22,6 @@ from pynomaly.presentation.cli import (
     server,
     tdd,
 )
-from pynomaly.presentation.cli import config as config_cli
 
 # from pynomaly.presentation.cli import performance  # Temporarily disabled due to Typer type issues
 from pynomaly.presentation.cli.export import export_app
@@ -218,12 +220,8 @@ def generate_config(
     format: str = typer.Option(
         "json", "--format", "-f", help="Output format (json, yaml)"
     ),
-    detector: str | None = typer.Option(
-        None, "--detector", help="Detector algorithm"
-    ),
-    dataset: str | None = typer.Option(
-        None, "--dataset", help="Dataset path or name"
-    ),
+    detector: str | None = typer.Option(None, "--detector", help="Detector algorithm"),
+    dataset: str | None = typer.Option(None, "--dataset", help="Dataset path or name"),
     contamination: float | None = typer.Option(
         None, "--contamination", help="Contamination rate"
     ),
@@ -291,9 +289,9 @@ def generate_config(
                 },
             },
             "evaluation": {
-                "cross_validation": cross_validation
-                if cross_validation is not None
-                else True,
+                "cross_validation": (
+                    cross_validation if cross_validation is not None else True
+                ),
                 "folds": cv_folds or 5,
                 "metrics": ["precision", "recall", "f1", "auc_roc", "auc_pr"],
             },
@@ -344,9 +342,9 @@ def generate_config(
                 },
             },
             "evaluation": {
-                "cross_validation": cross_validation
-                if cross_validation is not None
-                else True,
+                "cross_validation": (
+                    cross_validation if cross_validation is not None else True
+                ),
                 "folds": cv_folds or 5,
                 "metrics": [
                     "precision",

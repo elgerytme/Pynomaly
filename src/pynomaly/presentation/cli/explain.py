@@ -586,9 +586,7 @@ def _display_instance_explanation(result, instance_index: int, audience: str):
         direction = (
             "↑"
             if importance.contribution_direction == "positive"
-            else "↓"
-            if importance.contribution_direction == "negative"
-            else "→"
+            else "↓" if importance.contribution_direction == "negative" else "→"
         )
         table.add_row(
             str(importance.rank),

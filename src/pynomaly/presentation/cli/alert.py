@@ -353,9 +353,7 @@ def resolve(alert_id: str, user: str, note: str | None, quality: float | None):
             return
 
         if quality is not None and (quality < 0.0 or quality > 1.0):
-            console.print(
-                "[red]Error: Quality score must be between 0.0 and 1.0[/red]"
-            )
+            console.print("[red]Error: Quality score must be between 0.0 and 1.0[/red]")
             return
 
         success = await alert_service.resolve_alert(

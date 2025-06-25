@@ -644,7 +644,6 @@ async def htmx_train_detector(
             save_model=True,
         )
 
-
         response = await train_use_case.execute(request_obj)
 
         return HTMLResponse(
@@ -1338,7 +1337,8 @@ async def htmx_monitoring_activity(
                     if (time.time() - result.timestamp.timestamp()) < 60
                     else f"{int((time.time() - result.timestamp.timestamp()) / 60)}m ago"
                 )
-                activities.append(f"""
+                activities.append(
+                    f"""
                 <div class="flex items-center space-x-3 py-2 border-b border-gray-100">
                     <div class="flex-shrink-0">
                         <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
@@ -1352,7 +1352,8 @@ async def htmx_monitoring_activity(
                         <p class="text-xs text-gray-500">{time_ago}</p>
                     </div>
                 </div>
-                """)
+                """
+                )
 
             activity_html = "".join(activities)
 
@@ -1376,7 +1377,8 @@ async def htmx_monitoring_alerts(
         alerts = []
 
         # System status alert
-        alerts.append("""
+        alerts.append(
+            """
         <div class="bg-green-50 border border-green-200 rounded p-3">
             <div class="flex items-center">
                 <svg class="h-5 w-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -1385,11 +1387,13 @@ async def htmx_monitoring_alerts(
                 <span class="text-sm text-green-800">All systems operational</span>
             </div>
         </div>
-        """)
+        """
+        )
 
         # Random performance alert
         if random.random() < 0.3:  # 30% chance
-            alerts.append("""
+            alerts.append(
+                """
             <div class="bg-yellow-50 border border-yellow-200 rounded p-3">
                 <div class="flex items-center">
                     <svg class="h-5 w-5 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -1398,7 +1402,8 @@ async def htmx_monitoring_alerts(
                     <span class="text-sm text-yellow-800">High CPU usage detected (85%)</span>
                 </div>
             </div>
-            """)
+            """
+            )
 
         return HTMLResponse("".join(alerts))
 

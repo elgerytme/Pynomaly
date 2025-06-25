@@ -267,9 +267,9 @@ async def resolve_alert(
 @router.get("/dashboard/compliance")
 async def get_compliance_report(
     current_user: dict = Depends(get_current_user),
-    _: bool = Depends(require_permission("compliance:read"))
-    if AUTH_AVAILABLE
-    else None,
+    _: bool = (
+        Depends(require_permission("compliance:read")) if AUTH_AVAILABLE else None
+    ),
     dashboard_service: EnterpriseDashboardService = Depends(get_dashboard_service),
 ) -> dict[str, Any]:
     """Get compliance and governance report.
@@ -497,15 +497,21 @@ async def get_dashboard_health() -> dict[str, Any]:
             "timestamp": datetime.now().isoformat(),
             "services": {
                 "dashboard_service": "healthy",
-                "business_metrics": "enabled"
-                if dashboard_service.enable_business_metrics
-                else "disabled",
-                "operational_monitoring": "enabled"
-                if dashboard_service.enable_operational_monitoring
-                else "disabled",
-                "compliance_tracking": "enabled"
-                if dashboard_service.enable_compliance_tracking
-                else "disabled",
+                "business_metrics": (
+                    "enabled"
+                    if dashboard_service.enable_business_metrics
+                    else "disabled"
+                ),
+                "operational_monitoring": (
+                    "enabled"
+                    if dashboard_service.enable_operational_monitoring
+                    else "disabled"
+                ),
+                "compliance_tracking": (
+                    "enabled"
+                    if dashboard_service.enable_compliance_tracking
+                    else "disabled"
+                ),
             },
             "metrics": {
                 "active_alerts": len(dashboard_service.active_alerts),

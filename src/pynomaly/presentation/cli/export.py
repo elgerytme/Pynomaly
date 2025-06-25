@@ -271,9 +271,7 @@ def export_smartsheet(
     access_token: str = typer.Option(..., help="Smartsheet API access token"),
     workspace_name: str | None = typer.Option(None, help="Workspace name"),
     folder_id: str | None = typer.Option(None, help="Folder ID"),
-    template_id: str | None = typer.Option(
-        None, help="Template ID for sheet creation"
-    ),
+    template_id: str | None = typer.Option(None, help="Template ID for sheet creation"),
     share_emails: list[str] | None = typer.Option(
         None, help="Email addresses to share with"
     ),
@@ -378,9 +376,7 @@ def export_multiple(
                     f"[green]✅ {format_name.title()} export completed[/green]"
                 )
 
-        console.print(
-            "\n[green]🎉 Multi-format export completed successfully![/green]"
-        )
+        console.print("\n[green]🎉 Multi-format export completed successfully![/green]")
         console.print(f"📊 Exported to {len(formats)} formats")
         console.print(f"📂 Files saved in: {output_dir}")
 
@@ -397,9 +393,7 @@ def validate_config(
     config_file: Path | None = typer.Option(
         None, help="Configuration file to validate"
     ),
-    output_file: Path | None = typer.Option(
-        None, help="Output file path to validate"
-    ),
+    output_file: Path | None = typer.Option(None, help="Output file path to validate"),
 ):
     """Validate export configuration and setup."""
 

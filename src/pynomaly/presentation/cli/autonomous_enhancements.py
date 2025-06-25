@@ -519,11 +519,11 @@ def _display_algorithm_explanations(
     data_summary.add_row(
         "Sample Count",
         f"{profile.n_samples:,}",
-        "Large"
-        if profile.n_samples > 10000
-        else "Medium"
-        if profile.n_samples > 1000
-        else "Small",
+        (
+            "Large"
+            if profile.n_samples > 10000
+            else "Medium" if profile.n_samples > 1000 else "Small"
+        ),
     )
     data_summary.add_row(
         "Feature Count",
@@ -555,11 +555,11 @@ def _display_algorithm_explanations(
             f"• Feature type support: {'✓' if profile.numeric_features > 0 else '⚠'}\n"
             f"• Complexity matching: {'✓' if abs(profile.complexity_score - 0.5) < 0.3 else '⚠'}",
             title=f"Recommendation #{i}",
-            border_style="green"
-            if rec.confidence > 0.8
-            else "yellow"
-            if rec.confidence > 0.6
-            else "red",
+            border_style=(
+                "green"
+                if rec.confidence > 0.8
+                else "yellow" if rec.confidence > 0.6 else "red"
+            ),
         )
         console.print(reasoning_panel)
 

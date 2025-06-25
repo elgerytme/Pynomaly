@@ -181,9 +181,7 @@ def predict_performance(
     ),
     dataset_path: Path = typer.Argument(..., help="Path to target dataset"),
     samples: int | None = typer.Option(None, "--samples", help="Number of samples"),
-    features: int | None = typer.Option(
-        None, "--features", help="Number of features"
-    ),
+    features: int | None = typer.Option(None, "--features", help="Number of features"),
     output: Path | None = typer.Option(
         None, "--output", "-o", help="Save predictions to file"
     ),
@@ -404,21 +402,27 @@ def show_statistics():
 
         status_table.add_row(
             "Performance Predictor",
-            "✓ Trained"
-            if model_status["performance_predictor_trained"]
-            else "✗ Not trained",
+            (
+                "✓ Trained"
+                if model_status["performance_predictor_trained"]
+                else "✗ Not trained"
+            ),
         )
         status_table.add_row(
             "Algorithm Selector",
-            "✓ Trained"
-            if model_status["algorithm_selector_trained"]
-            else "✗ Not trained",
+            (
+                "✓ Trained"
+                if model_status["algorithm_selector_trained"]
+                else "✗ Not trained"
+            ),
         )
         status_table.add_row(
             "Feature Scaler",
-            "✓ Available"
-            if model_status["feature_scaler_available"]
-            else "✗ Not available",
+            (
+                "✓ Available"
+                if model_status["feature_scaler_available"]
+                else "✗ Not available"
+            ),
         )
 
         console.print(status_table)
@@ -509,9 +513,7 @@ async def _analyze_dataset(
         raise typer.Exit(1)
 
 
-def _display_recommendations(
-    recommendations: list, format: str, output: Path | None
-):
+def _display_recommendations(recommendations: list, format: str, output: Path | None):
     """Display recommendations in specified format."""
 
     if format == "json":
@@ -561,9 +563,11 @@ def _display_recommendations(
                 confidence,
                 accuracy,
                 training_time,
-                rec.recommendation_reason[:50] + "..."
-                if len(rec.recommendation_reason) > 50
-                else rec.recommendation_reason,
+                (
+                    rec.recommendation_reason[:50] + "..."
+                    if len(rec.recommendation_reason) > 50
+                    else rec.recommendation_reason
+                ),
             )
 
         console.print(table)

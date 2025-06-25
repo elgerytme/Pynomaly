@@ -479,16 +479,20 @@ def status():
             (
                 "Performance Prediction",
                 service_info["performance_prediction_enabled"],
-                "✓ Available"
-                if service_info["performance_predictor_trained"]
-                else "⚠️ Not Available",
+                (
+                    "✓ Available"
+                    if service_info["performance_predictor_trained"]
+                    else "⚠️ Not Available"
+                ),
             ),
             (
                 "Historical Learning",
                 service_info["historical_learning_enabled"],
-                f"✓ {service_info['selection_history_size']} samples"
-                if service_info["selection_history_size"] > 0
-                else "⚠️ No History",
+                (
+                    f"✓ {service_info['selection_history_size']} samples"
+                    if service_info["selection_history_size"] > 0
+                    else "⚠️ No History"
+                ),
             ),
         ]
 
@@ -541,9 +545,11 @@ def _load_dataset(dataset_path: Path) -> Dataset:
         return Dataset(
             name=dataset_path.stem,
             data=data,
-            feature_names=list(data.columns)
-            if hasattr(data, "columns")
-            else [f"feature_{i}" for i in range(data.shape[1])],
+            feature_names=(
+                list(data.columns)
+                if hasattr(data, "columns")
+                else [f"feature_{i}" for i in range(data.shape[1])]
+            ),
         )
 
     except Exception as e:

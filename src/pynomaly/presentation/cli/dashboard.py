@@ -223,12 +223,14 @@ def monitor(interval: int, websocket_endpoint: str, duration: int | None):
 
         console.print(
             Panel(
-                f"[bold blue]Real-Time Dashboard Monitoring[/bold blue]\n"
-                f"WebSocket: {websocket_endpoint}\n"
-                f"Update interval: {interval}s\n"
-                f"Duration: {duration}s"
-                if duration
-                else "Duration: Unlimited",
+                (
+                    f"[bold blue]Real-Time Dashboard Monitoring[/bold blue]\n"
+                    f"WebSocket: {websocket_endpoint}\n"
+                    f"Update interval: {interval}s\n"
+                    f"Duration: {duration}s"
+                    if duration
+                    else "Duration: Unlimited"
+                ),
                 title="Dashboard Monitor",
             )
         )
@@ -238,9 +240,7 @@ def monitor(interval: int, websocket_endpoint: str, duration: int | None):
         dashboard_service = VisualizationDashboardService(storage_path)
 
         # Generate real-time dashboard
-        await dashboard_service.generate_real_time_dashboard(
-            websocket_endpoint
-        )
+        await dashboard_service.generate_real_time_dashboard(websocket_endpoint)
 
         # Create live layout
         layout = Layout()
@@ -347,9 +347,7 @@ def compare(dashboard_type: str, metrics: list[str], time_period: int):
 )
 @click.option("--output", required=True, help="Output file path")
 @click.option("--config-file", help="Export configuration file")
-def export(
-    dashboard_id: str, export_format: str, output: str, config_file: str | None
-):
+def export(dashboard_id: str, export_format: str, output: str, config_file: str | None):
     """Export dashboard to various formats."""
 
     async def run_export():

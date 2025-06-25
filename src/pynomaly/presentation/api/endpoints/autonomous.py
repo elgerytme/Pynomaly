@@ -483,24 +483,26 @@ async def explain_algorithm_choices(
 
         # Build explanation response
         explanations = {
-            "dataset_analysis": {
-                "basic_stats": {
-                    "samples": profile.n_samples,
-                    "features": profile.n_features,
-                    "numeric_features": profile.numeric_features,
-                    "categorical_features": profile.categorical_features,
-                    "missing_ratio": profile.missing_values_ratio,
-                    "complexity_score": profile.complexity_score,
-                },
-                "data_characteristics": {
-                    "sparsity_ratio": profile.sparsity_ratio,
-                    "correlation_score": profile.correlation_score,
-                    "outlier_estimate": profile.outlier_ratio_estimate,
-                    "recommended_contamination": profile.recommended_contamination,
-                },
-            }
-            if request.include_data_analysis
-            else None,
+            "dataset_analysis": (
+                {
+                    "basic_stats": {
+                        "samples": profile.n_samples,
+                        "features": profile.n_features,
+                        "numeric_features": profile.numeric_features,
+                        "categorical_features": profile.categorical_features,
+                        "missing_ratio": profile.missing_values_ratio,
+                        "complexity_score": profile.complexity_score,
+                    },
+                    "data_characteristics": {
+                        "sparsity_ratio": profile.sparsity_ratio,
+                        "correlation_score": profile.correlation_score,
+                        "outlier_estimate": profile.outlier_ratio_estimate,
+                        "recommended_contamination": profile.recommended_contamination,
+                    },
+                }
+                if request.include_data_analysis
+                else None
+            ),
             "algorithm_recommendations": [
                 {
                     "rank": i + 1,
@@ -510,36 +512,42 @@ async def explain_algorithm_choices(
                     "expected_performance": rec.expected_performance,
                     "hyperparameters": rec.hyperparams,
                     "suitability_factors": {
-                        "data_size_match": "good"
-                        if profile.n_samples >= 100
-                        else "poor",
-                        "complexity_match": "good"
-                        if abs(profile.complexity_score - 0.5) < 0.3
-                        else "moderate",
-                        "feature_support": "good"
-                        if profile.numeric_features > 0
-                        else "limited",
+                        "data_size_match": (
+                            "good" if profile.n_samples >= 100 else "poor"
+                        ),
+                        "complexity_match": (
+                            "good"
+                            if abs(profile.complexity_score - 0.5) < 0.3
+                            else "moderate"
+                        ),
+                        "feature_support": (
+                            "good" if profile.numeric_features > 0 else "limited"
+                        ),
                     },
                 }
                 for i, rec in enumerate(recommendations[: request.max_algorithms])
             ],
-            "alternatives_considered": [
-                {
-                    "algorithm": rec.algorithm,
-                    "confidence": rec.confidence,
-                    "why_not_chosen": f"Lower confidence ({rec.confidence:.1%}) than top recommendations",
-                }
-                for rec in recommendations[
-                    request.max_algorithms : request.max_algorithms + 3
+            "alternatives_considered": (
+                [
+                    {
+                        "algorithm": rec.algorithm,
+                        "confidence": rec.confidence,
+                        "why_not_chosen": f"Lower confidence ({rec.confidence:.1%}) than top recommendations",
+                    }
+                    for rec in recommendations[
+                        request.max_algorithms : request.max_algorithms + 3
+                    ]
                 ]
-            ]
-            if request.include_alternatives
-            else [],
+                if request.include_alternatives
+                else []
+            ),
             "recommendation_summary": {
                 "top_choice": recommendations[0].algorithm if recommendations else None,
-                "confidence_level": "high"
-                if recommendations and recommendations[0].confidence > 0.8
-                else "moderate",
+                "confidence_level": (
+                    "high"
+                    if recommendations and recommendations[0].confidence > 0.8
+                    else "moderate"
+                ),
                 "key_factors": [
                     f"Dataset size: {profile.n_samples:,} samples",
                     f"Complexity: {profile.complexity_score:.2f}",
