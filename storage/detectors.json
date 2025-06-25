@@ -234,5 +234,87 @@
     "created_at": "2025-06-25T12:46:10.960402",
     "trained_at": null,
     "is_fitted": false
+  },
+  "2ca2cee1-fcd9-48fa-8d32-e49662ef5573": {
+    "id": "2ca2cee1-fcd9-48fa-8d32-e49662ef5573",
+    "name": "Test Detector",
+    "algorithm_name": "IsolationForest",
+    "contamination_rate": 0.1,
+    "parameters": {
+      "contamination": 0.1
+    },
+    "metadata": {
+      "time_complexity": "O(n log n)",
+      "space_complexity": "O(n)",
+      "supports_streaming": false,
+      "category": "ensemble"
+    },
+    "created_at": "2025-06-25T12:52:38.912738",
+    "trained_at": null,
+    "is_fitted": false
+  },
+  "15c67167-8e9c-4f19-a8c2-b468df4b6e5b": {
+    "id": "15c67167-8e9c-4f19-a8c2-b468df4b6e5b",
+    "name": "List Test",
+    "algorithm_name": "LOF",
+    "contamination_rate": 0.1,
+    "parameters": {},
+    "metadata": {
+      "time_complexity": "O(n\u00b2)",
+      "space_complexity": "O(n)",
+      "supports_streaming": true,
+      "category": "proximity"
+    },
+    "created_at": "2025-06-25T12:52:38.985725",
+    "trained_at": null,
+    "is_fitted": false
+  },
+  "bbd05146-7fcc-4c6f-adae-a634819cb78a": {
+    "id": "bbd05146-7fcc-4c6f-adae-a634819cb78a",
+    "name": "Get Test",
+    "algorithm_name": "OCSVM",
+    "contamination_rate": 0.1,
+    "parameters": {},
+    "metadata": {
+      "time_complexity": "O(n\u00b2)",
+      "space_complexity": "O(n\u00b2)",
+      "supports_streaming": false,
+      "category": "linear"
+    },
+    "created_at": "2025-06-25T12:52:39.066232",
+    "trained_at": null,
+    "is_fitted": false
+  },
+  "8ec433ec-6749-464e-a2fc-838a1f1d4bc1": {
+    "id": "8ec433ec-6749-464e-a2fc-838a1f1d4bc1",
+    "name": "Update Test",
+    "algorithm_name": "IsolationForest",
+    "contamination_rate": 0.1,
+    "parameters": {},
+    "metadata": {
+      "time_complexity": "O(n log n)",
+      "space_complexity": "O(n)",
+      "supports_streaming": false,
+      "category": "ensemble"
+    },
+    "created_at": "2025-06-25T12:52:39.143761",
+    "trained_at": null,
+    "is_fitted": false
+  },
+  "d690891a-c793-4075-babb-03a9247f43b1": {
+    "id": "d690891a-c793-4075-babb-03a9247f43b1",
+    "name": "Delete Test",
+    "algorithm_name": "LOF",
+    "contamination_rate": 0.1,
+    "parameters": {},
+    "metadata": {
+      "time_complexity": "O(n\u00b2)",
+      "space_complexity": "O(n)",
+      "supports_streaming": true,
+      "category": "proximity"
+    },
+    "created_at": "2025-06-25T12:52:39.229028",
+    "trained_at": null,
+    "is_fitted": false
   }
 }
