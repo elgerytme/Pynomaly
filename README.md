@@ -6,18 +6,20 @@
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 [![Type checked: mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
-State-of-the-art Python anomaly detection platform with clean architecture, 40+ algorithms, and production-ready features.
+State-of-the-art Python anomaly detection package targeting Python 3.11+ with clean architecture principles, integrating multiple ML libraries (PyOD, TODS, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX) through a unified, production-ready interface.
 
 ## Features
 
-- 🏗️ **Clean Architecture**: Domain-driven design with hexagonal architecture
-- 🔌 **40+ Algorithms**: PyOD, scikit-learn, and deep learning frameworks
-- 🚀 **Production Ready**: Async support, monitoring, caching, error handling
-- 🖥️ **Multiple Interfaces**: REST API, CLI, and Progressive Web App (PWA)
-- 📊 **Visualizations**: Interactive charts with D3.js and Apache ECharts
-- 🧪 **Experiment Tracking**: Compare models and track performance
-- ⚡ **High Performance**: GPU support, batch processing, efficient memory usage
-- 🛡️ **Type Safe**: Full type hints and runtime validation with Pydantic
+- 🏗️ **Clean Architecture**: Domain-driven design with hexagonal architecture (Ports & Adapters)
+- 🔌 **Multi-Library Integration**: Unified interface for PyOD, TODS, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX
+- 🚀 **Production Ready**: Async/await, OpenTelemetry observability, Prometheus metrics, circuit breakers
+- 🖥️ **Multiple Interfaces**: FastAPI REST API, Typer CLI, and Progressive Web App (PWA)
+- 📊 **Modern Web UI**: HTMX + Tailwind CSS + D3.js + Apache ECharts with offline PWA capabilities
+- 🧪 **Advanced Features**: AutoML, SHAP/LIME explainability, drift detection, active learning
+- ⚡ **Multi-Modal Support**: Time-series, tabular, graph, and text anomaly detection
+- 🛡️ **Type Safe**: 100% type coverage with mypy --strict, Pydantic validation
+- 🔄 **Streaming & Batch**: Real-time processing with backpressure and large dataset support
+- 🧰 **Extensible**: Plugin architecture with algorithm registry and custom adapters
 
 ## Installation
 
@@ -50,10 +52,13 @@ See [README_SIMPLE_SETUP.md](README_SIMPLE_SETUP.md) for detailed instructions.
 # Install with Poetry
 poetry install
 
-# Or install with extras
-poetry install -E torch      # PyTorch support
-poetry install -E tensorflow # TensorFlow support
-poetry install -E jax        # JAX support
+# Or install with extras for specific ML frameworks
+poetry install -E torch      # PyTorch deep learning support
+poetry install -E tensorflow # TensorFlow neural networks
+poetry install -E jax        # JAX high-performance computing
+poetry install -E graph      # PyGOD graph anomaly detection
+poetry install -E timeseries # Advanced time-series detection
+poetry install -E web        # Progressive Web App dependencies
 poetry install -E all        # All optional dependencies
 ```
 
@@ -84,38 +89,67 @@ pynomaly server start
 ```python
 from pynomaly.infrastructure.config import create_container
 from pynomaly.domain.entities import Detector, Dataset
+from pynomaly.application.use_cases import DetectAnomalies, TrainDetector
 import pandas as pd
+import asyncio
 
-# Initialize container
-container = create_container()
+async def main():
+    # Initialize dependency injection container
+    container = create_container()
+    
+    # Create detector with algorithm-specific parameters
+    detector = Detector(
+        name="Isolation Forest Detector",
+        algorithm="IsolationForest",
+        parameters={
+            "contamination": 0.1,
+            "n_estimators": 100,
+            "random_state": 42
+        }
+    )
+    
+    # Load and prepare dataset
+    data = pd.read_csv("data.csv")
+    dataset = Dataset(
+        name="Sensor Data",
+        data=data,
+        target_column="anomaly_label"  # Optional for supervised learning
+    )
+    
+    # Use clean architecture use cases
+    train_use_case = container.train_detector_use_case()
+    detect_use_case = container.detect_anomalies_use_case()
+    
+    # Train detector
+    training_result = await train_use_case.execute(detector, dataset)
+    print(f"Training completed: {training_result.metrics}")
+    
+    # Detect anomalies
+    detection_result = await detect_use_case.execute(detector.id, dataset)
+    print(f"Found {len(detection_result.anomalies)} anomalies")
+    
+    # Get explanations (if supported by algorithm)
+    explainer = container.explanation_service()
+    explanations = await explainer.explain_anomalies(
+        detector.id, detection_result.anomalies[:5]  # Top 5 anomalies
+    )
 
-# Create detector
-detector = Detector(
-    name="IForest Detector",
-    algorithm="IsolationForest",
-    parameters={"contamination": 0.1}
-)
-container.detector_repository().save(detector)
-
-# Load dataset
-data = pd.read_csv("data.csv")
-dataset = Dataset(name="My Data", data=data)
-container.dataset_repository().save(dataset)
-
-# Train and detect
-detection_service = container.detection_service()
-await detection_service.train_and_detect(detector.id, dataset)
+# Run async code
+asyncio.run(main())
 ```
 
 ### Web Interface
 
 Access the Progressive Web App at http://localhost:8000 after starting the server:
 
-- Real-time anomaly detection dashboard
-- Interactive visualizations with D3.js and ECharts
-- Experiment tracking and model comparison
-- Dataset quality analysis
-- HTMX-powered dynamic updates
+- **Real-time Dashboard**: Live anomaly detection with WebSocket updates
+- **Interactive Visualizations**: D3.js custom charts and Apache ECharts statistical plots
+- **Offline Capability**: Service worker enables offline operation and data caching
+- **Installable PWA**: Install on desktop and mobile devices like a native app
+- **HTMX Simplicity**: Server-side rendering with minimal JavaScript complexity
+- **Modern UI**: Tailwind CSS for responsive, accessible design
+- **Experiment Tracking**: Compare models, track performance metrics, A/B testing
+- **Dataset Analysis**: Data quality reports, drift detection, feature importance
 
 ## Business Intelligence Integrations 📊
 
@@ -219,81 +253,138 @@ See [examples/bi_integrations_example.py](examples/bi_integrations_example.py) f
 
 ## Architecture
 
-Pynomaly follows clean architecture principles with Domain-Driven Design:
+Pynomaly follows **Clean Architecture**, **Domain-Driven Design (DDD)**, and **Hexagonal Architecture (Ports & Adapters)**:
 
 ```
 src/pynomaly/
-├── domain/          # Business logic and entities
-│   ├── entities/    # Anomaly, Detector, Dataset, DetectionResult
-│   ├── services/    # AnomalyScorer, ThresholdCalculator, etc.
-│   └── exceptions/  # Domain-specific exceptions
-├── application/     # Use cases and application services
-│   ├── use_cases/   # DetectAnomalies, TrainDetector, etc.
-│   ├── services/    # DetectionService, EnsembleService, etc.
-│   └── dto/         # Data transfer objects
-├── infrastructure/  # External adapters and implementations
-│   ├── adapters/    # PyODAdapter, SklearnAdapter
-│   ├── persistence/ # Repository implementations
-│   └── config/      # DI container and settings
-└── presentation/    # User interfaces
-    ├── api/         # FastAPI REST endpoints
-    ├── cli/         # Typer CLI commands
-    └── web/         # HTMX + Tailwind PWA
+├── domain/          # Pure business logic (no external dependencies)
+│   ├── entities/    # Anomaly, Detector, Dataset, Score, DetectionResult
+│   ├── value_objects/ # ContaminationRate, ConfidenceInterval, AnomalyScore
+│   ├── services/    # Core detection logic, scoring algorithms
+│   └── exceptions/  # Domain-specific exception hierarchy
+├── application/     # Orchestrate use cases without implementation details
+│   ├── use_cases/   # DetectAnomalies, TrainDetector, EvaluateModel, ExplainAnomaly
+│   ├── services/    # DetectionService, EnsembleService, ModelPersistenceService
+│   └── dto/         # Data transfer objects and request/response models
+├── infrastructure/  # All external integrations and adapters
+│   ├── adapters/    # PyODAdapter, TODSAdapter, PyGODAdapter, SklearnAdapter
+│   ├── persistence/ # ModelRepository, ResultRepository, data sources
+│   ├── config/      # Dependency injection container, settings
+│   └── monitoring/  # OpenTelemetry, Prometheus metrics, observability
+└── presentation/    # User interfaces and external APIs
+    ├── api/         # FastAPI REST endpoints with async support
+    ├── cli/         # Typer CLI with rich formatting
+    └── web/         # Progressive Web App
+        ├── static/  # CSS, JS, PWA assets (Tailwind, D3.js, ECharts)
+        ├── templates/ # HTMX server-rendered templates
+        └── assets/  # PWA manifest, service worker, icons
 ```
 
-## Supported Algorithms
+### Design Patterns
 
-### Statistical Methods
-- Isolation Forest (IF)
-- Local Outlier Factor (LOF)
-- One-Class SVM (OCSVM)
-- Minimum Covariance Determinant (MCD)
-- Principal Component Analysis (PCA)
+- **Repository Pattern**: Clean data access abstraction
+- **Factory Pattern**: Algorithm instantiation and configuration
+- **Strategy Pattern**: Pluggable detection algorithms
+- **Observer Pattern**: Real-time detection notifications
+- **Decorator Pattern**: Feature engineering pipeline
+- **Chain of Responsibility**: Data preprocessing and validation
 
-### Proximity-Based
-- k-Nearest Neighbors (kNN)
-- Connectivity-Based Outlier Factor (COF)
-- Clustering-Based Local Outlier Factor (CBLOF)
+## Supported Algorithm Libraries
 
-### Probabilistic
-- Gaussian Mixture Models (GMM)
-- Copula-Based Outlier Detection (COPOD)
-- Empirical Cumulative Distribution (ECOD)
+### PyOD (Python Outlier Detection)
+- **Statistical**: Isolation Forest, Local Outlier Factor, One-Class SVM, MCD, PCA
+- **Probabilistic**: GMM, COPOD, ECOD, Histogram-based, Sampling
+- **Linear**: PCA, Kernel PCA, Robust Covariance, Feature Bagging
+- **Proximity**: k-NN, Radius-based, Connectivity-based (COF), CBLOF
+- **Neural Networks**: AutoEncoder, VAE, Deep SVDD, SO-GAAL, MO-GAAL
 
-### Linear Models
-- Principal Component Analysis (PCA)
-- Kernel PCA
-- Robust Covariance
+### TODS (Time-series Outlier Detection System)
+- **Univariate**: Statistical tests, decomposition-based, prediction-based
+- **Multivariate**: Matrix profile, tensor decomposition, deep learning
+- **Streaming**: Online algorithms, change point detection, concept drift
 
-### Neural Networks
-- AutoEncoder (AE)
-- Variational AutoEncoder (VAE)
-- Adversarially Learned Anomaly Detection (ALAD)
+### PyGOD (Python Graph Outlier Detection)
+- **Node-level**: Anomalous node detection in graphs
+- **Edge-level**: Anomalous edge and subgraph detection  
+- **Graph-level**: Anomalous graph classification
+- **Deep Learning**: Graph neural networks, graph autoencoders
 
-### Ensemble Methods
-- Isolation Forest Ensemble
-- Feature Bagging
-- LSCP (Locally Selective Combination)
-- XGBOD (Extreme Gradient Boosting)
+### Scikit-learn Integration
+- **Ensemble**: Isolation Forest, One-Class SVM
+- **Neighbors**: Local Outlier Factor, Novelty detection
+- **Clustering**: DBSCAN outliers, Gaussian Mixture
+- **Covariance**: Elliptic Envelope, Robust Covariance
 
-And many more! Run `pynomaly detector algorithms` for the full list.
+### Deep Learning Frameworks
+- **PyTorch**: Custom neural architectures, GPU acceleration
+- **TensorFlow**: Distributed training, TensorBoard integration
+- **JAX**: High-performance computing, automatic differentiation
+
+### Multi-Modal Detection
+- **Tabular Data**: Traditional ML and statistical methods
+- **Time Series**: Seasonal decomposition, LSTM, Transformers  
+- **Graph Data**: GNN-based detection, network analysis
+- **Text Data**: NLP-based anomaly detection, embedding methods
+
+Run `pynomaly detector algorithms` to see all available algorithms with their parameters and performance characteristics.
 
 ## Development
 
+### Environment Setup
 ```bash
-# Install dev dependencies
-poetry install --with dev
+# Install development dependencies
+poetry install --with dev,test
 
-# Run tests
-pytest
+# Activate virtual environment
+poetry shell
 
-# Linting and formatting
-black src tests
-isort src tests
-mypy src
+# Install pre-commit hooks (optional)
+pre-commit install
+```
 
-# Build documentation
-mkdocs serve
+### Code Quality
+```bash
+# Run full test suite with coverage
+poetry run pytest --cov=pynomaly --cov-report=html
+
+# Type checking with strict mode
+poetry run mypy --strict src/
+
+# Code formatting
+poetry run black src/ tests/
+poetry run isort src/ tests/
+
+# Linting
+poetry run flake8 src/ tests/
+poetry run bandit -r src/  # Security linting
+```
+
+### Testing
+```bash
+# Unit tests only
+poetry run pytest tests/unit/
+
+# Integration tests
+poetry run pytest tests/integration/
+
+# Property-based testing
+poetry run pytest tests/property/
+
+# Performance benchmarks
+poetry run pytest benchmarks/
+```
+
+### Development Commands
+```bash
+# Start development server with auto-reload
+poetry run uvicorn pynomaly.presentation.api:app --reload
+
+# Build frontend assets
+npm run build-css  # Tailwind CSS compilation
+npm run watch-css  # Development with file watching
+
+# Run CLI in development
+poetry run python -m pynomaly.presentation.cli
 ```
 
 ## Contributing

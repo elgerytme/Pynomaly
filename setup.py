@@ -87,6 +87,14 @@ setup(
     },
     include_package_data=True,
     package_data={
-        "pynomaly": ["presentation/web/templates/**/*", "presentation/web/static/**/*"],
+        "pynomaly": [
+            "presentation/web/templates/**/*",
+            "presentation/web/static/**/*",
+            "presentation/web/static/css/*",
+            "presentation/web/static/js/*",
+            "presentation/web/static/img/*",
+            "presentation/web/static/manifest.json",
+            "presentation/web/static/sw.js",
+        ],
     },
 )
