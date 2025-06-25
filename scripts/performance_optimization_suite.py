@@ -214,7 +214,7 @@ class PerformanceOptimizer:
             # Rough estimate based on file size and sample size
             avg_row_size = file_size / len(df) if len(df) > 0 else 100
             return int(file_size / avg_row_size)
-        except:
+        except Exception:
             return 1000  # Default estimate
 
     async def optimize_memory_usage(self, dataset_path: str) -> dict[str, Any]:

@@ -311,7 +311,7 @@ def get_git_ref() -> str:
             ["git", "rev-parse", "--abbrev-ref", "HEAD"], capture_output=True, text=True
         )
         return result.stdout.strip() if result.returncode == 0 else "unknown"
-    except:
+    except Exception:
         return "unknown"
 
 
@@ -324,7 +324,7 @@ def get_git_commit() -> str:
             ["git", "rev-parse", "HEAD"], capture_output=True, text=True
         )
         return result.stdout.strip()[:8] if result.returncode == 0 else "unknown"
-    except:
+    except Exception:
         return "unknown"
 
 
