@@ -68,8 +68,8 @@ def test_security_infrastructure():
         from pynomaly.domain.exceptions import AuthenticationError, AuthorizationError
 
         # Test exception creation
-        auth_error = AuthenticationError("Test error", username="test")
-        authz_error = AuthorizationError("Access denied", user_id="123")
+        AuthenticationError("Test error", username="test")
+        AuthorizationError("Access denied", user_id="123")
 
         return True, "Security exceptions functional"
     except Exception as e:

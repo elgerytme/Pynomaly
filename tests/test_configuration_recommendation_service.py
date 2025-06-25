@@ -452,7 +452,7 @@ class TestConfigurationRecommendationService:
         # Verify feature extraction
         assert isinstance(features, list)
         assert len(features) > 0
-        assert all(isinstance(f, (int, float)) for f in features)
+        assert all(isinstance(f, int | float) for f in features)
 
         # Features should include dataset characteristics, algorithm info, etc.
         # First few features should be log-transformed dataset characteristics

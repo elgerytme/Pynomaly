@@ -145,7 +145,7 @@ class TestAuthenticationEndpoints:
 
     def test_login_success(self, client: TestClient):
         """Test successful login."""
-        with patch("pynomaly.infrastructure.auth.JWTAuthService") as mock_auth_service:
+        with patch("pynomaly.infrastructure.auth.JWTAuthService"):
             mock_service = Mock()
             mock_user = Mock()
             mock_user.id = "user123"
@@ -174,7 +174,7 @@ class TestAuthenticationEndpoints:
 
     def test_login_invalid_credentials(self, client: TestClient):
         """Test login with invalid credentials."""
-        with patch("pynomaly.infrastructure.auth.JWTAuthService") as mock_auth_service:
+        with patch("pynomaly.infrastructure.auth.JWTAuthService"):
             mock_service = Mock()
             mock_service.authenticate_user.side_effect = AuthenticationError(
                 "Invalid credentials"
@@ -195,7 +195,7 @@ class TestAuthenticationEndpoints:
 
     def test_user_registration(self, client: TestClient):
         """Test user registration."""
-        with patch("pynomaly.infrastructure.auth.JWTAuthService") as mock_auth_service:
+        with patch("pynomaly.infrastructure.auth.JWTAuthService"):
             mock_service = Mock()
             mock_user = Mock()
             mock_user.id = "new_user_123"
@@ -229,7 +229,7 @@ class TestAuthenticationEndpoints:
 
     def test_refresh_token(self, client: TestClient):
         """Test token refresh."""
-        with patch("pynomaly.infrastructure.auth.JWTAuthService") as mock_auth_service:
+        with patch("pynomaly.infrastructure.auth.JWTAuthService"):
             mock_service = Mock()
             mock_service.refresh_access_token.return_value = {
                 "access_token": "new_access_token",
@@ -260,7 +260,7 @@ class TestAuthenticationEndpoints:
 
     def test_create_api_key(self, client: TestClient, auth_headers):
         """Test API key creation."""
-        with patch("pynomaly.infrastructure.auth.JWTAuthService") as mock_auth_service:
+        with patch("pynomaly.infrastructure.auth.JWTAuthService"):
             mock_service = Mock()
             mock_service.create_api_key.return_value = "api_key_123456"
 
@@ -284,7 +284,7 @@ class TestAuthenticationEndpoints:
 
     def test_revoke_api_key(self, client: TestClient, auth_headers):
         """Test API key revocation."""
-        with patch("pynomaly.infrastructure.auth.JWTAuthService") as mock_auth_service:
+        with patch("pynomaly.infrastructure.auth.JWTAuthService"):
             mock_service = Mock()
             mock_service.revoke_api_key.return_value = True
 
@@ -831,7 +831,7 @@ class TestDatasetEndpoints:
         dataset_id = upload_response.json()["id"]
 
         # Create detector and use dataset (simulate dependency)
-        detector_response = client.post(
+        client.post(
             "/api/detectors/",
             json={"name": "Dependent Detector", "algorithm": "IsolationForest"},
             headers=auth_headers,

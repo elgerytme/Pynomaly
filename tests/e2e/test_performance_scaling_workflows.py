@@ -134,7 +134,7 @@ class TestPerformanceScalingWorkflows:
             successful_requests = [
                 r for r in request_results if r["status_code"] == 200
             ]
-            failed_requests = [r for r in request_results if r["status_code"] != 200]
+            [r for r in request_results if r["status_code"] != 200]
 
             success_rate = len(successful_requests) / len(request_results)
             avg_response_time = np.mean(
@@ -517,7 +517,7 @@ class TestPerformanceScalingWorkflows:
             batch_response = app_client.post(
                 "/api/detection/batch-optimized", json=batch_request
             )
-            batch_time = time.time() - batch_start
+            time.time() - batch_start
 
             if batch_response.status_code == 200:
                 batch_result = batch_response.json()

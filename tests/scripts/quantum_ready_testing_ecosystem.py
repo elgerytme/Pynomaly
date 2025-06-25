@@ -56,7 +56,7 @@ class QuantumTestingOracle:
 
         # Quantum probability calculation
         base_success_prob = success_history * (1 - flakiness)
-        base_failure_prob = 1 - base_success_prob
+        1 - base_success_prob
 
         # Apply quantum uncertainty principle
         uncertainty_factor = np.random.normal(0, 0.02)

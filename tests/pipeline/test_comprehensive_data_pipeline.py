@@ -343,7 +343,7 @@ class TestDataIngestionStage:
             stage = DataIngestionStage("stream_ingestion", config)
 
             # Test batch reading
-            for i, expected_batch in enumerate(mock_data_batches):
+            for _i, expected_batch in enumerate(mock_data_batches):
                 result = stage.execute_batch({})
                 assert result["data"] == expected_batch
 
@@ -783,7 +783,7 @@ class TestDataTransformationStage:
         result = stage.execute(categorical_data)
 
         # Check that categorical features are encoded
-        transformed_data = result["transformed_data"]
+        result["transformed_data"]
         # One-hot encoding should increase feature count
         assert len(result["features"]) > len(categorical_data["features"])
 

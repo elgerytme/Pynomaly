@@ -448,7 +448,7 @@ class TestAlgorithmProperties:
 
             # Anomaly rates across subsets should not vary wildly
             if len(subset_results) > 1:
-                mean_rate = np.mean(subset_results)
+                np.mean(subset_results)
                 std_rate = np.std(subset_results)
 
                 # Standard deviation should be reasonable

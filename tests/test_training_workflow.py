@@ -25,7 +25,7 @@ def test_complete_workflow():
         detector_repo = container.detector_repository()
         dataset_repo = container.dataset_repository()
         train_use_case = container.train_detector_use_case()
-        detect_use_case = container.detect_anomalies_use_case()
+        container.detect_anomalies_use_case()
 
         print("✓ Container and services created")
 

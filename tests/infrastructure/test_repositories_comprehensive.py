@@ -468,7 +468,7 @@ class TestDatabaseRepositories:
             repo = DatabaseDetectorRepository()
 
             # Test save
-            saved_detector = await repo.save(sample_detector)
+            await repo.save(sample_detector)
             mock_db_session.add.assert_called_once()
             mock_db_session.commit.assert_called()
 
@@ -867,7 +867,7 @@ class TestRepositoryErrorRecovery:
             mock_session.commit = Mock()
             mock_session.refresh = Mock()
 
-            saved_detector = await repo.save(sample_detector)
+            await repo.save(sample_detector)
 
             # Verify retry occurred
             assert connection_attempts[0] == 2

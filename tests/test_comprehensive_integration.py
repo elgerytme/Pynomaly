@@ -83,7 +83,7 @@ class TestComprehensiveIntegration:
             adapter = SklearnAdapter("IsolationForest")
 
             # 4. Detector Creation and Training
-            detector = Detector(
+            Detector(
                 id="test_detector",
                 name="Test Detector",
                 algorithm_name="IsolationForest",
@@ -160,24 +160,24 @@ class TestComprehensiveIntegration:
         # Test nested monitoring operations
         with monitor.monitor_operation(
             "outer_operation", "integration_test"
-        ) as outer_request_id:
+        ):
             # Simulate data loading with monitoring
             with monitor.monitor_operation(
                 "data_loading", "data_processor"
-            ) as load_request_id:
+            ):
                 dataset = Dataset(id="test", name="Test", data=self.test_data)
                 assert dataset.data is not None
 
             # Simulate validation with monitoring
             with monitor.monitor_operation(
                 "validation", "data_validator"
-            ) as val_request_id:
+            ):
                 validator = DataValidator()
                 result = validator.validate_dataset(dataset)
                 assert result.is_valid
 
             # Simulate detection with monitoring
-            with monitor.monitor_operation("detection", "detector") as det_request_id:
+            with monitor.monitor_operation("detection", "detector"):
                 adapter = SklearnAdapter("IsolationForest")
                 adapter.fit(self.test_data)
                 scores = adapter.predict(self.test_data)
@@ -209,8 +209,8 @@ class TestComprehensiveIntegration:
 
             # Test adapter with invalid algorithm
             try:
-                invalid_adapter = SklearnAdapter("NonExistentAlgorithm")
-                assert False, "Should have raised an exception"
+                SklearnAdapter("NonExistentAlgorithm")
+                raise AssertionError("Should have raised an exception")
             except Exception as e:
                 error_id = monitor.report_error(e, "adapter_test", "initialization")
                 assert error_id
@@ -373,7 +373,7 @@ class TestComprehensiveIntegration:
                 dataset = Dataset(id="test", name="Test", data=self.test_data)
                 adapter = SklearnAdapter("IsolationForest")
                 adapter.fit(self.test_data)
-                scores = adapter.predict(self.test_data)
+                adapter.predict(self.test_data)
                 checklist_results["core_detection"] = True
             except Exception as e:
                 checklist_results["core_detection"] = False

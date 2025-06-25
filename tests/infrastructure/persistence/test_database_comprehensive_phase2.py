@@ -82,8 +82,7 @@ class TestDatabaseManagerPhase2:
             mock_engine = Mock()
             mock_create_engine.return_value = mock_engine
 
-            manager = DatabaseManager(database_url=postgres_url)
-            engine = manager.engine
+            DatabaseManager(database_url=postgres_url)
 
             mock_create_engine.assert_called_once()
             call_args = mock_create_engine.call_args
@@ -134,8 +133,7 @@ class TestDatabaseManagerPhase2:
         postgres_url = "postgresql://user:pass@localhost:5432/testdb"
 
         with patch("sqlalchemy.create_engine") as mock_create_engine:
-            manager = DatabaseManager(database_url=postgres_url)
-            engine = manager.engine
+            DatabaseManager(database_url=postgres_url)
 
             # Verify pool configuration was called
             mock_create_engine.assert_called()
@@ -153,9 +151,8 @@ class TestDatabaseManagerPhase2:
         invalid_url = "invalid://invalid"
 
         with pytest.raises(Exception):
-            manager = DatabaseManager(database_url=invalid_url)
+            DatabaseManager(database_url=invalid_url)
             # This should fail when trying to create engine
-            engine = manager.engine
 
     def test_database_manager_concurrent_sessions(self, db_manager):
         """Test concurrent database sessions."""
@@ -699,7 +696,7 @@ class TestDatabasePerformancePhase2:
                 session.query(DetectorModel)
                 .filter(
                     DetectorModel.algorithm == "IsolationForest",
-                    DetectorModel.is_fitted == True,
+                    DetectorModel.is_fitted,
                 )
                 .all()
             )
@@ -721,8 +718,7 @@ class TestDatabasePerformancePhase2:
             mock_create_engine.return_value = mock_engine
 
             # Test with connection pooling
-            manager = DatabaseManager(database_url=postgres_url)
-            engine = manager.engine
+            DatabaseManager(database_url=postgres_url)
 
             # Verify pooling configuration
             mock_create_engine.assert_called_once()
@@ -763,7 +759,7 @@ class TestDatabasePerformancePhase2:
         with db_manager.session() as session:
             fitted_count = (
                 session.query(DetectorModel)
-                .filter(DetectorModel.is_fitted == True)
+                .filter(DetectorModel.is_fitted)
                 .count()
             )
             assert fitted_count == 20

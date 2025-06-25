@@ -214,7 +214,7 @@ class TestPyODAdapterIntegration(MLAdapterTestBase):
                 scores = adapter.decision_function(sample_data["X_test"])
                 assert len(scores) == len(sample_data["X_test"])
                 assert all(
-                    isinstance(score, (int, float, np.number)) for score in scores
+                    isinstance(score, int | float | np.number) for score in scores
                 )
 
                 # Benchmark performance

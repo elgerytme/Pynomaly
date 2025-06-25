@@ -385,7 +385,7 @@ class TestDisasterRecoveryResilienceWorkflows:
 
             assert "checksum" in checksum_result
             assert "algorithm" in checksum_result
-            original_checksum = checksum_result["checksum"]
+            checksum_result["checksum"]
 
             # Simulate data corruption detection
             corruption_check_response = app_client.post(

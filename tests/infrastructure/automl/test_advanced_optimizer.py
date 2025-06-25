@@ -212,8 +212,8 @@ class TestAdvancedHyperparameterOptimizer:
         )
 
         # Create a mock trial
-        with patch("optuna.create_study") as mock_create_study:
-            mock_study = Mock()
+        with patch("optuna.create_study"):
+            Mock()
             mock_trial = Mock()
 
             # Configure trial methods
@@ -300,7 +300,7 @@ class TestAdvancedHyperparameterOptimizer:
             config=basic_config, storage_path=temp_storage
         )
 
-        result = optimizer.optimize(
+        optimizer.optimize(
             objective_function=simple_objective_function,
             parameter_space=sample_parameter_space,
         )
@@ -554,5 +554,5 @@ class TestOptimizationInsights:
         assert isinstance(sensitivity, dict)
         # Should detect positive correlation for learning_rate and batch_size
         if sensitivity:
-            for param, sens_value in sensitivity.items():
+            for _param, sens_value in sensitivity.items():
                 assert 0.0 <= sens_value <= 1.0

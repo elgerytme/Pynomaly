@@ -148,7 +148,7 @@ def load_csv_with_encoding():
 @when("I load the data using chunked processing")
 def load_large_csv_chunked():
     """Load large CSV file using chunked processing."""
-    loader = pytest.loaders["csv_loader"]
+    pytest.loaders["csv_loader"]
 
     # Load in chunks
     chunks = []
@@ -412,7 +412,7 @@ def verify_missing_value_detection():
             "Missing values should be tracked"
         )
         assert isinstance(
-            pytest.validation_results["missing_values"], (int, np.integer)
+            pytest.validation_results["missing_values"], int | np.integer
         ), "Missing value count should be numeric"
 
 
@@ -445,5 +445,5 @@ def verify_duplicate_detection():
             "Duplicate rows should be tracked"
         )
         assert isinstance(
-            pytest.validation_results["duplicate_rows"], (int, np.integer)
+            pytest.validation_results["duplicate_rows"], int | np.integer
         ), "Duplicate count should be numeric"

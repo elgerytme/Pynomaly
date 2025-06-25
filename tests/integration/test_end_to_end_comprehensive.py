@@ -546,7 +546,7 @@ class TestCrossLayerIntegration:
         # Get services from container
         detector_service = integration_container.detector_service()
         dataset_service = integration_container.dataset_service()
-        detection_service = integration_container.detection_service()
+        integration_container.detection_service()
 
         # Create test data at domain level
         with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:

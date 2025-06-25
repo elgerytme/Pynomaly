@@ -396,13 +396,13 @@ class TestJWTAuthServiceSecurity:
     def test_permission_boundary_enforcement(self, auth_service):
         """Test strict permission boundary enforcement."""
         # Create users with different permission levels
-        admin = auth_service.create_user(
+        auth_service.create_user(
             "admin", "admin@example.com", "Password123!", roles=["admin"]
         )
-        user = auth_service.create_user(
+        auth_service.create_user(
             "user", "user@example.com", "Password123!", roles=["user"]
         )
-        viewer = auth_service.create_user(
+        auth_service.create_user(
             "viewer", "viewer@example.com", "Password123!", roles=["viewer"]
         )
 
@@ -463,7 +463,7 @@ class TestJWTAuthServiceSecurity:
     def test_brute_force_protection_simulation(self, auth_service):
         """Test brute force attack protection simulation."""
         # Simulate rapid authentication attempts
-        start_time = time.time()
+        time.time()
         failed_attempts = 0
 
         for i in range(20):
@@ -472,7 +472,7 @@ class TestJWTAuthServiceSecurity:
             except AuthenticationError:
                 failed_attempts += 1
 
-        end_time = time.time()
+        time.time()
 
         # All should fail (users don't exist)
         assert failed_attempts == 20
@@ -521,7 +521,7 @@ class TestJWTAuthServiceSecurity:
 
             # Generate token
             token_response = auth_service.create_access_token(user)
-            payload_data = auth_service.decode_token(token_response.access_token)
+            auth_service.decode_token(token_response.access_token)
 
             # XSS payload should be safely stored/retrieved
             # In production, this would be escaped/sanitized

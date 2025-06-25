@@ -265,7 +265,7 @@ class TestServiceLayerIntegration:
         """Test ensemble service with multiple detectors."""
         # Create multiple mock adapters
         adapters = []
-        for i in range(3):
+        for _i in range(3):
             adapter = MagicMock()
             adapter.predict.return_value = Mock(
                 predictions=np.random.choice([0, 1], 10).tolist(),
@@ -342,7 +342,7 @@ class TestServiceLayerIntegration:
         cache.get.return_value = result1
 
         # Second call - should hit cache
-        result2 = await service.detect_anomalies("detector_001", test_data)
+        await service.detect_anomalies("detector_001", test_data)
 
         # Verify adapter wasn't called again
         assert mock_adapter.predict.call_count == 1
@@ -586,7 +586,7 @@ class TestDataFlowIntegration:
 
         # Simulate streaming data
         async def generate_stream_data():
-            for i in range(10):
+            for _i in range(10):
                 batch = np.random.randn(20, 3).tolist()
                 yield batch
                 await asyncio.sleep(0.01)  # Simulate real-time delay
@@ -749,7 +749,7 @@ class TestCrossLayerIntegration:
 
             response = client.post("/api/v1/datasets", json=dataset_data)
             assert response.status_code == 201
-            dataset = response.json()
+            response.json()
 
             # 2. Create and train detector via API
             detector_data = {

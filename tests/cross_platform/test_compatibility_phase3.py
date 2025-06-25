@@ -33,7 +33,6 @@ class TestMultiEnvironmentCompatibilityPhase3:
     def test_python_version_compatibility(self, platform_info):
         """Test compatibility across Python versions."""
         # Define supported Python versions
-        supported_versions = ["3.11", "3.12"]
         minimum_version = (3, 11)
 
         current_version = sys.version_info
@@ -59,7 +58,7 @@ class TestMultiEnvironmentCompatibilityPhase3:
         major_minor = ".".join(python_version.split(".")[:2])
 
         if major_minor in version_features:
-            features = version_features[major_minor]
+            version_features[major_minor]
 
             # Test basic Python features availability
             if major_minor >= "3.11":
@@ -546,7 +545,7 @@ class TestDeploymentScenarioTestingPhase3:
             )
 
             cpu_limit = config["cpu_limit"]
-            assert isinstance(cpu_limit, (int, float, str)), (
+            assert isinstance(cpu_limit, int | float | str), (
                 f"CPU limit should be numeric: {cpu_limit}"
             )
 
@@ -584,7 +583,6 @@ class TestDeploymentScenarioTestingPhase3:
 
             # Test service types
             services = config["services"]
-            service_types = ["container", "serverless", "kubernetes"]
 
             # Each provider should support different deployment types
             assert len(services) >= 2, (

@@ -620,7 +620,7 @@ class TestErrorHandlingIntegration:
         """Test complete error handling pipeline."""
         from pynomaly.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
 
-        adapter = PyTorchAdapter()
+        PyTorchAdapter()
         error_handler = ErrorHandler()
         circuit_breaker = CircuitBreaker(failure_threshold=2, timeout=60)
         retry_policy = RetryPolicy(max_attempts=3)

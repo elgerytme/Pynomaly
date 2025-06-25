@@ -105,7 +105,7 @@ class TestMemoryOptimizedDataLoader:
         """Test memory usage monitoring."""
         with monitor_memory_usage("test_operation") as start_metrics:
             # Do some memory-intensive operation
-            data = pd.DataFrame(np.random.randn(1000, 10))
+            pd.DataFrame(np.random.randn(1000, 10))
 
             assert start_metrics.total_mb > 0
             assert start_metrics.process_mb > 0

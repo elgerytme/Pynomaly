@@ -51,7 +51,7 @@ class TestSDKCoreInterface:
                         df = pd.DataFrame(json_data)
                     else:
                         raise ValueError(f"Unsupported file format: {data}")
-                elif isinstance(data, (pd.DataFrame, np.ndarray)):
+                elif isinstance(data, pd.DataFrame | np.ndarray):
                     if isinstance(data, np.ndarray):
                         df = pd.DataFrame(data)
                     else:
@@ -463,8 +463,8 @@ class TestSDKCoreInterface:
             anomaly_scores = results["scores"][90:]
             normal_scores = results["scores"][:90]
 
-            avg_anomaly_score = np.mean(anomaly_scores)
-            avg_normal_score = np.mean(normal_scores)
+            np.mean(anomaly_scores)
+            np.mean(normal_scores)
 
             # This is not guaranteed but should generally be true
             # (commented out as it might be flaky)

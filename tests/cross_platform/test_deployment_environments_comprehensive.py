@@ -207,7 +207,6 @@ class TestStagingEnvironmentCompatibility:
         """Test compatibility with load testing scenarios."""
         # Simulate concurrent requests
         concurrent_requests = 50
-        request_duration = 0.1  # seconds
 
         # Test data generation for load testing
         load_test_data = []
@@ -362,7 +361,7 @@ class TestCloudDeploymentCompatibility:
     def test_aws_deployment_compatibility(self):
         """Test AWS deployment compatibility."""
         # Check for AWS environment indicators
-        aws_indicators = [
+        [
             os.getenv("AWS_REGION"),
             os.getenv("AWS_LAMBDA_FUNCTION_NAME"),
             os.getenv("AWS_EXECUTION_ENV"),
@@ -569,7 +568,7 @@ class TestContainerDeploymentCompatibility:
         }
 
         # Verify health check configuration
-        for check_type, check_config in health_checks.items():
+        for _check_type, check_config in health_checks.items():
             assert "endpoint" in check_config
             assert "expected_status" in check_config
             assert "timeout_seconds" in check_config
@@ -581,11 +580,6 @@ class TestContainerDeploymentCompatibility:
     def test_container_resource_limits(self):
         """Test container resource limit compliance."""
         # Test memory limits
-        memory_limits = {
-            "small": "256Mi",  # 256 MiB
-            "medium": "512Mi",  # 512 MiB
-            "large": "1Gi",  # 1 GiB
-        }
 
         # Convert to bytes for testing
         memory_conversions = {
@@ -701,13 +695,6 @@ class TestEdgeDeploymentCompatibility:
     def test_mobile_device_compatibility(self):
         """Test mobile device deployment compatibility."""
         # Simulate mobile device constraints
-        mobile_constraints = {
-            "battery_sensitive": True,
-            "background_processing_limited": True,
-            "storage_limited": True,
-            "cpu_thermal_throttling": True,
-            "network_cost_sensitive": True,
-        }
 
         # Test battery-efficient configuration
         battery_efficient_config = {
@@ -751,14 +738,6 @@ class TestHybridDeploymentCompatibility:
     def test_multi_cloud_compatibility(self):
         """Test multi-cloud deployment compatibility."""
         # Define multi-cloud configuration
-        multi_cloud_config = {
-            "primary_cloud": "aws",
-            "secondary_cloud": "azure",
-            "tertiary_cloud": "gcp",
-            "data_replication": True,
-            "cross_cloud_networking": True,
-            "unified_monitoring": True,
-        }
 
         # Test cloud-agnostic data formats
         cloud_agnostic_formats = ["parquet", "avro", "json", "csv"]
@@ -783,7 +762,7 @@ class TestHybridDeploymentCompatibility:
         }
 
         # Verify each cloud has required services
-        for cloud, services in cloud_adaptations.items():
+        for _cloud, services in cloud_adaptations.items():
             assert "storage" in services
             assert "compute" in services
             assert "monitoring" in services
@@ -791,22 +770,6 @@ class TestHybridDeploymentCompatibility:
     def test_on_premises_cloud_hybrid(self):
         """Test on-premises to cloud hybrid deployment."""
         # Simulate hybrid configuration
-        hybrid_config = {
-            "on_premises": {
-                "role": "data_preprocessing",
-                "sensitive_data_processing": True,
-                "local_cache": True,
-                "bandwidth_limited": True,
-            },
-            "cloud": {
-                "role": "model_training_inference",
-                "scalable_compute": True,
-                "managed_services": True,
-                "global_accessibility": True,
-            },
-            "data_flow": "bidirectional",
-            "security": "vpn_encrypted",
-        }
 
         # Test data synchronization patterns
         sync_patterns = [
@@ -837,7 +800,7 @@ class TestHybridDeploymentCompatibility:
         }
 
         # Verify all security requirements are met
-        for requirement, expected in security_requirements.items():
+        for _requirement, expected in security_requirements.items():
             if isinstance(expected, bool):
                 assert expected is True
             else:

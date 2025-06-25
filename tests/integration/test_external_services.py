@@ -341,7 +341,7 @@ class TestCloudStorageIntegration:
             ]
 
             for version_info in model_versions:
-                key = f"models/detector_123/v{version_info['version']}/model.pkl"
+                f"models/detector_123/v{version_info['version']}/model.pkl"
                 s3_client.upload_model_version(
                     "detector_123", version_info["version"], version_info["data"]
                 )

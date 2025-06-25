@@ -545,7 +545,7 @@ class TestConcurrencyPerformanceRegression:
             sequential_times = []
             for _ in range(5):
                 start_time = time.time()
-                scores = adapter.score(dataset)
+                adapter.score(dataset)
                 sequential_times.append(time.time() - start_time)
 
             avg_sequential_time = np.mean(sequential_times)
@@ -553,7 +553,7 @@ class TestConcurrencyPerformanceRegression:
             # Test concurrent inference
             def concurrent_inference():
                 start_time = time.time()
-                scores = adapter.score(dataset)
+                adapter.score(dataset)
                 return time.time() - start_time
 
             concurrent_times = []
@@ -696,7 +696,7 @@ class TestIOPerformanceRegression:
                     joblib_path = f.name
 
                 start_time = time.time()
-                loaded_joblib_adapter = joblib.load(joblib_path)
+                joblib.load(joblib_path)
                 joblib_deserialize_time = time.time() - start_time
 
                 # Joblib should be reasonably fast
@@ -784,10 +784,10 @@ class TestIOPerformanceRegression:
 
                 start_time = time.time()
                 data.to_parquet(parquet_path, index=False)
-                parquet_write_time = time.time() - start_time
+                time.time() - start_time
 
                 start_time = time.time()
-                loaded_parquet = pd.read_parquet(parquet_path)
+                pd.read_parquet(parquet_path)
                 parquet_read_time = time.time() - start_time
 
                 # Parquet should be faster than CSV for larger datasets

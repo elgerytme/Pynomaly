@@ -313,7 +313,7 @@ class ComprehensiveTestSuite:
             # Import main components
             from pynomaly.infrastructure.config.container import Container
 
-            container = Container()
+            Container()
 
             final_memory = process.memory_info().rss / 1024 / 1024  # MB
             memory_increase = final_memory - initial_memory

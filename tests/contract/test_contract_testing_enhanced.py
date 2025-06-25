@@ -705,7 +705,7 @@ class TestContractEvolution:
         }
 
         # Test version support logic
-        for version, info in version_info.items():
+        for _version, info in version_info.items():
             if info["supported"]:
                 assert not info["deprecated"] or info["end_of_life"] is not None
             else:

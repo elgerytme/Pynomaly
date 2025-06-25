@@ -276,7 +276,7 @@ class TestMultiTenantService:
     async def test_list_tenants_with_filters(self, tenant_service):
         """Test listing tenants with various filters."""
         # Create tenants with different statuses and tiers
-        tenant1 = await tenant_service.create_tenant(
+        await tenant_service.create_tenant(
             name="tenant1",
             display_name="Tenant 1",
             contact_email="1@example.com",
@@ -288,7 +288,7 @@ class TestMultiTenantService:
             contact_email="2@example.com",
             subscription_tier=SubscriptionTier.BASIC,
         )
-        tenant3 = await tenant_service.create_tenant(
+        await tenant_service.create_tenant(
             name="tenant3",
             display_name="Tenant 3",
             contact_email="3@example.com",

@@ -169,7 +169,7 @@ class TestVisualRegression:
         detectors_page.navigate()
 
         # Capture form in initial state
-        form_result = self.visual_tester.capture_and_compare(
+        self.visual_tester.capture_and_compare(
             detectors_page.page, "detectors_form_initial", full_page=False
         )
 
@@ -179,7 +179,7 @@ class TestVisualRegression:
             detectors_page.page.wait_for_timeout(1000)
 
             # Capture form with errors
-            error_result = self.visual_tester.capture_and_compare(
+            self.visual_tester.capture_and_compare(
                 detectors_page.page, "detectors_form_errors", full_page=False
             )
 
@@ -251,7 +251,7 @@ class TestVisualRegression:
 
         if charts_loaded:
             # Capture full visualizations page
-            viz_result = self.visual_tester.capture_and_compare(
+            self.visual_tester.capture_and_compare(
                 visualizations_page.page,
                 "visualizations_full",
                 threshold=0.85,  # Lower threshold for charts with dynamic data
@@ -276,7 +276,7 @@ class TestVisualRegression:
 
         if run_button.count() > 0:
             # Capture before action
-            before_result = self.visual_tester.capture_and_compare(
+            self.visual_tester.capture_and_compare(
                 page, "detection_before_action"
             )
 
@@ -284,7 +284,7 @@ class TestVisualRegression:
             run_button.click()
             page.wait_for_timeout(500)  # Quick capture during loading
 
-            loading_result = self.visual_tester.capture_and_compare(
+            self.visual_tester.capture_and_compare(
                 page, "detection_loading_state"
             )
 
@@ -298,7 +298,7 @@ class TestVisualRegression:
             detectors_page.page.wait_for_timeout(1000)
 
             # Capture error state
-            error_result = self.visual_tester.capture_and_compare(
+            self.visual_tester.capture_and_compare(
                 detectors_page.page, "form_error_state"
             )
 
@@ -342,7 +342,7 @@ class TestVisualRegression:
 
         if animated_elements.count() > 0:
             # Capture before interaction
-            before_animation = self.visual_tester.capture_and_compare(
+            self.visual_tester.capture_and_compare(
                 page, "before_animation"
             )
 
@@ -352,7 +352,7 @@ class TestVisualRegression:
             page.wait_for_timeout(1000)  # Wait for animation
 
             # Capture after animation
-            after_animation = self.visual_tester.capture_and_compare(
+            self.visual_tester.capture_and_compare(
                 page, "after_animation"
             )
 

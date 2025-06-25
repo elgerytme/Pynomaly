@@ -57,7 +57,7 @@ class TestPerformanceBenchmarks:
                 mock_iso.return_value = mock_model
 
                 with self.measure_time() as get_metrics:
-                    detector = adapter.fit(dataset)
+                    adapter.fit(dataset)
 
                 metrics = get_metrics()
                 performance_results[size_name] = {
@@ -95,7 +95,7 @@ class TestPerformanceBenchmarks:
                 mock_load.return_value = mock_model
 
                 with self.measure_time() as get_metrics:
-                    result = adapter.predict(detector, data)
+                    adapter.predict(detector, data)
 
                 metrics = get_metrics()
                 performance_results[size_name] = {
@@ -124,7 +124,7 @@ class TestPerformanceBenchmarks:
                 mock_iso.return_value = mock_model
 
                 initial_memory = psutil.Process().memory_info().rss
-                detector = adapter.fit(dataset)
+                adapter.fit(dataset)
                 peak_memory = psutil.Process().memory_info().rss
                 memory_usage = peak_memory - initial_memory
 
@@ -276,7 +276,7 @@ class TestLoadTesting:
 
             for dataset in datasets:
                 try:
-                    detector = adapter.fit(dataset)
+                    adapter.fit(dataset)
                     results.append({"dataset_id": dataset.id, "success": True})
                 except MemoryError:
                     results.append(
@@ -346,7 +346,7 @@ class TestScalabilityTesting:
         """Test horizontal scaling capabilities."""
         from pynomaly.infrastructure.distributed.load_balancer import LoadBalancer
 
-        load_balancer = Mock(spec=LoadBalancer)
+        Mock(spec=LoadBalancer)
 
         # Simulate multiple worker nodes
         worker_nodes = []
@@ -384,7 +384,7 @@ class TestScalabilityTesting:
         """Test database connection pool under stress."""
         from pynomaly.infrastructure.persistence.database import DatabaseManager
 
-        db_manager = Mock(spec=DatabaseManager)
+        Mock(spec=DatabaseManager)
 
         def database_operation(operation_id):
             try:
@@ -422,7 +422,7 @@ class TestScalabilityTesting:
         # Streaming infrastructure removed for simplification
         pytest.skip("Streaming functionality removed in Phase 1 simplification")
 
-        processor = Mock()
+        Mock()
 
         # Generate streaming data
         def data_generator():

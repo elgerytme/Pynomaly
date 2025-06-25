@@ -263,13 +263,11 @@ class TestPythonVersionCompatibility:
         assert result == (True, "success")
 
         # Test newer type hint syntax (Python 3.10+)
-        if sys.version_info >= (3, 10):
-            # Test union operator syntax
-            def new_syntax_function(value: int | str) -> bool:
-                return isinstance(value, (int, str))
+        def new_syntax_function(value: int | str) -> bool:
+            return isinstance(value, int | str)
 
-            assert new_syntax_function(42)
-            assert new_syntax_function("test")
+        assert new_syntax_function(42)
+        assert new_syntax_function("test")
 
     def test_async_compatibility(self):
         """Test async/await compatibility."""
@@ -461,7 +459,7 @@ class TestContainerCompatibility:
         # Get system resource information
         try:
             memory_info = psutil.virtual_memory()
-            cpu_count = psutil.cpu_count()
+            psutil.cpu_count()
 
             # Test with limited resources simulation
             if memory_info.available < 1024 * 1024 * 1024:  # Less than 1GB

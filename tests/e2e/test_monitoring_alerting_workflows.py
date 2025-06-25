@@ -523,7 +523,7 @@ class TestMonitoringAlertingWorkflows:
 
                 # Check that drift detection becomes more pronounced over time
                 drift_scores = drift_analysis_result["drift_scores"]
-                for method, score in drift_scores.items():
+                for _method, score in drift_scores.items():
                     assert 0 <= score <= 1  # Scores should be normalized
 
             # Verify drift progression

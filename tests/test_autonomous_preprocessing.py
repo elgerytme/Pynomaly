@@ -137,7 +137,7 @@ class TestAutonomousQualityAnalyzer:
             }
         )
 
-        dataset = Dataset(id="test", name="test", data=data)
+        Dataset(id="test", name="test", data=data)
         analyzer = AutonomousQualityAnalyzer()
 
         missing_issue = analyzer._check_missing_values(data)
@@ -532,7 +532,7 @@ class TestIntegrationWorkflows:
             assert "applied_steps" in final_profile.preprocessing_metadata
 
             # Data should be improved
-            original_issues = len(final_profile.quality_report.issues)
+            len(final_profile.quality_report.issues)
             # Note: In a real scenario, we'd compare before/after quality scores
 
     def test_preprocessing_strategy_selection(self):

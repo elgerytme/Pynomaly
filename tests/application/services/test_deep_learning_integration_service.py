@@ -50,7 +50,7 @@ class TestDeepLearningIntegrationService:
         assert isinstance(frameworks, dict)
 
         # Check that detected frameworks have required structure
-        for name, framework_info in frameworks.items():
+        for _name, framework_info in frameworks.items():
             assert isinstance(framework_info, DLFrameworkInfo)
             assert framework_info.name
             assert isinstance(framework_info.algorithms, list)

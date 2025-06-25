@@ -647,12 +647,12 @@ class TestDatasetEndpointsIntegration:
         assert update_response.status_code in [200, 404]
 
         # 5. Get statistics and preview
-        stats_response = authenticated_client.get(f"/datasets/{dataset_id}/statistics")
-        preview_response = authenticated_client.get(f"/datasets/{dataset_id}/preview")
+        authenticated_client.get(f"/datasets/{dataset_id}/statistics")
+        authenticated_client.get(f"/datasets/{dataset_id}/preview")
 
         # 6. Export dataset
         export_data = {"format": "csv"}
-        export_response = authenticated_client.post(
+        authenticated_client.post(
             f"/datasets/{dataset_id}/export", json=export_data
         )
 

@@ -69,7 +69,7 @@ HTML_TEMPLATE = """
     <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div class="fade-in" id="main-content">
             <h1 class="text-3xl font-bold text-gray-900 mb-8" id="page-title">{page_title}</h1>
-            
+
             {content}
         </div>
     </main>
@@ -116,7 +116,7 @@ DASHBOARD_CONTENT = """
             </div>
         </div>
     </div>
-    
+
     <div class="bg-white overflow-hidden shadow rounded-lg">
         <div class="p-5">
             <div class="flex items-center">
@@ -134,7 +134,7 @@ DASHBOARD_CONTENT = """
             </div>
         </div>
     </div>
-    
+
     <div class="bg-white overflow-hidden shadow rounded-lg">
         <div class="p-5">
             <div class="flex items-center">
@@ -183,7 +183,7 @@ DASHBOARD_CONTENT = """
         🚀 Quick Detection
     </button>
     <button class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors" id="upload-dataset-btn">
-        📊 Upload Dataset  
+        📊 Upload Dataset
     </button>
     <button class="bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-700 transition-colors" id="autonomous-mode-btn">
         🤖 Autonomous Mode

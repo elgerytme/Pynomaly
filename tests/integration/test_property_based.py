@@ -604,7 +604,7 @@ class TestPropertyBasedDataValidation:
             csv_path = f.name
 
         try:
-            dataset_entity = Dataset(
+            Dataset(
                 id="data_quality_test",
                 name="Data Quality Test Dataset",
                 file_path=csv_path,

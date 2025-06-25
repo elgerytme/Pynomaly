@@ -390,7 +390,7 @@ class TestPipeline:
     def test_pipeline_versioning(self, sample_pipeline):
         """Test pipeline versioning."""
         # Initial version
-        initial_config = sample_pipeline.get_configuration()
+        sample_pipeline.get_configuration()
         initial_version = sample_pipeline.create_version(
             "v1.0.0", "Initial pipeline version"
         )
@@ -537,7 +537,7 @@ class TestAlert:
         assert "webhook" in notification_results
 
         # All channels should be attempted
-        for channel, result in notification_results.items():
+        for _channel, result in notification_results.items():
             assert "status" in result
             assert "timestamp" in result
 

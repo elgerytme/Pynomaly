@@ -123,17 +123,17 @@ class TestUXFlows:
         detectors_page.navigate()
 
         # Step 1: Try to submit empty form
-        form_errors_before = detectors_page.get_form_errors()
+        detectors_page.get_form_errors()
 
         if detectors_page.page.locator(detectors_page.CREATE_BUTTON).count() > 0:
             detectors_page.click_element(detectors_page.CREATE_BUTTON)
             detectors_page.page.wait_for_timeout(1000)
 
             # Step 2: Check if validation errors are shown
-            form_errors_after = detectors_page.get_form_errors()
+            detectors_page.get_form_errors()
 
             # Should show some form of validation feedback
-            validation_test = detectors_page.test_form_validation()
+            detectors_page.test_form_validation()
 
             # Step 3: Fill form partially and test incremental validation
             if (
@@ -149,7 +149,7 @@ class TestUXFlows:
                 detectors_page.page.wait_for_timeout(1000)
 
                 # Validation should improve or change
-                partial_errors = detectors_page.get_form_errors()
+                detectors_page.get_form_errors()
 
         detectors_page.take_screenshot("form_validation_flow")
 
@@ -158,7 +158,7 @@ class TestUXFlows:
         dashboard_page.navigate()
 
         # Step 1: Check initial state
-        initial_results = dashboard_page.get_recent_results()
+        dashboard_page.get_recent_results()
 
         # Step 2: Test refresh functionality
         if dashboard_page.page.locator(dashboard_page.REFRESH_BUTTON).count() > 0:
@@ -186,7 +186,7 @@ class TestUXFlows:
             detection_page.page.wait_for_timeout(2000)
 
             # Step 2: Check if error is properly displayed
-            error_messages = detection_page.page.locator(
+            detection_page.page.locator(
                 ".alert-error, .error, [class*='error'], [role='alert']"
             )
 
@@ -222,7 +222,7 @@ class TestUXFlows:
             assert len(charts) > 0, "Should have available charts"
 
             # Step 3: Test chart interactivity
-            interactivity = visualizations_page.test_chart_interactivity()
+            visualizations_page.test_chart_interactivity()
 
             # Step 4: Test chart responsiveness
             responsiveness = visualizations_page.test_chart_responsiveness()
@@ -243,7 +243,7 @@ class TestUXFlows:
         page.keyboard.press("Tab")
 
         # Get focused element
-        focused_element = page.evaluate("() => document.activeElement.tagName")
+        page.evaluate("() => document.activeElement.tagName")
 
         # Should be able to focus on interactive elements
         interactive_elements = ["A", "BUTTON", "INPUT", "SELECT", "TEXTAREA"]
@@ -325,7 +325,7 @@ class TestUXFlows:
                 )
 
                 # Should provide some form of feedback
-                feedback_provided = (
+                (
                     updated_messages.count() > message_areas.count()
                     or loading_indicators.count() > 0
                 )

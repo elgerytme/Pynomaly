@@ -616,7 +616,7 @@ class TestExplainabilityIntegration:
 
         # Generate multiple explanations
         explanations = []
-        for i in range(5):
+        for _i in range(5):
             request = ExplanationRequestDTO(
                 detector_id=detector.id,
                 anomaly_data=anomaly_data,

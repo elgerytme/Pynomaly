@@ -502,7 +502,7 @@ class TestInputSanitizer:
         start_time = time.time()
 
         try:
-            result = sanitizer.sanitize(redos_pattern)
+            sanitizer.sanitize(redos_pattern)
             execution_time = time.time() - start_time
 
             # Should complete within 1 second

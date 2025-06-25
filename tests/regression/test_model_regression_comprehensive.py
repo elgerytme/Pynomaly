@@ -416,7 +416,7 @@ class TestModelParameterRobustness:
             # Performance should generally improve or stabilize with more estimators
             # (or at least not get significantly worse)
             best_performance = max(performance_scores)
-            worst_performance = min(performance_scores)
+            min(performance_scores)
 
             # Should show some ability to distinguish anomalies
             assert best_performance > 0.01
@@ -688,7 +688,7 @@ class TestModelOutputStability:
             # Run multiple times with same parameters
             results = []
 
-            for run in range(3):
+            for _run in range(3):
                 adapter = SklearnAdapter(
                     algorithm_name="IsolationForest",
                     parameters={

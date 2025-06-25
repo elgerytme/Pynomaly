@@ -35,12 +35,12 @@ class TestDependencyInjectionIntegration:
 
         except Exception as e:
             # If container creation fails, it should fail gracefully
-            assert isinstance(e, (ImportError, AttributeError, ValueError))
+            assert isinstance(e, ImportError | AttributeError | ValueError)
 
     def test_service_registration_integration(self):
         """Test service registration in container."""
         try:
-            container = create_container()
+            create_container()
 
             # Test service registration (mock implementation)
             # This would depend on the actual DI framework used
@@ -53,7 +53,7 @@ class TestDependencyInjectionIntegration:
             }
 
             # Verify services can be registered and retrieved
-            for service_name, service_instance in services.items():
+            for _service_name, service_instance in services.items():
                 # In real implementation, this would use container.register()
                 # For now, we verify the concept works
                 assert service_instance is not None
@@ -428,10 +428,10 @@ class TestMonitoringIntegration:
         }
 
         # Test metrics validation
-        for category, category_metrics in metrics.items():
+        for _category, category_metrics in metrics.items():
             for metric_name, metric_value in category_metrics.items():
                 assert metric_value is not None
-                assert isinstance(metric_value, (int, float))
+                assert isinstance(metric_value, int | float)
 
                 # Validate reasonable ranges
                 if "percent" in metric_name:

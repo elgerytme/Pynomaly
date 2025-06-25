@@ -30,7 +30,7 @@ class TestAccessibility:
         assert semantic_elements["nav"].count() > 0, "Page should have <nav> element"
 
         # Check for proper heading hierarchy
-        headings = page.locator("h1, h2, h3, h4, h5, h6")
+        page.locator("h1, h2, h3, h4, h5, h6")
         h1_count = page.locator("h1").count()
 
         assert h1_count >= 1, "Page should have at least one h1 element"
@@ -170,7 +170,7 @@ class TestAccessibility:
                     document.querySelector('button'),
                     document.querySelector('a')
                 ].filter(el => el !== null);
-                
+
                 return elements.map(el => {
                     const styles = window.getComputedStyle(el);
                     return {
@@ -227,7 +227,7 @@ class TestAccessibility:
             )
 
             # Should have some form of focus indicator
-            has_focus_indicator = (
+            (
                 focus_styles["outline"] != "none"
                 or "0px" not in focus_styles["outlineWidth"]
                 or focus_styles["boxShadow"] != "none"
@@ -241,10 +241,10 @@ class TestAccessibility:
         page.wait_for_load_state("networkidle")
 
         # Check for screen reader only content
-        sr_only = page.locator(".sr-only, .screen-reader-only, .visually-hidden")
+        page.locator(".sr-only, .screen-reader-only, .visually-hidden")
 
         # Check for proper use of aria-hidden
-        decorative_elements = page.locator("[aria-hidden='true']")
+        page.locator("[aria-hidden='true']")
 
         # Decorative images should have aria-hidden or empty alt
         images = page.locator("img")
@@ -286,10 +286,10 @@ class TestAccessibility:
                 assert legend.count() > 0, f"Fieldset {i} should have legend"
 
             # Check required field indicators
-            required_fields = form.locator("[required], [aria-required='true']")
+            form.locator("[required], [aria-required='true']")
 
             # Check error message associations
-            error_messages = form.locator("[role='alert'], .error, .invalid")
+            form.locator("[role='alert'], .error, .invalid")
 
             # Check form submission feedback
             submit_buttons = form.locator("button[type='submit'], input[type='submit']")
@@ -325,7 +325,7 @@ class TestAccessibility:
             aria_labelledby = table.get_attribute("aria-labelledby")
 
             # Table should have some form of description
-            has_description = (
+            (
                 caption.count() > 0
                 or summary is not None
                 or aria_label is not None
@@ -335,7 +335,7 @@ class TestAccessibility:
             # For data tables, headers should have scope
             if headers.count() > 0:
                 first_header = headers.first
-                scope = first_header.get_attribute("scope")
+                first_header.get_attribute("scope")
                 # Note: scope is helpful but not always required
 
     def test_language_attributes(self, page: Page):
@@ -407,14 +407,10 @@ class TestAccessibility:
                 )
 
                 # Check for proper ARIA attributes
-                role = error.get_attribute("role")
-                aria_live = error.get_attribute("aria-live")
+                error.get_attribute("role")
+                error.get_attribute("aria-live")
 
                 # Should have appropriate role or aria-live
-                is_accessible_error = role == "alert" or aria_live in [
-                    "polite",
-                    "assertive",
-                ]
 
     def generate_accessibility_report(self, page: Page) -> dict[str, Any]:
         """Generate comprehensive accessibility report."""

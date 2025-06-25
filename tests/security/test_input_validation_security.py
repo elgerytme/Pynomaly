@@ -303,7 +303,7 @@ class TestInputValidationSecurity:
         # Create deeply nested JSON
         deep_json = {}
         current = deep_json
-        for i in range(1000):  # Very deep nesting
+        for _i in range(1000):  # Very deep nesting
             current["nested"] = {}
             current = current["nested"]
 
@@ -594,12 +594,12 @@ class TestInputValidationSecurity:
         user_ip = "192.168.1.100"
 
         # First few requests should pass
-        for i in range(5):
+        for _i in range(5):
             result = validator.check_validation_rate_limit(user_ip)
             assert result is True
 
         # Subsequent requests should be rate limited
-        for i in range(5):
+        for _i in range(5):
             with pytest.raises((ValidationError, DomainValidationError)):
                 validator.check_validation_rate_limit(user_ip)
 

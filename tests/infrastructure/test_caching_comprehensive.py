@@ -143,7 +143,7 @@ class TestRedisCache:
                 mock_redis_client.get.return_value = json.dumps(serialized_value)
 
                 # Test getting complex data
-                retrieved_value = cache.get(key)
+                cache.get(key)
 
                 # Verify set was called
                 mock_redis_client.set.assert_called()
@@ -430,7 +430,7 @@ class TestCacheManager:
             mock_redis_client.get.side_effect = Exception("Redis down")
 
             # Should fall back to memory cache
-            result = manager.get("test_key")
+            manager.get("test_key")
             # Would be None since we haven't actually set in memory cache in this mock
 
     def test_cache_manager_cache_warming(self, mock_redis_client):
@@ -989,7 +989,7 @@ class TestDistributedCache:
             )
 
             # Should failover to working node
-            result = cache.get("test_key")
+            cache.get("test_key")
 
             # Verify failover occurred
             working_client.get.assert_called()

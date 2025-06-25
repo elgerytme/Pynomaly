@@ -127,10 +127,10 @@ def test_data_loaders():
         print("✅ JSON loader import successful")
 
         # Test creating instances (without loading data)
-        csv_loader = CSVLoader()
+        CSVLoader()
         print("✅ CSV loader instantiation successful")
 
-        json_loader = JSONLoader()
+        JSONLoader()
         print("✅ JSON loader instantiation successful")
 
         return True

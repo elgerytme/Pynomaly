@@ -68,7 +68,7 @@ class TestSklearnAdapterIntegration:
     def test_isolation_forest_adapter_integration(self, sample_datasets):
         """Test IsolationForest adapter integration."""
         try:
-            for dataset_name, dataset in sample_datasets.items():
+            for _dataset_name, dataset in sample_datasets.items():
                 adapter = SklearnAdapter(
                     algorithm_name="IsolationForest",
                     parameters={
@@ -138,7 +138,7 @@ class TestSklearnAdapterIntegration:
                 if k in ["normal", "small", "with_anomalies"]
             }
 
-            for dataset_name, dataset in test_datasets.items():
+            for _dataset_name, dataset in test_datasets.items():
                 adapter = SklearnAdapter(
                     algorithm_name="LocalOutlierFactor",
                     parameters={
@@ -182,7 +182,7 @@ class TestSklearnAdapterIntegration:
                 k: v for k, v in sample_datasets.items() if k in ["normal", "small"]
             }
 
-            for dataset_name, dataset in test_datasets.items():
+            for _dataset_name, dataset in test_datasets.items():
                 adapter = SklearnAdapter(
                     algorithm_name="OneClassSVM",
                     parameters={"gamma": "scale", "nu": 0.1},
@@ -351,7 +351,7 @@ class TestCrossAdapterCompatibility:
             assert len(adapter_results) > 0
 
             # Cross-adapter validation
-            for algorithm, results in adapter_results.items():
+            for _algorithm, results in adapter_results.items():
                 # All algorithms should detect some anomalies
                 assert results["contamination_rate"] > 0.01
                 assert results["contamination_rate"] < 0.5

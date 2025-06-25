@@ -302,12 +302,12 @@ class TestLoadTestingPhase3:
                 for size, dataset in test_datasets.items():
                     # Test training performance
                     train_start = time.time()
-                    train_result = algorithm.fit(dataset)
+                    algorithm.fit(dataset)
                     train_time = time.time() - train_start
 
                     # Test prediction performance
                     pred_start = time.time()
-                    predictions = algorithm.predict(dataset[:100])  # Predict on subset
+                    algorithm.predict(dataset[:100])  # Predict on subset
                     pred_time = time.time() - pred_start
 
                     algo_results["training"][size] = train_time
@@ -387,7 +387,7 @@ class TestLoadTestingPhase3:
             )
 
         # Memory usage should scale reasonably with data size
-        memory_deltas = [
+        [
             profile["memory_delta_mb"] for profile in memory_profiles.values()
         ]
         execution_times = [

@@ -516,7 +516,7 @@ class TestCICDPipeline:
                 }.get(step, 5.0)
 
                 # Most steps succeed, but some might have issues in different environments
-                success_probability = {
+                {
                     "development": 0.95,
                     "staging": 0.90,
                     "production": 0.85,
@@ -813,8 +813,8 @@ class TestCICDPipeline:
         ci = mock_ci_environment
 
         # Run some pipeline operations to generate metrics
-        build_result = ci.run_build_stage("metrics_test", ["python -m build"])
-        test_result = ci.run_test_matrix(["3.11"])
+        ci.run_build_stage("metrics_test", ["python -m build"])
+        ci.run_test_matrix(["3.11"])
 
         # Get pipeline metrics
         metrics = ci.get_pipeline_metrics()
@@ -830,7 +830,7 @@ class TestCICDPipeline:
 
         for metric in expected_metrics:
             assert metric in metrics
-            assert isinstance(metrics[metric], (int, float))
+            assert isinstance(metrics[metric], int | float)
 
         # Verify reasonable metric values
         assert 0 <= metrics["test_success_rate"] <= 1
@@ -914,10 +914,10 @@ class TestCICDPipeline:
         matrix_result = ci.run_test_matrix()
         end_time = time.time()
 
-        total_duration = end_time - start_time
+        end_time - start_time
 
         # In a real parallel execution, total time should be less than sum of individual times
-        sum_of_individual_durations = sum(
+        sum(
             result["total_duration"]
             for result in matrix_result["matrix_results"].values()
         )

@@ -174,7 +174,7 @@ class MutationTester:
         killed_mutants = 0
 
         # Test each mutant
-        for i, mutant_code in enumerate(all_mutants):
+        for _i, mutant_code in enumerate(all_mutants):
             try:
                 # Execute the test with the mutant
                 mutant_killed = self._test_mutant(mutant_code, test_function)
@@ -641,7 +641,6 @@ class TestMutationQualityMetrics:
     def test_equivalent_mutant_detection(self):
         """Test detection of equivalent mutants."""
         # Equivalent mutants are mutations that don't change program behavior
-        original_code = "x = a + 0"  # Adding 0 doesn't change value
 
         # This mutant would be equivalent: x = a - 0
         # This mutant would not be equivalent: x = a + 1
@@ -660,11 +659,11 @@ class TestMutationQualityMetrics:
         ]
 
         # Test that we can identify equivalent vs non-equivalent mutations
-        for original, mutant in equivalent_mutations:
+        for _original, _mutant in equivalent_mutations:
             # In a real implementation, we'd need sophisticated analysis
             # to detect these automatically
             assert True  # Placeholder for equivalent mutant detection
 
-        for original, mutant in non_equivalent_mutations:
+        for _original, _mutant in non_equivalent_mutations:
             # These should be detected as non-equivalent
             assert True  # Placeholder for non-equivalent mutant detection

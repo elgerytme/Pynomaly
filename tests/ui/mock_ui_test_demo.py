@@ -85,7 +85,7 @@ def create_mock_ui():
             <!-- Dashboard Header -->
             <div class="fade-in">
                 <h1 class="text-3xl font-bold text-gray-900 mb-8">Dashboard</h1>
-                
+
                 <!-- Statistics Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div class="bg-white overflow-hidden shadow rounded-lg">
@@ -105,7 +105,7 @@ def create_mock_ui():
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="bg-white overflow-hidden shadow rounded-lg">
                         <div class="p-5">
                             <div class="flex items-center">
@@ -123,7 +123,7 @@ def create_mock_ui():
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="bg-white overflow-hidden shadow rounded-lg">
                         <div class="p-5">
                             <div class="flex items-center">
@@ -163,7 +163,7 @@ def create_mock_ui():
                                 </div>
                             </div>
                             <div class="mt-2 text-sm text-gray-500">
-                                <span>Dataset: financial_data.csv</span> • 
+                                <span>Dataset: financial_data.csv</span> •
                                 <span>2024-06-24 14:30</span>
                             </div>
                         </li>
@@ -180,7 +180,7 @@ def create_mock_ui():
                                 </div>
                             </div>
                             <div class="mt-2 text-sm text-gray-500">
-                                <span>Dataset: network_logs.csv</span> • 
+                                <span>Dataset: network_logs.csv</span> •
                                 <span>2024-06-24 13:45</span>
                             </div>
                         </li>
@@ -197,7 +197,7 @@ def create_mock_ui():
                                 </div>
                             </div>
                             <div class="mt-2 text-sm text-gray-500">
-                                <span>Dataset: sensor_data.csv</span> • 
+                                <span>Dataset: sensor_data.csv</span> •
                                 <span>2024-06-24 15:00</span>
                             </div>
                         </li>
@@ -210,7 +210,7 @@ def create_mock_ui():
                         🚀 Quick Detection
                     </button>
                     <button class="bg-secondary text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors">
-                        📊 Upload Dataset  
+                        📊 Upload Dataset
                     </button>
                     <button class="bg-accent text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition-colors">
                         🤖 Autonomous Mode

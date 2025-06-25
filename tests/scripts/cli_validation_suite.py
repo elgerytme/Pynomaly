@@ -332,8 +332,8 @@ class CLIValidationSuite:
         total_tests = 0
         passed_tests = 0
 
-        for category, tests in self.results.items():
-            for test_name, result in tests.items():
+        for _category, tests in self.results.items():
+            for _test_name, result in tests.items():
                 if isinstance(result, bool):
                     total_tests += 1
                     if result:

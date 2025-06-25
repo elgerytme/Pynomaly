@@ -145,7 +145,7 @@ class TestDatabaseManager:
         mock_pool.acquire.side_effect = TimeoutError("Pool exhausted")
 
         with pytest.raises(DatabaseError, match="Connection pool exhausted"):
-            async with db_manager.get_connection() as conn:
+            async with db_manager.get_connection():
                 pass
 
     @pytest.mark.asyncio
@@ -169,7 +169,7 @@ class TestDatabaseManager:
         mock_pool.acquire.side_effect = Exception("Connection error")
 
         with pytest.raises(DatabaseError):
-            async with db_manager.get_connection() as conn:
+            async with db_manager.get_connection():
                 pass
 
     # Query Execution Tests
@@ -381,7 +381,7 @@ class TestDatabaseManager:
 
         with (
             patch.object(db_manager.cache, "get") as mock_cache_get,
-            patch.object(db_manager.cache, "set") as mock_cache_set,
+            patch.object(db_manager.cache, "set"),
         ):
             mock_cache_get.return_value = cached_result
 
@@ -555,7 +555,7 @@ class TestDatabaseIntegration:
         with patch.object(db_manager, "execute_query") as mock_execute:
             # Create
             mock_execute.return_value = {"id": 1}
-            dataset_id = await db_manager.execute_query(
+            await db_manager.execute_query(
                 "INSERT INTO datasets (name, data) VALUES ($1, $2) RETURNING id",
                 "test_dataset",
                 '{"features": ["a", "b"]}',
@@ -563,19 +563,19 @@ class TestDatabaseIntegration:
 
             # Read
             mock_execute.return_value = [{"id": 1, "name": "test_dataset"}]
-            dataset = await db_manager.execute_query(
+            await db_manager.execute_query(
                 "SELECT * FROM datasets WHERE id = $1", 1
             )
 
             # Update
             mock_execute.return_value = 1
-            updated_rows = await db_manager.execute_query(
+            await db_manager.execute_query(
                 "UPDATE datasets SET name = $1 WHERE id = $2", "updated_dataset", 1
             )
 
             # Delete
             mock_execute.return_value = 1
-            deleted_rows = await db_manager.execute_query(
+            await db_manager.execute_query(
                 "DELETE FROM datasets WHERE id = $1", 1
             )
 

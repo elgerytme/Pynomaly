@@ -207,7 +207,7 @@ class TestWebAppAutomation:
         page.goto("http://localhost:8000/web/")
 
         # Check for service worker registration
-        sw_registration = page.evaluate("""
+        page.evaluate("""
             navigator.serviceWorker.getRegistrations().then(registrations => registrations.length > 0)
         """)
 

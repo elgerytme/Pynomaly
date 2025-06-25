@@ -206,7 +206,7 @@ class TestDetectionService:
         with pytest.raises(
             Exception
         ):  # InvalidDataError should be raised from Dataset constructor
-            invalid_dataset = Dataset(
+            Dataset(
                 name="invalid",
                 data=pd.DataFrame(),  # Empty DataFrame
             )
@@ -426,7 +426,7 @@ class TestModelPersistenceService:
 
         with (
             patch("pickle.load") as mock_load,
-            patch("builtins.open", create=True) as mock_open,
+            patch("builtins.open", create=True),
         ):
             mock_load.return_value = sample_detector
 

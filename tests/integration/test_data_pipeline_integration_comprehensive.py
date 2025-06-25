@@ -416,7 +416,7 @@ class TestDataPreprocessingPipelineIntegration:
 
         # Identify constant or low variance features
         variances = clean_data.var()
-        low_variance_cols = variances[variances < 0.01].index.tolist()
+        variances[variances < 0.01].index.tolist()
         high_variance_cols = variances[variances >= 0.01].index.tolist()
 
         # Test with all features

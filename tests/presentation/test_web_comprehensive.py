@@ -659,7 +659,7 @@ class TestWebUIAuthentication:
                 "user": {"id": "user123", "username": "testuser"},
             }
 
-            login_response = web_client.post(
+            web_client.post(
                 "/auth/login", data={"username": "testuser", "password": "testpass"}
             )
 
@@ -943,7 +943,7 @@ class TestWebUIIntegration:
             }
 
             # Test multiple rapid requests to simulate real-time updates
-            for i in range(5):
+            for _i in range(5):
                 response = web_client.get(
                     "/htmx/live-updates", headers={"HX-Request": "true"}
                 )
@@ -956,13 +956,7 @@ class TestWebUIIntegration:
         assert response.status_code == 200
 
         # Check for compatibility headers
-        headers = response.headers
         # These might be set by the server
-        expected_headers = [
-            "x-content-type-options",
-            "x-frame-options",
-            "content-security-policy",
-        ]
 
         # At least some security headers should be present
         # (depending on server configuration)

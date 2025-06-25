@@ -291,7 +291,7 @@ class TestEnhancedModelPersistenceService:
         """Test listing model versions with filters."""
         version = SemanticVersion(1, 0, 0)
 
-        model_version = await persistence_service.serialize_model(
+        await persistence_service.serialize_model(
             detector=mock_detector,
             version=version,
             performance_metrics=sample_performance_metrics,
@@ -320,7 +320,7 @@ class TestEnhancedModelPersistenceService:
         """Test getting specific model version."""
         version = SemanticVersion(1, 2, 3)
 
-        created_version = await persistence_service.serialize_model(
+        await persistence_service.serialize_model(
             detector=mock_detector,
             version=version,
             performance_metrics=sample_performance_metrics,

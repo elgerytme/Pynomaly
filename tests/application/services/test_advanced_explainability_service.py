@@ -371,7 +371,7 @@ class TestAdvancedExplainabilityService:
 
             assert isinstance(indices, list)
             assert len(indices) <= n_samples
-            assert all(isinstance(idx, (int, np.integer)) for idx in indices)
+            assert all(isinstance(idx, int | np.integer) for idx in indices)
 
     def test_select_representative_samples_fallback(self):
         """Test representative sample selection fallback."""

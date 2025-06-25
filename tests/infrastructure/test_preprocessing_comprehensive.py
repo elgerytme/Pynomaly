@@ -733,7 +733,7 @@ class TestPreprocessingPipeline:
         pipeline = PreprocessingPipeline()
         pipeline.add_step("clean", "handle_missing_values", {"strategy": "fill_mean"})
 
-        transformed = pipeline.fit_transform(sample_dataset)
+        pipeline.fit_transform(sample_dataset)
 
         # Should have metadata about transformations
         assert len(pipeline.metadata) > 0

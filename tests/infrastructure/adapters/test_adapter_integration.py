@@ -245,9 +245,9 @@ class TestCrossAdapterCompatibility:
             # Verify data types
             assert isinstance(result.anomalies, list)
             assert isinstance(result.scores, list)
-            assert isinstance(result.labels, (list, np.ndarray))
-            assert isinstance(result.threshold, (int, float))
-            assert isinstance(result.execution_time_ms, (int, float))
+            assert isinstance(result.labels, list | np.ndarray)
+            assert isinstance(result.threshold, int | float)
+            assert isinstance(result.execution_time_ms, int | float)
             assert isinstance(result.metadata, dict)
 
     def test_adapter_score_normalization(self, standardized_dataset):
@@ -484,7 +484,7 @@ class TestAdapterPerformanceCharacteristics:
             assert "training_features" in adapter.metadata
             assert adapter.metadata["training_samples"] == 100
             assert adapter.metadata["training_features"] == 8
-            assert isinstance(adapter.metadata["training_time_ms"], (int, float))
+            assert isinstance(adapter.metadata["training_time_ms"], int | float)
 
     def test_adapter_scalability_indicators(self):
         """Test adapter scalability indicators and complexity information."""
@@ -572,7 +572,7 @@ class TestAdapterEnsembleCompatibility:
         # Mock training and prediction for ensemble
         ensemble_results = []
 
-        for i, adapter in enumerate(adapters):
+        for _i, adapter in enumerate(adapters):
             # Mock model behavior
             mock_model = Mock()
             mock_model.fit.return_value = None

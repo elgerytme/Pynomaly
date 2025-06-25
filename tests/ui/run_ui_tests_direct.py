@@ -87,7 +87,7 @@ class UITestRunner:
             ]
 
             nav_success = 0
-            for url_path, expected_title in pages:
+            for url_path, _expected_title in pages:
                 try:
                     page.goto(f"{self.base_url}{url_path}")
                     page.wait_for_load_state("networkidle")

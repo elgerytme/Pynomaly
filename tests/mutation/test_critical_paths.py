@@ -327,7 +327,7 @@ class TestMutationSensitiveEdgeCases:
 
         # Test with dataset bounds
         features = np.random.random((10, 2))
-        dataset = Dataset(name="test", features=features)
+        Dataset(name="test", features=features)
 
         # Valid indices
         for i in range(len(features)):

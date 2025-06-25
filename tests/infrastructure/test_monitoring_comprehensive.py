@@ -412,7 +412,7 @@ class TestMetricsCollector:
         exported_metrics = sample_metrics_collector.export_metrics()
 
         # Verify export
-        assert isinstance(exported_metrics, (str, dict))
+        assert isinstance(exported_metrics, str | dict)
         mock_registry.collect.assert_called()
 
 
@@ -667,7 +667,7 @@ class TestHealthCheckManager:
         manager.register_check("sample_service", sample_check)
 
         # Run checks multiple times
-        for i in range(3):
+        for _i in range(3):
             manager.run_all_checks()
             time.sleep(0.1)
 
@@ -877,8 +877,8 @@ class TestPerformanceProfiler:
             return "completed"
 
         # Execute functions
-        slow_result = slow_function()
-        fast_result = fast_function()
+        slow_function()
+        fast_function()
 
         # Get profiling results
         results = profiler.get_function_profiles()
@@ -920,10 +920,10 @@ class TestPerformanceProfiler:
         @profiler.profile_function
         def memory_intensive_function():
             # Simulate memory allocation
-            large_list = [i for i in range(10000)]
+            large_list = list(range(10000))
             return len(large_list)
 
-        result = memory_intensive_function()
+        memory_intensive_function()
 
         # Get memory profiles
         memory_profiles = profiler.get_memory_profiles()

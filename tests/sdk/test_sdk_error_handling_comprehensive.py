@@ -584,7 +584,7 @@ class TestSDKErrorHandling:
                 healthy_models = 0
                 unhealthy_models = 0
 
-                for model_id, model_data in self.models.items():
+                for _model_id, model_data in self.models.items():
                     if model_data["error_count"] > 10:
                         unhealthy_models += 1
                     else:
@@ -847,7 +847,7 @@ class TestSDKErrorHandling:
 
             # Generate multiple failures to trigger circuit breaker
             failure_count = 0
-            for i in range(10):  # More than failure threshold
+            for _i in range(10):  # More than failure threshold
                 result = sdk.predict_with_circuit_breaker(model_id, invalid_dataset_id)
                 if not result["success"]:
                     failure_count += 1

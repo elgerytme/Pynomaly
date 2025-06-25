@@ -271,7 +271,7 @@ class SystemValidator:
             )
 
             # Test basic container
-            container = Container()
+            Container()
             di_results.append(
                 ValidationResult(
                     component="di_container",
@@ -282,7 +282,7 @@ class SystemValidator:
             print("✅ DI container validated")
 
             # Test container factory
-            test_container = create_container(testing=True)
+            create_container(testing=True)
             di_results.append(
                 ValidationResult(
                     component="di_container_factory",
@@ -339,7 +339,7 @@ class SystemValidator:
         try:
             from pynomaly.infrastructure.config.feature_flags import get_feature_flags
 
-            flags = get_feature_flags()
+            get_feature_flags()
 
             config_results.append(
                 ValidationResult(
@@ -372,7 +372,7 @@ class SystemValidator:
         try:
             from pynomaly.infrastructure.config.container import Container
 
-            container = Container()
+            Container()
             startup_time = time.time() - start_time
 
             if startup_time < 5.0:

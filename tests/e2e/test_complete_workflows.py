@@ -265,7 +265,7 @@ class TestCompleteAnomalyDetectionWorkflow:
             total_anomalies = 0
             num_batches = large_dataset_size // batch_size
 
-            for batch_idx in range(num_batches):
+            for _batch_idx in range(num_batches):
                 batch_data = np.random.randn(batch_size, 5)
 
                 result = detect_use_case.execute(
@@ -650,7 +650,7 @@ class TestMLOpsWorkflow:
 
             # Monitor performance over time
             alerts = []
-            for data_point in monitoring_data:
+            for _data_point in monitoring_data:
                 metrics = monitor.collect_metrics(production_model.id)
 
                 # Check for performance degradation
@@ -990,7 +990,7 @@ class TestAPIWorkflow:
         )
 
         # Mock HTTP requests
-        with patch("requests.post") as mock_post, patch("requests.get") as mock_get:
+        with patch("requests.post") as mock_post, patch("requests.get"):
             # Mock dataset upload response
             mock_post.return_value.status_code = 201
             mock_post.return_value.json.return_value = {"dataset_id": "sdk_dataset_789"}

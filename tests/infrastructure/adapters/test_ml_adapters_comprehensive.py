@@ -350,7 +350,7 @@ class TestPyODAdapterComprehensive:
             from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             # Test AvgKNN
-            adapter = PyODAdapter(algorithm_name="AvgKNN")
+            PyODAdapter(algorithm_name="AvgKNN")
             mock_model_class.assert_called_with(
                 contamination=0.1,  # Default auto contamination
                 method="mean",
@@ -358,7 +358,7 @@ class TestPyODAdapterComprehensive:
 
             # Test MedKNN
             mock_model_class.reset_mock()
-            adapter = PyODAdapter(algorithm_name="MedKNN")
+            PyODAdapter(algorithm_name="MedKNN")
             mock_model_class.assert_called_with(contamination=0.1, method="median")
 
     def test_pyod_adapter_parameter_management(self):
@@ -864,7 +864,7 @@ class TestMLAdapterEdgeCases:
 
             # Create multiple threads
             threads = []
-            for i in range(5):
+            for _i in range(5):
                 thread = threading.Thread(target=concurrent_detect)
                 threads.append(thread)
 

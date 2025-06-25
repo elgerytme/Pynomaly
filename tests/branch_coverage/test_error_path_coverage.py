@@ -264,7 +264,7 @@ class TestResourceExhaustionPaths:
 
         try:
             # Try to open many files to exhaust descriptors
-            for i in range(1000):
+            for _i in range(1000):
                 try:
                     f = manager.open_temp_file()
                     open_files.append(f)

@@ -438,43 +438,43 @@ class UITestReportGenerator:
         <h2>Overall UI Quality Score</h2>
         <p class="timestamp">Generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
     </div>
-    
+
     <div class="category-scores">
         {self._render_category_scores(analysis["category_scores"])}
     </div>
-    
+
     <div class="grid">
         <div class="card">
             <h2>🚨 Critical Issues</h2>
             {self._render_issues(analysis["critical_issues"], "critical")}
         </div>
-        
+
         <div class="card">
             <h2>⚠️ Warnings</h2>
             {self._render_issues(analysis["warnings"], "warning")}
         </div>
     </div>
-    
+
     <div class="card">
         <h2>💪 Strengths</h2>
         {self._render_issues(analysis["strengths"], "strength")}
     </div>
-    
+
     <div class="card">
         <h2>🎯 Recommendations</h2>
         {self._render_issues(analysis["recommendations"], "recommendation")}
     </div>
-    
+
     <div class="card">
         <h2>📊 Detailed Test Results</h2>
         {self._render_detailed_results(results)}
     </div>
-    
+
     <div class="card">
         <h2>📸 Screenshots</h2>
         {self._render_screenshots()}
     </div>
-    
+
 </body>
 </html>
 """

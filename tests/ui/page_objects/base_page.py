@@ -206,14 +206,14 @@ class BasePage:
             () => {
                 const navigation = performance.getEntriesByType('navigation')[0];
                 const paint = performance.getEntriesByType('paint');
-                
+
                 const result = {
                     dom_content_loaded: navigation ? navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart : 0,
                     load_complete: navigation ? navigation.loadEventEnd - navigation.loadEventStart : 0,
                     first_paint: 0,
                     first_contentful_paint: 0
                 };
-                
+
                 paint.forEach(entry => {
                     if (entry.name === 'first-paint') {
                         result.first_paint = entry.startTime;
@@ -221,7 +221,7 @@ class BasePage:
                         result.first_contentful_paint = entry.startTime;
                     }
                 });
-                
+
                 return result;
             }
         """)

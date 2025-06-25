@@ -281,7 +281,7 @@ class TestAdapterIntegration:
         # Test with mock data that doesn't require external dependencies
         X = np.random.rand(50, 3)
         df = pd.DataFrame(X, columns=["a", "b", "c"])
-        dataset = Dataset(name="test", data=df)
+        Dataset(name="test", data=df)
 
         # Create mock adapters if real ones aren't available
         adapters_to_test = []

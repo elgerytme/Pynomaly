@@ -224,7 +224,7 @@ class TestDeploymentPipeline:
                 }
 
                 risk_factor = step_risks.get(step_name, 0.10)
-                adjusted_success_rate = success_rate * (1 - risk_factor)
+                success_rate * (1 - risk_factor)
 
                 # For testing, assume success (can be made probabilistic)
                 success = True
@@ -883,7 +883,7 @@ class TestDeploymentPipeline:
         environment = "production"
 
         # Provision and deploy
-        infra_result = deploy_env.provision_infrastructure(
+        deploy_env.provision_infrastructure(
             environment, {"replicas": 3, "load_balancer": True, "ssl": True}
         )
 
@@ -975,7 +975,7 @@ class TestDeploymentPipeline:
         # Deploy application
         environment = "staging"
 
-        infra_result = deploy_env.provision_infrastructure(environment, {"replicas": 2})
+        deploy_env.provision_infrastructure(environment, {"replicas": 2})
         deployment_result = deploy_env.deploy_application(
             environment, ["pynomaly-1.0.0.whl"], {"version": "1.0.0", "replicas": 2}
         )
@@ -1011,7 +1011,7 @@ class TestDeploymentPipeline:
         # Endpoint health check
         endpoint_check = checks["endpoint_health"]
         if "details" in endpoint_check:
-            for endpoint_name, endpoint_result in endpoint_check["details"].items():
+            for _endpoint_name, endpoint_result in endpoint_check["details"].items():
                 assert "status_code" in endpoint_result
                 assert "response_time_ms" in endpoint_result
                 assert "healthy" in endpoint_result
@@ -1042,7 +1042,7 @@ class TestDeploymentPipeline:
         environment = "production"
 
         # Provision infrastructure
-        infra_result = deploy_env.provision_infrastructure(environment, {"replicas": 3})
+        deploy_env.provision_infrastructure(environment, {"replicas": 3})
 
         # Deploy version 1.0.0
         deployment_v1 = deploy_env.deploy_application(
@@ -1057,7 +1057,7 @@ class TestDeploymentPipeline:
         assert deployment_v1_1["success"]
 
         # Deploy version 1.2.0 (this will be the "failed" deployment we rollback from)
-        deployment_v1_2 = deploy_env.deploy_application(
+        deploy_env.deploy_application(
             environment, ["pynomaly-1.2.0.whl"], {"version": "1.2.0"}
         )
 
@@ -1111,7 +1111,7 @@ class TestDeploymentPipeline:
         # Deploy application
         environment = "staging"
 
-        infra_result = deploy_env.provision_infrastructure(environment, {"replicas": 2})
+        deploy_env.provision_infrastructure(environment, {"replicas": 2})
         deployment_result = deploy_env.deploy_application(
             environment, ["pynomaly-1.0.0.whl"], {"version": "1.0.0"}
         )
@@ -1143,7 +1143,7 @@ class TestDeploymentPipeline:
 
         for metric in expected_metrics:
             assert metric in metrics
-            assert isinstance(metrics[metric], (int, float))
+            assert isinstance(metrics[metric], int | float)
 
         # Verify reasonable metric values
         assert metrics["uptime"] >= 0
@@ -1163,13 +1163,13 @@ class TestDeploymentPipeline:
         environment = "development"
 
         # Perform multiple deployment operations
-        infra_result = deploy_env.provision_infrastructure(environment, {"replicas": 1})
+        deploy_env.provision_infrastructure(environment, {"replicas": 1})
 
         deployment_result = deploy_env.deploy_application(
             environment, ["pynomaly-1.0.0.whl"], {"version": "1.0.0"}
         )
 
-        monitoring_result = deploy_env.setup_monitoring(
+        deploy_env.setup_monitoring(
             deployment_result["deployment_id"], {"metrics_enabled": True}
         )
 
@@ -1183,7 +1183,7 @@ class TestDeploymentPipeline:
             assert "timestamp" in log_entry
             assert "message" in log_entry
             assert "context" in log_entry
-            assert isinstance(log_entry["timestamp"], (int, float))
+            assert isinstance(log_entry["timestamp"], int | float)
             assert isinstance(log_entry["message"], str)
             assert isinstance(log_entry["context"], dict)
 

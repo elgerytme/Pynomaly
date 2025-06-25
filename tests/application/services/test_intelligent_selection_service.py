@@ -476,8 +476,8 @@ class TestIntelligentSelectionService:
             # Check data types
             assert isinstance(algo_info["min_samples"], int)
             assert isinstance(algo_info["max_features"], int)
-            assert isinstance(algo_info["memory_usage"], (int, float))
-            assert isinstance(algo_info["training_time"], (int, float))
+            assert isinstance(algo_info["memory_usage"], int | float)
+            assert isinstance(algo_info["training_time"], int | float)
 
     @pytest.mark.asyncio
     async def test_meta_learning_recommendation_no_model(self):

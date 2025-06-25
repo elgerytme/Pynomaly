@@ -278,7 +278,7 @@ class TestPhase3Achievement:
         }
 
         # Validate progression makes sense
-        for phase, (start, end) in coverage_progression.items():
+        for _phase, (start, end) in coverage_progression.items():
             assert end > start
             assert end - start >= 20  # Significant improvement each phase
 

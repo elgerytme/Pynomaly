@@ -25,7 +25,7 @@ class TestCPUPerformancePortability:
     def test_single_core_performance(self):
         """Test performance on single-core systems."""
         # Simulate single-core constraint
-        original_cpu_count = mp.cpu_count()
+        mp.cpu_count()
 
         # Test CPU-intensive operations with single thread
         def cpu_intensive_task(n: int) -> float:
@@ -147,7 +147,7 @@ class TestCPUPerformancePortability:
 
             # All operations should complete efficiently
             for result in operations:
-                assert isinstance(result, (int, float, np.number))
+                assert isinstance(result, int | float | np.number)
                 assert not np.isnan(result)
                 assert not np.isinf(result)
 
@@ -228,7 +228,7 @@ class TestMemoryPerformancePortability:
         try:
             import psutil
 
-            initial_memory = psutil.virtual_memory()
+            psutil.virtual_memory()
         except ImportError:
             pytest.skip("psutil not available for memory monitoring")
 
@@ -333,7 +333,7 @@ class TestMemoryPerformancePortability:
             assert operation_time < 10.0, (
                 f"Large array operation too slow: {operation_time}s"
             )
-            assert isinstance(mean_value, (float, np.floating))
+            assert isinstance(mean_value, float | np.floating)
 
             # Clean up
             del large_data
@@ -700,7 +700,7 @@ class TestConcurrencyPerformancePortability:
         def cpu_bound_task(n: int) -> float:
             """CPU-intensive task for multiprocessing test."""
             start_time = time.time()
-            total = sum(i**0.5 for i in range(n))
+            sum(i**0.5 for i in range(n))
             return time.time() - start_time
 
         task_size = 100000
@@ -817,7 +817,7 @@ class TestScalabilityPortability:
             processing_times.append(processing_time)
 
             # Basic sanity check
-            assert isinstance(result, (float, np.floating))
+            assert isinstance(result, float | np.floating)
             assert 0.0 <= result <= 1.0
 
         # Analyze scalability
@@ -904,7 +904,7 @@ class TestScalabilityPortability:
         data_structures = []
         memory_measurements = []
 
-        for i in range(10):
+        for _i in range(10):
             # Add data structure
             data = pd.DataFrame(
                 {

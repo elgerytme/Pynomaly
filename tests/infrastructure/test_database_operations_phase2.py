@@ -489,7 +489,7 @@ class TestPostgreSQLRepository(DatabaseTestBase):
             mock_pool = AsyncMock()
 
             # Test pool acquisition and release
-            async with mock_pool.acquire() as connection:
+            async with mock_pool.acquire():
                 repo = PostgreSQLDatasetRepository(connection_pool=mock_pool)
 
                 # Verify pool is being used
@@ -507,7 +507,7 @@ class TestDatabasePerformance(DatabaseTestBase):
 
     def test_bulk_insert_performance(self):
         """Test bulk insert performance with large datasets."""
-        with temp_database() as db_path:
+        with temp_database():
             try:
                 from pynomaly.infrastructure.persistence.repositories import (
                     InMemoryDatasetRepository,
@@ -716,7 +716,7 @@ class TestDatabaseErrorHandling:
 
                 # Attempt to read corrupted data
                 with pytest.raises((RepositoryError, ValueError, Exception)):
-                    corrupted_dataset = repo.find_by_id(sample_dataset.id)
+                    repo.find_by_id(sample_dataset.id)
                     # Should fail due to invalid JSON
 
             except ImportError:

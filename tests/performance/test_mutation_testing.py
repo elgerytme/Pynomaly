@@ -196,7 +196,7 @@ class SimpleMutationEngine:
                 nonlocal mutation_applied
                 self.generic_visit(node)
 
-                if isinstance(node.value, (int, float)) and not mutation_applied:
+                if isinstance(node.value, int | float) and not mutation_applied:
                     if node.value == 0:
                         node.value = 1
                     elif node.value == 1:
@@ -224,7 +224,7 @@ class SimpleMutationEngine:
                 self.generic_visit(node)
 
                 # Add/subtract 1 to numeric constants in arithmetic operations
-                if isinstance(node.op, (ast.Add, ast.Sub)) and not mutation_applied:
+                if isinstance(node.op, ast.Add | ast.Sub) and not mutation_applied:
                     if isinstance(node.right, ast.Constant) and isinstance(
                         node.right.value, int
                     ):
@@ -370,16 +370,16 @@ class ContaminationRate:
         if value <= 0 or value > 0.5:
             raise ValueError("Contamination rate must be between 0 and 0.5")
         self._value = value
-    
+
     @property
     def value(self) -> float:
         return self._value
-    
+
     def __eq__(self, other) -> bool:
         if not isinstance(other, ContaminationRate):
             return False
         return self._value == other._value
-    
+
     def __lt__(self, other) -> bool:
         if not isinstance(other, ContaminationRate):
             return NotImplemented
@@ -409,19 +409,19 @@ class ContaminationRate:
             # Invalid rates should raise ValueError
             try:
                 module.ContaminationRate(0.0)
-                assert False, "Should raise ValueError for 0.0"
+                raise AssertionError("Should raise ValueError for 0.0")
             except ValueError:
                 pass
 
             try:
                 module.ContaminationRate(-0.1)
-                assert False, "Should raise ValueError for negative"
+                raise AssertionError("Should raise ValueError for negative")
             except ValueError:
                 pass
 
             try:
                 module.ContaminationRate(0.6)
-                assert False, "Should raise ValueError for > 0.5"
+                raise AssertionError("Should raise ValueError for > 0.5")
             except ValueError:
                 pass
 
@@ -464,21 +464,21 @@ class AnomalyScore:
         if value < 0.0 or value > 1.0:
             raise ValueError("Anomaly score must be between 0.0 and 1.0")
         self._value = value
-    
+
     @property
     def value(self) -> float:
         return self._value
-    
+
     def __eq__(self, other) -> bool:
         if not isinstance(other, AnomalyScore):
             return False
         return abs(self._value - other._value) < 1e-9
-    
+
     def __lt__(self, other) -> bool:
         if not isinstance(other, AnomalyScore):
             return NotImplemented
         return self._value < other._value
-    
+
     def is_anomaly(self, threshold: float = 0.5) -> bool:
         return self._value >= threshold
 """
@@ -501,13 +501,13 @@ class AnomalyScore:
             """Test invalid anomaly scores."""
             try:
                 module.AnomalyScore(-0.1)
-                assert False, "Should reject negative scores"
+                raise AssertionError("Should reject negative scores")
             except ValueError:
                 pass
 
             try:
                 module.AnomalyScore(1.1)
-                assert False, "Should reject scores > 1.0"
+                raise AssertionError("Should reject scores > 1.0")
             except ValueError:
                 pass
 
@@ -553,16 +553,16 @@ def validate_isolation_forest_params(n_estimators=100, contamination=0.1, max_sa
     """Validate Isolation Forest parameters."""
     if not isinstance(n_estimators, int) or n_estimators <= 0:
         raise ValueError("n_estimators must be positive integer")
-    
+
     if not isinstance(contamination, (int, float)) or contamination <= 0 or contamination > 0.5:
         raise ValueError("contamination must be between 0 and 0.5")
-    
+
     if max_samples != "auto" and (not isinstance(max_samples, int) or max_samples <= 0):
         raise ValueError("max_samples must be 'auto' or positive integer")
-    
+
     if random_state is not None and (not isinstance(random_state, int) or random_state < 0):
         raise ValueError("random_state must be None or non-negative integer")
-    
+
     return True
 '''
 
@@ -579,13 +579,13 @@ def validate_isolation_forest_params(n_estimators=100, contamination=0.1, max_sa
             """Test invalid n_estimators."""
             try:
                 module.validate_isolation_forest_params(n_estimators=0)
-                assert False, "Should reject n_estimators=0"
+                raise AssertionError("Should reject n_estimators=0")
             except ValueError:
                 pass
 
             try:
                 module.validate_isolation_forest_params(n_estimators=-10)
-                assert False, "Should reject negative n_estimators"
+                raise AssertionError("Should reject negative n_estimators")
             except ValueError:
                 pass
 
@@ -593,13 +593,13 @@ def validate_isolation_forest_params(n_estimators=100, contamination=0.1, max_sa
             """Test invalid contamination rates."""
             try:
                 module.validate_isolation_forest_params(contamination=0.0)
-                assert False, "Should reject contamination=0.0"
+                raise AssertionError("Should reject contamination=0.0")
             except ValueError:
                 pass
 
             try:
                 module.validate_isolation_forest_params(contamination=0.6)
-                assert False, "Should reject contamination > 0.5"
+                raise AssertionError("Should reject contamination > 0.5")
             except ValueError:
                 pass
 
@@ -607,13 +607,13 @@ def validate_isolation_forest_params(n_estimators=100, contamination=0.1, max_sa
             """Test invalid max_samples."""
             try:
                 module.validate_isolation_forest_params(max_samples=0)
-                assert False, "Should reject max_samples=0"
+                raise AssertionError("Should reject max_samples=0")
             except ValueError:
                 pass
 
             try:
                 module.validate_isolation_forest_params(max_samples="invalid")
-                assert False, "Should reject invalid string"
+                raise AssertionError("Should reject invalid string")
             except ValueError:
                 pass
 
@@ -643,24 +643,24 @@ def process_detection_results(predictions, scores, threshold=0.5):
     """Process raw detection results into final format."""
     if len(predictions) != len(scores):
         raise ValueError("Predictions and scores must have same length")
-    
+
     if not predictions or not scores:
         raise ValueError("Predictions and scores cannot be empty")
-    
+
     # Apply threshold to scores to get binary predictions
     binary_predictions = [1 if score >= threshold else 0 for score in scores]
-    
+
     # Count anomalies
     anomaly_count = sum(binary_predictions)
-    
+
     # Calculate statistics
     mean_score = sum(scores) / len(scores)
     max_score = max(scores)
     min_score = min(scores)
-    
+
     # Calculate anomaly rate
     anomaly_rate = anomaly_count / len(predictions) if len(predictions) > 0 else 0.0
-    
+
     return {
         "predictions": binary_predictions,
         "scores": scores,
@@ -718,14 +718,14 @@ def process_detection_results(predictions, scores, threshold=0.5):
             # Mismatched lengths
             try:
                 module.process_detection_results([0, 1], [0.3])
-                assert False, "Should reject mismatched lengths"
+                raise AssertionError("Should reject mismatched lengths")
             except ValueError:
                 pass
 
             # Empty inputs
             try:
                 module.process_detection_results([], [])
-                assert False, "Should reject empty inputs"
+                raise AssertionError("Should reject empty inputs")
             except ValueError:
                 pass
 
@@ -762,30 +762,30 @@ def validate_dataset(data, min_samples=10, min_features=1, max_nan_ratio=0.1):
     """Validate dataset for anomaly detection."""
     if not isinstance(data, pd.DataFrame):
         raise TypeError("Data must be a pandas DataFrame")
-    
+
     if len(data) < min_samples:
         raise ValueError(f"Dataset must have at least {min_samples} samples")
-    
+
     if len(data.columns) < min_features:
         raise ValueError(f"Dataset must have at least {min_features} features")
-    
+
     # Check for numeric columns
     numeric_columns = data.select_dtypes(include=[np.number]).columns
     if len(numeric_columns) == 0:
         raise ValueError("Dataset must have at least one numeric column")
-    
+
     # Check NaN ratio
     total_values = len(data) * len(data.columns)
     nan_count = data.isnull().sum().sum()
     nan_ratio = nan_count / total_values if total_values > 0 else 0
-    
+
     if nan_ratio > max_nan_ratio:
         raise ValueError(f"NaN ratio {nan_ratio:.2f} exceeds maximum {max_nan_ratio}")
-    
+
     # Check for infinite values
     if data.select_dtypes(include=[np.number]).isin([np.inf, -np.inf]).any().any():
         raise ValueError("Dataset contains infinite values")
-    
+
     return True
 '''
 
@@ -811,13 +811,13 @@ def validate_dataset(data, min_samples=10, min_features=1, max_nan_ratio=0.1):
             """Test invalid data types."""
             try:
                 module.validate_dataset("not a dataframe")
-                assert False, "Should reject non-DataFrame"
+                raise AssertionError("Should reject non-DataFrame")
             except TypeError:
                 pass
 
             try:
                 module.validate_dataset(None)
-                assert False, "Should reject None"
+                raise AssertionError("Should reject None")
             except TypeError:
                 pass
 
@@ -827,7 +827,7 @@ def validate_dataset(data, min_samples=10, min_features=1, max_nan_ratio=0.1):
             small_data = pd.DataFrame({"feature1": [1, 2, 3]})  # Only 3 samples
             try:
                 module.validate_dataset(small_data)
-                assert False, "Should reject datasets with too few samples"
+                raise AssertionError("Should reject datasets with too few samples")
             except ValueError:
                 pass
 
@@ -842,7 +842,7 @@ def validate_dataset(data, min_samples=10, min_features=1, max_nan_ratio=0.1):
             )
             try:
                 module.validate_dataset(text_data)
-                assert False, "Should reject datasets with no numeric columns"
+                raise AssertionError("Should reject datasets with no numeric columns")
             except ValueError:
                 pass
 
@@ -880,7 +880,7 @@ def validate_dataset(data, min_samples=10, min_features=1, max_nan_ratio=0.1):
             )
             try:
                 module.validate_dataset(data)  # 80% NaNs, exceeds 10% limit
-                assert False, "Should reject datasets with too many NaNs"
+                raise AssertionError("Should reject datasets with too many NaNs")
             except ValueError:
                 pass
 
@@ -896,7 +896,7 @@ def validate_dataset(data, min_samples=10, min_features=1, max_nan_ratio=0.1):
             )
             try:
                 module.validate_dataset(data)
-                assert False, "Should reject datasets with infinite values"
+                raise AssertionError("Should reject datasets with infinite values")
             except ValueError:
                 pass
 
@@ -932,46 +932,46 @@ def ensemble_vote(predictions_list, method="majority", weights=None):
     """Combine predictions from multiple detectors."""
     if not predictions_list:
         raise ValueError("Predictions list cannot be empty")
-    
+
     # Validate input dimensions
     n_samples = len(predictions_list[0])
     for i, preds in enumerate(predictions_list):
         if len(preds) != n_samples:
             raise ValueError(f"All predictions must have same length, detector {i} has {len(preds)}")
-    
+
     if weights is not None and len(weights) != len(predictions_list):
         raise ValueError("Weights must match number of detectors")
-    
+
     # Initialize result
     ensemble_predictions = []
-    
+
     for sample_idx in range(n_samples):
         votes = [preds[sample_idx] for preds in predictions_list]
-        
+
         if method == "majority":
             # Simple majority vote
             anomaly_votes = sum(votes)
             total_votes = len(votes)
             final_prediction = 1 if anomaly_votes > total_votes / 2 else 0
-            
+
         elif method == "weighted":
             if weights is None:
                 raise ValueError("Weights required for weighted voting")
-            
+
             # Weighted vote
             weighted_sum = sum(vote * weight for vote, weight in zip(votes, weights))
             weight_sum = sum(weights)
             final_prediction = 1 if weighted_sum > weight_sum / 2 else 0
-            
+
         elif method == "unanimous":
             # All detectors must agree
             final_prediction = 1 if all(vote == 1 for vote in votes) else 0
-            
+
         else:
             raise ValueError(f"Unknown voting method: {method}")
-        
+
         ensemble_predictions.append(final_prediction)
-    
+
     return ensemble_predictions
 '''
 
@@ -1019,21 +1019,21 @@ def ensemble_vote(predictions_list, method="majority", weights=None):
             # Empty predictions
             try:
                 module.ensemble_vote([])
-                assert False, "Should reject empty predictions"
+                raise AssertionError("Should reject empty predictions")
             except ValueError:
                 pass
 
             # Mismatched lengths
             try:
                 module.ensemble_vote([[1, 0], [1, 0, 1]])
-                assert False, "Should reject mismatched lengths"
+                raise AssertionError("Should reject mismatched lengths")
             except ValueError:
                 pass
 
             # Weighted without weights
             try:
                 module.ensemble_vote([[1, 0]], method="weighted")
-                assert False, "Should require weights for weighted voting"
+                raise AssertionError("Should require weights for weighted voting")
             except ValueError:
                 pass
 
@@ -1073,7 +1073,7 @@ class TestOverallMutationTestQuality:
 
         overall_results = []
 
-        for scenario_name, components in test_scenarios:
+        for scenario_name, _components in test_scenarios:
             # Simulate mutation testing for each scenario
             # In a real implementation, this would run actual mutation tests
 
@@ -1092,7 +1092,7 @@ class TestOverallMutationTestQuality:
         # Analyze overall quality
         total_mutants = sum(summary.total_mutants for _, summary in overall_results)
         total_killed = sum(summary.killed_mutants for _, summary in overall_results)
-        total_survived = sum(summary.survived_mutants for _, summary in overall_results)
+        sum(summary.survived_mutants for _, summary in overall_results)
 
         overall_mutation_score = total_killed / (
             total_mutants

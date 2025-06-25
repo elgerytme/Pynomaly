@@ -111,49 +111,49 @@ class TestQualityGateValidator:
             # Write high-quality code
             code = dedent('''
                 """High-quality module with good practices."""
-                
+
                 from __future__ import annotations
-                
+
                 from typing import Dict, List, Optional
-                
-                
+
+
                 class HighQualityClass:
                     """A well-documented class following best practices."""
-                    
+
                     def __init__(self, name: str) -> None:
                         """Initialize with name.
-                        
+
                         Args:
                             name: The name to use
                         """
                         self.name = name
-                    
+
                     def process_data(self, data: List[int]) -> Dict[str, int]:
                         """Process data and return statistics.
-                        
+
                         Args:
                             data: List of integers to process
-                            
+
                         Returns:
                             Dictionary with statistics
                         """
                         if not data:
                             return {}
-                        
+
                         return {
                             'count': len(data),
                             'sum': sum(data),
                             'max': max(data),
                             'min': min(data)
                         }
-                
-                
+
+
                 def helper_function(value: int) -> bool:
                     """Helper function with type hints.
-                    
+
                     Args:
                         value: Integer value to check
-                        
+
                     Returns:
                         True if positive, False otherwise
                     """
@@ -186,10 +186,10 @@ class TestQualityGateValidator:
                 # No module docstring
                 # No future imports
                 # No type hints
-                
+
                 import *
                 from os import *
-                
+
                 class BadClass:
                     def bad_method(self):
                         # Very complex method with many branches
@@ -205,7 +205,7 @@ class TestQualityGateValidator:
                                                         exec("import sys")
                                                         return True
                         return False
-                
+
                 def bad_function():
                     try:
                         risky_operation()
@@ -242,7 +242,7 @@ class TestQualityGateValidator:
             # Write code with high complexity
             code = dedent('''
                 """Module with complex function."""
-                
+
                 def complex_function(x):
                     """Very complex function."""
                     if x > 0:
@@ -276,21 +276,21 @@ class TestQualityGateValidator:
             # Write code with partial docstring coverage
             code = dedent('''
                 """Module docstring."""
-                
+
                 class DocumentedClass:
                     """This class has a docstring."""
-                    
+
                     def documented_method(self):
                         """This method has a docstring."""
                         pass
-                    
+
                     def undocumented_method(self):
                         pass
-                
+
                 def documented_function():
                     """This function has a docstring."""
                     pass
-                
+
                 def undocumented_function():
                     pass
             ''')
@@ -316,17 +316,17 @@ class TestQualityGateValidator:
             # Write code with partial type hints
             code = dedent('''
                 """Module with mixed type hints."""
-                
+
                 from typing import List, Optional
-                
+
                 def typed_function(data: List[int]) -> int:
                     """Function with type hints."""
                     return sum(data)
-                
+
                 def untyped_function(data):
                     """Function without type hints."""
                     return len(data)
-                
+
                 def partially_typed_function(data: List[int]):
                     """Function with partial type hints."""
                     return data[0] if data else None
@@ -349,21 +349,21 @@ class TestQualityGateValidator:
             # Write code with security issues
             code = dedent('''
                 """Module with security issues."""
-                
+
                 import subprocess
-                
+
                 def insecure_function(user_input):
                     """Function with security issues."""
                     try:
                         # Dangerous eval usage
                         result = eval(user_input)
-                        
+
                         # Dangerous subprocess usage
                         subprocess.run(user_input, shell=True)
-                        
+
                         # Dangerous exec usage
                         exec(user_input)
-                        
+
                         return result
                     except:
                         # Bare except clause
@@ -389,13 +389,13 @@ class TestQualityGateValidator:
             # Write code that violates clean architecture
             code = dedent('''
                 """Domain entity that incorrectly imports from infrastructure."""
-                
+
                 from ...infrastructure.database import DatabaseConnection
                 from ...application.services import SomeService
-                
+
                 class TestEntity:
                     """Entity that violates clean architecture."""
-                    
+
                     def __init__(self):
                         self.db = DatabaseConnection()  # Domain shouldn't depend on infrastructure
                         self.service = SomeService()    # Domain shouldn't depend on application
@@ -466,7 +466,7 @@ class TestQualityGateValidator:
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             code = dedent('''
                 """Simple test module."""
-                
+
                 def simple_function():
                     """A simple function."""
                     return "hello world"
@@ -511,90 +511,90 @@ class TestQualityGateIntegration:
             # Write a realistic feature file
             code = dedent('''
                 """User authentication service.
-                
+
                 This module provides secure user authentication capabilities
                 with proper input validation and error handling.
                 """
-                
+
                 from __future__ import annotations
-                
+
                 import hashlib
                 import secrets
                 from typing import Dict, Optional, Tuple
-                
-                
+
+
                 class AuthenticationError(Exception):
                     """Raised when authentication fails."""
                     pass
-                
-                
+
+
                 class UserAuthenticator:
                     """Secure user authentication service."""
-                    
+
                     def __init__(self) -> None:
                         """Initialize authenticator."""
                         self._users: Dict[str, str] = {}
                         self._salt_length = 32
-                    
+
                     def register_user(self, username: str, password: str) -> bool:
                         """Register a new user with secure password hashing.
-                        
+
                         Args:
                             username: Unique username
                             password: Plain text password to hash
-                            
+
                         Returns:
                             True if registration successful, False if user exists
-                            
+
                         Raises:
                             ValueError: If username or password is invalid
                         """
                         if not username or not password:
                             raise ValueError("Username and password cannot be empty")
-                        
+
                         if username in self._users:
                             return False
-                        
+
                         # Generate secure password hash
                         salt = secrets.token_hex(self._salt_length)
                         password_hash = self._hash_password(password, salt)
                         self._users[username] = f"{salt}:{password_hash}"
-                        
+
                         return True
-                    
+
                     def authenticate_user(self, username: str, password: str) -> bool:
                         """Authenticate user with username and password.
-                        
+
                         Args:
                             username: Username to authenticate
                             password: Password to verify
-                            
+
                         Returns:
                             True if authentication successful
-                            
+
                         Raises:
                             AuthenticationError: If authentication fails
                         """
                         if username not in self._users:
                             raise AuthenticationError("Invalid username")
-                        
+
                         stored_data = self._users[username]
                         salt, stored_hash = stored_data.split(':', 1)
-                        
+
                         computed_hash = self._hash_password(password, salt)
-                        
+
                         if computed_hash != stored_hash:
                             raise AuthenticationError("Invalid password")
-                        
+
                         return True
-                    
+
                     def _hash_password(self, password: str, salt: str) -> str:
                         """Hash password with salt using SHA-256.
-                        
+
                         Args:
                             password: Plain text password
                             salt: Salt for hashing
-                            
+
                         Returns:
                             Hexadecimal hash string
                         """

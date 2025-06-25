@@ -51,7 +51,7 @@ class TestAdvancedBehaviorAnalyzer:
         user_id = "test_user"
 
         # Add some login events but not enough for analysis
-        for i in range(20):  # Less than min_samples_for_profile (50)
+        for _i in range(20):  # Less than min_samples_for_profile (50)
             event_data = {
                 "event_type": SecurityEventType.AUTH_LOGIN_SUCCESS,
                 "user_id": user_id,
@@ -77,7 +77,7 @@ class TestAdvancedBehaviorAnalyzer:
         user_id = "established_user"
 
         # Build a behavior profile with enough samples
-        for i in range(60):  # More than min_samples_for_profile
+        for _i in range(60):  # More than min_samples_for_profile
             event_data = {
                 "event_type": SecurityEventType.AUTH_LOGIN_SUCCESS,
                 "user_id": user_id,
@@ -106,7 +106,7 @@ class TestAdvancedBehaviorAnalyzer:
         user_id = "api_user"
 
         # Build profile with typical API usage
-        for i in range(60):
+        for _i in range(60):
             event_data = {
                 "event_type": SecurityEventType.API_REQUEST,
                 "user_id": user_id,
@@ -260,7 +260,7 @@ class TestDataExfiltrationDetector:
     async def test_large_data_access_detection(self, detector):
         """Test detection of large data access."""
         user_id = "data_user"
-        current_time = time.time()
+        time.time()
 
         # Simulate large data access
         event_data = {

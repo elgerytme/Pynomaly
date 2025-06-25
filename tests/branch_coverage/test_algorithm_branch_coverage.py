@@ -221,13 +221,13 @@ class TestAlgorithmSpecificBranches:
             adapter.set_params(warm_start=False)
             sample_dataset = self._create_sample_dataset()
             adapter.fit(sample_dataset)
-            assert mock_model.warm_start == False
+            assert not mock_model.warm_start
 
             # Test with warm start
             adapter.set_params(warm_start=True)
             mock_model.warm_start = True
             adapter.fit(sample_dataset)
-            assert mock_model.warm_start == True
+            assert mock_model.warm_start
 
     def test_lof_algorithm_branches(self):
         """Test LOF-specific branches."""
@@ -631,7 +631,7 @@ class TestAlgorithmFittingBranches:
             adapter.fit(sample_dataset)
 
             if hasattr(mock_model_converged, "converged_"):
-                assert adapter.metadata.get("converged") == True
+                assert adapter.metadata.get("converged")
                 assert adapter.metadata.get("n_iterations") == 50
 
             # Test non-convergence warning
@@ -647,7 +647,7 @@ class TestAlgorithmFittingBranches:
                 adapter_nc.fit(sample_dataset)
 
             if hasattr(mock_model_not_converged, "converged_"):
-                assert adapter_nc.metadata.get("converged") == False
+                assert not adapter_nc.metadata.get("converged")
 
     def test_incremental_learning_branches(self):
         """Test incremental learning branches."""

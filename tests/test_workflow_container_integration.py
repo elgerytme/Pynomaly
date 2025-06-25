@@ -47,7 +47,7 @@ def test_container_phase2_services():
 
         # Test algorithm optimization service
         try:
-            opt_service = container.algorithm_optimization_service()
+            container.algorithm_optimization_service()
             services_available.append("algorithm_optimization")
         except AttributeError:
             pass
@@ -55,7 +55,7 @@ def test_container_phase2_services():
 
         # Test memory optimization service
         try:
-            memory_service = container.memory_optimization_service()
+            container.memory_optimization_service()
             services_available.append("memory_optimization")
         except AttributeError:
             pass
@@ -63,7 +63,7 @@ def test_container_phase2_services():
 
         # Test performance monitoring service
         try:
-            perf_service = container.performance_monitoring_service()
+            container.performance_monitoring_service()
             services_available.append("performance_monitoring")
         except AttributeError:
             pass
@@ -71,7 +71,7 @@ def test_container_phase2_services():
 
         # Test workflow simplification service
         try:
-            workflow_service = container.workflow_simplification_service()
+            container.workflow_simplification_service()
             services_available.append("workflow_simplification")
         except AttributeError:
             pass

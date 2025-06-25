@@ -285,7 +285,7 @@ class TestDataTypeEdgeCases:
         single_category = pd.Series(["A"] * 100)
         single_result = processor.analyze_cardinality(single_category)
         assert single_result["unique_count"] == 1
-        assert single_result["is_constant"] == True
+        assert single_result["is_constant"]
 
         # Test maximum cardinality (unique per row)
         unique_categories = pd.Series([f"category_{i}" for i in range(1000)])
@@ -461,7 +461,7 @@ class TestStatisticalEdgeCases:
         constant_stats = analyzer.analyze_distribution(constant_data)
         assert constant_stats["variance"] == 0.0
         assert constant_stats["std"] == 0.0
-        assert constant_stats["is_constant"] == True
+        assert constant_stats["is_constant"]
 
         # Test bimodal distribution
         bimodal_data = np.concatenate(
@@ -481,7 +481,7 @@ class TestStatisticalEdgeCases:
         data_with_outliers = np.concatenate([normal_data, outliers])
 
         outlier_stats = analyzer.analyze_distribution(data_with_outliers)
-        assert outlier_stats["has_outliers"] == True
+        assert outlier_stats["has_outliers"]
         assert outlier_stats["outlier_count"] >= len(outliers)
 
         # Test very small sample
@@ -545,7 +545,7 @@ class TestStatisticalEdgeCases:
         values_with_gaps = [1, 2, 5, 6, 10]
 
         gap_analysis = analyzer.analyze_time_series(dates_with_gaps, values_with_gaps)
-        assert gap_analysis["has_gaps"] == True
+        assert gap_analysis["has_gaps"]
         assert gap_analysis["gap_count"] >= 2
 
         # Test seasonal pattern detection
@@ -554,7 +554,7 @@ class TestStatisticalEdgeCases:
         seasonal_dates = [datetime(2023, 1, 1) + timedelta(days=int(day)) for day in t]
 
         seasonal_analysis = analyzer.detect_seasonality(seasonal_dates, seasonal_data)
-        assert seasonal_analysis["has_seasonality"] == True
+        assert seasonal_analysis["has_seasonality"]
         assert (
             abs(seasonal_analysis["period"] - 365) < 10
         )  # Should detect ~365 day cycle
@@ -564,7 +564,7 @@ class TestStatisticalEdgeCases:
         trend_dates = [datetime(2023, 1, 1) + timedelta(days=int(day)) for day in t]
 
         trend_analysis = analyzer.detect_trend(trend_dates, trend_data)
-        assert trend_analysis["has_trend"] == True
+        assert trend_analysis["has_trend"]
         assert trend_analysis["trend_direction"] == "increasing"
 
         # Test irregular frequency
@@ -582,7 +582,7 @@ class TestStatisticalEdgeCases:
         irregular_analysis = analyzer.analyze_frequency(
             irregular_dates, irregular_values
         )
-        assert irregular_analysis["is_regular"] == False
+        assert not irregular_analysis["is_regular"]
         assert "irregular" in irregular_analysis["frequency_type"]
 
 

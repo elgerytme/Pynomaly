@@ -19,14 +19,14 @@ class TestPerformanceMonitoring:
             () => {
                 const navigation = performance.getEntriesByType('navigation')[0];
                 const paint = performance.getEntriesByType('paint');
-                
+
                 const metrics = {
                     // Core Web Vitals
                     domContentLoaded: navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart,
                     loadComplete: navigation.loadEventEnd - navigation.loadEventStart,
                     firstPaint: 0,
                     firstContentfulPaint: 0,
-                    
+
                     // Detailed timing
                     dnsLookup: navigation.domainLookupEnd - navigation.domainLookupStart,
                     tcpConnection: navigation.connectEnd - navigation.connectStart,
@@ -34,7 +34,7 @@ class TestPerformanceMonitoring:
                     domProcessing: navigation.domInteractive - navigation.responseEnd,
                     resourceLoad: navigation.loadEventStart - navigation.domContentLoadedEventEnd
                 };
-                
+
                 // Paint timing
                 paint.forEach(entry => {
                     if (entry.name === 'first-paint') {
@@ -43,7 +43,7 @@ class TestPerformanceMonitoring:
                         metrics.firstContentfulPaint = entry.startTime;
                     }
                 });
-                
+
                 return metrics;
             }
         """)
@@ -216,7 +216,7 @@ class TestPerformanceMonitoring:
         total_requests = len(requests)
         js_requests = len([r for r in requests if r["resource_type"] == "script"])
         css_requests = len([r for r in requests if r["resource_type"] == "stylesheet"])
-        image_requests = len([r for r in requests if r["resource_type"] == "image"])
+        len([r for r in requests if r["resource_type"] == "image"])
 
         # Performance assertions
         assert total_requests < 50, f"Too many requests: {total_requests}"
@@ -243,17 +243,17 @@ class TestPerformanceMonitoring:
         vitals = page.evaluate("""
             () => new Promise((resolve) => {
                 let vitals = {};
-                
+
                 // Largest Contentful Paint
                 new PerformanceObserver((entryList) => {
                     const entries = entryList.getEntries();
                     const lastEntry = entries[entries.length - 1];
                     vitals.lcp = lastEntry.startTime;
                 }).observe({entryTypes: ['largest-contentful-paint']});
-                
+
                 // First Input Delay (simulated)
                 vitals.fid = 0; // Will be 0 in automated tests
-                
+
                 // Cumulative Layout Shift
                 let clsValue = 0;
                 new PerformanceObserver((entryList) => {
@@ -264,7 +264,7 @@ class TestPerformanceMonitoring:
                     }
                     vitals.cls = clsValue;
                 }).observe({entryTypes: ['layout-shift']});
-                
+
                 // Give time for observers to collect data
                 setTimeout(() => {
                     resolve(vitals);
@@ -297,7 +297,7 @@ class TestPerformanceMonitoring:
                 const navigation = performance.getEntriesByType('navigation')[0];
                 const paint = performance.getEntriesByType('paint');
                 const resources = performance.getEntriesByType('resource');
-                
+
                 // Navigation timing
                 const timing = {
                     navigation: {
@@ -314,12 +314,12 @@ class TestPerformanceMonitoring:
                         by_type: {}
                     }
                 };
-                
+
                 // Paint timing
                 paint.forEach(entry => {
                     timing.paint[entry.name] = entry.startTime;
                 });
-                
+
                 // Resource analysis
                 const resourceTypes = {};
                 resources.forEach(resource => {
@@ -333,9 +333,9 @@ class TestPerformanceMonitoring:
                         resourceTypes[type].totalSize += resource.transferSize;
                     }
                 });
-                
+
                 timing.resources.by_type = resourceTypes;
-                
+
                 // Memory usage (if available)
                 if (performance.memory) {
                     timing.memory = {
@@ -344,7 +344,7 @@ class TestPerformanceMonitoring:
                         limit: performance.memory.jsHeapSizeLimit
                     };
                 }
-                
+
                 return timing;
             }
         """)

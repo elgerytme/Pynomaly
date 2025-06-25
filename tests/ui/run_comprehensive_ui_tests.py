@@ -397,7 +397,7 @@ class UITestRunner:
                 <p>Generated on: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
                 <p>Base URL: {self.base_url}</p>
             </div>
-            
+
             <div class="section">
                 <h2>📊 Test Summary</h2>
                 <table>
@@ -417,7 +417,7 @@ class UITestRunner:
         html_content += """
                 </table>
             </div>
-            
+
             <div class="section">
                 <h2>📸 Screenshot Analysis</h2>
                 <ul>
@@ -431,7 +431,7 @@ class UITestRunner:
                     <li>Total Size: {screenshot_analysis.get("total_size", 0) / 1024 / 1024:.2f} MB</li>
                 </ul>
             </div>
-            
+
             <div class="section">
                 <h2>🖼️ Screenshots Gallery</h2>
                 <div class="screenshot-grid">

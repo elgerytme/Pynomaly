@@ -309,7 +309,7 @@ models:
       contamination: 0.1
       n_estimators: 100
       random_state: 42
-  
+
   one_class_svm:
     algorithm: OneClassSVM
     parameters:
@@ -326,7 +326,7 @@ output:
   format: yaml
   save_scores: true
   save_labels: true
-  
+
 logging:
   level: INFO
   file: pynomaly.log
@@ -392,7 +392,7 @@ logging:
         for config in incomplete_configs:
             try:
                 # Should either raise error or handle gracefully
-                adapter = SklearnAdapter(
+                SklearnAdapter(
                     algorithm_name=config.get("algorithm", "IsolationForest"),
                     parameters=config.get("parameters", {}),
                 )
@@ -771,7 +771,7 @@ class TestConfigurationBackwardCompatibilityRegression:
             "OneClassSVM": {"kernel": "rbf", "gamma": "scale", "nu": 0.5},
         }
 
-        for algorithm, expected_defaults in default_configs.items():
+        for algorithm, _expected_defaults in default_configs.items():
             try:
                 # Test with minimal configuration
                 adapter = SklearnAdapter(algorithm_name=algorithm, parameters={})

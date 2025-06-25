@@ -85,7 +85,7 @@ class TestLayoutValidation:
         mobile_button.click()
         mobile_page.wait_for_timeout(500)
 
-        mobile_menu = mobile_page.locator("nav .sm\\:hidden div[x-show]")
+        mobile_page.locator("nav .sm\\:hidden div[x-show]")
         # Note: Alpine.js x-show might not be detectable in this test
         # We'll check for mobile menu structure instead
         mobile_links = mobile_page.locator("nav .sm\\:hidden a")

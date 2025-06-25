@@ -530,8 +530,8 @@ class TestTensorFlowAdapterAdvanced:
         mock_layers = Mock()
 
         # Mock custom layer functionality
-        mock_attention_layer = Mock()
-        mock_residual_block = Mock()
+        Mock()
+        Mock()
         mock_layers.Layer = Mock
         mock_layers.Dense = Mock()
         mock_layers.Dropout = Mock()

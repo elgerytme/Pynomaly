@@ -965,7 +965,7 @@ class TestMonitoringPipeline:
             if metric_data["type"] == "counter":
                 assert metric_data["value"] >= 0
             elif metric_data["type"] == "gauge":
-                assert isinstance(metric_data["value"], (int, float))
+                assert isinstance(metric_data["value"], int | float)
             elif metric_data["type"] == "histogram":
                 assert "buckets" in metric_data
                 assert "count" in metric_data

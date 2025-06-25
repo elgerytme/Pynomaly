@@ -580,10 +580,6 @@ class TestConfigurationProfiles:
         }
 
         # Development profile (inherits from base)
-        dev_profile = {
-            "api": {"debug": True},  # Override
-            "database": {"echo": True},  # Add
-        }
 
         # Load with inheritance
         settings = Settings.load_profile("development", base_config=base_config)
@@ -681,7 +677,7 @@ class TestConfigurationMonitoring:
             # Load settings with hot reload
             settings = Settings.load_with_hot_reload(config_path, check_interval=0.1)
 
-            original_port = settings.api["port"]
+            settings.api["port"]
 
             # Modify config file
             modified_config = sample_config_dict.copy()

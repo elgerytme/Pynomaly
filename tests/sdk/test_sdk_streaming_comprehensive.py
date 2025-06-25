@@ -473,8 +473,8 @@ class TestSDKStreamingDetection:
             anomaly_scores = [results[1]["anomaly_score"], results[3]["anomaly_score"]]
 
             # This is not guaranteed but should generally be true
-            avg_normal = np.mean(normal_scores)
-            avg_anomaly = np.mean(anomaly_scores)
+            np.mean(normal_scores)
+            np.mean(anomaly_scores)
 
             # At least one anomaly should have higher score than normal samples
             assert max(anomaly_scores) > min(normal_scores)
@@ -568,7 +568,7 @@ class TestSDKStreamingDetection:
             training_data = pd.DataFrame({"value": np.random.normal(0, 1, 500)})
 
             training_result = sdk.train_streaming_detector(detector_id, training_data)
-            initial_threshold = training_result["initial_threshold"]
+            training_result["initial_threshold"]
 
             # Process samples from shifted distribution (concept drift)
             drift_samples = []
@@ -671,7 +671,7 @@ class TestSDKStreamingDetection:
 
             # Create data source generator
             def data_source():
-                for i in range(50):
+                for _i in range(50):
                     yield {
                         "temperature": np.random.normal(20, 5),
                         "pressure": np.random.normal(1013, 20),
@@ -746,7 +746,7 @@ class TestSDKStreamingDetection:
             start_time = time.time()
             num_samples = 100
 
-            for i in range(num_samples):
+            for _i in range(num_samples):
                 sample = {
                     "metric1": np.random.normal(0, 1),
                     "metric2": np.random.normal(0, 1),

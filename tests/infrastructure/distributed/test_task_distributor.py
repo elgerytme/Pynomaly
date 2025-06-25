@@ -561,7 +561,7 @@ class TestTaskDistributorIntegration:
 
             # Submit multiple tasks
             tasks = []
-            for i in range(6):
+            for _i in range(6):
                 task = DistributedTask(
                     task_type=TaskType.ANOMALY_DETECTION,
                     function_name="anomaly_detection",

@@ -137,7 +137,7 @@ class TestDatasetDetectorIntegration:
         assert len(result.labels) == sample_dataset.n_samples
 
         # Verify anomaly detection consistency
-        for i, (score, label) in enumerate(zip(result.scores, result.labels, strict=False)):
+        for _i, (score, label) in enumerate(zip(result.scores, result.labels, strict=False)):
             if score.value > result.threshold:
                 assert label == 1  # Anomaly
             else:
@@ -320,7 +320,7 @@ class TestEnsembleDetectionIntegration:
         assert len(ensemble_labels) == 100
 
         # Check voting logic
-        for i, (score, label) in enumerate(zip(ensemble_scores, ensemble_labels, strict=False)):
+        for i, (_score, label) in enumerate(zip(ensemble_scores, ensemble_labels, strict=False)):
             # Count individual detector votes
             individual_votes = sum(
                 1
@@ -466,7 +466,7 @@ class TestModelVersioningIntegration:
         dataset = Dataset(name="Test Data", data=data)
 
         # Train multiple times to create versions
-        for i in range(3):
+        for _i in range(3):
             mock_detector_with_versioning.fit(dataset)
 
         # Should have 3 versions
@@ -664,7 +664,7 @@ class TestExperimentWorkflowIntegration:
         ]
 
         # Run experiments
-        for i, config in enumerate(experiment_configs):
+        for _i, config in enumerate(experiment_configs):
             # Simulate detector training and detection
             # In real implementation, this would use actual detectors
 
@@ -693,7 +693,7 @@ class TestExperimentWorkflowIntegration:
             # Calculate metrics
             tp = np.sum((predicted_labels == 1) & (ground_truth == 1))
             fp = np.sum((predicted_labels == 1) & (ground_truth == 0))
-            tn = np.sum((predicted_labels == 0) & (ground_truth == 0))
+            np.sum((predicted_labels == 0) & (ground_truth == 0))
             fn = np.sum((predicted_labels == 0) & (ground_truth == 1))
 
             precision = tp / (tp + fp) if (tp + fp) > 0 else 0

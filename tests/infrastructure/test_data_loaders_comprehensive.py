@@ -108,7 +108,8 @@ class TestCSVLoaderComprehensive:
             assert pd.api.types.is_datetime64_any_dtype(dataset.data["timestamp"])
 
             # Test with custom date parser
-            date_parser = lambda x: pd.to_datetime(x, format="%Y-%m-%d %H:%M:%S")
+            def date_parser(x):
+                return pd.to_datetime(x, format="%Y-%m-%d %H:%M:%S")
             loader_custom = CSVLoader(date_parser=date_parser)
             dataset_custom = loader_custom.load(temp_path, name="custom_date")
 
@@ -363,7 +364,7 @@ class TestPolarsLoaderComprehensive:
         try:
             with (
                 patch("polars.read_csv") as mock_read,
-                patch("polars.LazyFrame") as mock_lazy,
+                patch("polars.LazyFrame"),
             ):
                 mock_df = Mock()
                 mock_df.collect.return_value = Mock()
@@ -603,7 +604,7 @@ class TestSparkLoaderComprehensive:
             )
 
             # Initialize session
-            session = loader._get_or_create_session()
+            loader._get_or_create_session()
 
             # Verify configuration was applied
             for key, value in cluster_config.items():
@@ -632,7 +633,7 @@ class TestSparkLoaderComprehensive:
                 loader = SparkLoader()
 
                 # Test with optimization options
-                dataset = loader.load(
+                loader.load(
                     temp_path,
                     name="spark_optimized",
                     cache=True,

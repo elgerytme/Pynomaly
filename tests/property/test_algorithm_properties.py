@@ -224,7 +224,7 @@ class TestAlgorithmPerformanceProperties:
                 "isolation_forest", contamination=contamination
             )
             detector.fit(data)
-            scores = detector.decision_function(data)
+            detector.decision_function(data)
 
             # Measure final memory
             final_memory = process.memory_info().rss / 1024 / 1024  # MB

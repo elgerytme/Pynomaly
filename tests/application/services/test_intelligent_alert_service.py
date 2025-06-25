@@ -300,7 +300,7 @@ class TestNoiseClassificationModel:
 
         assert isinstance(feature_vector, list)
         assert len(feature_vector) == 19  # Expected number of features
-        assert all(isinstance(x, (int, float)) for x in feature_vector)
+        assert all(isinstance(x, int | float) for x in feature_vector)
 
         # Check some specific values
         assert feature_vector[0] == 14.0  # hour_of_day

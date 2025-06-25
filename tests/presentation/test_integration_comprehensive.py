@@ -936,7 +936,7 @@ class TestPerformanceIntegration:
         headers = {"Authorization": f"Bearer {auth_token}"}
 
         # Make many requests to test memory usage
-        for i in range(100):
+        for _i in range(100):
             response = api_client.get("/api/health/", headers=headers)
             assert response.status_code == 200
 

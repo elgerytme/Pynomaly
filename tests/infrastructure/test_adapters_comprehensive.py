@@ -357,7 +357,7 @@ class TestPyTorchAdapterComprehensive:
 
             scores = adapter.score(sample_dataset)
             assert len(scores) == len(sample_dataset.features)
-            assert all(isinstance(s, (float, np.float32, np.float64)) for s in scores)
+            assert all(isinstance(s, float | np.float32 | np.float64) for s in scores)
 
     def test_model_persistence(self, sample_dataset):
         """Test model saving and loading."""
@@ -549,7 +549,7 @@ class TestAdapterIntegration:
             for adapter in adapters:
                 default_params = adapter.get_default_hyperparameters()
                 assert "contamination" in default_params
-                assert isinstance(default_params["contamination"], (int, float))
+                assert isinstance(default_params["contamination"], int | float)
                 assert 0 < default_params["contamination"] <= 0.5
 
 

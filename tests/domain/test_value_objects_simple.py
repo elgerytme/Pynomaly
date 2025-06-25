@@ -289,7 +289,7 @@ class TestValueObjectEdgeCases:
         # Test with integer - check if it's converted to float or kept as int
         int_score = AnomalyScore(1)  # Might be 1.0 or 1
         assert int_score.value == 1
-        assert isinstance(int_score.value, (int, float))
+        assert isinstance(int_score.value, int | float)
 
         # Test with boolean (if allowed)
         try:

@@ -216,7 +216,7 @@ class UITestRunner:
 
     def _critique_layout(self) -> dict[str, Any]:
         """Critique layout and structure."""
-        layout_results = self.results.get("layout_validation", {})
+        self.results.get("layout_validation", {})
 
         critique = {
             "score": 88,
@@ -246,7 +246,7 @@ class UITestRunner:
 
     def _critique_ux(self) -> dict[str, Any]:
         """Critique user experience flows."""
-        ux_results = self.results.get("ux_flows", {})
+        self.results.get("ux_flows", {})
 
         critique = {
             "score": 92,
@@ -276,7 +276,7 @@ class UITestRunner:
 
     def _critique_visual(self) -> dict[str, Any]:
         """Critique visual design and consistency."""
-        visual_results = self.results.get("visual_regression", {})
+        self.results.get("visual_regression", {})
 
         critique = {
             "score": 95,
@@ -303,7 +303,7 @@ class UITestRunner:
 
     def _critique_accessibility(self) -> dict[str, Any]:
         """Critique accessibility implementation."""
-        a11y_results = self.results.get("accessibility", {})
+        self.results.get("accessibility", {})
 
         critique = {
             "score": 78,
@@ -337,7 +337,7 @@ class UITestRunner:
 
     def _critique_responsive(self) -> dict[str, Any]:
         """Critique responsive design implementation."""
-        responsive_results = self.results.get("responsive_design", {})
+        self.results.get("responsive_design", {})
 
         critique = {
             "score": 85,
@@ -507,7 +507,7 @@ async def main():
     runner = UITestRunner()
 
     try:
-        results = await runner.run_all_tests()
+        await runner.run_all_tests()
         runner.print_summary()
 
         print("\n✅ All UI tests completed successfully!")

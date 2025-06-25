@@ -50,7 +50,7 @@ coverage_threshold = 85
 # Mutation operators to use
 operators = [
     "AOD",  # Arithmetic Operator Deletion
-    "AOR",  # Arithmetic Operator Replacement  
+    "AOR",  # Arithmetic Operator Replacement
     "COD",  # Conditional Operator Deletion
     "COR",  # Conditional Operator Replacement
     "LCR",  # Logical Connector Replacement
@@ -122,17 +122,17 @@ from pathlib import Path
 def run_domain_mutations():
     """Run mutation testing on domain layer."""
     print("🧬 Running domain layer mutation testing...")
-    
+
     # Target domain entities and value objects
     target_files = [
         "src/pynomaly/domain/entities/",
         "src/pynomaly/domain/value_objects/",
         "src/pynomaly/domain/services/",
     ]
-    
+
     for target in target_files:
         print(f"\\n🎯 Testing mutations in {target}")
-        
+
         cmd = [
             "mutmut", "run",
             "--paths-to-mutate", target,
@@ -140,15 +140,15 @@ def run_domain_mutations():
             "--runner", "python -m pytest tests/domain/ -x --tb=no -q",
             "--timeout", "120",
         ]
-        
+
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
             print(f"✅ Mutation testing completed for {target}")
             print(f"Mutations: {result.returncode}")
-            
+
             if result.stdout:
                 print("Output:", result.stdout[-500:])  # Last 500 chars
-                
+
         except subprocess.TimeoutExpired:
             print(f"⏰ Mutation testing timed out for {target}")
         except Exception as e:
@@ -176,16 +176,16 @@ from pathlib import Path
 def run_ml_adapter_mutations():
     """Run mutation testing on ML adapters."""
     print("🧬 Running ML adapter mutation testing...")
-    
+
     adapters = [
         ("PyOD Adapter", "src/pynomaly/infrastructure/adapters/pyod_adapter.py"),
         ("Sklearn Adapter", "src/pynomaly/infrastructure/adapters/sklearn_adapter.py"),
         ("Detection Service", "src/pynomaly/application/services/detection_service.py"),
     ]
-    
+
     for name, target_file in adapters:
         print(f"\\n🎯 Testing mutations in {name}")
-        
+
         cmd = [
             "mutmut", "run",
             "--paths-to-mutate", target_file,
@@ -193,17 +193,17 @@ def run_ml_adapter_mutations():
             "--timeout", "180",
             "--max-mutations", "50",  # Limit for large files
         ]
-        
+
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
             print(f"✅ Mutation testing completed for {name}")
-            
+
             # Show mutation survival rate
             if "survived" in result.stdout.lower():
                 print("⚠️  Some mutations survived - consider improving tests")
             else:
                 print("🎯 All mutations killed - excellent test coverage")
-                
+
         except subprocess.TimeoutExpired:
             print(f"⏰ Mutation testing timed out for {name}")
         except Exception as e:
@@ -257,33 +257,33 @@ jobs:
     name: Mutation Testing
     runs-on: ubuntu-latest
     timeout-minutes: 120
-    
+
     strategy:
       matrix:
-        component: 
+        component:
           - ${{ github.event.inputs.target_component == 'all' && 'domain' || github.event.inputs.target_component }}
           - ${{ github.event.inputs.target_component == 'all' && 'ml-adapters' || '' }}
           - ${{ github.event.inputs.target_component == 'all' && 'security' || '' }}
       fail-fast: false
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-    
+
     - name: Install Poetry
       uses: snok/install-poetry@v1
       with:
         version: ${{ env.POETRY_VERSION }}
-    
+
     - name: Install dependencies
       run: |
         poetry install --with dev,test
         poetry run pip install mutmut
-    
+
     - name: Run mutation testing
       run: |
         case "${{ matrix.component }}" in
@@ -304,14 +304,14 @@ jobs:
               --timeout 150
             ;;
         esac
-    
+
     - name: Generate mutation report
       if: always()
       run: |
         echo "📊 Generating mutation testing report..."
         poetry run mutmut junitxml > mutation-results-${{ matrix.component }}.xml
         poetry run mutmut html
-    
+
     - name: Upload mutation results
       uses: actions/upload-artifact@v3
       if: always()
@@ -326,23 +326,23 @@ jobs:
     needs: mutation-testing
     if: always()
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Download mutation results
       uses: actions/download-artifact@v3
       with:
         path: mutation-results/
-    
+
     - name: Analyze mutation testing effectiveness
       run: |
         echo "🔬 Mutation Testing Analysis"
         echo "=========================="
-        
+
         # In a real implementation, this would parse the mutation results
         # and provide detailed analysis of test quality
-        
+
         echo "📊 Mutation testing provides insights into test quality by:"
         echo "   - Creating small code changes (mutations)"
         echo "   - Running tests to see if they catch the changes"
@@ -381,24 +381,24 @@ from pathlib import Path
 
 class TestTimingPlugin:
     """Plugin to track test execution times and identify slow tests."""
-    
+
     def __init__(self):
         self.test_times = {}
         self.slow_tests = []
         self.start_time = None
-    
+
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_call(self, item):
         """Track individual test execution time."""
         start = time.time()
         yield
         end = time.time()
-        
+
         execution_time = end - start
         test_name = f"{item.module.__name__}::{item.name}"
-        
+
         self.test_times[test_name] = execution_time
-        
+
         # Flag slow tests (> 10 seconds)
         if execution_time > 10:
             self.slow_tests.append({
@@ -407,32 +407,32 @@ class TestTimingPlugin:
                 'file': str(item.fspath),
                 'line': item.location[1]
             })
-    
+
     def pytest_sessionfinish(self, session, exitstatus):
         """Generate timing report at end of session."""
         if not self.test_times:
             return
-        
+
         # Find slowest tests
         sorted_tests = sorted(self.test_times.items(), key=lambda x: x[1], reverse=True)
-        
+
         print("\\n" + "="*50)
         print("🕒 TEST TIMING REPORT")
         print("="*50)
-        
+
         print(f"📊 Total tests: {len(self.test_times)}")
         print(f"⏱️  Total time: {sum(self.test_times.values()):.2f}s")
         print(f"🐌 Slow tests (>10s): {len(self.slow_tests)}")
-        
+
         if self.slow_tests:
             print("\\n🐌 SLOW TESTS:")
             for test in self.slow_tests[:5]:  # Top 5 slowest
                 print(f"   {test['test']}: {test['time']:.2f}s")
-        
+
         print("\\n🚀 FASTEST TESTS:")
         for test_name, time_taken in sorted_tests[-5:]:  # 5 fastest
             print(f"   {test_name}: {time_taken:.3f}s")
-        
+
         print("\\n💡 OPTIMIZATION SUGGESTIONS:")
         if len(self.slow_tests) > 0:
             print("   - Consider mocking external dependencies in slow tests")
@@ -440,7 +440,7 @@ class TestTimingPlugin:
             print("   - Consider parallelizing slow test suites")
         else:
             print("   - Test performance looks good!")
-        
+
         # Save detailed timing data
         timing_file = Path("test-timing-report.json")
         with open(timing_file, 'w') as f:
@@ -450,7 +450,7 @@ class TestTimingPlugin:
                 'total_time': sum(self.test_times.values()),
                 'test_count': len(self.test_times)
             }, f, indent=2)
-        
+
         print(f"📄 Detailed timing report saved to: {timing_file}")
 
 
@@ -476,66 +476,66 @@ from pathlib import Path
 
 class MemoryMonitorPlugin:
     """Plugin to monitor memory usage during test execution."""
-    
+
     def __init__(self):
         self.process = psutil.Process(os.getpid())
         self.memory_usage = {}
         self.peak_memory = 0
         self.initial_memory = 0
-    
+
     def pytest_sessionstart(self, session):
         """Record initial memory usage."""
         self.initial_memory = self.process.memory_info().rss / 1024 / 1024  # MB
         print(f"\\n🧠 Initial memory usage: {self.initial_memory:.1f} MB")
-    
+
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_call(self, item):
         """Monitor memory during test execution."""
         memory_before = self.process.memory_info().rss / 1024 / 1024  # MB
-        
+
         yield
-        
+
         memory_after = self.process.memory_info().rss / 1024 / 1024  # MB
         memory_delta = memory_after - memory_before
-        
+
         test_name = f"{item.module.__name__}::{item.name}"
         self.memory_usage[test_name] = {
             'before': memory_before,
             'after': memory_after,
             'delta': memory_delta
         }
-        
+
         # Track peak memory
         if memory_after > self.peak_memory:
             self.peak_memory = memory_after
-    
+
     def pytest_sessionfinish(self, session, exitstatus):
         """Generate memory usage report."""
         if not self.memory_usage:
             return
-        
+
         final_memory = self.process.memory_info().rss / 1024 / 1024  # MB
-        
+
         # Find memory-intensive tests
         memory_hogs = sorted(
             [(test, data['delta']) for test, data in self.memory_usage.items()],
             key=lambda x: x[1], reverse=True
         )
-        
+
         print("\\n" + "="*50)
         print("🧠 MEMORY USAGE REPORT")
         print("="*50)
-        
+
         print(f"📊 Initial memory: {self.initial_memory:.1f} MB")
         print(f"📈 Peak memory: {self.peak_memory:.1f} MB")
         print(f"📊 Final memory: {final_memory:.1f} MB")
         print(f"📊 Total growth: {final_memory - self.initial_memory:.1f} MB")
-        
+
         print("\\n🔥 MEMORY-INTENSIVE TESTS:")
         for test_name, memory_delta in memory_hogs[:5]:
             if memory_delta > 10:  # Only show tests that use >10MB
                 print(f"   {test_name}: +{memory_delta:.1f} MB")
-        
+
         if self.peak_memory > 1000:  # > 1GB
             print("\\n⚠️  HIGH MEMORY USAGE DETECTED")
             print("   Consider optimizing memory-intensive tests")

@@ -189,7 +189,7 @@ class TestDataPipelineWorkflows:
                 json={"dataset_id": processed_dataset_id},
             )
             assert detect_response.status_code == 200
-            detection_result = detect_response.json()
+            detect_response.json()
 
             # Step 7: Generate pipeline report
             report_response = app_client.post(

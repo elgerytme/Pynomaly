@@ -221,7 +221,7 @@ class TestAnalyticsEngine:
 
         feature_columns.extend(["category_encoded", "has_mocks_encoded"])
 
-        X = df_encoded[feature_columns].fillna(0)
+        df_encoded[feature_columns].fillna(0)
         y_time = df_encoded["execution_time"]
         y_memory = df_encoded["memory_usage"]
         y_flakiness = df_encoded["flakiness_score"]
@@ -704,7 +704,7 @@ def main():
     analytics = TestAnalyticsEngine(project_root)
 
     # Run complete analytics pipeline
-    results = analytics.run_complete_analytics()
+    analytics.run_complete_analytics()
 
     print(f"\n📊 Analytics results saved to: {analytics.analytics_dir}")
     print("🎯 Pynomaly testing infrastructure now features world-class AI analytics!")

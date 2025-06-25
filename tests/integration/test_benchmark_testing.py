@@ -624,7 +624,7 @@ class TestPerformanceBenchmarking:
         algorithms = ["IsolationForest"]
         dataset_sizes = [(50, 3)]
 
-        profiles = benchmark.run_comprehensive_benchmark(
+        benchmark.run_comprehensive_benchmark(
             algorithms, dataset_sizes, n_runs=1
         )
 
@@ -826,7 +826,7 @@ class TestPerformanceRegression:
         n_runs = 5
         results = []
 
-        for run in range(n_runs):
+        for _run in range(n_runs):
             result = benchmark.benchmark_algorithm(
                 "IsolationForest",
                 dataset,

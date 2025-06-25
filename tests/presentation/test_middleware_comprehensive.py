@@ -70,7 +70,7 @@ class TestSecurityMiddleware:
             "Referrer-Policy": "strict-origin-when-cross-origin",
         }
 
-        for header_name, expected_value in expected_headers.items():
+        for header_name, _expected_value in expected_headers.items():
             if header_name.lower() in [h.lower() for h in headers.keys()]:
                 header_value = headers.get(header_name)
                 assert header_value is not None
@@ -288,7 +288,7 @@ class TestRateLimitingMiddleware:
 
         # Make multiple requests rapidly
         responses = []
-        for i in range(20):  # Assuming rate limit is lower than 20
+        for _i in range(20):  # Assuming rate limit is lower than 20
             response = client_with_middleware.get("/api/health/", headers=headers)
             responses.append(response)
 
@@ -309,7 +309,7 @@ class TestRateLimitingMiddleware:
         """Test rate limiting per IP address."""
         # Make multiple requests from same IP
         responses = []
-        for i in range(15):
+        for _i in range(15):
             response = client_with_middleware.get(
                 "/api/health/", headers={"X-Forwarded-For": "192.168.1.100"}
             )
@@ -333,7 +333,7 @@ class TestRateLimitingMiddleware:
         """Test rate limiting bypass for health check endpoints."""
         # Health checks should not be rate limited
         responses = []
-        for i in range(50):
+        for _i in range(50):
             response = client_with_middleware.get("/api/health/")
             responses.append(response)
 
@@ -346,12 +346,12 @@ class TestRateLimitingMiddleware:
         """Test rate limiting is tracked separately for different endpoints."""
         # Make requests to different endpoints
         health_responses = []
-        for i in range(10):
+        for _i in range(10):
             response = client_with_middleware.get("/api/health/")
             health_responses.append(response)
 
         detector_responses = []
-        for i in range(10):
+        for _i in range(10):
             response = client_with_middleware.get("/api/detectors/")
             detector_responses.append(response)
 
@@ -375,7 +375,7 @@ class TestRateLimitingMiddleware:
             mock_time.return_value = current_time
 
             # Make requests to hit rate limit
-            for i in range(10):
+            for _i in range(10):
                 response = client_with_middleware.get("/api/health/")
                 if response.status_code == 429:
                     break
@@ -469,7 +469,7 @@ class TestLoggingMiddleware:
                 "token": "bearer_token_here",
             }
 
-            response = client_with_middleware.post(
+            client_with_middleware.post(
                 "/api/auth/login", json=sensitive_data
             )
 
@@ -528,8 +528,8 @@ class TestCompressionMiddleware:
             )
 
             # Should potentially be compressed
-            large_encoding = large_response.headers.get("Content-Encoding")
-            small_encoding = small_response.headers.get("Content-Encoding")
+            large_response.headers.get("Content-Encoding")
+            small_response.headers.get("Content-Encoding")
 
             # Compression behavior depends on implementation
             assert large_response.status_code == 200
@@ -771,7 +771,7 @@ class TestMiddlewareIntegration:
     def test_middleware_memory_usage(self, client_with_middleware: TestClient):
         """Test middleware doesn't cause memory leaks."""
         # Make many requests to test for memory leaks
-        for i in range(100):
+        for _i in range(100):
             response = client_with_middleware.get("/api/health/")
             assert response.status_code == 200
 

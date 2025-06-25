@@ -293,12 +293,12 @@ class TestRateLimitMiddleware:
         """Test rate limit middleware integration with FastAPI."""
         with TestClient(test_app) as client:
             # First few requests should succeed
-            for i in range(5):
+            for _i in range(5):
                 response = client.get("/test")
                 assert response.status_code == 200
 
             # After many rapid requests, should be rate limited
-            for i in range(20):
+            for _i in range(20):
                 response = client.get("/test")
                 if response.status_code == 429:
                     break

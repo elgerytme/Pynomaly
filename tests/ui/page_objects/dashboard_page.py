@@ -137,11 +137,11 @@ class DashboardPage(BasePage):
 
         # Test refresh button
         if self.page.locator(self.REFRESH_BUTTON).count() > 0:
-            initial_content = self.page.locator(
+            self.page.locator(
                 self.RECENT_RESULTS_TABLE
             ).text_content()
             self.refresh_results()
-            updated_content = self.page.locator(
+            self.page.locator(
                 self.RECENT_RESULTS_TABLE
             ).text_content()
             results["refresh_works"] = True  # If no error occurred

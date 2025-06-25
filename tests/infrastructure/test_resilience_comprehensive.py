@@ -82,7 +82,7 @@ class TestCircuitBreaker:
             return "success"
 
         # Execute successful operations
-        for i in range(5):
+        for _i in range(5):
             result = sample_circuit_breaker.call(successful_operation)
             assert result == "success"
             assert sample_circuit_breaker.state == CircuitBreakerState.CLOSED
@@ -95,7 +95,7 @@ class TestCircuitBreaker:
             raise ValueError("Operation failed")
 
         # Execute operations that fail
-        for i in range(sample_circuit_breaker.failure_threshold - 1):
+        for _i in range(sample_circuit_breaker.failure_threshold - 1):
             with pytest.raises(ValueError):
                 sample_circuit_breaker.call(failing_operation)
             assert sample_circuit_breaker.state == CircuitBreakerState.CLOSED
@@ -117,7 +117,7 @@ class TestCircuitBreaker:
             raise ValueError("Operation failed")
 
         # Force circuit breaker to open state
-        for i in range(sample_circuit_breaker.failure_threshold):
+        for _i in range(sample_circuit_breaker.failure_threshold):
             with pytest.raises(ValueError):
                 sample_circuit_breaker.call(failing_operation)
 
@@ -134,7 +134,7 @@ class TestCircuitBreaker:
             raise ValueError("Operation failed")
 
         # Force to open state
-        for i in range(sample_circuit_breaker.failure_threshold):
+        for _i in range(sample_circuit_breaker.failure_threshold):
             with pytest.raises(ValueError):
                 sample_circuit_breaker.call(failing_operation)
 
@@ -160,7 +160,7 @@ class TestCircuitBreaker:
             return "success"
 
         # Force to open state
-        for i in range(sample_circuit_breaker.failure_threshold):
+        for _i in range(sample_circuit_breaker.failure_threshold):
             with pytest.raises(ValueError):
                 sample_circuit_breaker.call(failing_operation)
 
@@ -170,7 +170,7 @@ class TestCircuitBreaker:
         sample_circuit_breaker.success_count = 0
 
         # Execute successful operations to close circuit
-        for i in range(sample_circuit_breaker.success_threshold):
+        for _i in range(sample_circuit_breaker.success_threshold):
             result = sample_circuit_breaker.call(successful_operation)
             assert result == "success"
 
@@ -194,7 +194,7 @@ class TestCircuitBreaker:
         assert result == "async_success"
 
         # Test failing async operations
-        for i in range(sample_circuit_breaker.failure_threshold):
+        for _i in range(sample_circuit_breaker.failure_threshold):
             with pytest.raises(ValueError):
                 await sample_circuit_breaker.call_async(async_failing_operation)
 
@@ -316,7 +316,6 @@ class TestRetryPolicy:
         )
 
         delays = []
-        original_sleep = time.sleep
 
         def mock_sleep(duration):
             delays.append(duration)
@@ -633,7 +632,7 @@ class TestResilientService:
             raise ValueError("Always fails")
 
         # Execute failing operations to open circuit
-        for i in range(2):
+        for _i in range(2):
             with pytest.raises(ValueError):
                 service.execute(always_failing)
 
@@ -844,7 +843,7 @@ class TestRateLimiter:
         )
 
         # Should allow initial requests up to limit
-        for i in range(3):
+        for _i in range(3):
             assert limiter.is_allowed() is True
 
         # Should deny further requests

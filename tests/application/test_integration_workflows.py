@@ -40,7 +40,7 @@ class TestApplicationWorkflows:
         detector_id = str(uuid.uuid4())
 
         # Mock dataset loading
-        mock_dataset = Dataset(
+        Dataset(
             id=dataset_id,
             name="test_dataset",
             data=Mock(),
@@ -49,7 +49,7 @@ class TestApplicationWorkflows:
         )
 
         # Mock detector
-        mock_detector = Detector(
+        Detector(
             id=detector_id,
             name="test_detector",
             algorithm_name="IsolationForest",
@@ -561,7 +561,7 @@ class TestApplicationWorkflows:
 
         # Verify multi-tenant processing
         assert len(results) == 3
-        for tenant_id, result in results.items():
+        for _tenant_id, result in results.items():
             assert "detector_id" in result
             assert "results" in result
             assert len(result["results"].anomalies) > 0

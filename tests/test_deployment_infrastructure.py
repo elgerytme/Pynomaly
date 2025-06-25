@@ -267,7 +267,7 @@ class TestDeploymentOrchestrationService:
         """Test deployment rollback."""
         # Create initial deployment
         model_version_id_1 = uuid4()
-        deployment1 = await deployment_service.deploy_model(
+        await deployment_service.deploy_model(
             model_version_id=model_version_id_1,
             target_environment=Environment.PRODUCTION,
             strategy=DeploymentStrategy(strategy_type=StrategyType.DIRECT),
@@ -354,7 +354,7 @@ class TestDeploymentOrchestrationService:
             user="test-user",
         )
 
-        production_deployment = await deployment_service.deploy_model(
+        await deployment_service.deploy_model(
             model_version_id=uuid4(),
             target_environment=Environment.PRODUCTION,
             strategy=DeploymentStrategy(strategy_type=StrategyType.BLUE_GREEN),
@@ -634,7 +634,7 @@ class TestDeploymentIntegration:
         )
 
         # Check if automatic rollback was triggered
-        updated_deployment = await deployment_service.get_deployment(
+        await deployment_service.get_deployment(
             production_deployment.id
         )
         # Note: In this test, automatic rollback might not trigger due to request count threshold

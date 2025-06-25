@@ -184,7 +184,7 @@ class TestCostAnalysisEngine:
         assert "suggested_action" in anomaly
 
         # Should detect idle expensive resource (check if any idle anomalies exist)
-        idle_anomalies = [
+        [
             a for a in anomalies if a["anomaly_type"] == "expensive_idle_resource"
         ]
         # Note: The storage resource may not trigger this if cost is below the mean threshold

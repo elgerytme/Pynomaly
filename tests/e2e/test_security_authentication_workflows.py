@@ -520,7 +520,7 @@ class TestSecurityAuthenticationWorkflows:
 
         # Attempt multiple failed logins
         failed_attempts = []
-        for i in range(6):  # Exceed rate limit threshold
+        for _i in range(6):  # Exceed rate limit threshold
             failed_login = app_client.post(
                 "/api/auth/login",
                 data={"username": "bruteuser", "password": "WrongPassword"},

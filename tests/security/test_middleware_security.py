@@ -132,7 +132,7 @@ class TestRateLimiterSecurity:
                 },
             ]
 
-            for i, case in enumerate(test_cases):
+            for _i, case in enumerate(test_cases):
                 request = Mock(spec=Request)
                 request.client = Mock()
                 request.client.host = case["client_host"]

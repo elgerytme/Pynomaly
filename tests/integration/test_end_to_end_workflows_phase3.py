@@ -196,7 +196,7 @@ class TestEndToEndWorkflowsPhase3:
 
             # 3. Query relationships
             found_detector = mock_detector_repo.find_by_id("detector_001")
-            found_dataset = mock_dataset_repo.find_by_id("dataset_001")
+            mock_dataset_repo.find_by_id("dataset_001")
             detector_results = mock_result_repo.find_by_detector_id("detector_001")
 
             # Verify integration
@@ -256,7 +256,7 @@ class TestEndToEndWorkflowsPhase3:
 
                 assert fit_result is True
                 assert len(predictions) > 0
-                assert all(isinstance(score, (int, float)) for score in predictions)
+                assert all(isinstance(score, int | float) for score in predictions)
 
     def test_streaming_integration_workflow(self):
         """Test streaming data processing integration."""
@@ -527,7 +527,7 @@ class TestComponentIntegrationPhase3:
             }
 
             # Mock cache operations
-            for cache_type, config in cache_scenarios.items():
+            for _cache_type, config in cache_scenarios.items():
                 # Mock cache set/get operations
                 cache_key = config["key"]
                 cache_value = config["value"]
@@ -574,12 +574,12 @@ class TestComponentIntegrationPhase3:
             },
         }
 
-        for feature_category, features in security_features.items():
+        for _feature_category, features in security_features.items():
             # Test security feature enablement
             for feature_name, feature_enabled in features.items():
                 if isinstance(feature_enabled, bool):
                     assert feature_enabled is True, f"{feature_name} should be enabled"
-                elif isinstance(feature_enabled, (int, str, list)):
+                elif isinstance(feature_enabled, int | str | list):
                     assert feature_enabled is not None
                     if isinstance(feature_enabled, list):
                         assert len(feature_enabled) > 0

@@ -374,9 +374,9 @@ class TestMockBasedInfrastructure:
     def test_fastapi_endpoint_mock(self):
         """Test FastAPI endpoint behavior with mocks."""
         # Mock FastAPI app and request/response
-        mock_app = Mock()
-        mock_request = Mock()
-        mock_response = Mock()
+        Mock()
+        Mock()
+        Mock()
 
         # Mock detector service
         mock_detector_service = Mock()
@@ -420,12 +420,6 @@ class TestMockBasedInfrastructure:
         # Test adapter interface logic
         with patch.dict("sys.modules", {"torch": mock_torch}):
             # Simulate adapter creation
-            adapter_config = {
-                "algorithm": "AutoEncoder",
-                "input_dim": 5,
-                "hidden_dim": 3,
-                "learning_rate": 0.001,
-            }
 
             # Test model creation
             input_tensor = mock_torch.tensor([[1, 2, 3, 4, 5]])

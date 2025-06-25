@@ -589,7 +589,7 @@ class TestMemoryAndResourceTesting:
                         )
 
                         if train_response.status_code == 200:
-                            predict_response = api_client.post(
+                            api_client.post(
                                 f"/api/detectors/{detector_id}/predict",
                                 json={"dataset_id": dataset_id},
                             )
