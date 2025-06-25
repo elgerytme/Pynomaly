@@ -134,6 +134,15 @@ def main():
     print("\n📌 Installing Pynomaly in development mode...")
     run_command([python_path, "-m", "pip", "install", "-e", "."])
     
+    # Verify installation
+    print("\n📌 Verifying installation...")
+    try:
+        verify_result = run_command([python_path, "-c", "import pynomaly; from pynomaly.domain.entities import Dataset; print('✅ Core imports successful')"], allow_failure=True)
+        if verify_result.returncode != 0:
+            print("⚠️  Core imports failed, but package was installed")
+    except:
+        print("⚠️  Verification failed, but continuing...")
+    
     print("\n" + "=" * 60)
     print("✅ Setup completed successfully!")
     print("=" * 60)
@@ -148,30 +157,35 @@ def main():
         print("1. Activate the virtual environment:")
         print("   source .venv/bin/activate")
     
-    print("\n2. Run the CLI directly:")
-    print("   pynomaly --help")
-    print("   # or")
+    print("\n2. Test basic functionality:")
+    print(f"   {python_path} -c \"import pynomaly; print('Pynomaly imported successfully')\"")
+    
+    print("\n3. Run the CLI (requires CLI extras):")
+    print("   # Install CLI support first:")
+    print(f"   {python_path} -m pip install -e \".[cli]\"")
+    print("   # Then run CLI:")
     print("   python -m pynomaly.presentation.cli.app --help")
-    print("   # or")
-    print("   python scripts/cli.py --help")
     
-    print("\n3. Start the API server:")
-    print("   pynomaly server start")
-    print("   # or")
+    print("\n4. Start the API server (requires API extras):")
+    print("   # Install API support first:")
+    print(f"   {python_path} -m pip install -e \".[api]\"")
+    print("   # Then start server:")
     print("   python -m uvicorn pynomaly.presentation.api.app:app --reload")
-    print("   # or")
-    print("   python -m pynomaly.presentation.cli.app server start")
     
-    print("\n4. Access the web UI:")
-    print("   http://localhost:8000")
+    print("\n5. Quick server setup (includes API + CLI):")
+    print(f"   {python_path} -m pip install -e \".[server]\"")
     
-    print("\n📖 Example commands:")
-    print("   # List available algorithms")
-    print("   pynomaly detector algorithms")
-    print("\n   # Create a detector")
-    print("   pynomaly detector create --name 'My Detector' --algorithm IsolationForest")
-    print("\n   # Start the server")
-    print("   pynomaly server start")
+    print("\n6. Access the web UI:")
+    print("   http://localhost:8000 (after starting the API server)")
+    
+    print("\n📖 Quick test commands:")
+    print("   # Test core functionality")
+    print(f"   {python_path} -c \"import pyod; print('PyOD version:', pyod.__version__)\"")
+    print(f"   {python_path} -c \"import pandas as pd; print('Pandas version:', pd.__version__)\"")
+    print(f"   {python_path} -c \"from pynomaly.domain.entities import Dataset; print('Core entities loaded')\"")
+    
+    print("\n🔧 For development extras:")
+    print(f"   {python_path} -m pip install -e \".[all]\"  # Install everything")
 
 if __name__ == "__main__":
     main()
