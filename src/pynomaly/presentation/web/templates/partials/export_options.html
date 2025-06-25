@@ -1,0 +1,347 @@
+<!-- Export Options Component -->
+<div class="bg-white shadow rounded-lg p-4 mb-6">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-medium text-gray-900">📥 Export Options</h3>
+        <button onclick="showExportModal()" 
+                class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+            <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            Export Data
+        </button>
+    </div>
+    
+    <!-- Quick Export Buttons -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <button onclick="quickExport('json')" 
+                class="flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+            <span class="mr-2">📄</span>
+            JSON
+        </button>
+        <button onclick="quickExport('csv')" 
+                class="flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+            <span class="mr-2">📊</span>
+            CSV
+        </button>
+        <button onclick="quickExport('excel')" 
+                class="flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+            <span class="mr-2">📗</span>
+            Excel
+        </button>
+        <button onclick="quickExport('pdf')" 
+                class="flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+            <span class="mr-2">📕</span>
+            PDF Report
+        </button>
+    </div>
+</div>
+
+<!-- Export Configuration Modal -->
+<div id="export-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Configure Export</h3>
+            
+            <!-- Export Form -->
+            <form id="export-form" class="space-y-6">
+                <!-- Export Format -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Export Format</label>
+                        <select name="format" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            <option value="json">JSON - Structured data</option>
+                            <option value="csv">CSV - Tabular data</option>
+                            <option value="excel">Excel - Spreadsheet with charts</option>
+                            <option value="yaml">YAML - Configuration format</option>
+                            <option value="pdf">PDF - Formatted report</option>
+                            <option value="html">HTML - Web report</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Compression</label>
+                        <select name="compression" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            <option value="none">No compression</option>
+                            <option value="zip">ZIP archive</option>
+                            <option value="gzip">GZIP compression</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Data Sections -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Include Data Sections</label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="include_detectors" checked class="mr-2">
+                            <span class="text-sm">Detectors</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="include_datasets" checked class="mr-2">
+                            <span class="text-sm">Datasets</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="include_results" checked class="mr-2">
+                            <span class="text-sm">Detection Results</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="include_experiments" class="mr-2">
+                            <span class="text-sm">Experiments</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="include_ensembles" class="mr-2">
+                            <span class="text-sm">Ensembles</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="include_automl" class="mr-2">
+                            <span class="text-sm">AutoML Results</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Metadata Options -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Metadata Options</label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="include_metadata" checked class="mr-2">
+                            <span class="text-sm">Basic Metadata</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="include_performance" class="mr-2">
+                            <span class="text-sm">Performance Metrics</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="include_timestamps" checked class="mr-2">
+                            <span class="text-sm">Timestamps</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="include_system_info" class="mr-2">
+                            <span class="text-sm">System Information</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="include_lineage" class="mr-2">
+                            <span class="text-sm">Data Lineage</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="include_configurations" class="mr-2">
+                            <span class="text-sm">Configurations</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Advanced Options -->
+                <div class="border-t pt-4">
+                    <h4 class="text-md font-medium text-gray-900 mb-3">Advanced Options</h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="date" name="date_from" placeholder="From" 
+                                       class="border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                <input type="date" name="date_to" placeholder="To" 
+                                       class="border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">File Naming</label>
+                            <input type="text" name="filename" placeholder="Custom filename (optional)" 
+                                   class="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Export Scope</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="scope" value="current" checked class="mr-2">
+                                <span class="text-sm">Current View</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="scope" value="filtered" class="mr-2">
+                                <span class="text-sm">Filtered Results</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="scope" value="all" class="mr-2">
+                                <span class="text-sm">All Data</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Export Destination -->
+                <div class="border-t pt-4">
+                    <h4 class="text-md font-medium text-gray-900 mb-3">Export Destination</h4>
+                    <div class="space-y-3">
+                        <label class="flex items-center">
+                            <input type="radio" name="destination" value="download" checked class="mr-2">
+                            <span class="text-sm">Download to device</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="destination" value="email" class="mr-2">
+                            <span class="text-sm">Send via email</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="destination" value="cloud" class="mr-2">
+                            <span class="text-sm">Save to cloud storage</span>
+                        </label>
+                    </div>
+                    
+                    <!-- Email options (shown when email is selected) -->
+                    <div id="email-options" class="hidden mt-3 p-3 bg-gray-50 rounded">
+                        <input type="email" name="email" placeholder="Enter email address" 
+                               class="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                    </div>
+                </div>
+            </form>
+            
+            <!-- Progress Area -->
+            <div id="export-progress" class="hidden mt-6 p-4 bg-blue-50 border border-blue-200 rounded">
+                <div class="flex items-center">
+                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-3"></div>
+                    <span class="text-sm text-blue-800">Preparing export...</span>
+                </div>
+                <div class="mt-2">
+                    <div class="w-full bg-blue-200 rounded-full h-2">
+                        <div id="export-progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Actions -->
+            <div class="mt-6 flex justify-end space-x-3">
+                <button onclick="closeExportModal()" 
+                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button onclick="startExport()" 
+                        class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                    Start Export
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showExportModal() {
+    document.getElementById('export-modal').classList.remove('hidden');
+    
+    // Set up event listeners for radio buttons
+    document.querySelectorAll('input[name="destination"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const emailOptions = document.getElementById('email-options');
+            if (this.value === 'email') {
+                emailOptions.classList.remove('hidden');
+            } else {
+                emailOptions.classList.add('hidden');
+            }
+        });
+    });
+}
+
+function closeExportModal() {
+    document.getElementById('export-modal').classList.add('hidden');
+    // Reset progress
+    document.getElementById('export-progress').classList.add('hidden');
+    document.getElementById('export-progress-bar').style.width = '0%';
+}
+
+function quickExport(format) {
+    // Start quick export with default settings
+    const exportData = {
+        format: format,
+        scope: 'current',
+        include_detectors: true,
+        include_datasets: true,
+        include_results: true,
+        include_metadata: true,
+        destination: 'download'
+    };
+    
+    performExport(exportData);
+}
+
+function startExport() {
+    const form = document.getElementById('export-form');
+    const formData = new FormData(form);
+    const exportData = {};
+    
+    // Convert FormData to object
+    for (let [key, value] of formData.entries()) {
+        if (exportData[key]) {
+            // Handle multiple values (checkboxes)
+            if (!Array.isArray(exportData[key])) {
+                exportData[key] = [exportData[key]];
+            }
+            exportData[key].push(value);
+        } else {
+            exportData[key] = value;
+        }
+    }
+    
+    // Handle checkboxes that aren't checked
+    document.querySelectorAll('#export-form input[type="checkbox"]').forEach(checkbox => {
+        if (!checkbox.checked) {
+            exportData[checkbox.name] = false;
+        } else if (!exportData[checkbox.name]) {
+            exportData[checkbox.name] = true;
+        }
+    });
+    
+    performExport(exportData);
+}
+
+function performExport(exportData) {
+    // Show progress
+    const progressDiv = document.getElementById('export-progress');
+    const progressBar = document.getElementById('export-progress-bar');
+    
+    if (progressDiv && progressBar) {
+        progressDiv.classList.remove('hidden');
+        progressBar.style.width = '10%';
+    }
+    
+    // Start export via HTMX
+    htmx.post('/web/htmx/export-data', {
+        values: exportData,
+        target: '#export-progress',
+        swap: 'innerHTML'
+    });
+    
+    // Simulate progress updates
+    let progress = 10;
+    const progressInterval = setInterval(() => {
+        progress += Math.random() * 20;
+        if (progress >= 90) {
+            progress = 90;
+            clearInterval(progressInterval);
+        }
+        if (progressBar) {
+            progressBar.style.width = `${progress}%`;
+        }
+    }, 500);
+}
+
+// Export scheduling functionality
+function scheduleExport() {
+    alert('Export scheduling feature coming soon!');
+}
+
+function saveExportTemplate() {
+    const form = document.getElementById('export-form');
+    const formData = new FormData(form);
+    const templateName = prompt('Enter template name:');
+    
+    if (templateName) {
+        // Save template logic would go here
+        alert(`Export template "${templateName}" saved!`);
+    }
+}
+
+function loadExportTemplate() {
+    alert('Export template loading feature coming soon!');
+}
+</script>
