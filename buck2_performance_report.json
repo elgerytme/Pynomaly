@@ -1,0 +1,81 @@
+{
+  "buck2_basic_builds": {
+    "clean_build_times": [
+      1.5599324703216553,
+      5.010743618011475,
+      8.11740231513977,
+      5.19809365272522,
+      5.0607922077178955
+    ],
+    "cached_build_times": [
+      0.38550662994384766,
+      0.41733360290527344,
+      0.39555835723876953
+    ],
+    "avg_clean_time": 4.989392852783203,
+    "avg_cached_time": 0.39946619669596356,
+    "cache_speedup": 12.490150340757527,
+    "targets_tested": [
+      "//:validation",
+      "//:test-validation",
+      "//:dev-ready"
+    ]
+  },
+  "hatch_basic_operations": {
+    "version": {
+      "times": [
+        1.6429286003112793,
+        1.7121613025665283,
+        1.5947842597961426
+      ],
+      "avg_time": 1.6499580542246501,
+      "success": true
+    },
+    "env_create": {
+      "times": [
+        0.12792420387268066,
+        0.12794017791748047,
+        0.13144993782043457
+      ],
+      "avg_time": 0.1291047732035319,
+      "success": true
+    },
+    "env_remove": {
+      "times": [
+        17.183310508728027,
+        0.12368655204772949,
+        0.11818218231201172
+      ],
+      "avg_time": 5.808393081029256,
+      "success": true
+    }
+  },
+  "incremental_build_comparison": {
+    "full_rebuild_times": [
+      1.3092279434204102,
+      1.1149652004241943,
+      4.886358261108398
+    ],
+    "incremental_times": [
+      0.15743446350097656,
+      0.12624907493591309,
+      0.1364297866821289
+    ],
+    "no_change_times": [
+      0.16129779815673828,
+      0.12901830673217773,
+      0.12927532196044922
+    ],
+    "avg_full_rebuild": 2.4368504683176675,
+    "avg_incremental": 0.14003777503967285,
+    "avg_no_change": 0.13986380894978842,
+    "incremental_speedup": 17.401379503689665,
+    "no_change_speedup": 17.423023773022692
+  },
+  "cache_performance": {
+    "cache_exists": false,
+    "cold_cache_time": 4.738852500915527,
+    "warm_cache_time": 0.1229395866394043,
+    "cache_effectiveness": 38.54618866431622
+  }
+}
