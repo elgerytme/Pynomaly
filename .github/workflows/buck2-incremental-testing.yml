@@ -1,0 +1,358 @@
+name: Buck2 Incremental Testing
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      test_strategy:
+        description: 'Test strategy to use'
+        required: false
+        default: 'auto'
+        type: choice
+        options:
+        - auto
+        - minimal
+        - standard
+        - comprehensive
+        - full
+      base_ref:
+        description: 'Base reference for comparison'
+        required: false
+        default: ''
+        type: string
+
+env:
+  PYTHON_VERSION: '3.11'
+  POETRY_VERSION: '1.6.1'
+
+jobs:
+  analyze-changes:
+    name: Analyze Changes and Determine Strategy
+    runs-on: ubuntu-latest
+    outputs:
+      test-strategy: ${{ steps.analysis.outputs.test-strategy }}
+      risk-level: ${{ steps.analysis.outputs.risk-level }}
+      test-targets: ${{ steps.analysis.outputs.test-targets }}
+      build-targets: ${{ steps.analysis.outputs.build-targets }}
+      estimated-duration: ${{ steps.analysis.outputs.estimated-duration }}
+      has-changes: ${{ steps.analysis.outputs.has-changes }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for change analysis
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install Buck2
+      run: |
+        curl -L https://github.com/facebook/buck2/releases/latest/download/buck2-x86_64-unknown-linux-gnu.zst | zstd -d > buck2
+        chmod +x buck2
+        sudo mv buck2 /usr/local/bin/
+        buck2 --version
+    
+    - name: Determine base reference
+      id: base-ref
+      run: |
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          echo "base-ref=${{ github.event.pull_request.base.sha }}" >> $GITHUB_OUTPUT
+        elif [ -n "${{ github.event.inputs.base_ref }}" ]; then
+          echo "base-ref=${{ github.event.inputs.base_ref }}" >> $GITHUB_OUTPUT
+        else
+          echo "base-ref=HEAD~1" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Run impact analysis
+      id: analysis
+      run: |
+        # Run impact analysis
+        python scripts/buck2_impact_analyzer.py \
+          --base "${{ steps.base-ref.outputs.base-ref }}" \
+          --target HEAD \
+          --format json \
+          --output analysis-result.json
+        
+        # Extract results for GitHub Actions
+        if [ -f analysis-result.json ]; then
+          # Check if there are any changes
+          changes=$(jq -r '.change_analysis.changed_files | length' analysis-result.json)
+          if [ "$changes" -eq 0 ]; then
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+            echo "test-strategy=none" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          echo "has-changes=true" >> $GITHUB_OUTPUT
+          
+          # Extract analysis results
+          echo "risk-level=$(jq -r '.risk_assessment.level' analysis-result.json)" >> $GITHUB_OUTPUT
+          echo "test-strategy=$(jq -r '.test_strategy.priority' analysis-result.json)" >> $GITHUB_OUTPUT
+          echo "estimated-duration=$(jq -r '.test_strategy.estimated_duration' analysis-result.json)" >> $GITHUB_OUTPUT
+          
+          # Convert test targets to space-separated string
+          echo "test-targets=$(jq -r '.test_strategy.test_targets | join(" ")' analysis-result.json)" >> $GITHUB_OUTPUT
+          echo "build-targets=$(jq -r '.test_strategy.build_targets | join(" ")' analysis-result.json)" >> $GITHUB_OUTPUT
+        else
+          echo "has-changes=false" >> $GITHUB_OUTPUT
+          echo "test-strategy=none" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Upload analysis results
+      uses: actions/upload-artifact@v3
+      if: steps.analysis.outputs.has-changes == 'true'
+      with:
+        name: impact-analysis
+        path: analysis-result.json
+        retention-days: 7
+
+  incremental-tests:
+    name: Run Incremental Tests
+    needs: analyze-changes
+    if: needs.analyze-changes.outputs.has-changes == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: "Quick Tests"
+            targets: ${{ needs.analyze-changes.outputs.test-targets }}
+            condition: ${{ needs.analyze-changes.outputs.test-strategy != 'none' }}
+          - name: "Build Targets"
+            targets: ${{ needs.analyze-changes.outputs.build-targets }}
+            condition: ${{ needs.analyze-changes.outputs.test-strategy == 'comprehensive' || needs.analyze-changes.outputs.test-strategy == 'full' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: ${{ env.POETRY_VERSION }}
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+        installer-parallel: true
+    
+    - name: Load cached dependencies
+      id: cached-poetry-dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
+    
+    - name: Install dependencies
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      run: poetry install --no-interaction --no-root
+    
+    - name: Install Buck2
+      run: |
+        curl -L https://github.com/facebook/buck2/releases/latest/download/buck2-x86_64-unknown-linux-gnu.zst | zstd -d > buck2
+        chmod +x buck2
+        sudo mv buck2 /usr/local/bin/
+    
+    - name: Run incremental tests
+      id: test
+      run: |
+        # Determine base reference
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          BASE_REF="${{ github.event.pull_request.base.sha }}"
+        else
+          BASE_REF="HEAD~1"
+        fi
+        
+        # Override test strategy if specified in workflow dispatch
+        TEST_STRATEGY="${{ github.event.inputs.test_strategy }}"
+        if [ "$TEST_STRATEGY" = "auto" ] || [ -z "$TEST_STRATEGY" ]; then
+          TEST_STRATEGY="${{ needs.analyze-changes.outputs.test-strategy }}"
+        fi
+        
+        echo "Running incremental tests with strategy: $TEST_STRATEGY"
+        
+        # Run the incremental test runner
+        python scripts/buck2_incremental_test.py \
+          --base "$BASE_REF" \
+          --target HEAD \
+          --output test-results.json \
+          $([ "${{ needs.analyze-changes.outputs.risk-level }}" = "high" ] || [ "${{ needs.analyze-changes.outputs.risk-level }}" = "critical" ] && echo "--fail-fast") \
+          --verbose
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-${{ matrix.name }}
+        path: test-results.json
+        retention-days: 7
+    
+    - name: Comment on PR
+      if: github.event_name == 'pull_request' && always()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          try {
+            const results = JSON.parse(fs.readFileSync('test-results.json', 'utf8'));
+            const analysis = JSON.parse(fs.readFileSync('analysis-result.json', 'utf8'));
+            
+            const status = results.failed_targets > 0 ? '❌' : '✅';
+            const riskEmoji = {
+              'low': '🟢',
+              'medium': '🟡', 
+              'high': '🟠',
+              'critical': '🔴'
+            }[analysis.risk_assessment.level] || '⚪';
+            
+            const body = `## ${status} Buck2 Incremental Test Results
+            
+            **Risk Level:** ${riskEmoji} ${analysis.risk_assessment.level}
+            **Test Strategy:** ${analysis.test_strategy.priority}
+            **Duration:** ${(results.total_duration / 60).toFixed(1)} minutes
+            
+            ### Summary
+            - **Total Targets:** ${results.total_targets}
+            - **Successful:** ${results.successful_targets}
+            - **Failed:** ${results.failed_targets}
+            - **Files Changed:** ${analysis.change_analysis.changed_files.length}
+            
+            ### Changed Files
+            ${analysis.change_analysis.changed_files.slice(0, 10).map(f => `- \`${f}\``).join('\n')}
+            ${analysis.change_analysis.changed_files.length > 10 ? `\n... and ${analysis.change_analysis.changed_files.length - 10} more` : ''}
+            
+            ${results.failed_targets > 0 ? `
+            ### Failed Tests
+            ${results.results.filter(r => !r.success).map(r => `- ❌ \`${r.target}\``).join('\n')}
+            ` : ''}
+            
+            ### Recommendations
+            ${analysis.test_strategy.recommendations.map(r => `- ${r}`).join('\n')}
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+          } catch (error) {
+            console.log('Could not post comment:', error);
+          }
+
+  security-scan:
+    name: Security Scan on High Risk Changes
+    needs: analyze-changes
+    if: needs.analyze-changes.outputs.risk-level == 'high' || needs.analyze-changes.outputs.risk-level == 'critical'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install security tools
+      run: |
+        pip install bandit safety
+    
+    - name: Run Bandit security scan
+      run: |
+        bandit -r src/ -f json -o bandit-report.json || true
+    
+    - name: Run Safety check
+      run: |
+        safety check --json --output safety-report.json || true
+    
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-reports
+        path: |
+          bandit-report.json
+          safety-report.json
+        retention-days: 30
+
+  performance-regression:
+    name: Performance Regression Check
+    needs: analyze-changes
+    if: needs.analyze-changes.outputs.risk-level == 'critical' || contains(needs.analyze-changes.outputs.test-targets, 'benchmarks')
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: ${{ env.POETRY_VERSION }}
+    
+    - name: Install dependencies
+      run: poetry install --no-interaction
+    
+    - name: Install Buck2
+      run: |
+        curl -L https://github.com/facebook/buck2/releases/latest/download/buck2-x86_64-unknown-linux-gnu.zst | zstd -d > buck2
+        chmod +x buck2
+        sudo mv buck2 /usr/local/bin/
+    
+    - name: Run performance benchmarks
+      run: |
+        buck2 test :benchmarks --verbose
+    
+    - name: Upload benchmark results
+      uses: actions/upload-artifact@v3
+      with:
+        name: benchmark-results
+        path: benchmark-results/
+        retention-days: 30
+
+  summary:
+    name: Test Summary
+    needs: [analyze-changes, incremental-tests]
+    if: always() && needs.analyze-changes.outputs.has-changes == 'true'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: artifacts/
+    
+    - name: Generate summary
+      run: |
+        echo "# Buck2 Incremental Testing Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Risk Level:** ${{ needs.analyze-changes.outputs.risk-level }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Test Strategy:** ${{ needs.analyze-changes.outputs.test-strategy }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Estimated Duration:** ${{ needs.analyze-changes.outputs.estimated-duration }}s" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ -f "artifacts/test-results-Quick Tests/test-results.json" ]; then
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          cat "artifacts/test-results-Quick Tests/test-results.json" | jq '.run_metadata' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+        fi
