@@ -453,7 +453,7 @@ class HealthService:
                     "packets_sent": net_io.packets_sent,
                     "packets_recv": net_io.packets_recv,
                 }
-            except:
+            except Exception:
                 network_io = {"bytes_sent": 0, "bytes_recv": 0}
 
             return SystemMetrics(

@@ -366,7 +366,7 @@ class DataValidator:
                                 suggestion="Consider converting to numeric type for better performance",
                             )
                         )
-                except:
+                except Exception:
                     pass
 
         return issues

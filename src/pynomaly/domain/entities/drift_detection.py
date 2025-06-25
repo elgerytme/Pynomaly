@@ -192,7 +192,7 @@ class FeatureData:
             from scipy.stats import skew
 
             return skew(data)
-        except:
+        except Exception:
             return 0.0
 
     def _safe_kurtosis(self, data: np.ndarray) -> float:
@@ -201,7 +201,7 @@ class FeatureData:
             from scipy.stats import kurtosis
 
             return kurtosis(data)
-        except:
+        except Exception:
             return 0.0
 
     def _get_mode_frequency(self, data: np.ndarray) -> float:
