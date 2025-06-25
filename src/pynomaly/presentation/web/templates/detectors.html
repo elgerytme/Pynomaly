@@ -18,8 +18,13 @@
         </button>
     </div>
     
+    <!-- Advanced Features -->
+    {% include "partials/bulk_operations.html" %}
+    {% include "partials/advanced_filters.html" %}
+    {% include "partials/export_options.html" %}
+    
     <!-- Detectors List -->
-    <div id="detector-list">
+    <div id="detector-list" data-filter-target data-filter-endpoint="/web/htmx/filtered-detectors">
         {% include "partials/detector_list.html" %}
     </div>
     

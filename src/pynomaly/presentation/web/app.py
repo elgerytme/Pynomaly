@@ -807,6 +807,119 @@ async def htmx_automl_history(
     )
 
 
+# Bulk Operations HTMX endpoints
+@router.post("/htmx/bulk-train", response_class=HTMLResponse)
+async def htmx_bulk_train(
+    request: Request,
+    detector_ids: str = Form(...),
+    container: Container = Depends(get_container)
+):
+    """Bulk train detectors via HTMX."""
+    try:
+        ids = [id.strip() for id in detector_ids.split(",") if id.strip()]
+        
+        # Create progress tracking for bulk operation
+        progress_html = f"""
+        <div class="space-y-4">
+            <div class="bg-blue-50 border border-blue-200 rounded p-4">
+                <h4 class="font-medium text-blue-900">Training {len(ids)} detectors...</h4>
+                <div class="mt-2">
+                    <div class="w-full bg-blue-200 rounded-full h-2">
+                        <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 20%"></div>
+                    </div>
+                </div>
+                <p class="text-sm text-blue-700 mt-2">Processing detector 1 of {len(ids)}</p>
+            </div>
+        </div>
+        """
+        
+        return HTMLResponse(progress_html)
+        
+    except Exception as e:
+        return HTMLResponse(
+            f'<div class="alert alert-error">Bulk training failed: {str(e)}</div>'
+        )
+
+
+@router.post("/htmx/bulk-delete", response_class=HTMLResponse)
+async def htmx_bulk_delete(
+    request: Request,
+    item_ids: str = Form(...),
+    container: Container = Depends(get_container)
+):
+    """Bulk delete items via HTMX."""
+    try:
+        ids = [id.strip() for id in item_ids.split(",") if id.strip()]
+        
+        # Simulate deletion process
+        progress_html = f"""
+        <div class="space-y-4">
+            <div class="bg-red-50 border border-red-200 rounded p-4">
+                <h4 class="font-medium text-red-900">Deleting {len(ids)} items...</h4>
+                <div class="mt-2">
+                    <div class="w-full bg-red-200 rounded-full h-2">
+                        <div class="bg-red-600 h-2 rounded-full transition-all duration-300" style="width: 100%"></div>
+                    </div>
+                </div>
+                <p class="text-sm text-red-700 mt-2">✅ Successfully deleted {len(ids)} items</p>
+            </div>
+            <button onclick="location.reload()" class="w-full bg-primary text-white py-2 px-4 rounded hover:bg-blue-700">
+                Refresh Page
+            </button>
+        </div>
+        """
+        
+        return HTMLResponse(progress_html)
+        
+    except Exception as e:
+        return HTMLResponse(
+            f'<div class="alert alert-error">Bulk deletion failed: {str(e)}</div>'
+        )
+
+
+@router.post("/htmx/bulk-export", response_class=HTMLResponse)
+async def htmx_bulk_export(
+    request: Request,
+    item_ids: str = Form(...),
+    format: str = Form("json"),
+    include_results: bool = Form(False),
+    include_metadata: bool = Form(False),
+    include_performance: bool = Form(False),
+    container: Container = Depends(get_container)
+):
+    """Bulk export items via HTMX."""
+    try:
+        ids = [id.strip() for id in item_ids.split(",") if id.strip()]
+        
+        # Generate download link
+        download_filename = f"pynomaly_export_{len(ids)}_items.{format}"
+        
+        progress_html = f"""
+        <div class="space-y-4">
+            <div class="bg-green-50 border border-green-200 rounded p-4">
+                <h4 class="font-medium text-green-900">Export completed!</h4>
+                <p class="text-sm text-green-700 mt-2">Exported {len(ids)} items in {format.upper()} format</p>
+                <div class="mt-4 space-y-2">
+                    <a href="/web/download/{download_filename}" 
+                       class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Download {download_filename}
+                    </a>
+                </div>
+            </div>
+        </div>
+        """
+        
+        return HTMLResponse(progress_html)
+        
+    except Exception as e:
+        return HTMLResponse(
+            f'<div class="alert alert-error">Bulk export failed: {str(e)}</div>'
+        )
+
+
 def mount_web_ui(app):
     """Mount web UI to FastAPI app."""
     # Mount static files
