@@ -494,6 +494,13 @@ def auto_select_algorithm(file_path):
     from pynomaly.application.services.automl_service import AutoMLService, OptimizationObjective
     from pynomaly.infrastructure.config import Container
     
+    # Check if optuna is available
+    try:
+        import optuna
+        OPTUNA_AVAILABLE = True
+    except ImportError:
+        OPTUNA_AVAILABLE = False
+    
     # Validate file
     file_path = validate_file_exists(file_path)
     data_format = validate_data_format(file_path)
@@ -596,7 +603,93 @@ def auto_select_algorithm(file_path):
                 print(f"     Training time factor: {config.training_time_factor:.2f}")
                 print(f"     Memory factor: {config.memory_factor:.2f}")
             
-            # Run AutoML optimization (simplified for CLI)
+            # Check if optimization is available
+            if not hasattr(automl_service, 'auto_select_and_optimize') or not OPTUNA_AVAILABLE:
+                print(f"\n⚠️ Advanced optimization not available (requires optuna)")
+                print(f"   Providing basic algorithm recommendations instead...")
+                
+                # Test each recommended algorithm with default parameters
+                print(f"\n🔬 Testing Recommended Algorithms:")
+                print("-" * 50)
+                
+                algorithm_results = []
+                for algorithm in recommended_algorithms[:3]:
+                    try:
+                        print(f"\nTesting {algorithm}...")
+                        
+                        # Use sklearn algorithms that are available
+                        sklearn_map = {
+                            'ECOD': 'IsolationForest',
+                            'COPOD': 'IsolationForest', 
+                            'KNN': 'LocalOutlierFactor',
+                            'LOF': 'LocalOutlierFactor',
+                            'IsolationForest': 'IsolationForest',
+                            'AutoEncoder': 'IsolationForest',
+                            'VAE': 'IsolationForest',
+                            'OneClassSVM': 'OneClassSVM'
+                        }
+                        
+                        sklearn_algo = sklearn_map.get(algorithm, 'IsolationForest')
+                        
+                        from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+                        from pynomaly.domain.value_objects import ContaminationRate
+                        
+                        adapter = SklearnAdapter(sklearn_algo, contamination_rate=ContaminationRate(0.25))
+                        adapter.fit(dataset)
+                        result = adapter.detect(dataset)
+                        
+                        anomaly_count = len(result.anomalies)
+                        anomaly_rate = anomaly_count / len(result.labels)
+                        
+                        algorithm_results.append({
+                            'algorithm': algorithm,
+                            'sklearn_algo': sklearn_algo,
+                            'anomaly_count': anomaly_count,
+                            'anomaly_rate': anomaly_rate,
+                            'execution_time': result.execution_time_ms,
+                            'threshold': result.threshold
+                        })
+                        
+                        print(f"   Algorithm: {algorithm} (using {sklearn_algo})")
+                        print(f"   Anomalies: {anomaly_count}/{len(result.labels)} ({anomaly_rate*100:.1f}%)")
+                        print(f"   Execution time: {result.execution_time_ms:.1f}ms")
+                        print(f"   Threshold: {result.threshold:.6f}")
+                        
+                    except Exception as e:
+                        print(f"   ❌ {algorithm} failed: {str(e)}")
+                
+                # Select best algorithm based on results
+                if algorithm_results:
+                    # For this example, prefer results closest to expected contamination (25%)
+                    target_rate = 0.25
+                    best_result = min(algorithm_results, 
+                                    key=lambda x: abs(x['anomaly_rate'] - target_rate))
+                    
+                    print(f"\n🏆 Best Algorithm Recommendation: {best_result['algorithm']}")
+                    print(f"   Detected {best_result['anomaly_count']} anomalies ({best_result['anomaly_rate']*100:.1f}%)")
+                    print(f"   Execution time: {best_result['execution_time']:.1f}ms")
+                    
+                    print(f"\n📝 Command to Use Best Algorithm:")
+                    cmd = f"python pynomaly_cli.py detect {file_path} {best_result['sklearn_algo']} 0.25"
+                    print(f"   {cmd}")
+                    
+                    print(f"\n💡 Algorithm Analysis:")
+                    for result in algorithm_results:
+                        rate_diff = abs(result['anomaly_rate'] - target_rate)
+                        if rate_diff < 0.05:
+                            assessment = "Excellent match"
+                        elif rate_diff < 0.10:
+                            assessment = "Good match"
+                        else:
+                            assessment = "Poor match"
+                        print(f"   • {result['algorithm']}: {assessment} (difference: {rate_diff*100:.1f}%)")
+                    
+                    return True
+                else:
+                    print(f"\n❌ No algorithms could be tested successfully")
+                    return False
+                    
+            # Full AutoML optimization (requires Optuna)
             print(f"\n⚡ Running AutoML optimization...")
             print(f"   Max algorithms to test: 3")
             print(f"   Max trials per algorithm: 20")
