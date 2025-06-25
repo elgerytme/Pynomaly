@@ -322,6 +322,9 @@ class Container(containers.DeclarativeContainer):
                 max_history=100
             )
         
+        # Performance monitoring services
+        cls._register_performance_services(service_manager)
+        
         # Security services
         if service_manager.is_available('audit_logger'):
             cls.audit_logger = service_manager.create_provider(
