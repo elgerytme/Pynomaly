@@ -641,6 +641,7 @@ Examples:
             }
             result["summary"] = {
                 "overall_success": result["current_env"].get("success", False),
+                "total_duration": time.time() - start_time,
                 "environments_tested": 1,
                 "environments_passed": 1 if result["current_env"].get("success", False) else 0
             }
