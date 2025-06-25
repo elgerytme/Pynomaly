@@ -23,6 +23,8 @@ State-of-the-art Python anomaly detection package targeting Python 3.11+ with cl
 - 🛡️ **Type Safe**: 100% type coverage with mypy --strict, Pydantic validation
 - 🔄 **Streaming & Batch**: Real-time processing with backpressure and large dataset support
 - 🧰 **Extensible**: Plugin architecture with algorithm registry and custom adapters
+- ✅ **Test-Driven Development**: Active TDD enforcement with 85% coverage threshold
+- 🔧 **Modern Environment Management**: Centralized virtual environments with automated tooling
 
 ## Installation
 
@@ -73,18 +75,19 @@ hatch env run -e api pip install -e ".[api,cli]"
 
 ### Alternative Setup (Traditional pip/venv)
 
-If you prefer traditional Python environment management:
+If you prefer traditional Python environment management, Pynomaly uses a centralized environment structure:
 
 #### Quick Start
 ```bash
-# Create virtual environment
-python -m venv .venv
+# Create virtual environment in organized directory structure
+mkdir -p environments
+python -m venv environments/.venv
 
 # Activate environment
 # Linux/macOS:
-source .venv/bin/activate
+source environments/.venv/bin/activate
 # Windows:
-.venv\Scripts\activate
+environments\.venv\Scripts\activate
 
 # Install with desired features
 pip install -e ".[server]"          # API + CLI + basic features
@@ -92,6 +95,8 @@ pip install -e ".[production]"      # Production-ready stack
 pip install -e ".[ml-all]"          # All ML frameworks
 pip install -e ".[all]"             # Everything
 ```
+
+**Environment Organization**: Pynomaly uses a centralized `environments/` directory with dot-prefix naming (`.venv`, `.test_env`) to keep the project root clean and organize all virtual environments in one location.
 
 #### Feature-Specific Installation
 ```bash
@@ -482,6 +487,37 @@ hatch env run lint:fmt                    # Auto-format code
 hatch env run prod:serve-api              # Start API server
 hatch env run cli:run --help              # CLI help
 ```
+
+#### Test-Driven Development (TDD)
+
+Pynomaly has **active TDD enforcement** with comprehensive tooling:
+
+```bash
+# TDD Status & Management
+pynomaly tdd status --detailed           # Check TDD compliance
+pynomaly tdd enable --coverage 0.9       # Enable with custom coverage
+pynomaly tdd disable                     # Disable TDD enforcement
+
+# Test Requirements Management
+pynomaly tdd require "src/module.py" "function_name" \
+  --desc "Test description" \
+  --spec "Detailed specification" \
+  --coverage 0.9 --tags "core,domain"
+
+pynomaly tdd requirements --status pending    # List pending requirements
+pynomaly tdd requirements --module "src/auth.py"  # Filter by module
+
+# Validation & Compliance
+pynomaly tdd validate --coverage --fix    # Validate with auto-fix
+pynomaly tdd coverage --threshold 0.85    # Coverage analysis
+pynomaly tdd report --format html         # Generate reports
+
+# Git Integration
+pynomaly tdd hooks --install --pre-commit # Install git hooks
+pynomaly tdd hooks --status               # Check hook status
+```
+
+**Current Status**: TDD is **enabled** with 85% coverage threshold, enforcing test-first development for domain and application layers.
 
 ### Legacy Development (Poetry)
 

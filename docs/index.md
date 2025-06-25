@@ -30,6 +30,8 @@ Modern development practices and tools.
 - **[Hatch Guide](development/HATCH_GUIDE.md)** - Build system and environment management
 - **[Implementation Guide](development/IMPLEMENTATION_GUIDE.md)** - Architecture and patterns
 - **[File Organization](development/FILE_ORGANIZATION_STANDARDS.md)** - Project structure standards
+- **[Environment Management Migration](development/ENVIRONMENT_MANAGEMENT_MIGRATION.md)** - Centralized environment organization
+- **[Test Analysis](development/COMPREHENSIVE_TEST_ANALYSIS.md)** - Testing infrastructure and coverage
 
 ### 🏗️ Architecture
 System design and architectural decisions.
@@ -76,6 +78,14 @@ Practical examples and tutorials.
 
 Pynomaly is built with cutting-edge Python tooling:
 
+- **🔨 Hatch**: Modern build system and environment management
+- **⚡ Ruff**: Lightning-fast linting and formatting
+- **🔍 MyPy**: Strict type checking with 100% coverage
+- **✅ TDD System**: Comprehensive test-driven development enforcement
+- **🌐 Environment Management**: Centralized virtual environment organization
+- **🔄 Pre-commit**: Automated code quality and compliance checks
+- **📊 Coverage**: Detailed test coverage analysis and reporting
+
 ## Key Features
 
 ### 🏗️ Clean Architecture
@@ -95,6 +105,12 @@ Pynomaly is built with cutting-edge Python tooling:
 - Comprehensive monitoring and metrics
 - Caching and batch processing
 - Robust error handling and validation
+
+### ✅ Test-Driven Development
+- **Active TDD enforcement** with 85% coverage threshold
+- Automated test requirement tracking and validation
+- Git hook integration for pre-commit compliance
+- Comprehensive CLI tooling for TDD management
 
 ### 🖥️ Multiple Interfaces
 - **REST API**: Full-featured API with OpenAPI documentation

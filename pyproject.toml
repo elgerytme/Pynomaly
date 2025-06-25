@@ -257,9 +257,9 @@ source = "vcs"
 [tool.hatch.build.hooks.vcs]
 version-file = "src/pynomaly/_version.py"
 
-[tool.hatch.build.hooks.buck2]
-requires = ["hatch-buck2"]
-dependencies = ["buck2_build_hook"]
+# Buck2 integration (optional, requires Buck2 to be installed)
+# [tool.hatch.build.hooks.buck2]
+# Enable this section when Buck2 is available and you want accelerated builds
 
 [tool.hatch.build]
 include = [

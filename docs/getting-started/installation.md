@@ -69,19 +69,22 @@ hatch env run cli:run --help     # CLI help
 
 For those preferring traditional Python environment management:
 
+**Environment Organization**: Pynomaly uses a centralized `environments/` directory structure with dot-prefix naming (`.venv`, `.test_env`) to keep the project root clean and organize all virtual environments systematically.
+
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/pynomaly.git
 cd pynomaly
 
-# Create virtual environment
-python -m venv .venv
+# Create virtual environment using organized structure
+mkdir -p environments
+python -m venv environments/.venv
 
 # Activate environment
 # Linux/macOS:
-source .venv/bin/activate
+source environments/.venv/bin/activate
 # Windows:
-.venv\Scripts\activate
+environments\.venv\Scripts\activate
 
 # Install with desired features
 pip install -e ".[server]"          # API + CLI + basic features
@@ -187,10 +190,17 @@ make test               # Run core tests
 make lint               # Check code quality
 make ci                 # Full CI pipeline locally
 
+# Test-Driven Development
+pynomaly tdd status     # Check TDD compliance
+pynomaly tdd validate   # Validate current state
+pynomaly tdd require "src/module.py" "function" --desc "Test description"
+
 # Build and package
 make build              # Build wheel and source distribution
 make version            # Show current version
 ```
+
+**Note**: Pynomaly has **active TDD enforcement** with 85% coverage threshold. The system tracks test requirements and validates compliance automatically.
 
 ### Legacy Poetry Development
 
