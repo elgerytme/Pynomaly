@@ -9,7 +9,7 @@ import time
 from pathlib import Path
 from typing import List, Optional
 
-import click
+import typer
 from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
@@ -27,52 +27,35 @@ from pynomaly.application.dto.optimization_dto import (
 from pynomaly.domain.entities import Dataset
 
 # Infrastructure imports
-from pynomaly.infrastructure.data_loaders import CSVLoader, ParquetLoader
+from pynomaly.infrastructure.data_loaders.csv_loader import CSVLoader
+from pynomaly.infrastructure.data_loaders.parquet_loader import ParquetLoader
 from pynomaly.infrastructure.config.feature_flags import require_feature
+from pynomaly.presentation.cli.container import get_cli_container
 
 console = Console()
+app = typer.Typer()
 
 
-@click.group()
-def automl():
+def automl_help():
     """Advanced AutoML and hyperparameter optimization commands."""
     pass
 
 
-@automl.command()
-@click.argument('dataset_path', type=click.Path(exists=True, path_type=Path))
-@click.argument('algorithm_name', type=str)
-@click.option('--objectives', '-o', multiple=True, 
-              help='Optimization objectives (accuracy, speed, interpretability, memory_efficiency)')
-@click.option('--max-time', '-t', type=int, default=3600,
-              help='Maximum optimization time in seconds')
-@click.option('--max-trials', '-n', type=int, default=100,
-              help='Maximum number of optimization trials')
-@click.option('--max-memory', '-m', type=int, default=4096,
-              help='Maximum memory usage in MB')
-@click.option('--parallel-jobs', '-j', type=int, default=1,
-              help='Number of parallel optimization jobs')
-@click.option('--output', type=click.Path(path_type=Path),
-              help='Output file for optimization results')
-@click.option('--disable-learning', is_flag=True,
-              help='Disable learning from optimization history')
-@click.option('--prefer-speed', is_flag=True,
-              help='Prefer speed over accuracy in optimization')
-@click.option('--gpu', is_flag=True,
-              help='Enable GPU acceleration if available')
+@app.command()
 @require_feature("advanced_automl")
 def optimize(
-    dataset_path: Path,
-    algorithm_name: str,
-    objectives: tuple,
-    max_time: int,
-    max_trials: int,
-    max_memory: int,
-    parallel_jobs: int,
-    output: Optional[Path],
-    disable_learning: bool,
-    prefer_speed: bool,
-    gpu: bool
+    dataset_path: Path = typer.Argument(..., help="Path to dataset file"),
+    algorithm_name: str = typer.Argument(..., help="Algorithm name to optimize"),
+    objectives: Optional[List[str]] = typer.Option(None, "-o", "--objectives", 
+                                                   help="Optimization objectives (accuracy, speed, interpretability, memory_efficiency)"),
+    max_time: int = typer.Option(3600, "-t", "--max-time", help="Maximum optimization time in seconds"),
+    max_trials: int = typer.Option(100, "-n", "--max-trials", help="Maximum number of optimization trials"),
+    max_memory: int = typer.Option(4096, "-m", "--max-memory", help="Maximum memory usage in MB"),
+    parallel_jobs: int = typer.Option(1, "-j", "--parallel-jobs", help="Number of parallel optimization jobs"),
+    output: Optional[Path] = typer.Option(None, "--output", help="Output file for optimization results"),
+    disable_learning: bool = typer.Option(False, "--disable-learning", help="Disable learning from optimization history"),
+    prefer_speed: bool = typer.Option(False, "--prefer-speed", help="Prefer speed over accuracy in optimization"),
+    gpu: bool = typer.Option(False, "--gpu", help="Enable GPU acceleration if available")
 ):
     """Optimize algorithm hyperparameters using advanced AutoML.
     

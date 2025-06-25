@@ -40,6 +40,7 @@ Commands:
   perf-stats         Show performance statistics and system info
   auto-select FILE   Automatically select best algorithm and parameters (requires optuna)
   explain FILE       Generate explanations for anomaly detection results
+  visualize FILE     Generate visualization and charts for anomaly detection results
 
 Examples:
   python pynomaly_cli.py version
@@ -1170,6 +1171,15 @@ def main():
             algorithm = sys.argv[3] if len(sys.argv) > 3 else None
             instance_index = int(sys.argv[4]) if len(sys.argv) > 4 else None
             explain_anomaly_detection(file_path, algorithm, instance_index)
+    elif command == 'visualize':
+        if len(sys.argv) < 3:
+            print("Error: Please provide a file path")
+            print("Usage: python pynomaly_cli.py visualize <file> [algorithm] [chart_type]")
+        else:
+            file_path = sys.argv[2]
+            algorithm = sys.argv[3] if len(sys.argv) > 3 else None
+            chart_type = sys.argv[4] if len(sys.argv) > 4 else None
+            visualize_anomaly_detection(file_path, algorithm, chart_type)
     else:
         print(f"Unknown command: {command}")
         print("Use 'python pynomaly_cli.py help' for available commands")

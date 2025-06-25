@@ -44,6 +44,58 @@ class AutonomousConfig:
     quality_threshold: float = 0.8
     max_preprocessing_time: float = 300.0  # 5 minutes
     preprocessing_strategy: str = "auto"  # auto, aggressive, conservative, minimal
+    
+    # Explainability configuration
+    enable_explainability: bool = True
+    explain_algorithm_choices: bool = True
+    explain_anomalies: bool = True
+    explanation_method: str = "auto"  # auto, shap, lime, permutation
+
+
+@dataclass
+class AlgorithmExplanation:
+    """Explanation for why an algorithm was selected or rejected."""
+    
+    algorithm: str
+    selected: bool
+    confidence: float
+    reasoning: str
+    data_characteristics: Dict[str, Any]
+    decision_factors: Dict[str, float]
+    alternatives_considered: List[str]
+    performance_prediction: float
+    computational_complexity: str
+    memory_requirements: str
+    interpretability_score: float
+
+
+@dataclass
+class AnomalyExplanation:
+    """Explanation for detected anomalies."""
+    
+    sample_id: int
+    anomaly_score: float
+    contributing_features: Dict[str, float]
+    feature_importances: Dict[str, float]
+    normal_range_deviations: Dict[str, float]
+    similar_normal_samples: List[int]
+    explanation_confidence: float
+    explanation_method: str
+
+
+@dataclass
+class AutonomousExplanationReport:
+    """Comprehensive explanation report for autonomous detection."""
+    
+    dataset_profile: 'DataProfile'
+    algorithm_explanations: List[AlgorithmExplanation]
+    selected_algorithms: List[str]
+    rejected_algorithms: List[str]
+    ensemble_explanation: Optional[str]
+    anomaly_explanations: List[AnomalyExplanation]
+    processing_explanation: str
+    recommendations: List[str]
+    decision_tree: Dict[str, Any]
 
 
 @dataclass

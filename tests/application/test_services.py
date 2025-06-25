@@ -83,7 +83,8 @@ def detection_service():
 @pytest.fixture
 def ensemble_service():
     """Create an EnsembleService with mocked dependencies."""
-    detector_repo = InMemoryDetectorRepository()
+    sync_detector_repo = InMemoryDetectorRepository()
+    detector_repo = AsyncDetectorRepositoryWrapper(sync_detector_repo)
     aggregator = EnsembleAggregator()
     scorer = AnomalyScorer()
     
@@ -104,7 +105,8 @@ def temp_storage_path():
 @pytest.fixture
 def model_persistence_service(temp_storage_path):
     """Create a ModelPersistenceService with temporary storage."""
-    detector_repo = InMemoryDetectorRepository()
+    sync_detector_repo = InMemoryDetectorRepository()
+    detector_repo = AsyncDetectorRepositoryWrapper(sync_detector_repo)
     return ModelPersistenceService(
         detector_repository=detector_repo,
         storage_path=temp_storage_path
