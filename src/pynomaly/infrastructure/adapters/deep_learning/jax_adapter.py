@@ -18,7 +18,7 @@ try:
     import jax
     import jax.numpy as jnp
     import optax
-    from jax impjit, random, vmapvmap
+    from jax import jit, random
     from jax.scipy import stats
 
     JAX_AVAILABLE = True
@@ -34,7 +34,7 @@ except ImportError:
     JAX_AVAILABLE = False
 
 try:
-    from flax implinen as nns nn
+    from flax import linen as nn
     from flax.training import train_state
 
     FLAX_AVAILABLE = True
