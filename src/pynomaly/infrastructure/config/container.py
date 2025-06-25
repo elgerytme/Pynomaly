@@ -326,22 +326,22 @@ class Container(containers.DeclarativeContainer):
             master="local[*]"
         )
     
-    # Algorithm adapters
-    pyod_adapter = providers.Singleton(PyODAdapter)
-    sklearn_adapter = providers.Singleton(SklearnAdapter)
+    # Algorithm adapters (factories - require algorithm_name parameter)
+    pyod_adapter = providers.Factory(PyODAdapter)
+    sklearn_adapter = providers.Factory(SklearnAdapter)
     
     # Optional adapters - only create providers if adapters are available
     if PyGODAdapter is not None:
-        pygod_adapter = providers.Singleton(PyGODAdapter)
+        pygod_adapter = providers.Factory(PyGODAdapter)
     
     if PyTorchAdapter is not None:
-        pytorch_adapter = providers.Singleton(PyTorchAdapter)
+        pytorch_adapter = providers.Factory(PyTorchAdapter)
     
     if TensorFlowAdapter is not None:
-        tensorflow_adapter = providers.Singleton(TensorFlowAdapter)
+        tensorflow_adapter = providers.Factory(TensorFlowAdapter)
     
     if JAXAdapter is not None:
-        jax_adapter = providers.Singleton(JAXAdapter)
+        jax_adapter = providers.Factory(JAXAdapter)
     
     # Authentication services - only create if available
     if JWTAuthService is not None:
