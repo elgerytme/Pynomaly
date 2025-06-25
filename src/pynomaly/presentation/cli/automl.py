@@ -153,23 +153,17 @@ def optimize(
         sys.exit(1)
 
 
-@automl.command()
-@click.argument('dataset_path', type=click.Path(exists=True, path_type=Path))
-@click.option('--algorithms', '-a', multiple=True,
-              help='Algorithms to compare (default: all available)')
-@click.option('--max-time-per-algorithm', '-t', type=int, default=1800,
-              help='Maximum time per algorithm in seconds')
-@click.option('--max-trials-per-algorithm', '-n', type=int, default=50,
-              help='Maximum trials per algorithm')
-@click.option('--output', type=click.Path(path_type=Path),
-              help='Output file for comparison results')
+@app.command()
 @require_feature("advanced_automl")
 def compare(
-    dataset_path: Path,
-    algorithms: tuple,
-    max_time_per_algorithm: int,
-    max_trials_per_algorithm: int,
-    output: Optional[Path]
+    dataset_path: Path = typer.Argument(..., help="Path to dataset file"),
+    algorithms: Optional[List[str]] = typer.Option(None, "-a", "--algorithms",
+                                                  help="Algorithms to compare (default: all available)"),
+    max_time_per_algorithm: int = typer.Option(1800, "-t", "--max-time-per-algorithm",
+                                              help="Maximum time per algorithm in seconds"),
+    max_trials_per_algorithm: int = typer.Option(50, "-n", "--max-trials-per-algorithm",
+                                                help="Maximum trials per algorithm"),
+    output: Optional[Path] = typer.Option(None, "--output", help="Output file for comparison results")
 ):
     """Compare multiple algorithms using AutoML optimization.
     
@@ -243,11 +237,12 @@ def compare(
         sys.exit(1)
 
 
-@automl.command()
-@click.option('--storage-path', type=click.Path(path_type=Path),
-              default=Path("./automl_storage"), help='AutoML storage path')
+@app.command()
 @require_feature("advanced_automl")
-def insights():
+def insights(
+    storage_path: Path = typer.Option(Path("./automl_storage"), "--storage-path", 
+                                     help="AutoML storage path")
+):
     """Analyze optimization history and learning insights.
     
     Examples:
@@ -277,13 +272,14 @@ def insights():
         sys.exit(1)
 
 
-@automl.command()
-@click.argument('dataset_path', type=click.Path(exists=True, path_type=Path))
-@click.argument('algorithm_name', type=str)
-@click.option('--storage-path', type=click.Path(path_type=Path),
-              default=Path("./automl_storage"), help='AutoML storage path')
+@app.command("predict-performance")
 @require_feature("advanced_automl")
-def predict_performance(dataset_path: Path, algorithm_name: str, storage_path: Path):
+def predict_performance(
+    dataset_path: Path = typer.Argument(..., help="Path to dataset file"),
+    algorithm_name: str = typer.Argument(..., help="Algorithm to predict performance for"),
+    storage_path: Path = typer.Option(Path("./automl_storage"), "--storage-path",
+                                     help="AutoML storage path")
+):
     """Predict algorithm performance based on dataset characteristics.
     
     DATASET_PATH: Path to the dataset file

@@ -187,6 +187,11 @@ class FeatureFlags(BaseSettings):
         description="Enable advanced explainable AI features"
     )
     
+    intelligent_selection: bool = Field(
+        default=True,
+        description="Enable intelligent algorithm selection with learning capabilities"
+    )
+    
     # Phase 3C: User Experience Features (Enabled for development)
     real_time_dashboards: bool = Field(
         default=True,
@@ -526,7 +531,10 @@ feature_flags = FeatureFlagManager()
 
 def require_feature(feature_name: str):
     """Decorator to require a feature flag for function execution."""
+    import functools
+    
     def decorator(func):
+        @functools.wraps(func)
         def wrapper(*args, **kwargs):
             if not feature_flags.is_enabled(feature_name):
                 raise RuntimeError(
