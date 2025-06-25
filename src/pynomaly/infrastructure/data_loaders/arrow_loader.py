@@ -299,8 +299,8 @@ class ArrowLoader(DataLoaderProtocol):
 
             elif transform_type == "aggregate":
                 # Group by aggregation
-                group_by = transform["group_by"]
-                aggregates = transform["aggregates"]
+                transform["group_by"]
+                transform["aggregates"]
 
                 # This would require more complex groupby logic
                 logger.warning(

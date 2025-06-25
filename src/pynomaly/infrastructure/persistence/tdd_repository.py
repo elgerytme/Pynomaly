@@ -275,7 +275,7 @@ class InMemoryTDDRepository(TestDrivenDevelopmentRepositoryProtocol):
 
         # Calculate module-specific compliance
         module_compliance = {}
-        modules = set(req.module_path for req in requirements)
+        modules = {req.module_path for req in requirements}
 
         for module in modules:
             module_reqs = [r for r in requirements if r.module_path == module]
@@ -555,7 +555,7 @@ class FileTDDRepository(TestDrivenDevelopmentRepositoryProtocol):
 
         # Calculate module-specific compliance
         module_compliance = {}
-        modules = set(req.module_path for req in requirements)
+        modules = {req.module_path for req in requirements}
 
         for module in modules:
             module_reqs = [r for r in requirements if r.module_path == module]

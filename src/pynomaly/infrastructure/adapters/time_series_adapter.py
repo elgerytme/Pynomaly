@@ -189,7 +189,7 @@ class SeasonalDecompositionDetector:
                 )
             else:
                 trend = np.full(len(data), np.mean(data))
-                seasonal = np.zeros(len(data))
+                np.zeros(len(data))
                 residuals = data - trend
         else:
             residuals = self.baseline_residuals

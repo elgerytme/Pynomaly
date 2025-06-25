@@ -125,7 +125,6 @@ class VotingEnsemble(BaseEnsembleDetector):
         else:
             # Hard voting - majority rule
             all_predictions = []
-            all_scores = []
 
             for detector in self.base_detectors:
                 if hasattr(detector, "predict"):

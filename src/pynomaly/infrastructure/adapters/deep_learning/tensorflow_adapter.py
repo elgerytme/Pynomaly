@@ -292,7 +292,7 @@ def create_transformer_model(config: TransformerConfig) -> Model:
     # Multi-head attention layer
     class MultiHeadSelfAttention(layers.Layer):
         def __init__(self, d_model, num_heads):
-            super(MultiHeadSelfAttention, self).__init__()
+            super().__init__()
             self.num_heads = num_heads
             self.d_model = d_model
 

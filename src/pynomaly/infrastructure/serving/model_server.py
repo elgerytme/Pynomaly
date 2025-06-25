@@ -628,9 +628,9 @@ class ModelServer:
             if isinstance(data, dict):
                 # Convert to numpy array or pandas DataFrame as needed
                 feature_values = list(data.values())
-                input_array = np.array([feature_values])
+                np.array([feature_values])
             else:
-                input_array = np.array(data)
+                np.array(data)
 
             # Simulate anomaly score calculation
             anomaly_score = np.random.uniform(0.0, 1.0)

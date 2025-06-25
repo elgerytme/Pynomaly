@@ -685,7 +685,7 @@ class JAXAdapter(DetectorProtocol):
         # Load and recreate model (simplified - would need proper recreation)
         if path.with_suffix(".npz").exists():
             # This is a simplified loading - proper implementation would recreate model structure
-            loaded_params = np.load(path.with_suffix(".npz"))
+            np.load(path.with_suffix(".npz"))
             # self.params = ... (proper parameter reconstruction)
 
         self.is_trained = True

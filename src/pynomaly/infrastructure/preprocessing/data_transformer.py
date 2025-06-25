@@ -272,7 +272,7 @@ class DataTransformer:
                     # Target encoding (requires target column)
                     if not dataset.has_target:
                         warnings.warn(
-                            f"Target encoding skipped for {col} - no target column available"
+                            f"Target encoding skipped for {col} - no target column available", stacklevel=2
                         )
                         continue
 
@@ -300,7 +300,7 @@ class DataTransformer:
 
             except Exception as e:
                 warnings.warn(
-                    f"Failed to encode column {col} with {strategy.value}: {e}"
+                    f"Failed to encode column {col} with {strategy.value}: {e}", stacklevel=2
                 )
                 continue
 
@@ -468,7 +468,7 @@ class DataTransformer:
         ]:
             # Univariate feature selection (requires target)
             if not dataset.has_target:
-                warnings.warn("Univariate feature selection requires target column")
+                warnings.warn("Univariate feature selection requires target column", stacklevel=2)
                 return dataset
 
             numeric_cols = [
@@ -565,7 +565,7 @@ class DataTransformer:
                             "method": "explicit",
                         }
                     except Exception as e:
-                        warnings.warn(f"Failed to convert {col} to {dtype}: {e}")
+                        warnings.warn(f"Failed to convert {col} to {dtype}: {e}", stacklevel=2)
 
         # Infer optimal types
         if infer_types:

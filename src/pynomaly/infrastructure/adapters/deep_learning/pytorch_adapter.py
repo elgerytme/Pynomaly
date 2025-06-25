@@ -117,7 +117,7 @@ class AutoEncoder(nn.Module):
     """AutoEncoder neural network for anomaly detection."""
 
     def __init__(self, config: AutoEncoderConfig):
-        super(AutoEncoder, self).__init__()
+        super().__init__()
         if not PYTORCH_AVAILABLE:
             raise ImportError("PyTorch is required for AutoEncoder")
 
@@ -187,7 +187,7 @@ class VAE(nn.Module):
     """Variational AutoEncoder for anomaly detection."""
 
     def __init__(self, config: VAEConfig):
-        super(VAE, self).__init__()
+        super().__init__()
         if not PYTORCH_AVAILABLE:
             raise ImportError("PyTorch is required for VAE")
 
@@ -249,7 +249,7 @@ class LSTMAutoEncoder(nn.Module):
     """LSTM-based AutoEncoder for time series anomaly detection."""
 
     def __init__(self, config: LSTMConfig):
-        super(LSTMAutoEncoder, self).__init__()
+        super().__init__()
         if not PYTORCH_AVAILABLE:
             raise ImportError("PyTorch is required for LSTM")
 

@@ -371,7 +371,7 @@ class TDDEnforcementEngine:
 
         try:
             # Run pytest with coverage
-            result = subprocess.run(
+            subprocess.run(
                 [
                     "python",
                     "-m",
@@ -516,7 +516,7 @@ from {module_name} import *
 
 class Test{module_name.title()}:
     """Test class for {module_name} module."""
-    
+
     def test_placeholder(self):
         """Placeholder test - replace with actual tests."""
         # TODO: Add actual test implementation

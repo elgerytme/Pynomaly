@@ -531,7 +531,7 @@ class IndexManager:
             # Create index using raw SQL
             column_list = ", ".join(columns)
             sql = f"""
-            CREATE INDEX IF NOT EXISTS {index_name} 
+            CREATE INDEX IF NOT EXISTS {index_name}
             ON {table_name} ({column_list})
             """
 

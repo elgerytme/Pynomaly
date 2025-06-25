@@ -298,7 +298,6 @@ class DAGMM(BaseAnomalyModel):
         recon_loss = torch.mean(torch.sum((x - x_recon) ** 2, dim=1))
 
         # Energy loss (negative log-likelihood of GMM)
-        eps = 1e-12
         energy_loss = torch.mean(torch.sum(gamma * self.energy(z), dim=1))
 
         return recon_loss + 0.1 * energy_loss
@@ -306,7 +305,7 @@ class DAGMM(BaseAnomalyModel):
     def energy(self, z: torch.Tensor) -> torch.Tensor:
         """Compute energy for each sample under GMM."""
         n_samples = z.size(0)
-        n_features = z.size(1)
+        z.size(1)
 
         # Compute log probabilities for each component
         energy = torch.zeros(n_samples, self.n_gmm)

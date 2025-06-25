@@ -81,7 +81,7 @@ class JSONLoader(BatchDataLoaderProtocol):
                             if not df[col].dropna().empty
                             else None
                         )
-                        if isinstance(sample_val, (dict, list)):
+                        if isinstance(sample_val, dict | list):
                             # Normalize nested data
                             try:
                                 normalized = pd.json_normalize(df[col])

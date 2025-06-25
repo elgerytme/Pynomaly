@@ -98,7 +98,7 @@ class StreamingMessage:
         """Estimate message size in bytes."""
         if isinstance(self.data, pd.DataFrame):
             return self.data.memory_usage(deep=True).sum()
-        elif isinstance(self.data, (dict, list)):
+        elif isinstance(self.data, dict | list):
             return len(str(self.data).encode("utf-8"))
         return 0
 
@@ -440,7 +440,7 @@ class StreamingProcessor:
         processed_message_ids = []
 
         # Combine messages into single dataset if possible
-        combined_data = self._combine_messages(messages)
+        self._combine_messages(messages)
 
         # Process combined data
         for message in messages:

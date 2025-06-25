@@ -350,7 +350,7 @@ class QualityGateValidator:
 
             complexities = []
             for node in ast.walk(tree):
-                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
                     complexity = self._calculate_function_complexity(node)
                     complexities.append(complexity)
 
@@ -827,7 +827,7 @@ class QualityGateValidator:
             # Check classes and functions
             for node in ast.walk(tree):
                 if isinstance(
-                    node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
+                    node, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef
                 ):
                     total_items += 1
                     if ast.get_docstring(node):
@@ -1167,17 +1167,17 @@ class QualityGateValidator:
 
         for node in ast.walk(func_node):
             # Decision points that increase complexity
-            if isinstance(node, (ast.If, ast.While, ast.For, ast.AsyncFor)):
+            if isinstance(node, ast.If | ast.While | ast.For | ast.AsyncFor):
                 complexity += 1
             elif isinstance(node, ast.ExceptHandler):
                 complexity += 1
-            elif isinstance(node, (ast.With, ast.AsyncWith)):
+            elif isinstance(node, ast.With | ast.AsyncWith):
                 complexity += 1
             elif isinstance(node, ast.BoolOp):
                 # And/Or operations add complexity
                 complexity += len(node.values) - 1
             elif isinstance(
-                node, (ast.ListComp, ast.DictComp, ast.SetComp, ast.GeneratorExp)
+                node, ast.ListComp | ast.DictComp | ast.SetComp | ast.GeneratorExp
             ):
                 # Comprehensions add complexity
                 complexity += 1
@@ -1210,7 +1210,7 @@ class QualityGateValidator:
                 <p><strong>Path:</strong> {report.feature_path}</p>
                 <p><strong>Timestamp:</strong> {report.timestamp.isoformat()}</p>
             </div>
-            
+
             <div class="summary">
                 <h3>Summary</h3>
                 <p><strong>Overall Score:</strong> {report.overall_percentage:.1f}% ({report.overall_score:.1f}/{report.max_overall_score:.1f})</p>
@@ -1218,7 +1218,7 @@ class QualityGateValidator:
                 <p><strong>Critical Failures:</strong> {report.critical_failures}</p>
                 <p><strong>Integration Approved:</strong> {"✅ Yes" if report.integration_approved else "❌ No"}</p>
             </div>
-            
+
             <div class="results">
                 <h3>Gate Results</h3>
         """

@@ -745,7 +745,7 @@ class AdvancedHyperparameterOptimizer:
         # Calculate normalized coverage
         coverages = []
         for param, (min_val, max_val) in param_ranges.items():
-            if isinstance(min_val, (int, float)) and min_val != max_val:
+            if isinstance(min_val, int | float) and min_val != max_val:
                 coverage = (max_val - min_val) / max(abs(max_val), abs(min_val), 1.0)
                 coverages.append(min(coverage, 1.0))
 
@@ -924,7 +924,7 @@ class AdvancedHyperparameterOptimizer:
                     obj_val = trial.objectives["primary"]
 
                     # Only include numerical parameters
-                    if isinstance(param_val, (int, float)):
+                    if isinstance(param_val, int | float):
                         param_values.append(param_val)
                         objective_values.append(obj_val)
 

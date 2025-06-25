@@ -164,7 +164,7 @@ class AutoSklearn2Adapter(DetectorProtocol):
                 if param_type == "int" and not isinstance(param_value, int):
                     return False
                 elif param_type == "float" and not isinstance(
-                    param_value, (int, float)
+                    param_value, int | float
                 ):
                     return False
                 elif param_type == "str" and not isinstance(param_value, str):
@@ -327,7 +327,7 @@ class AutoSklearn2Adapter(DetectorProtocol):
         """Train ensemble of auto-sklearn2 models."""
         n_estimators = parameters.get("n_estimators", 3)
         time_per_model = parameters.get("time_per_model", 100)
-        ensemble_method = parameters.get("ensemble_method", "voting")
+        parameters.get("ensemble_method", "voting")
 
         models = []
 

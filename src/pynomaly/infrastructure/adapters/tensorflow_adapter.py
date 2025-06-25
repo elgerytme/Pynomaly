@@ -54,7 +54,7 @@ class AutoEncoder(Model):
             activation: Activation function
             dropout_rate: Dropout rate for regularization
         """
-        super(AutoEncoder, self).__init__()
+        super().__init__()
 
         self.input_dim = input_dim
         self.encoding_dim = encoding_dim
@@ -62,7 +62,6 @@ class AutoEncoder(Model):
 
         # Encoder
         encoder_layers = []
-        current_dim = input_dim
 
         for hidden_dim in self.hidden_layers:
             encoder_layers.extend(
@@ -71,14 +70,12 @@ class AutoEncoder(Model):
                     layers.Dropout(dropout_rate),
                 ]
             )
-            current_dim = hidden_dim
 
         encoder_layers.append(layers.Dense(encoding_dim, activation=activation))
         self.encoder = keras.Sequential(encoder_layers)
 
         # Decoder
         decoder_layers = []
-        current_dim = encoding_dim
 
         for hidden_dim in reversed(self.hidden_layers):
             decoder_layers.extend(
@@ -87,7 +84,6 @@ class AutoEncoder(Model):
                     layers.Dropout(dropout_rate),
                 ]
             )
-            current_dim = hidden_dim
 
         decoder_layers.append(layers.Dense(input_dim, activation="linear"))
         self.decoder = keras.Sequential(decoder_layers)
@@ -123,7 +119,7 @@ class VariationalAutoEncoder(Model):
             activation: Activation function
             beta: Beta parameter for beta-VAE
         """
-        super(VariationalAutoEncoder, self).__init__()
+        super().__init__()
 
         self.input_dim = input_dim
         self.latent_dim = latent_dim
@@ -132,11 +128,9 @@ class VariationalAutoEncoder(Model):
 
         # Encoder
         encoder_layers = []
-        current_dim = input_dim
 
         for hidden_dim in self.hidden_layers:
             encoder_layers.append(layers.Dense(hidden_dim, activation=activation))
-            current_dim = hidden_dim
 
         self.encoder_hidden = keras.Sequential(encoder_layers)
         self.z_mean = layers.Dense(latent_dim)
@@ -144,11 +138,9 @@ class VariationalAutoEncoder(Model):
 
         # Decoder
         decoder_layers = []
-        current_dim = latent_dim
 
         for hidden_dim in reversed(self.hidden_layers):
             decoder_layers.append(layers.Dense(hidden_dim, activation=activation))
-            current_dim = hidden_dim
 
         decoder_layers.append(layers.Dense(input_dim, activation="linear"))
         self.decoder = keras.Sequential(decoder_layers)
@@ -202,7 +194,7 @@ class DeepSVDD(Model):
             activation: Activation function
             output_dim: Output representation dimension
         """
-        super(DeepSVDD, self).__init__()
+        super().__init__()
 
         self.input_dim = input_dim
         self.output_dim = output_dim
@@ -210,11 +202,9 @@ class DeepSVDD(Model):
 
         # Network layers
         network_layers = []
-        current_dim = input_dim
 
         for hidden_dim in self.hidden_layers:
             network_layers.append(layers.Dense(hidden_dim, activation=activation))
-            current_dim = hidden_dim
 
         network_layers.append(layers.Dense(output_dim, activation="linear"))
         self.network = keras.Sequential(network_layers)

@@ -183,7 +183,7 @@ class DatabaseTenantRepository(Repository[Tenant]):
             .all()
         )
 
-        return {status: count for status, count in results}
+        return dict(results)
 
     def count_by_subscription_tier(self) -> dict[str, int]:
         """Count tenants by subscription tier."""
@@ -197,7 +197,7 @@ class DatabaseTenantRepository(Repository[Tenant]):
             .all()
         )
 
-        return {tier: count for tier, count in results}
+        return dict(results)
 
     def get_tenants_needing_quota_reset(self) -> list[Tenant]:
         """Get tenants that need quota reset for new billing period."""

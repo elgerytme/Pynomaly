@@ -295,7 +295,7 @@ class PreprocessingPipeline:
                 current_dataset = self._apply_step(step, current_dataset, fit=True)
 
             except Exception as e:
-                warnings.warn(f"Failed to fit step '{step.name}': {e}")
+                warnings.warn(f"Failed to fit step '{step.name}': {e}", stacklevel=2)
                 continue
 
         self._fitted = True
@@ -312,7 +312,7 @@ class PreprocessingPipeline:
             Transformed dataset
         """
         if not self._fitted:
-            warnings.warn("Pipeline not fitted. Use fit_transform() for training data.")
+            warnings.warn("Pipeline not fitted. Use fit_transform() for training data.", stacklevel=2)
             return self.fit_transform(dataset)
 
         current_dataset = dataset
@@ -339,7 +339,7 @@ class PreprocessingPipeline:
                 )
 
             except Exception as e:
-                warnings.warn(f"Failed to apply step '{step.name}': {e}")
+                warnings.warn(f"Failed to apply step '{step.name}': {e}", stacklevel=2)
                 continue
 
         # Update metadata

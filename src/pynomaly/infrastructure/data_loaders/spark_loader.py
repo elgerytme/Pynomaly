@@ -543,7 +543,7 @@ class SparkAnomalyDetector:
 
         # Calculate distances to cluster centers
         # This is a simplified approach - in practice, you'd calculate actual distances
-        cluster_centers = model.clusterCenters()
+        model.clusterCenters()
 
         # Add anomaly scores based on distance to nearest center
         # Higher distances indicate potential anomalies

@@ -179,7 +179,7 @@ class OptimizedAdapter:
             # If optimization fails, continue with original detector
             import warnings
 
-            warnings.warn(f"Optimization failed, using original detector: {e}")
+            warnings.warn(f"Optimization failed, using original detector: {e}", stacklevel=2)
             self.is_optimized = False
 
     def _determine_base_adapter_class(self) -> type:

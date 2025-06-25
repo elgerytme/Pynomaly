@@ -558,7 +558,7 @@ class ReportingService:
 
         # Time and cost savings
         time_savings = self._calculate_time_savings(benchmark_results, business_context)
-        cost_reduction = self._calculate_cost_reduction(
+        self._calculate_cost_reduction(
             benchmark_results, business_context
         )
 
@@ -788,19 +788,19 @@ class ReportingService:
                 <div class="metric">Best Performer: {summary["best_performing_algorithm"]}</div>
                 <div class="metric">Average Accuracy: {summary["average_accuracy"]:.1%}</div>
             </div>
-            
+
             <div class="section">
                 <h2>Business Impact</h2>
                 <div class="metric">Estimated Time Savings: {impact["estimated_time_savings_hours"]:.1f} hours/day</div>
                 <div class="metric">Cost Reduction: {impact["cost_reduction_percentage"]:.1f}%</div>
                 <div class="metric">Automation Coverage: {impact["automation_coverage"]:.1f}%</div>
             </div>
-            
+
             <div class="section">
                 <h2>Key Findings</h2>
                 {"".join(f'<div class="recommendation">• {finding}</div>' for finding in insights["key_findings"])}
             </div>
-            
+
             <div class="section">
                 <h2>Recommendations</h2>
                 {"".join(f'<div class="recommendation">• {rec}</div>' for rec in insights["business_recommendations"])}
@@ -819,13 +819,13 @@ class ReportingService:
                 <div class="metric">Optimization Opportunities: {len(algorithm["optimization_opportunities"])}</div>
                 {"".join(f'<div class="recommendation">• {opp}</div>' for opp in algorithm["optimization_opportunities"])}
             </div>
-            
+
             <div class="section">
                 <h2>Infrastructure Analysis</h2>
                 <div class="metric">Bottlenecks Identified: {len(infrastructure["bottleneck_identification"])}</div>
                 {"".join(f'<div class="recommendation">• {bottleneck}</div>' for bottleneck in infrastructure["bottleneck_identification"])}
             </div>
-            
+
             <div class="section">
                 <h2>Quality Metrics</h2>
                 <div class="metric">Test Coverage: {quality["test_coverage"]:.1f}%</div>

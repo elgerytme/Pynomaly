@@ -248,7 +248,7 @@ class MemoryOptimizedDataLoader:
 
             except ImportError:
                 # Fallback to pandas chunking if pyarrow not available
-                warnings.warn("PyArrow not available, using pandas chunking")
+                warnings.warn("PyArrow not available, using pandas chunking", stacklevel=2)
                 df = pd.read_parquet(file_path, **pandas_kwargs)
                 yield from self._chunk_dataframe(df, str(file_path))
 
@@ -464,7 +464,7 @@ class StreamingDataProcessor:
 
             for chunk in self.loader.load_dataset(dataset):
                 # Process chunk
-                processed_chunk = processor.process_chunk(chunk)
+                processor.process_chunk(chunk)
 
                 # Update statistics
                 self._processed_chunks += 1

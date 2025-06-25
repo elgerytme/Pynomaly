@@ -72,7 +72,6 @@ def autoencoder_forward(
         if i < encoder_layers - 1:  # No activation on last layer
             h = jax.nn.relu(h)
 
-    encoding = h
 
     # Decoder
     decoder_layers = len([k for k in params.keys() if "decoder_w" in k])

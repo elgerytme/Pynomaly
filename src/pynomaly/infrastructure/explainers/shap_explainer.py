@@ -141,14 +141,13 @@ class SHAPExplainer(ExplainerProtocol):
             # Handle different SHAP value formats
             if hasattr(shap_values, "values"):
                 values = shap_values.values[0]  # Get first instance
-                base_value = (
+                (
                     shap_values.base_values[0]
                     if hasattr(shap_values, "base_values")
                     else 0
                 )
             else:
                 values = shap_values[0]  # Get first instance
-                base_value = 0
 
             # Get model prediction
             if hasattr(model, "decision_function"):

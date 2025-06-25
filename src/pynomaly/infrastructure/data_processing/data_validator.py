@@ -335,7 +335,7 @@ class DataValidator:
                 # Sample non-null values to check type consistency
                 non_null_sample = col_data.dropna().head(1000)
                 if len(non_null_sample) > 0:
-                    types_found = set(type(val).__name__ for val in non_null_sample)
+                    types_found = {type(val).__name__ for val in non_null_sample}
 
                     if len(types_found) > 1:
                         issues.append(
@@ -448,8 +448,8 @@ class DataValidator:
                 )
 
             # Check for extremely large values (potential data entry errors)
-            Q99 = col_data.quantile(0.99)
-            Q1 = col_data.quantile(0.01)
+            col_data.quantile(0.99)
+            col_data.quantile(0.01)
             IQR = col_data.quantile(0.75) - col_data.quantile(0.25)
 
             # Values more than 10 IQRs from median might be errors
@@ -695,7 +695,7 @@ class DataValidator:
                 for category in ValidationCategory
             },
             "columns_with_issues": len(
-                set(issue.column for issue in issues if issue.column)
+                {issue.column for issue in issues if issue.column}
             ),
             "data_types": df.dtypes.value_counts().to_dict(),
             "missing_data_summary": {
