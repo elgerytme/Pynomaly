@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 import numpy as np
@@ -23,6 +23,7 @@ from sklearn.metrics import (
 )
 
 from pynomaly.application.services.auto_retraining_service import AutoRetrainingService
+from pynomaly.domain.entities.ab_test import ABTest
 
 logger = logging.getLogger(__name__)
 
@@ -282,19 +283,28 @@ class ABTestingService:
         self.prediction_records: dict[UUID, list[PredictionRecord]] = {}
 
         # Traffic router
-        self.traffic_router = TrafficRouter()
+        self.traffic_router: TrafficRouter = None  # Will be initialized later
 
         # Statistical analyzer
-        self.statistical_analyzer = StatisticalAnalyzer()
+        self.statistical_analyzer: StatisticalAnalyzer = None  # Will be initialized later
 
         # Guardrail monitor
-        self.guardrail_monitor = GuardrailMonitor()
+        self.guardrail_monitor: GuardrailMonitor = None  # Will be initialized later
 
         # Background tasks
         self._background_tasks: list[asyncio.Task] = []
 
+        # Initialize components after class definitions are available
+        self._initialize_components()
+
         # Load existing tests
         asyncio.create_task(self._load_active_tests())
+
+    def _initialize_components(self) -> None:
+        """Initialize service components."""
+        self.traffic_router = TrafficRouter()
+        self.statistical_analyzer = StatisticalAnalyzer()
+        self.guardrail_monitor = GuardrailMonitor()
 
     async def _load_active_tests(self) -> None:
         """Load active tests from storage."""
