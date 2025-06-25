@@ -13,7 +13,8 @@ from pynomaly.infrastructure.monitoring.health_service import (
     HealthService,
 )
 from pynomaly.presentation.api.deps import get_container
-from pynomaly.presentation.api.docs import HTTPResponses, SchemaExamples
+from pynomaly.presentation.api.docs.response_models import HTTPResponses
+from pynomaly.presentation.api.docs.schema_examples import SchemaExamples
 
 router = APIRouter(
     prefix="/health",

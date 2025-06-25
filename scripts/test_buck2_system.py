@@ -72,7 +72,7 @@ class Buck2SystemTester:
         
         try:
             # Test 1: Basic change detection
-            cmd = ["python", "scripts/buck2_change_detector.py", "--format", "json", "--output", "test_change_analysis.json"]
+            cmd = ["python3", "scripts/buck2_change_detector.py", "--format", "json", "--output", "test_change_analysis.json"]
             result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.repo_root)
             
             if result.returncode == 0:
@@ -102,7 +102,7 @@ class Buck2SystemTester:
                 }
             
             # Test 2: Summary format
-            cmd = ["python", "scripts/buck2_change_detector.py", "--format", "summary"]
+            cmd = ["python3", "scripts/buck2_change_detector.py", "--format", "summary"]
             result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.repo_root)
             
             test_result["details"]["summary_format"] = {
@@ -136,7 +136,7 @@ class Buck2SystemTester:
         
         try:
             # Test 1: Dry run mode
-            cmd = ["python", "scripts/buck2_incremental_test.py", "--dry-run", "--output", "test_results.json"]
+            cmd = ["python3", "scripts/buck2_incremental_test.py", "--dry-run", "--output", "test_results.json"]
             result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.repo_root)
             
             test_result["details"]["dry_run"] = {
@@ -166,7 +166,7 @@ class Buck2SystemTester:
                 }
             
             # Test 2: Verbose mode
-            cmd = ["python", "scripts/buck2_incremental_test.py", "--dry-run", "--verbose"]
+            cmd = ["python3", "scripts/buck2_incremental_test.py", "--dry-run", "--verbose"]
             result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.repo_root)
             
             test_result["details"]["verbose_mode"] = {
@@ -200,7 +200,7 @@ class Buck2SystemTester:
         
         try:
             # Test 1: Branch info
-            cmd = ["python", "scripts/buck2_git_integration.py", "branch-info"]
+            cmd = ["python3", "scripts/buck2_git_integration.py", "branch-info"]
             result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.repo_root)
             
             test_result["details"]["branch_info"] = {
@@ -210,7 +210,7 @@ class Buck2SystemTester:
             }
             
             # Test 2: Test branch (dry run equivalent)
-            cmd = ["python", "scripts/buck2_git_integration.py", "test-branch", "--dry-run"]
+            cmd = ["python3", "scripts/buck2_git_integration.py", "test-branch", "--dry-run"]
             result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.repo_root)
             
             test_result["details"]["test_branch"] = {
@@ -244,7 +244,7 @@ class Buck2SystemTester:
         
         try:
             # Test 1: Basic impact analysis
-            cmd = ["python", "scripts/buck2_impact_analyzer.py", "--format", "json", "--output", "test_impact.json"]
+            cmd = ["python3", "scripts/buck2_impact_analyzer.py", "--format", "json", "--output", "test_impact.json"]
             result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.repo_root)
             
             if result.returncode == 0:
@@ -274,7 +274,7 @@ class Buck2SystemTester:
                 }
             
             # Test 2: Summary format
-            cmd = ["python", "scripts/buck2_impact_analyzer.py", "--format", "summary"]
+            cmd = ["python3", "scripts/buck2_impact_analyzer.py", "--format", "summary"]
             result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.repo_root)
             
             test_result["details"]["summary_analysis"] = {
@@ -309,7 +309,7 @@ class Buck2SystemTester:
         
         try:
             # Test 1: Standard workflow with dry run
-            cmd = ["python", "scripts/buck2_workflow.py", "standard", "--dry-run", "--strategy", "minimal"]
+            cmd = ["python3", "scripts/buck2_workflow.py", "standard", "--dry-run", "--strategy", "minimal"]
             result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.repo_root)
             
             test_result["details"]["standard_workflow"] = {
@@ -319,7 +319,7 @@ class Buck2SystemTester:
             }
             
             # Test 2: Branch workflow
-            cmd = ["python", "scripts/buck2_workflow.py", "branch", "--dry-run", "--strategy", "auto"]
+            cmd = ["python3", "scripts/buck2_workflow.py", "branch", "--dry-run", "--strategy", "auto"]
             result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.repo_root)
             
             test_result["details"]["branch_workflow"] = {
@@ -356,7 +356,7 @@ class Buck2SystemTester:
                 script_name = Path(script).stem
                 
                 # Test import
-                cmd = ["python", "-c", f"import sys; sys.path.append('scripts'); import {script_name}"]
+                cmd = ["python3", "-c", f"import sys; sys.path.append('scripts'); import {script_name}"]
                 result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.repo_root)
                 
                 test_result["details"][script_name] = {

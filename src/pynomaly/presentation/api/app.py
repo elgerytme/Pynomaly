@@ -16,6 +16,7 @@ from pynomaly.infrastructure.config import Container
 # Temporarily disabled telemetry
 # from pynomaly.infrastructure.monitoring import init_telemetry
 from pynomaly.presentation.api.docs import configure_openapi_docs
+from pynomaly.presentation.api.docs import api_docs
 from pynomaly.presentation.api.endpoints import (
     admin,
     auth,
@@ -163,6 +164,9 @@ def create_app(container: Container | None = None) -> FastAPI:
     if settings.monitoring.prometheus_enabled:
         instrumentator = Instrumentator()
         instrumentator.instrument(app).expose(app, endpoint="/metrics")
+
+    # Include documentation router (before API routers for proper URL handling)
+    app.include_router(api_docs.router, tags=["documentation"])
 
     # Include API routers
     app.include_router(health.router, prefix="/api/health", tags=["health"])

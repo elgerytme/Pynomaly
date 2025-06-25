@@ -64,8 +64,11 @@ class TestDetectorTraining:
             name="Test Detector", 
             algorithm_name="IsolationForest"
         )
-        empty_data = pd.DataFrame()
-        dataset = Dataset(name="Empty Data", data=empty_data)
+        # Create a dataset with some data first, then make it empty to bypass Dataset validation
+        data = pd.DataFrame({'feature1': [1, 2, 3]})
+        dataset = Dataset(name="Test Data", data=data)
+        # Now make the data empty to test our training logic
+        dataset.data = pd.DataFrame()
         mock_adapter = Mock()
         
         # Act & Assert
@@ -109,11 +112,13 @@ class TestDetectorTraining:
         mock_adapter = Mock()
         mock_adapter.fit.side_effect = RuntimeError("Algorithm training failed")
         
-        # Act & Assert
-        with pytest.raises(RuntimeError, match="Algorithm training failed"):
-            detector.train(dataset, algorithm_adapter=mock_adapter)
-            
-        # Verify detector state remains unchanged
+        # Act
+        result = detector.train(dataset, algorithm_adapter=mock_adapter)
+        
+        # Assert - should return failure result, not raise exception
+        assert isinstance(result, TrainingResult)
+        assert result.success is False
+        assert "Algorithm training failed" in result.error_message
         assert detector.is_fitted is False
         assert detector.trained_at is None
 
