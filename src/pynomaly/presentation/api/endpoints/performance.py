@@ -120,42 +120,43 @@ async def get_pools(
         #     )
         return []  # Return empty list for now
         
-        pool_names = pool_manager.list_pools()
-        pools_info = []
-        
-        for name in pool_names:
-            try:
-                pool_info = pool_manager.get_pool_info(name)
-                stats = pool_info["stats"]
-                
-                pools_info.append(PoolInfoResponse(
-                    name=pool_info["name"],
-                    type=pool_info["type"],
-                    stats=PoolStatsResponse(
-                        pool_type=stats.pool_type.value,
-                        total_connections=stats.total_connections,
-                        active_connections=stats.active_connections,
-                        idle_connections=stats.idle_connections,
-                        overflow_connections=stats.overflow_connections,
-                        total_requests=stats.total_requests,
-                        successful_requests=stats.successful_requests,
-                        failed_requests=stats.failed_requests,
-                        avg_response_time=stats.avg_response_time,
-                        connections_created=stats.connections_created,
-                        connections_closed=stats.connections_closed,
-                        connections_recycled=stats.connections_recycled,
-                        connection_errors=stats.connection_errors,
-                        created_at=stats.created_at,
-                        last_reset=stats.last_reset
-                    ),
-                    pool_info=pool_info["pool_info"],
-                    configuration=pool_info.get("configuration")
-                ))
-            except Exception as e:
-                # Skip pools that can't be accessed
-                continue
-        
-        return pools_info
+        # TODO: Restore once connection pool manager is implemented
+        # pool_names = pool_manager.list_pools()
+        # pools_info = []
+        # 
+        # for name in pool_names:
+        #     try:
+        #         pool_info = pool_manager.get_pool_info(name)
+        #         stats = pool_info["stats"]
+        #         
+        #         pools_info.append(PoolInfoResponse(
+        #             name=pool_info["name"],
+        #             type=pool_info["type"],
+        #             stats=PoolStatsResponse(
+        #                 pool_type=stats.pool_type.value,
+        #                 total_connections=stats.total_connections,
+        #                 active_connections=stats.active_connections,
+        #                 idle_connections=stats.idle_connections,
+        #                 overflow_connections=stats.overflow_connections,
+        #                 total_requests=stats.total_requests,
+        #                 successful_requests=stats.successful_requests,
+        #                 failed_requests=stats.failed_requests,
+        #                 avg_response_time=stats.avg_response_time,
+        #                 connections_created=stats.connections_created,
+        #                 connections_closed=stats.connections_closed,
+        #                 connections_recycled=stats.connections_recycled,
+        #                 connection_errors=stats.connection_errors,
+        #                 created_at=stats.created_at,
+        #                 last_reset=stats.last_reset
+        #             ),
+        #             pool_info=pool_info["pool_info"],
+        #             configuration=pool_info.get("configuration")
+        #         ))
+        #     except Exception as e:
+        #         # Skip pools that can't be accessed
+        #         continue
+        # 
+        # return pools_info
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get pool information: {str(e)}")
@@ -170,42 +171,45 @@ async def get_pools(
 @inject
 async def get_pool(
     pool_name: str,
-    pool_manager: ConnectionPoolManager = Depends(Provide[Container.connection_pool_manager])
+    # pool_manager: ConnectionPoolManager = Depends(Provide[Container.connection_pool_manager])
 ) -> PoolInfoResponse:
     """Get information about a specific connection pool."""
     try:
-        if pool_manager is None:
-            raise HTTPException(
-                status_code=503,
-                detail="Connection pool manager not available"
-            )
+        # TODO: Implement connection pool manager
+        raise HTTPException(status_code=404, detail=f"Pool {pool_name} not found")
         
-        pool_info = pool_manager.get_pool_info(pool_name)
-        stats = pool_info["stats"]
+        # if pool_manager is None:
+        #     raise HTTPException(
+        #         status_code=503,
+        #         detail="Connection pool manager not available"
+        #     )
         
-        return PoolInfoResponse(
-            name=pool_info["name"],
-            type=pool_info["type"],
-            stats=PoolStatsResponse(
-                pool_type=stats.pool_type.value,
-                total_connections=stats.total_connections,
-                active_connections=stats.active_connections,
-                idle_connections=stats.idle_connections,
-                overflow_connections=stats.overflow_connections,
-                total_requests=stats.total_requests,
-                successful_requests=stats.successful_requests,
-                failed_requests=stats.failed_requests,
-                avg_response_time=stats.avg_response_time,
-                connections_created=stats.connections_created,
-                connections_closed=stats.connections_closed,
-                connections_recycled=stats.connections_recycled,
-                connection_errors=stats.connection_errors,
-                created_at=stats.created_at,
-                last_reset=stats.last_reset
-            ),
-            pool_info=pool_info["pool_info"],
-            configuration=pool_info.get("configuration")
-        )
+        # pool_info = pool_manager.get_pool_info(pool_name)
+        # stats = pool_info["stats"]
+        # 
+        # return PoolInfoResponse(
+        #     name=pool_info["name"],
+        #     type=pool_info["type"],
+        #     stats=PoolStatsResponse(
+        #         pool_type=stats.pool_type.value,
+        #         total_connections=stats.total_connections,
+        #         active_connections=stats.active_connections,
+        #         idle_connections=stats.idle_connections,
+        #         overflow_connections=stats.overflow_connections,
+        #         total_requests=stats.total_requests,
+        #         successful_requests=stats.successful_requests,
+        #         failed_requests=stats.failed_requests,
+        #         avg_response_time=stats.avg_response_time,
+        #         connections_created=stats.connections_created,
+        #         connections_closed=stats.connections_closed,
+        #         connections_recycled=stats.connections_recycled,
+        #         connection_errors=stats.connection_errors,
+        #         created_at=stats.created_at,
+        #         last_reset=stats.last_reset
+        #     ),
+        #     pool_info=pool_info["pool_info"],
+        #     configuration=pool_info.get("configuration")
+        # )
         
     except KeyError:
         raise HTTPException(status_code=404, detail=f"Pool '{pool_name}' not found")
@@ -221,18 +225,21 @@ async def get_pool(
 @inject
 async def reset_pool_stats(
     pool_name: str,
-    pool_manager: ConnectionPoolManager = Depends(Provide[Container.connection_pool_manager])
+    # pool_manager: ConnectionPoolManager = Depends(Provide[Container.connection_pool_manager])
 ) -> Dict[str, str]:
     """Reset statistics for a specific connection pool."""
     try:
-        if pool_manager is None:
-            raise HTTPException(
-                status_code=503,
-                detail="Connection pool manager not available"
-            )
+        # TODO: Implement connection pool manager
+        return {"message": f"Pool reset not implemented yet for '{pool_name}'"}
         
-        pool_manager.reset_stats(pool_name)
-        return {"message": f"Statistics reset for pool '{pool_name}'"}
+        # if pool_manager is None:
+        #     raise HTTPException(
+        #         status_code=503,
+        #         detail="Connection pool manager not available"
+        #     )
+        # 
+        # pool_manager.reset_stats(pool_name)
+        # return {"message": f"Statistics reset for pool '{pool_name}'"}
         
     except KeyError:
         raise HTTPException(status_code=404, detail=f"Pool '{pool_name}' not found")
@@ -247,14 +254,17 @@ async def reset_pool_stats(
 )
 @inject
 async def reset_all_pool_stats(
-    pool_manager: ConnectionPoolManager = Depends(Provide[Container.connection_pool_manager])
+    # pool_manager: ConnectionPoolManager = Depends(Provide[Container.connection_pool_manager])
 ) -> Dict[str, str]:
     """Reset statistics for all connection pools."""
     try:
-        if pool_manager is None:
-            raise HTTPException(
-                status_code=503,
-                detail="Connection pool manager not available"
+        # TODO: Implement connection pool manager
+        return {"message": "Pool reset not implemented yet"}
+        
+        # if pool_manager is None:
+        #     raise HTTPException(
+        #         status_code=503,
+        #         detail="Connection pool manager not available"
             )
         
         pool_manager.reset_stats()
@@ -517,13 +527,19 @@ async def get_cache_stats(
 )
 @inject
 async def get_system_metrics(
-    pool_manager: ConnectionPoolManager = Depends(Provide[Container.connection_pool_manager]),
-    optimizer: QueryOptimizer = Depends(Provide[Container.query_optimizer])
+    # pool_manager: ConnectionPoolManager = Depends(Provide[Container.connection_pool_manager]),
+    # optimizer: QueryOptimizer = Depends(Provide[Container.query_optimizer])
 ) -> Dict[str, Any]:
     """Get comprehensive system performance metrics."""
     try:
-        metrics = {
+        # TODO: Implement connection pool manager and query optimizer
+        return {
             "timestamp": __import__("time").time(),
+            "system": "metrics not implemented yet"
+        }
+        
+        # metrics = {
+        #     "timestamp": __import__("time").time(),
             "connection_pools": {},
             "query_performance": {},
             "cache_performance": {}
