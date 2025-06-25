@@ -310,3 +310,62 @@ benchmarks/results/
 [0-9]*.[0-9]*
 [0-9]*.[0-9]*.[0-9]*
 [0-9]*.[0-9]*.[0-9]*.*
+
+# Root Directory Organization Enforcement
+# ----------------------------------------
+# Prevent common stray files from being committed to project root
+# Testing files belong in tests/
+/test_*.py
+/test_*.sh
+/test_*.ps1
+/*_test.py
+/*_test.sh
+/*_test.ps1
+/testing_*
+/*_testing_*
+/execute_*_test*
+
+# Script files belong in scripts/
+/fix_*.py
+/fix_*.sh
+/fix_*.ps1
+/setup_*.py
+/setup_*.sh
+/setup_*.ps1
+/install_*.py
+/install_*.sh
+/install_*.ps1
+/run_*.py
+/run_*.sh
+/run_*.ps1
+
+# Documentation belongs in docs/
+/*_REPORT.md
+/*_SUMMARY.md
+/*_GUIDE.md
+/*_ANALYSIS*.md
+/*_PLAN.md
+/TESTING_*.md
+/DEPLOYMENT_*.md
+/IMPLEMENTATION_*.md
+
+# Temporary development files
+/temp_*
+/tmp_*
+/scratch_*
+/debug_*
+/backup_*
+/*.backup
+/*.bak
+/*.tmp
+/*.temp
+
+# Environment and build artifacts in root
+/.env_*
+/env_*
+/venv_*
+/.venv_*
+/test_env*
+/build_*
+/dist_*
+reports/project_structure_analysis.json
