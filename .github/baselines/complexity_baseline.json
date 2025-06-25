@@ -1,0 +1,20 @@
+{
+  "timestamp": "2025-06-25T00:00:00.000000",
+  "metrics": {
+    "total_files": 250,
+    "python_files": 180,
+    "total_lines": 45000,
+    "cyclomatic_complexity": 8.5,
+    "cognitive_complexity": 12.0,
+    "maintainability_index": 75.0,
+    "total_dependencies": 45,
+    "startup_time": 1.8,
+    "memory_usage": 120.0,
+    "docstring_coverage": 82.0,
+    "test_coverage": 88.5,
+    "type_hint_coverage": 91.0
+  },
+  "git_ref": "main",
+  "git_commit": "baseline",
+  "description": "Initial baseline for complexity monitoring"
+}
