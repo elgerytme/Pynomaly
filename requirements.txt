@@ -6,7 +6,7 @@ polars>=1.19.0
 
 # Core Architecture Dependencies
 pydantic>=2.10.4
-structlog>=24.5.0
+structlog>=24.4.0
 dependency-injector>=4.42.0
 
 # Note: For additional functionality, install with extras:
