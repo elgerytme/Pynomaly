@@ -42,7 +42,7 @@ setup(
     install_requires=[
         # Core dependencies only (matches requirements.txt)
         "pyod>=2.0.5",
-        "numpy>=2.1.0",
+        "numpy>=1.26.0,<2.2.0",
         "pandas>=2.3.0",
         "polars>=0.20.0",
         "pydantic>=2.9.0",
@@ -58,7 +58,7 @@ setup(
         "production": ["fastapi>=0.115.0", "uvicorn[standard]>=0.32.0", "redis>=5.1.0", "opentelemetry-api>=1.30.0", "opentelemetry-sdk>=1.30.0", "opentelemetry-instrumentation-fastapi>=0.51b0", "prometheus-client>=0.19.0", "psutil>=5.9.0", "tenacity>=8.2.0", "circuitbreaker>=1.4.0", "pydantic-settings>=2.1.0", "pyjwt>=2.8.0", "passlib[bcrypt]>=1.7.4"],
         # ML backends
         "torch": ["torch>=2.1.0"],
-        "tensorflow": ["tensorflow>=2.15.0", "keras>=3.0.0"],
+        "tensorflow": ["tensorflow>=2.18.0,<2.20.0", "keras>=3.8.0"],
         "jax": ["jax>=0.4.23", "jaxlib>=0.4.23", "optax>=0.1.7"],
         # Specialized ML
         "graph": ["pygod>=1.1.0", "torch-geometric>=2.4.0"],

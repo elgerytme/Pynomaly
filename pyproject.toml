@@ -38,111 +38,110 @@ python = "^3.11"
 
 # Core required dependencies (minimal set)
 pyod = "^2.0.5"
-numpy = "^2.1.0"
-pandas = "^2.3.0"
-polars = "^0.20.0"
+numpy = ">=1.26.0,<2.2.0"
+pandas = "^2.2.3"
+polars = "^1.19.0"
 
 # Core architecture dependencies (required for basic functionality)
-pydantic = "^2.9.0"
-structlog = "^24.4.0"
-dependency-injector = "^4.41.0"
+pydantic = "^2.10.4"
+structlog = "^24.5.0"
+dependency-injector = "^4.42.0"
 
 # Optional ML and data processing libraries
-scikit-learn = {version = "^1.5.0", optional = true}
-scipy = {version = "^1.11.0", optional = true}
+scikit-learn = {version = "^1.6.0", optional = true}
+scipy = {version = "^1.15.0", optional = true}
 
 # Optional infrastructure dependencies
-pydantic-settings = {version = "^2.1.0", optional = true}
-tenacity = {version = "^8.2.0", optional = true}
-circuitbreaker = {version = "^1.4.0", optional = true}
+pydantic-settings = {version = "^2.8.0", optional = true}
+tenacity = {version = "^9.0.0", optional = true}
+circuitbreaker = {version = "^2.0.0", optional = true}
 
 # Optional API dependencies
-fastapi = {version = "^0.115.0", optional = true}
-uvicorn = {extras = ["standard"], version = "^0.32.0", optional = true}
-httpx = {version = "^0.28.0", optional = true}
-requests = {version = "^2.31.0", optional = true}
-python-multipart = {version = "^0.0.18", optional = true}
-jinja2 = {version = "^3.1.0", optional = true}
-aiofiles = {version = "^23.2.0", optional = true}
+fastapi = {version = "^0.117.0", optional = true}
+uvicorn = {extras = ["standard"], version = "^0.34.0", optional = true}
+httpx = {version = "^0.28.1", optional = true}
+requests = {version = "^2.32.3", optional = true}
+python-multipart = {version = "^0.0.20", optional = true}
+jinja2 = {version = "^3.1.5", optional = true}
+aiofiles = {version = "^24.1.0", optional = true}
 
 # Optional CLI dependencies
-typer = {extras = ["all"], version = "^0.9.0", optional = true}
-rich = {version = "^13.7.0", optional = true}
+typer = {extras = ["all"], version = "^0.15.1", optional = true}
+rich = {version = "^13.9.4", optional = true}
 
 # Optional authentication & security
-pyjwt = {version = "^2.8.0", optional = true}
+pyjwt = {version = "^2.10.1", optional = true}
 passlib = {extras = ["bcrypt"], version = "^1.7.4", optional = true}
 
 # Optional caching
-redis = {version = "^5.1.0", optional = true}
+redis = {version = "^5.2.1", optional = true}
 
 # Optional data processing
-pyarrow = {version = "^17.0.0", optional = true}
+pyarrow = {version = "^18.1.0", optional = true}
 
 # Optional monitoring & observability  
-opentelemetry-api = {version = "^1.30.0", optional = true}
-opentelemetry-sdk = {version = "^1.30.0", optional = true}
-opentelemetry-instrumentation-fastapi = {version = "^0.51b0", optional = true}
-prometheus-client = {version = "^0.19.0", optional = true}
-psutil = {version = "^5.9.0", optional = true}
+opentelemetry-api = {version = "^1.29.0", optional = true}
+opentelemetry-sdk = {version = "^1.29.0", optional = true}
+opentelemetry-instrumentation-fastapi = {version = "^0.50b0", optional = true}
+prometheus-client = {version = "^0.21.1", optional = true}
+psutil = {version = "^6.1.1", optional = true}
 # Optional ML backends
-torch = {version = "^2.1.0", optional = true}
-tensorflow = {version = "^2.15.0", optional = true}
-keras = {version = "^3.0.0", optional = true}
-jax = {version = "^0.4.23", optional = true}
-jaxlib = {version = "^0.4.23", optional = true}
-optax = {version = "^0.1.7", optional = true}
-pyspark = {version = "^3.5.0", optional = true}
-h5py = {version = "^3.9.0", optional = true}
-sqlalchemy = {version = "^2.0.0", optional = true}
-psycopg2-binary = {version = "^2.9.0", optional = true}
-fastparquet = {version = "^2024.2.0", optional = true}
-openpyxl = {version = "^3.1.0", optional = true}
-xlsxwriter = {version = "^3.1.0", optional = true}
+torch = {version = "^2.5.1", optional = true}
+tensorflow = {version = ">=2.18.0,<2.20.0", optional = true}
+keras = {version = "^3.8.0", optional = true}
+jax = {version = "^0.4.37", optional = true}
+jaxlib = {version = "^0.4.37", optional = true}
+optax = {version = "^0.2.4", optional = true}
+pyspark = {version = "^3.5.4", optional = true}
+h5py = {version = "^3.12.1", optional = true}
+sqlalchemy = {version = "^2.0.36", optional = true}
+psycopg2-binary = {version = "^2.9.10", optional = true}
+fastparquet = {version = "^2024.11.0", optional = true}
+openpyxl = {version = "^3.1.5", optional = true}
+xlsxwriter = {version = "^3.2.0", optional = true}
 pygod = {version = "^1.1.0", optional = true}
-tods = {version = "^1.0.0", optional = true}
-torch-geometric = {version = "^2.4.0", optional = true}
-optuna = {version = "^3.5.0", optional = true}
+torch-geometric = {version = "^2.6.1", optional = true}
+optuna = {version = "^4.1.0", optional = true}
 hyperopt = {version = "^0.2.7", optional = true}
 auto-sklearn2 = {version = "^1.0.0", optional = true}
-shap = {version = "^0.42.0", optional = true}
-lime = {version = "^0.2.0", optional = true}
+shap = {version = "^0.46.0", optional = true}
+lime = {version = "^0.2.0.1", optional = true}
 
 
 [tool.poetry.group.dev.dependencies]
 # Testing
-pytest = "^8.0.0"
-pytest-cov = "^4.1.0"
-pytest-asyncio = "^0.23.0"
-pytest-xdist = "^3.5.0"
-pytest-benchmark = "^4.0.0"
-pytest-mock = "^3.12.0"
-hypothesis = "^6.92.0"
-faker = "^22.0.0"
-pytest-bdd = "^7.0.0"
-mutmut = "^2.4.0"
+pytest = "^8.3.4"
+pytest-cov = "^6.0.0"
+pytest-asyncio = "^0.24.0"
+pytest-xdist = "^3.6.0"
+pytest-benchmark = "^5.1.0"
+pytest-mock = "^3.14.0"
+hypothesis = "^6.123.3"
+faker = "^33.1.0"
+pytest-bdd = "^8.0.1"
+mutmut = "^3.2.0"
 # Code Quality
-mypy = "^1.8.0"
-black = "^23.12.0"
-isort = "^5.13.0"
-flake8 = "^7.0.0"
+mypy = "^1.14.0"
+black = "^24.12.0"
+isort = "^5.13.2"
+flake8 = "^7.1.1"
 flake8-docstrings = "^1.7.0"
-flake8-annotations = "^3.0.1"
-bandit = {extras = ["toml"], version = "^1.7.5"}
-safety = "^3.0.0"
+flake8-annotations = "^3.1.1"
+bandit = {extras = ["toml"], version = "^1.8.0"}
+safety = "^3.3.0"
 # Pre-commit
-pre-commit = "^3.6.0"
+pre-commit = "^4.0.1"
 # Documentation
-mkdocs = "^1.5.3"
-mkdocs-material = "^9.5.0"
-mkdocstrings = {extras = ["python"], version = "^0.24.0"}
+mkdocs = "^1.6.1"
+mkdocs-material = "^9.5.51"
+mkdocstrings = {extras = ["python"], version = "^0.27.1"}
 # Development tools
-ipython = "^8.19.0"
-jupyter = "^1.0.0"
-notebook = "^7.0.0"
+ipython = "^8.30.0"
+jupyter = "^1.1.1"
+notebook = "^7.3.1"
 # Type stubs
-types-requests = "^2.31.0"
-pandas-stubs = "^2.1.0"
+types-requests = "^2.32.0.20241218"
+pandas-stubs = "^2.2.2.241218"
 
 [tool.poetry.extras]
 # Core functionality extras

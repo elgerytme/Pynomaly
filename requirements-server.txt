@@ -3,20 +3,20 @@
 -r requirements.txt
 
 # API dependencies
-fastapi>=0.115.0
-uvicorn[standard]>=0.32.0
-httpx>=0.28.0
-requests>=2.31.0
-python-multipart>=0.0.18
-jinja2>=3.1.0
-aiofiles>=23.2.0
-pydantic-settings>=2.1.0
+fastapi>=0.117.0
+uvicorn[standard]>=0.34.0
+httpx>=0.28.1
+requests>=2.32.3
+python-multipart>=0.0.20
+jinja2>=3.1.5
+aiofiles>=24.1.0
+pydantic-settings>=2.8.0
 
 # CLI dependencies
-typer[all]>=0.9.0
-rich>=13.7.0
+typer[all]>=0.15.1
+rich>=13.9.4
 
 # Basic ML support (matches 'server' extra in pyproject.toml)
-scikit-learn>=1.5.0
-scipy>=1.11.0
-pyarrow>=17.0.0
+scikit-learn>=1.6.0
+scipy>=1.15.0
+pyarrow>=18.1.0

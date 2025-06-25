@@ -91,6 +91,10 @@ poetry install -E ml-all     # All ML frameworks and tools
 poetry install -E all        # All optional dependencies
 ```
 
+### Compatibility Note
+
+**NumPy Version**: Pynomaly uses `numpy>=1.26.0,<2.2.0` to ensure compatibility with TensorFlow and other ML libraries. This constraint supports the latest NumPy features while maintaining compatibility with the broader ML ecosystem.
+
 ## Quick Start
 
 ### CLI Usage
