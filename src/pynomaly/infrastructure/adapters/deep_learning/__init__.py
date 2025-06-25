@@ -11,22 +11,14 @@ except (ImportError, SyntaxError, IndentationError):
 
 try:
     from .tensorflow_adapter import TensorFlowAdapter
-except ImportError:
-    # Fallback stub when TensorFlow is not available
-    class TensorFlowAdapter:
-        """Dummy TensorFlowAdapter when TensorFlow is not available."""
-        
-        def __init__(self, *args, **kwargs):
-            raise ImportError("TensorFlow is required for TensorFlowAdapter. Install with: pip install tensorflow")
+except (ImportError, SyntaxError, AttributeError):
+    # Fallback to stub when TensorFlow is not available or there are issues
+    from .tensorflow_stub import TensorFlowAdapter
 
 try:
     from .jax_adapter import JAXAdapter
-except ImportError:
-    # Fallback stub when JAX is not available
-    class JAXAdapter:
-        """Dummy JAXAdapter when JAX is not available."""
-        
-        def __init__(self, *args, **kwargs):
-            raise ImportError("JAX is required for JAXAdapter. Install with: pip install jax")
+except (ImportError, SyntaxError, AttributeError):
+    # Fallback to stub when JAX is not available or there are issues
+    from .jax_stub import JAXAdapter
 
 __all__ = ["PyTorchAdapter", "TensorFlowAdapter", "JAXAdapter"]
