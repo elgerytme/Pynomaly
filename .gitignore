@@ -277,3 +277,4 @@ test_venv_bash/
 coverage.json
 storage/detectors.json
 storage/detectors.json
+storage/detectors.json
