@@ -54,10 +54,10 @@ class TestCreateDetectorDTO:
         CreateDetectorDTO(name="test", algorithm_name="test", contamination_rate=0.5)
         
         # Invalid contamination rates
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError):
             CreateDetectorDTO(name="test", algorithm_name="test", contamination_rate=-0.1)
         
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError):
             CreateDetectorDTO(name="test", algorithm_name="test", contamination_rate=1.5)
     
     def test_name_validation(self):
@@ -84,7 +84,7 @@ class TestCreateDetectorDTO:
             CreateDetectorDTO(name="test", algorithm_name=algo, contamination_rate=0.1)
         
         # Test with empty algorithm name should raise validation error
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError):
             CreateDetectorDTO(name="test", algorithm_name="", contamination_rate=0.1)
     
     def test_parameters_optional(self):
@@ -196,11 +196,11 @@ class TestDatasetDTO:
         DatasetDTO(name="test", features=[[1.0, 2.0], [3.0, 4.0]])
         
         # Invalid features - empty
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError):
             DatasetDTO(name="test", features=[])
         
         # Invalid features - inconsistent dimensions
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError):
             DatasetDTO(name="test", features=[[1.0, 2.0], [3.0]])
     
     def test_targets_validation(self):
@@ -211,11 +211,11 @@ class TestDatasetDTO:
         DatasetDTO(name="test", features=features, targets=[0, 1])
         
         # Invalid targets - length mismatch
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError):
             DatasetDTO(name="test", features=features, targets=[0])
         
         # Invalid targets - not binary
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError):
             DatasetDTO(name="test", features=features, targets=[0, 2])
     
     def test_to_domain_entity(self):
@@ -265,7 +265,7 @@ class TestDetectionRequestDTO:
     def test_validation(self):
         """Test request validation."""
         # Invalid detector_id
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError):
             DetectionRequestDTO(
                 detector_id="",
                 dataset_name="test",
@@ -273,7 +273,7 @@ class TestDetectionRequestDTO:
             )
         
         # Invalid threshold
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError):
             DetectionRequestDTO(
                 detector_id="test",
                 dataset_name="test",
@@ -431,10 +431,10 @@ class TestCreateExperimentDTO:
         CreateExperimentDTO(name="Valid Name 123", config={})
         
         # Invalid names
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError):
             CreateExperimentDTO(name="", config={})
         
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError):
             CreateExperimentDTO(name="   ", config={})
 
 
@@ -473,11 +473,11 @@ class TestBatchDetectionRequestDTO:
     def test_validation(self):
         """Test batch request validation."""
         # Empty datasets
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError):
             BatchDetectionRequestDTO(detector_id="test", datasets=[])
         
         # Invalid max_workers
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError):
             BatchDetectionRequestDTO(
                 detector_id="test",
                 datasets=[{"name": "test", "features": [[1.0]]}],
@@ -516,7 +516,7 @@ class TestEnsembleRequestDTO:
     def test_validation(self):
         """Test ensemble request validation."""
         # Too few detectors
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError):
             EnsembleRequestDTO(
                 detector_ids=["det1"],
                 dataset_name="test",
@@ -525,7 +525,7 @@ class TestEnsembleRequestDTO:
             )
         
         # Invalid aggregation method
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError):
             EnsembleRequestDTO(
                 detector_ids=["det1", "det2"],
                 dataset_name="test",
@@ -534,7 +534,7 @@ class TestEnsembleRequestDTO:
             )
         
         # Weight count mismatch
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError):
             EnsembleRequestDTO(
                 detector_ids=["det1", "det2"],
                 dataset_name="test",
