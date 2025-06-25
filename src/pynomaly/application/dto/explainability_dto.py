@@ -1446,7 +1446,7 @@ class BatchExplanationResponseDTO(BaseModel):
 
 class ExplanationRequestDTO(BaseModel):
     """DTO for explanation request.
-    
+
     Legacy - use ComprehensiveExplanationRequestDTO for new implementations.
     """
 
@@ -1505,7 +1505,10 @@ class FeatureStatisticsDTO(BaseModel):
 
 
 class ExplanationResponseDTO(BaseModel):
-    """DTO for explanation response (legacy - use ComprehensiveExplanationResponseDTO for new implementations)."""
+    """DTO for explanation response.
+
+    Legacy - use ComprehensiveExplanationResponseDTO for new implementations.
+    """
 
     model_config = ConfigDict(from_attributes=True)
 
