@@ -231,7 +231,7 @@ def main():
         "stray_files": stray_files,
         "suggestions": suggestions,
         "total_stray": len(stray_files),
-        "categories": list(set(f["category"] for f in stray_files)),
+        "categories": list({f["category"] for f in stray_files}),
     }
 
     reports_dir = Path("reports")

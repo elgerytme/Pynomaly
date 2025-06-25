@@ -33,7 +33,7 @@ def test_quality_gates_core():
         )
 
         # Test basic functionality
-        validator = QualityGateValidator()
+        QualityGateValidator()
         print("  ✅ Quality gate validator initialized")
 
         # Test enums
@@ -98,93 +98,93 @@ def test_quality_validation():
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             good_code = dedent('''
                 """High-quality authentication service.
-                
+
                 This module provides secure user authentication with proper
                 validation, documentation, and error handling.
                 """
-                
+
                 from __future__ import annotations
-                
+
                 import hashlib
                 import secrets
                 from typing import Dict, Optional
-                
-                
+
+
                 class AuthenticationError(Exception):
                     """Raised when authentication fails."""
                     pass
-                
-                
+
+
                 class UserAuthenticator:
                     """Secure user authentication service."""
-                    
+
                     def __init__(self) -> None:
                         """Initialize authenticator with secure defaults."""
                         self._users: Dict[str, str] = {}
                         self._salt_length = 32
-                    
+
                     def register_user(self, username: str, password: str) -> bool:
                         """Register a new user with secure password hashing.
-                        
+
                         Args:
                             username: Unique username (must be non-empty)
                             password: Plain text password (must be non-empty)
-                            
+
                         Returns:
                             True if registration successful, False if user exists
-                            
+
                         Raises:
                             ValueError: If username or password is invalid
                         """
                         if not username or not password:
                             raise ValueError("Username and password cannot be empty")
-                        
+
                         if username in self._users:
                             return False
-                        
+
                         # Generate secure password hash
                         salt = secrets.token_hex(self._salt_length)
                         password_hash = self._hash_password(password, salt)
                         self._users[username] = f"{salt}:{password_hash}"
-                        
+
                         return True
-                    
+
                     def authenticate_user(self, username: str, password: str) -> bool:
                         """Authenticate user with username and password.
-                        
+
                         Args:
                             username: Username to authenticate
                             password: Password to verify
-                            
+
                         Returns:
                             True if authentication successful
-                            
+
                         Raises:
                             AuthenticationError: If authentication fails
                         """
                         if username not in self._users:
                             raise AuthenticationError("Invalid username")
-                        
+
                         stored_data = self._users[username]
                         try:
                             salt, stored_hash = stored_data.split(':', 1)
                         except ValueError:
                             raise AuthenticationError("Invalid user data")
-                        
+
                         computed_hash = self._hash_password(password, salt)
-                        
+
                         if computed_hash != stored_hash:
                             raise AuthenticationError("Invalid password")
-                        
+
                         return True
-                    
+
                     def _hash_password(self, password: str, salt: str) -> str:
                         """Hash password with salt using SHA-256.
-                        
+
                         Args:
                             password: Plain text password
                             salt: Salt for hashing
-                            
+
                         Returns:
                             Hexadecimal hash string
                         """
@@ -216,10 +216,10 @@ def test_quality_validation():
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             bad_code = dedent("""
                 # No module docstring, no future imports, poor practices
-                
+
                 import *
                 from os import *
-                
+
                 class BadClass:
                     def bad_method(self):
                         # No type hints, no docstrings, security issues
@@ -236,7 +236,7 @@ def test_quality_validation():
                                                         exec("import sys")  # Security issue
                                                         return True
                         return False
-                
+
                 def bad_function():
                     try:
                         dangerous_operation()
@@ -278,7 +278,7 @@ def test_specific_quality_gates():
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             complex_code = dedent('''
                 """Module with complex function."""
-                
+
                 def complex_function(x):
                     """Very complex function with many branches."""
                     if x > 0:
@@ -308,21 +308,21 @@ def test_specific_quality_gates():
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             docstring_code = dedent('''
                 """Module docstring."""
-                
+
                 class DocumentedClass:
                     """This class has a docstring."""
-                    
+
                     def documented_method(self):
                         """This method has a docstring."""
                         pass
-                    
+
                     def undocumented_method(self):
                         pass
-                
+
                 def documented_function():
                     """This function has a docstring."""
                     pass
-                
+
                 def undocumented_function():
                     pass
             ''')
@@ -339,13 +339,13 @@ def test_specific_quality_gates():
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             type_hints_code = dedent('''
                 """Module with mixed type hints."""
-                
+
                 from typing import List
-                
+
                 def typed_function(data: List[int]) -> int:
                     """Function with type hints."""
                     return sum(data)
-                
+
                 def untyped_function(data):
                     """Function without type hints."""
                     return len(data)
@@ -362,9 +362,9 @@ def test_specific_quality_gates():
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             security_code = dedent('''
                 """Module with security issues."""
-                
+
                 import subprocess
-                
+
                 def insecure_function(user_input):
                     """Function with security issues."""
                     try:
@@ -479,7 +479,7 @@ def test_convenience_functions():
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             simple_code = dedent('''
                 """Simple test module."""
-                
+
                 def simple_function() -> str:
                     """A simple function with type hints."""
                     return "hello world"
@@ -515,13 +515,6 @@ def test_quality_gates_readiness():
 
     try:
         # Check if all components are available
-        components = [
-            "quality_gates_core",
-            "quality_validation",
-            "specific_quality_gates",
-            "html_report_generation",
-            "convenience_functions",
-        ]
 
         results = {
             "quality_gates_core": test_quality_gates_core(),

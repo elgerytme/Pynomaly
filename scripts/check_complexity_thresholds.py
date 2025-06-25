@@ -76,7 +76,7 @@ class ComplexityThresholdChecker:
         """
         all_passed = True
 
-        for metric_name, threshold in self.thresholds.items():
+        for metric_name, _threshold in self.thresholds.items():
             current_value = current_metrics.get(metric_name, 0)
             baseline_value = (
                 baseline_metrics.get(metric_name) if baseline_metrics else None
@@ -146,7 +146,7 @@ def check_trend_regressions(
     regressions = []
     trends = current_data.get("baseline_comparison", {})
 
-    for metric_key, trend in trends.items():
+    for _metric_key, trend in trends.items():
         if trend["severity"] == "critical":
             regressions.append(
                 {

@@ -1701,7 +1701,7 @@ def visualize_anomaly_detection(file_path, algorithm=None, chart_type=None):
                     importance_scores.append(importance)
 
                 feature_names = numeric_cols[: len(importance_scores)]
-                bars = ax2.bar(feature_names, importance_scores, color="lightgreen")
+                ax2.bar(feature_names, importance_scores, color="lightgreen")
                 ax2.set_title("Feature Importance (Anomaly Discrimination)")
                 ax2.set_ylabel("Importance Score")
                 ax2.tick_params(axis="x", rotation=45)

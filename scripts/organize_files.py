@@ -227,7 +227,7 @@ class FileOrganizer:
 
     def _plan_file_operation(self, file_info: dict) -> dict | None:
         """Plan operation for a stray file."""
-        source_path = self.project_root / file_info["path"]
+        self.project_root / file_info["path"]
         target = file_info["target"]
 
         if target == "DELETE":

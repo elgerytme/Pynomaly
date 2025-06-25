@@ -90,7 +90,7 @@ class PerformanceOptimizer:
         # Resource-aware configuration
         system_resources = self.profile_system_resources()
         available_memory_gb = system_resources["memory_available_gb"]
-        cpu_count = system_resources["cpu_count"]
+        system_resources["cpu_count"]
 
         # Calculate optimal parameters
         if dataset_size_mb < 10:  # Small dataset
@@ -482,14 +482,14 @@ class PerformanceOptimizer:
 
             # First run (cold cache)
             start_time = time.time()
-            results1 = await self.autonomous_service.detect_autonomous(
+            await self.autonomous_service.detect_autonomous(
                 dataset_path, config
             )
             cold_time = time.time() - start_time
 
             # Second run (warm cache - simulated)
             start_time = time.time()
-            results2 = await self.autonomous_service.detect_autonomous(
+            await self.autonomous_service.detect_autonomous(
                 dataset_path, config
             )
             warm_time = time.time() - start_time

@@ -293,7 +293,7 @@ class UIQualityMonitor:
         <h1>📊 UI Quality Trend Report</h1>
         <p>Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | Period: Last {days} days</p>
     </div>
-    
+
     <div class="grid">
         <div class="card metric">
             <div class="metric-value {("trend-up" if score_change > 0 else "trend-down" if score_change < 0 else "trend-stable")}">
@@ -302,21 +302,21 @@ class UIQualityMonitor:
             <div class="metric-label">Overall Score {trend_direction}</div>
             {f"<small>Change: {score_change:+.1f} points</small>" if score_change != 0 else ""}
         </div>
-        
+
         <div class="card metric">
             <div class="metric-value">
                 {latest_metrics["accessibility_score"] if latest_metrics else "N/A"}
             </div>
             <div class="metric-label">Accessibility Score</div>
         </div>
-        
+
         <div class="card metric">
             <div class="metric-value {("trend-down" if latest_metrics and latest_metrics["critical_issues"] == 0 else "trend-up")}">
                 {latest_metrics["critical_issues"] if latest_metrics else "N/A"}
             </div>
             <div class="metric-label">Critical Issues</div>
         </div>
-        
+
         <div class="card metric">
             <div class="metric-value">
                 {latest_metrics["tests_passed"] if latest_metrics else "N/A"}/{(latest_metrics["tests_passed"] + latest_metrics["tests_failed"]) if latest_metrics else "N/A"}
@@ -324,21 +324,21 @@ class UIQualityMonitor:
             <div class="metric-label">Tests Passed</div>
         </div>
     </div>
-    
+
     <div class="card">
         <h2>📈 Quality Trend</h2>
         <div class="chart-container">
             <canvas id="trendChart"></canvas>
         </div>
     </div>
-    
+
     <div class="card">
         <h2>🚨 Issue Tracking</h2>
         <div class="chart-container">
             <canvas id="issuesChart"></canvas>
         </div>
     </div>
-    
+
     <script>
         // Trend chart
         const trendCtx = document.getElementById('trendChart').getContext('2d');
@@ -371,7 +371,7 @@ class UIQualityMonitor:
                 }}
             }}
         }});
-        
+
         // Issues chart
         const issuesCtx = document.getElementById('issuesChart').getContext('2d');
         new Chart(issuesCtx, {{

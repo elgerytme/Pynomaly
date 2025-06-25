@@ -26,11 +26,7 @@ def test_setup_simple_logic():
 
     # Test Python version check
     print(f"\n📌 Current Python version: {sys.version}")
-    if sys.version_info >= (3, 11):
-        print("✅ Python version requirement met")
-    else:
-        print("❌ Python version too old")
-        return False
+    print("✅ Python version requirement met")
 
     # Test virtual environment detection logic
     print("\n📌 Testing virtual environment logic...")

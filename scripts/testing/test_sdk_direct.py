@@ -52,7 +52,7 @@ def test_direct_imports():
 
             # Test client initialization (may fail due to missing deps)
             try:
-                client = PynomaliClient(base_url="http://localhost:8000")
+                PynomaliClient(base_url="http://localhost:8000")
                 print("✅ Sync client initialization successful")
             except Exception as e:
                 print(f"⚠️  Sync client initialization failed: {e}")

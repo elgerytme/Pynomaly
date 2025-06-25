@@ -47,7 +47,7 @@ async def benchmark_algorithm(
     )
 
     train_start = time.time()
-    train_response = await train_use_case.execute(train_request)
+    await train_use_case.execute(train_request)
     train_time = time.time() - train_start
 
     # Detect anomalies

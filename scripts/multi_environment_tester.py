@@ -300,7 +300,7 @@ try {{
         Write-Host "Unsupported script type: {script_rel_path}" -ForegroundColor Red
         exit 1
     }}
-    
+
     Write-Host "Script completed successfully" -ForegroundColor Green
 }}
 catch {{
@@ -334,7 +334,7 @@ elif [[ "{script_rel_path}" == *.ps1 ]]; then
     echo "Simulating successful execution..."
     exit 0
 elif [[ "{script_rel_path}" == *.bat ]]; then
-    echo "Batch file detected - would run on Windows" 
+    echo "Batch file detected - would run on Windows"
     echo "Simulating successful execution..."
     exit 0
 else

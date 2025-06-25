@@ -69,14 +69,14 @@ class DocumentationPDFGenerator:
                 color: #666;
             }
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.6;
             color: #333;
             font-size: 11pt;
         }
-        
+
         h1 {
             color: #0066cc;
             font-size: 24pt;
@@ -86,7 +86,7 @@ class DocumentationPDFGenerator:
             border-bottom: 2px solid #0066cc;
             padding-bottom: 10pt;
         }
-        
+
         h2 {
             color: #0066cc;
             font-size: 18pt;
@@ -96,7 +96,7 @@ class DocumentationPDFGenerator:
             border-bottom: 1px solid #ccc;
             padding-bottom: 6pt;
         }
-        
+
         h3 {
             color: #333;
             font-size: 14pt;
@@ -104,7 +104,7 @@ class DocumentationPDFGenerator:
             margin-top: 18pt;
             margin-bottom: 10pt;
         }
-        
+
         h4 {
             color: #333;
             font-size: 12pt;
@@ -112,21 +112,21 @@ class DocumentationPDFGenerator:
             margin-top: 14pt;
             margin-bottom: 8pt;
         }
-        
+
         p {
             margin-bottom: 10pt;
             text-align: justify;
         }
-        
+
         ul, ol {
             margin-bottom: 12pt;
             padding-left: 20pt;
         }
-        
+
         li {
             margin-bottom: 4pt;
         }
-        
+
         code {
             background-color: #f5f5f5;
             padding: 2pt 4pt;
@@ -134,7 +134,7 @@ class DocumentationPDFGenerator:
             font-family: 'Courier New', monospace;
             font-size: 10pt;
         }
-        
+
         pre {
             background-color: #f5f5f5;
             border: 1px solid #ddd;
@@ -146,36 +146,36 @@ class DocumentationPDFGenerator:
             font-size: 9pt;
             line-height: 1.4;
         }
-        
+
         pre code {
             background-color: transparent;
             padding: 0;
             border-radius: 0;
         }
-        
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 12pt 0;
             font-size: 10pt;
         }
-        
+
         th, td {
             border: 1px solid #ddd;
             padding: 6pt 8pt;
             text-align: left;
         }
-        
+
         th {
             background-color: #f5f5f5;
             font-weight: bold;
             color: #333;
         }
-        
+
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
-        
+
         blockquote {
             margin: 12pt 0;
             padding: 12pt 16pt;
@@ -183,7 +183,7 @@ class DocumentationPDFGenerator:
             border-left: 4px solid #0066cc;
             font-style: italic;
         }
-        
+
         .toc {
             background-color: #f9f9f9;
             border: 1px solid #ddd;
@@ -191,31 +191,31 @@ class DocumentationPDFGenerator:
             padding: 16pt;
             margin: 20pt 0;
         }
-        
+
         .toc h2 {
             margin-top: 0;
             color: #333;
             border-bottom: none;
         }
-        
+
         .toc ul {
             list-style-type: none;
             padding-left: 0;
         }
-        
+
         .toc li {
             margin-bottom: 6pt;
         }
-        
+
         .toc a {
             text-decoration: none;
             color: #0066cc;
         }
-        
+
         .toc a:hover {
             text-decoration: underline;
         }
-        
+
         .highlight {
             background-color: #f8f8f8;
             border: 1px solid #ddd;
@@ -223,20 +223,20 @@ class DocumentationPDFGenerator:
             padding: 12pt;
             margin: 12pt 0;
         }
-        
+
         .page-break {
             page-break-before: always;
         }
-        
+
         .no-break {
             page-break-inside: avoid;
         }
-        
+
         .document-title {
             text-align: center;
             margin-bottom: 30pt;
         }
-        
+
         .document-info {
             background-color: #f0f7ff;
             border: 1px solid #0066cc;
@@ -244,7 +244,7 @@ class DocumentationPDFGenerator:
             padding: 16pt;
             margin: 20pt 0;
         }
-        
+
         .document-info h3 {
             margin-top: 0;
             color: #0066cc;
@@ -257,7 +257,7 @@ class DocumentationPDFGenerator:
         <div class="document-title">
             <h1>{title}</h1>
         </div>
-        
+
         <div class="document-info">
             <h3>Document Information</h3>
             <p><strong>Title:</strong> {title}</p>
@@ -265,7 +265,7 @@ class DocumentationPDFGenerator:
             <p><strong>Version:</strong> 1.0</p>
             <p><strong>Project:</strong> Pynomaly - State-of-the-Art Anomaly Detection Platform</p>
         </div>
-        
+
         <div class="page-break"></div>
         """
 
@@ -343,16 +343,16 @@ class DocumentationPDFGenerator:
             cover_content = f"""
             # Pynomaly Documentation
             ## Complete Guide to State-of-the-Art Anomaly Detection
-            
+
             <div class="document-info">
                 <h3>Documentation Package</h3>
                 <p><strong>Generated:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
                 <p><strong>Version:</strong> 1.0</p>
                 <p><strong>Documents Included:</strong> {len(markdown_files)}</p>
             </div>
-            
+
             ### Table of Contents
-            
+
             """
 
             # Add table of contents

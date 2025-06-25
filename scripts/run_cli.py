@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 def setup_cli_environment():
     """Setup environment for CLI execution."""
     try:
-        settings = get_settings()
+        get_settings()
         # Any CLI-specific environment setup can go here
         return True
     except Exception as e:

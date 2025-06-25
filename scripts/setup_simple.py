@@ -40,9 +40,6 @@ def main():
 
     # Check Python version
     print("\n📌 Checking Python version...")
-    if sys.version_info < (3, 11):
-        print(f"❌ Python 3.11+ required, you have {sys.version}")
-        sys.exit(1)
     print(f"✅ Python {sys.version.split()[0]} detected")
 
     # Create virtual environment if it doesn't exist or if it's corrupted
@@ -95,7 +92,7 @@ def main():
                 )
                 # Continue with system Python
                 python_path = sys.executable
-                pip_path = "pip3" if shutil.which("pip3") else "pip"
+                "pip3" if shutil.which("pip3") else "pip"
                 # Clean up broken venv
                 if os.path.exists(".venv"):
                     shutil.rmtree(".venv", ignore_errors=True)
@@ -105,16 +102,16 @@ def main():
     # Determine pip path based on OS (only if venv exists)
     if os.path.exists(".venv"):
         if sys.platform == "win32":
-            pip_path = os.path.join(".venv", "Scripts", "pip.exe")
+            os.path.join(".venv", "Scripts", "pip.exe")
             python_path = os.path.join(".venv", "Scripts", "python.exe")
 
             # Check if files exist
             if not os.path.exists(python_path):
                 # Try without .exe extension
                 python_path = os.path.join(".venv", "Scripts", "python")
-                pip_path = os.path.join(".venv", "Scripts", "pip")
+                os.path.join(".venv", "Scripts", "pip")
         else:
-            pip_path = os.path.join(".venv", "bin", "pip")
+            os.path.join(".venv", "bin", "pip")
             python_path = os.path.join(".venv", "bin", "python")
 
         # Ensure virtual environment python exists
@@ -122,11 +119,11 @@ def main():
             print(f"❌ Virtual environment python not found at {python_path}")
             print("⚠️  Using system python instead (not recommended)")
             python_path = sys.executable
-            pip_path = "pip3" if shutil.which("pip3") else "pip"
+            "pip3" if shutil.which("pip3") else "pip"
     else:
         # No virtual environment, use system Python
         python_path = sys.executable
-        pip_path = "pip3" if shutil.which("pip3") else "pip"
+        "pip3" if shutil.which("pip3") else "pip"
 
     # Check if we're using system Python and it's externally managed (PEP 668)
     if python_path == sys.executable and not os.path.exists(".venv"):

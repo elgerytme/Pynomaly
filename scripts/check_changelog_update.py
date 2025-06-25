@@ -139,7 +139,6 @@ def get_latest_changelog_date():
 
 def suggest_changelog_entry(significant_files, total_lines_changed):
     """Suggest a changelog entry based on changed files."""
-    suggestions = []
 
     # Analyze file types
     file_categories = {

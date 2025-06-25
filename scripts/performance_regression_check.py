@@ -181,7 +181,7 @@ def run_memory_usage_test() -> dict[str, float]:
 
         # Run memory-intensive operations
         gc.collect()
-        start_memory = process.memory_info().rss / 1024 / 1024
+        process.memory_info().rss / 1024 / 1024
 
         # Create and process data
         import numpy as np
@@ -233,7 +233,7 @@ def run_startup_performance_test() -> dict[str, float]:
 
         from pynomaly.infrastructure.config.container import create_container
 
-        container = create_container(testing=True)
+        create_container(testing=True)
 
         end_time = time.time()
         results["container_init_time"] = (end_time - start_time) * 1000  # ms

@@ -60,7 +60,7 @@ def generate_markdown_report(data: dict) -> str:
         warning_trends = []
         info_trends = []
 
-        for metric_key, trend in trends.items():
+        for _metric_key, trend in trends.items():
             if trend["severity"] == "critical":
                 critical_trends.append(trend)
             elif trend["severity"] == "warning":
@@ -188,75 +188,75 @@ def generate_html_report(data: dict) -> str:
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Complexity Analysis Report</title>
     <style>
-        body {{ 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-            margin: 20px; 
-            line-height: 1.6; 
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
             color: #333;
         }}
-        .header {{ 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            color: white; 
-            padding: 20px; 
-            border-radius: 8px; 
+        .header {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
             margin-bottom: 20px;
         }}
-        .status {{ 
-            display: inline-block; 
-            padding: 4px 12px; 
-            border-radius: 20px; 
-            font-weight: bold; 
-            background: {status_color}; 
+        .status {{
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            background: {status_color};
             color: white;
         }}
-        .metric-grid {{ 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-            gap: 15px; 
+        .metric-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
             margin: 20px 0;
         }}
-        .metric-card {{ 
-            background: #f8f9fa; 
-            padding: 15px; 
-            border-radius: 8px; 
+        .metric-card {{
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
             border-left: 4px solid #007bff;
         }}
-        .metric-value {{ 
-            font-size: 1.5em; 
-            font-weight: bold; 
+        .metric-value {{
+            font-size: 1.5em;
+            font-weight: bold;
             color: #007bff;
         }}
-        .section {{ 
-            margin: 20px 0; 
-            padding: 15px; 
-            border: 1px solid #dee2e6; 
+        .section {{
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #dee2e6;
             border-radius: 8px;
         }}
         .critical {{ border-left: 4px solid #dc3545; }}
         .warning {{ border-left: 4px solid #ffc107; }}
         .info {{ border-left: 4px solid #17a2b8; }}
-        table {{ 
-            width: 100%; 
-            border-collapse: collapse; 
+        table {{
+            width: 100%;
+            border-collapse: collapse;
             margin: 10px 0;
         }}
-        th, td {{ 
-            text-align: left; 
-            padding: 8px; 
+        th, td {{
+            text-align: left;
+            padding: 8px;
             border-bottom: 1px solid #ddd;
         }}
         th {{ background-color: #f2f2f2; }}
-        .code {{ 
-            font-family: 'Courier New', monospace; 
-            background: #f4f4f4; 
-            padding: 2px 4px; 
+        .code {{
+            font-family: 'Courier New', monospace;
+            background: #f4f4f4;
+            padding: 2px 4px;
             border-radius: 3px;
         }}
-        .footer {{ 
-            margin-top: 30px; 
-            padding-top: 15px; 
-            border-top: 1px solid #dee2e6; 
-            color: #6c757d; 
+        .footer {{
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+            color: #6c757d;
             font-size: 0.9em;
         }}
     </style>
@@ -268,7 +268,7 @@ def generate_html_report(data: dict) -> str:
         <p><strong>Project:</strong> {data.get("project_path", "Unknown")}</p>
         <p><strong>Status:</strong> <span class="status">{quality.get("overall", "Unknown").upper()}</span></p>
     </div>
-    
+
     <div class="section">
         <h2>📈 Key Metrics</h2>
         <div class="metric-grid">

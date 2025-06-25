@@ -609,7 +609,7 @@ def create_high_dimensional_dataset(n_samples=3000, n_features=50, anomaly_rate=
 
     # Generate additional features as combinations of base features
     additional_normal = []
-    for i in range(n_features - base_features):
+    for _i in range(n_features - base_features):
         # Linear combinations with noise
         weights = np.random.uniform(-1, 1, base_features)
         feature = np.dot(base_data, weights) + np.random.normal(0, 0.5, n_normal)
@@ -914,7 +914,7 @@ See the `scripts/` directory for analysis examples and the `docs/` directory for
 Each dataset is designed to test different aspects of anomaly detection:
 
 1. **Financial Fraud**: Tests detection of transaction anomalies
-2. **Network Intrusion**: Tests traffic pattern anomalies  
+2. **Network Intrusion**: Tests traffic pattern anomalies
 3. **IoT Sensors**: Tests time-series and environmental anomalies
 4. **Manufacturing Quality**: Tests process control anomalies
 5. **E-commerce Behavior**: Tests behavioral pattern anomalies

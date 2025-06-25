@@ -261,7 +261,7 @@ def generate_recommendations(metrics, trends) -> list[str]:
 
     # Trend-based recommendations
     if trends:
-        for metric_key, trend in trends.items():
+        for _metric_key, trend in trends.items():
             if trend["severity"] == "critical" and trend["trend"] == "increasing":
                 recommendations.append(
                     f"Critical increase in {trend['name']} detected - immediate attention required"
@@ -563,7 +563,7 @@ def print_ci_summary(report: dict):
     if report["baseline_comparison"]:
         print("\n📈 CHANGES FROM BASELINE:")
         trends = report["baseline_comparison"]
-        for metric_key, trend in trends.items():
+        for _metric_key, trend in trends.items():
             if trend["severity"] in ["warning", "critical"]:
                 icon = "🚨" if trend["severity"] == "critical" else "⚠️"
                 print(f"   {icon} {trend['name']}: {trend['change_percent']:+.1f}%")
