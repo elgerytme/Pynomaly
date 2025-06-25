@@ -471,7 +471,7 @@ def show_performance_stats():
                 print(f"  Bytes received: {net_io.bytes_recv / 1024**2:.1f} MB")
                 print(f"  Packets sent: {net_io.packets_sent:,}")
                 print(f"  Packets received: {net_io.packets_recv:,}")
-        except:
+        except Exception:
             pass  # Network stats not available
 
         # Performance recommendations
