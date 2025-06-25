@@ -4,8 +4,9 @@
 
 set -e
 
-# Configuration
-PROJECT_ROOT="/mnt/c/Users/andre/Pynomaly"
+# Configuration - Dynamic path detection
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 SRC_PATH="$PROJECT_ROOT/src"
 DEFAULT_PORT=8000
 DEFAULT_HOST="0.0.0.0"
