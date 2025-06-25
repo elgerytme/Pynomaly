@@ -188,8 +188,10 @@ class TestDetectorDetection:
             is_fitted=True,
             trained_at=datetime.utcnow()
         )
-        empty_data = pd.DataFrame()
-        dataset = Dataset(name="Empty Data", data=empty_data)
+        # Create dataset with data then make it empty to bypass Dataset validation
+        data = pd.DataFrame({'feature1': [1, 2, 3]})
+        dataset = Dataset(name="Test Data", data=data)
+        dataset.data = pd.DataFrame()  # Make it empty for testing
         mock_adapter = Mock()
         mock_adapter.predict.return_value = []
         mock_adapter.score.return_value = []
