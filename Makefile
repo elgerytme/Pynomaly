@@ -1,262 +1,278 @@
-# Makefile for Pynomaly project
-# Provides convenient rules for testing, development, and deployment
+# Makefile for Pynomaly - Hatch-based Development Workflow
+# 
+# Prerequisites: 
+#   - Hatch installed (pip install hatch)
+#   - Git repository initialized
+#
+# Quick start:
+#   make setup    - Initial project setup
+#   make test     - Run tests
+#   make lint     - Check code quality
+#   make build    - Build package
+#   make clean    - Clean up artifacts
 
-.DEFAULT_GOAL := help
-.PHONY: help test test-current test-fresh test-unit test-integration test-performance test-security test-fast test-verbose clean install lint format type-check docs build deploy
+.PHONY: help setup install dev-install lint format test test-cov build clean docker pre-commit ci status release docs
 
-# Colors for output
-CYAN = \033[36m
-GREEN = \033[32m
-YELLOW = \033[33m
-RED = \033[31m
-RESET = \033[0m
-
-# Project configuration
-PROJECT_NAME := pynomaly
-PYTHON := python3
-PIP := pip
-SCRIPTS_DIR := scripts
-TEST_DIR := tests
-SRC_DIR := src
-DOCS_DIR := docs
-REPORTS_DIR := test-reports
-
-# Help target
+# Default target
 help: ## Show this help message
-	@echo "$(CYAN)Pynomaly Development Makefile$(RESET)"
-	@echo "=============================="
+	@echo "🚀 Pynomaly Development Commands (Hatch-based)"
 	@echo ""
-	@echo "$(GREEN)Testing Rules:$(RESET)"
-	@grep -E '^test.*:.*##' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*##"}; {printf "  $(CYAN)%-20s$(RESET) %s\n", $$1, $$2}'
+	@echo "Setup & Installation:"
+	@echo "  make setup          - Initial project setup (install Hatch, create environments)"
+	@echo "  make install        - Install package in current environment"
+	@echo "  make dev-install    - Install package in development mode with all dependencies"
 	@echo ""
-	@echo "$(GREEN)Development Rules:$(RESET)"
-	@grep -E '^(install|lint|format|type-check|clean).*:.*##' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*##"}; {printf "  $(CYAN)%-20s$(RESET) %s\n", $$1, $$2}'
+	@echo "Development & Quality:"
+	@echo "  make lint           - Run all code quality checks (style, type, format)"
+	@echo "  make format         - Auto-format code (ruff, black, isort)"
+	@echo "  make style          - Check code style without fixing"
+	@echo "  make typing         - Run type checking with mypy"
 	@echo ""
-	@echo "$(GREEN)Build & Deploy Rules:$(RESET)"
-	@grep -E '^(docs|build|deploy).*:.*##' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*##"}; {printf "  $(CYAN)%-20s$(RESET) %s\n", $$1, $$2}'
+	@echo "Testing:"
+	@echo "  make test           - Run core tests (domain + application)"
+	@echo "  make test-all       - Run all tests including integration"
+	@echo "  make test-cov       - Run tests with coverage report"
+	@echo "  make test-unit      - Run only unit tests"
+	@echo "  make test-integration - Run only integration tests"
 	@echo ""
-	@echo "$(YELLOW)Examples:$(RESET)"
-	@echo "  make test              # Run all tests in current environment"
-	@echo "  make test-fresh        # Run all tests in fresh environment"
-	@echo "  make test-unit         # Run only unit tests"
-	@echo "  make test-fast         # Run fast tests only"
-	@echo "  make test-verbose      # Run tests with verbose output"
+	@echo "Build & Package:"
+	@echo "  make build          - Build wheel and source distribution"
+	@echo "  make version        - Show current version"
+	@echo "  make clean          - Clean build artifacts and cache"
 	@echo ""
+	@echo "Pre-commit & CI:"
+	@echo "  make pre-commit     - Install and run pre-commit hooks"
+	@echo "  make ci             - Run full CI pipeline locally"
+	@echo ""
+	@echo "Documentation & Deployment:"
+	@echo "  make docs           - Build documentation"
+	@echo "  make docs-serve     - Serve documentation locally"
+	@echo "  make docker         - Build Docker image"
+	@echo ""
+	@echo "Utilities:"
+	@echo "  make status         - Show project status and environment info"
+	@echo "  make env-show       - Show all Hatch environments"
+	@echo "  make env-clean      - Clean and recreate environments"
+	@echo ""
+	@echo "For detailed help: make help-detailed"
 
-# =======================
-# Testing Rules
-# =======================
+help-detailed: ## Show detailed help with examples
+	@echo "🔧 Detailed Pynomaly Development Guide"
+	@echo ""
+	@echo "=== INITIAL SETUP ==="
+	@echo "1. Clone repository and navigate to directory"
+	@echo "2. Run: make setup"
+	@echo "3. Run: make dev-install"
+	@echo "4. Run: make pre-commit"
+	@echo ""
+	@echo "=== DAILY DEVELOPMENT WORKFLOW ==="
+	@echo "1. make format        # Auto-fix code style"
+	@echo "2. make test          # Run core tests"
+	@echo "3. make lint          # Check quality"
+	@echo "4. git add . && git commit -m 'feat: your changes'"
+	@echo "5. make ci            # Full CI check before push"
+	@echo "6. git push"
+	@echo ""
+	@echo "=== HATCH COMMANDS USED ==="
+	@echo "• hatch version       → Git-based version management"
+	@echo "• hatch build         → Package building"
+	@echo "• hatch env run       → Environment-specific commands"
+	@echo "• hatch env show      → List environments"
+	@echo ""
+	@echo "=== ENVIRONMENTS AVAILABLE ==="
+	@echo "• default: Basic development (path: .venv)"
+	@echo "• test: Full test suite with matrix (py3.11, py3.12)"
+	@echo "• lint: Code quality tools (detached)"
+	@echo "• docs: Documentation building"
+	@echo "• dev: Development tools and pre-commit"
+	@echo "• prod: Production environment"
+	@echo "• cli: CLI-specific testing"
 
-test: ## Run all tests in current environment
-	@echo "$(GREEN)Running all tests in current environment...$(RESET)"
-	@$(SCRIPTS_DIR)/test-current.sh
+# === SETUP & INSTALLATION ===
 
-test-current: ## Run all tests in current environment (alias for test)
-	@$(MAKE) test
+setup: ## Initial project setup - install Hatch and create environments
+	@echo "🚀 Setting up Pynomaly development environment..."
+	@command -v hatch >/dev/null 2>&1 || (echo "Installing Hatch..." && pip install hatch)
+	@echo "✅ Hatch installed: $$(hatch --version)"
+	@echo "📦 Creating Hatch environments..."
+	hatch env create
+	@echo "📋 Available environments:"
+	hatch env show
+	@echo "✅ Setup complete! Run 'make dev-install' next."
 
-test-fresh: ## Run all tests in fresh virtual environment
-	@echo "$(GREEN)Running all tests in fresh environment...$(RESET)"
-	@$(SCRIPTS_DIR)/test-fresh.sh
+install: ## Install package in current environment
+	pip install -e .
+
+dev-install: ## Install package in development mode with all dependencies
+	@echo "📦 Installing Pynomaly in development mode..."
+	hatch env run dev:setup
+	@echo "✅ Development installation complete!"
+
+# === CODE QUALITY ===
+
+lint: ## Run all code quality checks
+	@echo "🔍 Running code quality checks..."
+	@echo "1️⃣ Style checking..."
+	hatch env run lint:style
+	@echo "2️⃣ Type checking..."
+	hatch env run lint:typing
+	@echo "✅ All quality checks passed!"
+
+format: ## Auto-format code
+	@echo "🎨 Auto-formatting code..."
+	hatch env run lint:fmt
+	@echo "✅ Code formatting complete!"
+
+style: ## Check code style without fixing
+	@echo "🎨 Checking code style..."
+	hatch env run lint:style
+
+typing: ## Run type checking
+	@echo "🔎 Running type checking..."
+	hatch env run lint:typing
+
+# === TESTING ===
+
+test: ## Run core tests (domain + application)
+	@echo "🧪 Running core tests..."
+	hatch env run test:run tests/domain/ tests/application/ -v
+
+test-all: ## Run all tests including integration
+	@echo "🧪 Running all tests..."
+	hatch env run test:run -v
+
+test-cov: ## Run tests with coverage report
+	@echo "🧪 Running tests with coverage..."
+	hatch env run test:run-cov
+	@echo "📊 Coverage report generated in htmlcov/"
 
 test-unit: ## Run only unit tests
-	@echo "$(GREEN)Running unit tests...$(RESET)"
-	@$(SCRIPTS_DIR)/test-current.sh --unit-only
+	@echo "🧪 Running unit tests..."
+	hatch env run test:run tests/domain/ tests/application/ -v
 
 test-integration: ## Run only integration tests
-	@echo "$(GREEN)Running integration tests...$(RESET)"
-	@$(SCRIPTS_DIR)/test-current.sh --integration-only
-
-test-performance: ## Run performance tests
-	@echo "$(GREEN)Running performance tests...$(RESET)"
-	@$(SCRIPTS_DIR)/test-current.sh --performance
-
-test-security: ## Run security tests
-	@echo "$(GREEN)Running security tests...$(RESET)"
-	@$(SCRIPTS_DIR)/test-current.sh --security
-
-test-fast: ## Run fast tests only (skip slow integration tests)
-	@echo "$(GREEN)Running fast tests...$(RESET)"
-	@$(SCRIPTS_DIR)/test-current.sh --fast
-
-test-verbose: ## Run tests with verbose output
-	@echo "$(GREEN)Running tests with verbose output...$(RESET)"
-	@$(SCRIPTS_DIR)/test-current.sh --verbose
-
-test-coverage: ## Run tests with coverage reporting
-	@echo "$(GREEN)Running tests with coverage...$(RESET)"
-	@$(SCRIPTS_DIR)/test-current.sh --coverage
-
-test-no-coverage: ## Run tests without coverage reporting
-	@echo "$(GREEN)Running tests without coverage...$(RESET)"
-	@$(SCRIPTS_DIR)/test-current.sh --no-coverage
+	@echo "🧪 Running integration tests..."
+	hatch env run test:run tests/infrastructure/ -v --ignore=tests/infrastructure/test_*_performance*
 
 test-parallel: ## Run tests in parallel
-	@echo "$(GREEN)Running tests in parallel...$(RESET)"
-	@$(SCRIPTS_DIR)/test-current.sh --parallel
+	@echo "🧪 Running tests in parallel..."
+	hatch env run test:run-parallel
 
-test-sequential: ## Run tests sequentially (no parallel)
-	@echo "$(GREEN)Running tests sequentially...$(RESET)"
-	@$(SCRIPTS_DIR)/test-current.sh --no-parallel
+# === BUILD & PACKAGE ===
 
-test-fail-fast: ## Run tests with fail-fast (stop on first failure)
-	@echo "$(GREEN)Running tests with fail-fast...$(RESET)"
-	@$(SCRIPTS_DIR)/test-current.sh --fail-fast
+build: ## Build wheel and source distribution
+	@echo "📦 Building package..."
+	hatch build --clean
+	@echo "📋 Build artifacts:"
+	@ls -la dist/
 
-# Fresh environment test variants
-test-fresh-clean: ## Run tests in fresh environment (clean existing venv)
-	@echo "$(GREEN)Running tests in clean fresh environment...$(RESET)"
-	@$(SCRIPTS_DIR)/test-fresh.sh --clean-venv
+version: ## Show current version
+	@echo "📋 Current version: $$(hatch version)"
 
-test-fresh-keep: ## Run tests in fresh environment (keep venv after)
-	@echo "$(GREEN)Running tests in fresh environment (keeping venv)...$(RESET)"
-	@$(SCRIPTS_DIR)/test-fresh.sh --keep-venv
+clean: ## Clean build artifacts and cache
+	@echo "🧹 Cleaning build artifacts..."
+	hatch env run dev:clean
+	rm -rf dist/ build/ *.egg-info/
+	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+	find . -type f -name "*.pyc" -delete 2>/dev/null || true
+	@echo "✅ Cleanup complete!"
 
-test-fresh-unit: ## Run unit tests in fresh environment
-	@echo "$(GREEN)Running unit tests in fresh environment...$(RESET)"
-	@$(SCRIPTS_DIR)/test-fresh.sh --unit-only
+# === ENVIRONMENTS ===
 
-test-fresh-fast: ## Run fast tests in fresh environment
-	@echo "$(GREEN)Running fast tests in fresh environment...$(RESET)"
-	@$(SCRIPTS_DIR)/test-fresh.sh --fast
+env-show: ## Show all Hatch environments
+	@echo "📋 Hatch environments:"
+	hatch env show
 
-# =======================
-# PowerShell Equivalents
-# =======================
+env-clean: ## Clean and recreate environments
+	@echo "🧹 Cleaning Hatch environments..."
+	hatch env prune
+	hatch env create
+	@echo "✅ Environments recreated!"
 
-test-ps: ## Run tests using PowerShell script (Windows)
-	@echo "$(GREEN)Running tests with PowerShell...$(RESET)"
-	@powershell -ExecutionPolicy Bypass -File $(SCRIPTS_DIR)/test-current.ps1
+# === PRE-COMMIT & CI ===
 
-test-fresh-ps: ## Run tests in fresh environment using PowerShell (Windows)
-	@echo "$(GREEN)Running tests in fresh environment with PowerShell...$(RESET)"
-	@powershell -ExecutionPolicy Bypass -File $(SCRIPTS_DIR)/test-fresh.ps1
+pre-commit: ## Install and run pre-commit hooks
+	@echo "🔗 Setting up pre-commit hooks..."
+	pip install pre-commit
+	pre-commit install --install-hooks
+	@echo "🧪 Running pre-commit on all files..."
+	pre-commit run --all-files
+	@echo "✅ Pre-commit setup complete!"
 
-# =======================
-# Quick Commands
-# =======================
+ci: ## Run full CI pipeline locally
+	@echo "🚀 Running full CI pipeline locally..."
+	@echo "1️⃣ Version check..."
+	hatch version
+	@echo "2️⃣ Code quality..."
+	$(MAKE) lint
+	@echo "3️⃣ Core tests..."
+	$(MAKE) test
+	@echo "4️⃣ Integration tests..."
+	$(MAKE) test-integration
+	@echo "5️⃣ Build package..."
+	$(MAKE) build
+	@echo "6️⃣ CLI test..."
+	hatch env run cli:test-cli
+	@echo "7️⃣ Core imports..."
+	python -c "import sys; sys.path.insert(0, 'src'); from pynomaly.domain.entities import Dataset; print('✅ Core imports successful')"
+	@echo "✅ Full CI pipeline completed successfully!"
 
-t: test ## Quick alias for test
-tf: test-fresh ## Quick alias for test-fresh
-tu: test-unit ## Quick alias for test-unit
-ti: test-integration ## Quick alias for test-integration
-tv: test-verbose ## Quick alias for test-verbose
-tff: test-fast ## Quick alias for test-fast
-
-# Variables for Poetry-based operations
-POETRY := poetry
-PROJECT := pynomaly
-SRC := src
-TESTS := tests
-
-install: ## Install production dependencies
-	$(POETRY) install
-
-dev-install: ## Install all dependencies including dev
-	$(POETRY) install --with dev
-	pre-commit install
-
-test-cov: ## Run tests with coverage
-	$(POETRY) run pytest --cov=$(PROJECT) --cov-report=html --cov-report=term
-
-test-watch: ## Run tests in watch mode
-	$(POETRY) run ptw
-
-lint: ## Run all linters
-	$(POETRY) run black --check $(SRC) $(TESTS)
-	$(POETRY) run isort --check-only $(SRC) $(TESTS)
-	$(POETRY) run mypy $(SRC)
-	$(POETRY) run ruff $(SRC) $(TESTS)
-	$(POETRY) run bandit -r $(SRC)
-	$(POETRY) run safety check
-
-format: ## Format code
-	$(POETRY) run black $(SRC) $(TESTS)
-	$(POETRY) run isort $(SRC) $(TESTS)
-
-clean: ## Clean build artifacts
-	rm -rf build/
-	rm -rf dist/
-	rm -rf *.egg-info
-	rm -rf .coverage
-	rm -rf htmlcov/
-	rm -rf .pytest_cache/
-	rm -rf .mypy_cache/
-	rm -rf .ruff_cache/
-	find . -type d -name __pycache__ -exec rm -rf {} +
-	find . -type f -name "*.pyc" -delete
-
-build: clean ## Build package
-	$(POETRY) build
-
-build-css: ## Build Tailwind CSS
-	npm run build-css
-
-watch-css: ## Watch and rebuild CSS
-	npm run dev
+# === DOCUMENTATION ===
 
 docs: ## Build documentation
-	$(POETRY) run mkdocs build
+	@echo "📖 Building documentation..."
+	hatch env run docs:build
+	@echo "✅ Documentation built in site/"
 
-serve-docs: ## Serve documentation locally
-	$(POETRY) run mkdocs serve
+docs-serve: ## Serve documentation locally
+	@echo "📖 Serving documentation at http://localhost:8080"
+	hatch env run docs:serve
 
-run-api: ## Run API server
-	$(POETRY) run uvicorn pynomaly.presentation.api.app:app --reload
+# === DOCKER ===
 
-run-cli: ## Run CLI
-	$(POETRY) run pynomaly
+docker: ## Build Docker image
+	@echo "🐳 Building Docker image..."
+	docker build -f deploy/docker/Dockerfile -t pynomaly:latest .
+	@echo "✅ Docker image built: pynomaly:latest"
 
-run-web: ## Run web server with CSS watch
-	make -j2 run-api watch-css
+# === UTILITIES ===
 
-docker-build: ## Build Docker image
-	docker-compose build
+status: ## Show project status and environment info
+	@echo "📊 Pynomaly Project Status"
+	@echo "=========================="
+	@echo "Version: $$(hatch version)"
+	@echo "Hatch: $$(hatch --version)"
+	@echo "Python: $$(python --version)"
+	@echo "Git branch: $$(git branch --show-current 2>/dev/null || echo 'Not a git repository')"
+	@echo "Git status: $$(git status --porcelain 2>/dev/null | wc -l || echo '0') files changed"
+	@echo ""
+	@echo "📋 Environments:"
+	@hatch env show --ascii 2>/dev/null || echo "Run 'make setup' to create environments"
+	@echo ""
+	@echo "📦 Build artifacts:"
+	@ls -la dist/ 2>/dev/null || echo "No build artifacts (run 'make build')"
 
-docker-up: ## Start Docker services
-	docker-compose up -d
+# === PRODUCTION COMMANDS ===
 
-docker-down: ## Stop Docker services
-	docker-compose down
+prod-api: ## Start production API server
+	@echo "🚀 Starting production API server..."
+	hatch env run prod:serve-api-prod
 
-docker-logs: ## Show Docker logs
-	docker-compose logs -f
+prod-api-dev: ## Start development API server
+	@echo "🚀 Starting development API server..."
+	hatch env run prod:serve-api
 
-migrate: ## Run database migrations
-	$(POETRY) run alembic upgrade head
+cli-help: ## Show CLI help
+	hatch env run cli:run --help
 
-migration: ## Create new migration
-	$(POETRY) run alembic revision --autogenerate -m "$(MSG)"
+# === QUICK ALIASES ===
 
-shell: ## Open Python shell with app context
-	$(POETRY) run ipython
+l: lint     ## Alias for lint
+f: format   ## Alias for format  
+t: test     ## Alias for test
+b: build    ## Alias for build
+c: clean    ## Alias for clean
+s: status   ## Alias for status
 
-check: lint test ## Run all checks
-
-ci: check build ## Run CI pipeline
-
-release: ## Create a new release
-	@echo "Creating release..."
-	@read -p "Version (current: $$($(POETRY) version -s)): " version; \
-	$(POETRY) version $$version; \
-	git add pyproject.toml; \
-	git commit -m "chore: bump version to $$version"; \
-	git tag -a v$$version -m "Release version $$version"; \
-	echo "Created release v$$version"
-
-publish: build ## Publish to PyPI
-	$(POETRY) publish
-
-setup-pre-commit: ## Setup pre-commit hooks
-	pre-commit install
-	pre-commit install --hook-type commit-msg
-	pre-commit run --all-files
-
-update-deps: ## Update dependencies
-	$(POETRY) update
-	$(POETRY) export -f requirements.txt --output requirements.txt --without-hashes
-	npm update
-
-security-check: ## Run security checks
-	$(POETRY) run bandit -r $(SRC)
-	$(POETRY) run safety check
-	$(POETRY) run pip-audit
+# Make sure all targets are treated as commands, not files
+.DEFAULT_GOAL := help
