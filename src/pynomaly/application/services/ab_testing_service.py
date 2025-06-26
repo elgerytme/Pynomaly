@@ -297,6 +297,15 @@ class ABTestingService:
         # Load existing tests
         asyncio.create_task(self._load_active_tests())
 
+    def _ensure_components_initialized(self) -> None:
+        """Ensure all components are initialized."""
+        if self.traffic_router is None:
+            self.traffic_router = TrafficRouter()
+        if self.statistical_analyzer is None:
+            self.statistical_analyzer = StatisticalAnalyzer()
+        if self.guardrail_monitor is None:
+            self.guardrail_monitor = GuardrailMonitor()
+
     async def _load_active_tests(self) -> None:
         """Load active tests from storage."""
         test_files = self.storage_path.glob("test_*.json")
