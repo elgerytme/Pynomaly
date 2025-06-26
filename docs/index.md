@@ -7,10 +7,12 @@ Welcome to Pynomaly - a comprehensive, production-ready Python anomaly detection
 ### 👤 **I'm new to Pynomaly**
 Start here for installation, basic concepts, and getting your first anomaly detection running.
 - **[Getting Started →](getting-started/)** - Installation, quickstart, platform setup
+- **[Web Interface Quickstart →](getting-started/web-interface-quickstart.md)** - 5-minute web UI tutorial
 
 ### 📊 **I want to use Pynomaly**
 Learn how to use Pynomaly effectively for your anomaly detection needs.
 - **[User Guides →](user-guides/)** - Basic usage, advanced features, troubleshooting
+- **[Progressive Web App →](user-guides/progressive-web-app.md)** - Mobile and offline capabilities
 
 ### 💻 **I'm developing with Pynomaly**
 Technical documentation for developers, integrators, and contributors.
