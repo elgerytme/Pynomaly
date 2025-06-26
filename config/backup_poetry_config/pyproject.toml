@@ -1,0 +1,466 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pynomaly"
+dynamic = ["version"]
+description = "State-of-the-art Python anomaly detection package with clean architecture"
+authors = [{name = "Pynomaly Team", email = "team@pynomaly.io"}]
+license = "MIT"
+readme = "README.md"
+requires-python = ">=3.11"
+keywords = ["anomaly-detection", "outlier-detection", "machine-learning", "clean-architecture"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "pyod>=2.0.5",
+    "numpy>=1.26.0,<2.2.0",
+    "pandas>=2.2.3",
+    "polars>=1.19.0",
+    "pydantic>=2.10.4",
+    "structlog>=24.4.0",
+    "dependency-injector>=4.42.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/pynomaly/pynomaly"
+Repository = "https://github.com/pynomaly/pynomaly"
+Documentation = "https://pynomaly.readthedocs.io"
+Issues = "https://github.com/pynomaly/pynomaly/issues"
+Changelog = "https://github.com/pynomaly/pynomaly/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+# Core functionality extras
+minimal = ["scikit-learn>=1.6.0", "scipy>=1.15.0"]
+ml = ["scikit-learn>=1.6.0", "scipy>=1.15.0"]
+standard = ["scikit-learn>=1.6.0", "scipy>=1.15.0", "pyarrow>=18.1.0"]
+
+# Interface extras
+api = [
+    "fastapi>=0.117.0",
+    "uvicorn[standard]>=0.34.0", 
+    "httpx>=0.28.1",
+    "requests>=2.32.3", 
+    "python-multipart>=0.0.20",
+    "jinja2>=3.1.5",
+    "aiofiles>=24.1.0",
+    "pydantic-settings>=2.8.0"
+]
+cli = ["typer[all]>=0.15.1", "rich>=13.9.4"]
+server = [
+    "fastapi>=0.117.0",
+    "uvicorn[standard]>=0.34.0",
+    "httpx>=0.28.1",
+    "requests>=2.32.3",
+    "python-multipart>=0.0.20",
+    "jinja2>=3.1.5",
+    "aiofiles>=24.1.0",
+    "pydantic-settings>=2.8.0",
+    "typer[all]>=0.15.1",
+    "rich>=13.9.4",
+    "scikit-learn>=1.6.0",
+    "scipy>=1.15.0",
+    "pyarrow>=18.1.0"
+]
+
+# Infrastructure extras
+auth = ["pyjwt>=2.10.1", "passlib[bcrypt]>=1.7.4"]
+caching = ["redis>=5.2.1"]
+monitoring = [
+    "opentelemetry-api>=1.29.0",
+    "opentelemetry-sdk>=1.29.0", 
+    "opentelemetry-instrumentation-fastapi>=0.50b0",
+    "prometheus-client>=0.21.1",
+    "psutil>=6.1.1",
+    "prometheus-fastapi-instrumentator>=7.0.0"
+]
+infrastructure = [
+    "tenacity>=9.0.0",
+    "circuitbreaker>=2.0.0",
+    "pydantic-settings>=2.8.0"
+]
+
+# Data processing extras
+data-formats = [
+    "pyarrow>=18.1.0",
+    "fastparquet>=2024.11.0",
+    "openpyxl>=3.1.5",
+    "xlsxwriter>=3.2.0",
+    "h5py>=3.12.1"
+]
+database = ["sqlalchemy>=2.0.36", "psycopg2-binary>=2.9.10"]
+spark = ["pyspark>=3.5.4"]
+
+# ML backend extras  
+torch = ["torch>=2.5.1"]
+tensorflow = ["tensorflow>=2.18.0,<2.20.0", "keras>=3.8.0"]
+jax = ["jax>=0.4.37", "jaxlib>=0.4.37", "optax>=0.2.4"]
+
+# Specialized ML extras
+graph = ["pygod>=1.1.0", "torch-geometric>=2.6.1"]
+automl = [
+    "optuna>=4.1.0",
+    "hyperopt>=0.2.7", 
+    "auto-sklearn2>=1.0.0",
+    "scikit-learn>=1.6.0"
+]
+explainability = ["shap>=0.46.0", "lime>=0.2.0.1"]
+
+# Production extras
+production = [
+    "fastapi>=0.117.0",
+    "uvicorn[standard]>=0.34.0",
+    "redis>=5.2.1",
+    "opentelemetry-api>=1.29.0",
+    "opentelemetry-sdk>=1.29.0",
+    "opentelemetry-instrumentation-fastapi>=0.50b0",
+    "prometheus-client>=0.21.1",
+    "psutil>=6.1.1",
+    "tenacity>=9.0.0",
+    "circuitbreaker>=2.0.0",
+    "pydantic-settings>=2.8.0",
+    "pyjwt>=2.10.1",
+    "passlib[bcrypt]>=1.7.4",
+    "prometheus-fastapi-instrumentator>=7.0.0"
+]
+
+# Development extras
+test = [
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-xdist>=3.6.0",
+    "hypothesis>=6.115.0",
+    "factory-boy>=3.3.1",
+    "faker>=33.1.0"
+]
+lint = [
+    "ruff>=0.8.0",
+    "black>=24.0.0",
+    "isort>=5.13.0",
+    "mypy>=1.13.0",
+    "bandit>=1.8.0",
+    "safety>=4.0.0"
+]
+docs = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.0",
+    "mkdocstrings[python]>=0.27.0",
+    "mkdocs-gen-files>=0.5.0",
+    "mkdocs-literate-nav>=0.6.0"
+]
+dev = [
+    "pre-commit>=4.0.0",
+    "tox>=4.0.0",
+    "pip-tools>=7.4.0"
+]
+
+# Comprehensive combinations
+ml-all = [
+    "scikit-learn>=1.6.0",
+    "scipy>=1.15.0",
+    "torch>=2.5.1",
+    "tensorflow>=2.18.0,<2.20.0",
+    "keras>=3.8.0",
+    "jax>=0.4.37",
+    "jaxlib>=0.4.37",
+    "optax>=0.2.4",
+    "pygod>=1.1.0",
+    "torch-geometric>=2.6.1",
+    "optuna>=4.1.0",
+    "hyperopt>=0.2.7",
+    "auto-sklearn2>=1.0.0",
+    "shap>=0.46.0",
+    "lime>=0.2.0.1"
+]
+data-all = [
+    "pyarrow>=18.1.0",
+    "fastparquet>=2024.11.0",
+    "openpyxl>=3.1.5",
+    "xlsxwriter>=3.2.0",
+    "h5py>=3.12.1",
+    "sqlalchemy>=2.0.36",
+    "psycopg2-binary>=2.9.10",
+    "pyspark>=3.5.4"
+]
+all = [
+    "scikit-learn>=1.6.0",
+    "scipy>=1.15.0",
+    "fastapi>=0.117.0",
+    "uvicorn[standard]>=0.34.0",
+    "httpx>=0.28.1",
+    "requests>=2.32.3",
+    "python-multipart>=0.0.20",
+    "jinja2>=3.1.5",
+    "aiofiles>=24.1.0",
+    "typer[all]>=0.15.1",
+    "rich>=13.9.4",
+    "pyjwt>=2.10.1",
+    "passlib[bcrypt]>=1.7.4",
+    "redis>=5.2.1",
+    "pyarrow>=18.1.0",
+    "opentelemetry-api>=1.29.0",
+    "opentelemetry-sdk>=1.29.0",
+    "opentelemetry-instrumentation-fastapi>=0.50b0",
+    "prometheus-client>=0.21.1",
+    "psutil>=6.1.1",
+    "tenacity>=9.0.0",
+    "circuitbreaker>=2.0.0",
+    "pydantic-settings>=2.8.0",
+    "torch>=2.5.1",
+    "tensorflow>=2.18.0,<2.20.0",
+    "keras>=3.8.0",
+    "jax>=0.4.37",
+    "jaxlib>=0.4.37",
+    "optax>=0.2.4",
+    "fastparquet>=2024.11.0",
+    "openpyxl>=3.1.5",
+    "xlsxwriter>=3.2.0",
+    "h5py>=3.12.1",
+    "sqlalchemy>=2.0.36",
+    "psycopg2-binary>=2.9.10",
+    "pyspark>=3.5.4",
+    "pygod>=1.1.0",
+    "torch-geometric>=2.6.1",
+    "optuna>=4.1.0",
+    "hyperopt>=0.2.7",
+    "auto-sklearn2>=1.0.0",
+    "shap>=0.46.0",
+    "lime>=0.2.0.1",
+    "prometheus-fastapi-instrumentator>=7.0.0"
+]
+
+[project.scripts]
+pynomaly = "pynomaly.presentation.cli.app:app"
+
+[project.gui-scripts]
+pynomaly-gui = "pynomaly.presentation.web.app:main"
+
+# Hatch configuration
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/pynomaly/_version.py"
+
+[tool.hatch.build]
+include = [
+    "src/pynomaly/**/*.py",
+    "src/pynomaly/**/*.pyi",
+    "src/pynomaly/py.typed",
+]
+exclude = [
+    "src/pynomaly/**/*_test.py",
+    "src/pynomaly/**/test_*.py",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pynomaly"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+    "/docs",
+    "/examples",
+    "/README.md",
+    "/LICENSE",
+    "/CHANGELOG.md",
+]
+exclude = [
+    "/tests/test_environments",
+    "**/__pycache__",
+    "**/*.pyc",
+]
+
+# Hatch environments
+[tool.hatch.envs.default]
+dependencies = [
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+    "pytest-asyncio>=0.24.0",
+]
+path = ".venv"
+
+[tool.hatch.envs.default.scripts]
+test = "pytest {args:tests}"
+test-cov = "pytest --cov=pynomaly --cov-report=html --cov-report=xml {args:tests}"
+cov-report = ["test-cov", "python -m webbrowser htmlcov/index.html"]
+
+[tool.hatch.envs.lint]
+detached = true
+dependencies = [
+    "ruff>=0.8.0",
+    "black>=24.0.0",
+    "isort>=5.13.0",
+    "mypy>=1.13.0",
+]
+
+[tool.hatch.envs.lint.scripts]
+typing = "mypy --install-types --non-interactive {args:src/pynomaly tests}"
+style = [
+    "ruff check {args:.}",
+    "black --check --diff {args:.}",
+    "isort --check-only --diff {args:.}",
+]
+fmt = [
+    "isort {args:.}",
+    "black {args:.}",
+    "ruff check --fix {args:.}",
+    "style",
+]
+all = [
+    "style",
+    "typing",
+]
+
+[tool.hatch.envs.test]
+dependencies = [
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-xdist>=3.6.0",
+    "hypothesis>=6.115.0",
+    "factory-boy>=3.3.1",
+    "faker>=33.1.0",
+]
+
+[tool.hatch.envs.test.scripts]
+run = "pytest {args:tests}"
+run-cov = "pytest --cov=pynomaly --cov-report=html --cov-report=xml {args:tests}"
+run-parallel = "pytest -n auto {args:tests}"
+
+# Matrix testing for different Python versions
+[[tool.hatch.envs.test.matrix]]
+python = ["3.11", "3.12"]
+
+[tool.hatch.envs.docs]
+dependencies = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.0",
+    "mkdocstrings[python]>=0.27.0",
+    "mkdocs-gen-files>=0.5.0",
+    "mkdocs-literate-nav>=0.6.0",
+]
+
+[tool.hatch.envs.docs.scripts]
+build = "mkdocs build --clean --strict"
+serve = "mkdocs serve --dev-addr localhost:8080"
+
+[tool.hatch.envs.dev]
+dependencies = [
+    "pre-commit>=4.0.0",
+    "tox>=4.0.0",
+    "pip-tools>=7.4.0",
+    "hatch>=1.12.0",
+]
+extra-dependencies = [
+    "pynomaly[test,lint,docs]",
+]
+
+[tool.hatch.envs.dev.scripts]
+setup = [
+    "pre-commit install",
+    "pip install -e .[dev]",
+]
+update = "pre-commit autoupdate"
+clean = [
+    "find . -type f -name '*.pyc' -delete",
+    "find . -type d -name '__pycache__' -delete",
+    "rm -rf build/ dist/ *.egg-info/",
+]
+
+# Production environment for deployment
+[tool.hatch.envs.prod]
+extra-dependencies = ["pynomaly[production]"]
+
+[tool.hatch.envs.prod.scripts]
+serve-api = "uvicorn pynomaly.presentation.api.app:app --host 0.0.0.0 --port 8000"
+serve-api-prod = "uvicorn pynomaly.presentation.api.app:app --host 0.0.0.0 --port 8000 --workers 4"
+
+# CLI-specific environment
+[tool.hatch.envs.cli]
+extra-dependencies = ["pynomaly[cli,minimal]"]
+
+[tool.hatch.envs.cli.scripts]
+run = "pynomaly {args}"
+test-cli = "pynomaly --help"
+
+# Tool configuration (existing tools)
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+extend-exclude = ["migrations"]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+
+[tool.black]
+target-version = ["py311"]
+line-length = 88
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["pynomaly"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra -q --strict-markers --strict-config"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m "not slow"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\bProtocol\):",
+    "@(abc\.)?abstractmethod",
+]
