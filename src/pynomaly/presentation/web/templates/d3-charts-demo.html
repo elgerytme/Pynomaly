@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3.js Charts Demo - Pynomaly Interactive Visualizations</title>
+    
+    <!-- CSS Dependencies -->
+    <link rel="stylesheet" href="/static/css/design-system.css">
+    <link rel="stylesheet" href="/static/css/d3-charts.css">
+    
+    <!-- JavaScript Dependencies -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="/static/js/src/components/d3-chart-library.js"></script>
+    <script src="/static/js/src/components/d3-charts-demo.js"></script>
+    
+    <!-- Meta Information -->
+    <meta name="description" content="Interactive D3.js chart demonstrations for Pynomaly anomaly detection platform">
+    <meta name="keywords" content="D3.js, charts, visualization, anomaly detection, time series, scatter plot, heatmap">
+    <meta name="author" content="Pynomaly Team">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="D3.js Charts Demo - Pynomaly">
+    <meta property="og:description" content="Interactive data visualization components for anomaly detection">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pynomaly.io/demo/d3-charts">
+    <meta property="og:image" content="/static/images/chart-preview.png">
+    
+    <!-- Accessibility Enhancements -->
+    <link rel="preconnect" href="https://d3js.org">
+    <link rel="dns-prefetch" href="https://d3js.org">
+    
+    <style>
+        /* Page-specific styles */
+        .page-header {
+            background: linear-gradient(135deg, #0ea5e9 0%, #22c55e 100%);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h1 {
+            margin: 0 0 1rem 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .page-header p {
+            margin: 0;
+            font-size: 1.125rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .feature-card {
+            padding: 1.5rem;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .feature-icon {
+            width: 3rem;
+            height: 3rem;
+            margin: 0 auto 1rem auto;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .feature-card h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+        
+        .feature-card p {
+            margin: 0;
+            color: #64748b;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+        
+        .toc {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .toc h2 {
+            margin: 0 0 1rem 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .toc ul {
+            margin: 0;
+            padding-left: 1.25rem;
+        }
+        
+        .toc li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .toc a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2rem;
+            }
+            
+            .page-header p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body class="d3-charts-demo">
+    <!-- Skip Navigation Link -->
+    <a href="#main-content" class="skip-link sr-only focus:not-sr-only">Skip to main content</a>
+    
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container">
+            <h1>D3.js Interactive Charts Demo</h1>
+            <p>Comprehensive data visualization components for the Pynomaly anomaly detection platform with real-time updates, accessibility features, and responsive design.</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" class="container">
+        
+        <!-- Demo Controls -->
+        <section id="demo-controls" aria-labelledby="controls-heading">
+            <h2 id="controls-heading" class="sr-only">Demo Controls</h2>
+            <!-- Controls will be dynamically generated here -->
+        </section>
+
+        <!-- Features Overview -->
+        <section class="features-overview" aria-labelledby="features-heading">
+            <h2 id="features-heading">Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Interactive Visualizations</h3>
+                    <p>Real-time charts with tooltips, zoom, pan, and brush selection capabilities for comprehensive data exploration.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">♿</div>
+                    <h3>Accessibility First</h3>
+                    <p>WCAG 2.1 AA compliant with screen reader support, keyboard navigation, and high contrast mode.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>Responsive Design</h3>
+                    <p>Optimized for all devices with touch-friendly interactions and adaptive layouts for mobile and tablet.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Real-Time Updates</h3>
+                    <p>Live data streaming with smooth animations and configurable update intervals for dynamic monitoring.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Themeable</h3>
+                    <p>Light and dark theme support with customizable color schemes and high contrast accessibility options.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔧</div>
+                    <h3>Highly Configurable</h3>
+                    <p>Extensive customization options for colors, animations, interactions, and display preferences.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Table of Contents -->
+        <nav class="toc" aria-labelledby="toc-heading">
+            <h2 id="toc-heading">Chart Demonstrations</h2>
+            <ul>
+                <li><a href="#timeseries-demo">Time Series Chart - Anomaly Detection Timeline</a></li>
+                <li><a href="#scatter-demo">Scatter Plot - 2D Anomaly Detection</a></li>
+                <li><a href="#heatmap-demo">Heatmap - Feature Correlation Matrix</a></li>
+                <li><a href="#interactive-demo">Interactive Dashboard Demo</a></li>
+            </ul>
+        </nav>
+
+        <!-- Time Series Chart Demo -->
+        <section id="timeseries-demo" aria-labelledby="timeseries-heading">
+            <h2 id="timeseries-heading" class="sr-only">Time Series Chart Demo</h2>
+            <!-- Demo content will be dynamically generated here -->
+        </section>
+
+        <!-- Scatter Plot Chart Demo -->
+        <section id="scatter-demo" aria-labelledby="scatter-heading">
+            <h2 id="scatter-heading" class="sr-only">Scatter Plot Chart Demo</h2>
+            <!-- Demo content will be dynamically generated here -->
+        </section>
+
+        <!-- Heatmap Chart Demo -->
+        <section id="heatmap-demo" aria-labelledby="heatmap-heading">
+            <h2 id="heatmap-heading" class="sr-only">Heatmap Chart Demo</h2>
+            <!-- Demo content will be dynamically generated here -->
+        </section>
+
+        <!-- Interactive Dashboard Demo -->
+        <section id="interactive-demo" aria-labelledby="dashboard-heading">
+            <h2 id="dashboard-heading" class="sr-only">Interactive Dashboard Demo</h2>
+            <!-- Demo content will be dynamically generated here -->
+        </section>
+
+        <!-- Technical Documentation -->
+        <section class="documentation" aria-labelledby="docs-heading">
+            <h2 id="docs-heading">Technical Documentation</h2>
+            
+            <div class="demo-section">
+                <h3>Implementation Guide</h3>
+                <p>These D3.js chart components are designed for production use in the Pynomaly platform. Each chart type provides comprehensive functionality for anomaly detection visualization.</p>
+                
+                <h4>Basic Usage</h4>
+                <pre><code class="language-javascript">// Create a time series chart
+const chart = new TimeSeriesChart('#chart-container', {
+    title: 'Anomaly Detection Results',
+    description: 'Time series showing detected anomalies',
+    showAnomalies: true,
+    showConfidenceBands: true,
+    animated: true,
+    responsive: true
+});
+
+// Set data
+chart.setData(timeSeriesData);
+
+// Update data in real-time
+chart.addDataPoint(newDataPoint);
+
+// Listen for events
+container.addEventListener('anomaly-selected', (event) => {
+    const { data } = event.detail;
+    console.log('Anomaly selected:', data);
+});
+</code></pre>
+
+                <h4>Chart Types</h4>
+                <dl>
+                    <dt><strong>TimeSeriesChart</strong></dt>
+                    <dd>Interactive time-based line charts with anomaly markers, confidence bands, and real-time updates. Perfect for monitoring anomaly detection over time.</dd>
+                    
+                    <dt><strong>ScatterPlotChart</strong></dt>
+                    <dd>2D scatter plots with brush selection, zoom/pan, and color/size encoding. Ideal for visualizing anomalies in feature space.</dd>
+                    
+                    <dt><strong>HeatmapChart</strong></dt>
+                    <dd>Grid-based heatmaps for correlation matrices and density visualization. Excellent for understanding feature relationships.</dd>
+                </dl>
+
+                <h4>Accessibility Features</h4>
+                <ul>
+                    <li><strong>Screen Reader Support</strong> - Comprehensive ARIA labels and live regions</li>
+                    <li><strong>Keyboard Navigation</strong> - Full keyboard control for all interactive elements</li>
+                    <li><strong>High Contrast Mode</strong> - Enhanced visibility for users with visual impairments</li>
+                    <li><strong>Alternative Text</strong> - Detailed descriptions for all visual elements</li>
+                    <li><strong>Focus Management</strong> - Clear focus indicators and logical tab order</li>
+                </ul>
+
+                <h4>Performance Optimization</h4>
+                <ul>
+                    <li><strong>Efficient Rendering</strong> - Optimized D3.js patterns for smooth performance</li>
+                    <li><strong>Data Streaming</strong> - Incremental updates for real-time data</li>
+                    <li><strong>Memory Management</strong> - Automatic cleanup and resource management</li>
+                    <li><strong>Responsive Design</strong> - Adaptive layouts that scale efficiently</li>
+                </ul>
+
+                <h4>Browser Support</h4>
+                <p>These charts are tested and supported across:</p>
+                <ul>
+                    <li>Chrome 90+</li>
+                    <li>Firefox 88+</li>
+                    <li>Safari 14+</li>
+                    <li>Edge 90+</li>
+                    <li>Mobile browsers (iOS Safari, Chrome Mobile)</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- API Reference -->
+        <section class="api-reference" aria-labelledby="api-heading">
+            <h2 id="api-heading">API Reference</h2>
+            
+            <div class="demo-section">
+                <h3>BaseChart Class</h3>
+                <p>All chart types extend the BaseChart class, providing common functionality:</p>
+                
+                <h4>Constructor Options</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Type</th>
+                            <th>Default</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>width</code></td>
+                            <td>number</td>
+                            <td>800</td>
+                            <td>Chart width in pixels</td>
+                        </tr>
+                        <tr>
+                            <td><code>height</code></td>
+                            <td>number</td>
+                            <td>400</td>
+                            <td>Chart height in pixels</td>
+                        </tr>
+                        <tr>
+                            <td><code>margin</code></td>
+                            <td>object</td>
+                            <td>{top: 20, right: 30, bottom: 40, left: 50}</td>
+                            <td>Chart margins</td>
+                        </tr>
+                        <tr>
+                            <td><code>animated</code></td>
+                            <td>boolean</td>
+                            <td>true</td>
+                            <td>Enable animations</td>
+                        </tr>
+                        <tr>
+                            <td><code>responsive</code></td>
+                            <td>boolean</td>
+                            <td>true</td>
+                            <td>Enable responsive behavior</td>
+                        </tr>
+                        <tr>
+                            <td><code>accessibility</code></td>
+                            <td>boolean</td>
+                            <td>true</td>
+                            <td>Enable accessibility features</td>
+                        </tr>
+                        <tr>
+                            <td><code>title</code></td>
+                            <td>string</td>
+                            <td>''</td>
+                            <td>Chart title for accessibility</td>
+                        </tr>
+                        <tr>
+                            <td><code>description</code></td>
+                            <td>string</td>
+                            <td>''</td>
+                            <td>Chart description for accessibility</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Methods</h4>
+                <dl class="api-methods">
+                    <dt><code>setData(data)</code></dt>
+                    <dd>Update chart with new data array</dd>
+                    
+                    <dt><code>render()</code></dt>
+                    <dd>Re-render the chart (called automatically on data/option changes)</dd>
+                    
+                    <dt><code>resize()</code></dt>
+                    <dd>Resize chart to fit container (called automatically on window resize)</dd>
+                    
+                    <dt><code>updateTheme(theme)</code></dt>
+                    <dd>Update chart theme colors</dd>
+                    
+                    <dt><code>destroy()</code></dt>
+                    <dd>Clean up chart resources and event listeners</dd>
+                </dl>
+
+                <h4>Events</h4>
+                <dl class="api-events">
+                    <dt><code>anomaly-selected</code></dt>
+                    <dd>Fired when an anomaly marker is clicked (TimeSeriesChart)</dd>
+                    
+                    <dt><code>point-selected</code></dt>
+                    <dd>Fired when a data point is clicked (ScatterPlotChart)</dd>
+                    
+                    <dt><code>points-selected</code></dt>
+                    <dd>Fired when points are selected via brushing (ScatterPlotChart)</dd>
+                    
+                    <dt><code>cell-selected</code></dt>
+                    <dd>Fired when a heatmap cell is clicked (HeatmapChart)</dd>
+                </dl>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer style="margin-top: 4rem; padding: 2rem 0; background: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;">
+        <div class="container">
+            <p style="margin: 0; color: #64748b; font-size: 0.875rem;">
+                D3.js Charts Demo - Part of the Pynomaly Anomaly Detection Platform
+            </p>
+            <p style="margin: 0.5rem 0 0 0; color: #64748b; font-size: 0.75rem;">
+                Built with D3.js v7, accessibility best practices, and modern web standards
+            </p>
+        </div>
+    </footer>
+
+    <!-- Screen Reader Announcements -->
+    <div id="chart-announcer" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
+    <!-- Initialization Script -->
+    <script>
+        // Ensure D3 is loaded before initializing
+        if (typeof d3 !== 'undefined') {
+            console.log('D3.js Charts Demo loaded successfully');
+            
+            // Set up global error handling for chart operations
+            window.addEventListener('error', (event) => {
+                if (event.filename && event.filename.includes('d3')) {
+                    console.error('D3.js Chart Error:', event.error);
+                    
+                    // Announce error to screen readers
+                    const announcer = document.getElementById('chart-announcer');
+                    if (announcer) {
+                        announcer.textContent = 'Chart error occurred. Please refresh the page or contact support.';
+                    }
+                }
+            });
+            
+            // Set up theme detection
+            if (window.matchMedia) {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+                if (prefersDark.matches) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                }
+                
+                prefersDark.addEventListener('change', (e) => {
+                    const theme = e.matches ? 'dark' : 'light';
+                    document.documentElement.setAttribute('data-theme', theme);
+                    
+                    // Emit theme change event
+                    document.dispatchEvent(new CustomEvent('theme-changed', {
+                        detail: { theme }
+                    }));
+                });
+            }
+            
+            // Set up reduced motion detection
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.body.classList.add('reduced-motion');
+            }
+            
+        } else {
+            console.error('D3.js library not loaded. Please check your internet connection.');
+            
+            // Show fallback message
+            document.querySelector('#main-content').innerHTML = `
+                <div style="text-align: center; padding: 3rem; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; color: #991b1b;">
+                    <h2>Charts Unavailable</h2>
+                    <p>Unable to load D3.js charts. Please check your internet connection and refresh the page.</p>
+                    <button onclick="location.reload()" style="padding: 0.5rem 1rem; background: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Refresh Page
+                    </button>
+                </div>
+            `;
+        }
+    </script>
+
+    <!-- Performance Monitoring -->
+    <script>
+        // Basic performance monitoring
+        window.addEventListener('load', () => {
+            if ('performance' in window) {
+                const navigation = performance.getEntriesByType('navigation')[0];
+                const loadTime = navigation.loadEventEnd - navigation.fetchStart;
+                
+                console.log(`D3 Charts Demo loaded in ${loadTime}ms`);
+                
+                // Report slow loads
+                if (loadTime > 5000) {
+                    console.warn('Slow page load detected. Consider optimizing chart initialization.');
+                }
+            }
+        });
+    </script>
+
+    <style>
+        /* API Documentation Styles */
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.875rem;
+        }
+        
+        .api-table th,
+        .api-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .api-table th {
+            background: #f8fafc;
+            font-weight: 600;
+        }
+        
+        .api-table code {
+            background: #f1f5f9;
+            padding: 0.125rem 0.25rem;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.75rem;
+        }
+        
+        .api-methods dt,
+        .api-events dt {
+            font-family: 'Monaco', 'Consolas', monospace;
+            background: #f1f5f9;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .api-methods dd,
+        .api-events dd {
+            margin: 0 0 1rem 0;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+        
+        pre {
+            background: #1e293b;
+            color: #f1f5f9;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+        
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+    </style>
+
+</body>
+</html>

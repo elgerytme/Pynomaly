@@ -1,0 +1,140 @@
+# Production logging configuration for Pynomaly
+# Structured logging with JSON output for containerized environments
+
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  json:
+    class: pythonjsonlogger.jsonlogger.JsonFormatter
+    format: '%(asctime)s %(name)s %(levelname)s %(message)s %(pathname)s %(lineno)d'
+    
+  detailed:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s [%(pathname)s:%(lineno)d]'
+    datefmt: '%Y-%m-%d %H:%M:%S'
+    
+  simple:
+    format: '%(levelname)s - %(message)s'
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: json
+    stream: ext://sys.stdout
+    
+  file:
+    class: logging.handlers.RotatingFileHandler
+    level: DEBUG
+    formatter: json
+    filename: /app/logs/pynomaly.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 5
+    encoding: utf8
+    
+  error_file:
+    class: logging.handlers.RotatingFileHandler
+    level: ERROR
+    formatter: detailed
+    filename: /app/logs/pynomaly-errors.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 5
+    encoding: utf8
+    
+  audit_file:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: json
+    filename: /app/logs/pynomaly-audit.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 10
+    encoding: utf8
+
+loggers:
+  # Application loggers
+  pynomaly:
+    level: DEBUG
+    handlers: [console, file, error_file]
+    propagate: false
+    
+  pynomaly.domain:
+    level: DEBUG
+    handlers: [console, file]
+    propagate: false
+    
+  pynomaly.application:
+    level: DEBUG
+    handlers: [console, file]
+    propagate: false
+    
+  pynomaly.infrastructure:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+    
+  pynomaly.presentation.api:
+    level: INFO
+    handlers: [console, file, audit_file]
+    propagate: false
+    
+  # Monitoring and observability
+  pynomaly.infrastructure.monitoring:
+    level: DEBUG
+    handlers: [console, file]
+    propagate: false
+    
+  pynomaly.application.services.drift_detection_service:
+    level: DEBUG
+    handlers: [console, file]
+    propagate: false
+    
+  # Security and audit events
+  pynomaly.security:
+    level: INFO
+    handlers: [console, audit_file]
+    propagate: false
+    
+  # Third-party libraries
+  fastapi:
+    level: INFO
+    handlers: [console]
+    propagate: false
+    
+  uvicorn:
+    level: INFO
+    handlers: [console]
+    propagate: false
+    
+  uvicorn.access:
+    level: INFO
+    handlers: [console, audit_file]
+    propagate: false
+    
+  sqlalchemy:
+    level: WARNING
+    handlers: [console]
+    propagate: false
+    
+  celery:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+    
+  redis:
+    level: WARNING
+    handlers: [console]
+    propagate: false
+    
+  requests:
+    level: WARNING
+    handlers: [console]
+    propagate: false
+    
+  urllib3:
+    level: WARNING
+    handlers: [console]
+    propagate: false
+
+root:
+  level: INFO
+  handlers: [console, file]

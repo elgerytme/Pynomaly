@@ -894,4 +894,307 @@ async function getOfflineResults() {
   }
 }
 
+/**
+ * Enhanced message handling for PWA components
+ */
+self.addEventListener('message', (event) => {
+  const { type, payload } = event.data;
+  
+  switch (type) {
+    case 'SKIP_WAITING':
+      self.skipWaiting();
+      break;
+    case 'CACHE_URLS':
+      event.waitUntil(cacheUrls(payload.urls));
+      break;
+    case 'CLEAR_CACHE':
+      event.waitUntil(clearCache(payload.cacheName));
+      break;
+    case 'QUEUE_REQUEST':
+      event.waitUntil(queueRequest(payload.request, payload.tag));
+      break;
+    case 'GET_CACHE_STATUS':
+      event.waitUntil(getCacheStatus().then(status => {
+        event.ports[0].postMessage(status);
+      }));
+      break;
+    case 'GET_OFFLINE_DASHBOARD_DATA':
+      event.waitUntil(getOfflineDashboardData().then(data => {
+        notifyClients('OFFLINE_DASHBOARD_DATA', { data });
+      }));
+      break;
+    case 'GET_OFFLINE_DATASETS':
+      event.waitUntil(getOfflineDatasets().then(datasets => {
+        notifyClients('OFFLINE_DATASETS', { datasets });
+      }));
+      break;
+    case 'GET_OFFLINE_RESULTS':
+      event.waitUntil(getOfflineResults().then(results => {
+        notifyClients('OFFLINE_RESULTS', { results });
+      }));
+      break;
+    case 'SAVE_DETECTION_RESULT':
+      event.waitUntil(saveDetectionResult(payload));
+      break;
+    case 'GET_SYNC_QUEUE':
+      event.waitUntil(getSyncQueue().then(queue => {
+        notifyClients('SYNC_QUEUE_UPDATE', { queue });
+      }));
+      break;
+    case 'UPDATE_SYNC_QUEUE':
+      event.waitUntil(updateSyncQueue(payload.queue));
+      break;
+    case 'UPDATE_LOCAL_DATA':
+      event.waitUntil(updateLocalEntityData(payload));
+      break;
+    case 'SYNC_ALL_QUEUES':
+      event.waitUntil(triggerBackgroundSyncAll());
+      break;
+    case 'GET_SYNC_STATUS':
+      event.waitUntil(getSyncStatus().then(status => {
+        notifyClients('SYNC_QUEUE_STATUS', status);
+      }));
+      break;
+  }
+});
+
+/**
+ * Get comprehensive offline dashboard data
+ */
+async function getOfflineDashboardData() {
+  try {
+    const db = await openIndexedDB();
+    
+    const [datasets, results, userPrefs] = await Promise.all([
+      getOfflineDatasets(),
+      getOfflineResults(),
+      getUserPreferences()
+    ]);
+
+    // Calculate statistics
+    const stats = {
+      totalDatasets: datasets.length,
+      totalDetections: results.length,
+      totalAnomalies: results.reduce((sum, r) => sum + (r.result?.anomalies?.length || 0), 0),
+      cacheSize: estimateStorageSize(datasets, results),
+      lastActivity: Math.max(
+        ...results.map(r => r.timestamp),
+        ...datasets.map(d => d.timestamp)
+      )
+    };
+
+    // Get algorithm performance data
+    const algorithms = getAlgorithmStats(results);
+
+    return {
+      datasets,
+      results,
+      stats,
+      algorithms,
+      preferences: userPrefs
+    };
+  } catch (error) {
+    console.error('[SW] Failed to get offline dashboard data:', error);
+    return {
+      datasets: [],
+      results: [],
+      stats: {},
+      algorithms: [],
+      preferences: {}
+    };
+  }
+}
+
+/**
+ * Get user preferences from storage
+ */
+async function getUserPreferences() {
+  try {
+    const db = await openIndexedDB();
+    const transaction = db.transaction([STORES.USER_PREFERENCES], 'readonly');
+    const store = transaction.objectStore(STORES.USER_PREFERENCES);
+    
+    const prefs = await getAllFromStore(store);
+    return prefs.reduce((acc, pref) => {
+      acc[pref.id] = pref.value;
+      return acc;
+    }, {});
+  } catch (error) {
+    console.error('[SW] Failed to get user preferences:', error);
+    return {};
+  }
+}
+
+/**
+ * Calculate algorithm performance statistics
+ */
+function getAlgorithmStats(results) {
+  const algoStats = {};
+  
+  results.forEach(result => {
+    const algo = result.result?.algorithmId || 'unknown';
+    if (!algoStats[algo]) {
+      algoStats[algo] = {
+        id: algo,
+        count: 0,
+        totalTime: 0,
+        totalAnomalies: 0,
+        avgAccuracy: 0
+      };
+    }
+    
+    algoStats[algo].count++;
+    algoStats[algo].totalTime += result.result?.processingTimeMs || 0;
+    algoStats[algo].totalAnomalies += result.result?.anomalies?.length || 0;
+  });
+  
+  // Calculate averages
+  Object.values(algoStats).forEach(stats => {
+    stats.avgTime = stats.totalTime / stats.count;
+    stats.avgAnomaliesPerRun = stats.totalAnomalies / stats.count;
+  });
+  
+  return Object.values(algoStats);
+}
+
+/**
+ * Estimate storage size
+ */
+function estimateStorageSize(datasets, results) {
+  const datasetsSize = JSON.stringify(datasets).length;
+  const resultsSize = JSON.stringify(results).length;
+  return (datasetsSize + resultsSize) * 2; // Rough estimate with overhead
+}
+
+/**
+ * Get sync queue from IndexedDB
+ */
+async function getSyncQueue() {
+  try {
+    const db = await openIndexedDB();
+    const transaction = db.transaction([STORES.SYNC_QUEUE], 'readonly');
+    const store = transaction.objectStore(STORES.SYNC_QUEUE);
+    
+    return await getAllFromStore(store);
+  } catch (error) {
+    console.error('[SW] Failed to get sync queue:', error);
+    return [];
+  }
+}
+
+/**
+ * Update sync queue in IndexedDB
+ */
+async function updateSyncQueue(queue) {
+  try {
+    const db = await openIndexedDB();
+    const transaction = db.transaction([STORES.SYNC_QUEUE], 'readwrite');
+    const store = transaction.objectStore(STORES.SYNC_QUEUE);
+    
+    // Clear existing queue
+    await store.clear();
+    
+    // Add new queue items
+    for (const item of queue) {
+      await addToStore(store, item);
+    }
+    
+    console.log('[SW] Sync queue updated with', queue.length, 'items');
+  } catch (error) {
+    console.error('[SW] Failed to update sync queue:', error);
+  }
+}
+
+/**
+ * Update local entity data
+ */
+async function updateLocalEntityData(payload) {
+  try {
+    const { entityType, entityId, data } = payload;
+    const db = await openIndexedDB();
+    
+    let storeName;
+    switch (entityType) {
+      case 'dataset':
+        storeName = STORES.DATASETS;
+        break;
+      case 'result':
+        storeName = STORES.RESULTS;
+        break;
+      default:
+        console.warn('[SW] Unknown entity type:', entityType);
+        return;
+    }
+    
+    const transaction = db.transaction([storeName], 'readwrite');
+    const store = transaction.objectStore(storeName);
+    
+    // Update or add the entity
+    const existingEntity = await getFromStore(store, entityId);
+    if (existingEntity) {
+      await updateInStore(store, { ...existingEntity, ...data, id: entityId });
+    } else {
+      await addToStore(store, { ...data, id: entityId });
+    }
+    
+    console.log('[SW] Local entity data updated:', entityType, entityId);
+    notifyClients('OFFLINE_DATA_UPDATED', { entityType, entityId });
+  } catch (error) {
+    console.error('[SW] Failed to update local entity data:', error);
+  }
+}
+
+/**
+ * Trigger background sync for all queues
+ */
+async function triggerBackgroundSyncAll() {
+  try {
+    // Register sync events for all sync tags
+    if ('serviceWorker' in self && 'sync' in self.ServiceWorkerRegistration.prototype) {
+      await Promise.all([
+        self.registration.sync.register(SYNC_TAGS.DETECTION_QUEUE),
+        self.registration.sync.register(SYNC_TAGS.UPLOAD_QUEUE),
+        self.registration.sync.register(SYNC_TAGS.ANALYSIS_QUEUE),
+        self.registration.sync.register(SYNC_TAGS.METRICS_SYNC)
+      ]);
+      console.log('[SW] Background sync triggered for all queues');
+    }
+  } catch (error) {
+    console.error('[SW] Failed to trigger background sync:', error);
+  }
+}
+
+/**
+ * Get sync status summary
+ */
+async function getSyncStatus() {
+  try {
+    const queue = await getSyncQueue();
+    
+    const pending = queue.filter(item => item.status === 'pending').length;
+    const syncing = queue.filter(item => item.status === 'syncing').length;
+    const failed = queue.filter(item => item.status === 'failed').length;
+    const completed = queue.filter(item => item.status === 'completed').length;
+    
+    return {
+      pending,
+      syncing,
+      failed,
+      completed,
+      total: queue.length,
+      lastSync: queue.length > 0 ? Math.max(...queue.map(item => item.timestamp)) : null
+    };
+  } catch (error) {
+    console.error('[SW] Failed to get sync status:', error);
+    return {
+      pending: 0,
+      syncing: 0,
+      failed: 0,
+      completed: 0,
+      total: 0,
+      lastSync: null
+    };
+  }
+}
+
 console.log('[SW] Service worker script loaded successfully');

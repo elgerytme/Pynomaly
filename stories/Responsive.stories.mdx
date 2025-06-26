@@ -1,0 +1,944 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Guidelines/Responsive Design" />
+
+# Responsive Design Guidelines
+
+Create adaptive, device-agnostic interfaces that work seamlessly across all screen sizes and input methods.
+
+## 📱 Responsive Strategy
+
+### **Mobile-First Approach**
+Design for the smallest screen first, then progressively enhance for larger devices:
+
+```css
+/* Base styles for mobile (320px+) */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+/* Tablet styles (768px+) */
+@media (min-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+}
+
+/* Desktop styles (1024px+) */
+@media (min-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    padding: 2rem;
+  }
+}
+
+/* Large desktop styles (1440px+) */
+@media (min-width: 1440px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+}
+```
+
+### **Flexible Grid System**
+Use CSS Grid and Flexbox for adaptive layouts:
+
+```css
+/* Responsive grid with auto-fit */
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+/* Flexible chart container */
+.chart-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+}
+
+@media (min-width: 1024px) {
+  .chart-container {
+    flex-direction: row;
+    min-height: 500px;
+  }
+  
+  .chart-sidebar {
+    flex: 0 0 300px;
+  }
+  
+  .chart-main {
+    flex: 1;
+    min-width: 0; /* Prevent flex overflow */
+  }
+}
+```
+
+## 📐 Breakpoint System
+
+### **Standard Breakpoints**
+Use consistent breakpoints across the design system:
+
+```scss
+// Breakpoint variables
+$breakpoints: (
+  'xs': 320px,   // Small mobile devices
+  'sm': 576px,   // Large mobile devices
+  'md': 768px,   // Tablets
+  'lg': 1024px,  // Desktop
+  'xl': 1440px,  // Large desktop
+  'xxl': 1920px  // Extra large desktop
+);
+
+// Breakpoint mixins
+@mixin respond-to($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    @media (min-width: map-get($breakpoints, $breakpoint)) {
+      @content;
+    }
+  } @else {
+    @warn "Unknown breakpoint: #{$breakpoint}";
+  }
+}
+
+// Usage example
+.anomaly-detector {
+  padding: 1rem;
+  
+  @include respond-to('md') {
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 300px;
+  }
+  
+  @include respond-to('lg') {
+    padding: 3rem;
+    grid-template-columns: 1fr 400px;
+  }
+}
+```
+
+### **Container Queries (Modern Approach)**
+Use container queries for component-based responsive design:
+
+```css
+/* Container-based responsive design */
+.widget {
+  container-type: inline-size;
+  container-name: widget;
+}
+
+@container widget (min-width: 300px) {
+  .widget-content {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+  }
+}
+
+@container widget (min-width: 500px) {
+  .widget-content {
+    grid-template-columns: auto 1fr auto;
+  }
+  
+  .widget-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+}
+```
+
+## 🖼️ Responsive Images & Media
+
+### **Adaptive Images**
+Serve appropriate image sizes for each device:
+
+```html
+<!-- Responsive images with art direction -->
+<picture>
+  <!-- Mobile: Vertical crop focusing on anomaly points -->
+  <source 
+    media="(max-width: 767px)" 
+    srcset="
+      anomaly-chart-mobile-320.webp 320w,
+      anomaly-chart-mobile-640.webp 640w
+    "
+    sizes="100vw"
+  >
+  
+  <!-- Tablet: Balanced aspect ratio -->
+  <source 
+    media="(max-width: 1023px)" 
+    srcset="
+      anomaly-chart-tablet-768.webp 768w,
+      anomaly-chart-tablet-1024.webp 1024w
+    "
+    sizes="(min-width: 768px) 50vw, 100vw"
+  >
+  
+  <!-- Desktop: Full detail horizontal layout -->
+  <img 
+    src="anomaly-chart-desktop-1200.webp"
+    srcset="
+      anomaly-chart-desktop-1200.webp 1200w,
+      anomaly-chart-desktop-1600.webp 1600w,
+      anomaly-chart-desktop-2400.webp 2400w
+    "
+    sizes="(min-width: 1440px) 1200px, (min-width: 1024px) 80vw, 50vw"
+    alt="Anomaly detection timeline showing 127 detected anomalies over 30 days"
+  >
+</picture>
+
+<!-- Responsive video with fallback -->
+<video 
+  poster="anomaly-demo-poster.jpg"
+  controls
+  preload="metadata"
+>
+  <source src="anomaly-demo-720p.mp4" media="(max-width: 768px)">
+  <source src="anomaly-demo-1080p.mp4" media="(min-width: 769px)">
+  <p>Your browser doesn't support video. <a href="anomaly-demo-720p.mp4">Download the video</a>.</p>
+</video>
+```
+
+### **Responsive Charts & Visualizations**
+Adapt data visualizations for different screen sizes:
+
+```javascript
+// Responsive chart configuration
+class ResponsiveChart {
+  constructor(container) {
+    this.container = container;
+    this.chart = null;
+    this.resizeObserver = new ResizeObserver(this.handleResize.bind(this));
+    this.init();
+  }
+  
+  init() {
+    this.createChart();
+    this.resizeObserver.observe(this.container);
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => this.handleResize(), 100);
+    });
+  }
+  
+  createChart() {
+    const config = this.getResponsiveConfig();
+    this.chart = echarts.init(this.container);
+    this.chart.setOption(config);
+  }
+  
+  getResponsiveConfig() {
+    const containerWidth = this.container.clientWidth;
+    const isMobile = containerWidth < 768;
+    const isTablet = containerWidth >= 768 && containerWidth < 1024;
+    
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      
+      // Mobile configuration
+      ...(isMobile && {
+        grid: {
+          left: '5%',
+          right: '5%',
+          top: '15%',
+          bottom: '15%'
+        },
+        legend: {
+          orient: 'horizontal',
+          bottom: 0,
+          itemWidth: 12,
+          itemHeight: 12
+        },
+        xAxis: {
+          axisLabel: {
+            rotate: 45,
+            fontSize: 10
+          }
+        },
+        series: [{
+          symbol: 'circle',
+          symbolSize: 4,
+          lineStyle: { width: 2 }
+        }]
+      }),
+      
+      // Tablet configuration
+      ...(isTablet && {
+        grid: {
+          left: '8%',
+          right: '8%',
+          top: '12%',
+          bottom: '12%'
+        },
+        legend: {
+          orient: 'horizontal',
+          top: 0
+        },
+        series: [{
+          symbol: 'circle',
+          symbolSize: 6,
+          lineStyle: { width: 3 }
+        }]
+      }),
+      
+      // Desktop configuration
+      ...(!isMobile && !isTablet && {
+        grid: {
+          left: '10%',
+          right: '10%',
+          top: '10%',
+          bottom: '10%'
+        },
+        legend: {
+          orient: 'vertical',
+          right: 0
+        },
+        series: [{
+          symbol: 'circle',
+          symbolSize: 8,
+          lineStyle: { width: 4 }
+        }]
+      })
+    };
+  }
+  
+  handleResize() {
+    if (this.chart) {
+      this.chart.resize();
+      const newConfig = this.getResponsiveConfig();
+      this.chart.setOption(newConfig, true);
+    }
+  }
+}
+```
+
+## 🎯 Touch & Interaction Design
+
+### **Touch-Friendly Interface**
+Optimize interfaces for touch interaction:
+
+```css
+/* Touch target sizing */
+.btn, .tab, .form-control, .interactive {
+  min-height: 44px; /* Apple's recommended minimum */
+  min-width: 44px;
+}
+
+/* Increase spacing on touch devices */
+@media (pointer: coarse) {
+  .btn-group .btn {
+    margin: 0.25rem;
+  }
+  
+  .pagination .page-link {
+    padding: 0.75rem 1rem;
+    margin: 0 0.125rem;
+  }
+  
+  .dropdown-item {
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* Hover states only for devices that support hover */
+@media (hover: hover) {
+  .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card-interactive:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Focus states for keyboard navigation */
+.btn:focus-visible,
+.form-control:focus,
+.tab:focus-visible {
+  outline: 2px solid #0ea5e9;
+  outline-offset: 2px;
+}
+```
+
+### **Gesture Support**
+Add gesture support for mobile devices:
+
+```javascript
+// Touch gesture handling
+class GestureHandler {
+  constructor(element) {
+    this.element = element;
+    this.startX = 0;
+    this.startY = 0;
+    this.currentX = 0;
+    this.currentY = 0;
+    this.isDragging = false;
+    
+    this.bindEvents();
+  }
+  
+  bindEvents() {
+    // Touch events
+    this.element.addEventListener('touchstart', this.handleTouchStart.bind(this));
+    this.element.addEventListener('touchmove', this.handleTouchMove.bind(this));
+    this.element.addEventListener('touchend', this.handleTouchEnd.bind(this));
+    
+    // Mouse events for desktop compatibility
+    this.element.addEventListener('mousedown', this.handleMouseDown.bind(this));
+    this.element.addEventListener('mousemove', this.handleMouseMove.bind(this));
+    this.element.addEventListener('mouseup', this.handleMouseUp.bind(this));
+  }
+  
+  handleTouchStart(e) {
+    const touch = e.touches[0];
+    this.startX = touch.clientX;
+    this.startY = touch.clientY;
+    this.isDragging = true;
+  }
+  
+  handleTouchMove(e) {
+    if (!this.isDragging) return;
+    
+    e.preventDefault(); // Prevent scrolling
+    const touch = e.touches[0];
+    this.currentX = touch.clientX;
+    this.currentY = touch.clientY;
+    
+    const deltaX = this.currentX - this.startX;
+    const deltaY = this.currentY - this.startY;
+    
+    // Handle horizontal swipe for chart navigation
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+      if (deltaX > 0) {
+        this.handleSwipeRight();
+      } else {
+        this.handleSwipeLeft();
+      }
+    }
+  }
+  
+  handleTouchEnd() {
+    this.isDragging = false;
+  }
+  
+  handleSwipeLeft() {
+    // Navigate to next chart/dataset
+    this.element.dispatchEvent(new CustomEvent('swipe-left'));
+  }
+  
+  handleSwipeRight() {
+    // Navigate to previous chart/dataset
+    this.element.dispatchEvent(new CustomEvent('swipe-right'));
+  }
+}
+```
+
+## 📺 Device-Specific Optimizations
+
+### **Mobile Optimizations**
+Specific optimizations for mobile devices:
+
+```css
+/* Mobile-specific styles */
+@media (max-width: 767px) {
+  /* Optimize font sizes for mobile */
+  html {
+    font-size: 14px; /* Smaller base font size */
+  }
+  
+  /* Stack navigation vertically */
+  .nav-tabs {
+    flex-direction: column;
+    border-bottom: none;
+  }
+  
+  .nav-tabs .nav-link {
+    border-radius: 0;
+    border-left: 3px solid transparent;
+    text-align: left;
+  }
+  
+  .nav-tabs .nav-link.active {
+    border-left-color: #0ea5e9;
+    border-bottom-color: transparent;
+  }
+  
+  /* Mobile-optimized data tables */
+  .data-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .data-table thead {
+    display: none; /* Hide headers on mobile */
+  }
+  
+  .data-table tbody,
+  .data-table tr,
+  .data-table td {
+    display: block;
+  }
+  
+  .data-table tr {
+    border: 1px solid #e2e8f0;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+  }
+  
+  .data-table td {
+    border: none;
+    position: relative;
+    padding-left: 50%;
+  }
+  
+  .data-table td:before {
+    content: attr(data-label) ": ";
+    position: absolute;
+    left: 0;
+    width: 45%;
+    font-weight: 600;
+    color: #64748b;
+  }
+}
+```
+
+### **Tablet Optimizations**
+Specific optimizations for tablet devices:
+
+```css
+/* Tablet-specific styles */
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* Optimize for touch but with more space */
+  .btn {
+    padding: 0.75rem 1.5rem;
+  }
+  
+  /* Two-column layout for forms */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  
+  .form-row .form-group-full {
+    grid-column: 1 / -1;
+  }
+  
+  /* Sidebar navigation for tablets */
+  .app-layout {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+  }
+  
+  .sidebar {
+    background: #f8fafc;
+    border-right: 1px solid #e2e8f0;
+    padding: 1rem;
+  }
+  
+  /* Tablet-optimized charts */
+  .chart-container {
+    height: 400px; /* Fixed height for tablets */
+  }
+}
+```
+
+### **Desktop Optimizations**
+Specific optimizations for desktop devices:
+
+```css
+/* Desktop-specific styles */
+@media (min-width: 1024px) {
+  /* Multi-column layouts */
+  .dashboard-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr 250px;
+    grid-template-areas: 
+      "sidebar main aside";
+    gap: 2rem;
+    min-height: 100vh;
+  }
+  
+  .sidebar {
+    grid-area: sidebar;
+    position: sticky;
+    top: 2rem;
+    height: fit-content;
+  }
+  
+  .main-content {
+    grid-area: main;
+  }
+  
+  .aside-content {
+    grid-area: aside;
+    position: sticky;
+    top: 2rem;
+    height: fit-content;
+  }
+  
+  /* Enhanced hover effects for desktop */
+  .metric-card {
+    transition: all 0.2s ease;
+  }
+  
+  .metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Desktop-optimized data density */
+  .data-table td {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  /* Keyboard navigation enhancements */
+  .btn:focus-visible {
+    outline: 2px solid #0ea5e9;
+    outline-offset: 2px;
+  }
+}
+```
+
+## 🔄 Orientation Handling
+
+### **Orientation-Aware Design**
+Handle device orientation changes gracefully:
+
+```css
+/* Portrait orientation styles */
+@media (orientation: portrait) {
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .metric-overview {
+    flex-direction: column;
+  }
+  
+  .anomaly-timeline {
+    height: 300px; /* Shorter height in portrait */
+  }
+}
+
+/* Landscape orientation styles */
+@media (orientation: landscape) {
+  .chart-grid {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  }
+  
+  .metric-overview {
+    flex-direction: row;
+  }
+  
+  .anomaly-timeline {
+    height: 400px; /* Taller height in landscape */
+  }
+  
+  /* Optimize for landscape mobile */
+  @media (max-height: 500px) {
+    .navbar {
+      padding: 0.5rem 1rem; /* Reduce navbar height */
+    }
+    
+    .modal-dialog {
+      margin: 1rem; /* Reduce modal margins */
+    }
+  }
+}
+```
+
+### **JavaScript Orientation Handling**
+Handle orientation changes with JavaScript:
+
+```javascript
+// Orientation change handler
+class OrientationHandler {
+  constructor() {
+    this.currentOrientation = this.getOrientation();
+    this.bindEvents();
+  }
+  
+  bindEvents() {
+    window.addEventListener('orientationchange', () => {
+      // Wait for orientation change to complete
+      setTimeout(() => {
+        this.handleOrientationChange();
+      }, 100);
+    });
+    
+    // Also listen for resize events
+    window.addEventListener('resize', this.debounce(() => {
+      this.handleOrientationChange();
+    }, 250));
+  }
+  
+  getOrientation() {
+    return window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+  }
+  
+  handleOrientationChange() {
+    const newOrientation = this.getOrientation();
+    
+    if (newOrientation !== this.currentOrientation) {
+      this.currentOrientation = newOrientation;
+      
+      // Dispatch custom event
+      window.dispatchEvent(new CustomEvent('orientationChanged', {
+        detail: { orientation: newOrientation }
+      }));
+      
+      // Trigger chart reflow
+      this.triggerChartResize();
+      
+      // Update layout classes
+      document.body.setAttribute('data-orientation', newOrientation);
+    }
+  }
+  
+  triggerChartResize() {
+    // Resize all ECharts instances
+    document.querySelectorAll('[data-chart]').forEach(chartElement => {
+      if (chartElement._echartsInstance) {
+        setTimeout(() => {
+          chartElement._echartsInstance.resize();
+        }, 300);
+      }
+    });
+  }
+  
+  debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+}
+
+// Initialize orientation handler
+const orientationHandler = new OrientationHandler();
+```
+
+## 📊 Responsive Data Tables
+
+### **Mobile-First Table Design**
+Transform tables for mobile viewing:
+
+```css
+/* Responsive table styles */
+.responsive-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Mobile: Card-based layout */
+@media (max-width: 767px) {
+  .responsive-table,
+  .responsive-table thead,
+  .responsive-table tbody,
+  .responsive-table th,
+  .responsive-table td,
+  .responsive-table tr {
+    display: block;
+  }
+  
+  .responsive-table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  
+  .responsive-table tr {
+    border: 1px solid #e2e8f0;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    background: white;
+  }
+  
+  .responsive-table td {
+    border: none;
+    position: relative;
+    padding-left: 50%;
+    padding-bottom: 0.5rem;
+  }
+  
+  .responsive-table td:before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    width: 45%;
+    padding-right: 0.5rem;
+    white-space: nowrap;
+    font-weight: 600;
+    color: #64748b;
+  }
+  
+  /* Special styling for status badges */
+  .responsive-table .badge {
+    margin-left: 0;
+  }
+}
+
+/* Tablet: Horizontal scroll */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .responsive-table {
+    min-width: 600px; /* Prevent table from becoming too narrow */
+  }
+}
+```
+
+### **Advanced Table Features**
+Add responsive features to data tables:
+
+```javascript
+// Responsive table enhancement
+class ResponsiveTable {
+  constructor(tableElement) {
+    this.table = tableElement;
+    this.headers = Array.from(this.table.querySelectorAll('th'));
+    this.init();
+  }
+  
+  init() {
+    this.addDataLabels();
+    this.addScrollIndicators();
+    this.handleResize();
+    
+    window.addEventListener('resize', this.debounce(() => {
+      this.handleResize();
+    }, 250));
+  }
+  
+  addDataLabels() {
+    // Add data labels for mobile card layout
+    const rows = this.table.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td');
+      cells.forEach((cell, index) => {
+        if (this.headers[index]) {
+          cell.setAttribute('data-label', this.headers[index].textContent);
+        }
+      });
+    });
+  }
+  
+  addScrollIndicators() {
+    // Add scroll indicators for horizontal scroll
+    const container = this.table.closest('.table-container');
+    if (!container) return;
+    
+    const leftIndicator = document.createElement('div');
+    leftIndicator.className = 'scroll-indicator scroll-indicator-left';
+    leftIndicator.innerHTML = '◀';
+    
+    const rightIndicator = document.createElement('div');
+    rightIndicator.className = 'scroll-indicator scroll-indicator-right';
+    rightIndicator.innerHTML = '▶';
+    
+    container.appendChild(leftIndicator);
+    container.appendChild(rightIndicator);
+    
+    container.addEventListener('scroll', () => {
+      this.updateScrollIndicators(container, leftIndicator, rightIndicator);
+    });
+    
+    // Initial update
+    this.updateScrollIndicators(container, leftIndicator, rightIndicator);
+  }
+  
+  updateScrollIndicators(container, leftIndicator, rightIndicator) {
+    const scrollLeft = container.scrollLeft;
+    const scrollWidth = container.scrollWidth;
+    const clientWidth = container.clientWidth;
+    
+    leftIndicator.style.opacity = scrollLeft > 0 ? '1' : '0';
+    rightIndicator.style.opacity = 
+      scrollLeft < scrollWidth - clientWidth ? '1' : '0';
+  }
+  
+  handleResize() {
+    const isMobile = window.innerWidth < 768;
+    this.table.classList.toggle('mobile-cards', isMobile);
+  }
+  
+  debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+}
+
+// Initialize responsive tables
+document.querySelectorAll('.responsive-table').forEach(table => {
+  new ResponsiveTable(table);
+});
+```
+
+## 📋 Responsive Testing Checklist
+
+### **Device Testing**
+- [ ] **iPhone (portrait/landscape)**: 375x667, 414x896
+- [ ] **Android phones**: 360x640, 412x846
+- [ ] **iPad (portrait/landscape)**: 768x1024, 1024x768
+- [ ] **Android tablets**: 800x1280, 1280x800
+- [ ] **Desktop**: 1024x768, 1440x900, 1920x1080
+- [ ] **Large desktop**: 2560x1440, 3840x2160
+
+### **Interaction Testing**
+- [ ] **Touch targets**: Minimum 44x44px
+- [ ] **Hover states**: Only on hover-capable devices
+- [ ] **Focus indicators**: Visible on all interactive elements
+- [ ] **Gesture support**: Swipe, pinch, zoom where appropriate
+- [ ] **Orientation changes**: Layout adapts smoothly
+- [ ] **Keyboard navigation**: Full functionality without mouse
+
+### **Performance Testing**
+- [ ] **Images**: Appropriate sizes for each device
+- [ ] **Fonts**: Readable at all sizes
+- [ ] **Loading**: Fast on 3G networks
+- [ ] **Animations**: Respect `prefers-reduced-motion`
+- [ ] **Memory usage**: Efficient on low-end devices
+- [ ] **Battery impact**: Minimal on mobile devices
+
+### **Content Testing**
+- [ ] **Text readability**: Comfortable reading on all devices
+- [ ] **Information hierarchy**: Clear on small screens
+- [ ] **Navigation**: Accessible with touch and keyboard
+- [ ] **Forms**: Easy to complete on mobile
+- [ ] **Data visualization**: Clear and interactive on all devices
+- [ ] **Error messages**: Visible and actionable
+
+Remember: Responsive design is about creating experiences that work well for everyone, regardless of their device, screen size, or interaction method.

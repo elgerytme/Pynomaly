@@ -1,0 +1,855 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Patterns/Common UI Patterns" />
+
+# Common UI Patterns
+
+Reusable interface patterns specifically designed for anomaly detection workflows and data analysis interfaces.
+
+## 🔍 Anomaly Detection Patterns
+
+### **Anomaly Status Dashboard**
+Display anomaly detection status with clear visual hierarchy:
+
+```html
+<!-- Anomaly Status Dashboard Pattern -->
+<div class="anomaly-dashboard">
+  <div class="dashboard-header">
+    <h2 class="dashboard-title">System Health Overview</h2>
+    <div class="dashboard-actions">
+      <button class="btn-secondary btn-sm">Export Report</button>
+      <button class="btn-primary btn-sm">Refresh Data</button>
+    </div>
+  </div>
+  
+  <div class="metric-overview">
+    <div class="metric-card metric-card-success">
+      <div class="metric-icon">
+        <svg class="w-8 h-8"><!-- Normal status icon --></svg>
+      </div>
+      <div class="metric-content">
+        <div class="metric-value">98.2%</div>
+        <div class="metric-label">Normal Behavior</div>
+        <div class="metric-change positive">+2.1%</div>
+      </div>
+    </div>
+    
+    <div class="metric-card metric-card-warning">
+      <div class="metric-icon">
+        <svg class="w-8 h-8"><!-- Warning status icon --></svg>
+      </div>
+      <div class="metric-content">
+        <div class="metric-value">1.5%</div>
+        <div class="metric-label">Anomalies Detected</div>
+        <div class="metric-change negative">+0.3%</div>
+      </div>
+    </div>
+    
+    <div class="metric-card metric-card-info">
+      <div class="metric-icon">
+        <svg class="w-8 h-8"><!-- Processing icon --></svg>
+      </div>
+      <div class="metric-content">
+        <div class="metric-value">0.3%</div>
+        <div class="metric-label">Under Review</div>
+        <div class="metric-change neutral">-0.1%</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="anomaly-timeline">
+    <div class="timeline-header">
+      <h3>Detection Timeline</h3>
+      <div class="timeline-controls">
+        <select class="form-select">
+          <option>Last 24 hours</option>
+          <option>Last 7 days</option>
+          <option>Last 30 days</option>
+        </select>
+      </div>
+    </div>
+    <div class="timeline-chart" data-component="timeline-chart">
+      <!-- Chart placeholder -->
+    </div>
+  </div>
+</div>
+```
+
+### **Real-Time Anomaly Alert**
+Alert pattern for real-time anomaly notifications:
+
+```html
+<!-- Real-Time Alert Pattern -->
+<div class="alert-container" role="region" aria-live="polite" aria-label="Anomaly alerts">
+  <div class="alert alert-anomaly" role="alert">
+    <div class="alert-icon">
+      <svg class="animate-pulse w-6 h-6"><!-- Alert icon --></svg>
+    </div>
+    <div class="alert-content">
+      <div class="alert-header">
+        <span class="alert-title">Anomaly Detected</span>
+        <span class="alert-timestamp">2 minutes ago</span>
+      </div>
+      <div class="alert-body">
+        <p class="alert-message">
+          Unusual pattern detected in <strong>customer_transactions.csv</strong>
+        </p>
+        <div class="alert-details">
+          <span class="detail-item">
+            <span class="detail-label">Confidence:</span>
+            <span class="detail-value confidence-high">94.7%</span>
+          </span>
+          <span class="detail-item">
+            <span class="detail-label">Affected Records:</span>
+            <span class="detail-value">127 / 10,524</span>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="alert-actions">
+      <button class="btn-primary btn-sm">Investigate</button>
+      <button class="btn-ghost btn-sm">Mark as False Positive</button>
+      <button class="alert-close" aria-label="Dismiss alert">×</button>
+    </div>
+  </div>
+</div>
+```
+
+## 📊 Data Analysis Patterns
+
+### **Data Upload & Processing**
+Multi-step data upload with progress tracking:
+
+```html
+<!-- Data Upload Pattern -->
+<div class="data-upload-container">
+  <div class="upload-header">
+    <h3>Upload Dataset for Analysis</h3>
+    <div class="upload-progress">
+      <div class="progress-steps">
+        <div class="step step-completed">
+          <div class="step-indicator">1</div>
+          <div class="step-label">Select File</div>
+        </div>
+        <div class="step step-active">
+          <div class="step-indicator">2</div>
+          <div class="step-label">Configure</div>
+        </div>
+        <div class="step">
+          <div class="step-indicator">3</div>
+          <div class="step-label">Process</div>
+        </div>
+        <div class="step">
+          <div class="step-indicator">4</div>
+          <div class="step-label">Results</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="upload-content">
+    <!-- Step 1: File Selection -->
+    <div class="upload-step" data-step="1" style="display: none;">
+      <div class="file-drop-zone">
+        <div class="drop-zone-content">
+          <svg class="drop-zone-icon"><!-- Upload icon --></svg>
+          <p class="drop-zone-text">
+            Drag and drop your dataset here, or <button class="link-button">browse files</button>
+          </p>
+          <p class="drop-zone-hint">
+            Supports CSV, JSON, Parquet files up to 100MB
+          </p>
+        </div>
+        <input type="file" class="file-input" accept=".csv,.json,.parquet" multiple>
+      </div>
+    </div>
+    
+    <!-- Step 2: Configuration -->
+    <div class="upload-step" data-step="2">
+      <div class="config-form">
+        <div class="form-section">
+          <h4>File Details</h4>
+          <div class="file-preview">
+            <div class="file-info">
+              <div class="file-icon">📄</div>
+              <div class="file-details">
+                <div class="file-name">customer_data.csv</div>
+                <div class="file-size">2.4 MB • 10,524 rows</div>
+              </div>
+              <button class="btn-ghost btn-sm">Remove</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-section">
+          <h4>Detection Settings</h4>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Algorithm</label>
+              <select class="form-select">
+                <option>Isolation Forest</option>
+                <option>One-Class SVM</option>
+                <option>Local Outlier Factor</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contamination Rate</label>
+              <div class="range-input">
+                <input type="range" class="form-range" min="0" max="0.5" step="0.01" value="0.1">
+                <span class="range-value">10%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Step 3: Processing -->
+    <div class="upload-step" data-step="3" style="display: none;">
+      <div class="processing-status">
+        <div class="processing-animation">
+          <div class="spinner"></div>
+        </div>
+        <h4>Processing Dataset</h4>
+        <p>Analyzing 10,524 records for anomalies...</p>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: 65%"></div>
+        </div>
+        <div class="progress-details">
+          <span>6,840 / 10,524 records processed</span>
+          <span>~2 minutes remaining</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="upload-actions">
+    <button class="btn-secondary" onclick="previousStep()">Previous</button>
+    <button class="btn-primary" onclick="nextStep()">Continue</button>
+  </div>
+</div>
+```
+
+### **Algorithm Comparison**
+Pattern for comparing different detection algorithms:
+
+```html
+<!-- Algorithm Comparison Pattern -->
+<div class="algorithm-comparison">
+  <div class="comparison-header">
+    <h3>Algorithm Performance Comparison</h3>
+    <div class="comparison-controls">
+      <div class="metric-selector">
+        <label class="form-label">Compare by:</label>
+        <select class="form-select">
+          <option>Accuracy</option>
+          <option>Precision</option>
+          <option>Recall</option>
+          <option>F1 Score</option>
+          <option>Processing Time</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  
+  <div class="comparison-grid">
+    <div class="algorithm-card algorithm-card-winner">
+      <div class="card-header">
+        <h4>Isolation Forest</h4>
+        <span class="badge badge-success">Recommended</span>
+      </div>
+      <div class="card-metrics">
+        <div class="metric-item">
+          <span class="metric-label">Accuracy</span>
+          <div class="metric-bar">
+            <div class="metric-fill" style="width: 94%"></div>
+            <span class="metric-value">94.2%</span>
+          </div>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Processing Time</span>
+          <div class="metric-bar">
+            <div class="metric-fill" style="width: 88%"></div>
+            <span class="metric-value">2.3s</span>
+          </div>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Memory Usage</span>
+          <div class="metric-bar">
+            <div class="metric-fill" style="width: 76%"></div>
+            <span class="metric-value">145MB</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="btn-primary btn-sm">Use This Algorithm</button>
+        <button class="btn-ghost btn-sm">View Details</button>
+      </div>
+    </div>
+    
+    <div class="algorithm-card">
+      <div class="card-header">
+        <h4>One-Class SVM</h4>
+      </div>
+      <div class="card-metrics">
+        <div class="metric-item">
+          <span class="metric-label">Accuracy</span>
+          <div class="metric-bar">
+            <div class="metric-fill" style="width: 87%"></div>
+            <span class="metric-value">87.1%</span>
+          </div>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Processing Time</span>
+          <div class="metric-bar">
+            <div class="metric-fill" style="width: 45%"></div>
+            <span class="metric-value">8.7s</span>
+          </div>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Memory Usage</span>
+          <div class="metric-bar">
+            <div class="metric-fill" style="width: 91%"></div>
+            <span class="metric-value">89MB</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="btn-secondary btn-sm">Use This Algorithm</button>
+        <button class="btn-ghost btn-sm">View Details</button>
+      </div>
+    </div>
+    
+    <div class="algorithm-card">
+      <div class="card-header">
+        <h4>Local Outlier Factor</h4>
+      </div>
+      <div class="card-metrics">
+        <div class="metric-item">
+          <span class="metric-label">Accuracy</span>
+          <div class="metric-bar">
+            <div class="metric-fill" style="width: 91%"></div>
+            <span class="metric-value">91.8%</span>
+          </div>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Processing Time</span>
+          <div class="metric-bar">
+            <div class="metric-fill" style="width: 72%"></div>
+            <span class="metric-value">4.1s</span>
+          </div>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Memory Usage</span>
+          <div class="metric-bar">
+            <div class="metric-fill" style="width: 68%"></div>
+            <span class="metric-value">203MB</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="btn-secondary btn-sm">Use This Algorithm</button>
+        <button class="btn-ghost btn-sm">View Details</button>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+## 📈 Visualization Patterns
+
+### **Interactive Chart Container**
+Reusable pattern for interactive data visualizations:
+
+```html
+<!-- Interactive Chart Pattern -->
+<div class="chart-widget">
+  <div class="chart-header">
+    <div class="chart-title-section">
+      <h3 class="chart-title">Anomaly Distribution Over Time</h3>
+      <p class="chart-subtitle">Last 30 days • Updated 5 minutes ago</p>
+    </div>
+    <div class="chart-controls">
+      <div class="control-group">
+        <label class="control-label">Time Range:</label>
+        <div class="btn-group btn-group-sm">
+          <button class="btn-secondary">24H</button>
+          <button class="btn-secondary btn-active">7D</button>
+          <button class="btn-secondary">30D</button>
+          <button class="btn-secondary">90D</button>
+        </div>
+      </div>
+      <div class="control-group">
+        <button class="btn-ghost btn-sm" data-action="fullscreen">
+          <svg class="w-4 h-4"><!-- Fullscreen icon --></svg>
+        </button>
+        <button class="btn-ghost btn-sm" data-action="export">
+          <svg class="w-4 h-4"><!-- Export icon --></svg>
+        </button>
+        <button class="btn-ghost btn-sm" data-action="settings">
+          <svg class="w-4 h-4"><!-- Settings icon --></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="chart-container">
+    <div class="chart-legend">
+      <div class="legend-item">
+        <div class="legend-color" style="background: #0ea5e9;"></div>
+        <span class="legend-label">Normal</span>
+        <span class="legend-value">8,234 (78.2%)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #f59e0b;"></div>
+        <span class="legend-label">Anomalies</span>
+        <span class="legend-value">2,290 (21.8%)</span>
+      </div>
+    </div>
+    
+    <div class="chart-content" data-component="anomaly-chart">
+      <!-- Chart rendered here -->
+    </div>
+    
+    <div class="chart-insights">
+      <div class="insight-item">
+        <div class="insight-icon">📈</div>
+        <div class="insight-content">
+          <div class="insight-title">Peak Anomaly Period</div>
+          <div class="insight-description">
+            Highest anomaly rate detected on March 15th (34.2%)
+          </div>
+        </div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon">⚠️</div>
+        <div class="insight-content">
+          <div class="insight-title">Trending Upward</div>
+          <div class="insight-description">
+            Anomaly rate increased 15% compared to previous period
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+### **Data Table with Actions**
+Pattern for data tables with bulk actions and filtering:
+
+```html
+<!-- Data Table Pattern -->
+<div class="data-table-widget">
+  <div class="table-header">
+    <div class="table-title-section">
+      <h3 class="table-title">Detected Anomalies</h3>
+      <span class="table-count">2,290 anomalies found</span>
+    </div>
+    <div class="table-actions">
+      <div class="search-box">
+        <input type="search" class="form-input" placeholder="Search anomalies...">
+        <button class="search-btn">
+          <svg class="w-4 h-4"><!-- Search icon --></svg>
+        </button>
+      </div>
+      <button class="btn-secondary btn-sm">
+        <svg class="w-4 h-4"><!-- Filter icon --></svg>
+        Filter
+      </button>
+      <button class="btn-primary btn-sm">
+        <svg class="w-4 h-4"><!-- Export icon --></svg>
+        Export
+      </button>
+    </div>
+  </div>
+  
+  <div class="table-filters" style="display: none;">
+    <div class="filter-group">
+      <label class="filter-label">Confidence Level:</label>
+      <div class="btn-group btn-group-sm">
+        <button class="btn-secondary btn-active">All</button>
+        <button class="btn-secondary">High (>90%)</button>
+        <button class="btn-secondary">Medium (70-90%)</button>
+        <button class="btn-secondary">Low (<70%)</button>
+      </div>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Date Range:</label>
+      <input type="date" class="form-input form-input-sm">
+      <span class="filter-separator">to</span>
+      <input type="date" class="form-input form-input-sm">
+    </div>
+  </div>
+  
+  <div class="bulk-actions" style="display: none;">
+    <div class="bulk-info">
+      <span class="selected-count">12 items selected</span>
+    </div>
+    <div class="bulk-buttons">
+      <button class="btn-secondary btn-sm">Mark as False Positive</button>
+      <button class="btn-secondary btn-sm">Assign to Analyst</button>
+      <button class="btn-danger btn-sm">Delete</button>
+    </div>
+  </div>
+  
+  <div class="table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>
+            <input type="checkbox" class="select-all">
+          </th>
+          <th class="sortable" data-sort="timestamp">
+            Timestamp
+            <svg class="sort-icon"><!-- Sort icon --></svg>
+          </th>
+          <th class="sortable" data-sort="confidence">
+            Confidence
+            <svg class="sort-icon"><!-- Sort icon --></svg>
+          </th>
+          <th>Description</th>
+          <th>Dataset</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="checkbox" class="row-select"></td>
+          <td>2024-03-15 14:23:17</td>
+          <td>
+            <div class="confidence-indicator confidence-high">
+              <div class="confidence-bar">
+                <div class="confidence-fill" style="width: 94%"></div>
+              </div>
+              <span class="confidence-value">94.2%</span>
+            </div>
+          </td>
+          <td>Unusual transaction pattern in payment processing</td>
+          <td>payment_logs.csv</td>
+          <td><span class="badge badge-warning">Under Review</span></td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-ghost btn-xs" title="View Details">👁️</button>
+              <button class="btn-ghost btn-xs" title="Investigate">🔍</button>
+              <button class="btn-ghost btn-xs" title="Mark False Positive">❌</button>
+            </div>
+          </td>
+        </tr>
+        <!-- More rows... -->
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="table-footer">
+    <div class="table-info">
+      Showing 1-25 of 2,290 anomalies
+    </div>
+    <div class="table-pagination">
+      <button class="btn-secondary btn-sm" disabled>Previous</button>
+      <div class="page-numbers">
+        <button class="btn-secondary btn-sm btn-active">1</button>
+        <button class="btn-secondary btn-sm">2</button>
+        <button class="btn-secondary btn-sm">3</button>
+        <span class="pagination-ellipsis">...</span>
+        <button class="btn-secondary btn-sm">92</button>
+      </div>
+      <button class="btn-secondary btn-sm">Next</button>
+    </div>
+  </div>
+</div>
+```
+
+## 🎛️ Configuration Patterns
+
+### **Settings Panel**
+Collapsible settings panel for algorithm configuration:
+
+```html
+<!-- Settings Panel Pattern -->
+<div class="settings-panel">
+  <div class="panel-header">
+    <h3 class="panel-title">Detection Settings</h3>
+    <button class="panel-toggle" data-toggle="collapse">
+      <svg class="panel-icon"><!-- Collapse icon --></svg>
+    </button>
+  </div>
+  
+  <div class="panel-content">
+    <div class="settings-section">
+      <h4 class="section-title">Algorithm Parameters</h4>
+      <div class="settings-grid">
+        <div class="setting-item">
+          <label class="setting-label">
+            Contamination Rate
+            <span class="setting-help" title="Expected proportion of anomalies in the data">?</span>
+          </label>
+          <div class="setting-control">
+            <input type="range" class="form-range" min="0" max="0.5" step="0.01" value="0.1">
+            <input type="number" class="form-input form-input-sm" value="0.10" min="0" max="0.5" step="0.01">
+          </div>
+          <div class="setting-description">
+            Currently set to 10% - Adjust based on expected anomaly frequency
+          </div>
+        </div>
+        
+        <div class="setting-item">
+          <label class="setting-label">
+            Random State
+            <span class="setting-help" title="Seed for reproducible results">?</span>
+          </label>
+          <div class="setting-control">
+            <input type="number" class="form-input" value="42" placeholder="Enter seed value">
+            <button class="btn-secondary btn-sm">Randomize</button>
+          </div>
+        </div>
+        
+        <div class="setting-item">
+          <label class="setting-label">Bootstrap Sampling</label>
+          <div class="setting-control">
+            <label class="toggle-switch">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="setting-description">
+            Use bootstrap sampling for training (recommended for large datasets)
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="settings-section">
+      <h4 class="section-title">Performance Options</h4>
+      <div class="settings-grid">
+        <div class="setting-item">
+          <label class="setting-label">Number of Jobs</label>
+          <div class="setting-control">
+            <select class="form-select">
+              <option value="-1">Auto (use all cores)</option>
+              <option value="1">1 core</option>
+              <option value="2">2 cores</option>
+              <option value="4">4 cores</option>
+              <option value="8">8 cores</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="setting-item">
+          <label class="setting-label">Memory Usage</label>
+          <div class="setting-control">
+            <select class="form-select">
+              <option value="auto">Auto</option>
+              <option value="low">Low (slower, less memory)</option>
+              <option value="high">High (faster, more memory)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="settings-actions">
+      <button class="btn-secondary">Reset to Defaults</button>
+      <button class="btn-primary">Apply Settings</button>
+    </div>
+  </div>
+</div>
+```
+
+## 🔔 Notification Patterns
+
+### **Toast Notifications**
+Stack of toast notifications for system feedback:
+
+```html
+<!-- Toast Notification Pattern -->
+<div class="toast-container" role="region" aria-live="polite" aria-label="Notifications">
+  <div class="toast toast-success" role="alert">
+    <div class="toast-icon">
+      <svg class="w-5 h-5"><!-- Success checkmark --></svg>
+    </div>
+    <div class="toast-content">
+      <div class="toast-title">Analysis Complete</div>
+      <div class="toast-message">
+        Successfully processed 10,524 records. 127 anomalies detected.
+      </div>
+    </div>
+    <div class="toast-actions">
+      <button class="btn-link btn-sm">View Results</button>
+      <button class="toast-close" aria-label="Dismiss notification">×</button>
+    </div>
+    <div class="toast-progress">
+      <div class="progress-bar" style="animation-duration: 5s;"></div>
+    </div>
+  </div>
+  
+  <div class="toast toast-warning" role="alert">
+    <div class="toast-icon">
+      <svg class="w-5 h-5"><!-- Warning icon --></svg>
+    </div>
+    <div class="toast-content">
+      <div class="toast-title">Data Quality Issue</div>
+      <div class="toast-message">
+        Dataset contains 23 rows with missing values. These may affect accuracy.
+      </div>
+    </div>
+    <div class="toast-actions">
+      <button class="btn-link btn-sm">Review Data</button>
+      <button class="toast-close" aria-label="Dismiss notification">×</button>
+    </div>
+  </div>
+</div>
+```
+
+### **Notification Center**
+Comprehensive notification management:
+
+```html
+<!-- Notification Center Pattern -->
+<div class="notification-center">
+  <div class="notification-header">
+    <h3 class="notification-title">Notifications</h3>
+    <div class="notification-actions">
+      <button class="btn-ghost btn-sm">Mark All Read</button>
+      <button class="btn-ghost btn-sm">Settings</button>
+    </div>
+  </div>
+  
+  <div class="notification-filters">
+    <div class="filter-tabs">
+      <button class="filter-tab filter-tab-active">All</button>
+      <button class="filter-tab">Unread <span class="badge badge-primary">3</span></button>
+      <button class="filter-tab">Anomalies</button>
+      <button class="filter-tab">System</button>
+    </div>
+  </div>
+  
+  <div class="notification-list">
+    <div class="notification-item notification-item-unread">
+      <div class="notification-indicator"></div>
+      <div class="notification-content">
+        <div class="notification-header">
+          <span class="notification-type">Anomaly Alert</span>
+          <span class="notification-time">2 minutes ago</span>
+        </div>
+        <div class="notification-title">High-confidence anomaly detected</div>
+        <div class="notification-description">
+          94.7% confidence anomaly in payment_processing.csv
+        </div>
+        <div class="notification-actions">
+          <button class="btn-primary btn-sm">Investigate</button>
+          <button class="btn-ghost btn-sm">Dismiss</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="notification-item">
+      <div class="notification-content">
+        <div class="notification-header">
+          <span class="notification-type">System Update</span>
+          <span class="notification-time">1 hour ago</span>
+        </div>
+        <div class="notification-title">Analysis completed</div>
+        <div class="notification-description">
+          Processing of customer_data.csv has finished successfully
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+## 🔒 Authentication Patterns
+
+### **Login Form**
+Secure login form with validation:
+
+```html
+<!-- Login Form Pattern -->
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-logo">
+        <img src="/logo.svg" alt="Pynomaly" class="logo">
+      </div>
+      <h2 class="auth-title">Sign in to Pynomaly</h2>
+      <p class="auth-subtitle">Welcome back! Please sign in to continue.</p>
+    </div>
+    
+    <form class="auth-form">
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input 
+          type="email" 
+          class="form-input" 
+          placeholder="Enter your email"
+          required
+          autocomplete="email"
+        >
+        <div class="form-error" style="display: none;">
+          Please enter a valid email address
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="password-input">
+          <input 
+            type="password" 
+            class="form-input" 
+            placeholder="Enter your password"
+            required
+            autocomplete="current-password"
+          >
+          <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+            <svg class="password-icon"><!-- Eye icon --></svg>
+          </button>
+        </div>
+      </div>
+      
+      <div class="form-options">
+        <label class="checkbox-label">
+          <input type="checkbox" class="form-checkbox">
+          <span class="checkbox-text">Remember me</span>
+        </label>
+        <a href="/forgot-password" class="form-link">Forgot password?</a>
+      </div>
+      
+      <button type="submit" class="btn-primary btn-full">
+        Sign In
+      </button>
+    </form>
+    
+    <div class="auth-footer">
+      <p class="auth-text">
+        Don't have an account? 
+        <a href="/register" class="auth-link">Sign up for free</a>
+      </p>
+    </div>
+  </div>
+</div>
+```
+
+These patterns provide consistent, accessible, and user-friendly interfaces specifically designed for anomaly detection workflows. Each pattern can be customized and extended based on specific requirements while maintaining the overall design system consistency.
+
+## 📋 Pattern Implementation Guidelines
+
+### **Customization**
+- Use CSS custom properties for easy theme customization
+- Follow the established spacing and color scales
+- Maintain accessibility standards (ARIA labels, keyboard navigation)
+- Ensure responsive behavior across all devices
+
+### **Integration**
+- Patterns can be combined to create complex interfaces
+- Use the established component classes for consistency
+- Follow the naming conventions for CSS classes
+- Test patterns across different browsers and devices
+
+### **Best Practices**
+- Always include loading and error states
+- Provide clear feedback for user actions
+- Use semantic HTML for better accessibility
+- Implement proper form validation and error handling
+- Consider performance implications for complex patterns

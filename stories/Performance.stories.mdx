@@ -1,0 +1,758 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Guidelines/Performance" />
+
+# Performance Best Practices
+
+Optimize your Pynomaly applications for speed, efficiency, and excellent user experience with these performance guidelines.
+
+## 🎯 Core Web Vitals
+
+### **Target Metrics**
+Achieve excellent user experience with these performance targets:
+
+```
+Largest Contentful Paint (LCP)     < 2.5 seconds
+First Input Delay (FID)            < 100 milliseconds  
+Cumulative Layout Shift (CLS)      < 0.1
+First Contentful Paint (FCP)       < 1.8 seconds
+Time to Interactive (TTI)          < 3.8 seconds
+Total Blocking Time (TBT)          < 200 milliseconds
+```
+
+### **Performance Budget**
+Maintain these resource limits for optimal performance:
+
+```
+JavaScript Bundle Size             < 170KB (gzipped)
+CSS Bundle Size                    < 50KB (gzipped)
+Image Assets                       < 500KB total
+Font Assets                        < 100KB total
+Total Page Weight                  < 1MB
+HTTP Requests                      < 50 per page
+```
+
+## 🚀 Loading Performance
+
+### **Critical Resource Optimization**
+Prioritize critical resources for faster initial load:
+
+```html
+<!-- Critical CSS inlined in head -->
+<style>
+  /* Critical above-the-fold CSS */
+  .hero-section, .nav-bar, .loading-spinner { 
+    /* Inline critical styles */ 
+  }
+</style>
+
+<!-- Preload critical resources -->
+<link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/js/core.js" as="script">
+<link rel="preload" href="/data/dashboard-initial.json" as="fetch" crossorigin>
+
+<!-- Non-critical CSS loaded asynchronously -->
+<link rel="preload" href="/css/components.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+```
+
+### **Progressive Loading Strategy**
+Load content progressively to improve perceived performance:
+
+```javascript
+// Progressive enhancement for anomaly detection interface
+class ProgressiveLoader {
+  async loadDashboard() {
+    // 1. Load critical above-the-fold content
+    await this.loadCriticalContent();
+    
+    // 2. Load interactive components
+    requestIdleCallback(() => {
+      this.loadInteractiveComponents();
+    });
+    
+    // 3. Preload below-the-fold content
+    requestIdleCallback(() => {
+      this.preloadSecondaryContent();
+    });
+  }
+  
+  async loadCriticalContent() {
+    // Load essential dashboard metrics
+    const metrics = await fetch('/api/dashboard/critical');
+    this.renderMetrics(metrics);
+  }
+  
+  loadInteractiveComponents() {
+    // Load charts and interactive elements
+    import('./charts/anomaly-timeline.js').then(module => {
+      module.initializeChart();
+    });
+  }
+}
+```
+
+## 🎨 Rendering Optimization
+
+### **CSS Performance**
+Optimize CSS for fast rendering and minimal layout shifts:
+
+```css
+/* Use efficient selectors */
+.btn-primary { /* Good: Single class */ }
+.dashboard .widget .metric { /* Avoid: Deep nesting */ }
+
+/* Minimize reflow/repaint */
+.animate-metric {
+  /* Use transform instead of changing layout properties */
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+}
+
+.animate-metric:hover {
+  transform: translateY(-2px); /* Better than top/margin changes */
+}
+
+/* Optimize font loading */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter-var.woff2') format('woff2-variations');
+  font-display: swap; /* Prevent invisible text during font load */
+  font-weight: 100 900;
+}
+
+/* Use containment for isolated components */
+.chart-container {
+  contain: layout style paint;
+}
+
+.widget {
+  contain: layout;
+}
+```
+
+### **Layout Stability**
+Prevent cumulative layout shift with consistent sizing:
+
+```css
+/* Reserve space for dynamic content */
+.metric-value {
+  min-height: 3rem; /* Prevent layout shift when loading */
+  display: flex;
+  align-items: center;
+}
+
+/* Use aspect-ratio for responsive images */
+.chart-placeholder {
+  aspect-ratio: 16/9;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Skeleton loading screens */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+```
+
+## 📊 Data & API Optimization
+
+### **Efficient Data Loading**
+Optimize data fetching for anomaly detection workflows:
+
+```javascript
+// Efficient API data management
+class DataManager {
+  constructor() {
+    this.cache = new Map();
+    this.pendingRequests = new Map();
+  }
+  
+  async fetchAnomalyData(datasetId, options = {}) {
+    const cacheKey = `${datasetId}-${JSON.stringify(options)}`;
+    
+    // Return cached data if available
+    if (this.cache.has(cacheKey)) {
+      return this.cache.get(cacheKey);
+    }
+    
+    // Deduplicate concurrent requests
+    if (this.pendingRequests.has(cacheKey)) {
+      return this.pendingRequests.get(cacheKey);
+    }
+    
+    // Fetch with streaming for large datasets
+    const promise = this.streamAnomalyData(datasetId, options);
+    this.pendingRequests.set(cacheKey, promise);
+    
+    try {
+      const data = await promise;
+      this.cache.set(cacheKey, data);
+      return data;
+    } finally {
+      this.pendingRequests.delete(cacheKey);
+    }
+  }
+  
+  async streamAnomalyData(datasetId, options) {
+    const response = await fetch(`/api/anomalies/${datasetId}/stream`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(options)
+    });
+    
+    if (!response.ok) throw new Error('Failed to fetch data');
+    
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    const data = [];
+    
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop(); // Keep incomplete line in buffer
+        
+        for (const line of lines) {
+          if (line.trim()) {
+            data.push(JSON.parse(line));
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+    
+    return data;
+  }
+}
+```
+
+### **Smart Caching Strategy**
+Implement multi-level caching for optimal performance:
+
+```javascript
+// Service Worker caching strategy
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+  
+  // Cache strategy based on resource type
+  if (url.pathname.startsWith('/api/')) {
+    // Network-first for API calls with short-term cache
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open('api-cache-v1').then(cache => {
+              cache.put(request, clone);
+            });
+          }
+          return response;
+        })
+        .catch(() => caches.match(request))
+    );
+  } else if (url.pathname.includes('/static/')) {
+    // Cache-first for static assets
+    event.respondWith(
+      caches.match(request)
+        .then(response => response || fetch(request))
+    );
+  }
+});
+
+// Memory caching for frequently accessed data
+class MemoryCache {
+  constructor(maxSize = 100, ttl = 300000) { // 5 minutes TTL
+    this.cache = new Map();
+    this.maxSize = maxSize;
+    this.ttl = ttl;
+  }
+  
+  set(key, value) {
+    // Remove oldest entries if cache is full
+    if (this.cache.size >= this.maxSize) {
+      const firstKey = this.cache.keys().next().value;
+      this.cache.delete(firstKey);
+    }
+    
+    this.cache.set(key, {
+      value,
+      timestamp: Date.now()
+    });
+  }
+  
+  get(key) {
+    const item = this.cache.get(key);
+    if (!item) return null;
+    
+    // Check if item has expired
+    if (Date.now() - item.timestamp > this.ttl) {
+      this.cache.delete(key);
+      return null;
+    }
+    
+    return item.value;
+  }
+}
+```
+
+## 🖼️ Asset Optimization
+
+### **Image Performance**
+Optimize images for fast loading and responsive display:
+
+```html
+<!-- Responsive images with modern formats -->
+<picture>
+  <source srcset="
+    anomaly-chart-320.avif 320w,
+    anomaly-chart-640.avif 640w,
+    anomaly-chart-1280.avif 1280w
+  " type="image/avif">
+  <source srcset="
+    anomaly-chart-320.webp 320w,
+    anomaly-chart-640.webp 640w,
+    anomaly-chart-1280.webp 1280w
+  " type="image/webp">
+  <img 
+    src="anomaly-chart-640.jpg"
+    srcset="
+      anomaly-chart-320.jpg 320w,
+      anomaly-chart-640.jpg 640w,
+      anomaly-chart-1280.jpg 1280w
+    "
+    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+    alt="Anomaly detection timeline chart"
+    loading="lazy"
+    decoding="async"
+  >
+</picture>
+
+<!-- Optimize chart images -->
+<img 
+  src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'%3E%3Crect width='400' height='200' fill='%23f1f5f9'/%3E%3C/svg%3E"
+  data-src="/charts/performance-metrics.png"
+  alt="Performance metrics chart"
+  class="lazy-load"
+>
+```
+
+### **Font Performance**
+Optimize font loading for better text rendering:
+
+```css
+/* Variable font for reduced file size */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter-var.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: oblique 0deg 10deg;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153;
+}
+
+/* Subset fonts for specific usage */
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/jetbrains-mono-subset.woff2') format('woff2');
+  font-weight: 400 700;
+  font-display: swap;
+  unicode-range: U+0020-007E; /* ASCII characters only */
+}
+
+/* Preload critical fonts */
+<link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
+```
+
+## ⚡ JavaScript Performance
+
+### **Bundle Optimization**
+Optimize JavaScript bundles for faster execution:
+
+```javascript
+// Code splitting for route-based chunks
+const routes = [
+  {
+    path: '/dashboard',
+    component: () => import('./pages/Dashboard.js')
+  },
+  {
+    path: '/datasets',
+    component: () => import('./pages/Datasets.js')
+  },
+  {
+    path: '/anomalies',
+    component: () => import('./pages/Anomalies.js')
+  }
+];
+
+// Dynamic imports for large libraries
+async function loadChartLibrary() {
+  const { default: ECharts } = await import('echarts/core');
+  const { LineChart, ScatterChart } = await import('echarts/charts');
+  const { GridComponent, TooltipComponent } = await import('echarts/components');
+  
+  ECharts.use([LineChart, ScatterChart, GridComponent, TooltipComponent]);
+  return ECharts;
+}
+
+// Lazy load non-critical features
+class FeatureLoader {
+  async loadAdvancedAnalytics() {
+    const [
+      { MLAnalyzer },
+      { StatisticalAnalyzer },
+      { ExportUtils }
+    ] = await Promise.all([
+      import('./analyzers/MLAnalyzer.js'),
+      import('./analyzers/StatisticalAnalyzer.js'),
+      import('./utils/ExportUtils.js')
+    ]);
+    
+    return { MLAnalyzer, StatisticalAnalyzer, ExportUtils };
+  }
+}
+```
+
+### **Efficient DOM Manipulation**
+Minimize DOM operations for better performance:
+
+```javascript
+// Batch DOM updates
+class MetricUpdater {
+  constructor() {
+    this.pendingUpdates = [];
+    this.updateScheduled = false;
+  }
+  
+  updateMetric(element, value) {
+    this.pendingUpdates.push({ element, value });
+    
+    if (!this.updateScheduled) {
+      this.updateScheduled = true;
+      requestAnimationFrame(() => this.flushUpdates());
+    }
+  }
+  
+  flushUpdates() {
+    // Use DocumentFragment for batch updates
+    const fragment = document.createDocumentFragment();
+    
+    this.pendingUpdates.forEach(({ element, value }) => {
+      element.textContent = value;
+    });
+    
+    this.pendingUpdates = [];
+    this.updateScheduled = false;
+  }
+}
+
+// Efficient event delegation
+class InteractionManager {
+  constructor(container) {
+    this.container = container;
+    this.setupEventDelegation();
+  }
+  
+  setupEventDelegation() {
+    this.container.addEventListener('click', (event) => {
+      const target = event.target.closest('[data-action]');
+      if (target) {
+        const action = target.dataset.action;
+        this.handleAction(action, target, event);
+      }
+    });
+  }
+  
+  handleAction(action, element, event) {
+    switch (action) {
+      case 'toggle-metric':
+        this.toggleMetric(element);
+        break;
+      case 'export-data':
+        this.exportData(element);
+        break;
+      // Handle other actions...
+    }
+  }
+}
+```
+
+## 📱 Mobile Performance
+
+### **Touch Performance**
+Optimize touch interactions for mobile devices:
+
+```css
+/* Optimize touch targets */
+.btn, .tab, .metric-card {
+  min-height: 44px; /* Minimum touch target size */
+  min-width: 44px;
+}
+
+/* Reduce tap delay */
+button, [role="button"], .interactive {
+  touch-action: manipulation; /* Disable double-tap zoom */
+}
+
+/* Optimize scrolling performance */
+.scroll-container {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* iOS momentum scrolling */
+  overscroll-behavior: contain; /* Prevent scroll chaining */
+}
+
+/* Hardware acceleration for animations */
+.chart-animation {
+  transform: translateZ(0); /* Force GPU layer */
+  will-change: transform; /* Hint for optimization */
+}
+```
+
+### **Progressive Web App Optimization**
+Enhance PWA performance for mobile users:
+
+```javascript
+// Service Worker with efficient caching
+const CACHE_NAME = 'pynomaly-v1';
+const CRITICAL_RESOURCES = [
+  '/',
+  '/css/critical.css',
+  '/js/app.js',
+  '/fonts/inter-var.woff2'
+];
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(CRITICAL_RESOURCES))
+  );
+});
+
+// Background sync for offline functionality
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'background-sync') {
+    event.waitUntil(syncData());
+  }
+});
+
+async function syncData() {
+  // Sync cached anomaly detection results
+  const cache = await caches.open('data-cache');
+  const requests = await cache.keys();
+  
+  for (const request of requests) {
+    try {
+      const response = await fetch(request);
+      if (response.ok) {
+        await cache.put(request, response);
+      }
+    } catch (error) {
+      console.log('Background sync failed for:', request.url);
+    }
+  }
+}
+```
+
+## 🔧 Monitoring & Debugging
+
+### **Performance Monitoring**
+Track performance metrics in production:
+
+```javascript
+// Core Web Vitals monitoring
+import { getCLS, getFID, getFCP, getLCP, getTTFB } from 'web-vitals';
+
+class PerformanceMonitor {
+  constructor() {
+    this.metrics = {};
+    this.initializeMetrics();
+  }
+  
+  initializeMetrics() {
+    getCLS(this.recordMetric.bind(this, 'CLS'));
+    getFID(this.recordMetric.bind(this, 'FID'));
+    getFCP(this.recordMetric.bind(this, 'FCP'));
+    getLCP(this.recordMetric.bind(this, 'LCP'));
+    getTTFB(this.recordMetric.bind(this, 'TTFB'));
+  }
+  
+  recordMetric(name, metric) {
+    this.metrics[name] = metric;
+    
+    // Send to analytics
+    this.sendMetric(name, metric.value);
+    
+    // Log performance issues
+    if (this.isMetricPoor(name, metric.value)) {
+      console.warn(`Poor ${name} performance:`, metric.value);
+    }
+  }
+  
+  isMetricPoor(name, value) {
+    const thresholds = {
+      'LCP': 2500,
+      'FID': 100,
+      'CLS': 0.1,
+      'FCP': 1800,
+      'TTFB': 800
+    };
+    
+    return value > thresholds[name];
+  }
+  
+  sendMetric(name, value) {
+    // Send to your analytics service
+    fetch('/api/metrics', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        metric: name,
+        value: value,
+        timestamp: Date.now(),
+        userAgent: navigator.userAgent,
+        url: window.location.href
+      })
+    }).catch(console.error);
+  }
+}
+```
+
+### **Performance Debugging**
+Tools and techniques for identifying performance issues:
+
+```javascript
+// Performance profiling utilities
+class PerformanceProfiler {
+  static measure(name, fn) {
+    return async (...args) => {
+      const start = performance.now();
+      const result = await fn(...args);
+      const end = performance.now();
+      
+      console.log(`${name} took ${end - start} milliseconds`);
+      return result;
+    };
+  }
+  
+  static markAndMeasure(name) {
+    return {
+      start() {
+        performance.mark(`${name}-start`);
+      },
+      end() {
+        performance.mark(`${name}-end`);
+        performance.measure(name, `${name}-start`, `${name}-end`);
+        
+        const measure = performance.getEntriesByName(name)[0];
+        console.log(`${name}: ${measure.duration}ms`);
+        
+        // Clean up marks
+        performance.clearMarks(`${name}-start`);
+        performance.clearMarks(`${name}-end`);
+        performance.clearMeasures(name);
+      }
+    };
+  }
+}
+
+// Usage example
+const chartRender = PerformanceProfiler.markAndMeasure('chart-render');
+chartRender.start();
+await renderAnomalyChart(data);
+chartRender.end();
+```
+
+## 📋 Performance Checklist
+
+### **Pre-launch Checklist**
+- [ ] **Bundle Analysis**: JavaScript < 170KB, CSS < 50KB
+- [ ] **Image Optimization**: WebP/AVIF formats, responsive images
+- [ ] **Font Loading**: Preload critical fonts, font-display: swap
+- [ ] **Critical CSS**: Above-the-fold CSS inlined
+- [ ] **Resource Hints**: Preload, prefetch, preconnect implemented
+- [ ] **Caching**: Service Worker caching strategy implemented
+- [ ] **Code Splitting**: Route-based and feature-based splits
+- [ ] **Lazy Loading**: Images and non-critical components
+- [ ] **Performance Budget**: Lighthouse scores > 90
+- [ ] **Mobile Testing**: Touch performance and PWA features
+
+### **Ongoing Monitoring**
+- [ ] **Core Web Vitals**: LCP < 2.5s, FID < 100ms, CLS < 0.1
+- [ ] **Page Load Time**: Complete load < 3 seconds
+- [ ] **Bundle Growth**: Monitor bundle size increases
+- [ ] **Performance Regression**: Automated testing in CI/CD
+- [ ] **Real User Monitoring**: Production performance tracking
+- [ ] **Error Tracking**: JavaScript errors and failed requests
+- [ ] **Accessibility Performance**: Screen reader compatibility
+- [ ] **Network Conditions**: Testing on slow connections
+
+## 🚀 Advanced Optimizations
+
+### **Resource Optimization**
+```javascript
+// Intersection Observer for lazy loading
+const imageObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const img = entry.target;
+      img.src = img.dataset.src;
+      img.classList.remove('lazy');
+      imageObserver.unobserve(img);
+    }
+  });
+});
+
+document.querySelectorAll('img[data-src]').forEach(img => {
+  imageObserver.observe(img);
+});
+```
+
+### **Memory Management**
+```javascript
+// Efficient memory management for large datasets
+class DataStreamProcessor {
+  constructor() {
+    this.worker = new Worker('/js/data-worker.js');
+    this.chunks = new Map();
+  }
+  
+  async processLargeDataset(data) {
+    // Process in chunks to avoid memory issues
+    const chunkSize = 1000;
+    const results = [];
+    
+    for (let i = 0; i < data.length; i += chunkSize) {
+      const chunk = data.slice(i, i + chunkSize);
+      const result = await this.processChunk(chunk);
+      results.push(result);
+      
+      // Allow browser to breathe
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+    
+    return results.flat();
+  }
+  
+  cleanup() {
+    this.worker.terminate();
+    this.chunks.clear();
+  }
+}
+```
+
+Remember: Performance is not just about speed—it's about creating a smooth, responsive user experience that helps users focus on their anomaly detection tasks without technical distractions.

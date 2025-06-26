@@ -1,0 +1,541 @@
+# Kubernetes deployment for Pynomaly worker services
+# Distributed task processing with training, drift monitoring, and scheduling workers
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pynomaly-worker-training
+  namespace: pynomaly
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: worker-training
+    app.kubernetes.io/part-of: anomaly-detection
+    app.kubernetes.io/managed-by: kubectl
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pynomaly
+      app.kubernetes.io/component: worker-training
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pynomaly
+        app.kubernetes.io/component: worker-training
+        app.kubernetes.io/instance: production
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: pynomaly-worker
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1003
+        runAsGroup: 1003
+        fsGroup: 1003
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: worker-training
+        image: ghcr.io/pynomaly/worker-training:latest
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1003
+          capabilities:
+            drop:
+            - ALL
+        env:
+        - name: PYNOMALY_ENVIRONMENT
+          value: "production"
+        - name: CELERY_BROKER_URL
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-secrets
+              key: celery-broker-url
+        - name: CELERY_RESULT_BACKEND
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-secrets
+              key: celery-result-backend
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-secrets
+              key: database-url
+        - name: WORKER_CONCURRENCY
+          value: "4"
+        - name: WORKER_QUEUE
+          value: "model_training,anomaly_detection"
+        - name: PYNOMALY_STORAGE_PATH
+          value: "/app/storage"
+        - name: PYNOMALY_LOG_PATH
+          value: "/app/logs"
+        envFrom:
+        - configMapRef:
+            name: pynomaly-worker-config
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+            ephemeral-storage: "5Gi"
+          limits:
+            memory: "8Gi"
+            cpu: "4000m"
+            ephemeral-storage: "20Gi"
+        livenessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import celery; print('Worker healthy')"
+          initialDelaySeconds: 120
+          periodSeconds: 60
+          timeoutSeconds: 30
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "from pynomaly.application.services.drift_detection_service import DriftDetectionService; print('Worker ready')"
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 15
+          failureThreshold: 3
+        volumeMounts:
+        - name: storage
+          mountPath: /app/storage
+        - name: logs
+          mountPath: /app/logs
+        - name: tmp
+          mountPath: /tmp
+        - name: var-tmp
+          mountPath: /var/tmp
+      volumes:
+      - name: storage
+        persistentVolumeClaim:
+          claimName: pynomaly-storage-pvc
+      - name: logs
+        persistentVolumeClaim:
+          claimName: pynomaly-logs-pvc
+      - name: tmp
+        emptyDir:
+          sizeLimit: 2Gi
+      - name: var-tmp
+        emptyDir:
+          sizeLimit: 2Gi
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 50
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/component
+                  operator: In
+                  values:
+                  - worker-training
+              topologyKey: kubernetes.io/hostname
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pynomaly-worker-drift
+  namespace: pynomaly
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: worker-drift
+    app.kubernetes.io/part-of: anomaly-detection
+    app.kubernetes.io/managed-by: kubectl
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pynomaly
+      app.kubernetes.io/component: worker-drift
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pynomaly
+        app.kubernetes.io/component: worker-drift
+        app.kubernetes.io/instance: production
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: pynomaly-worker
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1003
+        runAsGroup: 1003
+        fsGroup: 1003
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: worker-drift
+        image: ghcr.io/pynomaly/worker-drift:latest
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1003
+          capabilities:
+            drop:
+            - ALL
+        env:
+        - name: PYNOMALY_ENVIRONMENT
+          value: "production"
+        - name: CELERY_BROKER_URL
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-secrets
+              key: celery-broker-url
+        - name: CELERY_RESULT_BACKEND
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-secrets
+              key: celery-result-backend
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-secrets
+              key: database-url
+        - name: WORKER_CONCURRENCY
+          value: "2"
+        - name: WORKER_QUEUE
+          value: "drift_monitoring,alert_processing"
+        - name: DRIFT_CHECK_INTERVAL
+          value: "3600"
+        - name: PYNOMALY_STORAGE_PATH
+          value: "/app/storage"
+        - name: PYNOMALY_LOG_PATH
+          value: "/app/logs"
+        envFrom:
+        - configMapRef:
+            name: pynomaly-worker-config
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+            ephemeral-storage: "2Gi"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+            ephemeral-storage: "10Gi"
+        livenessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "from pynomaly.application.services.drift_detection_service import DriftDetectionService; print('Drift worker healthy')"
+          initialDelaySeconds: 120
+          periodSeconds: 60
+          timeoutSeconds: 30
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import celery; print('Drift worker ready')"
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 15
+          failureThreshold: 3
+        volumeMounts:
+        - name: storage
+          mountPath: /app/storage
+        - name: logs
+          mountPath: /app/logs
+        - name: tmp
+          mountPath: /tmp
+        - name: var-tmp
+          mountPath: /var/tmp
+      volumes:
+      - name: storage
+        persistentVolumeClaim:
+          claimName: pynomaly-storage-pvc
+      - name: logs
+        persistentVolumeClaim:
+          claimName: pynomaly-logs-pvc
+      - name: tmp
+        emptyDir:
+          sizeLimit: 1Gi
+      - name: var-tmp
+        emptyDir:
+          sizeLimit: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pynomaly-scheduler
+  namespace: pynomaly
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: scheduler
+    app.kubernetes.io/part-of: anomaly-detection
+    app.kubernetes.io/managed-by: kubectl
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pynomaly
+      app.kubernetes.io/component: scheduler
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pynomaly
+        app.kubernetes.io/component: scheduler
+        app.kubernetes.io/instance: production
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: pynomaly-worker
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1003
+        runAsGroup: 1003
+        fsGroup: 1003
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: scheduler
+        image: ghcr.io/pynomaly/scheduler:latest
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1003
+          capabilities:
+            drop:
+            - ALL
+        env:
+        - name: PYNOMALY_ENVIRONMENT
+          value: "production"
+        - name: CELERY_BROKER_URL
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-secrets
+              key: celery-broker-url
+        - name: CELERY_RESULT_BACKEND
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-secrets
+              key: celery-result-backend
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-secrets
+              key: database-url
+        - name: CELERY_BEAT_SCHEDULE_FILENAME
+          value: "/app/storage/celerybeat-schedule"
+        - name: PYNOMALY_STORAGE_PATH
+          value: "/app/storage"
+        - name: PYNOMALY_LOG_PATH
+          value: "/app/logs"
+        envFrom:
+        - configMapRef:
+            name: pynomaly-worker-config
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+            ephemeral-storage: "1Gi"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+            ephemeral-storage: "5Gi"
+        livenessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import celery.bin.beat; print('Scheduler healthy')"
+          initialDelaySeconds: 60
+          periodSeconds: 60
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import celery; print('Scheduler ready')"
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        volumeMounts:
+        - name: storage
+          mountPath: /app/storage
+        - name: logs
+          mountPath: /app/logs
+        - name: tmp
+          mountPath: /tmp
+        - name: var-tmp
+          mountPath: /var/tmp
+      volumes:
+      - name: storage
+        persistentVolumeClaim:
+          claimName: pynomaly-storage-pvc
+      - name: logs
+        persistentVolumeClaim:
+          claimName: pynomaly-logs-pvc
+      - name: tmp
+        emptyDir:
+          sizeLimit: 512Mi
+      - name: var-tmp
+        emptyDir:
+          sizeLimit: 512Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pynomaly-flower
+  namespace: pynomaly
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: flower
+    app.kubernetes.io/part-of: anomaly-detection
+    app.kubernetes.io/managed-by: kubectl
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pynomaly
+      app.kubernetes.io/component: flower
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pynomaly
+        app.kubernetes.io/component: flower
+        app.kubernetes.io/instance: production
+      annotations:
+        prometheus.io/scrape: "false"
+    spec:
+      serviceAccountName: pynomaly-worker
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1003
+        runAsGroup: 1003
+        fsGroup: 1003
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: flower
+        image: ghcr.io/pynomaly/flower:latest
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1003
+          capabilities:
+            drop:
+            - ALL
+        ports:
+        - name: http
+          containerPort: 5555
+          protocol: TCP
+        env:
+        - name: CELERY_BROKER_URL
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-secrets
+              key: celery-broker-url
+        - name: FLOWER_BASIC_AUTH
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-secrets
+              key: flower-auth
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+            ephemeral-storage: "512Mi"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+            ephemeral-storage: "2Gi"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: var-tmp
+          mountPath: /var/tmp
+      volumes:
+      - name: tmp
+        emptyDir:
+          sizeLimit: 256Mi
+      - name: var-tmp
+        emptyDir:
+          sizeLimit: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pynomaly-flower-service
+  namespace: pynomaly
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/component: flower
+    app.kubernetes.io/instance: production
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: http
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/component: flower

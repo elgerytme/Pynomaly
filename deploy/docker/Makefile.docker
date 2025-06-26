@@ -1,34 +1,42 @@
-# Pynomaly Docker Development and Deployment Makefile
-# Hardened container management for development, testing, and production
+# Docker build and deployment automation for Pynomaly
+# Supports multi-stage builds, security scanning, and production deployment
+
+# Build configuration
+DOCKER_REGISTRY ?= ghcr.io/pynomaly
+VERSION ?= $(shell git describe --tags --always --dirty)
+BUILD_DATE := $(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
+VCS_REF := $(shell git rev-parse HEAD)
+PLATFORM ?= linux/amd64,linux/arm64
+
+# Environment configuration
+ENV ?= production
+COMPOSE_FILE ?= docker-compose.$(ENV).yml
+COMPOSE_PROJECT_NAME ?= pynomaly-$(ENV)
+
+# Docker build arguments
+BUILD_ARGS := --build-arg BUILD_DATE=$(BUILD_DATE) \
+              --build-arg VERSION=$(VERSION) \
+              --build-arg VCS_REF=$(VCS_REF)
+
+# Security and optimization flags
+SECURITY_SCAN ?= true
+PUSH_IMAGES ?= false
+CACHE_FROM ?= true
 
 .PHONY: help build dev test prod clean security-scan logs
 .DEFAULT_GOAL := help
 
-# ============================================================================
-# Configuration
-# ============================================================================
-DOCKER_COMPOSE = docker-compose -f docker-compose.hardened.yml
-PROJECT_NAME = pynomaly
-IMAGE_NAME = $(PROJECT_NAME)
-DOCKER_REGISTRY ?= localhost:5000
+#=============================================================================
+# Build Targets
+#=============================================================================
 
-# Environment files
-ENV_FILE = .env
-ENV_EXAMPLE = .env.example
-
-# ============================================================================
-# Help Documentation
-# ============================================================================
+.PHONY: help
 help: ## Show this help message
-	@echo "Pynomaly Docker Management"
-	@echo "=========================="
+	@echo "Pynomaly Docker Build System"
+	@echo "============================="
 	@echo ""
-	@echo "Available commands:"
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-20s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
-	@echo ""
-	@echo "Environment files:"
-	@echo "  .env              Runtime environment variables"
-	@echo "  .env.example      Template for environment configuration"
+	@echo "Available targets:"
+	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z_-]+:.*##/ {printf "  %-20s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 # ============================================================================
 # Environment Setup
