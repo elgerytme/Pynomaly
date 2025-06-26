@@ -10,6 +10,13 @@ Essential functionality for everyday anomaly detection tasks.
 - **[Datasets](basic-usage/datasets.md)** - Data management and preparation
 - **[Monitoring](basic-usage/monitoring.md)** - System monitoring and observability
 
+### 📱 **[Progressive Web App](progressive-web-app.md)**
+Modern web interface with offline capabilities and mobile optimization.
+- **Installation and Setup** - Browser and mobile installation
+- **Offline Functionality** - Work without internet connectivity
+- **Data Synchronization** - Seamless online/offline data sync
+- **Mobile Optimization** - Touch-friendly interface and responsive design
+
 ### 🚀 **[Advanced Features](advanced-features/)**
 Sophisticated capabilities for complex use cases and optimization.
 - **[AutoML & Intelligence](advanced-features/automl-and-intelligence.md)** - Automated machine learning
