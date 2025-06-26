@@ -20,14 +20,14 @@ from pynomaly.application.use_cases.ensemble_detection_use_case import (
     VotingStrategy,
     EnsembleOptimizationObjective
 )
-from pynomaly.presentation.api.dependencies import (
+from pynomaly.presentation.api.deps import (
     get_container,
     get_current_user,
     require_read,
     require_write,
     require_admin
 )
-from pynomaly.shared.container import Container
+from pynomaly.infrastructure.config import Container
 
 router = APIRouter(prefix="/ensemble", tags=["ensemble"])
 security = HTTPBearer()

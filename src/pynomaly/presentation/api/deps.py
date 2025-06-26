@@ -90,3 +90,36 @@ async def require_auth(
     if user is None:
         raise HTTPException(status_code=401, detail="Authentication required")
     return user
+
+
+async def require_read(
+    user: Annotated[str | None, Depends(get_current_user)],
+) -> str:
+    """Require user with read permissions."""
+    if user is None:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    # For now, any authenticated user has read permissions
+    # In a full RBAC system, this would check specific permissions
+    return user
+
+
+async def require_write(
+    user: Annotated[str | None, Depends(get_current_user)],
+) -> str:
+    """Require user with write permissions."""
+    if user is None:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    # For now, any authenticated user has write permissions
+    # In a full RBAC system, this would check specific permissions
+    return user
+
+
+async def require_admin(
+    user: Annotated[str | None, Depends(get_current_user)],
+) -> str:
+    """Require user with admin permissions."""
+    if user is None:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    # For now, any authenticated user has admin permissions
+    # In a full RBAC system, this would check admin roles
+    return user

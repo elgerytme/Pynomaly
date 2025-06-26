@@ -16,7 +16,7 @@ from pynomaly.application.use_cases.explainability_use_case import (
     CompareExplanationsRequest
 )
 from pynomaly.application.dto.explainability_dto import (
-    ExplainPredictionRequestDTO,
+    ExplanationRequestDTO,
     ExplainModelRequestDTO,
     ExplainCohortRequestDTO,
     CompareExplanationsRequestDTO,
@@ -27,7 +27,7 @@ from pynomaly.application.dto.explainability_dto import (
 )
 from pynomaly.domain.services.explainability_service import ExplanationMethod
 from pynomaly.infrastructure.di.container import Container
-from pynomaly.presentation.api.dependencies import (
+from pynomaly.presentation.api.deps import (
     get_container,
     get_current_user,
     require_read,
