@@ -1,0 +1,325 @@
+import { Meta, ColorPalette, ColorItem, Typeset } from '@storybook/blocks';
+
+<Meta title="Design Tokens/Overview" />
+
+# Design Tokens
+
+Design tokens are the visual design atoms of the Pynomaly design system. They define the fundamental visual elements like colors, typography, spacing, and other design properties.
+
+## <¨ Color System
+
+Our color system is built around anomaly detection workflows with semantic meaning and accessibility in mind.
+
+### Primary Colors
+
+<ColorPalette>
+  <ColorItem
+    title="Primary Blue"
+    subtitle="Main brand color, used for primary actions and navigation"
+    colors={{
+      50: '#eff6ff',
+      100: '#dbeafe', 
+      200: '#bfdbfe',
+      300: '#93c5fd',
+      400: '#60a5fa',
+      500: '#0ea5e9',
+      600: '#0284c7',
+      700: '#0369a1',
+      800: '#075985',
+      900: '#0c4a6e'
+    }}
+  />
+</ColorPalette>
+
+### Semantic Colors
+
+<ColorPalette>
+  <ColorItem
+    title="Success Green"
+    subtitle="Normal states, successful operations"
+    colors={{
+      50: '#f0fdf4',
+      100: '#dcfce7',
+      200: '#bbf7d0',
+      300: '#86efac',
+      400: '#4ade80',
+      500: '#22c55e',
+      600: '#16a34a',
+      700: '#15803d',
+      800: '#166534',
+      900: '#14532d'
+    }}
+  />
+</ColorPalette>
+
+<ColorPalette>
+  <ColorItem
+    title="Warning Orange"
+    subtitle="Warnings, potential issues"
+    colors={{
+      50: '#fffbeb',
+      100: '#fef3c7',
+      200: '#fde68a', 
+      300: '#fcd34d',
+      400: '#fbbf24',
+      500: '#f59e0b',
+      600: '#d97706',
+      700: '#b45309',
+      800: '#92400e',
+      900: '#78350f'
+    }}
+  />
+</ColorPalette>
+
+<ColorPalette>
+  <ColorItem
+    title="Danger Red"
+    subtitle="Anomalies, errors, critical states"
+    colors={{
+      50: '#fef2f2',
+      100: '#fee2e2',
+      200: '#fecaca',
+      300: '#fca5a5',
+      400: '#f87171',
+      500: '#ef4444',
+      600: '#dc2626',
+      700: '#b91c1c',
+      800: '#991b1b',
+      900: '#7f1d1d'
+    }}
+  />
+</ColorPalette>
+
+### Anomaly Detection Colors
+
+<ColorPalette>
+  <ColorItem
+    title="Chart Colors"
+    subtitle="Specialized colors for data visualization"
+    colors={{
+      'normal': '#22c55e',
+      'anomaly': '#ef4444',
+      'threshold': '#f59e0b',
+      'confidence-high': '#059669',
+      'confidence-medium': '#d97706',
+      'confidence-low': '#dc2626'
+    }}
+  />
+</ColorPalette>
+
+### Neutral Colors
+
+<ColorPalette>
+  <ColorItem
+    title="Grayscale"
+    subtitle="Text, backgrounds, borders"
+    colors={{
+      50: '#f8fafc',
+      100: '#f1f5f9',
+      200: '#e2e8f0',
+      300: '#cbd5e1',
+      400: '#94a3b8',
+      500: '#64748b',
+      600: '#475569',
+      700: '#334155',
+      800: '#1e293b',
+      900: '#0f172a'
+    }}
+  />
+</ColorPalette>
+
+## =Ý Typography
+
+Our typography system uses **Inter** for interface text and **JetBrains Mono** for code and data.
+
+### Font Families
+
+<div style={{ marginBottom: '2rem' }}>
+  <h4>Interface Font: Inter</h4>
+  <Typeset
+    fontFamily="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+    fontSizes={[12, 14, 16, 18, 20, 24, 32, 40, 48]}
+    sampleText="The quick brown fox jumps over the lazy dog"
+  />
+</div>
+
+<div style={{ marginBottom: '2rem' }}>
+  <h4>Monospace Font: JetBrains Mono</h4>
+  <Typeset
+    fontFamily="'JetBrains Mono', Consolas, 'Liberation Mono', Menlo, Courier, monospace"
+    fontSizes={[12, 14, 16, 18, 20]}
+    sampleText="const anomalyScore = 0.85; // High confidence"
+  />
+</div>
+
+### Typography Scale
+
+| Token | Size | Line Height | Use Case |
+|-------|------|-------------|----------|
+| `text-xs` | 12px | 16px | Captions, small labels |
+| `text-sm` | 14px | 20px | Body text, form inputs |
+| `text-base` | 16px | 24px | Default body text |
+| `text-lg` | 18px | 28px | Large body text |
+| `text-xl` | 20px | 28px | Small headings |
+| `text-2xl` | 24px | 32px | Section headings |
+| `text-3xl` | 30px | 36px | Page headings |
+| `text-4xl` | 36px | 40px | Display headings |
+
+### Font Weights
+
+| Token | Weight | Use Case |
+|-------|--------|----------|
+| `font-normal` | 400 | Body text |
+| `font-medium` | 500 | Emphasis, labels |
+| `font-semibold` | 600 | Headings, important text |
+| `font-bold` | 700 | Strong emphasis |
+
+## =Ð Spacing Scale
+
+Consistent spacing creates visual rhythm and hierarchy.
+
+### Base Scale (rem)
+
+| Token | Value | Pixels | Use Case |
+|-------|-------|--------|----------|
+| `space-0` | 0 | 0px | No spacing |
+| `space-1` | 0.25rem | 4px | Tight spacing |
+| `space-2` | 0.5rem | 8px | Small gaps |
+| `space-3` | 0.75rem | 12px | Default gaps |
+| `space-4` | 1rem | 16px | Medium spacing |
+| `space-5` | 1.25rem | 20px | Large spacing |
+| `space-6` | 1.5rem | 24px | Section spacing |
+| `space-8` | 2rem | 32px | Component spacing |
+| `space-10` | 2.5rem | 40px | Layout spacing |
+| `space-12` | 3rem | 48px | Large sections |
+| `space-16` | 4rem | 64px | Page sections |
+| `space-20` | 5rem | 80px | Major sections |
+
+### Component Spacing
+
+| Component | Padding | Margin | Gap |
+|-----------|---------|--------|-----|
+| Button | 0.5rem 1rem | 0.5rem | - |
+| Card | 1.5rem | 1rem | - |
+| Input | 0.75rem | 0.5rem | - |
+| Grid | - | - | 1rem |
+| Stack | - | - | 0.75rem |
+
+## =2 Border Radius
+
+Consistent corner rounding for visual cohesion.
+
+| Token | Value | Use Case |
+|-------|-------|----------|
+| `rounded-none` | 0 | Sharp corners |
+| `rounded-sm` | 2px | Small elements |
+| `rounded` | 4px | Default buttons |
+| `rounded-md` | 6px | Cards, inputs |
+| `rounded-lg` | 8px | Larger cards |
+| `rounded-xl` | 12px | Panels |
+| `rounded-2xl` | 16px | Major containers |
+| `rounded-full` | 50% | Circular elements |
+
+## <­ Shadows
+
+Depth and elevation system for layered interfaces.
+
+### Shadow Scale
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', margin: '1rem 0' }}>
+  <div style={{ padding: '1rem', backgroundColor: 'white', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)', borderRadius: '0.5rem' }}>
+    <strong>shadow-sm</strong><br/>
+    <code>0 1px 2px 0 rgb(0 0 0 / 0.05)</code><br/>
+    Subtle elevation
+  </div>
+  <div style={{ padding: '1rem', backgroundColor: 'white', boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)', borderRadius: '0.5rem' }}>
+    <strong>shadow</strong><br/>
+    <code>0 1px 3px 0 rgb(0 0 0 / 0.1)</code><br/>
+    Default cards
+  </div>
+  <div style={{ padding: '1rem', backgroundColor: 'white', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)', borderRadius: '0.5rem' }}>
+    <strong>shadow-md</strong><br/>
+    <code>0 4px 6px -1px rgb(0 0 0 / 0.1)</code><br/>
+    Raised elements
+  </div>
+  <div style={{ padding: '1rem', backgroundColor: 'white', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)', borderRadius: '0.5rem' }}>
+    <strong>shadow-lg</strong><br/>
+    <code>0 10px 15px -3px rgb(0 0 0 / 0.1)</code><br/>
+    Panels, modals
+  </div>
+</div>
+
+## <¯ Focus States
+
+Accessibility-compliant focus indicators.
+
+### Focus Ring
+
+| Token | Value | Use Case |
+|-------|-------|----------|
+| `focus-ring` | 2px solid #0ea5e9 | Default focus |
+| `focus-ring-offset` | 2px | Focus offset |
+| `focus-ring-danger` | 2px solid #ef4444 | Error states |
+| `focus-ring-success` | 2px solid #22c55e | Success states |
+
+### Focus Examples
+
+<div style={{ display: 'flex', gap: '1rem', margin: '1rem 0' }}>
+  <button style={{ 
+    padding: '0.5rem 1rem', 
+    borderRadius: '0.375rem', 
+    backgroundColor: '#0ea5e9', 
+    color: 'white', 
+    border: 'none',
+    outline: '2px solid #0ea5e9',
+    outlineOffset: '2px'
+  }}>
+    Focused Button
+  </button>
+  <input 
+    type="text" 
+    placeholder="Focused input"
+    style={{ 
+      padding: '0.5rem', 
+      borderRadius: '0.375rem', 
+      border: '1px solid #d1d5db',
+      outline: '2px solid #0ea5e9',
+      outlineOffset: '2px'
+    }}
+  />
+</div>
+
+## =' Usage Guidelines
+
+### Color Usage
+
+- **Primary Blue**: Use for primary actions, links, and brand elements
+- **Success Green**: Indicate successful operations and normal states
+- **Warning Orange**: Show warnings and potential issues
+- **Danger Red**: Highlight errors and anomalies
+- **Neutral Grays**: For text, backgrounds, and subtle UI elements
+
+### Typography Hierarchy
+
+1. Use heading sizes to create clear hierarchy
+2. Maintain consistent line heights for readability
+3. Use font weights to create emphasis
+4. Prefer Inter for UI text, JetBrains Mono for code/data
+
+### Spacing Consistency
+
+- Use the 4px base grid for all spacing decisions
+- Maintain consistent gaps between related elements
+- Use larger spacing to separate distinct sections
+- Follow the spacing scale rather than arbitrary values
+
+### Accessibility Considerations
+
+- Ensure sufficient color contrast (4.5:1 for normal text, 3:1 for large text)
+- Provide clear focus indicators for keyboard navigation
+- Use semantic color meanings consistently
+- Test with screen readers and assistive technologies
+
+---
+
+These design tokens form the foundation of the Pynomaly design system. Use them consistently to create cohesive, accessible, and professional interfaces for anomaly detection workflows.
