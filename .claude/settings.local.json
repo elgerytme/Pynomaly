@@ -505,7 +505,9 @@
       "Bash(alias buck2=\"/mnt/c/Users/andre/buck2.exe\")",
       "Bash(buck2:*)",
       "Bash(/mnt/c/Users/andre/buck2.exe build //:validation //:test-validation //:dev-ready)",
-      "Bash(jq:*)"
+      "Bash(jq:*)",
+      "Bash(/mnt/c/Users/andre/buck2.exe build //:validation --verbose)",
+      "Bash(/mnt/c/Users/andre/buck2.exe build //:validation)"
     ],
     "deny": [],
     "//": "This sets the default policy to 'allow' for any action that doesn't have a more specific rule below. This is the top-level 'allow all actions' setting.",

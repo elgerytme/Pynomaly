@@ -132,7 +132,7 @@ class Buck2CIPerformanceMonitor:
         
         start_time = time.time()
         clean_result = subprocess.run(
-            [buck2_cmd, "build", target, "--verbose"],
+            [buck2_cmd, "build", target],
             capture_output=True,
             text=True,
             cwd=self.root_path
@@ -144,7 +144,7 @@ class Buck2CIPerformanceMonitor:
         # Cached build
         start_time = time.time()
         cached_result = subprocess.run(
-            [buck2_cmd, "build", target, "--verbose"],
+            [buck2_cmd, "build", target],
             capture_output=True,
             text=True,
             cwd=self.root_path
