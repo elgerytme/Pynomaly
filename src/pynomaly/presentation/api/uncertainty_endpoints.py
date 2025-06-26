@@ -183,6 +183,12 @@ def _convert_confidence_interval_to_model(ci: ConfidenceInterval) -> ConfidenceI
     )
 
 
+def get_uncertainty_use_case() -> QuantifyUncertaintyUseCase:
+    """Dependency injection for uncertainty use case."""
+    uncertainty_service = UncertaintyQuantificationService(random_seed=42)
+    return QuantifyUncertaintyUseCase(uncertainty_service=uncertainty_service)
+
+
 def _convert_uncertainty_response_to_model(response: UncertaintyResponse) -> UncertaintyResponseModel:
     """Convert application response to Pydantic model."""
     # Convert confidence intervals
