@@ -46,6 +46,13 @@ repos:
   # File Organization and Project Structure
   - repo: local
     hooks:
+      - id: root-directory-check
+        name: 🏠 Root Directory Organization
+        entry: python3 scripts/validation/validate_root_directory.py
+        language: system
+        pass_filenames: false
+        stages: [commit]
+
       - id: file-organization-check
         name: 📁 File Organization Validation
         entry: python scripts/validate_file_organization.py

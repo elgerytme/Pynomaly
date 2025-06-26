@@ -1,0 +1,180 @@
+# Kustomization file for Pynomaly Kubernetes deployment
+# Manages resource ordering and configuration overlays
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: pynomaly-production
+  namespace: pynomaly
+
+# Namespace to deploy resources to
+namespace: pynomaly
+
+# Resource files in deployment order
+resources:
+- namespace.yaml
+- rbac.yaml
+- persistent-volumes.yaml
+- config-maps.yaml
+- secrets.yaml
+- database-statefulset.yaml
+- monitoring-deployment.yaml
+- api-deployment.yaml
+- worker-deployment.yaml
+- ingress.yaml
+
+# Images to be used (can be overridden per environment)
+images:
+- name: ghcr.io/pynomaly/api
+  newTag: latest
+- name: ghcr.io/pynomaly/worker-training
+  newTag: latest
+- name: ghcr.io/pynomaly/worker-drift
+  newTag: latest
+- name: ghcr.io/pynomaly/scheduler
+  newTag: latest
+- name: ghcr.io/pynomaly/flower
+  newTag: latest
+- name: prom/prometheus
+  newTag: v2.48.0
+- name: grafana/grafana
+  newTag: 10.2.0
+- name: otel/opentelemetry-collector-contrib
+  newTag: 0.91.0
+- name: prom/alertmanager
+  newTag: v0.26.0
+- name: postgres
+  newTag: 16-alpine
+- name: redis
+  newTag: 7-alpine
+
+# Common labels applied to all resources
+commonLabels:
+  app.kubernetes.io/name: pynomaly
+  app.kubernetes.io/instance: production
+  app.kubernetes.io/version: "1.0.0"
+  app.kubernetes.io/managed-by: kustomize
+  environment: production
+
+# Common annotations applied to all resources
+commonAnnotations:
+  deployment.kubernetes.io/revision: "1"
+  kubectl.kubernetes.io/last-applied-configuration: |
+    deployed-by: kustomize
+
+# Configuration transformers
+transformers:
+- |-
+  apiVersion: builtin
+  kind: PrefixSuffixTransformer
+  metadata:
+    name: production-prefix
+  prefix: pynomaly-
+  fieldSpecs:
+  - path: metadata/name
+    kind: Service
+  - path: metadata/name
+    kind: Deployment
+  - path: metadata/name
+    kind: StatefulSet
+  - path: metadata/name
+    kind: ConfigMap
+  - path: metadata/name
+    kind: Secret
+
+# Replica count patches for production
+patchesStrategicMerge:
+- |-
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: pynomaly-api
+    namespace: pynomaly
+  spec:
+    replicas: 3
+- |-
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: pynomaly-worker-training
+    namespace: pynomaly
+  spec:
+    replicas: 2
+- |-
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: pynomaly-worker-drift
+    namespace: pynomaly
+  spec:
+    replicas: 2
+
+# Secret generator for basic auth
+secretGenerator:
+- name: pynomaly-monitoring-auth
+  type: Opaque
+  literals:
+  - auth=admin:$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W  # admin:secret
+- name: pynomaly-admin-auth
+  type: Opaque
+  literals:
+  - auth=admin:$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W  # admin:secret
+
+# ConfigMap generator for environment-specific config
+configMapGenerator:
+- name: pynomaly-env-config
+  literals:
+  - ENVIRONMENT=production
+  - LOG_LEVEL=INFO
+  - DEBUG=false
+  - REPLICAS_API=3
+  - REPLICAS_WORKER_TRAINING=2
+  - REPLICAS_WORKER_DRIFT=2
+
+# Resource ordering patches
+patchesJson6902:
+- target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: pynomaly-api
+    namespace: pynomaly
+  patch: |-
+    - op: add
+      path: /metadata/annotations/deployment.order
+      value: "3"
+- target:
+    group: apps
+    version: v1
+    kind: StatefulSet
+    name: pynomaly-postgres
+    namespace: pynomaly
+  patch: |-
+    - op: add
+      path: /metadata/annotations/deployment.order
+      value: "1"
+- target:
+    group: apps
+    version: v1
+    kind: StatefulSet
+    name: pynomaly-redis
+    namespace: pynomaly
+  patch: |-
+    - op: add
+      path: /metadata/annotations/deployment.order
+      value: "1"
+
+# Validation settings
+buildMetadata: [managedByLabel]
+
+# Generator options
+generatorOptions:
+  disableNameSuffixHash: false
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+  annotations:
+    config.kubernetes.io/function: |
+      exec:
+        path: kustomize
