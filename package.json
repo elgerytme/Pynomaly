@@ -23,6 +23,7 @@
     "lighthouse": "lhci autorun",
     "test:lighthouse": "lhci autorun",
     "test:performance": "node scripts/performance-test-suite.js && lhci collect && lhci assert",
+    "test:performance:regression": "node scripts/performance-regression-detector.js",
     "lighthouse:collect": "lhci collect --url=http://localhost:8000",
     "lighthouse:assert": "lhci assert",
     "lighthouse:upload": "lhci upload",
@@ -31,7 +32,8 @@
     "test:accessibility": "playwright test tests/ui/test_accessibility_enhanced.spec.ts",
     "test:visual": "percy exec -- playwright test",
     "test:visual:storybook": "percy storybook http://localhost:6006",
-    "analyze-bundle": "npx webpack-bundle-analyzer storybook-static/static/js/*.js",
+    "analyze-bundle": "node scripts/bundle-analyzer.js",
+    "analyze-bundle-webpack": "npx webpack-bundle-analyzer storybook-static/static/js/*.js",
     "accessibility-audit": "axe-crawler http://localhost:6006",
     "serve-static": "http-server src/pynomaly/presentation/web/static -p 8080 -c-1"
   },

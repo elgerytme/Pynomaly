@@ -273,6 +273,38 @@ The API uses standard HTTP status codes and returns detailed error messages:
                 "description": "Data and model export operations"
             },
             {
+                "name": "AutoML",
+                "description": "Automated machine learning and hyperparameter optimization",
+                "externalDocs": {
+                    "description": "AutoML Guide",
+                    "url": "https://pynomaly.readthedocs.io/automl"
+                }
+            },
+            {
+                "name": "Enhanced AutoML",
+                "description": "Advanced AutoML with meta-learning and multi-objective optimization",
+                "externalDocs": {
+                    "description": "Enhanced AutoML Guide",
+                    "url": "https://pynomaly.readthedocs.io/enhanced-automl"
+                }
+            },
+            {
+                "name": "Ensemble",
+                "description": "Ensemble methods and model combination strategies",
+                "externalDocs": {
+                    "description": "Ensemble Guide",
+                    "url": "https://pynomaly.readthedocs.io/ensemble"
+                }
+            },
+            {
+                "name": "Explainability",
+                "description": "Model interpretation and explanation generation",
+                "externalDocs": {
+                    "description": "Explainability Guide",
+                    "url": "https://pynomaly.readthedocs.io/explainability"
+                }
+            },
+            {
                 "name": "Performance",
                 "description": "Performance monitoring and profiling endpoints"
             },

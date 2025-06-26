@@ -20,18 +20,28 @@ from pynomaly.presentation.api.docs import api_docs
 from pynomaly.presentation.api.endpoints import (
     admin,
     auth,
+    automl,
     autonomous,
     datasets,
     detection,
     detectors,
+    ensemble,
     events,
     experiments,
+    explainability,
     export,
     health,
     model_lineage,
     performance,
     streaming,
 )
+
+# Enhanced AutoML endpoints
+try:
+    from pynomaly.presentation.api import enhanced_automl
+    ENHANCED_AUTOML_AVAILABLE = True
+except ImportError:
+    ENHANCED_AUTOML_AVAILABLE = False
 
 # Distributed processing endpoints removed for simplification
 distributed = None
@@ -185,6 +195,16 @@ def create_app(container: Container | None = None) -> FastAPI:
     app.include_router(datasets.router, prefix="/api/datasets", tags=["datasets"])
 
     app.include_router(detection.router, prefix="/api/detection", tags=["detection"])
+
+    app.include_router(automl.router, prefix="/api/automl", tags=["automl"])
+
+    # Include enhanced AutoML router if available
+    if ENHANCED_AUTOML_AVAILABLE:
+        app.include_router(enhanced_automl.router, tags=["enhanced_automl"])
+
+    app.include_router(ensemble.router, prefix="/api/ensemble", tags=["ensemble"])
+
+    app.include_router(explainability.router, prefix="/api/explainability", tags=["explainability"])
 
     app.include_router(
         experiments.router, prefix="/api/experiments", tags=["experiments"]

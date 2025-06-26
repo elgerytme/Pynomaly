@@ -97,24 +97,61 @@ async def openapi_summary(request: Request) -> dict:
     return {
         "api_name": "Pynomaly API",
         "version": "1.0.0",
-        "total_endpoints": 50,  # Would be calculated from actual spec
+        "total_endpoints": 65,  # Updated count with new endpoints
         "endpoint_categories": [
             "Authentication",
             "Health",
             "Datasets",
-            "Detectors",
+            "Detectors", 
             "Detection",
+            "AutoML",
+            "Enhanced AutoML",
+            "Ensemble",
+            "Explainability",
             "Experiments",
             "Export",
             "Performance",
-            "Administration"
+            "Model Lineage",
+            "Streaming",
+            "Events",
+            "Administration",
+            "Autonomous"
         ],
-        "authentication_methods": ["JWT Bearer Token", "API Key"],
-        "response_formats": ["JSON"],
+        "new_features": [
+            "Advanced AutoML with meta-learning",
+            "Multi-objective optimization",
+            "Ensemble learning capabilities", 
+            "Model explainability and interpretation",
+            "Real-time streaming detection",
+            "Comprehensive model lineage tracking"
+        ],
+        "authentication_methods": ["JWT Bearer Token", "API Key", "OAuth2"],
+        "response_formats": ["JSON", "CSV", "Excel", "Parquet"],
         "rate_limits": {
             "default": "100 requests/minute",
             "training": "10 requests/minute",
-            "export": "20 requests/minute"
+            "automl": "5 requests/minute", 
+            "export": "20 requests/minute",
+            "streaming": "1000 requests/minute"
+        },
+        "advanced_capabilities": {
+            "automl": {
+                "algorithms_supported": 8,
+                "optimization_strategies": ["bayesian", "hyperband", "bohb", "multi_objective"],
+                "meta_learning": True,
+                "ensemble_methods": ["voting", "stacking", "blending"]
+            },
+            "explainability": {
+                "methods": ["shap", "lime", "feature_importance", "partial_dependence"],
+                "global_explanations": True,
+                "local_explanations": True
+            },
+            "monitoring": {
+                "health_checks": True,
+                "performance_metrics": True,
+                "drift_detection": True,
+                "alerts": True
+            }
         }
     }
 
