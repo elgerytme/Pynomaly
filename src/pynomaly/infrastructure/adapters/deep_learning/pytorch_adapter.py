@@ -125,62 +125,62 @@ if PYTORCH_AVAILABLE:
 
             self.config = config
 
-        # Build encoder
-        encoder_layers = []
-        in_dim = config.input_dim
+            # Build encoder
+            encoder_layers = []
+            in_dim = config.input_dim
 
-        for hidden_dim in config.hidden_dims:
-            encoder_layers.extend(
-                [
-                    nn.Linear(in_dim, hidden_dim),
-                    nn.BatchNorm1d(hidden_dim) if config.batch_norm else nn.Identity(),
-                    self._get_activation(config.activation),
-                    nn.Dropout(config.dropout_rate),
-                ]
-            )
-            in_dim = hidden_dim
+            for hidden_dim in config.hidden_dims:
+                encoder_layers.extend(
+                    [
+                        nn.Linear(in_dim, hidden_dim),
+                        nn.BatchNorm1d(hidden_dim) if config.batch_norm else nn.Identity(),
+                        self._get_activation(config.activation),
+                        nn.Dropout(config.dropout_rate),
+                    ]
+                )
+                in_dim = hidden_dim
 
-        # Latent layer
-        encoder_layers.append(nn.Linear(in_dim, config.latent_dim))
-        self.encoder = nn.Sequential(*encoder_layers)
+            # Latent layer
+            encoder_layers.append(nn.Linear(in_dim, config.latent_dim))
+            self.encoder = nn.Sequential(*encoder_layers)
 
-        # Build decoder
-        decoder_layers = []
-        in_dim = config.latent_dim
+            # Build decoder
+            decoder_layers = []
+            in_dim = config.latent_dim
 
-        for hidden_dim in reversed(config.hidden_dims):
-            decoder_layers.extend(
-                [
-                    nn.Linear(in_dim, hidden_dim),
-                    nn.BatchNorm1d(hidden_dim) if config.batch_norm else nn.Identity(),
-                    self._get_activation(config.activation),
-                    nn.Dropout(config.dropout_rate),
-                ]
-            )
-            in_dim = hidden_dim
+            for hidden_dim in reversed(config.hidden_dims):
+                decoder_layers.extend(
+                    [
+                        nn.Linear(in_dim, hidden_dim),
+                        nn.BatchNorm1d(hidden_dim) if config.batch_norm else nn.Identity(),
+                        self._get_activation(config.activation),
+                        nn.Dropout(config.dropout_rate),
+                    ]
+                )
+                in_dim = hidden_dim
 
-        # Output layer
-        decoder_layers.append(nn.Linear(in_dim, config.input_dim))
-        self.decoder = nn.Sequential(*decoder_layers)
+            # Output layer
+            decoder_layers.append(nn.Linear(in_dim, config.input_dim))
+            self.decoder = nn.Sequential(*decoder_layers)
 
-    def _get_activation(self, activation: str):
-        """Get activation function."""
-        activations = {
-            "relu": nn.ReLU(),
-            "tanh": nn.Tanh(),
-            "sigmoid": nn.Sigmoid(),
-            "leaky_relu": nn.LeakyReLU(),
-            "elu": nn.ELU(),
-        }
-        return activations.get(activation, nn.ReLU())
+        def _get_activation(self, activation: str):
+            """Get activation function."""
+            activations = {
+                "relu": nn.ReLU(),
+                "tanh": nn.Tanh(),
+                "sigmoid": nn.Sigmoid(),
+                "leaky_relu": nn.LeakyReLU(),
+                "elu": nn.ELU(),
+            }
+            return activations.get(activation, nn.ReLU())
 
-    def forward(self, x):
-        """Forward pass."""
-        encoded = self.encoder(x)
-        decoded = self.decoder(encoded)
-        return decoded
+        def forward(self, x):
+            """Forward pass."""
+            encoded = self.encoder(x)
+            decoded = self.decoder(encoded)
+            return decoded
 
-    def encode(self, x):
+        def encode(self, x):
         """Encode input to latent space."""
         return self.encoder(x)
 
