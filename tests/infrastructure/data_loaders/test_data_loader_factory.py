@@ -176,6 +176,9 @@ class TestDataLoaderFactory:
         factory = DataLoaderFactory()
         
         class CustomLoader:
+            def __init__(self, **kwargs):
+                self.config = kwargs
+            
             def load(self, source, name=None, **kwargs):
                 return Dataset(name="custom", data=pd.DataFrame(), metadata={})
             
