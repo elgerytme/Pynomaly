@@ -10,7 +10,7 @@ This module provides comprehensive monitoring capabilities including:
 from __future__ import annotations
 
 import logging
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from contextlib import contextmanager
 from functools import wraps
 from typing import Any
