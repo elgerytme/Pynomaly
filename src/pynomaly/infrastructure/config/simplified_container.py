@@ -28,8 +28,10 @@ from pynomaly.infrastructure.config.feature_flags import FeatureFlagManager
 from pynomaly.infrastructure.config.service_registry import (
     RepositoryFactory,
     ServiceGroupFactory,
-    ServiceRegistry,
-    register_all_services,
+)
+from pynomaly.infrastructure.repositories.in_memory_repositories import (
+    InMemoryDetectorRepository,
+    InMemoryResultRepository,
 )
 from pynomaly.infrastructure.config.settings import Settings
 from pynomaly.infrastructure.repositories import (
@@ -197,6 +199,10 @@ class SimplifiedContainer(containers.DeclarativeContainer):
                 self.lime_explainer = self._service_registry.create_singleton_provider(
                     "lime_explainer"
                 )
+
+    # Repository services (need to be defined first)
+    detector_repository = providers.Singleton(InMemoryDetectorRepository)
+    result_repository = providers.Singleton(InMemoryResultRepository)
 
     # Domain services
     anomaly_scorer = providers.Singleton(AnomalyScorer)

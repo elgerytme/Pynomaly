@@ -1,6 +1,6 @@
 """Repository implementation for tenant persistence."""
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from uuid import UUID
 
 from sqlalchemy import Column, DateTime, Float, Index, Integer, String, Text
