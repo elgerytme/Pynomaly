@@ -102,7 +102,7 @@ class SchemaExamples:
                     "created_at": "2024-12-25T10:15:00Z",
                     "updated_at": "2024-12-25T10:15:00Z",
                     "training_history": [],
-                    "performance_metrics": null
+                    "performance_metrics": None
                 },
                 "timestamp": "2024-12-25T10:30:00Z"
             }
