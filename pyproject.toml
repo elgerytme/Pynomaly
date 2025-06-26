@@ -151,6 +151,16 @@ test = [
     "factory-boy>=3.3.1",
     "faker>=33.1.0"
 ]
+ui-test = [
+    "playwright>=1.40.0",
+    "pytest-playwright>=0.4.3",
+    "pytest-html>=4.1.0",
+    "pillow>=10.0.0",
+    "percy-playwright>=1.0.4",
+    "axe-playwright-python>=0.1.3",
+    "lighthouse>=0.1.4",
+    "pytest-benchmark>=4.0.0"
+]
 lint = [
     "ruff>=0.8.0",
     "black>=24.0.0",
@@ -417,6 +427,20 @@ extra-dependencies = ["pynomaly[cli,minimal]"]
 [tool.hatch.envs.cli.scripts]
 run = "pynomaly {args}"
 test-cli = "pynomaly --help"
+
+# UI Testing environment
+[tool.hatch.envs.ui-test]
+extra-dependencies = ["pynomaly[ui-test,test]"]
+
+[tool.hatch.envs.ui-test.scripts]
+install-browsers = "playwright install"
+test = "pytest tests/ui/ {args}"
+test-headed = "pytest tests/ui/ --headed {args}"
+test-cross-browser = "pytest tests/ui/ --browser chromium --browser firefox --browser webkit {args}"
+test-visual = "VISUAL_TESTING=true pytest tests/ui/test_visual_regression.py {args}"
+test-accessibility = "pytest tests/ui/test_accessibility*.py {args}"
+test-performance = "pytest tests/ui/test_performance*.py {args}"
+report = "pytest tests/ui/ --html=test_reports/ui_test_report.html --self-contained-html {args}"
 
 # Tool configuration (existing tools)
 [tool.ruff]
