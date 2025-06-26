@@ -332,7 +332,7 @@ class PyGODAdapter(Detector):
 
         return data
 
-    def _adj_to_edge_index(self, adj_matrix) -> torch.Tensor:
+    def _adj_to_edge_index(self, adj_matrix):
         """Convert adjacency matrix to edge index format.
 
         Args:
