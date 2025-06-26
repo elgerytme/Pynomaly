@@ -51,6 +51,7 @@ InvalidDataError = DataValidationError
 AdapterError = DomainError
 AlgorithmNotFoundError = InvalidAlgorithmError
 AutoMLError = DomainError
+ExplainabilityError = DomainError
 InvalidParameterError = ValidationError
 ProcessingError = DomainError
 EntityNotFoundError = DomainError
@@ -100,6 +101,7 @@ __all__ = [
     "AdapterError",
     "AlgorithmNotFoundError",
     "AutoMLError",
+    "ExplainabilityError",
     "InvalidParameterError",
     "ProcessingError",
 ]
