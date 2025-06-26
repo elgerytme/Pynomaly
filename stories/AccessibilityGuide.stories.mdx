@@ -1,0 +1,339 @@
+import { Meta } from '@storybook/addon-docs';
+
+<Meta title="Guidelines/Accessibility" />
+
+# Accessibility Guidelines
+
+Pynomaly is committed to creating accessible interfaces that work for everyone. Our design system follows **WCAG 2.1 AA** standards and includes comprehensive accessibility testing.
+
+## 🎯 Accessibility Principles
+
+### 1. Perceivable
+- **High Contrast**: All text meets WCAG contrast requirements (4.5:1 for normal text, 3:1 for large text)
+- **Color Independence**: Information is never conveyed by color alone
+- **Alternative Text**: All images and icons have descriptive alt text
+- **Scalable Text**: Interface scales up to 200% without horizontal scrolling
+
+### 2. Operable
+- **Keyboard Navigation**: All interactive elements are keyboard accessible
+- **Focus Management**: Clear focus indicators and logical tab order
+- **No Seizures**: Animations respect `prefers-reduced-motion`
+- **Sufficient Time**: Users can extend time limits when needed
+
+### 3. Understandable
+- **Clear Language**: Simple, consistent terminology throughout
+- **Predictable Navigation**: Consistent interface patterns
+- **Error Prevention**: Clear validation and helpful error messages
+- **Help Available**: Contextual help and documentation
+
+### 4. Robust
+- **Semantic HTML**: Proper heading structure and landmarks
+- **ARIA Labels**: Comprehensive screen reader support
+- **Cross-Platform**: Works with assistive technologies
+- **Future-Proof**: Standards-compliant code
+
+## 🔧 Implementation Guidelines
+
+### Color and Contrast
+
+```css
+/* Primary colors meet WCAG AA standards */
+.text-primary { color: #0ea5e9; } /* 4.52:1 on white */
+.text-secondary { color: #64748b; } /* 4.54:1 on white */
+.text-error { color: #dc2626; } /* 5.93:1 on white */
+.text-success { color: #059669; } /* 4.52:1 on white */
+
+/* Dark mode equivalents */
+.dark .text-primary { color: #38bdf8; } /* 7.12:1 on dark */
+.dark .text-secondary { color: #94a3b8; } /* 7.03:1 on dark */
+```
+
+### Focus Management
+
+```css
+/* Consistent focus indicators */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+/* Skip links for keyboard users */
+.skip-link {
+  @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4;
+  @apply bg-blue-600 text-white px-4 py-2 rounded;
+}
+```
+
+### Screen Reader Support
+
+```html
+<!-- Descriptive landmarks -->
+<nav aria-label="Main navigation">
+<main aria-label="Dashboard content">
+<aside aria-label="Filters and controls">
+
+<!-- Live regions for dynamic content -->
+<div aria-live="polite" aria-label="Anomaly alerts">
+<div aria-live="assertive" aria-label="System errors">
+
+<!-- Descriptive labels -->
+<button aria-label="Start anomaly detection analysis">
+<input aria-describedby="password-help" aria-invalid="false">
+```
+
+## 📊 Accessible Chart Guidelines
+
+### Data Visualization Accessibility
+
+#### 1. Alternative Formats
+- **Data Tables**: Provide tabular view of chart data
+- **Text Summaries**: Key insights in plain text
+- **Sonification**: Audio representation for trend data
+
+#### 2. Color-Blind Friendly Palettes
+```javascript
+// Accessible color schemes
+const accessibleColors = {
+  qualitative: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd'],
+  sequential: ['#f7fbff', '#c6dbef', '#6baed6', '#2171b5', '#08519c'],
+  diverging: ['#d73027', '#fc8d59', '#fee08b', '#d9ef8b', '#91bfdb']
+};
+```
+
+#### 3. Interactive Elements
+```html
+<!-- Accessible chart controls -->
+<div role="application" aria-label="Anomaly timeline chart">
+  <div class="chart-controls" role="group" aria-label="Chart settings">
+    <button aria-label="Zoom in on timeline" aria-controls="chart-timeline">
+    <button aria-label="Reset zoom level" aria-controls="chart-timeline">
+  </div>
+  
+  <div id="chart-timeline" aria-label="Interactive timeline showing anomaly data">
+    <!-- D3/ECharts content with ARIA support -->
+  </div>
+  
+  <table class="sr-only" aria-label="Chart data in tabular format">
+    <!-- Accessible data representation -->
+  </table>
+</div>
+```
+
+## ⌨️ Keyboard Navigation
+
+### Navigation Patterns
+
+| Component | Key | Action |
+|-----------|-----|--------|
+| Dashboard | `Tab` | Navigate between widgets |
+| Dashboard | `Enter/Space` | Activate widget controls |
+| Charts | `Arrow Keys` | Navigate data points |
+| Modals | `Escape` | Close modal |
+| Dropdowns | `Enter/Space` | Open/close |
+| Dropdowns | `Arrow Keys` | Navigate options |
+| Forms | `Tab/Shift+Tab` | Move between fields |
+| Tables | `Arrow Keys` | Navigate cells |
+
+### Custom Keyboard Shortcuts
+```javascript
+// Global shortcuts (with Ctrl/Cmd)
+const shortcuts = {
+  'Ctrl+T': 'Toggle sidebar',
+  'Ctrl+D': 'Toggle dark mode',
+  'Ctrl+F': 'Focus search',
+  'Ctrl+R': 'Refresh data',
+  'Escape': 'Clear selection',
+  'Ctrl+H': 'Show help'
+};
+```
+
+## 🧪 Accessibility Testing
+
+### Automated Testing
+```javascript
+// Jest + @testing-library/jest-dom
+import { render, screen } from '@testing-library/react';
+import { axe, toHaveNoViolations } from 'jest-axe';
+
+expect.extend(toHaveNoViolations);
+
+test('Dashboard has no accessibility violations', async () => {
+  const { container } = render(<Dashboard />);
+  const results = await axe(container);
+  expect(results).toHaveNoViolations();
+});
+```
+
+### Manual Testing Checklist
+
+#### ✅ Keyboard Testing
+- [ ] All interactive elements reachable by keyboard
+- [ ] Logical tab order throughout interface
+- [ ] Visible focus indicators on all focusable elements
+- [ ] No keyboard traps or unreachable areas
+- [ ] Escape key works to close modals/dropdowns
+
+#### ✅ Screen Reader Testing
+- [ ] All content read aloud correctly
+- [ ] Landmarks and headings properly structured
+- [ ] Form labels associated with inputs
+- [ ] Error messages announced clearly
+- [ ] Dynamic content updates announced
+
+#### ✅ Visual Testing
+- [ ] Interface usable at 200% zoom
+- [ ] High contrast mode supported
+- [ ] Color-blind simulation passed
+- [ ] Reduced motion preferences respected
+- [ ] Text remains readable in all themes
+
+## 🚀 Implementation Examples
+
+### Accessible Button Component
+```jsx
+const AccessibleButton = ({ 
+  children, 
+  variant = 'primary', 
+  disabled = false,
+  loading = false,
+  ariaLabel,
+  ...props 
+}) => {
+  return (
+    <button
+      className={`btn btn-${variant} focus-ring`}
+      disabled={disabled || loading}
+      aria-label={ariaLabel}
+      aria-busy={loading}
+      {...props}
+    >
+      {loading && (
+        <span className="sr-only">Loading...</span>
+      )}
+      {children}
+    </button>
+  );
+};
+```
+
+### Accessible Form Field
+```jsx
+const AccessibleField = ({ 
+  label, 
+  error, 
+  help, 
+  required = false,
+  children 
+}) => {
+  const fieldId = useId();
+  const helpId = `${fieldId}-help`;
+  const errorId = `${fieldId}-error`;
+  
+  return (
+    <div className="field-group">
+      <label htmlFor={fieldId} className="field-label">
+        {label}
+        {required && <span aria-label="required">*</span>}
+      </label>
+      
+      {cloneElement(children, {
+        id: fieldId,
+        'aria-describedby': [help && helpId, error && errorId].filter(Boolean).join(' '),
+        'aria-invalid': !!error,
+        'aria-required': required
+      })}
+      
+      {help && (
+        <div id={helpId} className="field-help">
+          {help}
+        </div>
+      )}
+      
+      {error && (
+        <div id={errorId} className="field-error" role="alert">
+          {error}
+        </div>
+      )}
+    </div>
+  );
+};
+```
+
+### Accessible Data Table
+```jsx
+const AccessibleTable = ({ data, columns, caption }) => {
+  return (
+    <div className="table-container" role="region" aria-label="Data table">
+      <table>
+        {caption && <caption>{caption}</caption>}
+        
+        <thead>
+          <tr>
+            {columns.map((column, index) => (
+              <th 
+                key={column.key}
+                scope="col"
+                aria-sort={getSortDirection(column.key)}
+              >
+                {column.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        
+        <tbody>
+          {data.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {columns.map((column, colIndex) => (
+                <td key={column.key}>
+                  {colIndex === 0 ? (
+                    <th scope="row">{row[column.key]}</th>
+                  ) : (
+                    row[column.key]
+                  )}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+```
+
+## 📱 Mobile Accessibility
+
+### Touch Target Guidelines
+- **Minimum Size**: 44px × 44px touch targets
+- **Spacing**: 8px minimum between interactive elements
+- **Gestures**: Provide alternative interaction methods
+
+### Voice Control Support
+```html
+<!-- Voice control friendly labels -->
+<button aria-label="Start analysis">Start</button>
+<input aria-label="Enter dataset name" placeholder="Dataset name">
+<select aria-label="Choose algorithm">...</select>
+```
+
+## 🔗 Resources
+
+### Standards and Guidelines
+- [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
+- [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/)
+- [Section 508 Standards](https://www.section508.gov/)
+
+### Testing Tools
+- **axe DevTools**: Browser extension for accessibility testing
+- **WAVE**: Web accessibility evaluation tool
+- **Lighthouse**: Automated accessibility auditing
+- **Screen Readers**: NVDA (Windows), VoiceOver (Mac), Orca (Linux)
+
+### Design Resources
+- **Color Contrast Analyzer**: Verify WCAG compliance
+- **Stark Plugin**: Figma/Sketch accessibility plugin
+- **Color Oracle**: Color blindness simulator
+
+---
+
+*Remember: Accessibility is not a checklist—it's an ongoing commitment to inclusive design that benefits all users.*

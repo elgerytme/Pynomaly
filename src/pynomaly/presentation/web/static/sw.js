@@ -3,29 +3,29 @@
  * Provides offline caching, background sync, push notifications, and installability
  */
 
-const CACHE_NAME = 'pynomaly-v1.0.0';
-const STATIC_CACHE = 'pynomaly-static-v1.0.0';
-const DYNAMIC_CACHE = 'pynomaly-dynamic-v1.0.0';
-const API_CACHE = 'pynomaly-api-v1.0.0';
+const CACHE_NAME = 'pynomaly-v1.2.0';
+const STATIC_CACHE = 'pynomaly-static-v1.2.0';
+const DYNAMIC_CACHE = 'pynomaly-dynamic-v1.2.0';
+const API_CACHE = 'pynomaly-api-v1.2.0';
 
 // Static assets to cache during install
 const STATIC_ASSETS = [
   '/',
   '/static/css/design-system.css',
   '/static/css/tailwind.css',
-  '/static/js/app.js',
-  '/static/js/htmx.min.js',
-  '/static/js/d3.min.js',
-  '/static/js/echarts.min.js',
-  '/static/icons/icon-192x192.png',
-  '/static/icons/icon-512x512.png',
-  '/static/fonts/inter.woff2',
-  '/static/fonts/jetbrains-mono.woff2',
+  '/static/js/main.js',
+  '/static/js/charts/anomaly-timeline.js',
+  '/static/js/charts/anomaly-heatmap.js',
+  '/static/js/charts/real-time-dashboard.js',
+  '/static/js/components/interactive-forms.js',
+  '/static/js/components/dashboard-layout.js',
+  '/static/js/state/dashboard-state.js',
+  '/static/fonts/inter-var.woff2',
+  '/static/fonts/jetbrains-mono-subset.woff2',
+  '/static/images/pynomaly-icon-192.png',
+  '/static/images/pynomaly-icon-512.png',
   '/manifest.json',
-  '/offline',
-  '/dashboard',
-  '/datasets',
-  '/models'
+  '/offline.html'
 ];
 
 // API endpoints to cache with different strategies
@@ -34,19 +34,25 @@ const API_ENDPOINTS = {
     '/api/health',
     '/api/models',
     '/api/datasets',
+    '/api/anomalies/recent',
+    '/api/metrics/summary',
+    '/api/status',
     '/api/dashboard/stats',
     '/api/user/profile'
   ],
   CACHE_FIRST: [
     '/api/algorithms',
     '/api/presets',
-    '/api/documentation'
+    '/api/documentation',
+    '/api/configurations'
   ],
   NETWORK_FIRST: [
     '/api/detection',
     '/api/analysis',
     '/api/train',
-    '/api/predict'
+    '/api/predict',
+    '/api/upload',
+    '/api/real-time'
   ]
 };
 
@@ -59,14 +65,18 @@ const SYNC_TAGS = {
 };
 
 // IndexedDB configuration for offline storage
-const DB_NAME = 'PynomaolyOfflineDB';
-const DB_VERSION = 1;
+const DB_NAME = 'PynomalyOfflineDB';
+const DB_VERSION = 2;
 const STORES = {
   DETECTIONS: 'detections',
   DATASETS: 'datasets',
   RESULTS: 'results',
+  ANOMALIES: 'anomalies',
+  ALERTS: 'alerts',
+  DASHBOARD_STATE: 'dashboardState',
   USER_PREFERENCES: 'userPreferences',
-  SYNC_QUEUE: 'syncQueue'
+  SYNC_QUEUE: 'syncQueue',
+  ANALYTICS: 'analytics'
 };
 
 /**
