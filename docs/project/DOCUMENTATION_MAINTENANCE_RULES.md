@@ -96,8 +96,21 @@ Use "Month Year" format (e.g., "June 2025")
 - ✅ Updated production features to be more accurate
 - ✅ Cleaned up TODO.md structure and archived old content
 - ✅ Added accuracy disclaimers for planned features
+- ✅ Fixed Python API example to match actual implementation
+- ✅ Validated all installation commands are functional
+- ✅ Updated architecture documentation to remove non-existent "Score" entity
+- ✅ Implemented commit-based documentation review protocol
 
-### Ongoing Maintenance
-- ⏳ Regular validation of code examples
-- ⏳ Quarterly archival of completed work
-- ⏳ Monthly dependency and feature verification
+### Validation Results (June 26, 2025)
+- ✅ **README.md Examples**: All Python API examples now use correct imports and method signatures
+- ✅ **Installation Commands**: All Makefile targets, optional dependencies, and Hatch environments verified working
+- ✅ **Architecture Documentation**: Updated to match actual entity structure and adapter implementation
+- ✅ **Cross-Reference Validation**: All internal documentation links verified functional
+- ✅ **Objective Language**: Removed marketing language and subjective claims
+
+### Active Maintenance
+- ✅ **Template Date System**: TODO.md uses `{{ current_month }} {{ current_year }}` format
+- ✅ **Commit-Based Reviews**: Mandatory documentation review checklist implemented
+- ⏳ **Ongoing Validation**: Regular validation of code examples and features
+- ⏳ **Quarterly Archival**: Systematic archival of completed work
+- ⏳ **Monthly Verification**: Dependencies and feature accuracy checks

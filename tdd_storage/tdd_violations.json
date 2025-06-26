@@ -898,5 +898,205 @@
     "rule_name": "require_test_specification",
     "suggestion": "Create test requirement for function 'validate_target_strategies'",
     "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/dto/streaming_dto.py is missing corresponding test file tests/application/dto/streaming_dto_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/dto/streaming_dto_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 114,
+    "description": "Function 'validate_strategy' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_strategy'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 124,
+    "description": "Function 'validate_backpressure_strategy' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_backpressure_strategy'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 135,
+    "description": "Function 'validate_mode' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_mode'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 143,
+    "description": "Function 'validate_batch_sizes' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_batch_sizes'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 150,
+    "description": "Function 'validate_watermarks' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_watermarks'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 183,
+    "description": "Function 'validate_data' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_data'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 223,
+    "description": "Function 'validate_ensemble_detectors' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_ensemble_detectors'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 435,
+    "description": "Function 'validate_action' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_action'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 443,
+    "description": "Function 'validate_stream_id_requirement' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_stream_id_requirement'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/use_cases/streaming_detection_use_case.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/use_cases/streaming_detection_use_case.py is missing corresponding test file tests/application/use_cases/streaming_detection_use_case_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/use_cases/streaming_detection_use_case_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 114,
+    "description": "Function 'validate_strategy' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_strategy'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 124,
+    "description": "Function 'validate_backpressure_strategy' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_backpressure_strategy'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 135,
+    "description": "Function 'validate_mode' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_mode'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 143,
+    "description": "Function 'validate_batch_sizes' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_batch_sizes'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 150,
+    "description": "Function 'validate_watermarks' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_watermarks'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 183,
+    "description": "Function 'validate_data' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_data'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 223,
+    "description": "Function 'validate_ensemble_detectors' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_ensemble_detectors'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 435,
+    "description": "Function 'validate_action' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_action'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 443,
+    "description": "Function 'validate_stream_id_requirement' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_stream_id_requirement'",
+    "auto_fixable": false
   }
 ]

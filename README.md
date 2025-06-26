@@ -189,7 +189,12 @@ pynomaly server start
 ```python
 from pynomaly.infrastructure.config import create_container
 from pynomaly.domain.entities import Detector, Dataset
-from pynomaly.application.use_cases import DetectAnomalies, TrainDetector
+from pynomaly.application.use_cases import (
+    DetectAnomaliesUseCase, 
+    TrainDetectorUseCase,
+    TrainDetectorRequest,
+    DetectAnomaliesRequest
+)
 import pandas as pd
 import asyncio
 
@@ -220,19 +225,32 @@ async def main():
     train_use_case = container.train_detector_use_case()
     detect_use_case = container.detect_anomalies_use_case()
     
-    # Train detector
-    training_result = await train_use_case.execute(detector, dataset)
-    print(f"Training completed: {training_result.metrics}")
-    
-    # Detect anomalies
-    detection_result = await detect_use_case.execute(detector.id, dataset)
-    print(f"Found {len(detection_result.anomalies)} anomalies")
-    
-    # Get explanations (if supported by algorithm)
-    explainer = container.explanation_service()
-    explanations = await explainer.explain_anomalies(
-        detector.id, detection_result.anomalies[:5]  # Top 5 anomalies
+    # Train detector with request object
+    train_request = TrainDetectorRequest(
+        detector_id=detector.id,
+        training_data=dataset,
+        validate_data=True,
+        save_model=True,
     )
+    training_result = await train_use_case.execute(train_request)
+    print(f"Training completed: {training_result.training_metrics}")
+    
+    # Detect anomalies with request object
+    detect_request = DetectAnomaliesRequest(
+        detector_id=detector.id,
+        dataset=dataset,
+        validate_features=True,
+        save_results=True,
+    )
+    detection_response = await detect_use_case.execute(detect_request)
+    detection_result = detection_response.result
+    anomaly_count = len([i for i, label in enumerate(detection_result.labels) if label == 1])
+    print(f"Found {anomaly_count} anomalies")
+    
+    # Get explanations (if available)
+    if hasattr(container, 'application_explainability_service'):
+        explainer = container.application_explainability_service()
+        # Explanation usage depends on specific explainer implementation
 
 # Run async code
 asyncio.run(main())
@@ -312,13 +330,13 @@ Pynomaly follows **Clean Architecture**, **Domain-Driven Design (DDD)**, and **H
 ```
 src/pynomaly/
 ├── domain/          # Pure business logic (no external dependencies)
-│   ├── entities/    # Anomaly, Detector, Dataset, Score, DetectionResult
+│   ├── entities/    # Anomaly, Detector, Dataset, DetectionResult, Model, Experiment
 │   ├── value_objects/ # ContaminationRate, ConfidenceInterval, AnomalyScore
 │   ├── services/    # Core detection logic, scoring algorithms
 │   └── exceptions/  # Domain-specific exception hierarchy
 ├── application/     # Orchestrate use cases without implementation details
 │   ├── use_cases/   # DetectAnomalies, TrainDetector, EvaluateModel, ExplainAnomaly
-│   ├── services/    # DetectionService, EnsembleService, ModelPersistenceService
+│   ├── services/    # DetectionService, EnsembleService, ModelPersistenceService, AutoMLService
 │   └── dto/         # Data transfer objects and request/response models
 ├── infrastructure/  # All external integrations and adapters
 │   ├── adapters/    # PyODAdapter, PyGODAdapter, SklearnAdapter, TimeSeriesAdapter
