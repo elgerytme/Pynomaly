@@ -17,6 +17,15 @@
     "lint-css": "stylelint src/pynomaly/presentation/web/static/css/**/*.css",
     "format": "prettier --write \"src/pynomaly/presentation/web/**/*.{js,css,html}\"",
     "lighthouse": "lhci autorun",
+    "test:lighthouse": "lhci autorun",
+    "test:performance": "lhci collect && lhci assert",
+    "lighthouse:collect": "lhci collect --url=http://localhost:8000",
+    "lighthouse:assert": "lhci assert",
+    "lighthouse:upload": "lhci upload",
+    "perf:audit": "lighthouse http://localhost:8000 --output=html --output-path=test_reports/lighthouse.html",
+    "test:cross-browser": "playwright test --project=chromium --project=firefox --project=webkit",
+    "test:accessibility": "playwright test tests/ui/test_accessibility_enhanced.spec.ts",
+    "test:visual": "percy exec -- playwright test",
     "serve-static": "http-server src/pynomaly/presentation/web/static -p 8080 -c-1"
   },
   "keywords": [
