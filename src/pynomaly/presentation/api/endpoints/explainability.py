@@ -46,7 +46,7 @@ async def explain_prediction(
     container: Container = Depends(get_container),
     current_user: str | None = Depends(get_current_user),
     _permissions: str = Depends(require_read),
-) -> ExplainabilityResponseDTO:
+) -> ExplanationResponseDTO:
     """Explain a single anomaly prediction.
     
     Generates explanations for why a specific data point was classified
@@ -97,7 +97,7 @@ async def explain_prediction(
         if result.explanation:
             explanation_dto = LocalExplanationDTO.from_domain(result.explanation)
         
-        response_dto = ExplainabilityResponseDTO(
+        response_dto = ExplanationResponseDTO(
             success=result.success,
             explanation_type="local",
             local_explanation=explanation_dto,
@@ -128,7 +128,7 @@ async def explain_model(
     container: Container = Depends(get_container),
     current_user: str | None = Depends(get_current_user),
     _permissions: str = Depends(require_read),
-) -> ExplainabilityResponseDTO:
+) -> ExplanationResponseDTO:
     """Explain global model behavior and feature importance.
     
     Generates global explanations showing how the model makes decisions
@@ -177,7 +177,7 @@ async def explain_model(
         if result.explanation:
             explanation_dto = GlobalExplanationDTO.from_domain(result.explanation)
         
-        response_dto = ExplainabilityResponseDTO(
+        response_dto = ExplanationResponseDTO(
             success=result.success,
             explanation_type="global",
             global_explanation=explanation_dto,
@@ -209,13 +209,13 @@ async def explain_model(
         )
 
 
-@router.post("/explain/cohort", response_model=ExplainabilityResponseDTO)
+@router.post("/explain/cohort", response_model=ExplanationResponseDTO)
 async def explain_cohort(
     request: ExplainCohortRequestDTO,
     container: Container = Depends(get_container),
     current_user: str | None = Depends(get_current_user),
     _permissions: str = Depends(require_read),
-) -> ExplainabilityResponseDTO:
+) -> ExplanationResponseDTO:
     """Explain behavior for a cohort of similar instances.
     
     Generates explanations for groups of similar data points, identifying
@@ -276,7 +276,7 @@ async def explain_cohort(
         if result.explanation:
             explanation_dto = CohortExplanationDTO.from_domain(result.explanation)
         
-        response_dto = ExplainabilityResponseDTO(
+        response_dto = ExplanationResponseDTO(
             success=result.success,
             explanation_type="cohort",
             cohort_explanation=explanation_dto,
@@ -299,13 +299,13 @@ async def explain_cohort(
         )
 
 
-@router.post("/explain/compare", response_model=ExplainabilityResponseDTO)
+@router.post("/explain/compare", response_model=ExplanationResponseDTO)
 async def compare_explanations(
     request: CompareExplanationsRequestDTO,
     container: Container = Depends(get_container),
     current_user: str | None = Depends(get_current_user),
     _permissions: str = Depends(require_read),
-) -> ExplainabilityResponseDTO:
+) -> ExplanationResponseDTO:
     """Compare explanations across different methods.
     
     Generates explanations using multiple methods (SHAP, LIME, etc.) for the
@@ -361,7 +361,7 @@ async def compare_explanations(
             for method, explanation in result.explanations.items():
                 explanation_dtos[method] = LocalExplanationDTO.from_domain(explanation)
         
-        response_dto = ExplainabilityResponseDTO(
+        response_dto = ExplanationResponseDTO(
             success=result.success,
             explanation_type="comparison",
             explanations=explanation_dtos,
@@ -540,7 +540,7 @@ async def clear_explanation_cache(
     container: Container = Depends(get_container),
     current_user: str | None = Depends(get_current_user),
     _permissions: str = Depends(require_write),
-) -> None:
+):
     """Clear the explanation cache.
     
     Removes all cached explanations from memory to free up resources
