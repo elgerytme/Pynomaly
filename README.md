@@ -13,18 +13,15 @@ Python anomaly detection package targeting Python 3.11+ with clean architecture 
 
 ## Features
 
-- 🏗️ **Clean Architecture**: Domain-driven design with hexagonal architecture (Ports & Adapters)
+- 🏗️ **Clean Architecture**: Domain-driven design with hexagonal architecture
 - 🔌 **Multi-Library Integration**: Unified interface for PyOD, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX
-- 🚀 **Production Ready**: Async/await, Prometheus metrics, comprehensive monitoring, JWT authentication
-- 🖥️ **Multiple Interfaces**: FastAPI REST API, Typer CLI, and Progressive Web App (PWA)
-- 📊 **Web UI**: HTMX + Tailwind CSS + D3.js + Apache ECharts with offline PWA capabilities
-- 🧪 **Advanced Features**: AutoML, SHAP/LIME explainability, drift detection, active learning
-- ⚡ **Multi-Modal Support**: Time-series, tabular, graph, and text anomaly detection
-- 🛡️ **Type Safe**: 100% type coverage with mypy --strict, Pydantic validation
-- 🔄 **Streaming & Batch**: Real-time processing with backpressure and large dataset support
-- 🧰 **Extensible**: Plugin architecture with algorithm registry and custom adapters
-- ✅ **Test-Driven Development**: Active TDD enforcement with 85% coverage threshold
-- 🔧 **Environment Management**: Centralized virtual environments with automated tooling
+- 🚀 **Production Ready**: FastAPI REST API, JWT authentication, Prometheus metrics
+- 📊 **Progressive Web App**: HTMX + Tailwind CSS + D3.js + ECharts with offline capabilities
+- 🧪 **Advanced ML**: AutoML, SHAP/LIME explainability, drift detection, ensemble methods
+- ⚡ **Multi-Modal**: Time-series, tabular, graph, and text anomaly detection
+- 🛡️ **Type Safe**: 100% type coverage with mypy --strict
+- 🔄 **Streaming & Batch**: Real-time processing with backpressure support
+- ✅ **TDD Enforced**: 85% coverage threshold with automated compliance
 
 ## Installation
 
@@ -487,82 +484,20 @@ pynomaly tdd hooks --status               # Check hook status
 
 **Current Status**: TDD is **enabled** with 85% coverage threshold, enforcing test-first development for domain and application layers.
 
-### Legacy Development (Poetry)
-
-For those preferring Poetry:
-
-```bash
-# Setup
-poetry install --with dev,test
-poetry shell
-
-# Quality & Testing
-poetry run pytest --cov=pynomaly --cov-report=html
-poetry run mypy --strict src/
-poetry run ruff check src/ tests/
-poetry run ruff format src/ tests/
-```
-
 ### Web API & CLI
 
-#### Modern Hatch Commands
 ```bash
 # API Server
-make prod-api           # Production API server
-make prod-api-dev       # Development API server with reload
-hatch env run prod:serve-api-prod    # Direct Hatch command
-
-# CLI Interface
-make cli-help           # Show CLI help
-hatch env run cli:run --help         # Direct CLI access
-hatch env run cli:test-cli           # Test CLI functionality
-```
-
-#### Traditional Methods
-```bash
-# Method 1: Direct uvicorn (after installation)
-uvicorn pynomaly.presentation.api.app:app --host 0.0.0.0 --port 8000 --reload
-
-# Method 2: Python module
-python -m uvicorn pynomaly.presentation.api.app:app --reload
-
-# Method 3: With environment setup
-export PYTHONPATH=/path/to/Pynomaly/src
+make prod-api-dev       # Development server with reload
 uvicorn pynomaly.presentation.api.app:app --reload
-```
 
-#### API Endpoints
-Once running, access these endpoints:
-- **Root API**: http://localhost:8000/
-- **Interactive Documentation**: http://localhost:8000/docs
-- **Health Check**: http://localhost:8000/api/health/
-- **OpenAPI Schema**: http://localhost:8000/openapi.json
-- **Progressive Web App**: http://localhost:8000/app
+# Endpoints
+# http://localhost:8000/docs - Interactive docs
+# http://localhost:8000/app - Progressive Web App
 
-#### Frontend Development
-```bash
-# Install frontend dependencies
-npm install -D tailwindcss @tailwindcss/forms @tailwindcss/typography
-npm install htmx.org d3 echarts
-
-# Build assets
-npm run build-css       # Production build
-npm run watch-css       # Development with watch mode
-
-# PWA development
-python -m http.server 8080 --directory src/pynomaly/presentation/web/static
-```
-
-#### CLI Usage
-```bash
-# After installation
-pynomaly --help
-pynomaly detector algorithms
-pynomaly server start
-
-# Alternative methods
-python scripts/pynomaly_cli.py --help
-python -m pynomaly.presentation.cli.app --help
+# Frontend
+npm install htmx.org d3 echarts tailwindcss
+npm run build-css
 ```
 
 ## Contributing

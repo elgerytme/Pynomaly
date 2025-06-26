@@ -1,0 +1,2086 @@
+{
+  "summary": {
+    "total_documents": 139,
+    "total_links": 247,
+    "broken_links": 62,
+    "cross_referenced_docs": 54,
+    "orphaned_docs": 84
+  },
+  "link_patterns": {
+    "directory_path": 118,
+    "simple_filename": 51,
+    "relative_parent": 69,
+    "relative_current": 9
+  },
+  "broken_links": [
+    [
+      "index.md",
+      "Security",
+      "deployment/SECURITY.md",
+      "File not found"
+    ],
+    [
+      "index.md",
+      "Security \u2192",
+      "deployment/SECURITY.md",
+      "File not found"
+    ],
+    [
+      "cli/preprocessing.md",
+      "anomaly detection workflow guide",
+      "workflow.md",
+      "File not found"
+    ],
+    [
+      "developer-guides/README.md",
+      "Security",
+      "../deployment/SECURITY.md",
+      "File not found"
+    ],
+    [
+      "getting-started/installation.md",
+      "CLI Usage",
+      "../guide/cli.md",
+      "File not found"
+    ],
+    [
+      "getting-started/installation.md",
+      "API Documentation",
+      "../api/rest.md",
+      "File not found"
+    ],
+    [
+      "getting-started/quickstart.md",
+      "Development Guide",
+      "../development/README.md",
+      "File not found"
+    ],
+    [
+      "getting-started/quickstart.md",
+      "Hatch Guide",
+      "../development/HATCH_GUIDE.md",
+      "File not found"
+    ],
+    [
+      "getting-started/quickstart.md",
+      "Available Algorithms",
+      "../guides/algorithms.md",
+      "File not found"
+    ],
+    [
+      "getting-started/quickstart.md",
+      "Data Processing",
+      "../guides/datasets.md",
+      "File not found"
+    ],
+    [
+      "getting-started/quickstart.md",
+      "API Reference",
+      "../api/rest-api.md",
+      "File not found"
+    ],
+    [
+      "getting-started/quickstart.md",
+      "Troubleshooting",
+      "../guides/troubleshooting.md",
+      "File not found"
+    ],
+    [
+      "getting-started/quickstart.md",
+      "Business Intelligence",
+      "../../README.md",
+      "File not found"
+    ],
+    [
+      "getting-started/quickstart.md",
+      "Monitoring",
+      "../guides/monitoring.md",
+      "File not found"
+    ],
+    [
+      "getting-started/quickstart.md",
+      "Security",
+      "../deployment/SECURITY.md",
+      "File not found"
+    ],
+    [
+      "getting-started/README.md",
+      "Security Setup",
+      "../deployment/SECURITY.md",
+      "File not found"
+    ],
+    [
+      "testing/README_INTEGRATION_TESTING.md",
+      "README.md",
+      "README.md",
+      "Path mismatch - found candidates: advanced/README.md, design-system/README.md, developer-guides/README.md, examples/README.md, getting-started/README.md, storybook/README.md, user/README.md, user-guides/README.md, archive/historical-project-docs/README.md, archive/legacy-algorithm-docs/README.md, developer-guides/contributing/README.md, developer-guides/architecture/adr/README.md, examples/tutorials/README.md, reference/algorithms/README.md"
+    ],
+    [
+      "testing/README_INTEGRATION_TESTING.md",
+      "CLAUDE.md",
+      "CLAUDE.md",
+      "File not found"
+    ],
+    [
+      "user/autonomous-mode-guide.md",
+      "Developer Guide",
+      "../development/autonomous-mode-developer-guide.md",
+      "File not found"
+    ],
+    [
+      "user/autonomous-mode-guide.md",
+      "API Reference",
+      "../api/autonomous-mode-api.md",
+      "File not found"
+    ],
+    [
+      "user-guides/progressive-web-app.md",
+      "User Interface Guide",
+      "./basic-usage/dashboard.md",
+      "File not found"
+    ],
+    [
+      "archive/legacy-algorithm-docs/algorithms-comprehensive.md",
+      "Algorithm Comparison Studies",
+      "../examples/algorithm-comparison.md",
+      "File not found"
+    ],
+    [
+      "archive/legacy-algorithm-docs/algorithms-comprehensive.md",
+      "Performance Benchmarks",
+      "../examples/performance-benchmarking.md",
+      "File not found"
+    ],
+    [
+      "archive/legacy-algorithm-docs/algorithms-comprehensive.md",
+      "Plugin Development Guide",
+      "../development/plugin-development.md",
+      "File not found"
+    ],
+    [
+      "developer-guides/architecture/pwa-architecture.md",
+      "Security Guidelines",
+      "../security/overview.md",
+      "File not found"
+    ],
+    [
+      "developer-guides/contributing/autonomous-mode-developer-guide.md",
+      "API Reference",
+      "../api/autonomous-mode-api.md",
+      "File not found"
+    ],
+    [
+      "developer-guides/contributing/autonomous-mode-developer-guide.md",
+      "Troubleshooting Guide",
+      "../troubleshooting/autonomous-mode-troubleshooting.md",
+      "File not found"
+    ],
+    [
+      "developer-guides/contributing/ENVIRONMENT_MANAGEMENT_MIGRATION.md",
+      "Environment README",
+      "../environments/README.md",
+      "File not found"
+    ],
+    [
+      "developer-guides/contributing/ENVIRONMENT_MANAGEMENT_MIGRATION.md",
+      "Development Setup",
+      "../docs/development/README.md",
+      "File not found"
+    ],
+    [
+      "developer-guides/contributing/ENVIRONMENT_MANAGEMENT_MIGRATION.md",
+      "CLAUDE.md",
+      "../CLAUDE.md",
+      "File not found"
+    ],
+    [
+      "developer-guides/contributing/ENVIRONMENT_MANAGEMENT_MIGRATION.md",
+      "Installation Guide",
+      "../docs/getting-started/installation.md",
+      "File not found"
+    ],
+    [
+      "developer-guides/contributing/FILE_ORGANIZATION_STANDARDS.md",
+      "Contributing Guidelines",
+      "../CONTRIBUTING.md",
+      "File not found"
+    ],
+    [
+      "developer-guides/contributing/FILE_ORGANIZATION_STANDARDS.md",
+      "Development Setup",
+      "./development-setup.md",
+      "File not found"
+    ],
+    [
+      "developer-guides/contributing/FILE_ORGANIZATION_STANDARDS.md",
+      "CI/CD Pipeline",
+      "./cicd-pipeline.md",
+      "File not found"
+    ],
+    [
+      "developer-guides/contributing/FILE_ORGANIZATION_STANDARDS.md",
+      "Code Quality Standards",
+      "./code-quality.md",
+      "File not found"
+    ],
+    [
+      "examples/tutorials/README.md",
+      "03-algorithm-options-functionality.md",
+      "03-algorithm-options-functionality.md",
+      "Path mismatch - found candidates: archive/legacy-algorithm-docs/03-algorithm-options-functionality.md"
+    ],
+    [
+      "reference/algorithms/algorithm-comparison.md",
+      "Autonomous Mode Guide",
+      "../../comprehensive/09-autonomous-classifier-selection-guide.md",
+      "File not found"
+    ],
+    [
+      "reference/algorithms/algorithm-comparison.md",
+      "Performance Benchmarks",
+      "../../examples/performance-benchmarking.md",
+      "File not found"
+    ],
+    [
+      "reference/algorithms/algorithm-comparison.md",
+      "AutoML Guide",
+      "../../guides/automl-guide.md",
+      "File not found"
+    ],
+    [
+      "reference/algorithms/core-algorithms.md",
+      "Autonomous Mode Guide",
+      "../../comprehensive/09-autonomous-classifier-selection-guide.md",
+      "File not found"
+    ],
+    [
+      "reference/algorithms/experimental-algorithms.md",
+      "AutoML Guide",
+      "../../guides/automl-guide.md",
+      "File not found"
+    ],
+    [
+      "reference/algorithms/experimental-algorithms.md",
+      "Deep Learning Guide",
+      "../../guides/deep-learning-anomaly-detection.md",
+      "File not found"
+    ],
+    [
+      "reference/algorithms/README.md",
+      "Performance Benchmarks",
+      "../../examples/performance-benchmarking.md",
+      "File not found"
+    ],
+    [
+      "reference/algorithms/README.md",
+      "Autonomous Mode Guide",
+      "../../comprehensive/09-autonomous-classifier-selection-guide.md",
+      "File not found"
+    ],
+    [
+      "reference/algorithms/README.md",
+      "Plugin Development Guide",
+      "../../development/plugin-development.md",
+      "File not found"
+    ],
+    [
+      "reference/algorithms/README.md",
+      "Documentation Standards",
+      "../../project/standards/documentation-standards.md",
+      "File not found"
+    ],
+    [
+      "reference/algorithms/README.md",
+      "Autonomous Mode",
+      "../../comprehensive/09-autonomous-classifier-selection-guide.md",
+      "File not found"
+    ],
+    [
+      "reference/algorithms/specialized-algorithms.md",
+      "Time Series Guide",
+      "../../guides/time-series-anomaly-detection.md",
+      "File not found"
+    ],
+    [
+      "reference/api/pwa-api-reference.md",
+      "REST API Reference",
+      "./rest-api.md",
+      "File not found"
+    ],
+    [
+      "reference/api/pwa-api-reference.md",
+      "Python SDK Reference",
+      "./python-sdk.md",
+      "File not found"
+    ],
+    [
+      "user-guides/advanced-features/automl-and-intelligence.md",
+      "Custom Algorithm Development",
+      "../development/custom-algorithms.md",
+      "File not found"
+    ],
+    [
+      "user-guides/advanced-features/automl-and-intelligence.md",
+      "Ensemble Methods",
+      "../guides/ensemble-methods.md",
+      "File not found"
+    ],
+    [
+      "user-guides/advanced-features/automl-and-intelligence.md",
+      "Streaming AutoML",
+      "../guides/streaming-automl.md",
+      "File not found"
+    ],
+    [
+      "user-guides/advanced-features/automl-and-intelligence.md",
+      "Distributed AutoML",
+      "../guides/distributed-automl.md",
+      "File not found"
+    ],
+    [
+      "user-guides/advanced-features/automl-and-intelligence.md",
+      "AutoML API Reference",
+      "../api/automl-reference.md",
+      "File not found"
+    ],
+    [
+      "user-guides/advanced-features/automl-and-intelligence.md",
+      "Contributing Guide",
+      "../development/contributing.md",
+      "File not found"
+    ],
+    [
+      "user-guides/advanced-features/explainability.md",
+      "Algorithm-Specific Explanation Guides",
+      "../reference/algorithm-explanations.md",
+      "File not found"
+    ],
+    [
+      "user-guides/advanced-features/explainability.md",
+      "Business Use Case Examples",
+      "../examples/explanation-use-cases.md",
+      "File not found"
+    ],
+    [
+      "user-guides/advanced-features/explainability.md",
+      "Contributing Guide",
+      "../development/contributing.md",
+      "File not found"
+    ],
+    [
+      "user-guides/basic-usage/autonomous-mode.md",
+      "Algorithm Guide",
+      "algorithms.md",
+      "Path mismatch - found candidates: archive/legacy-algorithm-docs/algorithms.md, reference/algorithms/core-algorithms.md, reference/algorithms/experimental-algorithms.md, reference/algorithms/specialized-algorithms.md"
+    ],
+    [
+      "user-guides/basic-usage/autonomous-mode.md",
+      "Performance Tuning",
+      "performance-tuning.md",
+      "Path mismatch - found candidates: user-guides/advanced-features/performance-tuning.md"
+    ],
+    [
+      "user-guides/basic-usage/autonomous-mode.md",
+      "Production Deployment",
+      "production-deployment.md",
+      "Path mismatch - found candidates: deployment/production-deployment.md"
+    ]
+  ],
+  "cross_references": {
+    "getting-started/web-interface-quickstart.md": [
+      "index.md",
+      "developer-guides/architecture/pwa-architecture.md",
+      "reference/api/pwa-api-reference.md"
+    ],
+    "user-guides/progressive-web-app.md": [
+      "index.md",
+      "user-guides/README.md",
+      "developer-guides/architecture/pwa-architecture.md",
+      "reference/api/pwa-api-reference.md"
+    ],
+    "reference/api/pwa-api-reference.md": [
+      "index.md",
+      "developer-guides/architecture/pwa-architecture.md"
+    ],
+    "getting-started/installation.md": [
+      "index.md",
+      "index.md",
+      "getting-started/README.md",
+      "getting-started/README.md",
+      "getting-started/README.md",
+      "getting-started/README.md",
+      "getting-started/README.md",
+      "getting-started/web-interface-quickstart.md",
+      "user-guides/progressive-web-app.md"
+    ],
+    "getting-started/quickstart.md": [
+      "index.md",
+      "index.md",
+      "getting-started/installation.md",
+      "getting-started/README.md",
+      "getting-started/README.md",
+      "getting-started/README.md",
+      "getting-started/README.md",
+      "getting-started/README.md"
+    ],
+    "developer-guides/api-integration/authentication.md": [
+      "index.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "getting-started/web-interface-quickstart.md"
+    ],
+    "deployment/DOCKER_DEPLOYMENT_GUIDE.md": [
+      "index.md",
+      "getting-started/quickstart.md"
+    ],
+    "deployment/kubernetes.md": [
+      "index.md"
+    ],
+    "user-guides/basic-usage/monitoring.md": [
+      "index.md",
+      "index.md",
+      "developer-guides/README.md",
+      "getting-started/README.md",
+      "getting-started/README.md",
+      "getting-started/web-interface-quickstart.md",
+      "user-guides/README.md",
+      "user-guides/README.md",
+      "user-guides/README.md",
+      "user-guides/README.md",
+      "user-guides/README.md",
+      "user-guides/README.md"
+    ],
+    "examples/Data_Quality_Anomaly_Detection_Guide.md": [
+      "index.md"
+    ],
+    "user-guides/advanced-features/explainability.md": [
+      "index.md",
+      "user-guides/README.md",
+      "user-guides/README.md",
+      "user-guides/README.md",
+      "user-guides/README.md",
+      "user-guides/README.md"
+    ],
+    "user-guides/advanced-features/performance-tuning.md": [
+      "index.md",
+      "user-guides/README.md",
+      "user-guides/README.md",
+      "user-guides/README.md",
+      "user-guides/README.md",
+      "user-guides/README.md",
+      "user-guides/README.md"
+    ],
+    "developer-guides/contributing/CONTRIBUTING.md": [
+      "index.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md"
+    ],
+    "developer-guides/contributing/README.md": [
+      "index.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md"
+    ],
+    "developer-guides/architecture/overview.md": [
+      "index.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/architecture/pwa-architecture.md"
+    ],
+    "developer-guides/contributing/FILE_ORGANIZATION_STANDARDS.md": [
+      "index.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/contributing/README.md"
+    ],
+    "developer-guides/contributing/HATCH_GUIDE.md": [
+      "index.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/contributing/README.md"
+    ],
+    "developer-guides/architecture/continuous-learning-framework.md": [
+      "developer-guides/README.md"
+    ],
+    "developer-guides/architecture/deployment-pipeline-framework.md": [
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md"
+    ],
+    "developer-guides/architecture/model-persistence-framework.md": [
+      "developer-guides/README.md",
+      "developer-guides/README.md"
+    ],
+    "developer-guides/api-integration/rest-api.md": [
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md"
+    ],
+    "developer-guides/api-integration/python-sdk.md": [
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "getting-started/web-interface-quickstart.md"
+    ],
+    "developer-guides/api-integration/cli.md": [
+      "developer-guides/README.md"
+    ],
+    "developer-guides/api-integration/domain.md": [
+      "developer-guides/README.md"
+    ],
+    "developer-guides/api-integration/API_QUICK_REFERENCE.md": [
+      "developer-guides/README.md"
+    ],
+    "developer-guides/api-integration/WEB_API_SETUP_GUIDE.md": [
+      "developer-guides/README.md",
+      "developer-guides/api-integration/API_QUICK_REFERENCE.md"
+    ],
+    "developer-guides/contributing/IMPLEMENTATION_GUIDE.md": [
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md"
+    ],
+    "developer-guides/contributing/ENVIRONMENT_MANAGEMENT_MIGRATION.md": [
+      "developer-guides/README.md",
+      "developer-guides/README.md"
+    ],
+    "developer-guides/contributing/DEPENDENCY_GUIDE.md": [
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/contributing/DEPENDENCY_RESTRUCTURING_SUMMARY.md"
+    ],
+    "developer-guides/contributing/COMPREHENSIVE_TEST_ANALYSIS.md": [
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "developer-guides/README.md",
+      "getting-started/README.md"
+    ],
+    "getting-started/README_SIMPLE_SETUP.md": [
+      "getting-started/installation.md"
+    ],
+    "deployment/PRODUCTION_DEPLOYMENT_GUIDE.md": [
+      "getting-started/quickstart.md"
+    ],
+    "getting-started/SETUP_CLI.md": [
+      "getting-started/README.md",
+      "getting-started/README.md"
+    ],
+    "getting-started/platform-specific/WINDOWS_SETUP_GUIDE.md": [
+      "getting-started/README.md"
+    ],
+    "getting-started/platform-specific/MULTI_PYTHON_VERSIONS.md": [
+      "getting-started/README.md"
+    ],
+    "deployment/security.md": [
+      "getting-started/web-interface-quickstart.md"
+    ],
+    "user-guides/basic-usage/autonomous-mode.md": [
+      "user-guides/README.md",
+      "user-guides/README.md",
+      "user-guides/README.md",
+      "user-guides/README.md",
+      "user-guides/README.md"
+    ],
+    "user-guides/basic-usage/datasets.md": [
+      "user-guides/README.md",
+      "user-guides/README.md",
+      "user-guides/README.md"
+    ],
+    "user-guides/advanced-features/automl-and-intelligence.md": [
+      "user-guides/README.md",
+      "user-guides/README.md",
+      "user-guides/README.md"
+    ],
+    "user-guides/advanced-features/performance.md": [
+      "user-guides/README.md",
+      "user-guides/README.md",
+      "user-guides/README.md",
+      "user-guides/README.md"
+    ],
+    "user-guides/advanced-features/dataset-analysis-guide.md": [
+      "user-guides/README.md",
+      "user-guides/README.md",
+      "user-guides/README.md",
+      "user-guides/README.md"
+    ],
+    "user-guides/troubleshooting/troubleshooting.md": [
+      "user-guides/README.md"
+    ],
+    "user-guides/troubleshooting/troubleshooting-guide.md": [
+      "user-guides/README.md"
+    ],
+    "reference/algorithms/README.md": [
+      "archive/legacy-algorithm-docs/README.md"
+    ],
+    "reference/algorithms/core-algorithms.md": [
+      "archive/legacy-algorithm-docs/README.md",
+      "reference/algorithms/algorithm-comparison.md",
+      "reference/algorithms/experimental-algorithms.md",
+      "reference/algorithms/README.md",
+      "reference/algorithms/README.md",
+      "reference/algorithms/specialized-algorithms.md"
+    ],
+    "reference/algorithms/specialized-algorithms.md": [
+      "archive/legacy-algorithm-docs/README.md",
+      "reference/algorithms/algorithm-comparison.md",
+      "reference/algorithms/core-algorithms.md",
+      "reference/algorithms/experimental-algorithms.md",
+      "reference/algorithms/README.md",
+      "reference/algorithms/README.md"
+    ],
+    "reference/algorithms/experimental-algorithms.md": [
+      "archive/legacy-algorithm-docs/README.md",
+      "reference/algorithms/algorithm-comparison.md",
+      "reference/algorithms/core-algorithms.md",
+      "reference/algorithms/README.md",
+      "reference/algorithms/README.md",
+      "reference/algorithms/specialized-algorithms.md"
+    ],
+    "reference/algorithms/algorithm-comparison.md": [
+      "archive/legacy-algorithm-docs/README.md",
+      "reference/algorithms/core-algorithms.md",
+      "reference/algorithms/experimental-algorithms.md",
+      "reference/algorithms/README.md",
+      "reference/algorithms/README.md",
+      "reference/algorithms/README.md",
+      "reference/algorithms/specialized-algorithms.md"
+    ],
+    "developer-guides/README.md": [
+      "developer-guides/api-integration/WEB_API_SETUP_GUIDE.md"
+    ],
+    "examples/tutorials/01-pynomaly-process-guide.md": [
+      "examples/tutorials/README.md"
+    ],
+    "examples/tutorials/02-pynomaly-architecture-guide.md": [
+      "examples/tutorials/README.md"
+    ],
+    "examples/tutorials/04-autonomous-mode-guide.md": [
+      "examples/tutorials/README.md"
+    ],
+    "examples/tutorials/05-algorithm-rationale-selection-guide.md": [
+      "examples/tutorials/README.md"
+    ],
+    "examples/tutorials/06-business-user-monthly-testing-procedures.md": [
+      "examples/tutorials/README.md"
+    ]
+  },
+  "opportunities": [
+    {
+      "type": "hub_document",
+      "file": "developer-guides/api-integration/authentication.md",
+      "description": "High-traffic document (5 incoming links) with few outgoing links (0)",
+      "priority": "high"
+    },
+    {
+      "type": "hub_document",
+      "file": "developer-guides/api-integration/python-sdk.md",
+      "description": "High-traffic document (4 incoming links) with few outgoing links (0)",
+      "priority": "high"
+    },
+    {
+      "type": "hub_document",
+      "file": "developer-guides/architecture/overview.md",
+      "description": "High-traffic document (11 incoming links) with few outgoing links (0)",
+      "priority": "high"
+    },
+    {
+      "type": "hub_document",
+      "file": "developer-guides/contributing/COMPREHENSIVE_TEST_ANALYSIS.md",
+      "description": "High-traffic document (7 incoming links) with few outgoing links (0)",
+      "priority": "high"
+    },
+    {
+      "type": "hub_document",
+      "file": "developer-guides/contributing/CONTRIBUTING.md",
+      "description": "High-traffic document (5 incoming links) with few outgoing links (0)",
+      "priority": "high"
+    },
+    {
+      "type": "hub_document",
+      "file": "developer-guides/contributing/HATCH_GUIDE.md",
+      "description": "High-traffic document (6 incoming links) with few outgoing links (0)",
+      "priority": "high"
+    },
+    {
+      "type": "hub_document",
+      "file": "user-guides/advanced-features/dataset-analysis-guide.md",
+      "description": "High-traffic document (4 incoming links) with few outgoing links (0)",
+      "priority": "high"
+    },
+    {
+      "type": "hub_document",
+      "file": "user-guides/advanced-features/performance-tuning.md",
+      "description": "High-traffic document (7 incoming links) with few outgoing links (0)",
+      "priority": "high"
+    },
+    {
+      "type": "hub_document",
+      "file": "user-guides/advanced-features/performance.md",
+      "description": "High-traffic document (4 incoming links) with few outgoing links (0)",
+      "priority": "high"
+    },
+    {
+      "type": "hub_document",
+      "file": "user-guides/basic-usage/monitoring.md",
+      "description": "High-traffic document (12 incoming links) with few outgoing links (0)",
+      "priority": "high"
+    },
+    {
+      "type": "section_connection",
+      "file": "getting-started/installation.md",
+      "description": "Getting started doc could link to user guides: ['user-guides/progressive-web-app.md', 'user-guides/README.md', 'user-guides/advanced-features/automl-and-intelligence.md']",
+      "priority": "medium"
+    },
+    {
+      "type": "section_connection",
+      "file": "getting-started/quickstart.md",
+      "description": "Getting started doc could link to user guides: ['user-guides/progressive-web-app.md', 'user-guides/README.md', 'user-guides/advanced-features/automl-and-intelligence.md']",
+      "priority": "medium"
+    },
+    {
+      "type": "section_connection",
+      "file": "getting-started/README.md",
+      "description": "Getting started doc could link to user guides: ['user-guides/progressive-web-app.md', 'user-guides/README.md', 'user-guides/advanced-features/automl-and-intelligence.md']",
+      "priority": "medium"
+    },
+    {
+      "type": "section_connection",
+      "file": "getting-started/README_SIMPLE_SETUP.md",
+      "description": "Getting started doc could link to user guides: ['user-guides/progressive-web-app.md', 'user-guides/README.md', 'user-guides/advanced-features/automl-and-intelligence.md']",
+      "priority": "medium"
+    },
+    {
+      "type": "section_connection",
+      "file": "getting-started/SETUP_CLI.md",
+      "description": "Getting started doc could link to user guides: ['user-guides/progressive-web-app.md', 'user-guides/README.md', 'user-guides/advanced-features/automl-and-intelligence.md']",
+      "priority": "medium"
+    },
+    {
+      "type": "section_connection",
+      "file": "getting-started/web-interface-quickstart.md",
+      "description": "Getting started doc could link to user guides: ['user-guides/progressive-web-app.md', 'user-guides/README.md', 'user-guides/advanced-features/automl-and-intelligence.md']",
+      "priority": "medium"
+    },
+    {
+      "type": "section_connection",
+      "file": "getting-started/platform-specific/MULTI_PYTHON_VERSIONS.md",
+      "description": "Getting started doc could link to user guides: ['user-guides/progressive-web-app.md', 'user-guides/README.md', 'user-guides/advanced-features/automl-and-intelligence.md']",
+      "priority": "medium"
+    },
+    {
+      "type": "section_connection",
+      "file": "getting-started/platform-specific/WINDOWS_SETUP_GUIDE.md",
+      "description": "Getting started doc could link to user guides: ['user-guides/progressive-web-app.md', 'user-guides/README.md', 'user-guides/advanced-features/automl-and-intelligence.md']",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "accessibility/accessibility-guidelines.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "accessibility/Accessibility_Testing_Checklist.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "accessibility/WCAG_2.1_AA_Compliance_Guide.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "advanced/README.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "archive/DEPLOYMENT_READINESS_CHECKLIST.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "archive/FINAL_AUTONOMOUS_SUMMARY.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "autonomous/preprocessing-integration.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "cli/command-reference.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "cli/preprocessing-implementation-summary.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "cli/preprocessing.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "deployment/advanced-deployment.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "deployment/BUCK2_INCREMENTAL_TESTING.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "deployment/BUCK2_INTEGRATION_GUIDE.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "deployment/deployment.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "deployment/production-deployment.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "deployment/PRODUCTION_READINESS_SUMMARY.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "deployment/SECURITY_INTEGRATION.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "design-system/accessibility-implementation-guide.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "design-system/component-guidelines.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "design-system/design-tokens.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "design-system/performance-best-practices.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "design-system/README.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "examples/README.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "getting-started/README.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "performance/performance-best-practices.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "project/CLAUDE.local.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "project/COMPREHENSIVE_PROJECT_ASSESSMENT_REPORT.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "project/MIGRATION_AUTO_SKLEARN2.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "project/PACKAGE_FIX_SUMMARY.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "project/PDF_Generation_Instructions.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "project/PROJECT_ORGANIZATION_PLAN.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "project/ROOT_DIRECTORY_AUDIT.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "project/ROOT_DIRECTORY_CLEANUP_SUMMARY.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "reference/algorithm-comparison.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "reference/CLASSIFIER_SELECTION_GUIDE.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "security/security-best-practices.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "storybook/README.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "testing/cross-browser-testing.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "testing/README_INTEGRATION_TESTING.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "testing/README_TESTING_REPORT.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "testing/SCRIPT_TESTING_REPORT.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "testing/TEST_COVERAGE_ANALYSIS_REPORT.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "testing/TEST_IMPROVEMENT_PLAN_100_PERCENT.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "testing/test_results_final.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "user/autonomous-mode-guide.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "user/README.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "user-guides/README.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "archive/historical-project-docs/AUTONOMOUS_MODE_ANALYSIS_REPORT.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "archive/historical-project-docs/FINAL_TESTING_EXCELLENCE_ACHIEVEMENT.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "archive/historical-project-docs/PRESENTATION_COMPONENTS_TESTING_REPORT.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "archive/historical-project-docs/README.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "archive/historical-project-docs/SCRIPT_TESTING_SUMMARY.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "archive/historical-project-docs/SETUP_SIMPLE_TESTING_REPORT.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "archive/historical-project-docs/TESTING_INFRASTRUCTURE_COMPLETION_SUMMARY.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "archive/historical-project-docs/TESTING_INFRASTRUCTURE_OPTIMIZATION_COMPLETE.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "archive/historical-project-docs/UI_TESTING_EXECUTION_SUMMARY.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "archive/historical-project-docs/ULTIMATE_TESTING_TRANSCENDENCE_COMPLETE.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "archive/legacy-algorithm-docs/03-algorithm-options-functionality.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "archive/legacy-algorithm-docs/algorithms-comprehensive.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "archive/legacy-algorithm-docs/algorithms.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "archive/legacy-algorithm-docs/README.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "developer-guides/api-integration/reference.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "developer-guides/api-integration/rest.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "developer-guides/architecture/pwa-architecture.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "developer-guides/contributing/autonomous-mode-developer-guide.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "developer-guides/contributing/changelog-automation-guide.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "developer-guides/contributing/DEPENDENCY_RESTRUCTURING_SUMMARY.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "developer-guides/contributing/DEPENDENCY_UPDATE_SUMMARY.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "developer-guides/contributing/RECOVERY_SUCCESS_REPORT.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "developer-guides/contributing/REMEDIATION_PLAN.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "developer-guides/architecture/adr/README.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "developer-guides/contributing/troubleshooting/SYSTEM_RECOVERY_SUCCESS_REPORT.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "examples/banking/Banking_Anomaly_Detection_Guide.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "examples/tutorials/09-autonomous-classifier-selection-guide.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "examples/tutorials/advanced-usage.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "examples/tutorials/advanced.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "examples/tutorials/README.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "project/plans/BUCK2_HATCH_INTEGRATION_PLAN.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "project/plans/DOCUMENTATION_IMPROVEMENT_PLAN.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "project/plans/TESTING_IMPROVEMENT_PLAN.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "project/prompts/MASTER_PROMPT.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "project/requirements/REQUIREMENTS.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "project/standards/COMMIT_BASED_DOCUMENTATION_RULES.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    },
+    {
+      "type": "orphaned_document",
+      "file": "project/standards/DOCUMENTATION_MAINTENANCE_RULES.md",
+      "description": "Document has no incoming links",
+      "priority": "medium"
+    }
+  ],
+  "directory_structure": {
+    "index.md": {
+      "size": 9365,
+      "links_out": 22,
+      "links_in": 0
+    },
+    "accessibility": {
+      "accessibility-guidelines.md": {
+        "size": 42326,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "Accessibility_Testing_Checklist.md": {
+        "size": 16905,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "WCAG_2.1_AA_Compliance_Guide.md": {
+        "size": 21658,
+        "links_out": 0,
+        "links_in": 0
+      }
+    },
+    "advanced": {
+      "README.md": {
+        "size": 0,
+        "links_out": 0,
+        "links_in": 0
+      }
+    },
+    "archive": {
+      "DEPLOYMENT_READINESS_CHECKLIST.md": {
+        "size": 12836,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "FINAL_AUTONOMOUS_SUMMARY.md": {
+        "size": 11739,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "historical-project-docs": {
+        "AUTONOMOUS_MODE_ANALYSIS_REPORT.md": {
+          "size": 10790,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "FINAL_TESTING_EXCELLENCE_ACHIEVEMENT.md": {
+          "size": 9766,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "PRESENTATION_COMPONENTS_TESTING_REPORT.md": {
+          "size": 9943,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "README.md": {
+          "size": 5538,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "SCRIPT_TESTING_SUMMARY.md": {
+          "size": 9430,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "SETUP_SIMPLE_TESTING_REPORT.md": {
+          "size": 8226,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "TESTING_INFRASTRUCTURE_COMPLETION_SUMMARY.md": {
+          "size": 7615,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "TESTING_INFRASTRUCTURE_OPTIMIZATION_COMPLETE.md": {
+          "size": 10568,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "UI_TESTING_EXECUTION_SUMMARY.md": {
+          "size": 8059,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "ULTIMATE_TESTING_TRANSCENDENCE_COMPLETE.md": {
+          "size": 10131,
+          "links_out": 0,
+          "links_in": 0
+        }
+      },
+      "legacy-algorithm-docs": {
+        "03-algorithm-options-functionality.md": {
+          "size": 39609,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "algorithms-comprehensive.md": {
+          "size": 15677,
+          "links_out": 3,
+          "links_in": 0
+        },
+        "algorithms.md": {
+          "size": 17441,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "README.md": {
+          "size": 3315,
+          "links_out": 5,
+          "links_in": 0
+        }
+      }
+    },
+    "autonomous": {
+      "preprocessing-integration.md": {
+        "size": 18804,
+        "links_out": 0,
+        "links_in": 0
+      }
+    },
+    "cli": {
+      "command-reference.md": {
+        "size": 21515,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "preprocessing-implementation-summary.md": {
+        "size": 10458,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "preprocessing.md": {
+        "size": 13695,
+        "links_out": 1,
+        "links_in": 0
+      }
+    },
+    "deployment": {
+      "advanced-deployment.md": {
+        "size": 33718,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "BUCK2_INCREMENTAL_TESTING.md": {
+        "size": 11965,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "BUCK2_INTEGRATION_GUIDE.md": {
+        "size": 7171,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "deployment.md": {
+        "size": 39296,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "DOCKER_DEPLOYMENT_GUIDE.md": {
+        "size": 9264,
+        "links_out": 0,
+        "links_in": 2
+      },
+      "kubernetes.md": {
+        "size": 21607,
+        "links_out": 0,
+        "links_in": 1
+      },
+      "production-deployment.md": {
+        "size": 37781,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "PRODUCTION_DEPLOYMENT_GUIDE.md": {
+        "size": 27882,
+        "links_out": 0,
+        "links_in": 1
+      },
+      "PRODUCTION_READINESS_SUMMARY.md": {
+        "size": 9102,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "security.md": {
+        "size": 44769,
+        "links_out": 0,
+        "links_in": 1
+      },
+      "SECURITY_INTEGRATION.md": {
+        "size": 15518,
+        "links_out": 0,
+        "links_in": 0
+      }
+    },
+    "design-system": {
+      "accessibility-implementation-guide.md": {
+        "size": 32632,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "component-guidelines.md": {
+        "size": 18125,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "design-tokens.md": {
+        "size": 14171,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "performance-best-practices.md": {
+        "size": 24400,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "README.md": {
+        "size": 20036,
+        "links_out": 0,
+        "links_in": 0
+      }
+    },
+    "developer-guides": {
+      "README.md": {
+        "size": 10723,
+        "links_out": 58,
+        "links_in": 1
+      },
+      "api-integration": {
+        "API_QUICK_REFERENCE.md": {
+          "size": 5064,
+          "links_out": 1,
+          "links_in": 1
+        },
+        "authentication.md": {
+          "size": 14643,
+          "links_out": 0,
+          "links_in": 5
+        },
+        "cli.md": {
+          "size": 18278,
+          "links_out": 0,
+          "links_in": 1
+        },
+        "domain.md": {
+          "size": 10800,
+          "links_out": 0,
+          "links_in": 1
+        },
+        "python-sdk.md": {
+          "size": 18269,
+          "links_out": 0,
+          "links_in": 4
+        },
+        "reference.md": {
+          "size": 25482,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "rest-api.md": {
+          "size": 16122,
+          "links_out": 0,
+          "links_in": 3
+        },
+        "rest.md": {
+          "size": 16133,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "WEB_API_SETUP_GUIDE.md": {
+          "size": 9744,
+          "links_out": 1,
+          "links_in": 2
+        }
+      },
+      "architecture": {
+        "continuous-learning-framework.md": {
+          "size": 32276,
+          "links_out": 0,
+          "links_in": 1
+        },
+        "deployment-pipeline-framework.md": {
+          "size": 13156,
+          "links_out": 0,
+          "links_in": 3
+        },
+        "model-persistence-framework.md": {
+          "size": 19546,
+          "links_out": 0,
+          "links_in": 2
+        },
+        "overview.md": {
+          "size": 13626,
+          "links_out": 0,
+          "links_in": 11
+        },
+        "pwa-architecture.md": {
+          "size": 29751,
+          "links_out": 5,
+          "links_in": 0
+        },
+        "adr": {
+          "README.md": {
+            "size": 41,
+            "links_out": 0,
+            "links_in": 0
+          }
+        }
+      },
+      "contributing": {
+        "autonomous-mode-developer-guide.md": {
+          "size": 21564,
+          "links_out": 2,
+          "links_in": 0
+        },
+        "changelog-automation-guide.md": {
+          "size": 11628,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "COMPREHENSIVE_TEST_ANALYSIS.md": {
+          "size": 5734,
+          "links_out": 0,
+          "links_in": 7
+        },
+        "CONTRIBUTING.md": {
+          "size": 4380,
+          "links_out": 0,
+          "links_in": 5
+        },
+        "DEPENDENCY_GUIDE.md": {
+          "size": 10113,
+          "links_out": 0,
+          "links_in": 3
+        },
+        "DEPENDENCY_RESTRUCTURING_SUMMARY.md": {
+          "size": 6903,
+          "links_out": 1,
+          "links_in": 0
+        },
+        "DEPENDENCY_UPDATE_SUMMARY.md": {
+          "size": 5147,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "ENVIRONMENT_MANAGEMENT_MIGRATION.md": {
+          "size": 8193,
+          "links_out": 4,
+          "links_in": 2
+        },
+        "FILE_ORGANIZATION_STANDARDS.md": {
+          "size": 10395,
+          "links_out": 4,
+          "links_in": 5
+        },
+        "HATCH_GUIDE.md": {
+          "size": 10509,
+          "links_out": 0,
+          "links_in": 6
+        },
+        "IMPLEMENTATION_GUIDE.md": {
+          "size": 15032,
+          "links_out": 0,
+          "links_in": 3
+        },
+        "README.md": {
+          "size": 11205,
+          "links_out": 2,
+          "links_in": 5
+        },
+        "RECOVERY_SUCCESS_REPORT.md": {
+          "size": 5723,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "REMEDIATION_PLAN.md": {
+          "size": 8773,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "troubleshooting": {
+          "SYSTEM_RECOVERY_SUCCESS_REPORT.md": {
+            "size": 4315,
+            "links_out": 0,
+            "links_in": 0
+          }
+        }
+      }
+    },
+    "examples": {
+      "Data_Quality_Anomaly_Detection_Guide.md": {
+        "size": 31670,
+        "links_out": 0,
+        "links_in": 1
+      },
+      "README.md": {
+        "size": 0,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "banking": {
+        "Banking_Anomaly_Detection_Guide.md": {
+          "size": 30828,
+          "links_out": 0,
+          "links_in": 0
+        }
+      },
+      "tutorials": {
+        "01-pynomaly-process-guide.md": {
+          "size": 14557,
+          "links_out": 0,
+          "links_in": 1
+        },
+        "02-pynomaly-architecture-guide.md": {
+          "size": 24904,
+          "links_out": 0,
+          "links_in": 1
+        },
+        "04-autonomous-mode-guide.md": {
+          "size": 46943,
+          "links_out": 0,
+          "links_in": 1
+        },
+        "05-algorithm-rationale-selection-guide.md": {
+          "size": 38563,
+          "links_out": 0,
+          "links_in": 1
+        },
+        "06-business-user-monthly-testing-procedures.md": {
+          "size": 43308,
+          "links_out": 0,
+          "links_in": 1
+        },
+        "09-autonomous-classifier-selection-guide.md": {
+          "size": 10341,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "advanced-usage.md": {
+          "size": 47074,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "advanced.md": {
+          "size": 61011,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "README.md": {
+          "size": 8281,
+          "links_out": 6,
+          "links_in": 0
+        }
+      }
+    },
+    "getting-started": {
+      "installation.md": {
+        "size": 8845,
+        "links_out": 4,
+        "links_in": 9
+      },
+      "quickstart.md": {
+        "size": 11498,
+        "links_out": 11,
+        "links_in": 8
+      },
+      "README.md": {
+        "size": 6724,
+        "links_out": 18,
+        "links_in": 0
+      },
+      "README_SIMPLE_SETUP.md": {
+        "size": 3969,
+        "links_out": 0,
+        "links_in": 1
+      },
+      "SETUP_CLI.md": {
+        "size": 3584,
+        "links_out": 0,
+        "links_in": 2
+      },
+      "web-interface-quickstart.md": {
+        "size": 10276,
+        "links_out": 5,
+        "links_in": 3
+      },
+      "platform-specific": {
+        "MULTI_PYTHON_VERSIONS.md": {
+          "size": 5514,
+          "links_out": 0,
+          "links_in": 1
+        },
+        "WINDOWS_SETUP_GUIDE.md": {
+          "size": 7075,
+          "links_out": 0,
+          "links_in": 1
+        }
+      }
+    },
+    "performance": {
+      "performance-best-practices.md": {
+        "size": 60053,
+        "links_out": 0,
+        "links_in": 0
+      }
+    },
+    "project": {
+      "CLAUDE.local.md": {
+        "size": 0,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "COMPREHENSIVE_PROJECT_ASSESSMENT_REPORT.md": {
+        "size": 18654,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "MIGRATION_AUTO_SKLEARN2.md": {
+        "size": 7548,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "PACKAGE_FIX_SUMMARY.md": {
+        "size": 4618,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "PDF_Generation_Instructions.md": {
+        "size": 1641,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "PROJECT_ORGANIZATION_PLAN.md": {
+        "size": 33240,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "ROOT_DIRECTORY_AUDIT.md": {
+        "size": 4753,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "ROOT_DIRECTORY_CLEANUP_SUMMARY.md": {
+        "size": 5968,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "plans": {
+        "BUCK2_HATCH_INTEGRATION_PLAN.md": {
+          "size": 24211,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "DOCUMENTATION_IMPROVEMENT_PLAN.md": {
+          "size": 10831,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "TESTING_IMPROVEMENT_PLAN.md": {
+          "size": 11145,
+          "links_out": 0,
+          "links_in": 0
+        }
+      },
+      "prompts": {
+        "MASTER_PROMPT.md": {
+          "size": 6024,
+          "links_out": 0,
+          "links_in": 0
+        }
+      },
+      "requirements": {
+        "REQUIREMENTS.md": {
+          "size": 4912,
+          "links_out": 0,
+          "links_in": 0
+        }
+      },
+      "standards": {
+        "COMMIT_BASED_DOCUMENTATION_RULES.md": {
+          "size": 5155,
+          "links_out": 0,
+          "links_in": 0
+        },
+        "DOCUMENTATION_MAINTENANCE_RULES.md": {
+          "size": 4916,
+          "links_out": 0,
+          "links_in": 0
+        }
+      }
+    },
+    "reference": {
+      "algorithm-comparison.md": {
+        "size": 22916,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "CLASSIFIER_SELECTION_GUIDE.md": {
+        "size": 9031,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "algorithms": {
+        "algorithm-comparison.md": {
+          "size": 25273,
+          "links_out": 6,
+          "links_in": 7
+        },
+        "core-algorithms.md": {
+          "size": 21538,
+          "links_out": 4,
+          "links_in": 6
+        },
+        "experimental-algorithms.md": {
+          "size": 23264,
+          "links_out": 5,
+          "links_in": 6
+        },
+        "README.md": {
+          "size": 3698,
+          "links_out": 14,
+          "links_in": 1
+        },
+        "specialized-algorithms.md": {
+          "size": 18330,
+          "links_out": 4,
+          "links_in": 6
+        }
+      },
+      "api": {
+        "pwa-api-reference.md": {
+          "size": 19914,
+          "links_out": 4,
+          "links_in": 2
+        }
+      }
+    },
+    "security": {
+      "security-best-practices.md": {
+        "size": 37485,
+        "links_out": 0,
+        "links_in": 0
+      }
+    },
+    "storybook": {
+      "README.md": {
+        "size": 10075,
+        "links_out": 0,
+        "links_in": 0
+      }
+    },
+    "testing": {
+      "cross-browser-testing.md": {
+        "size": 19110,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "README_INTEGRATION_TESTING.md": {
+        "size": 14358,
+        "links_out": 2,
+        "links_in": 0
+      },
+      "README_TESTING_REPORT.md": {
+        "size": 8799,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "SCRIPT_TESTING_REPORT.md": {
+        "size": 4977,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "TEST_COVERAGE_ANALYSIS_REPORT.md": {
+        "size": 12246,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "TEST_IMPROVEMENT_PLAN_100_PERCENT.md": {
+        "size": 15051,
+        "links_out": 0,
+        "links_in": 0
+      },
+      "test_results_final.md": {
+        "size": 1087,
+        "links_out": 0,
+        "links_in": 0
+      }
+    },
+    "user": {
+      "autonomous-mode-guide.md": {
+        "size": 8556,
+        "links_out": 2,
+        "links_in": 0
+      },
+      "README.md": {
+        "size": 0,
+        "links_out": 0,
+        "links_in": 0
+      }
+    },
+    "user-guides": {
+      "progressive-web-app.md": {
+        "size": 15874,
+        "links_out": 2,
+        "links_in": 4
+      },
+      "README.md": {
+        "size": 5994,
+        "links_out": 39,
+        "links_in": 0
+      },
+      "advanced-features": {
+        "automl-and-intelligence.md": {
+          "size": 15662,
+          "links_out": 6,
+          "links_in": 3
+        },
+        "dataset-analysis-guide.md": {
+          "size": 15413,
+          "links_out": 0,
+          "links_in": 4
+        },
+        "explainability.md": {
+          "size": 18187,
+          "links_out": 3,
+          "links_in": 6
+        },
+        "performance-tuning.md": {
+          "size": 28668,
+          "links_out": 0,
+          "links_in": 7
+        },
+        "performance.md": {
+          "size": 51227,
+          "links_out": 0,
+          "links_in": 4
+        }
+      },
+      "basic-usage": {
+        "autonomous-mode.md": {
+          "size": 11577,
+          "links_out": 3,
+          "links_in": 5
+        },
+        "datasets.md": {
+          "size": 41263,
+          "links_out": 0,
+          "links_in": 3
+        },
+        "monitoring.md": {
+          "size": 46504,
+          "links_out": 0,
+          "links_in": 12
+        }
+      },
+      "troubleshooting": {
+        "troubleshooting-guide.md": {
+          "size": 24153,
+          "links_out": 0,
+          "links_in": 1
+        },
+        "troubleshooting.md": {
+          "size": 33217,
+          "links_out": 0,
+          "links_in": 1
+        }
+      }
+    }
+  },
+  "recommendations": [
+    {
+      "category": "conventions",
+      "priority": "medium",
+      "description": "Consider standardizing on relative current directory links (./file.md) over parent directory links (../file.md) where possible"
+    },
+    {
+      "category": "maintenance",
+      "priority": "high",
+      "description": "Fix 62 broken links to improve user experience"
+    },
+    {
+      "category": "navigation",
+      "priority": "medium",
+      "description": "Improve internal linking within examples section (avg 0.5 links per doc)"
+    }
+  ]
+}
