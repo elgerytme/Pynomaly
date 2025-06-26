@@ -8,6 +8,8 @@ import { createRealTimeDashboard } from './charts/real-time-dashboard.js';
 import { createAnomalyTimeline } from './charts/anomaly-timeline.js';
 import { createAnomalyHeatmap } from './charts/anomaly-heatmap.js';
 import { initializeInteractiveForms } from './components/interactive-forms.js';
+import { createAdvancedDashboard, initializeDashboardLayouts } from './components/dashboard-layout.js';
+import { AdvancedDashboard } from './components/advanced-dashboard.js';
 
 class PynomAlyApp {
   constructor() {
@@ -183,6 +185,23 @@ class PynomAlyApp {
   }
   
   async initializeComponents() {
+    // Initialize advanced dashboard if container exists
+    const advancedDashboardContainer = document.querySelector('[data-component="advanced-dashboard"]');
+    if (advancedDashboardContainer) {
+      const advancedDashboard = new AdvancedDashboard(advancedDashboardContainer, {
+        websocketUrl: this.getWebSocketUrl(),
+        updateInterval: dashboardState.getStateSlice('realTime.updateRate'),
+        enableRealTime: true,
+        enableDragDrop: true,
+        collaborationMode: false,
+        maxDataPoints: 10000
+      });
+      this.components.set('advancedDashboard', advancedDashboard);
+    }
+    
+    // Initialize standard dashboard layout containers
+    initializeDashboardLayouts();
+    
     // Initialize real-time dashboard if container exists
     const dashboardContainer = document.querySelector('[data-component="real-time-dashboard"]');
     if (dashboardContainer) {
