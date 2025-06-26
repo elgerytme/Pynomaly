@@ -157,22 +157,127 @@ class ComprehensiveUITestRunner:
         return self._run_test_command(cmd, "responsive")
 
     def run_bdd_workflow_tests(self) -> Dict[str, Any]:
-        """Run BDD workflow testing."""
-        print("\n🎭 Running BDD Workflow Tests...")
+        """Run comprehensive BDD testing including workflows, accessibility, performance, and cross-browser scenarios."""
+        print("\n🎭 Running Comprehensive BDD Tests...")
         
-        cmd = [
-            sys.executable, "-m", "pytest",
-            str(self.project_root / "tests" / "ui" / "bdd" / "test_user_workflows.py"),
-            "-v", "--tb=short",
-            f"--maxfail={self.config.get('max_failures', 2)}",
-            "--color=yes"
-        ]
+        # Define BDD test categories with their scenarios
+        bdd_test_categories = {
+            'user_workflows': {
+                'description': 'BDD user workflow scenarios',
+                'pattern': str(self.project_root / "tests" / "ui" / "bdd" / "test_user_workflows.py"),
+                'feature_file': str(self.project_root / "tests" / "ui" / "bdd" / "features" / "user_workflows.feature"),
+                'priority': 'high',
+                'timeout': 300
+            },
+            'accessibility_compliance': {
+                'description': 'BDD accessibility compliance scenarios',
+                'pattern': str(self.project_root / "tests" / "ui" / "bdd" / "features" / "accessibility_compliance.feature"),
+                'step_definitions': str(self.project_root / "tests" / "ui" / "bdd" / "step_definitions" / "accessibility_steps.py"),
+                'priority': 'high',
+                'timeout': 240
+            },
+            'performance_optimization': {
+                'description': 'BDD performance optimization scenarios',
+                'pattern': str(self.project_root / "tests" / "ui" / "bdd" / "features" / "performance_optimization.feature"),
+                'step_definitions': str(self.project_root / "tests" / "ui" / "bdd" / "step_definitions" / "performance_steps.py"),
+                'priority': 'medium',
+                'timeout': 300
+            },
+            'cross_browser_compatibility': {
+                'description': 'BDD cross-browser compatibility scenarios',
+                'pattern': str(self.project_root / "tests" / "ui" / "bdd" / "features" / "cross_browser_compatibility.feature"),
+                'step_definitions': str(self.project_root / "tests" / "ui" / "bdd" / "step_definitions" / "cross_browser_steps.py"),
+                'priority': 'medium',
+                'timeout': 240
+            }
+        }
         
-        # Add junit XML report
-        junit_file = self.reports_dir / "bdd_workflows_junit.xml"
-        cmd.extend([f"--junit-xml={junit_file}"])
+        results = []
+        total_duration = 0
         
-        return self._run_test_command(cmd, "bdd_workflows")
+        for category_name, category_info in bdd_test_categories.items():
+            print(f"  🎯 Running {category_info['description']}...")
+            
+            # Check if test files exist
+            if category_name == 'user_workflows':
+                # Traditional pytest-based BDD test
+                test_file = Path(category_info['pattern'])
+                if not test_file.exists():
+                    print(f"    ⚠️ Skipping {category_name} - test file not found: {test_file}")
+                    continue
+                    
+                cmd = [
+                    sys.executable, "-m", "pytest",
+                    category_info['pattern'],
+                    "-v", "--tb=short",
+                    f"--maxfail={self.config.get('max_failures', 2)}",
+                    "--color=yes"
+                ]
+            else:
+                # Feature file + step definitions approach
+                feature_file = Path(category_info['pattern'])
+                step_file = Path(category_info['step_definitions'])
+                
+                if not feature_file.exists() or not step_file.exists():
+                    print(f"    ⚠️ Skipping {category_name} - files not found")
+                    if not feature_file.exists():
+                        print(f"        Missing: {feature_file}")
+                    if not step_file.exists():
+                        print(f"        Missing: {step_file}")
+                    continue
+                
+                # Run pytest-bdd with feature files
+                cmd = [
+                    sys.executable, "-m", "pytest",
+                    "--tb=short",
+                    f"--maxfail={self.config.get('max_failures', 2)}",
+                    "--color=yes",
+                    "-v",
+                    "--gherkin-terminal-reporter",
+                    f"--feature-files={feature_file}",
+                    step_file
+                ]
+            
+            # Add junit XML report for each category
+            junit_file = self.reports_dir / f"bdd_{category_name}_junit.xml"
+            cmd.extend([f"--junit-xml={junit_file}"])
+            
+            # Run the test
+            result = self._run_test_command(cmd, f"bdd_{category_name}")
+            results.append(result)
+            total_duration += result.get("duration", 0)
+            
+            # Print immediate feedback
+            status = "✅ PASSED" if result.get("success", False) else "❌ FAILED"
+            duration = result.get("duration", 0)
+            print(f"    {status} {category_name}: {duration:.1f}s")
+            
+            if not result.get("success", False) and result.get("stderr"):
+                print(f"      Error: {result['stderr'][:150]}...")
+        
+        # Aggregate results
+        overall_success = all(r.get("success", False) for r in results)
+        
+        # Generate comprehensive BDD report
+        bdd_report = {
+            "category": "bdd_workflows",
+            "success": overall_success,
+            "duration": total_duration,
+            "test_categories": bdd_test_categories,
+            "individual_results": results,
+            "categories_tested": len(results),
+            "categories_passed": sum(1 for r in results if r.get("success", False)),
+            "summary": f"BDD Tests: {len(results)} categories, {sum(1 for r in results if r.get('success', False))} passed"
+        }
+        
+        # Save detailed BDD report
+        bdd_report_file = self.reports_dir / "bdd_comprehensive_report.json"
+        with open(bdd_report_file, "w") as f:
+            json.dump(bdd_report, f, indent=2, default=str)
+        
+        print(f"  📊 BDD Summary: {bdd_report['categories_passed']}/{bdd_report['categories_tested']} categories passed")
+        
+        return bdd_report
 
     def run_cross_browser_tests(self) -> Dict[str, Any]:
         """Run cross-browser compatibility testing."""
