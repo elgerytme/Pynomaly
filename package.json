@@ -22,10 +22,14 @@
     "test:mobile": "playwright test --project='Mobile Chrome' --project='Mobile Safari'",
     "test:cross-browser": "playwright test --project=chromium --project=firefox --project=webkit --project='Microsoft Edge'",
     "test:visual": "percy exec -- playwright test",
+    "test:accessibility": "playwright test tests/ui/test_accessibility_enhanced.spec.ts",
+    "test:a11y": "playwright test tests/ui/test_accessibility_enhanced.spec.ts",
+    "test:wcag": "playwright test tests/ui/test_accessibility_enhanced.spec.ts --project=accessibility",
     "playwright:install": "playwright install",
     "playwright:install-deps": "playwright install-deps"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
     "@percy/cli": "^1.31.0",
     "@percy/playwright": "^1.0.8",
     "@playwright/test": "^1.53.1",
@@ -33,6 +37,8 @@
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.10",
     "autoprefixer": "^10.4.16",
+    "axe-core": "^4.10.3",
+    "axe-playwright": "^2.1.0",
     "cssnano": "^6.0.2",
     "esbuild": "^0.19.8",
     "playwright": "^1.53.1",
