@@ -19,8 +19,8 @@ from pynomaly.application.dto.explainability_dto import (
     ExplanationRequestDTO,
     ExplainModelRequestDTO,
     ExplainCohortRequestDTO,
-    CompareExplanationsRequestDTO,
-    ExplainabilityResponseDTO,
+    CompareMethodsRequestDTO,
+    ExplanationResponseDTO,
     LocalExplanationDTO,
     GlobalExplanationDTO,
     CohortExplanationDTO
@@ -39,9 +39,9 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/explainability", tags=["explainability"])
 
 
-@router.post("/explain/prediction", response_model=ExplainabilityResponseDTO)
+@router.post("/explain/prediction", response_model=ExplanationResponseDTO)
 async def explain_prediction(
-    request: ExplainPredictionRequestDTO,
+    request: ExplanationRequestDTO,
     background_tasks: BackgroundTasks,
     container: Container = Depends(get_container),
     current_user: str | None = Depends(get_current_user),
