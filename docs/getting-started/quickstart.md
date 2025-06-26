@@ -1,5 +1,10 @@
 # Quick Start Guide
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 🚀 [Getting Started](README.md) > ⚡ Quick Start
+
+---
+
+
 Get started with anomaly detection in minutes using Pynomaly's modern development stack.
 
 ## Prerequisites
@@ -402,18 +407,51 @@ hatch env run prod:serve-api-prod  # Production server with workers
 ## Next Steps
 
 ### Learn More
-- **[Development Guide](../development/README.md)** - Modern development workflow
-- **[Hatch Guide](../development/HATCH_GUIDE.md)** - Detailed Hatch usage
-- **[Available Algorithms](../guides/algorithms.md)** - Algorithm selection guide
-- **[Data Processing](../guides/datasets.md)** - Data preparation and validation
+- **[Development Guide](../developer-guides/contributing/README.md)** - Modern development workflow
+- **[Hatch Guide](../developer-guides/contributing/HATCH_GUIDE.md)** - Detailed Hatch usage
+- **[Available Algorithms](../reference/algorithms/README.md)** - Algorithm selection guide
+- **[Data Processing](../user-guides/basic-usage/datasets.md)** - Data preparation and validation
 
 ### Advanced Usage
 - **[Production Deployment](../deployment/PRODUCTION_DEPLOYMENT_GUIDE.md)** - Deploy to production
 - **[Docker Guide](../deployment/DOCKER_DEPLOYMENT_GUIDE.md)** - Containerized deployment
-- **[API Reference](../api/rest-api.md)** - Complete API documentation
-- **[Troubleshooting](../guides/troubleshooting.md)** - Common issues and solutions
+- **[API Reference](../developer-guides/api-integration/rest-api.md)** - Complete API documentation
+- **[Troubleshooting](../user-guides/troubleshooting/troubleshooting.md)** - Common issues and solutions
 
 ### Integrations
-- **[Business Intelligence](../../README.md#business-intelligence-integrations)** - Export to Excel, Power BI, Google Sheets
-- **[Monitoring](../guides/monitoring.md)** - Observability and metrics
+- **[Business Intelligence](../examples/README.md)** - Examples and use cases
+- **[Monitoring](../user-guides/basic-usage/monitoring.md)** - Observability and metrics
 - **[Security](../deployment/SECURITY.md)** - Security best practices
+
+---
+
+## 🔗 **Related Documentation**
+
+### **Getting Started**
+- **[Installation Guide](../../getting-started/installation.md)** - Setup and installation
+- **[Quick Start](../../getting-started/quickstart.md)** - Your first detection
+- **[Platform Setup](../../getting-started/platform-specific/)** - Platform-specific guides
+
+### **User Guides**
+- **[Basic Usage](../basic-usage/README.md)** - Essential functionality
+- **[Advanced Features](../advanced-features/README.md)** - Sophisticated capabilities  
+- **[Troubleshooting](../troubleshooting/README.md)** - Problem solving
+
+### **Reference**
+- **[Algorithm Reference](../../reference/algorithms/README.md)** - Algorithm documentation
+- **[API Documentation](../../developer-guides/api-integration/README.md)** - Programming interfaces
+- **[Configuration](../../reference/configuration/)** - System configuration
+
+### **Examples**
+- **[Examples & Tutorials](../../examples/README.md)** - Real-world use cases
+- **[Banking Examples](../../examples/banking/)** - Financial fraud detection
+- **[Notebooks](../../examples/notebooks/)** - Interactive examples
+
+---
+
+## 🆘 **Getting Help**
+
+- **[Troubleshooting Guide](../troubleshooting/troubleshooting.md)** - Common issues and solutions
+- **[GitHub Issues](https://github.com/your-org/pynomaly/issues)** - Report bugs and request features
+- **[GitHub Discussions](https://github.com/your-org/pynomaly/discussions)** - Ask questions and share ideas
+- **[Security Issues](mailto:security@pynomaly.org)** - Report security vulnerabilities

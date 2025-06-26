@@ -1,5 +1,10 @@
 # Algorithm Comparison
 
+🍞 **Breadcrumb:** 🏠 [Home](../../index.md) > 📖 [Reference](../README.md) > 🧮 [Algorithms](README.md) > ⚖️ Algorithm Comparison
+
+---
+
+
 ## Overview
 
 This comprehensive comparison guide helps you select the optimal anomaly detection algorithm based on your specific requirements. It provides detailed performance metrics, use case recommendations, and decision frameworks.
@@ -732,6 +737,6 @@ def select_for_resources(algorithms, max_memory_mb=1000, gpu_available=False):
 - **[Core Algorithms](core-algorithms.md)** - Essential algorithms for most use cases
 - **[Specialized Algorithms](specialized-algorithms.md)** - Domain-specific algorithms  
 - **[Experimental Algorithms](experimental-algorithms.md)** - Advanced research methods
-- **[Autonomous Mode Guide](../../comprehensive/09-autonomous-classifier-selection-guide.md)** - Automated selection
-- **[Performance Benchmarks](../../examples/performance-benchmarking.md)** - Real-world performance data
-- **[AutoML Guide](../../guides/automl-guide.md)** - Automated hyperparameter tuning
+- **[Autonomous Mode Guide](../../user-guides/basic-usage/autonomous-mode.md)** - Automated selection
+- **[Performance Analysis](../../user-guides/advanced-features/performance.md)** - Performance monitoring and optimization
+- **[AutoML Guide](../../user-guides/advanced-features/automl-and-intelligence.md)** - Automated hyperparameter tuning
