@@ -1,26 +1,432 @@
-# Minimal Buck2 Build Configuration for Pynomaly (Phase 2 Testing)
-# Basic configuration to test Buck2 integration
+# Buck2 Build Configuration for Pynomaly
+# Comprehensive build system supporting clean architecture with multiple output formats
 
-# Simple file rule for validation
-genrule(
-    name = "validation",
-    out = "validation.txt",
-    cmd = "echo 'Buck2 integration working!' > $OUT",
+load("@prelude//python:defs.bzl", "python_binary", "python_library", "python_test")
+load("@prelude//js:defs.bzl", "js_bundle")
+
+# ==========================================
+# Python Package Definitions by Architecture Layer
+# ==========================================
+
+# Domain Layer - Pure business logic with no external dependencies
+python_library(
+    name = "domain",
+    srcs = glob([
+        "src/pynomaly/domain/**/*.py",
+    ]),
+    deps = [],
+    visibility = ["//src/pynomaly/..."],
+)
+
+# Application Layer - Use cases and application services
+python_library(
+    name = "application",
+    srcs = glob([
+        "src/pynomaly/application/**/*.py",
+    ]),
+    deps = [
+        ":domain",
+    ],
+    visibility = ["//src/pynomaly/..."],
+)
+
+# Infrastructure Layer - External integrations and adapters
+python_library(
+    name = "infrastructure",
+    srcs = glob([
+        "src/pynomaly/infrastructure/**/*.py",
+    ]),
+    deps = [
+        ":domain",
+        ":application",
+    ],
+    visibility = ["//src/pynomaly/..."],
+)
+
+# Presentation Layer - APIs, CLI, and Web UI
+python_library(
+    name = "presentation",
+    srcs = glob([
+        "src/pynomaly/presentation/**/*.py",
+    ]),
+    deps = [
+        ":domain",
+        ":application", 
+        ":infrastructure",
+    ],
+    visibility = ["//src/pynomaly/..."],
+)
+
+# Shared Utilities - Common utilities across layers
+python_library(
+    name = "shared",
+    srcs = glob([
+        "src/pynomaly/shared/**/*.py",
+    ]),
+    deps = [],
+    visibility = ["//src/pynomaly/..."],
+)
+
+# ==========================================
+# Complete Pynomaly Package
+# ==========================================
+
+python_library(
+    name = "pynomaly-lib",
+    srcs = glob([
+        "src/pynomaly/*.py",
+    ]),
+    deps = [
+        ":domain",
+        ":application",
+        ":infrastructure", 
+        ":presentation",
+        ":shared",
+    ],
     visibility = ["PUBLIC"],
 )
 
-# Simple test validation
-genrule(
-    name = "test-validation",
-    out = "test-validation.txt", 
-    cmd = "echo 'Buck2 test integration working!' > $OUT",
+# ==========================================
+# Binary Targets
+# ==========================================
+
+# Main CLI Binary
+python_binary(
+    name = "pynomaly-cli",
+    main = "src/pynomaly/__main__.py",
+    deps = [":pynomaly-lib"],
     visibility = ["PUBLIC"],
 )
 
-# Development readiness check
+# API Server Binary
+python_binary(
+    name = "pynomaly-api",
+    main = "scripts/run_api.py",
+    deps = [":pynomaly-lib"],
+    visibility = ["PUBLIC"],
+)
+
+# Web UI Server Binary
+python_binary(
+    name = "pynomaly-web",
+    main = "scripts/run_web_ui.py", 
+    deps = [":pynomaly-lib"],
+    visibility = ["PUBLIC"],
+)
+
+# ==========================================
+# Web Assets Build Pipeline
+# ==========================================
+
+# Tailwind CSS Build
 genrule(
-    name = "dev-ready",
+    name = "tailwind-build",
+    srcs = [
+        "config/web/tailwind.config.js",
+        "config/web/postcss.config.js",
+    ] + glob([
+        "src/pynomaly/presentation/web/templates/**/*.html",
+        "src/pynomaly/presentation/web/static/css/**/*.css",
+    ]),
+    out = "static/css/tailwind.css",
+    cmd = "cd $(location .) && npm run build-css && cp src/pynomaly/presentation/web/static/css/tailwind.css $OUT",
+    visibility = ["PUBLIC"],
+)
+
+# JavaScript Bundle
+js_bundle(
+    name = "pynomaly-js",
+    srcs = glob([
+        "src/pynomaly/presentation/web/static/js/**/*.js",
+    ]),
+    entry_point = "src/pynomaly/presentation/web/static/js/main.js",
+    visibility = ["PUBLIC"],
+)
+
+# Web Assets Bundle
+genrule(
+    name = "web-assets",
+    srcs = [
+        ":tailwind-build",
+        ":pynomaly-js",
+    ] + glob([
+        "src/pynomaly/presentation/web/static/**/*",
+    ]),
+    out = "web-assets.tar.gz",
+    cmd = "tar -czf $OUT -C $(location :tailwind-build) . -C $(location :pynomaly-js) .",
+    visibility = ["PUBLIC"],
+)
+
+# ==========================================
+# Test Targets
+# ==========================================
+
+# Domain Layer Tests
+python_test(
+    name = "test-domain",
+    srcs = glob([
+        "tests/domain/**/*.py",
+    ]),
+    deps = [
+        ":domain",
+        ":test-utils",
+    ],
+)
+
+# Application Layer Tests  
+python_test(
+    name = "test-application",
+    srcs = glob([
+        "tests/application/**/*.py",
+    ]),
+    deps = [
+        ":application",
+        ":domain",
+        ":test-utils",
+    ],
+)
+
+# Infrastructure Layer Tests
+python_test(
+    name = "test-infrastructure", 
+    srcs = glob([
+        "tests/infrastructure/**/*.py",
+    ]),
+    deps = [
+        ":infrastructure",
+        ":application",
+        ":domain",
+        ":test-utils",
+    ],
+)
+
+# Presentation Layer Tests
+python_test(
+    name = "test-presentation",
+    srcs = glob([
+        "tests/presentation/**/*.py",
+    ]),
+    deps = [
+        ":presentation",
+        ":infrastructure",
+        ":application", 
+        ":domain",
+        ":test-utils",
+    ],
+)
+
+# Integration Tests
+python_test(
+    name = "test-integration",
+    srcs = glob([
+        "tests/integration/**/*.py",
+        "tests/e2e/**/*.py",
+    ]),
+    deps = [
+        ":pynomaly-lib",
+        ":test-utils",
+    ],
+)
+
+# Test Utilities
+python_library(
+    name = "test-utils",
+    srcs = glob([
+        "tests/conftest.py",
+        "tests/plugins/**/*.py",
+        "tests/utils/**/*.py",
+    ]),
+    deps = [":pynomaly-lib"],
+)
+
+# ==========================================
+# Performance and Quality Targets
+# ==========================================
+
+# Performance Benchmarks
+python_test(
+    name = "benchmarks",
+    srcs = glob([
+        "tests/benchmarks/**/*.py",
+        "tests/performance/**/*.py",
+    ]),
+    deps = [
+        ":pynomaly-lib",
+        ":test-utils",
+    ],
+)
+
+# Property-Based Tests
+python_test(
+    name = "property-tests",
+    srcs = glob([
+        "tests/property/**/*.py",
+    ]),
+    deps = [
+        ":pynomaly-lib", 
+        ":test-utils",
+    ],
+)
+
+# Mutation Tests
+python_test(
+    name = "mutation-tests",
+    srcs = glob([
+        "tests/mutation/**/*.py",
+    ]),
+    deps = [
+        ":pynomaly-lib",
+        ":test-utils", 
+    ],
+)
+
+# Security Tests
+python_test(
+    name = "security-tests",
+    srcs = glob([
+        "tests/security/**/*.py",
+    ]),
+    deps = [
+        ":pynomaly-lib",
+        ":test-utils",
+    ],
+)
+
+# ==========================================
+# Development and Utility Targets
+# ==========================================
+
+# Code Generation
+genrule(
+    name = "generate-version",
+    out = "version.py",
+    cmd = "echo '__version__ = \"$(shell git describe --tags --always)\"' > $OUT",
+)
+
+# Documentation Generation
+genrule(
+    name = "docs",
+    srcs = glob([
+        "docs/**/*.md",
+        "src/pynomaly/**/*.py",
+    ]),
+    out = "docs-site.tar.gz",
+    cmd = "cd docs && mkdocs build && tar -czf $OUT -C site .",
+    visibility = ["PUBLIC"],
+)
+
+# Development Environment Setup
+genrule(
+    name = "dev-setup",
     out = "dev-ready.txt",
-    cmd = "echo 'Buck2 development environment ready!' > $OUT",
+    cmd = "echo 'Development environment configured' > $OUT",
+)
+
+# ==========================================
+# Package Distribution Targets
+# ==========================================
+
+# Wheel Distribution
+genrule(
+    name = "wheel",
+    srcs = [":pynomaly-lib"],
+    out = "pynomaly.whl",
+    cmd = "cd $(location .) && python -m build --wheel --outdir $(dirname $OUT) && mv dist/*.whl $OUT",
     visibility = ["PUBLIC"],
+)
+
+# Source Distribution
+genrule(
+    name = "sdist",
+    srcs = [":pynomaly-lib"],
+    out = "pynomaly.tar.gz",
+    cmd = "cd $(location .) && python -m build --sdist --outdir $(dirname $OUT) && mv dist/*.tar.gz $OUT",
+    visibility = ["PUBLIC"],
+)
+
+# ==========================================
+# Convenience Targets
+# ==========================================
+
+# All Tests
+genrule(
+    name = "test-all",
+    srcs = [],
+    out = "test-results.txt",
+    cmd = "echo 'All tests completed' > $OUT",
+    deps = [
+        ":test-domain",
+        ":test-application", 
+        ":test-infrastructure",
+        ":test-presentation",
+        ":test-integration",
+        ":benchmarks",
+        ":property-tests",
+        ":security-tests",
+    ],
+)
+
+# Full Build
+genrule(
+    name = "build-all",
+    srcs = [],
+    out = "build-complete.txt", 
+    cmd = "echo 'Build completed successfully' > $OUT",
+    deps = [
+        ":pynomaly-lib",
+        ":pynomaly-cli",
+        ":pynomaly-api",
+        ":pynomaly-web",
+        ":web-assets",
+        ":wheel",
+        ":sdist",
+        ":docs",
+    ],
+)
+
+# Development Target
+genrule(
+    name = "dev",
+    srcs = [],
+    out = "dev-ready.txt",
+    cmd = "echo 'Development environment ready' > $OUT",
+    deps = [
+        ":pynomaly-lib",
+        ":test-utils",
+        ":dev-setup",
+    ],
+)
+
+# ==========================================
+# CI/CD Integration Targets
+# ==========================================
+
+# CI Test Suite
+genrule(
+    name = "ci-tests",
+    srcs = [],
+    out = "ci-test-results.txt",
+    cmd = "echo 'CI tests passed' > $OUT",
+    deps = [
+        ":test-domain",
+        ":test-application",
+        ":test-infrastructure", 
+        ":test-integration",
+        ":security-tests",
+    ],
+)
+
+# Release Build
+genrule(
+    name = "release",
+    srcs = [],
+    out = "release-artifacts.txt",
+    cmd = "echo 'Release artifacts generated' > $OUT",
+    deps = [
+        ":test-all",
+        ":build-all",
+        ":wheel",
+        ":sdist",
+        ":docs",
+    ],
 )

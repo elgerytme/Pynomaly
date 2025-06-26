@@ -1,61 +1,124 @@
-// Pynomaly Service Worker for Progressive Web App functionality
-const CACHE_NAME = 'pynomaly-v1.0.0';
-const STATIC_CACHE_NAME = 'pynomaly-static-v1.0.0';
-const DYNAMIC_CACHE_NAME = 'pynomaly-dynamic-v1.0.0';
+/**
+ * Pynomaly Service Worker - Progressive Web App with Advanced Features
+ * Provides offline caching, background sync, push notifications, and installability
+ */
 
-// Resources to cache on install
+const CACHE_NAME = 'pynomaly-v1.0.0';
+const STATIC_CACHE = 'pynomaly-static-v1.0.0';
+const DYNAMIC_CACHE = 'pynomaly-dynamic-v1.0.0';
+const API_CACHE = 'pynomaly-api-v1.0.0';
+
+// Static assets to cache during install
 const STATIC_ASSETS = [
   '/',
-  '/static/css/output.css',
-  '/static/js/dist/main.js',
-  '/static/manifest.json',
+  '/static/css/design-system.css',
+  '/static/css/tailwind.css',
+  '/static/js/app.js',
+  '/static/js/htmx.min.js',
+  '/static/js/d3.min.js',
+  '/static/js/echarts.min.js',
   '/static/icons/icon-192x192.png',
   '/static/icons/icon-512x512.png',
-  '/offline.html'
+  '/static/fonts/inter.woff2',
+  '/static/fonts/jetbrains-mono.woff2',
+  '/manifest.json',
+  '/offline',
+  '/dashboard',
+  '/datasets',
+  '/models'
 ];
 
-// Install event - cache static assets
-self.addEventListener('install', event => {
-  console.log('Service Worker: Installing...');
+// API endpoints to cache with different strategies
+const API_ENDPOINTS = {
+  GET: [
+    '/api/health',
+    '/api/models',
+    '/api/datasets',
+    '/api/dashboard/stats',
+    '/api/user/profile'
+  ],
+  CACHE_FIRST: [
+    '/api/algorithms',
+    '/api/presets',
+    '/api/documentation'
+  ],
+  NETWORK_FIRST: [
+    '/api/detection',
+    '/api/analysis',
+    '/api/train',
+    '/api/predict'
+  ]
+};
+
+// Background sync tags
+const SYNC_TAGS = {
+  DETECTION_QUEUE: 'detection-queue',
+  UPLOAD_QUEUE: 'upload-queue',
+  ANALYSIS_QUEUE: 'analysis-queue',
+  METRICS_SYNC: 'metrics-sync'
+};
+
+// IndexedDB configuration for offline storage
+const DB_NAME = 'PynomaolyOfflineDB';
+const DB_VERSION = 1;
+const STORES = {
+  DETECTIONS: 'detections',
+  DATASETS: 'datasets',
+  RESULTS: 'results',
+  USER_PREFERENCES: 'userPreferences',
+  SYNC_QUEUE: 'syncQueue'
+};
+
+/**
+ * Service Worker Installation
+ */
+self.addEventListener('install', (event) => {
+  console.log('[SW] Installing service worker...');
   
   event.waitUntil(
-    caches.open(STATIC_CACHE_NAME)
-      .then(cache => {
-        console.log('Service Worker: Caching static assets');
+    caches.open(STATIC_CACHE)
+      .then((cache) => {
+        console.log('[SW] Caching static assets');
         return cache.addAll(STATIC_ASSETS);
       })
       .then(() => {
-        console.log('Service Worker: Installation complete');
+        console.log('[SW] Static assets cached successfully');
         return self.skipWaiting();
       })
-      .catch(error => {
-        console.error('Service Worker: Installation failed', error);
+      .catch((error) => {
+        console.error('[SW] Failed to cache static assets:', error);
       })
   );
 });
 
-// Activate event - clean up old caches
-self.addEventListener('activate', event => {
-  console.log('Service Worker: Activating...');
+/**
+ * Service Worker Activation
+ */
+self.addEventListener('activate', (event) => {
+  console.log('[SW] Activating service worker...');
   
   event.waitUntil(
-    caches.keys()
-      .then(cacheNames => {
+    Promise.all([
+      // Clean up old caches
+      caches.keys().then((cacheNames) => {
         return Promise.all(
-          cacheNames.map(cacheName => {
-            if (cacheName !== STATIC_CACHE_NAME && 
-                cacheName !== DYNAMIC_CACHE_NAME &&
-                cacheName.startsWith('pynomaly-')) {
-              console.log('Service Worker: Deleting old cache', cacheName);
+          cacheNames.map((cacheName) => {
+            if (cacheName !== STATIC_CACHE && 
+                cacheName !== DYNAMIC_CACHE && 
+                cacheName !== API_CACHE) {
+              console.log('[SW] Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
           })
         );
-      })
-      .then(() => {
-        console.log('Service Worker: Activation complete');
-        return self.clients.claim();
-      })
+      }),
+      
+      // Initialize IndexedDB
+      initializeIndexedDB(),
+      
+      // Claim clients
+      self.clients.claim()
+    ])
   );
 });
 

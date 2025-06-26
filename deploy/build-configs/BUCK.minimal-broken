@@ -1,0 +1,28 @@
+# Minimal Buck2 Build Configuration for Pynomaly (Phase 2 Testing)
+# Basic configuration to test Buck2 integration without prelude dependencies
+
+# Simple file rule for validation
+genrule(
+    name = "validation",
+    out = "validation.txt",
+    cmd = "echo 'Buck2 integration working!' > $OUT",
+    visibility = ["PUBLIC"],
+)
+
+# Simple test validation
+genrule(
+    name = "test-validation",
+    out = "test-validation.txt", 
+    cmd = "echo 'Buck2 test integration working!' > $OUT",
+    deps = [":validation"],
+    visibility = ["PUBLIC"],
+)
+
+# Development readiness check
+genrule(
+    name = "dev-ready",
+    out = "dev-ready.txt",
+    cmd = "echo 'Buck2 development environment ready!' > $OUT",
+    deps = [":validation", ":test-validation"],
+    visibility = ["PUBLIC"],
+)

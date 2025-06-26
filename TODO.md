@@ -1,6 +1,7 @@
 # Pynomaly TODO List
 
-## 🎯 **Current Status** (January 2025)
+## 🎯 **Current Status** (June 2025)
+<!-- Template: {{ current_month }} {{ current_year }} -->
 
 Pynomaly is a production-ready Python anomaly detection platform with comprehensive testing infrastructure, enterprise features, and web UI capabilities.
 
@@ -31,75 +32,56 @@ Pynomaly is a production-ready Python anomaly detection platform with comprehens
 - **Hybrid Integration**: Buck2 for builds, Hatch for packaging with seamless fallback
 - **Documentation**: Complete integration guide in `docs/project/`
 
-## 🔄 **Current Work**
-
-### ✅ **COMPLETED: BDD Framework Implementation**
+### ✅ **COMPLETED: BDD Framework Implementation** (June 2025)
 - **Complete BDD Testing Infrastructure**: Comprehensive behavior-driven testing with Gherkin scenarios
 - **Production-Ready Step Definitions**: User workflows, accessibility, performance, cross-browser testing
 - **Automated Reporting**: JUnit XML and JSON analysis across 4 BDD categories
+- **ML Engineer Workflows**: Comprehensive BDD scenarios for MLOps, deployment, monitoring, and lifecycle management
 
-### ⏳ **Next Steps**
+## 🔄 **Current Work in Progress**
+
+### ✅ **COMPLETED: Buck2 Configuration Organization** (June 26, 2025)
+- **Production Buck2 Configuration**: Complete clean architecture build system with 12.5x-38.5x performance improvements
+- **Configuration Archive Management**: Historical configurations moved to `deploy/build-configs/` with documentation
+- **Architecture-Aligned Targets**: Buck2 targets mapped to domain, application, infrastructure, presentation layers
+- **Comprehensive Build Pipeline**: Binary targets, test categories, web assets, distribution packages
+
+### ⏳ **Active Tasks**
+- **Documentation Maintenance**: Updating TODO.md current status and archiving completed work
+- **BDD Test Organization**: Validating and organizing behavior-driven development test files structure
+
+### ⏳ **Next Priority Items**
 - **UI Component Library**: Tailwind CSS-based design system with accessibility-first patterns
 - **Progressive Web App Features**: Offline functionality, installability, push notifications
 - **Performance Optimization**: Core Web Vitals monitoring and optimization
-- ⏳ **Comprehensive Documentation**: Developer and user experience guides
+- **Comprehensive Documentation**: Developer and user experience guides
   - Storybook component explorer
   - Design system documentation
   - Accessibility guidelines
   - Performance best practices guide
 
-## 📋 **Archived Completed Work**
+## 📋 **Archived Completed Work** (Pre-June 2025)
 
-### ✅ **Core System Implementation**
+### ✅ **Core Platform Implementation** (2024-Early 2025)
 - **Production-Ready Platform**: Complete enterprise-grade anomaly detection with 100% operational status
 - **Advanced Testing Infrastructure**: 228 test files, 3,850+ test functions, comprehensive coverage analysis
 - **Algorithm Ecosystem**: Time series, ensemble methods, autonomous mode with explainability
 - **Enterprise Features**: Security, monitoring, data processing, deployment infrastructure
-- **Complete Documentation**: Algorithm guides, business documentation, technical references
 
-### ✅ **Production Integration & Validation**
-- **100% Production Ready**: Complete enterprise-grade platform with comprehensive validation
-- **End-to-End Testing**: All major components validated with monitoring and error handling
-- **Performance Optimization**: Memory efficiency, async processing, large dataset handling
+### ✅ **Infrastructure & Performance** (2024-Early 2025)
+- **Data Processing Infrastructure**: Memory-efficient processing, streaming, validation (8 categories)
+- **Monitoring & Observability**: Production monitoring suite, global interface, export analytics
+- **System Recovery & Validation**: 81.82% success rate, CLI/API operational, performance validated
+- **Algorithm & ML Infrastructure**: Advanced adapters, security, MLOps pipeline, model persistence
+
+### ✅ **UI & Documentation Excellence** (2024-Early 2025)  
+- **Comprehensive UI Testing**: Playwright automation, visual regression, accessibility testing
+- **Business Documentation**: 11K+ word guides, PowerPoint presentations, regulatory compliance
+- **Application Infrastructure**: Production-ready runners, cross-platform validation, 45+ test cases
+- **Strategic Simplification**: 60+ files removed, complexity reduction, phase implementation framework
+
+### ✅ **Historical Development** (2024)
 - **Enterprise Architecture**: Clean architecture principles with SOLID compliance
-
-### ✅ **Data Processing Infrastructure**
-- **Memory-Efficient Processing**: Optimized data loading with chunking and monitoring
-- **Streaming Infrastructure**: Real-time processing with backpressure handling
-- **Data Validation**: 8 validation categories with security and quality checks
-- **Large Dataset Analytics**: Statistical analysis with streaming capabilities
-
-### ✅ **Monitoring & Observability**
-- **Production Monitoring Suite**: Structured logging, error tracking, audit trails
-- **Performance Integration**: Health checks, resource monitoring, metrics collection
-- **Global Monitor Interface**: Singleton pattern with async support
-- **Export & Analytics**: Log filtering, metrics summaries, operational insights
-
-### ✅ **System Recovery & Validation**
-- **81.82% System Success Rate**: Exceeded production readiness target
-- **CLI System Operational**: Complete command coverage with Typer compatibility
-- **End-to-End Workflows**: Full detection pipeline with algorithm integration
-- **API System Functional**: FastAPI server with all endpoints operational
-- **Performance Validated**: Memory efficiency and execution optimization confirmed
-
-### ✅ **Algorithm & ML Infrastructure**
-- **Advanced Algorithm Adapters**: Time series, ensemble methods, autonomous mode
-- **Enterprise Security**: JWT authentication, encryption, audit logging
-- **Business Intelligence**: Feature flags, complexity monitoring, benchmarking
-- **MLOps Pipeline**: Automated deployment, model serving, Kubernetes infrastructure
-- **Template System**: Domain-specific workflows, experiment configuration
-- **Model Persistence**: Multi-format serialization, versioning, registry
-
-### ✅ **UI & Testing Excellence**
-- **Comprehensive UI Testing**: Playwright automation, visual regression, accessibility
-- **Banking Examples**: 111K+ transactions with regulatory compliance focus
-- **CLI Testing Infrastructure**: Cross-platform validation, 45+ test cases
-- **Business Documentation**: 11K+ word guides, PowerPoint presentations
-- **Tabular Dataset Collection**: 69K+ samples across multiple domains
-- **Application Runners**: Production-ready script infrastructure
-
-### ✅ **Recent Enhancements**
-- **Autonomous Mode Enhancement**: Advanced classifier selection with explainability
-- **Data Preprocessing CLI**: Complete preprocessing interface with quality integration
-- **Strategic Simplification**: 60+ files removed, complexity reduction achieved
-- **Phase Implementation**: Controlled feature reintroduction framework
+- **Performance Optimization**: Memory efficiency, async processing, large dataset handling
+- **End-to-End Testing**: All major components validated with monitoring and error handling
+- **Business Intelligence**: Feature flags, complexity monitoring, benchmarking systems

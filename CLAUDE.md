@@ -472,84 +472,126 @@ Claude Code MUST automatically maintain project documentation following these st
 
 **🔄 Automatic Updates Required:**
 1. **Real-Time Task Sync**: Update TODO.md immediately when Claude Code todos change
-2. **Date Updates**: Always update dates to current date when making changes
+2. **Dynamic Date Templates**: Use `{{ current_month }} {{ current_year }}` template format for all dates
 3. **Status Reflection**: Current work section must reflect actual active tasks
-4. **Completion Tracking**: Move completed work to "Recently Completed" with date
+4. **Completion Tracking**: Move completed work to "Recently Completed" with current date
 5. **Archive Management**: Move old completed work to "Archived" section quarterly
+6. **Commit-Based Updates**: Review and update TODO.md with every single commit
 
 **📝 TODO.md Structure Requirements:**
 ```markdown
 # Pynomaly TODO List
 
-## 🎯 **Current Status** (Month Year)
-Brief status summary
+## 🎯 **Current Status** ({{ current_month }} {{ current_year }})
+Brief status summary reflecting current project state
 
 ## 🔄 **Current Work**
 ### ⏳ **Active Tasks**
-- Currently in progress items
+- Currently in progress items from Claude Code todos
 
 ### ✅ **Recently Completed** 
-- Items completed in last 30 days
+- Items completed in last 30 days with completion dates
 
 ## ✅ **Recently Completed Work**
-- Major completions from last 3 months
+- Major completions from last 3 months with context
 
 ## 📋 **Archived Completed Work**
-- Historical completions (summarized)
+- Historical completions (summarized by quarter/year)
 ```
 
-**🚨 Update Triggers:**
-- **Every TodoWrite operation**: Sync with TODO.md current work
-- **Task completion**: Move to appropriate completed section
-- **Session start**: Update dates and clean up stale content
-- **Major work completion**: Add to "Recently Completed Work"
+**🚨 Mandatory Update Triggers:**
+- **Every TodoWrite operation**: Immediate sync with TODO.md current work
+- **Every commit**: Review and update entire TODO.md for accuracy
+- **Task completion**: Move to appropriate completed section with timestamp
+- **Session start**: Update template dates and clean up stale content
+- **Major work completion**: Add to "Recently Completed Work" with full context
 
 #### **📚 README.md Maintenance Rules (MANDATORY)**
 
+**🎯 OBJECTIVE STATUS REQUIREMENT: README.md must ONLY reflect the actual, verifiable status and features of the project. NO subjective claims, marketing language, or aspirational content allowed.**
+
 **🔄 Automatic Updates Required:**
-1. **Feature Updates**: Update feature lists when new capabilities are added
-2. **Status Badges**: Keep all badges current (Python version, build system, etc.)
-3. **Installation Instructions**: Update when dependencies or setup process changes
-4. **Architecture Changes**: Reflect any architectural updates or new layers
-5. **Examples**: Update code examples when APIs change
+1. **Objective Feature Verification**: Only list features that are fully implemented and testable
+2. **Status Badge Accuracy**: All badges must reflect current, verifiable status
+3. **Installation Accuracy**: Only include installation methods that actually work
+4. **Architecture Reality**: Only document actual implemented architecture
+5. **Working Examples**: All code examples must be tested and functional
+6. **Commit-Based Updates**: Review and update README.md with every single commit
 
-**📝 README.md Critical Sections:**
-- **Features**: Must reflect current capabilities accurately
-- **Installation**: Keep all methods current and tested
-- **Quick Start**: Ensure examples work with current API
-- **Architecture**: Update when structure changes
-- **Development**: Reflect current workflow and tools
+**📝 README.md Objective Documentation Standards:**
+- **Features Section**: Each feature must be verifiable in the codebase
+- **Installation Section**: All commands must be tested and functional
+- **Quick Start Section**: All examples must execute successfully
+- **Architecture Section**: Must match actual directory structure and implementation
+- **Algorithm Support**: Only list algorithms with working adapters
+- **Development Workflow**: Only include commands that actually exist and work
 
-**🚨 Update Triggers:**
-- **New features added**: Update Features section
-- **API changes**: Update Quick Start examples
-- **Architecture changes**: Update Architecture section
-- **Dependency changes**: Update Installation section
-- **Build system changes**: Update Development section
+**🚫 PROHIBITED CONTENT:**
+- **Aspirational Claims**: No "planned", "upcoming", or future features unless clearly marked
+- **Marketing Language**: No subjective terms like "state-of-the-art", "revolutionary", "cutting-edge"
+- **Unverified Features**: No claims about features not yet implemented or tested
+- **Outdated Information**: No references to deprecated dependencies or removed features
+- **Broken Examples**: No code examples that don't execute successfully
+
+**🚨 Mandatory Update Triggers:**
+- **Every commit**: Complete README.md accuracy review and updates
+- **Feature implementation**: Add to README only after full implementation and testing
+- **API changes**: Update all affected examples and documentation immediately
+- **Architecture changes**: Update architecture section to match actual structure
+- **Dependency changes**: Update installation and requirements sections
+- **Build system changes**: Update development workflow documentation
+- **Algorithm additions**: Add to supported algorithms only after adapter completion
+- **Breaking changes**: Update all affected documentation sections immediately
 
 #### **📅 Date Management Rules**
 
-**Current Date Format**: Use "Month Year" format (e.g., "January 2025")
+**Template Date Format**: Use `{{ current_month }} {{ current_year }}` template format that auto-resolves
+**Current Resolved**: June 2025
 **Update Schedule**:
-- **Every session**: Update current status dates
+- **Every session**: Update template dates and resolve current values
+- **Every commit**: Verify all dates are current and accurate
 - **Weekly**: Review and update recent completion dates
-- **Monthly**: Archive old completed work
-- **Quarterly**: Clean up and reorganize archived sections
+- **Monthly**: Archive old completed work with proper timestamps
+- **Quarterly**: Clean up and reorganize archived sections by date
 
 #### **🔍 Content Accuracy Rules**
 
 **Verification Requirements**:
-1. **Feature Claims**: Verify all claimed features actually exist
-2. **Status Accuracy**: Ensure completion status reflects reality
-3. **Link Validation**: Check that referenced files and docs exist
-4. **Example Testing**: Verify code examples work as shown
-5. **Dependency Accuracy**: Ensure all mentioned dependencies are current
+1. **Feature Claims**: Verify all claimed features actually exist and are testable
+2. **Status Accuracy**: Ensure completion status reflects verifiable reality
+3. **Link Validation**: Check that referenced files and docs exist and are current
+4. **Example Testing**: Verify all code examples execute successfully
+5. **Dependency Accuracy**: Ensure all mentioned dependencies are current and functional
+6. **Objective Language**: Remove all subjective, marketing, or aspirational language
 
-**🚨 Accuracy Checks**:
-- **Before major updates**: Validate all claims and examples
-- **After feature additions**: Update relevant documentation sections
-- **During architecture changes**: Ensure consistency across all docs
-- **Weekly review**: Check for outdated information
+**🚨 Mandatory Accuracy Checks**:
+- **Every commit**: Complete accuracy validation of both README.md and TODO.md
+- **Before any commit**: Validate all documentation claims against codebase reality
+- **Feature additions**: Update documentation only after full implementation and testing
+- **API changes**: Immediate update of all affected examples and documentation
+- **Architecture changes**: Ensure complete consistency across all documentation
+- **Dependency changes**: Update all installation and setup documentation immediately
+
+#### **📋 Commit-Based Documentation Review Protocol (MANDATORY)**
+
+**🔄 Pre-Commit Documentation Review:**
+1. **README.md Verification**: Ensure all features, examples, and instructions are accurate and current
+2. **TODO.md Synchronization**: Update current work status, completion tracking, and date templates
+3. **Cross-Reference Validation**: Ensure consistency between README.md, TODO.md, and actual codebase
+4. **Link and File Validation**: Verify all referenced files, directories, and documentation exist
+5. **Example Testing**: Confirm all code examples execute successfully with current codebase
+
+**🚨 Commit Requirement**: NO commit may proceed without completed documentation review and updates
+
+**📝 Review Checklist for Every Commit:**
+- [ ] README.md reflects actual implemented features (no aspirational content)
+- [ ] TODO.md shows current accurate status with resolved date templates
+- [ ] All code examples in README.md execute successfully
+- [ ] All installation commands work as documented
+- [ ] All referenced files and documentation exist
+- [ ] No marketing language or unverified claims remain
+- [ ] Architecture documentation matches actual codebase structure
+- [ ] Dependency lists match actual pyproject.toml and requirements
 
 ### Changelog Management Rules
 

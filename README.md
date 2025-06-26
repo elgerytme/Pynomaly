@@ -7,9 +7,9 @@
 [![Type checked: mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 [![CI](https://github.com/yourusername/pynomaly/workflows/CI/badge.svg)](https://github.com/yourusername/pynomaly/actions)
 
-State-of-the-art Python anomaly detection package targeting Python 3.11+ with clean architecture principles, integrating multiple ML libraries (PyOD, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX) through a unified, production-ready interface.
+Python anomaly detection package targeting Python 3.11+ with clean architecture principles, integrating multiple ML libraries (PyOD, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX) through a unified interface.
 
-**Built with modern Python tooling**: Hatch for build system and environment management, Ruff for lightning-fast linting and formatting, comprehensive CI/CD pipeline with automated testing and deployment.
+**Built with**: Hatch for build system and environment management, Ruff for linting and formatting, CI/CD pipeline with automated testing and deployment.
 
 ## Features
 
@@ -17,14 +17,14 @@ State-of-the-art Python anomaly detection package targeting Python 3.11+ with cl
 - 🔌 **Multi-Library Integration**: Unified interface for PyOD, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX
 - 🚀 **Production Ready**: Async/await, Prometheus metrics, comprehensive monitoring, JWT authentication
 - 🖥️ **Multiple Interfaces**: FastAPI REST API, Typer CLI, and Progressive Web App (PWA)
-- 📊 **Modern Web UI**: HTMX + Tailwind CSS + D3.js + Apache ECharts with offline PWA capabilities
+- 📊 **Web UI**: HTMX + Tailwind CSS + D3.js + Apache ECharts with offline PWA capabilities
 - 🧪 **Advanced Features**: AutoML, SHAP/LIME explainability, drift detection, active learning
 - ⚡ **Multi-Modal Support**: Time-series, tabular, graph, and text anomaly detection
 - 🛡️ **Type Safe**: 100% type coverage with mypy --strict, Pydantic validation
 - 🔄 **Streaming & Batch**: Real-time processing with backpressure and large dataset support
 - 🧰 **Extensible**: Plugin architecture with algorithm registry and custom adapters
 - ✅ **Test-Driven Development**: Active TDD enforcement with 85% coverage threshold
-- 🔧 **Modern Environment Management**: Centralized virtual environments with automated tooling
+- 🔧 **Environment Management**: Centralized virtual environments with automated tooling
 
 ## Installation
 
@@ -321,10 +321,10 @@ src/pynomaly/
 │   ├── services/    # DetectionService, EnsembleService, ModelPersistenceService
 │   └── dto/         # Data transfer objects and request/response models
 ├── infrastructure/  # All external integrations and adapters
-│   ├── adapters/    # PyODAdapter, TODSAdapter, PyGODAdapter, SklearnAdapter
+│   ├── adapters/    # PyODAdapter, PyGODAdapter, SklearnAdapter, TimeSeriesAdapter
 │   ├── persistence/ # ModelRepository, ResultRepository, data sources
 │   ├── config/      # Dependency injection container, settings
-│   └── monitoring/  # OpenTelemetry, Prometheus metrics, observability
+│   └── monitoring/  # Prometheus metrics, health checks, observability
 └── presentation/    # User interfaces and external APIs
     ├── api/         # FastAPI REST endpoints with async support
     ├── cli/         # Typer CLI with rich formatting
