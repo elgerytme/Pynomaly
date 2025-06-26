@@ -181,8 +181,8 @@ if PYTORCH_AVAILABLE:
             return decoded
 
         def encode(self, x):
-        """Encode input to latent space."""
-        return self.encoder(x)
+            """Encode input to latent space."""
+            return self.encoder(x)
 
 else:
     # Fallback class when PyTorch is not available
