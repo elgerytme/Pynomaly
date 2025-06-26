@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dashboard Layout System Demo - Drag-and-drop widgets with responsive grid">
+    <title>Pynomaly - Dashboard Layout Demo</title>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="../static/css/design-tokens.css" as="style">
+    <link rel="preload" href="../static/css/advanced-components.css" as="style">
+    <link rel="preload" href="../static/css/dashboard-layout.css" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="../static/css/design-tokens.css">
+    <link rel="stylesheet" href="../static/css/advanced-components.css">
+    <link rel="stylesheet" href="../static/css/dashboard-layout.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--color-bg-secondary);
+            color: var(--color-text-primary);
+            line-height: var(--line-height-normal);
+        }
+        
+        .page-header {
+            background: var(--color-bg-primary);
+            padding: var(--spacing-6) var(--spacing-8);
+            box-shadow: var(--shadow-sm);
+            border-bottom: 1px solid var(--color-border-light);
+            position: sticky;
+            top: 0;
+            z-index: 200;
+        }
+        
+        .page-title {
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            margin: 0 0 var(--spacing-2) 0;
+        }
+        
+        .page-subtitle {
+            font-size: var(--font-size-lg);
+            color: var(--color-text-secondary);
+            margin: 0;
+        }
+        
+        .dashboard-wrapper {
+            height: calc(100vh - 120px);
+            overflow: hidden;
+        }
+        
+        .demo-controls {
+            position: fixed;
+            top: 140px;
+            right: var(--spacing-6);
+            background: var(--color-bg-primary);
+            border: 1px solid var(--color-border-light);
+            border-radius: var(--border-radius-xl);
+            box-shadow: var(--shadow-lg);
+            padding: var(--spacing-4);
+            z-index: 150;
+            max-width: 300px;
+        }
+        
+        .demo-controls h3 {
+            margin: 0 0 var(--spacing-4) 0;
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-text-primary);
+        }
+        
+        .control-group {
+            margin-bottom: var(--spacing-4);
+        }
+        
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .control-label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-2);
+        }
+        
+        .control-description {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-3);
+            line-height: var(--line-height-tight);
+        }
+        
+        .control-input {
+            width: 100%;
+            padding: var(--spacing-2) var(--spacing-3);
+            border: 1px solid var(--color-border-light);
+            border-radius: var(--border-radius-md);
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            font-size: var(--font-size-sm);
+        }
+        
+        .control-toggle {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            cursor: pointer;
+            padding: var(--spacing-2);
+            border-radius: var(--border-radius-md);
+            transition: background-color 0.2s ease;
+        }
+        
+        .control-toggle:hover {
+            background: var(--color-bg-secondary);
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 40px;
+            height: 20px;
+            background: var(--color-border-medium);
+            border-radius: 10px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .toggle-switch.active {
+            background: var(--color-primary);
+        }
+        
+        .toggle-handle {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        
+        .toggle-switch.active .toggle-handle {
+            transform: translateX(20px);
+        }
+        
+        .metrics-panel {
+            position: fixed;
+            bottom: var(--spacing-6);
+            right: var(--spacing-6);
+            background: var(--color-bg-primary);
+            border: 1px solid var(--color-border-light);
+            border-radius: var(--border-radius-xl);
+            box-shadow: var(--shadow-lg);
+            padding: var(--spacing-4);
+            z-index: 150;
+            min-width: 250px;
+        }
+        
+        .metrics-panel h3 {
+            margin: 0 0 var(--spacing-3) 0;
+            font-size: var(--font-size-md);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-text-primary);
+        }
+        
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-2) 0;
+            border-bottom: 1px solid var(--color-border-light);
+        }
+        
+        .metric-item:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-name {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+        
+        .metric-value {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-text-primary);
+            font-family: var(--font-family-mono);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Mobile responsive controls */
+        @media (max-width: 768px) {
+            .demo-controls,
+            .metrics-panel {
+                position: relative;
+                top: auto;
+                right: auto;
+                bottom: auto;
+                margin: var(--spacing-4);
+                max-width: none;
+            }
+            
+            .page-header {
+                position: static;
+            }
+            
+            .dashboard-wrapper {
+                height: auto;
+                min-height: 60vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <h1 class="page-title">Dashboard Layout System</h1>
+        <p class="page-subtitle">Interactive drag-and-drop dashboard with responsive widgets and real-time anomaly detection components</p>
+    </div>
+
+    <div class="dashboard-wrapper">
+        <div id="dashboard-container"></div>
+    </div>
+
+    <!-- Demo Controls Panel -->
+    <div class="demo-controls" id="demo-controls">
+        <h3>Dashboard Controls</h3>
+        
+        <div class="control-group">
+            <label class="control-label">Grid Columns</label>
+            <div class="control-description">Number of columns in the grid layout</div>
+            <input type="range" class="control-input" id="columns-slider" min="6" max="16" value="12">
+            <div class="metric-value" id="columns-value">12</div>
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label">Row Height</label>
+            <div class="control-description">Height of each grid row in pixels</div>
+            <input type="range" class="control-input" id="row-height-slider" min="60" max="150" value="100">
+            <div class="metric-value" id="row-height-value">100px</div>
+        </div>
+        
+        <div class="control-group">
+            <label class="control-toggle" for="draggable-toggle">
+                <div class="toggle-switch active" id="draggable-toggle-switch">
+                    <div class="toggle-handle"></div>
+                </div>
+                <span>Enable Dragging</span>
+            </label>
+            <input type="checkbox" id="draggable-toggle" checked style="display: none;">
+        </div>
+        
+        <div class="control-group">
+            <label class="control-toggle" for="resizable-toggle">
+                <div class="toggle-switch active" id="resizable-toggle-switch">
+                    <div class="toggle-handle"></div>
+                </div>
+                <span>Enable Resizing</span>
+            </label>
+            <input type="checkbox" id="resizable-toggle" checked style="display: none;">
+        </div>
+        
+        <div class="control-group">
+            <label class="control-toggle" for="compact-toggle">
+                <div class="toggle-switch active" id="compact-toggle-switch">
+                    <div class="toggle-handle"></div>
+                </div>
+                <span>Vertical Compacting</span>
+            </label>
+            <input type="checkbox" id="compact-toggle" checked style="display: none;">
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label">Theme</label>
+            <select class="control-input" id="theme-selector">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="auto">Auto</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Metrics Panel -->
+    <div class="metrics-panel" id="metrics-panel">
+        <h3>Dashboard Metrics</h3>
+        <div class="metric-item">
+            <span class="metric-name">Widgets</span>
+            <span class="metric-value" id="widget-count">5</span>
+        </div>
+        <div class="metric-item">
+            <span class="metric-name">Breakpoint</span>
+            <span class="metric-value" id="current-breakpoint">lg</span>
+        </div>
+        <div class="metric-item">
+            <span class="metric-name">Grid Size</span>
+            <span class="metric-value" id="grid-dimensions">12x∞</span>
+        </div>
+        <div class="metric-item">
+            <span class="metric-name">Layout Height</span>
+            <span class="metric-value" id="layout-height">700px</span>
+        </div>
+        <div class="metric-item">
+            <span class="metric-name">Dragging</span>
+            <span class="metric-value" id="drag-status">No</span>
+        </div>
+        <div class="metric-item">
+            <span class="metric-name">Resizing</span>
+            <span class="metric-value" id="resize-status">No</span>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../static/js/store/anomalyStore.js"></script>
+    <script src="../static/js/components/DashboardLayoutSystem.js"></script>
+    
+    <script>
+        // Dashboard Layout Demo Implementation
+        class DashboardDemo {
+            constructor() {
+                this.dashboard = null;
+                this.metrics = {
+                    widgetCount: 0,
+                    currentBreakpoint: 'lg',
+                    gridDimensions: '12x∞',
+                    layoutHeight: '0px',
+                    isDragging: false,
+                    isResizing: false
+                };
+                
+                this.init();
+            }
+            
+            init() {
+                this.initializeDashboard();
+                this.bindControls();
+                this.updateMetrics();
+                this.setupKeyboardShortcuts();
+                this.setupAccessibility();
+            }
+            
+            initializeDashboard() {
+                const container = document.getElementById('dashboard-container');
+                
+                this.dashboard = new DashboardLayoutSystem(container, {
+                    columns: 12,
+                    rowHeight: 100,
+                    margin: [10, 10],
+                    containerPadding: [10, 10],
+                    isDraggable: true,
+                    isResizable: true,
+                    verticalCompact: true,
+                    accessibility: {
+                        announceActions: true
+                    },
+                    onLayoutChange: (layouts, breakpoint) => {
+                        this.onLayoutChange(layouts, breakpoint);
+                    },
+                    onBreakpointChange: (breakpoint, layouts) => {
+                        this.onBreakpointChange(breakpoint, layouts);
+                    }
+                });
+                
+                // Monitor dashboard state changes
+                this.monitorDashboardState();
+            }
+            
+            bindControls() {
+                // Grid columns slider
+                const columnsSlider = document.getElementById('columns-slider');
+                const columnsValue = document.getElementById('columns-value');
+                
+                columnsSlider.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value);
+                    columnsValue.textContent = value;
+                    this.updateDashboardOption('columns', value);
+                });
+                
+                // Row height slider
+                const rowHeightSlider = document.getElementById('row-height-slider');
+                const rowHeightValue = document.getElementById('row-height-value');
+                
+                rowHeightSlider.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value);
+                    rowHeightValue.textContent = `${value}px`;
+                    this.updateDashboardOption('rowHeight', value);
+                });
+                
+                // Toggle controls
+                this.bindToggleControl('draggable', 'isDraggable');
+                this.bindToggleControl('resizable', 'isResizable');
+                this.bindToggleControl('compact', 'verticalCompact');
+                
+                // Theme selector
+                const themeSelector = document.getElementById('theme-selector');
+                themeSelector.addEventListener('change', (e) => {
+                    this.setTheme(e.target.value);
+                });
+                
+                // Initialize theme
+                this.setTheme('light');
+            }
+            
+            bindToggleControl(controlName, dashboardOption) {
+                const toggle = document.getElementById(`${controlName}-toggle`);
+                const toggleSwitch = document.getElementById(`${controlName}-toggle-switch`);
+                
+                toggle.addEventListener('change', (e) => {
+                    const isActive = e.target.checked;
+                    toggleSwitch.classList.toggle('active', isActive);
+                    this.updateDashboardOption(dashboardOption, isActive);
+                });
+                
+                // Also bind click on the visual switch
+                toggleSwitch.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    toggle.checked = !toggle.checked;
+                    toggle.dispatchEvent(new Event('change'));
+                });
+            }
+            
+            updateDashboardOption(option, value) {
+                if (this.dashboard && this.dashboard.options) {
+                    this.dashboard.options[option] = value;
+                    
+                    // Trigger specific updates based on the option
+                    switch (option) {
+                        case 'columns':
+                            this.dashboard.options.cols.lg = value;
+                            this.dashboard.generateResponsiveLayouts();
+                            this.dashboard.handleResize();
+                            break;
+                        case 'rowHeight':
+                            this.dashboard.calculateGridDimensions();
+                            this.dashboard.updateLayout();
+                            break;
+                        case 'isDraggable':
+                        case 'isResizable':
+                            this.dashboard.renderLayout();
+                            break;
+                        case 'verticalCompact':
+                            this.dashboard.compactLayout();
+                            this.dashboard.updateLayout();
+                            break;
+                    }
+                    
+                    this.updateMetrics();
+                }
+            }
+            
+            setTheme(theme) {
+                const html = document.documentElement;
+                
+                if (theme === 'auto') {
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    theme = prefersDark ? 'dark' : 'light';
+                }
+                
+                html.setAttribute('data-theme', theme);
+                
+                // Update anomaly store theme preference
+                if (window.anomalyStore) {
+                    window.anomalyStore.getState().setTheme(theme);
+                }
+            }
+            
+            monitorDashboardState() {
+                // Monitor for drag/resize state changes
+                const originalSetState = this.dashboard.state;
+                
+                // Use MutationObserver to watch for drag/resize classes
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                            const target = mutation.target;
+                            if (target.classList.contains('dashboard-widget')) {
+                                this.metrics.isDragging = target.classList.contains('dragging');
+                                this.metrics.isResizing = target.classList.contains('resizing');
+                                this.updateMetrics();
+                            }
+                        }
+                    });
+                });
+                
+                observer.observe(document.getElementById('dashboard-container'), {
+                    attributes: true,
+                    subtree: true,
+                    attributeFilter: ['class']
+                });
+            }
+            
+            onLayoutChange(layouts, breakpoint) {
+                this.metrics.widgetCount = layouts[breakpoint]?.length || 0;
+                this.updateMetrics();
+                
+                // Optional: Show layout change notification
+                this.showNotification(`Layout updated (${this.metrics.widgetCount} widgets)`);
+            }
+            
+            onBreakpointChange(breakpoint, layouts) {
+                this.metrics.currentBreakpoint = breakpoint;
+                this.metrics.widgetCount = layouts[breakpoint]?.length || 0;
+                this.updateMetrics();
+                
+                this.showNotification(`Breakpoint changed to ${breakpoint}`);
+            }
+            
+            updateMetrics() {
+                const container = document.getElementById('dashboard-container');
+                const gridContainer = container?.querySelector('.dashboard-grid');
+                
+                // Update widget count
+                document.getElementById('widget-count').textContent = this.metrics.widgetCount;
+                
+                // Update current breakpoint
+                document.getElementById('current-breakpoint').textContent = this.metrics.currentBreakpoint;
+                
+                // Update grid dimensions
+                const cols = this.dashboard?.options?.cols?.[this.metrics.currentBreakpoint] || 12;
+                document.getElementById('grid-dimensions').textContent = `${cols}x∞`;
+                
+                // Update layout height
+                const height = gridContainer?.scrollHeight || 0;
+                document.getElementById('layout-height').textContent = `${height}px`;
+                this.metrics.layoutHeight = `${height}px`;
+                
+                // Update drag/resize status
+                document.getElementById('drag-status').textContent = this.metrics.isDragging ? 'Yes' : 'No';
+                document.getElementById('resize-status').textContent = this.metrics.isResizing ? 'Yes' : 'No';
+            }
+            
+            setupKeyboardShortcuts() {
+                document.addEventListener('keydown', (e) => {
+                    // Only handle shortcuts when not typing in inputs
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+                        return;
+                    }
+                    
+                    if (e.ctrlKey || e.metaKey) {
+                        switch (e.key) {
+                            case 'h':
+                                e.preventDefault();
+                                this.toggleControlPanels();
+                                break;
+                            case 'd':
+                                e.preventDefault();
+                                this.toggleDragging();
+                                break;
+                            case 'r':
+                                e.preventDefault();
+                                this.toggleResizing();
+                                break;
+                        }
+                    }
+                    
+                    switch (e.key) {
+                        case 'Escape':
+                            this.hideAllPanels();
+                            break;
+                        case 'F1':
+                            e.preventDefault();
+                            this.showHelp();
+                            break;
+                    }
+                });
+            }
+            
+            setupAccessibility() {
+                // Add ARIA labels and descriptions
+                const container = document.getElementById('dashboard-container');
+                container.setAttribute('aria-label', 'Interactive dashboard with draggable widgets');
+                container.setAttribute('aria-describedby', 'dashboard-instructions');
+                
+                // Create instructions for screen readers
+                const instructions = document.createElement('div');
+                instructions.id = 'dashboard-instructions';
+                instructions.className = 'sr-only';
+                instructions.textContent = 'Use arrow keys to move widgets, Enter to configure, Delete to remove. Press Ctrl+H to toggle control panels.';
+                document.body.appendChild(instructions);
+                
+                // Set up focus management
+                this.setupFocusManagement();
+            }
+            
+            setupFocusManagement() {
+                // Manage focus when panels are shown/hidden
+                const controls = document.getElementById('demo-controls');
+                const metrics = document.getElementById('metrics-panel');
+                
+                // Trap focus in panels when they're active
+                controls.addEventListener('keydown', (e) => {
+                    if (e.key === 'Tab') {
+                        this.trapFocus(e, controls);
+                    }
+                });
+                
+                metrics.addEventListener('keydown', (e) => {
+                    if (e.key === 'Tab') {
+                        this.trapFocus(e, metrics);
+                    }
+                });
+            }
+            
+            trapFocus(e, container) {
+                const focusableElements = container.querySelectorAll(
+                    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                );
+                
+                const firstElement = focusableElements[0];
+                const lastElement = focusableElements[focusableElements.length - 1];
+                
+                if (e.shiftKey) {
+                    if (document.activeElement === firstElement) {
+                        e.preventDefault();
+                        lastElement.focus();
+                    }
+                } else {
+                    if (document.activeElement === lastElement) {
+                        e.preventDefault();
+                        firstElement.focus();
+                    }
+                }
+            }
+            
+            toggleControlPanels() {
+                const controls = document.getElementById('demo-controls');
+                const metrics = document.getElementById('metrics-panel');
+                
+                const isHidden = controls.classList.contains('hidden');
+                controls.classList.toggle('hidden');
+                metrics.classList.toggle('hidden');
+                
+                if (!isHidden) {
+                    // Focus first focusable element when showing
+                    const firstInput = controls.querySelector('input, select, button');
+                    if (firstInput) {
+                        firstInput.focus();
+                    }
+                }
+            }
+            
+            toggleDragging() {
+                const toggle = document.getElementById('draggable-toggle');
+                toggle.checked = !toggle.checked;
+                toggle.dispatchEvent(new Event('change'));
+            }
+            
+            toggleResizing() {
+                const toggle = document.getElementById('resizable-toggle');
+                toggle.checked = !toggle.checked;
+                toggle.dispatchEvent(new Event('change'));
+            }
+            
+            hideAllPanels() {
+                const controls = document.getElementById('demo-controls');
+                const metrics = document.getElementById('metrics-panel');
+                
+                controls.classList.add('hidden');
+                metrics.classList.add('hidden');
+            }
+            
+            showHelp() {
+                const helpText = `
+                    Dashboard Layout System Help:
+                    
+                    • Drag widgets by their headers to move them
+                    • Resize widgets using the handle in the bottom-right corner
+                    • Add new widgets using the "Add Widget" button
+                    • Configure widgets using the gear icon
+                    • Remove widgets using the × button
+                    
+                    Keyboard Shortcuts:
+                    • Ctrl+H: Toggle control panels
+                    • Ctrl+D: Toggle dragging
+                    • Ctrl+R: Toggle resizing
+                    • Ctrl+S: Save layout
+                    • Ctrl+Z: Undo
+                    • F1: Show this help
+                    • Escape: Hide panels
+                    
+                    Widget Navigation:
+                    • Tab: Move between widgets
+                    • Arrow keys: Move focused widget
+                    • Shift+Arrow: Move widget by 5 units
+                    • Enter: Configure widget
+                    • Delete: Remove widget
+                `;
+                
+                alert(helpText.trim());
+            }
+            
+            showNotification(message) {
+                // Create temporary notification
+                const notification = document.createElement('div');
+                notification.textContent = message;
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: var(--color-success-bg);
+                    color: var(--color-success-text);
+                    padding: var(--spacing-3) var(--spacing-4);
+                    border-radius: var(--border-radius-md);
+                    box-shadow: var(--shadow-lg);
+                    z-index: 1000;
+                    font-size: var(--font-size-sm);
+                    transition: opacity 0.3s ease;
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+        }
+        
+        // Initialize demo when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new DashboardDemo();
+        });
+        
+        // Handle window resize for responsive behavior
+        window.addEventListener('resize', () => {
+            // Update metrics on resize
+            setTimeout(() => {
+                const demo = window.dashboardDemo;
+                if (demo) {
+                    demo.updateMetrics();
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>
