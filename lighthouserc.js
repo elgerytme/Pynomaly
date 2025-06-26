@@ -36,7 +36,11 @@ module.exports = {
           rttMs: 40,
           throughputKbps: 10240,
           cpuSlowdownMultiplier: 1
-        }
+        },
+        
+        // Extended configuration for Pynomaly
+        onlyCategories: ['performance', 'accessibility', 'best-practices', 'pwa'],
+        skipAudits: ['uses-http2'], // Skip HTTP/2 audit for local testing
       }
     },
 

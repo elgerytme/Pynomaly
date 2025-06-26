@@ -7,15 +7,15 @@
 [![Type checked: mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 [![CI](https://github.com/yourusername/pynomaly/workflows/CI/badge.svg)](https://github.com/yourusername/pynomaly/actions)
 
-State-of-the-art Python anomaly detection package targeting Python 3.11+ with clean architecture principles, integrating multiple ML libraries (PyOD, TODS, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX) through a unified, production-ready interface.
+State-of-the-art Python anomaly detection package targeting Python 3.11+ with clean architecture principles, integrating multiple ML libraries (PyOD, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX) through a unified, production-ready interface.
 
 **Built with modern Python tooling**: Hatch for build system and environment management, Ruff for lightning-fast linting and formatting, comprehensive CI/CD pipeline with automated testing and deployment.
 
 ## Features
 
 - 🏗️ **Clean Architecture**: Domain-driven design with hexagonal architecture (Ports & Adapters)
-- 🔌 **Multi-Library Integration**: Unified interface for PyOD, TODS, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX
-- 🚀 **Production Ready**: Async/await, OpenTelemetry observability, Prometheus metrics, circuit breakers
+- 🔌 **Multi-Library Integration**: Unified interface for PyOD, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX
+- 🚀 **Production Ready**: Async/await, Prometheus metrics, comprehensive monitoring, JWT authentication
 - 🖥️ **Multiple Interfaces**: FastAPI REST API, Typer CLI, and Progressive Web App (PWA)
 - 📊 **Modern Web UI**: HTMX + Tailwind CSS + D3.js + Apache ECharts with offline PWA capabilities
 - 🧪 **Advanced Features**: AutoML, SHAP/LIME explainability, drift detection, active learning
@@ -91,9 +91,7 @@ environments\.venv\Scripts\activate
 
 # Install with desired features
 pip install -e ".[server]"          # API + CLI + basic features
-pip install -e ".[production]"      # Production-ready stack
-pip install -e ".[ml-all]"          # All ML frameworks
-pip install -e ".[all]"             # Everything
+pip install -e ".[all]"             # All available features
 ```
 
 **Environment Organization**: Pynomaly uses a centralized `environments/` directory with dot-prefix naming (`.venv`, `.test_env`) to keep the project root clean and organize all virtual environments in one location.
@@ -108,11 +106,7 @@ pip install -e ".[torch]"           # PyTorch deep learning
 pip install -e ".[tensorflow]"      # TensorFlow neural networks
 pip install -e ".[jax]"             # JAX high-performance computing
 pip install -e ".[graph]"           # PyGOD graph anomaly detection
-
-# Application interfaces
-pip install -e ".[api]"             # FastAPI web interface
-pip install -e ".[cli]"             # Command-line interface
-pip install -e ".[web]"             # Progressive Web App
+pip install -e ".[ml-all]"          # All ML frameworks
 
 # Data processing
 pip install -e ".[data-formats]"    # Parquet, Excel, HDF5 support
@@ -120,9 +114,15 @@ pip install -e ".[database]"        # SQL database connectivity
 pip install -e ".[spark]"           # Apache Spark integration
 
 # Advanced features
-pip install -e ".[automl]"          # AutoML with auto-sklearn2
+pip install -e ".[automl]"          # AutoML with Optuna and auto-sklearn2
 pip install -e ".[explainability]" # SHAP/LIME model explanation
-pip install -e ".[monitoring]"      # Prometheus, OpenTelemetry
+pip install -e ".[production]"      # Full production stack with monitoring
+
+# Development
+pip install -e ".[test]"            # Testing dependencies
+pip install -e ".[ui-test]"         # UI testing with Playwright
+pip install -e ".[lint]"            # Code quality tools
+pip install -e ".[dev]"             # Development tools
 ```
 
 ### Cross-Platform Compatibility
@@ -255,29 +255,23 @@ Access the API and Progressive Web App at http://localhost:8000 after starting t
 - **Experiment Tracking**: Compare models, track performance metrics, A/B testing
 - **Dataset Analysis**: Data quality reports, drift detection, feature importance
 
-## Business Intelligence Integrations 📊
+## Data Export & Reporting 📊
 
-Export anomaly detection results to major business intelligence and spreadsheet platforms:
+Pynomaly provides comprehensive data export capabilities for analysis and reporting:
 
-### Supported Platforms
+### Supported Export Formats
 
-- **Excel**: Advanced formatting, charts, multiple worksheets
-- **Power BI**: Real-time streaming, automated reports, Azure AD integration
-- **Google Sheets**: Collaborative editing, real-time updates, sharing
-- **Smartsheet**: Project tracking, workflow automation, team collaboration
+- **Excel**: Advanced formatting with charts and multiple worksheets
+- **CSV**: Standard comma-separated values format
+- **JSON**: Structured data with metadata and annotations
+- **Parquet**: Efficient columnar storage for large datasets
 
-### Installation
+### Export Features
 
-```bash
-# Install all BI integrations
-pip install pynomaly[bi-integrations]
-
-# Or install specific platforms
-pip install pynomaly[excel]      # Excel support
-pip install pynomaly[powerbi]    # Power BI support  
-pip install pynomaly[gsheets]    # Google Sheets support
-pip install pynomaly[smartsheet] # Smartsheet support
-```
+- **Rich Formatting**: Conditional formatting, charts, and visual highlighting
+- **Metadata Inclusion**: Algorithm parameters, detection settings, timestamps
+- **Batch Processing**: Efficient handling of large result sets
+- **Custom Templates**: Configurable output formats and layouts
 
 ### CLI Usage
 
@@ -285,75 +279,31 @@ pip install pynomaly[smartsheet] # Smartsheet support
 # List available export formats
 pynomaly export list-formats
 
-# Export to Excel with charts and formatting
-pynomaly export excel results.json report.xlsx --include-charts
-
-# Export to Power BI workspace
-pynomaly export powerbi results.json \
-    --workspace-id "your-workspace-id" \
-    --dataset-name "Anomaly Detection"
-
-# Export to Google Sheets with sharing
-pynomaly export gsheets results.json \
-    --credentials-file creds.json \
-    --share-emails user@company.com
+# Export to Excel with formatting
+pynomaly export results.json report.xlsx --format excel --include-charts
 
 # Export to multiple formats
-pynomaly export multi results.json \
-    --formats excel powerbi gsheets
+pynomaly export results.json output --formats csv json excel
 ```
 
 ### Python API
 
 ```python
 from pynomaly.application.services.export_service import ExportService
-from pynomaly.application.dto.export_options import ExportOptions
 
 # Initialize export service
 export_service = ExportService()
 
-# Export to Excel with advanced features
-excel_options = ExportOptions().for_excel()
-excel_options.include_charts = True
-excel_options.highlight_anomalies = True
-
+# Export with custom formatting
 result = export_service.export_results(
     detection_results,
     "anomaly_report.xlsx",
-    excel_options
-)
-
-# Export to Power BI streaming dataset  
-powerbi_options = ExportOptions().for_powerbi(
-    workspace_id="workspace-123",
-    dataset_name="Live Anomaly Feed"
-)
-powerbi_options.streaming_dataset = True
-
-result = export_service.export_results(
-    detection_results,
-    "",  # No file path for cloud services
-    powerbi_options
-)
-
-# Multi-platform export
-results = export_service.export_multiple_formats(
-    detection_results,
-    base_path="anomaly_analysis",
-    formats=[ExportFormat.EXCEL, ExportFormat.GSHEETS]
+    include_charts=True,
+    highlight_anomalies=True
 )
 ```
 
-### Features
-
-- **Real-time Collaboration**: Google Sheets and Smartsheet live updates
-- **Advanced Visualizations**: Charts, conditional formatting, dashboards
-- **Secure Authentication**: Azure AD, OAuth2, API tokens
-- **Batch Processing**: Efficient handling of large datasets
-- **Error Recovery**: Robust retry logic and validation
-- **Template Support**: Pre-configured layouts and workflows
-
-See [examples/bi_integrations_example.py](examples/bi_integrations_example.py) for detailed usage examples.
+*Note: Advanced business intelligence integrations (Power BI, Google Sheets, Smartsheet) are planned for future releases.*
 
 ## Architecture
 
@@ -402,10 +352,10 @@ src/pynomaly/
 - **Proximity**: k-NN, Radius-based, Connectivity-based (COF), CBLOF
 - **Neural Networks**: AutoEncoder, VAE, Deep SVDD, SO-GAAL, MO-GAAL
 
-### TODS (Time-series Outlier Detection System)
-- **Univariate**: Statistical tests, decomposition-based, prediction-based
-- **Multivariate**: Matrix profile, tensor decomposition, deep learning
-- **Streaming**: Online algorithms, change point detection, concept drift
+### Time Series Algorithms (Custom Implementation)
+- **Statistical**: Rolling statistics, percentile-based detection
+- **Decomposition**: Seasonal decomposition with trend analysis
+- **Change Point**: Statistical tests for abrupt changes
 
 ### PyGOD (Python Graph Outlier Detection)
 - **Node-level**: Anomalous node detection in graphs
