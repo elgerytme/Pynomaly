@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Any
 from uuid import UUID
 
-from pynomaly.domain.entities import Model, ModelStage, ModelType, ModelVersion
+from pynomaly.domain.entities import Model, ModelStage, ModelStatus, ModelType, ModelVersion
 from pynomaly.domain.exceptions import InvalidModelStateError, ModelNotFoundError
 from pynomaly.domain.value_objects import (
     ModelStorageInfo,
