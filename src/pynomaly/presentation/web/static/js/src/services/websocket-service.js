@@ -1,9 +1,48 @@
 /**
- * Real-Time WebSocket Service
- * 
- * Manages WebSocket connections for live anomaly detection updates,
- * streaming data, and real-time notifications with automatic reconnection
+ * WebSocket Service for Real-Time Data
+ * Production-ready WebSocket client for live anomaly detection updates
+ * with connection management, error handling, and message routing
  */
+
+/**
+ * WebSocket Connection States
+ */
+const CONNECTION_STATES = {
+  CONNECTING: 'connecting',
+  CONNECTED: 'connected',
+  DISCONNECTED: 'disconnected',
+  RECONNECTING: 'reconnecting',
+  ERROR: 'error'
+};
+
+/**
+ * Message Types for WebSocket Communication
+ */
+const MESSAGE_TYPES = {
+  // System messages
+  PING: 'ping',
+  PONG: 'pong',
+  CONNECT: 'connect',
+  DISCONNECT: 'disconnect',
+  ERROR: 'error',
+  
+  // Data messages
+  ANOMALY_DETECTED: 'anomaly_detected',
+  PERFORMANCE_UPDATE: 'performance_update',
+  SYSTEM_ALERT: 'system_alert',
+  DATA_UPDATE: 'data_update',
+  BATCH_UPDATE: 'batch_update',
+  
+  // Control messages
+  SUBSCRIBE: 'subscribe',
+  UNSUBSCRIBE: 'unsubscribe',
+  REQUEST_HISTORY: 'request_history',
+  
+  // Authentication
+  AUTHENTICATE: 'authenticate',
+  AUTH_SUCCESS: 'auth_success',
+  AUTH_FAILED: 'auth_failed'
+};
 
 export class WebSocketService {
     constructor(options = {}) {
@@ -12,10 +51,14 @@ export class WebSocketService {
             protocols: options.protocols || ['anomaly-detection-v1'],
             maxReconnectAttempts: options.maxReconnectAttempts || 10,
             reconnectInterval: options.reconnectInterval || 3000,
+            maxReconnectDelay: options.maxReconnectDelay || 30000,
             heartbeatInterval: options.heartbeatInterval || 30000,
+            messageQueueSize: options.messageQueueSize || 1000,
+            enableMessageQueue: options.enableMessageQueue !== false,
             enableCompression: options.enableCompression !== false,
             enableLogging: options.enableLogging || false,
             autoConnect: options.autoConnect !== false,
+            authentication: options.authentication || null,
             ...options
         };
         
