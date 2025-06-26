@@ -1,5 +1,10 @@
 # Documentation Maintenance Rules
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Project
+
+---
+
+
 This document outlines the mandatory rules for maintaining project documentation, specifically TODO.md and README.md files.
 
 ## 📋 TODO.md Maintenance Rules

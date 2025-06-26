@@ -1,5 +1,10 @@
 # Pynomaly Design Tokens Specification
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Design-System
+
+---
+
+
 ## Overview
 
 Design tokens are the foundational elements of the Pynomaly design system, providing a consistent and scalable approach to design decisions. These tokens ensure visual consistency across all platforms and interfaces while enabling theme customization and maintenance.

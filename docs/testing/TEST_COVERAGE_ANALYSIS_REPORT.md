@@ -1,5 +1,10 @@
 # Comprehensive Test Coverage Analysis Report: Pynomaly Project
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Testing
+
+---
+
+
 **Date**: December 25, 2025  
 **Analysis Type**: Full test suite evaluation  
 **Total Test Files Analyzed**: 228 files  

@@ -1,5 +1,10 @@
 # User Guides
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 👤 [User Guides](README.md)
+
+---
+
+
 Learn how to effectively use Pynomaly for your anomaly detection needs. These guides are organized by experience level and use case complexity.
 
 ## 📋 Quick Navigation

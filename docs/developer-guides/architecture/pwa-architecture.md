@@ -1,5 +1,10 @@
 # Progressive Web App Architecture
 
+🍞 **Breadcrumb:** 🏠 [Home](../../index.md) > 👨‍💻 [Developer Guides](../README.md) > 🏗️ [Architecture](README.md) > 📄 Pwa Architecture
+
+---
+
+
 Comprehensive architectural overview of Pynomaly's Progressive Web App implementation, including offline capabilities, synchronization strategies, and advanced visualization components.
 
 ## 📋 Table of Contents

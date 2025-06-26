@@ -1,5 +1,10 @@
 # Buck2 + Hatch Integration Plan for Pynomaly
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Project
+
+---
+
+
 ## Overview
 Buck2 will serve as the primary build system for development, testing, and local builds, while Hatch handles package publishing and release management. This hybrid approach leverages Buck2's speed and caching for development workflows while maintaining Hatch's Python packaging expertise.
 

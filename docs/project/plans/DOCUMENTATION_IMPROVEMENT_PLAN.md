@@ -1,5 +1,10 @@
 # Documentation Improvement Plan
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Project
+
+---
+
+
 ## 📋 Executive Summary
 
 Based on comprehensive analysis of the `/docs/` directory (106 markdown files across 18 directories), this plan addresses critical issues: **algorithm documentation redundancy**, **archive bloat**, **navigation complexity**, and **missing enterprise documentation**.

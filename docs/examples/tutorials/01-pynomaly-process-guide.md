@@ -1,5 +1,10 @@
 # Pynomaly Process Guide
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 💡 [Examples](README.md) > 📁 Tutorials > 📄 01 Pynomaly Process Guide
+
+---
+
+
 ## Overview
 
 Pynomaly is a state-of-the-art Python anomaly detection package that provides a unified interface for multiple anomaly detection libraries. This comprehensive guide covers the complete process of using Pynomaly for anomaly detection, from initial setup through production deployment.
@@ -619,3 +624,36 @@ client.setup_data_monitoring(
 This process guide provides a comprehensive overview of using Pynomaly for anomaly detection. The system's modular architecture and extensive feature set enable organizations to implement robust anomaly detection solutions that scale from prototype to production.
 
 For specific implementation details, refer to the technical documentation and API references. For support, consult the troubleshooting guide or contact the development team.
+
+---
+
+## 🔗 **Related Documentation**
+
+### **Getting Started**
+- **[Installation Guide](../../getting-started/installation.md)** - Setup and installation
+- **[Quick Start](../../getting-started/quickstart.md)** - Your first detection
+- **[Platform Setup](../../getting-started/platform-specific/)** - Platform-specific guides
+
+### **User Guides**
+- **[Basic Usage](../basic-usage/README.md)** - Essential functionality
+- **[Advanced Features](../advanced-features/README.md)** - Sophisticated capabilities  
+- **[Troubleshooting](../troubleshooting/README.md)** - Problem solving
+
+### **Reference**
+- **[Algorithm Reference](../../reference/algorithms/README.md)** - Algorithm documentation
+- **[API Documentation](../../developer-guides/api-integration/README.md)** - Programming interfaces
+- **[Configuration](../../reference/configuration/)** - System configuration
+
+### **Examples**
+- **[Examples & Tutorials](../../examples/README.md)** - Real-world use cases
+- **[Banking Examples](../../examples/banking/)** - Financial fraud detection
+- **[Notebooks](../../examples/notebooks/)** - Interactive examples
+
+---
+
+## 🆘 **Getting Help**
+
+- **[Troubleshooting Guide](../troubleshooting/troubleshooting.md)** - Common issues and solutions
+- **[GitHub Issues](https://github.com/your-org/pynomaly/issues)** - Report bugs and request features
+- **[GitHub Discussions](https://github.com/your-org/pynomaly/discussions)** - Ask questions and share ideas
+- **[Security Issues](mailto:security@pynomaly.org)** - Report security vulnerabilities

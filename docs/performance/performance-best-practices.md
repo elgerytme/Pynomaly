@@ -1,5 +1,10 @@
 # Performance Best Practices Guide
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Performance
+
+---
+
+
 ## 🚀 **Overview**
 
 This comprehensive guide provides performance optimization strategies, Core Web Vitals improvement techniques, and monitoring best practices for the Pynomaly platform. It covers both frontend and backend performance optimization with specific focus on anomaly detection workloads.

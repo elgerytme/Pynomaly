@@ -1,5 +1,10 @@
 # Pynomaly Integration Testing Suite
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Testing
+
+---
+
+
 This document describes the comprehensive integration testing suite for Pynomaly, providing end-to-end testing capabilities for all major system components and workflows.
 
 ## Overview

@@ -1,5 +1,10 @@
 # Legacy Algorithm Documentation
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Archive
+
+---
+
+
 ## Archive Notice
 
 **Date**: June 26, 2025  

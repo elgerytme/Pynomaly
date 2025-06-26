@@ -1,5 +1,10 @@
 # Setup Simple Testing Report
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Archive
+
+---
+
+
 ## Overview
 
 This report documents the testing and validation of `scripts/setup_simple.py`, a Poetry-free setup script for Pynomaly that provides a fallback installation method for environments where Poetry is not available or practical.

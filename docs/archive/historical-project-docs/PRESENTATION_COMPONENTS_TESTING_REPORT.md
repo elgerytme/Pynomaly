@@ -1,5 +1,10 @@
 # Presentation Components Testing Report
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Archive
+
+---
+
+
 ## Overview
 
 This report documents the comprehensive testing of Pynomaly's presentation components (CLI, API, and Web UI) in fresh environments using both bash and PowerShell environments as requested.

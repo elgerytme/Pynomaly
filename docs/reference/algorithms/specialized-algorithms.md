@@ -1,5 +1,10 @@
 # Specialized Algorithms
 
+🍞 **Breadcrumb:** 🏠 [Home](../../index.md) > 📖 [Reference](../README.md) > 🧮 [Algorithms](README.md) > 🎯 Specialized Algorithms
+
+---
+
+
 ## Overview
 
 This guide covers domain-specific anomaly detection algorithms designed for specialized data types and use cases. These algorithms are optimized for specific domains such as time series, graphs, text, and images.

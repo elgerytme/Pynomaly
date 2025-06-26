@@ -1,5 +1,10 @@
 # Comprehensive Algorithm Reference
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Archive
+
+---
+
+
 ## Overview
 
 Pynomaly provides access to 100+ anomaly detection algorithms across multiple frameworks and libraries, offering the most comprehensive anomaly detection toolkit available. This guide covers all supported algorithms, their characteristics, use cases, and optimal configurations.

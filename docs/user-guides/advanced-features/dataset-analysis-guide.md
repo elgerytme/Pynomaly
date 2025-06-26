@@ -1,5 +1,10 @@
 # Comprehensive Dataset Analysis Guide
 
+🍞 **Breadcrumb:** 🏠 [Home](../../index.md) > 👤 [User Guides](../README.md) > 🔶 [Advanced Features](README.md) > 📄 Dataset Analysis Guide
+
+---
+
+
 This guide provides detailed information on analyzing different types of anomaly detection datasets using Pynomaly, including specific approaches, algorithms, and techniques for each scenario.
 
 ## Overview
@@ -377,3 +382,36 @@ python scripts/analyze_dataset_comprehensive.py
 - **Benchmarks**: Performance benchmarks in `benchmarks/` directory
 
 This comprehensive guide provides the foundation for effective anomaly detection across various domains using Pynomaly's algorithms and techniques.
+
+---
+
+## 🔗 **Related Documentation**
+
+### **Getting Started**
+- **[Installation Guide](../../getting-started/installation.md)** - Setup and installation
+- **[Quick Start](../../getting-started/quickstart.md)** - Your first detection
+- **[Platform Setup](../../getting-started/platform-specific/)** - Platform-specific guides
+
+### **User Guides**
+- **[Basic Usage](../basic-usage/README.md)** - Essential functionality
+- **[Advanced Features](../advanced-features/README.md)** - Sophisticated capabilities  
+- **[Troubleshooting](../troubleshooting/README.md)** - Problem solving
+
+### **Reference**
+- **[Algorithm Reference](../../reference/algorithms/README.md)** - Algorithm documentation
+- **[API Documentation](../../developer-guides/api-integration/README.md)** - Programming interfaces
+- **[Configuration](../../reference/configuration/)** - System configuration
+
+### **Examples**
+- **[Examples & Tutorials](../../examples/README.md)** - Real-world use cases
+- **[Banking Examples](../../examples/banking/)** - Financial fraud detection
+- **[Notebooks](../../examples/notebooks/)** - Interactive examples
+
+---
+
+## 🆘 **Getting Help**
+
+- **[Troubleshooting Guide](../troubleshooting/troubleshooting.md)** - Common issues and solutions
+- **[GitHub Issues](https://github.com/your-org/pynomaly/issues)** - Report bugs and request features
+- **[GitHub Discussions](https://github.com/your-org/pynomaly/discussions)** - Ask questions and share ideas
+- **[Security Issues](mailto:security@pynomaly.org)** - Report security vulnerabilities

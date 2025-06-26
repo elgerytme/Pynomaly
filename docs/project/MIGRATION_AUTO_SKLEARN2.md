@@ -1,5 +1,10 @@
 # Migration from auto-sklearn to auto-sklearn2
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Project
+
+---
+
+
 ## Overview
 
 Pynomaly has migrated from `auto-sklearn` to `auto-sklearn2` for improved performance and better maintainability. This document explains the changes and migration steps.

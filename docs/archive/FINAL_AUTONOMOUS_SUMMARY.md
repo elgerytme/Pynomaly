@@ -1,5 +1,10 @@
 # Final Autonomous Mode Enhancement Summary
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Archive
+
+---
+
+
 ## 🎯 Mission Accomplished
 
 This comprehensive enhancement successfully analyzed, documented, and extended Pynomaly's autonomous anomaly detection capabilities. All 12 original questions have been answered with detailed analysis, new features implemented, and complete documentation provided.

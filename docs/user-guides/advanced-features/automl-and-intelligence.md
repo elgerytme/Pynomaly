@@ -1,5 +1,10 @@
 # AutoML and Intelligent Features Guide
 
+🍞 **Breadcrumb:** 🏠 [Home](../../index.md) > 👤 [User Guides](../README.md) > 🔶 [Advanced Features](README.md) > 🧠 AutoML
+
+---
+
+
 ## Overview
 
 Pynomaly's AutoML capabilities enable automatic algorithm selection, hyperparameter optimization, and intelligent anomaly detection configuration. This guide covers autonomous detection, dataset profiling, intelligent threshold calculation, and advanced optimization techniques.

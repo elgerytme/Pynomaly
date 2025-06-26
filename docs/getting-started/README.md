@@ -1,5 +1,10 @@
 # Getting Started
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 🚀 [Getting Started](README.md)
+
+---
+
+
 Welcome to Pynomaly! This section will get you up and running with anomaly detection in minutes.
 
 ## 🚀 Quick Start Path

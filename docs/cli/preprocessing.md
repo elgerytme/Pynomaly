@@ -1,5 +1,10 @@
 # Data Preprocessing CLI Reference
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Cli
+
+---
+
+
 This guide covers Pynomaly's comprehensive data preprocessing capabilities available through the command-line interface. The preprocessing commands bridge the gap between raw data and effective anomaly detection by providing production-ready data cleaning, transformation, and pipeline management.
 
 ## Overview

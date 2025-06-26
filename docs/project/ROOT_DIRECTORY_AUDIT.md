@@ -1,5 +1,10 @@
 # Root Directory Audit - Organizational Violations
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Project
+
+---
+
+
 **Date**: June 26, 2025  
 **Auditor**: Claude Code  
 **Status**: Phase 1.1 Complete - Violations Identified

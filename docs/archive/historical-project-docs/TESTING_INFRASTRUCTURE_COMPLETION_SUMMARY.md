@@ -1,5 +1,10 @@
 # 🎯 Testing Infrastructure Completion Summary
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Archive
+
+---
+
+
 ## Executive Summary
 
 The Pynomaly anomaly detection platform has achieved **Enterprise-Grade Testing Infrastructure** with comprehensive coverage across all architectural layers. This represents a complete transformation from minimal test coverage to production-ready testing standards.

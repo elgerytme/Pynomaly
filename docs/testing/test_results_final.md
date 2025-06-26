@@ -1,4 +1,9 @@
 # Script Testing Summary Report
+
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Testing
+
+---
+
 Generated: 2025-06-25 12:58:51
 
 ## Summary

@@ -1,5 +1,10 @@
 # Environment Management Migration Summary
 
+🍞 **Breadcrumb:** 🏠 [Home](../../index.md) > 👨‍💻 [Developer Guides](../README.md) > 🤝 [Contributing](README.md) > 📄 Environment_Management_Migration
+
+---
+
+
 ## 📋 Overview
 This document summarizes the migration of Python environments to a centralized `environments/` directory with dot-prefix naming conventions and comprehensive tool integration.
 

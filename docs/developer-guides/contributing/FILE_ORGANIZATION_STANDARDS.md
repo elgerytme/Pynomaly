@@ -1,5 +1,10 @@
 # File Organization Standards
 
+🍞 **Breadcrumb:** 🏠 [Home](../../index.md) > 👨‍💻 [Developer Guides](../README.md) > 🤝 [Contributing](README.md) > 📄 File_Organization_Standards
+
+---
+
+
 ## 📁 Overview
 
 This document defines the strict file organization standards for the Pynomaly project to maintain a clean, navigable, and professional repository structure.

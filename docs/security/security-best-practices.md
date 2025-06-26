@@ -1,5 +1,10 @@
 # Security Best Practices Guide
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Security
+
+---
+
+
 ## Overview
 
 This comprehensive guide covers security best practices for deploying and operating Pynomaly in production environments. It addresses authentication, authorization, data protection, network security, and compliance considerations for enterprise deployments.
@@ -1291,3 +1296,11 @@ class IncidentResponse:
   - [ ] Legal and compliance contacts are ready
 
 This comprehensive security guide provides the foundation for deploying and operating Pynomaly securely in enterprise environments. Regular review and updates of these security measures are essential to maintain protection against evolving threats.
+
+---
+
+## 🔗 **Related Documentation**
+
+- **[User Guides](../user-guides/README.md)** - Feature documentation
+- **[Getting Started](../getting-started/README.md)** - Installation and setup
+- **[Examples](../examples/README.md)** - Real-world examples

@@ -1,5 +1,10 @@
 # Package Installation Issues - Resolution Summary
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Project
+
+---
+
+
 ## 🎯 Status: RESOLVED ✅
 
 The Pynomaly package installation issues have been successfully resolved. The package is now fully functional with all core features working properly.

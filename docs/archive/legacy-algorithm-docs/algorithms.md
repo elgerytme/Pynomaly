@@ -1,5 +1,10 @@
 # Algorithm Guide
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Archive
+
+---
+
+
 This guide provides comprehensive information about the anomaly detection algorithms available in Pynomaly, when to use them, and how to configure them for optimal performance.
 
 ## Overview

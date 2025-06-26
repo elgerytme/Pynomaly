@@ -1,5 +1,10 @@
 # Progressive Web App API Reference
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📖 [Reference](README.md) > 📁 Api > 📄 Pwa Api Reference
+
+---
+
+
 Complete API reference for Pynomaly's Progressive Web App components, including offline capabilities, synchronization, and advanced visualization features.
 
 ## 📋 Table of Contents

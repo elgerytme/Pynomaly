@@ -1,5 +1,10 @@
 # Cross-Browser Testing Guide
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Testing
+
+---
+
+
 ## 🌐 **Overview**
 
 This guide provides comprehensive documentation for cross-browser testing in the Pynomaly platform, covering compatibility testing, device testing, performance monitoring, and reporting across multiple browsers and devices.
@@ -708,3 +713,11 @@ npx playwright test --video=retain-on-failure
 5. **Visual Testing**: Implement comprehensive visual regression testing
 
 For questions or improvements to this testing framework, please refer to the project documentation or create an issue in the repository.
+
+---
+
+## 🔗 **Related Documentation**
+
+- **[User Guides](../user-guides/README.md)** - Feature documentation
+- **[Getting Started](../getting-started/README.md)** - Installation and setup
+- **[Examples](../examples/README.md)** - Real-world examples

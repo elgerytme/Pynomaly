@@ -1,5 +1,10 @@
 # Data Preprocessing CLI Implementation Summary
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Cli
+
+---
+
+
 ## Overview
 
 Successfully implemented comprehensive data preprocessing capabilities for Pynomaly's CLI, bridging the critical gap between existing preprocessing infrastructure and command-line accessibility. This enhancement transforms Pynomaly from having hidden preprocessing capabilities to providing a full-featured, production-ready data preparation interface.

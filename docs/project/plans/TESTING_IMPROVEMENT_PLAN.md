@@ -1,4 +1,9 @@
 # Pynomaly Testing Improvement Plan
+
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Project
+
+---
+
 ## Comprehensive Strategy to Address Critical Testing Gaps
 
 ### 🎯 **Executive Summary**

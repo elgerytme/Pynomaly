@@ -1,5 +1,10 @@
 # CLI Setup and Verification Guide
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 🚀 [Getting Started](README.md) > 📄 Setup_Cli
+
+---
+
+
 ## ✅ CLI Integration Fixed
 
 The CLI adapter integration issues have been resolved with the following changes:
@@ -123,3 +128,36 @@ The CLI architecture is now **production-ready** with:
 2. **Verify CLI**: Run testing checklist above
 3. **Add CLI Tests**: Create comprehensive test suite
 4. **Documentation**: Add CLI reference docs
+
+---
+
+## 🔗 **Related Documentation**
+
+### **Getting Started**
+- **[Installation Guide](../../getting-started/installation.md)** - Setup and installation
+- **[Quick Start](../../getting-started/quickstart.md)** - Your first detection
+- **[Platform Setup](../../getting-started/platform-specific/)** - Platform-specific guides
+
+### **User Guides**
+- **[Basic Usage](../basic-usage/README.md)** - Essential functionality
+- **[Advanced Features](../advanced-features/README.md)** - Sophisticated capabilities  
+- **[Troubleshooting](../troubleshooting/README.md)** - Problem solving
+
+### **Reference**
+- **[Algorithm Reference](../../reference/algorithms/README.md)** - Algorithm documentation
+- **[API Documentation](../../developer-guides/api-integration/README.md)** - Programming interfaces
+- **[Configuration](../../reference/configuration/)** - System configuration
+
+### **Examples**
+- **[Examples & Tutorials](../../examples/README.md)** - Real-world use cases
+- **[Banking Examples](../../examples/banking/)** - Financial fraud detection
+- **[Notebooks](../../examples/notebooks/)** - Interactive examples
+
+---
+
+## 🆘 **Getting Help**
+
+- **[Troubleshooting Guide](../troubleshooting/troubleshooting.md)** - Common issues and solutions
+- **[GitHub Issues](https://github.com/your-org/pynomaly/issues)** - Report bugs and request features
+- **[GitHub Discussions](https://github.com/your-org/pynomaly/discussions)** - Ask questions and share ideas
+- **[Security Issues](mailto:security@pynomaly.org)** - Report security vulnerabilities

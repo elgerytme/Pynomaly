@@ -1,5 +1,10 @@
 # Pynomaly Advanced Security Features Integration Guide
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 🚀 [Deployment](README.md) > 📄 Security_Integration
+
+---
+
+
 This document provides a comprehensive guide for integrating and using the advanced security features and audit logging system implemented in Pynomaly.
 
 ## Overview
@@ -513,3 +518,36 @@ For security-related questions or incident reporting:
 4. Contact the security team for critical issues
 
 This advanced security framework provides enterprise-grade protection while maintaining the clean architecture principles of Pynomaly. All components are designed to be modular, configurable, and production-ready.
+
+---
+
+## 🔗 **Related Documentation**
+
+### **Getting Started**
+- **[Installation Guide](../../getting-started/installation.md)** - Setup and installation
+- **[Quick Start](../../getting-started/quickstart.md)** - Your first detection
+- **[Platform Setup](../../getting-started/platform-specific/)** - Platform-specific guides
+
+### **User Guides**
+- **[Basic Usage](../basic-usage/README.md)** - Essential functionality
+- **[Advanced Features](../advanced-features/README.md)** - Sophisticated capabilities  
+- **[Troubleshooting](../troubleshooting/README.md)** - Problem solving
+
+### **Reference**
+- **[Algorithm Reference](../../reference/algorithms/README.md)** - Algorithm documentation
+- **[API Documentation](../../developer-guides/api-integration/README.md)** - Programming interfaces
+- **[Configuration](../../reference/configuration/)** - System configuration
+
+### **Examples**
+- **[Examples & Tutorials](../../examples/README.md)** - Real-world use cases
+- **[Banking Examples](../../examples/banking/)** - Financial fraud detection
+- **[Notebooks](../../examples/notebooks/)** - Interactive examples
+
+---
+
+## 🆘 **Getting Help**
+
+- **[Troubleshooting Guide](../troubleshooting/troubleshooting.md)** - Common issues and solutions
+- **[GitHub Issues](https://github.com/your-org/pynomaly/issues)** - Report bugs and request features
+- **[GitHub Discussions](https://github.com/your-org/pynomaly/discussions)** - Ask questions and share ideas
+- **[Security Issues](mailto:security@pynomaly.org)** - Report security vulnerabilities

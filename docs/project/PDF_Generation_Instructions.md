@@ -1,5 +1,10 @@
 # PDF Generation Instructions
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Project
+
+---
+
+
 Since automated PDF generation tools are not available in this environment, please follow these steps to create a PDF version of the Banking Anomaly Detection Guide:
 
 ## Option 1: Using Online Markdown to PDF Converter

@@ -1,5 +1,10 @@
 # 🏗️ Comprehensive Project Organization Plan
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Project
+
+---
+
+
 ## 🎯 Executive Summary
 
 This plan establishes comprehensive organization standards for the Pynomaly project, ensuring clean folder structure, maintainable codebase, and enforced organizational rules. It addresses both **package organization** (Python source code) and **project organization** (entire repository structure).

@@ -1,5 +1,10 @@
 # Pynomaly UI Testing Infrastructure - Execution Summary
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Archive
+
+---
+
+
 ## 🎯 Project Overview
 
 **Objective**: Implement comprehensive UI automation testing for the Pynomaly Progressive Web Application to ensure functionality, responsiveness, accessibility, and performance across multiple browsers and devices.

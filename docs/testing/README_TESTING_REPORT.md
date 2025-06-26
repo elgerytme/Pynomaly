@@ -1,5 +1,10 @@
 # README.md Testing Report
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Testing
+
+---
+
+
 ## 📋 Executive Summary
 
 Comprehensive testing of README.md instructions across both current WSL environment and simulated fresh environments reveals **mostly functional instructions** with several **critical issues** that need addressing for cross-platform compatibility.

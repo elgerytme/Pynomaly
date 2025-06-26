@@ -1,5 +1,10 @@
 # Autonomous Mode Preprocessing Integration
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Autonomous
+
+---
+
+
 This guide covers the intelligent preprocessing capabilities integrated into Pynomaly's autonomous anomaly detection mode, providing truly end-to-end automated data preparation and anomaly detection.
 
 ## Overview

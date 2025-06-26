@@ -1,5 +1,10 @@
 # Algorithm Reference
 
+🍞 **Breadcrumb:** 🏠 [Home](../../index.md) > 📖 [Reference](../README.md) > 🧮 [Algorithms](README.md)
+
+---
+
+
 ## Overview
 
 This directory provides comprehensive documentation for all anomaly detection algorithms available in Pynomaly. The content is organized into specialized guides to help you find the most appropriate algorithm for your use case.

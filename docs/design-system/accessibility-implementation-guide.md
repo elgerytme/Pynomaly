@@ -1,5 +1,10 @@
 # Accessibility Implementation Guide
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Design-System
+
+---
+
+
 ## Overview
 
 This comprehensive guide provides detailed implementation strategies for achieving and maintaining WCAG 2.1 AA compliance across the Pynomaly platform. It covers practical implementation patterns, testing procedures, and ongoing maintenance for creating accessible anomaly detection interfaces.

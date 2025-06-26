@@ -1,5 +1,10 @@
 # Pynomaly Autonomous Mode Implementation Guide
 
+🍞 **Breadcrumb:** 🏠 [Home](../../index.md) > 👨‍💻 [Developer Guides](../README.md) > 🤝 [Contributing](README.md) > 📄 Implementation_Guide
+
+---
+
+
 ## Quick Start with Enhanced Features
 
 ### 1. Basic Autonomous Detection
@@ -483,3 +488,37 @@ def continuous_monitoring(data_source, check_interval=3600):
 ```
 
 This implementation guide provides practical examples for using all the enhanced autonomous features across different interfaces and use cases. The examples demonstrate both basic usage and advanced configurations for production deployments.
+
+---
+
+## 🔗 **Related Documentation**
+
+### **Development**
+- **[Contributing Guidelines](../contributing/CONTRIBUTING.md)** - How to contribute
+- **[Development Setup](../contributing/README.md)** - Local development environment
+- **[Architecture Overview](../architecture/overview.md)** - System design
+- **[Implementation Guide](../contributing/IMPLEMENTATION_GUIDE.md)** - Coding standards
+
+### **API Integration**
+- **[REST API](../api-integration/rest-api.md)** - HTTP API reference
+- **[Python SDK](../api-integration/python-sdk.md)** - Python client library
+- **[CLI Reference](../api-integration/cli.md)** - Command-line interface
+- **[Authentication](../api-integration/authentication.md)** - Security and auth
+
+### **User Documentation**
+- **[User Guides](../../user-guides/README.md)** - Feature usage guides
+- **[Getting Started](../../getting-started/README.md)** - Installation and setup
+- **[Examples](../../examples/README.md)** - Real-world use cases
+
+### **Deployment**
+- **[Production Deployment](../../deployment/README.md)** - Production deployment
+- **[Security Setup](../../deployment/SECURITY.md)** - Security configuration
+- **[Monitoring](../../user-guides/basic-usage/monitoring.md)** - System observability
+
+---
+
+## 🆘 **Getting Help**
+
+- **[Development Troubleshooting](../contributing/troubleshooting/)** - Development issues
+- **[GitHub Issues](https://github.com/your-org/pynomaly/issues)** - Report bugs
+- **[Contributing Guidelines](../contributing/CONTRIBUTING.md)** - Contribution process

@@ -1,5 +1,10 @@
 # Progressive Web App (PWA) User Guide
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 👤 [User Guides](README.md) > 📄 Progressive Web App
+
+---
+
+
 Welcome to Pynomaly's Progressive Web App - a modern, offline-capable web application that brings enterprise-grade anomaly detection to your fingertips with native app-like experiences.
 
 ## 🌟 Overview

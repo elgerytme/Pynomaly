@@ -1,5 +1,10 @@
 # Pynomaly Storybook Component Explorer
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Storybook
+
+---
+
+
 ## 🎨 **Overview**
 
 The Pynomaly Storybook provides comprehensive, interactive documentation for our design system and UI component library. Built with accessibility-first principles and production-ready components.
@@ -351,3 +356,11 @@ npm install && npm run storybook
 ```
 
 Visit http://localhost:6006 and start building accessible, beautiful interfaces! 🚀
+
+---
+
+## 🔗 **Related Documentation**
+
+- **[User Guides](../user-guides/README.md)** - Feature documentation
+- **[Getting Started](../getting-started/README.md)** - Installation and setup
+- **[Examples](../examples/README.md)** - Real-world examples

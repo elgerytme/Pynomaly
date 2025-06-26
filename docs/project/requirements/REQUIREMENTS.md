@@ -1,5 +1,10 @@
 # Pynomaly Requirements
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Project
+
+---
+
+
 ## Core Requirements
 
 ### Technical Foundation

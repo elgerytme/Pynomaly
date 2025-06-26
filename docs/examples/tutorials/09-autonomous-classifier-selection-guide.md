@@ -1,5 +1,10 @@
 # Autonomous Classifier Selection Guide
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 💡 [Examples](README.md) > 📁 Tutorials > 📄 09 Autonomous Classifier Selection Guide
+
+---
+
+
 ## Overview
 
 Pynomaly's autonomous mode features sophisticated classifier selection based on comprehensive data profiling and algorithm characteristics. This guide explains how the system intelligently chooses the optimal algorithms for your data.
@@ -369,3 +374,36 @@ GET  /api/explain/algorithm-choices
 ```
 
 This guide provides a comprehensive understanding of how Pynomaly's autonomous mode intelligently selects classifiers and identifies areas for enhancement across all interfaces.
+
+---
+
+## 🔗 **Related Documentation**
+
+### **Getting Started**
+- **[Installation Guide](../../getting-started/installation.md)** - Setup and installation
+- **[Quick Start](../../getting-started/quickstart.md)** - Your first detection
+- **[Platform Setup](../../getting-started/platform-specific/)** - Platform-specific guides
+
+### **User Guides**
+- **[Basic Usage](../basic-usage/README.md)** - Essential functionality
+- **[Advanced Features](../advanced-features/README.md)** - Sophisticated capabilities  
+- **[Troubleshooting](../troubleshooting/README.md)** - Problem solving
+
+### **Reference**
+- **[Algorithm Reference](../../reference/algorithms/README.md)** - Algorithm documentation
+- **[API Documentation](../../developer-guides/api-integration/README.md)** - Programming interfaces
+- **[Configuration](../../reference/configuration/)** - System configuration
+
+### **Examples**
+- **[Examples & Tutorials](../../examples/README.md)** - Real-world use cases
+- **[Banking Examples](../../examples/banking/)** - Financial fraud detection
+- **[Notebooks](../../examples/notebooks/)** - Interactive examples
+
+---
+
+## 🆘 **Getting Help**
+
+- **[Troubleshooting Guide](../troubleshooting/troubleshooting.md)** - Common issues and solutions
+- **[GitHub Issues](https://github.com/your-org/pynomaly/issues)** - Report bugs and request features
+- **[GitHub Discussions](https://github.com/your-org/pynomaly/discussions)** - Ask questions and share ideas
+- **[Security Issues](mailto:security@pynomaly.org)** - Report security vulnerabilities

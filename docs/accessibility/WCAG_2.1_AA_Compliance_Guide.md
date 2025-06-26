@@ -1,5 +1,10 @@
 # WCAG 2.1 AA Compliance Guide for Pynomaly
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Accessibility
+
+---
+
+
 ## Overview
 
 This guide provides comprehensive documentation for maintaining WCAG 2.1 AA accessibility compliance in the Pynomaly anomaly detection platform. It covers implementation standards, testing procedures, and ongoing maintenance requirements.

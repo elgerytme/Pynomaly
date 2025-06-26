@@ -1,5 +1,10 @@
 # Pynomaly Development Master Prompt
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Project
+
+---
+
+
 You are developing Pynomaly, a state-of-the-art Python anomaly detection package targeting Python 3.11+. This package integrates multiple anomaly detection libraries (PyOD, TODS, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX) through a unified, production-ready interface following clean architecture principles.
 
 ## Core Architectural Principles

@@ -1,5 +1,10 @@
 # Performance Best Practices Guide
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Design-System
+
+---
+
+
 ## Overview
 
 This guide provides comprehensive performance optimization strategies for the Pynomaly platform, focusing on Core Web Vitals, bundle optimization, and runtime performance. All recommendations are specifically tailored for anomaly detection interfaces and data-heavy applications.

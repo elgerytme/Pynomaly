@@ -1,5 +1,10 @@
 # Accessibility Guidelines & WCAG Compliance
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Accessibility
+
+---
+
+
 ## 🌟 **Overview**
 
 This comprehensive guide provides accessibility implementation standards, WCAG 2.1 AA compliance procedures, and testing methodologies for the Pynomaly platform. Our commitment to accessibility ensures that all users, regardless of abilities or disabilities, can effectively use our anomaly detection platform.
@@ -1541,3 +1546,11 @@ class AccessibleModal {
 ```
 
 This comprehensive accessibility guidelines document provides the foundation for ensuring WCAG 2.1 AA compliance across the Pynomaly platform. Regular testing and adherence to these standards will create an inclusive experience for all users.
+
+---
+
+## 🔗 **Related Documentation**
+
+- **[Design System](../design-system/README.md)** - UI design guidelines
+- **[Testing](../testing/cross-browser-testing.md)** - Cross-browser testing
+- **[User Guides](../user-guides/README.md)** - User documentation

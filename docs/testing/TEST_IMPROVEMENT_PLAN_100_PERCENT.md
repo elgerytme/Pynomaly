@@ -1,5 +1,10 @@
 # Test Improvement Plan: Achieving 100% Coverage and 100% Passing Rate
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Testing
+
+---
+
+
 **Objective**: Transform Pynomaly's already excellent test suite to achieve 100% coverage across all areas and 100% test passing rate  
 **Timeline**: 12 weeks (3 phases)  
 **Current Status**: 88% average passing rate, 85% average coverage  

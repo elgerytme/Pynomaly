@@ -1,5 +1,10 @@
 # Root Directory Cleanup Summary
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Project
+
+---
+
+
 **Date**: June 26, 2025  
 **Phase**: 1.2 - File Relocation Complete  
 **Status**: ✅ **SUCCESSFUL**

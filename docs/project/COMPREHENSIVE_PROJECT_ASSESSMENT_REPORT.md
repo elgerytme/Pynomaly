@@ -1,5 +1,10 @@
 # Comprehensive Project Assessment Report - Pynomaly
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Project
+
+---
+
+
 **Assessment Date**: June 25, 2025  
 **Assessment Team**: Claude Code (AI Architecture Specialist)  
 **Project Version**: v1.0.0-dev  

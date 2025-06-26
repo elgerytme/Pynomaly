@@ -1,5 +1,10 @@
 # Algorithm Comparison and Selection Guide
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📖 [Reference](README.md) > 📄 Algorithm Comparison
+
+---
+
+
 This comprehensive guide covers all anomaly detection algorithms supported by Pynomaly, their characteristics, performance comparisons, and selection criteria for different use cases.
 
 ## Table of Contents
@@ -787,3 +792,30 @@ KNN:            0.23  (Least consistent)
 ```
 
 This comprehensive algorithm comparison provides the foundation for making informed decisions about anomaly detection algorithm selection based on specific requirements, data characteristics, and performance constraints.
+
+---
+
+## 🔗 **Related Documentation**
+
+### **User Guides**
+- **[Basic Usage](../../user-guides/basic-usage/README.md)** - Getting started with algorithms
+- **[Advanced Features](../../user-guides/advanced-features/README.md)** - Advanced algorithm usage
+- **[Autonomous Mode](../../user-guides/basic-usage/autonomous-mode.md)** - Automatic algorithm selection
+
+### **Examples**
+- **[Algorithm Examples](../../examples/README.md)** - Practical usage examples
+- **[Performance Benchmarks](../../examples/performance/)** - Algorithm performance data
+- **[Use Case Examples](../../examples/tutorials/)** - Real-world applications
+
+### **Development**
+- **[API Integration](../../developer-guides/api-integration/README.md)** - Programming interfaces
+- **[Custom Algorithms](../../developer-guides/contributing/README.md)** - Adding new algorithms
+- **[Testing](../../developer-guides/contributing/COMPREHENSIVE_TEST_ANALYSIS.md)** - Algorithm testing
+
+---
+
+## 🆘 **Getting Help**
+
+- **[Algorithm Selection Guide](README.md)** - Choosing the right algorithm
+- **[Performance Tuning](../../user-guides/advanced-features/performance-tuning.md)** - Optimization tips
+- **[Troubleshooting](../../user-guides/troubleshooting/README.md)** - Common issues

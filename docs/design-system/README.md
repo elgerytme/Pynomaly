@@ -1,5 +1,10 @@
 # Pynomaly Design System Documentation
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Design-System
+
+---
+
+
 ## 🎨 **Overview**
 
 The Pynomaly Design System is a comprehensive, accessibility-first component library and design framework for building production-ready anomaly detection interfaces. Built with WCAG 2.1 AA compliance, performance optimization, and developer experience at its core.
@@ -630,3 +635,11 @@ Ready to build with the Pynomaly Design System?
 4. **Start Building**: Copy component code and integrate into your application
 
 For questions or contributions, see our [GitHub repository](https://github.com/pynomaly/pynomaly) or join our design system discussions! 🚀
+
+---
+
+## 🔗 **Related Documentation**
+
+- **[Accessibility](../accessibility/accessibility-guidelines.md)** - Accessibility guidelines
+- **[Storybook](../storybook/README.md)** - Component documentation
+- **[UI Testing](../testing/cross-browser-testing.md)** - UI testing guides

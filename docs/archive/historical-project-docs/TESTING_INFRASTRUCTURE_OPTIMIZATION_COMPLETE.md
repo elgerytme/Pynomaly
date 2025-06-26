@@ -1,5 +1,10 @@
 # 🚀 Testing Infrastructure Optimization Complete
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Archive
+
+---
+
+
 ## Executive Summary
 
 The Pynomaly testing infrastructure has been **enhanced with advanced optimization features** that elevate it from enterprise-grade to **world-class status**. These optimizations provide intelligent test execution, comprehensive quality monitoring, and proactive health management.

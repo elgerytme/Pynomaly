@@ -1,5 +1,10 @@
 # Pynomaly Autonomous Mode Deployment Readiness Checklist
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Archive
+
+---
+
+
 ## 🚀 Production Deployment Status
 
 ### ✅ **READY FOR PRODUCTION**

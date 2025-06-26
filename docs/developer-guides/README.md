@@ -1,5 +1,10 @@
 # Developer Guides
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 👨‍💻 [Developer Guides](README.md)
+
+---
+
+
 Technical documentation for developers, integrators, and contributors working with Pynomaly's codebase and APIs.
 
 ## 📋 Quick Navigation

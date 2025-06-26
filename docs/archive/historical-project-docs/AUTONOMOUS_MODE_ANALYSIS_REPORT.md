@@ -1,5 +1,10 @@
 # Autonomous Mode Analysis & Enhancement Report
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Archive
+
+---
+
+
 ## Executive Summary
 
 This comprehensive analysis evaluated and enhanced Pynomaly's autonomous anomaly detection capabilities, providing detailed documentation, enhanced features, and expanded functionality across all interfaces. The work addresses 12 key questions about classifier selection, ensemble methods, AutoML integration, and functionality status.

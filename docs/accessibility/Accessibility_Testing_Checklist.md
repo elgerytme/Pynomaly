@@ -1,5 +1,10 @@
 # Accessibility Testing Checklist for Pynomaly
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Accessibility
+
+---
+
+
 ## Overview
 
 This checklist provides comprehensive accessibility testing procedures for the Pynomaly platform, ensuring WCAG 2.1 AA compliance and optimal user experience for people with disabilities.

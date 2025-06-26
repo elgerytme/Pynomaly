@@ -1,5 +1,10 @@
 # Core Algorithms
 
+🍞 **Breadcrumb:** 🏠 [Home](../../index.md) > 📖 [Reference](../README.md) > 🧮 [Algorithms](README.md) > 🔵 Core Algorithms
+
+---
+
+
 ## Overview
 
 This guide covers the essential anomaly detection algorithms that form the foundation of Pynomaly. These 20+ algorithms handle most common use cases and provide excellent starting points for anomaly detection projects.

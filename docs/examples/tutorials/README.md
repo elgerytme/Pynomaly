@@ -1,5 +1,10 @@
 # Pynomaly Comprehensive Documentation Suite
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 💡 [Examples](README.md) > 📁 Tutorials
+
+---
+
+
 ## Overview
 
 This directory contains the complete documentation suite for Pynomaly, covering all aspects of the state-of-the-art anomaly detection platform. The documentation is designed for multiple audiences including business users, technical implementers, data scientists, and system administrators.

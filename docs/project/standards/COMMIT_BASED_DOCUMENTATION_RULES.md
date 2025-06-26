@@ -1,5 +1,10 @@
 # Commit-Based Documentation Rules
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Project
+
+---
+
+
 This document outlines the mandatory rules for maintaining objective, accurate documentation that must be reviewed and updated with every commit.
 
 ## 🎯 **Objective Documentation Principle**

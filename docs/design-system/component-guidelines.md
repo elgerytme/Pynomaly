@@ -1,5 +1,10 @@
 # Pynomaly Component Guidelines
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Design-System
+
+---
+
+
 ## Overview
 
 This document provides comprehensive guidelines for developing, maintaining, and using components within the Pynomaly design system. These guidelines ensure consistency, accessibility, and quality across all UI components.

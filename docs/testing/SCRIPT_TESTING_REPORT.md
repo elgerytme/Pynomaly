@@ -1,5 +1,10 @@
 # Script Testing Report and Issue Documentation
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Testing
+
+---
+
+
 ## Summary
 
 Successfully ran comprehensive testing on all 12 specified Pynomaly scripts using the `test_all_scripts.py` framework. The testing achieved **83.3% success rate** (10/12 scripts passing) after identifying and fixing critical issues.

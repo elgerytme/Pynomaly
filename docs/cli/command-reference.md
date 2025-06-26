@@ -1,5 +1,10 @@
 # CLI Command Reference
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Cli
+
+---
+
+
 ## Overview
 
 The Pynomaly CLI provides a comprehensive command-line interface for anomaly detection operations. This reference covers all available commands with detailed examples, options, and usage patterns for both interactive and automated workflows.

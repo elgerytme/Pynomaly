@@ -1,5 +1,10 @@
 # Pynomaly Algorithm Options and Functionality Guide
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Archive
+
+---
+
+
 ## Overview
 
 Pynomaly provides a comprehensive suite of anomaly detection algorithms across multiple categories. This guide details all available algorithms, their functionality, parameters, use cases, and performance characteristics.

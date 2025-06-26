@@ -1,5 +1,10 @@
 # Script Testing Summary Report
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Archive
+
+---
+
+
 ## Overview
 
 This report documents the comprehensive testing and fixing of all scripts in the Pynomaly project using the multi-environment testing framework. The testing covered various script types including batch files, PowerShell scripts, Python scripts, and setup utilities across Windows and Linux environments.

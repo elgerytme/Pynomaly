@@ -1,5 +1,10 @@
 # Experimental Algorithms
 
+🍞 **Breadcrumb:** 🏠 [Home](../../index.md) > 📖 [Reference](../README.md) > 🧮 [Algorithms](README.md) > 📄 Experimental Algorithms
+
+---
+
+
 ## Overview
 
 This guide covers advanced and research-oriented anomaly detection algorithms that represent the cutting edge of the field. These methods typically require more computational resources but can achieve superior performance on complex datasets.

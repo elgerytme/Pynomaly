@@ -1,5 +1,10 @@
 # Autonomous Mode User Guide
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 User
+
+---
+
+
 The Pynomaly Autonomous Mode is an intelligent anomaly detection system that automatically analyzes your data, selects optimal algorithms, and provides actionable insights without requiring deep machine learning expertise.
 
 ## What is Autonomous Mode?

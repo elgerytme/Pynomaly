@@ -1,5 +1,10 @@
 # Pynomaly Classifier Selection Guide
 
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📖 [Reference](README.md) > 📄 Classifier_Selection_Guide
+
+---
+
+
 ## Overview
 This guide explains how Pynomaly's autonomous mode selects classifiers and provides recommendations for optimal algorithm choices based on your data characteristics.
 
@@ -239,3 +244,30 @@ The classifier selection logic is implemented in:
 - AutoML services in `src/pynomaly/application/services/automl_service.py`
 
 For improvements or custom selection logic, refer to the clean architecture patterns in the codebase.
+
+---
+
+## 🔗 **Related Documentation**
+
+### **User Guides**
+- **[Basic Usage](../../user-guides/basic-usage/README.md)** - Getting started with algorithms
+- **[Advanced Features](../../user-guides/advanced-features/README.md)** - Advanced algorithm usage
+- **[Autonomous Mode](../../user-guides/basic-usage/autonomous-mode.md)** - Automatic algorithm selection
+
+### **Examples**
+- **[Algorithm Examples](../../examples/README.md)** - Practical usage examples
+- **[Performance Benchmarks](../../examples/performance/)** - Algorithm performance data
+- **[Use Case Examples](../../examples/tutorials/)** - Real-world applications
+
+### **Development**
+- **[API Integration](../../developer-guides/api-integration/README.md)** - Programming interfaces
+- **[Custom Algorithms](../../developer-guides/contributing/README.md)** - Adding new algorithms
+- **[Testing](../../developer-guides/contributing/COMPREHENSIVE_TEST_ANALYSIS.md)** - Algorithm testing
+
+---
+
+## 🆘 **Getting Help**
+
+- **[Algorithm Selection Guide](README.md)** - Choosing the right algorithm
+- **[Performance Tuning](../../user-guides/advanced-features/performance-tuning.md)** - Optimization tips
+- **[Troubleshooting](../../user-guides/troubleshooting/README.md)** - Common issues
