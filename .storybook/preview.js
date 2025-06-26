@@ -1,195 +1,249 @@
-import { INITIAL_VIEWPORTS } from '@storybook/addon-viewport';
-
-// Import design system CSS
 import '../src/pynomaly/presentation/web/static/css/design-system.css';
-import '../src/pynomaly/presentation/web/static/css/tailwind.css';
 
-export const parameters = {
-  actions: { argTypesRegex: '^on[A-Z].*' },
-  
-  controls: {
-    matchers: {
-      color: /(background|color)$/i,
-      date: /Date$/,
+/** @type { import('@storybook/html').Preview } */
+const preview = {
+  parameters: {
+    actions: { argTypesRegex: '^on[A-Z].*' },
+    controls: {
+      matchers: {
+        color: /(background|color)$/i,
+        date: /Date$/,
+      },
     },
-    expanded: true,
-    sort: 'requiredFirst'
-  },
-
-  docs: {
-    extractComponentDescription: (component, { notes }) => {
-      if (notes) {
-        return typeof notes === 'string' ? notes : notes.markdown || notes.text;
+    docs: {
+      theme: {
+        base: 'light',
+        brandTitle: 'Pynomaly Design System',
+        brandUrl: 'https://pynomaly.io',
+        brandImage: '/static/images/pynomaly-logo.svg',
+        brandTarget: '_self',
+        
+        colorPrimary: '#0ea5e9',
+        colorSecondary: '#22c55e',
+        
+        // UI
+        appBg: '#f8fafc',
+        appContentBg: '#ffffff',
+        appBorderColor: '#e2e8f0',
+        appBorderRadius: 8,
+        
+        // Typography
+        fontBase: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        fontCode: '"JetBrains Mono", Consolas, "Liberation Mono", Menlo, Courier, monospace',
+        
+        // Text colors
+        textColor: '#1e293b',
+        textInverseColor: '#ffffff',
+        
+        // Toolbar default and active colors
+        barTextColor: '#64748b',
+        barSelectedColor: '#0ea5e9',
+        barBg: '#ffffff',
+        
+        // Form colors
+        inputBg: '#ffffff',
+        inputBorder: '#d1d5db',
+        inputTextColor: '#1f2937',
+        inputBorderRadius: 6,
       }
-      return null;
     },
-    source: {
-      state: 'open',
-      type: 'dynamic'
-    }
-  },
-
-  // Accessibility testing configuration
-  a11y: {
-    element: '#storybook-root',
-    config: {
-      rules: [
+    backgrounds: {
+      default: 'light',
+      values: [
         {
-          id: 'color-contrast',
-          reviewOnFail: true
+          name: 'light',
+          value: '#ffffff'
         },
         {
-          id: 'focus-order-semantics',
-          reviewOnFail: true
+          name: 'gray-50',
+          value: '#f8fafc'
         },
         {
-          id: 'keyboard-navigation',
-          reviewOnFail: true
+          name: 'gray-100',
+          value: '#f1f5f9'
+        },
+        {
+          name: 'dark',
+          value: '#0f172a'
+        },
+        {
+          name: 'primary',
+          value: '#0ea5e9'
         }
       ]
     },
-    options: {
-      checks: { 'color-contrast': { options: { noScroll: true } } },
-      restoreScroll: true
-    }
-  },
-
-  // Viewport configuration for responsive testing
-  viewport: {
-    viewports: {
-      ...INITIAL_VIEWPORTS,
-      pynomaly_mobile: {
-        name: 'Pynomaly Mobile',
-        styles: {
-          width: '375px',
-          height: '667px'
-        }
+    viewport: {
+      viewports: {
+        mobile: {
+          name: 'Mobile',
+          styles: {
+            width: '375px',
+            height: '667px',
+          },
+        },
+        tablet: {
+          name: 'Tablet',
+          styles: {
+            width: '768px',
+            height: '1024px',
+          },
+        },
+        desktop: {
+          name: 'Desktop',
+          styles: {
+            width: '1200px',
+            height: '800px',
+          },
+        },
+        desktopHD: {
+          name: 'Desktop HD',
+          styles: {
+            width: '1920px',
+            height: '1080px',
+          },
+        },
       },
-      pynomaly_tablet: {
-        name: 'Pynomaly Tablet',
-        styles: {
-          width: '768px',
-          height: '1024px'
-        }
-      },
-      pynomaly_desktop: {
-        name: 'Pynomaly Desktop',
-        styles: {
-          width: '1280px',
-          height: '800px'
-        }
-      },
-      pynomaly_wide: {
-        name: 'Pynomaly Wide',
-        styles: {
-          width: '1920px',
-          height: '1080px'
-        }
-      }
     },
-    defaultViewport: 'pynomaly_desktop'
-  },
-
-  // Background configuration for design system testing
-  backgrounds: {
-    default: 'light',
-    values: [
-      {
-        name: 'light',
-        value: '#fafafa'
+    a11y: {
+      config: {
+        rules: [
+          {
+            id: 'color-contrast',
+            enabled: true,
+          },
+          {
+            id: 'focus-management',
+            enabled: true,
+          },
+          {
+            id: 'keyboard-navigation',
+            enabled: true,
+          },
+        ],
       },
-      {
-        name: 'dark',
-        value: '#171717'
+      options: {
+        checks: { 'color-contrast': { options: { noScroll: true } } },
+        restoreScroll: true,
       },
-      {
-        name: 'primary',
-        value: '#0ea5e9'
+    },
+    measure: {
+      results: {
+        margin: {
+          color: '#ff5722',
+        },
+        padding: {
+          color: '#8bc34a',
+        },
       },
-      {
-        name: 'surface',
-        value: '#f5f5f5'
-      }
-    ]
-  },
-
-  // Layout configuration
-  layout: 'centered',
-
-  // Custom toolbar options
-  toolbar: {
-    title: { hidden: false },
-    zoom: { hidden: false },
-    eject: { hidden: false },
-    copy: { hidden: false },
-    fullscreen: { hidden: false }
-  }
-};
-
-// Global decorators
-export const decorators = [
-  (Story, context) => {
-    // Add design system context
-    const wrapper = document.createElement('div');
-    wrapper.className = 'pynomaly-storybook-wrapper';
-    wrapper.style.fontFamily = 'Inter, system-ui, sans-serif';
-    wrapper.style.fontSize = '14px';
-    wrapper.style.lineHeight = '1.5';
-    wrapper.style.color = '#171717';
-    
-    // Add accessibility landmarks for better screen reader support
-    wrapper.setAttribute('role', 'main');
-    wrapper.setAttribute('aria-label', 'Component demonstration');
-    
-    const story = Story();
-    if (typeof story === 'string') {
-      wrapper.innerHTML = story;
-    } else {
-      wrapper.appendChild(story);
-    }
-    
-    return wrapper;
+    },
+    outline: {
+      color: '#0ea5e9',
+      width: '2px',
+    },
   },
   
-  (Story, context) => {
-    // Theme decorator for consistent theming
-    const { theme = 'light' } = context.globals;
-    
-    document.documentElement.setAttribute('data-theme', theme);
-    document.documentElement.className = `theme-${theme}`;
-    
-    return Story();
-  }
-];
-
-// Global types for addon controls
-export const globalTypes = {
-  theme: {
-    name: 'Theme',
-    description: 'Global theme for components',
-    defaultValue: 'light',
-    toolbar: {
-      icon: 'paintbrush',
-      items: [
-        { value: 'light', title: 'Light Theme' },
-        { value: 'dark', title: 'Dark Theme' },
-        { value: 'high-contrast', title: 'High Contrast' }
-      ],
-      showName: true
+  argTypes: {
+    // Global argTypes for consistent component props
+    size: {
+      control: { type: 'select' },
+      options: ['xs', 'sm', 'base', 'lg', 'xl'],
+      description: 'Size variant of the component'
+    },
+    variant: {
+      control: { type: 'select' },
+      options: ['primary', 'secondary', 'success', 'warning', 'danger', 'info'],
+      description: 'Visual variant of the component'
+    },
+    disabled: {
+      control: { type: 'boolean' },
+      description: 'Whether the component is disabled'
+    },
+    loading: {
+      control: { type: 'boolean' },
+      description: 'Whether the component is in a loading state'
+    },
+    theme: {
+      control: { type: 'select' },
+      options: ['light', 'dark'],
+      description: 'Theme variant'
     }
   },
-  locale: {
-    name: 'Locale',
-    description: 'Internationalization locale',
-    defaultValue: 'en',
-    toolbar: {
-      icon: 'globe',
-      items: [
-        { value: 'en', title: 'English' },
-        { value: 'es', title: 'Español' },
-        { value: 'fr', title: 'Français' }
-      ],
-      showName: true
-    }
-  }
+  
+  globalTypes: {
+    theme: {
+      description: 'Global theme for components',
+      defaultValue: 'light',
+      toolbar: {
+        title: 'Theme',
+        icon: 'paintbrush',
+        items: [
+          { value: 'light', title: 'Light' },
+          { value: 'dark', title: 'Dark' }
+        ],
+        dynamicTitle: true,
+      },
+    },
+    locale: {
+      description: 'Internationalization locale',
+      defaultValue: 'en',
+      toolbar: {
+        icon: 'globe',
+        items: [
+          { value: 'en', title: 'English' },
+          { value: 'es', title: 'Español' },
+          { value: 'fr', title: 'Français' },
+          { value: 'de', title: 'Deutsch' },
+        ],
+        showName: true,
+      },
+    },
+    density: {
+      description: 'Component density',
+      defaultValue: 'normal',
+      toolbar: {
+        title: 'Density',
+        icon: 'component',
+        items: [
+          { value: 'compact', title: 'Compact' },
+          { value: 'normal', title: 'Normal' },
+          { value: 'comfortable', title: 'Comfortable' }
+        ],
+      },
+    },
+  },
+  
+  decorators: [
+    (story, context) => {
+      const theme = context.globals.theme || 'light';
+      const density = context.globals.density || 'normal';
+      
+      // Apply theme class to the story wrapper
+      const wrapper = document.createElement('div');
+      wrapper.className = `storybook-wrapper theme-${theme} density-${density}`;
+      wrapper.style.cssText = `
+        min-height: 100vh;
+        padding: 1rem;
+        background-color: ${theme === 'dark' ? '#0f172a' : '#ffffff'};
+        color: ${theme === 'dark' ? '#f1f5f9' : '#1e293b'};
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        transition: background-color 0.2s ease, color 0.2s ease;
+      `;
+      
+      // Apply density styles
+      if (density === 'compact') {
+        wrapper.style.fontSize = '0.875rem';
+        wrapper.style.lineHeight = '1.25rem';
+      } else if (density === 'comfortable') {
+        wrapper.style.fontSize = '1.125rem';
+        wrapper.style.lineHeight = '1.75rem';
+      }
+      
+      wrapper.appendChild(story());
+      return wrapper;
+    },
+  ],
+  
+  tags: ['autodocs'],
 };
+
+export default preview;

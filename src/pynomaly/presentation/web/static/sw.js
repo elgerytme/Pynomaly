@@ -638,12 +638,260 @@ function notifyClients(type, data) {
   });
 }
 
-// Placeholder functions for IndexedDB operations
-async function queueRequest(requestData, tag) { /* Implementation */ }
-async function removeFromSyncQueue(id) { /* Implementation */ }
-async function saveDetectionResult(result) { /* Implementation */ }
-async function getAllFromStore(store) { /* Implementation */ }
-async function getFromStore(store, key) { /* Implementation */ }
-async function updateUserPreference(key, value) { /* Implementation */ }
+// =====================================================
+// Complete IndexedDB Operations Implementation
+// =====================================================
+
+/**
+ * Queue a request for background sync
+ */
+async function queueRequest(requestData, tag) {
+  try {
+    const db = await openIndexedDB();
+    const transaction = db.transaction([STORES.SYNC_QUEUE], 'readwrite');
+    const store = transaction.objectStore(STORES.SYNC_QUEUE);
+    
+    const queueItem = {
+      ...requestData,
+      tag,
+      timestamp: Date.now(),
+      retryCount: 0,
+      status: 'pending'
+    };
+    
+    await addToStore(store, queueItem);
+    console.log('[SW] Request queued for sync:', tag, requestData.id);
+  } catch (error) {
+    console.error('[SW] Failed to queue request:', error);
+  }
+}
+
+/**
+ * Remove item from sync queue
+ */
+async function removeFromSyncQueue(id) {
+  try {
+    const db = await openIndexedDB();
+    const transaction = db.transaction([STORES.SYNC_QUEUE], 'readwrite');
+    const store = transaction.objectStore(STORES.SYNC_QUEUE);
+    
+    await deleteFromStore(store, id);
+    console.log('[SW] Removed from sync queue:', id);
+  } catch (error) {
+    console.error('[SW] Failed to remove from sync queue:', error);
+  }
+}
+
+/**
+ * Save detection result to offline storage
+ */
+async function saveDetectionResult(result) {
+  try {
+    const db = await openIndexedDB();
+    const transaction = db.transaction([STORES.DETECTIONS], 'readwrite');
+    const store = transaction.objectStore(STORES.DETECTIONS);
+    
+    const detectionRecord = {
+      id: result.id || Date.now(),
+      timestamp: Date.now(),
+      result: result,
+      status: 'completed',
+      synced: false
+    };
+    
+    await addToStore(store, detectionRecord);
+    console.log('[SW] Detection result saved offline:', detectionRecord.id);
+  } catch (error) {
+    console.error('[SW] Failed to save detection result:', error);
+  }
+}
+
+/**
+ * Get all items from IndexedDB store
+ */
+async function getAllFromStore(store) {
+  return new Promise((resolve, reject) => {
+    const request = store.getAll();
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/**
+ * Get specific item from IndexedDB store
+ */
+async function getFromStore(store, key) {
+  return new Promise((resolve, reject) => {
+    const request = store.get(key);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/**
+ * Add item to IndexedDB store
+ */
+async function addToStore(store, data) {
+  return new Promise((resolve, reject) => {
+    const request = store.add(data);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/**
+ * Update item in IndexedDB store
+ */
+async function updateInStore(store, data) {
+  return new Promise((resolve, reject) => {
+    const request = store.put(data);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/**
+ * Delete item from IndexedDB store
+ */
+async function deleteFromStore(store, key) {
+  return new Promise((resolve, reject) => {
+    const request = store.delete(key);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/**
+ * Update user preference
+ */
+async function updateUserPreference(key, value) {
+  try {
+    const db = await openIndexedDB();
+    const transaction = db.transaction([STORES.USER_PREFERENCES], 'readwrite');
+    const store = transaction.objectStore(STORES.USER_PREFERENCES);
+    
+    const preference = {
+      id: key,
+      value: value,
+      timestamp: Date.now()
+    };
+    
+    await updateInStore(store, preference);
+    console.log('[SW] User preference updated:', key);
+  } catch (error) {
+    console.error('[SW] Failed to update user preference:', error);
+  }
+}
+
+/**
+ * Cache URLs programmatically
+ */
+async function cacheUrls(urls) {
+  try {
+    const cache = await caches.open(DYNAMIC_CACHE);
+    await cache.addAll(urls);
+    console.log('[SW] URLs cached:', urls.length);
+  } catch (error) {
+    console.error('[SW] Failed to cache URLs:', error);
+  }
+}
+
+/**
+ * Clear specific cache
+ */
+async function clearCache(cacheName) {
+  try {
+    const deleted = await caches.delete(cacheName);
+    console.log('[SW] Cache cleared:', cacheName, deleted);
+    return deleted;
+  } catch (error) {
+    console.error('[SW] Failed to clear cache:', error);
+    return false;
+  }
+}
+
+/**
+ * Get cache status
+ */
+async function getCacheStatus() {
+  try {
+    const cacheNames = await caches.keys();
+    const status = {
+      caches: cacheNames.length,
+      names: cacheNames,
+      totalSize: 0
+    };
+    
+    for (const cacheName of cacheNames) {
+      const cache = await caches.open(cacheName);
+      const keys = await cache.keys();
+      status.totalSize += keys.length;
+    }
+    
+    return status;
+  } catch (error) {
+    console.error('[SW] Failed to get cache status:', error);
+    return { caches: 0, names: [], totalSize: 0 };
+  }
+}
+
+/**
+ * Save dataset to offline storage
+ */
+async function saveDatasetOffline(dataset) {
+  try {
+    const db = await openIndexedDB();
+    const transaction = db.transaction([STORES.DATASETS], 'readwrite');
+    const store = transaction.objectStore(STORES.DATASETS);
+    
+    const datasetRecord = {
+      id: dataset.id || Date.now(),
+      name: dataset.name,
+      data: dataset.data,
+      metadata: dataset.metadata,
+      timestamp: Date.now(),
+      synced: false
+    };
+    
+    await addToStore(store, datasetRecord);
+    console.log('[SW] Dataset saved offline:', datasetRecord.id);
+    return datasetRecord.id;
+  } catch (error) {
+    console.error('[SW] Failed to save dataset offline:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get offline datasets
+ */
+async function getOfflineDatasets() {
+  try {
+    const db = await openIndexedDB();
+    const transaction = db.transaction([STORES.DATASETS], 'readonly');
+    const store = transaction.objectStore(STORES.DATASETS);
+    
+    return await getAllFromStore(store);
+  } catch (error) {
+    console.error('[SW] Failed to get offline datasets:', error);
+    return [];
+  }
+}
+
+/**
+ * Get offline detection results
+ */
+async function getOfflineResults() {
+  try {
+    const db = await openIndexedDB();
+    const transaction = db.transaction([STORES.RESULTS], 'readonly');
+    const store = transaction.objectStore(STORES.RESULTS);
+    
+    return await getAllFromStore(store);
+  } catch (error) {
+    console.error('[SW] Failed to get offline results:', error);
+    return [];
+  }
+}
 
 console.log('[SW] Service worker script loaded successfully');
