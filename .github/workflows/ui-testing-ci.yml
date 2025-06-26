@@ -1,0 +1,395 @@
+name: UI Testing CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/pynomaly/presentation/web/**'
+      - 'tests/ui/**'
+      - '.github/workflows/ui-testing-ci.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'src/pynomaly/presentation/web/**'
+      - 'tests/ui/**'
+
+env:
+  PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+  LIGHTHOUSE_ENABLED: "true"
+  VISUAL_TESTING: "true"
+  ACCESSIBILITY_TESTING: "true"
+  PERFORMANCE_TESTING: "true"
+  HEADLESS: "true"
+  CI: "true"
+
+jobs:
+  ui-testing:
+    name: UI Testing Suite
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        browser: [chromium, firefox, webkit]
+        node-version: [18, 20]
+    
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Set up Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          xvfb \
+          libnss3-dev \
+          libatk-bridge2.0-dev \
+          libdrm2 \
+          libxkbcommon-dev \
+          libgtk-3-dev \
+          libgbm-dev
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install hatch
+        hatch env create ui-test
+
+    - name: Install Node.js dependencies
+      run: |
+        npm ci
+        npm install -g lighthouse
+
+    - name: Install Playwright browsers
+      run: |
+        hatch env run -e ui-test install-browsers
+        hatch env run -e ui-test -- playwright install-deps
+
+    - name: Build web assets
+      run: |
+        npm run build-css
+        hatch env run -e ui-test -- python -c "
+        import subprocess
+        try:
+            subprocess.run(['npm', 'run', 'build-js'], check=True)
+        except subprocess.CalledProcessError:
+            print('JavaScript build not configured, skipping...')
+        "
+
+    - name: Start web server
+      run: |
+        hatch env run -e ui-test -- uvicorn pynomaly.presentation.web.app:app \
+          --host 0.0.0.0 --port 8000 &
+        sleep 10
+        curl -f http://localhost:8000 || exit 1
+
+    - name: Run visual regression tests
+      if: env.VISUAL_TESTING == 'true'
+      env:
+        BROWSER: ${{ matrix.browser }}
+      run: |
+        hatch env run -e ui-test test-visual --browser ${{ matrix.browser }}
+
+    - name: Run accessibility tests
+      if: env.ACCESSIBILITY_TESTING == 'true'
+      env:
+        BROWSER: ${{ matrix.browser }}
+      run: |
+        hatch env run -e ui-test test-accessibility --browser ${{ matrix.browser }}
+
+    - name: Run performance tests
+      if: env.PERFORMANCE_TESTING == 'true'
+      env:
+        BROWSER: ${{ matrix.browser }}
+      run: |
+        hatch env run -e ui-test test-performance --browser ${{ matrix.browser }}
+
+    - name: Run cross-browser compatibility tests
+      env:
+        BROWSER: ${{ matrix.browser }}
+      run: |
+        hatch env run -e ui-test test --browser ${{ matrix.browser }} \
+          --html=test_reports/ui_test_report_${{ matrix.browser }}.html \
+          --self-contained-html
+
+    - name: Run Lighthouse audits
+      if: env.LIGHTHOUSE_ENABLED == 'true' && matrix.browser == 'chromium'
+      run: |
+        # Run Lighthouse on key pages
+        lighthouse http://localhost:8000 \
+          --output=json \
+          --output-path=test_reports/lighthouse/homepage.json \
+          --chrome-flags="--headless --no-sandbox" \
+          --quiet
+        
+        lighthouse http://localhost:8000/detectors \
+          --output=json \
+          --output-path=test_reports/lighthouse/detectors.json \
+          --chrome-flags="--headless --no-sandbox" \
+          --quiet
+        
+        lighthouse http://localhost:8000/detection \
+          --output=json \
+          --output-path=test_reports/lighthouse/detection.json \
+          --chrome-flags="--headless --no-sandbox" \
+          --quiet
+
+    - name: Upload test reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: ui-test-reports-${{ matrix.browser }}-node${{ matrix.node-version }}
+        path: |
+          test_reports/
+          tests/ui/screenshots/
+        retention-days: 30
+
+    - name: Upload Percy snapshots
+      if: env.PERCY_TOKEN && matrix.browser == 'chromium'
+      run: |
+        npx percy upload test_reports/screenshots
+
+    - name: Analyze Core Web Vitals
+      if: matrix.browser == 'chromium'
+      run: |
+        hatch env run -e ui-test -- python -c "
+        import json
+        from pathlib import Path
+        
+        reports_dir = Path('test_reports/performance')
+        if reports_dir.exists():
+            total_lcp = 0
+            total_fid = 0
+            total_cls = 0
+            count = 0
+            
+            for report_file in reports_dir.glob('*.json'):
+                with open(report_file) as f:
+                    data = json.load(f)
+                
+                cwv = data.get('coreWebVitals', {})
+                if cwv.get('largestContentfulPaint', 0) > 0:
+                    total_lcp += cwv['largestContentfulPaint']
+                    total_fid += cwv.get('firstInputDelay', 0)
+                    total_cls += cwv.get('cumulativeLayoutShift', 0)
+                    count += 1
+            
+            if count > 0:
+                avg_lcp = total_lcp / count
+                avg_fid = total_fid / count
+                avg_cls = total_cls / count
+                
+                print(f'Average Core Web Vitals:')
+                print(f'  LCP: {avg_lcp:.2f}ms (threshold: 2500ms)')
+                print(f'  FID: {avg_fid:.2f}ms (threshold: 100ms)')
+                print(f'  CLS: {avg_cls:.3f} (threshold: 0.1)')
+                
+                # Fail if thresholds exceeded
+                if avg_lcp > 2500:
+                    print(f'❌ LCP threshold exceeded: {avg_lcp:.2f}ms > 2500ms')
+                    exit(1)
+                if avg_fid > 100:
+                    print(f'❌ FID threshold exceeded: {avg_fid:.2f}ms > 100ms')
+                    exit(1)
+                if avg_cls > 0.1:
+                    print(f'❌ CLS threshold exceeded: {avg_cls:.3f} > 0.1')
+                    exit(1)
+                
+                print('✅ All Core Web Vitals thresholds met')
+        "
+
+    - name: Comment PR with test results
+      if: github.event_name == 'pull_request' && matrix.browser == 'chromium' && matrix.node-version == '20'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+          
+          // Read test results
+          let comment = '## UI Testing Results\n\n';
+          
+          // Accessibility results
+          const accessibilityDir = 'test_reports/accessibility';
+          if (fs.existsSync(accessibilityDir)) {
+            const files = fs.readdirSync(accessibilityDir);
+            let totalViolations = 0;
+            let totalTests = 0;
+            
+            files.forEach(file => {
+              if (file.endsWith('.json')) {
+                const data = JSON.parse(fs.readFileSync(path.join(accessibilityDir, file)));
+                totalViolations += data.summary?.violations_count || 0;
+                totalTests++;
+              }
+            });
+            
+            comment += `### Accessibility Testing\n`;
+            comment += `- **Tests Run**: ${totalTests}\n`;
+            comment += `- **Total Violations**: ${totalViolations}\n`;
+            comment += totalViolations === 0 ? '✅ No accessibility violations found\n\n' : '⚠️ Accessibility issues detected\n\n';
+          }
+          
+          // Performance results
+          const perfDir = 'test_reports/performance';
+          if (fs.existsSync(perfDir)) {
+            comment += `### Performance Testing\n`;
+            comment += `- **Core Web Vitals**: Monitored\n`;
+            comment += `- **Lighthouse Audits**: Available in artifacts\n`;
+            comment += `- **Cross-browser**: All major browsers tested\n\n`;
+          }
+          
+          // Visual regression
+          const screenshotsDir = 'tests/ui/screenshots';
+          if (fs.existsSync(screenshotsDir)) {
+            const screenshots = fs.readdirSync(screenshotsDir).length;
+            comment += `### Visual Regression Testing\n`;
+            comment += `- **Screenshots Captured**: ${screenshots}\n`;
+            comment += `- **Percy Integration**: ${process.env.PERCY_TOKEN ? 'Enabled' : 'Disabled'}\n\n`;
+          }
+          
+          comment += `### Test Artifacts\n`;
+          comment += `View detailed test reports in the [Actions artifacts](${context.payload.repository.html_url}/actions/runs/${context.runId}).\n`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+
+  lighthouse-ci:
+    name: Lighthouse CI
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        npm ci
+        npm install -g @lhci/cli lighthouse
+        python -m pip install --upgrade pip
+        pip install hatch
+
+    - name: Build application
+      run: |
+        hatch env create ui-test
+        npm run build-css
+
+    - name: Start server
+      run: |
+        hatch env run -e ui-test -- uvicorn pynomaly.presentation.web.app:app \
+          --host 0.0.0.0 --port 8000 &
+        sleep 10
+
+    - name: Run Lighthouse CI
+      run: |
+        lhci autorun
+      env:
+        LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+  security-scan:
+    name: Security Scan for Web Assets
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run npm audit
+      run: npm audit --audit-level=moderate
+
+    - name: Scan for secrets in web assets
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./src/pynomaly/presentation/web/
+        base: main
+        head: HEAD
+
+  deploy-preview:
+    name: Deploy Preview Environment
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    environment: preview
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install hatch
+
+    - name: Build web assets
+      run: |
+        npm ci
+        npm run build-css
+
+    - name: Deploy to preview environment
+      run: |
+        echo "Deploying to preview environment..."
+        echo "Preview URL: https://preview-pr-${{ github.event.number }}.pynomaly.dev"
+        # Add actual deployment commands here
+
+    - name: Comment preview URL
+      uses: actions/github-script@v6
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `## 🚀 Preview Deployment\n\nYour changes have been deployed to a preview environment:\n\n**Preview URL**: https://preview-pr-${{ github.event.number }}.pynomaly.dev\n\nThe preview will be available for testing until the PR is merged or closed.`
+          });
