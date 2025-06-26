@@ -1178,5 +1178,15 @@
     "rule_name": "require_test_specification",
     "suggestion": "Create test requirement for function 'dfs'",
     "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/use_cases/drift_monitoring_use_case.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/use_cases/drift_monitoring_use_case.py is missing corresponding test file tests/application/use_cases/drift_monitoring_use_case_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/use_cases/drift_monitoring_use_case_test.py",
+    "auto_fixable": true
   }
 ]
