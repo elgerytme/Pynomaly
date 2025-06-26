@@ -1168,5 +1168,15 @@
     "rule_name": "require_test_file",
     "suggestion": "Create test file at tests/application/services/streaming_service_test.py",
     "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/model_lineage_service.py",
+    "line_number": 457,
+    "description": "Function 'dfs' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'dfs'",
+    "auto_fixable": false
   }
 ]
