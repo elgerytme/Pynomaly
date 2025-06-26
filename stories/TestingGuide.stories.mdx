@@ -1,0 +1,617 @@
+import { Meta } from '@storybook/addon-docs';
+
+<Meta title="Guidelines/Testing" />
+
+# Testing Guide
+
+Comprehensive testing strategy for the Pynomaly design system, ensuring reliability, accessibility, and performance across all components and user interactions.
+
+## 🧪 Testing Philosophy
+
+### Test Pyramid Strategy
+```
+                    🔺 E2E Tests
+                   ╱              ╲
+                  ╱   Integration   ╲
+                 ╱      Tests        ╲
+                ╱____________________╲
+               ╱                      ╲
+              ╱      Unit Tests        ╲
+             ╱________________________╲
+```
+
+- **70% Unit Tests**: Fast, isolated component testing
+- **20% Integration Tests**: Component interaction testing
+- **10% E2E Tests**: Full user journey validation
+
+### Testing Principles
+- **User-Centric**: Test behavior, not implementation
+- **Accessibility-First**: Every test includes a11y validation
+- **Performance-Aware**: Monitor rendering and interaction performance
+- **Cross-Browser**: Ensure compatibility across target browsers
+- **Mobile-Ready**: Test responsive behavior and touch interactions
+
+## 🔧 Testing Stack
+
+### Core Testing Framework
+```javascript
+// Jest + Testing Library configuration
+module.exports = {
+  testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ['<rootDir>/src/test/setup.js'],
+  
+  // Coverage thresholds
+  coverageThreshold: {
+    global: {
+      branches: 85,
+      functions: 85,
+      lines: 85,
+      statements: 85
+    }
+  },
+  
+  // Module mapping for static assets
+  moduleNameMapping: {
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '\\.(jpg|jpeg|png|gif|svg)$': '<rootDir>/src/test/__mocks__/fileMock.js'
+  },
+  
+  // Test path patterns
+  testMatch: [
+    '<rootDir>/src/**/__tests__/**/*.(js|jsx|ts|tsx)',
+    '<rootDir>/src/**/*.(test|spec).(js|jsx|ts|tsx)'
+  ],
+  
+  // Transform configuration
+  transform: {
+    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest'
+  }
+};
+```
+
+### Accessibility Testing
+```javascript
+// @testing-library/jest-dom + jest-axe setup
+import '@testing-library/jest-dom';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import 'jest-canvas-mock';
+
+// Extend Jest matchers
+expect.extend(toHaveNoViolations);
+
+// Global test setup
+beforeEach(() => {
+  // Clear any previous DOM
+  document.body.innerHTML = '';
+  
+  // Reset any global state
+  jest.clearAllMocks();
+});
+
+// Mock IntersectionObserver for charts
+global.IntersectionObserver = jest.fn(() => ({
+  observe: jest.fn(),
+  disconnect: jest.fn(),
+  unobserve: jest.fn()
+}));
+
+// Mock ResizeObserver
+global.ResizeObserver = jest.fn(() => ({
+  observe: jest.fn(),
+  disconnect: jest.fn(),
+  unobserve: jest.fn()
+}));
+```
+
+## 📝 Component Testing Patterns
+
+### Basic Component Test
+```javascript
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { axe } from 'jest-axe';
+import { Button } from '../Button';
+
+describe('Button Component', () => {
+  it('renders with correct text', () => {
+    render(<Button>Click me</Button>);
+    expect(screen.getByRole('button', { name: /click me/i })).toBeInTheDocument();
+  });
+  
+  it('handles click events', async () => {
+    const handleClick = jest.fn();
+    const user = userEvent.setup();
+    
+    render(<Button onClick={handleClick}>Click me</Button>);
+    
+    await user.click(screen.getByRole('button'));
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+  
+  it('is accessible', async () => {
+    const { container } = render(<Button>Accessible button</Button>);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+  
+  it('supports keyboard navigation', async () => {
+    const handleClick = jest.fn();
+    const user = userEvent.setup();
+    
+    render(<Button onClick={handleClick}>Keyboard accessible</Button>);
+    
+    const button = screen.getByRole('button');
+    button.focus();
+    
+    expect(button).toHaveFocus();
+    
+    await user.keyboard('{Enter}');
+    expect(handleClick).toHaveBeenCalled();
+    
+    await user.keyboard('{Space}');
+    expect(handleClick).toHaveBeenCalledTimes(2);
+  });
+  
+  it('handles disabled state correctly', () => {
+    render(<Button disabled>Disabled button</Button>);
+    
+    const button = screen.getByRole('button');
+    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-disabled', 'true');
+  });
+});
+```
+
+### Form Component Testing
+```javascript
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { ContactForm } from '../ContactForm';
+
+describe('ContactForm', () => {
+  it('validates required fields', async () => {
+    const user = userEvent.setup();
+    render(<ContactForm />);
+    
+    const submitButton = screen.getByRole('button', { name: /submit/i });
+    await user.click(submitButton);
+    
+    await waitFor(() => {
+      expect(screen.getByText(/name is required/i)).toBeInTheDocument();
+      expect(screen.getByText(/email is required/i)).toBeInTheDocument();
+    });
+  });
+  
+  it('submits form with valid data', async () => {
+    const user = userEvent.setup();
+    const mockSubmit = jest.fn();
+    
+    render(<ContactForm onSubmit={mockSubmit} />);
+    
+    await user.type(screen.getByLabelText(/name/i), 'John Doe');
+    await user.type(screen.getByLabelText(/email/i), 'john@example.com');
+    await user.type(screen.getByLabelText(/message/i), 'Test message');
+    
+    await user.click(screen.getByRole('button', { name: /submit/i }));
+    
+    await waitFor(() => {
+      expect(mockSubmit).toHaveBeenCalledWith({
+        name: 'John Doe',
+        email: 'john@example.com',
+        message: 'Test message'
+      });
+    });
+  });
+  
+  it('displays loading state during submission', async () => {
+    const user = userEvent.setup();
+    const slowSubmit = () => new Promise(resolve => setTimeout(resolve, 1000));
+    
+    render(<ContactForm onSubmit={slowSubmit} />);
+    
+    // Fill form
+    await user.type(screen.getByLabelText(/name/i), 'John Doe');
+    await user.type(screen.getByLabelText(/email/i), 'john@example.com');
+    
+    // Submit form
+    await user.click(screen.getByRole('button', { name: /submit/i }));
+    
+    // Check loading state
+    expect(screen.getByText(/submitting/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /submitting/i })).toBeDisabled();
+  });
+});
+```
+
+### Chart Component Testing
+```javascript
+import { render, screen } from '@testing-library/react';
+import { axe } from 'jest-axe';
+import { AnomalyChart } from '../AnomalyChart';
+
+// Mock D3/ECharts for testing
+jest.mock('d3', () => ({
+  select: jest.fn(() => ({
+    append: jest.fn(() => ({
+      attr: jest.fn(),
+      style: jest.fn(),
+      text: jest.fn()
+    }))
+  })),
+  scaleLinear: jest.fn(() => ({
+    domain: jest.fn(),
+    range: jest.fn()
+  }))
+}));
+
+const mockData = [
+  { timestamp: '2023-01-01T00:00:00Z', value: 0.8, isAnomaly: true },
+  { timestamp: '2023-01-01T01:00:00Z', value: 0.2, isAnomaly: false },
+  { timestamp: '2023-01-01T02:00:00Z', value: 0.9, isAnomaly: true }
+];
+
+describe('AnomalyChart', () => {
+  it('renders chart with data', () => {
+    render(<AnomalyChart data={mockData} />);
+    
+    expect(screen.getByRole('application', { name: /anomaly chart/i })).toBeInTheDocument();
+    expect(screen.getByText(/3 data points/i)).toBeInTheDocument();
+  });
+  
+  it('provides accessible data table', () => {
+    render(<AnomalyChart data={mockData} showDataTable />);
+    
+    const table = screen.getByRole('table', { name: /chart data/i });
+    expect(table).toBeInTheDocument();
+    
+    // Check table headers
+    expect(screen.getByColumnHeader(/timestamp/i)).toBeInTheDocument();
+    expect(screen.getByColumnHeader(/value/i)).toBeInTheDocument();
+    expect(screen.getByColumnHeader(/status/i)).toBeInTheDocument();
+  });
+  
+  it('handles empty data gracefully', () => {
+    render(<AnomalyChart data={[]} />);
+    
+    expect(screen.getByText(/no data available/i)).toBeInTheDocument();
+    expect(screen.getByRole('application')).toHaveAttribute('aria-label', expect.stringContaining('empty'));
+  });
+  
+  it('is accessible with screen readers', async () => {
+    const { container } = render(<AnomalyChart data={mockData} />);
+    
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+});
+```
+
+## 🎭 Integration Testing
+
+### Dashboard Integration Test
+```javascript
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
+import { Dashboard } from '../Dashboard';
+
+// Mock API server
+const server = setupServer(
+  rest.get('/api/anomalies', (req, res, ctx) => {
+    return res(ctx.json([
+      { id: 1, timestamp: '2023-01-01T00:00:00Z', value: 0.8, isAnomaly: true },
+      { id: 2, timestamp: '2023-01-01T01:00:00Z', value: 0.2, isAnomaly: false }
+    ]));
+  }),
+  
+  rest.post('/api/analyze', (req, res, ctx) => {
+    return res(ctx.json({ success: true, jobId: 'job-123' }));
+  })
+);
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+
+describe('Dashboard Integration', () => {
+  it('loads and displays anomaly data', async () => {
+    render(<Dashboard />);
+    
+    // Wait for data to load
+    await waitFor(() => {
+      expect(screen.getByText(/2 anomalies detected/i)).toBeInTheDocument();
+    });
+    
+    // Check chart is rendered
+    expect(screen.getByRole('application', { name: /anomaly chart/i })).toBeInTheDocument();
+  });
+  
+  it('handles analysis submission workflow', async () => {
+    const user = userEvent.setup();
+    render(<Dashboard />);
+    
+    // Upload file
+    const fileInput = screen.getByLabelText(/upload dataset/i);
+    const file = new File(['test data'], 'test.csv', { type: 'text/csv' });
+    await user.upload(fileInput, file);
+    
+    // Configure analysis
+    await user.selectOptions(screen.getByLabelText(/algorithm/i), 'isolation-forest');
+    
+    // Submit analysis
+    await user.click(screen.getByRole('button', { name: /start analysis/i }));
+    
+    // Check success message
+    await waitFor(() => {
+      expect(screen.getByText(/analysis started successfully/i)).toBeInTheDocument();
+    });
+  });
+  
+  it('handles API errors gracefully', async () => {
+    // Mock API error
+    server.use(
+      rest.get('/api/anomalies', (req, res, ctx) => {
+        return res(ctx.status(500), ctx.json({ error: 'Server error' }));
+      })
+    );
+    
+    render(<Dashboard />);
+    
+    await waitFor(() => {
+      expect(screen.getByText(/failed to load data/i)).toBeInTheDocument();
+    });
+    
+    // Check retry functionality
+    const retryButton = screen.getByRole('button', { name: /retry/i });
+    expect(retryButton).toBeInTheDocument();
+  });
+});
+```
+
+## 🎪 End-to-End Testing
+
+### Playwright E2E Tests
+```javascript
+import { test, expect } from '@playwright/test';
+
+test.describe('Anomaly Detection Workflow', () => {
+  test('complete analysis workflow', async ({ page }) => {
+    await page.goto('/');
+    
+    // Check page loads
+    await expect(page.locator('h1')).toContainText('Pynomaly Dashboard');
+    
+    // Navigate to analysis page
+    await page.click('text=New Analysis');
+    await expect(page).toHaveURL(/.*\/analysis/);
+    
+    // Upload dataset
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles('test-data/sample.csv');
+    
+    // Configure parameters
+    await page.selectOption('select[name="algorithm"]', 'isolation-forest');
+    await page.fill('input[name="contamination"]', '0.1');
+    
+    // Submit analysis
+    await page.click('button:text("Start Analysis")');
+    
+    // Wait for results
+    await expect(page.locator('.analysis-results')).toBeVisible({ timeout: 30000 });
+    
+    // Check results are displayed
+    await expect(page.locator('.anomaly-chart')).toBeVisible();
+    await expect(page.locator('.metrics-summary')).toBeVisible();
+    
+    // Test data export
+    const downloadPromise = page.waitForEvent('download');
+    await page.click('button:text("Export Results")');
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toMatch(/.*\.csv$/);
+  });
+  
+  test('keyboard navigation', async ({ page }) => {
+    await page.goto('/');
+    
+    // Test tab navigation
+    await page.keyboard.press('Tab');
+    await expect(page.locator(':focus')).toHaveAttribute('data-testid', 'main-nav');
+    
+    // Test keyboard shortcuts
+    await page.keyboard.press('Control+KeyT');
+    await expect(page.locator('.sidebar')).toHaveClass(/collapsed/);
+    
+    await page.keyboard.press('Control+KeyF');
+    await expect(page.locator('input[type="search"]')).toBeFocused();
+  });
+  
+  test('mobile responsiveness', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto('/');
+    
+    // Check mobile layout
+    await expect(page.locator('.mobile-menu-button')).toBeVisible();
+    await expect(page.locator('.sidebar')).not.toBeVisible();
+    
+    // Test mobile menu
+    await page.click('.mobile-menu-button');
+    await expect(page.locator('.sidebar')).toBeVisible();
+    
+    // Test touch interactions
+    await page.tap('.chart-container');
+    await expect(page.locator('.chart-tooltip')).toBeVisible();
+  });
+});
+```
+
+## 📊 Performance Testing
+
+### Performance Benchmarks
+```javascript
+import { render } from '@testing-library/react';
+import { performance } from 'perf_hooks';
+import { LargeDataChart } from '../LargeDataChart';
+
+// Generate large dataset for testing
+function generateLargeDataset(size = 10000) {
+  return Array.from({ length: size }, (_, i) => ({
+    id: i,
+    timestamp: new Date(Date.now() + i * 1000).toISOString(),
+    value: Math.random(),
+    isAnomaly: Math.random() > 0.9
+  }));
+}
+
+describe('Performance Tests', () => {
+  it('renders large dataset within performance budget', () => {
+    const largeData = generateLargeDataset(10000);
+    
+    const startTime = performance.now();
+    render(<LargeDataChart data={largeData} />);
+    const endTime = performance.now();
+    
+    const renderTime = endTime - startTime;
+    expect(renderTime).toBeLessThan(100); // 100ms budget
+  });
+  
+  it('handles rapid data updates efficiently', async () => {
+    const { rerender } = render(<LargeDataChart data={[]} />);
+    
+    const measurements = [];
+    
+    for (let i = 0; i < 100; i++) {
+      const data = generateLargeDataset(1000);
+      
+      const startTime = performance.now();
+      rerender(<LargeDataChart data={data} />);
+      const endTime = performance.now();
+      
+      measurements.push(endTime - startTime);
+    }
+    
+    const averageTime = measurements.reduce((a, b) => a + b, 0) / measurements.length;
+    expect(averageTime).toBeLessThan(50); // 50ms average budget
+  });
+});
+```
+
+## 🎯 Visual Regression Testing
+
+### Storybook Visual Tests
+```javascript
+// .storybook/test-runner.js
+module.exports = {
+  async preRender(page, context) {
+    // Ensure fonts are loaded
+    await page.evaluateHandle('document.fonts.ready');
+    
+    // Wait for animations to complete
+    await page.waitForTimeout(500);
+  },
+  
+  async postRender(page, context) {
+    // Hide dynamic content like timestamps
+    await page.addStyleTag({
+      content: '.timestamp { visibility: hidden !important; }'
+    });
+    
+    // Take screenshot
+    const image = await page.screenshot();
+    expect(image).toMatchImageSnapshot({
+      customDiffConfig: {
+        threshold: 0.2
+      },
+      customSnapshotIdentifier: context.id
+    });
+  }
+};
+```
+
+## 🏃‍♂️ Running Tests
+
+### Test Scripts
+```json
+{
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:ci": "jest --ci --coverage --watchAll=false",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:visual": "test-storybook",
+    "test:a11y": "jest --testNamePattern='accessibility'",
+    "test:performance": "jest --testNamePattern='performance'"
+  }
+}
+```
+
+### Continuous Integration
+```yaml
+# .github/workflows/test.yml
+name: Test Suite
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [16, 18, 20]
+        browser: [chromium, firefox, webkit]
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run unit tests
+        run: npm run test:ci
+      
+      - name: Install Playwright browsers
+        run: npx playwright install ${{ matrix.browser }}
+      
+      - name: Run E2E tests
+        run: npm run test:e2e -- --project=${{ matrix.browser }}
+      
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+```
+
+## 📚 Testing Best Practices
+
+### Do's
+- ✅ Test user behavior, not implementation details
+- ✅ Use semantic queries (`getByRole`, `getByLabelText`)
+- ✅ Include accessibility testing in every component test
+- ✅ Test error states and edge cases
+- ✅ Use realistic test data
+- ✅ Mock external dependencies appropriately
+- ✅ Test keyboard navigation and focus management
+- ✅ Verify loading and async states
+
+### Don'ts
+- ❌ Test implementation details (class names, internal state)
+- ❌ Over-mock internal functions
+- ❌ Ignore accessibility in tests
+- ❌ Skip error scenario testing
+- ❌ Use brittle selectors
+- ❌ Test too many things in one test
+- ❌ Forget to clean up after tests
+- ❌ Ignore performance implications
+
+---
+
+*Quality is not an act, it is a habit. Comprehensive testing ensures our design system works reliably for everyone.*
