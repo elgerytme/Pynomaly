@@ -25,7 +25,7 @@ from pynomaly.domain.entities.streaming_session import (
     StreamingMetrics,
     StreamingSession,
 )
-from pynomaly.infrastructure.repositories.protocols import (
+from pynomaly.shared.protocols.repository_protocol import (
     ModelRepositoryProtocol,
 )
 

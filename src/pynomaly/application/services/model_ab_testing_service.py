@@ -21,7 +21,7 @@ from pynomaly.domain.entities.ab_test import (
     SuccessMetric,
     TrafficSplit,
 )
-from pynomaly.infrastructure.repositories.protocols import (
+from pynomaly.shared.protocols.repository_protocol import (
     ModelRepositoryProtocol,
 )
 

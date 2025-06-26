@@ -18,7 +18,7 @@ from pynomaly.domain.entities.lineage_record import (
     LineageTransformation,
     TransformationType,
 )
-from pynomaly.infrastructure.repositories.protocols import (
+from pynomaly.shared.protocols.repository_protocol import (
     ModelRepositoryProtocol,
     ModelVersionRepositoryProtocol,
 )

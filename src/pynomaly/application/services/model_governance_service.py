@@ -20,7 +20,7 @@ from pynomaly.domain.entities.governance_workflow import (
     ComplianceViolation,
     WorkflowStatus,
 )
-from pynomaly.infrastructure.repositories.protocols import (
+from pynomaly.shared.protocols.repository_protocol import (
     ModelRepositoryProtocol,
 )
 

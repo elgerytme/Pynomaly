@@ -20,7 +20,7 @@ from pynomaly.domain.entities.drift_report import (
     DriftType,
     FeatureDrift,
 )
-from pynomaly.infrastructure.repositories.protocols import (
+from pynomaly.shared.protocols.repository_protocol import (
     DatasetRepositoryProtocol,
     ModelRepositoryProtocol,
 )

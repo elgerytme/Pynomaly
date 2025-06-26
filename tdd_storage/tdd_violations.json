@@ -1098,5 +1098,75 @@
     "rule_name": "require_test_specification",
     "suggestion": "Create test requirement for function 'validate_stream_id_requirement'",
     "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/services/model_lineage_service.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/services/model_lineage_service.py is missing corresponding test file tests/application/services/model_lineage_service_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/services/model_lineage_service_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/model_lineage_service.py",
+    "line_number": 457,
+    "description": "Function 'dfs' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'dfs'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/services/model_ab_testing_service.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/services/model_ab_testing_service.py is missing corresponding test file tests/application/services/model_ab_testing_service_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/services/model_ab_testing_service_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/services/model_drift_detection_service.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/services/model_drift_detection_service.py is missing corresponding test file tests/application/services/model_drift_detection_service_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/services/model_drift_detection_service_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/services/model_governance_service.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/services/model_governance_service.py is missing corresponding test file tests/application/services/model_governance_service_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/services/model_governance_service_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/model_lineage_service.py",
+    "line_number": 457,
+    "description": "Function 'dfs' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'dfs'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/services/streaming_service.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/services/streaming_service.py is missing corresponding test file tests/application/services/streaming_service_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/services/streaming_service_test.py",
+    "auto_fixable": true
   }
 ]
