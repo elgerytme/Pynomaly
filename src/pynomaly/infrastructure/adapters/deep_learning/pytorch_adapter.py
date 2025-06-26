@@ -202,56 +202,56 @@ if PYTORCH_AVAILABLE:
 
             self.config = config
 
-        # Encoder
-        encoder_layers = []
-        in_dim = config.input_dim
+            # Encoder
+            encoder_layers = []
+            in_dim = config.input_dim
 
-        for hidden_dim in config.encoder_dims:
-            encoder_layers.extend(
-                [nn.Linear(in_dim, hidden_dim), nn.ReLU(), nn.BatchNorm1d(hidden_dim)]
-            )
-            in_dim = hidden_dim
+            for hidden_dim in config.encoder_dims:
+                encoder_layers.extend(
+                    [nn.Linear(in_dim, hidden_dim), nn.ReLU(), nn.BatchNorm1d(hidden_dim)]
+                )
+                in_dim = hidden_dim
 
-        self.encoder = nn.Sequential(*encoder_layers)
-        self.fc_mu = nn.Linear(in_dim, config.latent_dim)
-        self.fc_logvar = nn.Linear(in_dim, config.latent_dim)
+            self.encoder = nn.Sequential(*encoder_layers)
+            self.fc_mu = nn.Linear(in_dim, config.latent_dim)
+            self.fc_logvar = nn.Linear(in_dim, config.latent_dim)
 
-        # Decoder
-        decoder_layers = []
-        in_dim = config.latent_dim
+            # Decoder
+            decoder_layers = []
+            in_dim = config.latent_dim
 
-        for hidden_dim in config.decoder_dims:
-            decoder_layers.extend(
-                [nn.Linear(in_dim, hidden_dim), nn.ReLU(), nn.BatchNorm1d(hidden_dim)]
-            )
-            in_dim = hidden_dim
+            for hidden_dim in config.decoder_dims:
+                decoder_layers.extend(
+                    [nn.Linear(in_dim, hidden_dim), nn.ReLU(), nn.BatchNorm1d(hidden_dim)]
+                )
+                in_dim = hidden_dim
 
-        decoder_layers.append(nn.Linear(in_dim, config.input_dim))
-        self.decoder = nn.Sequential(*decoder_layers)
+            decoder_layers.append(nn.Linear(in_dim, config.input_dim))
+            self.decoder = nn.Sequential(*decoder_layers)
 
-    def encode(self, x):
-        """Encode input to latent distribution parameters."""
-        h = self.encoder(x)
-        mu = self.fc_mu(h)
-        logvar = self.fc_logvar(h)
-        return mu, logvar
+        def encode(self, x):
+            """Encode input to latent distribution parameters."""
+            h = self.encoder(x)
+            mu = self.fc_mu(h)
+            logvar = self.fc_logvar(h)
+            return mu, logvar
 
-    def reparameterize(self, mu, logvar):
-        """Reparameterization trick."""
-        std = torch.exp(0.5 * logvar)
-        eps = torch.randn_like(std)
-        return mu + eps * std
+        def reparameterize(self, mu, logvar):
+            """Reparameterization trick."""
+            std = torch.exp(0.5 * logvar)
+            eps = torch.randn_like(std)
+            return mu + eps * std
 
-    def decode(self, z):
-        """Decode latent representation."""
-        return self.decoder(z)
+        def decode(self, z):
+            """Decode latent representation."""
+            return self.decoder(z)
 
-    def forward(self, x):
-        """Forward pass."""
-        mu, logvar = self.encode(x)
-        z = self.reparameterize(mu, logvar)
-        recon = self.decode(z)
-        return recon, mu, logvar
+        def forward(self, x):
+            """Forward pass."""
+            mu, logvar = self.encode(x)
+            z = self.reparameterize(mu, logvar)
+            recon = self.decode(z)
+            return recon, mu, logvar
 
 else:
     # Fallback class when PyTorch is not available
