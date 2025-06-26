@@ -26,7 +26,7 @@ from pynomaly.application.dto.explainability_dto import (
     CohortExplanationDTO
 )
 from pynomaly.domain.services.explainability_service import ExplanationMethod
-from pynomaly.infrastructure.di.container import Container
+from pynomaly.infrastructure.config import Container
 from pynomaly.presentation.api.deps import (
     get_container,
     get_current_user,
@@ -121,7 +121,7 @@ async def explain_prediction(
         )
 
 
-@router.post("/explain/model", response_model=ExplainabilityResponseDTO)
+@router.post("/explain/model", response_model=ExplanationResponseDTO)
 async def explain_model(
     request: ExplainModelRequestDTO,
     background_tasks: BackgroundTasks,
