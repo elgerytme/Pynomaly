@@ -21,6 +21,7 @@ Technical documentation for developers, integrators, and contributors.
 ### 📚 **I need technical reference**
 Comprehensive references for algorithms, APIs, and configuration.
 - **[Reference →](reference/)** - Algorithms, API docs, configuration
+- **[PWA API Reference →](reference/api/pwa-api-reference.md)** - Progressive Web App API
 
 ### 🚀 **I'm deploying to production**
 Production deployment, operations, and monitoring guidance.

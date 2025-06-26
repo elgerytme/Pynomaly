@@ -1,12 +1,115 @@
-apiVersion: v1
-kind: ServiceAccount
+# Kubernetes deployment for monitoring services
+# Prometheus, Grafana, OpenTelemetry Collector, and Alertmanager
+
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: prometheus-service-account
-  namespace: pynomaly-production
+  name: pynomaly-prometheus
+  namespace: pynomaly
   labels:
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: production
-    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/version: "2.48.0"
+    app.kubernetes.io/component: metrics
+    app.kubernetes.io/part-of: observability
+    app.kubernetes.io/managed-by: kubectl
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus
+      app.kubernetes.io/component: metrics
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: prometheus
+        app.kubernetes.io/component: metrics
+        app.kubernetes.io/instance: production
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: pynomaly-prometheus
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: prometheus
+        image: prom/prometheus:v2.48.0
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 65534
+          capabilities:
+            drop:
+            - ALL
+        ports:
+        - name: http
+          containerPort: 9090
+          protocol: TCP
+        args:
+        - --config.file=/etc/prometheus/prometheus.yml
+        - --storage.tsdb.path=/prometheus
+        - --web.console.libraries=/etc/prometheus/console_libraries
+        - --web.console.templates=/etc/prometheus/consoles
+        - --storage.tsdb.retention.time=30d
+        - --storage.tsdb.retention.size=10GB
+        - --web.enable-lifecycle
+        - --web.enable-admin-api
+        - --web.external-url=http://prometheus.pynomaly.local
+        - --web.route-prefix=/
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "500m"
+            ephemeral-storage: "1Gi"
+          limits:
+            memory: "8Gi"
+            cpu: "2000m"
+            ephemeral-storage: "5Gi"
+        livenessProbe:
+          httpGet:
+            path: /-/healthy
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /-/ready
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        volumeMounts:
+        - name: prometheus-config
+          mountPath: /etc/prometheus
+          readOnly: true
+        - name: prometheus-data
+          mountPath: /prometheus
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: prometheus-config
+        configMap:
+          name: pynomaly-prometheus-config
+      - name: prometheus-data
+        persistentVolumeClaim:
+          claimName: pynomaly-prometheus-pvc
+      - name: tmp
+        emptyDir:
+          sizeLimit: 1Gi
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
