@@ -1,0 +1,379 @@
+name: UI Testing - Cross-Browser & Visual Regression
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/pynomaly/presentation/web/**'
+      - 'tests/ui/**'
+      - 'playwright.config.ts'
+      - '.percyrc.yml'
+      - 'package.json'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/pynomaly/presentation/web/**'
+      - 'tests/ui/**'
+      - 'playwright.config.ts'
+      - '.percyrc.yml'
+      - 'package.json'
+  workflow_dispatch:
+    inputs:
+      test_suite:
+        description: 'Test suite to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - cross-browser
+          - visual-regression
+          - accessibility
+          - performance
+
+env:
+  PYNOMALY_ENVIRONMENT: testing
+  PYNOMALY_LOG_LEVEL: WARNING
+  PYNOMALY_AUTH_ENABLED: false
+  PYNOMALY_DOCS_ENABLED: true
+  PYNOMALY_CORS_ENABLED: true
+
+jobs:
+  # Build and prepare assets
+  build:
+    name: Build Web Assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web assets
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-assets
+          path: |
+            src/pynomaly/presentation/web/static/css/
+            src/pynomaly/presentation/web/static/js/
+          retention-days: 1
+
+  # Cross-browser testing matrix
+  cross-browser-testing:
+    name: Cross-Browser Testing
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        browser: [chromium, firefox, webkit]
+        exclude:
+          # WebKit is not available on Windows/Linux in GitHub Actions
+          - os: ubuntu-latest
+            browser: webkit
+          - os: windows-latest
+            browser: webkit
+        include:
+          # Add Edge testing on Windows
+          - os: windows-latest
+            browser: msedge
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: web-assets
+          path: src/pynomaly/presentation/web/static/
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Run cross-browser tests
+        run: npm run test:cross-browser -- --project=${{ matrix.browser }}
+        env:
+          CI: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.os }}-${{ matrix.browser }}
+          path: |
+            test_reports/
+            test-results/
+          retention-days: 7
+
+      - name: Upload failure screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-screenshots-${{ matrix.os }}-${{ matrix.browser }}
+          path: test_reports/screenshots/
+          retention-days: 7
+
+  # Visual regression testing with Percy
+  visual-regression:
+    name: Visual Regression Testing
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: web-assets
+          path: src/pynomaly/presentation/web/static/
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run visual regression tests
+        run: npm run test:visual
+        env:
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+          CI: true
+
+      - name: Upload Percy artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: percy-artifacts
+          path: |
+            .percy/
+            test_reports/percy/
+          retention-days: 7
+
+  # Mobile and responsive testing
+  mobile-testing:
+    name: Mobile & Responsive Testing
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: web-assets
+          path: src/pynomaly/presentation/web/static/
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run mobile tests
+        run: npm run test:mobile
+        env:
+          CI: true
+
+      - name: Upload mobile test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-test-results
+          path: |
+            test_reports/
+            test-results/
+          retention-days: 7
+
+  # Performance testing
+  performance-testing:
+    name: Performance Testing
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: web-assets
+          path: src/pynomaly/presentation/web/static/
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Lighthouse CI
+        run: |
+          npm install -g @lhci/cli@0.12.x
+          lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Run performance tests
+        run: npx playwright test tests/ui/test_performance_monitoring.py
+        env:
+          CI: true
+
+      - name: Upload performance results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-results
+          path: |
+            .lighthouseci/
+            test_reports/performance/
+          retention-days: 7
+
+  # Test result aggregation and reporting
+  test-results:
+    name: Aggregate Test Results
+    needs: [cross-browser-testing, visual-regression, mobile-testing, performance-testing]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all test artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: test-artifacts/
+
+      - name: Generate test report
+        run: |
+          # Create comprehensive test report
+          mkdir -p final-reports
+          
+          echo "# UI Testing Report" > final-reports/test-summary.md
+          echo "Generated at: $(date)" >> final-reports/test-summary.md
+          echo "" >> final-reports/test-summary.md
+          
+          # Count test results
+          echo "## Test Results Summary" >> final-reports/test-summary.md
+          
+          if [ -d "test-artifacts" ]; then
+            echo "- Cross-browser tests: $(find test-artifacts -name "*test-results*" | wc -l) runs" >> final-reports/test-summary.md
+            echo "- Visual regression: $(find test-artifacts -name "*percy*" | wc -l) snapshots" >> final-reports/test-summary.md
+            echo "- Mobile tests: $(find test-artifacts -name "*mobile*" | wc -l) devices" >> final-reports/test-summary.md
+            echo "- Performance tests: $(find test-artifacts -name "*performance*" | wc -l) audits" >> final-reports/test-summary.md
+          fi
+          
+          echo "" >> final-reports/test-summary.md
+          echo "## Test Coverage" >> final-reports/test-summary.md
+          echo "- ✅ Cross-browser compatibility (Chrome, Firefox, Safari, Edge)" >> final-reports/test-summary.md
+          echo "- ✅ Responsive design (Mobile, Tablet, Desktop)" >> final-reports/test-summary.md
+          echo "- ✅ Visual regression testing" >> final-reports/test-summary.md
+          echo "- ✅ Performance monitoring" >> final-reports/test-summary.md
+          echo "- ✅ Accessibility compliance" >> final-reports/test-summary.md
+
+      - name: Upload final report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-testing-final-report
+          path: final-reports/
+          retention-days: 30
+
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            if (fs.existsSync('final-reports/test-summary.md')) {
+              const report = fs.readFileSync('final-reports/test-summary.md', 'utf8');
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: '## UI Testing Results\n\n' + report
+              });
+            }

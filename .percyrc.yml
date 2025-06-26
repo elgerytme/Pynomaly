@@ -1,0 +1,76 @@
+# Percy Configuration for Pynomaly Visual Regression Testing
+version: 2
+
+# Snapshot configuration
+snapshot:
+  # Viewports for responsive testing
+  widths:
+    - 375   # Mobile
+    - 768   # Tablet
+    - 1280  # Desktop
+    - 1920  # Large Desktop
+
+  # Minimum height for snapshots
+  min-height: 1024
+
+  # Animation handling
+  animations: false
+  
+  # Percy specific options
+  percy-css: |
+    /* Hide dynamic content that changes between snapshots */
+    [data-percy-hide] {
+      visibility: hidden !important;
+    }
+    
+    /* Hide time-based elements */
+    .timestamp, .time-display, .loading-spinner {
+      visibility: hidden !important;
+    }
+    
+    /* Ensure consistent state for charts */
+    .chart-container {
+      animation: none !important;
+      transition: none !important;
+    }
+    
+    /* Hide scrollbars for consistent screenshots */
+    ::-webkit-scrollbar {
+      display: none;
+    }
+    
+    * {
+      scrollbar-width: none;
+    }
+
+# Discovery configuration
+discovery:
+  # Network idle timeout
+  network-idle-timeout: 750
+  
+  # Allow list for external resources
+  allowed-hostnames:
+    - fonts.googleapis.com
+    - cdn.jsdelivr.net
+    - unpkg.com
+
+# Agent configuration
+agent:
+  # Asset discovery
+  asset-discovery:
+    network-idle-timeout: 750
+    page-pool-size-min: 1
+    page-pool-size-max: 5
+
+# Static site configuration
+static-snapshots: false
+
+# Defer uploads for faster builds
+defer-uploads: true
+
+# Parallel uploads
+upload:
+  parallel: true
+  
+# Project configuration
+project-type: web
