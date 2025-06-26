@@ -1,0 +1,2169 @@
+{
+  "summary": {
+    "total_violations": 97,
+    "affected_files": 39,
+    "problematic_modules": [
+      "pydantic",
+      "numpy",
+      "scipy",
+      "pynomaly",
+      "pandas",
+      "statistics",
+      "dataset",
+      "detection_result",
+      "detector",
+      "base",
+      "sklearn",
+      "hashlib"
+    ]
+  },
+  "by_file": {
+    "pynomaly/domain/entities/ab_test.py": [
+      {
+        "file": "pynomaly/domain/entities/ab_test.py",
+        "line": 10,
+        "type": "problematic_import",
+        "module": "pydantic",
+        "import_stmt": "from pydantic import BaseModel, Field",
+        "recommendation": "Use dataclasses or custom validation in infrastructure"
+      }
+    ],
+    "pynomaly/domain/entities/ab_testing.py": [
+      {
+        "file": "pynomaly/domain/entities/ab_testing.py",
+        "line": 11,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/ab_testing.py",
+        "line": 165,
+        "type": "problematic_import",
+        "module": "scipy",
+        "import_stmt": "from scipy import stats",
+        "recommendation": "Abstract statistical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/ab_testing.py",
+        "line": 181,
+        "type": "problematic_import",
+        "module": "scipy",
+        "import_stmt": "from scipy import stats",
+        "recommendation": "Abstract statistical operations into domain services"
+      }
+    ],
+    "pynomaly/domain/entities/active_learning_session.py": [
+      {
+        "file": "pynomaly/domain/entities/active_learning_session.py",
+        "line": 15,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.human_feedback import HumanFeedback",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/active_learning_session.py",
+        "line": 16,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.detection_result import DetectionResult",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/entities/anomaly.py": [
+      {
+        "file": "pynomaly/domain/entities/anomaly.py",
+        "line": 10,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects import AnomalyScore, ConfidenceInterval",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/entities/anomaly_event.py": [
+      {
+        "file": "pynomaly/domain/entities/anomaly_event.py",
+        "line": 10,
+        "type": "problematic_import",
+        "module": "pydantic",
+        "import_stmt": "from pydantic import BaseModel, Field",
+        "recommendation": "Use dataclasses or custom validation in infrastructure"
+      }
+    ],
+    "pynomaly/domain/entities/continuous_learning.py": [
+      {
+        "file": "pynomaly/domain/entities/continuous_learning.py",
+        "line": 11,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      }
+    ],
+    "pynomaly/domain/entities/dataset.py": [
+      {
+        "file": "pynomaly/domain/entities/dataset.py",
+        "line": 10,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/dataset.py",
+        "line": 11,
+        "type": "problematic_import",
+        "module": "pandas",
+        "import_stmt": "import pandas",
+        "recommendation": "Use domain entities with simple Python types"
+      },
+      {
+        "file": "pynomaly/domain/entities/dataset.py",
+        "line": 13,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.exceptions import InvalidDataError",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/entities/detection_result.py": [
+      {
+        "file": "pynomaly/domain/entities/detection_result.py",
+        "line": 10,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/detection_result.py",
+        "line": 11,
+        "type": "problematic_import",
+        "module": "pandas",
+        "import_stmt": "import pandas",
+        "recommendation": "Use domain entities with simple Python types"
+      },
+      {
+        "file": "pynomaly/domain/entities/detection_result.py",
+        "line": 13,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.anomaly import Anomaly",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/detection_result.py",
+        "line": 14,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects import AnomalyScore, ConfidenceInterval",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/entities/detector.py": [
+      {
+        "file": "pynomaly/domain/entities/detector.py",
+        "line": 12,
+        "type": "problematic_import",
+        "module": "pandas",
+        "import_stmt": "import pandas",
+        "recommendation": "Use domain entities with simple Python types"
+      },
+      {
+        "file": "pynomaly/domain/entities/detector.py",
+        "line": 14,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects import ContaminationRate",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/detector.py",
+        "line": 17,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.dataset import Dataset",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/detector.py",
+        "line": 18,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.training_result import TrainingResult",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/detector.py",
+        "line": 19,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.detection_result import DetectionResult",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/detector.py",
+        "line": 156,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.training_result import TrainingResult",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/detector.py",
+        "line": 222,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.detection_result import DetectionResult",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/detector.py",
+        "line": 230,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.anomaly import Anomaly",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/detector.py",
+        "line": 256,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects import AnomalyScore",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/detector.py",
+        "line": 257,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.anomaly import Anomaly",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/entities/drift_detection.py": [
+      {
+        "file": "pynomaly/domain/entities/drift_detection.py",
+        "line": 11,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/drift_detection.py",
+        "line": 192,
+        "type": "problematic_import",
+        "module": "scipy",
+        "import_stmt": "from scipy.stats import skew",
+        "recommendation": "Abstract statistical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/drift_detection.py",
+        "line": 201,
+        "type": "problematic_import",
+        "module": "scipy",
+        "import_stmt": "from scipy.stats import kurtosis",
+        "recommendation": "Abstract statistical operations into domain services"
+      }
+    ],
+    "pynomaly/domain/entities/drift_report.py": [
+      {
+        "file": "pynomaly/domain/entities/drift_report.py",
+        "line": 10,
+        "type": "problematic_import",
+        "module": "pydantic",
+        "import_stmt": "from pydantic import BaseModel, Field",
+        "recommendation": "Use dataclasses or custom validation in infrastructure"
+      }
+    ],
+    "pynomaly/domain/entities/experiment.py": [
+      {
+        "file": "pynomaly/domain/entities/experiment.py",
+        "line": 340,
+        "type": "external_dependency",
+        "module": "statistics",
+        "import_stmt": "import statistics",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/entities/explainable_ai.py": [
+      {
+        "file": "pynomaly/domain/entities/explainable_ai.py",
+        "line": 11,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      }
+    ],
+    "pynomaly/domain/entities/governance_workflow.py": [
+      {
+        "file": "pynomaly/domain/entities/governance_workflow.py",
+        "line": 10,
+        "type": "problematic_import",
+        "module": "pydantic",
+        "import_stmt": "from pydantic import BaseModel, Field",
+        "recommendation": "Use dataclasses or custom validation in infrastructure"
+      }
+    ],
+    "pynomaly/domain/entities/human_feedback.py": [
+      {
+        "file": "pynomaly/domain/entities/human_feedback.py",
+        "line": 15,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.anomaly_score import AnomalyScore",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/entities/lineage_record.py": [
+      {
+        "file": "pynomaly/domain/entities/lineage_record.py",
+        "line": 10,
+        "type": "problematic_import",
+        "module": "pydantic",
+        "import_stmt": "from pydantic import BaseModel, Field",
+        "recommendation": "Use dataclasses or custom validation in infrastructure"
+      }
+    ],
+    "pynomaly/domain/entities/model_registry.py": [
+      {
+        "file": "pynomaly/domain/entities/model_registry.py",
+        "line": 11,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.model_version import ModelStatus, ModelVersion",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/model_registry.py",
+        "line": 12,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.semantic_version import SemanticVersion",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/entities/model_version.py": [
+      {
+        "file": "pynomaly/domain/entities/model_version.py",
+        "line": 11,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.model_storage_info import ModelStorageInfo",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/model_version.py",
+        "line": 12,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.performance_metrics import PerformanceMetrics",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/model_version.py",
+        "line": 13,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.semantic_version import SemanticVersion",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/entities/optimization_trial.py": [
+      {
+        "file": "pynomaly/domain/entities/optimization_trial.py",
+        "line": 13,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.hyperparameters import HyperparameterSet",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/optimization_trial.py",
+        "line": 395,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/optimization_trial.py",
+        "line": 231,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/optimization_trial.py",
+        "line": 246,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/optimization_trial.py",
+        "line": 255,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      }
+    ],
+    "pynomaly/domain/entities/simple_detector.py": [
+      {
+        "file": "pynomaly/domain/entities/simple_detector.py",
+        "line": 10,
+        "type": "external_dependency",
+        "module": "dataset",
+        "import_stmt": "from dataset import Dataset",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/simple_detector.py",
+        "line": 11,
+        "type": "external_dependency",
+        "module": "detection_result",
+        "import_stmt": "from detection_result import DetectionResult",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/simple_detector.py",
+        "line": 12,
+        "type": "external_dependency",
+        "module": "detector",
+        "import_stmt": "from detector import Detector",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/simple_detector.py",
+        "line": 39,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/simple_detector.py",
+        "line": 61,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      }
+    ],
+    "pynomaly/domain/entities/streaming_session.py": [
+      {
+        "file": "pynomaly/domain/entities/streaming_session.py",
+        "line": 10,
+        "type": "problematic_import",
+        "module": "pydantic",
+        "import_stmt": "from pydantic import BaseModel, Field",
+        "recommendation": "Use dataclasses or custom validation in infrastructure"
+      }
+    ],
+    "pynomaly/domain/entities/training_job.py": [
+      {
+        "file": "pynomaly/domain/entities/training_job.py",
+        "line": 13,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.hyperparameters import HyperparameterSet",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/training_job.py",
+        "line": 14,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.application.dto.training_dto import TrainingConfigDTO",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/exceptions/dataset_exceptions.py": [
+      {
+        "file": "pynomaly/domain/exceptions/dataset_exceptions.py",
+        "line": 7,
+        "type": "external_dependency",
+        "module": "base",
+        "import_stmt": "from base import DomainError, ValidationError",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/exceptions/detector_exceptions.py": [
+      {
+        "file": "pynomaly/domain/exceptions/detector_exceptions.py",
+        "line": 7,
+        "type": "external_dependency",
+        "module": "base",
+        "import_stmt": "from base import ConfigurationError, DomainError, NotFittedError",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/exceptions/entity_exceptions.py": [
+      {
+        "file": "pynomaly/domain/exceptions/entity_exceptions.py",
+        "line": 7,
+        "type": "external_dependency",
+        "module": "base",
+        "import_stmt": "from base import DomainError",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/exceptions/result_exceptions.py": [
+      {
+        "file": "pynomaly/domain/exceptions/result_exceptions.py",
+        "line": 7,
+        "type": "external_dependency",
+        "module": "base",
+        "import_stmt": "from base import DomainError",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/services/active_learning_service.py": [
+      {
+        "file": "pynomaly/domain/services/active_learning_service.py",
+        "line": 13,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/active_learning_service.py",
+        "line": 14,
+        "type": "problematic_import",
+        "module": "scipy",
+        "import_stmt": "from scipy.spatial.distance import pdist, squareform",
+        "recommendation": "Abstract statistical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/active_learning_service.py",
+        "line": 15,
+        "type": "problematic_import",
+        "module": "scipy",
+        "import_stmt": "from scipy.stats import entropy",
+        "recommendation": "Abstract statistical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/active_learning_service.py",
+        "line": 16,
+        "type": "problematic_import",
+        "module": "sklearn",
+        "import_stmt": "from sklearn.cluster import KMeans",
+        "recommendation": "Move ML-specific logic to infrastructure adapters"
+      },
+      {
+        "file": "pynomaly/domain/services/active_learning_service.py",
+        "line": 17,
+        "type": "problematic_import",
+        "module": "sklearn",
+        "import_stmt": "from sklearn.metrics.pairwise import cosine_similarity",
+        "recommendation": "Move ML-specific logic to infrastructure adapters"
+      },
+      {
+        "file": "pynomaly/domain/services/active_learning_service.py",
+        "line": 19,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.detection_result import DetectionResult",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/services/active_learning_service.py",
+        "line": 20,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.active_learning_session import SamplingStrategy",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/services/active_learning_service.py",
+        "line": 21,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.human_feedback import HumanFeedback",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/services/active_learning_service.py",
+        "line": 22,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/services/anomaly_scorer.py": [
+      {
+        "file": "pynomaly/domain/services/anomaly_scorer.py",
+        "line": 5,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/anomaly_scorer.py",
+        "line": 7,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects import AnomalyScore",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/services/anomaly_scorer.py",
+        "line": 75,
+        "type": "problematic_import",
+        "module": "scipy",
+        "import_stmt": "from scipy import stats",
+        "recommendation": "Abstract statistical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/anomaly_scorer.py",
+        "line": 188,
+        "type": "problematic_import",
+        "module": "scipy",
+        "import_stmt": "from scipy import stats",
+        "recommendation": "Abstract statistical operations into domain services"
+      }
+    ],
+    "pynomaly/domain/services/ensemble_aggregator.py": [
+      {
+        "file": "pynomaly/domain/services/ensemble_aggregator.py",
+        "line": 7,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/ensemble_aggregator.py",
+        "line": 9,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects import AnomalyScore",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/services/ensemble_aggregator.py",
+        "line": 268,
+        "type": "problematic_import",
+        "module": "scipy",
+        "import_stmt": "from scipy.stats import spearmanr",
+        "recommendation": "Abstract statistical operations into domain services"
+      }
+    ],
+    "pynomaly/domain/services/explainability_service.py": [
+      {
+        "file": "pynomaly/domain/services/explainability_service.py",
+        "line": 11,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/explainability_service.py",
+        "line": 12,
+        "type": "problematic_import",
+        "module": "pandas",
+        "import_stmt": "import pandas",
+        "recommendation": "Use domain entities with simple Python types"
+      }
+    ],
+    "pynomaly/domain/services/feature_validator.py": [
+      {
+        "file": "pynomaly/domain/services/feature_validator.py",
+        "line": 7,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/feature_validator.py",
+        "line": 8,
+        "type": "problematic_import",
+        "module": "pandas",
+        "import_stmt": "import pandas",
+        "recommendation": "Use domain entities with simple Python types"
+      },
+      {
+        "file": "pynomaly/domain/services/feature_validator.py",
+        "line": 10,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities import Dataset",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/services/feature_validator.py",
+        "line": 11,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.exceptions import DataTypeError, FeatureMismatchError",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/services/threshold_calculator.py": [
+      {
+        "file": "pynomaly/domain/services/threshold_calculator.py",
+        "line": 5,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/threshold_calculator.py",
+        "line": 7,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects import ContaminationRate",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/services/uncertainty_service.py": [
+      {
+        "file": "pynomaly/domain/services/uncertainty_service.py",
+        "line": 14,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/uncertainty_service.py",
+        "line": 15,
+        "type": "problematic_import",
+        "module": "scipy",
+        "import_stmt": "from scipy import stats",
+        "recommendation": "Abstract statistical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/uncertainty_service.py",
+        "line": 17,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.detection_result import DetectionResult",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/services/uncertainty_service.py",
+        "line": 18,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/services/uncertainty_service.py",
+        "line": 19,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.anomaly_score import AnomalyScore",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/value_objects/anomaly_score.py": [
+      {
+        "file": "pynomaly/domain/value_objects/anomaly_score.py",
+        "line": 8,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.exceptions import InvalidValueError",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/value_objects/anomaly_score.py",
+        "line": 118,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/value_objects/confidence_interval.py": [
+      {
+        "file": "pynomaly/domain/value_objects/confidence_interval.py",
+        "line": 13,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/value_objects/confidence_interval.py",
+        "line": 15,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.exceptions import InvalidValueError",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/value_objects/contamination_rate.py": [
+      {
+        "file": "pynomaly/domain/value_objects/contamination_rate.py",
+        "line": 8,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.exceptions import InvalidValueError",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/value_objects/hyperparameters.py": [
+      {
+        "file": "pynomaly/domain/value_objects/hyperparameters.py",
+        "line": 129,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/value_objects/hyperparameters.py",
+        "line": 252,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/value_objects/hyperparameters.py",
+        "line": 114,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/value_objects/hyperparameters.py",
+        "line": 121,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      }
+    ],
+    "pynomaly/domain/value_objects/model_storage_info.py": [
+      {
+        "file": "pynomaly/domain/value_objects/model_storage_info.py",
+        "line": 5,
+        "type": "external_dependency",
+        "module": "hashlib",
+        "import_stmt": "import hashlib",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pynomaly/domain/value_objects/threshold_config.py": [
+      {
+        "file": "pynomaly/domain/value_objects/threshold_config.py",
+        "line": 7,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.exceptions import InvalidValueError",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ]
+  },
+  "by_module": {
+    "pydantic": [
+      {
+        "file": "pynomaly/domain/entities/ab_test.py",
+        "line": 10,
+        "type": "problematic_import",
+        "module": "pydantic",
+        "import_stmt": "from pydantic import BaseModel, Field",
+        "recommendation": "Use dataclasses or custom validation in infrastructure"
+      },
+      {
+        "file": "pynomaly/domain/entities/anomaly_event.py",
+        "line": 10,
+        "type": "problematic_import",
+        "module": "pydantic",
+        "import_stmt": "from pydantic import BaseModel, Field",
+        "recommendation": "Use dataclasses or custom validation in infrastructure"
+      },
+      {
+        "file": "pynomaly/domain/entities/drift_report.py",
+        "line": 10,
+        "type": "problematic_import",
+        "module": "pydantic",
+        "import_stmt": "from pydantic import BaseModel, Field",
+        "recommendation": "Use dataclasses or custom validation in infrastructure"
+      },
+      {
+        "file": "pynomaly/domain/entities/governance_workflow.py",
+        "line": 10,
+        "type": "problematic_import",
+        "module": "pydantic",
+        "import_stmt": "from pydantic import BaseModel, Field",
+        "recommendation": "Use dataclasses or custom validation in infrastructure"
+      },
+      {
+        "file": "pynomaly/domain/entities/lineage_record.py",
+        "line": 10,
+        "type": "problematic_import",
+        "module": "pydantic",
+        "import_stmt": "from pydantic import BaseModel, Field",
+        "recommendation": "Use dataclasses or custom validation in infrastructure"
+      },
+      {
+        "file": "pynomaly/domain/entities/streaming_session.py",
+        "line": 10,
+        "type": "problematic_import",
+        "module": "pydantic",
+        "import_stmt": "from pydantic import BaseModel, Field",
+        "recommendation": "Use dataclasses or custom validation in infrastructure"
+      }
+    ],
+    "numpy": [
+      {
+        "file": "pynomaly/domain/entities/ab_testing.py",
+        "line": 11,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/continuous_learning.py",
+        "line": 11,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/dataset.py",
+        "line": 10,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/detection_result.py",
+        "line": 10,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/drift_detection.py",
+        "line": 11,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/explainable_ai.py",
+        "line": 11,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/optimization_trial.py",
+        "line": 395,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/optimization_trial.py",
+        "line": 231,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/optimization_trial.py",
+        "line": 246,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/optimization_trial.py",
+        "line": 255,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/simple_detector.py",
+        "line": 39,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/simple_detector.py",
+        "line": 61,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/active_learning_service.py",
+        "line": 13,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/anomaly_scorer.py",
+        "line": 5,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/ensemble_aggregator.py",
+        "line": 7,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/explainability_service.py",
+        "line": 11,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/feature_validator.py",
+        "line": 7,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/threshold_calculator.py",
+        "line": 5,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/uncertainty_service.py",
+        "line": 14,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/value_objects/confidence_interval.py",
+        "line": 13,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/value_objects/hyperparameters.py",
+        "line": 129,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/value_objects/hyperparameters.py",
+        "line": 252,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/value_objects/hyperparameters.py",
+        "line": 114,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/value_objects/hyperparameters.py",
+        "line": 121,
+        "type": "problematic_import",
+        "module": "numpy",
+        "import_stmt": "import numpy",
+        "recommendation": "Abstract mathematical operations into domain services"
+      }
+    ],
+    "scipy": [
+      {
+        "file": "pynomaly/domain/entities/ab_testing.py",
+        "line": 165,
+        "type": "problematic_import",
+        "module": "scipy",
+        "import_stmt": "from scipy import stats",
+        "recommendation": "Abstract statistical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/ab_testing.py",
+        "line": 181,
+        "type": "problematic_import",
+        "module": "scipy",
+        "import_stmt": "from scipy import stats",
+        "recommendation": "Abstract statistical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/drift_detection.py",
+        "line": 192,
+        "type": "problematic_import",
+        "module": "scipy",
+        "import_stmt": "from scipy.stats import skew",
+        "recommendation": "Abstract statistical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/entities/drift_detection.py",
+        "line": 201,
+        "type": "problematic_import",
+        "module": "scipy",
+        "import_stmt": "from scipy.stats import kurtosis",
+        "recommendation": "Abstract statistical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/active_learning_service.py",
+        "line": 14,
+        "type": "problematic_import",
+        "module": "scipy",
+        "import_stmt": "from scipy.spatial.distance import pdist, squareform",
+        "recommendation": "Abstract statistical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/active_learning_service.py",
+        "line": 15,
+        "type": "problematic_import",
+        "module": "scipy",
+        "import_stmt": "from scipy.stats import entropy",
+        "recommendation": "Abstract statistical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/anomaly_scorer.py",
+        "line": 75,
+        "type": "problematic_import",
+        "module": "scipy",
+        "import_stmt": "from scipy import stats",
+        "recommendation": "Abstract statistical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/anomaly_scorer.py",
+        "line": 188,
+        "type": "problematic_import",
+        "module": "scipy",
+        "import_stmt": "from scipy import stats",
+        "recommendation": "Abstract statistical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/ensemble_aggregator.py",
+        "line": 268,
+        "type": "problematic_import",
+        "module": "scipy",
+        "import_stmt": "from scipy.stats import spearmanr",
+        "recommendation": "Abstract statistical operations into domain services"
+      },
+      {
+        "file": "pynomaly/domain/services/uncertainty_service.py",
+        "line": 15,
+        "type": "problematic_import",
+        "module": "scipy",
+        "import_stmt": "from scipy import stats",
+        "recommendation": "Abstract statistical operations into domain services"
+      }
+    ],
+    "pynomaly": [
+      {
+        "file": "pynomaly/domain/entities/active_learning_session.py",
+        "line": 15,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.human_feedback import HumanFeedback",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/active_learning_session.py",
+        "line": 16,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.detection_result import DetectionResult",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/anomaly.py",
+        "line": 10,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects import AnomalyScore, ConfidenceInterval",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/dataset.py",
+        "line": 13,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.exceptions import InvalidDataError",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/detection_result.py",
+        "line": 13,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.anomaly import Anomaly",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/detection_result.py",
+        "line": 14,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects import AnomalyScore, ConfidenceInterval",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/detector.py",
+        "line": 14,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects import ContaminationRate",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/detector.py",
+        "line": 17,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.dataset import Dataset",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/detector.py",
+        "line": 18,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.training_result import TrainingResult",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/detector.py",
+        "line": 19,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.detection_result import DetectionResult",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/detector.py",
+        "line": 156,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.training_result import TrainingResult",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/detector.py",
+        "line": 222,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.detection_result import DetectionResult",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/detector.py",
+        "line": 230,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.anomaly import Anomaly",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/detector.py",
+        "line": 256,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects import AnomalyScore",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/detector.py",
+        "line": 257,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.anomaly import Anomaly",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/human_feedback.py",
+        "line": 15,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.anomaly_score import AnomalyScore",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/model_registry.py",
+        "line": 11,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.model_version import ModelStatus, ModelVersion",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/model_registry.py",
+        "line": 12,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.semantic_version import SemanticVersion",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/model_version.py",
+        "line": 11,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.model_storage_info import ModelStorageInfo",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/model_version.py",
+        "line": 12,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.performance_metrics import PerformanceMetrics",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/model_version.py",
+        "line": 13,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.semantic_version import SemanticVersion",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/optimization_trial.py",
+        "line": 13,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.hyperparameters import HyperparameterSet",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/training_job.py",
+        "line": 13,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.hyperparameters import HyperparameterSet",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/entities/training_job.py",
+        "line": 14,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.application.dto.training_dto import TrainingConfigDTO",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/services/active_learning_service.py",
+        "line": 19,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.detection_result import DetectionResult",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/services/active_learning_service.py",
+        "line": 20,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.active_learning_session import SamplingStrategy",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/services/active_learning_service.py",
+        "line": 21,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.human_feedback import HumanFeedback",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/services/active_learning_service.py",
+        "line": 22,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/services/anomaly_scorer.py",
+        "line": 7,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects import AnomalyScore",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/services/ensemble_aggregator.py",
+        "line": 9,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects import AnomalyScore",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/services/feature_validator.py",
+        "line": 10,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities import Dataset",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/services/feature_validator.py",
+        "line": 11,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.exceptions import DataTypeError, FeatureMismatchError",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/services/threshold_calculator.py",
+        "line": 7,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects import ContaminationRate",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/services/uncertainty_service.py",
+        "line": 17,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.entities.detection_result import DetectionResult",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/services/uncertainty_service.py",
+        "line": 18,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/services/uncertainty_service.py",
+        "line": 19,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.anomaly_score import AnomalyScore",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/value_objects/anomaly_score.py",
+        "line": 8,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.exceptions import InvalidValueError",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/value_objects/anomaly_score.py",
+        "line": 118,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/value_objects/confidence_interval.py",
+        "line": 15,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.exceptions import InvalidValueError",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/value_objects/contamination_rate.py",
+        "line": 8,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.exceptions import InvalidValueError",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/value_objects/threshold_config.py",
+        "line": 7,
+        "type": "external_dependency",
+        "module": "pynomaly",
+        "import_stmt": "from pynomaly.domain.exceptions import InvalidValueError",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "pandas": [
+      {
+        "file": "pynomaly/domain/entities/dataset.py",
+        "line": 11,
+        "type": "problematic_import",
+        "module": "pandas",
+        "import_stmt": "import pandas",
+        "recommendation": "Use domain entities with simple Python types"
+      },
+      {
+        "file": "pynomaly/domain/entities/detection_result.py",
+        "line": 11,
+        "type": "problematic_import",
+        "module": "pandas",
+        "import_stmt": "import pandas",
+        "recommendation": "Use domain entities with simple Python types"
+      },
+      {
+        "file": "pynomaly/domain/entities/detector.py",
+        "line": 12,
+        "type": "problematic_import",
+        "module": "pandas",
+        "import_stmt": "import pandas",
+        "recommendation": "Use domain entities with simple Python types"
+      },
+      {
+        "file": "pynomaly/domain/services/explainability_service.py",
+        "line": 12,
+        "type": "problematic_import",
+        "module": "pandas",
+        "import_stmt": "import pandas",
+        "recommendation": "Use domain entities with simple Python types"
+      },
+      {
+        "file": "pynomaly/domain/services/feature_validator.py",
+        "line": 8,
+        "type": "problematic_import",
+        "module": "pandas",
+        "import_stmt": "import pandas",
+        "recommendation": "Use domain entities with simple Python types"
+      }
+    ],
+    "statistics": [
+      {
+        "file": "pynomaly/domain/entities/experiment.py",
+        "line": 340,
+        "type": "external_dependency",
+        "module": "statistics",
+        "import_stmt": "import statistics",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "dataset": [
+      {
+        "file": "pynomaly/domain/entities/simple_detector.py",
+        "line": 10,
+        "type": "external_dependency",
+        "module": "dataset",
+        "import_stmt": "from dataset import Dataset",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "detection_result": [
+      {
+        "file": "pynomaly/domain/entities/simple_detector.py",
+        "line": 11,
+        "type": "external_dependency",
+        "module": "detection_result",
+        "import_stmt": "from detection_result import DetectionResult",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "detector": [
+      {
+        "file": "pynomaly/domain/entities/simple_detector.py",
+        "line": 12,
+        "type": "external_dependency",
+        "module": "detector",
+        "import_stmt": "from detector import Detector",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "base": [
+      {
+        "file": "pynomaly/domain/exceptions/dataset_exceptions.py",
+        "line": 7,
+        "type": "external_dependency",
+        "module": "base",
+        "import_stmt": "from base import DomainError, ValidationError",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/exceptions/detector_exceptions.py",
+        "line": 7,
+        "type": "external_dependency",
+        "module": "base",
+        "import_stmt": "from base import ConfigurationError, DomainError, NotFittedError",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/exceptions/entity_exceptions.py",
+        "line": 7,
+        "type": "external_dependency",
+        "module": "base",
+        "import_stmt": "from base import DomainError",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      },
+      {
+        "file": "pynomaly/domain/exceptions/result_exceptions.py",
+        "line": 7,
+        "type": "external_dependency",
+        "module": "base",
+        "import_stmt": "from base import DomainError",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ],
+    "sklearn": [
+      {
+        "file": "pynomaly/domain/services/active_learning_service.py",
+        "line": 16,
+        "type": "problematic_import",
+        "module": "sklearn",
+        "import_stmt": "from sklearn.cluster import KMeans",
+        "recommendation": "Move ML-specific logic to infrastructure adapters"
+      },
+      {
+        "file": "pynomaly/domain/services/active_learning_service.py",
+        "line": 17,
+        "type": "problematic_import",
+        "module": "sklearn",
+        "import_stmt": "from sklearn.metrics.pairwise import cosine_similarity",
+        "recommendation": "Move ML-specific logic to infrastructure adapters"
+      }
+    ],
+    "hashlib": [
+      {
+        "file": "pynomaly/domain/value_objects/model_storage_info.py",
+        "line": 5,
+        "type": "external_dependency",
+        "module": "hashlib",
+        "import_stmt": "import hashlib",
+        "recommendation": "Move to infrastructure layer or abstract into domain service"
+      }
+    ]
+  },
+  "strategies": {
+    "pydantic": {
+      "strategy": "Replace with dataclasses and move validation to infrastructure",
+      "steps": [
+        "1. Convert Pydantic models to @dataclass entities",
+        "2. Move validation logic to infrastructure/validation/",
+        "3. Create domain protocols for validation interfaces",
+        "4. Update application layer to use validation services"
+      ],
+      "example": "\n# Before (Domain - \u274c)\nfrom pydantic import BaseModel\n\nclass Anomaly(BaseModel):\n    score: float\n    threshold: float\n\n# After (Domain - \u2705)\nfrom dataclasses import dataclass\n\n@dataclass\nclass Anomaly:\n    score: float\n    threshold: float\n\n# Infrastructure Validation (\u2705)\nfrom pydantic import BaseModel\nfrom pynomaly.domain.entities import Anomaly\n\nclass AnomalyValidator(BaseModel):\n    score: float\n    threshold: float\n    \n    def to_domain(self) -> Anomaly:\n        return Anomaly(score=self.score, threshold=self.threshold)\n"
+    },
+    "numpy": {
+      "strategy": "Abstract numerical operations into domain services",
+      "steps": [
+        "1. Create domain services for mathematical operations",
+        "2. Define protocols for numerical operations",
+        "3. Move numpy implementations to infrastructure",
+        "4. Use simple Python types in domain entities"
+      ],
+      "example": "\n# Before (Domain - \u274c)\nimport numpy as np\n\nclass AnomalyScore:\n    def calculate_percentile(self, scores: np.ndarray) -> float:\n        return np.percentile(scores, 95)\n\n# After (Domain - \u2705)\nfrom typing import List, Protocol\n\nclass StatisticalService(Protocol):\n    def calculate_percentile(self, scores: List[float], percentile: float) -> float: ...\n\nclass AnomalyScore:\n    def __init__(self, stats_service: StatisticalService):\n        self._stats = stats_service\n    \n    def calculate_percentile(self, scores: List[float]) -> float:\n        return self._stats.calculate_percentile(scores, 95)\n\n# Infrastructure Implementation (\u2705)\nimport numpy as np\n\nclass NumpyStatisticalService:\n    def calculate_percentile(self, scores: List[float], percentile: float) -> float:\n        return np.percentile(scores, percentile)\n"
+    },
+    "scipy": {
+      "strategy": "Abstract scipy functionality into infrastructure layer",
+      "steps": [
+        "1. Create domain protocols for scipy operations",
+        "2. Move scipy implementations to infrastructure/adapters/",
+        "3. Use dependency injection in application layer",
+        "4. Keep domain layer pure with protocols only"
+      ]
+    },
+    "pynomaly": {
+      "strategy": "Abstract pynomaly functionality into infrastructure layer",
+      "steps": [
+        "1. Create domain protocols for pynomaly operations",
+        "2. Move pynomaly implementations to infrastructure/adapters/",
+        "3. Use dependency injection in application layer",
+        "4. Keep domain layer pure with protocols only"
+      ]
+    },
+    "pandas": {
+      "strategy": "Use domain entities with simple Python types",
+      "steps": [
+        "1. Replace DataFrame usage with domain entities",
+        "2. Use List, Dict, and simple types in domain",
+        "3. Move DataFrame operations to infrastructure",
+        "4. Create adapters for data transformation"
+      ],
+      "example": "\n# Before (Domain - \u274c)\nimport pandas as pd\n\nclass Dataset:\n    def __init__(self, data: pd.DataFrame):\n        self.data = data\n\n# After (Domain - \u2705)\nfrom typing import List, Dict, Any\n\n@dataclass\nclass DataPoint:\n    features: Dict[str, Any]\n    timestamp: datetime\n\n@dataclass\nclass Dataset:\n    name: str\n    data_points: List[DataPoint]\n    metadata: Dict[str, Any]\n\n# Infrastructure Adapter (\u2705)\nimport pandas as pd\n\nclass PandasDatasetAdapter:\n    def from_dataframe(self, df: pd.DataFrame) -> Dataset:\n        data_points = [\n            DataPoint(features=row.to_dict(), timestamp=row.get('timestamp'))\n            for _, row in df.iterrows()\n        ]\n        return Dataset(name=\"\", data_points=data_points, metadata={})\n"
+    },
+    "statistics": {
+      "strategy": "Abstract statistics functionality into infrastructure layer",
+      "steps": [
+        "1. Create domain protocols for statistics operations",
+        "2. Move statistics implementations to infrastructure/adapters/",
+        "3. Use dependency injection in application layer",
+        "4. Keep domain layer pure with protocols only"
+      ]
+    },
+    "dataset": {
+      "strategy": "Abstract dataset functionality into infrastructure layer",
+      "steps": [
+        "1. Create domain protocols for dataset operations",
+        "2. Move dataset implementations to infrastructure/adapters/",
+        "3. Use dependency injection in application layer",
+        "4. Keep domain layer pure with protocols only"
+      ]
+    },
+    "detection_result": {
+      "strategy": "Abstract detection_result functionality into infrastructure layer",
+      "steps": [
+        "1. Create domain protocols for detection_result operations",
+        "2. Move detection_result implementations to infrastructure/adapters/",
+        "3. Use dependency injection in application layer",
+        "4. Keep domain layer pure with protocols only"
+      ]
+    },
+    "detector": {
+      "strategy": "Abstract detector functionality into infrastructure layer",
+      "steps": [
+        "1. Create domain protocols for detector operations",
+        "2. Move detector implementations to infrastructure/adapters/",
+        "3. Use dependency injection in application layer",
+        "4. Keep domain layer pure with protocols only"
+      ]
+    },
+    "base": {
+      "strategy": "Abstract base functionality into infrastructure layer",
+      "steps": [
+        "1. Create domain protocols for base operations",
+        "2. Move base implementations to infrastructure/adapters/",
+        "3. Use dependency injection in application layer",
+        "4. Keep domain layer pure with protocols only"
+      ]
+    },
+    "sklearn": {
+      "strategy": "Abstract sklearn functionality into infrastructure layer",
+      "steps": [
+        "1. Create domain protocols for sklearn operations",
+        "2. Move sklearn implementations to infrastructure/adapters/",
+        "3. Use dependency injection in application layer",
+        "4. Keep domain layer pure with protocols only"
+      ]
+    },
+    "hashlib": {
+      "strategy": "Abstract hashlib functionality into infrastructure layer",
+      "steps": [
+        "1. Create domain protocols for hashlib operations",
+        "2. Move hashlib implementations to infrastructure/adapters/",
+        "3. Use dependency injection in application layer",
+        "4. Keep domain layer pure with protocols only"
+      ]
+    }
+  },
+  "implementation_order": [
+    {
+      "file": "pynomaly/domain/entities/detector.py",
+      "violations_count": 10,
+      "modules": [
+        "pandas",
+        "pynomaly"
+      ],
+      "priority_score": 13,
+      "estimated_effort": "Medium-High (3-6 hours)"
+    },
+    {
+      "file": "pynomaly/domain/services/active_learning_service.py",
+      "violations_count": 9,
+      "modules": [
+        "pynomaly",
+        "scipy",
+        "sklearn",
+        "numpy"
+      ],
+      "priority_score": 13,
+      "estimated_effort": "Medium-High (3-6 hours)"
+    },
+    {
+      "file": "pynomaly/domain/entities/ab_test.py",
+      "violations_count": 1,
+      "modules": [
+        "pydantic"
+      ],
+      "priority_score": 10,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/entities/anomaly_event.py",
+      "violations_count": 1,
+      "modules": [
+        "pydantic"
+      ],
+      "priority_score": 10,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/entities/drift_report.py",
+      "violations_count": 1,
+      "modules": [
+        "pydantic"
+      ],
+      "priority_score": 10,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/entities/governance_workflow.py",
+      "violations_count": 1,
+      "modules": [
+        "pydantic"
+      ],
+      "priority_score": 10,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/entities/lineage_record.py",
+      "violations_count": 1,
+      "modules": [
+        "pydantic"
+      ],
+      "priority_score": 10,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/entities/streaming_session.py",
+      "violations_count": 1,
+      "modules": [
+        "pydantic"
+      ],
+      "priority_score": 10,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/entities/ab_testing.py",
+      "violations_count": 3,
+      "modules": [
+        "scipy",
+        "numpy"
+      ],
+      "priority_score": 8,
+      "estimated_effort": "Medium (2-4 hours)"
+    },
+    {
+      "file": "pynomaly/domain/entities/continuous_learning.py",
+      "violations_count": 1,
+      "modules": [
+        "numpy"
+      ],
+      "priority_score": 8,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/entities/dataset.py",
+      "violations_count": 3,
+      "modules": [
+        "pynomaly",
+        "pandas",
+        "numpy"
+      ],
+      "priority_score": 8,
+      "estimated_effort": "Medium (2-4 hours)"
+    },
+    {
+      "file": "pynomaly/domain/entities/detection_result.py",
+      "violations_count": 4,
+      "modules": [
+        "pynomaly",
+        "pandas",
+        "numpy"
+      ],
+      "priority_score": 8,
+      "estimated_effort": "Medium (2-4 hours)"
+    },
+    {
+      "file": "pynomaly/domain/entities/drift_detection.py",
+      "violations_count": 3,
+      "modules": [
+        "scipy",
+        "numpy"
+      ],
+      "priority_score": 8,
+      "estimated_effort": "Medium (2-4 hours)"
+    },
+    {
+      "file": "pynomaly/domain/entities/explainable_ai.py",
+      "violations_count": 1,
+      "modules": [
+        "numpy"
+      ],
+      "priority_score": 8,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/entities/optimization_trial.py",
+      "violations_count": 5,
+      "modules": [
+        "numpy",
+        "pynomaly"
+      ],
+      "priority_score": 8,
+      "estimated_effort": "Medium (2-4 hours)"
+    },
+    {
+      "file": "pynomaly/domain/entities/simple_detector.py",
+      "violations_count": 5,
+      "modules": [
+        "dataset",
+        "detector",
+        "detection_result",
+        "numpy"
+      ],
+      "priority_score": 8,
+      "estimated_effort": "Medium (2-4 hours)"
+    },
+    {
+      "file": "pynomaly/domain/services/anomaly_scorer.py",
+      "violations_count": 4,
+      "modules": [
+        "scipy",
+        "pynomaly",
+        "numpy"
+      ],
+      "priority_score": 8,
+      "estimated_effort": "Medium (2-4 hours)"
+    },
+    {
+      "file": "pynomaly/domain/services/ensemble_aggregator.py",
+      "violations_count": 3,
+      "modules": [
+        "scipy",
+        "pynomaly",
+        "numpy"
+      ],
+      "priority_score": 8,
+      "estimated_effort": "Medium (2-4 hours)"
+    },
+    {
+      "file": "pynomaly/domain/services/explainability_service.py",
+      "violations_count": 2,
+      "modules": [
+        "pandas",
+        "numpy"
+      ],
+      "priority_score": 8,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/services/feature_validator.py",
+      "violations_count": 4,
+      "modules": [
+        "pynomaly",
+        "pandas",
+        "numpy"
+      ],
+      "priority_score": 8,
+      "estimated_effort": "Medium (2-4 hours)"
+    },
+    {
+      "file": "pynomaly/domain/services/threshold_calculator.py",
+      "violations_count": 2,
+      "modules": [
+        "pynomaly",
+        "numpy"
+      ],
+      "priority_score": 8,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/services/uncertainty_service.py",
+      "violations_count": 5,
+      "modules": [
+        "scipy",
+        "pynomaly",
+        "numpy"
+      ],
+      "priority_score": 8,
+      "estimated_effort": "Medium (2-4 hours)"
+    },
+    {
+      "file": "pynomaly/domain/value_objects/confidence_interval.py",
+      "violations_count": 2,
+      "modules": [
+        "pynomaly",
+        "numpy"
+      ],
+      "priority_score": 8,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/value_objects/hyperparameters.py",
+      "violations_count": 4,
+      "modules": [
+        "numpy"
+      ],
+      "priority_score": 8,
+      "estimated_effort": "Medium (2-4 hours)"
+    },
+    {
+      "file": "pynomaly/domain/entities/active_learning_session.py",
+      "violations_count": 2,
+      "modules": [
+        "pynomaly"
+      ],
+      "priority_score": 0,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/entities/anomaly.py",
+      "violations_count": 1,
+      "modules": [
+        "pynomaly"
+      ],
+      "priority_score": 0,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/entities/experiment.py",
+      "violations_count": 1,
+      "modules": [
+        "statistics"
+      ],
+      "priority_score": 0,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/entities/human_feedback.py",
+      "violations_count": 1,
+      "modules": [
+        "pynomaly"
+      ],
+      "priority_score": 0,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/entities/model_registry.py",
+      "violations_count": 2,
+      "modules": [
+        "pynomaly"
+      ],
+      "priority_score": 0,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/entities/model_version.py",
+      "violations_count": 3,
+      "modules": [
+        "pynomaly"
+      ],
+      "priority_score": 0,
+      "estimated_effort": "Medium (2-4 hours)"
+    },
+    {
+      "file": "pynomaly/domain/entities/training_job.py",
+      "violations_count": 2,
+      "modules": [
+        "pynomaly"
+      ],
+      "priority_score": 0,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/exceptions/dataset_exceptions.py",
+      "violations_count": 1,
+      "modules": [
+        "base"
+      ],
+      "priority_score": 0,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/exceptions/detector_exceptions.py",
+      "violations_count": 1,
+      "modules": [
+        "base"
+      ],
+      "priority_score": 0,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/exceptions/entity_exceptions.py",
+      "violations_count": 1,
+      "modules": [
+        "base"
+      ],
+      "priority_score": 0,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/exceptions/result_exceptions.py",
+      "violations_count": 1,
+      "modules": [
+        "base"
+      ],
+      "priority_score": 0,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/value_objects/anomaly_score.py",
+      "violations_count": 2,
+      "modules": [
+        "pynomaly"
+      ],
+      "priority_score": 0,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/value_objects/contamination_rate.py",
+      "violations_count": 1,
+      "modules": [
+        "pynomaly"
+      ],
+      "priority_score": 0,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/value_objects/model_storage_info.py",
+      "violations_count": 1,
+      "modules": [
+        "hashlib"
+      ],
+      "priority_score": 0,
+      "estimated_effort": "Low (1-2 hours)"
+    },
+    {
+      "file": "pynomaly/domain/value_objects/threshold_config.py",
+      "violations_count": 1,
+      "modules": [
+        "pynomaly"
+      ],
+      "priority_score": 0,
+      "estimated_effort": "Low (1-2 hours)"
+    }
+  ]
+}
