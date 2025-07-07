@@ -17,26 +17,31 @@ def benchmark_config():
         "warmup_rounds": 1,
         "min_rounds": 3,
         "max_time": 30.0,
-        "timer": "time.perf_counter"
+        "timer": "time.perf_counter",
     }
 
 
 def pytest_benchmark_update_machine_info(config, machine_info):
     """Update machine info for benchmark reports."""
     import platform
+
     import psutil
-    
-    machine_info.update({
-        "python_version": platform.python_version(),
-        "platform": platform.platform(),
-        "cpu_count": psutil.cpu_count(),
-        "memory_total": psutil.virtual_memory().total // (1024 ** 3),  # GB
-    })
+
+    machine_info.update(
+        {
+            "python_version": platform.python_version(),
+            "platform": platform.platform(),
+            "cpu_count": psutil.cpu_count(),
+            "memory_total": psutil.virtual_memory().total // (1024**3),  # GB
+        }
+    )
 
 
 def pytest_runtest_setup(item):
     """Setup for benchmark tests."""
-    if "benchmark" in item.keywords and not hasattr(item.config.option, "benchmark_skip"):
+    if "benchmark" in item.keywords and not hasattr(
+        item.config.option, "benchmark_skip"
+    ):
         # Ensure benchmark plugin is available
         try:
             import pytest_benchmark

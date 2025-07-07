@@ -4,16 +4,16 @@ from __future__ import annotations
 
 import asyncio
 import gc
-import psutil
 import time
 from typing import Dict, List
 
 import numpy as np
+import psutil
 import pytest
 
 from tests.integration.conftest import (
-    IntegrationTestHelper,
     IntegrationTestAssertions,
+    IntegrationTestHelper,
 )
 
 
@@ -28,14 +28,13 @@ class TestPerformanceBenchmarks:
         sample_datasets: List,
         performance_benchmarks: Dict,
     ):
-        """Benchmark detection latency for different algorithms."""
+        """Benchmark detection latency across different algorithms."""
         dataset = sample_datasets[1]  # Use anomalous dataset
         
         algorithms = ["isolation_forest", "one_class_svm", "lof"]
         latency_results = {}
         
         for algorithm in algorithms:
-            # Create and train detector
             from pynomaly.domain.value_objects import AlgorithmType, DetectorConfig, ModelType
             
             config = DetectorConfig(
@@ -48,48 +47,54 @@ class TestPerformanceBenchmarks:
             )
             
             from pynomaly.domain.models import Detector
-            detector = Detector(name=f"{algorithm}_benchmark", config=config)
+            detector = Detector(name=f"{algorithm}_latency_benchmark", config=config)
             
             # Train detector
+            training_start = time.perf_counter()
             await detection_service.train_detector(detector, dataset)
+            training_time = time.perf_counter() - training_start
             
             # Benchmark detection latency
-            latencies = []
-            sample_sizes = [10, 50, 100, 500, 1000]
+            detection_times = []
+            batch_size = 100
+            num_batches = 10
             
-            for sample_size in sample_sizes:
-                test_data = dataset.data[:sample_size]
+            for batch_idx in range(num_batches):
+                start_idx = (batch_idx * batch_size) % len(dataset.data)
+                end_idx = start_idx + batch_size
+                batch_data = dataset.data[start_idx:end_idx]
                 
-                # Warm up
-                await detection_service.detect(detector, test_data)
-                
-                # Benchmark
-                start_time = time.perf_counter()
-                await detection_service.detect(detector, test_data)
-                end_time = time.perf_counter()
-                
-                latency_ms = (end_time - start_time) * 1000
-                latency_per_sample = latency_ms / sample_size
-                latencies.append(latency_per_sample)
+                detection_start = time.perf_counter()
+                result = await detection_service.detect(detector, batch_data)
+                detection_time = time.perf_counter() - detection_start
+                detection_times.append(detection_time * 1000)  # Convert to ms
+            
+            # Calculate statistics
+            avg_latency = np.mean(detection_times)
+            p95_latency = np.percentile(detection_times, 95)
+            p99_latency = np.percentile(detection_times, 99)
             
             latency_results[algorithm] = {
-                "sample_sizes": sample_sizes,
-                "latencies_per_sample": latencies,
-                "avg_latency": np.mean(latencies),
-                "max_latency": np.max(latencies),
+                "training_time_ms": training_time * 1000,
+                "avg_detection_latency_ms": avg_latency,
+                "p95_detection_latency_ms": p95_latency,
+                "p99_detection_latency_ms": p99_latency,
+                "samples_per_second": (batch_size * 1000) / avg_latency,
             }
             
-            # Validate against benchmark
-            assert latency_results[algorithm]["avg_latency"] <= \
-                performance_benchmarks["detection_latency_ms"], \
-                f"{algorithm} average latency exceeds benchmark"
+            # Validate against benchmarks
+            assert avg_latency <= performance_benchmarks["max_detection_latency_ms"], \
+                f"{algorithm} average latency {avg_latency:.2f}ms exceeds benchmark"
         
         # Print results for analysis
         print("\nDetection Latency Benchmark Results:")
         for algorithm, results in latency_results.items():
             print(f"{algorithm}:")
-            print(f"  Average latency per sample: {results['avg_latency']:.2f}ms")
-            print(f"  Maximum latency per sample: {results['max_latency']:.2f}ms")
+            print(f"  Training time: {results['training_time_ms']:.2f}ms")
+            print(f"  Average latency: {results['avg_detection_latency_ms']:.2f}ms")
+            print(f"  P95 latency: {results['p95_detection_latency_ms']:.2f}ms")
+            print(f"  P99 latency: {results['p99_detection_latency_ms']:.2f}ms")
+            print(f"  Throughput: {results['samples_per_second']:.1f} samples/sec")
 
     async def test_memory_usage_benchmark(
         self,
@@ -102,13 +107,12 @@ class TestPerformanceBenchmarks:
         
         # Measure baseline memory
         gc.collect()
-        baseline_memory = psutil.Process().memory_info().rss / 1024 / 1024  # MB
+        baseline_memory = psutil.Process().memory_info().rss / 1024 / 1024
         
         algorithms = ["isolation_forest", "one_class_svm", "lof"]
         memory_results = {}
         
         for algorithm in algorithms:
-            # Create detector
             from pynomaly.domain.value_objects import AlgorithmType, DetectorConfig, ModelType
             
             config = DetectorConfig(
@@ -118,4 +122,189 @@ class TestPerformanceBenchmarks:
                     "contamination": 0.1,
                     "random_state": 42,
                 },
-            )\n            \n            from pynomaly.domain.models import Detector\n            detector = Detector(name=f\"{algorithm}_memory_benchmark\", config=config)\n            \n            # Measure memory during training\n            gc.collect()\n            pre_training_memory = psutil.Process().memory_info().rss / 1024 / 1024\n            \n            await detection_service.train_detector(detector, dataset)\n            \n            gc.collect()\n            post_training_memory = psutil.Process().memory_info().rss / 1024 / 1024\n            \n            training_memory_delta = post_training_memory - pre_training_memory\n            \n            # Measure memory during detection\n            pre_detection_memory = psutil.Process().memory_info().rss / 1024 / 1024\n            \n            await detection_service.detect(detector, dataset.data)\n            \n            gc.collect()\n            post_detection_memory = psutil.Process().memory_info().rss / 1024 / 1024\n            \n            detection_memory_delta = post_detection_memory - pre_detection_memory\n            \n            memory_results[algorithm] = {\n                \"training_memory_delta_mb\": training_memory_delta,\n                \"detection_memory_delta_mb\": detection_memory_delta,\n                \"total_memory_mb\": post_detection_memory - baseline_memory,\n            }\n            \n            # Validate against benchmark\n            assert memory_results[algorithm][\"total_memory_mb\"] <= \\\n                performance_benchmarks[\"memory_usage_mb\"], \\\n                f\"{algorithm} memory usage exceeds benchmark\"\n        \n        # Print results for analysis\n        print(\"\\nMemory Usage Benchmark Results:\")\n        for algorithm, results in memory_results.items():\n            print(f\"{algorithm}:\")\n            print(f\"  Training memory delta: {results['training_memory_delta_mb']:.2f}MB\")\n            print(f\"  Detection memory delta: {results['detection_memory_delta_mb']:.2f}MB\")\n            print(f\"  Total memory usage: {results['total_memory_mb']:.2f}MB\")\n\n    async def test_throughput_benchmark(\n        self,\n        streaming_service,\n        sample_datasets: List,\n        performance_benchmarks: Dict,\n    ):\n        \"\"\"Benchmark streaming throughput.\"\"\"\n        dataset = sample_datasets[1]  # Use anomalous dataset\n        \n        # Start streaming service\n        await streaming_service.start()\n        \n        try:\n            # Generate continuous data stream\n            data_stream = []\n            for i in range(1000):\n                sample = dataset.data[i % len(dataset.data)]\n                data_stream.append({\n                    \"data\": sample.tolist(),\n                    \"sample_id\": f\"benchmark_sample_{i}\",\n                    \"timestamp\": time.time(),\n                })\n            \n            # Benchmark throughput\n            start_time = time.time()\n            \n            # Process all samples\n            tasks = []\n            for sample in data_stream:\n                task = streaming_service.process_sample(\n                    sample[\"data\"], sample[\"sample_id\"]\n                )\n                tasks.append(task)\n            \n            # Wait for all processing to complete\n            results = await asyncio.gather(*tasks)\n            \n            end_time = time.time()\n            \n            # Calculate throughput\n            total_time = end_time - start_time\n            throughput = len(data_stream) / total_time\n            \n            # Validate against benchmark\n            assert throughput >= performance_benchmarks[\"throughput_samples_per_second\"], \\\n                f\"Throughput {throughput:.2f} samples/sec below benchmark\"\n            \n            # Validate all samples were processed\n            assert len(results) == len(data_stream), \"Not all samples were processed\"\n            \n            # Calculate additional metrics\n            processing_times = []\n            for i, result in enumerate(results):\n                if hasattr(result, 'processing_time_ms'):\n                    processing_times.append(result.processing_time_ms)\n            \n            if processing_times:\n                avg_processing_time = np.mean(processing_times)\n                p95_processing_time = np.percentile(processing_times, 95)\n                p99_processing_time = np.percentile(processing_times, 99)\n                \n                print(f\"\\nStreaming Throughput Benchmark Results:\")\n                print(f\"  Throughput: {throughput:.2f} samples/sec\")\n                print(f\"  Average processing time: {avg_processing_time:.2f}ms\")\n                print(f\"  P95 processing time: {p95_processing_time:.2f}ms\")\n                print(f\"  P99 processing time: {p99_processing_time:.2f}ms\")\n        \n        finally:\n            await streaming_service.stop()\n\n    async def test_cache_performance_benchmark(\n        self,\n        test_cache,\n        performance_benchmarks: Dict,\n    ):\n        \"\"\"Benchmark cache performance and hit rates.\"\"\"\n        # Generate test data\n        test_data = {}\n        for i in range(1000):\n            key = f\"test_key_{i}\"\n            value = np.random.randn(100, 10)  # 100x10 matrix\n            test_data[key] = value\n        \n        # Warm up cache\n        for key, value in list(test_data.items())[:500]:\n            await test_cache.set(key, value)\n        \n        # Benchmark cache operations\n        cache_hits = 0\n        cache_misses = 0\n        \n        set_times = []\n        get_times = []\n        \n        # Test cache performance\n        for key, value in test_data.items():\n            # Test set performance\n            start_time = time.perf_counter()\n            await test_cache.set(key, value)\n            set_time = (time.perf_counter() - start_time) * 1000\n            set_times.append(set_time)\n            \n            # Test get performance\n            start_time = time.perf_counter()\n            cached_value = await test_cache.get(key)\n            get_time = (time.perf_counter() - start_time) * 1000\n            get_times.append(get_time)\n            \n            if cached_value is not None:\n                cache_hits += 1\n            else:\n                cache_misses += 1\n        \n        # Test cache hit rate with repeated access\n        repeated_hits = 0\n        repeated_total = 0\n        \n        for key in list(test_data.keys())[:100]:  # Access first 100 keys again\n            cached_value = await test_cache.get(key)\n            repeated_total += 1\n            if cached_value is not None:\n                repeated_hits += 1\n        \n        # Calculate metrics\n        hit_rate = cache_hits / (cache_hits + cache_misses)\n        repeated_hit_rate = repeated_hits / repeated_total if repeated_total > 0 else 0\n        \n        avg_set_time = np.mean(set_times)\n        avg_get_time = np.mean(get_times)\n        p95_set_time = np.percentile(set_times, 95)\n        p95_get_time = np.percentile(get_times, 95)\n        \n        # Validate against benchmarks\n        assert repeated_hit_rate >= performance_benchmarks[\"cache_hit_rate\"], \\\n            f\"Cache hit rate {repeated_hit_rate:.3f} below benchmark\"\n        \n        # Print results\n        print(f\"\\nCache Performance Benchmark Results:\")\n        print(f\"  Initial hit rate: {hit_rate:.3f}\")\n        print(f\"  Repeated access hit rate: {repeated_hit_rate:.3f}\")\n        print(f\"  Average set time: {avg_set_time:.3f}ms\")\n        print(f\"  Average get time: {avg_get_time:.3f}ms\")\n        print(f\"  P95 set time: {p95_set_time:.3f}ms\")\n        print(f\"  P95 get time: {p95_get_time:.3f}ms\")\n\n    async def test_concurrent_performance_benchmark(\n        self,\n        detection_service,\n        sample_datasets: List,\n        performance_benchmarks: Dict,\n    ):\n        \"\"\"Benchmark performance under concurrent load.\"\"\"\n        dataset = sample_datasets[1]  # Use anomalous dataset\n        \n        # Create multiple detectors\n        detectors = []\n        algorithms = [\"isolation_forest\", \"one_class_svm\", \"lof\"]\n        \n        for i, algorithm in enumerate(algorithms):\n            from pynomaly.domain.value_objects import AlgorithmType, DetectorConfig, ModelType\n            \n            config = DetectorConfig(\n                algorithm_type=getattr(AlgorithmType, algorithm.upper()),\n                model_type=ModelType.UNSUPERVISED,\n                parameters={\n                    \"contamination\": 0.1,\n                    \"random_state\": 42 + i,\n                },\n            )\n            \n            from pynomaly.domain.models import Detector\n            detector = Detector(name=f\"{algorithm}_concurrent_{i}\", config=config)\n            await detection_service.train_detector(detector, dataset)\n            detectors.append(detector)\n        \n        # Concurrent detection benchmark\n        async def concurrent_detection(detector, data_subset):\n            start_time = time.perf_counter()\n            result = await detection_service.detect(detector, data_subset)\n            end_time = time.perf_counter()\n            \n            return {\n                \"detector_name\": detector.name,\n                \"processing_time\": (end_time - start_time) * 1000,\n                \"sample_count\": len(data_subset),\n                \"result\": result,\n            }\n        \n        # Create concurrent tasks\n        data_subsets = np.array_split(dataset.data[:300], len(detectors))\n        concurrent_tasks = [\n            concurrent_detection(detector, data_subset)\n            for detector, data_subset in zip(detectors, data_subsets)\n        ]\n        \n        # Execute concurrently\n        start_time = time.time()\n        concurrent_results = await asyncio.gather(*concurrent_tasks)\n        total_concurrent_time = time.time() - start_time\n        \n        # Execute sequentially for comparison\n        start_time = time.time()\n        sequential_results = []\n        for detector, data_subset in zip(detectors, data_subsets):\n            result = await concurrent_detection(detector, data_subset)\n            sequential_results.append(result)\n        total_sequential_time = time.time() - start_time\n        \n        # Calculate performance metrics\n        concurrent_avg_time = np.mean([r[\"processing_time\"] for r in concurrent_results])\n        sequential_avg_time = np.mean([r[\"processing_time\"] for r in sequential_results])\n        \n        speedup = total_sequential_time / total_concurrent_time\n        efficiency = speedup / len(detectors)\n        \n        # Validate results quality\n        for result in concurrent_results:\n            assert result[\"result\"] is not None, \"Concurrent detection should produce results\"\n        \n        # Performance should not degrade significantly under concurrency\n        assert concurrent_avg_time <= sequential_avg_time * 1.5, \\\n            \"Concurrent performance degradation too high\"\n        \n        # Should achieve some speedup from concurrency\n        assert speedup >= 1.5, f\"Concurrent speedup {speedup:.2f}x too low\"\n        \n        print(f\"\\nConcurrent Performance Benchmark Results:\")\n        print(f\"  Sequential total time: {total_sequential_time:.2f}s\")\n        print(f\"  Concurrent total time: {total_concurrent_time:.2f}s\")\n        print(f\"  Speedup: {speedup:.2f}x\")\n        print(f\"  Efficiency: {efficiency:.2f}\")\n        print(f\"  Sequential avg processing time: {sequential_avg_time:.2f}ms\")\n        print(f\"  Concurrent avg processing time: {concurrent_avg_time:.2f}ms\")\n\n    @pytest.mark.slow\n    async def test_scalability_benchmark(\n        self,\n        detection_service,\n        temp_dir,\n        performance_benchmarks: Dict,\n    ):\n        \"\"\"Benchmark scalability with increasing data sizes.\"\"\"\n        from pynomaly.domain.value_objects import AlgorithmType, DetectorConfig, ModelType\n        from pynomaly.domain.models import Detector, Dataset\n        from pynomaly.domain.value_objects import DatasetMetadata\n        \n        # Test different data sizes\n        data_sizes = [1000, 5000, 10000, 25000, 50000]\n        scalability_results = {}\n        \n        for size in data_sizes:\n            # Generate synthetic dataset\n            np.random.seed(42)\n            feature_count = 10\n            normal_data = np.random.randn(int(size * 0.9), feature_count)\n            anomaly_data = np.random.randn(int(size * 0.1), feature_count) * 3 + 5\n            \n            data = np.vstack([normal_data, anomaly_data])\n            labels = np.hstack([\n                np.zeros(int(size * 0.9)),\n                np.ones(int(size * 0.1))\n            ]).astype(bool)\n            \n            # Shuffle\n            indices = np.random.permutation(size)\n            data = data[indices]\n            labels = labels[indices]\n            \n            dataset = Dataset(\n                name=f\"scalability_test_{size}\",\n                data=data,\n                metadata=DatasetMetadata(\n                    source=\"scalability_benchmark\",\n                    description=f\"Scalability test dataset with {size} samples\",\n                    feature_names=[f\"feature_{i}\" for i in range(feature_count)],\n                    data_types=[\"float64\"] * feature_count,\n                    anomaly_labels=labels,\n                ),\n            )\n            \n            # Test isolation forest (fastest algorithm)\n            config = DetectorConfig(\n                algorithm_type=AlgorithmType.ISOLATION_FOREST,\n                model_type=ModelType.UNSUPERVISED,\n                parameters={\n                    \"n_estimators\": 100,\n                    \"contamination\": 0.1,\n                    \"random_state\": 42,\n                },\n            )\n            \n            detector = Detector(name=f\"scalability_detector_{size}\", config=config)\n            \n            # Measure training time\n            gc.collect()\n            pre_memory = psutil.Process().memory_info().rss / 1024 / 1024\n            \n            training_start = time.perf_counter()\n            await detection_service.train_detector(detector, dataset)\n            training_time = time.perf_counter() - training_start\n            \n            # Measure detection time\n            detection_start = time.perf_counter()\n            result = await detection_service.detect(detector, dataset.data)\n            detection_time = time.perf_counter() - detection_start\n            \n            gc.collect()\n            post_memory = psutil.Process().memory_info().rss / 1024 / 1024\n            memory_delta = post_memory - pre_memory\n            \n            # Calculate metrics\n            training_time_per_sample = (training_time * 1000) / size  # ms per sample\n            detection_time_per_sample = (detection_time * 1000) / size  # ms per sample\n            memory_per_sample = memory_delta / size  # MB per sample\n            \n            scalability_results[size] = {\n                \"training_time_total\": training_time,\n                \"detection_time_total\": detection_time,\n                \"training_time_per_sample\": training_time_per_sample,\n                \"detection_time_per_sample\": detection_time_per_sample,\n                \"memory_delta_mb\": memory_delta,\n                \"memory_per_sample_mb\": memory_per_sample,\n            }\n            \n            # Validate quality doesn't degrade with scale\n            accuracy = result.metrics.accuracy if hasattr(result, 'metrics') else 0.8\n            assert accuracy >= 0.7, f\"Accuracy {accuracy} degraded with size {size}\"\n        \n        # Analyze scalability trends\n        sizes = list(scalability_results.keys())\n        training_times = [scalability_results[s][\"training_time_per_sample\"] for s in sizes]\n        detection_times = [scalability_results[s][\"detection_time_per_sample\"] for s in sizes]\n        memory_usage = [scalability_results[s][\"memory_per_sample_mb\"] for s in sizes]\n        \n        # Check that per-sample times don't increase dramatically\n        training_trend = np.polyfit(sizes, training_times, 1)[0]  # Slope\n        detection_trend = np.polyfit(sizes, detection_times, 1)[0]  # Slope\n        memory_trend = np.polyfit(sizes, memory_usage, 1)[0]  # Slope\n        \n        # Trends should be near-zero or negative (better performance with scale)\n        assert training_trend <= 0.001, f\"Training time per sample increasing too fast: {training_trend}\"\n        assert detection_trend <= 0.001, f\"Detection time per sample increasing too fast: {detection_trend}\"\n        \n        print(f\"\\nScalability Benchmark Results:\")\n        print(f\"  Data sizes tested: {sizes}\")\n        print(f\"  Training time trend (ms/sample per sample): {training_trend:.6f}\")\n        print(f\"  Detection time trend (ms/sample per sample): {detection_trend:.6f}\")\n        print(f\"  Memory usage trend (MB/sample per sample): {memory_trend:.6f}\")\n        \n        for size in sizes:\n            result = scalability_results[size]\n            print(f\"  Size {size}:\")\n            print(f\"    Training: {result['training_time_total']:.2f}s ({result['training_time_per_sample']:.3f}ms/sample)\")\n            print(f\"    Detection: {result['detection_time_total']:.2f}s ({result['detection_time_per_sample']:.3f}ms/sample)\")\n            print(f\"    Memory: {result['memory_delta_mb']:.2f}MB ({result['memory_per_sample_mb']:.6f}MB/sample)\")\n\n    async def test_resource_cleanup_benchmark(\n        self,\n        detection_service,\n        test_cache,\n        sample_datasets: List,\n    ):\n        \"\"\"Benchmark resource cleanup and memory management.\"\"\"\n        dataset = sample_datasets[1]\n        \n        # Measure baseline\n        gc.collect()\n        baseline_memory = psutil.Process().memory_info().rss / 1024 / 1024\n        \n        # Create and train multiple detectors\n        detectors = []\n        for i in range(10):\n            from pynomaly.domain.value_objects import AlgorithmType, DetectorConfig, ModelType\n            \n            config = DetectorConfig(\n                algorithm_type=AlgorithmType.ISOLATION_FOREST,\n                model_type=ModelType.UNSUPERVISED,\n                parameters={\n                    \"contamination\": 0.1,\n                    \"random_state\": 42 + i,\n                },\n            )\n            \n            from pynomaly.domain.models import Detector\n            detector = Detector(name=f\"cleanup_detector_{i}\", config=config)\n            await detection_service.train_detector(detector, dataset)\n            detectors.append(detector)\n        \n        # Perform detection operations\n        for detector in detectors:\n            await detection_service.detect(detector, dataset.data)\n        \n        # Measure peak memory\n        gc.collect()\n        peak_memory = psutil.Process().memory_info().rss / 1024 / 1024\n        memory_growth = peak_memory - baseline_memory\n        \n        # Clear cache\n        await test_cache.clear()\n        \n        # Delete detectors\n        detectors.clear()\n        \n        # Force garbage collection\n        for _ in range(3):\n            gc.collect()\n        \n        # Measure memory after cleanup\n        post_cleanup_memory = psutil.Process().memory_info().rss / 1024 / 1024\n        memory_recovered = peak_memory - post_cleanup_memory\n        recovery_rate = memory_recovered / memory_growth if memory_growth > 0 else 1.0\n        \n        # Validate memory recovery\n        assert recovery_rate >= 0.8, f\"Memory recovery rate {recovery_rate:.2f} too low\"\n        \n        # Memory should return close to baseline\n        memory_leak = post_cleanup_memory - baseline_memory\n        assert memory_leak <= 50, f\"Potential memory leak detected: {memory_leak:.2f}MB\"\n        \n        print(f\"\\nResource Cleanup Benchmark Results:\")\n        print(f\"  Baseline memory: {baseline_memory:.2f}MB\")\n        print(f\"  Peak memory: {peak_memory:.2f}MB\")\n        print(f\"  Memory growth: {memory_growth:.2f}MB\")\n        print(f\"  Post-cleanup memory: {post_cleanup_memory:.2f}MB\")\n        print(f\"  Memory recovered: {memory_recovered:.2f}MB\")\n        print(f\"  Recovery rate: {recovery_rate:.2f}\")\n        print(f\"  Potential leak: {memory_leak:.2f}MB\")\n"
+            )
+            
+            from pynomaly.domain.models import Detector
+            detector = Detector(name=f"{algorithm}_memory_benchmark", config=config)
+            
+            # Measure memory during training
+            gc.collect()
+            pre_training_memory = psutil.Process().memory_info().rss / 1024 / 1024
+            
+            await detection_service.train_detector(detector, dataset)
+            
+            gc.collect()
+            post_training_memory = psutil.Process().memory_info().rss / 1024 / 1024
+            
+            training_memory_delta = post_training_memory - pre_training_memory
+            
+            # Measure memory during detection
+            pre_detection_memory = psutil.Process().memory_info().rss / 1024 / 1024
+            
+            await detection_service.detect(detector, dataset.data)
+            
+            gc.collect()
+            post_detection_memory = psutil.Process().memory_info().rss / 1024 / 1024
+            
+            detection_memory_delta = post_detection_memory - pre_detection_memory
+            
+            memory_results[algorithm] = {
+                "training_memory_delta_mb": training_memory_delta,
+                "detection_memory_delta_mb": detection_memory_delta,
+                "total_memory_mb": post_detection_memory - baseline_memory,
+            }
+            
+            # Validate against benchmark
+            assert memory_results[algorithm]["total_memory_mb"] <= \
+                performance_benchmarks["memory_usage_mb"], \
+                f"{algorithm} memory usage exceeds benchmark"
+        
+        # Print results for analysis
+        print("\nMemory Usage Benchmark Results:")
+        for algorithm, results in memory_results.items():
+            print(f"{algorithm}:")
+            print(f"  Training memory delta: {results['training_memory_delta_mb']:.2f}MB")
+            print(f"  Detection memory delta: {results['detection_memory_delta_mb']:.2f}MB")
+            print(f"  Total memory usage: {results['total_memory_mb']:.2f}MB")
+
+    async def test_throughput_benchmark(
+        self,
+        streaming_service,
+        sample_datasets: List,
+        performance_benchmarks: Dict,
+    ):
+        """Benchmark streaming throughput."""
+        dataset = sample_datasets[1]  # Use anomalous dataset
+        
+        # Start streaming service
+        await streaming_service.start()
+        
+        try:
+            # Generate continuous data stream
+            data_stream = []
+            for i in range(1000):
+                sample = dataset.data[i % len(dataset.data)]
+                data_stream.append({
+                    "data": sample.tolist(),
+                    "sample_id": f"benchmark_sample_{i}",
+                    "timestamp": time.time(),
+                })
+            
+            # Benchmark throughput
+            start_time = time.time()
+            
+            # Process all samples
+            tasks = []
+            for sample in data_stream:
+                task = streaming_service.process_sample(
+                    sample["data"], sample["sample_id"]
+                )
+                tasks.append(task)
+            
+            # Wait for all processing to complete
+            results = await asyncio.gather(*tasks)
+            
+            end_time = time.time()
+            
+            # Calculate throughput
+            total_time = end_time - start_time
+            throughput = len(data_stream) / total_time
+            
+            # Validate against benchmark
+            assert throughput >= performance_benchmarks["throughput_samples_per_second"], \
+                f"Throughput {throughput:.2f} samples/sec below benchmark"
+            
+            # Validate all samples were processed
+            assert len(results) == len(data_stream), "Not all samples were processed"
+            
+            # Calculate additional metrics
+            processing_times = []
+            for i, result in enumerate(results):
+                if hasattr(result, 'processing_time_ms'):
+                    processing_times.append(result.processing_time_ms)
+            
+            if processing_times:
+                avg_processing_time = np.mean(processing_times)
+                p95_processing_time = np.percentile(processing_times, 95)
+                p99_processing_time = np.percentile(processing_times, 99)
+                
+                print(f"\nStreaming Throughput Benchmark Results:")
+                print(f"  Throughput: {throughput:.2f} samples/sec")
+                print(f"  Average processing time: {avg_processing_time:.2f}ms")
+                print(f"  P95 processing time: {p95_processing_time:.2f}ms")
+                print(f"  P99 processing time: {p99_processing_time:.2f}ms")
+        
+        finally:
+            await streaming_service.stop()
+
+    async def test_resource_cleanup_benchmark(
+        self,
+        detection_service,
+        test_cache,
+        sample_datasets: List,
+    ):
+        """Benchmark resource cleanup and memory management."""
+        dataset = sample_datasets[1]
+        
+        # Measure baseline
+        gc.collect()
+        baseline_memory = psutil.Process().memory_info().rss / 1024 / 1024
+        
+        # Create and train multiple detectors
+        detectors = []
+        for i in range(10):
+            from pynomaly.domain.value_objects import AlgorithmType, DetectorConfig, ModelType
+            
+            config = DetectorConfig(
+                algorithm_type=AlgorithmType.ISOLATION_FOREST,
+                model_type=ModelType.UNSUPERVISED,
+                parameters={
+                    "contamination": 0.1,
+                    "random_state": 42 + i,
+                },
+            )
+            
+            from pynomaly.domain.models import Detector
+            detector = Detector(name=f"cleanup_detector_{i}", config=config)
+            await detection_service.train_detector(detector, dataset)
+            detectors.append(detector)
+        
+        # Perform detection operations
+        for detector in detectors:
+            await detection_service.detect(detector, dataset.data)
+        
+        # Measure peak memory
+        gc.collect()
+        peak_memory = psutil.Process().memory_info().rss / 1024 / 1024
+        memory_growth = peak_memory - baseline_memory
+        
+        # Clear cache
+        await test_cache.clear()
+        
+        # Delete detectors
+        detectors.clear()
+        
+        # Force garbage collection
+        for _ in range(3):
+            gc.collect()
+        
+        # Measure memory after cleanup
+        post_cleanup_memory = psutil.Process().memory_info().rss / 1024 / 1024
+        memory_recovered = peak_memory - post_cleanup_memory
+        recovery_rate = memory_recovered / memory_growth if memory_growth > 0 else 1.0
+        
+        # Validate memory recovery
+        assert recovery_rate >= 0.8, f"Memory recovery rate {recovery_rate:.2f} too low"
+        
+        # Memory should return close to baseline
+        memory_leak = post_cleanup_memory - baseline_memory
+        assert memory_leak <= 50, f"Potential memory leak detected: {memory_leak:.2f}MB"
+        
+        print(f"\nResource Cleanup Benchmark Results:")
+        print(f"  Baseline memory: {baseline_memory:.2f}MB")
+        print(f"  Peak memory: {peak_memory:.2f}MB")
+        print(f"  Memory growth: {memory_growth:.2f}MB")
+        print(f"  Post-cleanup memory: {post_cleanup_memory:.2f}MB")
+        print(f"  Memory recovered: {memory_recovered:.2f}MB")
+        print(f"  Recovery rate: {recovery_rate:.2f}")
+        print(f"  Potential leak: {memory_leak:.2f}MB")

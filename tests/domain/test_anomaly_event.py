@@ -1,21 +1,22 @@
 """Tests for anomaly event domain entities."""
 
-import pytest
 from datetime import datetime, timedelta
 from uuid import uuid4
+
+import pytest
 
 from pynomaly.domain.entities.anomaly_event import (
     AnomalyEvent,
     AnomalyEventData,
     DataQualityEventData,
-    PerformanceEventData,
-    EventFilter,
     EventAggregation,
+    EventFilter,
     EventPattern,
-    EventSummary,
-    EventType,
     EventSeverity,
     EventStatus,
+    EventSummary,
+    EventType,
+    PerformanceEventData,
 )
 
 
@@ -32,7 +33,7 @@ class TestAnomalyEventData:
             detection_method="IsolationForest",
             model_version="v1.2.3",
         )
-        
+
         assert data.anomaly_score == 0.8
         assert data.confidence == 0.95
         assert data.predicted_class == "outlier"
@@ -43,12 +44,16 @@ class TestAnomalyEventData:
         # Valid scores
         AnomalyEventData(anomaly_score=0.0, confidence=0.5)
         AnomalyEventData(anomaly_score=1.0, confidence=0.5)
-        
+
         # Invalid scores
-        with pytest.raises(ValueError, match="Anomaly score must be between 0.0 and 1.0"):
+        with pytest.raises(
+            ValueError, match="Anomaly score must be between 0.0 and 1.0"
+        ):
             AnomalyEventData(anomaly_score=-0.1, confidence=0.5)
-            
-        with pytest.raises(ValueError, match="Anomaly score must be between 0.0 and 1.0"):
+
+        with pytest.raises(
+            ValueError, match="Anomaly score must be between 0.0 and 1.0"
+        ):
             AnomalyEventData(anomaly_score=1.1, confidence=0.5)
 
     def test_confidence_validation(self):
@@ -56,11 +61,11 @@ class TestAnomalyEventData:
         # Valid confidence
         AnomalyEventData(anomaly_score=0.5, confidence=0.0)
         AnomalyEventData(anomaly_score=0.5, confidence=1.0)
-        
+
         # Invalid confidence
         with pytest.raises(ValueError, match="Confidence must be between 0.0 and 1.0"):
             AnomalyEventData(anomaly_score=0.5, confidence=-0.1)
-            
+
         with pytest.raises(ValueError, match="Confidence must be between 0.0 and 1.0"):
             AnomalyEventData(anomaly_score=0.5, confidence=1.1)
 
@@ -77,14 +82,16 @@ class TestDataQualityEventData:
             missing_percentage=15.5,
             outlier_percentage=2.3,
         )
-        
+
         assert data.issue_type == "missing_values"
         assert len(data.affected_fields) == 2
         assert data.severity_score == 0.7
 
     def test_severity_score_validation(self):
         """Test severity score validation."""
-        with pytest.raises(ValueError, match="Severity score must be between 0.0 and 1.0"):
+        with pytest.raises(
+            ValueError, match="Severity score must be between 0.0 and 1.0"
+        ):
             DataQualityEventData(
                 issue_type="test",
                 affected_fields=["field1"],
@@ -101,9 +108,11 @@ class TestDataQualityEventData:
             missing_percentage=0.0,
             outlier_percentage=100.0,
         )
-        
+
         # Invalid percentages
-        with pytest.raises(ValueError, match="Missing percentage must be between 0.0 and 100.0"):
+        with pytest.raises(
+            ValueError, match="Missing percentage must be between 0.0 and 100.0"
+        ):
             DataQualityEventData(
                 issue_type="test",
                 affected_fields=["field1"],
@@ -125,7 +134,7 @@ class TestPerformanceEventData:
             threshold_value=0.80,
             trend_direction="decreasing",
         )
-        
+
         assert data.metric_name == "accuracy"
         assert data.current_value == 0.75
         assert data.trend_direction == "decreasing"
@@ -142,7 +151,7 @@ class TestPerformanceEventData:
                 threshold_value=1.0,
                 trend_direction=direction,
             )
-        
+
         # Invalid direction
         with pytest.raises(ValueError, match="Trend direction must be one of"):
             PerformanceEventData(
@@ -168,7 +177,7 @@ class TestAnomalyEvent:
             raw_data={"value": 100},
             event_time=datetime.utcnow(),
         )
-        
+
         assert event.event_type == EventType.ANOMALY_DETECTED
         assert event.severity == EventSeverity.HIGH
         assert event.status == EventStatus.PENDING
@@ -185,9 +194,9 @@ class TestAnomalyEvent:
             raw_data={},
             event_time=datetime.utcnow(),
         )
-        
+
         event.acknowledge("user1", "Acknowledged for investigation")
-        
+
         assert event.status == EventStatus.ACKNOWLEDGED
         assert event.acknowledged_by == "user1"
         assert event.acknowledged_at is not None
@@ -203,9 +212,9 @@ class TestAnomalyEvent:
             raw_data={},
             event_time=datetime.utcnow(),
         )
-        
+
         event.resolve("user2", "False positive")
-        
+
         assert event.status == EventStatus.RESOLVED
         assert event.resolved_by == "user2"
         assert event.resolved_at is not None
@@ -221,9 +230,9 @@ class TestAnomalyEvent:
             raw_data={},
             event_time=datetime.utcnow(),
         )
-        
+
         event.ignore("user3", "Not relevant")
-        
+
         assert event.status == EventStatus.IGNORED
         assert event.metadata["ignored_by"] == "user3"
         assert event.metadata["ignore_reason"] == "Not relevant"
@@ -238,9 +247,9 @@ class TestAnomalyEvent:
             raw_data={},
             event_time=datetime.utcnow(),
         )
-        
+
         event.mark_processing()
-        
+
         assert event.status == EventStatus.PROCESSING
         assert event.processing_time is not None
         assert event.processing_attempts == 1
@@ -255,10 +264,10 @@ class TestAnomalyEvent:
             raw_data={},
             event_time=datetime.utcnow(),
         )
-        
+
         retry_time = datetime.utcnow() + timedelta(hours=1)
         event.mark_failed("Processing error", retry_time)
-        
+
         assert event.status == EventStatus.FAILED
         assert event.last_error == "Processing error"
         assert event.retry_after == retry_time
@@ -275,11 +284,11 @@ class TestAnomalyEvent:
             event_time=datetime.utcnow(),
         )
         assert event.is_actionable()
-        
+
         # Low severity
         event.severity = EventSeverity.LOW
         assert not event.is_actionable()
-        
+
         # High severity but resolved
         event.severity = EventSeverity.HIGH
         event.status = EventStatus.RESOLVED
@@ -296,7 +305,7 @@ class TestAnomalyEvent:
             raw_data={},
             event_time=past_time,
         )
-        
+
         age = event.get_age()
         assert age > 7000  # More than 2 hours in seconds
 
@@ -310,17 +319,17 @@ class TestAnomalyEvent:
             raw_data={},
             event_time=datetime.utcnow(),
         )
-        
+
         # Add tags
         event.add_tag("critical")
         event.add_tag("financial")
         assert "critical" in event.tags
         assert "financial" in event.tags
-        
+
         # Add duplicate tag (should not duplicate)
         event.add_tag("critical")
         assert event.tags.count("critical") == 1
-        
+
         # Remove tag
         event.remove_tag("financial")
         assert "financial" not in event.tags
@@ -333,7 +342,7 @@ class TestEventFilter:
     def test_default_event_filter(self):
         """Test creating event filter with defaults."""
         filter_obj = EventFilter()
-        
+
         assert filter_obj.limit == 100
         assert filter_obj.offset == 0
         assert filter_obj.sort_by == "event_time"
@@ -343,15 +352,15 @@ class TestEventFilter:
         """Test event filter validation."""
         # Valid filter
         EventFilter(limit=50, offset=10, sort_order="asc")
-        
+
         # Invalid limit
         with pytest.raises(ValueError, match="Limit must be positive"):
             EventFilter(limit=0)
-        
+
         # Invalid offset
         with pytest.raises(ValueError, match="Offset must be non-negative"):
             EventFilter(offset=-1)
-        
+
         # Invalid sort order
         with pytest.raises(ValueError, match="Sort order must be 'asc' or 'desc'"):
             EventFilter(sort_order="invalid")
@@ -360,12 +369,16 @@ class TestEventFilter:
         """Test anomaly score filter validation."""
         # Valid scores
         EventFilter(min_anomaly_score=0.0, max_anomaly_score=1.0)
-        
+
         # Invalid scores
-        with pytest.raises(ValueError, match="Min anomaly score must be between 0.0 and 1.0"):
+        with pytest.raises(
+            ValueError, match="Min anomaly score must be between 0.0 and 1.0"
+        ):
             EventFilter(min_anomaly_score=-0.1)
-        
-        with pytest.raises(ValueError, match="Max anomaly score must be between 0.0 and 1.0"):
+
+        with pytest.raises(
+            ValueError, match="Max anomaly score must be between 0.0 and 1.0"
+        ):
             EventFilter(max_anomaly_score=1.1)
 
 
@@ -383,7 +396,7 @@ class TestEventPattern:
             confidence=0.85,
             created_by="admin",
         )
-        
+
         assert pattern.name == "High Frequency Anomalies"
         assert pattern.pattern_type == "frequency"
         assert pattern.match_count == 0
@@ -402,7 +415,7 @@ class TestEventPattern:
                 confidence=0.5,
                 created_by="user",
             )
-        
+
         # Invalid time window
         with pytest.raises(ValueError, match="Time window must be positive"):
             EventPattern(
@@ -414,7 +427,7 @@ class TestEventPattern:
                 confidence=0.5,
                 created_by="user",
             )
-        
+
         # Invalid confidence
         with pytest.raises(ValueError, match="Confidence must be between 0.0 and 1.0"):
             EventPattern(
@@ -444,7 +457,7 @@ class TestEventSummary:
             top_data_sources=[{"name": "source1", "count": 600}],
             time_range={"start": datetime.utcnow(), "end": datetime.utcnow()},
         )
-        
+
         assert summary.total_events == 1000
         assert summary.anomaly_rate == 0.15
         assert summary.resolution_rate == 0.75
@@ -462,20 +475,24 @@ class TestEventSummary:
             "top_data_sources": [],
             "time_range": {},
         }
-        
+
         # Valid data
         EventSummary(**base_data)
-        
+
         # Invalid total events
         with pytest.raises(ValueError, match="Total events must be non-negative"):
             EventSummary(**{**base_data, "total_events": -1})
-        
+
         # Invalid anomaly rate
-        with pytest.raises(ValueError, match="Anomaly rate must be between 0.0 and 1.0"):
+        with pytest.raises(
+            ValueError, match="Anomaly rate must be between 0.0 and 1.0"
+        ):
             EventSummary(**{**base_data, "anomaly_rate": 1.5})
-        
+
         # Invalid resolution rate
-        with pytest.raises(ValueError, match="Resolution rate must be between 0.0 and 1.0"):
+        with pytest.raises(
+            ValueError, match="Resolution rate must be between 0.0 and 1.0"
+        ):
             EventSummary(**{**base_data, "resolution_rate": -0.1})
 
 
@@ -498,7 +515,7 @@ class TestEventAggregation:
             acknowledged_count=15,
             avg_anomaly_score=0.72,
         )
-        
+
         assert aggregation.group_key == "detector_id:123"
         assert aggregation.count == 50
         assert aggregation.avg_anomaly_score == 0.72

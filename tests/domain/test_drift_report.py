@@ -1,17 +1,18 @@
 """Tests for drift report domain entities."""
 
-import pytest
 from datetime import datetime, timedelta
 from uuid import uuid4
 
+import pytest
+
 from pynomaly.domain.entities.drift_report import (
-    DriftReport,
-    DriftMonitor,
-    FeatureDrift,
     DriftConfiguration,
-    DriftType,
-    DriftSeverity,
     DriftDetectionMethod,
+    DriftMonitor,
+    DriftReport,
+    DriftSeverity,
+    DriftType,
+    FeatureDrift,
 )
 
 
@@ -31,7 +32,7 @@ class TestFeatureDrift:
             reference_mean=20.5,
             current_mean=25.3,
         )
-        
+
         assert drift.feature_name == "temperature"
         assert drift.drift_score == 0.75
         assert drift.is_drifted is True
@@ -44,7 +45,7 @@ class TestDriftConfiguration:
     def test_default_configuration(self):
         """Test creating default drift configuration."""
         config = DriftConfiguration()
-        
+
         assert config.drift_threshold == 0.05
         assert config.min_sample_size == 100
         assert config.detection_window_size == 1000
@@ -60,7 +61,7 @@ class TestDriftConfiguration:
             enabled_methods=[DriftDetectionMethod.WASSERSTEIN_DISTANCE],
             alert_severity_threshold=DriftSeverity.HIGH,
         )
-        
+
         assert config.drift_threshold == 0.1
         assert config.min_sample_size == 500
         assert config.alert_severity_threshold == DriftSeverity.HIGH
@@ -68,16 +69,20 @@ class TestDriftConfiguration:
     def test_configuration_validation(self):
         """Test configuration validation."""
         # Invalid drift threshold
-        with pytest.raises(ValueError, match="Drift threshold must be between 0.0 and 1.0"):
+        with pytest.raises(
+            ValueError, match="Drift threshold must be between 0.0 and 1.0"
+        ):
             DriftConfiguration(drift_threshold=1.5)
-        
-        with pytest.raises(ValueError, match="Drift threshold must be between 0.0 and 1.0"):
+
+        with pytest.raises(
+            ValueError, match="Drift threshold must be between 0.0 and 1.0"
+        ):
             DriftConfiguration(drift_threshold=-0.1)
-        
+
         # Invalid sample size
         with pytest.raises(ValueError, match="Minimum sample size must be positive"):
             DriftConfiguration(min_sample_size=0)
-        
+
         # Invalid window size
         with pytest.raises(ValueError, match="Detection window size must be positive"):
             DriftConfiguration(detection_window_size=-100)
@@ -85,7 +90,7 @@ class TestDriftConfiguration:
     def test_severity_thresholds(self):
         """Test default severity thresholds."""
         config = DriftConfiguration()
-        
+
         assert config.severity_thresholds["low"] == 0.1
         assert config.severity_thresholds["medium"] == 0.3
         assert config.severity_thresholds["high"] == 0.6
@@ -99,7 +104,7 @@ class TestDriftReport:
         """Test creating drift report."""
         model_id = uuid4()
         config = DriftConfiguration()
-        
+
         feature_drift = {
             "feature1": FeatureDrift(
                 feature_name="feature1",
@@ -118,7 +123,7 @@ class TestDriftReport:
                 method=DriftDetectionMethod.KOLMOGOROV_SMIRNOV,
             ),
         }
-        
+
         report = DriftReport(
             model_id=model_id,
             reference_sample_size=1000,
@@ -132,7 +137,7 @@ class TestDriftReport:
             detection_start_time=datetime.utcnow() - timedelta(minutes=30),
             detection_end_time=datetime.utcnow(),
         )
-        
+
         assert report.model_id == model_id
         assert report.overall_drift_detected is True
         assert report.overall_drift_severity == DriftSeverity.HIGH
@@ -167,7 +172,7 @@ class TestDriftReport:
                 method=DriftDetectionMethod.KOLMOGOROV_SMIRNOV,
             ),
         }
-        
+
         report = DriftReport(
             model_id=uuid4(),
             reference_sample_size=1000,
@@ -181,7 +186,7 @@ class TestDriftReport:
             detection_start_time=datetime.utcnow(),
             detection_end_time=datetime.utcnow(),
         )
-        
+
         high_priority = report.get_high_priority_features()
         assert len(high_priority) == 2
         assert "high_drift" in high_priority
@@ -208,7 +213,7 @@ class TestDriftReport:
                 method=DriftDetectionMethod.KOLMOGOROV_SMIRNOV,
             ),
         }
-        
+
         report = DriftReport(
             model_id=uuid4(),
             reference_sample_size=1000,
@@ -224,9 +229,9 @@ class TestDriftReport:
             multivariate_drift_detected=True,
             concept_drift_detected=False,
         )
-        
+
         summary = report.get_drift_summary()
-        
+
         assert summary["total_features"] == 2
         assert summary["drifted_features"] == 1
         assert summary["drift_percentage"] == 50.0
@@ -251,11 +256,11 @@ class TestDriftReport:
             detection_end_time=datetime.utcnow(),
         )
         assert report.requires_immediate_attention() is True
-        
+
         # Low severity report
         report.overall_drift_severity = DriftSeverity.LOW
         assert report.requires_immediate_attention() is False
-        
+
         # Concept drift detected
         report.concept_drift_detected = True
         assert report.requires_immediate_attention() is True
@@ -277,9 +282,9 @@ class TestDriftReport:
             concept_drift_detected=True,
             multivariate_drift_detected=True,
         )
-        
+
         actions = report.get_recommended_actions()
-        
+
         assert any("URGENT" in action for action in actions)
         assert any("target variable" in action.lower() for action in actions)
         assert any("feature interactions" in action.lower() for action in actions)
@@ -292,7 +297,7 @@ class TestDriftMonitor:
         """Test creating drift monitor."""
         model_id = uuid4()
         config = DriftConfiguration()
-        
+
         monitor = DriftMonitor(
             model_id=model_id,
             name="Production Model Monitor",
@@ -301,7 +306,7 @@ class TestDriftMonitor:
             description="Monitor for production model drift",
             monitoring_frequency="hourly",
         )
-        
+
         assert monitor.model_id == model_id
         assert monitor.name == "Production Model Monitor"
         assert monitor.monitoring_enabled is True
@@ -312,7 +317,7 @@ class TestDriftMonitor:
         """Test monitor frequency validation."""
         model_id = uuid4()
         config = DriftConfiguration()
-        
+
         # Valid frequencies
         for freq in ["hourly", "daily", "weekly"]:
             DriftMonitor(
@@ -322,7 +327,7 @@ class TestDriftMonitor:
                 created_by="user",
                 monitoring_frequency=freq,
             )
-        
+
         # Invalid frequency
         with pytest.raises(ValueError, match="Monitoring frequency must be one of"):
             DriftMonitor(
@@ -341,20 +346,20 @@ class TestDriftMonitor:
             configuration=DriftConfiguration(),
             created_by="user",
         )
-        
+
         # Monitoring disabled
         monitor.monitoring_enabled = False
         assert monitor.should_check_now() is False
-        
+
         # Monitoring enabled, no next check time
         monitor.monitoring_enabled = True
         monitor.next_check_time = None
         assert monitor.should_check_now() is True
-        
+
         # Next check time in future
         monitor.next_check_time = datetime.utcnow() + timedelta(hours=1)
         assert monitor.should_check_now() is False
-        
+
         # Next check time in past
         monitor.next_check_time = datetime.utcnow() - timedelta(hours=1)
         assert monitor.should_check_now() is True
@@ -367,20 +372,20 @@ class TestDriftMonitor:
             configuration=DriftConfiguration(),
             created_by="user",
         )
-        
+
         report_id = uuid4()
-        
+
         # Record drift detection
         monitor.record_drift_detection(DriftSeverity.HIGH, report_id)
-        
+
         assert monitor.consecutive_drift_detections == 1
         assert monitor.last_drift_detection is not None
         assert monitor.current_drift_severity == DriftSeverity.HIGH
         assert report_id in monitor.recent_reports
-        
+
         # Record no drift
         monitor.record_drift_detection(DriftSeverity.NONE, uuid4())
-        
+
         assert monitor.consecutive_drift_detections == 0
         assert monitor.current_drift_severity == DriftSeverity.NONE
 
@@ -392,11 +397,11 @@ class TestDriftMonitor:
             configuration=DriftConfiguration(),
             created_by="user",
         )
-        
+
         # Add 15 reports (more than limit of 10)
         for i in range(15):
             monitor.record_drift_detection(DriftSeverity.LOW, uuid4())
-        
+
         # Should only keep last 10
         assert len(monitor.recent_reports) == 10
 
@@ -404,22 +409,22 @@ class TestDriftMonitor:
         """Test checking if alert should be sent."""
         config = DriftConfiguration()
         config.alert_severity_threshold = DriftSeverity.MEDIUM
-        
+
         monitor = DriftMonitor(
             model_id=uuid4(),
             name="Test Monitor",
             configuration=config,
             created_by="user",
         )
-        
+
         # Alert disabled
         monitor.alert_enabled = False
         assert monitor.needs_alert(DriftSeverity.HIGH) is False
-        
+
         # Alert enabled, severity below threshold
         monitor.alert_enabled = True
         assert monitor.needs_alert(DriftSeverity.LOW) is False
-        
+
         # Alert enabled, severity meets threshold
         assert monitor.needs_alert(DriftSeverity.MEDIUM) is True
         assert monitor.needs_alert(DriftSeverity.HIGH) is True

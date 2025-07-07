@@ -7,7 +7,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
-from hypothesis import assume, given, settings, strategies as st
+from hypothesis import assume, given, settings
+from hypothesis import strategies as st
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
@@ -23,27 +24,34 @@ def valid_dataframes(draw):
     """Generate valid pandas DataFrames for testing."""
     n_rows = draw(st.integers(min_value=1, max_value=1000))
     n_cols = draw(st.integers(min_value=1, max_value=50))
-    
+
     # Generate column names
     col_names = [f"feature_{i}" for i in range(n_cols)]
-    
+
     # Generate data
     data = {}
     for col in col_names:
         if draw(st.booleans()):  # Numeric column
-            data[col] = draw(st.lists(
-                st.floats(min_value=-1000, max_value=1000, allow_nan=False, allow_infinity=False),
-                min_size=n_rows,
-                max_size=n_rows
-            ))
+            data[col] = draw(
+                st.lists(
+                    st.floats(
+                        min_value=-1000,
+                        max_value=1000,
+                        allow_nan=False,
+                        allow_infinity=False,
+                    ),
+                    min_size=n_rows,
+                    max_size=n_rows,
+                )
+            )
         else:  # Categorical column
-            categories = draw(st.lists(st.text(min_size=1, max_size=10), min_size=1, max_size=10))
-            data[col] = draw(st.lists(
-                st.sampled_from(categories),
-                min_size=n_rows,
-                max_size=n_rows
-            ))
-    
+            categories = draw(
+                st.lists(st.text(min_size=1, max_size=10), min_size=1, max_size=10)
+            )
+            data[col] = draw(
+                st.lists(st.sampled_from(categories), min_size=n_rows, max_size=n_rows)
+            )
+
     return pd.DataFrame(data)
 
 
@@ -56,18 +64,30 @@ def valid_contamination_rates(draw):
 @st.composite
 def valid_anomaly_scores(draw):
     """Generate valid anomaly scores."""
-    score = draw(st.floats(min_value=0.0, max_value=1.0, allow_nan=False, allow_infinity=False))
+    score = draw(
+        st.floats(min_value=0.0, max_value=1.0, allow_nan=False, allow_infinity=False)
+    )
     method = draw(st.text(min_size=1, max_size=50))
-    
+
     # Optional confidence interval
     if draw(st.booleans()):
-        lower = draw(st.floats(min_value=0.0, max_value=score, allow_nan=False, allow_infinity=False))
-        upper = draw(st.floats(min_value=score, max_value=1.0, allow_nan=False, allow_infinity=False))
+        lower = draw(
+            st.floats(
+                min_value=0.0, max_value=score, allow_nan=False, allow_infinity=False
+            )
+        )
+        upper = draw(
+            st.floats(
+                min_value=score, max_value=1.0, allow_nan=False, allow_infinity=False
+            )
+        )
         confidence_interval = (lower, upper)
     else:
         confidence_interval = None
-    
-    return AnomalyScore(value=score, method=method, confidence_interval=confidence_interval)
+
+    return AnomalyScore(
+        value=score, method=method, confidence_interval=confidence_interval
+    )
 
 
 @st.composite
@@ -75,13 +95,13 @@ def valid_datasets(draw):
     """Generate valid Dataset objects."""
     df = draw(valid_dataframes())
     name = draw(st.text(min_size=1, max_size=100))
-    
+
     # Optionally add a target column
     if draw(st.booleans()) and len(df.columns) > 1:
         target_column = draw(st.sampled_from(df.columns.tolist()))
     else:
         target_column = None
-    
+
     return Dataset(name=name, data=df, target_column=target_column)
 
 
@@ -91,26 +111,28 @@ def valid_detectors(draw):
     name = draw(st.text(min_size=1, max_size=100))
     algorithm_name = draw(st.text(min_size=1, max_size=50))
     contamination_rate = draw(valid_contamination_rates())
-    
+
     # Optional parameters and metadata
-    parameters = draw(st.dictionaries(
-        st.text(min_size=1, max_size=20),
-        st.one_of(st.integers(), st.floats(), st.text(), st.booleans()),
-        max_size=10
-    ))
-    
-    metadata = draw(st.dictionaries(
-        st.text(min_size=1, max_size=20),
-        st.text(max_size=100),
-        max_size=5
-    ))
-    
+    parameters = draw(
+        st.dictionaries(
+            st.text(min_size=1, max_size=20),
+            st.one_of(st.integers(), st.floats(), st.text(), st.booleans()),
+            max_size=10,
+        )
+    )
+
+    metadata = draw(
+        st.dictionaries(
+            st.text(min_size=1, max_size=20), st.text(max_size=100), max_size=5
+        )
+    )
+
     return Detector(
         name=name,
         algorithm_name=algorithm_name,
         contamination_rate=contamination_rate,
         parameters=parameters,
-        metadata=metadata
+        metadata=metadata,
     )
 
 
@@ -158,7 +180,7 @@ class TestDatasetProperties:
         """Dataset with invalid target column should raise ValidationError."""
         invalid_target = "nonexistent_column_12345"
         assume(invalid_target not in df.columns)
-        
+
         with pytest.raises(ValidationError):
             Dataset(name=name, data=df, target_column=invalid_target)
 
@@ -166,7 +188,7 @@ class TestDatasetProperties:
     def test_dataset_with_empty_data_raises_error(self, name):
         """Dataset with empty data should raise ValidationError."""
         empty_df = pd.DataFrame()
-        
+
         with pytest.raises(ValidationError):
             Dataset(name=name, data=empty_df)
 
@@ -214,19 +236,13 @@ class TestAnomalyScoreProperties:
         assert score.method is not None
         assert len(score.method) > 0
 
-    @given(
-        st.floats(min_value=-1000, max_value=-0.001),
-        st.text(min_size=1)
-    )
+    @given(st.floats(min_value=-1000, max_value=-0.001), st.text(min_size=1))
     def test_anomaly_score_negative_raises_error(self, value, method):
         """Negative anomaly score should raise ValidationError."""
         with pytest.raises(ValidationError):
             AnomalyScore(value=value, method=method)
 
-    @given(
-        st.floats(min_value=1.001, max_value=1000),
-        st.text(min_size=1)
-    )
+    @given(st.floats(min_value=1.001, max_value=1000), st.text(min_size=1))
     def test_anomaly_score_above_one_raises_error(self, value, method):
         """Anomaly score above 1 should raise ValidationError."""
         with pytest.raises(ValidationError):
@@ -236,25 +252,23 @@ class TestAnomalyScoreProperties:
         st.floats(min_value=0.0, max_value=1.0),
         st.text(min_size=1),
         st.floats(min_value=0.0, max_value=1.0),
-        st.floats(min_value=0.0, max_value=1.0)
+        st.floats(min_value=0.0, max_value=1.0),
     )
-    def test_anomaly_score_confidence_interval_validation(self, value, method, ci_lower, ci_upper):
+    def test_anomaly_score_confidence_interval_validation(
+        self, value, method, ci_lower, ci_upper
+    ):
         """Confidence interval should be validated correctly."""
         # Ensure confidence interval is valid
         if ci_lower <= ci_upper:
             score = AnomalyScore(
-                value=value,
-                method=method,
-                confidence_interval=(ci_lower, ci_upper)
+                value=value, method=method, confidence_interval=(ci_lower, ci_upper)
             )
             assert score.confidence_interval == (ci_lower, ci_upper)
         else:
             # Invalid confidence interval should raise error
             with pytest.raises(ValidationError):
                 AnomalyScore(
-                    value=value,
-                    method=method,
-                    confidence_interval=(ci_lower, ci_upper)
+                    value=value, method=method, confidence_interval=(ci_lower, ci_upper)
                 )
 
 
@@ -277,13 +291,13 @@ class TestDetectorProperties:
         """Parameter updates should preserve existing parameters."""
         original_params = detector.parameters.copy()
         new_params = {"new_param": "new_value"}
-        
+
         detector.update_parameters(**new_params)
-        
+
         # Check that original parameters are still there
         for key, value in original_params.items():
             assert detector.parameters[key] == value
-        
+
         # Check that new parameter was added
         assert detector.parameters["new_param"] == "new_value"
 
@@ -291,14 +305,14 @@ class TestDetectorProperties:
     def test_detector_metadata_updates(self, detector, key, value):
         """Metadata updates should work correctly."""
         original_metadata = detector.metadata.copy()
-        
+
         detector.update_metadata(key, value)
-        
+
         # Check that original metadata is preserved
         for orig_key, orig_value in original_metadata.items():
             if orig_key != key:  # Skip if we're updating an existing key
                 assert detector.metadata[orig_key] == orig_value
-        
+
         # Check that new/updated metadata is set
         assert detector.metadata[key] == value
 
@@ -308,11 +322,11 @@ class TestDetectorProperties:
         # Initially not fitted
         assert not detector.is_fitted
         assert detector.trained_at is None
-        
+
         # Simulate fitting
         detector.is_fitted = True
         detector.trained_at = datetime.now()
-        
+
         assert detector.is_fitted
         assert detector.trained_at is not None
 
@@ -323,16 +337,14 @@ class TestAnomalyProperties:
     @given(
         valid_anomaly_scores(),
         st.dictionaries(st.text(min_size=1), st.floats()),
-        st.text(min_size=1)
+        st.text(min_size=1),
     )
     def test_anomaly_initialization(self, score, data_point, detector_name):
         """Anomaly should initialize with valid properties."""
         anomaly = Anomaly(
-            score=score,
-            data_point=data_point,
-            detector_name=detector_name
+            score=score, data_point=data_point, detector_name=detector_name
         )
-        
+
         assert anomaly.score == score
         assert anomaly.data_point == data_point
         assert anomaly.detector_name == detector_name
@@ -345,33 +357,41 @@ class TestDetectionResultProperties:
     @given(
         st.text(min_size=1),  # detector_id
         st.text(min_size=1),  # dataset_id
-        st.lists(st.builds(
-            Anomaly,
-            score=valid_anomaly_scores(),
-            data_point=st.dictionaries(st.text(min_size=1), st.floats(), min_size=1),
-            detector_name=st.text(min_size=1)
-        ), max_size=10),  # anomalies
+        st.lists(
+            st.builds(
+                Anomaly,
+                score=valid_anomaly_scores(),
+                data_point=st.dictionaries(
+                    st.text(min_size=1), st.floats(), min_size=1
+                ),
+                detector_name=st.text(min_size=1),
+            ),
+            max_size=10,
+        ),  # anomalies
         st.lists(valid_anomaly_scores(), min_size=1, max_size=100),  # scores
-        st.lists(st.integers(min_value=0, max_value=1), min_size=1, max_size=100),  # labels
-        st.floats(min_value=0.0, max_value=1.0)  # threshold
+        st.lists(
+            st.integers(min_value=0, max_value=1), min_size=1, max_size=100
+        ),  # labels
+        st.floats(min_value=0.0, max_value=1.0),  # threshold
     )
-    def test_detection_result_consistency(self, detector_id, dataset_id, anomalies, 
-                                        scores, labels, threshold):
+    def test_detection_result_consistency(
+        self, detector_id, dataset_id, anomalies, scores, labels, threshold
+    ):
         """Detection result should maintain consistency between scores and labels."""
         # Ensure scores and labels have same length
         min_length = min(len(scores), len(labels))
         scores = scores[:min_length]
         labels = labels[:min_length]
-        
+
         result = DetectionResult(
             detector_id=detector_id,
             dataset_id=dataset_id,
             anomalies=anomalies,
             scores=scores,
             labels=labels,
-            threshold=threshold
+            threshold=threshold,
         )
-        
+
         assert result.detector_id == detector_id
         assert result.dataset_id == dataset_id
         assert result.threshold == threshold
@@ -391,12 +411,12 @@ class TestPropertyInvariants:
         assert dataset.n_samples == len(dataset.data)
         assert dataset.n_features == len(dataset.data.columns)
         assert not dataset.data.empty
-        
+
         # Get numeric features multiple times - should be consistent
         numeric_features_1 = dataset.get_numeric_features()
         numeric_features_2 = dataset.get_numeric_features()
         assert numeric_features_1 == numeric_features_2
-        
+
         # All numeric features should actually be numeric
         for feature in numeric_features_1:
             assert feature in dataset.data.columns
@@ -411,27 +431,27 @@ class TestPropertyInvariants:
         # Initial state invariants
         assert not detector.is_fitted
         assert detector.trained_at is None
-        
+
         # Parameter operations should not affect core properties
         original_name = detector.name
         original_algorithm = detector.algorithm_name
-        
+
         detector.update_parameters(test_param="test_value")
-        
+
         assert detector.name == original_name
         assert detector.algorithm_name == original_algorithm
         assert "test_param" in detector.parameters
-        
+
         # Metadata operations should not affect core properties
         detector.update_metadata("test_key", "test_value")
-        
+
         assert detector.name == original_name
         assert detector.algorithm_name == original_algorithm
         assert detector.metadata["test_key"] == "test_value"
 
     @given(
         st.lists(valid_anomaly_scores(), min_size=1, max_size=100),
-        st.lists(st.integers(min_value=0, max_value=1), min_size=1, max_size=100)
+        st.lists(st.integers(min_value=0, max_value=1), min_size=1, max_size=100),
     )
     def test_detection_result_metrics_consistency(self, scores, labels):
         """Detection result metrics should be mathematically consistent."""
@@ -439,20 +459,20 @@ class TestPropertyInvariants:
         min_length = min(len(scores), len(labels))
         scores = scores[:min_length]
         labels = labels[:min_length]
-        
+
         result = DetectionResult(
             detector_id="test_detector",
             dataset_id="test_dataset",
             anomalies=[],
             scores=scores,
             labels=labels,
-            threshold=0.5
+            threshold=0.5,
         )
-        
+
         # Basic consistency checks
         assert result.n_samples == len(scores)
         assert result.n_samples == len(labels)
         assert result.n_samples > 0
-        
+
         # If we have anomalies, n_anomalies should be >= 0
         assert result.n_anomalies >= 0

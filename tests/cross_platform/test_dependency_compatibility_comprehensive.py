@@ -19,7 +19,7 @@ import pandas as pd
 import pytest
 
 
-class TestCoreDepend​encyCompatibility:
+class TestCoreDependencyCompatibility:
     """Test compatibility with core dependencies."""
     
     def test_python_version_compatibility(self):
