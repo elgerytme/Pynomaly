@@ -1,0 +1,1192 @@
+[
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/services/deep_learning_integration_service.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/services/deep_learning_integration_service.py is missing corresponding test file tests/application/services/deep_learning_integration_service_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/services/deep_learning_integration_service_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/deep_learning_integration_service.py",
+    "line_number": 165,
+    "description": "Function 'get_available_frameworks' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_available_frameworks'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/deep_learning_integration_service.py",
+    "line_number": 169,
+    "description": "Function 'get_framework_capabilities' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_framework_capabilities'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/deep_learning_integration_service.py",
+    "line_number": 173,
+    "description": "Function 'recommend_framework' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'recommend_framework'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/deep_learning_integration_service.py",
+    "line_number": 434,
+    "description": "Function 'get_performance_recommendations' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_performance_recommendations'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/deep_learning_integration_service.py",
+    "line_number": 500,
+    "description": "Function 'update_framework_preferences' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'update_framework_preferences'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/deep_learning_integration_service.py",
+    "line_number": 523,
+    "description": "Function 'get_integration_status' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_integration_status'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "no_assertions",
+    "file_path": "src/pynomaly/domain/entities/ab_test.py",
+    "line_number": null,
+    "description": "Test file contains no assertions",
+    "severity": "warning",
+    "rule_name": "require_assertions",
+    "suggestion": "Add assertions to validate expected behavior",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/domain/entities/lineage_record.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/domain/entities/lineage_record.py is missing corresponding test file tests/domain/entities/lineage_record_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/domain/entities/lineage_record_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/lineage_record.py",
+    "line_number": 110,
+    "description": "Function 'add_input_artifact' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'add_input_artifact'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/lineage_record.py",
+    "line_number": 114,
+    "description": "Function 'add_output_artifact' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'add_output_artifact'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/lineage_record.py",
+    "line_number": 118,
+    "description": "Function 'get_all_model_ids' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_all_model_ids'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/lineage_record.py",
+    "line_number": 124,
+    "description": "Function 'is_direct_descendant' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'is_direct_descendant'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/lineage_record.py",
+    "line_number": 171,
+    "description": "Function 'get_parents' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_parents'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/lineage_record.py",
+    "line_number": 179,
+    "description": "Function 'get_children' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_children'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/lineage_record.py",
+    "line_number": 187,
+    "description": "Function 'get_ancestors' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_ancestors'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/lineage_record.py",
+    "line_number": 205,
+    "description": "Function 'get_descendants' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_descendants'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/lineage_record.py",
+    "line_number": 223,
+    "description": "Function 'find_path' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'find_path'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/lineage_record.py",
+    "line_number": 248,
+    "description": "Function 'get_model_generations' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_model_generations'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/use_cases/detect_anomalies.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/use_cases/detect_anomalies.py is missing corresponding test file tests/application/use_cases/detect_anomalies_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/use_cases/detect_anomalies_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/use_cases/detect_anomalies.py",
+    "line_number": 37,
+    "description": "Function 'anomaly_indices' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'anomaly_indices'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/use_cases/detect_anomalies.py",
+    "line_number": 42,
+    "description": "Function 'anomaly_scores' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'anomaly_scores'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/domain/entities/detector.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/domain/entities/detector.py is missing corresponding test file tests/domain/entities/detector_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/domain/entities/detector_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/detector.py",
+    "line_number": 25,
+    "description": "Function 'fit' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'fit'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/detector.py",
+    "line_number": 29,
+    "description": "Function 'predict' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'predict'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/detector.py",
+    "line_number": 33,
+    "description": "Function 'score' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'score'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/detector.py",
+    "line_number": 87,
+    "description": "Function 'requires_fitting' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'requires_fitting'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/detector.py",
+    "line_number": 93,
+    "description": "Function 'supports_streaming' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'supports_streaming'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/detector.py",
+    "line_number": 98,
+    "description": "Function 'supports_multivariate' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'supports_multivariate'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/detector.py",
+    "line_number": 103,
+    "description": "Function 'time_complexity' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'time_complexity'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/detector.py",
+    "line_number": 108,
+    "description": "Function 'space_complexity' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'space_complexity'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/detector.py",
+    "line_number": 112,
+    "description": "Function 'update_metadata' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'update_metadata'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/detector.py",
+    "line_number": 116,
+    "description": "Function 'update_parameters' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'update_parameters'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/detector.py",
+    "line_number": 123,
+    "description": "Function 'get_info' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_info'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/services/advanced_automl_service.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/services/advanced_automl_service.py is missing corresponding test file tests/application/services/advanced_automl_service_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/services/advanced_automl_service_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/advanced_automl_service.py",
+    "line_number": 862,
+    "description": "Function 'save_optimization_history' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'save_optimization_history'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/advanced_automl_service.py",
+    "line_number": 878,
+    "description": "Function 'load_optimization_history' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'load_optimization_history'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/advanced_automl_service.py",
+    "line_number": 235,
+    "description": "Function 'objective_function' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'objective_function'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/services/advanced_ensemble_service.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/services/advanced_ensemble_service.py is missing corresponding test file tests/application/services/advanced_ensemble_service_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/services/advanced_ensemble_service_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/advanced_ensemble_service.py",
+    "line_number": 1172,
+    "description": "Function 'save_meta_knowledge' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'save_meta_knowledge'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/advanced_ensemble_service.py",
+    "line_number": 1188,
+    "description": "Function 'load_meta_knowledge' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'load_meta_knowledge'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/advanced_ensemble_service.py",
+    "line_number": 1054,
+    "description": "Function 'objective_function' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'objective_function'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/services/automl_service.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/services/automl_service.py is missing corresponding test file tests/application/services/automl_service_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/services/automl_service_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/automl_service.py",
+    "line_number": 465,
+    "description": "Function 'recommend_algorithms' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'recommend_algorithms'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/automl_service.py",
+    "line_number": 860,
+    "description": "Function 'get_optimization_summary' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_optimization_summary'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/automl_service.py",
+    "line_number": 591,
+    "description": "Function 'objective_func' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'objective_func'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/use_cases/detect_anomalies.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/use_cases/detect_anomalies.py is missing corresponding test file tests/application/use_cases/detect_anomalies_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/use_cases/detect_anomalies_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/use_cases/detect_anomalies.py",
+    "line_number": 37,
+    "description": "Function 'anomaly_indices' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'anomaly_indices'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/use_cases/detect_anomalies.py",
+    "line_number": 42,
+    "description": "Function 'anomaly_scores' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'anomaly_scores'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/domain/entities/drift_detection.py is missing corresponding test file tests/domain/entities/drift_detection_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/domain/entities/drift_detection_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 71,
+    "description": "Function 'get_threshold_for_method' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_threshold_for_method'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 103,
+    "description": "Function 'get_duration' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_duration'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 107,
+    "description": "Function 'get_overlap_duration' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_overlap_duration'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 113,
+    "description": "Function 'generate_sliding_windows' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'generate_sliding_windows'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 212,
+    "description": "Function 'get_sample_size_ratio' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_sample_size_ratio'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 241,
+    "description": "Function 'get_drift_severity' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_drift_severity'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 254,
+    "description": "Function 'is_statistically_significant' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'is_statistically_significant'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 258,
+    "description": "Function 'to_dict' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'to_dict'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 301,
+    "description": "Function 'get_most_affected_features' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_most_affected_features'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 311,
+    "description": "Function 'get_drift_pattern_summary' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_drift_pattern_summary'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 344,
+    "description": "Function 'has_drift' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'has_drift'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 348,
+    "description": "Function 'get_strongest_drift_signal' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_strongest_drift_signal'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 359,
+    "description": "Function 'get_consensus_drift_score' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_consensus_drift_score'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 379,
+    "description": "Function 'is_trend_drift' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'is_trend_drift'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 383,
+    "description": "Function 'is_sudden_drift' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'is_sudden_drift'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 387,
+    "description": "Function 'get_drift_characterization' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_drift_characterization'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 428,
+    "description": "Function 'get_drift_severity' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_drift_severity'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 439,
+    "description": "Function 'has_multiple_drift_types' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'has_multiple_drift_types'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 448,
+    "description": "Function 'get_drift_summary' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_drift_summary'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 538,
+    "description": "Function 'has_any_drift' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'has_any_drift'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 559,
+    "description": "Function 'get_critical_features' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_critical_features'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 573,
+    "description": "Function 'needs_immediate_action' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'needs_immediate_action'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/domain/entities/drift_detection.py",
+    "line_number": 584,
+    "description": "Function 'get_comprehensive_summary' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_comprehensive_summary'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/dto/result_dto.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/dto/result_dto.py is missing corresponding test file tests/application/dto/result_dto_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/dto/result_dto_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/services/unified_data_service.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/services/unified_data_service.py is missing corresponding test file tests/application/services/unified_data_service_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/services/unified_data_service_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/unified_data_service.py",
+    "line_number": 234,
+    "description": "Function 'create_processing_config' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'create_processing_config'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/unified_data_service.py",
+    "line_number": 312,
+    "description": "Function 'validate_dataset_quality' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_dataset_quality'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/unified_data_service.py",
+    "line_number": 420,
+    "description": "Function 'get_dataset_summary' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_dataset_summary'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/unified_data_service.py",
+    "line_number": 465,
+    "description": "Function 'list_registered_datasets' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'list_registered_datasets'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/unified_data_service.py",
+    "line_number": 469,
+    "description": "Function 'get_registered_dataset' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'get_registered_dataset'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/unified_data_service.py",
+    "line_number": 473,
+    "description": "Function 'clear_cache' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'clear_cache'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/use_cases/ensemble_detection_use_case.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/use_cases/ensemble_detection_use_case.py is missing corresponding test file tests/application/use_cases/ensemble_detection_use_case_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/use_cases/ensemble_detection_use_case_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/dto/ensemble_dto.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/dto/ensemble_dto.py is missing corresponding test file tests/application/dto/ensemble_dto_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/dto/ensemble_dto_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/ensemble_dto.py",
+    "line_number": 354,
+    "description": "Function 'create_default_ensemble_config' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'create_default_ensemble_config'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/ensemble_dto.py",
+    "line_number": 368,
+    "description": "Function 'create_diversity_metrics_from_dict' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'create_diversity_metrics_from_dict'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/ensemble_dto.py",
+    "line_number": 381,
+    "description": "Function 'create_ensemble_performance_from_dict' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'create_ensemble_performance_from_dict'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/ensemble_dto.py",
+    "line_number": 452,
+    "description": "Function 'validate_voting_strategy' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_voting_strategy'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/ensemble_dto.py",
+    "line_number": 465,
+    "description": "Function 'validate_data' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_data'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/ensemble_dto.py",
+    "line_number": 613,
+    "description": "Function 'validate_optimization_objective' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_optimization_objective'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/ensemble_dto.py",
+    "line_number": 624,
+    "description": "Function 'validate_target_strategies' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_target_strategies'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/dto/streaming_dto.py is missing corresponding test file tests/application/dto/streaming_dto_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/dto/streaming_dto_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 114,
+    "description": "Function 'validate_strategy' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_strategy'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 124,
+    "description": "Function 'validate_backpressure_strategy' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_backpressure_strategy'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 135,
+    "description": "Function 'validate_mode' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_mode'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 143,
+    "description": "Function 'validate_batch_sizes' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_batch_sizes'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 150,
+    "description": "Function 'validate_watermarks' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_watermarks'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 183,
+    "description": "Function 'validate_data' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_data'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 223,
+    "description": "Function 'validate_ensemble_detectors' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_ensemble_detectors'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 435,
+    "description": "Function 'validate_action' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_action'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 443,
+    "description": "Function 'validate_stream_id_requirement' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_stream_id_requirement'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/use_cases/streaming_detection_use_case.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/use_cases/streaming_detection_use_case.py is missing corresponding test file tests/application/use_cases/streaming_detection_use_case_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/use_cases/streaming_detection_use_case_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 114,
+    "description": "Function 'validate_strategy' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_strategy'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 124,
+    "description": "Function 'validate_backpressure_strategy' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_backpressure_strategy'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 135,
+    "description": "Function 'validate_mode' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_mode'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 143,
+    "description": "Function 'validate_batch_sizes' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_batch_sizes'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 150,
+    "description": "Function 'validate_watermarks' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_watermarks'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 183,
+    "description": "Function 'validate_data' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_data'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 223,
+    "description": "Function 'validate_ensemble_detectors' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_ensemble_detectors'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 435,
+    "description": "Function 'validate_action' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_action'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/dto/streaming_dto.py",
+    "line_number": 443,
+    "description": "Function 'validate_stream_id_requirement' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'validate_stream_id_requirement'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/services/model_lineage_service.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/services/model_lineage_service.py is missing corresponding test file tests/application/services/model_lineage_service_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/services/model_lineage_service_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/model_lineage_service.py",
+    "line_number": 457,
+    "description": "Function 'dfs' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'dfs'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/services/model_ab_testing_service.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/services/model_ab_testing_service.py is missing corresponding test file tests/application/services/model_ab_testing_service_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/services/model_ab_testing_service_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/services/model_drift_detection_service.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/services/model_drift_detection_service.py is missing corresponding test file tests/application/services/model_drift_detection_service_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/services/model_drift_detection_service_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/services/model_governance_service.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/services/model_governance_service.py is missing corresponding test file tests/application/services/model_governance_service_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/services/model_governance_service_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/model_lineage_service.py",
+    "line_number": 457,
+    "description": "Function 'dfs' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'dfs'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/services/streaming_service.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/services/streaming_service.py is missing corresponding test file tests/application/services/streaming_service_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/services/streaming_service_test.py",
+    "auto_fixable": true
+  },
+  {
+    "violation_type": "missing_test_requirement",
+    "file_path": "src/pynomaly/application/services/model_lineage_service.py",
+    "line_number": 457,
+    "description": "Function 'dfs' has no test requirement defined",
+    "severity": "warning",
+    "rule_name": "require_test_specification",
+    "suggestion": "Create test requirement for function 'dfs'",
+    "auto_fixable": false
+  },
+  {
+    "violation_type": "missing_test",
+    "file_path": "src/pynomaly/application/use_cases/drift_monitoring_use_case.py",
+    "line_number": null,
+    "description": "Implementation file src/pynomaly/application/use_cases/drift_monitoring_use_case.py is missing corresponding test file tests/application/use_cases/drift_monitoring_use_case_test.py",
+    "severity": "error",
+    "rule_name": "require_test_file",
+    "suggestion": "Create test file at tests/application/use_cases/drift_monitoring_use_case_test.py",
+    "auto_fixable": true
+  }
+]

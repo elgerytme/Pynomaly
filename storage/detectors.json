@@ -1,0 +1,56 @@
+{
+  "3929a502-bb42-414b-ad93-56e4cbaeee8e": {
+    "id": "3929a502-bb42-414b-ad93-56e4cbaeee8e",
+    "name": "Bash Test Detector",
+    "algorithm_name": "IsolationForest",
+    "contamination_rate": 0.1,
+    "parameters": {
+      "contamination": 0.1
+    },
+    "metadata": {
+      "time_complexity": "O(n log n)",
+      "space_complexity": "O(n)",
+      "supports_streaming": false,
+      "category": "ensemble"
+    },
+    "created_at": "2025-06-25T13:34:23.566552",
+    "trained_at": null,
+    "is_fitted": false
+  },
+  "8fd5e5a7-2e1f-49a7-a60b-86d34789a657": {
+    "id": "8fd5e5a7-2e1f-49a7-a60b-86d34789a657",
+    "name": "Windows Test Detector",
+    "algorithm_name": "IsolationForest",
+    "contamination_rate": 0.1,
+    "parameters": {
+      "contamination": 0.1
+    },
+    "metadata": {
+      "time_complexity": "O(n log n)",
+      "space_complexity": "O(n)",
+      "supports_streaming": false,
+      "category": "ensemble"
+    },
+    "created_at": "2025-06-25T13:42:22.887690",
+    "trained_at": null,
+    "is_fitted": false
+  },
+  "02bc8be2-1e7a-47d6-b8fa-5c38619bfe8f": {
+    "id": "02bc8be2-1e7a-47d6-b8fa-5c38619bfe8f",
+    "name": "Windows Test Detector",
+    "algorithm_name": "IsolationForest",
+    "contamination_rate": 0.1,
+    "parameters": {
+      "contamination": 0.1
+    },
+    "metadata": {
+      "time_complexity": "O(n log n)",
+      "space_complexity": "O(n)",
+      "supports_streaming": false,
+      "category": "ensemble"
+    },
+    "created_at": "2025-06-25T13:43:56.890417",
+    "trained_at": null,
+    "is_fitted": false
+  }
+}
