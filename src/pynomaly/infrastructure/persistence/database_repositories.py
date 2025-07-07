@@ -81,7 +81,7 @@ class DatasetModel(Base):
     file_path = Column(String(500))
     target_column = Column(String(100))
     features = Column(JSONType)
-    entity_metadata = Column("metadata", JSONType)
+    meta_data = Column(JSONType)
     created_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, nullable=False)
 
@@ -97,7 +97,7 @@ class DetectorModel(Base):
     parameters = Column(JSONType)
     is_fitted = Column(Boolean, default=False)
     model_data = Column(Text)  # Serialized model
-    entity_metadata = Column("metadata", JSONType)
+    meta_data = Column(JSONType)
     created_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, nullable=False)
     trained_at = Column(DateTime, nullable=True)
@@ -113,7 +113,7 @@ class DetectionResultModel(Base):
     dataset_id = Column(UUIDType, nullable=False)
     scores = Column(JSONType)
     labels = Column(JSONType)
-    entity_metadata = Column("metadata", JSONType)
+    meta_data = Column(JSONType)
     created_at = Column(DateTime, nullable=False)
 
 
@@ -196,7 +196,7 @@ class MetricModel(Base):
     timestamp = Column(DateTime, nullable=False)
     entity_type = Column(String(100))  # e.g., 'detector', 'dataset', 'user'
     entity_id = Column(UUIDType)  # ID of the related entity
-    entity_metadata = Column("metadata", JSONType)
+    meta_data = Column(JSONType)
 
 
 class DatabaseDetectorRepository(DetectorRepositoryProtocol):
@@ -219,7 +219,7 @@ class DatabaseDetectorRepository(DetectorRepositoryProtocol):
                 existing.model_data = (
                     getattr(detector, "model_data", None)
                 )
-                existing.metadata = detector.metadata
+                existing.meta_data = detector.metadata
                 existing.updated_at = datetime.now()
                 existing.trained_at = detector.trained_at
             else:
@@ -233,7 +233,7 @@ class DatabaseDetectorRepository(DetectorRepositoryProtocol):
                     model_data=(
                         getattr(detector, "model_data", None)
                     ),
-                    metadata=detector.metadata,
+                    meta_data=detector.metadata,
                     created_at=detector.created_at,
                     updated_at=datetime.now(),
                     trained_at=detector.trained_at,
@@ -258,7 +258,7 @@ class DatabaseDetectorRepository(DetectorRepositoryProtocol):
             # We'll search by metadata for now
             models = session.query(DetectorModel).all()
             for model in models:
-                if model.metadata and model.metadata.get("name") == name:
+                if model.meta_data and model.meta_data.get("name") == name:
                     return self._model_to_entity(model)
             return None
 
@@ -336,7 +336,7 @@ class DatabaseDetectorRepository(DetectorRepositoryProtocol):
             algorithm_name=model.algorithm,
             parameters=model.parameters or {},
             is_fitted=model.is_fitted,
-            metadata=model.metadata or {},
+            metadata=model.meta_data or {},
             id=model.id,
             created_at=model.created_at,
             updated_at=model.updated_at,

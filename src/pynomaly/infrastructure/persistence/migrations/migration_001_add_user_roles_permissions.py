@@ -20,7 +20,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from ..database import DatabaseManager
-from ..user_models import UserModel, RoleModel, PermissionModel, TenantModel, user_roles_association
+from ..database_repositories import UserModel, RoleModel, TenantModel, UserRoleModel
 from ..seed_data import seed_default_roles_and_permissions, seed_custom_roles
 
 logger = logging.getLogger(__name__)

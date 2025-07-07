@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from pynomaly.domain.entities.user import UserRole, DEFAULT_PERMISSIONS
 from pynomaly.shared.types import generate_role_id
-from .user_models import RoleModel, PermissionModel
+from .database_repositories import RoleModel
 
 logger = logging.getLogger(__name__)
 
@@ -35,28 +35,27 @@ def seed_default_roles_and_permissions(session: Session) -> bool:
         
         # Create roles and their permissions
         for role_enum, permissions_set in DEFAULT_PERMISSIONS.items():
+            # Convert permissions to JSON format
+            permissions_json = [
+                {
+                    "name": perm.name,
+                    "resource": perm.resource,
+                    "action": perm.action,
+                    "description": perm.description
+                }
+                for perm in permissions_set
+            ]
+            
             # Create role
             role = RoleModel(
                 id=str(uuid4()),
                 name=role_enum.value,
                 description=f"System role: {role_enum.value.replace('_', ' ').title()}",
+                permissions=permissions_json,
                 is_system_role=True,
                 created_at=datetime.utcnow()
             )
             session.add(role)
-            session.flush()  # Flush to get the role ID
-            
-            # Create permissions for this role
-            for permission in permissions_set:
-                perm = PermissionModel(
-                    id=str(uuid4()),
-                    name=permission.name,
-                    resource=permission.resource,
-                    action=permission.action,
-                    description=permission.description,
-                    role_id=role.id
-                )
-                session.add(perm)
             
             logger.info(f"Created role: {role.name} with {len(permissions_set)} permissions")
         
