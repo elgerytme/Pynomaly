@@ -18,36 +18,46 @@ from pynomaly.presentation.api.deps import (
     require_write,
 )
 
-
 router = APIRouter(prefix="/streaming", tags=["Streaming Pipelines"])
 
 
 # ==================== Request/Response Models ====================
 
+
 class CreatePipelineRequest(BaseModel):
     """Request model for creating a streaming pipeline."""
+
     pipeline_id: Optional[str] = Field(None, description="Optional custom pipeline ID")
-    data_source_type: str = Field(..., description="Data source type (kafka, websocket)")
-    data_source_config: Dict[str, Any] = Field(..., description="Data source configuration")
+    data_source_type: str = Field(
+        ..., description="Data source type (kafka, websocket)"
+    )
+    data_source_config: Dict[str, Any] = Field(
+        ..., description="Data source configuration"
+    )
     detector_config: Dict[str, Any] = Field(..., description="Detector configuration")
     streaming_config: Dict[str, Any] = Field(..., description="Streaming configuration")
 
 
 class CreatePipelineFromTemplateRequest(BaseModel):
     """Request model for creating a pipeline from template."""
+
     template_name: str = Field(..., description="Template name to use")
     pipeline_id: Optional[str] = Field(None, description="Optional custom pipeline ID")
-    override_config: Optional[Dict[str, Any]] = Field(None, description="Configuration overrides")
+    override_config: Optional[Dict[str, Any]] = Field(
+        None, description="Configuration overrides"
+    )
 
 
 class CreatePipelineResponse(BaseModel):
     """Response model for pipeline creation."""
+
     pipeline_id: str = Field(..., description="Created pipeline ID")
     message: str = Field(..., description="Success message")
 
 
 class PipelineStatusResponse(BaseModel):
     """Response model for pipeline status."""
+
     pipeline_id: str = Field(..., description="Pipeline ID")
     is_running: bool = Field(..., description="Whether pipeline is running")
     start_time: Optional[str] = Field(None, description="Start time")
@@ -61,6 +71,7 @@ class PipelineStatusResponse(BaseModel):
 
 class AggregatedMetricsResponse(BaseModel):
     """Response model for aggregated metrics."""
+
     total_pipelines: int = Field(..., description="Total number of pipelines")
     running_pipelines: int = Field(..., description="Number of running pipelines")
     total_processed_records: int = Field(..., description="Total processed records")
@@ -68,12 +79,15 @@ class AggregatedMetricsResponse(BaseModel):
     total_errors: int = Field(..., description="Total errors")
     overall_anomaly_rate: float = Field(..., description="Overall anomaly rate")
     overall_error_rate: float = Field(..., description="Overall error rate")
-    average_processing_latency: float = Field(..., description="Average processing latency")
+    average_processing_latency: float = Field(
+        ..., description="Average processing latency"
+    )
     total_alerts: int = Field(..., description="Total alerts generated")
 
 
 class AlertResponse(BaseModel):
     """Response model for alerts."""
+
     alert_id: str = Field(..., description="Alert ID")
     timestamp: str = Field(..., description="Alert timestamp")
     severity: str = Field(..., description="Alert severity")
@@ -86,6 +100,7 @@ class AlertResponse(BaseModel):
 
 class AlertStatisticsResponse(BaseModel):
     """Response model for alert statistics."""
+
     total_alerts: int = Field(..., description="Total number of alerts")
     alerts_by_severity: Dict[str, int] = Field(..., description="Alerts by severity")
     alerts_by_type: Dict[str, int] = Field(..., description="Alerts by type")
@@ -95,6 +110,7 @@ class AlertStatisticsResponse(BaseModel):
 
 class TemplateResponse(BaseModel):
     """Response model for pipeline templates."""
+
     name: str = Field(..., description="Template name")
     description: str = Field(..., description="Template description")
     data_source_type: str = Field(..., description="Data source type")
@@ -105,13 +121,17 @@ class TemplateResponse(BaseModel):
 
 class HealthCheckResponse(BaseModel):
     """Response model for health check."""
+
     overall_status: str = Field(..., description="Overall health status")
     timestamp: str = Field(..., description="Health check timestamp")
-    pipeline_health: Dict[str, Any] = Field(..., description="Individual pipeline health")
+    pipeline_health: Dict[str, Any] = Field(
+        ..., description="Individual pipeline health"
+    )
     issues: List[str] = Field(..., description="Overall issues")
 
 
 # ==================== Pipeline Management Endpoints ====================
+
 
 @router.post("/pipelines", response_model=CreatePipelineResponse)
 async def create_pipeline(
@@ -123,7 +143,7 @@ async def create_pipeline(
     """Create a new streaming pipeline with custom configuration."""
     try:
         pipeline_id = request.pipeline_id or str(uuid4())
-        
+
         created_id = await manager.create_pipeline(
             pipeline_id=pipeline_id,
             data_source_type=request.data_source_type,
@@ -131,15 +151,15 @@ async def create_pipeline(
             detector_config=request.detector_config,
             streaming_config=request.streaming_config,
         )
-        
+
         return CreatePipelineResponse(
             pipeline_id=created_id,
-            message=f"Pipeline '{created_id}' created successfully"
+            message=f"Pipeline '{created_id}' created successfully",
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to create pipeline: {str(e)}"
+            detail=f"Failed to create pipeline: {str(e)}",
         )
 
 
@@ -157,15 +177,15 @@ async def create_pipeline_from_template(
             pipeline_id=request.pipeline_id,
             override_config=request.override_config,
         )
-        
+
         return CreatePipelineResponse(
             pipeline_id=pipeline_id,
-            message=f"Pipeline '{pipeline_id}' created from template '{request.template_name}'"
+            message=f"Pipeline '{pipeline_id}' created from template '{request.template_name}'",
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to create pipeline from template: {str(e)}"
+            detail=f"Failed to create pipeline from template: {str(e)}",
         )
 
 
@@ -181,14 +201,11 @@ async def start_pipeline(
         await manager.start_pipeline(pipeline_id)
         return {"message": f"Pipeline '{pipeline_id}' started successfully"}
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to start pipeline: {str(e)}"
+            detail=f"Failed to start pipeline: {str(e)}",
         )
 
 
@@ -204,14 +221,11 @@ async def stop_pipeline(
         await manager.stop_pipeline(pipeline_id)
         return {"message": f"Pipeline '{pipeline_id}' stopped successfully"}
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to stop pipeline: {str(e)}"
+            detail=f"Failed to stop pipeline: {str(e)}",
         )
 
 
@@ -227,14 +241,11 @@ async def delete_pipeline(
         await manager.delete_pipeline(pipeline_id)
         return {"message": f"Pipeline '{pipeline_id}' deleted successfully"}
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to delete pipeline: {str(e)}"
+            detail=f"Failed to delete pipeline: {str(e)}",
         )
 
 
@@ -247,11 +258,13 @@ async def start_all_pipelines(
     """Start all registered pipelines."""
     try:
         await manager.start_all_pipelines()
-        return {"message": "All pipelines started (check individual status for details)"}
+        return {
+            "message": "All pipelines started (check individual status for details)"
+        }
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to start all pipelines: {str(e)}"
+            detail=f"Failed to start all pipelines: {str(e)}",
         )
 
 
@@ -268,11 +281,12 @@ async def stop_all_pipelines(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to stop all pipelines: {str(e)}"
+            detail=f"Failed to stop all pipelines: {str(e)}",
         )
 
 
 # ==================== Status and Monitoring Endpoints ====================
+
 
 @router.get("/pipelines/{pipeline_id}/status", response_model=PipelineStatusResponse)
 async def get_pipeline_status(
@@ -284,14 +298,11 @@ async def get_pipeline_status(
         status = manager.get_pipeline_status(pipeline_id)
         return PipelineStatusResponse(**status)
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get pipeline status: {str(e)}"
+            detail=f"Failed to get pipeline status: {str(e)}",
         )
 
 
@@ -305,7 +316,7 @@ async def get_all_pipeline_status(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get pipeline status: {str(e)}"
+            detail=f"Failed to get pipeline status: {str(e)}",
         )
 
 
@@ -318,14 +329,11 @@ async def get_pipeline_metrics(
     try:
         return manager.get_pipeline_metrics(pipeline_id)
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get pipeline metrics: {str(e)}"
+            detail=f"Failed to get pipeline metrics: {str(e)}",
         )
 
 
@@ -340,11 +348,12 @@ async def get_aggregated_metrics(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get aggregated metrics: {str(e)}"
+            detail=f"Failed to get aggregated metrics: {str(e)}",
         )
 
 
 # ==================== Alert Management Endpoints ====================
+
 
 @router.get("/alerts", response_model=List[AlertResponse])
 async def get_recent_alerts(
@@ -363,15 +372,15 @@ async def get_recent_alerts(
             except ValueError:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Invalid severity: {severity}"
+                    detail=f"Invalid severity: {severity}",
                 )
-        
+
         alerts = manager.get_recent_alerts(
             limit=limit,
             severity=severity_filter,
             pipeline_id=pipeline_id,
         )
-        
+
         # Convert to response format
         return [
             AlertResponse(
@@ -391,7 +400,7 @@ async def get_recent_alerts(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get alerts: {str(e)}"
+            detail=f"Failed to get alerts: {str(e)}",
         )
 
 
@@ -406,11 +415,12 @@ async def get_alert_statistics(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get alert statistics: {str(e)}"
+            detail=f"Failed to get alert statistics: {str(e)}",
         )
 
 
 # ==================== Template Management Endpoints ====================
+
 
 @router.get("/templates", response_model=List[TemplateResponse])
 async def get_templates(
@@ -433,7 +443,7 @@ async def get_templates(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get templates: {str(e)}"
+            detail=f"Failed to get templates: {str(e)}",
         )
 
 
@@ -448,9 +458,9 @@ async def get_template(
         if template_name not in templates:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Template '{template_name}' not found"
+                detail=f"Template '{template_name}' not found",
             )
-        
+
         template = templates[template_name]
         return TemplateResponse(
             name=template.name,
@@ -465,11 +475,12 @@ async def get_template(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get template: {str(e)}"
+            detail=f"Failed to get template: {str(e)}",
         )
 
 
 # ==================== Health and Diagnostics Endpoints ====================
+
 
 @router.get("/health", response_model=HealthCheckResponse)
 async def get_health_check(
@@ -482,7 +493,7 @@ async def get_health_check(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to perform health check: {str(e)}"
+            detail=f"Failed to perform health check: {str(e)}",
         )
 
 
@@ -496,45 +507,36 @@ async def get_streaming_info() -> Dict[str, Any]:
             {
                 "type": "kafka",
                 "description": "Apache Kafka message streaming",
-                "required_config": [
-                    "bootstrap_servers",
-                    "topic",
-                    "group_id"
-                ],
+                "required_config": ["bootstrap_servers", "topic", "group_id"],
                 "optional_config": [
                     "auto_offset_reset",
                     "security_protocol",
-                    "sasl_mechanism"
-                ]
+                    "sasl_mechanism",
+                ],
             },
             {
                 "type": "websocket",
                 "description": "WebSocket real-time data streaming",
-                "required_config": [
-                    "websocket_url"
-                ],
-                "optional_config": [
-                    "headers",
-                    "auth_token"
-                ]
-            }
+                "required_config": ["websocket_url"],
+                "optional_config": ["headers", "auth_token"],
+            },
         ],
         "supported_algorithms": [
             {
                 "name": "isolation_forest",
                 "description": "Isolation Forest for anomaly detection",
-                "parameters": ["contamination", "n_estimators", "max_samples"]
+                "parameters": ["contamination", "n_estimators", "max_samples"],
             },
             {
                 "name": "one_class_svm",
                 "description": "One-Class SVM for novelty detection",
-                "parameters": ["contamination", "kernel", "gamma", "nu"]
+                "parameters": ["contamination", "kernel", "gamma", "nu"],
             },
             {
                 "name": "local_outlier_factor",
                 "description": "Local Outlier Factor for outlier detection",
-                "parameters": ["contamination", "n_neighbors", "algorithm"]
-            }
+                "parameters": ["contamination", "n_neighbors", "algorithm"],
+            },
         ],
         "features": [
             "real_time_processing",
@@ -544,11 +546,11 @@ async def get_streaming_info() -> Dict[str, Any]:
             "alert_management",
             "metrics_collection",
             "health_monitoring",
-            "template_management"
+            "template_management",
         ],
         "limitations": [
             "requires_external_data_sources",
             "memory_bounded_windows",
-            "cpu_intensive_detection"
-        ]
+            "cpu_intensive_detection",
+        ],
     }

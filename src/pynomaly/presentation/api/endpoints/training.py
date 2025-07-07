@@ -26,7 +26,10 @@ from pynomaly.application.services.automated_training_service import (
     TriggerType,
 )
 from pynomaly.application.services.automl_service import OptimizationObjective
-from pynomaly.presentation.api.dependencies import get_current_user, get_training_service
+from pynomaly.presentation.api.dependencies import (
+    get_current_user,
+    get_training_service,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -35,83 +38,112 @@ router = APIRouter(prefix="/training", tags=["automated-training"])
 
 # Request/Response Models
 
+
 class StartTrainingRequest(BaseModel):
     """Request to start automated training."""
-    
+
     detector_id: UUID = Field(description="ID of detector to train")
     dataset_id: str = Field(description="ID of dataset to use for training")
     experiment_name: Optional[str] = Field(None, description="Optional experiment name")
-    
+
     # AutoML settings
     enable_automl: bool = Field(True, description="Enable AutoML optimization")
-    optimization_objective: str = Field("auc", description="Optimization objective (auc, precision, recall, f1_score)")
-    max_algorithms: int = Field(3, ge=1, le=10, description="Maximum algorithms to test")
+    optimization_objective: str = Field(
+        "auc", description="Optimization objective (auc, precision, recall, f1_score)"
+    )
+    max_algorithms: int = Field(
+        3, ge=1, le=10, description="Maximum algorithms to test"
+    )
     enable_ensemble: bool = Field(True, description="Enable ensemble creation")
-    max_optimization_time: int = Field(3600, ge=60, le=86400, description="Maximum optimization time in seconds")
-    n_trials: int = Field(100, ge=10, le=1000, description="Number of optimization trials")
-    
+    max_optimization_time: int = Field(
+        3600, ge=60, le=86400, description="Maximum optimization time in seconds"
+    )
+    n_trials: int = Field(
+        100, ge=10, le=1000, description="Number of optimization trials"
+    )
+
     # Training settings
-    validation_split: float = Field(0.2, ge=0.0, le=0.5, description="Validation split ratio")
+    validation_split: float = Field(
+        0.2, ge=0.0, le=0.5, description="Validation split ratio"
+    )
     cv_folds: int = Field(3, ge=2, le=10, description="Cross-validation folds")
     enable_early_stopping: bool = Field(True, description="Enable early stopping")
-    max_training_time: Optional[int] = Field(None, ge=60, description="Maximum training time in seconds")
-    
+    max_training_time: Optional[int] = Field(
+        None, ge=60, description="Maximum training time in seconds"
+    )
+
     # Resource constraints
-    max_memory_mb: Optional[int] = Field(None, ge=512, description="Maximum memory usage in MB")
-    max_cpu_cores: Optional[int] = Field(None, ge=1, description="Maximum CPU cores to use")
+    max_memory_mb: Optional[int] = Field(
+        None, ge=512, description="Maximum memory usage in MB"
+    )
+    max_cpu_cores: Optional[int] = Field(
+        None, ge=1, description="Maximum CPU cores to use"
+    )
     enable_gpu: bool = Field(False, description="Enable GPU acceleration")
 
 
 class ScheduleTrainingRequest(BaseModel):
     """Request to schedule automated training."""
-    
+
     detector_id: UUID = Field(description="ID of detector to train")
     dataset_id: str = Field(description="ID of dataset to use for training")
     experiment_name: Optional[str] = Field(None, description="Optional experiment name")
-    
+
     # Scheduling settings
-    schedule_cron: Optional[str] = Field(None, description="Cron expression for scheduling")
-    retrain_threshold: float = Field(0.05, ge=0.001, le=0.5, description="Performance drop threshold for retraining")
-    performance_window: int = Field(7, ge=1, le=30, description="Days to monitor performance")
-    
+    schedule_cron: Optional[str] = Field(
+        None, description="Cron expression for scheduling"
+    )
+    retrain_threshold: float = Field(
+        0.05, ge=0.001, le=0.5, description="Performance drop threshold for retraining"
+    )
+    performance_window: int = Field(
+        7, ge=1, le=30, description="Days to monitor performance"
+    )
+
     # Training configuration (inherit from StartTrainingRequest)
     enable_automl: bool = Field(True, description="Enable AutoML optimization")
     optimization_objective: str = Field("auc", description="Optimization objective")
-    max_algorithms: int = Field(3, ge=1, le=10, description="Maximum algorithms to test")
+    max_algorithms: int = Field(
+        3, ge=1, le=10, description="Maximum algorithms to test"
+    )
     enable_ensemble: bool = Field(True, description="Enable ensemble creation")
-    max_optimization_time: int = Field(3600, ge=60, le=86400, description="Maximum optimization time in seconds")
+    max_optimization_time: int = Field(
+        3600, ge=60, le=86400, description="Maximum optimization time in seconds"
+    )
 
 
 class UpdatePerformanceRequest(BaseModel):
     """Request to update detector performance metrics."""
-    
+
     detector_id: UUID = Field(description="ID of detector")
     score: float = Field(ge=0.0, le=1.0, description="Performance score (0-1)")
     metric_name: str = Field("auc", description="Name of the performance metric")
-    timestamp: Optional[datetime] = Field(None, description="Timestamp of the measurement")
+    timestamp: Optional[datetime] = Field(
+        None, description="Timestamp of the measurement"
+    )
 
 
 class TrainingProgressResponse(BaseModel):
     """Response containing training progress information."""
-    
+
     training_id: str
     status: str
     current_step: str
     progress_percentage: float
     start_time: datetime
     estimated_completion: Optional[datetime] = None
-    
+
     # Current metrics
     current_algorithm: Optional[str] = None
     current_trial: Optional[int] = None
     total_trials: Optional[int] = None
     best_score: Optional[float] = None
     current_score: Optional[float] = None
-    
+
     # Resource usage
     memory_usage_mb: Optional[float] = None
     cpu_usage_percent: Optional[float] = None
-    
+
     # Messages and logs
     current_message: Optional[str] = None
     warnings: List[str] = Field(default_factory=list)
@@ -119,28 +151,28 @@ class TrainingProgressResponse(BaseModel):
 
 class TrainingResultResponse(BaseModel):
     """Response containing training result information."""
-    
+
     training_id: str
     detector_id: UUID
     status: str
     trigger_type: str
-    
+
     # Training metrics
     best_algorithm: Optional[str] = None
     best_params: Optional[dict[str, Any]] = None
     best_score: Optional[float] = None
     training_time_seconds: Optional[float] = None
     trials_completed: Optional[int] = None
-    
+
     # Model information
     model_version: Optional[str] = None
     model_path: Optional[str] = None
     model_size_mb: Optional[float] = None
-    
+
     # Performance comparison
     previous_score: Optional[float] = None
     performance_improvement: Optional[float] = None
-    
+
     # Metadata
     dataset_id: Optional[str] = None
     experiment_name: Optional[str] = None
@@ -152,7 +184,7 @@ class TrainingResultResponse(BaseModel):
 
 class TrainingHistoryResponse(BaseModel):
     """Response containing training history."""
-    
+
     trainings: List[TrainingResultResponse]
     total_count: int
     page: int
@@ -161,25 +193,28 @@ class TrainingHistoryResponse(BaseModel):
 
 # API Endpoints
 
+
 @router.post("/start", response_model=dict[str, str])
 async def start_training(
     request: StartTrainingRequest,
     training_service: AutomatedTrainingService = Depends(get_training_service),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
 ):
     """Start a new automated training pipeline.
-    
+
     Args:
         request: Training configuration
         training_service: Automated training service
         current_user: Current authenticated user
-        
+
     Returns:
         Training ID and status
     """
     try:
-        logger.info(f"Starting training for detector {request.detector_id} by user {current_user.get('id')}")
-        
+        logger.info(
+            f"Starting training for detector {request.detector_id} by user {current_user.get('id')}"
+        )
+
         # Parse optimization objective
         objective_map = {
             "auc": OptimizationObjective.AUC,
@@ -187,11 +222,13 @@ async def start_training(
             "recall": OptimizationObjective.RECALL,
             "f1_score": OptimizationObjective.F1_SCORE,
             "balanced_accuracy": OptimizationObjective.BALANCED_ACCURACY,
-            "detection_rate": OptimizationObjective.DETECTION_RATE
+            "detection_rate": OptimizationObjective.DETECTION_RATE,
         }
-        
-        objective = objective_map.get(request.optimization_objective.lower(), OptimizationObjective.AUC)
-        
+
+        objective = objective_map.get(
+            request.optimization_objective.lower(), OptimizationObjective.AUC
+        )
+
         # Create training configuration
         config = TrainingConfig(
             detector_id=request.detector_id,
@@ -209,23 +246,25 @@ async def start_training(
             max_training_time=request.max_training_time,
             max_memory_mb=request.max_memory_mb,
             max_cpu_cores=request.max_cpu_cores,
-            enable_gpu=request.enable_gpu
+            enable_gpu=request.enable_gpu,
         )
-        
+
         # Start training
-        training_id = await training_service.schedule_training(config, TriggerType.MANUAL)
-        
+        training_id = await training_service.schedule_training(
+            config, TriggerType.MANUAL
+        )
+
         return {
             "training_id": training_id,
             "status": "started",
-            "message": "Training pipeline started successfully"
+            "message": "Training pipeline started successfully",
         }
-        
+
     except Exception as e:
         logger.error(f"Failed to start training: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to start training: {str(e)}"
+            detail=f"Failed to start training: {str(e)}",
         )
 
 
@@ -233,21 +272,23 @@ async def start_training(
 async def schedule_training(
     request: ScheduleTrainingRequest,
     training_service: AutomatedTrainingService = Depends(get_training_service),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
 ):
     """Schedule automated training with performance monitoring.
-    
+
     Args:
         request: Scheduling configuration
         training_service: Automated training service
         current_user: Current authenticated user
-        
+
     Returns:
         Training ID and schedule status
     """
     try:
-        logger.info(f"Scheduling training for detector {request.detector_id} by user {current_user.get('id')}")
-        
+        logger.info(
+            f"Scheduling training for detector {request.detector_id} by user {current_user.get('id')}"
+        )
+
         # Parse optimization objective
         objective_map = {
             "auc": OptimizationObjective.AUC,
@@ -255,11 +296,13 @@ async def schedule_training(
             "recall": OptimizationObjective.RECALL,
             "f1_score": OptimizationObjective.F1_SCORE,
             "balanced_accuracy": OptimizationObjective.BALANCED_ACCURACY,
-            "detection_rate": OptimizationObjective.DETECTION_RATE
+            "detection_rate": OptimizationObjective.DETECTION_RATE,
         }
-        
-        objective = objective_map.get(request.optimization_objective.lower(), OptimizationObjective.AUC)
-        
+
+        objective = objective_map.get(
+            request.optimization_objective.lower(), OptimizationObjective.AUC
+        )
+
         # Create training configuration
         config = TrainingConfig(
             detector_id=request.detector_id,
@@ -272,23 +315,25 @@ async def schedule_training(
             optimization_objective=objective,
             max_algorithms=request.max_algorithms,
             enable_ensemble=request.enable_ensemble,
-            max_optimization_time=request.max_optimization_time
+            max_optimization_time=request.max_optimization_time,
         )
-        
+
         # Schedule training
-        training_id = await training_service.schedule_training(config, TriggerType.SCHEDULED)
-        
+        training_id = await training_service.schedule_training(
+            config, TriggerType.SCHEDULED
+        )
+
         return {
             "training_id": training_id,
             "status": "scheduled",
-            "message": "Training pipeline scheduled successfully"
+            "message": "Training pipeline scheduled successfully",
         }
-        
+
     except Exception as e:
         logger.error(f"Failed to schedule training: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to schedule training: {str(e)}"
+            detail=f"Failed to schedule training: {str(e)}",
         )
 
 
@@ -296,42 +341,44 @@ async def schedule_training(
 async def cancel_training(
     training_id: str,
     training_service: AutomatedTrainingService = Depends(get_training_service),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
 ):
     """Cancel an active training pipeline.
-    
+
     Args:
         training_id: ID of training to cancel
         training_service: Automated training service
         current_user: Current authenticated user
-        
+
     Returns:
         Cancellation status
     """
     try:
-        logger.info(f"Cancelling training {training_id} by user {current_user.get('id')}")
-        
+        logger.info(
+            f"Cancelling training {training_id} by user {current_user.get('id')}"
+        )
+
         success = await training_service.cancel_training(training_id)
-        
+
         if success:
             return {
                 "training_id": training_id,
                 "status": "cancelled",
-                "message": "Training cancelled successfully"
+                "message": "Training cancelled successfully",
             }
         else:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Training {training_id} not found or cannot be cancelled"
+                detail=f"Training {training_id} not found or cannot be cancelled",
             )
-            
+
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Failed to cancel training: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to cancel training: {str(e)}"
+            detail=f"Failed to cancel training: {str(e)}",
         )
 
 
@@ -339,27 +386,27 @@ async def cancel_training(
 async def get_training_status(
     training_id: str,
     training_service: AutomatedTrainingService = Depends(get_training_service),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
 ):
     """Get current status of a training pipeline.
-    
+
     Args:
         training_id: ID of training
         training_service: Automated training service
         current_user: Current authenticated user
-        
+
     Returns:
         Training progress information
     """
     try:
         progress = await training_service.get_training_status(training_id)
-        
+
         if not progress:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Training {training_id} not found"
+                detail=f"Training {training_id} not found",
             )
-        
+
         return TrainingProgressResponse(
             training_id=progress.training_id,
             status=progress.status.value,
@@ -375,16 +422,16 @@ async def get_training_status(
             memory_usage_mb=progress.memory_usage_mb,
             cpu_usage_percent=progress.cpu_usage_percent,
             current_message=progress.current_message,
-            warnings=progress.warnings
+            warnings=progress.warnings,
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Failed to get training status: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get training status: {str(e)}"
+            detail=f"Failed to get training status: {str(e)}",
         )
 
 
@@ -392,27 +439,27 @@ async def get_training_status(
 async def get_training_result(
     training_id: str,
     training_service: AutomatedTrainingService = Depends(get_training_service),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
 ):
     """Get result of a completed training pipeline.
-    
+
     Args:
         training_id: ID of training
         training_service: Automated training service
         current_user: Current authenticated user
-        
+
     Returns:
         Training result information
     """
     try:
         result = await training_service.get_training_result(training_id)
-        
+
         if not result:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Training result {training_id} not found"
+                detail=f"Training result {training_id} not found",
             )
-        
+
         return TrainingResultResponse(
             training_id=result.training_id,
             detector_id=result.detector_id,
@@ -433,36 +480,36 @@ async def get_training_result(
             start_time=result.start_time,
             completion_time=result.completion_time,
             error_message=result.error_message,
-            warnings=result.warnings
+            warnings=result.warnings,
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Failed to get training result: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get training result: {str(e)}"
+            detail=f"Failed to get training result: {str(e)}",
         )
 
 
 @router.get("/active", response_model=List[TrainingProgressResponse])
 async def get_active_trainings(
     training_service: AutomatedTrainingService = Depends(get_training_service),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
 ):
     """Get all currently active training pipelines.
-    
+
     Args:
         training_service: Automated training service
         current_user: Current authenticated user
-        
+
     Returns:
         List of active training progress
     """
     try:
         active_trainings = await training_service.get_active_trainings()
-        
+
         return [
             TrainingProgressResponse(
                 training_id=progress.training_id,
@@ -479,16 +526,16 @@ async def get_active_trainings(
                 memory_usage_mb=progress.memory_usage_mb,
                 cpu_usage_percent=progress.cpu_usage_percent,
                 current_message=progress.current_message,
-                warnings=progress.warnings
+                warnings=progress.warnings,
             )
             for progress in active_trainings
         ]
-        
+
     except Exception as e:
         logger.error(f"Failed to get active trainings: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get active trainings: {str(e)}"
+            detail=f"Failed to get active trainings: {str(e)}",
         )
 
 
@@ -498,17 +545,17 @@ async def get_training_history(
     page: int = 1,
     page_size: int = 50,
     training_service: AutomatedTrainingService = Depends(get_training_service),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
 ):
     """Get training history.
-    
+
     Args:
         detector_id: Optional detector ID filter
         page: Page number (1-based)
         page_size: Number of results per page
         training_service: Automated training service
         current_user: Current authenticated user
-        
+
     Returns:
         Paginated training history
     """
@@ -516,13 +563,15 @@ async def get_training_history(
         # Calculate offset
         offset = (page - 1) * page_size
         limit = page_size
-        
+
         # Get training history
-        history = await training_service.get_training_history(detector_id, limit + offset)
-        
+        history = await training_service.get_training_history(
+            detector_id, limit + offset
+        )
+
         # Apply pagination
-        paginated_history = history[offset:offset + limit]
-        
+        paginated_history = history[offset : offset + limit]
+
         training_responses = [
             TrainingResultResponse(
                 training_id=result.training_id,
@@ -544,23 +593,23 @@ async def get_training_history(
                 start_time=result.start_time,
                 completion_time=result.completion_time,
                 error_message=result.error_message,
-                warnings=result.warnings
+                warnings=result.warnings,
             )
             for result in paginated_history
         ]
-        
+
         return TrainingHistoryResponse(
             trainings=training_responses,
             total_count=len(history),
             page=page,
-            page_size=page_size
+            page_size=page_size,
         )
-        
+
     except Exception as e:
         logger.error(f"Failed to get training history: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get training history: {str(e)}"
+            detail=f"Failed to get training history: {str(e)}",
         )
 
 
@@ -568,39 +617,43 @@ async def get_training_history(
 async def update_performance(
     request: UpdatePerformanceRequest,
     training_service: AutomatedTrainingService = Depends(get_training_service),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
 ):
     """Update detector performance metrics for retraining evaluation.
-    
+
     Args:
         request: Performance update data
         training_service: Automated training service
         current_user: Current authenticated user
-        
+
     Returns:
         Update status and retraining recommendation
     """
     try:
-        logger.info(f"Updating performance for detector {request.detector_id}: {request.score}")
-        
+        logger.info(
+            f"Updating performance for detector {request.detector_id}: {request.score}"
+        )
+
         # Update performance
         await training_service.update_performance(request.detector_id, request.score)
-        
+
         # Check if retraining is needed
-        needs_retraining = await training_service.check_retraining_needed(request.detector_id)
-        
+        needs_retraining = await training_service.check_retraining_needed(
+            request.detector_id
+        )
+
         return {
             "detector_id": str(request.detector_id),
             "score": request.score,
             "metric_name": request.metric_name,
             "timestamp": request.timestamp or datetime.utcnow(),
             "needs_retraining": needs_retraining,
-            "message": "Performance updated successfully"
+            "message": "Performance updated successfully",
         }
-        
+
     except Exception as e:
         logger.error(f"Failed to update performance: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update performance: {str(e)}"
+            detail=f"Failed to update performance: {str(e)}",
         )

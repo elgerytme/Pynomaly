@@ -14,12 +14,10 @@ class BaseResponse(BaseModel):
     """Base response model with common metadata."""
 
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow,
-        description="Response timestamp in UTC"
+        default_factory=datetime.utcnow, description="Response timestamp in UTC"
     )
     request_id: str | None = Field(
-        None,
-        description="Unique request identifier for tracking"
+        None, description="Unique request identifier for tracking"
     )
 
 
@@ -37,7 +35,7 @@ class SuccessResponse(BaseResponse, Generic[T]):
                 "data": {"example": "data"},
                 "message": "Operation completed successfully",
                 "timestamp": "2024-12-25T10:30:00Z",
-                "request_id": "req_12345"
+                "request_id": "req_12345",
             }
         }
 
@@ -56,12 +54,9 @@ class ErrorResponse(BaseResponse):
                 "success": False,
                 "error": "Validation failed",
                 "error_code": "VALIDATION_ERROR",
-                "details": {
-                    "field": "username",
-                    "message": "Username is required"
-                },
+                "details": {"field": "username", "message": "Username is required"},
                 "timestamp": "2024-12-25T10:30:00Z",
-                "request_id": "req_12345"
+                "request_id": "req_12345",
             }
         }
 
@@ -70,8 +65,7 @@ class ValidationErrorResponse(ErrorResponse):
     """Validation error response with field details."""
 
     validation_errors: list[dict[str, Any]] = Field(
-        ...,
-        description="List of validation errors"
+        ..., description="List of validation errors"
     )
 
     class Config:
@@ -84,16 +78,16 @@ class ValidationErrorResponse(ErrorResponse):
                     {
                         "field": "email",
                         "message": "Invalid email format",
-                        "value": "invalid-email"
+                        "value": "invalid-email",
                     },
                     {
                         "field": "age",
                         "message": "Must be a positive integer",
-                        "value": -5
-                    }
+                        "value": -5,
+                    },
                 ],
                 "timestamp": "2024-12-25T10:30:00Z",
-                "request_id": "req_12345"
+                "request_id": "req_12345",
             }
         }
 
@@ -116,7 +110,7 @@ class PaginationMeta(BaseModel):
                 "total_items": 157,
                 "total_pages": 8,
                 "has_next": True,
-                "has_previous": True
+                "has_previous": True,
             }
         }
 
@@ -132,20 +126,17 @@ class PaginationResponse(BaseResponse, Generic[T]):
         json_schema_extra = {
             "example": {
                 "success": True,
-                "data": [
-                    {"id": 1, "name": "Item 1"},
-                    {"id": 2, "name": "Item 2"}
-                ],
+                "data": [{"id": 1, "name": "Item 1"}, {"id": 2, "name": "Item 2"}],
                 "pagination": {
                     "page": 1,
                     "page_size": 20,
                     "total_items": 157,
                     "total_pages": 8,
                     "has_next": True,
-                    "has_previous": False
+                    "has_previous": False,
                 },
                 "timestamp": "2024-12-25T10:30:00Z",
-                "request_id": "req_12345"
+                "request_id": "req_12345",
             }
         }
 
@@ -169,10 +160,10 @@ class HealthResponse(BaseResponse):
                 "services": {
                     "database": "healthy",
                     "cache": "healthy",
-                    "storage": "healthy"
+                    "storage": "healthy",
                 },
                 "timestamp": "2024-12-25T10:30:00Z",
-                "request_id": "health_12345"
+                "request_id": "health_12345",
             }
         }
 
@@ -184,8 +175,7 @@ class TaskResponse(BaseResponse):
     status: str = Field(..., description="Task status")
     progress: float | None = Field(None, description="Task progress (0.0 to 1.0)")
     estimated_completion: datetime | None = Field(
-        None,
-        description="Estimated completion time"
+        None, description="Estimated completion time"
     )
     result_url: str | None = Field(None, description="URL to retrieve task result")
 
@@ -198,7 +188,7 @@ class TaskResponse(BaseResponse):
                 "estimated_completion": "2024-12-25T10:35:00Z",
                 "result_url": "/tasks/task_abc123/result",
                 "timestamp": "2024-12-25T10:30:00Z",
-                "request_id": "req_12345"
+                "request_id": "req_12345",
             }
         }
 
@@ -217,12 +207,12 @@ class MetricsResponse(BaseResponse):
                     "requests_total": 15420,
                     "avg_response_time": 0.245,
                     "error_rate": 0.02,
-                    "active_users": 47
+                    "active_users": 47,
                 },
                 "period": "1h",
                 "aggregation": "average",
                 "timestamp": "2024-12-25T10:30:00Z",
-                "request_id": "req_12345"
+                "request_id": "req_12345",
             }
         }
 
@@ -237,26 +227,26 @@ class HTTPResponses:
         return {
             "description": description,
             "content": {
-                "application/json": {
-                    "schema": SuccessResponse[Any].model_json_schema()
-                }
-            }
+                "application/json": {"schema": SuccessResponse[Any].model_json_schema()}
+            },
         }
 
     @staticmethod
-    def created_201(description: str = "Resource created successfully") -> dict[str, Any]:
+    def created_201(
+        description: str = "Resource created successfully",
+    ) -> dict[str, Any]:
         """201 Created response."""
         return {
             "description": description,
             "content": {
-                "application/json": {
-                    "schema": SuccessResponse[Any].model_json_schema()
-                }
-            }
+                "application/json": {"schema": SuccessResponse[Any].model_json_schema()}
+            },
         }
 
     @staticmethod
-    def no_content_204(description: str = "Operation completed, no content") -> dict[str, Any]:
+    def no_content_204(
+        description: str = "Operation completed, no content",
+    ) -> dict[str, Any]:
         """204 No Content response."""
         return {"description": description}
 
@@ -269,19 +259,19 @@ class HTTPResponses:
                 "application/json": {
                     "schema": ValidationErrorResponse.model_json_schema()
                 }
-            }
+            },
         }
 
     @staticmethod
-    def unauthorized_401(description: str = "Authentication required") -> dict[str, Any]:
+    def unauthorized_401(
+        description: str = "Authentication required",
+    ) -> dict[str, Any]:
         """401 Unauthorized response."""
         return {
             "description": description,
             "content": {
-                "application/json": {
-                    "schema": ErrorResponse.model_json_schema()
-                }
-            }
+                "application/json": {"schema": ErrorResponse.model_json_schema()}
+            },
         }
 
     @staticmethod
@@ -290,10 +280,8 @@ class HTTPResponses:
         return {
             "description": description,
             "content": {
-                "application/json": {
-                    "schema": ErrorResponse.model_json_schema()
-                }
-            }
+                "application/json": {"schema": ErrorResponse.model_json_schema()}
+            },
         }
 
     @staticmethod
@@ -302,10 +290,8 @@ class HTTPResponses:
         return {
             "description": description,
             "content": {
-                "application/json": {
-                    "schema": ErrorResponse.model_json_schema()
-                }
-            }
+                "application/json": {"schema": ErrorResponse.model_json_schema()}
+            },
         }
 
     @staticmethod
@@ -314,10 +300,8 @@ class HTTPResponses:
         return {
             "description": description,
             "content": {
-                "application/json": {
-                    "schema": ErrorResponse.model_json_schema()
-                }
-            }
+                "application/json": {"schema": ErrorResponse.model_json_schema()}
+            },
         }
 
     @staticmethod
@@ -326,10 +310,8 @@ class HTTPResponses:
         return {
             "description": description,
             "content": {
-                "application/json": {
-                    "schema": ErrorResponse.model_json_schema()
-                }
-            }
+                "application/json": {"schema": ErrorResponse.model_json_schema()}
+            },
         }
 
     @staticmethod
@@ -338,8 +320,6 @@ class HTTPResponses:
         return {
             "description": description,
             "content": {
-                "application/json": {
-                    "schema": ErrorResponse.model_json_schema()
-                }
-            }
+                "application/json": {"schema": ErrorResponse.model_json_schema()}
+            },
         }

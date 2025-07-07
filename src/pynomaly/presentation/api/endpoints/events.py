@@ -9,7 +9,9 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from pynomaly.application.services.event_processing_service import EventProcessingService
+from pynomaly.application.services.event_processing_service import (
+    EventProcessingService,
+)
 from pynomaly.domain.entities.anomaly_event import (
     AnomalyEvent,
     EventAggregation,
@@ -36,69 +38,83 @@ router = APIRouter(
         403: HTTPResponses.forbidden_403(),
         404: HTTPResponses.not_found_404(),
         500: HTTPResponses.server_error_500(),
-    }
+    },
 )
 
 
 class AcknowledgeEventRequest(BaseModel):
     """Request for acknowledging an event."""
-    
+
     notes: str | None = Field(None, description="Acknowledgment notes")
 
 
 class ResolveEventRequest(BaseModel):
     """Request for resolving an event."""
-    
+
     notes: str | None = Field(None, description="Resolution notes")
 
 
 class IgnoreEventRequest(BaseModel):
     """Request for ignoring an event."""
-    
+
     reason: str | None = Field(None, description="Reason for ignoring")
 
 
 class CreatePatternRequest(BaseModel):
     """Request for creating event pattern."""
-    
+
     name: str = Field(..., description="Pattern name")
-    pattern_type: str = Field(..., description="Pattern type (frequency, sequence, correlation)")
+    pattern_type: str = Field(
+        ..., description="Pattern type (frequency, sequence, correlation)"
+    )
     conditions: dict[str, Any] = Field(..., description="Pattern matching conditions")
-    time_window_seconds: int = Field(..., description="Time window for pattern detection")
+    time_window_seconds: int = Field(
+        ..., description="Time window for pattern detection"
+    )
     description: str | None = Field(None, description="Pattern description")
     confidence: float = Field(default=0.8, description="Pattern confidence score")
-    alert_threshold: int = Field(default=1, description="Number of matches before alerting")
+    alert_threshold: int = Field(
+        default=1, description="Number of matches before alerting"
+    )
 
 
 class EventQueryRequest(BaseModel):
     """Request for querying events."""
-    
-    event_types: list[EventType] | None = Field(None, description="Filter by event types")
-    severities: list[EventSeverity] | None = Field(None, description="Filter by severities")
+
+    event_types: list[EventType] | None = Field(
+        None, description="Filter by event types"
+    )
+    severities: list[EventSeverity] | None = Field(
+        None, description="Filter by severities"
+    )
     statuses: list[EventStatus] | None = Field(None, description="Filter by statuses")
     detector_ids: list[UUID] | None = Field(None, description="Filter by detector IDs")
     session_ids: list[UUID] | None = Field(None, description="Filter by session IDs")
     data_sources: list[str] | None = Field(None, description="Filter by data sources")
-    
+
     event_time_start: datetime | None = Field(None, description="Event time start")
     event_time_end: datetime | None = Field(None, description="Event time end")
-    
+
     title_contains: str | None = Field(None, description="Filter by title content")
-    description_contains: str | None = Field(None, description="Filter by description content")
+    description_contains: str | None = Field(
+        None, description="Filter by description content"
+    )
     tags: list[str] | None = Field(None, description="Filter by tags")
     correlation_id: str | None = Field(None, description="Filter by correlation ID")
-    
+
     min_anomaly_score: float | None = Field(None, description="Minimum anomaly score")
     max_anomaly_score: float | None = Field(None, description="Maximum anomaly score")
     min_confidence: float | None = Field(None, description="Minimum confidence")
-    
+
     limit: int = Field(default=100, description="Maximum number of results")
     offset: int = Field(default=0, description="Result offset")
     sort_by: str = Field(default="event_time", description="Sort field")
     sort_order: str = Field(default="desc", description="Sort order (asc, desc)")
 
 
-async def get_event_service(container: Container = Depends(get_container)) -> EventProcessingService:
+async def get_event_service(
+    container: Container = Depends(get_container),
+) -> EventProcessingService:
     """Get event processing service."""
     # This would be properly injected in a real implementation
     return EventProcessingService(
@@ -162,7 +178,7 @@ async def get_event_service(container: Container = Depends(get_container)) -> Ev
 )
 async def query_events(
     query: EventQueryRequest,
-    event_service: EventProcessingService = Depends(get_event_service)
+    event_service: EventProcessingService = Depends(get_event_service),
 ) -> SuccessResponse[list[AnomalyEvent]]:
     """Query events with filters."""
     try:
@@ -187,12 +203,11 @@ async def query_events(
             sort_by=query.sort_by,
             sort_order=query.sort_order,
         )
-        
+
         events = await event_service.query_events(filter_criteria)
-        
+
         return SuccessResponse(
-            data=events,
-            message=f"Found {len(events)} events matching criteria"
+            data=events, message=f"Found {len(events)} events matching criteria"
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to query events: {str(e)}")
@@ -214,14 +229,15 @@ async def query_events(
     """,
 )
 async def get_event(
-    event_id: UUID,
-    event_service: EventProcessingService = Depends(get_event_service)
+    event_id: UUID, event_service: EventProcessingService = Depends(get_event_service)
 ) -> SuccessResponse[AnomalyEvent]:
     """Get a specific event by ID."""
     try:
         # This would be implemented in the event service
         # For now, return a mock response
-        raise HTTPException(status_code=501, detail="Event retrieval not yet implemented")
+        raise HTTPException(
+            status_code=501, detail="Event retrieval not yet implemented"
+        )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
@@ -252,20 +268,19 @@ async def acknowledge_event(
     event_id: UUID,
     request: AcknowledgeEventRequest,
     user: str = Query(..., description="User acknowledging the event"),
-    event_service: EventProcessingService = Depends(get_event_service)
+    event_service: EventProcessingService = Depends(get_event_service),
 ) -> SuccessResponse[AnomalyEvent]:
     """Acknowledge an event."""
     try:
         event = await event_service.acknowledge_event(event_id, user, request.notes)
-        
-        return SuccessResponse(
-            data=event,
-            message="Event acknowledged successfully"
-        )
+
+        return SuccessResponse(data=event, message="Event acknowledged successfully")
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to acknowledge event: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to acknowledge event: {str(e)}"
+        )
 
 
 @router.post(
@@ -292,20 +307,19 @@ async def resolve_event(
     event_id: UUID,
     request: ResolveEventRequest,
     user: str = Query(..., description="User resolving the event"),
-    event_service: EventProcessingService = Depends(get_event_service)
+    event_service: EventProcessingService = Depends(get_event_service),
 ) -> SuccessResponse[AnomalyEvent]:
     """Resolve an event."""
     try:
         event = await event_service.resolve_event(event_id, user, request.notes)
-        
-        return SuccessResponse(
-            data=event,
-            message="Event resolved successfully"
-        )
+
+        return SuccessResponse(data=event, message="Event resolved successfully")
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to resolve event: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to resolve event: {str(e)}"
+        )
 
 
 @router.post(
@@ -332,16 +346,13 @@ async def ignore_event(
     event_id: UUID,
     request: IgnoreEventRequest,
     user: str = Query(..., description="User ignoring the event"),
-    event_service: EventProcessingService = Depends(get_event_service)
+    event_service: EventProcessingService = Depends(get_event_service),
 ) -> SuccessResponse[AnomalyEvent]:
     """Ignore an event."""
     try:
         event = await event_service.ignore_event(event_id, user, request.reason)
-        
-        return SuccessResponse(
-            data=event,
-            message="Event ignored successfully"
-        )
+
+        return SuccessResponse(data=event, message="Event ignored successfully")
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
@@ -379,7 +390,7 @@ async def get_event_summary(
     start_time: datetime | None = Query(None, description="Summary start time"),
     end_time: datetime | None = Query(None, description="Summary end time"),
     detector_ids: list[UUID] | None = Query(None, description="Filter by detector IDs"),
-    event_service: EventProcessingService = Depends(get_event_service)
+    event_service: EventProcessingService = Depends(get_event_service),
 ) -> SuccessResponse[EventSummary]:
     """Get event summary statistics."""
     try:
@@ -388,10 +399,9 @@ async def get_event_summary(
             end_time=end_time,
             detector_ids=detector_ids,
         )
-        
+
         return SuccessResponse(
-            data=summary,
-            message="Retrieved event summary successfully"
+            data=summary, message="Retrieved event summary successfully"
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get summary: {str(e)}")
@@ -441,7 +451,7 @@ async def aggregate_events(
     group_by: str = Query(..., description="Field to group by"),
     start_time: datetime | None = Query(None, description="Aggregation start time"),
     end_time: datetime | None = Query(None, description="Aggregation end time"),
-    event_service: EventProcessingService = Depends(get_event_service)
+    event_service: EventProcessingService = Depends(get_event_service),
 ) -> SuccessResponse[list[EventAggregation]]:
     """Aggregate events by specified criteria."""
     try:
@@ -450,13 +460,15 @@ async def aggregate_events(
             start_time=start_time,
             end_time=end_time,
         )
-        
+
         return SuccessResponse(
             data=aggregations,
-            message=f"Generated {len(aggregations)} aggregations grouped by {group_by}"
+            message=f"Generated {len(aggregations)} aggregations grouped by {group_by}",
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to aggregate events: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to aggregate events: {str(e)}"
+        )
 
 
 @router.post(
@@ -513,12 +525,12 @@ async def aggregate_events(
     responses={
         201: HTTPResponses.created_201("Pattern created successfully"),
         400: HTTPResponses.bad_request_400("Invalid pattern configuration"),
-    }
+    },
 )
 async def create_event_pattern(
     request: CreatePatternRequest,
     created_by: str = Query(..., description="User creating the pattern"),
-    event_service: EventProcessingService = Depends(get_event_service)
+    event_service: EventProcessingService = Depends(get_event_service),
 ) -> SuccessResponse[EventPattern]:
     """Create an event pattern."""
     try:
@@ -532,15 +544,16 @@ async def create_event_pattern(
             confidence=request.confidence,
             alert_threshold=request.alert_threshold,
         )
-        
+
         return SuccessResponse(
-            data=pattern,
-            message="Event pattern created successfully"
+            data=pattern, message="Event pattern created successfully"
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create pattern: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to create pattern: {str(e)}"
+        )
 
 
 @router.get(
@@ -584,25 +597,25 @@ async def create_event_pattern(
 )
 async def detect_event_patterns(
     hours: int = Query(default=24, description="Hours of events to analyze"),
-    event_service: EventProcessingService = Depends(get_event_service)
+    event_service: EventProcessingService = Depends(get_event_service),
 ) -> SuccessResponse[list[dict[str, Any]]]:
     """Detect patterns in recent events."""
     try:
         # Get recent events
         end_time = datetime.utcnow()
         start_time = end_time - timedelta(hours=hours)
-        
+
         filter_criteria = EventFilter(
             event_time_start=start_time,
             event_time_end=end_time,
             limit=10000,
         )
-        
+
         events = await event_service.query_events(filter_criteria)
-        
+
         # Detect patterns
         detected_patterns = await event_service.detect_event_patterns(events)
-        
+
         # Format response
         pattern_results = []
         for pattern, matching_events in detected_patterns:
@@ -614,16 +627,18 @@ async def detect_event_patterns(
                 "time_range": {
                     "start": start_time.isoformat(),
                     "end": end_time.isoformat(),
-                }
+                },
             }
             pattern_results.append(result)
-        
+
         return SuccessResponse(
             data=pattern_results,
-            message=f"Detected {len(pattern_results)} patterns in {len(events)} events"
+            message=f"Detected {len(pattern_results)} patterns in {len(events)} events",
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to detect patterns: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to detect patterns: {str(e)}"
+        )
 
 
 @router.get(
@@ -650,37 +665,47 @@ async def get_realtime_events(
     minutes: int = Query(default=5, description="Minutes of recent events"),
     severity_filter: EventSeverity | None = Query(None, description="Minimum severity"),
     limit: int = Query(default=50, description="Maximum events to return"),
-    event_service: EventProcessingService = Depends(get_event_service)
+    event_service: EventProcessingService = Depends(get_event_service),
 ) -> SuccessResponse[list[AnomalyEvent]]:
     """Get real-time events for monitoring."""
     try:
         end_time = datetime.utcnow()
         start_time = end_time - timedelta(minutes=minutes)
-        
+
         # Build filter for real-time events
         severities = None
         if severity_filter:
             # Include specified severity and higher
-            all_severities = [EventSeverity.INFO, EventSeverity.LOW, EventSeverity.MEDIUM, 
-                            EventSeverity.HIGH, EventSeverity.CRITICAL]
+            all_severities = [
+                EventSeverity.INFO,
+                EventSeverity.LOW,
+                EventSeverity.MEDIUM,
+                EventSeverity.HIGH,
+                EventSeverity.CRITICAL,
+            ]
             severity_index = all_severities.index(severity_filter)
             severities = all_severities[severity_index:]
-        
+
         filter_criteria = EventFilter(
             event_time_start=start_time,
             event_time_end=end_time,
             severities=severities,
-            statuses=[EventStatus.PENDING, EventStatus.PROCESSING, EventStatus.ACKNOWLEDGED],
+            statuses=[
+                EventStatus.PENDING,
+                EventStatus.PROCESSING,
+                EventStatus.ACKNOWLEDGED,
+            ],
             limit=limit,
             sort_by="event_time",
             sort_order="desc",
         )
-        
+
         events = await event_service.query_events(filter_criteria)
-        
+
         return SuccessResponse(
-            data=events,
-            message=f"Retrieved {len(events)} real-time events"
+            data=events, message=f"Retrieved {len(events)} real-time events"
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get real-time events: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get real-time events: {str(e)}"
+        )

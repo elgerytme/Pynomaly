@@ -6,7 +6,14 @@ from datetime import timedelta
 from typing import Any
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, WebSocket, WebSocketDisconnect
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Query,
+    WebSocket,
+    WebSocketDisconnect,
+)
 from pydantic import BaseModel, Field
 
 from pynomaly.application.services.streaming_service import StreamingService
@@ -36,44 +43,60 @@ router = APIRouter(
         403: HTTPResponses.forbidden_403(),
         404: HTTPResponses.not_found_404(),
         500: HTTPResponses.server_error_500(),
-    }
+    },
 )
 
 
 class CreateSessionRequest(BaseModel):
     """Request for creating streaming session."""
-    
+
     name: str = Field(..., description="Session name")
     detector_id: UUID = Field(..., description="Detector to use for anomaly detection")
-    data_source: StreamingDataSource = Field(..., description="Input data source configuration")
-    configuration: StreamingConfiguration = Field(..., description="Streaming configuration")
+    data_source: StreamingDataSource = Field(
+        ..., description="Input data source configuration"
+    )
+    configuration: StreamingConfiguration = Field(
+        ..., description="Streaming configuration"
+    )
     description: str | None = Field(None, description="Session description")
-    data_sink: StreamingDataSink | None = Field(None, description="Output data sink configuration")
+    data_sink: StreamingDataSink | None = Field(
+        None, description="Output data sink configuration"
+    )
     model_version: str | None = Field(None, description="Specific model version to use")
-    max_duration_hours: float | None = Field(None, description="Maximum session duration in hours")
+    max_duration_hours: float | None = Field(
+        None, description="Maximum session duration in hours"
+    )
     tags: list[str] = Field(default_factory=list, description="Session tags")
 
 
 class CreateAlertRequest(BaseModel):
     """Request for creating streaming alert."""
-    
+
     name: str = Field(..., description="Alert name")
     metric_name: str = Field(..., description="Metric to monitor")
     threshold_value: float = Field(..., description="Alert threshold value")
-    comparison_operator: str = Field(..., description="Comparison operator (>, <, >=, <=, ==)")
+    comparison_operator: str = Field(
+        ..., description="Comparison operator (>, <, >=, <=, ==)"
+    )
     description: str | None = Field(None, description="Alert description")
     severity: str = Field(default="medium", description="Alert severity")
-    duration_threshold_minutes: float = Field(default=1.0, description="Duration threshold in minutes")
-    notification_channels: list[str] = Field(default_factory=list, description="Notification channels")
+    duration_threshold_minutes: float = Field(
+        default=1.0, description="Duration threshold in minutes"
+    )
+    notification_channels: list[str] = Field(
+        default_factory=list, description="Notification channels"
+    )
 
 
 class ProcessDataRequest(BaseModel):
     """Request for processing streaming data."""
-    
+
     data: dict[str, Any] = Field(..., description="Input data to process")
 
 
-async def get_streaming_service(container: Container = Depends(get_container)) -> StreamingService:
+async def get_streaming_service(
+    container: Container = Depends(get_container),
+) -> StreamingService:
     """Get streaming service."""
     # This would be properly injected in a real implementation
     return StreamingService(
@@ -137,19 +160,19 @@ async def get_streaming_service(container: Container = Depends(get_container)) -
     responses={
         201: HTTPResponses.created_201("Streaming session created successfully"),
         400: HTTPResponses.bad_request_400("Invalid session configuration"),
-    }
+    },
 )
 async def create_streaming_session(
     request: CreateSessionRequest,
     created_by: str = Query(..., description="User creating the session"),
-    streaming_service: StreamingService = Depends(get_streaming_service)
+    streaming_service: StreamingService = Depends(get_streaming_service),
 ) -> SuccessResponse[StreamingSession]:
     """Create a new streaming session."""
     try:
         max_duration = None
         if request.max_duration_hours:
             max_duration = timedelta(hours=request.max_duration_hours)
-        
+
         session = await streaming_service.create_streaming_session(
             name=request.name,
             detector_id=request.detector_id,
@@ -162,15 +185,16 @@ async def create_streaming_session(
             max_duration=max_duration,
             tags=request.tags,
         )
-        
+
         return SuccessResponse(
-            data=session,
-            message="Streaming session created successfully"
+            data=session, message="Streaming session created successfully"
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create session: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to create session: {str(e)}"
+        )
 
 
 @router.post(
@@ -197,20 +221,21 @@ async def create_streaming_session(
 )
 async def start_streaming_session(
     session_id: UUID,
-    streaming_service: StreamingService = Depends(get_streaming_service)
+    streaming_service: StreamingService = Depends(get_streaming_service),
 ) -> SuccessResponse[StreamingSession]:
     """Start a streaming session."""
     try:
         session = await streaming_service.start_streaming_session(session_id)
-        
+
         return SuccessResponse(
-            data=session,
-            message="Streaming session started successfully"
+            data=session, message="Streaming session started successfully"
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to start session: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to start session: {str(e)}"
+        )
 
 
 @router.post(
@@ -233,15 +258,16 @@ async def start_streaming_session(
 async def stop_streaming_session(
     session_id: UUID,
     error_message: str | None = Query(None, description="Optional error message"),
-    streaming_service: StreamingService = Depends(get_streaming_service)
+    streaming_service: StreamingService = Depends(get_streaming_service),
 ) -> SuccessResponse[StreamingSession]:
     """Stop a streaming session."""
     try:
-        session = await streaming_service.stop_streaming_session(session_id, error_message)
-        
+        session = await streaming_service.stop_streaming_session(
+            session_id, error_message
+        )
+
         return SuccessResponse(
-            data=session,
-            message="Streaming session stopped successfully"
+            data=session, message="Streaming session stopped successfully"
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -265,20 +291,21 @@ async def stop_streaming_session(
 )
 async def pause_streaming_session(
     session_id: UUID,
-    streaming_service: StreamingService = Depends(get_streaming_service)
+    streaming_service: StreamingService = Depends(get_streaming_service),
 ) -> SuccessResponse[StreamingSession]:
     """Pause a streaming session."""
     try:
         session = await streaming_service.pause_streaming_session(session_id)
-        
+
         return SuccessResponse(
-            data=session,
-            message="Streaming session paused successfully"
+            data=session, message="Streaming session paused successfully"
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to pause session: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to pause session: {str(e)}"
+        )
 
 
 @router.post(
@@ -296,20 +323,21 @@ async def pause_streaming_session(
 )
 async def resume_streaming_session(
     session_id: UUID,
-    streaming_service: StreamingService = Depends(get_streaming_service)
+    streaming_service: StreamingService = Depends(get_streaming_service),
 ) -> SuccessResponse[StreamingSession]:
     """Resume a streaming session."""
     try:
         session = await streaming_service.resume_streaming_session(session_id)
-        
+
         return SuccessResponse(
-            data=session,
-            message="Streaming session resumed successfully"
+            data=session, message="Streaming session resumed successfully"
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to resume session: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to resume session: {str(e)}"
+        )
 
 
 @router.get(
@@ -337,15 +365,14 @@ async def resume_streaming_session(
 )
 async def get_session_metrics(
     session_id: UUID,
-    streaming_service: StreamingService = Depends(get_streaming_service)
+    streaming_service: StreamingService = Depends(get_streaming_service),
 ) -> SuccessResponse[StreamingMetrics]:
     """Get current metrics for a streaming session."""
     try:
         metrics = await streaming_service.get_session_metrics(session_id)
-        
+
         return SuccessResponse(
-            data=metrics,
-            message="Retrieved session metrics successfully"
+            data=metrics, message="Retrieved session metrics successfully"
         )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -371,15 +398,14 @@ async def get_session_metrics(
 )
 async def get_session_summary(
     session_id: UUID,
-    streaming_service: StreamingService = Depends(get_streaming_service)
+    streaming_service: StreamingService = Depends(get_streaming_service),
 ) -> SuccessResponse[SessionSummary]:
     """Get summary for a streaming session."""
     try:
         summary = await streaming_service.get_session_summary(session_id)
-        
+
         return SuccessResponse(
-            data=summary,
-            message="Retrieved session summary successfully"
+            data=summary, message="Retrieved session summary successfully"
         )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -412,7 +438,7 @@ async def list_streaming_sessions(
     created_by: str | None = Query(None, description="Filter by creator"),
     limit: int = Query(100, description="Maximum number of results"),
     offset: int = Query(0, description="Result offset"),
-    streaming_service: StreamingService = Depends(get_streaming_service)
+    streaming_service: StreamingService = Depends(get_streaming_service),
 ) -> SuccessResponse[list[SessionSummary]]:
     """List streaming sessions."""
     try:
@@ -423,13 +449,14 @@ async def list_streaming_sessions(
             limit=limit,
             offset=offset,
         )
-        
+
         return SuccessResponse(
-            data=sessions,
-            message=f"Retrieved {len(sessions)} streaming sessions"
+            data=sessions, message=f"Retrieved {len(sessions)} streaming sessions"
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to list sessions: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to list sessions: {str(e)}"
+        )
 
 
 @router.post(
@@ -469,18 +496,18 @@ async def list_streaming_sessions(
     responses={
         201: HTTPResponses.created_201("Alert created successfully"),
         400: HTTPResponses.bad_request_400("Invalid alert configuration"),
-    }
+    },
 )
 async def create_session_alert(
     session_id: UUID,
     request: CreateAlertRequest,
     created_by: str = Query(..., description="User creating the alert"),
-    streaming_service: StreamingService = Depends(get_streaming_service)
+    streaming_service: StreamingService = Depends(get_streaming_service),
 ) -> SuccessResponse[StreamingAlert]:
     """Create an alert for a streaming session."""
     try:
         duration_threshold = timedelta(minutes=request.duration_threshold_minutes)
-        
+
         alert = await streaming_service.create_streaming_alert(
             session_id=session_id,
             name=request.name,
@@ -493,11 +520,8 @@ async def create_session_alert(
             duration_threshold=duration_threshold,
             notification_channels=request.notification_channels,
         )
-        
-        return SuccessResponse(
-            data=alert,
-            message="Alert created successfully"
-        )
+
+        return SuccessResponse(data=alert, message="Alert created successfully")
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
@@ -544,16 +568,15 @@ async def create_session_alert(
 async def process_streaming_data(
     session_id: UUID,
     request: ProcessDataRequest,
-    streaming_service: StreamingService = Depends(get_streaming_service)
+    streaming_service: StreamingService = Depends(get_streaming_service),
 ) -> SuccessResponse[dict[str, Any]]:
     """Process a single data point through streaming pipeline."""
     try:
-        result = await streaming_service.process_streaming_data(session_id, request.data)
-        
-        return SuccessResponse(
-            data=result,
-            message="Data processed successfully"
+        result = await streaming_service.process_streaming_data(
+            session_id, request.data
         )
+
+        return SuccessResponse(data=result, message="Data processed successfully")
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
@@ -564,28 +587,28 @@ async def process_streaming_data(
 async def streaming_websocket(
     websocket: WebSocket,
     session_id: UUID,
-    streaming_service: StreamingService = Depends(get_streaming_service)
+    streaming_service: StreamingService = Depends(get_streaming_service),
 ):
     """
     WebSocket endpoint for real-time streaming session monitoring.
-    
+
     This WebSocket provides real-time updates for:
     - Live metrics and performance data
     - Anomaly detection results as they occur
     - Session status changes
     - Alert notifications
-    
+
     **Message Types:**
     - `metrics`: Real-time metrics update
     - `anomaly`: Anomaly detection event
     - `alert`: Alert notification
     - `status`: Session status change
     - `error`: Error notification
-    
+
     **Usage:**
     ```javascript
     const ws = new WebSocket('ws://localhost:8000/api/streaming/sessions/{session_id}/live');
-    
+
     ws.onmessage = function(event) {
         const data = JSON.parse(event.data);
         console.log(`Received ${data.type}:`, data.payload);
@@ -593,71 +616,80 @@ async def streaming_websocket(
     ```
     """
     await websocket.accept()
-    
+
     try:
         # Verify session exists
         summary = await streaming_service.get_session_summary(session_id)
-        
+
         # Send initial session state
-        await websocket.send_json({
-            "type": "connected",
-            "payload": {
-                "session_id": str(session_id),
-                "session_name": summary.name,
-                "status": summary.status,
-                "message": "Connected to streaming session"
+        await websocket.send_json(
+            {
+                "type": "connected",
+                "payload": {
+                    "session_id": str(session_id),
+                    "session_name": summary.name,
+                    "status": summary.status,
+                    "message": "Connected to streaming session",
+                },
             }
-        })
-        
+        )
+
         # Keep connection alive and send periodic updates
         import asyncio
+
         while True:
             try:
                 # Send metrics update every 5 seconds
                 metrics = await streaming_service.get_session_metrics(session_id)
-                
-                await websocket.send_json({
-                    "type": "metrics",
-                    "payload": {
-                        "session_id": str(session_id),
-                        "timestamp": metrics.measurement_time.isoformat(),
-                        "messages_processed": metrics.messages_processed,
-                        "messages_per_second": metrics.messages_per_second,
-                        "anomalies_detected": metrics.anomalies_detected,
-                        "anomaly_rate": metrics.anomaly_rate,
-                        "error_rate": metrics.error_rate,
-                        "avg_processing_time": metrics.avg_processing_time,
-                        "p95_latency": metrics.p95_latency,
-                        "cpu_usage": metrics.cpu_usage,
-                        "memory_usage": metrics.memory_usage,
+
+                await websocket.send_json(
+                    {
+                        "type": "metrics",
+                        "payload": {
+                            "session_id": str(session_id),
+                            "timestamp": metrics.measurement_time.isoformat(),
+                            "messages_processed": metrics.messages_processed,
+                            "messages_per_second": metrics.messages_per_second,
+                            "anomalies_detected": metrics.anomalies_detected,
+                            "anomaly_rate": metrics.anomaly_rate,
+                            "error_rate": metrics.error_rate,
+                            "avg_processing_time": metrics.avg_processing_time,
+                            "p95_latency": metrics.p95_latency,
+                            "cpu_usage": metrics.cpu_usage,
+                            "memory_usage": metrics.memory_usage,
+                        },
                     }
-                })
-                
+                )
+
                 await asyncio.sleep(5)
-                
+
             except asyncio.CancelledError:
                 break
             except Exception as e:
-                await websocket.send_json({
-                    "type": "error",
-                    "payload": {
-                        "session_id": str(session_id),
-                        "error": str(e),
-                        "message": "Error retrieving session data"
+                await websocket.send_json(
+                    {
+                        "type": "error",
+                        "payload": {
+                            "session_id": str(session_id),
+                            "error": str(e),
+                            "message": "Error retrieving session data",
+                        },
                     }
-                })
+                )
                 await asyncio.sleep(5)
-    
+
     except WebSocketDisconnect:
         pass
     except Exception as e:
-        await websocket.send_json({
-            "type": "error",
-            "payload": {
-                "session_id": str(session_id),
-                "error": str(e),
-                "message": "WebSocket connection error"
+        await websocket.send_json(
+            {
+                "type": "error",
+                "payload": {
+                    "session_id": str(session_id),
+                    "error": str(e),
+                    "message": "WebSocket connection error",
+                },
             }
-        })
+        )
     finally:
         await websocket.close()

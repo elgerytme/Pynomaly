@@ -12,19 +12,20 @@ from pynomaly.application.services.advanced_ml_lifecycle_service import (
 )
 from pynomaly.domain.entities import ExperimentType
 from pynomaly.presentation.api.deps import (
-    get_current_user,
     get_advanced_ml_lifecycle_service,
+    get_current_user,
     require_write,
 )
-
 
 router = APIRouter(prefix="/advanced-ml-lifecycle", tags=["Advanced ML Lifecycle"])
 
 
 # ==================== Request/Response Models ====================
 
+
 class StartExperimentRequest(BaseModel):
     """Request model for starting an experiment."""
+
     name: str = Field(..., description="Experiment name")
     description: str = Field(..., description="Experiment description")
     experiment_type: ExperimentType = Field(..., description="Type of experiment")
@@ -38,12 +39,14 @@ class StartExperimentRequest(BaseModel):
 
 class StartExperimentResponse(BaseModel):
     """Response model for starting an experiment."""
+
     experiment_id: str = Field(..., description="Created experiment ID")
     message: str = Field(..., description="Success message")
 
 
 class StartRunRequest(BaseModel):
     """Request model for starting a run."""
+
     run_name: str = Field(..., description="Run name")
     detector_id: UUID = Field(..., description="Detector ID")
     dataset_id: UUID = Field(..., description="Dataset ID")
@@ -55,6 +58,7 @@ class StartRunRequest(BaseModel):
 
 class StartRunResponse(BaseModel):
     """Response model for starting a run."""
+
     run_id: str = Field(..., description="Created run ID")
     experiment_id: str = Field(..., description="Parent experiment ID")
     message: str = Field(..., description="Success message")
@@ -62,12 +66,14 @@ class StartRunResponse(BaseModel):
 
 class LogParameterRequest(BaseModel):
     """Request model for logging a parameter."""
+
     key: str = Field(..., description="Parameter name")
     value: Any = Field(..., description="Parameter value")
 
 
 class LogMetricRequest(BaseModel):
     """Request model for logging a metric."""
+
     key: str = Field(..., description="Metric name")
     value: float = Field(..., description="Metric value")
     step: Optional[int] = Field(None, description="Step number")
@@ -76,6 +82,7 @@ class LogMetricRequest(BaseModel):
 
 class LogArtifactRequest(BaseModel):
     """Request model for logging an artifact."""
+
     artifact_name: str = Field(..., description="Artifact name")
     artifact_data: Any = Field(..., description="Artifact data")
     artifact_type: str = Field("pickle", description="Artifact type")
@@ -84,36 +91,47 @@ class LogArtifactRequest(BaseModel):
 
 class LogArtifactResponse(BaseModel):
     """Response model for logging an artifact."""
+
     artifact_path: str = Field(..., description="Path to stored artifact")
     message: str = Field(..., description="Success message")
 
 
 class LogModelRequest(BaseModel):
     """Request model for logging a model."""
+
     model_name: str = Field(..., description="Model name")
-    model_signature: Optional[Dict[str, Any]] = Field(None, description="Model signature")
+    model_signature: Optional[Dict[str, Any]] = Field(
+        None, description="Model signature"
+    )
     input_example: Optional[Any] = Field(None, description="Input example")
-    registered_model_name: Optional[str] = Field(None, description="Registered model name")
+    registered_model_name: Optional[str] = Field(
+        None, description="Registered model name"
+    )
 
 
 class LogModelResponse(BaseModel):
     """Response model for logging a model."""
+
     model_version_id: str = Field(..., description="Model version ID or path")
     message: str = Field(..., description="Success message")
 
 
 class EndRunRequest(BaseModel):
     """Request model for ending a run."""
+
     status: str = Field("FINISHED", description="Run status")
     end_time: Optional[datetime] = Field(None, description="End time")
 
 
 class CreateModelVersionRequest(BaseModel):
     """Request model for creating a model version."""
+
     model_name: str = Field(..., description="Model name")
     run_id: str = Field(..., description="Associated run ID")
     model_path: str = Field(..., description="Model artifact path")
-    performance_metrics: Dict[str, float] = Field(..., description="Performance metrics")
+    performance_metrics: Dict[str, float] = Field(
+        ..., description="Performance metrics"
+    )
     description: str = Field("", description="Version description")
     tags: Optional[List[str]] = Field(None, description="Version tags")
     auto_version: bool = Field(True, description="Auto-determine version")
@@ -121,12 +139,14 @@ class CreateModelVersionRequest(BaseModel):
 
 class CreateModelVersionResponse(BaseModel):
     """Response model for creating a model version."""
+
     model_version_id: str = Field(..., description="Created model version ID")
     message: str = Field(..., description="Success message")
 
 
 class PromoteModelRequest(BaseModel):
     """Request model for promoting a model version."""
+
     stage: str = Field(..., description="Target stage")
     approval_workflow: bool = Field(True, description="Use approval workflow")
     validation_tests: Optional[List[str]] = Field(None, description="Validation tests")
@@ -134,6 +154,7 @@ class PromoteModelRequest(BaseModel):
 
 class PromoteModelResponse(BaseModel):
     """Response model for promoting a model version."""
+
     success: bool = Field(..., description="Promotion success")
     model_version_id: str = Field(..., description="Model version ID")
     new_stage: str = Field(..., description="New stage")
@@ -145,26 +166,41 @@ class PromoteModelResponse(BaseModel):
 
 class SearchModelsRequest(BaseModel):
     """Request model for searching models."""
+
     query: str = Field(..., description="Search query")
     max_results: int = Field(50, description="Maximum results")
-    filter_dict: Optional[Dict[str, Any]] = Field(None, description="Additional filters")
+    filter_dict: Optional[Dict[str, Any]] = Field(
+        None, description="Additional filters"
+    )
     order_by: Optional[List[str]] = Field(None, description="Ordering criteria")
 
 
 class ModelRegistryStatsResponse(BaseModel):
     """Response model for model registry statistics."""
+
     total_models: int = Field(..., description="Total number of models")
     total_versions: int = Field(..., description="Total number of versions")
-    average_versions_per_model: float = Field(..., description="Average versions per model")
-    model_status_distribution: Dict[str, int] = Field(..., description="Model status counts")
-    version_status_distribution: Dict[str, int] = Field(..., description="Version status counts")
-    recent_models: List[Dict[str, Any]] = Field(..., description="Recently created models")
-    recent_versions: List[Dict[str, Any]] = Field(..., description="Recently created versions")
+    average_versions_per_model: float = Field(
+        ..., description="Average versions per model"
+    )
+    model_status_distribution: Dict[str, int] = Field(
+        ..., description="Model status counts"
+    )
+    version_status_distribution: Dict[str, int] = Field(
+        ..., description="Version status counts"
+    )
+    recent_models: List[Dict[str, Any]] = Field(
+        ..., description="Recently created models"
+    )
+    recent_versions: List[Dict[str, Any]] = Field(
+        ..., description="Recently created versions"
+    )
     performance_trends: Dict[str, Any] = Field(..., description="Performance trends")
     registry_health: Dict[str, Any] = Field(..., description="Registry health metrics")
 
 
 # ==================== Experiment Tracking Endpoints ====================
+
 
 @router.post("/experiments/start", response_model=StartExperimentResponse)
 async def start_experiment(
@@ -174,7 +210,7 @@ async def start_experiment(
     _: None = Depends(require_write),
 ) -> StartExperimentResponse:
     """Start a new ML experiment with advanced tracking capabilities.
-    
+
     Creates a new experiment with comprehensive tracking features including
     automatic parameter, metric, and artifact logging.
     """
@@ -191,15 +227,15 @@ async def start_experiment(
             tags=request.tags,
             metadata=request.metadata,
         )
-        
+
         return StartExperimentResponse(
             experiment_id=experiment_id,
-            message=f"Experiment '{request.name}' started successfully"
+            message=f"Experiment '{request.name}' started successfully",
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to start experiment: {str(e)}"
+            detail=f"Failed to start experiment: {str(e)}",
         )
 
 
@@ -212,7 +248,7 @@ async def start_run(
     _: None = Depends(require_write),
 ) -> StartRunResponse:
     """Start a new experiment run with comprehensive tracking.
-    
+
     Creates a new run within an experiment with automatic environment
     capture and tracking setup.
     """
@@ -228,16 +264,16 @@ async def start_run(
             tags=request.tags,
             description=request.description,
         )
-        
+
         return StartRunResponse(
             run_id=run_id,
             experiment_id=experiment_id,
-            message=f"Run '{request.run_name}' started successfully"
+            message=f"Run '{request.run_name}' started successfully",
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to start run: {str(e)}"
+            detail=f"Failed to start run: {str(e)}",
         )
 
 
@@ -255,7 +291,7 @@ async def log_parameter(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to log parameter: {str(e)}"
+            detail=f"Failed to log parameter: {str(e)}",
         )
 
 
@@ -275,7 +311,7 @@ async def log_metric(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to log metric: {str(e)}"
+            detail=f"Failed to log metric: {str(e)}",
         )
 
 
@@ -295,15 +331,15 @@ async def log_artifact(
             artifact_type=request.artifact_type,
             metadata=request.metadata,
         )
-        
+
         return LogArtifactResponse(
             artifact_path=artifact_path,
-            message=f"Artifact '{request.artifact_name}' logged successfully"
+            message=f"Artifact '{request.artifact_name}' logged successfully",
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to log artifact: {str(e)}"
+            detail=f"Failed to log artifact: {str(e)}",
         )
 
 
@@ -320,12 +356,12 @@ async def log_model(
         # This is a simplified example
         raise HTTPException(
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Model logging via API requires file upload support"
+            detail="Model logging via API requires file upload support",
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to log model: {str(e)}"
+            detail=f"Failed to log model: {str(e)}",
         )
 
 
@@ -343,11 +379,12 @@ async def end_run(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to end run: {str(e)}"
+            detail=f"Failed to end run: {str(e)}",
         )
 
 
 # ==================== Model Versioning Endpoints ====================
+
 
 @router.post("/model-versions", response_model=CreateModelVersionResponse)
 async def create_model_version(
@@ -367,19 +404,21 @@ async def create_model_version(
             tags=request.tags,
             auto_version=request.auto_version,
         )
-        
+
         return CreateModelVersionResponse(
             model_version_id=version_id,
-            message=f"Model version created for '{request.model_name}'"
+            message=f"Model version created for '{request.model_name}'",
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to create model version: {str(e)}"
+            detail=f"Failed to create model version: {str(e)}",
         )
 
 
-@router.post("/model-versions/{model_version_id}/promote", response_model=PromoteModelResponse)
+@router.post(
+    "/model-versions/{model_version_id}/promote", response_model=PromoteModelResponse
+)
 async def promote_model_version(
     model_version_id: str,
     request: PromoteModelRequest,
@@ -396,16 +435,17 @@ async def promote_model_version(
             approval_workflow=request.approval_workflow,
             validation_tests=request.validation_tests,
         )
-        
+
         return PromoteModelResponse(**result)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to promote model version: {str(e)}"
+            detail=f"Failed to promote model version: {str(e)}",
         )
 
 
 # ==================== Model Registry Endpoints ====================
+
 
 @router.post("/models/search")
 async def search_models(
@@ -424,7 +464,7 @@ async def search_models(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to search models: {str(e)}"
+            detail=f"Failed to search models: {str(e)}",
         )
 
 
@@ -439,11 +479,12 @@ async def get_model_registry_stats(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get registry stats: {str(e)}"
+            detail=f"Failed to get registry stats: {str(e)}",
         )
 
 
 # ==================== Health and Status Endpoints ====================
+
 
 @router.get("/health")
 async def get_ml_lifecycle_health() -> Dict[str, Any]:

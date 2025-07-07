@@ -15,8 +15,7 @@ from pynomaly.infrastructure.config import Container
 
 # Temporarily disabled telemetry
 # from pynomaly.infrastructure.monitoring import init_telemetry
-from pynomaly.presentation.api.docs import configure_openapi_docs
-from pynomaly.presentation.api.docs import api_docs
+from pynomaly.presentation.api.docs import api_docs, configure_openapi_docs
 from pynomaly.presentation.api.endpoints import (
     admin,
     auth,
@@ -39,6 +38,7 @@ from pynomaly.presentation.api.endpoints import (
 # Enhanced AutoML endpoints
 try:
     from pynomaly.presentation.api import enhanced_automl
+
     ENHANCED_AUTOML_AVAILABLE = True
 except ImportError:
     ENHANCED_AUTOML_AVAILABLE = False
@@ -46,11 +46,14 @@ except ImportError:
 # Distributed processing endpoints removed for simplification
 distributed = None
 DISTRIBUTED_API_AVAILABLE = False
+
+
 # Web UI mounting - resolved circular import by using late import
 def _mount_web_ui_lazy(app):
     """Lazy import and mount web UI to avoid circular imports."""
     try:
         from pynomaly.presentation.web.app import mount_web_ui
+
         mount_web_ui(app)
         return True
     except ImportError as e:
@@ -160,11 +163,11 @@ def create_app(container: Container | None = None) -> FastAPI:
         contact={
             "name": "Pynomaly Team",
             "url": "https://github.com/pynomaly/pynomaly",
-            "email": "team@pynomaly.io"
+            "email": "team@pynomaly.io",
         },
         license_info={
             "name": "MIT",
-            "url": "https://github.com/pynomaly/pynomaly/blob/main/LICENSE"
+            "url": "https://github.com/pynomaly/pynomaly/blob/main/LICENSE",
         },
         terms_of_service="https://pynomaly.io/terms",
     )
@@ -212,7 +215,9 @@ def create_app(container: Container | None = None) -> FastAPI:
 
     app.include_router(ensemble.router, prefix="/api/ensemble", tags=["ensemble"])
 
-    app.include_router(explainability.router, prefix="/api/explainability", tags=["explainability"])
+    app.include_router(
+        explainability.router, prefix="/api/explainability", tags=["explainability"]
+    )
 
     app.include_router(
         experiments.router, prefix="/api/experiments", tags=["experiments"]

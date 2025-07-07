@@ -54,38 +54,24 @@ async def generate_postman_collection(request: Request) -> JSONResponse:
             "name": "Pynomaly API",
             "description": "Comprehensive anomaly detection API collection",
             "version": "1.0.0",
-            "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+            "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
         },
         "auth": {
             "type": "bearer",
-            "bearer": [
-                {
-                    "key": "token",
-                    "value": "{{jwt_token}}",
-                    "type": "string"
-                }
-            ]
+            "bearer": [{"key": "token", "value": "{{jwt_token}}", "type": "string"}],
         },
         "variable": [
-            {
-                "key": "base_url",
-                "value": base_url,
-                "type": "string"
-            },
-            {
-                "key": "jwt_token",
-                "value": "",
-                "type": "string"
-            }
+            {"key": "base_url", "value": base_url, "type": "string"},
+            {"key": "jwt_token", "value": "", "type": "string"},
         ],
-        "item": _generate_postman_items()
+        "item": _generate_postman_items(),
     }
 
     return JSONResponse(
         content=collection,
         headers={
             "Content-Disposition": "attachment; filename=pynomaly-api.postman_collection.json"
-        }
+        },
     )
 
 
@@ -102,7 +88,7 @@ async def openapi_summary(request: Request) -> dict:
             "Authentication",
             "Health",
             "Datasets",
-            "Detectors", 
+            "Detectors",
             "Detection",
             "AutoML",
             "Enhanced AutoML",
@@ -115,44 +101,49 @@ async def openapi_summary(request: Request) -> dict:
             "Streaming",
             "Events",
             "Administration",
-            "Autonomous"
+            "Autonomous",
         ],
         "new_features": [
             "Advanced AutoML with meta-learning",
             "Multi-objective optimization",
-            "Ensemble learning capabilities", 
+            "Ensemble learning capabilities",
             "Model explainability and interpretation",
             "Real-time streaming detection",
-            "Comprehensive model lineage tracking"
+            "Comprehensive model lineage tracking",
         ],
         "authentication_methods": ["JWT Bearer Token", "API Key", "OAuth2"],
         "response_formats": ["JSON", "CSV", "Excel", "Parquet"],
         "rate_limits": {
             "default": "100 requests/minute",
             "training": "10 requests/minute",
-            "automl": "5 requests/minute", 
+            "automl": "5 requests/minute",
             "export": "20 requests/minute",
-            "streaming": "1000 requests/minute"
+            "streaming": "1000 requests/minute",
         },
         "advanced_capabilities": {
             "automl": {
                 "algorithms_supported": 8,
-                "optimization_strategies": ["bayesian", "hyperband", "bohb", "multi_objective"],
+                "optimization_strategies": [
+                    "bayesian",
+                    "hyperband",
+                    "bohb",
+                    "multi_objective",
+                ],
                 "meta_learning": True,
-                "ensemble_methods": ["voting", "stacking", "blending"]
+                "ensemble_methods": ["voting", "stacking", "blending"],
             },
             "explainability": {
                 "methods": ["shap", "lime", "feature_importance", "partial_dependence"],
                 "global_explanations": True,
-                "local_explanations": True
+                "local_explanations": True,
             },
             "monitoring": {
                 "health_checks": True,
                 "performance_metrics": True,
                 "drift_detection": True,
-                "alerts": True
-            }
-        }
+                "alerts": True,
+            },
+        },
     }
 
 
@@ -166,40 +157,54 @@ async def sdk_information() -> dict:
                 "status": "official",
                 "installation": "pip install pynomaly-client",
                 "documentation": "https://pynomaly.readthedocs.io/python-sdk",
-                "repository": "https://github.com/pynomaly/pynomaly-python-client"
+                "repository": "https://github.com/pynomaly/pynomaly-python-client",
             },
             {
                 "language": "JavaScript/TypeScript",
                 "status": "community",
                 "installation": "npm install pynomaly-js",
                 "documentation": "https://pynomaly.readthedocs.io/js-sdk",
-                "repository": "https://github.com/pynomaly/pynomaly-js-client"
+                "repository": "https://github.com/pynomaly/pynomaly-js-client",
             },
             {
                 "language": "R",
                 "status": "planned",
                 "installation": "install.packages('pynomaly')",
                 "documentation": "https://pynomaly.readthedocs.io/r-sdk",
-                "repository": "https://github.com/pynomaly/pynomaly-r-client"
-            }
+                "repository": "https://github.com/pynomaly/pynomaly-r-client",
+            },
         ],
         "code_generation": {
             "openapi_generator": {
                 "supported_languages": [
-                    "python", "javascript", "typescript", "java", "csharp",
-                    "php", "ruby", "go", "rust", "kotlin", "swift"
+                    "python",
+                    "javascript",
+                    "typescript",
+                    "java",
+                    "csharp",
+                    "php",
+                    "ruby",
+                    "go",
+                    "rust",
+                    "kotlin",
+                    "swift",
                 ],
                 "command": "openapi-generator-cli generate -i {openapi_url} -g {language} -o ./generated-client",
-                "documentation": "https://openapi-generator.tech/"
+                "documentation": "https://openapi-generator.tech/",
             },
             "swagger_codegen": {
                 "supported_languages": [
-                    "python", "javascript", "java", "csharp", "php", "ruby"
+                    "python",
+                    "javascript",
+                    "java",
+                    "csharp",
+                    "php",
+                    "ruby",
                 ],
                 "command": "swagger-codegen generate -i {openapi_url} -l {language} -o ./generated-client",
-                "documentation": "https://swagger.io/tools/swagger-codegen/"
-            }
-        }
+                "documentation": "https://swagger.io/tools/swagger-codegen/",
+            },
+        },
     }
 
 
@@ -214,26 +219,22 @@ def _generate_postman_items() -> list[dict]:
                     "request": {
                         "method": "POST",
                         "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
+                            {"key": "Content-Type", "value": "application/json"}
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": json.dumps({
-                                "username": "admin",
-                                "password": "your_password"
-                            })
+                            "raw": json.dumps(
+                                {"username": "admin", "password": "your_password"}
+                            ),
                         },
                         "url": {
                             "raw": "{{base_url}}/auth/login",
                             "host": ["{{base_url}}"],
-                            "path": ["auth", "login"]
-                        }
-                    }
+                            "path": ["auth", "login"],
+                        },
+                    },
                 }
-            ]
+            ],
         },
         {
             "name": "Health Checks",
@@ -246,9 +247,9 @@ def _generate_postman_items() -> list[dict]:
                         "url": {
                             "raw": "{{base_url}}/health/",
                             "host": ["{{base_url}}"],
-                            "path": ["health", ""]
-                        }
-                    }
+                            "path": ["health", ""],
+                        },
+                    },
                 },
                 {
                     "name": "System Metrics",
@@ -258,11 +259,11 @@ def _generate_postman_items() -> list[dict]:
                         "url": {
                             "raw": "{{base_url}}/health/metrics",
                             "host": ["{{base_url}}"],
-                            "path": ["health", "metrics"]
-                        }
-                    }
-                }
-            ]
+                            "path": ["health", "metrics"],
+                        },
+                    },
+                },
+            ],
         },
         {
             "name": "Datasets",
@@ -272,51 +273,41 @@ def _generate_postman_items() -> list[dict]:
                     "request": {
                         "method": "GET",
                         "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{jwt_token}}"
-                            }
+                            {"key": "Authorization", "value": "Bearer {{jwt_token}}"}
                         ],
                         "url": {
                             "raw": "{{base_url}}/datasets/",
                             "host": ["{{base_url}}"],
-                            "path": ["datasets", ""]
-                        }
-                    }
+                            "path": ["datasets", ""],
+                        },
+                    },
                 },
                 {
                     "name": "Upload Dataset",
                     "request": {
                         "method": "POST",
                         "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{jwt_token}}"
-                            }
+                            {"key": "Authorization", "value": "Bearer {{jwt_token}}"}
                         ],
                         "body": {
                             "mode": "formdata",
                             "formdata": [
-                                {
-                                    "key": "file",
-                                    "type": "file",
-                                    "src": []
-                                },
+                                {"key": "file", "type": "file", "src": []},
                                 {
                                     "key": "name",
                                     "value": "Sample Dataset",
-                                    "type": "text"
-                                }
-                            ]
+                                    "type": "text",
+                                },
+                            ],
                         },
                         "url": {
                             "raw": "{{base_url}}/datasets/upload",
                             "host": ["{{base_url}}"],
-                            "path": ["datasets", "upload"]
-                        }
-                    }
-                }
-            ]
+                            "path": ["datasets", "upload"],
+                        },
+                    },
+                },
+            ],
         },
         {
             "name": "Detectors",
@@ -326,34 +317,30 @@ def _generate_postman_items() -> list[dict]:
                     "request": {
                         "method": "POST",
                         "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{jwt_token}}"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
+                            {"key": "Authorization", "value": "Bearer {{jwt_token}}"},
+                            {"key": "Content-Type", "value": "application/json"},
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": json.dumps({
-                                "name": "Isolation Forest Detector",
-                                "algorithm": "IsolationForest",
-                                "parameters": {
-                                    "n_estimators": 100,
-                                    "contamination": 0.1
+                            "raw": json.dumps(
+                                {
+                                    "name": "Isolation Forest Detector",
+                                    "algorithm": "IsolationForest",
+                                    "parameters": {
+                                        "n_estimators": 100,
+                                        "contamination": 0.1,
+                                    },
                                 }
-                            })
+                            ),
                         },
                         "url": {
                             "raw": "{{base_url}}/detectors/",
                             "host": ["{{base_url}}"],
-                            "path": ["detectors", ""]
-                        }
-                    }
+                            "path": ["detectors", ""],
+                        },
+                    },
                 }
-            ]
+            ],
         },
         {
             "name": "Detection",
@@ -363,60 +350,52 @@ def _generate_postman_items() -> list[dict]:
                     "request": {
                         "method": "POST",
                         "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{jwt_token}}"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
+                            {"key": "Authorization", "value": "Bearer {{jwt_token}}"},
+                            {"key": "Content-Type", "value": "application/json"},
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": json.dumps({
-                                "detector_id": "detector_123",
-                                "dataset_id": "dataset_456"
-                            })
+                            "raw": json.dumps(
+                                {
+                                    "detector_id": "detector_123",
+                                    "dataset_id": "dataset_456",
+                                }
+                            ),
                         },
                         "url": {
                             "raw": "{{base_url}}/detection/train",
                             "host": ["{{base_url}}"],
-                            "path": ["detection", "train"]
-                        }
-                    }
+                            "path": ["detection", "train"],
+                        },
+                    },
                 },
                 {
                     "name": "Detect Anomalies",
                     "request": {
                         "method": "POST",
                         "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{jwt_token}}"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
+                            {"key": "Authorization", "value": "Bearer {{jwt_token}}"},
+                            {"key": "Content-Type", "value": "application/json"},
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": json.dumps({
-                                "detector_id": "detector_123",
-                                "data": [
-                                    {"feature1": 1.5, "feature2": 2.3},
-                                    {"feature1": 5.7, "feature2": 1.2}
-                                ]
-                            })
+                            "raw": json.dumps(
+                                {
+                                    "detector_id": "detector_123",
+                                    "data": [
+                                        {"feature1": 1.5, "feature2": 2.3},
+                                        {"feature1": 5.7, "feature2": 1.2},
+                                    ],
+                                }
+                            ),
                         },
                         "url": {
                             "raw": "{{base_url}}/detection/predict",
                             "host": ["{{base_url}}"],
-                            "path": ["detection", "predict"]
-                        }
-                    }
-                }
-            ]
-        }
+                            "path": ["detection", "predict"],
+                        },
+                    },
+                },
+            ],
+        },
     ]

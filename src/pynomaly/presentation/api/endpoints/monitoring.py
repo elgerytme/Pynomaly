@@ -8,14 +8,21 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from pydantic import BaseModel
 
 from pynomaly.infrastructure.monitoring.health_checks import (
-    get_health_checker, liveness_probe, readiness_probe, ProbeResponse, SystemHealth
+    ProbeResponse,
+    SystemHealth,
+    get_health_checker,
+    liveness_probe,
+    readiness_probe,
 )
 from pynomaly.infrastructure.monitoring.prometheus_metrics import (
-    get_metrics_service, PrometheusMetricsService
+    PrometheusMetricsService,
+    get_metrics_service,
 )
 from pynomaly.infrastructure.monitoring.telemetry import get_telemetry
 from pynomaly.presentation.api.docs.response_models import (
-    ErrorResponse, HTTPResponses, SuccessResponse
+    ErrorResponse,
+    HTTPResponses,
+    SuccessResponse,
 )
 
 router = APIRouter(
@@ -23,12 +30,13 @@ router = APIRouter(
     tags=["Monitoring & Observability"],
     responses={
         500: HTTPResponses.server_error_500(),
-    }
+    },
 )
 
 
 class MetricsResponse(BaseModel):
     """Response model for metrics data."""
+
     format: str
     size_bytes: int
     timestamp: str
@@ -77,20 +85,20 @@ class MetricsResponse(BaseModel):
                         "data": {
                             "status": "unhealthy",
                             "message": "System unhealthy: 2 component(s) failing",
-                            "checks": []
-                        }
+                            "checks": [],
+                        },
                     }
                 }
-            }
-        }
-    }
+            },
+        },
+    },
 )
 async def get_system_health() -> SuccessResponse[SystemHealth]:
     """Get comprehensive system health status."""
     try:
         checker = get_health_checker()
         health = await checker.get_system_health(version="1.0.0")
-        
+
         # Return appropriate HTTP status based on health
         if health.status.value == "unhealthy":
             raise HTTPException(
@@ -98,21 +106,19 @@ async def get_system_health() -> SuccessResponse[SystemHealth]:
                 detail={
                     "success": False,
                     "message": health.message,
-                    "data": health.to_dict()
-                }
+                    "data": health.to_dict(),
+                },
             )
-        
+
         return SuccessResponse(
-            data=health,
-            message="System health retrieved successfully"
+            data=health, message="System health retrieved successfully"
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to check system health: {str(e)}"
+            status_code=500, detail=f"Failed to check system health: {str(e)}"
         )
 
 
@@ -145,7 +151,7 @@ async def get_system_health() -> SuccessResponse[SystemHealth]:
     """,
     responses={
         200: HTTPResponses.ok_200("Application is alive"),
-    }
+    },
 )
 async def liveness_check() -> ProbeResponse:
     """Kubernetes liveness probe - basic application health."""
@@ -155,7 +161,7 @@ async def liveness_check() -> ProbeResponse:
 @router.get(
     "/health/ready",
     response_model=ProbeResponse,
-    summary="Readiness Probe", 
+    summary="Readiness Probe",
     description="""
     Kubernetes readiness probe endpoint for traffic readiness.
     
@@ -195,21 +201,21 @@ async def liveness_check() -> ProbeResponse:
                         "details": {
                             "memory": "healthy",
                             "filesystem": "unhealthy",
-                            "model_repository": "healthy"
-                        }
+                            "model_repository": "healthy",
+                        },
                     }
                 }
-            }
-        }
-    }
+            },
+        },
+    },
 )
 async def readiness_check(response: Response) -> ProbeResponse:
     """Kubernetes readiness probe - traffic readiness check."""
     probe_result = await readiness_probe()
-    
+
     if probe_result.status == "not_ready":
         response.status_code = 503
-    
+
     return probe_result
 
 
@@ -260,35 +266,33 @@ async def readiness_check(response: Response) -> ProbeResponse:
             "description": "Prometheus metrics data",
             "content": {
                 "text/plain": {
-                    "example": "# HELP pynomaly_http_requests_total Total HTTP requests\\n# TYPE pynomaly_http_requests_total counter\\npynomaly_http_requests_total{method=\"GET\",endpoint=\"/api/detect\",status=\"200\"} 1250\\n"
+                    "example": '# HELP pynomaly_http_requests_total Total HTTP requests\\n# TYPE pynomaly_http_requests_total counter\\npynomaly_http_requests_total{method="GET",endpoint="/api/detect",status="200"} 1250\\n'
                 }
-            }
+            },
         }
-    }
+    },
 )
 async def get_prometheus_metrics() -> Response:
     """Get Prometheus metrics in exposition format."""
     try:
         metrics_service = get_metrics_service()
-        
+
         if not metrics_service:
             # Return empty metrics if service not available
             content = "# Prometheus metrics service not available\n"
         else:
             metrics_data = metrics_service.get_metrics_data()
-            content = metrics_data.decode('utf-8')
-        
+            content = metrics_data.decode("utf-8")
+
         return Response(
-            content=content,
-            media_type="text/plain; version=0.0.4; charset=utf-8"
+            content=content, media_type="text/plain; version=0.0.4; charset=utf-8"
         )
-        
+
     except Exception as e:
         # Return error metrics instead of HTTP error for Prometheus compatibility
         content = f"# ERROR: Failed to collect metrics: {str(e)}\n"
         return Response(
-            content=content,
-            media_type="text/plain; version=0.0.4; charset=utf-8"
+            content=content, media_type="text/plain; version=0.0.4; charset=utf-8"
         )
 
 
@@ -307,40 +311,35 @@ async def get_prometheus_metrics() -> Response:
     """,
     responses={
         200: HTTPResponses.ok_200("Metrics information retrieved"),
-    }
+    },
 )
 async def get_metrics_info() -> SuccessResponse[MetricsResponse]:
     """Get information about available metrics."""
     try:
         metrics_service = get_metrics_service()
-        
+
         if not metrics_service:
-            raise HTTPException(
-                status_code=503,
-                detail="Metrics service not available"
-            )
-        
+            raise HTTPException(status_code=503, detail="Metrics service not available")
+
         metrics_data = metrics_service.get_metrics_data()
-        
+
         from datetime import datetime
-        
+
         metrics_info = MetricsResponse(
             format="prometheus",
             size_bytes=len(metrics_data),
-            timestamp=datetime.now().isoformat()
+            timestamp=datetime.now().isoformat(),
         )
-        
+
         return SuccessResponse(
-            data=metrics_info,
-            message="Metrics information retrieved successfully"
+            data=metrics_info, message="Metrics information retrieved successfully"
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get metrics info: {str(e)}"
+            status_code=500, detail=f"Failed to get metrics info: {str(e)}"
         )
 
 
@@ -364,14 +363,14 @@ async def get_metrics_info() -> SuccessResponse[MetricsResponse]:
     """,
     responses={
         200: HTTPResponses.ok_200("Telemetry status retrieved"),
-    }
+    },
 )
 async def get_telemetry_status() -> SuccessResponse[Dict[str, Any]]:
     """Get telemetry service status and configuration."""
     try:
         telemetry = get_telemetry()
         metrics_service = get_metrics_service()
-        
+
         status = {
             "telemetry_service": {
                 "available": telemetry is not None,
@@ -381,26 +380,34 @@ async def get_telemetry_status() -> SuccessResponse[Dict[str, Any]]:
             "prometheus_service": {
                 "available": metrics_service is not None,
                 "metrics_count": len(metrics_service.metrics) if metrics_service else 0,
-                "server_started": getattr(metrics_service, 'server_started', False) if metrics_service else False,
-            }
+                "server_started": (
+                    getattr(metrics_service, "server_started", False)
+                    if metrics_service
+                    else False
+                ),
+            },
         }
-        
-        if telemetry and hasattr(telemetry, 'settings'):
+
+        if telemetry and hasattr(telemetry, "settings"):
             status["configuration"] = {
-                "service_name": getattr(telemetry.settings, 'app', {}).get('name', 'pynomaly'),
-                "environment": getattr(telemetry.settings, 'app', {}).get('environment', 'unknown'),
-                "version": getattr(telemetry.settings, 'app', {}).get('version', 'unknown'),
+                "service_name": getattr(telemetry.settings, "app", {}).get(
+                    "name", "pynomaly"
+                ),
+                "environment": getattr(telemetry.settings, "app", {}).get(
+                    "environment", "unknown"
+                ),
+                "version": getattr(telemetry.settings, "app", {}).get(
+                    "version", "unknown"
+                ),
             }
-        
+
         return SuccessResponse(
-            data=status,
-            message="Telemetry status retrieved successfully"
+            data=status, message="Telemetry status retrieved successfully"
         )
-        
+
     except Exception as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get telemetry status: {str(e)}"
+            status_code=500, detail=f"Failed to get telemetry status: {str(e)}"
         )
 
 
@@ -420,42 +427,38 @@ async def get_telemetry_status() -> SuccessResponse[Dict[str, Any]]:
     """,
     responses={
         200: HTTPResponses.ok_200("Application info updated"),
-    }
+    },
 )
 async def set_application_info(
     version: str = Query(..., description="Application version"),
     environment: str = Query("production", description="Environment name"),
     build_time: str = Query(..., description="Build timestamp"),
-    git_commit: str = Query("unknown", description="Git commit hash")
+    git_commit: str = Query("unknown", description="Git commit hash"),
 ) -> SuccessResponse[str]:
     """Set application information in metrics."""
     try:
         metrics_service = get_metrics_service()
-        
+
         if not metrics_service:
-            raise HTTPException(
-                status_code=503,
-                detail="Metrics service not available"
-            )
-        
+            raise HTTPException(status_code=503, detail="Metrics service not available")
+
         metrics_service.set_application_info(
             version=version,
             environment=environment,
             build_time=build_time,
-            git_commit=git_commit
+            git_commit=git_commit,
         )
-        
+
         return SuccessResponse(
             data="Application info updated",
-            message=f"Set application info: {version} ({environment})"
+            message=f"Set application info: {version} ({environment})",
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to set application info: {str(e)}"
+            status_code=500, detail=f"Failed to set application info: {str(e)}"
         )
 
 
@@ -479,14 +482,14 @@ async def set_application_info(
     """,
     responses={
         200: HTTPResponses.ok_200("Component list retrieved"),
-    }
+    },
 )
 async def list_monitored_components() -> SuccessResponse[Dict[str, Any]]:
     """Get list of all monitored components and their status."""
     try:
         checker = get_health_checker()
         cached_results = checker.get_cached_results()
-        
+
         components = {}
         for name, result in cached_results.items():
             components[name] = {
@@ -494,22 +497,20 @@ async def list_monitored_components() -> SuccessResponse[Dict[str, Any]]:
                 "status": result.status.value,
                 "message": result.message,
                 "last_check": result.timestamp.isoformat(),
-                "response_time_ms": result.response_time_ms
+                "response_time_ms": result.response_time_ms,
             }
-        
+
         summary = {
             "total_components": len(components),
             "components": components,
-            "registered_checks": list(checker._check_functions.keys())
+            "registered_checks": list(checker._check_functions.keys()),
         }
-        
+
         return SuccessResponse(
-            data=summary,
-            message=f"Retrieved {len(components)} monitored components"
+            data=summary, message=f"Retrieved {len(components)} monitored components"
         )
-        
+
     except Exception as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to list components: {str(e)}"
+            status_code=500, detail=f"Failed to list components: {str(e)}"
         )

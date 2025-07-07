@@ -16,21 +16,23 @@ class OpenAPIConfig:
 
     def __init__(self, settings: Settings):
         """Initialize OpenAPI configuration.
-        
+
         Args:
             settings: Application settings
         """
         self.settings = settings
         self.app_name = settings.app.name
         self.app_version = settings.app.version
-        self.app_description = settings.app.description or "Advanced anomaly detection API"
+        self.app_description = (
+            settings.app.description or "Advanced anomaly detection API"
+        )
 
     def get_openapi_schema(self, app: FastAPI) -> dict[str, Any]:
         """Generate comprehensive OpenAPI schema.
-        
+
         Args:
             app: FastAPI application instance
-            
+
         Returns:
             OpenAPI schema dictionary
         """
@@ -130,35 +132,33 @@ The API uses standard HTTP status codes and returns detailed error messages:
 
     def _get_servers(self) -> list[dict[str, str]]:
         """Get API server configurations."""
-        servers = [
-            {
-                "url": "/",
-                "description": "Current server"
-            }
-        ]
+        servers = [{"url": "/", "description": "Current server"}]
 
         # Add additional servers based on environment
         if self.settings.app.environment == "development":
-            servers.extend([
-                {
-                    "url": "http://localhost:8000",
-                    "description": "Development server"
-                },
-                {
-                    "url": "http://localhost:8080",
-                    "description": "Development server (alternative port)"
-                }
-            ])
+            servers.extend(
+                [
+                    {
+                        "url": "http://localhost:8000",
+                        "description": "Development server",
+                    },
+                    {
+                        "url": "http://localhost:8080",
+                        "description": "Development server (alternative port)",
+                    },
+                ]
+            )
         elif self.settings.app.environment == "staging":
-            servers.append({
-                "url": "https://staging-api.pynomaly.io",
-                "description": "Staging server"
-            })
+            servers.append(
+                {
+                    "url": "https://staging-api.pynomaly.io",
+                    "description": "Staging server",
+                }
+            )
         elif self.settings.app.environment == "production":
-            servers.append({
-                "url": "https://api.pynomaly.io",
-                "description": "Production server"
-            })
+            servers.append(
+                {"url": "https://api.pynomaly.io", "description": "Production server"}
+            )
 
         return servers
 
@@ -169,22 +169,22 @@ The API uses standard HTTP status codes and returns detailed error messages:
                 "contact": {
                     "name": "Pynomaly Team",
                     "url": "https://github.com/pynomaly/pynomaly",
-                    "email": "team@pynomaly.io"
+                    "email": "team@pynomaly.io",
                 },
                 "license": {
                     "name": "MIT",
-                    "url": "https://github.com/pynomaly/pynomaly/blob/main/LICENSE"
+                    "url": "https://github.com/pynomaly/pynomaly/blob/main/LICENSE",
                 },
                 "termsOfService": "https://pynomaly.io/terms",
                 "x-logo": {
                     "url": "/static/img/pynomaly-logo.png",
-                    "altText": "Pynomaly Logo"
-                }
+                    "altText": "Pynomaly Logo",
+                },
             },
             "externalDocs": {
                 "description": "Full Documentation",
-                "url": "https://pynomaly.readthedocs.io"
-            }
+                "url": "https://pynomaly.readthedocs.io",
+            },
         }
 
     def _get_security_schemes(self) -> dict[str, Any]:
@@ -194,13 +194,13 @@ The API uses standard HTTP status codes and returns detailed error messages:
                 "type": "http",
                 "scheme": "bearer",
                 "bearerFormat": "JWT",
-                "description": "JWT token obtained from /auth/login endpoint"
+                "description": "JWT token obtained from /auth/login endpoint",
             },
             "ApiKeyAuth": {
                 "type": "apiKey",
                 "in": "header",
                 "name": "X-API-Key",
-                "description": "API key for service-to-service authentication"
+                "description": "API key for service-to-service authentication",
             },
             "OAuth2": {
                 "type": "oauth2",
@@ -214,11 +214,11 @@ The API uses standard HTTP status codes and returns detailed error messages:
                             "admin": "Administrative access",
                             "detection": "Access to detection endpoints",
                             "datasets": "Access to dataset management",
-                            "experiments": "Access to experiment tracking"
-                        }
+                            "experiments": "Access to experiment tracking",
+                        },
                     }
-                }
-            }
+                },
+            },
         }
 
     def _get_api_tags(self) -> list[dict[str, Any]]:
@@ -229,103 +229,97 @@ The API uses standard HTTP status codes and returns detailed error messages:
                 "description": "User authentication and authorization endpoints",
                 "externalDocs": {
                     "description": "Authentication Guide",
-                    "url": "https://pynomaly.readthedocs.io/auth"
-                }
+                    "url": "https://pynomaly.readthedocs.io/auth",
+                },
             },
-            {
-                "name": "Health",
-                "description": "System health and monitoring endpoints"
-            },
+            {"name": "Health", "description": "System health and monitoring endpoints"},
             {
                 "name": "Datasets",
                 "description": "Dataset management and data preprocessing operations",
                 "externalDocs": {
                     "description": "Dataset Guide",
-                    "url": "https://pynomaly.readthedocs.io/datasets"
-                }
+                    "url": "https://pynomaly.readthedocs.io/datasets",
+                },
             },
             {
                 "name": "Detectors",
                 "description": "Anomaly detector configuration and management",
                 "externalDocs": {
                     "description": "Detector Guide",
-                    "url": "https://pynomaly.readthedocs.io/detectors"
-                }
+                    "url": "https://pynomaly.readthedocs.io/detectors",
+                },
             },
             {
                 "name": "Detection",
                 "description": "Anomaly detection training and inference operations",
                 "externalDocs": {
                     "description": "Detection Guide",
-                    "url": "https://pynomaly.readthedocs.io/detection"
-                }
+                    "url": "https://pynomaly.readthedocs.io/detection",
+                },
             },
             {
                 "name": "Experiments",
                 "description": "Experiment tracking and model management",
                 "externalDocs": {
                     "description": "Experiments Guide",
-                    "url": "https://pynomaly.readthedocs.io/experiments"
-                }
+                    "url": "https://pynomaly.readthedocs.io/experiments",
+                },
             },
-            {
-                "name": "Export",
-                "description": "Data and model export operations"
-            },
+            {"name": "Export", "description": "Data and model export operations"},
             {
                 "name": "AutoML",
                 "description": "Automated machine learning and hyperparameter optimization",
                 "externalDocs": {
                     "description": "AutoML Guide",
-                    "url": "https://pynomaly.readthedocs.io/automl"
-                }
+                    "url": "https://pynomaly.readthedocs.io/automl",
+                },
             },
             {
                 "name": "Enhanced AutoML",
                 "description": "Advanced AutoML with meta-learning and multi-objective optimization",
                 "externalDocs": {
                     "description": "Enhanced AutoML Guide",
-                    "url": "https://pynomaly.readthedocs.io/enhanced-automl"
-                }
+                    "url": "https://pynomaly.readthedocs.io/enhanced-automl",
+                },
             },
             {
                 "name": "Ensemble",
                 "description": "Ensemble methods and model combination strategies",
                 "externalDocs": {
                     "description": "Ensemble Guide",
-                    "url": "https://pynomaly.readthedocs.io/ensemble"
-                }
+                    "url": "https://pynomaly.readthedocs.io/ensemble",
+                },
             },
             {
                 "name": "Explainability",
                 "description": "Model interpretation and explanation generation",
                 "externalDocs": {
                     "description": "Explainability Guide",
-                    "url": "https://pynomaly.readthedocs.io/explainability"
-                }
+                    "url": "https://pynomaly.readthedocs.io/explainability",
+                },
             },
             {
                 "name": "Performance",
-                "description": "Performance monitoring and profiling endpoints"
+                "description": "Performance monitoring and profiling endpoints",
             },
             {
                 "name": "Administration",
-                "description": "System administration and configuration endpoints"
+                "description": "System administration and configuration endpoints",
             },
             {
                 "name": "Autonomous",
-                "description": "Autonomous mode and automated analysis operations"
+                "description": "Autonomous mode and automated analysis operations",
             },
             {
                 "name": "WebSocket",
-                "description": "Real-time streaming and WebSocket endpoints"
-            }
+                "description": "Real-time streaming and WebSocket endpoints",
+            },
         ]
 
 
 def configure_openapi_docs(app: FastAPI, settings: Settings) -> None:
     """Configure OpenAPI documentation for the FastAPI app.
-    
+
     Args:
         app: FastAPI application instance
         settings: Application settings
@@ -364,7 +358,7 @@ def get_custom_swagger_ui_html(
             "appName": "Pynomaly API Explorer",
             "scopes": ["read", "write"],
             "additionalQueryStringParams": {},
-        }
+        },
     )
 
 

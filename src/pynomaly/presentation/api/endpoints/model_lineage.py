@@ -35,39 +35,49 @@ router = APIRouter(
         403: HTTPResponses.forbidden_403(),
         404: HTTPResponses.not_found_404(),
         500: HTTPResponses.server_error_500(),
-    }
+    },
 )
 
 
 class CreateLineageRequest(BaseModel):
     """Request for creating lineage record."""
-    
+
     child_model_id: UUID = Field(..., description="Child model identifier")
     parent_model_ids: list[UUID] = Field(..., description="Parent model identifiers")
     relation_type: LineageRelationType = Field(..., description="Type of relationship")
-    transformation: LineageTransformation = Field(..., description="Transformation details")
+    transformation: LineageTransformation = Field(
+        ..., description="Transformation details"
+    )
     experiment_id: UUID | None = Field(None, description="Associated experiment ID")
     run_id: str | None = Field(None, description="Associated run ID")
     tags: list[str] = Field(default_factory=list, description="Lineage tags")
-    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
+    metadata: dict[str, Any] = Field(
+        default_factory=dict, description="Additional metadata"
+    )
 
 
 class TrackDerivationRequest(BaseModel):
     """Request for tracking model derivation."""
-    
+
     parent_model_id: UUID = Field(..., description="Parent model ID")
     child_model_id: UUID = Field(..., description="Child model ID")
-    transformation_type: TransformationType = Field(..., description="Type of transformation")
-    transformation_metadata: dict[str, Any] = Field(..., description="Transformation parameters")
+    transformation_type: TransformationType = Field(
+        ..., description="Type of transformation"
+    )
+    transformation_metadata: dict[str, Any] = Field(
+        ..., description="Transformation parameters"
+    )
     algorithm: str | None = Field(None, description="Algorithm used")
     tool: str | None = Field(None, description="Tool or framework used")
     execution_time: float | None = Field(None, description="Execution time in seconds")
-    resource_usage: dict[str, Any] = Field(default_factory=dict, description="Resource usage")
+    resource_usage: dict[str, Any] = Field(
+        default_factory=dict, description="Resource usage"
+    )
 
 
 class TrackEnsembleRequest(BaseModel):
     """Request for tracking ensemble creation."""
-    
+
     ensemble_model_id: UUID = Field(..., description="Ensemble model ID")
     component_model_ids: list[UUID] = Field(..., description="Component model IDs")
     ensemble_metadata: dict[str, Any] = Field(..., description="Ensemble configuration")
@@ -77,7 +87,7 @@ class TrackEnsembleRequest(BaseModel):
 
 class LineageQueryRequest(BaseModel):
     """Request for querying lineage."""
-    
+
     model_id: UUID = Field(..., description="Target model identifier")
     include_ancestors: bool = Field(True, description="Include ancestor models")
     include_descendants: bool = Field(True, description="Include descendant models")
@@ -94,7 +104,9 @@ class LineageQueryRequest(BaseModel):
     tags: list[str] | None = Field(None, description="Filter by tags")
 
 
-async def get_lineage_service(container: Container = Depends(get_container)) -> ModelLineageService:
+async def get_lineage_service(
+    container: Container = Depends(get_container),
+) -> ModelLineageService:
     """Get model lineage service."""
     # This would be properly injected in a real implementation
     # For now, create a mock service
@@ -129,12 +141,12 @@ async def get_lineage_service(container: Container = Depends(get_container)) -> 
     responses={
         201: HTTPResponses.created_201("Lineage record created successfully"),
         400: HTTPResponses.bad_request_400("Invalid lineage data"),
-    }
+    },
 )
 async def create_lineage_record(
     request: CreateLineageRequest,
     created_by: str = Query(..., description="User creating the record"),
-    lineage_service: ModelLineageService = Depends(get_lineage_service)
+    lineage_service: ModelLineageService = Depends(get_lineage_service),
 ) -> SuccessResponse[LineageRecord]:
     """Create a new lineage record."""
     try:
@@ -149,15 +161,16 @@ async def create_lineage_record(
             tags=request.tags,
             metadata=request.metadata,
         )
-        
+
         return SuccessResponse(
-            data=record,
-            message="Lineage record created successfully"
+            data=record, message="Lineage record created successfully"
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create lineage record: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to create lineage record: {str(e)}"
+        )
 
 
 @router.post(
@@ -179,12 +192,12 @@ async def create_lineage_record(
     responses={
         201: HTTPResponses.created_201("Model derivation tracked successfully"),
         400: HTTPResponses.bad_request_400("Invalid derivation data"),
-    }
+    },
 )
 async def track_model_derivation(
     request: TrackDerivationRequest,
     created_by: str = Query(..., description="User tracking the derivation"),
-    lineage_service: ModelLineageService = Depends(get_lineage_service)
+    lineage_service: ModelLineageService = Depends(get_lineage_service),
 ) -> SuccessResponse[LineageRecord]:
     """Track a model derivation."""
     try:
@@ -199,15 +212,16 @@ async def track_model_derivation(
             execution_time=request.execution_time,
             resource_usage=request.resource_usage,
         )
-        
+
         return SuccessResponse(
-            data=record,
-            message="Model derivation tracked successfully"
+            data=record, message="Model derivation tracked successfully"
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to track derivation: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to track derivation: {str(e)}"
+        )
 
 
 @router.post(
@@ -229,12 +243,12 @@ async def track_model_derivation(
     responses={
         201: HTTPResponses.created_201("Ensemble creation tracked successfully"),
         400: HTTPResponses.bad_request_400("Invalid ensemble data"),
-    }
+    },
 )
 async def track_ensemble_creation(
     request: TrackEnsembleRequest,
     created_by: str = Query(..., description="User tracking the ensemble"),
-    lineage_service: ModelLineageService = Depends(get_lineage_service)
+    lineage_service: ModelLineageService = Depends(get_lineage_service),
 ) -> SuccessResponse[LineageRecord]:
     """Track ensemble model creation."""
     try:
@@ -246,15 +260,16 @@ async def track_ensemble_creation(
             algorithm=request.algorithm,
             tool=request.tool,
         )
-        
+
         return SuccessResponse(
-            data=record,
-            message="Ensemble creation tracked successfully"
+            data=record, message="Ensemble creation tracked successfully"
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to track ensemble: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to track ensemble: {str(e)}"
+        )
 
 
 @router.get(
@@ -285,7 +300,7 @@ async def get_model_lineage_graph(
     include_ancestors: bool = Query(True, description="Include ancestor models"),
     include_descendants: bool = Query(True, description="Include descendant models"),
     max_depth: int = Query(10, description="Maximum depth to traverse"),
-    lineage_service: ModelLineageService = Depends(get_lineage_service)
+    lineage_service: ModelLineageService = Depends(get_lineage_service),
 ) -> SuccessResponse[LineageGraph]:
     """Get complete lineage graph for a model."""
     try:
@@ -295,15 +310,17 @@ async def get_model_lineage_graph(
             include_descendants=include_descendants,
             max_depth=max_depth,
         )
-        
+
         return SuccessResponse(
             data=graph,
-            message=f"Retrieved lineage graph with {len(graph.nodes)} models and {len(graph.edges)} relationships"
+            message=f"Retrieved lineage graph with {len(graph.nodes)} models and {len(graph.edges)} relationships",
         )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get lineage graph: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get lineage graph: {str(e)}"
+        )
 
 
 @router.get(
@@ -320,20 +337,21 @@ async def get_model_lineage_graph(
 async def get_model_ancestors(
     model_id: UUID,
     max_depth: int = Query(10, description="Maximum depth to traverse"),
-    lineage_service: ModelLineageService = Depends(get_lineage_service)
+    lineage_service: ModelLineageService = Depends(get_lineage_service),
 ) -> SuccessResponse[list[UUID]]:
     """Get all ancestor models."""
     try:
         ancestors = await lineage_service.get_model_ancestors(model_id, max_depth)
-        
+
         return SuccessResponse(
-            data=ancestors,
-            message=f"Found {len(ancestors)} ancestor models"
+            data=ancestors, message=f"Found {len(ancestors)} ancestor models"
         )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get ancestors: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get ancestors: {str(e)}"
+        )
 
 
 @router.get(
@@ -350,20 +368,21 @@ async def get_model_ancestors(
 async def get_model_descendants(
     model_id: UUID,
     max_depth: int = Query(10, description="Maximum depth to traverse"),
-    lineage_service: ModelLineageService = Depends(get_lineage_service)
+    lineage_service: ModelLineageService = Depends(get_lineage_service),
 ) -> SuccessResponse[list[UUID]]:
     """Get all descendant models."""
     try:
         descendants = await lineage_service.get_model_descendants(model_id, max_depth)
-        
+
         return SuccessResponse(
-            data=descendants,
-            message=f"Found {len(descendants)} descendant models"
+            data=descendants, message=f"Found {len(descendants)} descendant models"
         )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get descendants: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get descendants: {str(e)}"
+        )
 
 
 @router.get(
@@ -382,21 +401,19 @@ async def get_model_descendants(
 async def find_lineage_path(
     from_model_id: UUID,
     to_model_id: UUID,
-    lineage_service: ModelLineageService = Depends(get_lineage_service)
+    lineage_service: ModelLineageService = Depends(get_lineage_service),
 ) -> SuccessResponse[list[UUID] | None]:
     """Find lineage path between two models."""
     try:
         path = await lineage_service.get_lineage_path(from_model_id, to_model_id)
-        
+
         if path:
             return SuccessResponse(
-                data=path,
-                message=f"Found path with {len(path)} models"
+                data=path, message=f"Found path with {len(path)} models"
             )
         else:
             return SuccessResponse(
-                data=None,
-                message="No lineage path found between models"
+                data=None, message="No lineage path found between models"
             )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -425,7 +442,7 @@ async def find_lineage_path(
 )
 async def query_lineage_records(
     query: LineageQueryRequest,
-    lineage_service: ModelLineageService = Depends(get_lineage_service)
+    lineage_service: ModelLineageService = Depends(get_lineage_service),
 ) -> SuccessResponse[list[LineageRecord]]:
     """Query lineage records with filters."""
     try:
@@ -441,15 +458,16 @@ async def query_lineage_records(
             created_by=query.created_by,
             tags=query.tags,
         )
-        
+
         records = await lineage_service.query_lineage(lineage_query)
-        
+
         return SuccessResponse(
-            data=records,
-            message=f"Found {len(records)} lineage records"
+            data=records, message=f"Found {len(records)} lineage records"
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to query lineage: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to query lineage: {str(e)}"
+        )
 
 
 @router.get(
@@ -468,18 +486,17 @@ async def query_lineage_records(
     """,
 )
 async def get_lineage_statistics(
-    lineage_service: ModelLineageService = Depends(get_lineage_service)
+    lineage_service: ModelLineageService = Depends(get_lineage_service),
 ) -> SuccessResponse[LineageStatistics]:
     """Get lineage statistics."""
     try:
         stats = await lineage_service.get_lineage_statistics()
-        
-        return SuccessResponse(
-            data=stats,
-            message="Retrieved lineage statistics"
-        )
+
+        return SuccessResponse(data=stats, message="Retrieved lineage statistics")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get statistics: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get statistics: {str(e)}"
+        )
 
 
 @router.delete(
@@ -497,27 +514,27 @@ async def get_lineage_statistics(
     responses={
         200: HTTPResponses.success_200("Lineage record deleted successfully"),
         404: HTTPResponses.not_found_404("Lineage record not found"),
-    }
+    },
 )
 async def delete_lineage_record(
-    record_id: UUID,
-    lineage_service: ModelLineageService = Depends(get_lineage_service)
+    record_id: UUID, lineage_service: ModelLineageService = Depends(get_lineage_service)
 ) -> SuccessResponse[bool]:
     """Delete a lineage record."""
     try:
         success = await lineage_service.delete_lineage_record(record_id)
-        
+
         if success:
             return SuccessResponse(
-                data=True,
-                message="Lineage record deleted successfully"
+                data=True, message="Lineage record deleted successfully"
             )
         else:
             raise HTTPException(status_code=404, detail="Lineage record not found")
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to delete lineage record: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to delete lineage record: {str(e)}"
+        )
 
 
 @router.post(
@@ -537,21 +554,23 @@ async def delete_lineage_record(
     responses={
         201: HTTPResponses.created_201("Lineage records imported successfully"),
         400: HTTPResponses.bad_request_400("Invalid lineage data or missing models"),
-    }
+    },
 )
 async def bulk_import_lineage(
     records: list[LineageRecord],
-    lineage_service: ModelLineageService = Depends(get_lineage_service)
+    lineage_service: ModelLineageService = Depends(get_lineage_service),
 ) -> SuccessResponse[list[LineageRecord]]:
     """Bulk import lineage records."""
     try:
         imported_records = await lineage_service.bulk_import_lineage(records)
-        
+
         return SuccessResponse(
             data=imported_records,
-            message=f"Successfully imported {len(imported_records)} lineage records"
+            message=f"Successfully imported {len(imported_records)} lineage records",
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to import lineage records: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to import lineage records: {str(e)}"
+        )

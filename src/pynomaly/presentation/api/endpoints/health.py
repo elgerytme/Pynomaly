@@ -22,7 +22,7 @@ router = APIRouter(
     responses={
         500: HTTPResponses.server_error_500("Health check service unavailable"),
         503: HTTPResponses.server_error_500("Service temporarily unavailable"),
-    }
+    },
 )
 
 # Global health service instance
@@ -33,11 +33,19 @@ class HealthCheckResponse(BaseModel):
     """Individual health check response."""
 
     name: str = Field(..., description="Name of the health check")
-    status: str = Field(..., description="Health check status", enum=["healthy", "degraded", "unhealthy"])
+    status: str = Field(
+        ...,
+        description="Health check status",
+        enum=["healthy", "degraded", "unhealthy"],
+    )
     message: str = Field(..., description="Human-readable status message")
-    duration_ms: float = Field(..., description="Check execution time in milliseconds", ge=0)
+    duration_ms: float = Field(
+        ..., description="Check execution time in milliseconds", ge=0
+    )
     timestamp: datetime = Field(..., description="Check execution timestamp")
-    details: dict[str, Any] = Field(default_factory=dict, description="Additional check details")
+    details: dict[str, Any] = Field(
+        default_factory=dict, description="Additional check details"
+    )
 
     class Config:
         json_schema_extra = {
@@ -47,10 +55,7 @@ class HealthCheckResponse(BaseModel):
                 "message": "Database connection successful",
                 "duration_ms": 15.2,
                 "timestamp": "2024-12-25T10:30:00Z",
-                "details": {
-                    "connection_pool_size": 10,
-                    "active_connections": 3
-                }
+                "details": {"connection_pool_size": 10, "active_connections": 3},
             }
         }
 
@@ -58,28 +63,42 @@ class HealthCheckResponse(BaseModel):
 class HealthResponse(BaseModel):
     """Comprehensive health check response."""
 
-    overall_status: str = Field(..., description="Overall system health status", enum=["healthy", "degraded", "unhealthy"])
+    overall_status: str = Field(
+        ...,
+        description="Overall system health status",
+        enum=["healthy", "degraded", "unhealthy"],
+    )
     timestamp: datetime = Field(..., description="Response generation timestamp")
     version: str = Field(..., description="Application version")
     uptime_seconds: float = Field(..., description="System uptime in seconds", ge=0)
-    checks: dict[str, HealthCheckResponse] = Field(..., description="Individual health check results")
+    checks: dict[str, HealthCheckResponse] = Field(
+        ..., description="Individual health check results"
+    )
     summary: dict[str, Any] = Field(..., description="Health summary statistics")
 
     class Config:
-        json_schema_extra = {
-            "example": SchemaExamples.health_check_response()["value"]
-        }
+        json_schema_extra = {"example": SchemaExamples.health_check_response()["value"]}
 
 
 class SystemMetricsResponse(BaseModel):
     """System resource metrics response."""
 
-    cpu_percent: float = Field(..., description="CPU utilization percentage", ge=0, le=100)
-    memory_percent: float = Field(..., description="Memory utilization percentage", ge=0, le=100)
-    disk_percent: float = Field(..., description="Disk utilization percentage", ge=0, le=100)
+    cpu_percent: float = Field(
+        ..., description="CPU utilization percentage", ge=0, le=100
+    )
+    memory_percent: float = Field(
+        ..., description="Memory utilization percentage", ge=0, le=100
+    )
+    disk_percent: float = Field(
+        ..., description="Disk utilization percentage", ge=0, le=100
+    )
     memory_available_mb: float = Field(..., description="Available memory in MB", ge=0)
-    disk_available_gb: float = Field(..., description="Available disk space in GB", ge=0)
-    load_average: list[float] = Field(..., description="System load average (1, 5, 15 minutes)")
+    disk_available_gb: float = Field(
+        ..., description="Available disk space in GB", ge=0
+    )
+    load_average: list[float] = Field(
+        ..., description="System load average (1, 5, 15 minutes)"
+    )
     network_io: dict[str, int] = Field(..., description="Network I/O statistics")
     process_count: int = Field(..., description="Number of active processes", ge=0)
     uptime_seconds: float = Field(..., description="System uptime in seconds", ge=0)
@@ -97,10 +116,10 @@ class SystemMetricsResponse(BaseModel):
                     "bytes_sent": 1048576,
                     "bytes_recv": 2097152,
                     "packets_sent": 1024,
-                    "packets_recv": 2048
+                    "packets_recv": 2048,
                 },
                 "process_count": 127,
-                "uptime_seconds": 86400.0
+                "uptime_seconds": 86400.0,
             }
         }
 
@@ -132,24 +151,21 @@ class SystemMetricsResponse(BaseModel):
                 "application/json": {
                     "example": SchemaExamples.health_check_response()["value"]
                 }
-            }
+            },
         },
         503: HTTPResponses.server_error_500("Service unhealthy or unavailable"),
-    }
+    },
 )
 async def health_check(
     container: Container = Depends(get_container),
     include_system: bool = Query(
-        True,
-        description="Include system resource checks (CPU, memory, disk)"
+        True, description="Include system resource checks (CPU, memory, disk)"
     ),
     include_database: bool = Query(
-        True,
-        description="Include database connectivity checks"
+        True, description="Include database connectivity checks"
     ),
     include_cache: bool = Query(
-        True,
-        description="Include cache connectivity checks (Redis)"
+        True, description="Include cache connectivity checks (Redis)"
     ),
 ) -> HealthResponse:
     """Comprehensive application health check with detailed component status."""

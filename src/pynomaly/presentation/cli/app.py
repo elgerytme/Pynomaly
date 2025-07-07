@@ -12,6 +12,9 @@ from rich.table import Table
 from pynomaly.presentation.cli import (
     automl,
     autonomous,
+)
+from pynomaly.presentation.cli import config as config_cli
+from pynomaly.presentation.cli import (
     datasets,
     detection,
     detectors,
@@ -19,7 +22,6 @@ from pynomaly.presentation.cli import (
     server,
     tdd,
 )
-from pynomaly.presentation.cli import config as config_cli
 
 # from pynomaly.presentation.cli import performance  # Temporarily disabled due to Typer type issues
 from pynomaly.presentation.cli.export import export_app

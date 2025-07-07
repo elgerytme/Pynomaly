@@ -22,9 +22,9 @@ class SchemaExamples:
                 "metadata": {
                     "collection_date": "2024-12-25",
                     "sensor_type": "network_monitor",
-                    "location": "datacenter_1"
-                }
-            }
+                    "location": "datacenter_1",
+                },
+            },
         }
 
     @staticmethod
@@ -42,22 +42,27 @@ class SchemaExamples:
                     "rows": 10000,
                     "columns": 15,
                     "features": [
-                        "timestamp", "bytes_in", "bytes_out", "packets_in",
-                        "packets_out", "connections", "bandwidth_util"
+                        "timestamp",
+                        "bytes_in",
+                        "bytes_out",
+                        "packets_in",
+                        "packets_out",
+                        "connections",
+                        "bandwidth_util",
                     ],
                     "statistics": {
                         "numerical_features": 14,
                         "categorical_features": 1,
                         "missing_values": 23,
-                        "duplicate_rows": 0
+                        "duplicate_rows": 0,
                     },
                     "created_at": "2024-12-25T10:00:00Z",
                     "updated_at": "2024-12-25T10:00:00Z",
                     "file_size": 2457600,
-                    "format": "csv"
+                    "format": "csv",
                 },
-                "timestamp": "2024-12-25T10:30:00Z"
-            }
+                "timestamp": "2024-12-25T10:30:00Z",
+            },
         }
 
     @staticmethod
@@ -73,11 +78,11 @@ class SchemaExamples:
                     "n_estimators": 100,
                     "contamination": 0.1,
                     "random_state": 42,
-                    "max_features": 1.0
+                    "max_features": 1.0,
                 },
                 "description": "Isolation Forest optimized for network traffic anomalies",
-                "tags": ["production", "network", "isolation_forest"]
-            }
+                "tags": ["production", "network", "isolation_forest"],
+            },
         }
 
     @staticmethod
@@ -96,16 +101,16 @@ class SchemaExamples:
                         "n_estimators": 100,
                         "contamination": 0.1,
                         "random_state": 42,
-                        "max_features": 1.0
+                        "max_features": 1.0,
                     },
                     "status": "configured",
                     "created_at": "2024-12-25T10:15:00Z",
                     "updated_at": "2024-12-25T10:15:00Z",
                     "training_history": [],
-                    "performance_metrics": None
+                    "performance_metrics": None,
                 },
-                "timestamp": "2024-12-25T10:30:00Z"
-            }
+                "timestamp": "2024-12-25T10:30:00Z",
+            },
         }
 
     @staticmethod
@@ -118,16 +123,20 @@ class SchemaExamples:
                 "detector_id": "detector_456",
                 "dataset_id": "dataset_123",
                 "features": [
-                    "bytes_in", "bytes_out", "packets_in", "packets_out",
-                    "connections", "bandwidth_util"
+                    "bytes_in",
+                    "bytes_out",
+                    "packets_in",
+                    "packets_out",
+                    "connections",
+                    "bandwidth_util",
                 ],
                 "validation_split": 0.2,
                 "preprocessing": {
                     "normalize": True,
                     "handle_missing": "drop",
-                    "feature_selection": "auto"
-                }
-            }
+                    "feature_selection": "auto",
+                },
+            },
         }
 
     @staticmethod
@@ -145,10 +154,10 @@ class SchemaExamples:
                     "dataset_id": "dataset_123",
                     "progress": 0.0,
                     "estimated_completion": "2024-12-25T10:35:00Z",
-                    "started_at": "2024-12-25T10:30:00Z"
+                    "started_at": "2024-12-25T10:30:00Z",
                 },
-                "timestamp": "2024-12-25T10:30:00Z"
-            }
+                "timestamp": "2024-12-25T10:30:00Z",
+            },
         }
 
     @staticmethod
@@ -166,7 +175,7 @@ class SchemaExamples:
                         "packets_in": 12000,
                         "packets_out": 9500,
                         "connections": 450,
-                        "bandwidth_util": 0.85
+                        "bandwidth_util": 0.85,
                     },
                     {
                         "bytes_in": 25000000,
@@ -174,12 +183,12 @@ class SchemaExamples:
                         "packets_in": 20000,
                         "packets_out": 15000,
                         "connections": 750,
-                        "bandwidth_util": 0.95
-                    }
+                        "bandwidth_util": 0.95,
+                    },
                 ],
                 "threshold": 0.5,
-                "explain": True
-            }
+                "explain": True,
+            },
         }
 
     @staticmethod
@@ -201,10 +210,10 @@ class SchemaExamples:
                                 "feature_importance": {
                                     "bandwidth_util": 0.45,
                                     "bytes_in": 0.32,
-                                    "connections": 0.23
+                                    "connections": 0.23,
                                 },
-                                "reason": "Normal traffic pattern within expected ranges"
-                            }
+                                "reason": "Normal traffic pattern within expected ranges",
+                            },
                         },
                         {
                             "index": 1,
@@ -215,21 +224,21 @@ class SchemaExamples:
                                 "feature_importance": {
                                     "bandwidth_util": 0.67,
                                     "bytes_in": 0.45,
-                                    "connections": 0.38
+                                    "connections": 0.38,
                                 },
-                                "reason": "Unusual high bandwidth utilization and connection count"
-                            }
-                        }
+                                "reason": "Unusual high bandwidth utilization and connection count",
+                            },
+                        },
                     ],
                     "summary": {
                         "total_predictions": 2,
                         "anomalies_detected": 1,
                         "anomaly_rate": 0.5,
-                        "avg_confidence": 0.915
-                    }
+                        "avg_confidence": 0.915,
+                    },
                 },
-                "timestamp": "2024-12-25T10:32:00Z"
-            }
+                "timestamp": "2024-12-25T10:32:00Z",
+            },
         }
 
     @staticmethod
@@ -244,8 +253,8 @@ class SchemaExamples:
                 "dataset_id": "dataset_123",
                 "detectors": ["detector_456", "detector_789", "detector_101"],
                 "metrics": ["precision", "recall", "f1_score", "auc"],
-                "tags": ["comparison", "network", "production"]
-            }
+                "tags": ["comparison", "network", "production"],
+            },
         }
 
     @staticmethod
@@ -257,8 +266,8 @@ class SchemaExamples:
             "value": {
                 "username": "admin",
                 "password": "secure_password",
-                "remember_me": True
-            }
+                "remember_me": True,
+            },
         }
 
     @staticmethod
@@ -279,11 +288,11 @@ class SchemaExamples:
                         "username": "admin",
                         "email": "admin@company.com",
                         "roles": ["admin", "detector_manager"],
-                        "permissions": ["read", "write", "admin"]
-                    }
+                        "permissions": ["read", "write", "admin"],
+                    },
                 },
-                "timestamp": "2024-12-25T10:30:00Z"
-            }
+                "timestamp": "2024-12-25T10:30:00Z",
+            },
         }
 
     @staticmethod
@@ -302,15 +311,15 @@ class SchemaExamples:
                     "cache": "healthy",
                     "storage": "healthy",
                     "auth_service": "healthy",
-                    "ml_backends": "healthy"
+                    "ml_backends": "healthy",
                 },
                 "performance": {
                     "avg_response_time": 0.145,
                     "requests_per_second": 127.5,
-                    "active_connections": 23
+                    "active_connections": 23,
                 },
-                "timestamp": "2024-12-25T10:30:00Z"
-            }
+                "timestamp": "2024-12-25T10:30:00Z",
+            },
         }
 
     @staticmethod
@@ -326,11 +335,11 @@ class SchemaExamples:
                 "details": {
                     "resource_type": "detector",
                     "resource_id": "detector_999",
-                    "available_resources": ["detector_456", "detector_789"]
+                    "available_resources": ["detector_456", "detector_789"],
                 },
                 "timestamp": "2024-12-25T10:30:00Z",
-                "request_id": "req_12345"
-            }
+                "request_id": "req_12345",
+            },
         }
 
     @staticmethod
@@ -344,7 +353,7 @@ class SchemaExamples:
                 "data": [
                     {"id": "dataset_1", "name": "Dataset 1", "rows": 1000},
                     {"id": "dataset_2", "name": "Dataset 2", "rows": 2500},
-                    {"id": "dataset_3", "name": "Dataset 3", "rows": 750}
+                    {"id": "dataset_3", "name": "Dataset 3", "rows": 750},
                 ],
                 "pagination": {
                     "page": 1,
@@ -352,8 +361,8 @@ class SchemaExamples:
                     "total_items": 157,
                     "total_pages": 8,
                     "has_next": True,
-                    "has_previous": False
+                    "has_previous": False,
                 },
-                "timestamp": "2024-12-25T10:30:00Z"
-            }
+                "timestamp": "2024-12-25T10:30:00Z",
+            },
         }

@@ -10,9 +10,9 @@ from pydantic import BaseModel, Field, validator
 
 from pynomaly.application.services.explainable_ai_service import (
     ExplainabilityError,
+    ExplainableAIService,
     ExplanationConfiguration,
     ExplanationNotSupportedError,
-    ExplainableAIService,
     InsufficientDataError,
 )
 from pynomaly.domain.entities.explainable_ai import (
@@ -35,9 +35,10 @@ router = APIRouter(prefix="/explainable-ai", tags=["Explainable AI"])
 
 # ==================== Request/Response Models ====================
 
+
 class ExplainPredictionRequest(BaseModel):
     """Request model for single prediction explanation."""
-    
+
     model_id: str = Field(..., description="Model identifier")
     instance_data: List[float] = Field(..., description="Input instance data")
     feature_names: Optional[List[str]] = Field(None, description="Feature names")
@@ -67,7 +68,7 @@ class ExplainPredictionRequest(BaseModel):
 
 class ExplainModelGlobalRequest(BaseModel):
     """Request model for global model explanation."""
-    
+
     model_id: str = Field(..., description="Model identifier")
     feature_names: Optional[List[str]] = Field(None, description="Feature names")
     explanation_method: Optional[str] = Field(
@@ -78,9 +79,7 @@ class ExplainModelGlobalRequest(BaseModel):
     enable_interaction_analysis: bool = Field(
         True, description="Analyze feature interactions"
     )
-    enable_bias_detection: bool = Field(
-        True, description="Detect model bias"
-    )
+    enable_bias_detection: bool = Field(True, description="Detect model bias")
 
     @validator("sample_size")
     def validate_sample_size(cls, v):
@@ -91,7 +90,7 @@ class ExplainModelGlobalRequest(BaseModel):
 
 class FeatureImportanceRequest(BaseModel):
     """Request model for feature importance analysis."""
-    
+
     model_id: str = Field(..., description="Model identifier")
     feature_names: Optional[List[str]] = Field(None, description="Feature names")
     explanation_method: str = Field(
@@ -115,7 +114,7 @@ class FeatureImportanceRequest(BaseModel):
 
 class BiasDetectionRequest(BaseModel):
     """Request model for bias detection."""
-    
+
     model_id: str = Field(..., description="Model identifier")
     protected_attributes: List[str] = Field(
         ..., description="Protected attribute names"
@@ -139,7 +138,7 @@ class BiasDetectionRequest(BaseModel):
 
 class CounterfactualRequest(BaseModel):
     """Request model for counterfactual explanations."""
-    
+
     model_id: str = Field(..., description="Model identifier")
     instance_data: List[float] = Field(..., description="Input instance data")
     feature_names: Optional[List[str]] = Field(None, description="Feature names")
@@ -157,22 +156,19 @@ class CounterfactualRequest(BaseModel):
 
 class TrustAssessmentRequest(BaseModel):
     """Request model for trust assessment."""
-    
+
     explanation_id: str = Field(..., description="Explanation ID to assess")
     model_id: str = Field(..., description="Model identifier")
-    include_validation: bool = Field(
-        True, description="Include validation tests"
-    )
-    validation_sample_size: int = Field(
-        100, description="Sample size for validation"
-    )
+    include_validation: bool = Field(True, description="Include validation tests")
+    validation_sample_size: int = Field(100, description="Sample size for validation")
 
 
 # Response Models
 
+
 class FeatureImportanceResponse(BaseModel):
     """Response model for feature importance."""
-    
+
     feature_name: str = Field(..., description="Feature name")
     importance_value: float = Field(..., description="Importance value")
     importance_type: str = Field(..., description="Type of importance measure")
@@ -186,9 +182,11 @@ class FeatureImportanceResponse(BaseModel):
 
 class InstanceExplanationResponse(BaseModel):
     """Response model for instance explanation."""
-    
+
     instance_id: str = Field(..., description="Instance identifier")
-    prediction_value: Union[float, int, str] = Field(..., description="Model prediction")
+    prediction_value: Union[float, int, str] = Field(
+        ..., description="Model prediction"
+    )
     prediction_confidence: float = Field(..., description="Prediction confidence")
     base_value: float = Field(..., description="Base value for additive explanations")
     feature_importances: List[FeatureImportanceResponse] = Field(
@@ -202,7 +200,7 @@ class InstanceExplanationResponse(BaseModel):
 
 class GlobalExplanationResponse(BaseModel):
     """Response model for global explanation."""
-    
+
     model_id: str = Field(..., description="Model identifier")
     explanation_method: str = Field(..., description="Explanation method used")
     global_feature_importances: List[FeatureImportanceResponse] = Field(
@@ -218,7 +216,7 @@ class GlobalExplanationResponse(BaseModel):
 
 class BiasAnalysisResponse(BaseModel):
     """Response model for bias analysis."""
-    
+
     analysis_id: str = Field(..., description="Analysis identifier")
     overall_bias_score: float = Field(..., description="Overall bias score")
     bias_severity: str = Field(..., description="Bias severity level")
@@ -226,9 +224,7 @@ class BiasAnalysisResponse(BaseModel):
     protected_attribute_bias: Dict[str, float] = Field(
         ..., description="Bias scores for protected attributes"
     )
-    fairness_metrics: Dict[str, float] = Field(
-        ..., description="Fairness metrics"
-    )
+    fairness_metrics: Dict[str, float] = Field(..., description="Fairness metrics")
     requires_attention: bool = Field(
         ..., description="Whether bias requires immediate attention"
     )
@@ -240,7 +236,7 @@ class BiasAnalysisResponse(BaseModel):
 
 class TrustScoreResponse(BaseModel):
     """Response model for trust score."""
-    
+
     overall_trust_score: float = Field(..., description="Overall trust score")
     trust_level: str = Field(..., description="Trust level")
     consistency_score: float = Field(..., description="Consistency score")
@@ -255,7 +251,7 @@ class TrustScoreResponse(BaseModel):
 
 class CounterfactualResponse(BaseModel):
     """Response model for counterfactual explanations."""
-    
+
     counterfactual_id: str = Field(..., description="Counterfactual identifier")
     original_prediction: Union[float, int, str] = Field(
         ..., description="Original prediction"
@@ -274,20 +270,18 @@ class CounterfactualResponse(BaseModel):
 
 class ExplanationMetadataResponse(BaseModel):
     """Response model for explanation metadata."""
-    
+
     generation_time_seconds: float = Field(..., description="Time to generate")
     explanation_confidence: float = Field(..., description="Explanation confidence")
     model_version: str = Field(..., description="Model version")
     explanation_version: str = Field(..., description="Explanation framework version")
     feature_coverage: float = Field(..., description="Feature coverage")
-    method_parameters: Dict[str, Any] = Field(
-        ..., description="Method parameters used"
-    )
+    method_parameters: Dict[str, Any] = Field(..., description="Method parameters used")
 
 
 class ExplainPredictionResponse(BaseModel):
     """Response model for prediction explanation."""
-    
+
     request_id: str = Field(..., description="Request identifier")
     explanation_id: str = Field(..., description="Explanation identifier")
     success: bool = Field(..., description="Whether explanation succeeded")
@@ -309,7 +303,7 @@ class ExplainPredictionResponse(BaseModel):
 
 class ExplanationSummaryResponse(BaseModel):
     """Response model for explanation summary."""
-    
+
     model_id: str = Field(..., description="Model identifier")
     time_window_hours: float = Field(..., description="Time window for summary")
     total_explanations: int = Field(..., description="Total explanations generated")
@@ -328,6 +322,7 @@ class ExplanationSummaryResponse(BaseModel):
 
 # ==================== Explanation Generation Endpoints ====================
 
+
 @router.post("/predictions/explain", response_model=ExplainPredictionResponse)
 async def explain_prediction(
     request: ExplainPredictionRequest,
@@ -339,10 +334,10 @@ async def explain_prediction(
     try:
         # Load model (mock implementation)
         model = await _load_model(request.model_id)
-        
+
         # Convert input data
         instance = np.array(request.instance_data)
-        
+
         # Set up configuration
         config = ExplanationConfiguration(
             explanation_method=(
@@ -353,7 +348,7 @@ async def explain_prediction(
             num_features=request.num_features,
             enable_counterfactual_analysis=request.enable_counterfactuals,
         )
-        
+
         # Generate explanation
         result = await xai_service.explain_prediction(
             model=model,
@@ -361,7 +356,7 @@ async def explain_prediction(
             feature_names=request.feature_names,
             config=config,
         )
-        
+
         # Convert to response format
         instance_explanation = InstanceExplanationResponse(
             instance_id=result.instance_explanation.instance_id,
@@ -383,7 +378,7 @@ async def explain_prediction(
             local_fidelity_score=result.instance_explanation.local_fidelity_score,
             explanation_completeness=result.instance_explanation.calculate_explanation_completeness(),
         )
-        
+
         # Generate counterfactuals if requested
         counterfactuals = []
         if request.enable_counterfactuals:
@@ -393,7 +388,7 @@ async def explain_prediction(
                 feature_names=request.feature_names,
                 num_counterfactuals=5,
             )
-            
+
             counterfactuals = [
                 CounterfactualResponse(
                     counterfactual_id=cf["counterfactual_id"],
@@ -404,7 +399,7 @@ async def explain_prediction(
                 )
                 for cf in cf_results
             ]
-        
+
         # Generate trust score
         trust_score = None
         if result.trust_score:
@@ -418,7 +413,7 @@ async def explain_prediction(
                 confidence_interval=list(result.trust_score.confidence_interval),
                 is_trustworthy=result.trust_score.is_trustworthy(),
             )
-        
+
         return ExplainPredictionResponse(
             request_id=str(uuid4()),
             explanation_id=str(result.result_id),
@@ -437,21 +432,21 @@ async def explain_prediction(
             ),
             warnings=result.warnings,
         )
-        
+
     except ExplanationNotSupportedError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Explanation method not supported: {str(e)}"
+            detail=f"Explanation method not supported: {str(e)}",
         )
     except InsufficientDataError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Insufficient data for explanation: {str(e)}"
+            detail=f"Insufficient data for explanation: {str(e)}",
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to generate explanation: {str(e)}"
+            detail=f"Failed to generate explanation: {str(e)}",
         )
 
 
@@ -467,7 +462,7 @@ async def explain_model_global(
         # Load model and training data
         model = await _load_model(request.model_id)
         training_data = await _load_training_data(request.model_id, request.sample_size)
-        
+
         # Set up configuration
         config = ExplanationConfiguration(
             explanation_method=(
@@ -479,7 +474,7 @@ async def explain_model_global(
             enable_interaction_analysis=request.enable_interaction_analysis,
             enable_bias_detection=request.enable_bias_detection,
         )
-        
+
         # Generate global explanation
         global_explanation = await xai_service.explain_model_global(
             model=model,
@@ -487,7 +482,7 @@ async def explain_model_global(
             feature_names=request.feature_names,
             config=config,
         )
-        
+
         return GlobalExplanationResponse(
             model_id=str(global_explanation.model_id),
             explanation_method=global_explanation.explanation_method.value,
@@ -508,15 +503,16 @@ async def explain_model_global(
             has_bias_issues=global_explanation.has_bias_issues(),
             fairness_metrics=global_explanation.fairness_metrics,
         )
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to generate global explanation: {str(e)}"
+            detail=f"Failed to generate global explanation: {str(e)}",
         )
 
 
 # ==================== Feature Analysis Endpoints ====================
+
 
 @router.post("/features/importance", response_model=List[FeatureImportanceResponse])
 async def analyze_feature_importance(
@@ -530,7 +526,7 @@ async def analyze_feature_importance(
         # Load model and data
         model = await _load_model(request.model_id)
         data = await _load_training_data(request.model_id, request.sample_size)
-        
+
         # Analyze feature importance
         importances = await xai_service.analyze_feature_importance(
             model=model,
@@ -538,7 +534,7 @@ async def analyze_feature_importance(
             feature_names=request.feature_names,
             method=ExplanationMethod(request.explanation_method),
         )
-        
+
         return [
             FeatureImportanceResponse(
                 feature_name=fi.feature_name,
@@ -551,16 +547,16 @@ async def analyze_feature_importance(
             )
             for fi in importances
         ]
-        
+
     except ExplanationNotSupportedError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Analysis method not supported: {str(e)}"
+            detail=f"Analysis method not supported: {str(e)}",
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to analyze feature importance: {str(e)}"
+            detail=f"Failed to analyze feature importance: {str(e)}",
         )
 
 
@@ -576,7 +572,7 @@ async def detect_bias(
         # Load model and data
         model = await _load_model(request.model_id)
         data = await _load_training_data(request.model_id, request.sample_size)
-        
+
         # Detect bias
         bias_analysis = await xai_service.detect_explanation_bias(
             model=model,
@@ -584,7 +580,7 @@ async def detect_bias(
             protected_attributes=request.protected_attributes,
             feature_names=request.feature_names,
         )
-        
+
         return BiasAnalysisResponse(
             analysis_id=str(bias_analysis.analysis_id),
             overall_bias_score=bias_analysis.overall_bias_score,
@@ -596,15 +592,16 @@ async def detect_bias(
             bias_sources=bias_analysis.bias_sources,
             mitigation_recommendations=bias_analysis.mitigation_recommendations,
         )
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to detect bias: {str(e)}"
+            detail=f"Failed to detect bias: {str(e)}",
         )
 
 
 # ==================== Counterfactual and Trust Endpoints ====================
+
 
 @router.post("/counterfactuals/generate", response_model=List[CounterfactualResponse])
 async def generate_counterfactuals(
@@ -617,10 +614,10 @@ async def generate_counterfactuals(
     try:
         # Load model
         model = await _load_model(request.model_id)
-        
+
         # Convert input data
         instance = np.array(request.instance_data)
-        
+
         # Generate counterfactuals
         counterfactuals = await xai_service.generate_counterfactual_explanations(
             model=model,
@@ -628,7 +625,7 @@ async def generate_counterfactuals(
             feature_names=request.feature_names,
             num_counterfactuals=request.num_counterfactuals,
         )
-        
+
         return [
             CounterfactualResponse(
                 counterfactual_id=cf["counterfactual_id"],
@@ -639,11 +636,11 @@ async def generate_counterfactuals(
             )
             for cf in counterfactuals
         ]
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to generate counterfactuals: {str(e)}"
+            detail=f"Failed to generate counterfactuals: {str(e)}",
         )
 
 
@@ -658,28 +655,29 @@ async def assess_trust(
     try:
         # This is a simplified implementation
         # In practice, you'd retrieve the explanation result by ID
-        
+
         # Load model and validation data
         model = await _load_model(request.model_id)
         validation_data = await _load_training_data(
             request.model_id, request.validation_sample_size
         )
-        
+
         # Mock explanation result for trust assessment
         # In practice, retrieve actual explanation result
         from pynomaly.domain.entities.explainable_ai import ExplanationResult
+
         mock_result = ExplanationResult(
             explanation_method=ExplanationMethod.PERMUTATION_IMPORTANCE,
             success=True,
         )
-        
+
         # Assess trust
         trust_score = await xai_service.assess_explanation_trust(
             explanation_result=mock_result,
             model=model,
             validation_data=validation_data,
         )
-        
+
         return TrustScoreResponse(
             overall_trust_score=trust_score.overall_trust_score,
             trust_level=trust_score.trust_level.value,
@@ -690,15 +688,16 @@ async def assess_trust(
             confidence_interval=list(trust_score.confidence_interval),
             is_trustworthy=trust_score.is_trustworthy(),
         )
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to assess trust: {str(e)}"
+            detail=f"Failed to assess trust: {str(e)}",
         )
 
 
 # ==================== Management and Information Endpoints ====================
+
 
 @router.get("/models/{model_id}/summary", response_model=ExplanationSummaryResponse)
 async def get_explanation_summary(
@@ -709,39 +708,41 @@ async def get_explanation_summary(
     """Get explanation summary for a model."""
     try:
         from uuid import UUID
-        
+
         # Convert string to UUID
         model_uuid = UUID(model_id)
         time_window = timedelta(hours=time_window_hours)
-        
+
         # Get summary
         summary = await xai_service.get_explanation_summary(
             model_id=model_uuid,
             time_window=time_window,
         )
-        
+
         return ExplanationSummaryResponse(
             model_id=model_id,
             time_window_hours=time_window_hours,
             total_explanations=summary["explanation_stats"]["total_explanations"],
             methods_used=summary["explanation_stats"]["methods_used"],
             cache_hit_rate=summary["explanation_stats"]["cache_hit_rate"],
-            average_explanation_time=summary["explanation_stats"]["average_explanation_time"],
+            average_explanation_time=summary["explanation_stats"][
+                "average_explanation_time"
+            ],
             top_features=summary["top_features"],
             average_trust_score=summary["explanation_quality"]["average_trust_score"],
             bias_detected=summary["bias_indicators"]["bias_detected"],
             quality_metrics=summary["explanation_quality"],
         )
-        
+
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid model ID format: {str(e)}"
+            detail=f"Invalid model ID format: {str(e)}",
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get explanation summary: {str(e)}"
+            detail=f"Failed to get explanation summary: {str(e)}",
         )
 
 
@@ -796,18 +797,20 @@ async def get_default_configuration() -> Dict[str, Any]:
 
 # ==================== Helper Functions ====================
 
+
 async def _load_model(model_id: str):
     """Load model by ID (mock implementation)."""
     # In practice, this would load from model registry
     from sklearn.ensemble import IsolationForest
-    
+
     model = IsolationForest(contamination=0.1, random_state=42)
-    
+
     # Mock training data for model fitting
     from sklearn.datasets import make_classification
+
     X, _ = make_classification(n_samples=1000, n_features=10, random_state=42)
     model.fit(X)
-    
+
     return model
 
 
@@ -815,10 +818,8 @@ async def _load_training_data(model_id: str, sample_size: int) -> np.ndarray:
     """Load training data for model (mock implementation)."""
     # In practice, this would load from data storage
     from sklearn.datasets import make_classification
-    
-    X, _ = make_classification(
-        n_samples=sample_size, n_features=10, random_state=42
-    )
+
+    X, _ = make_classification(n_samples=sample_size, n_features=10, random_state=42)
     return X
 
 
@@ -846,7 +847,7 @@ def _get_method_scope(method: ExplanationMethod) -> List[str]:
         ExplanationMethod.FEATURE_ABLATION,
         ExplanationMethod.SHAP_TREE,
     ]
-    
+
     scopes = []
     if method in local_methods:
         scopes.append("local")
@@ -854,7 +855,7 @@ def _get_method_scope(method: ExplanationMethod) -> List[str]:
         scopes.append("global")
     if not scopes:
         scopes = ["local", "global"]
-    
+
     return scopes
 
 
