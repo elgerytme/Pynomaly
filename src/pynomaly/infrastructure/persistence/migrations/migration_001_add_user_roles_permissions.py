@@ -55,13 +55,17 @@ def upgrade(db_manager: DatabaseManager) -> bool:
         logger.info("Created user_roles association table")
         
         # Seed default data
-        with db_manager.get_session() as session:
+        session_gen = db_manager.get_session()
+        session = next(session_gen)
+        try:
             if not seed_default_roles_and_permissions(session):
                 logger.warning("Failed to seed default roles and permissions")
                 return False
             
             if not seed_custom_roles(session):
                 logger.warning("Failed to seed custom roles")
+        finally:
+            session.close()
         
         logger.info("Successfully applied migration 001")
         return True

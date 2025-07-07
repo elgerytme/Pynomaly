@@ -319,13 +319,114 @@ def generate_recommendations(analysis: dict) -> list[str]:
     return recommendations
 
 
+def generate_full_tree_report(project_root: Path) -> dict:
+    """Generate a full tree report of all files and directories."""
+    full_tree = {
+        "timestamp": datetime.now().isoformat(),
+        "project_root": str(project_root),
+        "tree": []
+    }
+    
+    def scan_directory(directory: Path, relative_path: str = "") -> list:
+        items = []
+        try:
+            for item in sorted(directory.iterdir()):
+                # Skip .git directory contents to avoid huge output
+                if item.name == '.git':
+                    items.append({
+                        "name": item.name,
+                        "type": "directory",
+                        "path": str(item.relative_to(project_root)),
+                        "size": None,
+                        "modified": None,
+                        "note": "Git repository (contents not scanned)"
+                    })
+                    continue
+                    
+                item_info = {
+                    "name": item.name,
+                    "type": "directory" if item.is_dir() else "file",
+                    "path": str(item.relative_to(project_root)),
+                    "size": item.stat().st_size if item.is_file() else None,
+                    "modified": datetime.fromtimestamp(item.stat().st_mtime).isoformat() if item.exists() else None
+                }
+                
+                if item.is_dir() and item.name != '__pycache__':
+                    item_info["children"] = scan_directory(item)
+                    
+                items.append(item_info)
+        except PermissionError:
+            pass
+            
+        return items
+    
+    full_tree["tree"] = scan_directory(project_root)
+    return full_tree
+
+
+def generate_violations_report(analysis: dict) -> dict:
+    """Generate a report of only violating/offending paths."""
+    violations = {
+        "timestamp": datetime.now().isoformat(),
+        "project_root": analysis["project_root"],
+        "total_violations": len(analysis["stray_files"]) + len(analysis["stray_directories"]),
+        "violations": []
+    }
+    
+    # Add stray files as violations
+    for file_info in analysis["stray_files"]:
+        violations["violations"].append({
+            "path": file_info["name"],
+            "type": "file",
+            "violation_type": "stray_file",
+            "category": file_info["category"],
+            "rule_violated": f"File should not be in root directory - belongs in {file_info['category']} category",
+            "recommended_location": file_info["recommended_location"],
+            "size": file_info["size"],
+            "modified": file_info["modified"]
+        })
+    
+    # Add stray directories as violations
+    for dir_info in analysis["stray_directories"]:
+        violations["violations"].append({
+            "path": dir_info["name"],
+            "type": "directory",
+            "violation_type": "stray_directory",
+            "category": dir_info["category"],
+            "rule_violated": f"Directory should not be in root directory - belongs in {dir_info['category']} category",
+            "recommended_location": dir_info["recommended_location"],
+            "item_count": dir_info["item_count"]
+        })
+    
+    return violations
+
+
 def main():
     """Main function to run the analysis."""
     print("🔍 Analyzing Pynomaly project structure...")
 
+    project_root = Path.cwd()
     analysis = analyze_project_structure()
 
-    # Save detailed analysis to file
+    # Create reports directory structure
+    reports_dir = Path("reports/structure")
+    reports_dir.mkdir(parents=True, exist_ok=True)
+
+    # Generate and save full tree report
+    print("📊 Generating full tree report...")
+    full_tree = generate_full_tree_report(project_root)
+    current_layout_file = reports_dir / "current_layout.json"
+    with open(current_layout_file, "w") as f:
+        json.dump(full_tree, f, indent=2)
+    
+    # Generate and save violations report
+    print("⚠️  Generating violations report...")
+    violations = generate_violations_report(analysis)
+    violations_file = reports_dir / "violations.json"
+    with open(violations_file, "w") as f:
+        json.dump(violations, f, indent=2)
+
+    # Save detailed analysis to file (keep original functionality)
     output_file = Path("reports/project_structure_analysis.json")
     output_file.parent.mkdir(exist_ok=True)
 
