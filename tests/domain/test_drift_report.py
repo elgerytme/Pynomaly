@@ -281,7 +281,7 @@ class TestDriftReport:
         actions = report.get_recommended_actions()
         
         assert any("URGENT" in action for action in actions)
-        assert any("concept drift" in action.lower() for action in actions)
+        assert any("target variable" in action.lower() for action in actions)
         assert any("feature interactions" in action.lower() for action in actions)
 
 
