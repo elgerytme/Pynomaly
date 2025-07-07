@@ -359,8 +359,11 @@ buck-out/
 build/
 toolchains/
 tools/
-environments/
 stories/
+
+# Environments directory structure should exist, but contents are ignored
+environments/.*
+!environments/README.md
 
 # Temporary development files
 /temp_*

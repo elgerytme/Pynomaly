@@ -13,61 +13,70 @@ Python anomaly detection package targeting Python 3.11+ with clean architecture 
 
 ## Features
 
+### Core Features (Stable)
 - 🏗️ **Clean Architecture**: Domain-driven design with hexagonal architecture
-- 🔌 **Multi-Library Integration**: Unified interface for PyOD, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX
-- 🚀 **Production Ready**: FastAPI REST API, JWT authentication, Prometheus metrics
-- 📊 **Progressive Web App**: HTMX + Tailwind CSS + D3.js + ECharts with offline capabilities
-- 🧪 **Advanced ML**: AutoML, SHAP/LIME explainability, drift detection, ensemble methods
-- ⚡ **Multi-Modal**: Time-series, tabular, graph, and text anomaly detection
-- 🛡️ **Type Safe**: 100% type coverage with mypy --strict
-- 🔄 **Streaming & Batch**: Real-time processing with backpressure support
-- ✅ **TDD Enforced**: 85% coverage threshold with automated compliance
+- 🔌 **PyOD Integration**: Production-ready PyOD algorithms (40+ algorithms including Isolation Forest, LOF, One-Class SVM)
+- 🧪 **scikit-learn Support**: Standard ML algorithms for anomaly detection
+- 📊 **Web Interface**: HTMX-based UI with Tailwind CSS styling
+- ⚡ **CLI Interface**: Command-line tools for data processing and detection
+- 🛡️ **Type Safe**: Comprehensive type coverage with mypy strict mode
+- ✅ **Testing**: Comprehensive test suite with high coverage
+
+### Advanced Features (Beta)
+- 🚀 **FastAPI REST API**: 65+ API endpoints with OpenAPI documentation
+- 🔐 **Authentication**: JWT-based authentication framework (optional)
+- 📈 **Monitoring**: Prometheus metrics collection capabilities
+- 💾 **Data Export**: CSV/JSON/Excel export functionality
+- 🎯 **Ensemble Methods**: Advanced voting strategies and model combination
+
+### Experimental Features (Limited Support)
+- 🤖 **AutoML**: Hyperparameter optimization framework (requires additional setup)
+- 🔍 **Explainability**: SHAP/LIME integration (requires: `pip install shap lime`)
+- 🧠 **Deep Learning**: PyTorch/TensorFlow adapters (optional dependencies)
+- 📱 **PWA Features**: Progressive Web App capabilities (basic implementation)
+- 📊 **Graph Analysis**: PyGOD integration (experimental, requires additional setup)
 
 ## Installation
 
-### Quick Setup (Hatch - Recommended)
-
-Pynomaly uses [Hatch](https://hatch.pypa.io/) for modern Python project management with automatic environment handling:
+### Quick Setup (Recommended)
 
 #### Prerequisites
 ```bash
-# Install Hatch (one-time setup)
-pip install hatch
-
-# Verify installation
-hatch --version
+# Ensure Python 3.11+ is installed
+python --version  # Should show 3.11 or higher
 ```
 
-#### Automated Setup
+#### Installation
 ```bash
-# Clone and setup (handles everything automatically)
+# Clone the repository
 git clone https://github.com/yourusername/pynomaly.git
 cd pynomaly
 
-# Initialize project environments
-make setup
+# Create virtual environment
+python -m venv environments/.venv
 
-# Install in development mode
-make dev-install
+# Activate environment
+# Linux/macOS:
+source environments/.venv/bin/activate
+# Windows:
+environments\.venv\Scripts\activate
 
-# Run tests to verify installation
-make test
+# Install with basic features
+pip install -e .
+
+# Verify installation
+python -c "import pynomaly; print('Installation successful')"
 ```
 
-#### Manual Hatch Setup
+#### Optional Features
 ```bash
-# Create and activate environments
-hatch env create
-hatch env show
-
 # Install with specific feature sets
-hatch env run dev:setup          # Development environment
-hatch env run prod:setup         # Production environment  
-hatch env run test:setup         # Testing environment
+pip install -e ".[api,cli]"      # API + CLI tools
+pip install -e ".[web]"          # Web interface
+pip install -e ".[ml-extra]"     # Additional ML libraries
 
-# Or install specific extras
-hatch env run -e ml pip install -e ".[torch,tensorflow]"
-hatch env run -e api pip install -e ".[api,cli]"
+# Note: Some features require additional dependencies
+# Install only what you need to avoid compatibility issues
 ```
 
 ### Alternative Setup (Traditional pip/venv)
@@ -164,93 +173,69 @@ Pynomaly is designed to work seamlessly across different operating systems and e
 # Show all available commands
 pynomaly --help
 
-# List available algorithms
-pynomaly detector algorithms
+# Basic system information
+pynomaly version          # Show version info
+pynomaly status           # System status
 
-# Create a detector
-pynomaly detector create --name "My Detector" --algorithm IsolationForest
+# Dataset operations
+pynomaly dataset --help   # Dataset management commands
 
-# Load a dataset
-pynomaly dataset load data.csv --name "My Data"
+# Detector operations  
+pynomaly detector --help  # Detector management commands
 
-# Train and detect
-pynomaly detect train <detector_id> <dataset_id>
-pynomaly detect run <detector_id> <dataset_id>
-
-# Start web UI server
-pynomaly server start
+# Start web interface (if web features installed)
+pynomaly server start --port 8000
 ```
+
+**Note**: Some CLI commands are experimental. Use `--help` with each command to see current options and availability.
 
 ### Python API
 
 ```python
-from pynomaly.infrastructure.config import create_container
-from pynomaly.domain.entities import Detector, Dataset
-from pynomaly.application.use_cases import (
-    DetectAnomaliesUseCase, 
-    TrainDetectorUseCase,
-    TrainDetectorRequest,
-    DetectAnomaliesRequest
-)
 import pandas as pd
-import asyncio
+import numpy as np
+from pynomaly.domain.entities import Dataset, Detector
+from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
 
-async def main():
-    # Initialize dependency injection container
-    container = create_container()
+# Basic usage example
+def basic_example():
+    # Create sample data with outliers
+    np.random.seed(42)
+    normal_data = np.random.normal(0, 1, (100, 2))
+    outliers = np.random.uniform(-4, 4, (10, 2))
+    data = np.vstack([normal_data, outliers])
     
-    # Create detector with algorithm-specific parameters
+    # Create dataset
+    df = pd.DataFrame(data, columns=['feature1', 'feature2'])
+    dataset = Dataset(name="Sample Data", data=df)
+    
+    # Create detector
     detector = Detector(
-        name="Isolation Forest Detector",
+        name="Basic Detector",
         algorithm_name="IsolationForest",
-        parameters={
-            "contamination": 0.1,
-            "n_estimators": 100,
-            "random_state": 42
-        }
+        parameters={"contamination": 0.1, "random_state": 42}
     )
     
-    # Load and prepare dataset
-    data = pd.read_csv("data.csv")
-    dataset = Dataset(
-        name="Sensor Data",
-        data=data,
-        target_column="anomaly_label"  # Optional for supervised learning
-    )
+    # Use PyOD adapter directly for basic detection
+    adapter = PyODAdapter()
+    model = adapter.create_detector(detector)
     
-    # Use clean architecture use cases
-    train_use_case = container.train_detector_use_case()
-    detect_use_case = container.detect_anomalies_use_case()
+    # Train and predict
+    model.fit(dataset.data)
+    predictions = model.predict(dataset.data)
+    scores = model.decision_function(dataset.data)
     
-    # Train detector with request object
-    train_request = TrainDetectorRequest(
-        detector_id=detector.id,
-        training_data=dataset,
-        validate_data=True,
-        save_model=True,
-    )
-    training_result = await train_use_case.execute(train_request)
-    print(f"Training completed: {training_result.training_metrics}")
+    # Results
+    anomaly_count = np.sum(predictions)
+    print(f"Detected {anomaly_count} anomalies out of {len(data)} samples")
+    print(f"Anomaly scores range: {scores.min():.3f} to {scores.max():.3f}")
     
-    # Detect anomalies with request object
-    detect_request = DetectAnomaliesRequest(
-        detector_id=detector.id,
-        dataset=dataset,
-        validate_features=True,
-        save_results=True,
-    )
-    detection_response = await detect_use_case.execute(detect_request)
-    detection_result = detection_response.result
-    anomaly_count = len([i for i, label in enumerate(detection_result.labels) if label == 1])
-    print(f"Found {anomaly_count} anomalies")
-    
-    # Get explanations (if available)
-    if hasattr(container, 'application_explainability_service'):
-        explainer = container.application_explainability_service()
-        # Explanation usage depends on specific explainer implementation
+    return predictions, scores
 
-# Run async code
-asyncio.run(main())
+# Run example
+if __name__ == "__main__":
+    predictions, scores = basic_example()
+    print("Example completed successfully!")
 ```
 
 ### Web API & Interface
@@ -399,90 +384,72 @@ Run `pynomaly detector algorithms` to see all available algorithms with their pa
 
 ## Development
 
-### Modern Development Workflow (Hatch)
+### Development Setup
 
-Pynomaly uses Hatch for streamlined development with automatic environment management:
-
-#### Quick Start
 ```bash
-# Initial setup
-make setup              # Install Hatch and create environments
-make dev-install        # Install in development mode
-make pre-commit         # Setup pre-commit hooks
+# Clone and setup development environment
+git clone https://github.com/yourusername/pynomaly.git
+cd pynomaly
 
-# Daily development workflow
-make format             # Auto-format code with Ruff
-make test               # Run core tests
-make lint               # Check code quality
-make ci                 # Full CI pipeline locally
+# Create development environment
+python -m venv environments/.venv
+source environments/.venv/bin/activate  # Linux/macOS
+# or environments\.venv\Scripts\activate  # Windows
+
+# Install development dependencies
+pip install -e ".[dev,test]"
+
+# Install pre-commit hooks (optional)
+pip install pre-commit
+pre-commit install
 ```
 
 #### Code Quality & Testing
 ```bash
-# Testing
-make test               # Core tests (domain + application)
-make test-all           # All tests including integration
-make test-cov           # Tests with coverage report
-make test-unit          # Unit tests only
-make test-integration   # Integration tests only
+# Run tests
+pytest tests/                    # Run all tests
+pytest tests/unit/               # Unit tests only
+pytest tests/integration/        # Integration tests only
+pytest --cov=src/pynomaly       # Test coverage
 
-# Code Quality
-make lint               # Run all quality checks
-make format             # Auto-format with Ruff
-make style              # Check style only
-make typing             # Type checking with mypy
+# Code quality
+ruff check src/                  # Linting
+ruff format src/                 # Auto-formatting
+mypy src/pynomaly               # Type checking
 
-# Build & Package
-make build              # Build wheel and source distribution
-make version            # Show current version
-make clean              # Clean build artifacts
+# Build package
+python -m build                  # Build distribution
 ```
 
-#### Environment Management
+#### Web Development
 ```bash
-# Environment commands
-make env-show           # List all environments
-make env-clean          # Clean and recreate environments
-make status             # Show project status
+# Start development server
+uvicorn pynomaly.presentation.api.app:app --reload --port 8000
 
-# Direct Hatch commands
-hatch env run test:run                    # Run tests
-hatch env run lint:style                  # Code style check
-hatch env run lint:fmt                    # Auto-format code
-hatch env run prod:serve-api              # Start API server
-hatch env run cli:run --help              # CLI help
+# Access the application
+# API Documentation: http://localhost:8000/docs
+# Web Interface: http://localhost:8000/app
 ```
 
-#### Test-Driven Development (TDD)
+#### Testing Framework
 
-Pynomaly has **active TDD enforcement** with comprehensive tooling:
+Pynomaly includes comprehensive testing:
 
 ```bash
-# TDD Status & Management
-pynomaly tdd status --detailed           # Check TDD compliance
-pynomaly tdd enable --coverage 0.9       # Enable with custom coverage
-pynomaly tdd disable                     # Disable TDD enforcement
+# Run different test suites
+pytest tests/unit/              # Fast unit tests
+pytest tests/integration/       # Integration tests
+pytest tests/e2e/              # End-to-end tests (if available)
 
-# Test Requirements Management
-pynomaly tdd require "src/module.py" "function_name" \
-  --desc "Test description" \
-  --spec "Detailed specification" \
-  --coverage 0.9 --tags "core,domain"
+# Coverage reporting
+pytest --cov=src/pynomaly --cov-report=html
 
-pynomaly tdd requirements --status pending    # List pending requirements
-pynomaly tdd requirements --module "src/auth.py"  # Filter by module
-
-# Validation & Compliance
-pynomaly tdd validate --coverage --fix    # Validate with auto-fix
-pynomaly tdd coverage --threshold 0.85    # Coverage analysis
-pynomaly tdd report --format html         # Generate reports
-
-# Git Integration
-pynomaly tdd hooks --install --pre-commit # Install git hooks
-pynomaly tdd hooks --status               # Check hook status
+# Test specific areas
+pytest tests/unit/domain/       # Domain layer tests
+pytest tests/unit/application/  # Application layer tests
 ```
 
-**Current Status**: TDD is **enabled** with 85% coverage threshold, enforcing test-first development for domain and application layers.
+**Testing Status**: Core functionality has good test coverage. Some experimental features may have limited test coverage.
 
 ### Web API & CLI
 
@@ -500,9 +467,48 @@ npm install htmx.org d3 echarts tailwindcss
 npm run build-css
 ```
 
+## Development Status
+
+**Pynomaly is actively developed with the following implementation status:**
+
+### ✅ Stable Features
+- **Core anomaly detection**: PyOD integration with 40+ algorithms
+- **Basic web interface**: HTMX-based UI with Tailwind CSS
+- **CLI tools**: Basic dataset and detector management
+- **Clean architecture**: Domain-driven design implementation
+- **API foundation**: FastAPI with 65+ endpoints
+
+### ⚠️ Beta Features
+- **Authentication**: JWT framework (requires configuration)
+- **Monitoring**: Prometheus metrics (optional)
+- **Export functionality**: CSV/JSON export
+- **Ensemble methods**: Advanced voting strategies
+
+### 🚧 Experimental Features
+- **AutoML**: Requires additional setup and dependencies
+- **Deep Learning**: PyTorch/TensorFlow adapters (optional install)
+- **Explainability**: SHAP/LIME integration (manual setup required)
+- **PWA features**: Basic Progressive Web App capabilities
+- **Real-time streaming**: Framework exists, limited functionality
+
+### ❌ Planned Features
+- **Graph anomaly detection**: PyGOD integration in development
+- **Advanced visualization**: Complex D3.js components
+- **Production monitoring**: Full observability stack
+- **Text anomaly detection**: NLP-based detection methods
+
+See [CHANGELOG.md](CHANGELOG.md) for detailed progress and [TODO.md](TODO.md) for planned features.
+
+## Important Notes
+
+- **Optional Dependencies**: Many advanced features require additional packages (`pip install shap lime torch tensorflow`)
+- **Configuration Required**: Some features need manual setup (authentication, monitoring)
+- **Platform Support**: Tested on Linux/macOS/Windows with Python 3.11+
+- **Documentation**: Some documentation may describe planned rather than implemented features
+
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+We welcome contributions! Please see our [Contributing Guide](docs/developer-guides/contributing/CONTRIBUTING.md) for details.
 
 ## License
 
