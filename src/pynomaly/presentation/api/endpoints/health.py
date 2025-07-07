@@ -10,7 +10,7 @@ from pynomaly.infrastructure.config import Container
 from pynomaly.infrastructure.monitoring.health_service import (
     HealthService,
 )
-from pynomaly.presentation.api.deps import get_container
+from pynomaly.presentation.api.auth_deps import get_container_simple
 from pynomaly.presentation.api.docs.response_models import HTTPResponses
 from pynomaly.presentation.api.docs.schema_examples import SchemaExamples
 
@@ -155,7 +155,7 @@ class SystemMetricsResponse(BaseModel):
     },
 )
 async def health_check(
-    container: Container = Depends(get_container),
+    container: Container = Depends(get_container_simple),
     include_system: bool = Query(
         True, description="Include system resource checks (CPU, memory, disk)"
     ),
@@ -280,7 +280,7 @@ async def health_summary() -> dict[str, Any]:
 
 @router.get("/ready")
 async def readiness_check(
-    container: Container = Depends(get_container),
+    container: Container = Depends(get_container_simple),
 ) -> dict[str, str]:
     """Kubernetes readiness probe - fast check for readiness to serve requests."""
     try:

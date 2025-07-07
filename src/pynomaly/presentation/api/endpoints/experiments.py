@@ -10,7 +10,7 @@ from pynomaly.application.dto import (
     RunDTO,
 )
 from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.deps import get_container, get_current_user
+from pynomaly.presentation.api.auth_deps import get_container_simple, get_current_user_simple
 
 router = APIRouter()
 
@@ -18,8 +18,8 @@ router = APIRouter()
 @router.post("/", response_model=ExperimentDTO)
 async def create_experiment(
     experiment_data: CreateExperimentDTO,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> ExperimentDTO:
     """Create a new experiment."""
     experiment_service = container.experiment_tracking_service()
@@ -54,8 +54,8 @@ async def create_experiment(
 async def list_experiments(
     tag: str | None = Query(None, description="Filter by tag"),
     limit: int = Query(100, ge=1, le=1000),
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> list[ExperimentDTO]:
     """List all experiments."""
     experiment_service = container.experiment_tracking_service()
@@ -92,8 +92,8 @@ async def list_experiments(
 @router.get("/{experiment_id}", response_model=ExperimentDTO)
 async def get_experiment(
     experiment_id: str,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> ExperimentDTO:
     """Get a specific experiment."""
     experiment_service = container.experiment_tracking_service()
@@ -127,8 +127,8 @@ async def log_run(
     parameters: dict,
     metrics: dict,
     artifacts: dict | None = None,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> dict:
     """Log a run to an experiment."""
     experiment_service = container.experiment_tracking_service()
@@ -156,8 +156,8 @@ async def compare_runs(
     experiment_id: str,
     metric: str = Query("f1", description="Metric to sort by"),
     run_ids: list[str] | None = Query(None),
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> dict:
     """Compare runs within an experiment."""
     experiment_service = container.experiment_tracking_service()
@@ -185,8 +185,8 @@ async def get_best_run(
     experiment_id: str,
     metric: str = Query("f1", description="Metric to optimize"),
     higher_is_better: bool = Query(True),
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> RunDTO:
     """Get the best run from an experiment."""
     experiment_service = container.experiment_tracking_service()
@@ -211,8 +211,8 @@ async def get_leaderboard(
     metric: str = Query("f1", description="Metric to rank by"),
     experiment_ids: list[str] | None = Query(None),
     limit: int = Query(20, ge=1, le=100),
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> list[LeaderboardEntryDTO]:
     """Get leaderboard across experiments."""
     experiment_service = container.experiment_tracking_service()
@@ -248,8 +248,8 @@ async def get_leaderboard(
 @router.post("/{experiment_id}/export")
 async def export_experiment(
     experiment_id: str,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> FileResponse:
     """Export experiment data."""
     experiment_service = container.experiment_tracking_service()

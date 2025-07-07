@@ -12,7 +12,7 @@ from pynomaly.application.use_cases import (
     TrainDetectorRequest,
 )
 from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.deps import get_container, get_current_user
+from pynomaly.presentation.api.auth_deps import get_container_simple, get_current_user_simple
 
 router = APIRouter()
 
@@ -57,8 +57,8 @@ class EvaluateRequest(BaseModel):
 async def train_detector(
     request: TrainRequest,
     background_tasks: BackgroundTasks,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> dict:
     """Train a detector on a dataset."""
     detector_repo = container.detector_repository()
@@ -103,8 +103,8 @@ async def train_detector(
 @router.post("/detect", response_model=DetectionResultDTO)
 async def detect_anomalies(
     request: DetectRequest,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> DetectionResultDTO:
     """Detect anomalies in a dataset."""
     detector_repo = container.detector_repository()
@@ -161,8 +161,8 @@ async def detect_anomalies(
 @router.post("/detect/batch")
 async def batch_detect_anomalies(
     request: BatchDetectRequest,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> dict:
     """Run detection with multiple detectors."""
     dataset_repo = container.dataset_repository()
@@ -200,8 +200,8 @@ async def batch_detect_anomalies(
 @router.post("/evaluate")
 async def evaluate_detector(
     request: EvaluateRequest,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> dict:
     """Evaluate detector performance."""
     detector_repo = container.detector_repository()
@@ -258,8 +258,8 @@ async def list_detection_results(
     detector_id: UUID | None = Query(None),
     dataset_id: UUID | None = Query(None),
     limit: int = Query(10, ge=1, le=100),
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> list[DetectionResultDTO]:
     """List detection results."""
     result_repo = container.result_repository()
@@ -299,8 +299,8 @@ async def compare_detectors(
     dataset_id: UUID,
     detector_ids: list[UUID] = Query(...),
     metrics: list[str] | None = Query(None),
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> dict:
     """Compare multiple detectors on a dataset."""
     dataset_repo = container.dataset_repository()

@@ -10,9 +10,6 @@ from pynomaly.application.services.algorithm_adapter_registry import (
 )
 from pynomaly.domain.entities import Detector
 from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.infrastructure.auth import (
-    PermissionChecker,
-)
 from pynomaly.infrastructure.config import Container
 from pynomaly.presentation.api.auth_deps import (
     get_container_simple,
@@ -231,7 +228,6 @@ async def delete_detector(
     detector_id: UUID,
     container: Container = Depends(get_container_simple),
     current_user: str | None = Depends(get_current_user_simple),
-    _permissions: str = Depends(PermissionChecker(["detectors:delete"])),
 ) -> dict:
     """Delete a detector."""
     detector_repo = container.detector_repository()
