@@ -9,6 +9,7 @@ import time
 from pathlib import Path
 
 import click
+import numpy as np
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -143,8 +144,8 @@ def train(
                 )
             )
 
-            # Train detector
-            await detector.async_fit(dataset.data.values)
+            # Train detector (use sync method for CLI)
+            detector.fit(dataset.data.values)
 
             training_time = time.time() - start_time
             progress.update(task, completed=100)
@@ -157,7 +158,7 @@ def train(
 
         # Run detection on training data
         console.print("🔍 Running anomaly detection...")
-        predictions = await detector.async_predict(dataset.data.values)
+        predictions = detector.predict(dataset.data.values)
         scores = detector.decision_function(dataset.data.values)
 
         n_anomalies = int(predictions.sum())
