@@ -7,6 +7,29 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field
 
 
+class AlgorithmRecommendationRequestDTO(BaseModel):
+    """DTO for algorithm recommendation request."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    dataset_id: str = Field(..., description="ID of the dataset for recommendation")
+    max_recommendations: int = Field(
+        default=5, ge=1, le=20, description="Maximum number of recommendations"
+    )
+    performance_priority: float = Field(
+        default=0.8, ge=0.0, le=1.0, description="Priority for performance (0-1)"
+    )
+    speed_priority: float = Field(
+        default=0.2, ge=0.0, le=1.0, description="Priority for speed (0-1)"
+    )
+    include_experimental: bool = Field(
+        default=False, description="Include experimental algorithms"
+    )
+    exclude_algorithms: list[str] = Field(
+        default_factory=list, description="Algorithms to exclude"
+    )
+
+
 class DatasetProfileDTO(BaseModel):
     """DTO for dataset profiling information."""
 

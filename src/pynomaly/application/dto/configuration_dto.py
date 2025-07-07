@@ -50,6 +50,41 @@ class ExportFormat(str, Enum):
     CONFIG_INI = "config_ini"
 
 
+# ============================================================================
+# Missing DTO Classes
+# ============================================================================
+
+
+class AlgorithmConfigurationDTO(BaseModel):
+    """DTO for algorithm configuration."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    algorithm_name: str = Field(..., description="Name of the algorithm")
+    algorithm_family: str = Field(..., description="Algorithm family")
+    parameters: dict[str, Any] = Field(
+        default_factory=dict, description="Algorithm parameters"
+    )
+    hyperparameters: dict[str, Any] = Field(
+        default_factory=dict, description="Hyperparameters"
+    )
+    optimization_config: dict[str, Any] = Field(
+        default_factory=dict, description="Optimization configuration"
+    )
+    performance_metrics: dict[str, float] = Field(
+        default_factory=dict, description="Performance metrics"
+    )
+    resource_requirements: dict[str, Any] = Field(
+        default_factory=dict, description="Resource requirements"
+    )
+    configuration_source: ConfigurationSource = Field(
+        default=ConfigurationSource.MANUAL, description="Source of configuration"
+    )
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow, description="Creation timestamp"
+    )
+
+
 class ConfigurationLevel(str, Enum):
     """Configuration complexity levels."""
 

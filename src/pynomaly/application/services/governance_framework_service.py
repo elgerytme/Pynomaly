@@ -92,6 +92,66 @@ class ComplianceStatus(Enum):
 
 
 @dataclass
+class RiskAssessment:
+    """Risk assessment for governance items."""
+    
+    risk_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    risk_level: RiskLevel = RiskLevel.MEDIUM
+    risk_score: float = 0.5
+    risk_factors: list[str] = field(default_factory=list)
+    mitigation_strategies: list[str] = field(default_factory=list)
+    assessment_date: datetime = field(default_factory=datetime.utcnow)
+    assessed_by: str = ""
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class ChangeRequest:
+    """Change request for governance workflows."""
+    
+    request_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    title: str = ""
+    description: str = ""
+    change_type: str = "configuration"
+    impact_assessment: str = ""
+    risk_assessment: RiskAssessment | None = None
+    approval_status: str = "pending"
+    requested_by: str = ""
+    requested_at: datetime = field(default_factory=datetime.utcnow)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class ComplianceMetric:
+    """Compliance metric tracking."""
+    
+    metric_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    metric_name: str = ""
+    metric_value: float = 0.0
+    target_value: float = 1.0
+    metric_type: str = "percentage"
+    measurement_date: datetime = field(default_factory=datetime.utcnow)
+    compliance_status: ComplianceStatus = ComplianceStatus.NOT_ASSESSED
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class GovernancePolicy:
+    """Governance policy definition."""
+    
+    policy_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    policy_name: str = ""
+    policy_type: PolicyType = PolicyType.COMPLIANCE
+    policy_status: PolicyStatus = PolicyStatus.DRAFT
+    policy_content: str = ""
+    enforcement_level: str = "mandatory"
+    created_by: str = ""
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    effective_date: datetime = field(default_factory=datetime.utcnow)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
 class AuditTrailEntry:
     """Individual audit trail entry with comprehensive tracking."""
 

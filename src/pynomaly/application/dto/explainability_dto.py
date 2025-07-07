@@ -56,6 +56,33 @@ class TrustMetric(str, Enum):
 
 
 # ============================================================================
+# Missing Request DTOs
+# ============================================================================
+
+
+class CohortExplanationRequestDTO(BaseModel):
+    """DTO for cohort explanation request."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    detector_id: str = Field(..., description="Detector identifier")
+    dataset_id: str = Field(..., description="Dataset identifier")
+    cohort_indices: list[int] = Field(..., description="Indices of samples in cohort")
+    explanation_methods: list[ExplanationMethod] = Field(
+        default=[ExplanationMethod.SHAP], description="Explanation methods to use"
+    )
+    max_features: int = Field(
+        default=10, ge=1, le=50, description="Maximum features to explain"
+    )
+    comparison_baseline: str | None = Field(
+        default=None, description="Baseline for comparison"
+    )
+    include_statistics: bool = Field(
+        default=True, description="Include statistical summaries"
+    )
+
+
+# ============================================================================
 # Autonomous Mode Explainability DTOs
 # ============================================================================
 
