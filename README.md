@@ -32,6 +32,10 @@ Python anomaly detection package targeting Python 3.11+ with clean architecture 
 - 🧪 **Testing Infrastructure**: 85%+ coverage with property-based testing, benchmarking, and mutation testing
 
 ### Experimental Features (Limited Support)
+
+**NOTE:** The following features are marked as experimental and their implementations might be incomplete or not available:
+- **ONNX model format is not supported yet in the storage service**
+- **Certain PyTorch base models are placeholders without concrete implementations**
 - 🤖 **AutoML**: Hyperparameter optimization framework (requires additional setup)
 - 🔍 **Explainability**: SHAP/LIME integration (requires: `pip install shap lime`)
 - 🧠 **Deep Learning**: PyTorch/TensorFlow adapters (optional dependencies)
@@ -556,6 +560,16 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed progress and [TODO.md](TODO.md) fo
 ## Contributing
 
 We welcome contributions! Please see our [Contributing Guide](docs/developer-guides/contributing/CONTRIBUTING.md) for details.
+
+### Open Feature Gaps
+
+The following features are planned but currently not implemented or incomplete:
+
+- **Audit Storage:** Methods in `AuditStorage` class for storing, retrieving, and deleting events.
+- **ONNX Model Support:** The `save_model` method in `ModelPersistenceService` currently raises NotImplementedError for the 'onnx' format.
+- **Deep Learning Models:** Some methods in `PyTorchAdapter` require implementation for specific neural network architectures.
+
+Feel free to pick any feature from this list to contribute or suggest your own improvements!
 
 ## License
 

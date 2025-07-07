@@ -1,0 +1,427 @@
+{
+  "timestamp": "2025-07-07T19:42:59.481052",
+  "project_root": "C:\\Users\\andre\\Pynomaly",
+  "total_violations": 43,
+  "violations": [
+    {
+      "path": "API_DOCUMENTATION_SUMMARY.md",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "documentation",
+      "rule_violated": "File should not be in root directory - belongs in documentation category",
+      "recommended_location": "docs/",
+      "size": 10198,
+      "modified": "2025-07-07T19:27:07.739898"
+    },
+    {
+      "path": "DEVELOPMENT_ROADMAP.md",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "miscellaneous",
+      "rule_violated": "File should not be in root directory - belongs in miscellaneous category",
+      "recommended_location": "REVIEW (manual classification needed)",
+      "size": 10911,
+      "modified": "2025-07-07T19:38:11.157879"
+    },
+    {
+      "path": "DEVELOPMENT_SETUP.md",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "miscellaneous",
+      "rule_violated": "File should not be in root directory - belongs in miscellaneous category",
+      "recommended_location": "REVIEW (manual classification needed)",
+      "size": 6395,
+      "modified": "2025-07-07T19:38:11.164900"
+    },
+    {
+      "path": "erd.md",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "miscellaneous",
+      "rule_violated": "File should not be in root directory - belongs in miscellaneous category",
+      "recommended_location": "REVIEW (manual classification needed)",
+      "size": 1385,
+      "modified": "2025-07-07T19:35:15.523859"
+    },
+    {
+      "path": "FEATURE_BACKLOG.md",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "miscellaneous",
+      "rule_violated": "File should not be in root directory - belongs in miscellaneous category",
+      "recommended_location": "REVIEW (manual classification needed)",
+      "size": 9660,
+      "modified": "2025-07-07T19:38:11.171373"
+    },
+    {
+      "path": "main.py",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "scripts",
+      "rule_violated": "File should not be in root directory - belongs in scripts category",
+      "recommended_location": "scripts/",
+      "size": 302,
+      "modified": "2025-07-07T19:42:17.018906"
+    },
+    {
+      "path": "PRODUCTION_DEPLOYMENT.md",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "miscellaneous",
+      "rule_violated": "File should not be in root directory - belongs in miscellaneous category",
+      "recommended_location": "REVIEW (manual classification needed)",
+      "size": 11420,
+      "modified": "2025-07-07T19:40:46.189462"
+    },
+    {
+      "path": "pynomaly.db",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "miscellaneous",
+      "rule_violated": "File should not be in root directory - belongs in miscellaneous category",
+      "recommended_location": "REVIEW (manual classification needed)",
+      "size": 49152,
+      "modified": "2025-07-07T19:31:33.515590"
+    },
+    {
+      "path": "README_CODE_EXAMPLES_TEST_REPORT.md",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 7847,
+      "modified": "2025-07-07T19:21:50.438834"
+    },
+    {
+      "path": "refactoring_validation_report.md",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "reports",
+      "rule_violated": "File should not be in root directory - belongs in reports category",
+      "recommended_location": "reports/",
+      "size": 4238,
+      "modified": "2025-07-07T19:42:06.687336"
+    },
+    {
+      "path": "ROADMAP.md",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "miscellaneous",
+      "rule_violated": "File should not be in root directory - belongs in miscellaneous category",
+      "recommended_location": "REVIEW (manual classification needed)",
+      "size": 8425,
+      "modified": "2025-07-07T19:38:11.185013"
+    },
+    {
+      "path": "simulate_deployment.py",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "scripts",
+      "rule_violated": "File should not be in root directory - belongs in scripts category",
+      "recommended_location": "scripts/",
+      "size": 11634,
+      "modified": "2025-07-07T19:37:37.729890"
+    },
+    {
+      "path": "TESTING_REPORT.md",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 7814,
+      "modified": "2025-07-07T19:21:50.446390"
+    },
+    {
+      "path": "test_api_direct.py",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 4532,
+      "modified": "2025-07-07T19:19:46.443786"
+    },
+    {
+      "path": "test_api_smoke.py",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 4605,
+      "modified": "2025-07-07T19:19:15.469500"
+    },
+    {
+      "path": "test_auth_flows.py",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 7845,
+      "modified": "2025-07-07T19:20:38.693852"
+    },
+    {
+      "path": "test_auth_simple.py",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 4496,
+      "modified": "2025-07-07T19:41:42.140974"
+    },
+    {
+      "path": "test_database_models.py",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 1579,
+      "modified": "2025-07-07T19:41:10.876753"
+    },
+    {
+      "path": "test_endpoint_validation.py",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 9186,
+      "modified": "2025-07-07T19:21:36.090714"
+    },
+    {
+      "path": "test_features.py",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 5831,
+      "modified": "2025-07-07T16:43:35.131157"
+    },
+    {
+      "path": "test_infrastructure_optimization.py",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 8294,
+      "modified": "2025-07-07T19:25:54.278932"
+    },
+    {
+      "path": "test_matrix_config.yml",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 1829,
+      "modified": "2025-07-07T19:38:15.495420"
+    },
+    {
+      "path": "test_migration_summary.py",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 6322,
+      "modified": "2025-07-07T19:24:56.846124"
+    },
+    {
+      "path": "test_permission_matrix.py",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 2684,
+      "modified": "2025-07-07T19:38:42.680953"
+    },
+    {
+      "path": "test_permission_standalone.py",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 3430,
+      "modified": "2025-07-07T19:40:56.516759"
+    },
+    {
+      "path": "test_production_readiness.py",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 11495,
+      "modified": "2025-07-07T19:28:01.174046"
+    },
+    {
+      "path": "test_readme_api.py",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 2129,
+      "modified": "2025-07-07T16:43:35.158293"
+    },
+    {
+      "path": "TEST_REPORT.md",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 8122,
+      "modified": "2025-07-07T19:21:50.451446"
+    },
+    {
+      "path": "test_routes_simple.py",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 2074,
+      "modified": "2025-07-07T19:24:07.803312"
+    },
+    {
+      "path": "test_server_startup.py",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 720,
+      "modified": "2025-07-07T16:43:35.170667"
+    },
+    {
+      "path": "test_url_changes.py",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 4630,
+      "modified": "2025-07-07T19:23:27.560413"
+    },
+    {
+      "path": "test_url_refactoring_complete.py",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 9284,
+      "modified": "2025-07-07T19:30:34.935412"
+    },
+    {
+      "path": "test_url_routing_simple.py",
+      "type": "file",
+      "violation_type": "stray_file",
+      "category": "testing",
+      "rule_violated": "File should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "size": 5180,
+      "modified": "2025-07-07T19:41:34.893934"
+    },
+    {
+      "path": "artifacts",
+      "type": "directory",
+      "violation_type": "stray_directory",
+      "category": "miscellaneous",
+      "rule_violated": "Directory should not be in root directory - belongs in miscellaneous category",
+      "recommended_location": "REVIEW (manual classification needed)",
+      "item_count": 0
+    },
+    {
+      "path": "buck-out",
+      "type": "directory",
+      "violation_type": "stray_directory",
+      "category": "miscellaneous",
+      "rule_violated": "Directory should not be in root directory - belongs in miscellaneous category",
+      "recommended_location": "REVIEW (manual classification needed)",
+      "item_count": 1
+    },
+    {
+      "path": "dist",
+      "type": "directory",
+      "violation_type": "stray_directory",
+      "category": "miscellaneous",
+      "rule_violated": "Directory should not be in root directory - belongs in miscellaneous category",
+      "recommended_location": "REVIEW (manual classification needed)",
+      "item_count": 2
+    },
+    {
+      "path": "environments",
+      "type": "directory",
+      "violation_type": "stray_directory",
+      "category": "temporary",
+      "rule_violated": "Directory should not be in root directory - belongs in temporary category",
+      "recommended_location": "DELETE (temporary files)",
+      "item_count": 14
+    },
+    {
+      "path": "stories",
+      "type": "directory",
+      "violation_type": "stray_directory",
+      "category": "miscellaneous",
+      "rule_violated": "Directory should not be in root directory - belongs in miscellaneous category",
+      "recommended_location": "REVIEW (manual classification needed)",
+      "item_count": 4
+    },
+    {
+      "path": "test_data_cache",
+      "type": "directory",
+      "violation_type": "stray_directory",
+      "category": "testing",
+      "rule_violated": "Directory should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "item_count": 2
+    },
+    {
+      "path": "test_env",
+      "type": "directory",
+      "violation_type": "stray_directory",
+      "category": "testing",
+      "rule_violated": "Directory should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "item_count": 6
+    },
+    {
+      "path": "test_reports",
+      "type": "directory",
+      "violation_type": "stray_directory",
+      "category": "testing",
+      "rule_violated": "Directory should not be in root directory - belongs in testing category",
+      "recommended_location": "tests/",
+      "item_count": 8
+    },
+    {
+      "path": "toolchains",
+      "type": "directory",
+      "violation_type": "stray_directory",
+      "category": "miscellaneous",
+      "rule_violated": "Directory should not be in root directory - belongs in miscellaneous category",
+      "recommended_location": "REVIEW (manual classification needed)",
+      "item_count": 1
+    },
+    {
+      "path": "tools",
+      "type": "directory",
+      "violation_type": "stray_directory",
+      "category": "miscellaneous",
+      "rule_violated": "Directory should not be in root directory - belongs in miscellaneous category",
+      "recommended_location": "REVIEW (manual classification needed)",
+      "item_count": 2
+    }
+  ]
+}
