@@ -196,7 +196,7 @@ class MetricModel(Base):
     timestamp = Column(DateTime, nullable=False)
     entity_type = Column(String(100))  # e.g., 'detector', 'dataset', 'user'
     entity_id = Column(UUIDType)  # ID of the related entity
-    metadata = Column(JSONType)
+    entity_metadata = Column("metadata", JSONType)
 
 
 class DatabaseDetectorRepository(DetectorRepositoryProtocol):

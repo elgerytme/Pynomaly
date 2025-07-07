@@ -1,0 +1,33 @@
+# Logstash configuration for Pynomaly
+http.host: "0.0.0.0"
+xpack.monitoring.enabled: false
+xpack.monitoring.elasticsearch.hosts: ["http://elasticsearch:9200"]
+
+# Pipeline configuration
+path.config: /usr/share/logstash/pipeline
+config.reload.automatic: true
+config.reload.interval: 3s
+config.test_and_exit: false
+
+# Logging configuration
+log.level: info
+path.logs: /var/log/logstash
+
+# Pipeline settings
+pipeline.workers: 2
+pipeline.batch.size: 125
+pipeline.batch.delay: 50
+
+# Queue settings
+queue.type: memory
+queue.max_events: 1000
+queue.max_bytes: 1gb
+
+# Dead letter queue
+dead_letter_queue.enable: true
+dead_letter_queue.max_bytes: 1gb
+
+# HTTP API settings
+api.http.host: 0.0.0.0
+api.http.port: 9600
+api.environment: production
