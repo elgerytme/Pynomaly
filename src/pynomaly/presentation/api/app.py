@@ -35,7 +35,6 @@ from pynomaly.presentation.api.endpoints import (
     streaming,
     version,
 )
-)
 
 # Enhanced AutoML endpoints
 try:
@@ -139,16 +138,17 @@ def create_app(container: Container | None = None) -> FastAPI:
 
 ## Quick Start
 
-1. **Authenticate**: Use `/auth/login` to get a JWT token
-2. **Upload Data**: Use `/datasets/upload` to upload your dataset  
-3. **Create Detector**: Use `/detectors/create` to configure an anomaly detector
-4. **Train Model**: Use `/detection/train` to train the detector
-5. **Detect Anomalies**: Use `/detection/predict` to find anomalies
+1. **Authenticate**: Use `/api/v1/auth/login` to get a JWT token
+2. **Upload Data**: Use `/api/v1/datasets/upload` to upload your dataset  
+3. **Create Detector**: Use `/api/v1/detectors/create` to configure an anomaly detector
+4. **Train Model**: Use `/api/v1/detection/train` to train the detector
+5. **Detect Anomalies**: Use `/api/v1/detection/predict` to find anomalies
 
 ## Documentation
 
-- **Interactive API Explorer**: `/docs/swagger`
-- **API Reference**: `/docs/redoc`
+- **Interactive API Explorer**: `/api/v1/docs`
+- **API Reference**: `/api/v1/redoc`
+- **Version Information**: `/api/v1/version`
 - **Postman Collection**: `/docs/postman`
 - **SDK Information**: `/docs/sdk-info`
 
@@ -158,9 +158,9 @@ def create_app(container: Container | None = None) -> FastAPI:
 - **Documentation**: [https://pynomaly.readthedocs.io](https://pynomaly.readthedocs.io)
 - **Issues**: [https://github.com/pynomaly/pynomaly/issues](https://github.com/pynomaly/pynomaly/issues)
         """,
-        docs_url="/api/docs" if settings.docs_enabled else None,
-        redoc_url="/api/redoc" if settings.docs_enabled else None,
-        openapi_url="/api/openapi.json" if settings.docs_enabled else None,
+        docs_url="/api/v1/docs" if settings.docs_enabled else None,
+        redoc_url="/api/v1/redoc" if settings.docs_enabled else None,
+        openapi_url="/api/v1/openapi.json" if settings.docs_enabled else None,
         lifespan=lifespan,
         contact={
             "name": "Pynomaly Team",
