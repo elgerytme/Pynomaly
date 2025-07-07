@@ -1,20 +1,27 @@
 """Infrastructure monitoring and observability."""
 
-# Temporarily disabled telemetry due to missing dependencies
-# from .telemetry import (
-#     TelemetryService,
-#     init_telemetry,
-#     get_telemetry,
-#     trace_span,
-#     trace_method
-# )
+# Enhanced monitoring services
+from .alerting_service import (
+    Alert,
+    AlertNotifier,
+    AlertSeverity,
+    AlertStatus,
+    AlertingService,
+    EmailNotifier,
+    SlackNotifier,
+    WebhookNotifier,
+    create_alerting_service,
+)
+from .dashboard_service import DashboardMetrics, MonitoringDashboardService
+
+# Legacy monitoring services
 from .complexity_monitor import (
     ComplexityMetrics,
     ComplexityMonitor,
     print_complexity_report,
     run_complexity_check,
 )
-from .health_service import HealthService, HealthStatus, SystemMetrics
+from .health_service import HealthCheck, HealthService, HealthStatus, SystemMetrics
 from .performance_monitor import (
     PerformanceAlert,
     PerformanceMetrics,
@@ -42,14 +49,26 @@ from .production_monitor import (
 )
 
 __all__ = [
-    # "TelemetryService",  # Temporarily disabled
-    # "init_telemetry",
-    # "get_telemetry",
-    # "trace_span",
-    # "trace_method",
+    # Enhanced monitoring services
+    "AlertingService",
+    "Alert",
+    "AlertSeverity",
+    "AlertStatus",
+    "AlertNotifier",
+    "EmailNotifier",
+    "SlackNotifier", 
+    "WebhookNotifier",
+    "create_alerting_service",
+    "MonitoringDashboardService",
+    "DashboardMetrics",
+    
+    # Health monitoring
     "HealthService",
+    "HealthCheck",
     "HealthStatus",
     "SystemMetrics",
+    
+    # Performance and complexity monitoring
     "ComplexityMonitor",
     "ComplexityMetrics",
     "run_complexity_check",
@@ -60,6 +79,8 @@ __all__ = [
     "PerformanceTracker",
     "monitor_performance",
     "monitor_async_performance",
+    
+    # Production monitoring
     "ProductionMonitor",
     "LogLevel",
     "MonitoringType",
