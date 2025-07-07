@@ -1,5 +1,5 @@
 // Anomaly Detector Component - Production-ready anomaly detection interface
-import { ChartComponent } from './chart-components.js';
+import { ChartComponent } from "./chart-components.js";
 
 export class AnomalyDetector {
   constructor(element) {
@@ -10,41 +10,47 @@ export class AnomalyDetector {
       currentDataset: null,
       selectedAlgorithm: null,
       results: null,
-      realTimeMode: false
+      realTimeMode: false,
     };
-    
+
     this.charts = new Map();
     this.websocket = null;
-    
+
     this.init();
   }
 
   // Initialize the detector component
   init() {
-    console.log('🔍 Initializing Anomaly Detector component');
-    
+    console.log("🔍 Initializing Anomaly Detector component");
+
     this.createInterface();
     this.bindEvents();
     this.loadAlgorithms();
     this.setupRealTimeCapabilities();
-    
+
     // Announce component ready
-    this.element.dispatchEvent(new CustomEvent('component:ready', {
-      detail: { component: 'anomaly-detector', element: this.element }
-    }));
+    this.element.dispatchEvent(
+      new CustomEvent("component:ready", {
+        detail: { component: "anomaly-detector", element: this.element },
+      }),
+    );
   }
 
   // Get component configuration from data attributes
   getConfig() {
     const element = this.element;
     return {
-      apiEndpoint: element.dataset.apiEndpoint || '/api/anomaly-detection',
-      websocketUrl: element.dataset.websocketUrl || '/ws/anomaly-detection',
-      autoDetect: element.dataset.autoDetect === 'true',
-      realTime: element.dataset.realTime === 'true',
+      apiEndpoint: element.dataset.apiEndpoint || "/api/anomaly-detection",
+      websocketUrl: element.dataset.websocketUrl || "/ws/anomaly-detection",
+      autoDetect: element.dataset.autoDetect === "true",
+      realTime: element.dataset.realTime === "true",
       maxFileSize: parseInt(element.dataset.maxFileSize) || 10 * 1024 * 1024, // 10MB
-      allowedFormats: (element.dataset.allowedFormats || 'csv,json,parquet').split(','),
-      algorithms: element.dataset.algorithms ? JSON.parse(element.dataset.algorithms) : null
+      allowedFormats: (
+        element.dataset.allowedFormats || "csv,json,parquet"
+      ).split(","),
+      algorithms: element.dataset.algorithms
+        ? JSON.parse(element.dataset.algorithms)
+        : null,
     };
   }
 
@@ -317,68 +323,68 @@ export class AnomalyDetector {
   // Bind event listeners
   bindEvents() {
     const element = this.element;
-    
+
     // Tab switching
-    element.addEventListener('click', (e) => {
-      if (e.target.matches('.tab-button')) {
+    element.addEventListener("click", (e) => {
+      if (e.target.matches(".tab-button")) {
         this.switchTab(e.target);
       }
     });
-    
+
     // File upload handling
-    const fileInput = element.querySelector('.file-input');
-    const dropZone = element.querySelector('[data-drop-zone]');
-    
-    fileInput?.addEventListener('change', (e) => {
+    const fileInput = element.querySelector(".file-input");
+    const dropZone = element.querySelector("[data-drop-zone]");
+
+    fileInput?.addEventListener("change", (e) => {
       this.handleFileUpload(e.target.files[0]);
     });
-    
-    dropZone?.addEventListener('click', () => fileInput?.click());
-    dropZone?.addEventListener('dragover', (e) => {
+
+    dropZone?.addEventListener("click", () => fileInput?.click());
+    dropZone?.addEventListener("dragover", (e) => {
       e.preventDefault();
-      dropZone.classList.add('drag-over');
+      dropZone.classList.add("drag-over");
     });
-    
-    dropZone?.addEventListener('dragleave', () => {
-      dropZone.classList.remove('drag-over');
+
+    dropZone?.addEventListener("dragleave", () => {
+      dropZone.classList.remove("drag-over");
     });
-    
-    dropZone?.addEventListener('drop', (e) => {
+
+    dropZone?.addEventListener("drop", (e) => {
       e.preventDefault();
-      dropZone.classList.remove('drag-over');
+      dropZone.classList.remove("drag-over");
       this.handleFileUpload(e.dataTransfer.files[0]);
     });
-    
+
     // Action button handlers
-    element.addEventListener('click', (e) => {
-      const action = e.target.closest('[data-action]')?.dataset.action;
+    element.addEventListener("click", (e) => {
+      const action = e.target.closest("[data-action]")?.dataset.action;
       if (action) {
         this.handleAction(action, e.target);
       }
     });
-    
+
     // Algorithm selection
-    element.addEventListener('click', (e) => {
-      if (e.target.matches('.algorithm-card')) {
+    element.addEventListener("click", (e) => {
+      if (e.target.matches(".algorithm-card")) {
         this.selectAlgorithm(e.target);
       }
     });
-    
+
     // Real-time threshold adjustment
-    const thresholdSlider = element.querySelector('[data-threshold-slider]');
-    thresholdSlider?.addEventListener('input', (e) => {
+    const thresholdSlider = element.querySelector("[data-threshold-slider]");
+    thresholdSlider?.addEventListener("input", (e) => {
       this.updateThreshold(parseFloat(e.target.value));
     });
-    
+
     // Keyboard shortcuts
-    element.addEventListener('keydown', (e) => {
+    element.addEventListener("keydown", (e) => {
       if (e.ctrlKey || e.metaKey) {
         switch (e.key) {
-          case 'Enter':
+          case "Enter":
             e.preventDefault();
             this.startDetection();
             break;
-          case 'r':
+          case "r":
             e.preventDefault();
             this.resetDetector();
             break;
@@ -390,23 +396,25 @@ export class AnomalyDetector {
   // Load available algorithms
   async loadAlgorithms() {
     try {
-      const response = await fetch('/api/algorithms');
+      const response = await fetch("/api/algorithms");
       const algorithms = await response.json();
-      
+
       this.renderAlgorithmGrid(algorithms);
       this.updateAlgorithmRecommendations(algorithms);
     } catch (error) {
-      console.error('Failed to load algorithms:', error);
-      this.showError('Failed to load detection algorithms');
+      console.error("Failed to load algorithms:", error);
+      this.showError("Failed to load detection algorithms");
     }
   }
 
   // Render algorithm selection grid
   renderAlgorithmGrid(algorithms) {
-    const grid = this.element.querySelector('[data-algorithm-grid]');
+    const grid = this.element.querySelector("[data-algorithm-grid]");
     if (!grid) return;
-    
-    grid.innerHTML = algorithms.map(algo => `
+
+    grid.innerHTML = algorithms
+      .map(
+        (algo) => `
       <div class="algorithm-card" data-algorithm="${algo.id}">
         <div class="algorithm-header">
           <h5 class="algorithm-name">${algo.name}</h5>
@@ -428,32 +436,36 @@ export class AnomalyDetector {
           </div>
         </div>
         <div class="algorithm-tags">
-          ${algo.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+          ${algo.tags.map((tag) => `<span class="tag">${tag}</span>`).join("")}
         </div>
       </div>
-    `).join('');
+    `,
+      )
+      .join("");
   }
 
   // Handle file upload
   handleFileUpload(file) {
     if (!file) return;
-    
+
     // Validate file type
-    const fileExtension = file.name.split('.').pop().toLowerCase();
+    const fileExtension = file.name.split(".").pop().toLowerCase();
     if (!this.config.allowedFormats.includes(fileExtension)) {
       this.showError(`Unsupported file format: ${fileExtension}`);
       return;
     }
-    
+
     // Validate file size
     if (file.size > this.config.maxFileSize) {
-      this.showError(`File too large: ${(file.size / 1024 / 1024).toFixed(1)}MB (max: ${this.config.maxFileSize / 1024 / 1024}MB)`);
+      this.showError(
+        `File too large: ${(file.size / 1024 / 1024).toFixed(1)}MB (max: ${this.config.maxFileSize / 1024 / 1024}MB)`,
+      );
       return;
     }
-    
+
     // Show file info
     this.showFileInfo(file);
-    
+
     // Upload file
     this.uploadFile(file);
   }
@@ -461,30 +473,30 @@ export class AnomalyDetector {
   // Upload file to server
   async uploadFile(file) {
     const formData = new FormData();
-    formData.append('file', file);
-    
+    formData.append("file", file);
+
     try {
-      this.updateStepStatus('data-input', 'processing');
-      
-      const response = await fetch('/api/datasets/upload', {
-        method: 'POST',
-        body: formData
+      this.updateStepStatus("data-input", "processing");
+
+      const response = await fetch("/api/datasets/upload", {
+        method: "POST",
+        body: formData,
       });
-      
+
       if (!response.ok) {
         throw new Error(`Upload failed: ${response.statusText}`);
       }
-      
+
       const result = await response.json();
       this.state.currentDataset = result.dataset;
-      
-      this.updateStepStatus('data-input', 'completed');
-      this.enableStep('algorithm-selection');
-      
+
+      this.updateStepStatus("data-input", "completed");
+      this.enableStep("algorithm-selection");
+
       this.announceToScreenReader(`File uploaded successfully: ${file.name}`);
     } catch (error) {
-      console.error('Upload failed:', error);
-      this.updateStepStatus('data-input', 'error');
+      console.error("Upload failed:", error);
+      this.updateStepStatus("data-input", "error");
       this.showError(`Upload failed: ${error.message}`);
     }
   }
@@ -492,142 +504,161 @@ export class AnomalyDetector {
   // Start anomaly detection
   async startDetection() {
     if (!this.state.currentDataset || !this.state.selectedAlgorithm) {
-      this.showError('Please select data and algorithm first');
+      this.showError("Please select data and algorithm first");
       return;
     }
-    
+
     this.state.isProcessing = true;
-    this.updateStepStatus('execution', 'processing');
-    
-    const progressContainer = this.element.querySelector('[data-execution-progress]');
-    progressContainer?.classList.remove('hidden');
-    
+    this.updateStepStatus("execution", "processing");
+
+    const progressContainer = this.element.querySelector(
+      "[data-execution-progress]",
+    );
+    progressContainer?.classList.remove("hidden");
+
     try {
       const params = this.getAlgorithmParams();
       const options = this.getDetectionOptions();
-      
-      const response = await fetch('/api/anomaly-detection/detect', {
-        method: 'POST',
+
+      const response = await fetch("/api/anomaly-detection/detect", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           dataset_id: this.state.currentDataset.id,
           algorithm: this.state.selectedAlgorithm,
           parameters: params,
-          options: options
-        })
+          options: options,
+        }),
       });
-      
+
       if (!response.ok) {
         throw new Error(`Detection failed: ${response.statusText}`);
       }
-      
+
       const result = await response.json();
       this.state.results = result;
-      
-      this.updateStepStatus('execution', 'completed');
-      this.updateStepStatus('results', 'completed');
-      
+
+      this.updateStepStatus("execution", "completed");
+      this.updateStepStatus("results", "completed");
+
       this.showResults(result);
-      this.announceToScreenReader(`Detection completed. Found ${result.anomaly_count} anomalies.`);
-      
+      this.announceToScreenReader(
+        `Detection completed. Found ${result.anomaly_count} anomalies.`,
+      );
     } catch (error) {
-      console.error('Detection failed:', error);
-      this.updateStepStatus('execution', 'error');
+      console.error("Detection failed:", error);
+      this.updateStepStatus("execution", "error");
       this.showError(`Detection failed: ${error.message}`);
     } finally {
       this.state.isProcessing = false;
-      progressContainer?.classList.add('hidden');
+      progressContainer?.classList.add("hidden");
     }
   }
 
   // Show detection results
   showResults(results) {
-    const container = this.element.querySelector('[data-results-container]');
-    container?.classList.remove('hidden');
-    
+    const container = this.element.querySelector("[data-results-container]");
+    container?.classList.remove("hidden");
+
     // Update metrics
-    this.updateMetric('total-samples', results.total_samples.toLocaleString());
-    this.updateMetric('anomalies-detected', results.anomaly_count.toLocaleString());
-    this.updateMetric('anomaly-rate', `${(results.anomaly_rate * 100).toFixed(2)}%`);
-    this.updateMetric('confidence-score', results.confidence_score.toFixed(3));
-    
+    this.updateMetric("total-samples", results.total_samples.toLocaleString());
+    this.updateMetric(
+      "anomalies-detected",
+      results.anomaly_count.toLocaleString(),
+    );
+    this.updateMetric(
+      "anomaly-rate",
+      `${(results.anomaly_rate * 100).toFixed(2)}%`,
+    );
+    this.updateMetric("confidence-score", results.confidence_score.toFixed(3));
+
     // Create visualizations
     this.createResultsCharts(results);
   }
 
   // Create results charts
   createResultsCharts(results) {
-    const chartContainer = this.element.querySelector('[data-chart-container]');
+    const chartContainer = this.element.querySelector("[data-chart-container]");
     if (!chartContainer) return;
-    
+
     // Create scatter plot
     const scatterChart = new ChartComponent(chartContainer, {
-      type: 'scatter',
+      type: "scatter",
       data: results.visualization_data.scatter,
       options: {
-        title: 'Anomaly Detection Results',
-        xAxis: { title: 'Feature 1' },
-        yAxis: { title: 'Feature 2' },
+        title: "Anomaly Detection Results",
+        xAxis: { title: "Feature 1" },
+        yAxis: { title: "Feature 2" },
         colorScale: {
-          normal: '#22c55e',
-          anomaly: '#ef4444'
-        }
-      }
+          normal: "#22c55e",
+          anomaly: "#ef4444",
+        },
+      },
     });
-    
-    this.charts.set('scatter', scatterChart);
+
+    this.charts.set("scatter", scatterChart);
   }
 
   // Utility methods
   switchTab(button) {
-    const tabGroup = button.closest('.input-tabs, .algorithm-tabs, .chart-tabs');
-    const tabName = button.dataset.tab || button.dataset.algoTab || button.dataset.chartTab;
-    
+    const tabGroup = button.closest(
+      ".input-tabs, .algorithm-tabs, .chart-tabs",
+    );
+    const tabName =
+      button.dataset.tab || button.dataset.algoTab || button.dataset.chartTab;
+
     // Update button states
-    tabGroup.querySelectorAll('.tab-button').forEach(btn => {
-      btn.classList.remove('active');
+    tabGroup.querySelectorAll(".tab-button").forEach((btn) => {
+      btn.classList.remove("active");
     });
-    button.classList.add('active');
-    
+    button.classList.add("active");
+
     // Update content visibility
     const contentContainer = tabGroup.nextElementSibling;
-    contentContainer.querySelectorAll('.tab-content').forEach(content => {
-      content.classList.remove('active');
+    contentContainer.querySelectorAll(".tab-content").forEach((content) => {
+      content.classList.remove("active");
     });
-    
-    const targetContent = contentContainer.querySelector(`[data-tab-content="${tabName}"]`);
-    targetContent?.classList.add('active');
+
+    const targetContent = contentContainer.querySelector(
+      `[data-tab-content="${tabName}"]`,
+    );
+    targetContent?.classList.add("active");
   }
 
   updateStepStatus(step, status) {
     const stepElement = this.element.querySelector(`[data-step="${step}"]`);
-    const statusElement = stepElement?.querySelector('[data-status]');
-    
+    const statusElement = stepElement?.querySelector("[data-status]");
+
     if (statusElement) {
       statusElement.className = `step-status status-${status}`;
-      statusElement.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+      statusElement.textContent =
+        status.charAt(0).toUpperCase() + status.slice(1);
       statusElement.dataset.status = status;
     }
   }
 
   enableStep(step) {
     const stepElement = this.element.querySelector(`[data-step="${step}"]`);
-    stepElement?.classList.remove('disabled');
+    stepElement?.classList.remove("disabled");
   }
 
   updateMetric(metric, value) {
-    const metricElement = this.element.querySelector(`[data-metric="${metric}"]`);
+    const metricElement = this.element.querySelector(
+      `[data-metric="${metric}"]`,
+    );
     if (metricElement) {
       metricElement.textContent = value;
     }
   }
 
   showError(message) {
-    this.element.dispatchEvent(new CustomEvent('component:error', {
-      detail: { component: 'anomaly-detector', message }
-    }));
+    this.element.dispatchEvent(
+      new CustomEvent("component:error", {
+        detail: { component: "anomaly-detector", message },
+      }),
+    );
   }
 
   announceToScreenReader(message) {
@@ -647,29 +678,28 @@ export class AnomalyDetector {
   // Initialize WebSocket for real-time updates
   initWebSocket() {
     if (!this.config.websocketUrl) return;
-    
+
     try {
       this.websocket = new WebSocket(this.config.websocketUrl);
-      
+
       this.websocket.onmessage = (event) => {
         const data = JSON.parse(event.data);
         this.handleRealTimeUpdate(data);
       };
-      
+
       this.websocket.onerror = (error) => {
-        console.error('WebSocket error:', error);
+        console.error("WebSocket error:", error);
       };
-      
     } catch (error) {
-      console.error('Failed to initialize WebSocket:', error);
+      console.error("Failed to initialize WebSocket:", error);
     }
   }
 
   // Handle real-time updates
   handleRealTimeUpdate(data) {
-    if (data.type === 'anomaly_detected') {
+    if (data.type === "anomaly_detected") {
       this.showAnomalyAlert(data.anomaly);
-    } else if (data.type === 'model_updated') {
+    } else if (data.type === "model_updated") {
       this.refreshResults();
     }
   }
@@ -677,16 +707,16 @@ export class AnomalyDetector {
   // Handle action button clicks
   handleAction(action, button) {
     switch (action) {
-      case 'start-detection':
+      case "start-detection":
         this.startDetection();
         break;
-      case 'toggle-realtime':
+      case "toggle-realtime":
         this.toggleRealTimeMode();
         break;
-      case 'export-results':
+      case "export-results":
         this.exportResults();
         break;
-      case 'generate-report':
+      case "generate-report":
         this.generateReport();
         break;
       default:
@@ -696,25 +726,31 @@ export class AnomalyDetector {
 
   // Get algorithm parameters from form
   getAlgorithmParams() {
-    const paramsForm = this.element.querySelector('[data-params-form]');
+    const paramsForm = this.element.querySelector("[data-params-form]");
     if (!paramsForm) return {};
-    
+
     const formData = new FormData(paramsForm);
     const params = {};
-    
+
     for (const [key, value] of formData.entries()) {
       params[key] = value;
     }
-    
+
     return params;
   }
 
   // Get detection options
   getDetectionOptions() {
     return {
-      explain_results: this.element.querySelector('[data-option="explain-results"]')?.checked || false,
-      save_model: this.element.querySelector('[data-option="save-model"]')?.checked || false,
-      auto_threshold: this.element.querySelector('[data-option="auto-threshold"]')?.checked || false
+      explain_results:
+        this.element.querySelector('[data-option="explain-results"]')
+          ?.checked || false,
+      save_model:
+        this.element.querySelector('[data-option="save-model"]')?.checked ||
+        false,
+      auto_threshold:
+        this.element.querySelector('[data-option="auto-threshold"]')?.checked ||
+        false,
     };
   }
 
@@ -723,20 +759,22 @@ export class AnomalyDetector {
     if (this.websocket) {
       this.websocket.close();
     }
-    
-    this.charts.forEach(chart => {
+
+    this.charts.forEach((chart) => {
       if (chart.destroy) {
         chart.destroy();
       }
     });
-    
+
     this.charts.clear();
   }
 }
 
 // Auto-initialize components
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('[data-component="anomaly-detector"]').forEach(element => {
-    new AnomalyDetector(element);
-  });
+document.addEventListener("DOMContentLoaded", () => {
+  document
+    .querySelectorAll('[data-component="anomaly-detector"]')
+    .forEach((element) => {
+      new AnomalyDetector(element);
+    });
 });

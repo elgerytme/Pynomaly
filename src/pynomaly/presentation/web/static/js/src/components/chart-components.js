@@ -3,16 +3,16 @@ export class ChartComponent {
   constructor(container, config = {}) {
     this.container = container;
     this.config = {
-      type: 'scatter',
+      type: "scatter",
       width: 800,
       height: 400,
       margin: { top: 20, right: 20, bottom: 40, left: 40 },
-      ...config
+      ...config,
     };
-    
+
     this.chart = null;
     this.data = config.data || [];
-    
+
     this.init();
   }
 
@@ -22,20 +22,20 @@ export class ChartComponent {
   }
 
   setupContainer() {
-    this.container.innerHTML = '';
-    this.container.style.width = '100%';
+    this.container.innerHTML = "";
+    this.container.style.width = "100%";
     this.container.style.height = `${this.config.height}px`;
   }
 
   createChart() {
     switch (this.config.type) {
-      case 'scatter':
+      case "scatter":
         this.createScatterPlot();
         break;
-      case 'timeline':
+      case "timeline":
         this.createTimeline();
         break;
-      case 'distribution':
+      case "distribution":
         this.createDistribution();
         break;
       default:
@@ -85,6 +85,6 @@ export class ChartComponent {
     if (this.chart && this.chart.dispose) {
       this.chart.dispose();
     }
-    this.container.innerHTML = '';
+    this.container.innerHTML = "";
   }
 }

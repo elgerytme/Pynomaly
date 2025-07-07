@@ -10,7 +10,7 @@ export class OfflineVisualizer {
     this.currentDataset = null;
     this.currentResult = null;
     this.isInitialized = false;
-    
+
     this.init();
   }
 
@@ -25,29 +25,29 @@ export class OfflineVisualizer {
    */
   async loadCachedData() {
     try {
-      if ('serviceWorker' in navigator) {
+      if ("serviceWorker" in navigator) {
         const registration = await navigator.serviceWorker.getRegistration();
         if (registration?.active) {
-          registration.active.postMessage({ type: 'GET_OFFLINE_DATASETS' });
-          registration.active.postMessage({ type: 'GET_OFFLINE_RESULTS' });
-          
+          registration.active.postMessage({ type: "GET_OFFLINE_DATASETS" });
+          registration.active.postMessage({ type: "GET_OFFLINE_RESULTS" });
+
           return new Promise((resolve) => {
             let datasetsLoaded = false;
             let resultsLoaded = false;
-            
-            navigator.serviceWorker.addEventListener('message', (event) => {
-              if (event.data.type === 'OFFLINE_DATASETS') {
-                event.data.datasets.forEach(dataset => {
+
+            navigator.serviceWorker.addEventListener("message", (event) => {
+              if (event.data.type === "OFFLINE_DATASETS") {
+                event.data.datasets.forEach((dataset) => {
                   this.datasets.set(dataset.id, dataset);
                 });
                 datasetsLoaded = true;
-              } else if (event.data.type === 'OFFLINE_RESULTS') {
-                event.data.results.forEach(result => {
+              } else if (event.data.type === "OFFLINE_RESULTS") {
+                event.data.results.forEach((result) => {
                   this.results.set(result.id, result);
                 });
                 resultsLoaded = true;
               }
-              
+
               if (datasetsLoaded && resultsLoaded) {
                 resolve();
               }
@@ -56,7 +56,7 @@ export class OfflineVisualizer {
         }
       }
     } catch (error) {
-      console.error('[OfflineVisualizer] Failed to load cached data:', error);
+      console.error("[OfflineVisualizer] Failed to load cached data:", error);
     }
   }
 
@@ -65,29 +65,29 @@ export class OfflineVisualizer {
    */
   setupEventListeners() {
     // Dataset selection
-    document.addEventListener('change', (event) => {
-      if (event.target.matches('.dataset-selector')) {
+    document.addEventListener("change", (event) => {
+      if (event.target.matches(".dataset-selector")) {
         this.selectDataset(event.target.value);
       }
     });
 
     // Result selection
-    document.addEventListener('change', (event) => {
-      if (event.target.matches('.result-selector')) {
+    document.addEventListener("change", (event) => {
+      if (event.target.matches(".result-selector")) {
         this.selectResult(event.target.value);
       }
     });
 
     // Visualization type selection
-    document.addEventListener('change', (event) => {
-      if (event.target.matches('.viz-type-selector')) {
+    document.addEventListener("change", (event) => {
+      if (event.target.matches(".viz-type-selector")) {
         this.changeVisualizationType(event.target.value);
       }
     });
 
     // Export functionality
-    document.addEventListener('click', (event) => {
-      if (event.target.matches('.export-viz')) {
+    document.addEventListener("click", (event) => {
+      if (event.target.matches(".export-viz")) {
         this.exportVisualization(event.target.dataset.format);
       }
     });
@@ -122,7 +122,7 @@ export class OfflineVisualizer {
   async renderDatasetVisualization() {
     if (!this.currentDataset) return;
 
-    const container = document.getElementById('dataset-visualization');
+    const container = document.getElementById("dataset-visualization");
     if (!container) return;
 
     const data = this.currentDataset.data;
@@ -186,7 +186,7 @@ export class OfflineVisualizer {
       this.renderDistributionChart(features),
       this.renderCorrelationChart(features),
       this.renderStatisticsTable(features),
-      this.renderQualityChart(features)
+      this.renderQualityChart(features),
     ]);
   }
 
@@ -196,7 +196,7 @@ export class OfflineVisualizer {
   async renderResultVisualization() {
     if (!this.currentResult) return;
 
-    const container = document.getElementById('result-visualization');
+    const container = document.getElementById("result-visualization");
     if (!container) return;
 
     container.innerHTML = `
@@ -243,7 +243,7 @@ export class OfflineVisualizer {
       this.renderAnomalyDistributionChart(),
       this.renderScoreDistributionChart(),
       this.renderAnomalyScatterPlot(),
-      this.renderDetectionSummary()
+      this.renderDetectionSummary(),
     ]);
   }
 
@@ -251,13 +251,13 @@ export class OfflineVisualizer {
    * Render distribution chart (histogram/boxplot)
    */
   async renderDistributionChart(features) {
-    const container = document.getElementById('distribution-chart');
+    const container = document.getElementById("distribution-chart");
     if (!container || !features.length) return;
 
     const chart = echarts.init(container);
-    
+
     // Use first numeric feature for histogram
-    const feature = features.find(f => f.type === 'numeric');
+    const feature = features.find((f) => f.type === "numeric");
     if (!feature) return;
 
     const values = feature.values;
@@ -266,42 +266,44 @@ export class OfflineVisualizer {
     const option = {
       title: {
         text: `Distribution: ${feature.name}`,
-        textStyle: { fontSize: 14 }
+        textStyle: { fontSize: 14 },
       },
       tooltip: {
-        trigger: 'axis',
-        axisPointer: { type: 'shadow' }
+        trigger: "axis",
+        axisPointer: { type: "shadow" },
       },
       xAxis: {
-        type: 'category',
-        data: bins.map(bin => bin.range)
+        type: "category",
+        data: bins.map((bin) => bin.range),
       },
       yAxis: {
-        type: 'value',
-        name: 'Frequency'
+        type: "value",
+        name: "Frequency",
       },
-      series: [{
-        name: 'Frequency',
-        type: 'bar',
-        data: bins.map(bin => bin.count),
-        itemStyle: {
-          color: '#3b82f6'
-        }
-      }]
+      series: [
+        {
+          name: "Frequency",
+          type: "bar",
+          data: bins.map((bin) => bin.count),
+          itemStyle: {
+            color: "#3b82f6",
+          },
+        },
+      ],
     };
 
     chart.setOption(option);
-    this.charts.set('distribution-chart', chart);
+    this.charts.set("distribution-chart", chart);
   }
 
   /**
    * Render correlation heatmap
    */
   async renderCorrelationChart(features) {
-    const container = document.getElementById('correlation-chart');
+    const container = document.getElementById("correlation-chart");
     if (!container) return;
 
-    const numericFeatures = features.filter(f => f.type === 'numeric');
+    const numericFeatures = features.filter((f) => f.type === "numeric");
     if (numericFeatures.length < 2) return;
 
     const correlationMatrix = this.calculateCorrelationMatrix(numericFeatures);
@@ -309,74 +311,88 @@ export class OfflineVisualizer {
 
     const option = {
       title: {
-        text: 'Feature Correlation Matrix',
-        textStyle: { fontSize: 14 }
+        text: "Feature Correlation Matrix",
+        textStyle: { fontSize: 14 },
       },
       tooltip: {
-        position: 'top',
+        position: "top",
         formatter: (params) => {
           return `${params.name}<br/>Correlation: ${params.value[2].toFixed(3)}`;
-        }
+        },
       },
       grid: {
-        height: '50%',
-        top: '10%'
+        height: "50%",
+        top: "10%",
       },
       xAxis: {
-        type: 'category',
-        data: numericFeatures.map(f => f.name),
-        splitArea: { show: true }
+        type: "category",
+        data: numericFeatures.map((f) => f.name),
+        splitArea: { show: true },
       },
       yAxis: {
-        type: 'category',
-        data: numericFeatures.map(f => f.name),
-        splitArea: { show: true }
+        type: "category",
+        data: numericFeatures.map((f) => f.name),
+        splitArea: { show: true },
       },
       visualMap: {
         min: -1,
         max: 1,
         calculable: true,
-        orient: 'horizontal',
-        left: 'center',
-        bottom: '15%',
+        orient: "horizontal",
+        left: "center",
+        bottom: "15%",
         inRange: {
-          color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8', 
-                  '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026']
-        }
-      },
-      series: [{
-        name: 'Correlation',
-        type: 'heatmap',
-        data: correlationMatrix,
-        label: {
-          show: true,
-          formatter: (params) => params.value[2].toFixed(2)
+          color: [
+            "#313695",
+            "#4575b4",
+            "#74add1",
+            "#abd9e9",
+            "#e0f3f8",
+            "#ffffbf",
+            "#fee090",
+            "#fdae61",
+            "#f46d43",
+            "#d73027",
+            "#a50026",
+          ],
         },
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        }
-      }]
+      },
+      series: [
+        {
+          name: "Correlation",
+          type: "heatmap",
+          data: correlationMatrix,
+          label: {
+            show: true,
+            formatter: (params) => params.value[2].toFixed(2),
+          },
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowColor: "rgba(0, 0, 0, 0.5)",
+            },
+          },
+        },
+      ],
     };
 
     chart.setOption(option);
-    this.charts.set('correlation-chart', chart);
+    this.charts.set("correlation-chart", chart);
   }
 
   /**
    * Render statistics table
    */
   renderStatisticsTable(features) {
-    const container = document.getElementById('statistics-table');
+    const container = document.getElementById("statistics-table");
     if (!container) return;
 
-    const numericFeatures = features.filter(f => f.type === 'numeric');
-    
-    const tableRows = numericFeatures.map(feature => {
-      const stats = this.calculateBasicStats(feature.values);
-      return `
+    const numericFeatures = features.filter((f) => f.type === "numeric");
+
+    const tableRows = numericFeatures
+      .map((feature) => {
+        const stats = this.calculateBasicStats(feature.values);
+        return `
         <tr>
           <td class="font-medium">${feature.name}</td>
           <td>${stats.mean.toFixed(3)}</td>
@@ -386,7 +402,8 @@ export class OfflineVisualizer {
           <td>${stats.median.toFixed(3)}</td>
         </tr>
       `;
-    }).join('');
+      })
+      .join("");
 
     container.innerHTML = `
       <div class="overflow-x-auto">
@@ -413,79 +430,81 @@ export class OfflineVisualizer {
    * Render data quality chart
    */
   async renderQualityChart(features) {
-    const container = document.getElementById('quality-chart');
+    const container = document.getElementById("quality-chart");
     if (!container) return;
 
-    const qualityMetrics = features.map(feature => {
+    const qualityMetrics = features.map((feature) => {
       const totalValues = feature.values.length;
-      const missingValues = feature.values.filter(v => v === null || v === undefined || v === '').length;
+      const missingValues = feature.values.filter(
+        (v) => v === null || v === undefined || v === "",
+      ).length;
       const completeness = ((totalValues - missingValues) / totalValues) * 100;
-      
+
       return {
         name: feature.name,
         completeness: completeness,
         uniqueness: this.calculateUniqueness(feature.values),
-        validity: this.calculateValidity(feature.values, feature.type)
+        validity: this.calculateValidity(feature.values, feature.type),
       };
     });
 
     const chart = echarts.init(container);
     const option = {
       title: {
-        text: 'Data Quality Metrics',
-        textStyle: { fontSize: 14 }
+        text: "Data Quality Metrics",
+        textStyle: { fontSize: 14 },
       },
       tooltip: {
-        trigger: 'axis',
-        axisPointer: { type: 'shadow' }
+        trigger: "axis",
+        axisPointer: { type: "shadow" },
       },
       legend: {
-        data: ['Completeness', 'Uniqueness', 'Validity'],
-        bottom: 0
+        data: ["Completeness", "Uniqueness", "Validity"],
+        bottom: 0,
       },
       xAxis: {
-        type: 'category',
-        data: qualityMetrics.map(m => m.name),
+        type: "category",
+        data: qualityMetrics.map((m) => m.name),
         axisLabel: {
-          rotate: 45
-        }
+          rotate: 45,
+        },
       },
       yAxis: {
-        type: 'value',
-        name: 'Percentage',
-        max: 100
+        type: "value",
+        name: "Percentage",
+        max: 100,
       },
       series: [
         {
-          name: 'Completeness',
-          type: 'bar',
-          data: qualityMetrics.map(m => m.completeness),
-          itemStyle: { color: '#10b981' }
+          name: "Completeness",
+          type: "bar",
+          data: qualityMetrics.map((m) => m.completeness),
+          itemStyle: { color: "#10b981" },
         },
         {
-          name: 'Uniqueness',
-          type: 'bar',
-          data: qualityMetrics.map(m => m.uniqueness),
-          itemStyle: { color: '#3b82f6' }
+          name: "Uniqueness",
+          type: "bar",
+          data: qualityMetrics.map((m) => m.uniqueness),
+          itemStyle: { color: "#3b82f6" },
         },
         {
-          name: 'Validity',
-          type: 'bar',
-          data: qualityMetrics.map(m => m.validity),
-          itemStyle: { color: '#f59e0b' }
-        }
-      ]
+          name: "Validity",
+          type: "bar",
+          data: qualityMetrics.map((m) => m.validity),
+          itemStyle: { color: "#f59e0b" },
+        },
+      ],
     };
 
     chart.setOption(option);
-    this.charts.set('quality-chart', chart);
+    this.charts.set("quality-chart", chart);
   }
 
   /**
    * Render anomaly distribution chart
    */
   async renderAnomalyDistributionChart() {
-    const container = document.getElementById('anomaly-distribution-chart');
+    const container = document.getElementById("anomaly-distribution-chart");
     if (!container || !this.currentResult) return;
 
     const result = this.currentResult;
@@ -496,48 +515,50 @@ export class OfflineVisualizer {
     const chart = echarts.init(container);
     const option = {
       title: {
-        text: 'Normal vs Anomalous Data',
-        textStyle: { fontSize: 14 }
+        text: "Normal vs Anomalous Data",
+        textStyle: { fontSize: 14 },
       },
       tooltip: {
-        trigger: 'item',
-        formatter: '{a} <br/>{b}: {c} ({d}%)'
+        trigger: "item",
+        formatter: "{a} <br/>{b}: {c} ({d}%)",
       },
-      series: [{
-        name: 'Data Distribution',
-        type: 'pie',
-        radius: ['40%', '70%'],
-        data: [
-          {
-            value: normalSamples,
-            name: 'Normal',
-            itemStyle: { color: '#10b981' }
+      series: [
+        {
+          name: "Data Distribution",
+          type: "pie",
+          radius: ["40%", "70%"],
+          data: [
+            {
+              value: normalSamples,
+              name: "Normal",
+              itemStyle: { color: "#10b981" },
+            },
+            {
+              value: totalAnomalies,
+              name: "Anomalous",
+              itemStyle: { color: "#ef4444" },
+            },
+          ],
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: "rgba(0, 0, 0, 0.5)",
+            },
           },
-          {
-            value: totalAnomalies,
-            name: 'Anomalous',
-            itemStyle: { color: '#ef4444' }
-          }
-        ],
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        }
-      }]
+        },
+      ],
     };
 
     chart.setOption(option);
-    this.charts.set('anomaly-distribution-chart', chart);
+    this.charts.set("anomaly-distribution-chart", chart);
   }
 
   /**
    * Render score distribution chart
    */
   async renderScoreDistributionChart() {
-    const container = document.getElementById('score-distribution-chart');
+    const container = document.getElementById("score-distribution-chart");
     if (!container || !this.currentResult) return;
 
     const scores = this.currentResult.scores || [];
@@ -548,41 +569,43 @@ export class OfflineVisualizer {
 
     const option = {
       title: {
-        text: 'Anomaly Score Distribution',
-        textStyle: { fontSize: 14 }
+        text: "Anomaly Score Distribution",
+        textStyle: { fontSize: 14 },
       },
       tooltip: {
-        trigger: 'axis',
-        axisPointer: { type: 'shadow' }
+        trigger: "axis",
+        axisPointer: { type: "shadow" },
       },
       xAxis: {
-        type: 'category',
-        data: bins.map(bin => bin.range),
-        name: 'Anomaly Score'
+        type: "category",
+        data: bins.map((bin) => bin.range),
+        name: "Anomaly Score",
       },
       yAxis: {
-        type: 'value',
-        name: 'Frequency'
+        type: "value",
+        name: "Frequency",
       },
-      series: [{
-        name: 'Frequency',
-        type: 'bar',
-        data: bins.map(bin => bin.count),
-        itemStyle: {
-          color: '#8b5cf6'
-        }
-      }]
+      series: [
+        {
+          name: "Frequency",
+          type: "bar",
+          data: bins.map((bin) => bin.count),
+          itemStyle: {
+            color: "#8b5cf6",
+          },
+        },
+      ],
     };
 
     chart.setOption(option);
-    this.charts.set('score-distribution-chart', chart);
+    this.charts.set("score-distribution-chart", chart);
   }
 
   /**
    * Render anomaly scatter plot
    */
   async renderAnomalyScatterPlot() {
-    const container = document.getElementById('anomaly-scatter-chart');
+    const container = document.getElementById("anomaly-scatter-chart");
     if (!container || !this.currentResult || !this.currentDataset) return;
 
     const data = this.currentDataset.data;
@@ -591,19 +614,21 @@ export class OfflineVisualizer {
 
     // Use first two numeric features for scatter plot
     const features = this.extractFeatures(data);
-    const numericFeatures = features.filter(f => f.type === 'numeric').slice(0, 2);
-    
+    const numericFeatures = features
+      .filter((f) => f.type === "numeric")
+      .slice(0, 2);
+
     if (numericFeatures.length < 2) return;
 
     const normalData = [];
     const anomalyData = [];
-    const anomalyIndices = new Set(anomalies.map(a => a.index));
+    const anomalyIndices = new Set(anomalies.map((a) => a.index));
 
     data.forEach((row, index) => {
       const point = [
         row[numericFeatures[0].name] || 0,
         row[numericFeatures[1].name] || 0,
-        scores[index] || 0
+        scores[index] || 0,
       ];
 
       if (anomalyIndices.has(index)) {
@@ -617,65 +642,65 @@ export class OfflineVisualizer {
     const option = {
       title: {
         text: `${numericFeatures[0].name} vs ${numericFeatures[1].name}`,
-        textStyle: { fontSize: 14 }
+        textStyle: { fontSize: 14 },
       },
       tooltip: {
-        trigger: 'item',
+        trigger: "item",
         formatter: (params) => {
           const [x, y, score] = params.data;
           return `${params.seriesName}<br/>
                   ${numericFeatures[0].name}: ${x.toFixed(3)}<br/>
                   ${numericFeatures[1].name}: ${y.toFixed(3)}<br/>
                   Score: ${score.toFixed(3)}`;
-        }
+        },
       },
       legend: {
-        data: ['Normal', 'Anomaly'],
-        bottom: 0
+        data: ["Normal", "Anomaly"],
+        bottom: 0,
       },
       xAxis: {
-        type: 'value',
+        type: "value",
         name: numericFeatures[0].name,
-        scale: true
+        scale: true,
       },
       yAxis: {
-        type: 'value',
+        type: "value",
         name: numericFeatures[1].name,
-        scale: true
+        scale: true,
       },
       series: [
         {
-          name: 'Normal',
-          type: 'scatter',
+          name: "Normal",
+          type: "scatter",
           data: normalData,
           itemStyle: {
-            color: '#10b981',
-            opacity: 0.7
+            color: "#10b981",
+            opacity: 0.7,
           },
-          symbolSize: 6
+          symbolSize: 6,
         },
         {
-          name: 'Anomaly',
-          type: 'scatter',
+          name: "Anomaly",
+          type: "scatter",
           data: anomalyData,
           itemStyle: {
-            color: '#ef4444',
-            opacity: 0.9
+            color: "#ef4444",
+            opacity: 0.9,
           },
-          symbolSize: 10
-        }
-      ]
+          symbolSize: 10,
+        },
+      ],
     };
 
     chart.setOption(option);
-    this.charts.set('anomaly-scatter-chart', chart);
+    this.charts.set("anomaly-scatter-chart", chart);
   }
 
   /**
    * Render detection summary
    */
   renderDetectionSummary() {
-    const container = document.getElementById('detection-summary');
+    const container = document.getElementById("detection-summary");
     if (!container || !this.currentResult) return;
 
     const result = this.currentResult;
@@ -686,7 +711,7 @@ export class OfflineVisualizer {
         <div class="grid grid-cols-2 gap-4">
           <div class="bg-gray-50 p-3 rounded">
             <div class="text-sm text-gray-600">Algorithm</div>
-            <div class="font-semibold">${result.algorithmId || 'Unknown'}</div>
+            <div class="font-semibold">${result.algorithmId || "Unknown"}</div>
           </div>
           <div class="bg-gray-50 p-3 rounded">
             <div class="text-sm text-gray-600">Processing Time</div>
@@ -705,9 +730,12 @@ export class OfflineVisualizer {
         <div class="bg-blue-50 p-4 rounded border border-blue-200">
           <h4 class="font-medium text-blue-900 mb-2">Detection Parameters</h4>
           <div class="text-sm text-blue-800">
-            ${Object.entries(result.parameters || {}).map(([key, value]) => 
-              `<div><strong>${key}:</strong> ${value}</div>`
-            ).join('')}
+            ${Object.entries(result.parameters || {})
+              .map(
+                ([key, value]) =>
+                  `<div><strong>${key}:</strong> ${value}</div>`,
+              )
+              .join("")}
           </div>
         </div>
 
@@ -734,14 +762,14 @@ export class OfflineVisualizer {
     const features = [];
     const firstRow = data[0];
 
-    Object.keys(firstRow).forEach(key => {
-      const values = data.map(row => row[key]);
+    Object.keys(firstRow).forEach((key) => {
+      const values = data.map((row) => row[key]);
       const type = this.inferDataType(values);
-      
+
       features.push({
         name: key,
         type,
-        values: values.filter(v => v !== null && v !== undefined)
+        values: values.filter((v) => v !== null && v !== undefined),
       });
     });
 
@@ -752,13 +780,17 @@ export class OfflineVisualizer {
    * Infer data type from values
    */
   inferDataType(values) {
-    const nonNullValues = values.filter(v => v !== null && v !== undefined && v !== '');
-    if (!nonNullValues.length) return 'unknown';
+    const nonNullValues = values.filter(
+      (v) => v !== null && v !== undefined && v !== "",
+    );
+    if (!nonNullValues.length) return "unknown";
 
-    const numericCount = nonNullValues.filter(v => !isNaN(parseFloat(v))).length;
+    const numericCount = nonNullValues.filter(
+      (v) => !isNaN(parseFloat(v)),
+    ).length;
     const ratio = numericCount / nonNullValues.length;
 
-    return ratio > 0.8 ? 'numeric' : 'categorical';
+    return ratio > 0.8 ? "numeric" : "categorical";
   }
 
   /**
@@ -773,11 +805,13 @@ export class OfflineVisualizer {
     for (let i = 0; i < numBins; i++) {
       const start = min + i * binWidth;
       const end = min + (i + 1) * binWidth;
-      const count = values.filter(v => v >= start && (i === numBins - 1 ? v <= end : v < end)).length;
-      
+      const count = values.filter(
+        (v) => v >= start && (i === numBins - 1 ? v <= end : v < end),
+      ).length;
+
       bins.push({
         range: `${start.toFixed(2)}-${end.toFixed(2)}`,
-        count
+        count,
       });
     }
 
@@ -789,10 +823,13 @@ export class OfflineVisualizer {
    */
   calculateCorrelationMatrix(features) {
     const matrix = [];
-    
+
     for (let i = 0; i < features.length; i++) {
       for (let j = 0; j < features.length; j++) {
-        const correlation = this.calculateCorrelation(features[i].values, features[j].values);
+        const correlation = this.calculateCorrelation(
+          features[i].values,
+          features[j].values,
+        );
         matrix.push([i, j, correlation]);
       }
     }
@@ -814,7 +851,9 @@ export class OfflineVisualizer {
     const sumY2 = y.slice(0, n).reduce((sum, yi) => sum + yi * yi, 0);
 
     const numerator = n * sumXY - sumX * sumY;
-    const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+    const denominator = Math.sqrt(
+      (n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY),
+    );
 
     return denominator === 0 ? 0 : numerator / denominator;
   }
@@ -825,14 +864,16 @@ export class OfflineVisualizer {
   calculateBasicStats(values) {
     const sorted = [...values].sort((a, b) => a - b);
     const mean = values.reduce((a, b) => a + b, 0) / values.length;
-    const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
-    
+    const variance =
+      values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+      values.length;
+
     return {
       mean,
       std: Math.sqrt(variance),
       min: Math.min(...values),
       max: Math.max(...values),
-      median: sorted[Math.floor(sorted.length / 2)]
+      median: sorted[Math.floor(sorted.length / 2)],
     };
   }
 
@@ -848,12 +889,14 @@ export class OfflineVisualizer {
    * Calculate data validity percentage
    */
   calculateValidity(values, type) {
-    if (type === 'numeric') {
-      const validCount = values.filter(v => !isNaN(parseFloat(v))).length;
+    if (type === "numeric") {
+      const validCount = values.filter((v) => !isNaN(parseFloat(v))).length;
       return (validCount / values.length) * 100;
     }
     // For categorical, assume all non-null values are valid
-    const validCount = values.filter(v => v !== null && v !== undefined && v !== '').length;
+    const validCount = values.filter(
+      (v) => v !== null && v !== undefined && v !== "",
+    ).length;
     return (validCount / values.length) * 100;
   }
 
@@ -861,19 +904,24 @@ export class OfflineVisualizer {
    * Update result selector based on current dataset
    */
   updateResultSelector() {
-    const selector = document.querySelector('.result-selector');
+    const selector = document.querySelector(".result-selector");
     if (!selector || !this.currentDataset) return;
 
-    const relevantResults = Array.from(this.results.values())
-      .filter(result => result.datasetId === this.currentDataset.id);
+    const relevantResults = Array.from(this.results.values()).filter(
+      (result) => result.datasetId === this.currentDataset.id,
+    );
 
     selector.innerHTML = `
       <option value="">Select a result...</option>
-      ${relevantResults.map(result => `
+      ${relevantResults
+        .map(
+          (result) => `
         <option value="${result.id}">
           ${result.algorithmId} - ${new Date(result.timestamp).toLocaleDateString()}
         </option>
-      `).join('')}
+      `,
+        )
+        .join("")}
     `;
   }
 
@@ -882,7 +930,7 @@ export class OfflineVisualizer {
    */
   changeVisualizationType(type) {
     // Implementation for different visualization types
-    console.log('Changing visualization type to:', type);
+    console.log("Changing visualization type to:", type);
   }
 
   /**
@@ -890,14 +938,14 @@ export class OfflineVisualizer {
    */
   exportVisualization(format) {
     // Implementation for exporting visualizations
-    console.log('Exporting visualization as:', format);
+    console.log("Exporting visualization as:", format);
   }
 
   /**
    * Clear all charts
    */
   clearCharts() {
-    this.charts.forEach(chart => {
+    this.charts.forEach((chart) => {
       chart.dispose();
     });
     this.charts.clear();
@@ -919,6 +967,6 @@ export class OfflineVisualizer {
 }
 
 // Initialize and expose globally
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   window.OfflineVisualizer = new OfflineVisualizer();
 }

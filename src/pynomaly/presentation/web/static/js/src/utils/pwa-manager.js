@@ -11,9 +11,9 @@ export class PWAManager {
     this.offlineData = {
       datasets: [],
       results: [],
-      preferences: {}
+      preferences: {},
     };
-    
+
     this.init();
   }
 
@@ -31,50 +31,51 @@ export class PWAManager {
    * Service Worker Setup and Communication
    */
   async setupServiceWorker() {
-    if ('serviceWorker' in navigator) {
+    if ("serviceWorker" in navigator) {
       try {
-        const registration = await navigator.serviceWorker.register('/static/sw.js');
-        console.log('[PWA] Service Worker registered:', registration.scope);
-        
+        const registration =
+          await navigator.serviceWorker.register("/static/sw.js");
+        console.log("[PWA] Service Worker registered:", registration.scope);
+
         // Listen for service worker messages
-        navigator.serviceWorker.addEventListener('message', (event) => {
+        navigator.serviceWorker.addEventListener("message", (event) => {
           this.handleServiceWorkerMessage(event.data);
         });
-        
+
         // Handle updates
-        registration.addEventListener('updatefound', () => {
+        registration.addEventListener("updatefound", () => {
           this.handleServiceWorkerUpdate(registration.installing);
         });
-        
+
         this.registration = registration;
       } catch (error) {
-        console.error('[PWA] Service Worker registration failed:', error);
+        console.error("[PWA] Service Worker registration failed:", error);
       }
     }
   }
 
   handleServiceWorkerMessage(data) {
     const { type, payload } = data;
-    
+
     switch (type) {
-      case 'DETECTION_COMPLETE':
+      case "DETECTION_COMPLETE":
         this.onDetectionComplete(payload);
         break;
-      case 'SYNC_QUEUE_STATUS':
+      case "SYNC_QUEUE_STATUS":
         this.updateSyncStatus(payload);
         break;
-      case 'CACHE_STATUS':
+      case "CACHE_STATUS":
         this.updateCacheStatus(payload);
         break;
-      case 'OFFLINE_DATA_UPDATED':
+      case "OFFLINE_DATA_UPDATED":
         this.loadOfflineData();
         break;
     }
   }
 
   handleServiceWorkerUpdate(worker) {
-    worker.addEventListener('statechange', () => {
-      if (worker.state === 'installed') {
+    worker.addEventListener("statechange", () => {
+      if (worker.state === "installed") {
         this.showUpdateNotification();
       }
     });
@@ -84,14 +85,14 @@ export class PWAManager {
    * Install Prompt Management
    */
   setupInstallPrompt() {
-    window.addEventListener('beforeinstallprompt', (e) => {
+    window.addEventListener("beforeinstallprompt", (e) => {
       e.preventDefault();
       this.deferredPrompt = e;
       this.showInstallButton();
     });
 
     // Handle successful installation
-    window.addEventListener('appinstalled', () => {
+    window.addEventListener("appinstalled", () => {
       this.isInstalled = true;
       this.hideInstallButton();
       this.showInstallSuccessMessage();
@@ -101,40 +102,41 @@ export class PWAManager {
 
   showInstallButton() {
     // Create install button if it doesn't exist
-    if (!document.querySelector('.pwa-install-button')) {
+    if (!document.querySelector(".pwa-install-button")) {
       const installButton = this.createInstallButton();
       this.addInstallButtonToPage(installButton);
     }
   }
 
   createInstallButton() {
-    const button = document.createElement('button');
-    button.className = 'pwa-install-button fixed bottom-4 right-4 bg-primary text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-700 transition-colors z-50 flex items-center gap-2';
+    const button = document.createElement("button");
+    button.className =
+      "pwa-install-button fixed bottom-4 right-4 bg-primary text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-700 transition-colors z-50 flex items-center gap-2";
     button.innerHTML = `
       <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
         <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
       </svg>
       Install App
     `;
-    button.addEventListener('click', () => this.installPWA());
+    button.addEventListener("click", () => this.installPWA());
     return button;
   }
 
   addInstallButtonToPage(button) {
     document.body.appendChild(button);
-    
+
     // Animate in
     setTimeout(() => {
-      button.style.transform = 'translateY(0)';
-      button.style.opacity = '1';
+      button.style.transform = "translateY(0)";
+      button.style.opacity = "1";
     }, 100);
   }
 
   hideInstallButton() {
-    const button = document.querySelector('.pwa-install-button');
+    const button = document.querySelector(".pwa-install-button");
     if (button) {
-      button.style.transform = 'translateY(100px)';
-      button.style.opacity = '0';
+      button.style.transform = "translateY(100px)";
+      button.style.opacity = "0";
       setTimeout(() => button.remove(), 300);
     }
   }
@@ -143,29 +145,32 @@ export class PWAManager {
     if (this.deferredPrompt) {
       this.deferredPrompt.prompt();
       const result = await this.deferredPrompt.userChoice;
-      
-      if (result.outcome === 'accepted') {
-        console.log('[PWA] User accepted the install prompt');
-        this.trackEvent('pwa_install_accepted');
+
+      if (result.outcome === "accepted") {
+        console.log("[PWA] User accepted the install prompt");
+        this.trackEvent("pwa_install_accepted");
       } else {
-        console.log('[PWA] User dismissed the install prompt');
-        this.trackEvent('pwa_install_dismissed');
+        console.log("[PWA] User dismissed the install prompt");
+        this.trackEvent("pwa_install_dismissed");
       }
-      
+
       this.deferredPrompt = null;
     }
   }
 
   showInstallSuccessMessage() {
-    this.showNotification('📱 App installed successfully! You can now use Pynomaly offline.', 'success');
+    this.showNotification(
+      "📱 App installed successfully! You can now use Pynomaly offline.",
+      "success",
+    );
   }
 
   /**
    * Update Handling
    */
   setupUpdateHandling() {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
         if (this.refreshing) return;
         this.refreshing = true;
         window.location.reload();
@@ -175,24 +180,24 @@ export class PWAManager {
 
   showUpdateNotification() {
     const notification = this.createNotification(
-      '🔄 New version available! Click to update.',
-      'info',
+      "🔄 New version available! Click to update.",
+      "info",
       [
-        { text: 'Update Now', action: () => this.updateApp() },
-        { text: 'Later', action: () => this.dismissUpdate() }
-      ]
+        { text: "Update Now", action: () => this.updateApp() },
+        { text: "Later", action: () => this.dismissUpdate() },
+      ],
     );
     document.body.appendChild(notification);
   }
 
   async updateApp() {
     if (this.registration && this.registration.waiting) {
-      this.registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      this.registration.waiting.postMessage({ type: "SKIP_WAITING" });
     }
   }
 
   dismissUpdate() {
-    const notification = document.querySelector('.pwa-update-notification');
+    const notification = document.querySelector(".pwa-update-notification");
     if (notification) notification.remove();
   }
 
@@ -200,12 +205,12 @@ export class PWAManager {
    * Offline Data Management
    */
   setupOfflineHandling() {
-    window.addEventListener('online', () => {
+    window.addEventListener("online", () => {
       this.isOnline = true;
       this.onConnectionRestore();
     });
 
-    window.addEventListener('offline', () => {
+    window.addEventListener("offline", () => {
       this.isOnline = false;
       this.onConnectionLost();
     });
@@ -215,10 +220,10 @@ export class PWAManager {
     try {
       if (this.registration && this.registration.active) {
         // Request data from service worker
-        this.registration.active.postMessage({ type: 'GET_OFFLINE_DATA' });
+        this.registration.active.postMessage({ type: "GET_OFFLINE_DATA" });
       }
     } catch (error) {
-      console.error('[PWA] Failed to load offline data:', error);
+      console.error("[PWA] Failed to load offline data:", error);
     }
   }
 
@@ -226,12 +231,12 @@ export class PWAManager {
     try {
       if (this.registration && this.registration.active) {
         this.registration.active.postMessage({
-          type: 'SAVE_OFFLINE_DATA',
-          payload: { type, data }
+          type: "SAVE_OFFLINE_DATA",
+          payload: { type, data },
         });
       }
     } catch (error) {
-      console.error('[PWA] Failed to save offline data:', error);
+      console.error("[PWA] Failed to save offline data:", error);
     }
   }
 
@@ -241,7 +246,7 @@ export class PWAManager {
   setupConnectionMonitoring() {
     // Update UI connection status
     this.updateConnectionUI();
-    
+
     // Periodic connectivity check
     setInterval(() => {
       this.checkConnectivity();
@@ -249,26 +254,26 @@ export class PWAManager {
   }
 
   updateConnectionUI() {
-    const indicators = document.querySelectorAll('.connection-indicator');
-    indicators.forEach(indicator => {
-      indicator.className = `connection-indicator ${this.isOnline ? 'online' : 'offline'}`;
+    const indicators = document.querySelectorAll(".connection-indicator");
+    indicators.forEach((indicator) => {
+      indicator.className = `connection-indicator ${this.isOnline ? "online" : "offline"}`;
     });
-    
-    const statusTexts = document.querySelectorAll('.connection-status');
-    statusTexts.forEach(text => {
-      text.textContent = this.isOnline ? 'Online' : 'Offline';
-      text.className = `connection-status ${this.isOnline ? 'text-green-600' : 'text-orange-600'}`;
+
+    const statusTexts = document.querySelectorAll(".connection-status");
+    statusTexts.forEach((text) => {
+      text.textContent = this.isOnline ? "Online" : "Offline";
+      text.className = `connection-status ${this.isOnline ? "text-green-600" : "text-orange-600"}`;
     });
   }
 
   async checkConnectivity() {
     try {
-      const response = await fetch('/api/health/ping', {
-        method: 'HEAD',
-        mode: 'no-cors',
-        cache: 'no-cache'
+      const response = await fetch("/api/health/ping", {
+        method: "HEAD",
+        mode: "no-cors",
+        cache: "no-cache",
       });
-      
+
       if (!this.isOnline && navigator.onLine) {
         this.isOnline = true;
         this.onConnectionRestore();
@@ -282,16 +287,19 @@ export class PWAManager {
   }
 
   onConnectionRestore() {
-    console.log('[PWA] Connection restored');
+    console.log("[PWA] Connection restored");
     this.updateConnectionUI();
     this.syncPendingData();
-    this.showNotification('🌐 Connection restored! Syncing data...', 'success');
+    this.showNotification("🌐 Connection restored! Syncing data...", "success");
   }
 
   onConnectionLost() {
-    console.log('[PWA] Connection lost');
+    console.log("[PWA] Connection lost");
     this.updateConnectionUI();
-    this.showNotification('📡 You\'re now offline. Changes will sync when connection returns.', 'warning');
+    this.showNotification(
+      "📡 You're now offline. Changes will sync when connection returns.",
+      "warning",
+    );
   }
 
   /**
@@ -300,23 +308,24 @@ export class PWAManager {
   async syncPendingData() {
     if (this.registration && this.registration.active) {
       // Trigger background sync for all queued requests
-      this.registration.active.postMessage({ type: 'SYNC_ALL_QUEUES' });
-      
+      this.registration.active.postMessage({ type: "SYNC_ALL_QUEUES" });
+
       // Request sync status update
       setTimeout(() => {
-        this.registration.active.postMessage({ type: 'GET_SYNC_STATUS' });
+        this.registration.active.postMessage({ type: "GET_SYNC_STATUS" });
       }, 1000);
     }
   }
 
   updateSyncStatus(status) {
     const pendingCount = status.pending || 0;
-    
+
     // Update sync indicators in UI
-    const syncIndicators = document.querySelectorAll('.sync-indicator');
-    syncIndicators.forEach(indicator => {
-      indicator.textContent = pendingCount > 0 ? `${pendingCount} pending` : 'Up to date';
-      indicator.className = `sync-indicator ${pendingCount > 0 ? 'text-orange-600' : 'text-green-600'}`;
+    const syncIndicators = document.querySelectorAll(".sync-indicator");
+    syncIndicators.forEach((indicator) => {
+      indicator.textContent =
+        pendingCount > 0 ? `${pendingCount} pending` : "Up to date";
+      indicator.className = `sync-indicator ${pendingCount > 0 ? "text-orange-600" : "text-green-600"}`;
     });
   }
 
@@ -328,11 +337,10 @@ export class PWAManager {
       return new Promise((resolve) => {
         const channel = new MessageChannel();
         channel.port1.onmessage = (event) => resolve(event.data);
-        
-        this.registration.active.postMessage(
-          { type: 'GET_CACHE_STATUS' },
-          [channel.port2]
-        );
+
+        this.registration.active.postMessage({ type: "GET_CACHE_STATUS" }, [
+          channel.port2,
+        ]);
       });
     }
     return null;
@@ -341,8 +349,8 @@ export class PWAManager {
   async clearCache(cacheName = null) {
     if (this.registration && this.registration.active) {
       this.registration.active.postMessage({
-        type: 'CLEAR_CACHE',
-        payload: { cacheName }
+        type: "CLEAR_CACHE",
+        payload: { cacheName },
       });
     }
   }
@@ -352,44 +360,47 @@ export class PWAManager {
    */
   checkInstallStatus() {
     // Check if running in standalone mode
-    if (window.matchMedia('(display-mode: standalone)').matches) {
+    if (window.matchMedia("(display-mode: standalone)").matches) {
       this.isInstalled = true;
     }
-    
+
     // iOS Safari check
     if (window.navigator.standalone === true) {
       this.isInstalled = true;
     }
-    
+
     // Android TWA check
-    if (document.referrer.includes('android-app://')) {
+    if (document.referrer.includes("android-app://")) {
       this.isInstalled = true;
     }
-    
+
     if (this.isInstalled) {
       this.onInstallDetected();
     }
   }
 
   onInstallDetected() {
-    document.body.classList.add('pwa-installed');
-    this.trackEvent('pwa_running_installed');
+    document.body.classList.add("pwa-installed");
+    this.trackEvent("pwa_running_installed");
   }
 
   /**
    * Event Handlers
    */
   onDetectionComplete(payload) {
-    this.showNotification(`✅ Detection completed: ${payload.result.n_anomalies} anomalies found`, 'success');
+    this.showNotification(
+      `✅ Detection completed: ${payload.result.n_anomalies} anomalies found`,
+      "success",
+    );
   }
 
   /**
    * UI Utilities
    */
-  showNotification(message, type = 'info', actions = []) {
+  showNotification(message, type = "info", actions = []) {
     const notification = this.createNotification(message, type, actions);
     document.body.appendChild(notification);
-    
+
     // Auto-dismiss after 5 seconds if no actions
     if (actions.length === 0) {
       setTimeout(() => {
@@ -401,29 +412,36 @@ export class PWAManager {
   }
 
   createNotification(message, type, actions = []) {
-    const notification = document.createElement('div');
+    const notification = document.createElement("div");
     notification.className = `pwa-notification fixed top-4 right-4 max-w-sm bg-white border rounded-lg shadow-lg z-50 transform transition-all duration-300`;
-    
+
     const colors = {
-      success: 'border-green-200 bg-green-50',
-      warning: 'border-orange-200 bg-orange-50',
-      error: 'border-red-200 bg-red-50',
-      info: 'border-blue-200 bg-blue-50'
+      success: "border-green-200 bg-green-50",
+      warning: "border-orange-200 bg-orange-50",
+      error: "border-red-200 bg-red-50",
+      info: "border-blue-200 bg-blue-50",
     };
-    
+
     notification.className += ` ${colors[type] || colors.info}`;
-    
-    const actionsHtml = actions.length > 0 ? `
+
+    const actionsHtml =
+      actions.length > 0
+        ? `
       <div class="mt-3 flex gap-2">
-        ${actions.map(action => `
+        ${actions
+          .map(
+            (action) => `
           <button class="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-50 transition-colors"
                   onclick="this.closest('.pwa-notification').remove(); (${action.action.toString()})()">
             ${action.text}
           </button>
-        `).join('')}
+        `,
+          )
+          .join("")}
       </div>
-    ` : '';
-    
+    `
+        : "";
+
     notification.innerHTML = `
       <div class="p-4">
         <div class="flex justify-between items-start">
@@ -440,12 +458,12 @@ export class PWAManager {
         </div>
       </div>
     `;
-    
+
     // Animate in
     setTimeout(() => {
-      notification.style.transform = 'translateX(0)';
+      notification.style.transform = "translateX(0)";
     }, 100);
-    
+
     return notification;
   }
 
@@ -454,10 +472,10 @@ export class PWAManager {
    */
   trackEvent(eventName, data = {}) {
     // Send analytics event
-    if (typeof gtag !== 'undefined') {
-      gtag('event', eventName, data);
+    if (typeof gtag !== "undefined") {
+      gtag("event", eventName, data);
     }
-    
+
     console.log(`[PWA] Event: ${eventName}`, data);
   }
 
@@ -478,20 +496,20 @@ export class PWAManager {
       installed: this.isInstalled,
       online: this.isOnline,
       serviceWorkerActive: !!this.registration?.active,
-      cacheInfo: cacheInfo
+      cacheInfo: cacheInfo,
     };
   }
 }
 
 // Initialize PWA Manager
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   window.PWAManager = new PWAManager();
-  
+
   // Expose useful methods globally
   window.PWA = {
     install: () => window.PWAManager.installPWA(),
     getStatus: () => window.PWAManager.getAppStatus(),
     clearCache: (name) => window.PWAManager.clearCache(name),
-    sync: () => window.PWAManager.syncPendingData()
+    sync: () => window.PWAManager.syncPendingData(),
   };
 }

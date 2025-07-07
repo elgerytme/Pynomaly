@@ -90,7 +90,7 @@
 .grid line {
   stroke: var(--color-border-light);
   stroke-width: 0.5;
-  stroke-dasharray: 2,2;
+  stroke-dasharray: 2, 2;
   opacity: 0.7;
 }
 
@@ -151,7 +151,7 @@
   fill-opacity: 0.2;
   stroke: var(--color-primary-600);
   stroke-width: 1;
-  stroke-dasharray: 3,3;
+  stroke-dasharray: 3, 3;
 }
 
 .brush .handle {
@@ -562,13 +562,13 @@ input[type="checkbox"] {
   .data-line {
     stroke-width: 3;
   }
-  
+
   .anomaly-point,
   .scatter-point,
   .heatmap-cell {
     stroke-width: 2;
   }
-  
+
   .grid line {
     stroke-width: 1;
     opacity: 1;
@@ -585,7 +585,7 @@ input[type="checkbox"] {
   .btn {
     transition: none;
   }
-  
+
   .chart-tooltip,
   .heatmap-tooltip,
   .scatter-tooltip {
@@ -627,31 +627,31 @@ input[type="checkbox"] {
     padding: var(--spacing-3);
     gap: var(--spacing-3);
   }
-  
+
   .chart-container--time-series,
   .chart-container--summary {
     grid-column: 1;
   }
-  
+
   .dashboard-controls {
     flex-direction: column;
     align-items: stretch;
     gap: var(--spacing-3);
   }
-  
+
   .control-group {
     justify-content: space-between;
   }
-  
+
   .scatter-controls {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .chart-title {
     font-size: var(--font-size-base);
   }
-  
+
   .status-info {
     flex-direction: column;
     gap: var(--spacing-2);
@@ -662,18 +662,18 @@ input[type="checkbox"] {
   .chart-container {
     padding: var(--spacing-3);
   }
-  
+
   .btn {
     width: 100%;
     justify-content: center;
   }
-  
+
   .dashboard-status {
     flex-direction: column;
     gap: var(--spacing-3);
     align-items: stretch;
   }
-  
+
   .scatter-data-table {
     font-size: var(--font-size-xs);
   }
@@ -688,20 +688,20 @@ input[type="checkbox"] {
     height: auto;
     display: block;
   }
-  
+
   .chart-container {
     page-break-inside: avoid;
     margin-bottom: var(--spacing-4);
     box-shadow: none;
     border: 1px solid var(--color-border-medium);
   }
-  
+
   .dashboard-controls,
   .status-actions,
   .btn {
     display: none;
   }
-  
+
   .chart-tooltip,
   .heatmap-tooltip,
   .scatter-tooltip {
@@ -726,27 +726,31 @@ input[type="checkbox"] {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(20px);
   }
-  to { 
+  to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
 @keyframes scaleIn {
-  from { 
+  from {
     opacity: 0;
     transform: scale(0.95);
   }
-  to { 
+  to {
     opacity: 1;
     transform: scale(1);
   }
@@ -759,7 +763,7 @@ input[type="checkbox"] {
 }
 
 .chart-loading::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -774,7 +778,9 @@ input[type="checkbox"] {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Error states */

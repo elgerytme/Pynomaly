@@ -12,22 +12,25 @@ export class AccessibilityManager {
 
   setupFocusManagement() {
     // Enhanced focus management
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        document.body.classList.add('using-keyboard');
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Tab") {
+        document.body.classList.add("using-keyboard");
       }
     });
 
-    document.addEventListener('mousedown', () => {
-      document.body.classList.remove('using-keyboard');
+    document.addEventListener("mousedown", () => {
+      document.body.classList.remove("using-keyboard");
     });
   }
 
   setupKeyboardNavigation() {
     // Arrow key navigation for grids
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener("keydown", (e) => {
       const grid = e.target.closest('[role="grid"]');
-      if (grid && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+      if (
+        grid &&
+        ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)
+      ) {
         this.handleGridNavigation(e, grid);
       }
     });
@@ -37,9 +40,12 @@ export class AccessibilityManager {
     // Dynamic content announcements
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
-        if (mutation.type === 'childList') {
+        if (mutation.type === "childList") {
           mutation.addedNodes.forEach((node) => {
-            if (node.nodeType === Node.ELEMENT_NODE && node.hasAttribute('aria-live')) {
+            if (
+              node.nodeType === Node.ELEMENT_NODE &&
+              node.hasAttribute("aria-live")
+            ) {
               this.announceChange(node);
             }
           });
@@ -49,7 +55,7 @@ export class AccessibilityManager {
 
     observer.observe(document.body, {
       childList: true,
-      subtree: true
+      subtree: true,
     });
   }
 
@@ -61,11 +67,11 @@ export class AccessibilityManager {
 
   announceChange(element) {
     // Announce dynamic content changes
-    console.log('Content changed:', element.textContent);
+    console.log("Content changed:", element.textContent);
   }
 }
 
 // Initialize Accessibility Manager
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   window.AccessibilityManager = new AccessibilityManager();
 }

@@ -49,7 +49,8 @@
   min-height: 100vh;
   background-color: var(--mobile-background);
   color: var(--mobile-text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   overflow-x: hidden;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -154,7 +155,7 @@
 
 .hamburger::before,
 .hamburger::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 100%;
   height: 2px;
@@ -216,7 +217,9 @@
 .content-area {
   margin-top: var(--mobile-header-height);
   margin-bottom: var(--mobile-tab-bar-height);
-  min-height: calc(100vh - var(--mobile-header-height) - var(--mobile-tab-bar-height));
+  min-height: calc(
+    100vh - var(--mobile-header-height) - var(--mobile-tab-bar-height)
+  );
   overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -508,7 +511,7 @@
 
 /* Touch feedback for tab buttons */
 .tab-button::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -517,7 +520,9 @@
   background-color: var(--mobile-primary);
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  transition: width 0.3s var(--mobile-bezier), height 0.3s var(--mobile-bezier);
+  transition:
+    width 0.3s var(--mobile-bezier),
+    height 0.3s var(--mobile-bezier);
   opacity: 0.1;
   z-index: -1;
 }
@@ -597,11 +602,11 @@
   .mobile-dashboard.tablet .panel-content {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .mobile-dashboard.tablet .tab-bar {
     display: none;
   }
-  
+
   .mobile-dashboard.tablet .content-area {
     margin-bottom: 0;
   }
@@ -611,7 +616,7 @@
   .mobile-dashboard.desktop .panel-content {
     grid-template-columns: repeat(3, 1fr);
   }
-  
+
   .mobile-dashboard.desktop .content-area {
     padding: var(--mobile-spacing-large);
   }
@@ -632,7 +637,7 @@
     --mobile-border: #000000;
     --mobile-text-secondary: #000000;
   }
-  
+
   [data-theme="dark"] {
     --mobile-border: #ffffff;
     --mobile-text-secondary: #ffffff;
@@ -647,11 +652,11 @@
   .mobile-toast {
     display: none !important;
   }
-  
+
   .content-area {
     margin: 0 !important;
   }
-  
+
   .widget {
     break-inside: avoid;
     page-break-inside: avoid;
@@ -678,7 +683,7 @@
 }
 
 .widget.loading::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;

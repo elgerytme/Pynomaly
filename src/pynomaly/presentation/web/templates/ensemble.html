@@ -1,140 +1,207 @@
-{% extends "base.html" %}
-{% block title %}Ensemble Methods - Pynomaly{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Ensemble Methods - Pynomaly{%
+endblock %} {% block content %}
 <div class="px-4 py-6 sm:px-0">
-    <!-- Header -->
-    <div class="mb-8 flex justify-between items-center">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900">🤖 Ensemble Methods</h1>
-            <p class="mt-2 text-gray-600">Create and manage intelligent detector ensembles</p>
-        </div>
-        <button onclick="window.location='/web/ensemble/create'" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-            </svg>
-            Create Ensemble
-        </button>
+  <!-- Header -->
+  <div class="mb-8 flex justify-between items-center">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">🤖 Ensemble Methods</h1>
+      <p class="mt-2 text-gray-600">
+        Create and manage intelligent detector ensembles
+      </p>
+    </div>
+    <button
+      onclick="window.location='/web/ensemble/create'"
+      class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+    >
+      <svg
+        class="-ml-1 mr-2 h-5 w-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+        />
+      </svg>
+      Create Ensemble
+    </button>
+  </div>
+
+  <!-- Quick Start Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div
+      class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer"
+      onclick="window.location='/web/ensemble/create'"
+    >
+      <div class="p-6 text-center">
+        <div class="text-4xl mb-3">🎯</div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Smart Ensemble</h3>
+        <p class="text-sm text-gray-600">
+          AI-powered algorithm selection and combination
+        </p>
+      </div>
     </div>
 
-    <!-- Quick Start Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer" onclick="window.location='/web/ensemble/create'">
-            <div class="p-6 text-center">
-                <div class="text-4xl mb-3">🎯</div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Smart Ensemble</h3>
-                <p class="text-sm text-gray-600">AI-powered algorithm selection and combination</p>
-            </div>
-        </div>
-        
-        <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer" onclick="window.location='/web/ensemble/compare'">
-            <div class="p-6 text-center">
-                <div class="text-4xl mb-3">📊</div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Compare Strategies</h3>
-                <p class="text-sm text-gray-600">Benchmark different ensemble methods</p>
-            </div>
-        </div>
-        
-        <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer" onclick="showMetaLearningInsights()">
-            <div class="p-6 text-center">
-                <div class="text-4xl mb-3">🧠</div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Meta-Learning</h3>
-                <p class="text-sm text-gray-600">Insights from ensemble performance</p>
-            </div>
-        </div>
+    <div
+      class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer"
+      onclick="window.location='/web/ensemble/compare'"
+    >
+      <div class="p-6 text-center">
+        <div class="text-4xl mb-3">📊</div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">
+          Compare Strategies
+        </h3>
+        <p class="text-sm text-gray-600">
+          Benchmark different ensemble methods
+        </p>
+      </div>
     </div>
 
-    <!-- Ensemble Statistics -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="text-2xl">🤖</div>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Active Ensembles</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ ensembles|length }}</dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
+    <div
+      class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer"
+      onclick="showMetaLearningInsights()"
+    >
+      <div class="p-6 text-center">
+        <div class="text-4xl mb-3">🧠</div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Meta-Learning</h3>
+        <p class="text-sm text-gray-600">Insights from ensemble performance</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ensemble Statistics -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="text-2xl">🤖</div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">
+                Active Ensembles
+              </dt>
+              <dd class="text-lg font-medium text-gray-900">
+                {{ ensembles|length }}
+              </dd>
+            </dl>
+          </div>
         </div>
-        
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="text-2xl">🔧</div>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Available Detectors</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ detectors|length }}</dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="text-2xl">📈</div>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Ensemble Types</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ ensemble_types|length }}</dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="text-2xl">⚡</div>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Performance Boost</dt>
-                            <dd class="text-lg font-medium text-green-600">+15%</dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
 
-    <!-- Existing Ensembles -->
-    <div class="bg-white shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Existing Ensembles</h3>
-            <div id="ensemble-list" 
-                 hx-get="/web/htmx/ensemble-list" 
-                 hx-trigger="load"
-                 hx-indicator="#ensemble-loading">
-                <div id="ensemble-loading" class="flex justify-center items-center py-8">
-                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Loading ensembles...
-                </div>
-            </div>
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="text-2xl">🔧</div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">
+                Available Detectors
+              </dt>
+              <dd class="text-lg font-medium text-gray-900">
+                {{ detectors|length }}
+              </dd>
+            </dl>
+          </div>
         </div>
+      </div>
     </div>
+
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="text-2xl">📈</div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">
+                Ensemble Types
+              </dt>
+              <dd class="text-lg font-medium text-gray-900">
+                {{ ensemble_types|length }}
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="text-2xl">⚡</div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">
+                Performance Boost
+              </dt>
+              <dd class="text-lg font-medium text-green-600">+15%</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Existing Ensembles -->
+  <div class="bg-white shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+        Existing Ensembles
+      </h3>
+      <div
+        id="ensemble-list"
+        hx-get="/web/htmx/ensemble-list"
+        hx-trigger="load"
+        hx-indicator="#ensemble-loading"
+      >
+        <div
+          id="ensemble-loading"
+          class="flex justify-center items-center py-8"
+        >
+          <svg
+            class="animate-spin -ml-1 mr-3 h-5 w-5 text-primary"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+          Loading ensembles...
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-function showMetaLearningInsights() {
+  function showMetaLearningInsights() {
     // In a real implementation, this would show meta-learning insights
-    alert('Meta-learning insights coming soon! This will show performance patterns and optimization suggestions.');
-}
+    alert(
+      "Meta-learning insights coming soon! This will show performance patterns and optimization suggestions.",
+    );
+  }
 </script>
 {% endblock %}

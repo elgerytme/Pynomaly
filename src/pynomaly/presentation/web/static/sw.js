@@ -3,156 +3,159 @@
  * Provides offline caching, background sync, push notifications, and installability
  */
 
-const CACHE_NAME = 'pynomaly-v1.2.0';
-const STATIC_CACHE = 'pynomaly-static-v1.2.0';
-const DYNAMIC_CACHE = 'pynomaly-dynamic-v1.2.0';
-const API_CACHE = 'pynomaly-api-v1.2.0';
+const CACHE_NAME = "pynomaly-v1.2.0";
+const STATIC_CACHE = "pynomaly-static-v1.2.0";
+const DYNAMIC_CACHE = "pynomaly-dynamic-v1.2.0";
+const API_CACHE = "pynomaly-api-v1.2.0";
 
 // Static assets to cache during install
 const STATIC_ASSETS = [
-  '/',
-  '/static/css/design-system.css',
-  '/static/css/tailwind.css',
-  '/static/js/main.js',
-  '/static/js/charts/anomaly-timeline.js',
-  '/static/js/charts/anomaly-heatmap.js',
-  '/static/js/charts/real-time-dashboard.js',
-  '/static/js/components/interactive-forms.js',
-  '/static/js/components/dashboard-layout.js',
-  '/static/js/state/dashboard-state.js',
-  '/static/fonts/inter-var.woff2',
-  '/static/fonts/jetbrains-mono-subset.woff2',
-  '/static/images/pynomaly-icon-192.png',
-  '/static/images/pynomaly-icon-512.png',
-  '/manifest.json',
-  '/offline.html'
+  "/",
+  "/static/css/design-system.css",
+  "/static/css/tailwind.css",
+  "/static/js/main.js",
+  "/static/js/charts/anomaly-timeline.js",
+  "/static/js/charts/anomaly-heatmap.js",
+  "/static/js/charts/real-time-dashboard.js",
+  "/static/js/components/interactive-forms.js",
+  "/static/js/components/dashboard-layout.js",
+  "/static/js/state/dashboard-state.js",
+  "/static/fonts/inter-var.woff2",
+  "/static/fonts/jetbrains-mono-subset.woff2",
+  "/static/images/pynomaly-icon-192.png",
+  "/static/images/pynomaly-icon-512.png",
+  "/manifest.json",
+  "/offline.html",
 ];
 
 // API endpoints to cache with different strategies
 const API_ENDPOINTS = {
   GET: [
-    '/api/health',
-    '/api/models',
-    '/api/datasets',
-    '/api/anomalies/recent',
-    '/api/metrics/summary',
-    '/api/status',
-    '/api/dashboard/stats',
-    '/api/user/profile'
+    "/api/health",
+    "/api/models",
+    "/api/datasets",
+    "/api/anomalies/recent",
+    "/api/metrics/summary",
+    "/api/status",
+    "/api/dashboard/stats",
+    "/api/user/profile",
   ],
   CACHE_FIRST: [
-    '/api/algorithms',
-    '/api/presets',
-    '/api/documentation',
-    '/api/configurations'
+    "/api/algorithms",
+    "/api/presets",
+    "/api/documentation",
+    "/api/configurations",
   ],
   NETWORK_FIRST: [
-    '/api/detection',
-    '/api/analysis',
-    '/api/train',
-    '/api/predict',
-    '/api/upload',
-    '/api/real-time'
-  ]
+    "/api/detection",
+    "/api/analysis",
+    "/api/train",
+    "/api/predict",
+    "/api/upload",
+    "/api/real-time",
+  ],
 };
 
 // Background sync tags
 const SYNC_TAGS = {
-  DETECTION_QUEUE: 'detection-queue',
-  UPLOAD_QUEUE: 'upload-queue',
-  ANALYSIS_QUEUE: 'analysis-queue',
-  METRICS_SYNC: 'metrics-sync'
+  DETECTION_QUEUE: "detection-queue",
+  UPLOAD_QUEUE: "upload-queue",
+  ANALYSIS_QUEUE: "analysis-queue",
+  METRICS_SYNC: "metrics-sync",
 };
 
 // IndexedDB configuration for offline storage
-const DB_NAME = 'PynomalyOfflineDB';
+const DB_NAME = "PynomalyOfflineDB";
 const DB_VERSION = 2;
 const STORES = {
-  DETECTIONS: 'detections',
-  DATASETS: 'datasets',
-  RESULTS: 'results',
-  ANOMALIES: 'anomalies',
-  ALERTS: 'alerts',
-  DASHBOARD_STATE: 'dashboardState',
-  USER_PREFERENCES: 'userPreferences',
-  SYNC_QUEUE: 'syncQueue',
-  ANALYTICS: 'analytics'
+  DETECTIONS: "detections",
+  DATASETS: "datasets",
+  RESULTS: "results",
+  ANOMALIES: "anomalies",
+  ALERTS: "alerts",
+  DASHBOARD_STATE: "dashboardState",
+  USER_PREFERENCES: "userPreferences",
+  SYNC_QUEUE: "syncQueue",
+  ANALYTICS: "analytics",
 };
 
 /**
  * Service Worker Installation
  */
-self.addEventListener('install', (event) => {
-  console.log('[SW] Installing service worker...');
-  
+self.addEventListener("install", (event) => {
+  console.log("[SW] Installing service worker...");
+
   event.waitUntil(
-    caches.open(STATIC_CACHE)
+    caches
+      .open(STATIC_CACHE)
       .then((cache) => {
-        console.log('[SW] Caching static assets');
+        console.log("[SW] Caching static assets");
         return cache.addAll(STATIC_ASSETS);
       })
       .then(() => {
-        console.log('[SW] Static assets cached successfully');
+        console.log("[SW] Static assets cached successfully");
         return self.skipWaiting();
       })
       .catch((error) => {
-        console.error('[SW] Failed to cache static assets:', error);
-      })
+        console.error("[SW] Failed to cache static assets:", error);
+      }),
   );
 });
 
 /**
  * Service Worker Activation
  */
-self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating service worker...');
-  
+self.addEventListener("activate", (event) => {
+  console.log("[SW] Activating service worker...");
+
   event.waitUntil(
     Promise.all([
       // Clean up old caches
       caches.keys().then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
-            if (cacheName !== STATIC_CACHE && 
-                cacheName !== DYNAMIC_CACHE && 
-                cacheName !== API_CACHE) {
-              console.log('[SW] Deleting old cache:', cacheName);
+            if (
+              cacheName !== STATIC_CACHE &&
+              cacheName !== DYNAMIC_CACHE &&
+              cacheName !== API_CACHE
+            ) {
+              console.log("[SW] Deleting old cache:", cacheName);
               return caches.delete(cacheName);
             }
-          })
+          }),
         );
       }),
-      
+
       // Initialize IndexedDB
       initializeIndexedDB(),
-      
+
       // Claim clients
-      self.clients.claim()
-    ])
+      self.clients.claim(),
+    ]),
   );
 });
 
 /**
  * Fetch Event Handler - Advanced Network and Cache Strategies
  */
-self.addEventListener('fetch', (event) => {
+self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
-  
+
   // Skip non-GET requests for caching (except for background sync)
-  if (request.method !== 'GET') {
-    if (request.method === 'POST' && isAPIRequest(url.pathname)) {
+  if (request.method !== "GET") {
+    if (request.method === "POST" && isAPIRequest(url.pathname)) {
       event.respondWith(handlePostRequest(request));
     }
     return;
   }
-  
+
   // Static assets - Cache First strategy
   if (isStaticAsset(url.pathname)) {
     event.respondWith(cacheFirstStrategy(request, STATIC_CACHE));
     return;
   }
-  
+
   // API requests - Different strategies based on endpoint
   if (isAPIRequest(url.pathname)) {
     if (isCacheFirstAPI(url.pathname)) {
@@ -164,13 +167,13 @@ self.addEventListener('fetch', (event) => {
     }
     return;
   }
-  
+
   // HTML pages - Network First with offline fallback
-  if (request.headers.get('accept')?.includes('text/html')) {
+  if (request.headers.get("accept")?.includes("text/html")) {
     event.respondWith(networkFirstWithOfflineFallback(request));
     return;
   }
-  
+
   // Default: Network with cache fallback
   event.respondWith(networkWithCacheFallback(request));
 });
@@ -178,9 +181,9 @@ self.addEventListener('fetch', (event) => {
 /**
  * Background Sync Event Handler
  */
-self.addEventListener('sync', (event) => {
-  console.log('[SW] Background sync event:', event.tag);
-  
+self.addEventListener("sync", (event) => {
+  console.log("[SW] Background sync event:", event.tag);
+
   switch (event.tag) {
     case SYNC_TAGS.DETECTION_QUEUE:
       event.waitUntil(processDetectionQueue());
@@ -200,63 +203,60 @@ self.addEventListener('sync', (event) => {
 /**
  * Push Notification Handler
  */
-self.addEventListener('push', (event) => {
-  console.log('[SW] Push notification received');
-  
+self.addEventListener("push", (event) => {
+  console.log("[SW] Push notification received");
+
   const data = event.data ? event.data.json() : {};
-  const title = data.title || 'Pynomaly Notification';
+  const title = data.title || "Pynomaly Notification";
   const options = {
-    body: data.body || 'You have a new notification',
-    icon: '/static/icons/icon-192x192.png',
-    badge: '/static/icons/badge-72x72.png',
+    body: data.body || "You have a new notification",
+    icon: "/static/icons/icon-192x192.png",
+    badge: "/static/icons/badge-72x72.png",
     data: data.data,
     actions: [
       {
-        action: 'view',
-        title: 'View Details',
-        icon: '/static/icons/action-view.png'
+        action: "view",
+        title: "View Details",
+        icon: "/static/icons/action-view.png",
       },
       {
-        action: 'dismiss',
-        title: 'Dismiss',
-        icon: '/static/icons/action-dismiss.png'
-      }
+        action: "dismiss",
+        title: "Dismiss",
+        icon: "/static/icons/action-dismiss.png",
+      },
     ],
-    requireInteraction: data.priority === 'high',
-    silent: data.priority === 'low',
+    requireInteraction: data.priority === "high",
+    silent: data.priority === "low",
     timestamp: Date.now(),
-    vibrate: [200, 100, 200]
+    vibrate: [200, 100, 200],
   };
-  
-  event.waitUntil(
-    self.registration.showNotification(title, options)
-  );
+
+  event.waitUntil(self.registration.showNotification(title, options));
 });
 
 /**
  * Notification Click Handler
  */
-self.addEventListener('notificationclick', (event) => {
-  console.log('[SW] Notification clicked:', event.action);
-  
+self.addEventListener("notificationclick", (event) => {
+  console.log("[SW] Notification clicked:", event.action);
+
   event.notification.close();
-  
-  if (event.action === 'view') {
-    const urlToOpen = event.notification.data?.url || '/dashboard';
+
+  if (event.action === "view") {
+    const urlToOpen = event.notification.data?.url || "/dashboard";
     event.waitUntil(
-      clients.matchAll({ type: 'window' })
-        .then((clientList) => {
-          // Check if app is already open
-          for (const client of clientList) {
-            if (client.url === urlToOpen && 'focus' in client) {
-              return client.focus();
-            }
+      clients.matchAll({ type: "window" }).then((clientList) => {
+        // Check if app is already open
+        for (const client of clientList) {
+          if (client.url === urlToOpen && "focus" in client) {
+            return client.focus();
           }
-          // Open new window
-          if (clients.openWindow) {
-            return clients.openWindow(urlToOpen);
-          }
-        })
+        }
+        // Open new window
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
+      }),
     );
   }
 });
@@ -264,26 +264,28 @@ self.addEventListener('notificationclick', (event) => {
 /**
  * Message Handler for Communication with Main Thread
  */
-self.addEventListener('message', (event) => {
+self.addEventListener("message", (event) => {
   const { type, data } = event.data;
-  
+
   switch (type) {
-    case 'SKIP_WAITING':
+    case "SKIP_WAITING":
       self.skipWaiting();
       break;
-    case 'CACHE_URLS':
+    case "CACHE_URLS":
       event.waitUntil(cacheUrls(data.urls));
       break;
-    case 'CLEAR_CACHE':
+    case "CLEAR_CACHE":
       event.waitUntil(clearCache(data.cacheName));
       break;
-    case 'QUEUE_REQUEST':
+    case "QUEUE_REQUEST":
       event.waitUntil(queueRequest(data.request, data.tag));
       break;
-    case 'GET_CACHE_STATUS':
-      event.waitUntil(getCacheStatus().then(status => {
-        event.ports[0].postMessage(status);
-      }));
+    case "GET_CACHE_STATUS":
+      event.waitUntil(
+        getCacheStatus().then((status) => {
+          event.ports[0].postMessage(status);
+        }),
+      );
       break;
   }
 });
@@ -299,20 +301,20 @@ async function cacheFirstStrategy(request, cacheName) {
   try {
     const cache = await caches.open(cacheName);
     const cachedResponse = await cache.match(request);
-    
+
     if (cachedResponse) {
       return cachedResponse;
     }
-    
+
     const networkResponse = await fetch(request);
     if (networkResponse.status === 200) {
       cache.put(request, networkResponse.clone());
     }
-    
+
     return networkResponse;
   } catch (error) {
-    console.error('[SW] Cache first strategy failed:', error);
-    return new Response('Offline - Content not available', { status: 503 });
+    console.error("[SW] Cache first strategy failed:", error);
+    return new Response("Offline - Content not available", { status: 503 });
   }
 }
 
@@ -322,24 +324,24 @@ async function cacheFirstStrategy(request, cacheName) {
 async function networkFirstStrategy(request, cacheName) {
   try {
     const networkResponse = await fetch(request);
-    
+
     if (networkResponse.status === 200) {
       const cache = await caches.open(cacheName);
       cache.put(request, networkResponse.clone());
     }
-    
+
     return networkResponse;
   } catch (error) {
-    console.log('[SW] Network failed, trying cache:', error.message);
-    
+    console.log("[SW] Network failed, trying cache:", error.message);
+
     const cache = await caches.open(cacheName);
     const cachedResponse = await cache.match(request);
-    
+
     if (cachedResponse) {
       return cachedResponse;
     }
-    
-    return new Response('Offline - Service unavailable', { status: 503 });
+
+    return new Response("Offline - Service unavailable", { status: 503 });
   }
 }
 
@@ -349,21 +351,23 @@ async function networkFirstStrategy(request, cacheName) {
 async function staleWhileRevalidateStrategy(request, cacheName) {
   const cache = await caches.open(cacheName);
   const cachedResponse = await cache.match(request);
-  
-  const fetchPromise = fetch(request).then((networkResponse) => {
-    if (networkResponse.status === 200) {
-      cache.put(request, networkResponse.clone());
-    }
-    return networkResponse;
-  }).catch((error) => {
-    console.log('[SW] Background fetch failed:', error.message);
-  });
-  
+
+  const fetchPromise = fetch(request)
+    .then((networkResponse) => {
+      if (networkResponse.status === 200) {
+        cache.put(request, networkResponse.clone());
+      }
+      return networkResponse;
+    })
+    .catch((error) => {
+      console.log("[SW] Background fetch failed:", error.message);
+    });
+
   // Return cached response immediately if available
   if (cachedResponse) {
     return cachedResponse;
   }
-  
+
   // If no cache, wait for network
   return fetchPromise;
 }
@@ -374,22 +378,22 @@ async function staleWhileRevalidateStrategy(request, cacheName) {
 async function networkWithCacheFallback(request) {
   try {
     const networkResponse = await fetch(request);
-    
+
     if (networkResponse.status === 200) {
       const cache = await caches.open(DYNAMIC_CACHE);
       cache.put(request, networkResponse.clone());
     }
-    
+
     return networkResponse;
   } catch (error) {
     const cache = await caches.open(DYNAMIC_CACHE);
     const cachedResponse = await cache.match(request);
-    
+
     if (cachedResponse) {
       return cachedResponse;
     }
-    
-    return new Response('Offline - Resource not available', { status: 503 });
+
+    return new Response("Offline - Resource not available", { status: 503 });
   }
 }
 
@@ -399,27 +403,27 @@ async function networkWithCacheFallback(request) {
 async function networkFirstWithOfflineFallback(request) {
   try {
     const networkResponse = await fetch(request);
-    
+
     if (networkResponse.status === 200) {
       const cache = await caches.open(DYNAMIC_CACHE);
       cache.put(request, networkResponse.clone());
     }
-    
+
     return networkResponse;
   } catch (error) {
     const cache = await caches.open(DYNAMIC_CACHE);
     const cachedResponse = await cache.match(request);
-    
+
     if (cachedResponse) {
       return cachedResponse;
     }
-    
+
     // Return offline page for HTML requests
-    const offlineResponse = await cache.match('/offline');
+    const offlineResponse = await cache.match("/offline");
     if (offlineResponse) {
       return offlineResponse;
     }
-    
+
     return createOfflinePage();
   }
 }
@@ -433,31 +437,33 @@ async function networkFirstWithOfflineFallback(request) {
  */
 async function processDetectionQueue() {
   const db = await openIndexedDB();
-  const transaction = db.transaction([STORES.SYNC_QUEUE], 'readonly');
+  const transaction = db.transaction([STORES.SYNC_QUEUE], "readonly");
   const store = transaction.objectStore(STORES.SYNC_QUEUE);
   const requests = await getAllFromStore(store);
-  
-  const detectionRequests = requests.filter(req => req.tag === SYNC_TAGS.DETECTION_QUEUE);
-  
+
+  const detectionRequests = requests.filter(
+    (req) => req.tag === SYNC_TAGS.DETECTION_QUEUE,
+  );
+
   for (const queuedRequest of detectionRequests) {
     try {
       const response = await fetch(queuedRequest.url, {
         method: queuedRequest.method,
         headers: queuedRequest.headers,
-        body: queuedRequest.body
+        body: queuedRequest.body,
       });
-      
+
       if (response.ok) {
         await removeFromSyncQueue(queuedRequest.id);
         await saveDetectionResult(await response.json());
-        
-        notifyClients('DETECTION_COMPLETE', {
+
+        notifyClients("DETECTION_COMPLETE", {
           requestId: queuedRequest.id,
-          result: await response.json()
+          result: await response.json(),
         });
       }
     } catch (error) {
-      console.error('[SW] Failed to process detection request:', error);
+      console.error("[SW] Failed to process detection request:", error);
     }
   }
 }
@@ -467,14 +473,14 @@ async function processDetectionQueue() {
  */
 async function processUploadQueue() {
   // Implementation similar to processDetectionQueue
-  console.log('[SW] Processing upload queue...');
+  console.log("[SW] Processing upload queue...");
 }
 
 /**
  * Process queued analysis requests
  */
 async function processAnalysisQueue() {
-  console.log('[SW] Processing analysis queue...');
+  console.log("[SW] Processing analysis queue...");
 }
 
 /**
@@ -483,23 +489,26 @@ async function processAnalysisQueue() {
 async function syncMetrics() {
   try {
     const db = await openIndexedDB();
-    const transaction = db.transaction([STORES.USER_PREFERENCES], 'readonly');
+    const transaction = db.transaction([STORES.USER_PREFERENCES], "readonly");
     const store = transaction.objectStore(STORES.USER_PREFERENCES);
-    const metrics = await getFromStore(store, 'usage_metrics');
-    
+    const metrics = await getFromStore(store, "usage_metrics");
+
     if (metrics) {
-      const response = await fetch('/api/metrics/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(metrics.data)
+      const response = await fetch("/api/metrics/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(metrics.data),
       });
-      
+
       if (response.ok) {
-        await updateUserPreference('usage_metrics', { data: {}, lastSync: Date.now() });
+        await updateUserPreference("usage_metrics", {
+          data: {},
+          lastSync: Date.now(),
+        });
       }
     }
   } catch (error) {
-    console.error('[SW] Failed to sync metrics:', error);
+    console.error("[SW] Failed to sync metrics:", error);
   }
 }
 
@@ -513,23 +522,26 @@ async function syncMetrics() {
 async function initializeIndexedDB() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
-    
+
     request.onerror = () => reject(request.error);
     request.onsuccess = () => resolve(request.result);
-    
+
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
-      
-      Object.values(STORES).forEach(storeName => {
+
+      Object.values(STORES).forEach((storeName) => {
         if (!db.objectStoreNames.contains(storeName)) {
-          const store = db.createObjectStore(storeName, { keyPath: 'id', autoIncrement: true });
-          
+          const store = db.createObjectStore(storeName, {
+            keyPath: "id",
+            autoIncrement: true,
+          });
+
           if (storeName === STORES.DETECTIONS) {
-            store.createIndex('timestamp', 'timestamp');
-            store.createIndex('status', 'status');
+            store.createIndex("timestamp", "timestamp");
+            store.createIndex("status", "status");
           } else if (storeName === STORES.SYNC_QUEUE) {
-            store.createIndex('tag', 'tag');
-            store.createIndex('timestamp', 'timestamp');
+            store.createIndex("tag", "tag");
+            store.createIndex("timestamp", "timestamp");
           }
         }
       });
@@ -553,26 +565,32 @@ async function openIndexedDB() {
 // =====================================================
 
 function isStaticAsset(pathname) {
-  return pathname.startsWith('/static/') || 
-         pathname.endsWith('.css') || 
-         pathname.endsWith('.js') || 
-         pathname.endsWith('.png') || 
-         pathname.endsWith('.jpg') || 
-         pathname.endsWith('.svg') ||
-         pathname.endsWith('.woff2') ||
-         pathname === '/manifest.json';
+  return (
+    pathname.startsWith("/static/") ||
+    pathname.endsWith(".css") ||
+    pathname.endsWith(".js") ||
+    pathname.endsWith(".png") ||
+    pathname.endsWith(".jpg") ||
+    pathname.endsWith(".svg") ||
+    pathname.endsWith(".woff2") ||
+    pathname === "/manifest.json"
+  );
 }
 
 function isAPIRequest(pathname) {
-  return pathname.startsWith('/api/');
+  return pathname.startsWith("/api/");
 }
 
 function isCacheFirstAPI(pathname) {
-  return API_ENDPOINTS.CACHE_FIRST.some(endpoint => pathname.startsWith(endpoint));
+  return API_ENDPOINTS.CACHE_FIRST.some((endpoint) =>
+    pathname.startsWith(endpoint),
+  );
 }
 
 function isNetworkFirstAPI(pathname) {
-  return API_ENDPOINTS.NETWORK_FIRST.some(endpoint => pathname.startsWith(endpoint));
+  return API_ENDPOINTS.NETWORK_FIRST.some((endpoint) =>
+    pathname.startsWith(endpoint),
+  );
 }
 
 async function handlePostRequest(request) {
@@ -587,30 +605,34 @@ async function handlePostRequest(request) {
       headers: Object.fromEntries(request.headers.entries()),
       body: await request.text(),
       timestamp: Date.now(),
-      tag: determineSyncTag(request.url)
+      tag: determineSyncTag(request.url),
     };
-    
+
     await queueRequest(requestData, requestData.tag);
-    
-    return new Response(JSON.stringify({
-      message: 'Request queued for background sync',
-      requestId: requestData.id
-    }), {
-      status: 202,
-      headers: { 'Content-Type': 'application/json' }
-    });
+
+    return new Response(
+      JSON.stringify({
+        message: "Request queued for background sync",
+        requestId: requestData.id,
+      }),
+      {
+        status: 202,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   }
 }
 
 function determineSyncTag(url) {
-  if (url.includes('/detection')) return SYNC_TAGS.DETECTION_QUEUE;
-  if (url.includes('/upload')) return SYNC_TAGS.UPLOAD_QUEUE;
-  if (url.includes('/analysis')) return SYNC_TAGS.ANALYSIS_QUEUE;
+  if (url.includes("/detection")) return SYNC_TAGS.DETECTION_QUEUE;
+  if (url.includes("/upload")) return SYNC_TAGS.UPLOAD_QUEUE;
+  if (url.includes("/analysis")) return SYNC_TAGS.ANALYSIS_QUEUE;
   return SYNC_TAGS.DETECTION_QUEUE;
 }
 
 function createOfflinePage() {
-  return new Response(`
+  return new Response(
+    `
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -634,15 +656,17 @@ function createOfflinePage() {
       </div>
     </body>
     </html>
-  `, {
-    status: 503,
-    headers: { 'Content-Type': 'text/html' }
-  });
+  `,
+    {
+      status: 503,
+      headers: { "Content-Type": "text/html" },
+    },
+  );
 }
 
 function notifyClients(type, data) {
-  self.clients.matchAll().then(clients => {
-    clients.forEach(client => {
+  self.clients.matchAll().then((clients) => {
+    clients.forEach((client) => {
       client.postMessage({ type, data });
     });
   });
@@ -658,21 +682,21 @@ function notifyClients(type, data) {
 async function queueRequest(requestData, tag) {
   try {
     const db = await openIndexedDB();
-    const transaction = db.transaction([STORES.SYNC_QUEUE], 'readwrite');
+    const transaction = db.transaction([STORES.SYNC_QUEUE], "readwrite");
     const store = transaction.objectStore(STORES.SYNC_QUEUE);
-    
+
     const queueItem = {
       ...requestData,
       tag,
       timestamp: Date.now(),
       retryCount: 0,
-      status: 'pending'
+      status: "pending",
     };
-    
+
     await addToStore(store, queueItem);
-    console.log('[SW] Request queued for sync:', tag, requestData.id);
+    console.log("[SW] Request queued for sync:", tag, requestData.id);
   } catch (error) {
-    console.error('[SW] Failed to queue request:', error);
+    console.error("[SW] Failed to queue request:", error);
   }
 }
 
@@ -682,13 +706,13 @@ async function queueRequest(requestData, tag) {
 async function removeFromSyncQueue(id) {
   try {
     const db = await openIndexedDB();
-    const transaction = db.transaction([STORES.SYNC_QUEUE], 'readwrite');
+    const transaction = db.transaction([STORES.SYNC_QUEUE], "readwrite");
     const store = transaction.objectStore(STORES.SYNC_QUEUE);
-    
+
     await deleteFromStore(store, id);
-    console.log('[SW] Removed from sync queue:', id);
+    console.log("[SW] Removed from sync queue:", id);
   } catch (error) {
-    console.error('[SW] Failed to remove from sync queue:', error);
+    console.error("[SW] Failed to remove from sync queue:", error);
   }
 }
 
@@ -698,21 +722,21 @@ async function removeFromSyncQueue(id) {
 async function saveDetectionResult(result) {
   try {
     const db = await openIndexedDB();
-    const transaction = db.transaction([STORES.DETECTIONS], 'readwrite');
+    const transaction = db.transaction([STORES.DETECTIONS], "readwrite");
     const store = transaction.objectStore(STORES.DETECTIONS);
-    
+
     const detectionRecord = {
       id: result.id || Date.now(),
       timestamp: Date.now(),
       result: result,
-      status: 'completed',
-      synced: false
+      status: "completed",
+      synced: false,
     };
-    
+
     await addToStore(store, detectionRecord);
-    console.log('[SW] Detection result saved offline:', detectionRecord.id);
+    console.log("[SW] Detection result saved offline:", detectionRecord.id);
   } catch (error) {
-    console.error('[SW] Failed to save detection result:', error);
+    console.error("[SW] Failed to save detection result:", error);
   }
 }
 
@@ -777,19 +801,19 @@ async function deleteFromStore(store, key) {
 async function updateUserPreference(key, value) {
   try {
     const db = await openIndexedDB();
-    const transaction = db.transaction([STORES.USER_PREFERENCES], 'readwrite');
+    const transaction = db.transaction([STORES.USER_PREFERENCES], "readwrite");
     const store = transaction.objectStore(STORES.USER_PREFERENCES);
-    
+
     const preference = {
       id: key,
       value: value,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
-    
+
     await updateInStore(store, preference);
-    console.log('[SW] User preference updated:', key);
+    console.log("[SW] User preference updated:", key);
   } catch (error) {
-    console.error('[SW] Failed to update user preference:', error);
+    console.error("[SW] Failed to update user preference:", error);
   }
 }
 
@@ -800,9 +824,9 @@ async function cacheUrls(urls) {
   try {
     const cache = await caches.open(DYNAMIC_CACHE);
     await cache.addAll(urls);
-    console.log('[SW] URLs cached:', urls.length);
+    console.log("[SW] URLs cached:", urls.length);
   } catch (error) {
-    console.error('[SW] Failed to cache URLs:', error);
+    console.error("[SW] Failed to cache URLs:", error);
   }
 }
 
@@ -812,10 +836,10 @@ async function cacheUrls(urls) {
 async function clearCache(cacheName) {
   try {
     const deleted = await caches.delete(cacheName);
-    console.log('[SW] Cache cleared:', cacheName, deleted);
+    console.log("[SW] Cache cleared:", cacheName, deleted);
     return deleted;
   } catch (error) {
-    console.error('[SW] Failed to clear cache:', error);
+    console.error("[SW] Failed to clear cache:", error);
     return false;
   }
 }
@@ -829,18 +853,18 @@ async function getCacheStatus() {
     const status = {
       caches: cacheNames.length,
       names: cacheNames,
-      totalSize: 0
+      totalSize: 0,
     };
-    
+
     for (const cacheName of cacheNames) {
       const cache = await caches.open(cacheName);
       const keys = await cache.keys();
       status.totalSize += keys.length;
     }
-    
+
     return status;
   } catch (error) {
-    console.error('[SW] Failed to get cache status:', error);
+    console.error("[SW] Failed to get cache status:", error);
     return { caches: 0, names: [], totalSize: 0 };
   }
 }
@@ -851,23 +875,23 @@ async function getCacheStatus() {
 async function saveDatasetOffline(dataset) {
   try {
     const db = await openIndexedDB();
-    const transaction = db.transaction([STORES.DATASETS], 'readwrite');
+    const transaction = db.transaction([STORES.DATASETS], "readwrite");
     const store = transaction.objectStore(STORES.DATASETS);
-    
+
     const datasetRecord = {
       id: dataset.id || Date.now(),
       name: dataset.name,
       data: dataset.data,
       metadata: dataset.metadata,
       timestamp: Date.now(),
-      synced: false
+      synced: false,
     };
-    
+
     await addToStore(store, datasetRecord);
-    console.log('[SW] Dataset saved offline:', datasetRecord.id);
+    console.log("[SW] Dataset saved offline:", datasetRecord.id);
     return datasetRecord.id;
   } catch (error) {
-    console.error('[SW] Failed to save dataset offline:', error);
+    console.error("[SW] Failed to save dataset offline:", error);
     throw error;
   }
 }
@@ -878,12 +902,12 @@ async function saveDatasetOffline(dataset) {
 async function getOfflineDatasets() {
   try {
     const db = await openIndexedDB();
-    const transaction = db.transaction([STORES.DATASETS], 'readonly');
+    const transaction = db.transaction([STORES.DATASETS], "readonly");
     const store = transaction.objectStore(STORES.DATASETS);
-    
+
     return await getAllFromStore(store);
   } catch (error) {
-    console.error('[SW] Failed to get offline datasets:', error);
+    console.error("[SW] Failed to get offline datasets:", error);
     return [];
   }
 }
@@ -894,12 +918,12 @@ async function getOfflineDatasets() {
 async function getOfflineResults() {
   try {
     const db = await openIndexedDB();
-    const transaction = db.transaction([STORES.RESULTS], 'readonly');
+    const transaction = db.transaction([STORES.RESULTS], "readonly");
     const store = transaction.objectStore(STORES.RESULTS);
-    
+
     return await getAllFromStore(store);
   } catch (error) {
-    console.error('[SW] Failed to get offline results:', error);
+    console.error("[SW] Failed to get offline results:", error);
     return [];
   }
 }
@@ -907,63 +931,75 @@ async function getOfflineResults() {
 /**
  * Enhanced message handling for PWA components
  */
-self.addEventListener('message', (event) => {
+self.addEventListener("message", (event) => {
   const { type, payload } = event.data;
-  
+
   switch (type) {
-    case 'SKIP_WAITING':
+    case "SKIP_WAITING":
       self.skipWaiting();
       break;
-    case 'CACHE_URLS':
+    case "CACHE_URLS":
       event.waitUntil(cacheUrls(payload.urls));
       break;
-    case 'CLEAR_CACHE':
+    case "CLEAR_CACHE":
       event.waitUntil(clearCache(payload.cacheName));
       break;
-    case 'QUEUE_REQUEST':
+    case "QUEUE_REQUEST":
       event.waitUntil(queueRequest(payload.request, payload.tag));
       break;
-    case 'GET_CACHE_STATUS':
-      event.waitUntil(getCacheStatus().then(status => {
-        event.ports[0].postMessage(status);
-      }));
+    case "GET_CACHE_STATUS":
+      event.waitUntil(
+        getCacheStatus().then((status) => {
+          event.ports[0].postMessage(status);
+        }),
+      );
       break;
-    case 'GET_OFFLINE_DASHBOARD_DATA':
-      event.waitUntil(getOfflineDashboardData().then(data => {
-        notifyClients('OFFLINE_DASHBOARD_DATA', { data });
-      }));
+    case "GET_OFFLINE_DASHBOARD_DATA":
+      event.waitUntil(
+        getOfflineDashboardData().then((data) => {
+          notifyClients("OFFLINE_DASHBOARD_DATA", { data });
+        }),
+      );
       break;
-    case 'GET_OFFLINE_DATASETS':
-      event.waitUntil(getOfflineDatasets().then(datasets => {
-        notifyClients('OFFLINE_DATASETS', { datasets });
-      }));
+    case "GET_OFFLINE_DATASETS":
+      event.waitUntil(
+        getOfflineDatasets().then((datasets) => {
+          notifyClients("OFFLINE_DATASETS", { datasets });
+        }),
+      );
       break;
-    case 'GET_OFFLINE_RESULTS':
-      event.waitUntil(getOfflineResults().then(results => {
-        notifyClients('OFFLINE_RESULTS', { results });
-      }));
+    case "GET_OFFLINE_RESULTS":
+      event.waitUntil(
+        getOfflineResults().then((results) => {
+          notifyClients("OFFLINE_RESULTS", { results });
+        }),
+      );
       break;
-    case 'SAVE_DETECTION_RESULT':
+    case "SAVE_DETECTION_RESULT":
       event.waitUntil(saveDetectionResult(payload));
       break;
-    case 'GET_SYNC_QUEUE':
-      event.waitUntil(getSyncQueue().then(queue => {
-        notifyClients('SYNC_QUEUE_UPDATE', { queue });
-      }));
+    case "GET_SYNC_QUEUE":
+      event.waitUntil(
+        getSyncQueue().then((queue) => {
+          notifyClients("SYNC_QUEUE_UPDATE", { queue });
+        }),
+      );
       break;
-    case 'UPDATE_SYNC_QUEUE':
+    case "UPDATE_SYNC_QUEUE":
       event.waitUntil(updateSyncQueue(payload.queue));
       break;
-    case 'UPDATE_LOCAL_DATA':
+    case "UPDATE_LOCAL_DATA":
       event.waitUntil(updateLocalEntityData(payload));
       break;
-    case 'SYNC_ALL_QUEUES':
+    case "SYNC_ALL_QUEUES":
       event.waitUntil(triggerBackgroundSyncAll());
       break;
-    case 'GET_SYNC_STATUS':
-      event.waitUntil(getSyncStatus().then(status => {
-        notifyClients('SYNC_QUEUE_STATUS', status);
-      }));
+    case "GET_SYNC_STATUS":
+      event.waitUntil(
+        getSyncStatus().then((status) => {
+          notifyClients("SYNC_QUEUE_STATUS", status);
+        }),
+      );
       break;
   }
 });
@@ -974,23 +1010,26 @@ self.addEventListener('message', (event) => {
 async function getOfflineDashboardData() {
   try {
     const db = await openIndexedDB();
-    
+
     const [datasets, results, userPrefs] = await Promise.all([
       getOfflineDatasets(),
       getOfflineResults(),
-      getUserPreferences()
+      getUserPreferences(),
     ]);
 
     // Calculate statistics
     const stats = {
       totalDatasets: datasets.length,
       totalDetections: results.length,
-      totalAnomalies: results.reduce((sum, r) => sum + (r.result?.anomalies?.length || 0), 0),
+      totalAnomalies: results.reduce(
+        (sum, r) => sum + (r.result?.anomalies?.length || 0),
+        0,
+      ),
       cacheSize: estimateStorageSize(datasets, results),
       lastActivity: Math.max(
-        ...results.map(r => r.timestamp),
-        ...datasets.map(d => d.timestamp)
-      )
+        ...results.map((r) => r.timestamp),
+        ...datasets.map((d) => d.timestamp),
+      ),
     };
 
     // Get algorithm performance data
@@ -1001,16 +1040,16 @@ async function getOfflineDashboardData() {
       results,
       stats,
       algorithms,
-      preferences: userPrefs
+      preferences: userPrefs,
     };
   } catch (error) {
-    console.error('[SW] Failed to get offline dashboard data:', error);
+    console.error("[SW] Failed to get offline dashboard data:", error);
     return {
       datasets: [],
       results: [],
       stats: {},
       algorithms: [],
-      preferences: {}
+      preferences: {},
     };
   }
 }
@@ -1021,16 +1060,16 @@ async function getOfflineDashboardData() {
 async function getUserPreferences() {
   try {
     const db = await openIndexedDB();
-    const transaction = db.transaction([STORES.USER_PREFERENCES], 'readonly');
+    const transaction = db.transaction([STORES.USER_PREFERENCES], "readonly");
     const store = transaction.objectStore(STORES.USER_PREFERENCES);
-    
+
     const prefs = await getAllFromStore(store);
     return prefs.reduce((acc, pref) => {
       acc[pref.id] = pref.value;
       return acc;
     }, {});
   } catch (error) {
-    console.error('[SW] Failed to get user preferences:', error);
+    console.error("[SW] Failed to get user preferences:", error);
     return {};
   }
 }
@@ -1040,30 +1079,30 @@ async function getUserPreferences() {
  */
 function getAlgorithmStats(results) {
   const algoStats = {};
-  
-  results.forEach(result => {
-    const algo = result.result?.algorithmId || 'unknown';
+
+  results.forEach((result) => {
+    const algo = result.result?.algorithmId || "unknown";
     if (!algoStats[algo]) {
       algoStats[algo] = {
         id: algo,
         count: 0,
         totalTime: 0,
         totalAnomalies: 0,
-        avgAccuracy: 0
+        avgAccuracy: 0,
       };
     }
-    
+
     algoStats[algo].count++;
     algoStats[algo].totalTime += result.result?.processingTimeMs || 0;
     algoStats[algo].totalAnomalies += result.result?.anomalies?.length || 0;
   });
-  
+
   // Calculate averages
-  Object.values(algoStats).forEach(stats => {
+  Object.values(algoStats).forEach((stats) => {
     stats.avgTime = stats.totalTime / stats.count;
     stats.avgAnomaliesPerRun = stats.totalAnomalies / stats.count;
   });
-  
+
   return Object.values(algoStats);
 }
 
@@ -1082,12 +1121,12 @@ function estimateStorageSize(datasets, results) {
 async function getSyncQueue() {
   try {
     const db = await openIndexedDB();
-    const transaction = db.transaction([STORES.SYNC_QUEUE], 'readonly');
+    const transaction = db.transaction([STORES.SYNC_QUEUE], "readonly");
     const store = transaction.objectStore(STORES.SYNC_QUEUE);
-    
+
     return await getAllFromStore(store);
   } catch (error) {
-    console.error('[SW] Failed to get sync queue:', error);
+    console.error("[SW] Failed to get sync queue:", error);
     return [];
   }
 }
@@ -1098,20 +1137,20 @@ async function getSyncQueue() {
 async function updateSyncQueue(queue) {
   try {
     const db = await openIndexedDB();
-    const transaction = db.transaction([STORES.SYNC_QUEUE], 'readwrite');
+    const transaction = db.transaction([STORES.SYNC_QUEUE], "readwrite");
     const store = transaction.objectStore(STORES.SYNC_QUEUE);
-    
+
     // Clear existing queue
     await store.clear();
-    
+
     // Add new queue items
     for (const item of queue) {
       await addToStore(store, item);
     }
-    
-    console.log('[SW] Sync queue updated with', queue.length, 'items');
+
+    console.log("[SW] Sync queue updated with", queue.length, "items");
   } catch (error) {
-    console.error('[SW] Failed to update sync queue:', error);
+    console.error("[SW] Failed to update sync queue:", error);
   }
 }
 
@@ -1122,23 +1161,23 @@ async function updateLocalEntityData(payload) {
   try {
     const { entityType, entityId, data } = payload;
     const db = await openIndexedDB();
-    
+
     let storeName;
     switch (entityType) {
-      case 'dataset':
+      case "dataset":
         storeName = STORES.DATASETS;
         break;
-      case 'result':
+      case "result":
         storeName = STORES.RESULTS;
         break;
       default:
-        console.warn('[SW] Unknown entity type:', entityType);
+        console.warn("[SW] Unknown entity type:", entityType);
         return;
     }
-    
-    const transaction = db.transaction([storeName], 'readwrite');
+
+    const transaction = db.transaction([storeName], "readwrite");
     const store = transaction.objectStore(storeName);
-    
+
     // Update or add the entity
     const existingEntity = await getFromStore(store, entityId);
     if (existingEntity) {
@@ -1146,11 +1185,11 @@ async function updateLocalEntityData(payload) {
     } else {
       await addToStore(store, { ...data, id: entityId });
     }
-    
-    console.log('[SW] Local entity data updated:', entityType, entityId);
-    notifyClients('OFFLINE_DATA_UPDATED', { entityType, entityId });
+
+    console.log("[SW] Local entity data updated:", entityType, entityId);
+    notifyClients("OFFLINE_DATA_UPDATED", { entityType, entityId });
   } catch (error) {
-    console.error('[SW] Failed to update local entity data:', error);
+    console.error("[SW] Failed to update local entity data:", error);
   }
 }
 
@@ -1160,17 +1199,20 @@ async function updateLocalEntityData(payload) {
 async function triggerBackgroundSyncAll() {
   try {
     // Register sync events for all sync tags
-    if ('serviceWorker' in self && 'sync' in self.ServiceWorkerRegistration.prototype) {
+    if (
+      "serviceWorker" in self &&
+      "sync" in self.ServiceWorkerRegistration.prototype
+    ) {
       await Promise.all([
         self.registration.sync.register(SYNC_TAGS.DETECTION_QUEUE),
         self.registration.sync.register(SYNC_TAGS.UPLOAD_QUEUE),
         self.registration.sync.register(SYNC_TAGS.ANALYSIS_QUEUE),
-        self.registration.sync.register(SYNC_TAGS.METRICS_SYNC)
+        self.registration.sync.register(SYNC_TAGS.METRICS_SYNC),
       ]);
-      console.log('[SW] Background sync triggered for all queues');
+      console.log("[SW] Background sync triggered for all queues");
     }
   } catch (error) {
-    console.error('[SW] Failed to trigger background sync:', error);
+    console.error("[SW] Failed to trigger background sync:", error);
   }
 }
 
@@ -1180,31 +1222,36 @@ async function triggerBackgroundSyncAll() {
 async function getSyncStatus() {
   try {
     const queue = await getSyncQueue();
-    
-    const pending = queue.filter(item => item.status === 'pending').length;
-    const syncing = queue.filter(item => item.status === 'syncing').length;
-    const failed = queue.filter(item => item.status === 'failed').length;
-    const completed = queue.filter(item => item.status === 'completed').length;
-    
+
+    const pending = queue.filter((item) => item.status === "pending").length;
+    const syncing = queue.filter((item) => item.status === "syncing").length;
+    const failed = queue.filter((item) => item.status === "failed").length;
+    const completed = queue.filter(
+      (item) => item.status === "completed",
+    ).length;
+
     return {
       pending,
       syncing,
       failed,
       completed,
       total: queue.length,
-      lastSync: queue.length > 0 ? Math.max(...queue.map(item => item.timestamp)) : null
+      lastSync:
+        queue.length > 0
+          ? Math.max(...queue.map((item) => item.timestamp))
+          : null,
     };
   } catch (error) {
-    console.error('[SW] Failed to get sync status:', error);
+    console.error("[SW] Failed to get sync status:", error);
     return {
       pending: 0,
       syncing: 0,
       failed: 0,
       completed: 0,
       total: 0,
-      lastSync: null
+      lastSync: null,
     };
   }
 }
 
-console.log('[SW] Service worker script loaded successfully');
+console.log("[SW] Service worker script loaded successfully");

@@ -1,6 +1,6 @@
 /**
  * Advanced Form Components for Pynomaly
- * 
+ *
  * Features:
  * - Multi-step form wizard with validation
  * - Dynamic field generation and validation
@@ -20,16 +20,16 @@ class AdvancedFormComponents {
       debounceMs: 300,
       accessibility: {
         announceErrors: true,
-        liveValidation: true
+        liveValidation: true,
       },
-      theme: 'light',
-      ...options
+      theme: "light",
+      ...options,
     };
 
     this.validators = new Map();
     this.forms = new Map();
     this.components = new Map();
-    
+
     this.init();
   }
 
@@ -40,37 +40,37 @@ class AdvancedFormComponents {
 
   setupValidators() {
     // Basic validators
-    this.addValidator('required', (value, field) => {
+    this.addValidator("required", (value, field) => {
       if (!value || (Array.isArray(value) && value.length === 0)) {
-        return `${field.label || 'This field'} is required`;
+        return `${field.label || "This field"} is required`;
       }
       return null;
     });
 
-    this.addValidator('email', (value) => {
+    this.addValidator("email", (value) => {
       if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-        return 'Please enter a valid email address';
+        return "Please enter a valid email address";
       }
       return null;
     });
 
-    this.addValidator('minLength', (value, field) => {
+    this.addValidator("minLength", (value, field) => {
       if (value && value.length < field.minLength) {
         return `Must be at least ${field.minLength} characters long`;
       }
       return null;
     });
 
-    this.addValidator('maxLength', (value, field) => {
+    this.addValidator("maxLength", (value, field) => {
       if (value && value.length > field.maxLength) {
         return `Must be no more than ${field.maxLength} characters long`;
       }
       return null;
     });
 
-    this.addValidator('number', (value, field) => {
+    this.addValidator("number", (value, field) => {
       if (value && isNaN(value)) {
-        return 'Please enter a valid number';
+        return "Please enter a valid number";
       }
       if (value && field.min !== undefined && parseFloat(value) < field.min) {
         return `Must be at least ${field.min}`;
@@ -81,22 +81,25 @@ class AdvancedFormComponents {
       return null;
     });
 
-    this.addValidator('date', (value) => {
+    this.addValidator("date", (value) => {
       if (value && isNaN(new Date(value).getTime())) {
-        return 'Please enter a valid date';
+        return "Please enter a valid date";
       }
       return null;
     });
 
-    this.addValidator('url', (value) => {
+    this.addValidator("url", (value) => {
       if (value && !/^https?:\/\/.+/.test(value)) {
-        return 'Please enter a valid URL starting with http:// or https://';
+        return "Please enter a valid URL starting with http:// or https://";
       }
       return null;
     });
 
-    this.addValidator('custom', (value, field) => {
-      if (field.customValidator && typeof field.customValidator === 'function') {
+    this.addValidator("custom", (value, field) => {
+      if (
+        field.customValidator &&
+        typeof field.customValidator === "function"
+      ) {
         return field.customValidator(value, field);
       }
       return null;
@@ -104,9 +107,9 @@ class AdvancedFormComponents {
   }
 
   setupGlobalStyles() {
-    if (!document.querySelector('#advanced-form-styles')) {
-      const styleSheet = document.createElement('style');
-      styleSheet.id = 'advanced-form-styles';
+    if (!document.querySelector("#advanced-form-styles")) {
+      const styleSheet = document.createElement("style");
+      styleSheet.id = "advanced-form-styles";
       styleSheet.textContent = this.getFormStyles();
       document.head.appendChild(styleSheet);
     }
@@ -522,8 +525,12 @@ class AdvancedFormComponents {
 
   // Multi-step Form Wizard
   createMultiStepForm(container, config) {
-    const formId = 'form_' + Math.random().toString(36).substr(2, 9);
-    const formInstance = new MultiStepForm(container, { ...config, formId }, this);
+    const formId = "form_" + Math.random().toString(36).substr(2, 9);
+    const formInstance = new MultiStepForm(
+      container,
+      { ...config, formId },
+      this,
+    );
     this.forms.set(formId, formInstance);
     return formInstance;
   }
@@ -556,13 +563,14 @@ class AdvancedFormComponents {
 
   validateField(value, field) {
     const errors = [];
-    
+
     if (field.validators) {
       for (const validatorConfig of field.validators) {
-        const validatorName = typeof validatorConfig === 'string' 
-          ? validatorConfig 
-          : validatorConfig.name;
-        
+        const validatorName =
+          typeof validatorConfig === "string"
+            ? validatorConfig
+            : validatorConfig.name;
+
         const validator = this.validators.get(validatorName);
         if (validator) {
           const error = validator(value, { ...field, ...validatorConfig });
@@ -572,7 +580,7 @@ class AdvancedFormComponents {
         }
       }
     }
-    
+
     return errors;
   }
 
@@ -592,13 +600,13 @@ class AdvancedFormComponents {
   announceToUser(message) {
     if (!this.options.accessibility.announceErrors) return;
 
-    let liveRegion = document.getElementById('form-announcements');
+    let liveRegion = document.getElementById("form-announcements");
     if (!liveRegion) {
-      liveRegion = document.createElement('div');
-      liveRegion.id = 'form-announcements';
-      liveRegion.className = 'sr-only';
-      liveRegion.setAttribute('aria-live', 'polite');
-      liveRegion.setAttribute('aria-atomic', 'true');
+      liveRegion = document.createElement("div");
+      liveRegion.id = "form-announcements";
+      liveRegion.className = "sr-only";
+      liveRegion.setAttribute("aria-live", "polite");
+      liveRegion.setAttribute("aria-atomic", "true");
       document.body.appendChild(liveRegion);
     }
 
@@ -606,8 +614,8 @@ class AdvancedFormComponents {
   }
 
   destroy() {
-    this.forms.forEach(form => form.destroy());
-    this.components.forEach(component => component.destroy());
+    this.forms.forEach((form) => form.destroy());
+    this.components.forEach((component) => component.destroy());
     this.forms.clear();
     this.components.clear();
     this.validators.clear();
@@ -617,16 +625,17 @@ class AdvancedFormComponents {
 // Multi-Step Form Implementation
 class MultiStepForm {
   constructor(container, config, parent) {
-    this.container = typeof container === 'string' 
-      ? document.querySelector(container) 
-      : container;
+    this.container =
+      typeof container === "string"
+        ? document.querySelector(container)
+        : container;
     this.config = config;
     this.parent = parent;
     this.currentStep = 0;
     this.formData = {};
     this.errors = {};
     this.touched = {};
-    
+
     this.init();
   }
 
@@ -638,39 +647,47 @@ class MultiStepForm {
 
   render() {
     const { steps, title } = this.config;
-    
+
     this.container.innerHTML = `
       <div class="advanced-form" role="form" aria-labelledby="form-title">
-        ${title ? `<h2 id="form-title" class="form-title">${title}</h2>` : ''}
+        ${title ? `<h2 id="form-title" class="form-title">${title}</h2>` : ""}
         
         <div class="form-progress" role="progressbar" aria-valuenow="${this.currentStep + 1}" aria-valuemin="1" aria-valuemax="${steps.length}">
-          ${steps.map((step, index) => `
-            <div class="progress-step ${index === this.currentStep ? 'active' : ''} ${index < this.currentStep ? 'completed' : ''}" 
+          ${steps
+            .map(
+              (step, index) => `
+            <div class="progress-step ${index === this.currentStep ? "active" : ""} ${index < this.currentStep ? "completed" : ""}" 
                  data-step="${index}">
               <div class="progress-indicator" aria-label="Step ${index + 1}">
-                ${index < this.currentStep ? '✓' : index + 1}
+                ${index < this.currentStep ? "✓" : index + 1}
               </div>
               <div class="progress-label">${step.title}</div>
             </div>
-          `).join('')}
+          `,
+            )
+            .join("")}
         </div>
 
         <form id="${this.config.formId}" novalidate>
-          ${steps.map((step, index) => `
-            <div class="form-step ${index === this.currentStep ? 'active' : ''}" 
+          ${steps
+            .map(
+              (step, index) => `
+            <div class="form-step ${index === this.currentStep ? "active" : ""}" 
                  data-step="${index}"
                  role="tabpanel"
                  aria-labelledby="step-${index}-title">
               <h3 id="step-${index}-title" class="step-title">${step.title}</h3>
-              ${step.description ? `<p class="step-description">${step.description}</p>` : ''}
+              ${step.description ? `<p class="step-description">${step.description}</p>` : ""}
               <div class="step-content">
                 ${this.renderFields(step.fields)}
               </div>
             </div>
-          `).join('')}
+          `,
+            )
+            .join("")}
 
           <div class="form-actions">
-            <button type="button" class="btn btn--secondary" id="prev-btn" ${this.currentStep === 0 ? 'disabled' : ''}>
+            <button type="button" class="btn btn--secondary" id="prev-btn" ${this.currentStep === 0 ? "disabled" : ""}>
               Previous
             </button>
             <div class="btn-group">
@@ -678,7 +695,7 @@ class MultiStepForm {
                 Save Draft
               </button>
               <button type="button" class="btn btn--primary" id="next-btn">
-                ${this.currentStep === steps.length - 1 ? 'Submit' : 'Next'}
+                ${this.currentStep === steps.length - 1 ? "Submit" : "Next"}
               </button>
             </div>
           </div>
@@ -690,118 +707,130 @@ class MultiStepForm {
   }
 
   renderFields(fields) {
-    return fields.map(field => this.renderField(field)).join('');
+    return fields.map((field) => this.renderField(field)).join("");
   }
 
   renderField(field) {
-    const value = this.formData[field.name] || field.defaultValue || '';
+    const value = this.formData[field.name] || field.defaultValue || "";
     const error = this.errors[field.name];
     const hasError = error && this.touched[field.name];
 
-    const baseClasses = 'form-input';
-    const errorClass = hasError ? 'error' : '';
-    const successClass = this.touched[field.name] && !error ? 'success' : '';
+    const baseClasses = "form-input";
+    const errorClass = hasError ? "error" : "";
+    const successClass = this.touched[field.name] && !error ? "success" : "";
     const inputClasses = `${baseClasses} ${errorClass} ${successClass}`.trim();
 
     const commonAttributes = `
       id="${field.name}"
       name="${field.name}"
       class="${inputClasses}"
-      ${field.required ? 'required aria-required="true"' : ''}
-      ${field.disabled ? 'disabled' : ''}
-      ${hasError ? `aria-invalid="true" aria-describedby="${field.name}-error"` : ''}
-      ${field.helpText ? `aria-describedby="${field.name}-help"` : ''}
+      ${field.required ? 'required aria-required="true"' : ""}
+      ${field.disabled ? "disabled" : ""}
+      ${hasError ? `aria-invalid="true" aria-describedby="${field.name}-error"` : ""}
+      ${field.helpText ? `aria-describedby="${field.name}-help"` : ""}
     `;
 
-    let inputHTML = '';
+    let inputHTML = "";
 
     switch (field.type) {
-      case 'text':
-      case 'email':
-      case 'password':
-      case 'url':
-      case 'tel':
+      case "text":
+      case "email":
+      case "password":
+      case "url":
+      case "tel":
         inputHTML = `
           <input type="${field.type}" 
                  ${commonAttributes}
                  value="${value}"
-                 placeholder="${field.placeholder || ''}"
-                 ${field.minLength ? `minlength="${field.minLength}"` : ''}
-                 ${field.maxLength ? `maxlength="${field.maxLength}"` : ''}
-                 ${field.pattern ? `pattern="${field.pattern}"` : ''}>
+                 placeholder="${field.placeholder || ""}"
+                 ${field.minLength ? `minlength="${field.minLength}"` : ""}
+                 ${field.maxLength ? `maxlength="${field.maxLength}"` : ""}
+                 ${field.pattern ? `pattern="${field.pattern}"` : ""}>
         `;
         break;
 
-      case 'number':
+      case "number":
         inputHTML = `
           <input type="number" 
                  ${commonAttributes}
                  value="${value}"
-                 placeholder="${field.placeholder || ''}"
-                 ${field.min !== undefined ? `min="${field.min}"` : ''}
-                 ${field.max !== undefined ? `max="${field.max}"` : ''}
-                 ${field.step ? `step="${field.step}"` : ''}>
+                 placeholder="${field.placeholder || ""}"
+                 ${field.min !== undefined ? `min="${field.min}"` : ""}
+                 ${field.max !== undefined ? `max="${field.max}"` : ""}
+                 ${field.step ? `step="${field.step}"` : ""}>
         `;
         break;
 
-      case 'textarea':
+      case "textarea":
         inputHTML = `
-          <textarea ${commonAttributes.replace('form-input', 'form-input form-textarea')}
-                    placeholder="${field.placeholder || ''}"
-                    ${field.rows ? `rows="${field.rows}"` : ''}>${value}</textarea>
+          <textarea ${commonAttributes.replace("form-input", "form-input form-textarea")}
+                    placeholder="${field.placeholder || ""}"
+                    ${field.rows ? `rows="${field.rows}"` : ""}>${value}</textarea>
         `;
         break;
 
-      case 'select':
+      case "select":
         inputHTML = `
-          <select ${commonAttributes.replace('form-input', 'form-input form-select')}>
-            ${field.placeholder ? `<option value="">${field.placeholder}</option>` : ''}
-            ${field.options.map(option => `
-              <option value="${option.value}" ${value === option.value ? 'selected' : ''}>
+          <select ${commonAttributes.replace("form-input", "form-input form-select")}>
+            ${field.placeholder ? `<option value="">${field.placeholder}</option>` : ""}
+            ${field.options
+              .map(
+                (option) => `
+              <option value="${option.value}" ${value === option.value ? "selected" : ""}>
                 ${option.label}
               </option>
-            `).join('')}
+            `,
+              )
+              .join("")}
           </select>
         `;
         break;
 
-      case 'checkbox-group':
+      case "checkbox-group":
         inputHTML = `
           <div class="checkbox-group" role="group" aria-labelledby="${field.name}-label">
-            ${field.options.map((option, index) => `
+            ${field.options
+              .map(
+                (option, index) => `
               <div class="checkbox-item">
                 <input type="checkbox" 
                        id="${field.name}-${index}"
                        name="${field.name}"
                        value="${option.value}"
                        class="form-checkbox"
-                       ${Array.isArray(value) && value.includes(option.value) ? 'checked' : ''}>
+                       ${Array.isArray(value) && value.includes(option.value) ? "checked" : ""}>
                 <label for="${field.name}-${index}">${option.label}</label>
               </div>
-            `).join('')}
+            `,
+              )
+              .join("")}
           </div>
         `;
         break;
 
-      case 'radio-group':
+      case "radio-group":
         inputHTML = `
           <div class="radio-group" role="radiogroup" aria-labelledby="${field.name}-label">
-            ${field.options.map((option, index) => `
+            ${field.options
+              .map(
+                (option, index) => `
               <div class="radio-item">
                 <input type="radio" 
                        id="${field.name}-${index}"
                        name="${field.name}"
                        value="${option.value}"
                        class="form-radio"
-                       ${value === option.value ? 'checked' : ''}>
+                       ${value === option.value ? "checked" : ""}>
                 <label for="${field.name}-${index}">${option.label}</label>
               </div>
-            `).join('')}
+            `,
+              )
+              .join("")}
           </div>
         `;
         break;
 
-      case 'date':
+      case "date":
         inputHTML = `
           <input type="date" 
                  ${commonAttributes}
@@ -809,15 +838,15 @@ class MultiStepForm {
         `;
         break;
 
-      case 'file':
+      case "file":
         inputHTML = `<div class="file-upload-placeholder" data-field="${field.name}"></div>`;
         break;
 
-      case 'date-range':
+      case "date-range":
         inputHTML = `<div class="date-range-placeholder" data-field="${field.name}"></div>`;
         break;
 
-      case 'multi-select':
+      case "multi-select":
         inputHTML = `<div class="multi-select-placeholder" data-field="${field.name}"></div>`;
         break;
 
@@ -826,53 +855,72 @@ class MultiStepForm {
           <input type="text" 
                  ${commonAttributes}
                  value="${value}"
-                 placeholder="${field.placeholder || ''}">
+                 placeholder="${field.placeholder || ""}">
         `;
     }
 
     return `
-      <div class="form-field ${field.width ? `field-${field.width}` : ''} ${field.group ? 'field-group' : ''}">
-        <label for="${field.name}" id="${field.name}-label" class="form-label ${field.required ? 'required' : ''}">
+      <div class="form-field ${field.width ? `field-${field.width}` : ""} ${field.group ? "field-group" : ""}">
+        <label for="${field.name}" id="${field.name}-label" class="form-label ${field.required ? "required" : ""}">
           ${field.label}
         </label>
         ${inputHTML}
-        ${hasError ? `
+        ${
+          hasError
+            ? `
           <div class="form-error" id="${field.name}-error" role="alert" aria-live="polite">
             <span aria-hidden="true">⚠</span>
             ${error}
           </div>
-        ` : ''}
-        ${!hasError && this.touched[field.name] && !error ? `
+        `
+            : ""
+        }
+        ${
+          !hasError && this.touched[field.name] && !error
+            ? `
           <div class="form-success">
             <span aria-hidden="true">✓</span>
             Valid
           </div>
-        ` : ''}
-        ${field.helpText ? `
+        `
+            : ""
+        }
+        ${
+          field.helpText
+            ? `
           <div class="form-help" id="${field.name}-help">${field.helpText}</div>
-        ` : ''}
+        `
+            : ""
+        }
       </div>
     `;
   }
 
   bindEvents() {
     // Navigation buttons
-    const prevBtn = this.container.querySelector('#prev-btn');
-    const nextBtn = this.container.querySelector('#next-btn');
-    const saveDraftBtn = this.container.querySelector('#save-draft-btn');
+    const prevBtn = this.container.querySelector("#prev-btn");
+    const nextBtn = this.container.querySelector("#next-btn");
+    const saveDraftBtn = this.container.querySelector("#save-draft-btn");
 
-    prevBtn?.addEventListener('click', () => this.previousStep());
-    nextBtn?.addEventListener('click', () => this.nextStep());
-    saveDraftBtn?.addEventListener('click', () => this.saveDraft());
+    prevBtn?.addEventListener("click", () => this.previousStep());
+    nextBtn?.addEventListener("click", () => this.nextStep());
+    saveDraftBtn?.addEventListener("click", () => this.saveDraft());
 
     // Form field events
-    this.form.addEventListener('input', this.parent.debounce((event) => {
-      this.handleFieldChange(event);
-    }, this.parent.options.debounceMs));
+    this.form.addEventListener(
+      "input",
+      this.parent.debounce((event) => {
+        this.handleFieldChange(event);
+      }, this.parent.options.debounceMs),
+    );
 
-    this.form.addEventListener('blur', (event) => {
-      this.handleFieldBlur(event);
-    }, true);
+    this.form.addEventListener(
+      "blur",
+      (event) => {
+        this.handleFieldBlur(event);
+      },
+      true,
+    );
 
     // Initialize special components
     this.initializeSpecialComponents();
@@ -880,54 +928,60 @@ class MultiStepForm {
 
   initializeSpecialComponents() {
     // Initialize file uploads
-    this.container.querySelectorAll('.file-upload-placeholder').forEach(placeholder => {
-      const fieldName = placeholder.dataset.field;
-      const field = this.findField(fieldName);
-      if (field) {
-        this.parent.createFileUpload(placeholder, {
-          ...field,
-          onFileChange: (files) => {
-            this.formData[fieldName] = files;
-            this.validateField(fieldName);
-          }
-        });
-      }
-    });
+    this.container
+      .querySelectorAll(".file-upload-placeholder")
+      .forEach((placeholder) => {
+        const fieldName = placeholder.dataset.field;
+        const field = this.findField(fieldName);
+        if (field) {
+          this.parent.createFileUpload(placeholder, {
+            ...field,
+            onFileChange: (files) => {
+              this.formData[fieldName] = files;
+              this.validateField(fieldName);
+            },
+          });
+        }
+      });
 
     // Initialize date range pickers
-    this.container.querySelectorAll('.date-range-placeholder').forEach(placeholder => {
-      const fieldName = placeholder.dataset.field;
-      const field = this.findField(fieldName);
-      if (field) {
-        this.parent.createDateRangePicker(placeholder, {
-          ...field,
-          onDateChange: (range) => {
-            this.formData[fieldName] = range;
-            this.validateField(fieldName);
-          }
-        });
-      }
-    });
+    this.container
+      .querySelectorAll(".date-range-placeholder")
+      .forEach((placeholder) => {
+        const fieldName = placeholder.dataset.field;
+        const field = this.findField(fieldName);
+        if (field) {
+          this.parent.createDateRangePicker(placeholder, {
+            ...field,
+            onDateChange: (range) => {
+              this.formData[fieldName] = range;
+              this.validateField(fieldName);
+            },
+          });
+        }
+      });
 
     // Initialize multi-selects
-    this.container.querySelectorAll('.multi-select-placeholder').forEach(placeholder => {
-      const fieldName = placeholder.dataset.field;
-      const field = this.findField(fieldName);
-      if (field) {
-        this.parent.createMultiSelect(placeholder, {
-          ...field,
-          onSelectionChange: (selected) => {
-            this.formData[fieldName] = selected;
-            this.validateField(fieldName);
-          }
-        });
-      }
-    });
+    this.container
+      .querySelectorAll(".multi-select-placeholder")
+      .forEach((placeholder) => {
+        const fieldName = placeholder.dataset.field;
+        const field = this.findField(fieldName);
+        if (field) {
+          this.parent.createMultiSelect(placeholder, {
+            ...field,
+            onSelectionChange: (selected) => {
+              this.formData[fieldName] = selected;
+              this.validateField(fieldName);
+            },
+          });
+        }
+      });
   }
 
   findField(fieldName) {
     for (const step of this.config.steps) {
-      const field = step.fields.find(f => f.name === fieldName);
+      const field = step.fields.find((f) => f.name === fieldName);
       if (field) return field;
     }
     return null;
@@ -935,14 +989,14 @@ class MultiStepForm {
 
   handleFieldChange(event) {
     const { name, value, type, checked } = event.target;
-    
-    if (type === 'checkbox') {
+
+    if (type === "checkbox") {
       if (!this.formData[name]) this.formData[name] = [];
-      
+
       if (checked) {
         this.formData[name].push(value);
       } else {
-        this.formData[name] = this.formData[name].filter(v => v !== value);
+        this.formData[name] = this.formData[name].filter((v) => v !== value);
       }
     } else {
       this.formData[name] = value;
@@ -968,7 +1022,7 @@ class MultiStepForm {
 
     const value = this.formData[fieldName];
     const errors = this.parent.validateField(value, field);
-    
+
     if (errors.length > 0) {
       this.errors[fieldName] = errors[0]; // Show first error
     } else {
@@ -985,10 +1039,10 @@ class MultiStepForm {
     const hasError = this.errors[fieldName] && this.touched[fieldName];
     const isValid = this.touched[fieldName] && !this.errors[fieldName];
 
-    fieldElement.classList.toggle('error', hasError);
-    fieldElement.classList.toggle('success', isValid);
-    
-    fieldElement.setAttribute('aria-invalid', hasError ? 'true' : 'false');
+    fieldElement.classList.toggle("error", hasError);
+    fieldElement.classList.toggle("success", isValid);
+
+    fieldElement.setAttribute("aria-invalid", hasError ? "true" : "false");
 
     // Update error display
     const existingError = this.form.querySelector(`#${fieldName}-error`);
@@ -998,20 +1052,22 @@ class MultiStepForm {
     if (existingSuccess) existingSuccess.remove();
 
     if (hasError) {
-      const errorDiv = document.createElement('div');
-      errorDiv.className = 'form-error';
+      const errorDiv = document.createElement("div");
+      errorDiv.className = "form-error";
       errorDiv.id = `${fieldName}-error`;
-      errorDiv.setAttribute('role', 'alert');
-      errorDiv.setAttribute('aria-live', 'polite');
+      errorDiv.setAttribute("role", "alert");
+      errorDiv.setAttribute("aria-live", "polite");
       errorDiv.innerHTML = `<span aria-hidden="true">⚠</span> ${this.errors[fieldName]}`;
       fieldElement.parentNode.appendChild(errorDiv);
 
       if (this.parent.options.accessibility.announceErrors) {
-        this.parent.announceToUser(`Error in ${fieldName}: ${this.errors[fieldName]}`);
+        this.parent.announceToUser(
+          `Error in ${fieldName}: ${this.errors[fieldName]}`,
+        );
       }
     } else if (isValid) {
-      const successDiv = document.createElement('div');
-      successDiv.className = 'form-success';
+      const successDiv = document.createElement("div");
+      successDiv.className = "form-success";
       successDiv.id = `${fieldName}-success`;
       successDiv.innerHTML = `<span aria-hidden="true">✓</span> Valid`;
       fieldElement.parentNode.appendChild(successDiv);
@@ -1025,7 +1081,7 @@ class MultiStepForm {
     for (const field of currentStepConfig.fields) {
       this.touched[field.name] = true;
       this.validateField(field.name);
-      
+
       if (this.errors[field.name]) {
         isValid = false;
       }
@@ -1044,9 +1100,11 @@ class MultiStepForm {
       this.currentStep++;
       this.updateDisplay();
       this.updateProgress();
-      this.parent.announceToUser(`Moved to step ${this.currentStep + 1}: ${this.config.steps[this.currentStep].title}`);
+      this.parent.announceToUser(
+        `Moved to step ${this.currentStep + 1}: ${this.config.steps[this.currentStep].title}`,
+      );
     } else {
-      this.parent.announceToUser('Please fix the errors before continuing');
+      this.parent.announceToUser("Please fix the errors before continuing");
     }
   }
 
@@ -1055,31 +1113,37 @@ class MultiStepForm {
       this.currentStep--;
       this.updateDisplay();
       this.updateProgress();
-      this.parent.announceToUser(`Moved to step ${this.currentStep + 1}: ${this.config.steps[this.currentStep].title}`);
+      this.parent.announceToUser(
+        `Moved to step ${this.currentStep + 1}: ${this.config.steps[this.currentStep].title}`,
+      );
     }
   }
 
   updateDisplay() {
     // Update step visibility
-    this.container.querySelectorAll('.form-step').forEach((step, index) => {
-      step.classList.toggle('active', index === this.currentStep);
+    this.container.querySelectorAll(".form-step").forEach((step, index) => {
+      step.classList.toggle("active", index === this.currentStep);
       if (index < this.currentStep) {
-        step.classList.add('previous');
+        step.classList.add("previous");
       } else {
-        step.classList.remove('previous');
+        step.classList.remove("previous");
       }
     });
 
     // Update buttons
-    const prevBtn = this.container.querySelector('#prev-btn');
-    const nextBtn = this.container.querySelector('#next-btn');
+    const prevBtn = this.container.querySelector("#prev-btn");
+    const nextBtn = this.container.querySelector("#next-btn");
 
     prevBtn.disabled = this.currentStep === 0;
-    nextBtn.textContent = this.currentStep === this.config.steps.length - 1 ? 'Submit' : 'Next';
+    nextBtn.textContent =
+      this.currentStep === this.config.steps.length - 1 ? "Submit" : "Next";
 
     // Focus management
-    const currentStepElement = this.container.querySelector('.form-step.active');
-    const firstInput = currentStepElement.querySelector('input, select, textarea');
+    const currentStepElement =
+      this.container.querySelector(".form-step.active");
+    const firstInput = currentStepElement.querySelector(
+      "input, select, textarea",
+    );
     if (firstInput) {
       firstInput.focus();
     }
@@ -1087,14 +1151,14 @@ class MultiStepForm {
 
   updateProgress() {
     // Update progress indicators
-    this.container.querySelectorAll('.progress-step').forEach((step, index) => {
-      step.classList.toggle('active', index === this.currentStep);
-      step.classList.toggle('completed', index < this.currentStep);
+    this.container.querySelectorAll(".progress-step").forEach((step, index) => {
+      step.classList.toggle("active", index === this.currentStep);
+      step.classList.toggle("completed", index < this.currentStep);
     });
 
     // Update progress bar ARIA
-    const progressBar = this.container.querySelector('.form-progress');
-    progressBar.setAttribute('aria-valuenow', this.currentStep + 1);
+    const progressBar = this.container.querySelector(".form-progress");
+    progressBar.setAttribute("aria-valuenow", this.currentStep + 1);
   }
 
   submitForm() {
@@ -1104,7 +1168,7 @@ class MultiStepForm {
         this.config.onSubmit(this.formData, this);
       }
 
-      this.parent.announceToUser('Form submitted successfully');
+      this.parent.announceToUser("Form submitted successfully");
     }
   }
 
@@ -1113,18 +1177,18 @@ class MultiStepForm {
       this.config.onSaveDraft(this.formData, this);
     }
 
-    this.parent.announceToUser('Draft saved');
+    this.parent.announceToUser("Draft saved");
   }
 
   destroy() {
     if (this.container) {
-      this.container.innerHTML = '';
+      this.container.innerHTML = "";
     }
   }
 }
 
 // Export for module systems
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module !== "undefined" && module.exports) {
   module.exports = AdvancedFormComponents;
 }
 

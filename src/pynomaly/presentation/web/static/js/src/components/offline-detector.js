@@ -8,7 +8,7 @@ export class OfflineDetector {
     this.cachedDatasets = new Map();
     this.cachedModels = new Map();
     this.isInitialized = false;
-    
+
     this.initializeAlgorithms();
   }
 
@@ -17,32 +17,32 @@ export class OfflineDetector {
    */
   initializeAlgorithms() {
     // Simple statistical algorithms that can run in the browser
-    this.algorithms.set('zscore', {
-      name: 'Z-Score Detection',
-      description: 'Statistical outlier detection using Z-scores',
+    this.algorithms.set("zscore", {
+      name: "Z-Score Detection",
+      description: "Statistical outlier detection using Z-scores",
       parameters: { threshold: 3.0 },
-      detect: this.zScoreDetection.bind(this)
+      detect: this.zScoreDetection.bind(this),
     });
 
-    this.algorithms.set('iqr', {
-      name: 'Interquartile Range',
-      description: 'Outlier detection using IQR method',
+    this.algorithms.set("iqr", {
+      name: "Interquartile Range",
+      description: "Outlier detection using IQR method",
       parameters: { factor: 1.5 },
-      detect: this.iqrDetection.bind(this)
+      detect: this.iqrDetection.bind(this),
     });
 
-    this.algorithms.set('isolation', {
-      name: 'Simple Isolation Detection',
-      description: 'Basic isolation-based anomaly detection',
+    this.algorithms.set("isolation", {
+      name: "Simple Isolation Detection",
+      description: "Basic isolation-based anomaly detection",
       parameters: { contamination: 0.1 },
-      detect: this.isolationDetection.bind(this)
+      detect: this.isolationDetection.bind(this),
     });
 
-    this.algorithms.set('mad', {
-      name: 'Median Absolute Deviation',
-      description: 'Robust outlier detection using MAD',
+    this.algorithms.set("mad", {
+      name: "Median Absolute Deviation",
+      description: "Robust outlier detection using MAD",
       parameters: { threshold: 3.5 },
-      detect: this.madDetection.bind(this)
+      detect: this.madDetection.bind(this),
     });
 
     this.isInitialized = true;
@@ -53,28 +53,34 @@ export class OfflineDetector {
    */
   async loadCachedDatasets() {
     try {
-      if ('serviceWorker' in navigator) {
+      if ("serviceWorker" in navigator) {
         const registration = await navigator.serviceWorker.getRegistration();
         if (registration?.active) {
           // Request cached datasets from service worker
-          registration.active.postMessage({ type: 'GET_OFFLINE_DATASETS' });
-          
+          registration.active.postMessage({ type: "GET_OFFLINE_DATASETS" });
+
           // Listen for response
           return new Promise((resolve) => {
-            navigator.serviceWorker.addEventListener('message', function handler(event) {
-              if (event.data.type === 'OFFLINE_DATASETS') {
-                navigator.serviceWorker.removeEventListener('message', handler);
-                event.data.datasets.forEach(dataset => {
-                  this.cachedDatasets.set(dataset.id, dataset);
-                });
-                resolve(event.data.datasets);
-              }
-            }.bind(this));
+            navigator.serviceWorker.addEventListener(
+              "message",
+              function handler(event) {
+                if (event.data.type === "OFFLINE_DATASETS") {
+                  navigator.serviceWorker.removeEventListener(
+                    "message",
+                    handler,
+                  );
+                  event.data.datasets.forEach((dataset) => {
+                    this.cachedDatasets.set(dataset.id, dataset);
+                  });
+                  resolve(event.data.datasets);
+                }
+              }.bind(this),
+            );
           });
         }
       }
     } catch (error) {
-      console.error('[OfflineDetector] Failed to load cached datasets:', error);
+      console.error("[OfflineDetector] Failed to load cached datasets:", error);
       return [];
     }
   }
@@ -87,7 +93,7 @@ export class OfflineDetector {
       id,
       name: algo.name,
       description: algo.description,
-      parameters: algo.parameters
+      parameters: algo.parameters,
     }));
   }
 
@@ -103,7 +109,7 @@ export class OfflineDetector {
    */
   async detectAnomalies(datasetId, algorithmId, parameters = {}) {
     if (!this.isInitialized) {
-      throw new Error('Offline detector not initialized');
+      throw new Error("Offline detector not initialized");
     }
 
     const dataset = this.cachedDatasets.get(datasetId);
@@ -117,15 +123,15 @@ export class OfflineDetector {
     }
 
     const startTime = performance.now();
-    
+
     try {
       // Prepare data
       const data = this.prepareData(dataset.data);
-      
+
       // Run detection
       const config = { ...algorithm.parameters, ...parameters };
       const result = algorithm.detect(data, config);
-      
+
       const endTime = performance.now();
       const processingTime = endTime - startTime;
 
@@ -140,7 +146,7 @@ export class OfflineDetector {
         scores: result.scores,
         statistics: result.statistics,
         parameters: config,
-        isOffline: true
+        isOffline: true,
       };
 
       // Save to offline storage
@@ -148,7 +154,7 @@ export class OfflineDetector {
 
       return detectionResult;
     } catch (error) {
-      console.error('[OfflineDetector] Detection failed:', error);
+      console.error("[OfflineDetector] Detection failed:", error);
       throw error;
     }
   }
@@ -159,9 +165,9 @@ export class OfflineDetector {
   prepareData(rawData) {
     // Convert to numeric matrix if needed
     if (Array.isArray(rawData)) {
-      return rawData.map(row => {
-        if (typeof row === 'object') {
-          return Object.values(row).map(val => {
+      return rawData.map((row) => {
+        if (typeof row === "object") {
+          return Object.values(row).map((val) => {
             const num = parseFloat(val);
             return isNaN(num) ? 0 : num;
           });
@@ -179,37 +185,38 @@ export class OfflineDetector {
     const { threshold = 3.0 } = config;
     const anomalies = [];
     const scores = [];
-    
+
     // Calculate statistics for each feature
     const features = data[0].length;
     const featureStats = [];
-    
+
     for (let f = 0; f < features; f++) {
-      const values = data.map(row => row[f]);
+      const values = data.map((row) => row[f]);
       const mean = values.reduce((a, b) => a + b, 0) / values.length;
-      const variance = values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length;
+      const variance =
+        values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length;
       const std = Math.sqrt(variance);
-      
+
       featureStats.push({ mean, std });
     }
-    
+
     // Calculate Z-scores and detect anomalies
     data.forEach((row, index) => {
       let maxZScore = 0;
-      
+
       row.forEach((value, featureIndex) => {
         const { mean, std } = featureStats[featureIndex];
         const zScore = std > 0 ? Math.abs((value - mean) / std) : 0;
         maxZScore = Math.max(maxZScore, zScore);
       });
-      
+
       scores.push(maxZScore);
-      
+
       if (maxZScore > threshold) {
         anomalies.push({
           index,
           score: maxZScore,
-          values: row
+          values: row,
         });
       }
     });
@@ -223,8 +230,8 @@ export class OfflineDetector {
         anomalyRate: anomalies.length / data.length,
         averageScore: scores.reduce((a, b) => a + b, 0) / scores.length,
         maxScore: Math.max(...scores),
-        threshold
-      }
+        threshold,
+      },
     };
   }
 
@@ -235,50 +242,53 @@ export class OfflineDetector {
     const { factor = 1.5 } = config;
     const anomalies = [];
     const scores = [];
-    
+
     // Calculate IQR for each feature
     const features = data[0].length;
     const featureBounds = [];
-    
+
     for (let f = 0; f < features; f++) {
-      const values = data.map(row => row[f]).sort((a, b) => a - b);
+      const values = data.map((row) => row[f]).sort((a, b) => a - b);
       const q1Index = Math.floor(values.length * 0.25);
       const q3Index = Math.floor(values.length * 0.75);
       const q1 = values[q1Index];
       const q3 = values[q3Index];
       const iqr = q3 - q1;
-      
+
       featureBounds.push({
         lower: q1 - factor * iqr,
         upper: q3 + factor * iqr,
-        iqr
+        iqr,
       });
     }
-    
+
     // Detect anomalies
     data.forEach((row, index) => {
       let anomalyScore = 0;
       let isAnomaly = false;
-      
+
       row.forEach((value, featureIndex) => {
         const bounds = featureBounds[featureIndex];
         if (value < bounds.lower || value > bounds.upper) {
           isAnomaly = true;
           const deviation = Math.min(
             Math.abs(value - bounds.lower),
-            Math.abs(value - bounds.upper)
+            Math.abs(value - bounds.upper),
           );
-          anomalyScore = Math.max(anomalyScore, deviation / Math.max(bounds.iqr, 1));
+          anomalyScore = Math.max(
+            anomalyScore,
+            deviation / Math.max(bounds.iqr, 1),
+          );
         }
       });
-      
+
       scores.push(anomalyScore);
-      
+
       if (isAnomaly) {
         anomalies.push({
           index,
           score: anomalyScore,
-          values: row
+          values: row,
         });
       }
     });
@@ -292,8 +302,8 @@ export class OfflineDetector {
         anomalyRate: anomalies.length / data.length,
         averageScore: scores.reduce((a, b) => a + b, 0) / scores.length,
         maxScore: Math.max(...scores),
-        factor
-      }
+        factor,
+      },
     };
   }
 
@@ -302,37 +312,37 @@ export class OfflineDetector {
    */
   isolationDetection(data, config) {
     const { contamination = 0.1 } = config;
-    
+
     // Simple implementation: random feature selection and isolation
     const scores = data.map(() => 0);
     const numTrees = 100;
     const maxDepth = Math.ceil(Math.log2(data.length));
-    
+
     for (let tree = 0; tree < numTrees; tree++) {
       const pathLengths = this.isolationTree(data, maxDepth);
       pathLengths.forEach((length, index) => {
         scores[index] += length;
       });
     }
-    
+
     // Normalize scores
     const avgPathLength = scores.reduce((a, b) => a + b, 0) / scores.length;
-    const normalizedScores = scores.map(score => 
-      Math.pow(2, -(score / numTrees) / avgPathLength)
+    const normalizedScores = scores.map((score) =>
+      Math.pow(2, -(score / numTrees) / avgPathLength),
     );
-    
+
     // Determine threshold based on contamination rate
     const sortedScores = [...normalizedScores].sort((a, b) => b - a);
     const thresholdIndex = Math.floor(data.length * contamination);
     const threshold = sortedScores[thresholdIndex] || 0.5;
-    
+
     const anomalies = [];
     normalizedScores.forEach((score, index) => {
       if (score > threshold) {
         anomalies.push({
           index,
           score,
-          values: data[index]
+          values: data[index],
         });
       }
     });
@@ -344,11 +354,12 @@ export class OfflineDetector {
         totalSamples: data.length,
         totalAnomalies: anomalies.length,
         anomalyRate: anomalies.length / data.length,
-        averageScore: normalizedScores.reduce((a, b) => a + b, 0) / normalizedScores.length,
+        averageScore:
+          normalizedScores.reduce((a, b) => a + b, 0) / normalizedScores.length,
         maxScore: Math.max(...normalizedScores),
         threshold,
-        contamination
-      }
+        contamination,
+      },
     };
   }
 
@@ -362,23 +373,23 @@ export class OfflineDetector {
 
     // Random feature selection
     const featureIndex = Math.floor(Math.random() * data[0].length);
-    const values = data.map(row => row[featureIndex]);
+    const values = data.map((row) => row[featureIndex]);
     const minVal = Math.min(...values);
     const maxVal = Math.max(...values);
-    
+
     if (minVal === maxVal) {
       return data.map(() => currentDepth);
     }
-    
+
     // Random split point
     const splitPoint = minVal + Math.random() * (maxVal - minVal);
-    
+
     // Split data
     const leftData = [];
     const rightData = [];
     const leftIndices = [];
     const rightIndices = [];
-    
+
     data.forEach((row, index) => {
       if (row[featureIndex] < splitPoint) {
         leftData.push(row);
@@ -388,13 +399,17 @@ export class OfflineDetector {
         rightIndices.push(index);
       }
     });
-    
+
     // Recursive calls
-    const leftPaths = leftData.length > 0 ? 
-      this.isolationTree(leftData, maxDepth, currentDepth + 1) : [];
-    const rightPaths = rightData.length > 0 ? 
-      this.isolationTree(rightData, maxDepth, currentDepth + 1) : [];
-    
+    const leftPaths =
+      leftData.length > 0
+        ? this.isolationTree(leftData, maxDepth, currentDepth + 1)
+        : [];
+    const rightPaths =
+      rightData.length > 0
+        ? this.isolationTree(rightData, maxDepth, currentDepth + 1)
+        : [];
+
     // Combine results
     const result = new Array(data.length);
     leftIndices.forEach((originalIndex, i) => {
@@ -403,7 +418,7 @@ export class OfflineDetector {
     rightIndices.forEach((originalIndex, i) => {
       result[i + leftData.length] = rightPaths[i];
     });
-    
+
     return result;
   }
 
@@ -414,37 +429,39 @@ export class OfflineDetector {
     const { threshold = 3.5 } = config;
     const anomalies = [];
     const scores = [];
-    
+
     // Calculate MAD for each feature
     const features = data[0].length;
     const featureStats = [];
-    
+
     for (let f = 0; f < features; f++) {
-      const values = data.map(row => row[f]).sort((a, b) => a - b);
+      const values = data.map((row) => row[f]).sort((a, b) => a - b);
       const median = values[Math.floor(values.length / 2)];
-      const deviations = values.map(val => Math.abs(val - median)).sort((a, b) => a - b);
+      const deviations = values
+        .map((val) => Math.abs(val - median))
+        .sort((a, b) => a - b);
       const mad = deviations[Math.floor(deviations.length / 2)];
-      
+
       featureStats.push({ median, mad });
     }
-    
+
     // Calculate modified Z-scores and detect anomalies
     data.forEach((row, index) => {
       let maxScore = 0;
-      
+
       row.forEach((value, featureIndex) => {
         const { median, mad } = featureStats[featureIndex];
         const modifiedZScore = mad > 0 ? (0.6745 * (value - median)) / mad : 0;
         maxScore = Math.max(maxScore, Math.abs(modifiedZScore));
       });
-      
+
       scores.push(maxScore);
-      
+
       if (maxScore > threshold) {
         anomalies.push({
           index,
           score: maxScore,
-          values: row
+          values: row,
         });
       }
     });
@@ -458,8 +475,8 @@ export class OfflineDetector {
         anomalyRate: anomalies.length / data.length,
         averageScore: scores.reduce((a, b) => a + b, 0) / scores.length,
         maxScore: Math.max(...scores),
-        threshold
-      }
+        threshold,
+      },
     };
   }
 
@@ -468,17 +485,17 @@ export class OfflineDetector {
    */
   async saveResult(result) {
     try {
-      if ('serviceWorker' in navigator) {
+      if ("serviceWorker" in navigator) {
         const registration = await navigator.serviceWorker.getRegistration();
         if (registration?.active) {
           registration.active.postMessage({
-            type: 'SAVE_DETECTION_RESULT',
-            payload: result
+            type: "SAVE_DETECTION_RESULT",
+            payload: result,
           });
         }
       }
     } catch (error) {
-      console.error('[OfflineDetector] Failed to save result:', error);
+      console.error("[OfflineDetector] Failed to save result:", error);
     }
   }
 
@@ -487,29 +504,38 @@ export class OfflineDetector {
    */
   async getDetectionHistory() {
     try {
-      if ('serviceWorker' in navigator) {
+      if ("serviceWorker" in navigator) {
         const registration = await navigator.serviceWorker.getRegistration();
         if (registration?.active) {
-          registration.active.postMessage({ type: 'GET_OFFLINE_RESULTS' });
-          
+          registration.active.postMessage({ type: "GET_OFFLINE_RESULTS" });
+
           return new Promise((resolve) => {
-            navigator.serviceWorker.addEventListener('message', function handler(event) {
-              if (event.data.type === 'OFFLINE_RESULTS') {
-                navigator.serviceWorker.removeEventListener('message', handler);
-                resolve(event.data.results);
-              }
-            });
+            navigator.serviceWorker.addEventListener(
+              "message",
+              function handler(event) {
+                if (event.data.type === "OFFLINE_RESULTS") {
+                  navigator.serviceWorker.removeEventListener(
+                    "message",
+                    handler,
+                  );
+                  resolve(event.data.results);
+                }
+              },
+            );
           });
         }
       }
     } catch (error) {
-      console.error('[OfflineDetector] Failed to get detection history:', error);
+      console.error(
+        "[OfflineDetector] Failed to get detection history:",
+        error,
+      );
       return [];
     }
   }
 }
 
 // Initialize and expose globally
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   window.OfflineDetector = new OfflineDetector();
 }

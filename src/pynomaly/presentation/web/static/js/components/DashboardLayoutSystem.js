@@ -1,6 +1,6 @@
 /**
  * Dashboard Layout System for Pynomaly
- * 
+ *
  * Features:
  * - Drag-and-drop grid layout with resizable widgets
  * - Responsive breakpoint handling
@@ -12,10 +12,11 @@
 
 class DashboardLayoutSystem {
   constructor(container, options = {}) {
-    this.container = typeof container === 'string' 
-      ? document.querySelector(container) 
-      : container;
-    
+    this.container =
+      typeof container === "string"
+        ? document.querySelector(container)
+        : container;
+
     this.options = {
       columns: 12,
       rowHeight: 100,
@@ -26,16 +27,16 @@ class DashboardLayoutSystem {
         md: 996,
         sm: 768,
         xs: 480,
-        xxs: 0
+        xxs: 0,
       },
       cols: {
         lg: 12,
         md: 10,
         sm: 6,
         xs: 4,
-        xxs: 2
+        xxs: 2,
       },
-      compactType: 'vertical',
+      compactType: "vertical",
       preventCollision: false,
       isDraggable: true,
       isResizable: true,
@@ -44,24 +45,24 @@ class DashboardLayoutSystem {
       autoSize: true,
       verticalCompact: true,
       maxRows: Infinity,
-      ...options
+      ...options,
     };
 
     this.state = {
       layouts: {},
-      currentBreakpoint: 'lg',
+      currentBreakpoint: "lg",
       widgets: new Map(),
       isDragging: false,
       isResizing: false,
       draggedElement: null,
       mousePosition: { x: 0, y: 0 },
-      gridSize: { width: 0, height: 0 }
+      gridSize: { width: 0, height: 0 },
     };
 
     this.eventHandlers = new Map();
     this.widgetRegistry = new Map();
     this.animationFrameId = null;
-    
+
     this.init();
   }
 
@@ -74,10 +75,13 @@ class DashboardLayoutSystem {
   }
 
   setupContainer() {
-    this.container.className = `dashboard-layout ${this.container.className || ''}`;
-    this.container.setAttribute('role', 'main');
-    this.container.setAttribute('aria-label', 'Dashboard layout with draggable widgets');
-    
+    this.container.className = `dashboard-layout ${this.container.className || ""}`;
+    this.container.setAttribute("role", "main");
+    this.container.setAttribute(
+      "aria-label",
+      "Dashboard layout with draggable widgets",
+    );
+
     this.container.innerHTML = `
       <div class="dashboard-header">
         <div class="dashboard-controls">
@@ -108,77 +112,77 @@ class DashboardLayoutSystem {
       </div>
     `;
 
-    this.gridContainer = this.container.querySelector('#dashboard-grid');
-    this.widgetPalette = this.container.querySelector('#widget-palette');
-    this.statusIndicator = this.container.querySelector('#layout-status');
+    this.gridContainer = this.container.querySelector("#dashboard-grid");
+    this.widgetPalette = this.container.querySelector("#widget-palette");
+    this.statusIndicator = this.container.querySelector("#layout-status");
   }
 
   registerBuiltinWidgets() {
     // Anomaly Detection Widgets
-    this.registerWidget('anomaly-chart', {
-      name: 'Anomaly Chart',
-      description: 'Real-time anomaly detection visualization',
+    this.registerWidget("anomaly-chart", {
+      name: "Anomaly Chart",
+      description: "Real-time anomaly detection visualization",
       defaultSize: { w: 6, h: 4 },
       minSize: { w: 4, h: 3 },
       maxSize: { w: 12, h: 8 },
-      category: 'analytics',
-      icon: '📊',
-      render: this.renderAnomalyChart.bind(this)
+      category: "analytics",
+      icon: "📊",
+      render: this.renderAnomalyChart.bind(this),
     });
 
-    this.registerWidget('time-series', {
-      name: 'Time Series Plot',
-      description: 'Interactive time series data visualization',
+    this.registerWidget("time-series", {
+      name: "Time Series Plot",
+      description: "Interactive time series data visualization",
       defaultSize: { w: 8, h: 4 },
       minSize: { w: 6, h: 3 },
       maxSize: { w: 12, h: 6 },
-      category: 'analytics',
-      icon: '📈',
-      render: this.renderTimeSeriesPlot.bind(this)
+      category: "analytics",
+      icon: "📈",
+      render: this.renderTimeSeriesPlot.bind(this),
     });
 
-    this.registerWidget('metrics-summary', {
-      name: 'Metrics Summary',
-      description: 'Key performance indicators and statistics',
+    this.registerWidget("metrics-summary", {
+      name: "Metrics Summary",
+      description: "Key performance indicators and statistics",
       defaultSize: { w: 4, h: 3 },
       minSize: { w: 3, h: 2 },
       maxSize: { w: 6, h: 4 },
-      category: 'metrics',
-      icon: '📋',
-      render: this.renderMetricsSummary.bind(this)
+      category: "metrics",
+      icon: "📋",
+      render: this.renderMetricsSummary.bind(this),
     });
 
-    this.registerWidget('alert-feed', {
-      name: 'Alert Feed',
-      description: 'Real-time alerts and notifications',
+    this.registerWidget("alert-feed", {
+      name: "Alert Feed",
+      description: "Real-time alerts and notifications",
       defaultSize: { w: 4, h: 5 },
       minSize: { w: 3, h: 4 },
       maxSize: { w: 6, h: 8 },
-      category: 'monitoring',
-      icon: '🚨',
-      render: this.renderAlertFeed.bind(this)
+      category: "monitoring",
+      icon: "🚨",
+      render: this.renderAlertFeed.bind(this),
     });
 
-    this.registerWidget('data-quality', {
-      name: 'Data Quality',
-      description: 'Data quality metrics and validation results',
+    this.registerWidget("data-quality", {
+      name: "Data Quality",
+      description: "Data quality metrics and validation results",
       defaultSize: { w: 6, h: 3 },
       minSize: { w: 4, h: 2 },
       maxSize: { w: 8, h: 4 },
-      category: 'quality',
-      icon: '✅',
-      render: this.renderDataQuality.bind(this)
+      category: "quality",
+      icon: "✅",
+      render: this.renderDataQuality.bind(this),
     });
 
-    this.registerWidget('model-performance', {
-      name: 'Model Performance',
-      description: 'ML model performance metrics and trends',
+    this.registerWidget("model-performance", {
+      name: "Model Performance",
+      description: "ML model performance metrics and trends",
       defaultSize: { w: 6, h: 4 },
       minSize: { w: 4, h: 3 },
       maxSize: { w: 8, h: 5 },
-      category: 'ml',
-      icon: '🧠',
-      render: this.renderModelPerformance.bind(this)
+      category: "ml",
+      icon: "🧠",
+      render: this.renderModelPerformance.bind(this),
     });
   }
 
@@ -186,46 +190,59 @@ class DashboardLayoutSystem {
     this.widgetRegistry.set(type, {
       type,
       ...config,
-      id: Math.random().toString(36).substr(2, 9)
+      id: Math.random().toString(36).substr(2, 9),
     });
   }
 
   bindEvents() {
     // Control buttons
-    this.container.querySelector('#add-widget-btn').addEventListener('click', () => {
-      this.showWidgetPalette();
-    });
+    this.container
+      .querySelector("#add-widget-btn")
+      .addEventListener("click", () => {
+        this.showWidgetPalette();
+      });
 
-    this.container.querySelector('#layout-settings-btn').addEventListener('click', () => {
-      this.showLayoutSettings();
-    });
+    this.container
+      .querySelector("#layout-settings-btn")
+      .addEventListener("click", () => {
+        this.showLayoutSettings();
+      });
 
-    this.container.querySelector('#save-layout-btn').addEventListener('click', () => {
-      this.saveLayout();
-    });
+    this.container
+      .querySelector("#save-layout-btn")
+      .addEventListener("click", () => {
+        this.saveLayout();
+      });
 
-    this.container.querySelector('#reset-layout-btn').addEventListener('click', () => {
-      this.resetLayout();
-    });
+    this.container
+      .querySelector("#reset-layout-btn")
+      .addEventListener("click", () => {
+        this.resetLayout();
+      });
 
-    this.container.querySelector('#close-palette-btn').addEventListener('click', () => {
-      this.hideWidgetPalette();
-    });
+    this.container
+      .querySelector("#close-palette-btn")
+      .addEventListener("click", () => {
+        this.hideWidgetPalette();
+      });
 
     // Window resize
-    window.addEventListener('resize', this.debounce(() => {
-      this.handleResize();
-    }, 250));
+    window.addEventListener(
+      "resize",
+      this.debounce(() => {
+        this.handleResize();
+      }, 250),
+    );
 
     // Keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener("keydown", (e) => {
       if (e.ctrlKey || e.metaKey) {
         switch (e.key) {
-          case 's':
+          case "s":
             e.preventDefault();
             this.saveLayout();
             break;
-          case 'z':
+          case "z":
             e.preventDefault();
             if (e.shiftKey) {
               this.redo();
@@ -238,38 +255,57 @@ class DashboardLayoutSystem {
     });
 
     // Grid events
-    this.gridContainer.addEventListener('mousedown', this.handleMouseDown.bind(this));
-    this.gridContainer.addEventListener('mousemove', this.handleMouseMove.bind(this));
-    this.gridContainer.addEventListener('mouseup', this.handleMouseUp.bind(this));
-    this.gridContainer.addEventListener('touchstart', this.handleTouchStart.bind(this));
-    this.gridContainer.addEventListener('touchmove', this.handleTouchMove.bind(this));
-    this.gridContainer.addEventListener('touchend', this.handleTouchEnd.bind(this));
+    this.gridContainer.addEventListener(
+      "mousedown",
+      this.handleMouseDown.bind(this),
+    );
+    this.gridContainer.addEventListener(
+      "mousemove",
+      this.handleMouseMove.bind(this),
+    );
+    this.gridContainer.addEventListener(
+      "mouseup",
+      this.handleMouseUp.bind(this),
+    );
+    this.gridContainer.addEventListener(
+      "touchstart",
+      this.handleTouchStart.bind(this),
+    );
+    this.gridContainer.addEventListener(
+      "touchmove",
+      this.handleTouchMove.bind(this),
+    );
+    this.gridContainer.addEventListener(
+      "touchend",
+      this.handleTouchEnd.bind(this),
+    );
   }
 
   handleResize() {
     const containerWidth = this.container.offsetWidth;
     const newBreakpoint = this.getBreakpointFromWidth(containerWidth);
-    
+
     if (newBreakpoint !== this.state.currentBreakpoint) {
       this.state.currentBreakpoint = newBreakpoint;
       this.onBreakpointChange(newBreakpoint);
     }
-    
+
     this.calculateGridDimensions();
     this.updateLayout();
   }
 
   getBreakpointFromWidth(width) {
-    const breakpoints = Object.entries(this.options.breakpoints)
-      .sort(([,a], [,b]) => b - a);
-    
+    const breakpoints = Object.entries(this.options.breakpoints).sort(
+      ([, a], [, b]) => b - a,
+    );
+
     for (const [breakpoint, minWidth] of breakpoints) {
       if (width >= minWidth) {
         return breakpoint;
       }
     }
-    
-    return 'xxs';
+
+    return "xxs";
   }
 
   calculateGridDimensions() {
@@ -277,33 +313,34 @@ class DashboardLayoutSystem {
     const cols = this.options.cols[this.state.currentBreakpoint];
     const margin = this.options.margin[0];
     const containerPadding = this.options.containerPadding[0];
-    
-    this.state.gridSize.width = (containerWidth - (containerPadding * 2) - ((cols - 1) * margin)) / cols;
+
+    this.state.gridSize.width =
+      (containerWidth - containerPadding * 2 - (cols - 1) * margin) / cols;
     this.state.gridSize.height = this.options.rowHeight;
   }
 
   initializeLayout() {
     // Load saved layout or create default
     const savedLayouts = this.loadSavedLayouts();
-    
+
     if (savedLayouts && Object.keys(savedLayouts).length > 0) {
       this.state.layouts = savedLayouts;
     } else {
       this.createDefaultLayout();
     }
-    
+
     this.renderLayout();
   }
 
   createDefaultLayout() {
     this.state.layouts = {
       lg: [
-        { i: 'anomaly-chart-1', x: 0, y: 0, w: 6, h: 4, type: 'anomaly-chart' },
-        { i: 'time-series-1', x: 6, y: 0, w: 6, h: 4, type: 'time-series' },
-        { i: 'metrics-1', x: 0, y: 4, w: 4, h: 3, type: 'metrics-summary' },
-        { i: 'alerts-1', x: 4, y: 4, w: 4, h: 3, type: 'alert-feed' },
-        { i: 'quality-1', x: 8, y: 4, w: 4, h: 3, type: 'data-quality' }
-      ]
+        { i: "anomaly-chart-1", x: 0, y: 0, w: 6, h: 4, type: "anomaly-chart" },
+        { i: "time-series-1", x: 6, y: 0, w: 6, h: 4, type: "time-series" },
+        { i: "metrics-1", x: 0, y: 4, w: 4, h: 3, type: "metrics-summary" },
+        { i: "alerts-1", x: 4, y: 4, w: 4, h: 3, type: "alert-feed" },
+        { i: "quality-1", x: 8, y: 4, w: 4, h: 3, type: "data-quality" },
+      ],
     };
 
     // Generate responsive layouts
@@ -312,19 +349,19 @@ class DashboardLayoutSystem {
 
   generateResponsiveLayouts() {
     const baseLayout = this.state.layouts.lg;
-    
+
     // Medium devices
-    this.state.layouts.md = baseLayout.map(item => ({
+    this.state.layouts.md = baseLayout.map((item) => ({
       ...item,
       w: Math.min(item.w, this.options.cols.md),
-      x: Math.min(item.x, this.options.cols.md - item.w)
+      x: Math.min(item.x, this.options.cols.md - item.w),
     }));
 
     // Small devices
-    this.state.layouts.sm = baseLayout.map(item => ({
+    this.state.layouts.sm = baseLayout.map((item) => ({
       ...item,
       w: Math.min(item.w * 2, this.options.cols.sm),
-      x: 0
+      x: 0,
     }));
 
     // Extra small devices
@@ -332,22 +369,23 @@ class DashboardLayoutSystem {
       ...item,
       w: this.options.cols.xs,
       x: 0,
-      y: index * item.h
+      y: index * item.h,
     }));
 
     this.state.layouts.xxs = baseLayout.map((item, index) => ({
       ...item,
       w: this.options.cols.xxs,
       x: 0,
-      y: index * item.h
+      y: index * item.h,
     }));
   }
 
   renderLayout() {
-    const currentLayout = this.state.layouts[this.state.currentBreakpoint] || [];
-    this.gridContainer.innerHTML = '';
-    
-    currentLayout.forEach(item => {
+    const currentLayout =
+      this.state.layouts[this.state.currentBreakpoint] || [];
+    this.gridContainer.innerHTML = "";
+
+    currentLayout.forEach((item) => {
       this.renderWidget(item);
     });
 
@@ -362,14 +400,14 @@ class DashboardLayoutSystem {
       return;
     }
 
-    const widget = document.createElement('div');
-    widget.className = 'dashboard-widget';
-    widget.setAttribute('data-widget-id', layoutItem.i);
-    widget.setAttribute('data-widget-type', layoutItem.type);
-    widget.setAttribute('role', 'region');
-    widget.setAttribute('aria-label', `${widgetConfig.name} widget`);
+    const widget = document.createElement("div");
+    widget.className = "dashboard-widget";
+    widget.setAttribute("data-widget-id", layoutItem.i);
+    widget.setAttribute("data-widget-type", layoutItem.type);
+    widget.setAttribute("role", "region");
+    widget.setAttribute("aria-label", `${widgetConfig.name} widget`);
     widget.tabIndex = 0;
-    
+
     const position = this.calculatePosition(layoutItem);
     widget.style.cssText = `
       position: absolute;
@@ -404,9 +442,13 @@ class DashboardLayoutSystem {
 
     // Bind widget events
     this.bindWidgetEvents(widget, layoutItem);
-    
+
     this.gridContainer.appendChild(widget);
-    this.state.widgets.set(layoutItem.i, { element: widget, config: widgetConfig, layout: layoutItem });
+    this.state.widgets.set(layoutItem.i, {
+      element: widget,
+      config: widgetConfig,
+      layout: layoutItem,
+    });
 
     // Render widget content
     this.renderWidgetContent(layoutItem);
@@ -414,12 +456,14 @@ class DashboardLayoutSystem {
 
   renderWidgetContent(layoutItem) {
     const widgetConfig = this.widgetRegistry.get(layoutItem.type);
-    const contentContainer = document.getElementById(`widget-content-${layoutItem.i}`);
-    
+    const contentContainer = document.getElementById(
+      `widget-content-${layoutItem.i}`,
+    );
+
     if (widgetConfig && widgetConfig.render && contentContainer) {
       // Simulate async loading
       setTimeout(() => {
-        contentContainer.innerHTML = '';
+        contentContainer.innerHTML = "";
         widgetConfig.render(contentContainer, layoutItem);
       }, 100);
     }
@@ -429,44 +473,52 @@ class DashboardLayoutSystem {
     const { w, h, x, y } = layoutItem;
     const margin = this.options.margin;
     const containerPadding = this.options.containerPadding;
-    
+
     return {
-      left: containerPadding[0] + (x * (this.state.gridSize.width + margin[0])),
-      top: containerPadding[1] + (y * (this.state.gridSize.height + margin[1])),
-      width: (w * this.state.gridSize.width) + ((w - 1) * margin[0]),
-      height: (h * this.state.gridSize.height) + ((h - 1) * margin[1])
+      left: containerPadding[0] + x * (this.state.gridSize.width + margin[0]),
+      top: containerPadding[1] + y * (this.state.gridSize.height + margin[1]),
+      width: w * this.state.gridSize.width + (w - 1) * margin[0],
+      height: h * this.state.gridSize.height + (h - 1) * margin[1],
     };
   }
 
   bindWidgetEvents(widget, layoutItem) {
-    const header = widget.querySelector('.widget-header');
-    const resizeHandle = widget.querySelector('.widget-resize-handle');
-    const controls = widget.querySelectorAll('.widget-btn');
+    const header = widget.querySelector(".widget-header");
+    const resizeHandle = widget.querySelector(".widget-resize-handle");
+    const controls = widget.querySelectorAll(".widget-btn");
 
     // Drag functionality
     if (this.options.isDraggable) {
-      header.style.cursor = 'move';
-      header.addEventListener('mousedown', (e) => this.startDrag(e, widget, layoutItem));
-      header.addEventListener('touchstart', (e) => this.startDrag(e, widget, layoutItem));
+      header.style.cursor = "move";
+      header.addEventListener("mousedown", (e) =>
+        this.startDrag(e, widget, layoutItem),
+      );
+      header.addEventListener("touchstart", (e) =>
+        this.startDrag(e, widget, layoutItem),
+      );
     }
 
     // Resize functionality
     if (this.options.isResizable) {
-      resizeHandle.addEventListener('mousedown', (e) => this.startResize(e, widget, layoutItem));
-      resizeHandle.addEventListener('touchstart', (e) => this.startResize(e, widget, layoutItem));
+      resizeHandle.addEventListener("mousedown", (e) =>
+        this.startResize(e, widget, layoutItem),
+      );
+      resizeHandle.addEventListener("touchstart", (e) =>
+        this.startResize(e, widget, layoutItem),
+      );
     }
 
     // Control buttons
-    controls.forEach(btn => {
-      btn.addEventListener('click', (e) => {
+    controls.forEach((btn) => {
+      btn.addEventListener("click", (e) => {
         e.stopPropagation();
         const action = btn.dataset.action;
-        
+
         switch (action) {
-          case 'configure':
+          case "configure":
             this.configureWidget(layoutItem.i);
             break;
-          case 'remove':
+          case "remove":
             this.removeWidget(layoutItem.i);
             break;
         }
@@ -474,78 +526,82 @@ class DashboardLayoutSystem {
     });
 
     // Keyboard navigation
-    widget.addEventListener('keydown', (e) => {
+    widget.addEventListener("keydown", (e) => {
       this.handleWidgetKeyboard(e, widget, layoutItem);
     });
   }
 
   startDrag(e, widget, layoutItem) {
     if (!this.options.isDraggable) return;
-    
+
     e.preventDefault();
     this.state.isDragging = true;
     this.state.draggedElement = { widget, layoutItem };
-    
+
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    
+
     this.state.mousePosition = {
       x: clientX - widget.offsetLeft,
-      y: clientY - widget.offsetTop
+      y: clientY - widget.offsetTop,
     };
 
-    widget.style.zIndex = '1000';
-    widget.classList.add('dragging');
-    
-    document.addEventListener('mousemove', this.onDrag.bind(this));
-    document.addEventListener('mouseup', this.onDragEnd.bind(this));
-    document.addEventListener('touchmove', this.onDrag.bind(this));
-    document.addEventListener('touchend', this.onDragEnd.bind(this));
+    widget.style.zIndex = "1000";
+    widget.classList.add("dragging");
 
-    this.announceToUser(`Started dragging ${this.widgetRegistry.get(layoutItem.type).name} widget`);
+    document.addEventListener("mousemove", this.onDrag.bind(this));
+    document.addEventListener("mouseup", this.onDragEnd.bind(this));
+    document.addEventListener("touchmove", this.onDrag.bind(this));
+    document.addEventListener("touchend", this.onDragEnd.bind(this));
+
+    this.announceToUser(
+      `Started dragging ${this.widgetRegistry.get(layoutItem.type).name} widget`,
+    );
   }
 
   onDrag(e) {
     if (!this.state.isDragging || !this.state.draggedElement) return;
-    
+
     e.preventDefault();
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    
+
     const { widget } = this.state.draggedElement;
-    
+
     const newLeft = clientX - this.state.mousePosition.x;
     const newTop = clientY - this.state.mousePosition.y;
-    
+
     widget.style.left = `${newLeft}px`;
     widget.style.top = `${newTop}px`;
-    
+
     // Update layout position
     this.updateDraggedItemPosition(newLeft, newTop);
   }
 
   onDragEnd(e) {
     if (!this.state.isDragging) return;
-    
+
     const { widget, layoutItem } = this.state.draggedElement;
-    
-    widget.style.zIndex = '1';
-    widget.classList.remove('dragging');
-    
+
+    widget.style.zIndex = "1";
+    widget.classList.remove("dragging");
+
     // Snap to grid
     this.snapToGrid(layoutItem);
     this.compactLayout();
     this.updateLayout();
-    
+
     this.state.isDragging = false;
     this.state.draggedElement = null;
-    
-    document.removeEventListener('mousemove', this.onDrag);
-    document.removeEventListener('mouseup', this.onDragEnd);
-    document.removeEventListener('touchmove', this.onDrag);
-    document.removeEventListener('touchend', this.onDragEnd);
 
-    this.announceToUser(`Moved ${this.widgetRegistry.get(layoutItem.type).name} widget`);
+    document.removeEventListener("mousemove", this.onDrag);
+    document.removeEventListener("mouseup", this.onDragEnd);
+    document.removeEventListener("touchmove", this.onDrag);
+    document.removeEventListener("touchend", this.onDragEnd);
+
+    this.announceToUser(
+      `Moved ${this.widgetRegistry.get(layoutItem.type).name} widget`,
+    );
     this.onLayoutChange();
   }
 
@@ -553,125 +609,149 @@ class DashboardLayoutSystem {
     const { layoutItem } = this.state.draggedElement;
     const containerPadding = this.options.containerPadding;
     const margin = this.options.margin;
-    
+
     // Convert pixel position to grid position
-    const x = Math.round((left - containerPadding[0]) / (this.state.gridSize.width + margin[0]));
-    const y = Math.round((top - containerPadding[1]) / (this.state.gridSize.height + margin[1]));
-    
-    layoutItem.x = Math.max(0, Math.min(x, this.options.cols[this.state.currentBreakpoint] - layoutItem.w));
+    const x = Math.round(
+      (left - containerPadding[0]) / (this.state.gridSize.width + margin[0]),
+    );
+    const y = Math.round(
+      (top - containerPadding[1]) / (this.state.gridSize.height + margin[1]),
+    );
+
+    layoutItem.x = Math.max(
+      0,
+      Math.min(
+        x,
+        this.options.cols[this.state.currentBreakpoint] - layoutItem.w,
+      ),
+    );
     layoutItem.y = Math.max(0, y);
   }
 
   snapToGrid(layoutItem) {
     const position = this.calculatePosition(layoutItem);
     const widget = this.state.widgets.get(layoutItem.i).element;
-    
+
     widget.style.left = `${position.left}px`;
     widget.style.top = `${position.top}px`;
   }
 
   startResize(e, widget, layoutItem) {
     if (!this.options.isResizable) return;
-    
+
     e.preventDefault();
     e.stopPropagation();
-    
+
     this.state.isResizing = true;
     this.state.draggedElement = { widget, layoutItem };
-    
+
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    
+
     this.state.mousePosition = {
       x: clientX,
       y: clientY,
       startWidth: layoutItem.w,
-      startHeight: layoutItem.h
+      startHeight: layoutItem.h,
     };
 
-    widget.classList.add('resizing');
-    
-    document.addEventListener('mousemove', this.onResize.bind(this));
-    document.addEventListener('mouseup', this.onResizeEnd.bind(this));
-    document.addEventListener('touchmove', this.onResize.bind(this));
-    document.addEventListener('touchend', this.onResizeEnd.bind(this));
+    widget.classList.add("resizing");
 
-    this.announceToUser(`Started resizing ${this.widgetRegistry.get(layoutItem.type).name} widget`);
+    document.addEventListener("mousemove", this.onResize.bind(this));
+    document.addEventListener("mouseup", this.onResizeEnd.bind(this));
+    document.addEventListener("touchmove", this.onResize.bind(this));
+    document.addEventListener("touchend", this.onResizeEnd.bind(this));
+
+    this.announceToUser(
+      `Started resizing ${this.widgetRegistry.get(layoutItem.type).name} widget`,
+    );
   }
 
   onResize(e) {
     if (!this.state.isResizing || !this.state.draggedElement) return;
-    
+
     e.preventDefault();
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    
+
     const deltaX = clientX - this.state.mousePosition.x;
     const deltaY = clientY - this.state.mousePosition.y;
-    
+
     const { layoutItem } = this.state.draggedElement;
     const widgetConfig = this.widgetRegistry.get(layoutItem.type);
-    
+
     // Calculate new size in grid units
-    const gridDeltaX = Math.round(deltaX / (this.state.gridSize.width + this.options.margin[0]));
-    const gridDeltaY = Math.round(deltaY / (this.state.gridSize.height + this.options.margin[1]));
-    
+    const gridDeltaX = Math.round(
+      deltaX / (this.state.gridSize.width + this.options.margin[0]),
+    );
+    const gridDeltaY = Math.round(
+      deltaY / (this.state.gridSize.height + this.options.margin[1]),
+    );
+
     const newWidth = Math.max(
       widgetConfig.minSize.w,
-      Math.min(widgetConfig.maxSize.w, this.state.mousePosition.startWidth + gridDeltaX)
+      Math.min(
+        widgetConfig.maxSize.w,
+        this.state.mousePosition.startWidth + gridDeltaX,
+      ),
     );
-    
+
     const newHeight = Math.max(
       widgetConfig.minSize.h,
-      Math.min(widgetConfig.maxSize.h, this.state.mousePosition.startHeight + gridDeltaY)
+      Math.min(
+        widgetConfig.maxSize.h,
+        this.state.mousePosition.startHeight + gridDeltaY,
+      ),
     );
-    
+
     layoutItem.w = newWidth;
     layoutItem.h = newHeight;
-    
+
     this.updateWidgetSize(layoutItem);
   }
 
   onResizeEnd(e) {
     if (!this.state.isResizing) return;
-    
+
     const { widget, layoutItem } = this.state.draggedElement;
-    
-    widget.classList.remove('resizing');
-    
+
+    widget.classList.remove("resizing");
+
     this.compactLayout();
     this.updateLayout();
-    
+
     this.state.isResizing = false;
     this.state.draggedElement = null;
-    
-    document.removeEventListener('mousemove', this.onResize);
-    document.removeEventListener('mouseup', this.onResizeEnd);
-    document.removeEventListener('touchmove', this.onResize);
-    document.removeEventListener('touchend', this.onResizeEnd);
 
-    this.announceToUser(`Resized ${this.widgetRegistry.get(layoutItem.type).name} widget`);
+    document.removeEventListener("mousemove", this.onResize);
+    document.removeEventListener("mouseup", this.onResizeEnd);
+    document.removeEventListener("touchmove", this.onResize);
+    document.removeEventListener("touchend", this.onResizeEnd);
+
+    this.announceToUser(
+      `Resized ${this.widgetRegistry.get(layoutItem.type).name} widget`,
+    );
     this.onLayoutChange();
   }
 
   updateWidgetSize(layoutItem) {
     const position = this.calculatePosition(layoutItem);
     const widget = this.state.widgets.get(layoutItem.i).element;
-    
+
     widget.style.width = `${position.width}px`;
     widget.style.height = `${position.height}px`;
   }
 
   compactLayout() {
     if (!this.options.verticalCompact) return;
-    
+
     const currentLayout = this.state.layouts[this.state.currentBreakpoint];
     const sorted = [...currentLayout].sort((a, b) => {
       if (a.y < b.y) return -1;
       if (a.y > b.y) return 1;
       return a.x - b.x;
     });
-    
+
     for (const item of sorted) {
       item.y = this.getMinY(item, sorted);
     }
@@ -679,15 +759,15 @@ class DashboardLayoutSystem {
 
   getMinY(item, layout) {
     let minY = 0;
-    
+
     for (const otherItem of layout) {
       if (otherItem === item) continue;
-      
+
       if (this.collides(item, otherItem)) {
         minY = Math.max(minY, otherItem.y + otherItem.h);
       }
     }
-    
+
     return minY;
   }
 
@@ -702,13 +782,13 @@ class DashboardLayoutSystem {
 
   updateLayout() {
     const currentLayout = this.state.layouts[this.state.currentBreakpoint];
-    
-    currentLayout.forEach(item => {
+
+    currentLayout.forEach((item) => {
       const widget = this.state.widgets.get(item.i);
       if (widget) {
         const position = this.calculatePosition(item);
         const element = widget.element;
-        
+
         element.style.left = `${position.left}px`;
         element.style.top = `${position.top}px`;
         element.style.width = `${position.width}px`;
@@ -726,20 +806,20 @@ class DashboardLayoutSystem {
 
     const widgetId = `${type}-${Date.now()}`;
     const layout = this.state.layouts[this.state.currentBreakpoint];
-    
+
     // Find available position
     const position = this.findAvailablePosition(widgetConfig.defaultSize);
-    
+
     const newItem = {
       i: widgetId,
       type,
       ...widgetConfig.defaultSize,
       ...position,
-      ...customLayout
+      ...customLayout,
     };
 
     // Add to all breakpoints
-    Object.keys(this.state.layouts).forEach(breakpoint => {
+    Object.keys(this.state.layouts).forEach((breakpoint) => {
       if (!this.state.layouts[breakpoint]) {
         this.state.layouts[breakpoint] = [];
       }
@@ -758,10 +838,10 @@ class DashboardLayoutSystem {
   findAvailablePosition(size) {
     const layout = this.state.layouts[this.state.currentBreakpoint];
     const cols = this.options.cols[this.state.currentBreakpoint];
-    
+
     // Try to place at the bottom
     let maxY = 0;
-    layout.forEach(item => {
+    layout.forEach((item) => {
       maxY = Math.max(maxY, item.y + item.h);
     });
 
@@ -769,14 +849,14 @@ class DashboardLayoutSystem {
     for (let x = 0; x <= cols - size.w; x++) {
       const testItem = { x, y: maxY, w: size.w, h: size.h };
       let collision = false;
-      
+
       for (const item of layout) {
         if (this.collides(testItem, item)) {
           collision = true;
           break;
         }
       }
-      
+
       if (!collision) {
         return { x, y: maxY };
       }
@@ -793,9 +873,9 @@ class DashboardLayoutSystem {
     const widgetName = widget.config.name;
 
     // Remove from all layouts
-    Object.keys(this.state.layouts).forEach(breakpoint => {
+    Object.keys(this.state.layouts).forEach((breakpoint) => {
       this.state.layouts[breakpoint] = this.state.layouts[breakpoint].filter(
-        item => item.i !== widgetId
+        (item) => item.i !== widgetId,
       );
     });
 
@@ -989,47 +1069,55 @@ class DashboardLayoutSystem {
 
   // Utility Methods
   showWidgetPalette() {
-    this.widgetPalette.style.display = 'block';
+    this.widgetPalette.style.display = "block";
     this.renderWidgetPalette();
-    
+
     // Focus management
-    this.widgetPalette.querySelector('#close-palette-btn').focus();
+    this.widgetPalette.querySelector("#close-palette-btn").focus();
   }
 
   hideWidgetPalette() {
-    this.widgetPalette.style.display = 'none';
+    this.widgetPalette.style.display = "none";
   }
 
   renderWidgetPalette() {
-    const paletteContent = this.container.querySelector('#palette-content');
+    const paletteContent = this.container.querySelector("#palette-content");
     const categories = {};
-    
+
     // Group widgets by category
-    this.widgetRegistry.forEach(widget => {
+    this.widgetRegistry.forEach((widget) => {
       if (!categories[widget.category]) {
         categories[widget.category] = [];
       }
       categories[widget.category].push(widget);
     });
 
-    paletteContent.innerHTML = Object.entries(categories).map(([category, widgets]) => `
+    paletteContent.innerHTML = Object.entries(categories)
+      .map(
+        ([category, widgets]) => `
       <div class="widget-category">
         <h4 class="category-title">${category.charAt(0).toUpperCase() + category.slice(1)}</h4>
         <div class="widget-grid">
-          ${widgets.map(widget => `
+          ${widgets
+            .map(
+              (widget) => `
             <button class="widget-card" data-widget-type="${widget.type}" tabindex="0">
               <div class="widget-card-icon">${widget.icon}</div>
               <div class="widget-card-name">${widget.name}</div>
               <div class="widget-card-desc">${widget.description}</div>
             </button>
-          `).join('')}
+          `,
+            )
+            .join("")}
         </div>
       </div>
-    `).join('');
+    `,
+      )
+      .join("");
 
     // Bind widget card events
-    paletteContent.querySelectorAll('.widget-card').forEach(card => {
-      card.addEventListener('click', () => {
+    paletteContent.querySelectorAll(".widget-card").forEach((card) => {
+      card.addEventListener("click", () => {
         const widgetType = card.dataset.widgetType;
         this.addWidget(widgetType);
         this.hideWidgetPalette();
@@ -1042,45 +1130,54 @@ class DashboardLayoutSystem {
     if (!widget) return;
 
     // Placeholder for widget configuration modal
-    this.announceToUser(`Configuration for ${widget.config.name} widget (feature coming soon)`);
+    this.announceToUser(
+      `Configuration for ${widget.config.name} widget (feature coming soon)`,
+    );
   }
 
   saveLayout() {
     try {
-      localStorage.setItem('pynomaly-dashboard-layout', JSON.stringify(this.state.layouts));
-      this.updateStatusIndicator('Layout saved successfully', 'success');
-      this.announceToUser('Dashboard layout saved successfully');
+      localStorage.setItem(
+        "pynomaly-dashboard-layout",
+        JSON.stringify(this.state.layouts),
+      );
+      this.updateStatusIndicator("Layout saved successfully", "success");
+      this.announceToUser("Dashboard layout saved successfully");
     } catch (error) {
-      console.error('Failed to save layout:', error);
-      this.updateStatusIndicator('Failed to save layout', 'error');
+      console.error("Failed to save layout:", error);
+      this.updateStatusIndicator("Failed to save layout", "error");
     }
   }
 
   loadSavedLayouts() {
     try {
-      const saved = localStorage.getItem('pynomaly-dashboard-layout');
+      const saved = localStorage.getItem("pynomaly-dashboard-layout");
       return saved ? JSON.parse(saved) : null;
     } catch (error) {
-      console.error('Failed to load saved layout:', error);
+      console.error("Failed to load saved layout:", error);
       return null;
     }
   }
 
   resetLayout() {
-    if (confirm('Are you sure you want to reset the dashboard to the default layout? This will remove all customizations.')) {
+    if (
+      confirm(
+        "Are you sure you want to reset the dashboard to the default layout? This will remove all customizations.",
+      )
+    ) {
       this.createDefaultLayout();
       this.renderLayout();
-      this.updateStatusIndicator('Layout reset to default', 'success');
-      this.announceToUser('Dashboard layout reset to default');
+      this.updateStatusIndicator("Layout reset to default", "success");
+      this.announceToUser("Dashboard layout reset to default");
       this.onLayoutChange();
     }
   }
 
-  updateStatusIndicator(message = 'Ready', type = 'normal') {
+  updateStatusIndicator(message = "Ready", type = "normal") {
     this.statusIndicator.textContent = message;
     this.statusIndicator.className = `status-indicator status-${type}`;
-    
-    if (type !== 'normal') {
+
+    if (type !== "normal") {
       setTimeout(() => {
         this.updateStatusIndicator();
       }, 3000);
@@ -1089,7 +1186,10 @@ class DashboardLayoutSystem {
 
   onLayoutChange() {
     if (this.options.onLayoutChange) {
-      this.options.onLayoutChange(this.state.layouts, this.state.currentBreakpoint);
+      this.options.onLayoutChange(
+        this.state.layouts,
+        this.state.currentBreakpoint,
+      );
     }
   }
 
@@ -1097,47 +1197,47 @@ class DashboardLayoutSystem {
     if (this.options.onBreakpointChange) {
       this.options.onBreakpointChange(newBreakpoint, this.state.layouts);
     }
-    
+
     this.renderLayout();
   }
 
   handleWidgetKeyboard(e, widget, layoutItem) {
     const step = e.shiftKey ? 5 : 1;
-    
+
     switch (e.key) {
-      case 'ArrowLeft':
+      case "ArrowLeft":
         e.preventDefault();
         layoutItem.x = Math.max(0, layoutItem.x - step);
         this.snapToGrid(layoutItem);
         this.compactLayout();
         this.updateLayout();
         break;
-      case 'ArrowRight':
+      case "ArrowRight":
         e.preventDefault();
         layoutItem.x = Math.min(
           this.options.cols[this.state.currentBreakpoint] - layoutItem.w,
-          layoutItem.x + step
+          layoutItem.x + step,
         );
         this.snapToGrid(layoutItem);
         this.compactLayout();
         this.updateLayout();
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         e.preventDefault();
         layoutItem.y = Math.max(0, layoutItem.y - step);
         this.snapToGrid(layoutItem);
         this.compactLayout();
         this.updateLayout();
         break;
-      case 'ArrowDown':
+      case "ArrowDown":
         e.preventDefault();
         layoutItem.y += step;
         this.snapToGrid(layoutItem);
         this.compactLayout();
         this.updateLayout();
         break;
-      case 'Delete':
-      case 'Backspace':
+      case "Delete":
+      case "Backspace":
         e.preventDefault();
         this.removeWidget(layoutItem.i);
         break;
@@ -1145,27 +1245,27 @@ class DashboardLayoutSystem {
   }
 
   handleMouseDown(e) {
-    this.handlePointerDown(e, 'mouse');
+    this.handlePointerDown(e, "mouse");
   }
 
   handleMouseMove(e) {
-    this.handlePointerMove(e, 'mouse');
+    this.handlePointerMove(e, "mouse");
   }
 
   handleMouseUp(e) {
-    this.handlePointerUp(e, 'mouse');
+    this.handlePointerUp(e, "mouse");
   }
 
   handleTouchStart(e) {
-    this.handlePointerDown(e, 'touch');
+    this.handlePointerDown(e, "touch");
   }
 
   handleTouchMove(e) {
-    this.handlePointerMove(e, 'touch');
+    this.handlePointerMove(e, "touch");
   }
 
   handleTouchEnd(e) {
-    this.handlePointerUp(e, 'touch');
+    this.handlePointerUp(e, "touch");
   }
 
   handlePointerDown(e, type) {
@@ -1181,18 +1281,21 @@ class DashboardLayoutSystem {
   }
 
   announceToUser(message) {
-    if (this.options.accessibility && this.options.accessibility.announceActions) {
+    if (
+      this.options.accessibility &&
+      this.options.accessibility.announceActions
+    ) {
       // Create or update live region for screen readers
-      let liveRegion = document.getElementById('dashboard-live-region');
+      let liveRegion = document.getElementById("dashboard-live-region");
       if (!liveRegion) {
-        liveRegion = document.createElement('div');
-        liveRegion.id = 'dashboard-live-region';
-        liveRegion.setAttribute('aria-live', 'polite');
-        liveRegion.setAttribute('aria-atomic', 'true');
-        liveRegion.className = 'sr-only';
+        liveRegion = document.createElement("div");
+        liveRegion.id = "dashboard-live-region";
+        liveRegion.setAttribute("aria-live", "polite");
+        liveRegion.setAttribute("aria-atomic", "true");
+        liveRegion.className = "sr-only";
         document.body.appendChild(liveRegion);
       }
-      
+
       liveRegion.textContent = message;
     }
   }
@@ -1211,15 +1314,15 @@ class DashboardLayoutSystem {
 
   destroy() {
     // Clean up event listeners
-    window.removeEventListener('resize', this.handleResize);
-    document.removeEventListener('keydown', this.handleKeydown);
-    
+    window.removeEventListener("resize", this.handleResize);
+    document.removeEventListener("keydown", this.handleKeydown);
+
     // Clear widgets
     this.state.widgets.clear();
-    
+
     // Clear container
-    this.container.innerHTML = '';
-    
+    this.container.innerHTML = "";
+
     // Cancel any pending animation frames
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
@@ -1228,7 +1331,7 @@ class DashboardLayoutSystem {
 }
 
 // Export for module systems
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module !== "undefined" && module.exports) {
   module.exports = { DashboardLayoutSystem };
 }
 

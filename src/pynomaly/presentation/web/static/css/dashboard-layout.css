@@ -90,7 +90,9 @@
   overflow: hidden;
   user-select: none;
   cursor: default;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .dashboard-widget:hover {
@@ -539,7 +541,7 @@
 }
 
 .score-circle::before {
-  content: '';
+  content: "";
   position: absolute;
   width: 90px;
   height: 90px;
@@ -652,7 +654,11 @@
 
 .perf-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--color-primary), var(--color-success-border));
+  background: linear-gradient(
+    90deg,
+    var(--color-primary),
+    var(--color-success-border)
+  );
   transition: width 0.3s ease;
 }
 
@@ -753,7 +759,7 @@
 }
 
 .widget-content.loading::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;

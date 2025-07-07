@@ -15,14 +15,14 @@ class AutoMLConfigWizard {
       enableAdvancedOptions: true,
       showExpertMode: false,
       enableTemplates: true,
-      ...options
+      ...options,
     };
 
     this.currentStep = 0;
     this.totalSteps = 5;
     this.config = {};
     this.templates = this.getConfigTemplates();
-    
+
     this.eventListeners = new Map();
     this.init();
   }
@@ -58,18 +58,18 @@ class AutoMLConfigWizard {
       </div>
     `;
 
-    this.wizardContent = this.container.querySelector('.wizard-content');
-    this.prevButton = this.container.querySelector('.wizard-prev');
-    this.nextButton = this.container.querySelector('.wizard-next');
-    this.finishButton = this.container.querySelector('.wizard-finish');
-    this.progressFill = this.container.querySelector('.progress-fill');
-    this.progressText = this.container.querySelector('.progress-text');
+    this.wizardContent = this.container.querySelector(".wizard-content");
+    this.prevButton = this.container.querySelector(".wizard-prev");
+    this.nextButton = this.container.querySelector(".wizard-next");
+    this.finishButton = this.container.querySelector(".wizard-finish");
+    this.progressFill = this.container.querySelector(".progress-fill");
+    this.progressText = this.container.querySelector(".progress-text");
   }
 
   setupEventListeners() {
-    this.prevButton.addEventListener('click', () => this.previousStep());
-    this.nextButton.addEventListener('click', () => this.nextStep());
-    this.finishButton.addEventListener('click', () => this.finishWizard());
+    this.prevButton.addEventListener("click", () => this.previousStep());
+    this.nextButton.addEventListener("click", () => this.nextStep());
+    this.finishButton.addEventListener("click", () => this.finishWizard());
   }
 
   showStep(stepIndex) {
@@ -146,10 +146,10 @@ class AutoMLConfigWizard {
   }
 
   setupDatasetStepListeners() {
-    const fileInput = this.wizardContent.querySelector('#dataset-file');
-    const dataPreview = this.wizardContent.querySelector('#data-preview');
-    
-    fileInput?.addEventListener('change', (event) => {
+    const fileInput = this.wizardContent.querySelector("#dataset-file");
+    const dataPreview = this.wizardContent.querySelector("#data-preview");
+
+    fileInput?.addEventListener("change", (event) => {
       const file = event.target.files[0];
       if (file) {
         this.loadDatasetPreview(file, dataPreview);
@@ -159,11 +159,12 @@ class AutoMLConfigWizard {
 
   async loadDatasetPreview(file, container) {
     try {
-      container.innerHTML = '<div class="loading-spinner">Loading preview...</div>';
-      
+      container.innerHTML =
+        '<div class="loading-spinner">Loading preview...</div>';
+
       // Simulate file reading and preview generation
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       const mockPreview = this.generateMockDataPreview();
       container.innerHTML = `
         <div class="data-preview">
@@ -185,28 +186,30 @@ class AutoMLConfigWizard {
             <table class="table table-sm">
               <thead>
                 <tr>
-                  ${mockPreview.headers.map(h => `<th>${h}</th>`).join('')}
+                  ${mockPreview.headers.map((h) => `<th>${h}</th>`).join("")}
                 </tr>
               </thead>
               <tbody>
-                ${mockPreview.rows_data.map(row => 
-                  `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`
-                ).join('')}
+                ${mockPreview.rows_data
+                  .map(
+                    (row) =>
+                      `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`,
+                  )
+                  .join("")}
               </tbody>
             </table>
           </div>
         </div>
       `;
-      
+
       // Store dataset info in config
       this.config.dataset = {
         filename: file.name,
         size: file.size,
         rows: mockPreview.rows,
         columns: mockPreview.columns,
-        preview: mockPreview
+        preview: mockPreview,
       };
-      
     } catch (error) {
       container.innerHTML = `<div class="error-message">Error loading file: ${error.message}</div>`;
     }
@@ -219,7 +222,9 @@ class AutoMLConfigWizard {
         <p>Choose a pre-configured template or start with custom settings.</p>
         
         <div class="template-grid">
-          ${this.templates.map(template => `
+          ${this.templates
+            .map(
+              (template) => `
             <div class="template-card" data-template="${template.id}">
               <div class="template-header">
                 <h4>${template.name}</h4>
@@ -229,7 +234,7 @@ class AutoMLConfigWizard {
               <div class="template-features">
                 <h5>Features:</h5>
                 <ul>
-                  ${template.features.map(feature => `<li>${feature}</li>`).join('')}
+                  ${template.features.map((feature) => `<li>${feature}</li>`).join("")}
                 </ul>
               </div>
               <div class="template-specs">
@@ -243,7 +248,9 @@ class AutoMLConfigWizard {
                 </div>
               </div>
             </div>
-          `).join('')}
+          `,
+            )
+            .join("")}
         </div>
 
         <div class="custom-option">
@@ -271,21 +278,21 @@ class AutoMLConfigWizard {
   }
 
   setupTemplateStepListeners() {
-    const templateCards = this.wizardContent.querySelectorAll('.template-card');
-    
-    templateCards.forEach(card => {
-      card.addEventListener('click', () => {
+    const templateCards = this.wizardContent.querySelectorAll(".template-card");
+
+    templateCards.forEach((card) => {
+      card.addEventListener("click", () => {
         // Remove previous selection
-        templateCards.forEach(c => c.classList.remove('selected'));
-        
+        templateCards.forEach((c) => c.classList.remove("selected"));
+
         // Select current template
-        card.classList.add('selected');
-        
+        card.classList.add("selected");
+
         const templateId = card.dataset.template;
-        if (templateId === 'custom') {
-          this.config.template = 'custom';
+        if (templateId === "custom") {
+          this.config.template = "custom";
         } else {
-          const template = this.templates.find(t => t.id === templateId);
+          const template = this.templates.find((t) => t.id === templateId);
           this.config.template = template;
           this.applyTemplate(template);
         }
@@ -404,44 +411,52 @@ class AutoMLConfigWizard {
   }
 
   setupAlgorithmStepListeners() {
-    const algorithmCheckboxes = this.wizardContent.querySelectorAll('.algorithm-item input[type="checkbox"]');
-    const categoryCheckboxes = this.wizardContent.querySelectorAll('.category > h4 input[type="checkbox"]');
-    
+    const algorithmCheckboxes = this.wizardContent.querySelectorAll(
+      '.algorithm-item input[type="checkbox"]',
+    );
+    const categoryCheckboxes = this.wizardContent.querySelectorAll(
+      '.category > h4 input[type="checkbox"]',
+    );
+
     // Update selection summary
     const updateSummary = () => {
-      const selectedCount = this.wizardContent.querySelectorAll('.algorithm-item input[type="checkbox"]:checked').length;
+      const selectedCount = this.wizardContent.querySelectorAll(
+        '.algorithm-item input[type="checkbox"]:checked',
+      ).length;
       const estimatedTime = selectedCount * 5; // 5 minutes per algorithm estimate
-      
-      this.wizardContent.querySelector('#selected-algorithms').textContent = selectedCount;
-      this.wizardContent.querySelector('#estimated-time').textContent = `${estimatedTime}min`;
-      
+
+      this.wizardContent.querySelector("#selected-algorithms").textContent =
+        selectedCount;
+      this.wizardContent.querySelector("#estimated-time").textContent =
+        `${estimatedTime}min`;
+
       // Store selected algorithms in config
       const selectedAlgorithms = Array.from(algorithmCheckboxes)
-        .filter(cb => cb.checked)
-        .map(cb => cb.id.replace('alg-', '').replace('-', '_'));
-      
+        .filter((cb) => cb.checked)
+        .map((cb) => cb.id.replace("alg-", "").replace("-", "_"));
+
       this.config.algorithms = selectedAlgorithms;
     };
 
     // Category checkbox handlers
-    categoryCheckboxes.forEach(catCheckbox => {
-      catCheckbox.addEventListener('change', () => {
-        const category = catCheckbox.id.replace('cat-', '');
+    categoryCheckboxes.forEach((catCheckbox) => {
+      catCheckbox.addEventListener("change", () => {
+        const category = catCheckbox.id.replace("cat-", "");
         const categoryAlgorithms = this.wizardContent.querySelectorAll(
-          `[data-category="${category}"] input[type="checkbox"]`
+          `[data-category="${category}"] input[type="checkbox"]`,
         );
-        
-        categoryAlgorithms.forEach(algCheckbox => {
+
+        categoryAlgorithms.forEach((algCheckbox) => {
           algCheckbox.checked = catCheckbox.checked;
         });
-        
+
         updateSummary();
       });
     });
 
     // Algorithm checkbox handlers
-    algorithmCheckboxes.forEach(algCheckbox => {
-      algCheckbox.addEventListener('change', updateSummary);
+    algorithmCheckboxes.forEach((algCheckbox) => {
+      algCheckbox.addEventListener("change", updateSummary);
     });
 
     // Initial summary update
@@ -571,18 +586,18 @@ class AutoMLConfigWizard {
   }
 
   setupOptimizationStepListeners() {
-    const maxEvaluations = this.wizardContent.querySelector('#max-evaluations');
-    const evalValue = this.wizardContent.querySelector('#eval-value');
-    
-    maxEvaluations.addEventListener('input', () => {
+    const maxEvaluations = this.wizardContent.querySelector("#max-evaluations");
+    const evalValue = this.wizardContent.querySelector("#eval-value");
+
+    maxEvaluations.addEventListener("input", () => {
       evalValue.textContent = maxEvaluations.value;
       this.updateEstimations();
     });
 
     // Store optimization settings in config
-    const formElements = this.wizardContent.querySelectorAll('input, select');
-    formElements.forEach(element => {
-      element.addEventListener('change', () => {
+    const formElements = this.wizardContent.querySelectorAll("input, select");
+    formElements.forEach((element) => {
+      element.addEventListener("change", () => {
         this.updateOptimizationConfig();
         this.updateEstimations();
       });
@@ -595,49 +610,60 @@ class AutoMLConfigWizard {
   updateOptimizationConfig() {
     const getValue = (id) => {
       const element = this.wizardContent.querySelector(`#${id}`);
-      if (element.type === 'checkbox') return element.checked;
-      if (element.type === 'number' || element.type === 'range') return parseInt(element.value);
+      if (element.type === "checkbox") return element.checked;
+      if (element.type === "number" || element.type === "range")
+        return parseInt(element.value);
       return element.value;
     };
 
     this.config.optimization = {
-      algorithm: getValue('optimization-algorithm'),
-      max_evaluations: getValue('max-evaluations'),
-      timeout_minutes: getValue('optimization-timeout'),
-      cv_folds: getValue('cv-folds'),
-      scoring_metric: getValue('scoring-metric'),
-      max_training_time: getValue('max-training-time'),
-      memory_limit: getValue('memory-limit'),
-      gpu_enabled: getValue('gpu-enabled'),
-      n_jobs: getValue('n-jobs')
+      algorithm: getValue("optimization-algorithm"),
+      max_evaluations: getValue("max-evaluations"),
+      timeout_minutes: getValue("optimization-timeout"),
+      cv_folds: getValue("cv-folds"),
+      scoring_metric: getValue("scoring-metric"),
+      max_training_time: getValue("max-training-time"),
+      memory_limit: getValue("memory-limit"),
+      gpu_enabled: getValue("gpu-enabled"),
+      n_jobs: getValue("n-jobs"),
     };
   }
 
   updateEstimations() {
     const algorithms = this.config.algorithms?.length || 5;
     const evaluations = this.config.optimization?.max_evaluations || 100;
-    const parallelJobs = this.config.optimization?.n_jobs === '-1' ? 4 : parseInt(this.config.optimization?.n_jobs || 1);
-    
+    const parallelJobs =
+      this.config.optimization?.n_jobs === "-1"
+        ? 4
+        : parseInt(this.config.optimization?.n_jobs || 1);
+
     // Rough estimation formulas
     const totalTrials = algorithms * evaluations;
     const estimatedMinutes = Math.ceil((totalTrials * 2) / parallelJobs); // 2 minutes per trial
     const estimatedHours = Math.floor(estimatedMinutes / 60);
     const remainingMinutes = estimatedMinutes % 60;
-    
-    const durationText = estimatedHours > 0 ? 
-      `~${estimatedHours}h ${remainingMinutes}m` : 
-      `~${estimatedMinutes}m`;
-    
-    const memoryUsage = Math.min(this.config.optimization?.memory_limit || 8, algorithms * 1.5);
-    
-    this.wizardContent.querySelector('#estimated-duration').textContent = durationText;
-    this.wizardContent.querySelector('#estimated-memory').textContent = `~${memoryUsage.toFixed(1)} GB`;
-    this.wizardContent.querySelector('#estimated-trials').textContent = `~${totalTrials}`;
+
+    const durationText =
+      estimatedHours > 0
+        ? `~${estimatedHours}h ${remainingMinutes}m`
+        : `~${estimatedMinutes}m`;
+
+    const memoryUsage = Math.min(
+      this.config.optimization?.memory_limit || 8,
+      algorithms * 1.5,
+    );
+
+    this.wizardContent.querySelector("#estimated-duration").textContent =
+      durationText;
+    this.wizardContent.querySelector("#estimated-memory").textContent =
+      `~${memoryUsage.toFixed(1)} GB`;
+    this.wizardContent.querySelector("#estimated-trials").textContent =
+      `~${totalTrials}`;
   }
 
   showSummaryStep() {
     const configSummary = this.generateConfigSummary();
-    
+
     this.wizardContent.innerHTML = `
       <div class="wizard-step" data-step="4">
         <h3>Configuration Summary</h3>
@@ -670,9 +696,9 @@ class AutoMLConfigWizard {
             <h4>Algorithms</h4>
             <div class="summary-content">
               <div class="algorithm-chips">
-                ${configSummary.algorithms.map(alg => 
-                  `<span class="algorithm-chip">${alg}</span>`
-                ).join('')}
+                ${configSummary.algorithms
+                  .map((alg) => `<span class="algorithm-chip">${alg}</span>`)
+                  .join("")}
               </div>
               <div class="summary-item">
                 <span class="summary-label">Total:</span>
@@ -720,7 +746,7 @@ class AutoMLConfigWizard {
               </div>
               <div class="summary-item">
                 <span class="summary-label">GPU:</span>
-                <span class="summary-value">${configSummary.resources.gpu ? 'Enabled' : 'Disabled'}</span>
+                <span class="summary-value">${configSummary.resources.gpu ? "Enabled" : "Disabled"}</span>
               </div>
             </div>
           </div>
@@ -758,14 +784,15 @@ class AutoMLConfigWizard {
   }
 
   setupSummaryStepListeners() {
-    const exportButton = this.wizardContent.querySelector('#export-config');
-    const saveTemplateButton = this.wizardContent.querySelector('#save-template');
-    
-    exportButton?.addEventListener('click', () => {
+    const exportButton = this.wizardContent.querySelector("#export-config");
+    const saveTemplateButton =
+      this.wizardContent.querySelector("#save-template");
+
+    exportButton?.addEventListener("click", () => {
       this.exportConfiguration();
     });
-    
-    saveTemplateButton?.addEventListener('click', () => {
+
+    saveTemplateButton?.addEventListener("click", () => {
       this.saveAsTemplate();
     });
   }
@@ -773,29 +800,32 @@ class AutoMLConfigWizard {
   generateConfigSummary() {
     return {
       dataset: {
-        source: this.config.dataset?.filename || 'Not specified',
-        samples: this.config.dataset?.rows || 'Unknown',
-        features: this.config.dataset?.columns || 'Unknown',
-        target: 'Auto-detect (unsupervised)'
+        source: this.config.dataset?.filename || "Not specified",
+        samples: this.config.dataset?.rows || "Unknown",
+        features: this.config.dataset?.columns || "Unknown",
+        target: "Auto-detect (unsupervised)",
       },
       algorithms: this.config.algorithms || [],
       optimization: {
-        algorithm: this.config.optimization?.algorithm || 'bayesian',
+        algorithm: this.config.optimization?.algorithm || "bayesian",
         evaluations: this.config.optimization?.max_evaluations || 100,
         cv_folds: this.config.optimization?.cv_folds || 5,
-        scoring: this.config.optimization?.scoring_metric || 'roc_auc'
+        scoring: this.config.optimization?.scoring_metric || "roc_auc",
       },
       resources: {
         max_time: `${this.config.optimization?.max_training_time || 120} minutes`,
         memory: `${this.config.optimization?.memory_limit || 8} GB`,
-        parallel_jobs: this.config.optimization?.n_jobs === '-1' ? 'All cores' : this.config.optimization?.n_jobs || 1,
-        gpu: this.config.optimization?.gpu_enabled || false
+        parallel_jobs:
+          this.config.optimization?.n_jobs === "-1"
+            ? "All cores"
+            : this.config.optimization?.n_jobs || 1,
+        gpu: this.config.optimization?.gpu_enabled || false,
       },
       estimation: {
-        duration: '~2-3 hours',
-        trials: '500',
-        memory: '4-6 GB'
-      }
+        duration: "~2-3 hours",
+        trials: "500",
+        memory: "4-6 GB",
+      },
     };
   }
 
@@ -807,8 +837,10 @@ class AutoMLConfigWizard {
 
   updateButtons() {
     this.prevButton.disabled = this.currentStep === 0;
-    this.nextButton.style.display = this.currentStep === this.totalSteps - 1 ? 'none' : 'inline-block';
-    this.finishButton.style.display = this.currentStep === this.totalSteps - 1 ? 'inline-block' : 'none';
+    this.nextButton.style.display =
+      this.currentStep === this.totalSteps - 1 ? "none" : "inline-block";
+    this.finishButton.style.display =
+      this.currentStep === this.totalSteps - 1 ? "inline-block" : "none";
   }
 
   nextStep() {
@@ -841,7 +873,7 @@ class AutoMLConfigWizard {
 
   finishWizard() {
     const finalConfig = this.buildFinalConfig();
-    this.emit('wizard-complete', { config: finalConfig });
+    this.emit("wizard-complete", { config: finalConfig });
   }
 
   buildFinalConfig() {
@@ -851,95 +883,110 @@ class AutoMLConfigWizard {
       model_search: {
         algorithms: this.config.algorithms,
         max_trials: 50,
-        early_stopping: true
+        early_stopping: true,
       },
       hyperparameter_optimization: {
-        algorithm: this.config.optimization?.algorithm || 'bayesian',
+        algorithm: this.config.optimization?.algorithm || "bayesian",
         max_evaluations: this.config.optimization?.max_evaluations || 100,
         timeout_minutes: this.config.optimization?.timeout_minutes || 60,
         cv_folds: this.config.optimization?.cv_folds || 5,
-        scoring_metric: this.config.optimization?.scoring_metric || 'roc_auc'
+        scoring_metric: this.config.optimization?.scoring_metric || "roc_auc",
       },
       performance: {
-        max_training_time_minutes: this.config.optimization?.max_training_time || 120,
+        max_training_time_minutes:
+          this.config.optimization?.max_training_time || 120,
         memory_limit_gb: this.config.optimization?.memory_limit || 8,
         gpu_enabled: this.config.optimization?.gpu_enabled || false,
-        n_jobs: this.config.optimization?.n_jobs || -1
+        n_jobs: this.config.optimization?.n_jobs || -1,
       },
       ensemble: {
         enable: true,
-        strategy: 'ensemble',
-        max_models: 5
+        strategy: "ensemble",
+        max_models: 5,
       },
       validation: {
         test_size: 0.2,
         cross_validation: true,
-        cv_folds: this.config.optimization?.cv_folds || 5
-      }
+        cv_folds: this.config.optimization?.cv_folds || 5,
+      },
     };
   }
 
   getConfigTemplates() {
     return [
       {
-        id: 'quick',
-        name: 'Quick Start',
-        complexity: 'beginner',
-        description: 'Fast anomaly detection with basic algorithms and minimal tuning.',
+        id: "quick",
+        name: "Quick Start",
+        complexity: "beginner",
+        description:
+          "Fast anomaly detection with basic algorithms and minimal tuning.",
         features: [
-          'Fast training (~30 minutes)',
-          'Basic algorithms',
-          'Minimal resource usage',
-          'Good baseline performance'
+          "Fast training (~30 minutes)",
+          "Basic algorithms",
+          "Minimal resource usage",
+          "Good baseline performance",
         ],
-        algorithms: ['isolation_forest', 'local_outlier_factor'],
-        estimatedTime: '30 minutes'
+        algorithms: ["isolation_forest", "local_outlier_factor"],
+        estimatedTime: "30 minutes",
       },
       {
-        id: 'balanced',
-        name: 'Balanced Performance',
-        complexity: 'intermediate',
-        description: 'Balance between training time and model performance with moderate tuning.',
+        id: "balanced",
+        name: "Balanced Performance",
+        complexity: "intermediate",
+        description:
+          "Balance between training time and model performance with moderate tuning.",
         features: [
-          'Moderate training (~2 hours)',
-          'Multiple algorithms',
-          'Hyperparameter optimization',
-          'Ensemble methods'
-        ],
-        algorithms: ['isolation_forest', 'local_outlier_factor', 'one_class_svm', 'autoencoder'],
-        estimatedTime: '2 hours'
-      },
-      {
-        id: 'comprehensive',
-        name: 'Comprehensive Search',
-        complexity: 'advanced',
-        description: 'Exhaustive search across all algorithms for maximum performance.',
-        features: [
-          'Extensive training (~6 hours)',
-          'All available algorithms',
-          'Advanced optimization',
-          'Neural networks included'
+          "Moderate training (~2 hours)",
+          "Multiple algorithms",
+          "Hyperparameter optimization",
+          "Ensemble methods",
         ],
         algorithms: [
-          'isolation_forest', 'local_outlier_factor', 'one_class_svm',
-          'autoencoder', 'deep_svdd', 'feature_bagging', 'copod'
+          "isolation_forest",
+          "local_outlier_factor",
+          "one_class_svm",
+          "autoencoder",
         ],
-        estimatedTime: '6 hours'
+        estimatedTime: "2 hours",
       },
       {
-        id: 'neural',
-        name: 'Neural Network Focus',
-        complexity: 'advanced',
-        description: 'Focus on deep learning approaches for complex pattern detection.',
+        id: "comprehensive",
+        name: "Comprehensive Search",
+        complexity: "advanced",
+        description:
+          "Exhaustive search across all algorithms for maximum performance.",
         features: [
-          'GPU acceleration',
-          'Deep learning algorithms',
-          'Advanced feature learning',
-          'Complex pattern detection'
+          "Extensive training (~6 hours)",
+          "All available algorithms",
+          "Advanced optimization",
+          "Neural networks included",
         ],
-        algorithms: ['autoencoder', 'deep_svdd'],
-        estimatedTime: '4 hours'
-      }
+        algorithms: [
+          "isolation_forest",
+          "local_outlier_factor",
+          "one_class_svm",
+          "autoencoder",
+          "deep_svdd",
+          "feature_bagging",
+          "copod",
+        ],
+        estimatedTime: "6 hours",
+      },
+      {
+        id: "neural",
+        name: "Neural Network Focus",
+        complexity: "advanced",
+        description:
+          "Focus on deep learning approaches for complex pattern detection.",
+        features: [
+          "GPU acceleration",
+          "Deep learning algorithms",
+          "Advanced feature learning",
+          "Complex pattern detection",
+        ],
+        algorithms: ["autoencoder", "deep_svdd"],
+        estimatedTime: "4 hours",
+      },
     ];
   }
 
@@ -948,13 +995,20 @@ class AutoMLConfigWizard {
       rows: 10000 + Math.floor(Math.random() * 50000),
       columns: 8 + Math.floor(Math.random() * 15),
       missing: Math.floor(Math.random() * 15),
-      headers: ['timestamp', 'sensor_1', 'sensor_2', 'temperature', 'pressure', 'flow_rate'],
+      headers: [
+        "timestamp",
+        "sensor_1",
+        "sensor_2",
+        "temperature",
+        "pressure",
+        "flow_rate",
+      ],
       rows_data: [
-        ['2024-01-01 10:00:00', '0.823', '1.234', '25.4', '101.3', '15.2'],
-        ['2024-01-01 10:01:00', '0.801', '1.189', '25.7', '101.2', '15.8'],
-        ['2024-01-01 10:02:00', '0.856', '1.267', '25.1', '101.4', '14.9'],
-        ['2024-01-01 10:03:00', '0.798', '1.145', '25.9', '101.1', '16.1']
-      ]
+        ["2024-01-01 10:00:00", "0.823", "1.234", "25.4", "101.3", "15.2"],
+        ["2024-01-01 10:01:00", "0.801", "1.189", "25.7", "101.2", "15.8"],
+        ["2024-01-01 10:02:00", "0.856", "1.267", "25.1", "101.4", "14.9"],
+        ["2024-01-01 10:03:00", "0.798", "1.145", "25.9", "101.1", "16.1"],
+      ],
     };
   }
 
@@ -965,9 +1019,11 @@ class AutoMLConfigWizard {
 
   exportConfiguration() {
     const config = this.buildFinalConfig();
-    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(config, null, 2)], {
+      type: "application/json",
+    });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `automl-config-${Date.now()}.json`;
     document.body.appendChild(a);
@@ -978,10 +1034,10 @@ class AutoMLConfigWizard {
 
   saveAsTemplate() {
     // Implementation for saving custom template
-    const templateName = prompt('Enter template name:');
+    const templateName = prompt("Enter template name:");
     if (templateName) {
       // Save to local storage or send to server
-      console.log('Saving template:', templateName, this.buildFinalConfig());
+      console.log("Saving template:", templateName, this.buildFinalConfig());
     }
   }
 
@@ -1002,11 +1058,11 @@ class AutoMLConfigWizard {
 
   emit(event, data) {
     if (this.eventListeners.has(event)) {
-      this.eventListeners.get(event).forEach(listener => {
+      this.eventListeners.get(event).forEach((listener) => {
         try {
           listener(data);
         } catch (error) {
-          console.error('AutoML wizard event error:', error);
+          console.error("AutoML wizard event error:", error);
         }
       });
     }
@@ -1014,9 +1070,9 @@ class AutoMLConfigWizard {
 }
 
 // Export class
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module !== "undefined" && module.exports) {
   module.exports = {
-    AutoMLConfigWizard
+    AutoMLConfigWizard,
   };
 } else {
   // Browser environment

@@ -1,776 +1,941 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-theme="light">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Advanced Anomaly Detection Dashboard - Interactive data visualization components">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Advanced Anomaly Detection Dashboard - Interactive data visualization components"
+    />
     <title>Pynomaly - Advanced Dashboard Demo</title>
-    
+
     <!-- Preload critical resources -->
-    <link rel="preload" href="../static/css/design-tokens.css" as="style">
-    <link rel="preload" href="../static/css/advanced-components.css" as="style">
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style">
-    
+    <link rel="preload" href="../static/css/design-tokens.css" as="style" />
+    <link
+      rel="preload"
+      href="../static/css/advanced-components.css"
+      as="style"
+    />
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      as="style"
+    />
+
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="../static/css/design-tokens.css">
-    <link rel="stylesheet" href="../static/css/advanced-components.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-    
+    <link rel="stylesheet" href="../static/css/design-tokens.css" />
+    <link rel="stylesheet" href="../static/css/advanced-components.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    />
+
     <!-- External libraries -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
-    
+
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--color-bg-secondary);
-            color: var(--color-text-primary);
-            line-height: var(--line-height-normal);
+      body {
+        margin: 0;
+        padding: 0;
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        background: var(--color-bg-secondary);
+        color: var(--color-text-primary);
+        line-height: var(--line-height-normal);
+      }
+
+      .demo-header {
+        background: var(--color-bg-primary);
+        padding: var(--spacing-6) var(--spacing-8);
+        box-shadow: var(--shadow-sm);
+        border-bottom: 1px solid var(--color-border-light);
+      }
+
+      .demo-title {
+        font-size: var(--font-size-3xl);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-text-primary);
+        margin: 0 0 var(--spacing-2) 0;
+      }
+
+      .demo-subtitle {
+        font-size: var(--font-size-lg);
+        color: var(--color-text-secondary);
+        margin: 0;
+      }
+
+      .demo-nav {
+        display: flex;
+        gap: var(--spacing-6);
+        margin-top: var(--spacing-4);
+      }
+
+      .demo-nav-link {
+        color: var(--color-primary-600);
+        text-decoration: none;
+        font-weight: var(--font-weight-medium);
+        padding: var(--spacing-2) var(--spacing-3);
+        border-radius: var(--border-radius-md);
+        transition: var(--transition-colors);
+      }
+
+      .demo-nav-link:hover {
+        background: var(--color-primary-50);
+        color: var(--color-primary-700);
+      }
+
+      .demo-nav-link.active {
+        background: var(--color-primary-500);
+        color: var(--color-text-inverse);
+      }
+
+      .demo-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: var(--spacing-8);
+      }
+
+      .demo-section {
+        background: var(--color-bg-primary);
+        border-radius: var(--border-radius-xl);
+        box-shadow: var(--shadow-md);
+        margin-bottom: var(--spacing-8);
+        overflow: hidden;
+      }
+
+      .demo-section-header {
+        padding: var(--spacing-6);
+        border-bottom: 1px solid var(--color-border-light);
+      }
+
+      .demo-section-title {
+        font-size: var(--font-size-xl);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-text-primary);
+        margin: 0 0 var(--spacing-2) 0;
+      }
+
+      .demo-section-description {
+        font-size: var(--font-size-base);
+        color: var(--color-text-secondary);
+        margin: 0;
+      }
+
+      .demo-section-content {
+        padding: var(--spacing-6);
+      }
+
+      .chart-demo {
+        height: 500px;
+        width: 100%;
+        border: 1px solid var(--color-border-light);
+        border-radius: var(--border-radius-lg);
+        overflow: hidden;
+      }
+
+      .demo-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-4);
+        margin-bottom: var(--spacing-6);
+        padding: var(--spacing-4);
+        background: var(--color-bg-secondary);
+        border-radius: var(--border-radius-lg);
+      }
+
+      .control-item {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-2);
+      }
+
+      .control-item label {
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-primary);
+      }
+
+      .theme-toggle {
+        position: fixed;
+        top: var(--spacing-6);
+        right: var(--spacing-6);
+        z-index: var(--z-index-toast);
+      }
+
+      .accessibility-panel {
+        position: fixed;
+        top: 50%;
+        right: var(--spacing-4);
+        transform: translateY(-50%);
+        background: var(--color-bg-primary);
+        border: 1px solid var(--color-border-medium);
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-lg);
+        padding: var(--spacing-4);
+        z-index: var(--z-index-modal);
+        display: none;
+      }
+
+      .accessibility-panel.visible {
+        display: block;
+      }
+
+      .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+      }
+
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid var(--color-border-light);
+        border-top-color: var(--color-primary-500);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
         }
-        
-        .demo-header {
-            background: var(--color-bg-primary);
-            padding: var(--spacing-6) var(--spacing-8);
-            box-shadow: var(--shadow-sm);
-            border-bottom: 1px solid var(--color-border-light);
-        }
-        
-        .demo-title {
-            font-size: var(--font-size-3xl);
-            font-weight: var(--font-weight-bold);
-            color: var(--color-text-primary);
-            margin: 0 0 var(--spacing-2) 0;
-        }
-        
-        .demo-subtitle {
-            font-size: var(--font-size-lg);
-            color: var(--color-text-secondary);
-            margin: 0;
-        }
-        
-        .demo-nav {
-            display: flex;
-            gap: var(--spacing-6);
-            margin-top: var(--spacing-4);
-        }
-        
-        .demo-nav-link {
-            color: var(--color-primary-600);
-            text-decoration: none;
-            font-weight: var(--font-weight-medium);
-            padding: var(--spacing-2) var(--spacing-3);
-            border-radius: var(--border-radius-md);
-            transition: var(--transition-colors);
-        }
-        
-        .demo-nav-link:hover {
-            background: var(--color-primary-50);
-            color: var(--color-primary-700);
-        }
-        
-        .demo-nav-link.active {
-            background: var(--color-primary-500);
-            color: var(--color-text-inverse);
-        }
-        
+      }
+
+      @media (max-width: 768px) {
         .demo-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: var(--spacing-8);
+          padding: var(--spacing-4);
         }
-        
-        .demo-section {
-            background: var(--color-bg-primary);
-            border-radius: var(--border-radius-xl);
-            box-shadow: var(--shadow-md);
-            margin-bottom: var(--spacing-8);
-            overflow: hidden;
+
+        .demo-header {
+          padding: var(--spacing-4);
         }
-        
-        .demo-section-header {
-            padding: var(--spacing-6);
-            border-bottom: 1px solid var(--color-border-light);
+
+        .demo-title {
+          font-size: var(--font-size-2xl);
         }
-        
-        .demo-section-title {
-            font-size: var(--font-size-xl);
-            font-weight: var(--font-weight-semibold);
-            color: var(--color-text-primary);
-            margin: 0 0 var(--spacing-2) 0;
+
+        .demo-nav {
+          flex-direction: column;
+          gap: var(--spacing-2);
         }
-        
-        .demo-section-description {
-            font-size: var(--font-size-base);
-            color: var(--color-text-secondary);
-            margin: 0;
-        }
-        
-        .demo-section-content {
-            padding: var(--spacing-6);
-        }
-        
+
         .chart-demo {
-            height: 500px;
-            width: 100%;
-            border: 1px solid var(--color-border-light);
-            border-radius: var(--border-radius-lg);
-            overflow: hidden;
+          height: 400px;
         }
-        
-        .demo-controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--spacing-4);
-            margin-bottom: var(--spacing-6);
-            padding: var(--spacing-4);
-            background: var(--color-bg-secondary);
-            border-radius: var(--border-radius-lg);
-        }
-        
-        .control-item {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-2);
-        }
-        
-        .control-item label {
-            font-size: var(--font-size-sm);
-            font-weight: var(--font-weight-medium);
-            color: var(--color-text-primary);
-        }
-        
-        .theme-toggle {
-            position: fixed;
-            top: var(--spacing-6);
-            right: var(--spacing-6);
-            z-index: var(--z-index-toast);
-        }
-        
-        .accessibility-panel {
-            position: fixed;
-            top: 50%;
-            right: var(--spacing-4);
-            transform: translateY(-50%);
-            background: var(--color-bg-primary);
-            border: 1px solid var(--color-border-medium);
-            border-radius: var(--border-radius-lg);
-            box-shadow: var(--shadow-lg);
-            padding: var(--spacing-4);
-            z-index: var(--z-index-modal);
-            display: none;
-        }
-        
-        .accessibility-panel.visible {
-            display: block;
-        }
-        
-        .loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-        }
-        
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--color-border-light);
-            border-top-color: var(--color-primary-500);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        @media (max-width: 768px) {
-            .demo-container {
-                padding: var(--spacing-4);
-            }
-            
-            .demo-header {
-                padding: var(--spacing-4);
-            }
-            
-            .demo-title {
-                font-size: var(--font-size-2xl);
-            }
-            
-            .demo-nav {
-                flex-direction: column;
-                gap: var(--spacing-2);
-            }
-            
-            .chart-demo {
-                height: 400px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Accessibility Skip Link -->
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary-500 focus:text-white focus:rounded">
-        Skip to main content
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary-500 focus:text-white focus:rounded"
+    >
+      Skip to main content
     </a>
-    
+
     <!-- Theme Toggle -->
-    <button class="theme-toggle btn btn--secondary" onclick="toggleTheme()" aria-label="Toggle dark/light theme">
-        <span id="theme-icon">🌙</span>
+    <button
+      class="theme-toggle btn btn--secondary"
+      onclick="toggleTheme()"
+      aria-label="Toggle dark/light theme"
+    >
+      <span id="theme-icon">🌙</span>
     </button>
-    
+
     <!-- Header -->
     <header class="demo-header">
-        <h1 class="demo-title">Pynomaly Advanced Dashboard</h1>
-        <p class="demo-subtitle">Interactive Anomaly Detection Visualization Components</p>
-        
-        <nav class="demo-nav" role="navigation" aria-label="Component navigation">
-            <a href="#time-series" class="demo-nav-link active" onclick="showSection('time-series', this)">Time Series</a>
-            <a href="#heatmap" class="demo-nav-link" onclick="showSection('heatmap', this)">Heatmap</a>
-            <a href="#scatter-plot" class="demo-nav-link" onclick="showSection('scatter-plot', this)">Scatter Plot</a>
-            <a href="#dashboard" class="demo-nav-link" onclick="showSection('dashboard', this)">Full Dashboard</a>
-        </nav>
+      <h1 class="demo-title">Pynomaly Advanced Dashboard</h1>
+      <p class="demo-subtitle">
+        Interactive Anomaly Detection Visualization Components
+      </p>
+
+      <nav class="demo-nav" role="navigation" aria-label="Component navigation">
+        <a
+          href="#time-series"
+          class="demo-nav-link active"
+          onclick="showSection('time-series', this)"
+          >Time Series</a
+        >
+        <a
+          href="#heatmap"
+          class="demo-nav-link"
+          onclick="showSection('heatmap', this)"
+          >Heatmap</a
+        >
+        <a
+          href="#scatter-plot"
+          class="demo-nav-link"
+          onclick="showSection('scatter-plot', this)"
+          >Scatter Plot</a
+        >
+        <a
+          href="#dashboard"
+          class="demo-nav-link"
+          onclick="showSection('dashboard', this)"
+          >Full Dashboard</a
+        >
+      </nav>
     </header>
-    
+
     <!-- Main Content -->
     <main id="main-content" class="demo-container">
-        <!-- Time Series Section -->
-        <section id="time-series-section" class="demo-section">
-            <div class="demo-section-header">
-                <h2 class="demo-section-title">Time Series Analysis</h2>
-                <p class="demo-section-description">
-                    Interactive time series chart with real-time anomaly detection, brushing, zooming, and accessibility features.
-                </p>
+      <!-- Time Series Section -->
+      <section id="time-series-section" class="demo-section">
+        <div class="demo-section-header">
+          <h2 class="demo-section-title">Time Series Analysis</h2>
+          <p class="demo-section-description">
+            Interactive time series chart with real-time anomaly detection,
+            brushing, zooming, and accessibility features.
+          </p>
+        </div>
+        <div class="demo-section-content">
+          <div class="demo-controls">
+            <div class="control-item">
+              <label for="ts-realtime">Real-time Updates:</label>
+              <input
+                type="checkbox"
+                id="ts-realtime"
+                onchange="toggleTimeSeriesRealTime(this.checked)"
+              />
             </div>
-            <div class="demo-section-content">
-                <div class="demo-controls">
-                    <div class="control-item">
-                        <label for="ts-realtime">Real-time Updates:</label>
-                        <input type="checkbox" id="ts-realtime" onchange="toggleTimeSeriesRealTime(this.checked)">
-                    </div>
-                    <div class="control-item">
-                        <label for="ts-points">Data Points:</label>
-                        <select id="ts-points" onchange="updateTimeSeriesData(this.value)">
-                            <option value="100">100 points</option>
-                            <option value="500" selected>500 points</option>
-                            <option value="1000">1000 points</option>
-                        </select>
-                    </div>
-                    <div class="control-item">
-                        <label for="ts-anomaly-rate">Anomaly Rate:</label>
-                        <input type="range" id="ts-anomaly-rate" min="0" max="20" value="5" 
-                               onchange="updateAnomalyRate('timeseries', this.value)">
-                        <span id="ts-anomaly-display">5%</span>
-                    </div>
-                    <button class="btn btn--secondary" onclick="resetTimeSeriesChart()">Reset Chart</button>
-                </div>
-                <div id="time-series-chart" class="chart-demo" role="img" aria-label="Time series anomaly detection chart">
-                    <div class="loading-overlay">
-                        <div class="loading-spinner"></div>
-                    </div>
-                </div>
+            <div class="control-item">
+              <label for="ts-points">Data Points:</label>
+              <select
+                id="ts-points"
+                onchange="updateTimeSeriesData(this.value)"
+              >
+                <option value="100">100 points</option>
+                <option value="500" selected>500 points</option>
+                <option value="1000">1000 points</option>
+              </select>
             </div>
-        </section>
-        
-        <!-- Heatmap Section -->
-        <section id="heatmap-section" class="demo-section" style="display: none;">
-            <div class="demo-section-header">
-                <h2 class="demo-section-title">Feature Correlation Heatmap</h2>
-                <p class="demo-section-description">
-                    Interactive heatmap showing correlations between features with zoom, pan, and keyboard navigation capabilities.
-                </p>
+            <div class="control-item">
+              <label for="ts-anomaly-rate">Anomaly Rate:</label>
+              <input
+                type="range"
+                id="ts-anomaly-rate"
+                min="0"
+                max="20"
+                value="5"
+                onchange="updateAnomalyRate('timeseries', this.value)"
+              />
+              <span id="ts-anomaly-display">5%</span>
             </div>
-            <div class="demo-section-content">
-                <div class="demo-controls">
-                    <div class="control-item">
-                        <label for="hm-features">Features:</label>
-                        <select id="hm-features" onchange="updateHeatmapFeatures(this.value)">
-                            <option value="10">10 features</option>
-                            <option value="20" selected>20 features</option>
-                            <option value="30">30 features</option>
-                        </select>
-                    </div>
-                    <div class="control-item">
-                        <label for="hm-colorscale">Color Scale:</label>
-                        <select id="hm-colorscale" onchange="updateHeatmapColorScale(this.value)">
-                            <option value="viridis" selected>Viridis</option>
-                            <option value="plasma">Plasma</option>
-                            <option value="rdbu">Red-Blue</option>
-                        </select>
-                    </div>
-                    <button class="btn btn--secondary" onclick="resetHeatmapZoom()">Reset Zoom</button>
-                </div>
-                <div id="heatmap-chart" class="chart-demo" role="img" aria-label="Feature correlation heatmap">
-                    <div class="loading-overlay">
-                        <div class="loading-spinner"></div>
-                    </div>
-                </div>
+            <button class="btn btn--secondary" onclick="resetTimeSeriesChart()">
+              Reset Chart
+            </button>
+          </div>
+          <div
+            id="time-series-chart"
+            class="chart-demo"
+            role="img"
+            aria-label="Time series anomaly detection chart"
+          >
+            <div class="loading-overlay">
+              <div class="loading-spinner"></div>
             </div>
-        </section>
-        
-        <!-- Scatter Plot Section -->
-        <section id="scatter-plot-section" class="demo-section" style="display: none;">
-            <div class="demo-section-header">
-                <h2 class="demo-section-title">Anomaly Scatter Plot</h2>
-                <p class="demo-section-description">
-                    Interactive scatter plot with brushing, clustering, and multi-dimensional anomaly visualization.
-                </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Heatmap Section -->
+      <section id="heatmap-section" class="demo-section" style="display: none">
+        <div class="demo-section-header">
+          <h2 class="demo-section-title">Feature Correlation Heatmap</h2>
+          <p class="demo-section-description">
+            Interactive heatmap showing correlations between features with zoom,
+            pan, and keyboard navigation capabilities.
+          </p>
+        </div>
+        <div class="demo-section-content">
+          <div class="demo-controls">
+            <div class="control-item">
+              <label for="hm-features">Features:</label>
+              <select
+                id="hm-features"
+                onchange="updateHeatmapFeatures(this.value)"
+              >
+                <option value="10">10 features</option>
+                <option value="20" selected>20 features</option>
+                <option value="30">30 features</option>
+              </select>
             </div>
-            <div class="demo-section-content">
-                <div class="demo-controls">
-                    <div class="control-item">
-                        <label for="sp-clustering">Enable Clustering:</label>
-                        <input type="checkbox" id="sp-clustering" onchange="toggleScatterClustering(this.checked)">
-                    </div>
-                    <div class="control-item">
-                        <label for="sp-3d">3D Mode:</label>
-                        <input type="checkbox" id="sp-3d" onchange="toggleScatter3D(this.checked)">
-                    </div>
-                    <div class="control-item">
-                        <label for="sp-points">Points:</label>
-                        <select id="sp-points" onchange="updateScatterPoints(this.value)">
-                            <option value="200">200 points</option>
-                            <option value="500" selected>500 points</option>
-                            <option value="1000">1000 points</option>
-                        </select>
-                    </div>
-                    <button class="btn btn--secondary" onclick="clearScatterSelection()">Clear Selection</button>
-                </div>
-                <div id="scatter-plot-chart" class="chart-demo" role="img" aria-label="Anomaly detection scatter plot">
-                    <div class="loading-overlay">
-                        <div class="loading-spinner"></div>
-                    </div>
-                </div>
+            <div class="control-item">
+              <label for="hm-colorscale">Color Scale:</label>
+              <select
+                id="hm-colorscale"
+                onchange="updateHeatmapColorScale(this.value)"
+              >
+                <option value="viridis" selected>Viridis</option>
+                <option value="plasma">Plasma</option>
+                <option value="rdbu">Red-Blue</option>
+              </select>
             </div>
-        </section>
-        
-        <!-- Full Dashboard Section -->
-        <section id="dashboard-section" class="demo-section" style="display: none;">
-            <div class="demo-section-header">
-                <h2 class="demo-section-title">Complete Anomaly Dashboard</h2>
-                <p class="demo-section-description">
-                    Comprehensive dashboard with multiple synchronized visualizations, real-time updates, and advanced filtering.
-                </p>
+            <button class="btn btn--secondary" onclick="resetHeatmapZoom()">
+              Reset Zoom
+            </button>
+          </div>
+          <div
+            id="heatmap-chart"
+            class="chart-demo"
+            role="img"
+            aria-label="Feature correlation heatmap"
+          >
+            <div class="loading-overlay">
+              <div class="loading-spinner"></div>
             </div>
-            <div class="demo-section-content">
-                <div id="full-dashboard" class="chart-demo" style="height: 800px;" role="application" aria-label="Complete anomaly detection dashboard">
-                    <div class="loading-overlay">
-                        <div class="loading-spinner"></div>
-                    </div>
-                </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scatter Plot Section -->
+      <section
+        id="scatter-plot-section"
+        class="demo-section"
+        style="display: none"
+      >
+        <div class="demo-section-header">
+          <h2 class="demo-section-title">Anomaly Scatter Plot</h2>
+          <p class="demo-section-description">
+            Interactive scatter plot with brushing, clustering, and
+            multi-dimensional anomaly visualization.
+          </p>
+        </div>
+        <div class="demo-section-content">
+          <div class="demo-controls">
+            <div class="control-item">
+              <label for="sp-clustering">Enable Clustering:</label>
+              <input
+                type="checkbox"
+                id="sp-clustering"
+                onchange="toggleScatterClustering(this.checked)"
+              />
             </div>
-        </section>
+            <div class="control-item">
+              <label for="sp-3d">3D Mode:</label>
+              <input
+                type="checkbox"
+                id="sp-3d"
+                onchange="toggleScatter3D(this.checked)"
+              />
+            </div>
+            <div class="control-item">
+              <label for="sp-points">Points:</label>
+              <select id="sp-points" onchange="updateScatterPoints(this.value)">
+                <option value="200">200 points</option>
+                <option value="500" selected>500 points</option>
+                <option value="1000">1000 points</option>
+              </select>
+            </div>
+            <button
+              class="btn btn--secondary"
+              onclick="clearScatterSelection()"
+            >
+              Clear Selection
+            </button>
+          </div>
+          <div
+            id="scatter-plot-chart"
+            class="chart-demo"
+            role="img"
+            aria-label="Anomaly detection scatter plot"
+          >
+            <div class="loading-overlay">
+              <div class="loading-spinner"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Full Dashboard Section -->
+      <section
+        id="dashboard-section"
+        class="demo-section"
+        style="display: none"
+      >
+        <div class="demo-section-header">
+          <h2 class="demo-section-title">Complete Anomaly Dashboard</h2>
+          <p class="demo-section-description">
+            Comprehensive dashboard with multiple synchronized visualizations,
+            real-time updates, and advanced filtering.
+          </p>
+        </div>
+        <div class="demo-section-content">
+          <div
+            id="full-dashboard"
+            class="chart-demo"
+            style="height: 800px"
+            role="application"
+            aria-label="Complete anomaly detection dashboard"
+          >
+            <div class="loading-overlay">
+              <div class="loading-spinner"></div>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
-    
+
     <!-- Accessibility Panel -->
-    <div id="accessibility-panel" class="accessibility-panel" role="dialog" aria-labelledby="accessibility-title">
-        <h3 id="accessibility-title">Accessibility Options</h3>
-        <div class="control-item">
-            <label for="high-contrast">High Contrast:</label>
-            <input type="checkbox" id="high-contrast" onchange="toggleHighContrast(this.checked)">
-        </div>
-        <div class="control-item">
-            <label for="reduced-motion">Reduce Motion:</label>
-            <input type="checkbox" id="reduced-motion" onchange="toggleReducedMotion(this.checked)">
-        </div>
-        <div class="control-item">
-            <label for="keyboard-nav">Keyboard Navigation:</label>
-            <button class="btn btn--sm" onclick="showKeyboardHelp()">Show Help</button>
-        </div>
-        <button class="btn btn--sm" onclick="hideAccessibilityPanel()">Close</button>
+    <div
+      id="accessibility-panel"
+      class="accessibility-panel"
+      role="dialog"
+      aria-labelledby="accessibility-title"
+    >
+      <h3 id="accessibility-title">Accessibility Options</h3>
+      <div class="control-item">
+        <label for="high-contrast">High Contrast:</label>
+        <input
+          type="checkbox"
+          id="high-contrast"
+          onchange="toggleHighContrast(this.checked)"
+        />
+      </div>
+      <div class="control-item">
+        <label for="reduced-motion">Reduce Motion:</label>
+        <input
+          type="checkbox"
+          id="reduced-motion"
+          onchange="toggleReducedMotion(this.checked)"
+        />
+      </div>
+      <div class="control-item">
+        <label for="keyboard-nav">Keyboard Navigation:</label>
+        <button class="btn btn--sm" onclick="showKeyboardHelp()">
+          Show Help
+        </button>
+      </div>
+      <button class="btn btn--sm" onclick="hideAccessibilityPanel()">
+        Close
+      </button>
     </div>
-    
+
     <!-- Status Bar -->
-    <div id="status-bar" class="sr-only" aria-live="polite" aria-atomic="true"></div>
-    
+    <div
+      id="status-bar"
+      class="sr-only"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
+
     <!-- Scripts -->
     <script src="../static/js/components/AnomalyTimeSeriesChart.js"></script>
     <script src="../static/js/components/AnomalyHeatmap.js"></script>
     <script src="../static/js/components/AnomalyScatterPlot.js"></script>
     <script src="../static/js/components/AnomalyDashboard.js"></script>
-    
+
     <script>
-        // Global variables
-        let currentSection = 'time-series';
-        let components = {
-            timeSeries: null,
-            heatmap: null,
-            scatterPlot: null,
-            dashboard: null
-        };
-        
-        // Initialize demo
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeDemo();
-            setupKeyboardNavigation();
-            setupAccessibility();
+      // Global variables
+      let currentSection = "time-series";
+      let components = {
+        timeSeries: null,
+        heatmap: null,
+        scatterPlot: null,
+        dashboard: null,
+      };
+
+      // Initialize demo
+      document.addEventListener("DOMContentLoaded", function () {
+        initializeDemo();
+        setupKeyboardNavigation();
+        setupAccessibility();
+      });
+
+      function initializeDemo() {
+        // Show initial section
+        showSection("time-series", document.querySelector(".demo-nav-link"));
+
+        // Initialize time series chart
+        initializeTimeSeriesChart();
+
+        // Preload other components data
+        setTimeout(() => {
+          generateHeatmapData();
+          generateScatterPlotData();
+          generateDashboardData();
+        }, 1000);
+      }
+
+      function showSection(sectionId, linkElement) {
+        // Hide all sections
+        const sections = document.querySelectorAll(".demo-section");
+        sections.forEach((section) => (section.style.display = "none"));
+
+        // Show selected section
+        document.getElementById(sectionId + "-section").style.display = "block";
+
+        // Update nav links
+        const links = document.querySelectorAll(".demo-nav-link");
+        links.forEach((link) => link.classList.remove("active"));
+        linkElement.classList.add("active");
+
+        // Initialize component if needed
+        currentSection = sectionId;
+        switch (sectionId) {
+          case "time-series":
+            if (!components.timeSeries) initializeTimeSeriesChart();
+            break;
+          case "heatmap":
+            if (!components.heatmap) initializeHeatmapChart();
+            break;
+          case "scatter-plot":
+            if (!components.scatterPlot) initializeScatterPlotChart();
+            break;
+          case "dashboard":
+            if (!components.dashboard) initializeDashboard();
+            break;
+        }
+
+        announceSection(sectionId);
+      }
+
+      function initializeTimeSeriesChart() {
+        const container = document.getElementById("time-series-chart");
+        hideLoading(container);
+
+        components.timeSeries = new AnomalyTimeSeriesChart(container, {
+          height: 450,
+          realTimeInterval: 2000,
+          maxDataPoints: 500,
         });
-        
-        function initializeDemo() {
-            // Show initial section
-            showSection('time-series', document.querySelector('.demo-nav-link'));
-            
-            // Initialize time series chart
-            initializeTimeSeriesChart();
-            
-            // Preload other components data
-            setTimeout(() => {
-                generateHeatmapData();
-                generateScatterPlotData();
-                generateDashboardData();
-            }, 1000);
-        }
-        
-        function showSection(sectionId, linkElement) {
-            // Hide all sections
-            const sections = document.querySelectorAll('.demo-section');
-            sections.forEach(section => section.style.display = 'none');
-            
-            // Show selected section
-            document.getElementById(sectionId + '-section').style.display = 'block';
-            
-            // Update nav links
-            const links = document.querySelectorAll('.demo-nav-link');
-            links.forEach(link => link.classList.remove('active'));
-            linkElement.classList.add('active');
-            
-            // Initialize component if needed
-            currentSection = sectionId;
-            switch(sectionId) {
-                case 'time-series':
-                    if (!components.timeSeries) initializeTimeSeriesChart();
-                    break;
-                case 'heatmap':
-                    if (!components.heatmap) initializeHeatmapChart();
-                    break;
-                case 'scatter-plot':
-                    if (!components.scatterPlot) initializeScatterPlotChart();
-                    break;
-                case 'dashboard':
-                    if (!components.dashboard) initializeDashboard();
-                    break;
-            }
-            
-            announceSection(sectionId);
-        }
-        
-        function initializeTimeSeriesChart() {
-            const container = document.getElementById('time-series-chart');
-            hideLoading(container);
-            
-            components.timeSeries = new AnomalyTimeSeriesChart(container, {
-                height: 450,
-                realTimeInterval: 2000,
-                maxDataPoints: 500
+
+        // Generate initial data
+        const data = generateTimeSeriesData(500);
+        components.timeSeries.setData(data.normal, data.anomalies);
+
+        // Setup event listeners
+        container.addEventListener("pointSelected", (event) => {
+          announceToUser(`Point selected at ${event.detail.data.timestamp}`);
+        });
+      }
+
+      function initializeHeatmapChart() {
+        const container = document.getElementById("heatmap-chart");
+        hideLoading(container);
+
+        components.heatmap = new AnomalyHeatmap(container, {
+          cellSize: 25,
+          colorScale: "viridis",
+        });
+
+        const data = generateHeatmapData(20);
+        components.heatmap.setData(data);
+
+        container.addEventListener("cellSelected", (event) => {
+          announceToUser(
+            `Heatmap cell selected: ${event.detail.data.feature} vs ${event.detail.data.timePeriod}`,
+          );
+        });
+      }
+
+      function initializeScatterPlotChart() {
+        const container = document.getElementById("scatter-plot-chart");
+        hideLoading(container);
+
+        components.scatterPlot = new AnomalyScatterPlot(container, {
+          height: 450,
+          clustering: { enabled: false },
+          is3D: false,
+        });
+
+        const data = generateScatterPlotData(500);
+        components.scatterPlot.setData(data);
+
+        container.addEventListener("pointsSelected", (event) => {
+          announceToUser(
+            `${event.detail.points.length} points selected in scatter plot`,
+          );
+        });
+      }
+
+      function initializeDashboard() {
+        const container = document.getElementById("full-dashboard");
+        hideLoading(container);
+
+        components.dashboard = new AnomalyDashboard(container, {
+          layout: { columns: 2, rows: 2 },
+          realTime: { enabled: false, interval: 3000 },
+        });
+
+        const data = generateDashboardData();
+        components.dashboard.setData(data);
+      }
+
+      // Data generation functions
+      function generateTimeSeriesData(points) {
+        const normal = [];
+        const anomalies = [];
+        const now = new Date();
+        const anomalyRate =
+          parseInt(document.getElementById("ts-anomaly-rate")?.value || 5) /
+          100;
+
+        for (let i = 0; i < points; i++) {
+          const timestamp = new Date(now.getTime() - (points - i) * 60000); // 1 minute intervals
+          const baseValue = 50 + 20 * Math.sin(i * 0.1) + Math.random() * 10;
+          const isAnomaly = Math.random() < anomalyRate;
+
+          const point = {
+            timestamp: timestamp,
+            value: isAnomaly
+              ? baseValue + (Math.random() > 0.5 ? 30 : -30)
+              : baseValue,
+            anomalyScore: isAnomaly
+              ? 0.7 + Math.random() * 0.3
+              : Math.random() * 0.3,
+          };
+
+          if (isAnomaly) {
+            anomalies.push({
+              ...point,
+              severity: point.anomalyScore > 0.8 ? "high" : "medium",
             });
-            
-            // Generate initial data
-            const data = generateTimeSeriesData(500);
-            components.timeSeries.setData(data.normal, data.anomalies);
-            
-            // Setup event listeners
-            container.addEventListener('pointSelected', (event) => {
-                announceToUser(`Point selected at ${event.detail.data.timestamp}`);
+          } else {
+            normal.push(point);
+          }
+        }
+
+        return { normal, anomalies };
+      }
+
+      function generateHeatmapData(features) {
+        const data = [];
+        const featureNames = Array.from(
+          { length: features },
+          (_, i) => `Feature_${i + 1}`,
+        );
+        const timeNames = Array.from({ length: 24 }, (_, i) => `${i}:00`);
+
+        for (let f = 0; f < features; f++) {
+          for (let t = 0; t < 24; t++) {
+            data.push({
+              feature: featureNames[f],
+              timePeriod: timeNames[t],
+              anomalyScore: Math.random(),
+              value: 50 + Math.random() * 50,
             });
+          }
         }
-        
-        function initializeHeatmapChart() {
-            const container = document.getElementById('heatmap-chart');
-            hideLoading(container);
-            
-            components.heatmap = new AnomalyHeatmap(container, {
-                cellSize: 25,
-                colorScale: 'viridis'
+
+        return data;
+      }
+
+      function generateScatterPlotData(points) {
+        const data = [];
+        const anomalyRate = 0.1;
+
+        for (let i = 0; i < points; i++) {
+          const isAnomaly = Math.random() < anomalyRate;
+          const cluster = Math.floor(Math.random() * 3);
+
+          // Generate clustered data
+          const centerX = [20, 50, 80][cluster];
+          const centerY = [30, 70, 40][cluster];
+
+          const x = centerX + (Math.random() - 0.5) * 20;
+          const y = centerY + (Math.random() - 0.5) * 20;
+          const z = Math.random() * 100;
+
+          data.push({
+            id: i,
+            x: isAnomaly ? x + (Math.random() - 0.5) * 40 : x,
+            y: isAnomaly ? y + (Math.random() - 0.5) * 40 : y,
+            z: z,
+            anomalyScore: isAnomaly
+              ? 0.6 + Math.random() * 0.4
+              : Math.random() * 0.4,
+            isAnomaly: isAnomaly,
+            cluster: cluster,
+            label: `Point ${i}`,
+          });
+        }
+
+        return data;
+      }
+
+      function generateDashboardData() {
+        const timeSeriesData = generateTimeSeriesData(200);
+        return {
+          timeSeries: [
+            ...timeSeriesData.normal,
+            ...timeSeriesData.anomalies,
+          ].map((d) => ({
+            ...d,
+            isAnomaly: timeSeriesData.anomalies.includes(d),
+          })),
+          anomalies: timeSeriesData.anomalies,
+          features: Array.from({ length: 10 }, (_, i) => ({
+            name: `Feature_${i + 1}`,
+            importance: Math.random(),
+            correlation: Math.random() * 2 - 1,
+          })),
+          summary: {
+            totalPoints: 200,
+            anomalies: timeSeriesData.anomalies.length,
+            accuracy: 0.94 + Math.random() * 0.05,
+          },
+        };
+      }
+
+      // Event handlers
+      function toggleTimeSeriesRealTime(enabled) {
+        if (components.timeSeries) {
+          if (enabled) {
+            components.timeSeries.startRealTime(() => {
+              return Promise.resolve([
+                {
+                  timestamp: new Date(),
+                  value: 50 + Math.random() * 20,
+                  anomalyScore: Math.random(),
+                  isAnomaly: Math.random() > 0.9,
+                },
+              ]);
             });
-            
-            const data = generateHeatmapData(20);
-            components.heatmap.setData(data);
-            
-            container.addEventListener('cellSelected', (event) => {
-                announceToUser(`Heatmap cell selected: ${event.detail.data.feature} vs ${event.detail.data.timePeriod}`);
-            });
+          } else {
+            components.timeSeries.stopRealTime();
+          }
         }
-        
-        function initializeScatterPlotChart() {
-            const container = document.getElementById('scatter-plot-chart');
-            hideLoading(container);
-            
-            components.scatterPlot = new AnomalyScatterPlot(container, {
-                height: 450,
-                clustering: { enabled: false },
-                is3D: false
-            });
-            
-            const data = generateScatterPlotData(500);
-            components.scatterPlot.setData(data);
-            
-            container.addEventListener('pointsSelected', (event) => {
-                announceToUser(`${event.detail.points.length} points selected in scatter plot`);
-            });
+        announceToUser(`Real-time updates ${enabled ? "enabled" : "disabled"}`);
+      }
+
+      function updateTimeSeriesData(points) {
+        if (components.timeSeries) {
+          const data = generateTimeSeriesData(parseInt(points));
+          components.timeSeries.setData(data.normal, data.anomalies);
+          announceToUser(`Updated chart with ${points} data points`);
         }
-        
-        function initializeDashboard() {
-            const container = document.getElementById('full-dashboard');
-            hideLoading(container);
-            
-            components.dashboard = new AnomalyDashboard(container, {
-                layout: { columns: 2, rows: 2 },
-                realTime: { enabled: false, interval: 3000 }
-            });
-            
-            const data = generateDashboardData();
-            components.dashboard.setData(data);
+      }
+
+      function updateAnomalyRate(chartType, rate) {
+        const display = document.getElementById(
+          `${chartType === "timeseries" ? "ts" : "sp"}-anomaly-display`,
+        );
+        if (display) display.textContent = `${rate}%`;
+
+        if (chartType === "timeseries" && components.timeSeries) {
+          const data = generateTimeSeriesData(500);
+          components.timeSeries.setData(data.normal, data.anomalies);
         }
-        
-        // Data generation functions
-        function generateTimeSeriesData(points) {
-            const normal = [];
-            const anomalies = [];
-            const now = new Date();
-            const anomalyRate = parseInt(document.getElementById('ts-anomaly-rate')?.value || 5) / 100;
-            
-            for (let i = 0; i < points; i++) {
-                const timestamp = new Date(now.getTime() - (points - i) * 60000); // 1 minute intervals
-                const baseValue = 50 + 20 * Math.sin(i * 0.1) + Math.random() * 10;
-                const isAnomaly = Math.random() < anomalyRate;
-                
-                const point = {
-                    timestamp: timestamp,
-                    value: isAnomaly ? baseValue + (Math.random() > 0.5 ? 30 : -30) : baseValue,
-                    anomalyScore: isAnomaly ? 0.7 + Math.random() * 0.3 : Math.random() * 0.3
-                };
-                
-                if (isAnomaly) {
-                    anomalies.push({
-                        ...point,
-                        severity: point.anomalyScore > 0.8 ? 'high' : 'medium'
-                    });
-                } else {
-                    normal.push(point);
-                }
-            }
-            
-            return { normal, anomalies };
+
+        announceToUser(`Anomaly rate updated to ${rate}%`);
+      }
+
+      function resetTimeSeriesChart() {
+        if (components.timeSeries) {
+          const data = generateTimeSeriesData(500);
+          components.timeSeries.setData(data.normal, data.anomalies);
+          announceToUser("Time series chart reset");
         }
-        
-        function generateHeatmapData(features) {
-            const data = [];
-            const featureNames = Array.from({length: features}, (_, i) => `Feature_${i + 1}`);
-            const timeNames = Array.from({length: 24}, (_, i) => `${i}:00`);
-            
-            for (let f = 0; f < features; f++) {
-                for (let t = 0; t < 24; t++) {
-                    data.push({
-                        feature: featureNames[f],
-                        timePeriod: timeNames[t],
-                        anomalyScore: Math.random(),
-                        value: 50 + Math.random() * 50
-                    });
-                }
-            }
-            
-            return data;
+      }
+
+      function updateHeatmapFeatures(features) {
+        if (components.heatmap) {
+          const data = generateHeatmapData(parseInt(features));
+          components.heatmap.setData(data);
+          announceToUser(`Heatmap updated with ${features} features`);
         }
-        
-        function generateScatterPlotData(points) {
-            const data = [];
-            const anomalyRate = 0.1;
-            
-            for (let i = 0; i < points; i++) {
-                const isAnomaly = Math.random() < anomalyRate;
-                const cluster = Math.floor(Math.random() * 3);
-                
-                // Generate clustered data
-                const centerX = [20, 50, 80][cluster];
-                const centerY = [30, 70, 40][cluster];
-                
-                const x = centerX + (Math.random() - 0.5) * 20;
-                const y = centerY + (Math.random() - 0.5) * 20;
-                const z = Math.random() * 100;
-                
-                data.push({
-                    id: i,
-                    x: isAnomaly ? x + (Math.random() - 0.5) * 40 : x,
-                    y: isAnomaly ? y + (Math.random() - 0.5) * 40 : y,
-                    z: z,
-                    anomalyScore: isAnomaly ? 0.6 + Math.random() * 0.4 : Math.random() * 0.4,
-                    isAnomaly: isAnomaly,
-                    cluster: cluster,
-                    label: `Point ${i}`
-                });
-            }
-            
-            return data;
+      }
+
+      function updateHeatmapColorScale(scale) {
+        if (components.heatmap) {
+          components.heatmap.options.colorScale = scale;
+          const data = generateHeatmapData(20);
+          components.heatmap.setData(data);
+          announceToUser(`Color scale changed to ${scale}`);
         }
-        
-        function generateDashboardData() {
-            const timeSeriesData = generateTimeSeriesData(200);
-            return {
-                timeSeries: [...timeSeriesData.normal, ...timeSeriesData.anomalies].map(d => ({
-                    ...d,
-                    isAnomaly: timeSeriesData.anomalies.includes(d)
-                })),
-                anomalies: timeSeriesData.anomalies,
-                features: Array.from({length: 10}, (_, i) => ({
-                    name: `Feature_${i + 1}`,
-                    importance: Math.random(),
-                    correlation: Math.random() * 2 - 1
-                })),
-                summary: {
-                    totalPoints: 200,
-                    anomalies: timeSeriesData.anomalies.length,
-                    accuracy: 0.94 + Math.random() * 0.05
-                }
-            };
+      }
+
+      function resetHeatmapZoom() {
+        if (components.heatmap) {
+          components.heatmap.resetZoom();
+          announceToUser("Heatmap zoom reset");
         }
-        
-        // Event handlers
-        function toggleTimeSeriesRealTime(enabled) {
-            if (components.timeSeries) {
-                if (enabled) {
-                    components.timeSeries.startRealTime(() => {
-                        return Promise.resolve([{
-                            timestamp: new Date(),
-                            value: 50 + Math.random() * 20,
-                            anomalyScore: Math.random(),
-                            isAnomaly: Math.random() > 0.9
-                        }]);
-                    });
-                } else {
-                    components.timeSeries.stopRealTime();
-                }
-            }
-            announceToUser(`Real-time updates ${enabled ? 'enabled' : 'disabled'}`);
+      }
+
+      function toggleScatterClustering(enabled) {
+        if (components.scatterPlot) {
+          components.scatterPlot.options.clustering.enabled = enabled;
+          components.scatterPlot.render();
+          announceToUser(`Clustering ${enabled ? "enabled" : "disabled"}`);
         }
-        
-        function updateTimeSeriesData(points) {
-            if (components.timeSeries) {
-                const data = generateTimeSeriesData(parseInt(points));
-                components.timeSeries.setData(data.normal, data.anomalies);
-                announceToUser(`Updated chart with ${points} data points`);
-            }
+      }
+
+      function toggleScatter3D(enabled) {
+        if (components.scatterPlot) {
+          components.scatterPlot.toggle3D();
+          announceToUser(`${enabled ? "3D" : "2D"} mode activated`);
         }
-        
-        function updateAnomalyRate(chartType, rate) {
-            const display = document.getElementById(`${chartType === 'timeseries' ? 'ts' : 'sp'}-anomaly-display`);
-            if (display) display.textContent = `${rate}%`;
-            
-            if (chartType === 'timeseries' && components.timeSeries) {
-                const data = generateTimeSeriesData(500);
-                components.timeSeries.setData(data.normal, data.anomalies);
-            }
-            
-            announceToUser(`Anomaly rate updated to ${rate}%`);
+      }
+
+      function updateScatterPoints(points) {
+        if (components.scatterPlot) {
+          const data = generateScatterPlotData(parseInt(points));
+          components.scatterPlot.setData(data);
+          announceToUser(`Scatter plot updated with ${points} points`);
         }
-        
-        function resetTimeSeriesChart() {
-            if (components.timeSeries) {
-                const data = generateTimeSeriesData(500);
-                components.timeSeries.setData(data.normal, data.anomalies);
-                announceToUser('Time series chart reset');
-            }
+      }
+
+      function clearScatterSelection() {
+        if (components.scatterPlot) {
+          components.scatterPlot.clearSelection();
+          announceToUser("Selection cleared");
         }
-        
-        function updateHeatmapFeatures(features) {
-            if (components.heatmap) {
-                const data = generateHeatmapData(parseInt(features));
-                components.heatmap.setData(data);
-                announceToUser(`Heatmap updated with ${features} features`);
-            }
-        }
-        
-        function updateHeatmapColorScale(scale) {
-            if (components.heatmap) {
-                components.heatmap.options.colorScale = scale;
-                const data = generateHeatmapData(20);
-                components.heatmap.setData(data);
-                announceToUser(`Color scale changed to ${scale}`);
-            }
-        }
-        
-        function resetHeatmapZoom() {
-            if (components.heatmap) {
-                components.heatmap.resetZoom();
-                announceToUser('Heatmap zoom reset');
-            }
-        }
-        
-        function toggleScatterClustering(enabled) {
-            if (components.scatterPlot) {
-                components.scatterPlot.options.clustering.enabled = enabled;
-                components.scatterPlot.render();
-                announceToUser(`Clustering ${enabled ? 'enabled' : 'disabled'}`);
-            }
-        }
-        
-        function toggleScatter3D(enabled) {
-            if (components.scatterPlot) {
-                components.scatterPlot.toggle3D();
-                announceToUser(`${enabled ? '3D' : '2D'} mode activated`);
-            }
-        }
-        
-        function updateScatterPoints(points) {
-            if (components.scatterPlot) {
-                const data = generateScatterPlotData(parseInt(points));
-                components.scatterPlot.setData(data);
-                announceToUser(`Scatter plot updated with ${points} points`);
-            }
-        }
-        
-        function clearScatterSelection() {
-            if (components.scatterPlot) {
-                components.scatterPlot.clearSelection();
-                announceToUser('Selection cleared');
-            }
-        }
-        
-        // Theme and accessibility functions
-        function toggleTheme() {
-            const html = document.documentElement;
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
-            html.setAttribute('data-theme', newTheme);
-            document.getElementById('theme-icon').textContent = newTheme === 'dark' ? '☀️' : '🌙';
-            
-            announceToUser(`Theme changed to ${newTheme} mode`);
-        }
-        
-        function toggleHighContrast(enabled) {
-            document.documentElement.style.setProperty(
-                '--contrast-mode', 
-                enabled ? 'high' : 'normal'
-            );
-            announceToUser(`High contrast ${enabled ? 'enabled' : 'disabled'}`);
-        }
-        
-        function toggleReducedMotion(enabled) {
-            document.documentElement.style.setProperty(
-                '--animation-duration', 
-                enabled ? '0ms' : '300ms'
-            );
-            announceToUser(`Reduced motion ${enabled ? 'enabled' : 'disabled'}`);
-        }
-        
-        function showAccessibilityPanel() {
-            document.getElementById('accessibility-panel').classList.add('visible');
-        }
-        
-        function hideAccessibilityPanel() {
-            document.getElementById('accessibility-panel').classList.remove('visible');
-        }
-        
-        function showKeyboardHelp() {
-            const helpText = `
+      }
+
+      // Theme and accessibility functions
+      function toggleTheme() {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute("data-theme");
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+
+        html.setAttribute("data-theme", newTheme);
+        document.getElementById("theme-icon").textContent =
+          newTheme === "dark" ? "☀️" : "🌙";
+
+        announceToUser(`Theme changed to ${newTheme} mode`);
+      }
+
+      function toggleHighContrast(enabled) {
+        document.documentElement.style.setProperty(
+          "--contrast-mode",
+          enabled ? "high" : "normal",
+        );
+        announceToUser(`High contrast ${enabled ? "enabled" : "disabled"}`);
+      }
+
+      function toggleReducedMotion(enabled) {
+        document.documentElement.style.setProperty(
+          "--animation-duration",
+          enabled ? "0ms" : "300ms",
+        );
+        announceToUser(`Reduced motion ${enabled ? "enabled" : "disabled"}`);
+      }
+
+      function showAccessibilityPanel() {
+        document.getElementById("accessibility-panel").classList.add("visible");
+      }
+
+      function hideAccessibilityPanel() {
+        document
+          .getElementById("accessibility-panel")
+          .classList.remove("visible");
+      }
+
+      function showKeyboardHelp() {
+        const helpText = `
                 Keyboard Navigation Help:
                 
                 Global Navigation:
@@ -791,119 +956,137 @@
                 • Alt+T: Toggle theme
                 • Alt+H: Show this help
             `;
-            
-            alert(helpText);
-        }
-        
-        function setupKeyboardNavigation() {
-            document.addEventListener('keydown', function(event) {
-                // Global keyboard shortcuts
-                if (event.altKey) {
-                    switch(event.key.toLowerCase()) {
-                        case 'a':
-                            event.preventDefault();
-                            showAccessibilityPanel();
-                            break;
-                        case 't':
-                            event.preventDefault();
-                            toggleTheme();
-                            break;
-                        case 'h':
-                            event.preventDefault();
-                            showKeyboardHelp();
-                            break;
-                    }
-                }
-                
-                // Section navigation
-                if (event.ctrlKey || event.metaKey) {
-                    switch(event.key) {
-                        case '1':
-                            event.preventDefault();
-                            showSection('time-series', document.querySelector('[onclick*="time-series"]'));
-                            break;
-                        case '2':
-                            event.preventDefault();
-                            showSection('heatmap', document.querySelector('[onclick*="heatmap"]'));
-                            break;
-                        case '3':
-                            event.preventDefault();
-                            showSection('scatter-plot', document.querySelector('[onclick*="scatter-plot"]'));
-                            break;
-                        case '4':
-                            event.preventDefault();
-                            showSection('dashboard', document.querySelector('[onclick*="dashboard"]'));
-                            break;
-                    }
-                }
-            });
-        }
-        
-        function setupAccessibility() {
-            // Detect user preferences
-            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                document.getElementById('reduced-motion').checked = true;
-                toggleReducedMotion(true);
-            }
-            
-            if (window.matchMedia('(prefers-contrast: high)').matches) {
-                document.getElementById('high-contrast').checked = true;
-                toggleHighContrast(true);
-            }
-            
-            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+
+        alert(helpText);
+      }
+
+      function setupKeyboardNavigation() {
+        document.addEventListener("keydown", function (event) {
+          // Global keyboard shortcuts
+          if (event.altKey) {
+            switch (event.key.toLowerCase()) {
+              case "a":
+                event.preventDefault();
+                showAccessibilityPanel();
+                break;
+              case "t":
+                event.preventDefault();
                 toggleTheme();
+                break;
+              case "h":
+                event.preventDefault();
+                showKeyboardHelp();
+                break;
             }
-        }
-        
-        // Utility functions
-        function hideLoading(container) {
-            const loading = container.querySelector('.loading-overlay');
-            if (loading) {
-                setTimeout(() => loading.remove(), 500);
+          }
+
+          // Section navigation
+          if (event.ctrlKey || event.metaKey) {
+            switch (event.key) {
+              case "1":
+                event.preventDefault();
+                showSection(
+                  "time-series",
+                  document.querySelector('[onclick*="time-series"]'),
+                );
+                break;
+              case "2":
+                event.preventDefault();
+                showSection(
+                  "heatmap",
+                  document.querySelector('[onclick*="heatmap"]'),
+                );
+                break;
+              case "3":
+                event.preventDefault();
+                showSection(
+                  "scatter-plot",
+                  document.querySelector('[onclick*="scatter-plot"]'),
+                );
+                break;
+              case "4":
+                event.preventDefault();
+                showSection(
+                  "dashboard",
+                  document.querySelector('[onclick*="dashboard"]'),
+                );
+                break;
             }
-        }
-        
-        function announceToUser(message) {
-            const statusBar = document.getElementById('status-bar');
-            statusBar.textContent = message;
-            
-            // Also show in console for debugging
-            console.log('Announcement:', message);
-        }
-        
-        function announceSection(sectionId) {
-            const titles = {
-                'time-series': 'Time Series Analysis section loaded',
-                'heatmap': 'Feature Correlation Heatmap section loaded',
-                'scatter-plot': 'Anomaly Scatter Plot section loaded',
-                'dashboard': 'Complete Dashboard section loaded'
-            };
-            
-            announceToUser(titles[sectionId] || `${sectionId} section loaded`);
-        }
-        
-        // Error handling
-        window.addEventListener('error', function(event) {
-            console.error('JavaScript error:', event.error);
-            announceToUser('An error occurred. Please check the console for details.');
+          }
         });
-        
-        // Handle component errors
-        document.addEventListener('chartError', function(event) {
-            console.error('Chart error:', event.detail);
-            announceToUser(`Chart error: ${event.detail.message}`);
-        });
-        
-        // Performance monitoring
-        if ('performance' in window) {
-            window.addEventListener('load', function() {
-                setTimeout(() => {
-                    const perfData = performance.getEntriesByType('navigation')[0];
-                    console.log('Page load time:', perfData.loadEventEnd - perfData.fetchStart, 'ms');
-                }, 0);
-            });
+      }
+
+      function setupAccessibility() {
+        // Detect user preferences
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          document.getElementById("reduced-motion").checked = true;
+          toggleReducedMotion(true);
         }
+
+        if (window.matchMedia("(prefers-contrast: high)").matches) {
+          document.getElementById("high-contrast").checked = true;
+          toggleHighContrast(true);
+        }
+
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          toggleTheme();
+        }
+      }
+
+      // Utility functions
+      function hideLoading(container) {
+        const loading = container.querySelector(".loading-overlay");
+        if (loading) {
+          setTimeout(() => loading.remove(), 500);
+        }
+      }
+
+      function announceToUser(message) {
+        const statusBar = document.getElementById("status-bar");
+        statusBar.textContent = message;
+
+        // Also show in console for debugging
+        console.log("Announcement:", message);
+      }
+
+      function announceSection(sectionId) {
+        const titles = {
+          "time-series": "Time Series Analysis section loaded",
+          heatmap: "Feature Correlation Heatmap section loaded",
+          "scatter-plot": "Anomaly Scatter Plot section loaded",
+          dashboard: "Complete Dashboard section loaded",
+        };
+
+        announceToUser(titles[sectionId] || `${sectionId} section loaded`);
+      }
+
+      // Error handling
+      window.addEventListener("error", function (event) {
+        console.error("JavaScript error:", event.error);
+        announceToUser(
+          "An error occurred. Please check the console for details.",
+        );
+      });
+
+      // Handle component errors
+      document.addEventListener("chartError", function (event) {
+        console.error("Chart error:", event.detail);
+        announceToUser(`Chart error: ${event.detail.message}`);
+      });
+
+      // Performance monitoring
+      if ("performance" in window) {
+        window.addEventListener("load", function () {
+          setTimeout(() => {
+            const perfData = performance.getEntriesByType("navigation")[0];
+            console.log(
+              "Page load time:",
+              perfData.loadEventEnd - perfData.fetchStart,
+              "ms",
+            );
+          }, 0);
+        });
+      }
     </script>
-</body>
+  </body>
 </html>

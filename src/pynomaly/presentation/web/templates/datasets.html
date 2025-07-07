@@ -1,151 +1,171 @@
-{% extends "base.html" %}
-
-{% block title %}Datasets{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Datasets{% endblock %} {% block
+content %}
 <div class="max-w-6xl mx-auto px-4 py-8">
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900">Datasets</h1>
-            <p class="text-gray-600 mt-1">Manage your datasets for anomaly detection</p>
-        </div>
-        <div class="flex space-x-3">
-            <button onclick="showUploadModal()" 
-                    class="btn btn-primary">
-                📁 Upload Dataset
-            </button>
-        </div>
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Datasets</h1>
+      <p class="text-gray-600 mt-1">
+        Manage your datasets for anomaly detection
+      </p>
     </div>
-
-    <!-- Dataset Grid -->
-    <div id="dataset-grid" 
-         hx-get="/web/htmx/dataset-list" 
-         hx-trigger="load, every 30s">
-        <!-- Content loaded via HTMX -->
-        <div class="text-center py-8">
-            <div class="spinner"></div>
-            <p class="text-gray-600 mt-2">Loading datasets...</p>
-        </div>
+    <div class="flex space-x-3">
+      <button onclick="showUploadModal()" class="btn btn-primary">
+        📁 Upload Dataset
+      </button>
     </div>
+  </div>
 
-    <!-- Upload Modal -->
-    <div id="uploadModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Upload Dataset</h3>
-                <button onclick="hideUploadModal()" class="modal-close">&times;</button>
+  <!-- Dataset Grid -->
+  <div
+    id="dataset-grid"
+    hx-get="/web/htmx/dataset-list"
+    hx-trigger="load, every 30s"
+  >
+    <!-- Content loaded via HTMX -->
+    <div class="text-center py-8">
+      <div class="spinner"></div>
+      <p class="text-gray-600 mt-2">Loading datasets...</p>
+    </div>
+  </div>
+
+  <!-- Upload Modal -->
+  <div id="uploadModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Upload Dataset</h3>
+        <button onclick="hideUploadModal()" class="modal-close">&times;</button>
+      </div>
+
+      <form
+        hx-post="/api/datasets/upload"
+        hx-target="#dataset-grid"
+        hx-on::after-request="hideUploadModal()"
+        enctype="multipart/form-data"
+      >
+        <div class="modal-body space-y-4">
+          <div>
+            <label
+              for="name"
+              class="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Dataset Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              class="input w-full"
+              placeholder="Enter dataset name"
+            />
+          </div>
+
+          <div>
+            <label
+              for="description"
+              class="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Description (Optional)
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              rows="3"
+              class="input w-full"
+              placeholder="Describe your dataset..."
+            ></textarea>
+          </div>
+
+          <div>
+            <label
+              for="file"
+              class="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Dataset File
+            </label>
+            <input
+              type="file"
+              id="file"
+              name="file"
+              required
+              accept=".csv,.parquet,.json"
+              class="input w-full"
+            />
+            <p class="text-xs text-gray-500 mt-1">
+              Supported formats: CSV, Parquet, JSON
+            </p>
+          </div>
+
+          <div>
+            <label
+              for="target_column"
+              class="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Target Column (Optional)
+            </label>
+            <input
+              type="text"
+              id="target_column"
+              name="target_column"
+              class="input w-full"
+              placeholder="Name of target/label column"
+            />
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="flex items-center">
+                <input type="checkbox" name="has_header" checked class="mr-2" />
+                <span class="text-sm text-gray-700">File has header row</span>
+              </label>
             </div>
-            
-            <form hx-post="/api/datasets/upload" 
-                  hx-target="#dataset-grid"
-                  hx-on::after-request="hideUploadModal()"
-                  enctype="multipart/form-data">
-                
-                <div class="modal-body space-y-4">
-                    <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
-                            Dataset Name
-                        </label>
-                        <input type="text" 
-                               id="name" 
-                               name="name" 
-                               required
-                               class="input w-full"
-                               placeholder="Enter dataset name">
-                    </div>
-
-                    <div>
-                        <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
-                            Description (Optional)
-                        </label>
-                        <textarea id="description" 
-                                  name="description" 
-                                  rows="3"
-                                  class="input w-full"
-                                  placeholder="Describe your dataset..."></textarea>
-                    </div>
-
-                    <div>
-                        <label for="file" class="block text-sm font-medium text-gray-700 mb-1">
-                            Dataset File
-                        </label>
-                        <input type="file" 
-                               id="file" 
-                               name="file" 
-                               required
-                               accept=".csv,.parquet,.json"
-                               class="input w-full">
-                        <p class="text-xs text-gray-500 mt-1">
-                            Supported formats: CSV, Parquet, JSON
-                        </p>
-                    </div>
-
-                    <div>
-                        <label for="target_column" class="block text-sm font-medium text-gray-700 mb-1">
-                            Target Column (Optional)
-                        </label>
-                        <input type="text" 
-                               id="target_column" 
-                               name="target_column"
-                               class="input w-full"
-                               placeholder="Name of target/label column">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="flex items-center">
-                                <input type="checkbox" 
-                                       name="has_header" 
-                                       checked
-                                       class="mr-2">
-                                <span class="text-sm text-gray-700">File has header row</span>
-                            </label>
-                        </div>
-                        <div>
-                            <label class="flex items-center">
-                                <input type="checkbox" 
-                                       name="validate_data" 
-                                       checked
-                                       class="mr-2">
-                                <span class="text-sm text-gray-700">Validate data quality</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" 
-                            onclick="hideUploadModal()" 
-                            class="btn btn-outline">
-                        Cancel
-                    </button>
-                    <button type="submit" class="btn btn-primary">
-                        Upload Dataset
-                    </button>
-                </div>
-            </form>
+            <div>
+              <label class="flex items-center">
+                <input
+                  type="checkbox"
+                  name="validate_data"
+                  checked
+                  class="mr-2"
+                />
+                <span class="text-sm text-gray-700">Validate data quality</span>
+              </label>
+            </div>
+          </div>
         </div>
+
+        <div class="modal-footer">
+          <button
+            type="button"
+            onclick="hideUploadModal()"
+            class="btn btn-outline"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">Upload Dataset</button>
+        </div>
+      </form>
     </div>
+  </div>
 </div>
 
 <script>
-function showUploadModal() {
-    document.getElementById('uploadModal').style.display = 'block';
-}
+  function showUploadModal() {
+    document.getElementById("uploadModal").style.display = "block";
+  }
 
-function hideUploadModal() {
-    document.getElementById('uploadModal').style.display = 'none';
+  function hideUploadModal() {
+    document.getElementById("uploadModal").style.display = "none";
     // Reset form
-    document.querySelector('#uploadModal form').reset();
-}
+    document.querySelector("#uploadModal form").reset();
+  }
 
-// Close modal when clicking outside
-window.onclick = function(event) {
-    const modal = document.getElementById('uploadModal');
+  // Close modal when clicking outside
+  window.onclick = function (event) {
+    const modal = document.getElementById("uploadModal");
     if (event.target === modal) {
-        hideUploadModal();
+      hideUploadModal();
     }
-}
+  };
 </script>
 {% endblock %}

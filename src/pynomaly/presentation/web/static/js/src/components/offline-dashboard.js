@@ -9,10 +9,10 @@ export class OfflineDashboard {
       datasets: [],
       results: [],
       stats: {},
-      algorithms: []
+      algorithms: [],
     };
     this.isInitialized = false;
-    
+
     this.init();
   }
 
@@ -28,28 +28,36 @@ export class OfflineDashboard {
    */
   async loadCachedData() {
     try {
-      if ('serviceWorker' in navigator) {
+      if ("serviceWorker" in navigator) {
         const registration = await navigator.serviceWorker.getRegistration();
         if (registration?.active) {
           // Request all cached data
-          registration.active.postMessage({ type: 'GET_OFFLINE_DASHBOARD_DATA' });
-          
+          registration.active.postMessage({
+            type: "GET_OFFLINE_DASHBOARD_DATA",
+          });
+
           return new Promise((resolve) => {
-            navigator.serviceWorker.addEventListener('message', function handler(event) {
-              if (event.data.type === 'OFFLINE_DASHBOARD_DATA') {
-                navigator.serviceWorker.removeEventListener('message', handler);
-                this.cachedData = {
-                  ...this.cachedData,
-                  ...event.data.data
-                };
-                resolve(event.data.data);
-              }
-            }.bind(this));
+            navigator.serviceWorker.addEventListener(
+              "message",
+              function handler(event) {
+                if (event.data.type === "OFFLINE_DASHBOARD_DATA") {
+                  navigator.serviceWorker.removeEventListener(
+                    "message",
+                    handler,
+                  );
+                  this.cachedData = {
+                    ...this.cachedData,
+                    ...event.data.data,
+                  };
+                  resolve(event.data.data);
+                }
+              }.bind(this),
+            );
           });
         }
       }
     } catch (error) {
-      console.error('[OfflineDashboard] Failed to load cached data:', error);
+      console.error("[OfflineDashboard] Failed to load cached data:", error);
     }
   }
 
@@ -58,29 +66,29 @@ export class OfflineDashboard {
    */
   setupEventListeners() {
     // Dataset selection
-    document.addEventListener('change', (event) => {
-      if (event.target.matches('.dataset-selector')) {
+    document.addEventListener("change", (event) => {
+      if (event.target.matches(".dataset-selector")) {
         this.onDatasetChange(event.target.value);
       }
     });
 
     // Algorithm selection
-    document.addEventListener('change', (event) => {
-      if (event.target.matches('.algorithm-selector')) {
+    document.addEventListener("change", (event) => {
+      if (event.target.matches(".algorithm-selector")) {
         this.onAlgorithmChange(event.target.value);
       }
     });
 
     // Refresh button
-    document.addEventListener('click', (event) => {
-      if (event.target.matches('.refresh-dashboard')) {
+    document.addEventListener("click", (event) => {
+      if (event.target.matches(".refresh-dashboard")) {
         this.refreshDashboard();
       }
     });
 
     // Export buttons
-    document.addEventListener('click', (event) => {
-      if (event.target.matches('.export-chart')) {
+    document.addEventListener("click", (event) => {
+      if (event.target.matches(".export-chart")) {
         this.exportChart(event.target.dataset.chartId);
       }
     });
@@ -101,11 +109,11 @@ export class OfflineDashboard {
    * Render overview statistic cards
    */
   renderOverviewCards() {
-    const container = document.getElementById('overview-cards');
+    const container = document.getElementById("overview-cards");
     if (!container) return;
 
     const stats = this.calculateStats();
-    
+
     container.innerHTML = `
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="card">
@@ -147,7 +155,7 @@ export class OfflineDashboard {
               </div>
               <div class="text-3xl">⚠️</div>
             </div>
-            <div class="mt-2 text-sm ${stats.anomalyRate > 0.1 ? 'text-red-600' : 'text-gray-600'}">
+            <div class="mt-2 text-sm ${stats.anomalyRate > 0.1 ? "text-red-600" : "text-gray-600"}">
               ${(stats.anomalyRate * 100).toFixed(1)}% anomaly rate
             </div>
           </div>
@@ -175,70 +183,70 @@ export class OfflineDashboard {
    * Render dataset distribution chart
    */
   renderDatasetChart() {
-    const container = document.getElementById('dataset-chart');
+    const container = document.getElementById("dataset-chart");
     if (!container) return;
 
     const datasets = this.cachedData.datasets || [];
     const typeDistribution = datasets.reduce((acc, dataset) => {
-      const type = dataset.type || 'unknown';
+      const type = dataset.type || "unknown";
       acc[type] = (acc[type] || 0) + 1;
       return acc;
     }, {});
 
     const chartData = Object.entries(typeDistribution).map(([name, value]) => ({
       name: name.charAt(0).toUpperCase() + name.slice(1),
-      value
+      value,
     }));
 
     // Use ECharts for visualization
     const chart = echarts.init(container);
     const option = {
       title: {
-        text: 'Dataset Distribution',
-        left: 'center'
+        text: "Dataset Distribution",
+        left: "center",
       },
       tooltip: {
-        trigger: 'item',
-        formatter: '{a} <br/>{b}: {c} ({d}%)'
+        trigger: "item",
+        formatter: "{a} <br/>{b}: {c} ({d}%)",
       },
       legend: {
-        orient: 'vertical',
-        left: 'left'
+        orient: "vertical",
+        left: "left",
       },
       series: [
         {
-          name: 'Datasets',
-          type: 'pie',
-          radius: '50%',
+          name: "Datasets",
+          type: "pie",
+          radius: "50%",
           data: chartData,
           emphasis: {
             itemStyle: {
               shadowBlur: 10,
               shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.5)'
-            }
-          }
-        }
-      ]
+              shadowColor: "rgba(0, 0, 0, 0.5)",
+            },
+          },
+        },
+      ],
     };
 
     chart.setOption(option);
-    this.charts.set('dataset-chart', chart);
+    this.charts.set("dataset-chart", chart);
 
     // Make chart responsive
-    window.addEventListener('resize', () => chart.resize());
+    window.addEventListener("resize", () => chart.resize());
   }
 
   /**
    * Render algorithm performance comparison chart
    */
   renderAlgorithmPerformanceChart() {
-    const container = document.getElementById('algorithm-performance-chart');
+    const container = document.getElementById("algorithm-performance-chart");
     if (!container) return;
 
     const results = this.cachedData.results || [];
     const algorithmStats = results.reduce((acc, result) => {
-      const algo = result.algorithm || 'unknown';
+      const algo = result.algorithm || "unknown";
       if (!acc[algo]) {
         acc[algo] = { count: 0, totalTime: 0, totalAnomalies: 0 };
       }
@@ -249,88 +257,88 @@ export class OfflineDashboard {
     }, {});
 
     const algorithms = Object.keys(algorithmStats);
-    const avgTimes = algorithms.map(algo => 
-      algorithmStats[algo].totalTime / algorithmStats[algo].count
+    const avgTimes = algorithms.map(
+      (algo) => algorithmStats[algo].totalTime / algorithmStats[algo].count,
     );
-    const totalAnomalies = algorithms.map(algo => 
-      algorithmStats[algo].totalAnomalies
+    const totalAnomalies = algorithms.map(
+      (algo) => algorithmStats[algo].totalAnomalies,
     );
 
     const chart = echarts.init(container);
     const option = {
       title: {
-        text: 'Algorithm Performance',
-        left: 'center'
+        text: "Algorithm Performance",
+        left: "center",
       },
       tooltip: {
-        trigger: 'axis',
+        trigger: "axis",
         axisPointer: {
-          type: 'cross'
-        }
+          type: "cross",
+        },
       },
       legend: {
-        data: ['Average Processing Time (ms)', 'Total Anomalies Found'],
-        bottom: 0
+        data: ["Average Processing Time (ms)", "Total Anomalies Found"],
+        bottom: 0,
       },
       xAxis: {
-        type: 'category',
+        type: "category",
         data: algorithms,
         axisPointer: {
-          type: 'shadow'
-        }
+          type: "shadow",
+        },
       },
       yAxis: [
         {
-          type: 'value',
-          name: 'Time (ms)',
-          position: 'left'
+          type: "value",
+          name: "Time (ms)",
+          position: "left",
         },
         {
-          type: 'value',
-          name: 'Anomalies',
-          position: 'right'
-        }
+          type: "value",
+          name: "Anomalies",
+          position: "right",
+        },
       ],
       series: [
         {
-          name: 'Average Processing Time (ms)',
-          type: 'bar',
+          name: "Average Processing Time (ms)",
+          type: "bar",
           yAxisIndex: 0,
           data: avgTimes,
           itemStyle: {
-            color: '#3b82f6'
-          }
+            color: "#3b82f6",
+          },
         },
         {
-          name: 'Total Anomalies Found',
-          type: 'line',
+          name: "Total Anomalies Found",
+          type: "line",
           yAxisIndex: 1,
           data: totalAnomalies,
           itemStyle: {
-            color: '#ef4444'
-          }
-        }
-      ]
+            color: "#ef4444",
+          },
+        },
+      ],
     };
 
     chart.setOption(option);
-    this.charts.set('algorithm-performance-chart', chart);
+    this.charts.set("algorithm-performance-chart", chart);
 
-    window.addEventListener('resize', () => chart.resize());
+    window.addEventListener("resize", () => chart.resize());
   }
 
   /**
    * Render anomaly detection timeline chart
    */
   renderAnomalyTimelineChart() {
-    const container = document.getElementById('anomaly-timeline-chart');
+    const container = document.getElementById("anomaly-timeline-chart");
     if (!container) return;
 
     const results = this.cachedData.results || [];
-    
+
     // Group results by day
     const timelineData = results.reduce((acc, result) => {
-      const date = new Date(result.timestamp).toISOString().split('T')[0];
+      const date = new Date(result.timestamp).toISOString().split("T")[0];
       if (!acc[date]) {
         acc[date] = { detections: 0, anomalies: 0 };
       }
@@ -340,74 +348,74 @@ export class OfflineDashboard {
     }, {});
 
     const dates = Object.keys(timelineData).sort();
-    const detections = dates.map(date => timelineData[date].detections);
-    const anomalies = dates.map(date => timelineData[date].anomalies);
+    const detections = dates.map((date) => timelineData[date].detections);
+    const anomalies = dates.map((date) => timelineData[date].anomalies);
 
     const chart = echarts.init(container);
     const option = {
       title: {
-        text: 'Detection Activity Timeline',
-        left: 'center'
+        text: "Detection Activity Timeline",
+        left: "center",
       },
       tooltip: {
-        trigger: 'axis',
+        trigger: "axis",
         axisPointer: {
-          type: 'cross'
-        }
+          type: "cross",
+        },
       },
       legend: {
-        data: ['Detections Run', 'Anomalies Found'],
-        bottom: 0
+        data: ["Detections Run", "Anomalies Found"],
+        bottom: 0,
       },
       grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '15%',
-        containLabel: true
+        left: "3%",
+        right: "4%",
+        bottom: "15%",
+        containLabel: true,
       },
       xAxis: {
-        type: 'category',
+        type: "category",
         boundaryGap: false,
-        data: dates
+        data: dates,
       },
       yAxis: {
-        type: 'value'
+        type: "value",
       },
       series: [
         {
-          name: 'Detections Run',
-          type: 'line',
-          stack: 'Total',
+          name: "Detections Run",
+          type: "line",
+          stack: "Total",
           areaStyle: {},
           data: detections,
           itemStyle: {
-            color: '#10b981'
-          }
+            color: "#10b981",
+          },
         },
         {
-          name: 'Anomalies Found',
-          type: 'line',
-          stack: 'Total',
+          name: "Anomalies Found",
+          type: "line",
+          stack: "Total",
           areaStyle: {},
           data: anomalies,
           itemStyle: {
-            color: '#f59e0b'
-          }
-        }
-      ]
+            color: "#f59e0b",
+          },
+        },
+      ],
     };
 
     chart.setOption(option);
-    this.charts.set('anomaly-timeline-chart', chart);
+    this.charts.set("anomaly-timeline-chart", chart);
 
-    window.addEventListener('resize', () => chart.resize());
+    window.addEventListener("resize", () => chart.resize());
   }
 
   /**
    * Render recent activity feed
    */
   renderRecentActivity() {
-    const container = document.getElementById('recent-activity');
+    const container = document.getElementById("recent-activity");
     if (!container) return;
 
     const results = this.cachedData.results || [];
@@ -415,22 +423,24 @@ export class OfflineDashboard {
       .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
       .slice(0, 10);
 
-    const activityHtml = recentResults.map(result => {
-      const timeAgo = this.timeAgo(new Date(result.timestamp));
-      const anomalyCount = result.anomalies?.length || 0;
-      const statusColor = anomalyCount > 0 ? 'text-orange-600' : 'text-green-600';
-      const statusIcon = anomalyCount > 0 ? '⚠️' : '✅';
+    const activityHtml = recentResults
+      .map((result) => {
+        const timeAgo = this.timeAgo(new Date(result.timestamp));
+        const anomalyCount = result.anomalies?.length || 0;
+        const statusColor =
+          anomalyCount > 0 ? "text-orange-600" : "text-green-600";
+        const statusIcon = anomalyCount > 0 ? "⚠️" : "✅";
 
-      return `
+        return `
         <div class="flex items-start gap-3 p-3 border-b border-border last:border-b-0">
           <div class="text-xl">${statusIcon}</div>
           <div class="flex-grow">
             <div class="flex items-center justify-between">
-              <h4 class="font-medium">${result.dataset || 'Unknown Dataset'}</h4>
+              <h4 class="font-medium">${result.dataset || "Unknown Dataset"}</h4>
               <span class="text-sm text-text-secondary">${timeAgo}</span>
             </div>
             <p class="text-sm text-text-secondary">
-              Algorithm: ${result.algorithm || 'Unknown'}
+              Algorithm: ${result.algorithm || "Unknown"}
             </p>
             <p class="text-sm ${statusColor}">
               ${anomalyCount} anomalies detected
@@ -438,7 +448,8 @@ export class OfflineDashboard {
           </div>
         </div>
       `;
-    }).join('');
+      })
+      .join("");
 
     container.innerHTML = `
       <div class="card">
@@ -462,7 +473,7 @@ export class OfflineDashboard {
    * Handle dataset selection change
    */
   onDatasetChange(datasetId) {
-    const dataset = this.cachedData.datasets.find(d => d.id === datasetId);
+    const dataset = this.cachedData.datasets.find((d) => d.id === datasetId);
     if (dataset) {
       this.renderDatasetDetails(dataset);
     }
@@ -472,7 +483,9 @@ export class OfflineDashboard {
    * Handle algorithm selection change
    */
   onAlgorithmChange(algorithmId) {
-    const algorithm = this.cachedData.algorithms.find(a => a.id === algorithmId);
+    const algorithm = this.cachedData.algorithms.find(
+      (a) => a.id === algorithmId,
+    );
     if (algorithm) {
       this.renderAlgorithmDetails(algorithm);
     }
@@ -482,17 +495,17 @@ export class OfflineDashboard {
    * Refresh dashboard data
    */
   async refreshDashboard() {
-    const refreshButton = document.querySelector('.refresh-dashboard');
+    const refreshButton = document.querySelector(".refresh-dashboard");
     if (refreshButton) {
       refreshButton.disabled = true;
-      refreshButton.innerHTML = 'Refreshing...';
+      refreshButton.innerHTML = "Refreshing...";
     }
 
     try {
       await this.loadCachedData();
       this.renderDashboard();
     } catch (error) {
-      console.error('[OfflineDashboard] Failed to refresh:', error);
+      console.error("[OfflineDashboard] Failed to refresh:", error);
     } finally {
       if (refreshButton) {
         refreshButton.disabled = false;
@@ -513,12 +526,12 @@ export class OfflineDashboard {
     const chart = this.charts.get(chartId);
     if (chart) {
       const dataURL = chart.getDataURL({
-        type: 'png',
+        type: "png",
         pixelRatio: 2,
-        backgroundColor: '#fff'
+        backgroundColor: "#fff",
       });
-      
-      const link = document.createElement('a');
+
+      const link = document.createElement("a");
       link.download = `${chartId}-${Date.now()}.png`;
       link.href = dataURL;
       link.click();
@@ -531,25 +544,27 @@ export class OfflineDashboard {
   calculateStats() {
     const datasets = this.cachedData.datasets || [];
     const results = this.cachedData.results || [];
-    
+
     const now = new Date();
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const dayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-    const datasetsLastWeek = datasets.filter(d => 
-      new Date(d.timestamp) > weekAgo
+    const datasetsLastWeek = datasets.filter(
+      (d) => new Date(d.timestamp) > weekAgo,
     ).length;
 
-    const detectionsToday = results.filter(r => 
-      new Date(r.timestamp) > dayAgo
+    const detectionsToday = results.filter(
+      (r) => new Date(r.timestamp) > dayAgo,
     ).length;
 
-    const totalAnomalies = results.reduce((sum, r) => 
-      sum + (r.anomalies?.length || 0), 0
+    const totalAnomalies = results.reduce(
+      (sum, r) => sum + (r.anomalies?.length || 0),
+      0,
     );
 
-    const totalSamples = results.reduce((sum, r) => 
-      sum + (r.totalSamples || 0), 0
+    const totalSamples = results.reduce(
+      (sum, r) => sum + (r.totalSamples || 0),
+      0,
     );
 
     return {
@@ -559,7 +574,7 @@ export class OfflineDashboard {
       detectionsToday,
       totalAnomalies,
       anomalyRate: totalSamples > 0 ? totalAnomalies / totalSamples : 0,
-      cacheSize: this.estimateCacheSize()
+      cacheSize: this.estimateCacheSize(),
     };
   }
 
@@ -575,11 +590,11 @@ export class OfflineDashboard {
    * Format bytes to human readable
    */
   formatBytes(bytes) {
-    if (bytes === 0) return '0 B';
+    if (bytes === 0) return "0 B";
     const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const sizes = ["B", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   }
 
   /**
@@ -588,15 +603,16 @@ export class OfflineDashboard {
   timeAgo(date) {
     const now = new Date();
     const diffInSeconds = Math.floor((now - date) / 1000);
-    
-    if (diffInSeconds < 60) return 'Just now';
+
+    if (diffInSeconds < 60) return "Just now";
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    if (diffInSeconds < 86400)
+      return `${Math.floor(diffInSeconds / 3600)}h ago`;
     return `${Math.floor(diffInSeconds / 86400)}d ago`;
   }
 }
 
 // Initialize and expose globally
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   window.OfflineDashboard = new OfflineDashboard();
 }

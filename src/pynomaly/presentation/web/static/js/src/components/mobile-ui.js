@@ -21,7 +21,7 @@ class TouchGestureManager {
       enableTap: true,
       enablePan: true,
       preventDefault: true,
-      ...options
+      ...options,
     };
 
     // Touch state tracking
@@ -43,18 +43,32 @@ class TouchGestureManager {
 
   bindEvents() {
     // Touch events
-    this.element.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
-    this.element.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
-    this.element.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
-    this.element.addEventListener('touchcancel', this.handleTouchCancel.bind(this), { passive: false });
+    this.element.addEventListener(
+      "touchstart",
+      this.handleTouchStart.bind(this),
+      { passive: false },
+    );
+    this.element.addEventListener(
+      "touchmove",
+      this.handleTouchMove.bind(this),
+      { passive: false },
+    );
+    this.element.addEventListener("touchend", this.handleTouchEnd.bind(this), {
+      passive: false,
+    });
+    this.element.addEventListener(
+      "touchcancel",
+      this.handleTouchCancel.bind(this),
+      { passive: false },
+    );
 
     // Mouse events for desktop testing
-    this.element.addEventListener('mousedown', this.handleMouseDown.bind(this));
-    this.element.addEventListener('mousemove', this.handleMouseMove.bind(this));
-    this.element.addEventListener('mouseup', this.handleMouseUp.bind(this));
+    this.element.addEventListener("mousedown", this.handleMouseDown.bind(this));
+    this.element.addEventListener("mousemove", this.handleMouseMove.bind(this));
+    this.element.addEventListener("mouseup", this.handleMouseUp.bind(this));
 
     // Prevent default context menu on long press
-    this.element.addEventListener('contextmenu', (e) => {
+    this.element.addEventListener("contextmenu", (e) => {
       if (this.options.preventDefault) {
         e.preventDefault();
       }
@@ -67,7 +81,7 @@ class TouchGestureManager {
     }
 
     const touches = Array.from(event.changedTouches);
-    touches.forEach(touch => {
+    touches.forEach((touch) => {
       this.touches.set(touch.identifier, {
         id: touch.identifier,
         startX: touch.clientX,
@@ -75,7 +89,7 @@ class TouchGestureManager {
         currentX: touch.clientX,
         currentY: touch.clientY,
         startTime: Date.now(),
-        element: touch.target
+        element: touch.target,
       });
     });
 
@@ -83,9 +97,9 @@ class TouchGestureManager {
       this.startPinchGesture(event.touches);
     }
 
-    this.emit('touchstart', {
+    this.emit("touchstart", {
       touches: Array.from(this.touches.values()),
-      originalEvent: event
+      originalEvent: event,
     });
   }
 
@@ -95,7 +109,7 @@ class TouchGestureManager {
     }
 
     const touches = Array.from(event.changedTouches);
-    touches.forEach(touch => {
+    touches.forEach((touch) => {
       const touchData = this.touches.get(touch.identifier);
       if (touchData) {
         touchData.currentX = touch.clientX;
@@ -109,16 +123,16 @@ class TouchGestureManager {
       this.handlePanGesture(Array.from(this.touches.values())[0]);
     }
 
-    this.emit('touchmove', {
+    this.emit("touchmove", {
       touches: Array.from(this.touches.values()),
-      originalEvent: event
+      originalEvent: event,
     });
   }
 
   handleTouchEnd(event) {
     const touches = Array.from(event.changedTouches);
-    
-    touches.forEach(touch => {
+
+    touches.forEach((touch) => {
       const touchData = this.touches.get(touch.identifier);
       if (touchData) {
         this.processTouchEnd(touchData);
@@ -130,14 +144,14 @@ class TouchGestureManager {
       this.isGesturing = false;
     }
 
-    this.emit('touchend', {
+    this.emit("touchend", {
       touches: Array.from(this.touches.values()),
-      originalEvent: event
+      originalEvent: event,
     });
   }
 
   handleTouchCancel(event) {
-    event.changedTouches.forEach(touch => {
+    event.changedTouches.forEach((touch) => {
       this.touches.delete(touch.identifier);
     });
     this.isGesturing = false;
@@ -150,7 +164,11 @@ class TouchGestureManager {
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
     // Check for tap
-    if (this.options.enableTap && duration < this.options.tapTimeout && distance < 10) {
+    if (
+      this.options.enableTap &&
+      duration < this.options.tapTimeout &&
+      distance < 10
+    ) {
       this.handleTap(touchData);
     }
 
@@ -166,21 +184,22 @@ class TouchGestureManager {
       x: touchData.currentX,
       y: touchData.currentY,
       element: touchData.element,
-      timestamp: now
+      timestamp: now,
     };
 
     // Check for double tap
-    if (this.lastTap && 
-        (now - this.lastTap.timestamp) < this.options.doubleTapTimeout &&
-        Math.abs(this.lastTap.x - tapEvent.x) < 25 &&
-        Math.abs(this.lastTap.y - tapEvent.y) < 25) {
-      
-      this.emit('doubletap', tapEvent);
+    if (
+      this.lastTap &&
+      now - this.lastTap.timestamp < this.options.doubleTapTimeout &&
+      Math.abs(this.lastTap.x - tapEvent.x) < 25 &&
+      Math.abs(this.lastTap.y - tapEvent.y) < 25
+    ) {
+      this.emit("doubletap", tapEvent);
       this.lastTap = null;
     } else {
-      this.emit('tap', tapEvent);
+      this.emit("tap", tapEvent);
       this.lastTap = tapEvent;
-      
+
       // Clear last tap after timeout
       setTimeout(() => {
         if (this.lastTap === tapEvent) {
@@ -192,8 +211,8 @@ class TouchGestureManager {
 
   handleSwipe(touchData, deltaX, deltaY, distance) {
     const direction = this.getSwipeDirection(deltaX, deltaY);
-    
-    this.emit('swipe', {
+
+    this.emit("swipe", {
       direction,
       deltaX,
       deltaY,
@@ -202,67 +221,71 @@ class TouchGestureManager {
       startX: touchData.startX,
       startY: touchData.startY,
       endX: touchData.currentX,
-      endY: touchData.currentY
+      endY: touchData.currentY,
     });
   }
 
   getSwipeDirection(deltaX, deltaY) {
     const absDeltaX = Math.abs(deltaX);
     const absDeltaY = Math.abs(deltaY);
-    
+
     if (absDeltaX > absDeltaY) {
-      return deltaX > 0 ? 'right' : 'left';
+      return deltaX > 0 ? "right" : "left";
     } else {
-      return deltaY > 0 ? 'down' : 'up';
+      return deltaY > 0 ? "down" : "up";
     }
   }
 
   startPinchGesture(touches) {
     const touch1 = touches[0];
     const touch2 = touches[1];
-    
+
     this.gestureStartDistance = this.calculateDistance(
-      touch1.clientX, touch1.clientY,
-      touch2.clientX, touch2.clientY
+      touch1.clientX,
+      touch1.clientY,
+      touch2.clientX,
+      touch2.clientY,
     );
     this.isGesturing = true;
   }
 
   handlePinchGesture(touches) {
     if (!this.isGesturing) return;
-    
+
     const touch1 = touches[0];
     const touch2 = touches[1];
-    
+
     const currentDistance = this.calculateDistance(
-      touch1.clientX, touch1.clientY,
-      touch2.clientX, touch2.clientY
+      touch1.clientX,
+      touch1.clientY,
+      touch2.clientX,
+      touch2.clientY,
     );
-    
+
     const scale = currentDistance / this.gestureStartDistance;
     const centerX = (touch1.clientX + touch2.clientX) / 2;
     const centerY = (touch1.clientY + touch2.clientY) / 2;
-    
-    this.emit('pinch', {
+
+    this.emit("pinch", {
       scale,
       centerX,
       centerY,
       distance: currentDistance,
-      startDistance: this.gestureStartDistance
+      startDistance: this.gestureStartDistance,
     });
   }
 
   handlePanGesture(touchData) {
     const deltaX = touchData.currentX - touchData.startX;
     const deltaY = touchData.currentY - touchData.startY;
-    
-    this.emit('pan', {
+
+    this.emit("pan", {
       deltaX,
       deltaY,
       currentX: touchData.currentX,
       currentY: touchData.currentY,
       startX: touchData.startX,
-      startY: touchData.startY
+      startY: touchData.startY,
     });
   }
 
@@ -272,19 +295,19 @@ class TouchGestureManager {
 
   // Mouse event handlers for desktop testing
   handleMouseDown(event) {
-    this.touches.set('mouse', {
-      id: 'mouse',
+    this.touches.set("mouse", {
+      id: "mouse",
       startX: event.clientX,
       startY: event.clientY,
       currentX: event.clientX,
       currentY: event.clientY,
       startTime: Date.now(),
-      element: event.target
+      element: event.target,
     });
   }
 
   handleMouseMove(event) {
-    const touchData = this.touches.get('mouse');
+    const touchData = this.touches.get("mouse");
     if (touchData) {
       touchData.currentX = event.clientX;
       touchData.currentY = event.clientY;
@@ -293,10 +316,10 @@ class TouchGestureManager {
   }
 
   handleMouseUp(event) {
-    const touchData = this.touches.get('mouse');
+    const touchData = this.touches.get("mouse");
     if (touchData) {
       this.processTouchEnd(touchData);
-      this.touches.delete('mouse');
+      this.touches.delete("mouse");
     }
   }
 
@@ -317,11 +340,11 @@ class TouchGestureManager {
 
   emit(event, data) {
     if (this.listeners.has(event)) {
-      this.listeners.get(event).forEach(callback => {
+      this.listeners.get(event).forEach((callback) => {
         try {
           callback(data);
         } catch (error) {
-          console.error('Touch gesture callback error:', error);
+          console.error("Touch gesture callback error:", error);
         }
       });
     }
@@ -352,12 +375,12 @@ class MobileDashboardManager {
       breakpoints: {
         mobile: 768,
         tablet: 1024,
-        desktop: 1200
+        desktop: 1200,
       },
-      ...options
+      ...options,
     };
 
-    this.currentLayout = 'mobile';
+    this.currentLayout = "mobile";
     this.widgets = new Map();
     this.panels = new Map();
     this.activeTab = 0;
@@ -383,17 +406,17 @@ class MobileDashboardManager {
   detectLayout() {
     const width = window.innerWidth;
     if (width <= this.options.breakpoints.mobile) {
-      this.currentLayout = 'mobile';
+      this.currentLayout = "mobile";
     } else if (width <= this.options.breakpoints.tablet) {
-      this.currentLayout = 'tablet';
+      this.currentLayout = "tablet";
     } else {
-      this.currentLayout = 'desktop';
+      this.currentLayout = "desktop";
     }
   }
 
   createMobileStructure() {
     this.container.className = `mobile-dashboard ${this.currentLayout}`;
-    
+
     this.container.innerHTML = `
       <header class="mobile-header">
         <div class="header-content">
@@ -460,19 +483,21 @@ class MobileDashboardManager {
     `;
 
     // Cache DOM elements
-    this.header = this.container.querySelector('.mobile-header');
-    this.tabBar = this.container.querySelector('.tab-bar');
-    this.contentArea = this.container.querySelector('.content-area');
-    this.pullToRefreshIndicator = this.container.querySelector('.pull-to-refresh-indicator');
+    this.header = this.container.querySelector(".mobile-header");
+    this.tabBar = this.container.querySelector(".tab-bar");
+    this.contentArea = this.container.querySelector(".content-area");
+    this.pullToRefreshIndicator = this.container.querySelector(
+      ".pull-to-refresh-indicator",
+    );
 
     this.setupTabNavigation();
   }
 
   setupTabNavigation() {
-    const tabButtons = this.tabBar.querySelectorAll('.tab-button');
-    
+    const tabButtons = this.tabBar.querySelectorAll(".tab-button");
+
     tabButtons.forEach((button, index) => {
-      button.addEventListener('click', () => {
+      button.addEventListener("click", () => {
         this.switchTab(index);
       });
     });
@@ -482,38 +507,39 @@ class MobileDashboardManager {
   }
 
   switchTab(tabIndex) {
-    const tabButtons = this.tabBar.querySelectorAll('.tab-button');
-    const panels = this.contentArea.querySelectorAll('.tab-panel');
+    const tabButtons = this.tabBar.querySelectorAll(".tab-button");
+    const panels = this.contentArea.querySelectorAll(".tab-panel");
 
     // Update tab buttons
     tabButtons.forEach((button, index) => {
       const isActive = index === tabIndex;
-      button.classList.toggle('active', isActive);
-      button.setAttribute('aria-selected', isActive);
+      button.classList.toggle("active", isActive);
+      button.setAttribute("aria-selected", isActive);
     });
 
     // Update panels
     panels.forEach((panel, index) => {
-      panel.classList.toggle('active', index === tabIndex);
+      panel.classList.toggle("active", index === tabIndex);
     });
 
     this.activeTab = tabIndex;
-    this.emit('tab-changed', { activeTab: tabIndex });
+    this.emit("tab-changed", { activeTab: tabIndex });
   }
 
   setupGestureHandling() {
     const gestureManager = new TouchGestureManager(this.contentArea, {
       enableSwipe: this.options.enableSwipeNavigation,
-      enablePinch: false // Disable pinch on main container
+      enablePinch: false, // Disable pinch on main container
     });
 
     // Swipe navigation between tabs
     if (this.options.enableSwipeNavigation) {
-      gestureManager.on('swipe', (gesture) => {
-        if (Math.abs(gesture.deltaY) < 50) { // Horizontal swipes only
-          if (gesture.direction === 'left' && this.activeTab < 3) {
+      gestureManager.on("swipe", (gesture) => {
+        if (Math.abs(gesture.deltaY) < 50) {
+          // Horizontal swipes only
+          if (gesture.direction === "left" && this.activeTab < 3) {
             this.switchTab(this.activeTab + 1);
-          } else if (gesture.direction === 'right' && this.activeTab > 0) {
+          } else if (gesture.direction === "right" && this.activeTab > 0) {
             this.switchTab(this.activeTab - 1);
           }
         }
@@ -531,14 +557,14 @@ class MobileDashboardManager {
 
     const gestureManager = new TouchGestureManager(this.contentArea);
 
-    gestureManager.on('touchstart', (event) => {
+    gestureManager.on("touchstart", (event) => {
       if (this.contentArea.scrollTop === 0) {
         pullStartY = event.touches[0].currentY;
         isPulling = true;
       }
     });
 
-    gestureManager.on('touchmove', (event) => {
+    gestureManager.on("touchmove", (event) => {
       if (!isPulling) return;
 
       pullCurrentY = event.touches[0].currentY;
@@ -552,16 +578,20 @@ class MobileDashboardManager {
         this.pullToRefreshIndicator.style.opacity = opacity;
 
         if (pullDistance > 60) {
-          this.pullToRefreshIndicator.classList.add('ready');
-          this.pullToRefreshIndicator.querySelector('.refresh-text').textContent = 'Release to refresh';
+          this.pullToRefreshIndicator.classList.add("ready");
+          this.pullToRefreshIndicator.querySelector(
+            ".refresh-text",
+          ).textContent = "Release to refresh";
         } else {
-          this.pullToRefreshIndicator.classList.remove('ready');
-          this.pullToRefreshIndicator.querySelector('.refresh-text').textContent = 'Pull to refresh';
+          this.pullToRefreshIndicator.classList.remove("ready");
+          this.pullToRefreshIndicator.querySelector(
+            ".refresh-text",
+          ).textContent = "Pull to refresh";
         }
       }
     });
 
-    gestureManager.on('touchend', () => {
+    gestureManager.on("touchend", () => {
       if (!isPulling) return;
 
       isPulling = false;
@@ -576,10 +606,11 @@ class MobileDashboardManager {
 
   triggerRefresh() {
     this.isRefreshing = true;
-    this.pullToRefreshIndicator.classList.add('refreshing');
-    this.pullToRefreshIndicator.querySelector('.refresh-text').textContent = 'Refreshing...';
+    this.pullToRefreshIndicator.classList.add("refreshing");
+    this.pullToRefreshIndicator.querySelector(".refresh-text").textContent =
+      "Refreshing...";
 
-    this.emit('refresh-requested');
+    this.emit("refresh-requested");
 
     // Auto-reset after 3 seconds if not manually reset
     setTimeout(() => {
@@ -591,20 +622,21 @@ class MobileDashboardManager {
 
   resetPullToRefresh() {
     this.isRefreshing = false;
-    this.pullToRefreshIndicator.classList.remove('ready', 'refreshing');
-    this.pullToRefreshIndicator.style.transform = 'translateY(-100%)';
-    this.pullToRefreshIndicator.style.opacity = '0';
-    this.pullToRefreshIndicator.querySelector('.refresh-text').textContent = 'Pull to refresh';
+    this.pullToRefreshIndicator.classList.remove("ready", "refreshing");
+    this.pullToRefreshIndicator.style.transform = "translateY(-100%)";
+    this.pullToRefreshIndicator.style.opacity = "0";
+    this.pullToRefreshIndicator.querySelector(".refresh-text").textContent =
+      "Pull to refresh";
   }
 
   setupResizeListener() {
     let resizeTimeout;
-    window.addEventListener('resize', () => {
+    window.addEventListener("resize", () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         const oldLayout = this.currentLayout;
         this.detectLayout();
-        
+
         if (oldLayout !== this.currentLayout) {
           this.container.className = `mobile-dashboard ${this.currentLayout}`;
           this.updateLayoutForScreen();
@@ -615,22 +647,22 @@ class MobileDashboardManager {
 
   updateLayoutForScreen() {
     const maxCols = this.options.maxColumns[this.currentLayout];
-    
+
     // Update widget layouts based on screen size
-    this.panels.forEach(panel => {
+    this.panels.forEach((panel) => {
       panel.updateLayout(maxCols);
     });
 
-    this.emit('layout-changed', { layout: this.currentLayout });
+    this.emit("layout-changed", { layout: this.currentLayout });
   }
 
   /**
    * Widget and Panel Management
    */
   createPanel(id, title, content, tabIndex = 0) {
-    const panelElement = document.createElement('div');
-    panelElement.className = `tab-panel ${tabIndex === this.activeTab ? 'active' : ''}`;
-    panelElement.setAttribute('role', 'tabpanel');
+    const panelElement = document.createElement("div");
+    panelElement.className = `tab-panel ${tabIndex === this.activeTab ? "active" : ""}`;
+    panelElement.setAttribute("role", "tabpanel");
     panelElement.innerHTML = `
       <div class="panel-header">
         <h2 class="panel-title">${title}</h2>
@@ -655,30 +687,30 @@ class MobileDashboardManager {
       isCollapsed: false,
       updateLayout: (maxCols) => {
         panelElement.style.gridColumn = `span ${Math.min(1, maxCols)}`;
-      }
+      },
     };
 
     // Add collapse functionality
-    const collapseBtn = panelElement.querySelector('.panel-collapse-btn');
-    const panelContent = panelElement.querySelector('.panel-content');
-    
-    collapseBtn.addEventListener('click', () => {
+    const collapseBtn = panelElement.querySelector(".panel-collapse-btn");
+    const panelContent = panelElement.querySelector(".panel-content");
+
+    collapseBtn.addEventListener("click", () => {
       panel.isCollapsed = !panel.isCollapsed;
-      panelElement.classList.toggle('collapsed', panel.isCollapsed);
-      
+      panelElement.classList.toggle("collapsed", panel.isCollapsed);
+
       if (panel.isCollapsed) {
-        panelContent.style.height = '0';
-        collapseBtn.style.transform = 'rotate(-90deg)';
+        panelContent.style.height = "0";
+        collapseBtn.style.transform = "rotate(-90deg)";
       } else {
-        panelContent.style.height = 'auto';
-        collapseBtn.style.transform = 'rotate(0deg)';
+        panelContent.style.height = "auto";
+        collapseBtn.style.transform = "rotate(0deg)";
       }
     });
 
     this.panels.set(id, panel);
-    
+
     // Add to appropriate tab
-    const tabPanels = this.contentArea.querySelector('.tab-panels');
+    const tabPanels = this.contentArea.querySelector(".tab-panels");
     tabPanels.appendChild(panelElement);
 
     return panel;
@@ -691,21 +723,21 @@ class MobileDashboardManager {
       config,
       panelId,
       element: null,
-      touchOptimized: true
+      touchOptimized: true,
     };
 
     // Create widget element based on type
     switch (type) {
-      case 'chart':
+      case "chart":
         widget.element = this.createChartWidget(config);
         break;
-      case 'metric':
+      case "metric":
         widget.element = this.createMetricWidget(config);
         break;
-      case 'list':
+      case "list":
         widget.element = this.createListWidget(config);
         break;
-      case 'form':
+      case "form":
         widget.element = this.createFormWidget(config);
         break;
       default:
@@ -720,18 +752,18 @@ class MobileDashboardManager {
     // Add to panel
     const panel = this.panels.get(panelId);
     if (panel) {
-      panel.element.querySelector('.panel-content').appendChild(widget.element);
+      panel.element.querySelector(".panel-content").appendChild(widget.element);
     }
 
     return widget;
   }
 
   createChartWidget(config) {
-    const element = document.createElement('div');
-    element.className = 'widget chart-widget touch-optimized';
+    const element = document.createElement("div");
+    element.className = "widget chart-widget touch-optimized";
     element.innerHTML = `
       <div class="widget-header">
-        <h3 class="widget-title">${config.title || 'Chart'}</h3>
+        <h3 class="widget-title">${config.title || "Chart"}</h3>
         <div class="widget-controls">
           <button class="zoom-out-btn" aria-label="Zoom out">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -746,7 +778,7 @@ class MobileDashboardManager {
           </button>
         </div>
       </div>
-      <div class="widget-content chart-container" style="height: ${config.height || '250px'};">
+      <div class="widget-content chart-container" style="height: ${config.height || "250px"};">
         <!-- Chart will be rendered here -->
       </div>
     `;
@@ -755,13 +787,13 @@ class MobileDashboardManager {
   }
 
   createMetricWidget(config) {
-    const element = document.createElement('div');
-    element.className = 'widget metric-widget touch-optimized';
+    const element = document.createElement("div");
+    element.className = "widget metric-widget touch-optimized";
     element.innerHTML = `
       <div class="metric-display">
-        <div class="metric-value ${config.trend || ''}">${config.value || '0'}</div>
-        <div class="metric-label">${config.label || 'Metric'}</div>
-        <div class="metric-change">${config.change || '+0%'}</div>
+        <div class="metric-value ${config.trend || ""}">${config.value || "0"}</div>
+        <div class="metric-label">${config.label || "Metric"}</div>
+        <div class="metric-change">${config.change || "+0%"}</div>
       </div>
     `;
 
@@ -769,11 +801,11 @@ class MobileDashboardManager {
   }
 
   createListWidget(config) {
-    const element = document.createElement('div');
-    element.className = 'widget list-widget touch-optimized';
+    const element = document.createElement("div");
+    element.className = "widget list-widget touch-optimized";
     element.innerHTML = `
       <div class="widget-header">
-        <h3 class="widget-title">${config.title || 'List'}</h3>
+        <h3 class="widget-title">${config.title || "List"}</h3>
         <button class="refresh-widget-btn" aria-label="Refresh">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
@@ -791,11 +823,11 @@ class MobileDashboardManager {
   }
 
   createFormWidget(config) {
-    const element = document.createElement('div');
-    element.className = 'widget form-widget touch-optimized';
+    const element = document.createElement("div");
+    element.className = "widget form-widget touch-optimized";
     element.innerHTML = `
       <div class="widget-header">
-        <h3 class="widget-title">${config.title || 'Form'}</h3>
+        <h3 class="widget-title">${config.title || "Form"}</h3>
       </div>
       <div class="widget-content">
         <form class="mobile-form">
@@ -808,11 +840,11 @@ class MobileDashboardManager {
   }
 
   createDefaultWidget(config) {
-    const element = document.createElement('div');
-    element.className = 'widget default-widget touch-optimized';
+    const element = document.createElement("div");
+    element.className = "widget default-widget touch-optimized";
     element.innerHTML = `
       <div class="widget-content">
-        ${config.content || 'Widget content'}
+        ${config.content || "Widget content"}
       </div>
     `;
 
@@ -823,54 +855,54 @@ class MobileDashboardManager {
     const element = widget.element;
 
     // Add touch-friendly tap targets
-    const buttons = element.querySelectorAll('button');
-    buttons.forEach(button => {
-      button.style.minHeight = '44px';
-      button.style.minWidth = '44px';
-      button.classList.add('touch-target');
+    const buttons = element.querySelectorAll("button");
+    buttons.forEach((button) => {
+      button.style.minHeight = "44px";
+      button.style.minWidth = "44px";
+      button.classList.add("touch-target");
     });
 
     // Add gesture support for charts
-    if (widget.type === 'chart') {
-      const chartContainer = element.querySelector('.chart-container');
+    if (widget.type === "chart") {
+      const chartContainer = element.querySelector(".chart-container");
       const gestureManager = new TouchGestureManager(chartContainer, {
         enablePinch: true,
-        enablePan: true
+        enablePan: true,
       });
 
-      gestureManager.on('pinch', (gesture) => {
+      gestureManager.on("pinch", (gesture) => {
         // Handle chart zoom
-        this.emit('chart-zoom', {
+        this.emit("chart-zoom", {
           widgetId: widget.id,
           scale: gesture.scale,
           centerX: gesture.centerX,
-          centerY: gesture.centerY
+          centerY: gesture.centerY,
         });
       });
 
-      gestureManager.on('pan', (gesture) => {
+      gestureManager.on("pan", (gesture) => {
         // Handle chart pan
-        this.emit('chart-pan', {
+        this.emit("chart-pan", {
           widgetId: widget.id,
           deltaX: gesture.deltaX,
-          deltaY: gesture.deltaY
+          deltaY: gesture.deltaY,
         });
       });
 
-      gestureManager.on('doubletap', () => {
+      gestureManager.on("doubletap", () => {
         // Reset chart zoom
-        this.emit('chart-reset', { widgetId: widget.id });
+        this.emit("chart-reset", { widgetId: widget.id });
       });
     }
 
     // Add touch feedback
-    element.addEventListener('touchstart', () => {
-      element.classList.add('touch-active');
+    element.addEventListener("touchstart", () => {
+      element.classList.add("touch-active");
     });
 
-    element.addEventListener('touchend', () => {
+    element.addEventListener("touchend", () => {
       setTimeout(() => {
-        element.classList.remove('touch-active');
+        element.classList.remove("touch-active");
       }, 150);
     });
   }
@@ -879,13 +911,13 @@ class MobileDashboardManager {
    * Mobile-specific features
    */
   enableHapticFeedback() {
-    if ('vibrate' in navigator) {
+    if ("vibrate" in navigator) {
       return {
         light: () => navigator.vibrate(10),
         medium: () => navigator.vibrate(20),
         heavy: () => navigator.vibrate(50),
         success: () => navigator.vibrate([50, 50, 50]),
-        error: () => navigator.vibrate([100, 50, 100])
+        error: () => navigator.vibrate([100, 50, 100]),
       };
     }
     return {
@@ -893,12 +925,12 @@ class MobileDashboardManager {
       medium: () => {},
       heavy: () => {},
       success: () => {},
-      error: () => {}
+      error: () => {},
     };
   }
 
-  showToast(message, type = 'info', duration = 3000) {
-    const toast = document.createElement('div');
+  showToast(message, type = "info", duration = 3000) {
+    const toast = document.createElement("div");
     toast.className = `mobile-toast ${type}`;
     toast.innerHTML = `
       <div class="toast-content">
@@ -911,13 +943,13 @@ class MobileDashboardManager {
 
     // Add touch handling
     const gestureManager = new TouchGestureManager(toast);
-    gestureManager.on('swipe', (gesture) => {
-      if (gesture.direction === 'up' || gesture.direction === 'right') {
+    gestureManager.on("swipe", (gesture) => {
+      if (gesture.direction === "up" || gesture.direction === "right") {
         this.dismissToast(toast);
       }
     });
 
-    toast.querySelector('.toast-close').addEventListener('click', () => {
+    toast.querySelector(".toast-close").addEventListener("click", () => {
       this.dismissToast(toast);
     });
 
@@ -928,12 +960,12 @@ class MobileDashboardManager {
 
     // Show animation
     requestAnimationFrame(() => {
-      toast.classList.add('show');
+      toast.classList.add("show");
     });
   }
 
   dismissToast(toast) {
-    toast.classList.add('dismiss');
+    toast.classList.add("dismiss");
     setTimeout(() => {
       if (toast.parentNode) {
         toast.parentNode.removeChild(toast);
@@ -961,11 +993,11 @@ class MobileDashboardManager {
 
   emit(event, data) {
     if (this.listeners && this.listeners.has(event)) {
-      this.listeners.get(event).forEach(callback => {
+      this.listeners.get(event).forEach((callback) => {
         try {
           callback(data);
         } catch (error) {
-          console.error('Mobile dashboard event error:', error);
+          console.error("Mobile dashboard event error:", error);
         }
       });
     }
@@ -984,10 +1016,10 @@ class MobileDashboardManager {
 }
 
 // Export classes
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module !== "undefined" && module.exports) {
   module.exports = {
     TouchGestureManager,
-    MobileDashboardManager
+    MobileDashboardManager,
   };
 } else {
   // Browser environment

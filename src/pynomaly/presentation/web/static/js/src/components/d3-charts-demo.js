@@ -9,7 +9,7 @@ class D3ChartsDemo {
     this.demoData = this.generateDemoData();
     this.realTimeInterval = null;
     this.isRealTimeEnabled = false;
-    
+
     this.init();
   }
 
@@ -29,17 +29,21 @@ class D3ChartsDemo {
     for (let i = 0; i < 100; i++) {
       const timestamp = new Date(now.getTime() - (100 - i) * 60000);
       const baseValue = 50 + 20 * Math.sin(i * 0.1) + Math.random() * 10;
-      
+
       // Inject some anomalies
       const isAnomaly = Math.random() < 0.05;
-      const value = isAnomaly ? baseValue + (Math.random() - 0.5) * 80 : baseValue;
-      const confidence = isAnomaly ? 0.7 + Math.random() * 0.3 : 0.1 + Math.random() * 0.3;
+      const value = isAnomaly
+        ? baseValue + (Math.random() - 0.5) * 80
+        : baseValue;
+      const confidence = isAnomaly
+        ? 0.7 + Math.random() * 0.3
+        : 0.1 + Math.random() * 0.3;
 
       timeSeriesData.push({
         timestamp: timestamp,
         value: value,
         isAnomaly: isAnomaly,
-        confidence: confidence
+        confidence: confidence,
       });
     }
 
@@ -47,34 +51,38 @@ class D3ChartsDemo {
     for (let i = 0; i < 200; i++) {
       const x = Math.random() * 100;
       const y = Math.random() * 100;
-      
+
       // Create some clusters and anomalies
       const isCluster1 = Math.sqrt((x - 25) ** 2 + (y - 25) ** 2) < 15;
       const isCluster2 = Math.sqrt((x - 75) ** 2 + (y - 75) ** 2) < 15;
       const isAnomaly = !isCluster1 && !isCluster2 && Math.random() < 0.1;
-      
-      const anomalyScore = isAnomaly ? 0.7 + Math.random() * 0.3 : Math.random() * 0.3;
-      const confidence = isAnomaly ? 0.8 + Math.random() * 0.2 : 0.3 + Math.random() * 0.4;
+
+      const anomalyScore = isAnomaly
+        ? 0.7 + Math.random() * 0.3
+        : Math.random() * 0.3;
+      const confidence = isAnomaly
+        ? 0.8 + Math.random() * 0.2
+        : 0.3 + Math.random() * 0.4;
 
       scatterData.push({
         x: x,
         y: y,
         anomalyScore: anomalyScore,
         confidence: confidence,
-        isAnomaly: isAnomaly
+        isAnomaly: isAnomaly,
       });
     }
 
     // Generate heatmap data
-    const features = ['CPU', 'Memory', 'Disk', 'Network', 'Response Time'];
-    const timeSlots = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'];
-    
+    const features = ["CPU", "Memory", "Disk", "Network", "Response Time"];
+    const timeSlots = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"];
+
     for (let feature of features) {
       for (let time of timeSlots) {
         heatmapData.push({
           x: time,
           y: feature,
-          value: Math.random()
+          value: Math.random(),
         });
       }
     }
@@ -82,12 +90,12 @@ class D3ChartsDemo {
     return {
       timeSeries: timeSeriesData,
       scatter: scatterData,
-      heatmap: heatmapData
+      heatmap: heatmapData,
     };
   }
 
   setupDemoControls() {
-    const controlsContainer = document.getElementById('demo-controls');
+    const controlsContainer = document.getElementById("demo-controls");
     if (!controlsContainer) return;
 
     controlsContainer.innerHTML = `
@@ -137,7 +145,7 @@ class D3ChartsDemo {
   }
 
   createTimeSeriesDemo() {
-    const container = document.getElementById('timeseries-demo');
+    const container = document.getElementById("timeseries-demo");
     if (!container) return;
 
     container.innerHTML = `
@@ -171,37 +179,42 @@ class D3ChartsDemo {
       </div>
     `;
 
-    const chart = new TimeSeriesChart('#timeseries-chart', {
-      title: 'Anomaly Detection Timeline',
-      description: 'Time series chart showing detected anomalies with confidence intervals',
+    const chart = new TimeSeriesChart("#timeseries-chart", {
+      title: "Anomaly Detection Timeline",
+      description:
+        "Time series chart showing detected anomalies with confidence intervals",
       showConfidenceBands: true,
       animated: true,
-      responsive: true
+      responsive: true,
     });
 
     chart.setData(this.demoData.timeSeries);
-    this.charts.set('timeseries', chart);
+    this.charts.set("timeseries", chart);
 
     // Setup controls
-    document.getElementById('show-confidence')?.addEventListener('change', (e) => {
-      chart.options.showConfidenceBands = e.target.checked;
-      chart.render();
-    });
+    document
+      .getElementById("show-confidence")
+      ?.addEventListener("change", (e) => {
+        chart.options.showConfidenceBands = e.target.checked;
+        chart.render();
+      });
 
-    document.getElementById('show-anomalies')?.addEventListener('change', (e) => {
-      chart.options.showAnomalies = e.target.checked;
-      chart.render();
-    });
+    document
+      .getElementById("show-anomalies")
+      ?.addEventListener("change", (e) => {
+        chart.options.showAnomalies = e.target.checked;
+        chart.render();
+      });
 
     // Setup chart event listeners
-    container.addEventListener('anomaly-selected', (e) => {
+    container.addEventListener("anomaly-selected", (e) => {
       const { data } = e.detail;
-      this.showAnomalyDetails(data, 'Time Series');
+      this.showAnomalyDetails(data, "Time Series");
     });
   }
 
   createScatterPlotDemo() {
-    const container = document.getElementById('scatter-demo');
+    const container = document.getElementById("scatter-demo");
     if (!container) return;
 
     container.innerHTML = `
@@ -239,44 +252,47 @@ class D3ChartsDemo {
       </div>
     `;
 
-    const chart = new ScatterPlotChart('#scatter-chart', {
-      title: '2D Anomaly Detection',
-      description: 'Scatter plot showing anomalies in two-dimensional feature space',
-      xLabel: 'Feature 1',
-      yLabel: 'Feature 2',
+    const chart = new ScatterPlotChart("#scatter-chart", {
+      title: "2D Anomaly Detection",
+      description:
+        "Scatter plot showing anomalies in two-dimensional feature space",
+      xLabel: "Feature 1",
+      yLabel: "Feature 2",
       enableBrushing: true,
       enableZoom: true,
-      animated: true
+      animated: true,
     });
 
     chart.setData(this.demoData.scatter);
-    this.charts.set('scatter', chart);
+    this.charts.set("scatter", chart);
 
     // Setup controls
-    document.getElementById('enable-brushing')?.addEventListener('change', (e) => {
-      chart.options.enableBrushing = e.target.checked;
-      chart.render();
-    });
+    document
+      .getElementById("enable-brushing")
+      ?.addEventListener("change", (e) => {
+        chart.options.enableBrushing = e.target.checked;
+        chart.render();
+      });
 
-    document.getElementById('enable-zoom')?.addEventListener('change', (e) => {
+    document.getElementById("enable-zoom")?.addEventListener("change", (e) => {
       chart.options.enableZoom = e.target.checked;
       chart.render();
     });
 
     // Setup chart event listeners
-    container.addEventListener('points-selected', (e) => {
+    container.addEventListener("points-selected", (e) => {
       const { data } = e.detail;
       this.updateSelectionInfo(data);
     });
 
-    container.addEventListener('point-selected', (e) => {
+    container.addEventListener("point-selected", (e) => {
       const { data } = e.detail;
-      this.showAnomalyDetails(data, 'Scatter Plot');
+      this.showAnomalyDetails(data, "Scatter Plot");
     });
   }
 
   createHeatmapDemo() {
-    const container = document.getElementById('heatmap-demo');
+    const container = document.getElementById("heatmap-demo");
     if (!container) return;
 
     container.innerHTML = `
@@ -311,36 +327,37 @@ class D3ChartsDemo {
       </div>
     `;
 
-    const chart = new HeatmapChart('#heatmap-chart', {
-      title: 'Feature Correlation Heatmap',
-      description: 'Heatmap showing correlation values between different system features',
+    const chart = new HeatmapChart("#heatmap-chart", {
+      title: "Feature Correlation Heatmap",
+      description:
+        "Heatmap showing correlation values between different system features",
       showLabels: true,
-      animated: true
+      animated: true,
     });
 
     chart.setData(this.demoData.heatmap);
-    this.charts.set('heatmap', chart);
+    this.charts.set("heatmap", chart);
 
     // Setup controls
-    document.getElementById('show-labels')?.addEventListener('change', (e) => {
+    document.getElementById("show-labels")?.addEventListener("change", (e) => {
       chart.options.showLabels = e.target.checked;
       chart.render();
     });
 
-    document.getElementById('color-scheme')?.addEventListener('change', (e) => {
+    document.getElementById("color-scheme")?.addEventListener("change", (e) => {
       chart.options.colorScheme = d3[e.target.value];
       chart.render();
     });
 
     // Setup chart event listeners
-    container.addEventListener('cell-selected', (e) => {
+    container.addEventListener("cell-selected", (e) => {
       const { data } = e.detail;
       this.showCellDetails(data);
     });
   }
 
   createInteractiveDemo() {
-    const container = document.getElementById('interactive-demo');
+    const container = document.getElementById("interactive-demo");
     if (!container) return;
 
     container.innerHTML = `
@@ -386,29 +403,29 @@ class D3ChartsDemo {
     `;
 
     // Create mini charts for dashboard
-    const realtimeChart = new TimeSeriesChart('#realtime-chart', {
-      title: 'Real-time Anomaly Stream',
+    const realtimeChart = new TimeSeriesChart("#realtime-chart", {
+      title: "Real-time Anomaly Stream",
       height: 200,
       margin: { top: 10, right: 20, bottom: 30, left: 40 },
       showConfidenceBands: false,
-      animated: false
+      animated: false,
     });
 
-    const distributionChart = new ScatterPlotChart('#distribution-chart', {
-      title: 'Anomaly Distribution',
+    const distributionChart = new ScatterPlotChart("#distribution-chart", {
+      title: "Anomaly Distribution",
       height: 200,
       margin: { top: 10, right: 20, bottom: 30, left: 40 },
       enableBrushing: false,
       enableZoom: false,
-      animated: false
+      animated: false,
     });
 
-    const correlationChart = new HeatmapChart('#correlation-chart', {
-      title: 'Feature Correlation',
+    const correlationChart = new HeatmapChart("#correlation-chart", {
+      title: "Feature Correlation",
       height: 200,
       margin: { top: 10, right: 20, bottom: 30, left: 40 },
       showLabels: false,
-      animated: false
+      animated: false,
     });
 
     // Set initial data
@@ -416,46 +433,52 @@ class D3ChartsDemo {
     distributionChart.setData(this.demoData.scatter.slice(0, 50));
     correlationChart.setData(this.demoData.heatmap);
 
-    this.charts.set('realtime', realtimeChart);
-    this.charts.set('distribution', distributionChart);
-    this.charts.set('correlation', correlationChart);
+    this.charts.set("realtime", realtimeChart);
+    this.charts.set("distribution", distributionChart);
+    this.charts.set("correlation", correlationChart);
 
     this.updateStatistics();
   }
 
   setupEventListeners() {
     // Real-time toggle
-    document.getElementById('realtime-toggle')?.addEventListener('click', (e) => {
-      this.toggleRealTime();
-      e.target.textContent = this.isRealTimeEnabled ? 'Stop Real-Time' : 'Start Real-Time';
-    });
+    document
+      .getElementById("realtime-toggle")
+      ?.addEventListener("click", (e) => {
+        this.toggleRealTime();
+        e.target.textContent = this.isRealTimeEnabled
+          ? "Stop Real-Time"
+          : "Start Real-Time";
+      });
 
     // Theme toggle
-    document.getElementById('theme-toggle')?.addEventListener('click', (e) => {
-      const newTheme = chartLibrary.currentTheme === 'light' ? 'dark' : 'light';
+    document.getElementById("theme-toggle")?.addEventListener("click", (e) => {
+      const newTheme = chartLibrary.currentTheme === "light" ? "dark" : "light";
       this.switchTheme(newTheme);
-      e.target.textContent = `Switch to ${newTheme === 'light' ? 'Dark' : 'Light'}`;
+      e.target.textContent = `Switch to ${newTheme === "light" ? "Dark" : "Light"}`;
     });
 
     // Refresh data
-    document.getElementById('refresh-data')?.addEventListener('click', () => {
+    document.getElementById("refresh-data")?.addEventListener("click", () => {
       this.refreshAllData();
     });
 
     // Export charts
-    document.getElementById('export-charts')?.addEventListener('click', () => {
+    document.getElementById("export-charts")?.addEventListener("click", () => {
       this.exportCharts();
     });
 
     // Announce data
-    document.getElementById('announce-data')?.addEventListener('click', () => {
+    document.getElementById("announce-data")?.addEventListener("click", () => {
       this.announceDataSummary();
     });
 
     // High contrast
-    document.getElementById('high-contrast')?.addEventListener('change', (e) => {
-      document.body.classList.toggle('high-contrast', e.target.checked);
-    });
+    document
+      .getElementById("high-contrast")
+      ?.addEventListener("change", (e) => {
+        document.body.classList.toggle("high-contrast", e.target.checked);
+      });
   }
 
   toggleRealTime() {
@@ -463,7 +486,9 @@ class D3ChartsDemo {
       clearInterval(this.realTimeInterval);
       this.isRealTimeEnabled = false;
     } else {
-      const interval = parseInt(document.getElementById('update-interval')?.value || '2000');
+      const interval = parseInt(
+        document.getElementById("update-interval")?.value || "2000",
+      );
       this.realTimeInterval = setInterval(() => {
         this.updateRealTimeData();
       }, interval);
@@ -473,27 +498,33 @@ class D3ChartsDemo {
 
   updateRealTimeData() {
     // Add new data point to time series
-    const lastPoint = this.demoData.timeSeries[this.demoData.timeSeries.length - 1];
+    const lastPoint =
+      this.demoData.timeSeries[this.demoData.timeSeries.length - 1];
     const now = new Date();
-    const baseValue = 50 + 20 * Math.sin(Date.now() * 0.0001) + Math.random() * 10;
+    const baseValue =
+      50 + 20 * Math.sin(Date.now() * 0.0001) + Math.random() * 10;
     const isAnomaly = Math.random() < 0.05;
-    const value = isAnomaly ? baseValue + (Math.random() - 0.5) * 80 : baseValue;
-    
+    const value = isAnomaly
+      ? baseValue + (Math.random() - 0.5) * 80
+      : baseValue;
+
     const newPoint = {
       timestamp: now,
       value: value,
       isAnomaly: isAnomaly,
-      confidence: isAnomaly ? 0.7 + Math.random() * 0.3 : 0.1 + Math.random() * 0.3
+      confidence: isAnomaly
+        ? 0.7 + Math.random() * 0.3
+        : 0.1 + Math.random() * 0.3,
     };
 
     // Update main time series chart
-    const timeSeriesChart = this.charts.get('timeseries');
+    const timeSeriesChart = this.charts.get("timeseries");
     if (timeSeriesChart) {
       timeSeriesChart.addDataPoint(newPoint);
     }
 
     // Update real-time mini chart
-    const realtimeChart = this.charts.get('realtime');
+    const realtimeChart = this.charts.get("realtime");
     if (realtimeChart) {
       realtimeChart.addDataPoint(newPoint, 20); // Keep only last 20 points
     }
@@ -503,40 +534,44 @@ class D3ChartsDemo {
 
     // Announce significant anomalies
     if (isAnomaly && newPoint.confidence > 0.8) {
-      this.announceToScreenReader(`High confidence anomaly detected: value ${value.toFixed(2)}, confidence ${(newPoint.confidence * 100).toFixed(1)}%`);
+      this.announceToScreenReader(
+        `High confidence anomaly detected: value ${value.toFixed(2)}, confidence ${(newPoint.confidence * 100).toFixed(1)}%`,
+      );
     }
   }
 
   switchTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    
+    document.documentElement.setAttribute("data-theme", theme);
+
     // Emit theme change event
-    document.dispatchEvent(new CustomEvent('theme-changed', {
-      detail: { theme }
-    }));
+    document.dispatchEvent(
+      new CustomEvent("theme-changed", {
+        detail: { theme },
+      }),
+    );
   }
 
   refreshAllData() {
     this.demoData = this.generateDemoData();
-    
+
     this.charts.forEach((chart, key) => {
-      if (key === 'timeseries' || key === 'realtime') {
+      if (key === "timeseries" || key === "realtime") {
         chart.setData(this.demoData.timeSeries);
-      } else if (key === 'scatter' || key === 'distribution') {
+      } else if (key === "scatter" || key === "distribution") {
         chart.setData(this.demoData.scatter);
-      } else if (key === 'heatmap' || key === 'correlation') {
+      } else if (key === "heatmap" || key === "correlation") {
         chart.setData(this.demoData.heatmap);
       }
     });
 
     this.updateStatistics();
-    this.announceToScreenReader('All chart data refreshed');
+    this.announceToScreenReader("All chart data refreshed");
   }
 
   exportCharts() {
     const exportData = {
       timestamp: new Date().toISOString(),
-      charts: {}
+      charts: {},
     };
 
     this.charts.forEach((chart, key) => {
@@ -544,18 +579,18 @@ class D3ChartsDemo {
         exportData.charts[key] = {
           type: chart.constructor.name,
           data: chart.data,
-          options: chart.options
+          options: chart.options,
         };
       }
     });
 
     // Create downloadable JSON file
     const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-      type: 'application/json'
+      type: "application/json",
     });
-    
+
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `pynomaly-charts-export-${Date.now()}.json`;
     document.body.appendChild(a);
@@ -563,32 +598,38 @@ class D3ChartsDemo {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    this.announceToScreenReader('Chart data exported successfully');
+    this.announceToScreenReader("Chart data exported successfully");
   }
 
   updateStatistics() {
-    const allAnomalies = this.demoData.timeSeries.filter(d => d.isAnomaly);
+    const allAnomalies = this.demoData.timeSeries.filter((d) => d.isAnomaly);
     const totalAnomalies = allAnomalies.length;
-    const avgConfidence = totalAnomalies > 0 
-      ? allAnomalies.reduce((sum, d) => sum + d.confidence, 0) / totalAnomalies 
-      : 0;
+    const avgConfidence =
+      totalAnomalies > 0
+        ? allAnomalies.reduce((sum, d) => sum + d.confidence, 0) /
+          totalAnomalies
+        : 0;
 
-    document.getElementById('total-anomalies').textContent = totalAnomalies;
-    document.getElementById('avg-confidence').textContent = (avgConfidence * 100).toFixed(1) + '%';
-    document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+    document.getElementById("total-anomalies").textContent = totalAnomalies;
+    document.getElementById("avg-confidence").textContent =
+      (avgConfidence * 100).toFixed(1) + "%";
+    document.getElementById("last-updated").textContent =
+      new Date().toLocaleTimeString();
   }
 
   updateSelectionInfo(selectedData) {
-    const detailsElement = document.getElementById('selection-details');
+    const detailsElement = document.getElementById("selection-details");
     if (!detailsElement) return;
 
     if (selectedData.length === 0) {
-      detailsElement.textContent = 'No points selected';
+      detailsElement.textContent = "No points selected";
       return;
     }
 
-    const anomalies = selectedData.filter(d => d.isAnomaly).length;
-    const avgScore = selectedData.reduce((sum, d) => sum + d.anomalyScore, 0) / selectedData.length;
+    const anomalies = selectedData.filter((d) => d.isAnomaly).length;
+    const avgScore =
+      selectedData.reduce((sum, d) => sum + d.anomalyScore, 0) /
+      selectedData.length;
 
     detailsElement.innerHTML = `
       <strong>${selectedData.length} points selected</strong><br/>
@@ -598,8 +639,8 @@ class D3ChartsDemo {
   }
 
   showAnomalyDetails(data, chartType) {
-    const modal = document.createElement('div');
-    modal.className = 'anomaly-modal';
+    const modal = document.createElement("div");
+    modal.className = "anomaly-modal";
     modal.innerHTML = `
       <div class="modal-content">
         <div class="modal-header">
@@ -608,12 +649,12 @@ class D3ChartsDemo {
         </div>
         <div class="modal-body">
           <div class="detail-grid">
-            ${data.timestamp ? `<div><strong>Timestamp:</strong> ${data.timestamp.toLocaleString()}</div>` : ''}
-            ${data.value !== undefined ? `<div><strong>Value:</strong> ${data.value.toFixed(3)}</div>` : ''}
-            ${data.x !== undefined ? `<div><strong>X:</strong> ${data.x.toFixed(3)}</div>` : ''}
-            ${data.y !== undefined ? `<div><strong>Y:</strong> ${data.y.toFixed(3)}</div>` : ''}
-            ${data.confidence !== undefined ? `<div><strong>Confidence:</strong> ${(data.confidence * 100).toFixed(1)}%</div>` : ''}
-            ${data.anomalyScore !== undefined ? `<div><strong>Anomaly Score:</strong> ${data.anomalyScore.toFixed(3)}</div>` : ''}
+            ${data.timestamp ? `<div><strong>Timestamp:</strong> ${data.timestamp.toLocaleString()}</div>` : ""}
+            ${data.value !== undefined ? `<div><strong>Value:</strong> ${data.value.toFixed(3)}</div>` : ""}
+            ${data.x !== undefined ? `<div><strong>X:</strong> ${data.x.toFixed(3)}</div>` : ""}
+            ${data.y !== undefined ? `<div><strong>Y:</strong> ${data.y.toFixed(3)}</div>` : ""}
+            ${data.confidence !== undefined ? `<div><strong>Confidence:</strong> ${(data.confidence * 100).toFixed(1)}%</div>` : ""}
+            ${data.anomalyScore !== undefined ? `<div><strong>Anomaly Score:</strong> ${data.anomalyScore.toFixed(3)}</div>` : ""}
           </div>
         </div>
         <div class="modal-footer">
@@ -625,39 +666,43 @@ class D3ChartsDemo {
     document.body.appendChild(modal);
 
     // Setup close handlers
-    modal.querySelectorAll('.modal-close').forEach(btn => {
-      btn.addEventListener('click', () => {
+    modal.querySelectorAll(".modal-close").forEach((btn) => {
+      btn.addEventListener("click", () => {
         document.body.removeChild(modal);
       });
     });
 
     // Close on backdrop click
-    modal.addEventListener('click', (e) => {
+    modal.addEventListener("click", (e) => {
       if (e.target === modal) {
         document.body.removeChild(modal);
       }
     });
 
     // Focus management
-    const firstButton = modal.querySelector('button');
+    const firstButton = modal.querySelector("button");
     firstButton?.focus();
   }
 
   showCellDetails(data) {
-    this.announceToScreenReader(`Heatmap cell selected: ${data.x}, ${data.y}, value ${data.value.toFixed(3)}`);
+    this.announceToScreenReader(
+      `Heatmap cell selected: ${data.x}, ${data.y}, value ${data.value.toFixed(3)}`,
+    );
   }
 
   announceDataSummary() {
     const totalPoints = this.demoData.timeSeries.length;
-    const anomalies = this.demoData.timeSeries.filter(d => d.isAnomaly).length;
-    const anomalyRate = (anomalies / totalPoints * 100).toFixed(1);
-    
+    const anomalies = this.demoData.timeSeries.filter(
+      (d) => d.isAnomaly,
+    ).length;
+    const anomalyRate = ((anomalies / totalPoints) * 100).toFixed(1);
+
     const message = `Data summary: ${totalPoints} total data points, ${anomalies} anomalies detected, ${anomalyRate}% anomaly rate`;
     this.announceToScreenReader(message);
   }
 
   announceToScreenReader(message) {
-    const announcer = document.getElementById('chart-announcer');
+    const announcer = document.getElementById("chart-announcer");
     if (announcer) {
       announcer.textContent = message;
     }
@@ -667,24 +712,24 @@ class D3ChartsDemo {
     if (this.realTimeInterval) {
       clearInterval(this.realTimeInterval);
     }
-    
-    this.charts.forEach(chart => {
+
+    this.charts.forEach((chart) => {
       chart.destroy();
     });
-    
+
     this.charts.clear();
   }
 }
 
 // Auto-initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-  if (document.querySelector('.d3-charts-demo')) {
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.querySelector(".d3-charts-demo")) {
     window.d3ChartsDemo = new D3ChartsDemo();
   }
 });
 
 // Export for module usage
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module !== "undefined" && module.exports) {
   module.exports = D3ChartsDemo;
 } else {
   window.D3ChartsDemo = D3ChartsDemo;

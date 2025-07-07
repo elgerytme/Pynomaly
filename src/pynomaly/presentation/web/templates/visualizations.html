@@ -1,84 +1,129 @@
-{% extends "base.html" %}
-
-{% block title %}Visualizations - Pynomaly{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Visualizations - Pynomaly{% endblock
+%} {% block content %}
 <div class="px-4 py-6 sm:px-0">
-    <!-- Header -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Visualizations</h1>
-        <p class="mt-2 text-gray-600">Interactive charts and dashboards for anomaly analysis</p>
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Visualizations</h1>
+    <p class="mt-2 text-gray-600">
+      Interactive charts and dashboards for anomaly analysis
+    </p>
+  </div>
+
+  <!-- Visualization Controls -->
+  <div class="bg-white shadow rounded-lg mb-6">
+    <div class="px-4 py-5 sm:p-6">
+      <div class="viz-controls">
+        <button
+          onclick="updateTimeRange('1h')"
+          class="viz-control-button"
+          data-range="1h"
+        >
+          1 Hour
+        </button>
+        <button
+          onclick="updateTimeRange('24h')"
+          class="viz-control-button active"
+          data-range="24h"
+        >
+          24 Hours
+        </button>
+        <button
+          onclick="updateTimeRange('7d')"
+          class="viz-control-button"
+          data-range="7d"
+        >
+          7 Days
+        </button>
+        <button
+          onclick="updateTimeRange('30d')"
+          class="viz-control-button"
+          data-range="30d"
+        >
+          30 Days
+        </button>
+        <button onclick="refreshCharts()" class="viz-control-button ml-auto">
+          <svg
+            class="h-4 w-4 inline"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            ></path>
+          </svg>
+          Refresh
+        </button>
+      </div>
     </div>
-    
-    <!-- Visualization Controls -->
-    <div class="bg-white shadow rounded-lg mb-6">
-        <div class="px-4 py-5 sm:p-6">
-            <div class="viz-controls">
-                <button onclick="updateTimeRange('1h')" class="viz-control-button" data-range="1h">1 Hour</button>
-                <button onclick="updateTimeRange('24h')" class="viz-control-button active" data-range="24h">24 Hours</button>
-                <button onclick="updateTimeRange('7d')" class="viz-control-button" data-range="7d">7 Days</button>
-                <button onclick="updateTimeRange('30d')" class="viz-control-button" data-range="30d">30 Days</button>
-                <button onclick="refreshCharts()" class="viz-control-button ml-auto">
-                    <svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                    </svg>
-                    Refresh
-                </button>
-            </div>
-        </div>
+  </div>
+
+  <!-- Charts Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- D3.js Anomaly Timeline -->
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">
+          Anomaly Detection Timeline
+        </h2>
+        <div id="timeline-chart" class="chart-container"></div>
+      </div>
     </div>
-    
-    <!-- Charts Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- D3.js Anomaly Timeline -->
-        <div class="bg-white shadow rounded-lg">
-            <div class="px-4 py-5 sm:p-6">
-                <h2 class="text-lg font-medium text-gray-900 mb-4">Anomaly Detection Timeline</h2>
-                <div id="timeline-chart" class="chart-container"></div>
-            </div>
-        </div>
-        
-        <!-- ECharts Anomaly Rate Distribution -->
-        <div class="bg-white shadow rounded-lg">
-            <div class="px-4 py-5 sm:p-6">
-                <h2 class="text-lg font-medium text-gray-900 mb-4">Anomaly Rate by Detector</h2>
-                <div id="rate-chart" class="chart-container"></div>
-            </div>
-        </div>
-        
-        <!-- D3.js Scatter Plot -->
-        <div class="bg-white shadow rounded-lg">
-            <div class="px-4 py-5 sm:p-6">
-                <h2 class="text-lg font-medium text-gray-900 mb-4">Anomaly Score Distribution</h2>
-                <div id="scatter-chart" class="chart-container"></div>
-            </div>
-        </div>
-        
-        <!-- ECharts Heatmap -->
-        <div class="bg-white shadow rounded-lg">
-            <div class="px-4 py-5 sm:p-6">
-                <h2 class="text-lg font-medium text-gray-900 mb-4">Detection Heatmap</h2>
-                <div id="heatmap-chart" class="chart-container"></div>
-            </div>
-        </div>
+
+    <!-- ECharts Anomaly Rate Distribution -->
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">
+          Anomaly Rate by Detector
+        </h2>
+        <div id="rate-chart" class="chart-container"></div>
+      </div>
     </div>
-    
-    <!-- Full Width Dashboard -->
-    <div class="mt-6 bg-white shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-            <h2 class="text-lg font-medium text-gray-900 mb-4">Performance Dashboard</h2>
-            <div id="dashboard-chart" class="chart-container" style="height: 600px;"></div>
-        </div>
+
+    <!-- D3.js Scatter Plot -->
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">
+          Anomaly Score Distribution
+        </h2>
+        <div id="scatter-chart" class="chart-container"></div>
+      </div>
     </div>
+
+    <!-- ECharts Heatmap -->
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">
+          Detection Heatmap
+        </h2>
+        <div id="heatmap-chart" class="chart-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full Width Dashboard -->
+  <div class="mt-6 bg-white shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <h2 class="text-lg font-medium text-gray-900 mb-4">
+        Performance Dashboard
+      </h2>
+      <div
+        id="dashboard-chart"
+        class="chart-container"
+        style="height: 600px"
+      ></div>
+    </div>
+  </div>
 </div>
 
 <!-- Pass data to JavaScript -->
 <script>
-    const detectionTimeline = {{ detection_timeline | tojson }};
-    const anomalyRates = {{ anomaly_rates | tojson }};
+  const detectionTimeline = {{ detection_timeline | tojson }};
+  const anomalyRates = {{ anomaly_rates | tojson }};
 </script>
-{% endblock %}
-
-{% block scripts %}
+{% endblock %} {% block scripts %}
 <script src="/static/js/visualizations.js"></script>
 {% endblock %}

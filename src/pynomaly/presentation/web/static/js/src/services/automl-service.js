@@ -8,40 +8,40 @@
  * Hyperparameter Optimization Algorithms
  */
 const OPTIMIZATION_ALGORITHMS = {
-  GRID_SEARCH: 'grid_search',
-  RANDOM_SEARCH: 'random_search',
-  BAYESIAN: 'bayesian',
-  EVOLUTIONARY: 'evolutionary',
-  OPTUNA: 'optuna',
-  HYPEROPT: 'hyperopt'
+  GRID_SEARCH: "grid_search",
+  RANDOM_SEARCH: "random_search",
+  BAYESIAN: "bayesian",
+  EVOLUTIONARY: "evolutionary",
+  OPTUNA: "optuna",
+  HYPEROPT: "hyperopt",
 };
 
 /**
  * Model Selection Strategies
  */
 const MODEL_SELECTION_STRATEGIES = {
-  BEST_SINGLE: 'best_single',
-  ENSEMBLE: 'ensemble',
-  STACKING: 'stacking',
-  VOTING: 'voting',
-  WEIGHTED_AVERAGE: 'weighted_average'
+  BEST_SINGLE: "best_single",
+  ENSEMBLE: "ensemble",
+  STACKING: "stacking",
+  VOTING: "voting",
+  WEIGHTED_AVERAGE: "weighted_average",
 };
 
 /**
  * AutoML Pipeline Status
  */
 const PIPELINE_STATUS = {
-  INITIALIZING: 'initializing',
-  DATA_PREPROCESSING: 'data_preprocessing',
-  FEATURE_ENGINEERING: 'feature_engineering',
-  MODEL_SEARCH: 'model_search',
-  HYPERPARAMETER_OPTIMIZATION: 'hyperparameter_optimization',
-  MODEL_VALIDATION: 'model_validation',
-  ENSEMBLE_CREATION: 'ensemble_creation',
-  FINAL_TRAINING: 'final_training',
-  COMPLETED: 'completed',
-  FAILED: 'failed',
-  CANCELLED: 'cancelled'
+  INITIALIZING: "initializing",
+  DATA_PREPROCESSING: "data_preprocessing",
+  FEATURE_ENGINEERING: "feature_engineering",
+  MODEL_SEARCH: "model_search",
+  HYPERPARAMETER_OPTIMIZATION: "hyperparameter_optimization",
+  MODEL_VALIDATION: "model_validation",
+  ENSEMBLE_CREATION: "ensemble_creation",
+  FINAL_TRAINING: "final_training",
+  COMPLETED: "completed",
+  FAILED: "failed",
+  CANCELLED: "cancelled",
 };
 
 /**
@@ -53,11 +53,11 @@ class AutoMLConfig {
     this.defaultConfig = {
       // Data preprocessing
       preprocessing: {
-        handle_missing: 'auto', // 'auto', 'drop', 'impute'
-        scaling: 'auto', // 'auto', 'standard', 'minmax', 'robust', 'none'
+        handle_missing: "auto", // 'auto', 'drop', 'impute'
+        scaling: "auto", // 'auto', 'standard', 'minmax', 'robust', 'none'
         feature_selection: true,
         max_features: 1000,
-        categorical_encoding: 'auto' // 'auto', 'onehot', 'label', 'target'
+        categorical_encoding: "auto", // 'auto', 'onehot', 'label', 'target'
       },
 
       // Feature engineering
@@ -66,26 +66,26 @@ class AutoMLConfig {
         interaction_features: true,
         statistical_features: true,
         time_features: true, // For time series data
-        max_polynomial_degree: 2
+        max_polynomial_degree: 2,
       },
 
       // Model search
       model_search: {
         algorithms: [
-          'isolation_forest',
-          'local_outlier_factor',
-          'one_class_svm',
-          'elliptic_envelope',
-          'autoencoder',
-          'deep_svdd',
-          'copod',
-          'ecod',
-          'feature_bagging',
-          'histogram_based'
+          "isolation_forest",
+          "local_outlier_factor",
+          "one_class_svm",
+          "elliptic_envelope",
+          "autoencoder",
+          "deep_svdd",
+          "copod",
+          "ecod",
+          "feature_bagging",
+          "histogram_based",
         ],
         max_trials: 50,
         early_stopping: true,
-        early_stopping_patience: 10
+        early_stopping_patience: 10,
       },
 
       // Hyperparameter optimization
@@ -95,8 +95,8 @@ class AutoMLConfig {
         timeout_minutes: 60,
         n_jobs: -1,
         cv_folds: 5,
-        scoring_metric: 'roc_auc',
-        optimization_direction: 'maximize'
+        scoring_metric: "roc_auc",
+        optimization_direction: "maximize",
       },
 
       // Model validation
@@ -107,7 +107,7 @@ class AutoMLConfig {
         cv_folds: 5,
         stratify: false, // For anomaly detection, usually false
         shuffle: true,
-        random_state: 42
+        random_state: 42,
       },
 
       // Ensemble methods
@@ -115,8 +115,8 @@ class AutoMLConfig {
         enable: true,
         strategy: MODEL_SELECTION_STRATEGIES.ENSEMBLE,
         max_models: 5,
-        ensemble_method: 'voting', // 'voting', 'stacking', 'blending'
-        meta_learner: 'logistic_regression'
+        ensemble_method: "voting", // 'voting', 'stacking', 'blending'
+        meta_learner: "logistic_regression",
       },
 
       // Performance and resources
@@ -125,16 +125,16 @@ class AutoMLConfig {
         memory_limit_gb: 8,
         gpu_enabled: false,
         distributed: false,
-        n_jobs: -1
+        n_jobs: -1,
       },
 
       // Monitoring and logging
       monitoring: {
-        log_level: 'INFO',
+        log_level: "INFO",
         save_intermediate_results: true,
         progress_reporting_interval: 30, // seconds
-        checkpoint_frequency: 10 // trials
-      }
+        checkpoint_frequency: 10, // trials
+      },
     };
   }
 
@@ -147,49 +147,63 @@ class AutoMLConfig {
 
     // Validate required fields
     if (!config.model_search?.algorithms?.length) {
-      errors.push('At least one algorithm must be specified');
+      errors.push("At least one algorithm must be specified");
     }
 
     if (config.hyperparameter_optimization?.max_evaluations <= 0) {
-      errors.push('max_evaluations must be positive');
+      errors.push("max_evaluations must be positive");
     }
 
-    if (config.validation?.test_size <= 0 || config.validation?.test_size >= 1) {
-      errors.push('test_size must be between 0 and 1');
+    if (
+      config.validation?.test_size <= 0 ||
+      config.validation?.test_size >= 1
+    ) {
+      errors.push("test_size must be between 0 and 1");
     }
 
     // Validate algorithm availability
     const availableAlgorithms = [
-      'isolation_forest', 'local_outlier_factor', 'one_class_svm',
-      'elliptic_envelope', 'autoencoder', 'deep_svdd', 'copod',
-      'ecod', 'feature_bagging', 'histogram_based'
+      "isolation_forest",
+      "local_outlier_factor",
+      "one_class_svm",
+      "elliptic_envelope",
+      "autoencoder",
+      "deep_svdd",
+      "copod",
+      "ecod",
+      "feature_bagging",
+      "histogram_based",
     ];
 
     const invalidAlgorithms = config.model_search.algorithms.filter(
-      alg => !availableAlgorithms.includes(alg)
+      (alg) => !availableAlgorithms.includes(alg),
     );
 
     if (invalidAlgorithms.length > 0) {
-      errors.push(`Invalid algorithms: ${invalidAlgorithms.join(', ')}`);
+      errors.push(`Invalid algorithms: ${invalidAlgorithms.join(", ")}`);
     }
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     };
   }
 
   deepMerge(target, source) {
     const result = { ...target };
-    
+
     for (const key in source) {
-      if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+      if (
+        source[key] &&
+        typeof source[key] === "object" &&
+        !Array.isArray(source[key])
+      ) {
         result[key] = this.deepMerge(target[key] || {}, source[key]);
       } else {
         result[key] = source[key];
       }
     }
-    
+
     return result;
   }
 }
@@ -202,7 +216,7 @@ class AutoMLPipeline {
   constructor(config = {}) {
     this.configManager = new AutoMLConfig();
     this.config = this.configManager.createConfig(config);
-    
+
     // Pipeline state
     this.pipelineId = this.generatePipelineId();
     this.status = PIPELINE_STATUS.INITIALIZING;
@@ -210,7 +224,7 @@ class AutoMLPipeline {
     this.totalSteps = 7;
     this.startTime = null;
     this.endTime = null;
-    
+
     // Results storage
     this.results = {
       preprocessing: null,
@@ -220,21 +234,21 @@ class AutoMLPipeline {
       ensemble_model: null,
       final_model: null,
       evaluation_metrics: null,
-      training_history: []
+      training_history: [],
     };
-    
+
     // Progress tracking
     this.progress = {
       overall: 0,
       step_progress: 0,
       current_trial: 0,
       total_trials: 0,
-      estimated_time_remaining: null
+      estimated_time_remaining: null,
     };
-    
+
     // Event system
     this.eventListeners = new Map();
-    
+
     // Cancellation support
     this.isCancelled = false;
     this.cancelToken = null;
@@ -247,23 +261,31 @@ class AutoMLPipeline {
     try {
       this.startTime = Date.now();
       this.status = PIPELINE_STATUS.INITIALIZING;
-      this.emit('pipeline_started', { pipelineId: this.pipelineId, config: this.config });
+      this.emit("pipeline_started", {
+        pipelineId: this.pipelineId,
+        config: this.config,
+      });
 
       // Validate configuration
       const configValidation = this.configManager.validateConfig(this.config);
       if (!configValidation.isValid) {
-        throw new Error(`Configuration validation failed: ${configValidation.errors.join(', ')}`);
+        throw new Error(
+          `Configuration validation failed: ${configValidation.errors.join(", ")}`,
+        );
       }
 
       // Step 1: Data preprocessing
       await this.executeStep(PIPELINE_STATUS.DATA_PREPROCESSING, async () => {
-        this.results.preprocessing = await this.preprocessData(dataset, target_column);
+        this.results.preprocessing = await this.preprocessData(
+          dataset,
+          target_column,
+        );
       });
 
       // Step 2: Feature engineering
       await this.executeStep(PIPELINE_STATUS.FEATURE_ENGINEERING, async () => {
         this.results.feature_engineering = await this.engineerFeatures(
-          this.results.preprocessing.processed_data
+          this.results.preprocessing.processed_data,
         );
       });
 
@@ -271,19 +293,23 @@ class AutoMLPipeline {
       await this.executeStep(PIPELINE_STATUS.MODEL_SEARCH, async () => {
         this.results.model_trials = await this.searchModels(
           this.results.feature_engineering.features,
-          this.results.preprocessing.target
+          this.results.preprocessing.target,
         );
       });
 
       // Step 4: Model validation
       await this.executeStep(PIPELINE_STATUS.MODEL_VALIDATION, async () => {
-        this.results.best_models = await this.validateModels(this.results.model_trials);
+        this.results.best_models = await this.validateModels(
+          this.results.model_trials,
+        );
       });
 
       // Step 5: Ensemble creation (if enabled)
       if (this.config.ensemble.enable) {
         await this.executeStep(PIPELINE_STATUS.ENSEMBLE_CREATION, async () => {
-          this.results.ensemble_model = await this.createEnsemble(this.results.best_models);
+          this.results.ensemble_model = await this.createEnsemble(
+            this.results.best_models,
+          );
         });
       }
 
@@ -298,49 +324,53 @@ class AutoMLPipeline {
       this.progress.overall = 100;
 
       const finalResults = this.compileFinalResults();
-      this.emit('pipeline_completed', finalResults);
+      this.emit("pipeline_completed", finalResults);
 
       return finalResults;
-
     } catch (error) {
       this.status = PIPELINE_STATUS.FAILED;
       this.endTime = Date.now();
-      this.emit('pipeline_failed', { error: error.message, pipelineId: this.pipelineId });
+      this.emit("pipeline_failed", {
+        error: error.message,
+        pipelineId: this.pipelineId,
+      });
       throw error;
     }
   }
 
   async executeStep(stepStatus, stepFunction) {
     if (this.isCancelled) {
-      throw new Error('Pipeline was cancelled');
+      throw new Error("Pipeline was cancelled");
     }
 
     this.status = stepStatus;
     this.currentStep++;
-    this.progress.overall = Math.round((this.currentStep / this.totalSteps) * 100);
-    
-    this.emit('step_started', {
+    this.progress.overall = Math.round(
+      (this.currentStep / this.totalSteps) * 100,
+    );
+
+    this.emit("step_started", {
       step: stepStatus,
       progress: this.progress.overall,
       step_number: this.currentStep,
-      total_steps: this.totalSteps
+      total_steps: this.totalSteps,
     });
 
     const stepStartTime = Date.now();
-    
+
     try {
       await stepFunction();
-      
+
       const stepDuration = Date.now() - stepStartTime;
-      this.emit('step_completed', {
+      this.emit("step_completed", {
         step: stepStatus,
         duration: stepDuration,
-        progress: this.progress.overall
+        progress: this.progress.overall,
       });
     } catch (error) {
-      this.emit('step_failed', {
+      this.emit("step_failed", {
         step: stepStatus,
-        error: error.message
+        error: error.message,
       });
       throw error;
     }
@@ -350,7 +380,9 @@ class AutoMLPipeline {
    * Data Preprocessing
    */
   async preprocessData(dataset, target_column) {
-    this.emit('preprocessing_started', { dataset_shape: this.getDatasetShape(dataset) });
+    this.emit("preprocessing_started", {
+      dataset_shape: this.getDatasetShape(dataset),
+    });
 
     const preprocessingResult = {
       original_shape: this.getDatasetShape(dataset),
@@ -358,43 +390,48 @@ class AutoMLPipeline {
       target: null,
       preprocessing_steps: [],
       feature_names: [],
-      statistics: {}
+      statistics: {},
     };
 
     // Simulate preprocessing steps
     const steps = [
-      'Analyzing data structure',
-      'Handling missing values',
-      'Feature scaling',
-      'Outlier detection',
-      'Feature selection'
+      "Analyzing data structure",
+      "Handling missing values",
+      "Feature scaling",
+      "Outlier detection",
+      "Feature selection",
     ];
 
     for (let i = 0; i < steps.length; i++) {
       if (this.isCancelled) return;
-      
+
       this.progress.step_progress = Math.round(((i + 1) / steps.length) * 100);
-      this.emit('preprocessing_progress', {
+      this.emit("preprocessing_progress", {
         step: steps[i],
-        progress: this.progress.step_progress
+        progress: this.progress.step_progress,
       });
-      
+
       // Simulate processing time
       await this.sleep(1000);
-      
+
       preprocessingResult.preprocessing_steps.push({
         step: steps[i],
         completed: true,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     }
 
     // Generate mock processed data
-    preprocessingResult.processed_data = this.generateMockProcessedData(dataset);
-    preprocessingResult.feature_names = this.generateFeatureNames(preprocessingResult.processed_data);
-    preprocessingResult.statistics = this.calculateDataStatistics(preprocessingResult.processed_data);
+    preprocessingResult.processed_data =
+      this.generateMockProcessedData(dataset);
+    preprocessingResult.feature_names = this.generateFeatureNames(
+      preprocessingResult.processed_data,
+    );
+    preprocessingResult.statistics = this.calculateDataStatistics(
+      preprocessingResult.processed_data,
+    );
 
-    this.emit('preprocessing_completed', preprocessingResult);
+    this.emit("preprocessing_completed", preprocessingResult);
     return preprocessingResult;
   }
 
@@ -402,48 +439,55 @@ class AutoMLPipeline {
    * Feature Engineering
    */
   async engineerFeatures(processedData) {
-    this.emit('feature_engineering_started');
+    this.emit("feature_engineering_started");
 
     const featureResult = {
       original_features: processedData.length,
       engineered_features: null,
       feature_importance: {},
       feature_transformations: [],
-      new_feature_count: 0
+      new_feature_count: 0,
     };
 
     const engineeringSteps = [
-      'Statistical feature generation',
-      'Polynomial features',
-      'Interaction features',
-      'Time-based features',
-      'Feature selection'
+      "Statistical feature generation",
+      "Polynomial features",
+      "Interaction features",
+      "Time-based features",
+      "Feature selection",
     ];
 
     for (let i = 0; i < engineeringSteps.length; i++) {
       if (this.isCancelled) return;
-      
-      this.progress.step_progress = Math.round(((i + 1) / engineeringSteps.length) * 100);
-      this.emit('feature_engineering_progress', {
+
+      this.progress.step_progress = Math.round(
+        ((i + 1) / engineeringSteps.length) * 100,
+      );
+      this.emit("feature_engineering_progress", {
         step: engineeringSteps[i],
-        progress: this.progress.step_progress
+        progress: this.progress.step_progress,
       });
-      
+
       await this.sleep(800);
-      
+
       featureResult.feature_transformations.push({
         transformation: engineeringSteps[i],
         features_added: Math.floor(Math.random() * 10) + 1,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     }
 
     // Generate mock feature engineering results
-    featureResult.engineered_features = this.generateMockEngineeredFeatures(processedData);
-    featureResult.new_feature_count = featureResult.engineered_features.length - featureResult.original_features;
-    featureResult.feature_importance = this.generateMockFeatureImportance(featureResult.engineered_features);
+    featureResult.engineered_features =
+      this.generateMockEngineeredFeatures(processedData);
+    featureResult.new_feature_count =
+      featureResult.engineered_features.length -
+      featureResult.original_features;
+    featureResult.feature_importance = this.generateMockFeatureImportance(
+      featureResult.engineered_features,
+    );
 
-    this.emit('feature_engineering_completed', featureResult);
+    this.emit("feature_engineering_completed", featureResult);
     return featureResult;
   }
 
@@ -451,41 +495,49 @@ class AutoMLPipeline {
    * Model Search and Hyperparameter Optimization
    */
   async searchModels(features, target) {
-    this.emit('model_search_started', {
+    this.emit("model_search_started", {
       algorithms: this.config.model_search.algorithms,
-      max_trials: this.config.hyperparameter_optimization.max_evaluations
+      max_trials: this.config.hyperparameter_optimization.max_evaluations,
     });
 
     const modelTrials = [];
     const algorithms = this.config.model_search.algorithms;
-    const trialsPerAlgorithm = Math.floor(this.config.hyperparameter_optimization.max_evaluations / algorithms.length);
-    
+    const trialsPerAlgorithm = Math.floor(
+      this.config.hyperparameter_optimization.max_evaluations /
+        algorithms.length,
+    );
+
     this.progress.total_trials = algorithms.length * trialsPerAlgorithm;
     this.progress.current_trial = 0;
 
     for (const algorithm of algorithms) {
       if (this.isCancelled) return modelTrials;
 
-      this.emit('algorithm_started', { algorithm });
+      this.emit("algorithm_started", { algorithm });
 
       // Perform hyperparameter optimization for this algorithm
-      const algorithmTrials = await this.optimizeHyperparameters(algorithm, features, target, trialsPerAlgorithm);
+      const algorithmTrials = await this.optimizeHyperparameters(
+        algorithm,
+        features,
+        target,
+        trialsPerAlgorithm,
+      );
       modelTrials.push(...algorithmTrials);
 
-      this.emit('algorithm_completed', {
+      this.emit("algorithm_completed", {
         algorithm,
         trials: algorithmTrials.length,
-        best_score: Math.max(...algorithmTrials.map(t => t.score))
+        best_score: Math.max(...algorithmTrials.map((t) => t.score)),
       });
     }
 
     // Sort trials by score
     modelTrials.sort((a, b) => b.score - a.score);
 
-    this.emit('model_search_completed', {
+    this.emit("model_search_completed", {
       total_trials: modelTrials.length,
       best_score: modelTrials[0]?.score,
-      best_algorithm: modelTrials[0]?.algorithm
+      best_algorithm: modelTrials[0]?.algorithm,
     });
 
     return modelTrials;
@@ -499,21 +551,31 @@ class AutoMLPipeline {
       if (this.isCancelled) return trials;
 
       this.progress.current_trial++;
-      this.progress.step_progress = Math.round((this.progress.current_trial / this.progress.total_trials) * 100);
+      this.progress.step_progress = Math.round(
+        (this.progress.current_trial / this.progress.total_trials) * 100,
+      );
 
       // Generate hyperparameters based on optimization algorithm
-      const hyperparameters = this.sampleHyperparameters(hyperparameterSpace, this.config.hyperparameter_optimization.algorithm);
-      
+      const hyperparameters = this.sampleHyperparameters(
+        hyperparameterSpace,
+        this.config.hyperparameter_optimization.algorithm,
+      );
+
       // Simulate model training and evaluation
-      const trial = await this.evaluateModel(algorithm, hyperparameters, features, target);
+      const trial = await this.evaluateModel(
+        algorithm,
+        hyperparameters,
+        features,
+        target,
+      );
       trials.push(trial);
 
-      this.emit('trial_completed', {
+      this.emit("trial_completed", {
         trial_number: this.progress.current_trial,
         algorithm,
         score: trial.score,
         hyperparameters: trial.hyperparameters,
-        progress: this.progress.step_progress
+        progress: this.progress.step_progress,
       });
 
       // Simulate training time
@@ -534,7 +596,10 @@ class AutoMLPipeline {
     }
 
     const score = cvScores.reduce((sum, s) => sum + s, 0) / cvScores.length;
-    const std = Math.sqrt(cvScores.reduce((sum, s) => sum + Math.pow(s - score, 2), 0) / cvScores.length);
+    const std = Math.sqrt(
+      cvScores.reduce((sum, s) => sum + Math.pow(s - score, 2), 0) /
+        cvScores.length,
+    );
 
     return {
       trial_id: this.generateTrialId(),
@@ -545,7 +610,7 @@ class AutoMLPipeline {
       cv_std: std,
       training_time: Math.random() * 60 + 10, // 10-70 seconds
       evaluation_metrics: this.generateMockEvaluationMetrics(score),
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
   }
 
@@ -553,7 +618,7 @@ class AutoMLPipeline {
    * Model Validation
    */
   async validateModels(modelTrials) {
-    this.emit('model_validation_started', { total_models: modelTrials.length });
+    this.emit("model_validation_started", { total_models: modelTrials.length });
 
     // Select top models for validation
     const topModels = modelTrials.slice(0, Math.min(10, modelTrials.length));
@@ -563,20 +628,22 @@ class AutoMLPipeline {
       if (this.isCancelled) return validatedModels;
 
       const model = topModels[i];
-      this.progress.step_progress = Math.round(((i + 1) / topModels.length) * 100);
+      this.progress.step_progress = Math.round(
+        ((i + 1) / topModels.length) * 100,
+      );
 
-      this.emit('model_validation_progress', {
+      this.emit("model_validation_progress", {
         model_index: i + 1,
         total_models: topModels.length,
         algorithm: model.algorithm,
-        progress: this.progress.step_progress
+        progress: this.progress.step_progress,
       });
 
       // Perform detailed validation
       const validationResult = await this.performDetailedValidation(model);
       validatedModels.push({
         ...model,
-        validation: validationResult
+        validation: validationResult,
       });
 
       await this.sleep(600);
@@ -585,9 +652,9 @@ class AutoMLPipeline {
     // Sort by validation score
     validatedModels.sort((a, b) => b.validation.score - a.validation.score);
 
-    this.emit('model_validation_completed', {
+    this.emit("model_validation_completed", {
       validated_models: validatedModels.length,
-      best_validation_score: validatedModels[0]?.validation.score
+      best_validation_score: validatedModels[0]?.validation.score,
     });
 
     return validatedModels;
@@ -597,16 +664,25 @@ class AutoMLPipeline {
     // Simulate detailed validation including various metrics
     const baseScore = model.score;
     const noise = (Math.random() - 0.5) * 0.05;
-    
+
     return {
       score: Math.max(0, Math.min(1, baseScore + noise)),
-      precision: Math.max(0, Math.min(1, baseScore + (Math.random() - 0.5) * 0.1)),
+      precision: Math.max(
+        0,
+        Math.min(1, baseScore + (Math.random() - 0.5) * 0.1),
+      ),
       recall: Math.max(0, Math.min(1, baseScore + (Math.random() - 0.5) * 0.1)),
-      f1_score: Math.max(0, Math.min(1, baseScore + (Math.random() - 0.5) * 0.08)),
-      roc_auc: Math.max(0, Math.min(1, baseScore + (Math.random() - 0.5) * 0.06)),
+      f1_score: Math.max(
+        0,
+        Math.min(1, baseScore + (Math.random() - 0.5) * 0.08),
+      ),
+      roc_auc: Math.max(
+        0,
+        Math.min(1, baseScore + (Math.random() - 0.5) * 0.06),
+      ),
       confusion_matrix: this.generateMockConfusionMatrix(),
       feature_importance: this.generateMockFeatureImportance(),
-      validation_time: Math.random() * 30 + 5
+      validation_time: Math.random() * 30 + 5,
     };
   }
 
@@ -618,52 +694,64 @@ class AutoMLPipeline {
       return null;
     }
 
-    this.emit('ensemble_creation_started', {
+    this.emit("ensemble_creation_started", {
       strategy: this.config.ensemble.strategy,
-      num_models: Math.min(this.config.ensemble.max_models, validatedModels.length)
+      num_models: Math.min(
+        this.config.ensemble.max_models,
+        validatedModels.length,
+      ),
     });
 
-    const selectedModels = validatedModels.slice(0, this.config.ensemble.max_models);
-    
+    const selectedModels = validatedModels.slice(
+      0,
+      this.config.ensemble.max_models,
+    );
+
     // Simulate ensemble creation
     const ensembleSteps = [
-      'Model selection for ensemble',
-      'Weight optimization',
-      'Ensemble training',
-      'Ensemble validation'
+      "Model selection for ensemble",
+      "Weight optimization",
+      "Ensemble training",
+      "Ensemble validation",
     ];
 
     for (let i = 0; i < ensembleSteps.length; i++) {
       if (this.isCancelled) return null;
-      
-      this.progress.step_progress = Math.round(((i + 1) / ensembleSteps.length) * 100);
-      this.emit('ensemble_progress', {
+
+      this.progress.step_progress = Math.round(
+        ((i + 1) / ensembleSteps.length) * 100,
+      );
+      this.emit("ensemble_progress", {
         step: ensembleSteps[i],
-        progress: this.progress.step_progress
+        progress: this.progress.step_progress,
       });
-      
+
       await this.sleep(800);
     }
 
     const ensembleResult = {
       ensemble_id: this.generateEnsembleId(),
       strategy: this.config.ensemble.strategy,
-      models: selectedModels.map(m => ({
+      models: selectedModels.map((m) => ({
         algorithm: m.algorithm,
         weight: Math.random(),
-        model_id: m.trial_id
+        model_id: m.trial_id,
       })),
-      ensemble_score: Math.max(...selectedModels.map(m => m.validation.score)) + 0.02,
-      creation_time: Date.now()
+      ensemble_score:
+        Math.max(...selectedModels.map((m) => m.validation.score)) + 0.02,
+      creation_time: Date.now(),
     };
 
     // Normalize weights
-    const totalWeight = ensembleResult.models.reduce((sum, m) => sum + m.weight, 0);
-    ensembleResult.models.forEach(m => {
+    const totalWeight = ensembleResult.models.reduce(
+      (sum, m) => sum + m.weight,
+      0,
+    );
+    ensembleResult.models.forEach((m) => {
       m.weight = m.weight / totalWeight;
     });
 
-    this.emit('ensemble_creation_completed', ensembleResult);
+    this.emit("ensemble_creation_completed", ensembleResult);
     return ensembleResult;
   }
 
@@ -671,41 +759,44 @@ class AutoMLPipeline {
    * Final Training
    */
   async finalTraining() {
-    this.emit('final_training_started');
+    this.emit("final_training_started");
 
-    const finalModel = this.results.ensemble_model || this.results.best_models[0];
-    
+    const finalModel =
+      this.results.ensemble_model || this.results.best_models[0];
+
     const trainingSteps = [
-      'Preparing full dataset',
-      'Training final model',
-      'Model serialization',
-      'Performance validation'
+      "Preparing full dataset",
+      "Training final model",
+      "Model serialization",
+      "Performance validation",
     ];
 
     for (let i = 0; i < trainingSteps.length; i++) {
       if (this.isCancelled) return null;
-      
-      this.progress.step_progress = Math.round(((i + 1) / trainingSteps.length) * 100);
-      this.emit('final_training_progress', {
+
+      this.progress.step_progress = Math.round(
+        ((i + 1) / trainingSteps.length) * 100,
+      );
+      this.emit("final_training_progress", {
         step: trainingSteps[i],
-        progress: this.progress.step_progress
+        progress: this.progress.step_progress,
       });
-      
+
       await this.sleep(1000);
     }
 
     const finalResult = {
       model_id: this.generateModelId(),
-      model_type: finalModel.ensemble_id ? 'ensemble' : 'single',
-      algorithm: finalModel.algorithm || 'ensemble',
+      model_type: finalModel.ensemble_id ? "ensemble" : "single",
+      algorithm: finalModel.algorithm || "ensemble",
       final_score: finalModel.ensemble_score || finalModel.validation.score,
       training_time: Date.now() - this.startTime,
       model_size_mb: Math.random() * 50 + 10,
       deployment_ready: true,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
-    this.emit('final_training_completed', finalResult);
+    this.emit("final_training_completed", finalResult);
     return finalResult;
   }
 
@@ -714,84 +805,97 @@ class AutoMLPipeline {
    */
   compileFinalResults() {
     const totalDuration = this.endTime - this.startTime;
-    
+
     return {
       pipeline_id: this.pipelineId,
       status: this.status,
       duration_ms: totalDuration,
       duration_human: this.formatDuration(totalDuration),
-      
+
       // Data insights
       data_insights: {
-        original_features: this.results.preprocessing?.original_shape?.features || 0,
-        engineered_features: this.results.feature_engineering?.new_feature_count || 0,
-        preprocessing_steps: this.results.preprocessing?.preprocessing_steps?.length || 0
+        original_features:
+          this.results.preprocessing?.original_shape?.features || 0,
+        engineered_features:
+          this.results.feature_engineering?.new_feature_count || 0,
+        preprocessing_steps:
+          this.results.preprocessing?.preprocessing_steps?.length || 0,
       },
-      
+
       // Model performance
       model_performance: {
         total_trials: this.results.model_trials?.length || 0,
-        best_single_model_score: this.results.best_models?.[0]?.validation?.score || 0,
+        best_single_model_score:
+          this.results.best_models?.[0]?.validation?.score || 0,
         ensemble_score: this.results.ensemble_model?.ensemble_score || null,
         final_model_score: this.results.final_model?.final_score || 0,
-        algorithms_tested: [...new Set(this.results.model_trials?.map(t => t.algorithm) || [])]
+        algorithms_tested: [
+          ...new Set(this.results.model_trials?.map((t) => t.algorithm) || []),
+        ],
       },
-      
+
       // Resource utilization
       resource_utilization: {
         total_training_time: totalDuration,
         memory_usage_peak: Math.random() * 4 + 2, // GB
         cpu_utilization_avg: Math.random() * 80 + 20, // %
-        gpu_utilization: this.config.performance.gpu_enabled ? Math.random() * 90 + 10 : 0
+        gpu_utilization: this.config.performance.gpu_enabled
+          ? Math.random() * 90 + 10
+          : 0,
       },
-      
+
       // Final model
       final_model: this.results.final_model,
-      
+
       // Recommendations
       recommendations: this.generateRecommendations(),
-      
+
       // Full results for detailed analysis
       detailed_results: this.results,
-      
+
       // Configuration used
       configuration: this.config,
-      
-      timestamp: Date.now()
+
+      timestamp: Date.now(),
     };
   }
 
   generateRecommendations() {
     const recommendations = [];
-    
+
     if (this.results.model_trials?.length > 0) {
-      const bestScore = Math.max(...this.results.model_trials.map(t => t.score));
-      
+      const bestScore = Math.max(
+        ...this.results.model_trials.map((t) => t.score),
+      );
+
       if (bestScore < 0.7) {
         recommendations.push({
-          type: 'data_quality',
-          message: 'Consider improving data quality or collecting more diverse samples',
-          priority: 'high'
+          type: "data_quality",
+          message:
+            "Consider improving data quality or collecting more diverse samples",
+          priority: "high",
         });
       }
-      
+
       if (this.results.feature_engineering?.new_feature_count < 5) {
         recommendations.push({
-          type: 'feature_engineering',
-          message: 'Additional feature engineering may improve model performance',
-          priority: 'medium'
+          type: "feature_engineering",
+          message:
+            "Additional feature engineering may improve model performance",
+          priority: "medium",
         });
       }
-      
+
       if (this.config.hyperparameter_optimization.max_evaluations < 50) {
         recommendations.push({
-          type: 'hyperparameter_tuning',
-          message: 'Increase hyperparameter optimization budget for better results',
-          priority: 'low'
+          type: "hyperparameter_tuning",
+          message:
+            "Increase hyperparameter optimization budget for better results",
+          priority: "low",
         });
       }
     }
-    
+
     return recommendations;
   }
 
@@ -803,26 +907,26 @@ class AutoMLPipeline {
       isolation_forest: {
         n_estimators: [50, 100, 200, 300],
         contamination: [0.05, 0.1, 0.15, 0.2],
-        max_features: [0.5, 0.75, 1.0]
+        max_features: [0.5, 0.75, 1.0],
       },
       local_outlier_factor: {
         n_neighbors: [5, 10, 20, 35, 50],
         contamination: [0.05, 0.1, 0.15, 0.2],
-        algorithm: ['auto', 'ball_tree', 'kd_tree']
+        algorithm: ["auto", "ball_tree", "kd_tree"],
       },
       one_class_svm: {
-        kernel: ['rbf', 'linear', 'poly'],
-        gamma: ['scale', 'auto', 0.001, 0.01, 0.1],
-        nu: [0.05, 0.1, 0.15, 0.2]
-      }
+        kernel: ["rbf", "linear", "poly"],
+        gamma: ["scale", "auto", 0.001, 0.01, 0.1],
+        nu: [0.05, 0.1, 0.15, 0.2],
+      },
     };
-    
+
     return spaces[algorithm] || {};
   }
 
   sampleHyperparameters(space, algorithm) {
     const params = {};
-    
+
     for (const [param, values] of Object.entries(space)) {
       if (Array.isArray(values)) {
         params[param] = values[Math.floor(Math.random() * values.length)];
@@ -830,7 +934,7 @@ class AutoMLPipeline {
         params[param] = values;
       }
     }
-    
+
     return params;
   }
 
@@ -838,15 +942,15 @@ class AutoMLPipeline {
     const baseScores = {
       isolation_forest: 0.75,
       local_outlier_factor: 0.72,
-      one_class_svm: 0.70,
+      one_class_svm: 0.7,
       elliptic_envelope: 0.68,
       autoencoder: 0.78,
       deep_svdd: 0.76,
       copod: 0.74,
-      ecod: 0.73
+      ecod: 0.73,
     };
-    
-    return baseScores[algorithm] || 0.70;
+
+    return baseScores[algorithm] || 0.7;
   }
 
   generateMockProcessedData(originalData) {
@@ -854,24 +958,25 @@ class AutoMLPipeline {
     return Array.from({ length: 1000 }, (_, i) => ({
       id: i,
       features: Array.from({ length: 10 }, () => Math.random()),
-      label: Math.random() > 0.9 ? 1 : 0 // 10% anomalies
+      label: Math.random() > 0.9 ? 1 : 0, // 10% anomalies
     }));
   }
 
   generateFeatureNames(data) {
-    const baseNames = ['feature', 'sensor', 'metric', 'signal', 'value'];
-    return Array.from({ length: 10 }, (_, i) => 
-      `${baseNames[i % baseNames.length]}_${i + 1}`
+    const baseNames = ["feature", "sensor", "metric", "signal", "value"];
+    return Array.from(
+      { length: 10 },
+      (_, i) => `${baseNames[i % baseNames.length]}_${i + 1}`,
     );
   }
 
   calculateDataStatistics(data) {
     return {
       total_samples: data.length,
-      anomaly_rate: data.filter(d => d.label === 1).length / data.length,
+      anomaly_rate: data.filter((d) => d.label === 1).length / data.length,
       feature_count: 10,
       missing_values: Math.floor(Math.random() * 100),
-      data_quality_score: Math.random() * 0.3 + 0.7
+      data_quality_score: Math.random() * 0.3 + 0.7,
     };
   }
 
@@ -892,7 +997,7 @@ class AutoMLPipeline {
       accuracy: score,
       precision: Math.max(0, Math.min(1, score + (Math.random() - 0.5) * 0.1)),
       recall: Math.max(0, Math.min(1, score + (Math.random() - 0.5) * 0.1)),
-      f1_score: Math.max(0, Math.min(1, score + (Math.random() - 0.5) * 0.08))
+      f1_score: Math.max(0, Math.min(1, score + (Math.random() - 0.5) * 0.08)),
     };
   }
 
@@ -901,14 +1006,14 @@ class AutoMLPipeline {
     const fp = Math.floor(Math.random() * 20) + 5;
     const tn = Math.floor(Math.random() * 200) + 100;
     const fn = Math.floor(Math.random() * 15) + 3;
-    
+
     return { tp, fp, tn, fn };
   }
 
   getDatasetShape(dataset) {
     return {
       samples: Array.isArray(dataset) ? dataset.length : 1000,
-      features: 10 // Mock feature count
+      features: 10, // Mock feature count
     };
   }
 
@@ -932,7 +1037,7 @@ class AutoMLPipeline {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
     } else if (minutes > 0) {
@@ -943,7 +1048,7 @@ class AutoMLPipeline {
   }
 
   sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**
@@ -953,17 +1058,17 @@ class AutoMLPipeline {
     this.isCancelled = true;
     this.status = PIPELINE_STATUS.CANCELLED;
     this.endTime = Date.now();
-    this.emit('pipeline_cancelled', { pipelineId: this.pipelineId });
+    this.emit("pipeline_cancelled", { pipelineId: this.pipelineId });
   }
 
   pause() {
     // Implementation for pausing pipeline
-    this.emit('pipeline_paused', { pipelineId: this.pipelineId });
+    this.emit("pipeline_paused", { pipelineId: this.pipelineId });
   }
 
   resume() {
     // Implementation for resuming pipeline
-    this.emit('pipeline_resumed', { pipelineId: this.pipelineId });
+    this.emit("pipeline_resumed", { pipelineId: this.pipelineId });
   }
 
   /**
@@ -985,11 +1090,11 @@ class AutoMLPipeline {
 
   emit(event, data) {
     if (this.eventListeners.has(event)) {
-      this.eventListeners.get(event).forEach(listener => {
+      this.eventListeners.get(event).forEach((listener) => {
         try {
           listener({ type: event, data, timestamp: Date.now() });
         } catch (error) {
-          console.error('AutoML event listener error:', error);
+          console.error("AutoML event listener error:", error);
         }
       });
     }
@@ -1012,17 +1117,17 @@ class AutoMLService {
     this.activePipelines.set(pipeline.pipelineId, pipeline);
 
     // Set up pipeline event forwarding
-    pipeline.on('pipeline_completed', (event) => {
+    pipeline.on("pipeline_completed", (event) => {
       this.pipelineHistory.push(event.data);
       this.activePipelines.delete(pipeline.pipelineId);
     });
 
-    pipeline.on('pipeline_failed', (event) => {
+    pipeline.on("pipeline_failed", (event) => {
       this.pipelineHistory.push(event.data);
       this.activePipelines.delete(pipeline.pipelineId);
     });
 
-    pipeline.on('pipeline_cancelled', (event) => {
+    pipeline.on("pipeline_cancelled", (event) => {
       this.activePipelines.delete(pipeline.pipelineId);
     });
 
@@ -1053,14 +1158,16 @@ class AutoMLService {
         progress: pipeline.progress,
         startTime: pipeline.startTime,
         currentStep: pipeline.currentStep,
-        totalSteps: pipeline.totalSteps
+        totalSteps: pipeline.totalSteps,
       };
     }
     return null;
   }
 
   getActivePipelines() {
-    return Array.from(this.activePipelines.keys()).map(id => this.getPipelineStatus(id));
+    return Array.from(this.activePipelines.keys()).map((id) =>
+      this.getPipelineStatus(id),
+    );
   }
 
   getPipelineHistory(limit = 10) {
@@ -1078,14 +1185,14 @@ class AutoMLService {
 }
 
 // Export classes
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module !== "undefined" && module.exports) {
   module.exports = {
     AutoMLService,
     AutoMLPipeline,
     AutoMLConfig,
     OPTIMIZATION_ALGORITHMS,
     MODEL_SELECTION_STRATEGIES,
-    PIPELINE_STATUS
+    PIPELINE_STATUS,
   };
 } else {
   // Browser environment

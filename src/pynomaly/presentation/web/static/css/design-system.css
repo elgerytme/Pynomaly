@@ -19,7 +19,7 @@
   --color-primary-700: #0369a1;
   --color-primary-800: #075985;
   --color-primary-900: #0c4a6e;
-  
+
   --color-secondary-50: #f0fdf4;
   --color-secondary-100: #dcfce7;
   --color-secondary-200: #bbf7d0;
@@ -30,7 +30,7 @@
   --color-secondary-700: #15803d;
   --color-secondary-800: #166534;
   --color-secondary-900: #14532d;
-  
+
   --color-accent-50: #fef2f2;
   --color-accent-100: #fee2e2;
   --color-accent-200: #fecaca;
@@ -41,7 +41,7 @@
   --color-accent-700: #b91c1c;
   --color-accent-800: #991b1b;
   --color-accent-900: #7f1d1d;
-  
+
   /* Semantic Colors */
   --color-surface: #ffffff;
   --color-background: #f8fafc;
@@ -50,7 +50,7 @@
   --color-text-muted: #94a3b8;
   --color-border: #e2e8f0;
   --color-border-focus: var(--color-primary-500);
-  
+
   /* Dark Mode Colors */
   --color-dark-surface: #0f172a;
   --color-dark-background: #020617;
@@ -58,72 +58,76 @@
   --color-dark-text-secondary: #cbd5e1;
   --color-dark-text-muted: #64748b;
   --color-dark-border: #334155;
-  
+
   /* Chart Colors */
   --color-chart-normal: #22c55e;
   --color-chart-anomaly: #ef4444;
   --color-chart-threshold: #f59e0b;
   --color-chart-prediction: #8b5cf6;
   --color-chart-confidence: #06b6d4;
-  
+
   /* Typography */
-  --font-family-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-family-mono: 'JetBrains Mono', 'Monaco', 'Consolas', monospace;
-  
-  --font-size-xs: 0.75rem;    /* 12px */
-  --font-size-sm: 0.875rem;   /* 14px */
-  --font-size-base: 1rem;     /* 16px */
-  --font-size-lg: 1.125rem;   /* 18px */
-  --font-size-xl: 1.25rem;    /* 20px */
-  --font-size-2xl: 1.5rem;    /* 24px */
-  --font-size-3xl: 1.875rem;  /* 30px */
-  --font-size-4xl: 2.25rem;   /* 36px */
-  
+  --font-family-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-family-mono: "JetBrains Mono", "Monaco", "Consolas", monospace;
+
+  --font-size-xs: 0.75rem; /* 12px */
+  --font-size-sm: 0.875rem; /* 14px */
+  --font-size-base: 1rem; /* 16px */
+  --font-size-lg: 1.125rem; /* 18px */
+  --font-size-xl: 1.25rem; /* 20px */
+  --font-size-2xl: 1.5rem; /* 24px */
+  --font-size-3xl: 1.875rem; /* 30px */
+  --font-size-4xl: 2.25rem; /* 36px */
+
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
-  
+
   --line-height-tight: 1.25;
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.75;
-  
+
   /* Spacing */
   --spacing-0: 0;
-  --spacing-1: 0.25rem;  /* 4px */
-  --spacing-2: 0.5rem;   /* 8px */
-  --spacing-3: 0.75rem;  /* 12px */
-  --spacing-4: 1rem;     /* 16px */
-  --spacing-5: 1.25rem;  /* 20px */
-  --spacing-6: 1.5rem;   /* 24px */
-  --spacing-8: 2rem;     /* 32px */
-  --spacing-10: 2.5rem;  /* 40px */
-  --spacing-12: 3rem;    /* 48px */
-  --spacing-16: 4rem;    /* 64px */
-  --spacing-20: 5rem;    /* 80px */
-  
+  --spacing-1: 0.25rem; /* 4px */
+  --spacing-2: 0.5rem; /* 8px */
+  --spacing-3: 0.75rem; /* 12px */
+  --spacing-4: 1rem; /* 16px */
+  --spacing-5: 1.25rem; /* 20px */
+  --spacing-6: 1.5rem; /* 24px */
+  --spacing-8: 2rem; /* 32px */
+  --spacing-10: 2.5rem; /* 40px */
+  --spacing-12: 3rem; /* 48px */
+  --spacing-16: 4rem; /* 64px */
+  --spacing-20: 5rem; /* 80px */
+
   /* Border Radius */
   --radius-none: 0;
-  --radius-sm: 0.125rem;  /* 2px */
+  --radius-sm: 0.125rem; /* 2px */
   --radius-base: 0.25rem; /* 4px */
-  --radius-md: 0.375rem;  /* 6px */
-  --radius-lg: 0.5rem;    /* 8px */
-  --radius-xl: 0.75rem;   /* 12px */
-  --radius-2xl: 1rem;     /* 16px */
+  --radius-md: 0.375rem; /* 6px */
+  --radius-lg: 0.5rem; /* 8px */
+  --radius-xl: 0.75rem; /* 12px */
+  --radius-2xl: 1rem; /* 16px */
   --radius-full: 9999px;
-  
+
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  
+  --shadow-lg:
+    0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl:
+    0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
   /* Transitions */
   --transition-all: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-colors: color, background-color, border-color, text-decoration-color, fill, stroke 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-colors:
+    color, background-color, border-color, text-decoration-color, fill,
+    stroke 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-transform: transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  
+
   /* Z-Index Scale */
   --z-dropdown: 1000;
   --z-sticky: 1020;
@@ -523,7 +527,7 @@ body {
   .form-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .form-grid-3 {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -691,7 +695,12 @@ body {
 }
 
 .skeleton {
-  background: linear-gradient(90deg, var(--color-border) 25%, rgba(226, 232, 240, 0.5) 50%, var(--color-border) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--color-border) 25%,
+    rgba(226, 232, 240, 0.5) 50%,
+    var(--color-border) 75%
+  );
   background-size: 200% 100%;
   animation: loading 1.5s infinite;
   border-radius: var(--radius-base);
@@ -734,7 +743,7 @@ body {
     --color-text-primary: #000000;
     --color-text-secondary: #000000;
   }
-  
+
   .dark {
     --color-border: #ffffff;
     --color-text-primary: #ffffff;
@@ -751,7 +760,7 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  
+
   .skeleton {
     animation: none;
     background: var(--color-border);
@@ -766,7 +775,7 @@ body {
   .form-textarea {
     border: 1px solid #000 !important;
   }
-  
+
   .card {
     border: 1px solid #000 !important;
     box-shadow: none !important;
