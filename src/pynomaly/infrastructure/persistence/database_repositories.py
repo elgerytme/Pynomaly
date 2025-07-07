@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import Boolean, Column, DateTime, String, Text, ForeignKey, Table, Enum
+from sqlalchemy import Boolean, Column, DateTime, String, Text, ForeignKey, Table, Float
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import declarative_base, relationship
@@ -20,9 +20,6 @@ from pynomaly.shared.protocols import (
     DetectionResultRepositoryProtocol,
     DetectorRepositoryProtocol,
 )
-
-# Import user models to register them with Base
-from . import user_models
 
 Base = declarative_base()
 
