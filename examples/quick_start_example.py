@@ -80,13 +80,14 @@ def run_basic_detection():
     
     print(f"📊 Dataset created: {len(dataset.data)} samples, {len(dataset.feature_names)} features")
     
-    # Step 3: Create detector using Isolation Forest
+    # Step 3: Create detector using Isolation Forest (direct sklearn usage)
     try:
-        detector = SklearnAdapter(
-            algorithm_name="IsolationForest",
-            name="Quick Start Detector",
-            contamination_rate=ContaminationRate(0.1),
-            random_state=42
+        from sklearn.ensemble import IsolationForest
+        
+        detector = IsolationForest(
+            contamination=0.1,
+            random_state=42,
+            n_estimators=100
         )
         print("🤖 Created Isolation Forest detector")
     except Exception as e:
@@ -105,11 +106,12 @@ def run_basic_detection():
     # Step 5: Make predictions
     try:
         print("🔍 Detecting anomalies...")
-        predictions = detector.predict(dataset.data.values)  # 1 = anomaly, -1 = normal
+        predictions = detector.predict(dataset.data.values)  # 1 = normal, -1 = anomaly
         scores = detector.decision_function(dataset.data.values)  # Anomaly scores
         
         # Convert predictions to binary (1 = anomaly, 0 = normal)
-        binary_predictions = (predictions == 1).astype(int)
+        # sklearn returns 1 for normal, -1 for anomaly, so we need to flip
+        binary_predictions = (predictions == -1).astype(int)
         
         print("✅ Anomaly detection completed")
     except Exception as e:
