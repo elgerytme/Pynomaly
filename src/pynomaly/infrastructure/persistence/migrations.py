@@ -108,9 +108,44 @@ class DatabaseMigrator:
             if not self.create_all_tables():
                 return False
 
-        # Add any initial data here if needed
+        # Add initial data (roles and permissions)
+        if not self.seed_default_roles_and_permissions():
+            logger.warning("Failed to seed default roles and permissions")
+            # Don't fail the initialization for this
+        
         logger.info("Database initialization completed successfully")
         return True
+    
+    def seed_default_roles_and_permissions(self) -> bool:
+        """Seed default roles and permissions into the database.
+
+        Returns:
+            True if successful, False otherwise
+        """
+        logger.info("Seeding default roles and permissions...")
+
+        # Example roles and permissions
+        roles_permissions = [
+            ("SUPER_ADMIN", ["platform:read", "platform:write", "platform:delete"]),
+            ("VIEWER", ["platform:read"]),
+            ("DEVELOPER", ["code:read", "code:write"]),
+            ("BUSINESS", ["reports:read"]),
+        ]
+
+        # Connect to the database
+        try:
+            with self.engine.connect() as conn:
+                for role, permissions in roles_permissions:
+                    # Insert role and permissions
+                    conn.execute(text(f"INSERT INTO roles (name) VALUES ('{role}') ON CONFLICT DO NOTHING"))
+                    for perm in permissions:
+                        conn.execute(text(f"INSERT INTO permissions (name) VALUES ('{perm}') ON CONFLICT DO NOTHING"))
+                        conn.execute(text(f"INSERT INTO role_permissions (role, permission) VALUES ('{role}', '{perm}') ON CONFLICT DO NOTHING"))
+            logger.info("Successfully seeded roles and permissions")
+            return True
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to seed roles and permissions: {e}")
+            return False
 
     def reset_database(self) -> bool:
         """Reset database by dropping and recreating all tables.

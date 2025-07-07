@@ -7,9 +7,10 @@ import json
 import sys
 import time
 from pathlib import Path
+from typing import List, Optional
 
-import click
 import numpy as np
+import typer
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -30,57 +31,40 @@ from pynomaly.infrastructure.data_loaders import CSVLoader, ParquetLoader
 
 console = Console()
 
+# Create Typer app
+app = typer.Typer(
+    name="deep-learning",
+    help="🧠 Deep learning anomaly detection (PyTorch, TensorFlow, JAX)",
+    add_completion=True,
+    rich_markup_mode="rich",
+)
 
-@click.group()
-def deep_learning():
-    """Deep learning anomaly detection commands."""
-    pass
 
-
-@deep_learning.command()
-@click.argument("dataset_path", type=click.Path(exists=True, path_type=Path))
-@click.option(
-    "--algorithm",
-    "-a",
-    type=click.Choice(["autoencoder", "vae", "lstm", "transformer", "gmm", "svdd"]),
-    default="autoencoder",
-    help="Deep learning algorithm",
-)
-@click.option(
-    "--framework",
-    "-f",
-    type=click.Choice(["pytorch", "tensorflow", "jax"]),
-    help="Deep learning framework (auto-select if not specified)",
-)
-@click.option("--epochs", type=int, default=100, help="Number of training epochs")
-@click.option("--batch-size", type=int, default=32, help="Batch size for training")
-@click.option("--learning-rate", type=float, default=0.001, help="Learning rate")
-@click.option("--hidden-dims", multiple=True, type=int, help="Hidden layer dimensions")
-@click.option("--latent-dim", type=int, default=16, help="Latent space dimension")
-@click.option(
-    "--contamination", type=float, default=0.1, help="Expected contamination rate"
-)
-@click.option("--gpu/--no-gpu", default=True, help="Enable GPU acceleration")
-@click.option(
-    "--output", type=click.Path(path_type=Path), help="Output file for results"
-)
-@click.option(
-    "--save-model", type=click.Path(path_type=Path), help="Save trained model to file"
-)
+@app.command()
 @require_feature("deep_learning")
 def train(
-    dataset_path: Path,
-    algorithm: str,
-    framework: str | None,
-    epochs: int,
-    batch_size: int,
-    learning_rate: float,
-    hidden_dims: tuple,
-    latent_dim: int,
-    contamination: float,
-    gpu: bool,
-    output: Path | None,
-    save_model: Path | None,
+    dataset_path: Path = typer.Argument(..., help="Path to the dataset file (CSV or Parquet)", exists=True),
+    algorithm: str = typer.Option(
+        "autoencoder",
+        "-a", "--algorithm",
+        help="Deep learning algorithm",
+        click_type=typer.Choice(["autoencoder", "vae", "lstm", "transformer", "gmm", "svdd"])
+    ),
+    framework: Optional[str] = typer.Option(
+        None,
+        "-f", "--framework",
+        help="Deep learning framework (auto-select if not specified)",
+        click_type=typer.Choice(["pytorch", "tensorflow", "jax"])
+    ),
+    epochs: int = typer.Option(100, "--epochs", help="Number of training epochs"),
+    batch_size: int = typer.Option(32, "--batch-size", help="Batch size for training"),
+    learning_rate: float = typer.Option(0.001, "--learning-rate", help="Learning rate"),
+    hidden_dims: Optional[List[int]] = typer.Option(None, "--hidden-dims", help="Hidden layer dimensions"),
+    latent_dim: int = typer.Option(16, "--latent-dim", help="Latent space dimension"),
+    contamination: float = typer.Option(0.1, "--contamination", help="Expected contamination rate"),
+    gpu: bool = typer.Option(True, "--gpu/--no-gpu", help="Enable GPU acceleration"),
+    output: Optional[Path] = typer.Option(None, "--output", help="Output file for results"),
+    save_model: Optional[Path] = typer.Option(None, "--save-model", help="Save trained model to file"),
 ):
     """Train a deep learning anomaly detection model.
 
@@ -106,7 +90,7 @@ def train(
         }
 
         if hidden_dims:
-            model_config["hidden_dims"] = list(hidden_dims)
+            model_config["hidden_dims"] = hidden_dims
 
         # Create optimization configuration
         opt_config = DLOptimizationConfig(
@@ -186,35 +170,24 @@ def train(
         sys.exit(1)
 
 
-@deep_learning.command()
-@click.argument("dataset_path", type=click.Path(exists=True, path_type=Path))
-@click.option(
-    "--algorithm",
-    "-a",
-    type=click.Choice(["autoencoder", "vae", "lstm", "transformer", "gmm", "svdd"]),
-    default="autoencoder",
-    help="Deep learning algorithm",
-)
-@click.option(
-    "--frameworks",
-    "-f",
-    multiple=True,
-    type=click.Choice(["pytorch", "tensorflow", "jax"]),
-    help="Frameworks to benchmark (all available if not specified)",
-)
-@click.option("--epochs", type=int, default=50, help="Number of training epochs")
-@click.option(
-    "--output",
-    type=click.Path(path_type=Path),
-    help="Output file for benchmark results",
-)
+@app.command()
 @require_feature("deep_learning")
 def benchmark(
-    dataset_path: Path,
-    algorithm: str,
-    frameworks: tuple,
-    epochs: int,
-    output: Path | None,
+    dataset_path: Path = typer.Argument(..., help="Path to the dataset file", exists=True),
+    algorithm: str = typer.Option(
+        "autoencoder",
+        "-a", "--algorithm",
+        help="Deep learning algorithm",
+        click_type=typer.Choice(["autoencoder", "vae", "lstm", "transformer", "gmm", "svdd"])
+    ),
+    frameworks: Optional[List[str]] = typer.Option(
+        None,
+        "-f", "--frameworks",
+        help="Frameworks to benchmark (all available if not specified)",
+        click_type=typer.Choice(["pytorch", "tensorflow", "jax"])
+    ),
+    epochs: int = typer.Option(50, "--epochs", help="Number of training epochs"),
+    output: Optional[Path] = typer.Option(None, "--output", help="Output file for benchmark results"),
 ):
     """Benchmark deep learning frameworks on anomaly detection task.
 
@@ -234,7 +207,7 @@ def benchmark(
         dl_service = DeepLearningIntegrationService()
 
         # Use specified frameworks or all available
-        frameworks_to_test = list(frameworks) if frameworks else None
+        frameworks_to_test = frameworks if frameworks else None
 
         console.print(f"🔬 Benchmarking {algorithm} across frameworks...")
 
@@ -264,17 +237,18 @@ def benchmark(
         sys.exit(1)
 
 
-@deep_learning.command()
-@click.argument("dataset_path", type=click.Path(exists=True, path_type=Path))
-@click.option(
-    "--priority",
-    type=click.Choice(["speed", "accuracy", "memory", "balanced"]),
-    default="balanced",
-    help="Performance priority",
-)
-@click.option("--gpu/--no-gpu", default=True, help="GPU availability")
+@app.command()
 @require_feature("deep_learning")
-def recommend(dataset_path: Path, priority: str, gpu: bool):
+def recommend(
+    dataset_path: Path = typer.Argument(..., help="Path to the dataset file", exists=True),
+    priority: str = typer.Option(
+        "balanced",
+        "--priority",
+        help="Performance priority",
+        click_type=typer.Choice(["speed", "accuracy", "memory", "balanced"])
+    ),
+    gpu: bool = typer.Option(True, "--gpu/--no-gpu", help="GPU availability"),
+):
     """Get framework and algorithm recommendations for dataset.
 
     DATASET_PATH: Path to the dataset file
@@ -308,7 +282,7 @@ def recommend(dataset_path: Path, priority: str, gpu: bool):
         sys.exit(1)
 
 
-@deep_learning.command()
+@app.command()
 @require_feature("deep_learning")
 def frameworks():
     """List available deep learning frameworks and their capabilities.
@@ -372,13 +346,15 @@ def frameworks():
         sys.exit(1)
 
 
-@deep_learning.command()
-@click.argument(
-    "algorithm",
-    type=click.Choice(["autoencoder", "vae", "lstm", "transformer", "gmm", "svdd"]),
-)
+@app.command()
 @require_feature("deep_learning")
-def info(algorithm: str):
+def info(
+    algorithm: str = typer.Argument(
+        ...,
+        help="Algorithm to get information about",
+        click_type=typer.Choice(["autoencoder", "vae", "lstm", "transformer", "gmm", "svdd"])
+    ),
+):
     """Get detailed information about a deep learning algorithm.
 
     ALGORITHM: Algorithm to get information about

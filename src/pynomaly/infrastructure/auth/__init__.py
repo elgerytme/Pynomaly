@@ -22,6 +22,11 @@ from .middleware import (
     strict_limiter,
     track_request_metrics,
 )
+from .dependencies import (
+    require_role,
+    require_api_key,
+    require_role_or_api_key,
+)
 
 __all__ = [
     # JWT Auth
@@ -44,4 +49,8 @@ __all__ = [
     "strict_limiter",
     "track_request_metrics",
     "create_auth_context",
+    # Dependencies
+    "require_role",
+    "require_api_key",
+    "require_role_or_api_key",
 ]

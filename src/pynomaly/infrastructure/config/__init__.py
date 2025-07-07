@@ -10,11 +10,12 @@ from .config_manager import (
 from .config_templates import ConfigTemplate, get_template_registry
 from .config_validator import ConfigurationValidator, validate_configuration
 from .container import Container, create_container
-from .settings import Settings
+from .settings import Settings, get_settings
 
 __all__ = [
     # Core configuration
     "Settings",
+    "get_settings",
     "Container",
     "create_container",
     # Configuration management

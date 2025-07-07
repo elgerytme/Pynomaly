@@ -35,19 +35,19 @@ def test_basic_api():
         # Test endpoints
         base_url = "http://127.0.0.1:8001"
 
-        print("Testing root endpoint...")
+        print("Testing API root endpoint...")
         try:
-            response = requests.get(base_url, timeout=5)
+            response = requests.get(f"{base_url}/api", timeout=5)
             if response.status_code == 200:
-                print("✓ Root endpoint working")
+                print("✓ API root endpoint working")
                 try:
                     print(f"  Response: {response.json()}")
                 except:
                     print(f"  Response (text): {response.text}")
             else:
-                print(f"✗ Root endpoint failed: {response.status_code}")
+                print(f"✗ API root endpoint failed: {response.status_code}")
         except Exception as e:
-            print(f"✗ Root endpoint error: {e}")
+            print(f"✗ API root endpoint error: {e}")
 
         print("Testing health endpoint...")
         try:

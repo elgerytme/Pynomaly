@@ -86,6 +86,21 @@ class AlertCorrelation:
             raise ValueError("Correlation score must be between 0.0 and 1.0")
 
 
+class AlertSource(Enum):
+    """Source systems that can generate alerts."""
+
+    ANOMALY_DETECTOR = "anomaly_detector"
+    MODEL_MONITOR = "model_monitor"
+    DATA_PIPELINE = "data_pipeline"
+    HEALTH_CHECK = "health_check"
+    SYSTEM_MONITOR = "system_monitor"
+    USER_DEFINED = "user_defined"
+    SCHEDULER = "scheduler"
+    API_GATEWAY = "api_gateway"
+    DATABASE = "database"
+    EXTERNAL_SYSTEM = "external_system"
+
+
 class NotificationChannel(Enum):
     """Available notification channels."""
 
