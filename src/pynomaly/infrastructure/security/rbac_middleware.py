@@ -26,7 +26,7 @@ from pynomaly.domain.security.permission_matrix import (
 )
 from pynomaly.infrastructure.security.rbac_service import RBACService
 from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService, get_auth
-from pynomaly.infrastructure.config import get_settings
+from pynomaly.infrastructure.config import Container
 
 logger = logging.getLogger(__name__)
 bearer_scheme = HTTPBearer(auto_error=False)

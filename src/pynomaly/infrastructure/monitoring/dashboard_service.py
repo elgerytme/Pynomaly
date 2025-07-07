@@ -436,3 +436,7 @@ class DashboardService:
             "metrics_summary": metrics_summary,
             "timestamp": datetime.utcnow().isoformat(),
         }
+
+
+# Alias for backward compatibility
+MonitoringDashboardService = DashboardService

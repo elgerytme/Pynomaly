@@ -27,6 +27,13 @@ from .dependencies import (
     require_api_key,
     require_role_or_api_key,
 )
+from .websocket_auth import (
+    WebSocketAuthMiddleware,
+    HTMXAuthMiddleware,
+    create_websocket_auth_dependency,
+    get_htmx_user,
+    require_htmx_auth,
+)
 
 __all__ = [
     # JWT Auth
@@ -53,4 +60,10 @@ __all__ = [
     "require_role",
     "require_api_key",
     "require_role_or_api_key",
+    # WebSocket & HTMX Auth
+    "WebSocketAuthMiddleware",
+    "HTMXAuthMiddleware",
+    "create_websocket_auth_dependency",
+    "get_htmx_user",
+    "require_htmx_auth",
 ]

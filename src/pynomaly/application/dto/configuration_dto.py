@@ -575,6 +575,18 @@ class ExperimentConfigurationDTO(BaseModel):
 
 
 # ============================================================================
+# Backward Compatibility DTOs
+# ============================================================================
+
+
+# Aliases for backward compatibility
+DatasetConfigurationDTO = DatasetConfigDTO
+AlgorithmConfigurationDTO = AlgorithmConfigDTO
+PreprocessingConfigurationDTO = PreprocessingConfigDTO
+EvaluationConfigurationDTO = EvaluationConfigDTO
+
+
+# ============================================================================
 # Configuration Collection and Management DTOs
 # ============================================================================
 

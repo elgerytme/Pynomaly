@@ -7,7 +7,14 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from prometheus_fastapi_instrumentator import Instrumentator
+
+# Optional prometheus dependency
+try:
+    from prometheus_fastapi_instrumentator import Instrumentator
+    PROMETHEUS_AVAILABLE = True
+except ImportError:
+    PROMETHEUS_AVAILABLE = False
+    Instrumentator = None
 
 from pynomaly.infrastructure.auth import init_auth, track_request_metrics
 from pynomaly.infrastructure.cache import init_cache
@@ -190,10 +197,12 @@ def create_app(container: Container | None = None) -> FastAPI:
     # Add request tracking middleware
     app.middleware("http")(track_request_metrics)
 
-    # Add Prometheus metrics if enabled
-    if settings.monitoring.prometheus_enabled:
+    # Add Prometheus metrics if enabled and available
+    if settings.monitoring.prometheus_enabled and PROMETHEUS_AVAILABLE:
         instrumentator = Instrumentator()
         instrumentator.instrument(app).expose(app, endpoint="/metrics")
+    elif settings.monitoring.prometheus_enabled and not PROMETHEUS_AVAILABLE:
+        print("Warning: Prometheus metrics requested but prometheus-fastapi-instrumentator not available")
 
     # Include documentation router (before API routers for proper URL handling)
     app.include_router(api_docs.router, tags=["documentation"])
@@ -261,10 +270,6 @@ def create_app(container: Container | None = None) -> FastAPI:
             "health": "/api/v1/health",
             "version_info": "/api/v1/version",
         }
-            "version_info": "/api/v1/version",
-        }
-
-    return app
 
 
 # Create default app instance for uvicorn

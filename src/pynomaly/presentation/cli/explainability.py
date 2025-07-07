@@ -7,8 +7,9 @@ import json
 import sys
 import time
 from pathlib import Path
+from typing import List, Optional
 
-import click
+import typer
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -32,67 +33,47 @@ from pynomaly.shared.protocols import DetectorProtocol
 
 console = Console()
 
+# Create Typer app
+app = typer.Typer(
+    name="explainability",
+    help="🔍 Explainable AI (model interpretability, bias analysis)",
+    add_completion=True,
+    rich_markup_mode="rich",
+)
 
-@click.group()
-def explainability():
-    """Explainable AI and model interpretability commands."""
-    pass
 
-
-@explainability.command()
-@click.argument("detector_path", type=click.Path(exists=True, path_type=Path))
-@click.argument("dataset_path", type=click.Path(exists=True, path_type=Path))
-@click.option(
-    "--explanation-type",
-    "-t",
-    type=click.Choice(["local", "global", "both"]),
-    default="both",
-    help="Type of explanation to generate",
-)
-@click.option(
-    "--methods",
-    "-m",
-    multiple=True,
-    type=click.Choice(["shap", "lime", "permutation", "gradient"]),
-    help="Explanation methods to use",
-)
-@click.option(
-    "--n-samples", type=int, default=10, help="Number of samples for local explanations"
-)
-@click.option(
-    "--audience",
-    type=click.Choice(["technical", "business", "regulatory"]),
-    default="technical",
-    help="Target audience for explanations",
-)
-@click.option(
-    "--output",
-    type=click.Path(path_type=Path),
-    help="Output file for explanation report",
-)
-@click.option(
-    "--format",
-    "output_format",
-    type=click.Choice(["json", "html", "pdf"]),
-    default="json",
-    help="Output format",
-)
-@click.option(
-    "--visualizations/--no-visualizations",
-    default=True,
-    help="Generate visualization plots",
-)
+@app.command()
 @require_feature("advanced_explainability")
 def explain(
-    detector_path: Path,
-    dataset_path: Path,
-    explanation_type: str,
-    methods: tuple,
-    n_samples: int,
-    audience: str,
-    output: Path | None,
-    output_format: str,
-    visualizations: bool,
+    detector_path: Path = typer.Argument(..., help="Path to saved detector model", exists=True),
+    dataset_path: Path = typer.Argument(..., help="Path to dataset file (CSV or Parquet)", exists=True),
+    explanation_type: str = typer.Option(
+        "both",
+        "-t", "--explanation-type",
+        help="Type of explanation to generate",
+        click_type=typer.Choice(["local", "global", "both"])
+    ),
+    methods: Optional[List[str]] = typer.Option(
+        None,
+        "-m", "--methods",
+        help="Explanation methods to use",
+        click_type=typer.Choice(["shap", "lime", "permutation", "gradient"])
+    ),
+    n_samples: int = typer.Option(10, "--n-samples", help="Number of samples for local explanations"),
+    audience: str = typer.Option(
+        "technical",
+        "--audience",
+        help="Target audience for explanations",
+        click_type=typer.Choice(["technical", "business", "regulatory"])
+    ),
+    output: Optional[Path] = typer.Option(None, "--output", help="Output file for explanation report"),
+    output_format: str = typer.Option(
+        "json",
+        "--format",
+        help="Output format",
+        click_type=typer.Choice(["json", "html", "pdf"])
+    ),
+    visualizations: bool = typer.Option(True, "--visualizations/--no-visualizations", help="Generate visualization plots"),
 ):
     """Generate comprehensive explanations for model predictions.
 
@@ -116,7 +97,7 @@ def explain(
         # Configure explanation
         config = ExplanationConfig(
             explanation_type=explanation_type,
-            method=methods[0] if methods else "shap",
+            method=methods[0] if methods and len(methods) > 0 else "shap",
             n_samples=n_samples,
             feature_names=dataset.feature_names,
             target_audience=audience,
@@ -169,45 +150,25 @@ def explain(
         sys.exit(1)
 
 
-@explainability.command()
-@click.argument("detector_path", type=click.Path(exists=True, path_type=Path))
-@click.argument("dataset_path", type=click.Path(exists=True, path_type=Path))
-@click.option(
-    "--protected-attributes",
-    "-p",
-    multiple=True,
-    help="Protected attribute column names",
-)
-@click.option(
-    "--metrics",
-    "-m",
-    multiple=True,
-    type=click.Choice(["demographic_parity", "equalized_odds", "statistical_parity"]),
-    help="Fairness metrics to compute",
-)
-@click.option(
-    "--threshold",
-    type=float,
-    default=0.5,
-    help="Decision threshold for binary classification",
-)
-@click.option(
-    "--min-group-size", type=int, default=30, help="Minimum group size for analysis"
-)
-@click.option(
-    "--output",
-    type=click.Path(path_type=Path),
-    help="Output file for bias analysis results",
-)
+@app.command()
 @require_feature("advanced_explainability")
 def analyze_bias(
-    detector_path: Path,
-    dataset_path: Path,
-    protected_attributes: tuple,
-    metrics: tuple,
-    threshold: float,
-    min_group_size: int,
-    output: Path | None,
+    detector_path: Path = typer.Argument(..., help="Path to saved detector model", exists=True),
+    dataset_path: Path = typer.Argument(..., help="Path to dataset file with protected attributes", exists=True),
+    protected_attributes: Optional[List[str]] = typer.Option(
+        None,
+        "-p", "--protected-attributes",
+        help="Protected attribute column names"
+    ),
+    metrics: Optional[List[str]] = typer.Option(
+        None,
+        "-m", "--metrics",
+        help="Fairness metrics to compute",
+        click_type=typer.Choice(["demographic_parity", "equalized_odds", "statistical_parity"])
+    ),
+    threshold: float = typer.Option(0.5, "--threshold", help="Decision threshold for binary classification"),
+    min_group_size: int = typer.Option(30, "--min-group-size", help="Minimum group size for analysis"),
+    output: Optional[Path] = typer.Option(None, "--output", help="Output file for bias analysis results"),
 ):
     """Analyze model for potential bias and fairness issues.
 
@@ -219,7 +180,7 @@ def analyze_bias(
         pynomaly explainability analyze-bias model.pkl data.csv -p race -m demographic_parity equalized_odds
     """
     try:
-        if not protected_attributes:
+        if not protected_attributes or len(protected_attributes) == 0:
             console.print(
                 "❌ At least one protected attribute must be specified", style="red"
             )
@@ -231,9 +192,9 @@ def analyze_bias(
 
         # Configure bias analysis
         config = BiasAnalysisConfig(
-            protected_attributes=list(protected_attributes),
+            protected_attributes=protected_attributes,
             fairness_metrics=(
-                list(metrics) if metrics else ["demographic_parity", "equalized_odds"]
+                metrics if metrics else ["demographic_parity", "equalized_odds"]
             ),
             threshold=threshold,
             min_group_size=min_group_size,
@@ -275,43 +236,17 @@ def analyze_bias(
         sys.exit(1)
 
 
-@explainability.command()
-@click.argument("detector_path", type=click.Path(exists=True, path_type=Path))
-@click.argument("dataset_path", type=click.Path(exists=True, path_type=Path))
-@click.option(
-    "--n-perturbations",
-    type=int,
-    default=100,
-    help="Number of perturbations for stability analysis",
-)
-@click.option(
-    "--perturbation-strength",
-    type=float,
-    default=0.1,
-    help="Strength of perturbations (0-1)",
-)
-@click.option(
-    "--consistency/--no-consistency", default=True, help="Enable consistency analysis"
-)
-@click.option(
-    "--stability/--no-stability", default=True, help="Enable stability analysis"
-)
-@click.option(
-    "--fidelity/--no-fidelity", default=True, help="Enable fidelity assessment"
-)
-@click.option(
-    "--output", type=click.Path(path_type=Path), help="Output file for trust assessment"
-)
+@app.command()
 @require_feature("advanced_explainability")
 def assess_trust(
-    detector_path: Path,
-    dataset_path: Path,
-    n_perturbations: int,
-    perturbation_strength: float,
-    consistency: bool,
-    stability: bool,
-    fidelity: bool,
-    output: Path | None,
+    detector_path: Path = typer.Argument(..., help="Path to saved detector model", exists=True),
+    dataset_path: Path = typer.Argument(..., help="Path to dataset file", exists=True),
+    n_perturbations: int = typer.Option(100, "--n-perturbations", help="Number of perturbations for stability analysis"),
+    perturbation_strength: float = typer.Option(0.1, "--perturbation-strength", help="Strength of perturbations (0-1)"),
+    consistency: bool = typer.Option(True, "--consistency/--no-consistency", help="Enable consistency analysis"),
+    stability: bool = typer.Option(True, "--stability/--no-stability", help="Enable stability analysis"),
+    fidelity: bool = typer.Option(True, "--fidelity/--no-fidelity", help="Enable fidelity assessment"),
+    output: Optional[Path] = typer.Option(None, "--output", help="Output file for trust assessment"),
 ):
     """Assess trust and reliability of model predictions.
 
@@ -376,28 +311,19 @@ def assess_trust(
         sys.exit(1)
 
 
-@explainability.command()
-@click.argument("detector_path", type=click.Path(exists=True, path_type=Path))
-@click.argument("dataset_path", type=click.Path(exists=True, path_type=Path))
-@click.option(
-    "--method",
-    type=click.Choice(["shap", "lime", "permutation"]),
-    default="shap",
-    help="Feature importance method",
-)
-@click.option("--top-k", type=int, default=15, help="Number of top features to display")
-@click.option(
-    "--output",
-    type=click.Path(path_type=Path),
-    help="Output file for feature importance",
-)
+@app.command()
 @require_feature("advanced_explainability")
 def feature_importance(
-    detector_path: Path,
-    dataset_path: Path,
-    method: str,
-    top_k: int,
-    output: Path | None,
+    detector_path: Path = typer.Argument(..., help="Path to saved detector model", exists=True),
+    dataset_path: Path = typer.Argument(..., help="Path to dataset file", exists=True),
+    method: str = typer.Option(
+        "shap",
+        "--method",
+        help="Feature importance method",
+        click_type=typer.Choice(["shap", "lime", "permutation"])
+    ),
+    top_k: int = typer.Option(15, "--top-k", help="Number of top features to display"),
+    output: Optional[Path] = typer.Option(None, "--output", help="Output file for feature importance"),
 ):
     """Analyze global feature importance for the model.
 
@@ -470,12 +396,11 @@ def feature_importance(
         sys.exit(1)
 
 
-@explainability.command()
-@click.option(
-    "--cache-info/--no-cache-info", default=True, help="Show cache information"
-)
+@app.command()
 @require_feature("advanced_explainability")
-def status():
+def status(
+    cache_info: bool = typer.Option(True, "--cache-info/--no-cache-info", help="Show cache information"),
+):
     """Show explainability service status and capabilities.
 
     Examples:
@@ -573,11 +498,14 @@ def status():
         sys.exit(1)
 
 
-@explainability.command()
-@click.argument(
-    "explanation_type", type=click.Choice(["local", "global", "bias", "trust"])
-)
-def info(explanation_type: str):
+@app.command()
+def info(
+    explanation_type: str = typer.Argument(
+        ...,
+        help="Type of explanation to get information about",
+        click_type=typer.Choice(["local", "global", "bias", "trust"])
+    ),
+):
     """Get detailed information about explanation types and methods.
 
     EXPLANATION_TYPE: Type of explanation to get information about
