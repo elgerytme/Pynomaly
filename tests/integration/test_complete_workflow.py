@@ -244,27 +244,27 @@ class TestCompleteWorkflowIntegration:
             assert "Service Worker for Pynomaly PWA" in response.text
 
             # Test main dashboard
-            response = client.get("/web/")
+            response = client.get("/")
             assert response.status_code == 200
             assert "Pynomaly" in response.text
 
             # Test detectors page
-            response = client.get("/web/detectors")
+            response = client.get("/detectors")
             assert response.status_code == 200
 
             # Test datasets page
-            response = client.get("/web/datasets")
+            response = client.get("/datasets")
             assert response.status_code == 200
 
             # Test detection page
-            response = client.get("/web/detection")
+            response = client.get("/detection")
             assert response.status_code == 200
 
             # Test HTMX endpoints
-            htmx_response = client.get("/web/htmx/detector-list")
+            htmx_response = client.get("/htmx/detector-list")
             assert htmx_response.status_code == 200
 
-            htmx_response = client.get("/web/htmx/dataset-list")
+            htmx_response = client.get("/htmx/dataset-list")
             assert htmx_response.status_code == 200
 
     @pytest.mark.integration
@@ -311,7 +311,7 @@ class TestCompleteWorkflowIntegration:
             }
 
             train_response = client.post(
-                "/web/htmx/train-detector",
+                "/htmx/train-detector",
                 data=train_form_data,
                 headers={"Content-Type": "application/x-www-form-urlencoded"},
             )
@@ -328,7 +328,7 @@ class TestCompleteWorkflowIntegration:
             }
 
             detect_response = client.post(
-                "/web/htmx/detect-anomalies",
+                "/htmx/detect-anomalies",
                 data=detect_form_data,
                 headers={"Content-Type": "application/x-www-form-urlencoded"},
             )
@@ -343,11 +343,11 @@ class TestCompleteWorkflowIntegration:
             )
 
             # 5. Test visualization endpoints work
-            viz_response = client.get("/web/visualizations")
+            viz_response = client.get("/visualizations")
             assert viz_response.status_code == 200
 
             # 6. Test monitoring dashboard
-            monitoring_response = client.get("/web/monitoring")
+            monitoring_response = client.get("/monitoring")
             assert monitoring_response.status_code == 200
 
     @pytest.mark.integration
@@ -412,7 +412,7 @@ class TestCompleteWorkflowIntegration:
     def test_pwa_offline_functionality(self, client):
         """Test PWA offline capabilities."""
         # Test service worker registration in main page
-        response = client.get("/web/")
+        response = client.get("/")
         assert response.status_code == 200
 
         # Verify PWA features are included
@@ -421,7 +421,7 @@ class TestCompleteWorkflowIntegration:
         assert "sw.js" in content or "serviceWorker" in content
 
         # Test offline page exists
-        response = client.get("/web/templates/offline.html")
+        response = client.get("/templates/offline.html")
         # This might not be directly accessible, but let's test the static file
         response = client.get("/static/sw.js")
         assert response.status_code == 200
@@ -512,7 +512,7 @@ class TestCompleteWorkflowIntegration:
             assert health_response.status_code == 200
 
             # ✅ Feature 3: Progressive Web App
-            pwa_response = client.get("/web/")
+            pwa_response = client.get("/")
             assert pwa_response.status_code == 200
 
             manifest_response = client.get("/static/manifest.json")
@@ -523,15 +523,15 @@ class TestCompleteWorkflowIntegration:
 
             # ✅ Feature 4: Complete Integration
             # Test HTMX endpoints work
-            htmx_response = client.get("/web/htmx/detector-list")
+            htmx_response = client.get("/htmx/detector-list")
             assert htmx_response.status_code == 200
 
             # Test visualization pages
-            viz_response = client.get("/web/visualizations")
+            viz_response = client.get("/visualizations")
             assert viz_response.status_code == 200
 
             # Test monitoring
-            monitoring_response = client.get("/web/monitoring")
+            monitoring_response = client.get("/monitoring")
             assert monitoring_response.status_code == 200
 
             print("✅ All 4 major features are properly integrated:")

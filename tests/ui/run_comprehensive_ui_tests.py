@@ -265,13 +265,13 @@ class UITestRunner:
                 page = context.new_page()
 
                 pages_to_capture = [
-                    ("/web/", "dashboard"),
-                    ("/web/detectors", "detectors"),
-                    ("/web/datasets", "datasets"),
-                    ("/web/detection", "detection"),
-                    ("/web/experiments", "experiments"),
-                    ("/web/visualizations", "visualizations"),
-                    ("/web/exports", "exports"),
+                    ("/", "dashboard"),
+                    ("/detectors", "detectors"),
+                    ("/datasets", "datasets"),
+                    ("/detection", "detection"),
+                    ("/experiments", "experiments"),
+                    ("/visualizations", "visualizations"),
+                    ("/exports", "exports"),
                 ]
 
                 captured_screenshots = []

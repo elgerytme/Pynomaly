@@ -139,10 +139,10 @@ class TestVisualRegression:
     def test_navigation_visual_consistency(self, page: Page):
         """Test navigation visual consistency across pages."""
         pages = [
-            {"path": "/web/", "name": "dashboard_nav"},
-            {"path": "/web/detectors", "name": "detectors_nav"},
-            {"path": "/web/datasets", "name": "datasets_nav"},
-            {"path": "/web/detection", "name": "detection_nav"},
+            {"path": "/", "name": "dashboard_nav"},
+            {"path": "/detectors", "name": "detectors_nav"},
+            {"path": "/datasets", "name": "datasets_nav"},
+            {"path": "/detection", "name": "detection_nav"},
         ]
 
         for page_info in pages:

@@ -323,11 +323,11 @@ class TestEndToEndWorkflowsPhase3:
         }
 
         web_ui_pages = [
-            "/web/",
-            "/web/dashboard",
-            "/web/detectors",
-            "/web/datasets",
-            "/web/detection",
+            "/",
+            "/dashboard",
+            "/detectors",
+            "/datasets",
+            "/detection",
         ]
 
         # Test API endpoints used by Web UI

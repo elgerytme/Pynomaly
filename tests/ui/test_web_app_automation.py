@@ -37,13 +37,13 @@ class TestWebAppAutomation:
 
         # Test navigation links
         nav_links = [
-            ("Dashboard", "/web/"),
-            ("Detectors", "/web/detectors"),
-            ("Datasets", "/web/datasets"),
-            ("Detection", "/web/detection"),
-            ("Experiments", "/web/experiments"),
-            ("Visualizations", "/web/visualizations"),
-            ("Exports", "/web/exports"),
+            ("Dashboard", "/"),
+            ("Detectors", "/detectors"),
+            ("Datasets", "/datasets"),
+            ("Detection", "/detection"),
+            ("Experiments", "/experiments"),
+            ("Visualizations", "/visualizations"),
+            ("Exports", "/exports"),
         ]
 
         for link_text, expected_url in nav_links:
@@ -353,11 +353,11 @@ class TestWebAppAutomation:
 
         # Visit main pages and collect console messages
         pages_to_test = [
-            "/web/",
-            "/web/detectors",
-            "/web/datasets",
-            "/web/detection",
-            "/web/visualizations",
+            "/",
+            "/detectors",
+            "/datasets",
+            "/detection",
+            "/visualizations",
         ]
 
         for test_page in pages_to_test:

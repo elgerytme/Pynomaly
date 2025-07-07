@@ -20,18 +20,18 @@ class DashboardPage(BasePage):
 
         # Navigation links mapping
         self.nav_links = {
-            "Dashboard": "/web/",
-            "Detectors": "/web/detectors",
-            "Datasets": "/web/datasets",
-            "Detection": "/web/detection",
-            "Experiments": "/web/experiments",
-            "Visualizations": "/web/visualizations",
-            "Exports": "/web/exports",
+            "Dashboard": "/",
+            "Detectors": "/detectors",
+            "Datasets": "/datasets",
+            "Detection": "/detection",
+            "Experiments": "/experiments",
+            "Visualizations": "/visualizations",
+            "Exports": "/exports",
         }
 
     def navigate(self):
         """Navigate to dashboard with enhanced loading verification."""
-        super().navigate("/web/")
+        super().navigate("/")
         self.wait_for_dashboard_load()
 
     @retry_on_failure(max_retries=3, delay=1.0)

@@ -364,10 +364,10 @@ class TestAccessibility:
     def test_page_title_accessibility(self, page: Page):
         """Test page title accessibility."""
         pages = [
-            {"url": "/web/", "expected": "Dashboard"},
-            {"url": "/web/detectors", "expected": "Detectors"},
-            {"url": "/web/datasets", "expected": "Datasets"},
-            {"url": "/web/detection", "expected": "Detection"},
+            {"url": "/", "expected": "Dashboard"},
+            {"url": "/detectors", "expected": "Detectors"},
+            {"url": "/datasets", "expected": "Datasets"},
+            {"url": "/detection", "expected": "Detection"},
         ]
 
         for page_info in pages:

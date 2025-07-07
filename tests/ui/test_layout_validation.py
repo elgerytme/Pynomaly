@@ -25,12 +25,12 @@ class TestLayoutValidation:
     def test_navigation_consistency(self, page: Page):
         """Test navigation consistency across pages."""
         pages = [
-            "/web/",
-            "/web/detectors",
-            "/web/datasets",
-            "/web/detection",
-            "/web/experiments",
-            "/web/visualizations",
+            "/",
+            "/detectors",
+            "/datasets",
+            "/detection",
+            "/experiments",
+            "/visualizations",
         ]
 
         navigation_results = {}
@@ -213,7 +213,7 @@ class TestLayoutValidation:
 
     def test_icon_consistency(self, page: Page):
         """Test icon usage consistency."""
-        pages = ["/web/", "/web/detectors", "/web/datasets"]
+        pages = ["/", "/detectors", "/datasets"]
 
         for page_url in pages:
             page.goto(f"http://pynomaly-app:8000{page_url}")

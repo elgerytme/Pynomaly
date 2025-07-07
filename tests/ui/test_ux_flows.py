@@ -51,12 +51,12 @@ class TestUXFlows:
 
         # Step 2: Navigate to each main section
         navigation_flow = [
-            ("/web/detectors", "Detectors"),
-            ("/web/datasets", "Datasets"),
-            ("/web/detection", "Detection"),
-            ("/web/experiments", "Experiments"),
-            ("/web/visualizations", "Visualizations"),
-            ("/web/", "Dashboard"),  # Return to dashboard
+            ("/detectors", "Detectors"),
+            ("/datasets", "Datasets"),
+            ("/detection", "Detection"),
+            ("/experiments", "Experiments"),
+            ("/visualizations", "Visualizations"),
+            ("/", "Dashboard"),  # Return to dashboard
         ]
 
         for path, expected_title_part in navigation_flow:
