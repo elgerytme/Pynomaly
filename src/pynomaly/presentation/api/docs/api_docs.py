@@ -1,7 +1,5 @@
 """API documentation routes and utilities."""
 
-from __future__ import annotations
-
 import json
 
 from fastapi import APIRouter, Request
