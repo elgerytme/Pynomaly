@@ -9,7 +9,7 @@ echo "Shell: $SHELL"
 echo
 
 # Change to project root
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../.."
 
 echo "Project root: $(pwd)"
 echo

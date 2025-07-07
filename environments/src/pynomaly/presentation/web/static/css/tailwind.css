@@ -1,0 +1,8 @@
+/* Tailwind CSS Custom Build for Pynomaly */
+
+@import "design-system.css";
+
+/* Navigation Dropdown Styles */
+.group:hover .group-hover\\:block {
+  display: block \!important;
+}

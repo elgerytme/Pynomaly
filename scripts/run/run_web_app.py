@@ -22,6 +22,7 @@ os.environ["PYTHONPATH"] = str(src_path)
 def main():
     """Start the Pynomaly web application."""
     import argparse
+
     import uvicorn
 
     parser = argparse.ArgumentParser(
