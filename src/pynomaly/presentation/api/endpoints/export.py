@@ -18,7 +18,7 @@ from ....application.dto.export_options import (
 )
 from ....application.services.export_service import ExportService
 from ....domain.entities.detection_result import DetectionResult
-from ..deps import get_container
+from ..auth_deps import get_container_simple_simple
 
 router = APIRouter(prefix="/export", tags=["export"])
 
@@ -121,7 +121,7 @@ export_operations: dict[str, dict[str, Any]] = {}
 
 @router.get("/formats", response_model=SupportedFormatsResponse)
 async def get_supported_formats(
-    container=Depends(get_container),
+    container=Depends(get_container_simple),
 ) -> SupportedFormatsResponse:
     """Get list of supported export formats and their capabilities."""
     try:
@@ -141,7 +141,7 @@ async def get_supported_formats(
 
 @router.post("/validate")
 async def validate_export_request(
-    request: ExportRequest, container=Depends(get_container)
+    request: ExportRequest, container=Depends(get_container_simple)
 ) -> dict[str, Any]:
     """Validate export request configuration."""
     try:
@@ -176,7 +176,7 @@ async def validate_export_request(
 async def start_export(
     request: ExportRequest,
     background_tasks: BackgroundTasks,
-    container=Depends(get_container),
+    container=Depends(get_container_simple),
 ) -> ExportStatusResponse:
     """Start an export operation."""
     try:
@@ -258,7 +258,7 @@ async def download_export_file(export_id: str):
 async def start_multi_export(
     request: MultiExportRequest,
     background_tasks: BackgroundTasks,
-    container=Depends(get_container),
+    container=Depends(get_container_simple),
 ) -> list[ExportStatusResponse]:
     """Start multiple export operations simultaneously."""
     try:

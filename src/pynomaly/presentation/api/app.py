@@ -137,16 +137,16 @@ def create_app(container: Container | None = None) -> FastAPI:
 
 ## Quick Start
 
-1. **Authenticate**: Use `/auth/login` to get a JWT token
-2. **Upload Data**: Use `/datasets/upload` to upload your dataset  
-3. **Create Detector**: Use `/detectors/create` to configure an anomaly detector
-4. **Train Model**: Use `/detection/train` to train the detector
-5. **Detect Anomalies**: Use `/detection/predict` to find anomalies
+1. **Authenticate**: Use `/api/v1/auth/login` to get a JWT token
+2. **Upload Data**: Use `/api/v1/datasets/upload` to upload your dataset  
+3. **Create Detector**: Use `/api/v1/detectors/create` to configure an anomaly detector
+4. **Train Model**: Use `/api/v1/detection/train` to train the detector
+5. **Detect Anomalies**: Use `/api/v1/detection/predict` to find anomalies
 
 ## Documentation
 
-- **Interactive API Explorer**: `/docs/swagger`
-- **API Reference**: `/docs/redoc`
+- **Interactive API Explorer**: `/api/v1/docs`
+- **API Reference**: `/api/v1/redoc`
 - **Postman Collection**: `/docs/postman`
 - **SDK Information**: `/docs/sdk-info`
 
@@ -156,9 +156,9 @@ def create_app(container: Container | None = None) -> FastAPI:
 - **Documentation**: [https://pynomaly.readthedocs.io](https://pynomaly.readthedocs.io)
 - **Issues**: [https://github.com/pynomaly/pynomaly/issues](https://github.com/pynomaly/pynomaly/issues)
         """,
-        docs_url="/api/docs" if settings.docs_enabled else None,
-        redoc_url="/api/redoc" if settings.docs_enabled else None,
-        openapi_url="/api/openapi.json" if settings.docs_enabled else None,
+        docs_url="/api/v1/docs" if settings.docs_enabled else None,
+        redoc_url="/api/v1/redoc" if settings.docs_enabled else None,
+        openapi_url="/api/v1/openapi.json" if settings.docs_enabled else None,
         lifespan=lifespan,
         contact={
             "name": "Pynomaly Team",
@@ -194,22 +194,22 @@ def create_app(container: Container | None = None) -> FastAPI:
     # Include documentation router (before API routers for proper URL handling)
     app.include_router(api_docs.router, tags=["documentation"])
 
-    # Include API routers
-    app.include_router(health.router, prefix="/api", tags=["health"])
+    # Include API routers with v1 versioning
+    app.include_router(health.router, prefix="/api/v1", tags=["health"])
 
-    app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
+    app.include_router(auth.router, prefix="/api/v1/auth", tags=["authentication"])
 
-    app.include_router(admin.router, prefix="/api/admin", tags=["administration"])
+    app.include_router(admin.router, prefix="/api/v1/admin", tags=["administration"])
 
-    app.include_router(autonomous.router, prefix="/api/autonomous", tags=["autonomous"])
+    app.include_router(autonomous.router, prefix="/api/v1/autonomous", tags=["autonomous"])
 
-    app.include_router(detectors.router, prefix="/api/detectors", tags=["detectors"])
+    app.include_router(detectors.router, prefix="/api/v1/detectors", tags=["detectors"])
 
-    app.include_router(datasets.router, prefix="/api/datasets", tags=["datasets"])
+    app.include_router(datasets.router, prefix="/api/v1/datasets", tags=["datasets"])
 
-    app.include_router(detection.router, prefix="/api/detection", tags=["detection"])
+    app.include_router(detection.router, prefix="/api/v1/detection", tags=["detection"])
 
-    app.include_router(automl.router, prefix="/api/automl", tags=["automl"])
+    app.include_router(automl.router, prefix="/api/v1/automl", tags=["automl"])
 
     # Include enhanced AutoML router if available
     # if ENHANCED_AUTOML_AVAILABLE:
@@ -217,20 +217,24 @@ def create_app(container: Container | None = None) -> FastAPI:
 
     # Core functionality with simplified auth dependencies
     app.include_router(
-        experiments.router, prefix="/api/experiments", tags=["experiments"]
+        experiments.router, prefix="/api/v1/experiments", tags=["experiments"]
     )
 
-    app.include_router(ensemble.router, prefix="/api/ensemble", tags=["ensemble"])
+    app.include_router(ensemble.router, prefix="/api/v1/ensemble", tags=["ensemble"])
     app.include_router(
-        explainability.router, prefix="/api/explainability", tags=["explainability"]
+        explainability.router, prefix="/api/v1/explainability", tags=["explainability"]
     )
-    # app.include_router(
-    #     performance.router, prefix="/api/performance", tags=["performance"]
-    # )
-    # app.include_router(export.router, prefix="/api", tags=["export"])
-    # app.include_router(model_lineage.router, prefix="/api", tags=["model_lineage"])
-    app.include_router(streaming.router, prefix="/api", tags=["streaming"])
-    # app.include_router(events.router, prefix="/api", tags=["events"])
+    app.include_router(
+        performance.router, prefix="/api/v1/performance", tags=["performance"]
+    )
+    app.include_router(export.router, prefix="/api/v1", tags=["export"])
+    app.include_router(model_lineage.router, prefix="/api/v1", tags=["model_lineage"])
+    app.include_router(streaming.router, prefix="/api/v1", tags=["streaming"])
+    app.include_router(events.router, prefix="/api/v1", tags=["events"])
+    
+    # TODO: Fix management and workflows endpoints schema issues
+    # app.include_router(management.router, prefix="/api/v1", tags=["management"])
+    # app.include_router(workflows.router, prefix="/api/v1", tags=["workflows"])
 
     # Distributed processing API removed for simplification
 
@@ -243,8 +247,9 @@ def create_app(container: Container | None = None) -> FastAPI:
         return {
             "message": "Pynomaly API",
             "version": settings.app.version,
-            "docs": "/api/docs",
-            "health": "/api/health",
+            "api_version": "v1",
+            "docs": "/api/v1/docs",
+            "health": "/api/v1/health",
         }
 
     return app

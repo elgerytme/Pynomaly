@@ -18,7 +18,7 @@ from pynomaly.domain.entities.lineage_record import (
     TransformationType,
 )
 from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.deps import get_container
+from pynomaly.presentation.api.auth_deps import get_container_simple_simple
 from pynomaly.presentation.api.docs.response_models import (
     ErrorResponse,
     HTTPResponses,
@@ -103,7 +103,7 @@ class LineageQueryRequest(BaseModel):
 
 
 async def get_lineage_service(
-    container: Container = Depends(get_container),
+    container: Container = Depends(get_container_simple),
 ) -> ModelLineageService:
     """Get model lineage service."""
     # This would be properly injected in a real implementation

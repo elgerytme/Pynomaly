@@ -27,6 +27,9 @@ from pynomaly.domain.services import (
 )
 from pynomaly.infrastructure.config.feature_flags import FeatureFlagManager
 from pynomaly.infrastructure.config.settings import Settings
+# Celery import temporarily disabled due to missing dependency
+# from pynomaly.tasks.detection import app as celery_app
+
 from pynomaly.infrastructure.repositories import (
     FileDatasetRepository,
     FileDetectorRepository,

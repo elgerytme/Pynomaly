@@ -21,7 +21,7 @@ from pynomaly.domain.entities.anomaly_event import (
     EventType,
 )
 from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.deps import get_container
+from pynomaly.presentation.api.auth_deps import get_container_simple_simple
 from pynomaly.presentation.api.docs.response_models import (
     ErrorResponse,
     HTTPResponses,
@@ -111,7 +111,7 @@ class EventQueryRequest(BaseModel):
 
 
 async def get_event_service(
-    container: Container = Depends(get_container),
+    container: Container = Depends(get_container_simple),
 ) -> EventProcessingService:
     """Get event processing service."""
     # This would be properly injected in a real implementation
