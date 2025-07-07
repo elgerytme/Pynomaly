@@ -1,0 +1,66 @@
+# Test matrix configuration for automated environment testing
+
+environments:
+  # Minimal environment with core dependencies only
+  - name: "minimal"
+    python_version: "3.11"
+    packages:
+      - "pytest>=8.0.0"
+      - "pytest-cov>=6.0.0"
+      - "pytest-asyncio>=0.24.0"
+      - "numpy>=1.26.0"
+      - "pandas>=2.2.3"
+      - "pydantic>=2.10.4"
+    clean: false
+    
+  # Standard environment with common ML dependencies
+  - name: "standard"
+    python_version: "3.11"
+    packages:
+      - "pytest>=8.0.0"
+      - "pytest-cov>=6.0.0"
+      - "pytest-asyncio>=0.24.0"
+      - "numpy>=1.26.0"
+      - "pandas>=2.2.3"
+      - "pydantic>=2.10.4"
+      - "scikit-learn>=1.6.0"
+      - "scipy>=1.15.0"
+      - "pyod>=2.0.5"
+    clean: false
+    
+  # Full environment with all optional dependencies
+  - name: "full"
+    python_version: "3.11"
+    requirements_file: "requirements.txt"
+    clean: false
+    
+  # Python 3.12 environment
+  - name: "python312"
+    python_version: "3.12"
+    packages:
+      - "pytest>=8.0.0"
+      - "pytest-cov>=6.0.0"
+      - "pytest-asyncio>=0.24.0"
+      - "numpy>=1.26.0"
+      - "pandas>=2.2.3"
+      - "pydantic>=2.10.4"
+      - "scikit-learn>=1.6.0"
+    clean: false
+
+# Test commands to run in each environment
+test_commands:
+  unit: "python -m pytest tests/domain/ tests/application/ -v --tb=short"
+  integration: "python -m pytest tests/integration/ -v --tb=short"
+  property: "python -m pytest tests/property_based/ -v --tb=short"
+  benchmark: "python -m pytest tests/benchmarks/ -v --tb=short --benchmark-skip"
+
+# Test matrix combinations
+matrix:
+  - environment: "minimal"
+    commands: ["unit"]
+  - environment: "standard" 
+    commands: ["unit", "integration"]
+  - environment: "full"
+    commands: ["unit", "integration", "property"]
+  - environment: "python312"
+    commands: ["unit"]
