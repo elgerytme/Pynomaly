@@ -228,15 +228,15 @@
                 <div class="flex">
                     <!-- Logo -->
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="/web/" class="text-2xl font-bold text-primary">
+                        <a href="/" class="text-2xl font-bold text-primary">
                             🔍 Pynomaly
                         </a>
                     </div>
                     
                     <!-- Desktop Navigation - Streamlined -->
                     <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                        <a href="/web/" 
-                           class="{% if request.url.path == '/web/' %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        <a href="/" 
+                           class="{% if request.url.path == '/' %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             Dashboard
                         </a>
                         <div class="relative group">
@@ -247,10 +247,10 @@
                                 </svg>
                             </button>
                             <div class="hidden group-hover:block absolute top-full left-0 bg-white shadow-lg rounded-md mt-1 min-w-48 z-50">
-                                <a href="/web/datasets" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📁 Datasets</a>
-                                <a href="/web/detectors" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🔍 Detectors</a>
-                                <a href="/web/detection" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🎯 Detection</a>
-                                <a href="/web/ensemble" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🤖 Ensemble</a>
+                                <a href="/datasets" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📁 Datasets</a>
+                                <a href="/detectors" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🔍 Detectors</a>
+                                <a href="/detection" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🎯 Detection</a>
+                                <a href="/ensemble" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🤖 Ensemble</a>
                             </div>
                         </div>
                         <div class="relative group">
@@ -261,9 +261,9 @@
                                 </svg>
                             </button>
                             <div class="hidden group-hover:block absolute top-full left-0 bg-white shadow-lg rounded-md mt-1 min-w-48 z-50">
-                                <a href="/web/automl" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">⚡ AutoML</a>
-                                <a href="/web/explainability" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🔍 Explainability</a>
-                                <a href="/web/experiments" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🧪 Experiments</a>
+                                <a href="/automl" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">⚡ AutoML</a>
+                                <a href="/explainability" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🔍 Explainability</a>
+                                <a href="/experiments" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🧪 Experiments</a>
                             </div>
                         </div>
                         <div class="relative group">

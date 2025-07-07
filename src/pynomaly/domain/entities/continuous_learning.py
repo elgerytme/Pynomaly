@@ -614,7 +614,7 @@ class ContinuousLearning:
     user_feedback_history: list[UserFeedback] = field(default_factory=list)
     
     # Current state
-    current_performance_baseline: PerformanceBaseline  < /dev/null |  None = None
+    current_performance_baseline: PerformanceBaseline | None = None
     consecutive_improvements: int = 0
     consecutive_degradations: int = 0
     
