@@ -70,7 +70,7 @@ Examples:
     app = create_web_app()
 
     print("Starting Pynomaly web application...")
-    print(f"Web UI available at: http://{args.host}:{args.port}/web/")
+    print(f"Web UI available at: http://{args.host}:{args.port}/")
     print(f"API documentation at: http://{args.host}:{args.port}/api/docs")
     print(f"API health check at: http://{args.host}:{args.port}/api/health")
     print()

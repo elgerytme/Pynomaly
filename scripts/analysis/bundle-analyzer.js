@@ -31,7 +31,8 @@ class BundleAnalyzer {
   }
 
   async analyze() {
-    console.log('= Starting bundle analysis...');
+    console.log('=
+ Starting bundle analysis...');
     
     try {
       await fs.mkdir(this.outputDir, { recursive: true });

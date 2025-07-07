@@ -127,7 +127,8 @@ class BrowserCompatibilityMatrix {
   }
 
   async analyzeBrowserCapabilities() {
-    console.log('= Analyzing browser capabilities...');
+    console.log('=
+ Analyzing browser capabilities...');
     
     // Define key web features to check
     const keyFeatures = [
@@ -205,7 +206,8 @@ class BrowserCompatibilityMatrix {
   }
 
   analyzeCrossBrowserIssues() {
-    console.log('= Analyzing cross-browser issues...');
+    console.log('=
+ Analyzing cross-browser issues...');
     
     const issues = {
       criticalMissing: [],

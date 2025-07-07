@@ -247,7 +247,7 @@ try:
         print(f"✅ API health endpoint working (status: {response.status_code})")
     
     # Test web UI root
-    response = client.get("/web/")
+    response = client.get("/")
     if response.status_code in [200, 302]:  # 200 for content, 302 for redirect
         print(f"✅ Web UI root endpoint working (status: {response.status_code})")
     

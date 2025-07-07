@@ -33,7 +33,8 @@ class PerformanceRegressionDetector {
   }
 
   async detect() {
-    console.log('= Starting performance regression detection...');
+    console.log('=
+ Starting performance regression detection...');
     
     try {
       await fs.mkdir(this.outputDir, { recursive: true });
