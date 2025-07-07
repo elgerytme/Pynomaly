@@ -146,19 +146,32 @@ class StreamDetectionResponseDTO(BaseModel):
 class StreamConfigurationDTO(BaseModel):
     """DTO for stream configuration."""
 
-    buffer_size: int = Field(default=1000, description="Buffer size")
+    stream_id: str = Field(description="Stream identifier")
     batch_size: int = Field(default=100, description="Batch size")
     timeout_ms: int = Field(default=1000, description="Timeout in milliseconds")
+    backpressure: BackpressureConfigDTO = Field(description="Backpressure configuration")
+    window: WindowConfigDTO = Field(description="Window configuration")
+    checkpoint: CheckpointConfigDTO = Field(description="Checkpoint configuration")
 
 
 class StreamMetricsDTO(BaseModel):
     """DTO for stream metrics."""
 
     stream_id: str = Field(description="Stream identifier")
-    throughput: float = Field(description="Throughput in samples/second")
-    latency_ms: float = Field(description="Average latency in milliseconds")
-    error_rate: float = Field(description="Error rate percentage")
-    buffer_utilization: float = Field(description="Buffer utilization percentage")
+    messages_processed: int = Field(description="Total messages processed")
+    messages_failed: int = Field(description="Total messages failed")
+    average_processing_time_ms: float = Field(description="Average processing time in milliseconds")
+    throughput_per_second: float = Field(description="Throughput in messages per second")
+    backpressure_events: int = Field(description="Number of backpressure events")
+    window_start: datetime = Field(description="Metrics window start time")
+    window_end: datetime = Field(description="Metrics window end time")
+
+    @property
+    def success_rate(self) -> float:
+        """Calculate success rate from processed and failed messages."""
+        if self.messages_processed == 0:
+            return 0.0
+        return (self.messages_processed - self.messages_failed) / self.messages_processed
 
 
 class StreamStatusDTO(BaseModel):
@@ -192,10 +205,10 @@ class BackpressureConfigDTO(BaseModel):
 class WindowConfigDTO(BaseModel):
     """DTO for window configuration."""
 
-    window_type: str = Field(description="Window type (sliding, tumbling, session)")
+    type: str = Field(description="Window type (sliding, tumbling, session)")
     size_ms: int = Field(description="Window size in milliseconds")
-    advance_ms: Optional[int] = Field(
-        default=None, description="Window advance in milliseconds"
+    slide_ms: Optional[int] = Field(
+        default=None, description="Window slide in milliseconds"
     )
     allowed_lateness_ms: int = Field(
         default=0, description="Allowed lateness in milliseconds"
