@@ -7,8 +7,9 @@ import json
 import sys
 import time
 from pathlib import Path
+from typing import List, Optional
 
-import click
+import typer
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -33,42 +34,30 @@ from pynomaly.infrastructure.data_loaders import CSVLoader, ParquetLoader
 
 console = Console()
 
+# Create Typer app
+app = typer.Typer(
+    name="selection",
+    help="🧠 Intelligent algorithm selection with learning capabilities",
+    add_completion=True,
+    rich_markup_mode="rich",
+)
 
-@click.group()
-def selection():
-    """Intelligent algorithm selection commands."""
-    pass
 
-
-@selection.command()
-@click.argument("dataset_path", type=click.Path(exists=True, path_type=Path))
-@click.option(
-    "--max-training-time", type=float, help="Maximum training time in seconds"
-)
-@click.option("--max-memory", type=float, help="Maximum memory usage in MB")
-@click.option("--min-accuracy", type=float, help="Minimum required accuracy (0-1)")
-@click.option(
-    "--require-interpretability/--no-interpretability",
-    default=False,
-    help="Require interpretable algorithms",
-)
-@click.option("--gpu/--no-gpu", default=False, help="GPU availability")
-@click.option(
-    "--output", type=click.Path(path_type=Path), help="Output file for recommendations"
-)
-@click.option(
-    "--top-k", type=int, default=5, help="Number of top recommendations to show"
-)
+@app.command()
 @require_feature("intelligent_selection")
 def recommend(
-    dataset_path: Path,
-    max_training_time: float | None,
-    max_memory: float | None,
-    min_accuracy: float | None,
-    require_interpretability: bool,
-    gpu: bool,
-    output: Path | None,
-    top_k: int,
+    dataset_path: Path = typer.Argument(..., help="Path to dataset file (CSV or Parquet)", exists=True),
+    max_training_time: Optional[float] = typer.Option(None, "--max-training-time", help="Maximum training time in seconds"),
+    max_memory: Optional[float] = typer.Option(None, "--max-memory", help="Maximum memory usage in MB"),
+    min_accuracy: Optional[float] = typer.Option(None, "--min-accuracy", help="Minimum required accuracy (0-1)"),
+    require_interpretability: bool = typer.Option(
+        False,
+        "--require-interpretability/--no-interpretability",
+        help="Require interpretable algorithms"
+    ),
+    gpu: bool = typer.Option(False, "--gpu/--no-gpu", help="GPU availability"),
+    output: Optional[Path] = typer.Option(None, "--output", help="Output file for recommendations"),
+    top_k: int = typer.Option(5, "--top-k", help="Number of top recommendations to show"),
 ):
     """Recommend optimal algorithms for a dataset.
 
@@ -140,27 +129,14 @@ def recommend(
         sys.exit(1)
 
 
-@selection.command()
-@click.argument("dataset_path", type=click.Path(exists=True, path_type=Path))
-@click.option(
-    "--algorithms", "-a", multiple=True, help="Specific algorithms to benchmark"
-)
-@click.option("--cv-folds", type=int, default=3, help="Cross-validation folds")
-@click.option(
-    "--max-training-time", type=float, help="Maximum training time per algorithm"
-)
-@click.option(
-    "--output",
-    type=click.Path(path_type=Path),
-    help="Output file for benchmark results",
-)
+@app.command()
 @require_feature("intelligent_selection")
 def benchmark(
-    dataset_path: Path,
-    algorithms: tuple,
-    cv_folds: int,
-    max_training_time: float | None,
-    output: Path | None,
+    dataset_path: Path = typer.Argument(..., help="Path to dataset file (CSV or Parquet)", exists=True),
+    algorithms: Optional[List[str]] = typer.Option(None, "-a", "--algorithms", help="Specific algorithms to benchmark"),
+    cv_folds: int = typer.Option(3, "--cv-folds", help="Cross-validation folds"),
+    max_training_time: Optional[float] = typer.Option(None, "--max-training-time", help="Maximum training time per algorithm"),
+    output: Optional[Path] = typer.Option(None, "--output", help="Output file for benchmark results"),
 ):
     """Benchmark algorithms on a dataset.
 
@@ -185,7 +161,7 @@ def benchmark(
         # Initialize selection service
         selection_service = IntelligentSelectionService()
 
-        algorithm_list = list(algorithms) if algorithms else None
+        algorithm_list = algorithms
 
         console.print(f"⚡ Benchmarking algorithms on dataset: {dataset.name}")
         console.print(f"Cross-validation folds: {cv_folds}")
@@ -231,26 +207,15 @@ def benchmark(
         sys.exit(1)
 
 
-@selection.command()
-@click.argument("dataset_path", type=click.Path(exists=True, path_type=Path))
-@click.argument("algorithm", type=str)
-@click.option(
-    "--performance-score",
-    type=float,
-    required=True,
-    help="Achieved performance score (0-1)",
-)
-@click.option("--training-time", type=float, help="Training time in seconds")
-@click.option("--memory-usage", type=float, help="Memory usage in MB")
-@click.option("--additional-metrics", help="Additional metrics as JSON string")
+@app.command()
 @require_feature("intelligent_selection")
 def learn(
-    dataset_path: Path,
-    algorithm: str,
-    performance_score: float,
-    training_time: float | None,
-    memory_usage: float | None,
-    additional_metrics: str | None,
+    dataset_path: Path = typer.Argument(..., help="Path to dataset file used", exists=True),
+    algorithm: str = typer.Argument(..., help="Algorithm that was used"),
+    performance_score: float = typer.Option(..., "--performance-score", help="Achieved performance score (0-1)"),
+    training_time: Optional[float] = typer.Option(None, "--training-time", help="Training time in seconds"),
+    memory_usage: Optional[float] = typer.Option(None, "--memory-usage", help="Memory usage in MB"),
+    additional_metrics: Optional[str] = typer.Option(None, "--additional-metrics", help="Additional metrics as JSON string"),
 ):
     """Learn from algorithm selection result.
 
@@ -307,18 +272,12 @@ def learn(
         sys.exit(1)
 
 
-@selection.command()
-@click.option(
-    "--min-samples",
-    type=int,
-    default=10,
-    help="Minimum samples required for reliable insights",
-)
-@click.option(
-    "--output", type=click.Path(path_type=Path), help="Output file for insights"
-)
+@app.command()
 @require_feature("intelligent_selection")
-def insights():
+def insights(
+    min_samples: int = typer.Option(10, "--min-samples", help="Minimum samples required for reliable insights"),
+    output: Optional[Path] = typer.Option(None, "--output", help="Output file for insights"),
+):
     """Get insights from algorithm selection history.
 
     Examples:
@@ -360,17 +319,13 @@ def insights():
         sys.exit(1)
 
 
-@selection.command()
-@click.argument("dataset_path", type=click.Path(exists=True, path_type=Path))
-@click.argument("algorithm", type=str)
-@click.option(
-    "--confidence-level",
-    type=float,
-    default=0.95,
-    help="Confidence level for prediction interval",
-)
+@app.command()
 @require_feature("intelligent_selection")
-def predict_performance(dataset_path: Path, algorithm: str, confidence_level: float):
+def predict_performance(
+    dataset_path: Path = typer.Argument(..., help="Path to dataset file", exists=True),
+    algorithm: str = typer.Argument(..., help="Algorithm to predict performance for"),
+    confidence_level: float = typer.Option(0.95, "--confidence-level", help="Confidence level for prediction interval"),
+):
     """Predict algorithm performance on a dataset.
 
     DATASET_PATH: Path to dataset file
@@ -448,7 +403,7 @@ def predict_performance(dataset_path: Path, algorithm: str, confidence_level: fl
         sys.exit(1)
 
 
-@selection.command()
+@app.command()
 def status():
     """Show intelligent selection service status.
 

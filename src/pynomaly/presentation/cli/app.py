@@ -14,6 +14,7 @@ from pynomaly.presentation.cli import (
     autonomous,
     deep_learning,
     explainability,
+    selection,
 )
 from pynomaly.presentation.cli import config as config_cli
 from pynomaly.presentation.cli import (
@@ -83,7 +84,7 @@ app.add_typer(
 )
 app.add_typer(deep_learning.app, name="deep-learning", help="🧠 Deep learning anomaly detection (PyTorch, TensorFlow, JAX)")
 app.add_typer(explainability.app, name="explainability", help="🔍 Explainable AI (model interpretability, bias analysis)")
-# app.add_typer(selection.selection, name="selection", help="🧠 Intelligent algorithm selection with learning capabilities")  # Uses click
+app.add_typer(selection.app, name="selection", help="🧠 Intelligent algorithm selection with learning capabilities")
 # app.add_typer(security_commands, name="security", help="🔒 Security & compliance (SOC2, GDPR, HIPAA, encryption)")  # Temporarily disabled
 # app.add_typer(dashboard_commands, name="dashboard", help="📊 Advanced visualization dashboards (executive, operational, analytical)")  # Temporarily disabled
 # app.add_typer(governance_commands, name="governance", help="⚖️ Governance framework (audit trails, policies, risk management)")  # Temporarily disabled

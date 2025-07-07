@@ -10,6 +10,7 @@ from pynomaly.application.services.task_tracking_service import (
     TaskTrackingService,
 )
 from pynomaly.infrastructure.config import Container
+from pynomaly.infrastructure.auth import get_auth, create_websocket_auth_dependency
 from pynomaly.presentation.api.deps import get_container
 
 router = APIRouter()
@@ -99,9 +100,21 @@ connection_manager = ConnectionManager()
 
 @router.websocket("/ws")
 async def websocket_endpoint(
-    websocket: WebSocket, container: Container = Depends(get_container)
+    websocket: WebSocket, 
+    container: Container = Depends(get_container)
 ):
     """Main WebSocket endpoint for real-time updates."""
+    # Authenticate the WebSocket connection
+    try:
+        auth_service = get_auth()
+        ws_auth_dep = create_websocket_auth_dependency(auth_service)
+        user = await ws_auth_dep(websocket)
+        logger.info(f"Authenticated WebSocket user: {user.username}")
+    except Exception as e:
+        logger.warning(f"WebSocket authentication failed: {e}")
+        await websocket.close(code=4001, reason="Authentication required")
+        return
+    
     await connection_manager.connect(websocket)
 
     try:

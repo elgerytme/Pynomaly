@@ -9,6 +9,7 @@ import time
 from pathlib import Path
 from typing import List, Optional
 
+import click
 import numpy as np
 import typer
 from rich.console import Console
@@ -48,14 +49,13 @@ def train(
         "autoencoder",
         "-a", "--algorithm",
         help="Deep learning algorithm",
-        click_type=typer.Choice(["autoencoder", "vae", "lstm", "transformer", "gmm", "svdd"])
+        click_type=click.Choice(["autoencoder", "vae", "lstm", "transformer", "gmm", "svdd"])
     ),
     framework: Optional[str] = typer.Option(
         None,
         "-f", "--framework",
         help="Deep learning framework (auto-select if not specified)",
-        click_type=typer.Choice(["pytorch", "tensorflow", "jax"])
-    ),
+        click_type=click.Choice(["pytorch", "tensorflow", "jax"]),
     epochs: int = typer.Option(100, "--epochs", help="Number of training epochs"),
     batch_size: int = typer.Option(32, "--batch-size", help="Batch size for training"),
     learning_rate: float = typer.Option(0.001, "--learning-rate", help="Learning rate"),
@@ -178,13 +178,13 @@ def benchmark(
         "autoencoder",
         "-a", "--algorithm",
         help="Deep learning algorithm",
-        click_type=typer.Choice(["autoencoder", "vae", "lstm", "transformer", "gmm", "svdd"])
+        click_type=click.Choice(["autoencoder", "vae", "lstm", "transformer", "gmm", "svdd"])
     ),
     frameworks: Optional[List[str]] = typer.Option(
         None,
         "-f", "--frameworks",
         help="Frameworks to benchmark (all available if not specified)",
-        click_type=typer.Choice(["pytorch", "tensorflow", "jax"])
+        click_type=click.Choice(["pytorch", "tensorflow", "jax"])
     ),
     epochs: int = typer.Option(50, "--epochs", help="Number of training epochs"),
     output: Optional[Path] = typer.Option(None, "--output", help="Output file for benchmark results"),
@@ -245,7 +245,7 @@ def recommend(
         "balanced",
         "--priority",
         help="Performance priority",
-        click_type=typer.Choice(["speed", "accuracy", "memory", "balanced"])
+        click_type=click.Choice(["speed", "accuracy", "memory", "balanced"])
     ),
     gpu: bool = typer.Option(True, "--gpu/--no-gpu", help="GPU availability"),
 ):
@@ -352,7 +352,7 @@ def info(
     algorithm: str = typer.Argument(
         ...,
         help="Algorithm to get information about",
-        click_type=typer.Choice(["autoencoder", "vae", "lstm", "transformer", "gmm", "svdd"])
+        click_type=click.Choice(["autoencoder", "vae", "lstm", "transformer", "gmm", "svdd"])
     ),
 ):
     """Get detailed information about a deep learning algorithm.

@@ -10,6 +10,8 @@ from pathlib import Path
 from typing import List, Optional
 
 import typer
+import click
+import click
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -51,27 +53,27 @@ def explain(
         "both",
         "-t", "--explanation-type",
         help="Type of explanation to generate",
-        click_type=typer.Choice(["local", "global", "both"])
+        click_type=click.Choice(["local", "global", "both"])
     ),
     methods: Optional[List[str]] = typer.Option(
         None,
         "-m", "--methods",
         help="Explanation methods to use",
-        click_type=typer.Choice(["shap", "lime", "permutation", "gradient"])
+        click_type=click.Choice(["shap", "lime", "permutation", "gradient"])
     ),
     n_samples: int = typer.Option(10, "--n-samples", help="Number of samples for local explanations"),
     audience: str = typer.Option(
         "technical",
         "--audience",
         help="Target audience for explanations",
-        click_type=typer.Choice(["technical", "business", "regulatory"])
+        click_type=click.Choice(["technical", "business", "regulatory"])
     ),
     output: Optional[Path] = typer.Option(None, "--output", help="Output file for explanation report"),
     output_format: str = typer.Option(
         "json",
         "--format",
         help="Output format",
-        click_type=typer.Choice(["json", "html", "pdf"])
+        click_type=click.Choice(["json", "html", "pdf"])
     ),
     visualizations: bool = typer.Option(True, "--visualizations/--no-visualizations", help="Generate visualization plots"),
 ):
@@ -164,7 +166,7 @@ def analyze_bias(
         None,
         "-m", "--metrics",
         help="Fairness metrics to compute",
-        click_type=typer.Choice(["demographic_parity", "equalized_odds", "statistical_parity"])
+        click_type=click.Choice(["demographic_parity", "equalized_odds", "statistical_parity"])
     ),
     threshold: float = typer.Option(0.5, "--threshold", help="Decision threshold for binary classification"),
     min_group_size: int = typer.Option(30, "--min-group-size", help="Minimum group size for analysis"),
@@ -320,7 +322,7 @@ def feature_importance(
         "shap",
         "--method",
         help="Feature importance method",
-        click_type=typer.Choice(["shap", "lime", "permutation"])
+        click_type=click.Choice(["shap", "lime", "permutation"])
     ),
     top_k: int = typer.Option(15, "--top-k", help="Number of top features to display"),
     output: Optional[Path] = typer.Option(None, "--output", help="Output file for feature importance"),
@@ -503,7 +505,7 @@ def info(
     explanation_type: str = typer.Argument(
         ...,
         help="Type of explanation to get information about",
-        click_type=typer.Choice(["local", "global", "bias", "trust"])
+        click_type=click.Choice(["local", "global", "bias", "trust"])
     ),
 ):
     """Get detailed information about explanation types and methods.
