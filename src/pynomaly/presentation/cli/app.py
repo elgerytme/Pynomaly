@@ -26,7 +26,7 @@ from pynomaly.presentation.cli import (
 # from pynomaly.presentation.cli import performance  # Temporarily disabled due to Typer type issues
 from pynomaly.presentation.cli.export import export_app
 
-# from pynomaly.presentation.cli import deep_learning  # Temporarily disabled due to syntax error
+from pynomaly.presentation.cli import deep_learning
 # from pynomaly.presentation.cli import explainability  # Temporarily disabled due to import error
 # from pynomaly.presentation.cli import selection  # Temporarily disabled
 # from pynomaly.presentation.cli.security import security_commands  # Temporarily disabled
@@ -80,7 +80,7 @@ app.add_typer(detection.app, name="detect", help="Run anomaly detection")
 app.add_typer(
     tdd.app, name="tdd", help="Test-Driven Development (TDD) management and enforcement"
 )
-# app.add_typer(deep_learning.deep_learning, name="deep-learning", help="🧠 Deep learning anomaly detection (PyTorch, TensorFlow, JAX)")  # Temporarily disabled
+app.add_typer(deep_learning.deep_learning, name="deep-learning", help="🧠 Deep learning anomaly detection (PyTorch, TensorFlow, JAX)")
 # app.add_typer(explainability.explainability, name="explainability", help="🔍 Explainable AI (model interpretability, bias analysis)")  # Temporarily disabled
 # app.add_typer(selection.selection, name="selection", help="🧠 Intelligent algorithm selection with learning capabilities")  # Temporarily disabled
 # app.add_typer(security_commands, name="security", help="🔒 Security & compliance (SOC2, GDPR, HIPAA, encryption)")  # Temporarily disabled

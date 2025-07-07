@@ -828,5 +828,4 @@ def _save_benchmark_results(results: list, output_path: Path):
         json.dump(benchmark_data, f, indent=2, default=str)
 
 
-# Import numpy for calculations
-import numpy as np
+# numpy imported at top of file
