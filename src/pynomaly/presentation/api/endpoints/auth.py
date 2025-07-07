@@ -1,7 +1,5 @@
 """Authentication endpoints for API."""
 
-from typing import Annotated
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
@@ -14,7 +12,7 @@ from pynomaly.infrastructure.auth import (
     UserModel,
     get_auth,
 )
-from pynomaly.infrastructure.auth.middleware import get_current_user
+from pynomaly.presentation.api.auth_deps import get_current_user_model
 
 router = APIRouter()
 
@@ -64,8 +62,8 @@ class APIKeyResponse(BaseModel):
 
 @router.post("/login", response_model=TokenResponse)
 async def login(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    auth_service: Annotated[JWTAuthService | None, Depends(get_auth)],
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    auth_service: JWTAuthService | None = Depends(get_auth),
 ) -> TokenResponse:
     """Login with username and password.
 
@@ -100,7 +98,7 @@ async def login(
 @router.post("/refresh", response_model=TokenResponse)
 async def refresh_token(
     refresh_token: str,
-    auth_service: Annotated[JWTAuthService | None, Depends(get_auth)],
+    auth_service: JWTAuthService | None = Depends(get_auth),
 ) -> TokenResponse:
     """Refresh access token using refresh token.
 
@@ -132,7 +130,7 @@ async def refresh_token(
 )
 async def register(
     request_data: RegisterRequest,
-    auth_service: Annotated[JWTAuthService | None, Depends(get_auth)],
+    auth_service: JWTAuthService | None = Depends(get_auth),
 ) -> UserResponse:
     """Register a new user.
 
@@ -176,7 +174,7 @@ async def register(
 
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_profile(
-    current_user: Annotated[UserModel | None, Depends(get_current_user)],
+    current_user: UserModel | None = Depends(get_current_user_model),
 ) -> UserResponse:
     """Get current user profile.
 
@@ -211,8 +209,8 @@ async def get_current_user_profile(
 )
 async def create_api_key(
     request: APIKeyRequest,
-    current_user: Annotated[UserModel | None, Depends(get_current_user)],
-    auth_service: Annotated[JWTAuthService | None, Depends(get_auth)],
+    current_user: UserModel | None = Depends(get_current_user_model),
+    auth_service: JWTAuthService | None = Depends(get_auth),
 ) -> APIKeyResponse:
     """Create a new API key for the current user.
 
@@ -260,8 +258,8 @@ async def create_api_key(
 @router.delete("/api-keys/{api_key}")
 async def revoke_api_key(
     api_key: str,
-    current_user: Annotated[UserModel | None, Depends(get_current_user)],
-    auth_service: Annotated[JWTAuthService | None, Depends(get_auth)],
+    current_user: UserModel | None = Depends(get_current_user_model),
+    auth_service: JWTAuthService | None = Depends(get_auth),
 ) -> dict:
     """Revoke an API key.
 
@@ -307,7 +305,7 @@ async def revoke_api_key(
 
 @router.post("/logout")
 async def logout(
-    current_user: Annotated[UserModel | None, Depends(get_current_user)],
+    current_user: UserModel | None = Depends(get_current_user_model),
 ) -> dict:
     """Logout current user.
 
