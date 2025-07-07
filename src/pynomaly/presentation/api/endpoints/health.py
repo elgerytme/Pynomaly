@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -222,7 +222,7 @@ async def health_check(
 
     return HealthResponse(
         overall_status=overall_status.value,
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.now(timezone.utc),
         version=settings.app.version,
         uptime_seconds=metrics.uptime_seconds,
         checks=check_responses,
@@ -301,7 +301,7 @@ async def readiness_check(
         except Exception:
             pass  # Database not critical for readiness
 
-        return {"status": "ready", "timestamp": datetime.utcnow().isoformat()}
+        return {"status": "ready", "timestamp": datetime.now(timezone.utc).isoformat()}
 
     except Exception as e:
         raise HTTPException(
@@ -309,7 +309,7 @@ async def readiness_check(
             detail={
                 "status": "not_ready",
                 "error": str(e),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             },
         )
 
@@ -329,14 +329,14 @@ async def liveness_check() -> dict[str, str]:
                     "status": "unhealthy",
                     "reason": "memory_exhausted",
                     "memory_percent": metrics.memory_percent,
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                 },
             )
 
         return {
             "status": "alive",
             "uptime_seconds": metrics.uptime_seconds,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     except HTTPException:
@@ -347,7 +347,7 @@ async def liveness_check() -> dict[str, str]:
             detail={
                 "status": "unhealthy",
                 "error": str(e),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             },
         )
 

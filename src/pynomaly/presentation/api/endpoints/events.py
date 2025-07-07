@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
 
@@ -602,7 +602,7 @@ async def detect_event_patterns(
     """Detect patterns in recent events."""
     try:
         # Get recent events
-        end_time = datetime.utcnow()
+        end_time = datetime.now(timezone.utc)
         start_time = end_time - timedelta(hours=hours)
 
         filter_criteria = EventFilter(
@@ -669,7 +669,7 @@ async def get_realtime_events(
 ) -> SuccessResponse[list[AnomalyEvent]]:
     """Get real-time events for monitoring."""
     try:
-        end_time = datetime.utcnow()
+        end_time = datetime.now(timezone.utc)
         start_time = end_time - timedelta(minutes=minutes)
 
         # Build filter for real-time events

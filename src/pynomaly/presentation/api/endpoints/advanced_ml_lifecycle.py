@@ -1,6 +1,6 @@
 """REST API endpoints for advanced ML lifecycle management."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
@@ -500,7 +500,7 @@ async def get_ml_lifecycle_health() -> Dict[str, Any]:
             "validation_pipeline",
             "performance_monitoring",
         ],
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 

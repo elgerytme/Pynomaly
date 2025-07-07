@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel, Field
@@ -14,7 +14,7 @@ class BaseResponse(BaseModel):
     """Base response model with common metadata."""
 
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="Response timestamp in UTC"
+        default_factory=lambda: datetime.now(timezone.utc), description="Response timestamp in UTC"
     )
     request_id: str | None = Field(
         None, description="Unique request identifier for tracking"

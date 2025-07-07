@@ -10,7 +10,7 @@ Provides endpoints for:
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, List, Optional
 from uuid import UUID
 
@@ -646,7 +646,7 @@ async def update_performance(
             "detector_id": str(request.detector_id),
             "score": request.score,
             "metric_name": request.metric_name,
-            "timestamp": request.timestamp or datetime.utcnow(),
+            "timestamp": request.timestamp or datetime.now(timezone.utc),
             "needs_retraining": needs_retraining,
             "message": "Performance updated successfully",
         }
