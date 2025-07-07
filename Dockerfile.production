@@ -1,0 +1,289 @@
+# =============================================================================
+# Pynomaly API - Production Dockerfile
+# Multi-stage build for optimized production container
+# =============================================================================
+
+# =============================================================================
+# Build Stage: Dependencies and Compilation
+# =============================================================================
+FROM python:3.12-slim as builder
+
+# Build arguments
+ARG BUILDPLATFORM
+ARG TARGETPLATFORM
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VERSION=2.0.0
+
+# Set build-time environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Install system dependencies for building
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    gcc \
+    g++ \
+    git \
+    libffi-dev \
+    libssl-dev \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create application directory
+WORKDIR /app
+
+# Copy dependency files
+COPY pyproject.toml poetry.lock* ./
+COPY requirements.txt ./
+
+# Install Poetry
+RUN pip install poetry==1.7.1
+
+# Configure Poetry for container environment
+RUN poetry config virtualenvs.create false \
+    && poetry config virtualenvs.in-project false
+
+# Install Python dependencies
+RUN poetry install --only=main --no-interaction --no-ansi \
+    && pip install --no-cache-dir -r requirements.txt
+
+# =============================================================================
+# Production Stage: Minimal Runtime Image
+# =============================================================================
+FROM python:3.12-slim as production
+
+# Metadata labels
+LABEL maintainer="Pynomaly Team <team@pynomaly.io>" \
+      version="${VERSION}" \
+      description="Pynomaly API - Production-grade anomaly detection service" \
+      build-date="${BUILD_DATE}" \
+      vcs-ref="${VCS_REF}" \
+      org.opencontainers.image.source="https://github.com/pynomaly/pynomaly" \
+      org.opencontainers.image.documentation="https://docs.pynomaly.io" \
+      org.opencontainers.image.licenses="MIT"
+
+# Production environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH="/app/src" \
+    ENVIRONMENT=production \
+    PORT=8000 \
+    WORKERS=4 \
+    HOST=0.0.0.0
+
+# Install runtime system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    libpq5 \
+    postgresql-client \
+    redis-tools \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Create non-root user for security
+RUN groupadd -r pynomaly && useradd -r -g pynomaly -d /app -s /bin/bash pynomaly
+
+# Create application directories
+RUN mkdir -p /app/src /app/storage /app/logs /app/temp \
+    && chown -R pynomaly:pynomaly /app
+
+# Copy Python packages from builder stage
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Switch to application directory
+WORKDIR /app
+
+# Copy application source code
+COPY --chown=pynomaly:pynomaly src/ ./src/
+COPY --chown=pynomaly:pynomaly deploy/production/ ./deploy/production/
+COPY --chown=pynomaly:pynomaly deploy/scripts/ ./deploy/scripts/
+
+# Copy configuration files
+COPY --chown=pynomaly:pynomaly pyproject.toml ./
+COPY --chown=pynomaly:pynomaly requirements.txt ./
+
+# Copy entrypoint scripts
+COPY --chown=pynomaly:pynomaly <<EOF /app/entrypoint.sh
+#!/bin/bash
+set -e
+
+# Function to wait for services
+wait_for_service() {
+    local host=\$1
+    local port=\$2
+    local service=\$3
+    
+    echo "Waiting for \$service at \$host:\$port..."
+    while ! nc -z \$host \$port; do
+        sleep 1
+    done
+    echo "\$service is ready!"
+}
+
+# Wait for database if configured
+if [ "\$DATABASE_HOST" ] && [ "\$DATABASE_PORT" ]; then
+    wait_for_service \$DATABASE_HOST \$DATABASE_PORT "PostgreSQL"
+fi
+
+# Wait for Redis if configured
+if [ "\$REDIS_HOST" ] && [ "\$REDIS_PORT" ]; then
+    wait_for_service \$REDIS_HOST \$REDIS_PORT "Redis"
+fi
+
+# Run database migrations if needed
+if [ "\$RUN_MIGRATIONS" = "true" ]; then
+    echo "Running database migrations..."
+    python -m alembic upgrade head
+fi
+
+# Execute the command
+exec "\$@"
+EOF
+
+# Copy health check script
+COPY --chown=pynomaly:pynomaly <<EOF /app/healthcheck.sh
+#!/bin/bash
+# Health check script for container orchestration
+
+set -e
+
+# Check if the application is responding
+curl -f http://localhost:\${PORT:-8000}/api/v1/health > /dev/null 2>&1
+
+# Check critical dependencies
+if [ "\$CHECK_DEPENDENCIES" = "true" ]; then
+    # Check database connectivity
+    if [ "\$DATABASE_URL" ]; then
+        python -c "
+import os
+import psycopg2
+try:
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    conn.close()
+    print('Database: OK')
+except Exception as e:
+    print(f'Database: FAIL - {e}')
+    exit(1)
+"
+    fi
+    
+    # Check Redis connectivity
+    if [ "\$REDIS_URL" ]; then
+        redis-cli -u \$REDIS_URL ping > /dev/null
+        echo "Redis: OK"
+    fi
+fi
+
+echo "Health check passed"
+EOF
+
+# Make scripts executable
+RUN chmod +x /app/entrypoint.sh /app/healthcheck.sh
+
+# Create startup script
+COPY --chown=pynomaly:pynomaly <<EOF /app/start.sh
+#!/bin/bash
+set -e
+
+echo "Starting Pynomaly API in production mode..."
+
+# Load environment variables from file if it exists
+if [ -f /app/deploy/production/production.env ]; then
+    set -a
+    source /app/deploy/production/production.env
+    set +a
+fi
+
+# Start the application using Gunicorn
+exec gunicorn \
+    --config /app/deploy/production/gunicorn.conf.py \
+    --bind 0.0.0.0:\${PORT:-8000} \
+    --workers \${WORKERS:-4} \
+    --worker-class uvicorn.workers.UvicornWorker \
+    --access-logfile - \
+    --error-logfile - \
+    --log-level \${LOG_LEVEL:-info} \
+    src.pynomaly.presentation.api.app:app
+EOF
+
+RUN chmod +x /app/start.sh
+
+# Switch to non-root user
+USER pynomaly
+
+# Expose application port
+EXPOSE 8000
+
+# Configure health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD /app/healthcheck.sh
+
+# Set entrypoint and default command
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["/app/start.sh"]
+
+# =============================================================================
+# Development Stage (optional for development builds)
+# =============================================================================
+FROM production as development
+
+# Switch back to root for development tools installation
+USER root
+
+# Install development dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    vim \
+    htop \
+    net-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install development Python packages
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+
+# Override environment for development
+ENV ENVIRONMENT=development \
+    DEBUG=true \
+    LOG_LEVEL=debug
+
+# Development command with hot reload
+CMD ["uvicorn", "src.pynomaly.presentation.api.app:app", \
+     "--host", "0.0.0.0", \
+     "--port", "8000", \
+     "--reload", \
+     "--reload-dir", "src"]
+
+# =============================================================================
+# Testing Stage (for CI/CD testing)
+# =============================================================================
+FROM builder as testing
+
+# Install test dependencies
+RUN poetry install --with dev,test --no-interaction --no-ansi
+
+# Copy test files
+COPY tests/ ./tests/
+COPY pytest.ini ./
+COPY .coveragerc ./
+
+# Set testing environment
+ENV ENVIRONMENT=testing \
+    TESTING=true
+
+# Default command for testing
+CMD ["python", "-m", "pytest", "tests/", "-v", "--cov=src", "--cov-report=xml"]
+
+# =============================================================================
+# Build Information
+# =============================================================================
+
+# Add build information
+RUN echo "Build Date: ${BUILD_DATE}" > /app/build-info.txt && \
+    echo "Version: ${VERSION}" >> /app/build-info.txt && \
+    echo "VCS Ref: ${VCS_REF}" >> /app/build-info.txt && \
+    echo "Platform: ${TARGETPLATFORM}" >> /app/build-info.txt
