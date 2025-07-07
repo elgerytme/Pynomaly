@@ -48,12 +48,16 @@ class LineageArtifact(BaseModel):
     """Artifact information in model lineage."""
 
     id: UUID = Field(..., description="Artifact identifier")
-    type: str = Field(..., description="Artifact type (model, dataset, configuration, etc.)")
+    type: str = Field(
+        ..., description="Artifact type (model, dataset, configuration, etc.)"
+    )
     name: str = Field(..., description="Artifact name")
     version: str | None = Field(None, description="Artifact version")
     checksum: str | None = Field(None, description="Artifact checksum for integrity")
     location: str | None = Field(None, description="Artifact storage location")
-    metadata: dict[str, Any] = Field(default_factory=dict, description="Artifact metadata")
+    metadata: dict[str, Any] = Field(
+        default_factory=dict, description="Artifact metadata"
+    )
 
 
 class LineageTransformation(BaseModel):
@@ -61,7 +65,9 @@ class LineageTransformation(BaseModel):
 
     type: TransformationType = Field(..., description="Transformation type")
     description: str | None = Field(None, description="Transformation description")
-    parameters: dict[str, Any] = Field(default_factory=dict, description="Transformation parameters")
+    parameters: dict[str, Any] = Field(
+        default_factory=dict, description="Transformation parameters"
+    )
     algorithm: str | None = Field(None, description="Algorithm used")
     tool: str | None = Field(None, description="Tool or framework used")
     version: str | None = Field(None, description="Tool/framework version")
@@ -75,33 +81,44 @@ class LineageRecord(BaseModel):
     """Model lineage record tracking relationships between models."""
 
     id: UUID = Field(default_factory=uuid4, description="Lineage record identifier")
-    
+
     # Relationship information
     child_model_id: UUID = Field(..., description="Child (derived) model identifier")
     parent_model_ids: list[UUID] = Field(..., description="Parent model identifiers")
-    relation_type: LineageRelationType = Field(..., description="Type of lineage relationship")
-    
+    relation_type: LineageRelationType = Field(
+        ..., description="Type of lineage relationship"
+    )
+
     # Transformation details
-    transformation: LineageTransformation = Field(..., description="Transformation applied")
-    
+    transformation: LineageTransformation = Field(
+        ..., description="Transformation applied"
+    )
+
     # Input artifacts
     input_artifacts: list[LineageArtifact] = Field(
-        default_factory=list, description="Input artifacts (datasets, configurations, etc.)"
+        default_factory=list,
+        description="Input artifacts (datasets, configurations, etc.)",
     )
-    
+
     # Output artifacts
     output_artifacts: list[LineageArtifact] = Field(
         default_factory=list, description="Output artifacts (models, metrics, etc.)"
     )
-    
+
     # Metadata
-    created_at: datetime = Field(default_factory=datetime.utcnow, description="Creation timestamp")
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow, description="Creation timestamp"
+    )
     created_by: str = Field(..., description="User who created the record")
-    experiment_id: UUID | None = Field(None, description="Associated experiment identifier")
+    experiment_id: UUID | None = Field(
+        None, description="Associated experiment identifier"
+    )
     run_id: str | None = Field(None, description="Associated run identifier")
     tags: list[str] = Field(default_factory=list, description="Lineage tags")
-    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
-    
+    metadata: dict[str, Any] = Field(
+        default_factory=dict, description="Additional metadata"
+    )
+
     # Provenance information
     provenance: dict[str, Any] = Field(
         default_factory=dict, description="Detailed provenance information"
@@ -123,14 +140,11 @@ class LineageRecord(BaseModel):
 
     def is_direct_descendant(self, parent_id: UUID, child_id: UUID) -> bool:
         """Check if child is a direct descendant of parent."""
-        return (
-            child_id == self.child_model_id and
-            parent_id in self.parent_model_ids
-        )
+        return child_id == self.child_model_id and parent_id in self.parent_model_ids
 
     class Config:
         """Pydantic model configuration."""
-        
+
         validate_assignment = True
         use_enum_values = True
         json_encoders = {
@@ -154,7 +168,9 @@ class LineageEdge(BaseModel):
     parent_id: UUID = Field(..., description="Parent model identifier")
     child_id: UUID = Field(..., description="Child model identifier")
     relation_type: LineageRelationType = Field(..., description="Relationship type")
-    transformation: LineageTransformation = Field(..., description="Transformation applied")
+    transformation: LineageTransformation = Field(
+        ..., description="Transformation applied"
+    )
     created_at: datetime = Field(..., description="Relationship creation timestamp")
     metadata: dict[str, Any] = Field(default_factory=dict, description="Edge metadata")
 
@@ -166,7 +182,9 @@ class LineageGraph(BaseModel):
     nodes: dict[UUID, LineageNode] = Field(..., description="Graph nodes by model ID")
     edges: list[LineageEdge] = Field(..., description="Graph edges")
     depth: int = Field(..., description="Maximum depth of the graph")
-    created_at: datetime = Field(default_factory=datetime.utcnow, description="Graph creation timestamp")
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow, description="Graph creation timestamp"
+    )
 
     def get_parents(self, model_id: UUID) -> list[UUID]:
         """Get direct parents of a model."""
@@ -295,9 +313,15 @@ class LineageStatistics(BaseModel):
     total_relationships: int = Field(..., description="Total number of relationships")
     max_depth: int = Field(..., description="Maximum lineage depth")
     avg_branching_factor: float = Field(..., description="Average branching factor")
-    relation_type_counts: dict[str, int] = Field(..., description="Count by relation type")
-    transformation_type_counts: dict[str, int] = Field(..., description="Count by transformation type")
+    relation_type_counts: dict[str, int] = Field(
+        ..., description="Count by relation type"
+    )
+    transformation_type_counts: dict[str, int] = Field(
+        ..., description="Count by transformation type"
+    )
     orphaned_models: int = Field(..., description="Number of models without lineage")
-    most_derived_model: UUID | None = Field(None, description="Model with most derivations")
+    most_derived_model: UUID | None = Field(
+        None, description="Model with most derivations"
+    )
     oldest_lineage: datetime | None = Field(None, description="Oldest lineage record")
     newest_lineage: datetime | None = Field(None, description="Newest lineage record")

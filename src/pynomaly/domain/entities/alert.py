@@ -56,6 +56,23 @@ class AlertCategory(Enum):
     PERFORMANCE = "performance"
 
 
+@dataclass
+class AlertCorrelation:
+    """Alert correlation information."""
+
+    correlation_id: str = field(default_factory=lambda: str(uuid4()))
+    primary_alert_id: str = ""
+    related_alert_ids: list[str] = field(default_factory=list)
+    correlation_score: float = 0.0
+    correlation_type: str = "pattern"
+    timestamp: datetime = field(default_factory=datetime.now)
+
+    def __post_init__(self):
+        """Validate correlation data."""
+        if not (0.0 <= self.correlation_score <= 1.0):
+            raise ValueError("Correlation score must be between 0.0 and 1.0")
+
+
 class NotificationChannel(Enum):
     """Available notification channels."""
 

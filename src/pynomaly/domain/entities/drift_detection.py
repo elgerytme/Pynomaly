@@ -464,13 +464,13 @@ class ConceptDriftResult:
 @dataclass
 class DriftDetectionResult:
     """General drift detection result."""
-    
+
     drift_detected: bool
     drift_score: float
     method: DriftDetectionMethod
     timestamp: datetime = field(default_factory=datetime.utcnow)
     metadata: dict[str, Any] = field(default_factory=dict)
-    
+
     def __post_init__(self):
         """Validate drift detection result."""
         if not (0.0 <= self.drift_score <= 1.0):
@@ -479,7 +479,7 @@ class DriftDetectionResult:
 
 class DriftType(Enum):
     """Types of drift that can be detected."""
-    
+
     DATA_DRIFT = "data_drift"
     CONCEPT_DRIFT = "concept_drift"
     COVARIATE_SHIFT = "covariate_shift"
@@ -488,7 +488,7 @@ class DriftType(Enum):
 
 class DriftSeverity(Enum):
     """Severity levels for detected drift."""
-    
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -497,7 +497,7 @@ class DriftSeverity(Enum):
 
 class MonitoringStatus(Enum):
     """Status of drift monitoring."""
-    
+
     ACTIVE = "active"
     PAUSED = "paused"
     STOPPED = "stopped"
@@ -507,14 +507,14 @@ class MonitoringStatus(Enum):
 @dataclass
 class ModelMonitoringConfig:
     """Configuration for model monitoring."""
-    
+
     monitoring_enabled: bool = True
     check_interval_minutes: int = 60
     drift_threshold: float = 0.1
     severity_threshold: DriftSeverity = DriftSeverity.MEDIUM
     notification_enabled: bool = True
     auto_retrain_enabled: bool = False
-    
+
     def __post_init__(self):
         """Validate monitoring configuration."""
         if self.check_interval_minutes <= 0:

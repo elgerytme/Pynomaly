@@ -42,7 +42,7 @@ class TrafficSplit:
             raise ValueError("Control percentage must be between 0 and 100")
         if not (0 <= self.treatment_percentage <= 100):
             raise ValueError("Treatment percentage must be between 0 and 100")
-        
+
         total = self.control_percentage + self.treatment_percentage
         if abs(total - 100.0) > 0.01:  # Allow for floating point precision
             raise ValueError("Traffic split percentages must sum to 100")
@@ -121,7 +121,7 @@ class ABTest:
         """Start the A/B test."""
         if self.status != ABTestStatus.DRAFT:
             raise ValueError(f"Cannot start test in {self.status} status")
-        
+
         self.status = ABTestStatus.RUNNING
         self.started_at = datetime.utcnow()
         self.updated_at = datetime.utcnow()
@@ -130,7 +130,7 @@ class ABTest:
         """Pause the A/B test."""
         if self.status != ABTestStatus.RUNNING:
             raise ValueError(f"Cannot pause test in {self.status} status")
-        
+
         self.status = ABTestStatus.PAUSED
         self.updated_at = datetime.utcnow()
 
@@ -138,15 +138,17 @@ class ABTest:
         """Resume the A/B test."""
         if self.status != ABTestStatus.PAUSED:
             raise ValueError(f"Cannot resume test in {self.status} status")
-        
+
         self.status = ABTestStatus.RUNNING
         self.updated_at = datetime.utcnow()
 
-    def complete_test(self, result: ABTestResult, conclusion: str | None = None) -> None:
+    def complete_test(
+        self, result: ABTestResult, conclusion: str | None = None
+    ) -> None:
         """Complete the A/B test with results."""
         if self.status not in [ABTestStatus.RUNNING, ABTestStatus.PAUSED]:
             raise ValueError(f"Cannot complete test in {self.status} status")
-        
+
         self.status = ABTestStatus.COMPLETED
         self.ended_at = datetime.utcnow()
         self.updated_at = datetime.utcnow()
@@ -157,7 +159,7 @@ class ABTest:
         """Cancel the A/B test."""
         if self.status == ABTestStatus.COMPLETED:
             raise ValueError("Cannot cancel completed test")
-        
+
         self.status = ABTestStatus.CANCELLED
         self.ended_at = datetime.utcnow()
         self.updated_at = datetime.utcnow()
@@ -181,15 +183,15 @@ class ABTest:
         """Get actual test duration."""
         if not self.started_at:
             return None
-        
+
         end_time = self.ended_at or datetime.utcnow()
         return end_time - self.started_at
 
     def has_sufficient_sample_size(self) -> bool:
         """Check if test has sufficient sample size."""
         total_samples = (
-            self.current_metrics.control_sample_size +
-            self.current_metrics.treatment_sample_size
+            self.current_metrics.control_sample_size
+            + self.current_metrics.treatment_sample_size
         )
         return total_samples >= self.configuration.min_sample_size
 
@@ -203,7 +205,7 @@ class ABTest:
 
     class Config:
         """Pydantic model configuration."""
-        
+
         validate_assignment = True
         use_enum_values = True
         json_encoders = {
