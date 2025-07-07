@@ -408,3 +408,7 @@ class ApplicationExplainabilityService:
         except Exception as e:
             logger.error(f"Failed to get feature statistics: {e}")
             return {"error": str(e)}
+
+
+# Alias for backwards compatibility
+ExplainabilityService = ApplicationExplainabilityService
