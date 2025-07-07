@@ -21,7 +21,47 @@ os.environ["PYTHONPATH"] = str(src_path)
 
 def main():
     """Start the Pynomaly web application."""
+    import argparse
     import uvicorn
+
+    parser = argparse.ArgumentParser(
+        description="Pynomaly Web Application Server",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python run_web_app.py                    # Run with defaults
+  python run_web_app.py --port 9000       # Run on port 9000
+  python run_web_app.py --host 127.0.0.1  # Run on localhost only
+        """,
+    )
+
+    parser.add_argument(
+        "--host",
+        default="0.0.0.0",
+        help="Host to bind the server to (default: 0.0.0.0)",
+    )
+
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8000,
+        help="Port to bind the server to (default: 8000)",
+    )
+
+    parser.add_argument(
+        "--reload",
+        action="store_true",
+        help="Enable auto-reload for development (default: False)",
+    )
+
+    parser.add_argument(
+        "--log-level",
+        choices=["critical", "error", "warning", "info", "debug", "trace"],
+        default="info",
+        help="Log level (default: info)",
+    )
+
+    args = parser.parse_args()
 
     from pynomaly.presentation.web.app import create_web_app
 
@@ -29,19 +69,19 @@ def main():
     app = create_web_app()
 
     print("Starting Pynomaly web application...")
-    print("Web UI available at: http://localhost:8000/web/")
-    print("API documentation at: http://localhost:8000/api/docs")
-    print("API health check at: http://localhost:8000/api/health")
+    print(f"Web UI available at: http://{args.host}:{args.port}/web/")
+    print(f"API documentation at: http://{args.host}:{args.port}/api/docs")
+    print(f"API health check at: http://{args.host}:{args.port}/api/health")
     print()
     print("Press Ctrl+C to stop the server")
 
     # Start the server
     uvicorn.run(
         app,
-        host="0.0.0.0",
-        port=8000,
-        log_level="info",
-        reload=False,  # Disable reload to avoid file watching issues
+        host=args.host,
+        port=args.port,
+        log_level=args.log_level,
+        reload=args.reload,
         access_log=True,
     )
 

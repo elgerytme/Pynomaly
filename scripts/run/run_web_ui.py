@@ -21,7 +21,7 @@ sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 try:
     from pynomaly.infrastructure.config.settings import get_settings
-    from pynomaly.presentation.api.main import create_app
+    from pynomaly.presentation.api.app import create_app
 except ImportError as e:
     print(f"Failed to import Pynomaly Web UI modules: {e}")
     print("Please ensure the package is installed with: poetry install")

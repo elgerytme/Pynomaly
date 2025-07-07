@@ -232,70 +232,68 @@
                         </a>
                     </div>
                     
-                    <!-- Desktop Navigation -->
+                    <!-- Desktop Navigation - Streamlined -->
                     <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
                         <a href="/web/" 
                            class="{% if request.url.path == '/web/' %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             Dashboard
                         </a>
-                        <a href="/web/detectors" 
-                           class="{% if '/detectors' in request.url.path %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Detectors
-                        </a>
-                        <a href="/web/datasets"
-                           class="{% if '/datasets' in request.url.path %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Datasets
-                        </a>
-                        <a href="/web/detection"
-                           class="{% if '/detection' in request.url.path %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Detection
-                        </a>
-                        <a href="/web/ensemble"
-                           class="{% if '/ensemble' in request.url.path %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            🤖 Ensemble
-                        </a>
-                        <a href="/web/automl"
-                           class="{% if '/automl' in request.url.path %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            ⚡ AutoML
-                        </a>
-                        <a href="/web/explainability"
-                           class="{% if '/explainability' in request.url.path %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            🔍 Explainability
-                        </a>
-                        <a href="/web/monitoring"
-                           class="{% if '/monitoring' in request.url.path %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            📊 Monitoring
-                        </a>
-                        {% if auth_enabled and current_user %}
-                        <a href="/web/users"
-                           class="{% if '/users' in request.url.path %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            👥 Users
-                        </a>
-                        {% endif %}
-                        <a href="/web/experiments"
-                           class="{% if '/experiments' in request.url.path %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Experiments
-                        </a>
-                        <a href="/web/visualizations"
-                           class="{% if '/visualizations' in request.url.path %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Visualizations
-                        </a>
-                        <a href="/web/workflows"
-                           class="{% if '/workflows' in request.url.path %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            🔄 Workflows
-                        </a>
-                        <a href="/web/collaboration"
-                           class="{% if '/collaboration' in request.url.path %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            👥 Collaborate
-                        </a>
-                        <a href="/web/advanced-visualizations"
-                           class="{% if '/advanced-visualizations' in request.url.path %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            📊 Advanced Viz
-                        </a>
-                        <a href="/web/exports"
-                           class="{% if '/exports' in request.url.path %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            📤 Exports
-                        </a>
+                        <div class="relative group">
+                            <button class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                Data & Models
+                                <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            <div class="hidden group-hover:block absolute top-full left-0 bg-white shadow-lg rounded-md mt-1 min-w-48 z-50">
+                                <a href="/web/datasets" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📁 Datasets</a>
+                                <a href="/web/detectors" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🔍 Detectors</a>
+                                <a href="/web/detection" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🎯 Detection</a>
+                                <a href="/web/ensemble" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🤖 Ensemble</a>
+                            </div>
+                        </div>
+                        <div class="relative group">
+                            <button class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                AutoML & Analysis
+                                <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            <div class="hidden group-hover:block absolute top-full left-0 bg-white shadow-lg rounded-md mt-1 min-w-48 z-50">
+                                <a href="/web/automl" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">⚡ AutoML</a>
+                                <a href="/web/explainability" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🔍 Explainability</a>
+                                <a href="/web/experiments" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🧪 Experiments</a>
+                            </div>
+                        </div>
+                        <div class="relative group">
+                            <button class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                Visualizations
+                                <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            <div class="hidden group-hover:block absolute top-full left-0 bg-white shadow-lg rounded-md mt-1 min-w-48 z-50">
+                                <a href="/web/visualizations" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📊 Standard Charts</a>
+                                <a href="/web/advanced-visualizations" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📈 Advanced Viz</a>
+                                <a href="/web/monitoring" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📡 Real-time Monitor</a>
+                            </div>
+                        </div>
+                        <div class="relative group">
+                            <button class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                Tools
+                                <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            <div class="hidden group-hover:block absolute top-full left-0 bg-white shadow-lg rounded-md mt-1 min-w-48 z-50">
+                                <a href="/web/workflows" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🔄 Workflows</a>
+                                <a href="/web/exports" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📤 Export Data</a>
+                                <a href="/web/collaboration" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">👥 Collaborate</a>
+                                {% if auth_enabled and current_user %}
+                                <a href="/web/users" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">👥 Users</a>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
