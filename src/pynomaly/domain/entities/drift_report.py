@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
-
-from pydantic import BaseModel, Field
 
 
 class DriftType(str, Enum):
@@ -48,183 +47,131 @@ class DriftDetectionMethod(str, Enum):
     CUSTOM = "custom"
 
 
-class FeatureDrift(BaseModel):
+@dataclass
+class FeatureDrift:
     """Drift information for a single feature."""
 
-    feature_name: str = Field(..., description="Feature name")
-    drift_score: float = Field(..., description="Drift score (0-1 or method-specific)")
-    p_value: float | None = Field(None, description="Statistical p-value")
-    threshold: float = Field(..., description="Drift threshold used")
-    is_drifted: bool = Field(..., description="Whether drift was detected")
-    severity: DriftSeverity = Field(..., description="Drift severity level")
-    method: DriftDetectionMethod = Field(..., description="Detection method used")
+    feature_name: str
+    drift_score: float
+    threshold: float
+    is_drifted: bool
+    severity: DriftSeverity
+    method: DriftDetectionMethod
 
     # Statistical information
-    reference_mean: float | None = Field(None, description="Reference data mean")
-    current_mean: float | None = Field(None, description="Current data mean")
-    reference_std: float | None = Field(
-        None, description="Reference data standard deviation"
-    )
-    current_std: float | None = Field(
-        None, description="Current data standard deviation"
-    )
+    p_value: float | None = None
+    reference_mean: float | None = None
+    current_mean: float | None = None
+    reference_std: float | None = None
+    current_std: float | None = None
 
     # Distribution information
-    reference_distribution: dict[str, Any] = Field(
-        default_factory=dict, description="Reference distribution parameters"
-    )
-    current_distribution: dict[str, Any] = Field(
-        default_factory=dict, description="Current distribution parameters"
-    )
+    reference_distribution: dict[str, Any] = field(default_factory=dict)
+    current_distribution: dict[str, Any] = field(default_factory=dict)
 
     # Visualization data
-    histogram_data: dict[str, Any] = Field(
-        default_factory=dict, description="Histogram data for visualization"
-    )
-
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata"
-    )
+    histogram_data: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
-class DriftConfiguration(BaseModel):
+@dataclass
+class DriftConfiguration:
     """Configuration for drift detection."""
 
     # Detection methods
-    enabled_methods: list[DriftDetectionMethod] = Field(
-        default=[DriftDetectionMethod.KOLMOGOROV_SMIRNOV],
-        description="Enabled drift detection methods",
+    enabled_methods: list[DriftDetectionMethod] = field(
+        default_factory=lambda: [DriftDetectionMethod.KOLMOGOROV_SMIRNOV]
     )
 
     # Thresholds
-    drift_threshold: float = Field(0.05, description="Primary drift threshold")
-    method_thresholds: dict[str, float] = Field(
-        default_factory=dict, description="Method-specific thresholds"
-    )
+    drift_threshold: float = 0.05
+    method_thresholds: dict[str, float] = field(default_factory=dict)
 
     # Severity mapping
-    severity_thresholds: dict[str, float] = Field(
+    severity_thresholds: dict[str, float] = field(
         default_factory=lambda: {
             "low": 0.1,
             "medium": 0.3,
             "high": 0.6,
             "critical": 0.8,
-        },
-        description="Severity level thresholds",
+        }
     )
 
     # Detection settings
-    min_sample_size: int = Field(100, description="Minimum sample size for detection")
-    reference_window_size: int | None = Field(None, description="Reference window size")
-    detection_window_size: int = Field(1000, description="Detection window size")
+    min_sample_size: int = 100
+    reference_window_size: int | None = None
+    detection_window_size: int = 1000
 
     # Feature selection
-    features_to_monitor: list[str] | None = Field(
-        None, description="Specific features to monitor (None for all)"
-    )
-    exclude_features: list[str] = Field(
-        default_factory=list, description="Features to exclude from monitoring"
-    )
+    features_to_monitor: list[str] | None = None
+    exclude_features: list[str] = field(default_factory=list)
 
     # Advanced settings
-    enable_multivariate_detection: bool = Field(
-        True, description="Enable multivariate drift detection"
-    )
-    enable_concept_drift: bool = Field(
-        True, description="Enable concept drift detection"
-    )
-    adaptive_thresholds: bool = Field(
-        False, description="Use adaptive thresholds based on historical data"
-    )
+    enable_multivariate_detection: bool = True
+    enable_concept_drift: bool = True
+    adaptive_thresholds: bool = False
 
     # Alerting
-    alert_on_drift: bool = Field(True, description="Send alerts when drift is detected")
-    alert_severity_threshold: DriftSeverity = Field(
-        DriftSeverity.MEDIUM, description="Minimum severity for alerts"
-    )
+    alert_on_drift: bool = True
+    alert_severity_threshold: DriftSeverity = DriftSeverity.MEDIUM
 
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Additional configuration"
-    )
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        """Validate drift configuration."""
+        if not (0.0 <= self.drift_threshold <= 1.0):
+            raise ValueError("Drift threshold must be between 0.0 and 1.0")
+        if self.min_sample_size <= 0:
+            raise ValueError("Minimum sample size must be positive")
+        if self.detection_window_size <= 0:
+            raise ValueError("Detection window size must be positive")
 
 
-class DriftReport(BaseModel):
+@dataclass
+class DriftReport:
     """Comprehensive drift detection report."""
 
-    id: UUID = Field(default_factory=uuid4, description="Report identifier")
-    model_id: UUID = Field(..., description="Model identifier")
+    # Required fields
+    model_id: UUID
+    reference_sample_size: int
+    current_sample_size: int
+    overall_drift_detected: bool
+    overall_drift_severity: DriftSeverity
+    drift_types_detected: list[DriftType]
+    feature_drift: dict[str, FeatureDrift]
+    drifted_features: list[str]
+    configuration: DriftConfiguration
+    detection_start_time: datetime
+    detection_end_time: datetime
+
+    # Auto-generated fields
+    id: UUID = field(default_factory=uuid4)
+    created_at: datetime = field(default_factory=datetime.utcnow)
 
     # Data information
-    reference_data_id: UUID | None = Field(
-        None, description="Reference dataset identifier"
-    )
-    current_data_id: UUID | None = Field(None, description="Current dataset identifier")
-    reference_period: str | None = Field(None, description="Reference data period")
-    detection_period: str | None = Field(None, description="Detection data period")
-
-    # Sample information
-    reference_sample_size: int = Field(..., description="Reference data sample size")
-    current_sample_size: int = Field(..., description="Current data sample size")
-
-    # Overall drift assessment
-    overall_drift_detected: bool = Field(
-        ..., description="Whether any drift was detected"
-    )
-    overall_drift_severity: DriftSeverity = Field(
-        ..., description="Overall drift severity"
-    )
-    drift_types_detected: list[DriftType] = Field(
-        ..., description="Types of drift detected"
-    )
-
-    # Feature-level drift
-    feature_drift: dict[str, FeatureDrift] = Field(
-        ..., description="Per-feature drift analysis"
-    )
-    drifted_features: list[str] = Field(
-        ..., description="List of features with detected drift"
-    )
+    reference_data_id: UUID | None = None
+    current_data_id: UUID | None = None
+    reference_period: str | None = None
+    detection_period: str | None = None
 
     # Multivariate drift
-    multivariate_drift_score: float | None = Field(
-        None, description="Multivariate drift score"
-    )
-    multivariate_drift_detected: bool = Field(
-        False, description="Multivariate drift detected"
-    )
+    multivariate_drift_score: float | None = None
+    multivariate_drift_detected: bool = False
 
     # Concept drift
-    concept_drift_score: float | None = Field(None, description="Concept drift score")
-    concept_drift_detected: bool = Field(False, description="Concept drift detected")
+    concept_drift_score: float | None = None
+    concept_drift_detected: bool = False
 
     # Model performance impact
-    performance_degradation: dict[str, float] = Field(
-        default_factory=dict, description="Performance degradation metrics"
-    )
-
-    # Configuration used
-    configuration: DriftConfiguration = Field(
-        ..., description="Configuration used for detection"
-    )
-
-    # Timing information
-    created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Report creation time"
-    )
-    detection_start_time: datetime = Field(..., description="Detection start time")
-    detection_end_time: datetime = Field(..., description="Detection end time")
+    performance_degradation: dict[str, float] = field(default_factory=dict)
 
     # Recommendations
-    recommendations: list[str] = Field(
-        default_factory=list, description="Recommendations based on drift analysis"
-    )
+    recommendations: list[str] = field(default_factory=list)
 
     # Metadata
-    created_by: str | None = Field(None, description="User who initiated the detection")
-    tags: list[str] = Field(default_factory=list, description="Report tags")
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata"
-    )
+    created_by: str | None = None
+    tags: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def get_high_priority_features(self) -> list[str]:
         """Get features with high or critical drift severity."""
@@ -286,74 +233,53 @@ class DriftReport(BaseModel):
 
         return actions
 
-    class Config:
-        """Pydantic model configuration."""
 
-        validate_assignment = True
-        use_enum_values = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-        }
-
-
-class DriftMonitor(BaseModel):
+@dataclass
+class DriftMonitor:
     """Drift monitoring configuration and state."""
 
-    id: UUID = Field(default_factory=uuid4, description="Monitor identifier")
-    model_id: UUID = Field(..., description="Model being monitored")
-    name: str = Field(..., description="Monitor name")
-    description: str | None = Field(None, description="Monitor description")
+    # Required fields
+    model_id: UUID
+    name: str
+    configuration: DriftConfiguration
+    created_by: str
 
-    # Configuration
-    configuration: DriftConfiguration = Field(
-        ..., description="Drift detection configuration"
-    )
+    # Auto-generated fields
+    id: UUID = field(default_factory=uuid4)
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=datetime.utcnow)
+
+    # Optional fields
+    description: str | None = None
 
     # Monitoring schedule
-    monitoring_enabled: bool = Field(True, description="Whether monitoring is enabled")
-    monitoring_frequency: str = Field(
-        "daily", description="Monitoring frequency (hourly, daily, weekly)"
-    )
-    last_check_time: datetime | None = Field(None, description="Last drift check time")
-    next_check_time: datetime | None = Field(
-        None, description="Next scheduled check time"
-    )
+    monitoring_enabled: bool = True
+    monitoring_frequency: str = "daily"
+    last_check_time: datetime | None = None
+    next_check_time: datetime | None = None
 
     # State
-    consecutive_drift_detections: int = Field(
-        0, description="Consecutive drift detections"
-    )
-    last_drift_detection: datetime | None = Field(
-        None, description="Last drift detection time"
-    )
-    current_drift_severity: DriftSeverity = Field(
-        DriftSeverity.NONE, description="Current drift severity"
-    )
+    consecutive_drift_detections: int = 0
+    last_drift_detection: datetime | None = None
+    current_drift_severity: DriftSeverity = DriftSeverity.NONE
 
     # Alerts
-    alert_enabled: bool = Field(True, description="Whether alerts are enabled")
-    alert_recipients: list[str] = Field(
-        default_factory=list, description="Alert recipients"
-    )
-    last_alert_time: datetime | None = Field(None, description="Last alert time")
+    alert_enabled: bool = True
+    alert_recipients: list[str] = field(default_factory=list)
+    last_alert_time: datetime | None = None
 
     # History
-    recent_reports: list[UUID] = Field(
-        default_factory=list, description="Recent drift report IDs"
-    )
+    recent_reports: list[UUID] = field(default_factory=list)
 
     # Metadata
-    created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Creation time"
-    )
-    updated_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Last update time"
-    )
-    created_by: str = Field(..., description="Creator")
-    tags: list[str] = Field(default_factory=list, description="Monitor tags")
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata"
-    )
+    tags: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        """Validate drift monitor configuration."""
+        valid_frequencies = {"hourly", "daily", "weekly"}
+        if self.monitoring_frequency not in valid_frequencies:
+            raise ValueError(f"Monitoring frequency must be one of: {valid_frequencies}")
 
     def should_check_now(self) -> bool:
         """Check if drift detection should be performed now."""
@@ -403,12 +329,3 @@ class DriftMonitor(BaseModel):
         )
 
         return current_level >= threshold_level
-
-    class Config:
-        """Pydantic model configuration."""
-
-        validate_assignment = True
-        use_enum_values = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-        }

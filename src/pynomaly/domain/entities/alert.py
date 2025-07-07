@@ -57,6 +57,19 @@ class AlertCategory(Enum):
 
 
 @dataclass
+class AlertMetadata:
+    """Metadata for alerts."""
+    
+    metadata_id: str = field(default_factory=lambda: str(uuid4()))
+    alert_id: str = ""
+    key: str = ""
+    value: Any = None
+    value_type: str = "string"
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=datetime.utcnow)
+
+
+@dataclass
 class AlertCorrelation:
     """Alert correlation information."""
 

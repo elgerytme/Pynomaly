@@ -203,33 +203,21 @@ class ABTest:
             return self.treatment_model_id
         return None
 
-    class Config:
-        """Pydantic model configuration."""
 
-        validate_assignment = True
-        use_enum_values = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            timedelta: lambda v: v.total_seconds(),
-        }
-
-
-class ABTestSummary(BaseModel):
+@dataclass
+class ABTestSummary:
     """A/B test summary for reporting."""
 
-    test_id: UUID = Field(..., description="Test identifier")
-    name: str = Field(..., description="Test name")
-    status: ABTestStatus = Field(..., description="Test status")
-    result: ABTestResult = Field(..., description="Test result")
-    control_model_id: UUID = Field(..., description="Control model identifier")
-    treatment_model_id: UUID = Field(..., description="Treatment model identifier")
-    started_at: datetime | None = Field(None, description="Start timestamp")
-    ended_at: datetime | None = Field(None, description="End timestamp")
-    sample_size: int = Field(..., description="Total sample size")
-    primary_metric_improvement: float | None = Field(
-        None, description="Primary metric improvement percentage"
-    )
-    statistical_significance: bool = Field(
-        False, description="Whether results are statistically significant"
-    )
-    winning_model_id: UUID | None = Field(None, description="Winning model identifier")
+    test_id: UUID
+    name: str
+    status: ABTestStatus
+    result: ABTestResult
+    control_model_id: UUID
+    treatment_model_id: UUID
+    sample_size: int
+
+    started_at: datetime | None = None
+    ended_at: datetime | None = None
+    primary_metric_improvement: float | None = None
+    statistical_significance: bool = False
+    winning_model_id: UUID | None = None

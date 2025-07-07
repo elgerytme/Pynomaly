@@ -524,6 +524,22 @@ class ModelMonitoringConfig:
 
 
 @dataclass
+class DriftAlert:
+    """Alert for drift detection events."""
+    
+    alert_id: UUID = field(default_factory=uuid4)
+    drift_type: str = "data_drift"
+    severity: str = "medium"
+    model_id: UUID = field(default_factory=uuid4)
+    feature_name: str = ""
+    drift_score: float = 0.0
+    threshold: float = 0.1
+    detection_timestamp: datetime = field(default_factory=datetime.utcnow)
+    alert_message: str = ""
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
 class DriftAnalysisResult:
     """Comprehensive drift analysis result."""
 

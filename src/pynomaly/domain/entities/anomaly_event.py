@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
-
-from pydantic import BaseModel, Field
 
 
 class EventType(str, Enum):
@@ -50,177 +49,132 @@ class EventStatus(str, Enum):
     IGNORED = "ignored"
 
 
-class AnomalyEventData(BaseModel):
+@dataclass
+class AnomalyEventData:
     """Specific data for anomaly events."""
 
-    anomaly_score: float = Field(..., description="Anomaly score (0.0 to 1.0)")
-    confidence: float = Field(..., description="Detection confidence (0.0 to 1.0)")
-    feature_contributions: dict[str, float] = Field(
-        default_factory=dict, description="Feature contribution scores"
-    )
-    predicted_class: str | None = Field(None, description="Predicted anomaly class")
-    expected_range: dict[str, Any] = Field(
-        default_factory=dict, description="Expected value ranges"
-    )
-    actual_values: dict[str, Any] = Field(
-        default_factory=dict, description="Actual observed values"
-    )
-    detection_method: str | None = Field(None, description="Detection method used")
-    model_version: str | None = Field(
-        None, description="Model version that detected the anomaly"
-    )
-    explanation: str | None = Field(None, description="Human-readable explanation")
+    anomaly_score: float
+    confidence: float
+    feature_contributions: dict[str, float] = field(default_factory=dict)
+    predicted_class: str | None = None
+    expected_range: dict[str, Any] = field(default_factory=dict)
+    actual_values: dict[str, Any] = field(default_factory=dict)
+    detection_method: str | None = None
+    model_version: str | None = None
+    explanation: str | None = None
+
+    def __post_init__(self) -> None:
+        """Validate anomaly event data."""
+        if not (0.0 <= self.anomaly_score <= 1.0):
+            raise ValueError("Anomaly score must be between 0.0 and 1.0")
+        if not (0.0 <= self.confidence <= 1.0):
+            raise ValueError("Confidence must be between 0.0 and 1.0")
 
 
-class DataQualityEventData(BaseModel):
+@dataclass
+class DataQualityEventData:
     """Specific data for data quality events."""
 
-    issue_type: str = Field(..., description="Type of data quality issue")
-    affected_fields: list[str] = Field(..., description="Fields affected by the issue")
-    severity_score: float = Field(..., description="Severity score (0.0 to 1.0)")
-    missing_percentage: float | None = Field(
-        None, description="Percentage of missing values"
-    )
-    outlier_percentage: float | None = Field(
-        None, description="Percentage of outlier values"
-    )
-    schema_violations: list[str] = Field(
-        default_factory=list, description="Schema violations detected"
-    )
-    data_drift_score: float | None = Field(
-        None, description="Data drift score if applicable"
-    )
-    recommendations: list[str] = Field(
-        default_factory=list, description="Recommended actions"
-    )
+    issue_type: str
+    affected_fields: list[str]
+    severity_score: float
+    missing_percentage: float | None = None
+    outlier_percentage: float | None = None
+    schema_violations: list[str] = field(default_factory=list)
+    data_drift_score: float | None = None
+    recommendations: list[str] = field(default_factory=list)
+
+    def __post_init__(self) -> None:
+        """Validate data quality event data."""
+        if not (0.0 <= self.severity_score <= 1.0):
+            raise ValueError("Severity score must be between 0.0 and 1.0")
+        if self.missing_percentage is not None and not (0.0 <= self.missing_percentage <= 100.0):
+            raise ValueError("Missing percentage must be between 0.0 and 100.0")
+        if self.outlier_percentage is not None and not (0.0 <= self.outlier_percentage <= 100.0):
+            raise ValueError("Outlier percentage must be between 0.0 and 100.0")
 
 
-class PerformanceEventData(BaseModel):
+@dataclass
+class PerformanceEventData:
     """Specific data for performance events."""
 
-    metric_name: str = Field(..., description="Performance metric name")
-    current_value: float = Field(..., description="Current metric value")
-    baseline_value: float = Field(..., description="Baseline metric value")
-    degradation_percentage: float = Field(
-        ..., description="Performance degradation percentage"
-    )
-    threshold_value: float = Field(..., description="Alert threshold value")
-    trend_direction: str = Field(
-        ..., description="Trend direction (increasing, decreasing, stable)"
-    )
-    affected_components: list[str] = Field(
-        default_factory=list, description="Affected system components"
-    )
-    potential_causes: list[str] = Field(
-        default_factory=list, description="Potential root causes"
-    )
+    metric_name: str
+    current_value: float
+    baseline_value: float
+    degradation_percentage: float
+    threshold_value: float
+    trend_direction: str
+    affected_components: list[str] = field(default_factory=list)
+    potential_causes: list[str] = field(default_factory=list)
+
+    def __post_init__(self) -> None:
+        """Validate performance event data."""
+        valid_trends = {"increasing", "decreasing", "stable"}
+        if self.trend_direction not in valid_trends:
+            raise ValueError(f"Trend direction must be one of: {valid_trends}")
 
 
-class AnomalyEvent(BaseModel):
+@dataclass
+class AnomalyEvent:
     """Real-time anomaly event for streaming processing."""
 
-    id: UUID = Field(default_factory=uuid4, description="Event identifier")
+    # Required fields
+    event_type: EventType
+    severity: EventSeverity
+    title: str
+    description: str
+    raw_data: dict[str, Any]
+    event_time: datetime
 
-    # Event classification
-    event_type: EventType = Field(..., description="Type of event")
-    severity: EventSeverity = Field(..., description="Event severity")
-    status: EventStatus = Field(
-        default=EventStatus.PENDING, description="Processing status"
-    )
+    # Auto-generated fields
+    id: UUID = field(default_factory=uuid4)
+    status: EventStatus = EventStatus.PENDING
+    ingestion_time: datetime = field(default_factory=datetime.utcnow)
 
     # Source information
-    source_session_id: UUID | None = Field(
-        None, description="Source streaming session ID"
-    )
-    detector_id: UUID | None = Field(
-        None, description="Detector that generated the event"
-    )
-    data_source: str | None = Field(None, description="Original data source")
-
-    # Event data
-    title: str = Field(..., description="Event title")
-    description: str = Field(..., description="Event description")
-    raw_data: dict[str, Any] = Field(
-        ..., description="Raw input data that triggered the event"
-    )
+    source_session_id: UUID | None = None
+    detector_id: UUID | None = None
+    data_source: str | None = None
 
     # Specific event data (polymorphic based on event type)
-    anomaly_data: AnomalyEventData | None = Field(
-        None, description="Anomaly-specific data"
-    )
-    data_quality_data: DataQualityEventData | None = Field(
-        None, description="Data quality-specific data"
-    )
-    performance_data: PerformanceEventData | None = Field(
-        None, description="Performance-specific data"
-    )
+    anomaly_data: AnomalyEventData | None = None
+    data_quality_data: DataQualityEventData | None = None
+    performance_data: PerformanceEventData | None = None
 
     # Context information
-    business_context: dict[str, Any] = Field(
-        default_factory=dict, description="Business context data"
-    )
-    technical_context: dict[str, Any] = Field(
-        default_factory=dict, description="Technical context data"
-    )
-    correlation_id: str | None = Field(
-        None, description="Correlation ID for related events"
-    )
-    parent_event_id: UUID | None = Field(
-        None, description="Parent event ID for hierarchical events"
-    )
+    business_context: dict[str, Any] = field(default_factory=dict)
+    technical_context: dict[str, Any] = field(default_factory=dict)
+    correlation_id: str | None = None
+    parent_event_id: UUID | None = None
 
     # Timing information
-    event_time: datetime = Field(..., description="When the event occurred")
-    ingestion_time: datetime = Field(
-        default_factory=datetime.utcnow, description="When event was ingested"
-    )
-    processing_time: datetime | None = Field(
-        None, description="When event was processed"
-    )
+    processing_time: datetime | None = None
 
     # Geographic information
-    location: dict[str, Any] = Field(
-        default_factory=dict, description="Geographic location data"
-    )
-    timezone: str = Field(default="UTC", description="Event timezone")
+    location: dict[str, Any] = field(default_factory=dict)
+    timezone: str = "UTC"
 
     # Notification and routing
-    notification_sent: bool = Field(
-        default=False, description="Whether notification was sent"
-    )
-    notification_channels: list[str] = Field(
-        default_factory=list, description="Notification channels used"
-    )
-    routing_key: str | None = Field(
-        None, description="Routing key for event processing"
-    )
+    notification_sent: bool = False
+    notification_channels: list[str] = field(default_factory=list)
+    routing_key: str | None = None
 
     # Acknowledgment and resolution
-    acknowledged_by: str | None = Field(
-        None, description="User who acknowledged the event"
-    )
-    acknowledged_at: datetime | None = Field(
-        None, description="Acknowledgment timestamp"
-    )
-    resolved_by: str | None = Field(None, description="User who resolved the event")
-    resolved_at: datetime | None = Field(None, description="Resolution timestamp")
-    resolution_notes: str | None = Field(None, description="Resolution notes")
+    acknowledged_by: str | None = None
+    acknowledged_at: datetime | None = None
+    resolved_by: str | None = None
+    resolved_at: datetime | None = None
+    resolution_notes: str | None = None
 
     # Processing metadata
-    processing_attempts: int = Field(
-        default=0, description="Number of processing attempts"
-    )
-    last_error: str | None = Field(None, description="Last processing error")
-    retry_after: datetime | None = Field(None, description="Next retry timestamp")
+    processing_attempts: int = 0
+    last_error: str | None = None
+    retry_after: datetime | None = None
 
     # Metadata
-    tags: list[str] = Field(default_factory=list, description="Event tags")
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata"
-    )
-    custom_fields: dict[str, Any] = Field(
-        default_factory=dict, description="Custom application fields"
-    )
+    tags: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
+    custom_fields: dict[str, Any] = field(default_factory=dict)
 
     def acknowledge(self, user: str, notes: str | None = None) -> None:
         """Acknowledge the event."""
@@ -298,143 +252,138 @@ class AnomalyEvent(BaseModel):
         if tag in self.tags:
             self.tags.remove(tag)
 
-    class Config:
-        """Pydantic model configuration."""
-
-        validate_assignment = True
-        use_enum_values = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-        }
 
 
-class EventFilter(BaseModel):
+@dataclass
+class EventFilter:
     """Filter criteria for querying events."""
 
-    event_types: list[EventType] | None = Field(
-        None, description="Filter by event types"
-    )
-    severities: list[EventSeverity] | None = Field(
-        None, description="Filter by severities"
-    )
-    statuses: list[EventStatus] | None = Field(None, description="Filter by statuses")
-    detector_ids: list[UUID] | None = Field(None, description="Filter by detector IDs")
-    session_ids: list[UUID] | None = Field(None, description="Filter by session IDs")
-    data_sources: list[str] | None = Field(None, description="Filter by data sources")
+    # Event classification filters
+    event_types: list[EventType] | None = None
+    severities: list[EventSeverity] | None = None
+    statuses: list[EventStatus] | None = None
+    detector_ids: list[UUID] | None = None
+    session_ids: list[UUID] | None = None
+    data_sources: list[str] | None = None
 
     # Time-based filters
-    event_time_start: datetime | None = Field(None, description="Event time start")
-    event_time_end: datetime | None = Field(None, description="Event time end")
-    ingestion_time_start: datetime | None = Field(
-        None, description="Ingestion time start"
-    )
-    ingestion_time_end: datetime | None = Field(None, description="Ingestion time end")
+    event_time_start: datetime | None = None
+    event_time_end: datetime | None = None
+    ingestion_time_start: datetime | None = None
+    ingestion_time_end: datetime | None = None
 
     # Content filters
-    title_contains: str | None = Field(None, description="Filter by title content")
-    description_contains: str | None = Field(
-        None, description="Filter by description content"
-    )
-    tags: list[str] | None = Field(None, description="Filter by tags")
-    correlation_id: str | None = Field(None, description="Filter by correlation ID")
+    title_contains: str | None = None
+    description_contains: str | None = None
+    tags: list[str] | None = None
+    correlation_id: str | None = None
 
     # User filters
-    acknowledged_by: str | None = Field(None, description="Filter by acknowledger")
-    resolved_by: str | None = Field(None, description="Filter by resolver")
+    acknowledged_by: str | None = None
+    resolved_by: str | None = None
 
     # Anomaly-specific filters
-    min_anomaly_score: float | None = Field(None, description="Minimum anomaly score")
-    max_anomaly_score: float | None = Field(None, description="Maximum anomaly score")
-    min_confidence: float | None = Field(None, description="Minimum confidence")
+    min_anomaly_score: float | None = None
+    max_anomaly_score: float | None = None
+    min_confidence: float | None = None
 
     # Geographic filters
-    location_bounds: dict[str, Any] | None = Field(
-        None, description="Geographic bounds filter"
-    )
+    location_bounds: dict[str, Any] | None = None
 
     # Pagination
-    limit: int = Field(default=100, description="Maximum number of results")
-    offset: int = Field(default=0, description="Result offset")
-    sort_by: str = Field(default="event_time", description="Sort field")
-    sort_order: str = Field(default="desc", description="Sort order (asc, desc)")
+    limit: int = 100
+    offset: int = 0
+    sort_by: str = "event_time"
+    sort_order: str = "desc"
+
+    def __post_init__(self) -> None:
+        """Validate filter parameters."""
+        if self.limit <= 0:
+            raise ValueError("Limit must be positive")
+        if self.offset < 0:
+            raise ValueError("Offset must be non-negative")
+        if self.sort_order not in ["asc", "desc"]:
+            raise ValueError("Sort order must be 'asc' or 'desc'")
+        if self.min_anomaly_score is not None and not (0.0 <= self.min_anomaly_score <= 1.0):
+            raise ValueError("Min anomaly score must be between 0.0 and 1.0")
+        if self.max_anomaly_score is not None and not (0.0 <= self.max_anomaly_score <= 1.0):
+            raise ValueError("Max anomaly score must be between 0.0 and 1.0")
 
 
-class EventAggregation(BaseModel):
+@dataclass
+class EventAggregation:
     """Event aggregation result."""
 
-    group_key: str = Field(..., description="Aggregation group key")
-    count: int = Field(..., description="Number of events in group")
-    min_severity: EventSeverity = Field(..., description="Minimum severity in group")
-    max_severity: EventSeverity = Field(..., description="Maximum severity in group")
-    first_event_time: datetime = Field(..., description="First event time in group")
-    last_event_time: datetime = Field(..., description="Last event time in group")
-    avg_anomaly_score: float | None = Field(None, description="Average anomaly score")
-    unique_detectors: int = Field(..., description="Number of unique detectors")
-    unique_sessions: int = Field(..., description="Number of unique sessions")
-    resolved_count: int = Field(..., description="Number of resolved events")
-    acknowledged_count: int = Field(..., description="Number of acknowledged events")
+    group_key: str
+    count: int
+    min_severity: EventSeverity
+    max_severity: EventSeverity
+    first_event_time: datetime
+    last_event_time: datetime
+    unique_detectors: int
+    unique_sessions: int
+    resolved_count: int
+    acknowledged_count: int
+    avg_anomaly_score: float | None = None
 
 
-class EventPattern(BaseModel):
+@dataclass
+class EventPattern:
     """Detected event pattern."""
 
-    id: UUID = Field(default_factory=uuid4, description="Pattern identifier")
-    name: str = Field(..., description="Pattern name")
-    description: str = Field(..., description="Pattern description")
+    name: str
+    description: str
+    pattern_type: str
+    conditions: dict[str, Any]
+    time_window: int
+    confidence: float
+    created_by: str
 
-    # Pattern definition
-    pattern_type: str = Field(
-        ..., description="Type of pattern (frequency, sequence, correlation)"
-    )
-    conditions: dict[str, Any] = Field(..., description="Pattern matching conditions")
-    time_window: int = Field(
-        ..., description="Time window for pattern detection (seconds)"
-    )
+    id: UUID = field(default_factory=uuid4)
+    match_count: int = 0
+    last_matched: datetime | None = None
+    alert_enabled: bool = True
+    alert_threshold: int = 1
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    tags: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
-    # Pattern statistics
-    match_count: int = Field(default=0, description="Number of times pattern matched")
-    confidence: float = Field(..., description="Pattern confidence score")
-    last_matched: datetime | None = Field(None, description="Last time pattern matched")
-
-    # Actions
-    alert_enabled: bool = Field(
-        default=True, description="Whether to alert on pattern match"
-    )
-    alert_threshold: int = Field(
-        default=1, description="Number of matches before alerting"
-    )
-
-    # Metadata
-    created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Pattern creation time"
-    )
-    created_by: str = Field(..., description="Pattern creator")
-    tags: list[str] = Field(default_factory=list, description="Pattern tags")
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata"
-    )
+    def __post_init__(self) -> None:
+        """Validate event pattern."""
+        valid_pattern_types = {"frequency", "sequence", "correlation"}
+        if self.pattern_type not in valid_pattern_types:
+            raise ValueError(f"Pattern type must be one of: {valid_pattern_types}")
+        if self.time_window <= 0:
+            raise ValueError("Time window must be positive")
+        if not (0.0 <= self.confidence <= 1.0):
+            raise ValueError("Confidence must be between 0.0 and 1.0")
+        if self.alert_threshold <= 0:
+            raise ValueError("Alert threshold must be positive")
 
 
-class EventSummary(BaseModel):
+@dataclass
+class EventSummary:
     """Summary statistics for events."""
 
-    total_events: int = Field(..., description="Total number of events")
-    events_by_type: dict[str, int] = Field(..., description="Events by type")
-    events_by_severity: dict[str, int] = Field(..., description="Events by severity")
-    events_by_status: dict[str, int] = Field(..., description="Events by status")
-    anomaly_rate: float = Field(..., description="Anomaly detection rate")
-    avg_anomaly_score: float | None = Field(None, description="Average anomaly score")
-    resolution_rate: float = Field(..., description="Event resolution rate")
-    avg_resolution_time: float | None = Field(
-        None, description="Average resolution time (seconds)"
-    )
-    top_detectors: list[dict[str, Any]] = Field(
-        ..., description="Top detectors by event count"
-    )
-    top_data_sources: list[dict[str, Any]] = Field(
-        ..., description="Top data sources by event count"
-    )
-    time_range: dict[str, datetime] = Field(..., description="Time range of events")
-    summary_generated_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Summary generation time"
-    )
+    total_events: int
+    events_by_type: dict[str, int]
+    events_by_severity: dict[str, int]
+    events_by_status: dict[str, int]
+    anomaly_rate: float
+    resolution_rate: float
+    top_detectors: list[dict[str, Any]]
+    top_data_sources: list[dict[str, Any]]
+    time_range: dict[str, datetime]
+
+    avg_anomaly_score: float | None = None
+    avg_resolution_time: float | None = None
+    summary_generated_at: datetime = field(default_factory=datetime.utcnow)
+
+    def __post_init__(self) -> None:
+        """Validate event summary."""
+        if self.total_events < 0:
+            raise ValueError("Total events must be non-negative")
+        if not (0.0 <= self.anomaly_rate <= 1.0):
+            raise ValueError("Anomaly rate must be between 0.0 and 1.0")
+        if not (0.0 <= self.resolution_rate <= 1.0):
+            raise ValueError("Resolution rate must be between 0.0 and 1.0")
