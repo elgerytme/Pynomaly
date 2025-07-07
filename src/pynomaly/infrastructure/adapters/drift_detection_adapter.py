@@ -25,7 +25,8 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 from scipy import stats
-from scipy.spatial.distance import jensenshannon, wasserstein_distance
+from scipy.spatial.distance import jensenshannon
+from scipy.stats import wasserstein_distance
 from sklearn.decomposition import PCA
 from sklearn.ensemble import IsolationForest
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, roc_auc_score
