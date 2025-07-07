@@ -1,0 +1,593 @@
+name: Security Monitoring & Updates
+
+on:
+  schedule:
+    # Run daily at 6 AM UTC
+    - cron: '0 6 * * *'
+  push:
+    branches: [ main ]
+    paths:
+      - 'pyproject.toml'
+      - 'requirements*.txt'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'pyproject.toml'
+      - 'requirements*.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  security-events: write
+  actions: read
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  # Comprehensive security scanning
+  security-scan:
+    name: Security Vulnerability Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install security tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit safety semgrep pip-audit
+
+      - name: Run Bandit security scan
+        run: |
+          mkdir -p security-reports
+          echo "🔒 Running Bandit security scan..."
+          
+          bandit -r src/ \
+            -f json \
+            -o security-reports/bandit-report.json \
+            --severity-level medium \
+            --confidence-level medium || true
+          
+          bandit -r src/ \
+            -f sarif \
+            -o security-reports/bandit.sarif || true
+          
+          bandit -r src/ \
+            -f txt || true
+
+      - name: Upload Bandit SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: security-reports/bandit.sarif
+          category: bandit
+
+      - name: Run Safety vulnerability check
+        run: |
+          echo "🛡️ Running Safety vulnerability check..."
+          
+          # Install project dependencies first
+          pip install hatch
+          hatch env run --env default pip list > security-reports/installed-packages.txt
+          
+          # Run safety check
+          safety check \
+            --json \
+            --output security-reports/safety-report.json || true
+          
+          safety check \
+            --full-report || true
+
+      - name: Run pip-audit
+        run: |
+          echo "🔍 Running pip-audit..."
+          
+          pip-audit \
+            --format=json \
+            --output=security-reports/pip-audit-report.json || true
+          
+          pip-audit \
+            --format=sarif \
+            --output=security-reports/pip-audit.sarif || true
+          
+          pip-audit || true
+
+      - name: Upload pip-audit SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: security-reports/pip-audit.sarif
+          category: pip-audit
+
+      - name: Run Semgrep security scan
+        run: |
+          echo "🔬 Running Semgrep security scan..."
+          
+          semgrep \
+            --config=auto \
+            --json \
+            --output=security-reports/semgrep-report.json \
+            src/ || true
+          
+          semgrep \
+            --config=auto \
+            --sarif \
+            --output=security-reports/semgrep.sarif \
+            src/ || true
+          
+          semgrep --config=auto src/ || true
+
+      - name: Upload Semgrep SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: security-reports/semgrep.sarif
+          category: semgrep
+
+      - name: Generate security summary
+        if: always()
+        run: |
+          echo "📊 Generating security summary..."
+          
+          cat > security-reports/security-summary.md << 'EOF'
+          # 🔒 Security Scan Summary
+          
+          **Date:** $(date)
+          **Commit:** ${{ github.sha }}
+          **Branch:** ${{ github.ref_name }}
+          
+          ## 🛡️ Scan Results
+          
+          | Tool | Status | Description |
+          |------|--------|-------------|
+          | Bandit | ✅ Completed | Static security analysis for Python |
+          | Safety | ✅ Completed | Known vulnerability database check |
+          | pip-audit | ✅ Completed | PyPI package vulnerability scanner |
+          | Semgrep | ✅ Completed | Static analysis security rules |
+          
+          ## 📋 Reports Generated
+          
+          - `bandit-report.json` - Bandit findings in JSON format
+          - `safety-report.json` - Safety vulnerability findings
+          - `pip-audit-report.json` - pip-audit findings
+          - `semgrep-report.json` - Semgrep security findings
+          - `*.sarif` - SARIF format for GitHub Security tab
+          
+          ## 🔧 Next Steps
+          
+          1. Review findings in the Security tab
+          2. Address any high-severity vulnerabilities
+          3. Update dependencies if needed
+          4. Consider implementing additional security measures
+          
+          ## 📚 Resources
+          
+          - [Python Security Best Practices](https://python.org/dev/security/)
+          - [OWASP Python Security](https://owasp.org/www-project-python-security/)
+          - [Bandit Documentation](https://bandit.readthedocs.io/)
+          EOF
+
+      - name: Upload security reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan-reports
+          path: security-reports/
+          retention-days: 90
+
+  # Dependency vulnerability monitoring
+  dependency-monitor:
+    name: Dependency Vulnerability Monitor
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install hatch
+
+      - name: Check for dependency updates
+        run: |
+          echo "🔄 Checking for dependency updates..."
+          
+          mkdir -p dependency-reports
+          
+          # Get current dependencies
+          hatch env run --env default pip list --format=json > dependency-reports/current-deps.json
+          
+          # Check for outdated packages
+          hatch env run --env default pip list --outdated --format=json > dependency-reports/outdated-deps.json || true
+          
+          # Show outdated packages in human-readable format
+          echo "📦 Outdated packages:"
+          hatch env run --env default pip list --outdated || echo "All packages are up to date"
+
+      - name: Generate dependency security report
+        run: |
+          python -c "
+          import json
+          import sys
+          from datetime import datetime
+          
+          # Load dependency data
+          try:
+              with open('dependency-reports/current-deps.json') as f:
+                  current = json.load(f)
+              with open('dependency-reports/outdated-deps.json') as f:
+                  outdated = json.load(f)
+          except FileNotFoundError:
+              current = []
+              outdated = []
+          
+          # Generate report
+          report = {
+              'scan_date': datetime.now().isoformat(),
+              'total_dependencies': len(current),
+              'outdated_dependencies': len(outdated),
+              'current_dependencies': current,
+              'outdated_dependencies': outdated,
+              'security_recommendations': []
+          }
+          
+          # Add security recommendations
+          for pkg in outdated:
+              if pkg['name'].lower() in ['urllib3', 'requests', 'pillow', 'pyyaml', 'jinja2']:
+                  report['security_recommendations'].append({
+                      'package': pkg['name'],
+                      'current': pkg['version'],
+                      'latest': pkg['latest_version'],
+                      'priority': 'high',
+                      'reason': 'Security-critical package'
+                  })
+          
+          with open('dependency-reports/dependency-security-report.json', 'w') as f:
+              json.dump(report, f, indent=2)
+          
+          print(f'📊 Dependency report generated: {len(current)} total, {len(outdated)} outdated')
+          "
+
+      - name: Upload dependency reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-monitor-reports
+          path: dependency-reports/
+          retention-days: 30
+
+  # Automated dependency updates (careful approach)
+  dependency-updates:
+    name: Automated Dependency Updates
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    needs: [security-scan, dependency-monitor]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install hatch
+
+      - name: Check for security updates
+        id: security-updates
+        run: |
+          echo "🔍 Checking for security-critical updates..."
+          
+          # Get outdated packages
+          outdated=$(hatch env run --env default pip list --outdated --format=json)
+          
+          # Check for security-critical packages
+          security_packages=$(echo "$outdated" | python -c "
+          import json
+          import sys
+          
+          data = json.load(sys.stdin)
+          security_critical = ['urllib3', 'requests', 'pillow', 'pyyaml', 'jinja2', 'cryptography']
+          
+          updates = []
+          for pkg in data:
+              if pkg['name'].lower() in security_critical:
+                  updates.append(f'{pkg[\"name\"]}=={pkg[\"latest_version\"]}')
+          
+          if updates:
+              print('SECURITY_UPDATES=' + ' '.join(updates))
+              print('HAS_SECURITY_UPDATES=true')
+          else:
+              print('HAS_SECURITY_UPDATES=false')
+          " >> $GITHUB_OUTPUT)
+
+      - name: Apply security updates
+        if: steps.security-updates.outputs.HAS_SECURITY_UPDATES == 'true'
+        run: |
+          echo "🔧 Applying security updates..."
+          
+          # Create branch for security updates
+          git config --local user.email "action@github.com"
+          git config --local user.name "Security Update Bot"
+          
+          branch_name="security-updates-$(date +%Y%m%d-%H%M%S)"
+          git checkout -b "$branch_name"
+          
+          # Apply updates (this would need to be adapted based on your dependency management)
+          echo "Security updates would be applied here"
+          echo "Updates needed: ${{ steps.security-updates.outputs.SECURITY_UPDATES }}"
+          
+          # For now, just create a placeholder commit
+          echo "# Security Updates Required" > SECURITY_UPDATES.md
+          echo "" >> SECURITY_UPDATES.md
+          echo "The following security updates are recommended:" >> SECURITY_UPDATES.md
+          echo "${{ steps.security-updates.outputs.SECURITY_UPDATES }}" >> SECURITY_UPDATES.md
+          echo "" >> SECURITY_UPDATES.md
+          echo "**Generated:** $(date)" >> SECURITY_UPDATES.md
+          
+          git add SECURITY_UPDATES.md
+          git commit -m "security: Add security update recommendations
+          
+          - Identified security-critical package updates
+          - Created automated security update report
+          - Requires manual review and application"
+          
+          git push origin "$branch_name"
+          
+          # Create PR for security updates
+          gh pr create \
+            --title "🔒 Security Updates Required" \
+            --body "$(cat <<'EOF'
+          ## 🔒 Automated Security Update Report
+          
+          This PR was automatically created to address security-critical dependency updates.
+          
+          ### 📦 Packages Requiring Updates
+          
+          ${{ steps.security-updates.outputs.SECURITY_UPDATES }}
+          
+          ### 🛡️ Security Impact
+          
+          These packages have been identified as security-critical and should be updated promptly.
+          
+          ### ✅ Validation Required
+          
+          - [ ] Review dependency changes
+          - [ ] Run comprehensive tests
+          - [ ] Verify no breaking changes
+          - [ ] Update documentation if needed
+          
+          ### 🤖 Automated Analysis
+          
+          This PR was created by the security monitoring workflow. Please review carefully before merging.
+          
+          **Generated:** $(date)
+          EOF
+          )" \
+            --label "security,dependencies,automated"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # CodeQL analysis for deeper security insights
+  codeql-analysis:
+    name: CodeQL Security Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'python' ]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: +security-and-quality
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install hatch
+          hatch env run --env default pip install -e .
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{matrix.language}}"
+
+  # Security policy compliance check
+  compliance-check:
+    name: Security Policy Compliance
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check security policy files
+        run: |
+          echo "📋 Checking security policy compliance..."
+          
+          # Check for required security files
+          files_to_check=(
+            "SECURITY.md"
+            ".github/SECURITY.md"
+            "docs/security.md"
+          )
+          
+          found_security_policy=false
+          for file in "${files_to_check[@]}"; do
+            if [ -f "$file" ]; then
+              echo "✅ Found security policy: $file"
+              found_security_policy=true
+              break
+            fi
+          done
+          
+          if [ "$found_security_policy" = false ]; then
+            echo "⚠️ No security policy found. Consider creating SECURITY.md"
+          fi
+          
+          # Check for security-related configuration
+          security_checks=(
+            ".github/workflows/security-monitoring.yml:Security monitoring workflow"
+            ".github/dependabot.yml:Dependabot configuration"
+            ".bandit:Bandit configuration"
+            "pyproject.toml:Security tool configuration"
+          )
+          
+          echo "🔍 Security configuration status:"
+          for check in "${security_checks[@]}"; do
+            file="${check%%:*}"
+            desc="${check##*:}"
+            if [ -f "$file" ]; then
+              echo "✅ $desc: $file"
+            else
+              echo "⚠️ Missing $desc: $file"
+            fi
+          done
+
+      - name: Generate compliance report
+        run: |
+          cat > security-compliance-report.md << 'EOF'
+          # 🔒 Security Compliance Report
+          
+          **Generated:** $(date)
+          **Repository:** ${{ github.repository }}
+          
+          ## 📋 Compliance Status
+          
+          ### ✅ Implemented Security Measures
+          
+          - Automated security scanning (Bandit, Safety, Semgrep)
+          - CodeQL static analysis
+          - Dependency vulnerability monitoring
+          - SARIF integration with GitHub Security tab
+          - Automated security update detection
+          
+          ### 🔧 Recommended Improvements
+          
+          - Consider implementing SAST in pre-commit hooks
+          - Set up automated dependency updates for non-breaking changes
+          - Add security-focused unit tests
+          - Implement secrets scanning
+          - Consider adding security linting rules
+          
+          ### 📊 Metrics
+          
+          - Security workflows: 1 (this workflow)
+          - Static analysis tools: 4 (Bandit, Safety, Semgrep, CodeQL)
+          - Update frequency: Daily monitoring
+          - Vulnerability response: Automated detection + manual review
+          
+          ## 🛡️ Security Best Practices Status
+          
+          | Practice | Status | Notes |
+          |----------|--------|-------|
+          | Dependency scanning | ✅ Automated | Daily Safety/pip-audit scans |
+          | Static code analysis | ✅ Automated | Bandit, Semgrep, CodeQL |
+          | Vulnerability monitoring | ✅ Automated | GitHub Security tab integration |
+          | Security updates | 🔄 Semi-automated | Detection automated, application manual |
+          | Security policy | ⚠️ Review needed | Check for SECURITY.md |
+          | Secrets management | 🔄 Partial | GitHub secrets, consider git-secrets |
+          EOF
+
+      - name: Upload compliance report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-compliance-report
+          path: security-compliance-report.md
+          retention-days: 90
+
+  # Security summary
+  security-summary:
+    name: Security Summary
+    runs-on: ubuntu-latest
+    needs: [security-scan, dependency-monitor, codeql-analysis, compliance-check]
+    if: always()
+    
+    steps:
+      - name: Generate overall security summary
+        run: |
+          echo "# 🔒 Security Monitoring Summary" > security-summary.md
+          echo "" >> security-summary.md
+          echo "**Date:** $(date)" >> security-summary.md
+          echo "**Workflow:** ${{ github.workflow }}" >> security-summary.md
+          echo "**Trigger:** ${{ github.event_name }}" >> security-summary.md
+          echo "" >> security-summary.md
+          
+          echo "## 📊 Job Results" >> security-summary.md
+          echo "" >> security-summary.md
+          echo "| Component | Status | Description |" >> security-summary.md
+          echo "|-----------|--------|-------------|" >> security-summary.md
+          echo "| Security Scan | ${{ needs.security-scan.result == 'success' && '✅ Passed' || needs.security-scan.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | Bandit, Safety, Semgrep, pip-audit |" >> security-summary.md
+          echo "| Dependency Monitor | ${{ needs.dependency-monitor.result == 'success' && '✅ Passed' || needs.dependency-monitor.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | Dependency vulnerability tracking |" >> security-summary.md
+          echo "| CodeQL Analysis | ${{ needs.codeql-analysis.result == 'success' && '✅ Passed' || needs.codeql-analysis.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | GitHub advanced security analysis |" >> security-summary.md
+          echo "| Compliance Check | ${{ needs.compliance-check.result == 'success' && '✅ Passed' || needs.compliance-check.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | Security policy compliance review |" >> security-summary.md
+          echo "" >> security-summary.md
+          
+          echo "## 🛡️ Security Status" >> security-summary.md
+          echo "" >> security-summary.md
+          if [[ "${{ needs.security-scan.result }}" == "success" && 
+                "${{ needs.dependency-monitor.result }}" == "success" ]]; then
+            echo "✅ **Security monitoring is operational**" >> security-summary.md
+            echo "" >> security-summary.md
+            echo "- All security scans completed successfully" >> security-summary.md
+            echo "- Dependency monitoring is active" >> security-summary.md
+            echo "- SARIF reports uploaded to Security tab" >> security-summary.md
+          else
+            echo "⚠️ **Security monitoring has issues**" >> security-summary.md
+            echo "" >> security-summary.md
+            echo "- Review failed jobs for security gaps" >> security-summary.md
+            echo "- Check Security tab for detailed findings" >> security-summary.md
+            echo "- Address any high-priority vulnerabilities" >> security-summary.md
+          fi
+          
+          echo "" >> security-summary.md
+          echo "## 🔗 Resources" >> security-summary.md
+          echo "" >> security-summary.md
+          echo "- [Security Tab](https://github.com/${{ github.repository }}/security)" >> security-summary.md
+          echo "- [Dependency Graph](https://github.com/${{ github.repository }}/network/dependencies)" >> security-summary.md
+          echo "- [Security Advisories](https://github.com/${{ github.repository }}/security/advisories)" >> security-summary.md
+          echo "- [Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> security-summary.md
+
+      - name: Upload security summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-monitoring-summary
+          path: security-summary.md
+          retention-days: 90

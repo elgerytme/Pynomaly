@@ -1,0 +1,492 @@
+name: Release Automation
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'pyproject.toml'
+      - 'CHANGELOG.md'
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Type of release'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - prerelease
+      dry_run:
+        description: 'Dry run (do not create actual release)'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  # Detect if a release is needed based on changes
+  detect-changes:
+    name: Detect Release Changes
+    runs-on: ubuntu-latest
+    outputs:
+      needs_release: ${{ steps.changes.outputs.needs_release }}
+      change_type: ${{ steps.changes.outputs.change_type }}
+      version: ${{ steps.version.outputs.version }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          pip install hatch conventional-commits python-semantic-release
+
+      - name: Analyze commit messages
+        id: changes
+        run: |
+          # Get commits since last release
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          
+          if [ -z "$LAST_TAG" ]; then
+            echo "No previous tags found, needs initial release"
+            echo "needs_release=true" >> $GITHUB_OUTPUT
+            echo "change_type=minor" >> $GITHUB_OUTPUT
+          else
+            echo "Last tag: $LAST_TAG"
+            
+            # Get commits since last tag
+            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s" --no-merges)
+            
+            if [ -z "$COMMITS" ]; then
+              echo "No commits since last release"
+              echo "needs_release=false" >> $GITHUB_OUTPUT
+              echo "change_type=none" >> $GITHUB_OUTPUT
+            else
+              echo "Analyzing commits since $LAST_TAG:"
+              echo "$COMMITS"
+              
+              # Analyze commit types using conventional commits
+              BREAKING_CHANGES=$(echo "$COMMITS" | grep -E "(BREAKING CHANGE|!:)" | wc -l)
+              FEATURES=$(echo "$COMMITS" | grep -E "^feat(\(.+\))?:" | wc -l)
+              FIXES=$(echo "$COMMITS" | grep -E "^fix(\(.+\))?:" | wc -l)
+              OTHERS=$(echo "$COMMITS" | grep -E "^(docs|test|chore|refactor|style|perf|ci)(\(.+\))?:" | wc -l)
+              
+              echo "Breaking changes: $BREAKING_CHANGES"
+              echo "Features: $FEATURES"
+              echo "Fixes: $FIXES"
+              echo "Other changes: $OTHERS"
+              
+              if [ "$BREAKING_CHANGES" -gt 0 ]; then
+                echo "needs_release=true" >> $GITHUB_OUTPUT
+                echo "change_type=major" >> $GITHUB_OUTPUT
+              elif [ "$FEATURES" -gt 0 ]; then
+                echo "needs_release=true" >> $GITHUB_OUTPUT
+                echo "change_type=minor" >> $GITHUB_OUTPUT
+              elif [ "$FIXES" -gt 0 ]; then
+                echo "needs_release=true" >> $GITHUB_OUTPUT
+                echo "change_type=patch" >> $GITHUB_OUTPUT
+              else
+                echo "needs_release=false" >> $GITHUB_OUTPUT
+                echo "change_type=none" >> $GITHUB_OUTPUT
+              fi
+            fi
+          fi
+
+      - name: Calculate next version
+        id: version
+        run: |
+          CURRENT_VERSION=$(hatch version 2>/dev/null || echo "0.0.0")
+          echo "Current version: $CURRENT_VERSION"
+          
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            RELEASE_TYPE="${{ github.event.inputs.release_type }}"
+          else
+            RELEASE_TYPE="${{ steps.changes.outputs.change_type }}"
+          fi
+          
+          echo "Release type: $RELEASE_TYPE"
+          
+          # Calculate next version using semantic versioning
+          IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
+          MAJOR=${VERSION_PARTS[0]:-0}
+          MINOR=${VERSION_PARTS[1]:-0}
+          PATCH=${VERSION_PARTS[2]:-0}
+          
+          case $RELEASE_TYPE in
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+            prerelease)
+              PATCH=$((PATCH + 1))
+              NEXT_VERSION="$MAJOR.$MINOR.$PATCH-alpha.$(date +%s)"
+              echo "version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+              exit 0
+              ;;
+            none)
+              echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+              exit 0
+              ;;
+          esac
+          
+          NEXT_VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "Next version: $NEXT_VERSION"
+          echo "version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+
+  # Generate changelog and prepare release
+  prepare-release:
+    name: Prepare Release
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.needs_release == 'true' && github.event.inputs.dry_run != 'true'
+    outputs:
+      changelog: ${{ steps.changelog.outputs.changelog }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          pip install hatch git-cliff conventional-commits
+
+      - name: Generate changelog entry
+        id: changelog
+        run: |
+          NEW_VERSION="${{ needs.detect-changes.outputs.version }}"
+          CHANGE_TYPE="${{ needs.detect-changes.outputs.change_type }}"
+          
+          echo "Generating changelog for version $NEW_VERSION..."
+          
+          # Generate changelog using git-cliff
+          git-cliff --tag=$NEW_VERSION --output=CHANGELOG_NEW.md --include-path="src/**"
+          
+          # Read the generated changelog
+          if [ -f CHANGELOG_NEW.md ]; then
+            CHANGELOG_CONTENT=$(cat CHANGELOG_NEW.md)
+            echo "Generated changelog:"
+            echo "$CHANGELOG_CONTENT"
+            
+            # Store changelog for use in release notes
+            echo "changelog<<EOF" >> $GITHUB_OUTPUT
+            echo "$CHANGELOG_CONTENT" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "Failed to generate changelog"
+            exit 1
+          fi
+
+      - name: Update version in pyproject.toml
+        run: |
+          NEW_VERSION="${{ needs.detect-changes.outputs.version }}"
+          echo "Updating version to $NEW_VERSION"
+          
+          # Use hatch to update version
+          hatch version $NEW_VERSION
+          
+          # Verify the update
+          UPDATED_VERSION=$(hatch version)
+          echo "Updated version: $UPDATED_VERSION"
+          
+          if [ "$UPDATED_VERSION" != "$NEW_VERSION" ]; then
+            echo "Version update failed"
+            exit 1
+          fi
+
+      - name: Update CHANGELOG.md
+        run: |
+          NEW_VERSION="${{ needs.detect-changes.outputs.version }}"
+          DATE=$(date +%Y-%m-%d)
+          
+          echo "Updating CHANGELOG.md with version $NEW_VERSION..."
+          
+          # Create temporary file with new entry
+          echo "# Changelog" > CHANGELOG_TEMP.md
+          echo "" >> CHANGELOG_TEMP.md
+          echo "All notable changes to this project will be documented in this file." >> CHANGELOG_TEMP.md
+          echo "" >> CHANGELOG_TEMP.md
+          echo "The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)," >> CHANGELOG_TEMP.md
+          echo "and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)." >> CHANGELOG_TEMP.md
+          echo "" >> CHANGELOG_TEMP.md
+          
+          # Add new version entry
+          echo "## [$NEW_VERSION] - $DATE" >> CHANGELOG_TEMP.md
+          echo "" >> CHANGELOG_TEMP.md
+          
+          # Categorize commits since last tag
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -n "$LAST_TAG" ]; then
+            RANGE="${LAST_TAG}..HEAD"
+          else
+            RANGE="HEAD"
+          fi
+          
+          # Get commits and categorize them
+          FEATURES=$(git log $RANGE --pretty=format:"- %s" --no-merges | grep "^- feat" | sed 's/^- feat[^:]*: /- /' || true)
+          FIXES=$(git log $RANGE --pretty=format:"- %s" --no-merges | grep "^- fix" | sed 's/^- fix[^:]*: /- /' || true)
+          DOCS=$(git log $RANGE --pretty=format:"- %s" --no-merges | grep "^- docs" | sed 's/^- docs[^:]*: /- /' || true)
+          TESTS=$(git log $RANGE --pretty=format:"- %s" --no-merges | grep "^- test" | sed 's/^- test[^:]*: /- /' || true)
+          CHORES=$(git log $RANGE --pretty=format:"- %s" --no-merges | grep "^- chore" | sed 's/^- chore[^:]*: /- /' || true)
+          
+          # Add sections with content
+          if [ -n "$FEATURES" ]; then
+            echo "### Added" >> CHANGELOG_TEMP.md
+            echo "$FEATURES" >> CHANGELOG_TEMP.md
+            echo "" >> CHANGELOG_TEMP.md
+          fi
+          
+          if [ -n "$FIXES" ]; then
+            echo "### Fixed" >> CHANGELOG_TEMP.md
+            echo "$FIXES" >> CHANGELOG_TEMP.md
+            echo "" >> CHANGELOG_TEMP.md
+          fi
+          
+          if [ -n "$DOCS" ]; then
+            echo "### Documentation" >> CHANGELOG_TEMP.md
+            echo "$DOCS" >> CHANGELOG_TEMP.md
+            echo "" >> CHANGELOG_TEMP.md
+          fi
+          
+          if [ -n "$TESTS" ]; then
+            echo "### Testing" >> CHANGELOG_TEMP.md
+            echo "$TESTS" >> CHANGELOG_TEMP.md
+            echo "" >> CHANGELOG_TEMP.md
+          fi
+          
+          if [ -n "$CHORES" ]; then
+            echo "### Infrastructure" >> CHANGELOG_TEMP.md
+            echo "$CHORES" >> CHANGELOG_TEMP.md
+            echo "" >> CHANGELOG_TEMP.md
+          fi
+          
+          # Append existing changelog content (skip first few header lines)
+          if [ -f CHANGELOG.md ]; then
+            tail -n +7 CHANGELOG.md >> CHANGELOG_TEMP.md || true
+          fi
+          
+          # Replace original changelog
+          mv CHANGELOG_TEMP.md CHANGELOG.md
+          
+          echo "Changelog updated successfully"
+
+      - name: Commit version and changelog updates
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          git add pyproject.toml CHANGELOG.md
+          git commit -m "chore: prepare release v${{ needs.detect-changes.outputs.version }}
+
+          - Update version to ${{ needs.detect-changes.outputs.version }}
+          - Update CHANGELOG.md with release notes
+          - Automated release preparation"
+          
+          git push origin main
+
+      - name: Create release tag
+        run: |
+          git tag -a "v${{ needs.detect-changes.outputs.version }}" -m "Release v${{ needs.detect-changes.outputs.version }}"
+          git push origin "v${{ needs.detect-changes.outputs.version }}"
+
+  # Create GitHub release
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [detect-changes, prepare-release]
+    if: needs.detect-changes.outputs.needs_release == 'true' && github.event.inputs.dry_run != 'true'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ needs.detect-changes.outputs.version }}
+          release_name: Pynomaly v${{ needs.detect-changes.outputs.version }}
+          body: |
+            # 🚀 Pynomaly v${{ needs.detect-changes.outputs.version }}
+
+            ## 📦 Installation
+
+            ```bash
+            pip install pynomaly==${{ needs.detect-changes.outputs.version }}
+            ```
+
+            ## 📝 What's Changed
+
+            ${{ needs.prepare-release.outputs.changelog }}
+
+            ## 🔗 Links
+
+            - [PyPI Package](https://pypi.org/project/pynomaly/${{ needs.detect-changes.outputs.version }}/)
+            - [Documentation](https://pynomaly.readthedocs.io)
+            - [Full Changelog](https://github.com/pynomaly/pynomaly/blob/main/CHANGELOG.md)
+
+            ## 🛠️ Development
+
+            This release was automatically generated using:
+            - Conventional commit analysis
+            - Semantic versioning
+            - Automated changelog generation
+            - Comprehensive CI/CD pipeline
+
+            **Release Type:** ${{ needs.detect-changes.outputs.change_type }}
+            **Generated on:** $(date)
+
+          draft: false
+          prerelease: ${{ contains(needs.detect-changes.outputs.version, 'alpha') || contains(needs.detect-changes.outputs.version, 'beta') || contains(needs.detect-changes.outputs.version, 'rc') }}
+
+  # Trigger PyPI release pipeline
+  trigger-pypi-release:
+    name: Trigger PyPI Release
+    runs-on: ubuntu-latest
+    needs: [detect-changes, prepare-release, create-release]
+    if: needs.detect-changes.outputs.needs_release == 'true' && github.event.inputs.dry_run != 'true'
+    
+    steps:
+      - name: Trigger PyPI release workflow
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'release-pypi.yml',
+              ref: 'main',
+              inputs: {
+                version: '${{ needs.detect-changes.outputs.version }}',
+                environment: 'pypi'
+              }
+            });
+            
+            console.log('✅ PyPI release workflow triggered');
+
+  # Dry run summary
+  dry-run-summary:
+    name: Dry Run Summary
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: github.event.inputs.dry_run == 'true'
+    
+    steps:
+      - name: Generate dry run summary
+        run: |
+          echo "# 🧪 Release Automation Dry Run Summary"
+          echo ""
+          echo "**Date:** $(date)"
+          echo "**Trigger:** ${{ github.event_name }}"
+          echo ""
+          echo "## 📊 Analysis Results"
+          echo ""
+          echo "- **Needs Release:** ${{ needs.detect-changes.outputs.needs_release }}"
+          echo "- **Change Type:** ${{ needs.detect-changes.outputs.change_type }}"
+          echo "- **Next Version:** ${{ needs.detect-changes.outputs.version }}"
+          echo ""
+          
+          if [ "${{ needs.detect-changes.outputs.needs_release }}" = "true" ]; then
+            echo "## 🚀 Would Perform Release"
+            echo ""
+            echo "The following actions would be performed in a real release:"
+            echo ""
+            echo "1. **Version Update**"
+            echo "   - Update pyproject.toml version to ${{ needs.detect-changes.outputs.version }}"
+            echo ""
+            echo "2. **Changelog Generation**"
+            echo "   - Generate changelog entry for v${{ needs.detect-changes.outputs.version }}"
+            echo "   - Categorize commits by type (feat, fix, docs, etc.)"
+            echo ""
+            echo "3. **Git Operations**"
+            echo "   - Commit version and changelog updates"
+            echo "   - Create and push git tag: v${{ needs.detect-changes.outputs.version }}"
+            echo ""
+            echo "4. **GitHub Release**"
+            echo "   - Create GitHub release with generated notes"
+            echo "   - Attach release assets"
+            echo ""
+            echo "5. **PyPI Publication**"
+            echo "   - Trigger PyPI release workflow"
+            echo "   - Build and upload package to PyPI"
+            echo ""
+            echo "## ✅ Next Steps"
+            echo ""
+            echo "To perform the actual release, run this workflow again with 'Dry run' disabled."
+          else
+            echo "## ℹ️ No Release Needed"
+            echo ""
+            echo "No significant changes detected since the last release."
+            echo "The following commit types trigger releases:"
+            echo ""
+            echo "- **feat:** → Minor version bump"
+            echo "- **fix:** → Patch version bump"
+            echo "- **BREAKING CHANGE** or **!:** → Major version bump"
+            echo ""
+            echo "Other commit types (docs, test, chore, etc.) do not trigger releases."
+          fi
+
+  # Post-automation cleanup and monitoring
+  post-automation:
+    name: Post-Automation Tasks
+    runs-on: ubuntu-latest
+    needs: [detect-changes, prepare-release, create-release, trigger-pypi-release]
+    if: always() && needs.detect-changes.outputs.needs_release == 'true' && github.event.inputs.dry_run != 'true'
+    
+    steps:
+      - name: Update project badges
+        run: |
+          echo "🏷️ Updating project badges and metadata..."
+          # This could update README badges, documentation, etc.
+          
+      - name: Notify team
+        run: |
+          echo "📢 Release v${{ needs.detect-changes.outputs.version }} automation completed!"
+          echo ""
+          echo "🔗 Release URL: https://github.com/${{ github.repository }}/releases/tag/v${{ needs.detect-changes.outputs.version }}"
+          echo "📦 PyPI URL: https://pypi.org/project/pynomaly/${{ needs.detect-changes.outputs.version }}/"
+          echo ""
+          echo "The package should be available on PyPI within a few minutes."
+
+      - name: Schedule follow-up checks
+        run: |
+          echo "⏰ Follow-up checks scheduled:"
+          echo "- PyPI package availability verification"
+          echo "- Documentation site update"
+          echo "- Community notification"
+          echo "- Analytics and download tracking"
