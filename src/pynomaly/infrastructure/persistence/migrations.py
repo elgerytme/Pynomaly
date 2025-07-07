@@ -116,6 +116,27 @@ class DatabaseMigrator:
         logger.info("Database initialization completed successfully")
         return True
 
+    def seed_default_data(self) -> bool:
+        """Seed default roles and permissions.
+        
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            with self.db_manager.get_session() as session:
+                # Seed default system roles and permissions
+                if not seed_default_roles_and_permissions(session):
+                    return False
+                
+                # Seed custom roles
+                if not seed_custom_roles(session):
+                    logger.warning("Failed to seed custom roles")
+                
+                return True
+        except Exception as e:
+            logger.error(f"Failed to seed default data: {e}")
+            return False
+    
     def reset_database(self) -> bool:
         """Reset database by dropping and recreating all tables.
 
