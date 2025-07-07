@@ -13,7 +13,6 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
 develop-eggs/
 dist/
 downloads/
@@ -375,7 +374,4 @@ benchmarks/results/
 /dist_*
 reports/project_structure_analysis.json
 buck2_workflow_results_*.json
-# buck-out/
-# Build artifacts should be ignored
-buck-out/
 dist/
