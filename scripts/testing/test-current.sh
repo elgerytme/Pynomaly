@@ -50,7 +50,7 @@ echo
 
 # Test 3: Server startup test
 echo "Test 3: Testing server startup..."
-python3 scripts/run_web_app.py &
+PYTHONPATH="$(pwd)/src" python3 scripts/run/run_web_app.py &
 SERVER_PID=$!
 echo "✓ Server started with PID: $SERVER_PID"
 

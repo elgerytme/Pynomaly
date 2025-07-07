@@ -43,7 +43,9 @@ async def check_api_health():
         app = create_app(container)
         
         # Test with in-memory client (no server needed)
-        async with AsyncClient(app=app, base_url="http://testserver") as client:
+        from httpx import ASGITransport
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://testserver") as client:
             
             # Test root endpoint
             response = await client.get("/")
