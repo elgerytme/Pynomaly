@@ -72,3 +72,17 @@ try:
     __all__.append("EnsembleAdapter")
 except ImportError:
     pass
+
+try:
+    from .advanced_ensemble_adapter import AdvancedEnsembleAdapter
+
+    __all__.append("AdvancedEnsembleAdapter")
+except ImportError:
+    pass
+
+try:
+    from .drift_detection_adapter import DriftDetectionAdapter
+
+    __all__.append("DriftDetectionAdapter")
+except ImportError:
+    pass

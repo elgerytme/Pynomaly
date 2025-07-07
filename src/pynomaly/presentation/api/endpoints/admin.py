@@ -7,10 +7,9 @@ from pynomaly.infrastructure.auth import (
     get_auth,
 )
 from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.auth_deps import (
-    get_container_simple,
-    get_current_user_simple,
-)
+from pynomaly.infrastructure.security.rbac_middleware import require_role
+from pynomaly.domain.entities.user import UserRole
+from pynomaly.presentation.api.auth_deps import get_container_simple
 
 router = APIRouter()
 
@@ -81,7 +80,7 @@ async def list_users(
     role: str | None = Query(None, description="Filter by role"),
     limit: int = Query(100, ge=1, le=1000),
     container: Container = Depends(get_container_simple),
-    current_user: str | None = Depends(get_current_user_simple),
+    _user = Depends(require_role(UserRole.SUPER_ADMIN)),
 ) -> list[UserResponse]:
     """List all users. Requires admin permissions."""
     auth_service = get_auth()
@@ -125,7 +124,7 @@ async def list_users(
 async def get_user(
     user_id: str,
     container: Container = Depends(get_container_simple),
-    current_user: str | None = Depends(get_current_user_simple),
+    _user = Depends(require_role(UserRole.TENANT_ADMIN)),
 ) -> UserResponse:
     """Get a specific user. Requires admin permissions."""
     auth_service = get_auth()

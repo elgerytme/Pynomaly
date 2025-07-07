@@ -9,7 +9,8 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Upload
 from pynomaly.application.dto import DataQualityReportDTO, DatasetDTO
 from pynomaly.domain.entities import Dataset
 from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.deps import get_container, get_current_user
+from pynomaly.presentation.api.auth_deps import get_container_simple
+from pynomaly.infrastructure.security.rbac_middleware import CommonPermissions, require_permissions
 
 router = APIRouter()
 
@@ -18,8 +19,8 @@ router = APIRouter()
 async def list_datasets(
     has_target: bool | None = Query(None, description="Filter by target presence"),
     limit: int = Query(100, ge=1, le=1000),
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    _user = Depends(require_permissions(CommonPermissions.DATASET_READ)),
 ) -> list[DatasetDTO]:
     """List all datasets."""
     dataset_repo = container.dataset_repository()
@@ -59,8 +60,8 @@ async def list_datasets(
 @router.get("/{dataset_id}", response_model=DatasetDTO)
 async def get_dataset(
     dataset_id: UUID,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    _user = Depends(require_permissions(CommonPermissions.DATASET_READ)),
 ) -> DatasetDTO:
     """Get a specific dataset."""
     dataset_repo = container.dataset_repository()
@@ -93,8 +94,8 @@ async def upload_dataset(
     name: str | None = Form(None),
     description: str | None = Form(None),
     target_column: str | None = Form(None),
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    _user = Depends(require_permissions(CommonPermissions.DATASET_WRITE)),
 ) -> DatasetDTO:
     """Upload a dataset from file."""
     settings = container.config()
@@ -178,8 +179,8 @@ async def upload_dataset(
 @router.get("/{dataset_id}/quality", response_model=DataQualityReportDTO)
 async def check_dataset_quality(
     dataset_id: UUID,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    _user = Depends(require_permissions(CommonPermissions.DATASET_READ)),
 ) -> DataQualityReportDTO:
     """Check dataset quality."""
     dataset_repo = container.dataset_repository()
@@ -210,8 +211,8 @@ async def check_dataset_quality(
 async def get_dataset_sample(
     dataset_id: UUID,
     n: int = Query(10, ge=1, le=100, description="Number of rows to return"),
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    _user = Depends(require_permissions(CommonPermissions.DATASET_READ)),
 ) -> dict:
     """Get a sample of dataset rows."""
     dataset_repo = container.dataset_repository()
@@ -239,8 +240,8 @@ async def split_dataset(
     dataset_id: UUID,
     test_size: float = Query(0.2, ge=0.1, le=0.5),
     random_state: int | None = Query(None),
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    _user = Depends(require_permissions(CommonPermissions.DATASET_WRITE)),
 ) -> dict:
     """Split dataset into train and test sets."""
     dataset_repo = container.dataset_repository()
@@ -277,8 +278,8 @@ async def split_dataset(
 @router.delete("/{dataset_id}")
 async def delete_dataset(
     dataset_id: UUID,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    _user = Depends(require_permissions(CommonPermissions.DATASET_DELETE)),
 ) -> dict:
     """Delete a dataset."""
     dataset_repo = container.dataset_repository()

@@ -97,7 +97,7 @@ class DetectorProtocol(Protocol):
 
 
 @runtime_checkable
-class StreamingDetectorProtocol(DetectorProtocol, Protocol):
+class StreamingDetectorProtocol(DetectorProtocol):
     """Protocol for detectors that support streaming/online detection."""
 
     def partial_fit(self, dataset: Dataset) -> None:
@@ -121,7 +121,7 @@ class StreamingDetectorProtocol(DetectorProtocol, Protocol):
 
 
 @runtime_checkable
-class ExplainableDetectorProtocol(DetectorProtocol, Protocol):
+class ExplainableDetectorProtocol(DetectorProtocol):
     """Protocol for detectors that provide explanations."""
 
     def explain(
@@ -148,7 +148,7 @@ class ExplainableDetectorProtocol(DetectorProtocol, Protocol):
 
 
 @runtime_checkable
-class EnsembleDetectorProtocol(DetectorProtocol, Protocol):
+class EnsembleDetectorProtocol(DetectorProtocol):
     """Protocol for ensemble detectors."""
 
     @property

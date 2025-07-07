@@ -1,0 +1,391 @@
+name: Production Deployment
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+      version:
+        description: 'Version to deploy'
+        required: true
+        default: 'latest'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+      digest: ${{ steps.build.outputs.digest }}
+      
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{major}}
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: deploy/docker/Dockerfile
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Output image
+      id: image
+      run: echo "image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.release.tag_name || github.sha }}" >> $GITHUB_OUTPUT
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    
+    steps:
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ needs.build-and-push.outputs.image }}
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+    - name: Check for critical vulnerabilities
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ needs.build-and-push.outputs.image }}
+        format: 'json'
+        output: 'trivy-results.json'
+        severity: 'CRITICAL,HIGH'
+        exit-code: '1'
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build-and-push, security-scan]
+    if: github.event.inputs.environment == 'staging' || (github.event_name == 'release' && github.event.action == 'published')
+    environment: staging
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Update kubeconfig
+      run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME_STAGING }}
+
+    - name: Install Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: '3.12.0'
+
+    - name: Add Helm repositories
+      run: |
+        helm repo add bitnami https://charts.bitnami.com/bitnami
+        helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+        helm repo add grafana https://grafana.github.io/helm-charts
+        helm repo update
+
+    - name: Deploy to staging
+      run: |
+        helm upgrade --install pynomaly-staging ./deploy/helm/pynomaly \
+          --namespace pynomaly-staging \
+          --create-namespace \
+          --set pynomaly.image.tag=${{ github.event.release.tag_name || github.sha }} \
+          --set pynomaly.environment=staging \
+          --set ingress.hosts[0].host=staging-api.pynomaly.ai \
+          --set api.replicaCount=2 \
+          --set worker.replicaCount=1 \
+          --set postgresql.primary.persistence.size=20Gi \
+          --set redis.master.persistence.size=5Gi \
+          --wait --timeout=15m
+
+    - name: Wait for deployment
+      run: |
+        kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=pynomaly -n pynomaly-staging --timeout=600s
+
+    - name: Run health checks
+      run: |
+        # Wait for service to be ready
+        sleep 30
+        
+        # Get service endpoint
+        ENDPOINT=$(kubectl get ingress -n pynomaly-staging -o jsonpath='{.items[0].spec.rules[0].host}')
+        
+        # Health check
+        curl -f https://${ENDPOINT}/api/v1/health || exit 1
+        curl -f https://${ENDPOINT}/api/v1/health/ready || exit 1
+        
+        echo "✅ Health checks passed"
+
+    - name: Run Helm tests
+      run: |
+        helm test pynomaly-staging --namespace pynomaly-staging --timeout=5m
+
+    - name: Notify staging deployment
+      uses: 8398a7/action-slack@v3
+      if: always()
+      with:
+        status: ${{ job.status }}
+        channel: '#deployments'
+        text: |
+          Staging deployment ${{ job.status }}!
+          Version: ${{ github.event.release.tag_name || github.sha }}
+          Environment: https://staging-api.pynomaly.ai
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  performance-test:
+    name: Performance Test
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    if: github.event_name == 'release' || github.event.inputs.environment == 'staging'
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install k6
+      run: |
+        curl -s https://dl.k6.io/key.gpg | sudo apt-key add -
+        echo "deb https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update
+        sudo apt-get install k6
+
+    - name: Run performance tests
+      run: |
+        k6 run --out json=performance-results.json tests/performance/load_test.js
+      env:
+        API_BASE_URL: https://staging-api.pynomaly.ai
+        K6_VUS: 50
+        K6_DURATION: 5m
+
+    - name: Upload performance results
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-results
+        path: performance-results.json
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build-and-push, security-scan, performance-test]
+    if: github.event_name == 'release' || github.event.inputs.environment == 'production'
+    environment: production
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Update kubeconfig
+      run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME_PRODUCTION }}
+
+    - name: Install Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: '3.12.0'
+
+    - name: Add Helm repositories
+      run: |
+        helm repo add bitnami https://charts.bitnami.com/bitnami
+        helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+        helm repo add grafana https://grafana.github.io/helm-charts
+        helm repo update
+
+    - name: Backup current deployment
+      run: |
+        # Create backup of current Helm values
+        helm get values pynomaly --namespace pynomaly > backup-values-$(date +%Y%m%d-%H%M%S).yaml || echo "No existing deployment to backup"
+
+    - name: Deploy to production
+      run: |
+        helm upgrade --install pynomaly ./deploy/helm/pynomaly \
+          --namespace pynomaly \
+          --create-namespace \
+          --set pynomaly.image.tag=${{ github.event.release.tag_name || github.event.inputs.version }} \
+          --set pynomaly.environment=production \
+          --set ingress.hosts[0].host=api.pynomaly.ai \
+          --set api.replicaCount=5 \
+          --set worker.replicaCount=3 \
+          --set postgresql.primary.persistence.size=100Gi \
+          --set redis.master.persistence.size=20Gi \
+          --set postgresql.primary.resources.requests.memory=2Gi \
+          --set postgresql.primary.resources.requests.cpu=1000m \
+          --set postgresql.primary.resources.limits.memory=8Gi \
+          --set postgresql.primary.resources.limits.cpu=4000m \
+          --set redis.master.resources.requests.memory=1Gi \
+          --set redis.master.resources.requests.cpu=500m \
+          --set redis.master.resources.limits.memory=4Gi \
+          --set redis.master.resources.limits.cpu=2000m \
+          --wait --timeout=20m
+
+    - name: Wait for deployment
+      run: |
+        kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=pynomaly -n pynomaly --timeout=900s
+
+    - name: Verify deployment
+      run: |
+        # Check pod status
+        kubectl get pods -n pynomaly -l app.kubernetes.io/name=pynomaly
+        
+        # Check service endpoints
+        kubectl get svc -n pynomaly
+        
+        # Check ingress
+        kubectl get ingress -n pynomaly
+
+    - name: Run health checks
+      run: |
+        # Wait for service to be fully ready
+        sleep 60
+        
+        # Health check
+        curl -f https://api.pynomaly.ai/api/v1/health || exit 1
+        curl -f https://api.pynomaly.ai/api/v1/health/ready || exit 1
+        
+        echo "✅ Production health checks passed"
+
+    - name: Run production tests
+      run: |
+        helm test pynomaly --namespace pynomaly --timeout=10m
+
+    - name: Update deployment status
+      run: |
+        # Create deployment record
+        kubectl create configmap deployment-info-$(date +%Y%m%d-%H%M%S) \
+          --namespace pynomaly \
+          --from-literal=version=${{ github.event.release.tag_name || github.event.inputs.version }} \
+          --from-literal=deployed-at=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
+          --from-literal=deployed-by=${{ github.actor }} \
+          --from-literal=git-sha=${{ github.sha }}
+
+    - name: Notify production deployment
+      uses: 8398a7/action-slack@v3
+      if: success()
+      with:
+        status: success
+        channel: '#deployments'
+        text: |
+          🚀 Successfully deployed Pynomaly ${{ github.event.release.tag_name || github.event.inputs.version }} to production!
+          
+          Release: ${{ github.event.release.html_url }}
+          API: https://api.pynomaly.ai
+          Docs: https://api.pynomaly.ai/docs
+          
+          Deployment completed at $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+    - name: Notify deployment failure
+      uses: 8398a7/action-slack@v3
+      if: failure()
+      with:
+        status: failure
+        channel: '#deployments'
+        text: |
+          ❌ Failed to deploy Pynomaly ${{ github.event.release.tag_name || github.event.inputs.version }} to production!
+          
+          Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          Please check logs and consider rollback if necessary.
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  rollback:
+    name: Rollback (if needed)
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    if: failure() && github.event_name == 'release'
+    environment: production
+    
+    steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Update kubeconfig
+      run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME_PRODUCTION }}
+
+    - name: Install Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: '3.12.0'
+
+    - name: Rollback deployment
+      run: |
+        echo "🔄 Rolling back production deployment..."
+        helm rollback pynomaly --namespace pynomaly
+        
+        # Wait for rollback to complete
+        kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=pynomaly -n pynomaly --timeout=600s
+
+    - name: Notify rollback
+      uses: 8398a7/action-slack@v3
+      with:
+        status: custom
+        custom_payload: |
+          {
+            "text": "🔄 Production deployment rolled back due to deployment failure",
+            "channel": "#deployments",
+            "username": "GitHub Actions",
+            "icon_emoji": ":warning:"
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

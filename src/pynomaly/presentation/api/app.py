@@ -33,6 +33,8 @@ from pynomaly.presentation.api.endpoints import (
     model_lineage,
     performance,
     streaming,
+    version,
+)
 )
 
 # Enhanced AutoML endpoints
@@ -227,6 +229,9 @@ def create_app(container: Container | None = None) -> FastAPI:
     app.include_router(
         experiments.router, prefix="/api/experiments", tags=["experiments"]
     )
+
+    # Include version endpoint
+    app.include_router(version.router, prefix="/api/v1", tags=["version"])
 
     app.include_router(
         performance.router, prefix="/api/performance", tags=["performance"]

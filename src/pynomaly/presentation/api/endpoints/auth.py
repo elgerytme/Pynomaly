@@ -6,6 +6,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 
+from pynomaly.infrastructure.security.rbac_middleware import require_auth
+
 # from pydantic import EmailStr  # Temporarily disabled due to missing email-validator
 from pynomaly.domain.exceptions import AuthenticationError
 from pynomaly.infrastructure.auth import (
@@ -176,7 +178,7 @@ async def register(
 
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_profile(
-    current_user: Annotated[UserModel | None, Depends(get_current_user)],
+    current_user: Annotated[UserModel | None, Depends(require_auth())],
 ) -> UserResponse:
     """Get current user profile.
 
@@ -211,7 +213,7 @@ async def get_current_user_profile(
 )
 async def create_api_key(
     request: APIKeyRequest,
-    current_user: Annotated[UserModel | None, Depends(get_current_user)],
+    current_user: Annotated[UserModel | None, Depends(require_auth())],
     auth_service: Annotated[JWTAuthService | None, Depends(get_auth)],
 ) -> APIKeyResponse:
     """Create a new API key for the current user.
