@@ -23,7 +23,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 logger = logging.getLogger(__name__)
 
@@ -57,12 +57,12 @@ class EncryptionConfig(BaseModel):
     enable_key_rotation: bool = True
     max_key_age_days: int = Field(default=90, ge=1)
 
-    @validator("key_length")
-    def validate_key_length(cls, v, values):
+    @field_validator("key_length")
+    @classmethod
+    def validate_key_length(cls, v):
         """Validate key length based on algorithm."""
-        algorithm = values.get("algorithm")
-        if algorithm == EncryptionAlgorithm.AES_GCM and v not in [16, 24, 32]:
-            raise ValueError("AES key length must be 16, 24, or 32 bytes")
+        if v not in [16, 24, 32]:
+            raise ValueError("Key length must be 16, 24, or 32 bytes")
         return v
 
 

@@ -19,7 +19,7 @@ from pathlib import Path
 from re import Pattern
 from typing import Any
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +55,8 @@ class SanitizationConfig(BaseModel):
     custom_patterns: list[str] = Field(default_factory=list)
     blocked_patterns: list[str] = Field(default_factory=list)
 
-    @validator("custom_patterns", "blocked_patterns")
+    @field_validator("custom_patterns", "blocked_patterns")
+    @classmethod
     def validate_patterns(cls, v):
         """Validate regex patterns."""
         for pattern in v:

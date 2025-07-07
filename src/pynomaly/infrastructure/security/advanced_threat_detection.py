@@ -495,6 +495,112 @@ class ThreatIntelligenceDetector(ThreatDetector):
         )
 
 
+class SessionHijackingDetector(ThreatDetector):
+    """Detector for session hijacking and abuse."""
+
+    def __init__(self):
+        super().__init__("session_hijacking")
+        self.session_tracking: dict[str, dict[str, Any]] = defaultdict(dict)
+
+        # Load configuration from manager
+        config_manager = get_threat_detection_manager()
+        detector_config = config_manager.get_detector_config("session_hijacking")
+        if detector_config:
+            self.max_ip_changes = detector_config.config.get("max_ip_changes", 3)
+            self.time_window = detector_config.config.get("time_window_seconds", 3600)
+            self.geographic_distance_km = detector_config.config.get("geographic_distance_km", 1000)
+        else:
+            # Default configuration
+            self.max_ip_changes = 3  # More than 3 IP changes in time window
+            self.time_window = 3600  # 1 hour
+            self.geographic_distance_km = 1000  # Impossible travel distance
+
+    async def analyze(self, event_data: dict[str, Any]) -> SecurityAlert | None:
+        """Analyze for session hijacking indicators."""
+        session_id = event_data.get("session_id")
+        user_id = event_data.get("user_id")
+        ip_address = event_data.get("ip_address")
+        
+        if not session_id or not ip_address:
+            return None
+
+        current_time = time.time()
+        
+        # Initialize session tracking if new
+        if session_id not in self.session_tracking:
+            self.session_tracking[session_id] = {
+                "user_id": user_id,
+                "start_time": current_time,
+                "ip_history": [],
+                "last_activity": current_time
+            }
+
+        session_info = self.session_tracking[session_id]
+        
+        # Update last activity
+        session_info["last_activity"] = current_time
+        
+        # Track IP changes
+        if ip_address not in [entry["ip"] for entry in session_info["ip_history"]]:
+            session_info["ip_history"].append({
+                "ip": ip_address,
+                "timestamp": current_time,
+                "user_agent": event_data.get("user_agent", "")
+            })
+            
+            # Check for suspicious IP changes
+            recent_ips = [
+                entry for entry in session_info["ip_history"]
+                if current_time - entry["timestamp"] <= self.time_window
+            ]
+            
+            if len(recent_ips) > self.max_ip_changes:
+                return SecurityAlert(
+                    alert_id=f"hijack_{session_id}_{int(current_time)}",
+                    alert_type=AlertType.SESSION_HIJACK,
+                    threat_level=ThreatLevel.HIGH,
+                    title="Potential Session Hijacking",
+                    description=f"Session {session_id} showing multiple IP changes",
+                    timestamp=datetime.now(UTC),
+                    user_id=user_id,
+                    source_ip=ip_address,
+                    session_id=session_id,
+                    indicators={
+                        "ip_change_count": len(recent_ips),
+                        "max_allowed": self.max_ip_changes,
+                        "session_duration_minutes": (current_time - session_info["start_time"]) / 60,
+                    },
+                    evidence=[
+                        f"Session changed IPs {len(recent_ips)} times in {self.time_window / 60} minutes",
+                        f"IP sequence: {' -> '.join([entry['ip'] for entry in recent_ips])}",
+                        f"User agents: {set(entry['user_agent'] for entry in recent_ips if entry['user_agent'])}",
+                    ],
+                    recommended_actions=[
+                        "Terminate session immediately",
+                        "Force user re-authentication",
+                        "Review session activity logs",
+                        "Check for account compromise",
+                        "Implement stricter session controls",
+                    ],
+                )
+
+        return None
+
+    def get_configuration(self) -> dict[str, Any]:
+        """Get detector configuration."""
+        return {
+            "max_ip_changes": self.max_ip_changes,
+            "time_window_seconds": self.time_window,
+            "geographic_distance_km": self.geographic_distance_km,
+        }
+
+    def update_configuration(self, config: dict[str, Any]) -> None:
+        """Update detector configuration."""
+        self.max_ip_changes = config.get("max_ip_changes", self.max_ip_changes)
+        self.time_window = config.get("time_window_seconds", self.time_window)
+        self.geographic_distance_km = config.get("geographic_distance_km", self.geographic_distance_km)
+
+
 class DataExfiltrationDetector(ThreatDetector):
     """Detector for potential data exfiltration."""
 
@@ -618,5 +724,6 @@ def create_advanced_threat_detectors() -> list[ThreatDetector]:
     return [
         AdvancedBehaviorAnalyzer(),
         ThreatIntelligenceDetector(),
+        SessionHijackingDetector(),
         DataExfiltrationDetector(),
     ]
