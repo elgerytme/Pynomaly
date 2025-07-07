@@ -1,5 +1,7 @@
 """Data Transfer Objects for streaming anomaly detection."""
 
+from __future__ import annotations
+
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
@@ -126,21 +128,37 @@ class StreamDataBatchDTO(BaseModel):
 class StreamDetectionRequestDTO(BaseModel):
     """DTO for stream detection request."""
 
+    request_id: str = Field(description="Request identifier")
+    batch: StreamDataBatchDTO = Field(description="Data batch to process")
+    configuration: StreamConfigurationDTO = Field(description="Stream configuration")
     detector_id: str = Field(description="Detector identifier")
-    data_batch: StreamDataBatchDTO = Field(description="Data batch to process")
-    configuration: Optional[Dict[str, Any]] = Field(
-        default_factory=dict, description="Additional configuration"
-    )
+    timestamp: datetime = Field(default_factory=datetime.now, description="Request timestamp")
+
+    @field_validator("request_id")
+    @classmethod
+    def validate_request_id(cls, v):
+        """Validate request ID is not empty."""
+        if not v or v.strip() == "":
+            raise ValueError("Request ID cannot be empty")
+        return v
 
 
 class StreamDetectionResponseDTO(BaseModel):
     """DTO for stream detection response."""
 
     request_id: str = Field(description="Request identifier")
-    predictions: List[int] = Field(description="Anomaly predictions")
-    scores: List[float] = Field(description="Anomaly scores")
-    processing_time: float = Field(description="Processing time in seconds")
-    timestamp: datetime = Field(description="Response timestamp")
+    results: List[Any] = Field(description="Detection results")
+    processing_time_ms: float = Field(description="Processing time in milliseconds")
+    detector_id: str = Field(description="Detector identifier")
+    success: bool = Field(description="Whether processing was successful")
+    error_message: Optional[str] = Field(default=None, description="Error message if processing failed")
+
+    @property
+    def throughput_points_per_second(self) -> float:
+        """Calculate throughput in points per second."""
+        if self.processing_time_ms <= 0:
+            return 0.0
+        return (len(self.results) / self.processing_time_ms) * 1000.0
 
 
 class BackpressureConfigDTO(BaseModel):
@@ -173,6 +191,23 @@ class WindowConfigDTO(BaseModel):
         default=0, description="Allowed lateness in milliseconds"
     )
 
+    @field_validator("type")
+    @classmethod
+    def validate_type(cls, v):
+        """Validate window type."""
+        valid_types = {"tumbling", "sliding", "session"}
+        if v not in valid_types:
+            raise ValueError(f"Invalid window type. Must be one of: {valid_types}")
+        return v
+
+    @field_validator("slide_ms")
+    @classmethod
+    def validate_slide_ms(cls, v, info):
+        """Validate slide_ms requirement for sliding windows."""
+        if hasattr(info, "data") and info.data.get("type") == "sliding" and v is None:
+            raise ValueError("Sliding windows require slide_ms")
+        return v
+
 
 class CheckpointConfigDTO(BaseModel):
     """DTO for checkpoint configuration."""
@@ -186,6 +221,22 @@ class CheckpointConfigDTO(BaseModel):
     retention_count: int = Field(
         default=5, description="Number of checkpoints to retain"
     )
+
+    @field_validator("interval_ms")
+    @classmethod
+    def validate_interval(cls, v):
+        """Validate checkpoint interval is positive."""
+        if v <= 0:
+            raise ValueError("Checkpoint interval must be positive")
+        return v
+
+    @field_validator("retention_count")
+    @classmethod
+    def validate_retention_count(cls, v):
+        """Validate retention count is positive."""
+        if v <= 0:
+            raise ValueError("Retention count must be positive")
+        return v
 
 
 class StreamConfigurationDTO(BaseModel):
@@ -240,18 +291,45 @@ class StreamStatusDTO(BaseModel):
 
     stream_id: str = Field(description="Stream identifier")
     status: str = Field(description="Current status")
-    last_updated: datetime = Field(description="Last update timestamp")
-    message: Optional[str] = Field(default=None, description="Status message")
+    uptime_seconds: int = Field(description="Stream uptime in seconds")
+    last_processed_timestamp: datetime = Field(description="Last processed timestamp")
+    current_lag_ms: int = Field(description="Current lag in milliseconds")
+    health_check_status: str = Field(description="Health check status")
+
+    @property
+    def is_healthy(self) -> bool:
+        """Check if stream is healthy."""
+        return self.health_check_status == "healthy" and self.status != "error"
+
+    @field_validator("status")
+    @classmethod
+    def validate_status(cls, v):
+        """Validate status."""
+        valid_statuses = {"starting", "running", "paused", "stopped", "error"}
+        if v not in valid_statuses:
+            raise ValueError(f"Invalid status. Must be one of: {valid_statuses}")
+        return v
 
 
 class StreamErrorDTO(BaseModel):
     """DTO for stream errors."""
 
     stream_id: str = Field(description="Stream identifier")
-    error_code: str = Field(description="Error code")
+    error_type: str = Field(description="Error type")
     error_message: str = Field(description="Error message")
     timestamp: datetime = Field(description="Error timestamp")
     severity: str = Field(description="Error severity level")
+    context: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Error context")
+    is_recoverable: Optional[bool] = Field(default=None, description="Whether error is recoverable")
+
+    @field_validator("severity")
+    @classmethod
+    def validate_severity(cls, v):
+        """Validate severity level."""
+        valid_severities = {"low", "medium", "high", "critical"}
+        if v not in valid_severities:
+            raise ValueError(f"Invalid severity. Must be one of: {valid_severities}")
+        return v
 
 
 class StreamingConfigurationDTO(BaseModel):

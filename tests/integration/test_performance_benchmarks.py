@@ -12,7 +12,6 @@ import psutil
 import pytest
 
 from tests.integration.conftest import (
-    IntegrationTestAssertions,
     IntegrationTestHelper,
 )
 
