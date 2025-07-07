@@ -1076,3 +1076,40 @@ class GovernanceFrameworkService:
 
         except Exception as e:
             logger.error(f"Failed to load data lineage: {e}")
+
+
+@dataclass
+class ChangeRequest:
+    """Change request for governance approval."""
+
+    request_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    title: str = ""
+    description: str = ""
+    requester_id: str = ""
+    status: ApprovalStatus = ApprovalStatus.PENDING
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    approved_at: datetime | None = None
+
+
+@dataclass
+class ComplianceMetric:
+    """Compliance metric tracking."""
+
+    metric_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    metric_name: str = ""
+    target_value: float = 0.0
+    current_value: float = 0.0
+    compliance_percentage: float = 0.0
+    last_updated: datetime = field(default_factory=datetime.utcnow)
+
+
+@dataclass
+class GovernancePolicy:
+    """Governance policy definition."""
+
+    policy_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    name: str = ""
+    policy_type: PolicyType = PolicyType.DATA_ACCESS
+    status: PolicyStatus = PolicyStatus.DRAFT
+    rules: dict[str, Any] = field(default_factory=dict)
+    created_at: datetime = field(default_factory=datetime.utcnow)

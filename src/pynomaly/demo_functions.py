@@ -2,8 +2,9 @@
 Demo functions for testing the advanced testing framework.
 """
 
-import numpy as np
 from typing import List, Optional
+
+import numpy as np
 
 
 def add_numbers(a: int, b: int) -> int:
@@ -22,13 +23,13 @@ def normalize_array(arr: np.ndarray) -> np.ndarray:
     """Normalize an array to have values between 0 and 1."""
     if len(arr) == 0:
         return arr
-    
+
     min_val = np.min(arr)
     max_val = np.max(arr)
-    
+
     if min_val == max_val:
         return np.zeros_like(arr)
-    
+
     return (arr - min_val) / (max_val - min_val)
 
 
@@ -36,7 +37,7 @@ def calculate_distance(point1: List[float], point2: List[float]) -> float:
     """Calculate Euclidean distance between two points."""
     if len(point1) != len(point2):
         raise ValueError("Points must have same dimensions")
-    
+
     return np.sqrt(sum((a - b) ** 2 for a, b in zip(point1, point2)))
 
 
@@ -44,13 +45,13 @@ def detect_anomaly_simple(values: List[float], threshold: float = 2.0) -> List[b
     """Simple anomaly detection based on standard deviation."""
     if not values:
         return []
-    
+
     mean_val = np.mean(values)
     std_val = np.std(values)
-    
+
     if std_val == 0:
         return [False] * len(values)
-    
+
     return [abs(value - mean_val) > threshold * std_val for value in values]
 
 

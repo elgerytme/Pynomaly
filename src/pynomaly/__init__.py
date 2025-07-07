@@ -9,9 +9,10 @@ This package provides a comprehensive anomaly detection platform with:
 
 from __future__ import annotations
 
-import pandas as pd
 from pathlib import Path
 from typing import Any
+
+import pandas as pd
 
 __version__ = "0.1.0"
 __author__ = "Pynomaly Team"

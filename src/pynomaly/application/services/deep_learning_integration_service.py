@@ -19,6 +19,7 @@ try:
     # Check if PyTorch is actually available by trying to instantiate
     try:
         import torch
+
         PYTORCH_AVAILABLE = True
     except ImportError:
         PYTORCH_AVAILABLE = False
@@ -32,6 +33,7 @@ try:
     # Check if TensorFlow is actually available
     try:
         import tensorflow
+
         TENSORFLOW_AVAILABLE = True
     except ImportError:
         TENSORFLOW_AVAILABLE = False
@@ -45,6 +47,7 @@ try:
     # Check if JAX is actually available
     try:
         import jax
+
         JAX_AVAILABLE = True
     except ImportError:
         JAX_AVAILABLE = False

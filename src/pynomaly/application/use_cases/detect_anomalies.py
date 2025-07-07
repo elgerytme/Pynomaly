@@ -142,7 +142,9 @@ class DetectAnomaliesUseCase:
             else:
                 score_values = [s.value for s in scores]
                 anomaly_score_values = [
-                    score_values[i] for i in range(len(predictions)) if predictions[i] == 1
+                    score_values[i]
+                    for i in range(len(predictions))
+                    if predictions[i] == 1
                 ]
 
                 if anomaly_score_values:
@@ -167,8 +169,11 @@ class DetectAnomaliesUseCase:
         except Exception as e:
             raise DatasetError(
                 message=f"Detection failed for dataset '{request.dataset.name}': {str(e)}",
-                details={"dataset_name": request.dataset.name, "operation": "detection"},
-                cause=e
+                details={
+                    "dataset_name": request.dataset.name,
+                    "operation": "detection",
+                },
+                cause=e,
             ) from e
 
         # Save results if requested

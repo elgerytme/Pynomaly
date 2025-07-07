@@ -44,7 +44,7 @@ class StreamingService:
         notification_service: Any,  # NotificationService when implemented
     ):
         """Initialize the streaming service.
-        
+
         Args:
             model_repository: Model repository
             streaming_repository: Streaming session repository
@@ -74,7 +74,7 @@ class StreamingService:
         tags: list[str] | None = None,
     ) -> StreamingSession:
         """Create a new streaming session.
-        
+
         Args:
             name: Session name
             detector_id: Detector to use for anomaly detection
@@ -86,7 +86,7 @@ class StreamingService:
             model_version: Specific model version to use
             max_duration: Maximum session duration
             tags: Session tags
-            
+
         Returns:
             Created streaming session
         """
@@ -94,7 +94,7 @@ class StreamingService:
         detector = await self.model_repository.get_by_id(detector_id)
         if not detector:
             raise ValueError(f"Detector {detector_id} does not exist")
-        
+
         # Create session
         session = StreamingSession(
             name=name,
@@ -108,57 +108,57 @@ class StreamingService:
             created_by=created_by,
             tags=tags or [],
         )
-        
+
         # Store session
         stored_session = await self.streaming_repository.create_session(session)
-        
+
         return stored_session
 
     async def start_streaming_session(self, session_id: UUID) -> StreamingSession:
         """Start a streaming session.
-        
+
         Args:
             session_id: Session to start
-            
+
         Returns:
             Updated streaming session
         """
         session = await self.streaming_repository.get_session(session_id)
         if not session:
             raise ValueError(f"Session {session_id} not found")
-        
+
         # Start the session
         session.start_session()
-        
+
         # Update in repository
         updated_session = await self.streaming_repository.update_session(session)
-        
+
         # Start the streaming task
         task = asyncio.create_task(self._run_streaming_session(session))
         self._session_tasks[session_id] = task
         self._active_sessions[session_id] = updated_session
-        
+
         return updated_session
 
     async def stop_streaming_session(
         self, session_id: UUID, error_message: str | None = None
     ) -> StreamingSession:
         """Stop a streaming session.
-        
+
         Args:
             session_id: Session to stop
             error_message: Optional error message
-            
+
         Returns:
             Updated streaming session
         """
         session = await self.streaming_repository.get_session(session_id)
         if not session:
             raise ValueError(f"Session {session_id} not found")
-        
+
         # Stop the session
         session.stop_session(error_message)
-        
+
         # Cancel the streaming task
         if session_id in self._session_tasks:
             task = self._session_tasks.pop(session_id)
@@ -167,97 +167,97 @@ class StreamingService:
                 await task
             except asyncio.CancelledError:
                 pass
-        
+
         # Remove from active sessions
         self._active_sessions.pop(session_id, None)
-        
+
         # Complete the stop
         session.complete_stop()
-        
+
         # Update in repository
         updated_session = await self.streaming_repository.update_session(session)
-        
+
         return updated_session
 
     async def pause_streaming_session(self, session_id: UUID) -> StreamingSession:
         """Pause a streaming session.
-        
+
         Args:
             session_id: Session to pause
-            
+
         Returns:
             Updated streaming session
         """
         session = await self.streaming_repository.get_session(session_id)
         if not session:
             raise ValueError(f"Session {session_id} not found")
-        
+
         session.pause_session()
-        
+
         # Update active session
         if session_id in self._active_sessions:
             self._active_sessions[session_id] = session
-        
+
         updated_session = await self.streaming_repository.update_session(session)
-        
+
         return updated_session
 
     async def resume_streaming_session(self, session_id: UUID) -> StreamingSession:
         """Resume a paused streaming session.
-        
+
         Args:
             session_id: Session to resume
-            
+
         Returns:
             Updated streaming session
         """
         session = await self.streaming_repository.get_session(session_id)
         if not session:
             raise ValueError(f"Session {session_id} not found")
-        
+
         session.resume_session()
-        
+
         # Update active session
         if session_id in self._active_sessions:
             self._active_sessions[session_id] = session
-        
+
         updated_session = await self.streaming_repository.update_session(session)
-        
+
         return updated_session
 
     async def get_session_metrics(self, session_id: UUID) -> StreamingMetrics:
         """Get current metrics for a streaming session.
-        
+
         Args:
             session_id: Session identifier
-            
+
         Returns:
             Current streaming metrics
         """
         session = await self.streaming_repository.get_session(session_id)
         if not session:
             raise ValueError(f"Session {session_id} not found")
-        
+
         return session.current_metrics
 
     async def get_session_summary(self, session_id: UUID) -> SessionSummary:
         """Get summary for a streaming session.
-        
+
         Args:
             session_id: Session identifier
-            
+
         Returns:
             Session summary
         """
         session = await self.streaming_repository.get_session(session_id)
         if not session:
             raise ValueError(f"Session {session_id} not found")
-        
+
         uptime = session.get_uptime()
         uptime_seconds = uptime.total_seconds() if uptime else 0.0
-        
+
         throughput_summary = session.get_throughput_summary()
-        
+
         return SessionSummary(
             session_id=session.id,
             name=session.name,
@@ -285,14 +285,14 @@ class StreamingService:
         offset: int = 0,
     ) -> list[SessionSummary]:
         """List streaming sessions with filters.
-        
+
         Args:
             status: Filter by status
             detector_id: Filter by detector
             created_by: Filter by creator
             limit: Maximum results
             offset: Result offset
-            
+
         Returns:
             List of session summaries
         """
@@ -303,12 +303,12 @@ class StreamingService:
             limit=limit,
             offset=offset,
         )
-        
+
         summaries = []
         for session in sessions:
             summary = await self.get_session_summary(session.id)
             summaries.append(summary)
-        
+
         return summaries
 
     async def create_streaming_alert(
@@ -325,7 +325,7 @@ class StreamingService:
         notification_channels: list[str] | None = None,
     ) -> StreamingAlert:
         """Create a streaming alert.
-        
+
         Args:
             session_id: Session to monitor
             name: Alert name
@@ -337,7 +337,7 @@ class StreamingService:
             severity: Alert severity
             duration_threshold: Duration threshold
             notification_channels: Notification channels
-            
+
         Returns:
             Created streaming alert
         """
@@ -345,7 +345,7 @@ class StreamingService:
         session = await self.streaming_repository.get_session(session_id)
         if not session:
             raise ValueError(f"Session {session_id} not found")
-        
+
         alert = StreamingAlert(
             session_id=session_id,
             name=name,
@@ -358,36 +358,36 @@ class StreamingService:
             notification_channels=notification_channels or [],
             created_by=created_by,
         )
-        
+
         stored_alert = await self.streaming_repository.create_alert(alert)
-        
+
         return stored_alert
 
     async def process_streaming_data(
         self, session_id: UUID, data: dict[str, Any]
     ) -> dict[str, Any]:
         """Process a single data point through streaming pipeline.
-        
+
         Args:
             session_id: Session identifier
             data: Input data to process
-            
+
         Returns:
             Processing result including anomaly detection
         """
         session = self._active_sessions.get(session_id)
         if not session or not session.is_active():
             raise ValueError(f"Session {session_id} is not active")
-        
+
         try:
             # Preprocess data
             processed_data = await self._preprocess_data(data, session.configuration)
-            
+
             # Run anomaly detection
             detection_result = await self.detector_service.predict(
                 session.detector_id, processed_data
             )
-            
+
             # Create result
             result = {
                 "session_id": session_id,
@@ -397,26 +397,28 @@ class StreamingService:
                 "anomaly_score": detection_result.get("anomaly_score", 0.0),
                 "is_anomaly": detection_result.get("is_anomaly", False),
                 "confidence": detection_result.get("confidence", 0.0),
-                "feature_contributions": detection_result.get("feature_contributions", {}),
+                "feature_contributions": detection_result.get(
+                    "feature_contributions", {}
+                ),
                 "explanation": detection_result.get("explanation"),
             }
-            
+
             # Generate event if anomaly detected
             if result["is_anomaly"]:
                 await self._generate_anomaly_event(session, data, detection_result)
-            
+
             # Update session metrics
             await self._update_session_metrics(session, result)
-            
+
             # Check alerts
             await self._check_session_alerts(session)
-            
+
             # Send to output sink if configured
             if session.data_sink:
                 await self._send_to_sink(session.data_sink, result)
-            
+
             return result
-            
+
         except Exception as e:
             logger.error(f"Error processing data for session {session_id}: {e}")
             await self._handle_processing_error(session, str(e))
@@ -428,45 +430,45 @@ class StreamingService:
             # Activate session
             session.activate_session()
             await self.streaming_repository.update_session(session)
-            
+
             # Initialize data source
             data_stream = await self._initialize_data_source(session.data_source)
-            
+
             logger.info(f"Started streaming session {session.id}")
-            
+
             # Process data stream
             async for data_batch in data_stream:
                 # Check if session should continue
                 if not session.is_active():
                     break
-                
+
                 if session.is_expired():
                     session.stop_session("Session expired")
                     break
-                
+
                 # Process batch
                 for data_point in data_batch:
                     if session.status == SessionStatus.PAUSED:
                         await asyncio.sleep(1)
                         continue
-                    
+
                     try:
                         await self.process_streaming_data(session.id, data_point)
                     except Exception as e:
                         logger.error(f"Error processing data point: {e}")
                         # Continue processing other points
-                
+
                 # Update session activity
                 session.update_activity()
-                
+
                 # Checkpoint if enabled
                 if session.configuration.enable_checkpointing:
                     await self._checkpoint_session(session)
-            
+
         except Exception as e:
             logger.error(f"Streaming session {session.id} failed: {e}")
             session.stop_session(f"Session failed: {str(e)}")
-        
+
         finally:
             # Clean up
             await self.streaming_repository.update_session(session)
@@ -479,7 +481,7 @@ class StreamingService:
         """Initialize and create data stream from source."""
         # This would implement actual data source connectors
         # For now, return a mock stream
-        
+
         if data_source.source_type == "kafka":
             # Kafka connector implementation
             async for batch in self._create_kafka_stream(data_source):
@@ -500,7 +502,7 @@ class StreamingService:
     async def _create_mock_stream(self) -> AsyncGenerator[list[dict[str, Any]], None]:
         """Create a mock data stream for testing."""
         import random
-        
+
         while True:
             # Generate mock batch
             batch = []
@@ -513,7 +515,7 @@ class StreamingService:
                     "value": random.uniform(0, 1000),
                 }
                 batch.append(data_point)
-            
+
             yield batch
             await asyncio.sleep(1)  # 1 second delay between batches
 
@@ -553,14 +555,14 @@ class StreamingService:
         """Preprocess input data."""
         # Basic preprocessing
         processed = data.copy()
-        
+
         # Schema validation if enabled
         if config.schema_validation:
             await self._validate_schema(processed)
-        
+
         # Data cleaning and transformation
         processed = await self._clean_data(processed)
-        
+
         return processed
 
     async def _validate_schema(self, data: dict[str, Any]) -> None:
@@ -574,7 +576,10 @@ class StreamingService:
         return data
 
     async def _generate_anomaly_event(
-        self, session: StreamingSession, data: dict[str, Any], detection_result: dict[str, Any]
+        self,
+        session: StreamingSession,
+        data: dict[str, Any],
+        detection_result: dict[str, Any],
     ) -> None:
         """Generate anomaly event."""
         anomaly_data = AnomalyEventData(
@@ -584,7 +589,7 @@ class StreamingService:
             explanation=detection_result.get("explanation"),
             model_version=session.model_version,
         )
-        
+
         event = AnomalyEvent(
             event_type=EventType.ANOMALY_DETECTED,
             severity=self._determine_severity(detection_result["anomaly_score"]),
@@ -596,7 +601,7 @@ class StreamingService:
             anomaly_data=anomaly_data,
             event_time=datetime.utcnow(),
         )
-        
+
         await self.event_repository.create_event(event)
 
     def _determine_severity(self, anomaly_score: float) -> EventSeverity:
@@ -615,35 +620,39 @@ class StreamingService:
     ) -> None:
         """Update session metrics."""
         metrics = session.current_metrics
-        
+
         # Update counters
         metrics.messages_processed += 1
         if result["is_anomaly"]:
             metrics.anomalies_detected += 1
-        
+
         # Update rates
         uptime = session.get_uptime()
         if uptime and uptime.total_seconds() > 0:
-            metrics.messages_per_second = metrics.messages_processed / uptime.total_seconds()
-            metrics.anomaly_rate = metrics.anomalies_detected / metrics.messages_processed
-        
+            metrics.messages_per_second = (
+                metrics.messages_processed / uptime.total_seconds()
+            )
+            metrics.anomaly_rate = (
+                metrics.anomalies_detected / metrics.messages_processed
+            )
+
         # Update in session
         session.update_metrics(metrics)
-        
+
         # Persist to repository
         await self.streaming_repository.update_session(session)
 
     async def _check_session_alerts(self, session: StreamingSession) -> None:
         """Check and trigger session alerts."""
         alerts = await self.streaming_repository.get_session_alerts(session.id)
-        
+
         for alert in alerts:
             if not alert.enabled:
                 continue
-            
+
             # Get current metric value
             current_value = getattr(session.current_metrics, alert.metric_name, 0.0)
-            
+
             # Check condition
             if alert.evaluate_condition(current_value):
                 if not alert.is_triggered:
@@ -655,7 +664,9 @@ class StreamingService:
                     alert.resolve_alert()
                     await self.streaming_repository.update_alert(alert)
 
-    async def _send_alert_notification(self, alert: StreamingAlert, current_value: float) -> None:
+    async def _send_alert_notification(
+        self, alert: StreamingAlert, current_value: float
+    ) -> None:
         """Send alert notification."""
         # This would implement actual notification sending
         logger.warning(
@@ -663,7 +674,9 @@ class StreamingService:
             f"{alert.comparison_operator} {alert.threshold_value}"
         )
 
-    async def _send_to_sink(self, data_sink: StreamingDataSink, result: dict[str, Any]) -> None:
+    async def _send_to_sink(
+        self, data_sink: StreamingDataSink, result: dict[str, Any]
+    ) -> None:
         """Send result to output sink."""
         # This would implement actual sink connectors
         if data_sink.sink_type == "kafka":
@@ -672,12 +685,16 @@ class StreamingService:
             await self._send_to_database(data_sink, result)
         # Add other sink implementations
 
-    async def _send_to_kafka(self, sink: StreamingDataSink, result: dict[str, Any]) -> None:
+    async def _send_to_kafka(
+        self, sink: StreamingDataSink, result: dict[str, Any]
+    ) -> None:
         """Send result to Kafka."""
         # Kafka producer implementation
         pass
 
-    async def _send_to_database(self, sink: StreamingDataSink, result: dict[str, Any]) -> None:
+    async def _send_to_database(
+        self, sink: StreamingDataSink, result: dict[str, Any]
+    ) -> None:
         """Send result to database."""
         # Database insert implementation
         pass
@@ -687,14 +704,16 @@ class StreamingService:
         # This would implement checkpointing logic
         session.current_metrics.last_checkpoint = datetime.utcnow()
 
-    async def _handle_processing_error(self, session: StreamingSession, error: str) -> None:
+    async def _handle_processing_error(
+        self, session: StreamingSession, error: str
+    ) -> None:
         """Handle processing error."""
         metrics = session.current_metrics
         metrics.failed_messages += 1
-        
+
         uptime = session.get_uptime()
         if uptime and uptime.total_seconds() > 0:
             metrics.error_rate = metrics.failed_messages / metrics.messages_processed
-        
+
         session.update_metrics(metrics)
         await self.streaming_repository.update_session(session)

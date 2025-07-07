@@ -395,82 +395,86 @@ def create_ensemble_performance_from_dict(
 
 # DTOs for Ensemble Detection Use Case
 
+
 class EnsembleDetectionRequestDTO(BaseModel):
     """Request DTO for ensemble detection."""
-    
+
     detector_ids: List[str] = Field(
         min_items=2,
         max_items=20,
-        description="List of detector IDs to include in ensemble (2-20 detectors)"
+        description="List of detector IDs to include in ensemble (2-20 detectors)",
     )
     data: Union[List[List[float]], List[Dict[str, Any]]] = Field(
         description="Input data as array of arrays or list of dictionaries"
     )
     voting_strategy: str = Field(
         default="dynamic_selection",
-        description="Voting strategy for ensemble combination"
+        description="Voting strategy for ensemble combination",
     )
     enable_dynamic_weighting: bool = Field(
-        default=True,
-        description="Enable performance-based dynamic weighting"
+        default=True, description="Enable performance-based dynamic weighting"
     )
     enable_uncertainty_estimation: bool = Field(
-        default=True,
-        description="Enable uncertainty estimation for predictions"
+        default=True, description="Enable uncertainty estimation for predictions"
     )
     enable_explanation: bool = Field(
-        default=True,
-        description="Generate explanations for ensemble predictions"
+        default=True, description="Generate explanations for ensemble predictions"
     )
     confidence_threshold: float = Field(
         default=0.8,
         ge=0.0,
         le=1.0,
-        description="Confidence threshold for cascaded voting"
+        description="Confidence threshold for cascaded voting",
     )
     consensus_threshold: float = Field(
         default=0.6,
         ge=0.0,
         le=1.0,
-        description="Agreement threshold for consensus voting"
+        description="Agreement threshold for consensus voting",
     )
     max_processing_time: Optional[float] = Field(
-        default=None,
-        gt=0,
-        description="Maximum processing time in seconds"
+        default=None, gt=0, description="Maximum processing time in seconds"
     )
     enable_caching: bool = Field(
-        default=True,
-        description="Enable result caching for performance"
+        default=True, description="Enable result caching for performance"
     )
     return_individual_results: bool = Field(
-        default=False,
-        description="Return individual detector results"
+        default=False, description="Return individual detector results"
     )
-    
+
     @validator("voting_strategy")
     def validate_voting_strategy(cls, v):
         """Validate voting strategy."""
         valid_strategies = {
-            "simple_average", "weighted_average", "bayesian_model_averaging",
-            "rank_aggregation", "consensus_voting", "dynamic_selection",
-            "uncertainty_weighted", "performance_weighted", "diversity_weighted",
-            "adaptive_threshold", "robust_aggregation", "cascaded_voting"
+            "simple_average",
+            "weighted_average",
+            "bayesian_model_averaging",
+            "rank_aggregation",
+            "consensus_voting",
+            "dynamic_selection",
+            "uncertainty_weighted",
+            "performance_weighted",
+            "diversity_weighted",
+            "adaptive_threshold",
+            "robust_aggregation",
+            "cascaded_voting",
         }
         if v not in valid_strategies:
-            raise ValueError(f"Invalid voting strategy. Must be one of: {valid_strategies}")
+            raise ValueError(
+                f"Invalid voting strategy. Must be one of: {valid_strategies}"
+            )
         return v
-    
+
     @validator("data")
     def validate_data(cls, v):
         """Validate input data format."""
         if not v:
             raise ValueError("Data cannot be empty")
-        
+
         if isinstance(v, list):
             if len(v) == 0:
                 raise ValueError("Data list cannot be empty")
-            
+
             # Check if it's list of lists (array format)
             if isinstance(v[0], list):
                 # Validate that all rows have same number of features
@@ -479,8 +483,10 @@ class EnsembleDetectionRequestDTO(BaseModel):
                     if not isinstance(row, list):
                         raise ValueError(f"Row {i} is not a list")
                     if len(row) != expected_features:
-                        raise ValueError(f"Row {i} has {len(row)} features, expected {expected_features}")
-            
+                        raise ValueError(
+                            f"Row {i} has {len(row)} features, expected {expected_features}"
+                        )
+
             # Check if it's list of dicts
             elif isinstance(v[0], dict):
                 # Validate that all dicts have same keys
@@ -490,144 +496,131 @@ class EnsembleDetectionRequestDTO(BaseModel):
                         raise ValueError(f"Row {i} is not a dictionary")
                     if set(row.keys()) != expected_keys:
                         raise ValueError(f"Row {i} has different keys than first row")
-            
+
             else:
                 raise ValueError("Data must be list of lists or list of dictionaries")
-        
+
         return v
 
 
 class EnsembleDetectionResponseDTO(BaseModel):
     """Response DTO for ensemble detection."""
-    
+
     success: bool = Field(description="Whether the detection was successful")
     predictions: List[int] = Field(
         default_factory=list,
-        description="Binary anomaly predictions (0=normal, 1=anomaly)"
+        description="Binary anomaly predictions (0=normal, 1=anomaly)",
     )
     anomaly_scores: List[float] = Field(
-        default_factory=list,
-        description="Continuous anomaly scores (0.0-1.0)"
+        default_factory=list, description="Continuous anomaly scores (0.0-1.0)"
     )
     confidence_scores: List[float] = Field(
-        default_factory=list,
-        description="Prediction confidence levels"
+        default_factory=list, description="Prediction confidence levels"
     )
     uncertainty_scores: List[float] = Field(
-        default_factory=list,
-        description="Prediction uncertainty estimates"
+        default_factory=list, description="Prediction uncertainty estimates"
     )
     consensus_scores: List[float] = Field(
-        default_factory=list,
-        description="Agreement scores among detectors"
+        default_factory=list, description="Agreement scores among detectors"
     )
     individual_results: Optional[Dict[str, List[float]]] = Field(
-        default=None,
-        description="Individual detector results (if requested)"
+        default=None, description="Individual detector results (if requested)"
     )
     detector_weights: List[float] = Field(
-        default_factory=list,
-        description="Weights used for each detector"
+        default_factory=list, description="Weights used for each detector"
     )
     voting_strategy_used: str = Field(
-        default="",
-        description="Actual voting strategy used"
+        default="", description="Actual voting strategy used"
     )
     ensemble_metrics: Dict[str, Any] = Field(
-        default_factory=dict,
-        description="Ensemble diversity and performance metrics"
+        default_factory=dict, description="Ensemble diversity and performance metrics"
     )
     explanations: List[Dict[str, Any]] = Field(
-        default_factory=list,
-        description="Per-prediction explanations"
+        default_factory=list, description="Per-prediction explanations"
     )
     processing_time: float = Field(
-        default=0.0,
-        description="Total processing time in seconds"
+        default=0.0, description="Total processing time in seconds"
     )
-    warnings: List[str] = Field(
-        default_factory=list,
-        description="Warning messages"
-    )
+    warnings: List[str] = Field(default_factory=list, description="Warning messages")
     error_message: Optional[str] = Field(
-        default=None,
-        description="Error message if detection failed"
+        default=None, description="Error message if detection failed"
     )
 
 
 class EnsembleOptimizationRequestDTO(BaseModel):
     """Request DTO for ensemble optimization."""
-    
+
     detector_ids: List[str] = Field(
-        min_items=2,
-        description="Candidate detector IDs for ensemble"
+        min_items=2, description="Candidate detector IDs for ensemble"
     )
     validation_dataset_id: str = Field(
         description="Dataset ID for optimization validation"
     )
     optimization_objective: str = Field(
-        default="f1_score",
-        description="Primary optimization objective"
+        default="f1_score", description="Primary optimization objective"
     )
     target_voting_strategies: List[str] = Field(
         default_factory=lambda: ["dynamic_selection"],
-        description="Voting strategies to evaluate"
+        description="Voting strategies to evaluate",
     )
     max_ensemble_size: int = Field(
-        default=5,
-        ge=2,
-        le=10,
-        description="Maximum detectors in final ensemble"
+        default=5, ge=2, le=10, description="Maximum detectors in final ensemble"
     )
     min_diversity_threshold: float = Field(
-        default=0.3,
-        ge=0.0,
-        le=1.0,
-        description="Minimum required diversity"
+        default=0.3, ge=0.0, le=1.0, description="Minimum required diversity"
     )
     enable_pruning: bool = Field(
-        default=True,
-        description="Remove underperforming detectors"
+        default=True, description="Remove underperforming detectors"
     )
     enable_weight_optimization: bool = Field(
-        default=True,
-        description="Optimize detector weights"
+        default=True, description="Optimize detector weights"
     )
     cross_validation_folds: int = Field(
-        default=5,
-        ge=2,
-        le=10,
-        description="Number of cross-validation folds"
+        default=5, ge=2, le=10, description="Number of cross-validation folds"
     )
     optimization_timeout: float = Field(
-        default=300.0,
-        gt=0,
-        description="Optimization timeout in seconds"
+        default=300.0, gt=0, description="Optimization timeout in seconds"
     )
     random_state: int = Field(
-        default=42,
-        description="Random state for reproducibility"
+        default=42, description="Random state for reproducibility"
     )
-    
+
     @validator("optimization_objective")
     def validate_optimization_objective(cls, v):
         """Validate optimization objective."""
         valid_objectives = {
-            "accuracy", "precision", "recall", "f1_score", "auc_score",
-            "balanced_accuracy", "diversity", "stability", "efficiency"
+            "accuracy",
+            "precision",
+            "recall",
+            "f1_score",
+            "auc_score",
+            "balanced_accuracy",
+            "diversity",
+            "stability",
+            "efficiency",
         }
         if v not in valid_objectives:
-            raise ValueError(f"Invalid optimization objective. Must be one of: {valid_objectives}")
+            raise ValueError(
+                f"Invalid optimization objective. Must be one of: {valid_objectives}"
+            )
         return v
-    
+
     @validator("target_voting_strategies")
     def validate_target_strategies(cls, v):
         """Validate target voting strategies."""
         valid_strategies = {
-            "simple_average", "weighted_average", "bayesian_model_averaging",
-            "rank_aggregation", "consensus_voting", "dynamic_selection",
-            "uncertainty_weighted", "performance_weighted", "diversity_weighted",
-            "adaptive_threshold", "robust_aggregation", "cascaded_voting"
+            "simple_average",
+            "weighted_average",
+            "bayesian_model_averaging",
+            "rank_aggregation",
+            "consensus_voting",
+            "dynamic_selection",
+            "uncertainty_weighted",
+            "performance_weighted",
+            "diversity_weighted",
+            "adaptive_threshold",
+            "robust_aggregation",
+            "cascaded_voting",
         }
         for strategy in v:
             if strategy not in valid_strategies:
@@ -637,49 +630,40 @@ class EnsembleOptimizationRequestDTO(BaseModel):
 
 class EnsembleOptimizationResponseDTO(BaseModel):
     """Response DTO for ensemble optimization."""
-    
+
     success: bool = Field(description="Whether optimization was successful")
     optimized_detector_ids: List[str] = Field(
-        default_factory=list,
-        description="Optimized detector combination"
+        default_factory=list, description="Optimized detector combination"
     )
     optimal_voting_strategy: str = Field(
-        default="",
-        description="Best voting strategy found"
+        default="", description="Best voting strategy found"
     )
     optimal_weights: List[float] = Field(
-        default_factory=list,
-        description="Optimized detector weights"
+        default_factory=list, description="Optimized detector weights"
     )
     ensemble_performance: Dict[str, float] = Field(
-        default_factory=dict,
-        description="Performance metrics on validation data"
+        default_factory=dict, description="Performance metrics on validation data"
     )
     diversity_metrics: Dict[str, float] = Field(
-        default_factory=dict,
-        description="Ensemble diversity analysis"
+        default_factory=dict, description="Ensemble diversity analysis"
     )
     optimization_history: List[Dict[str, Any]] = Field(
-        default_factory=list,
-        description="Optimization process history"
+        default_factory=list, description="Optimization process history"
     )
     recommendations: List[str] = Field(
-        default_factory=list,
-        description="Optimization recommendations"
+        default_factory=list, description="Optimization recommendations"
     )
     optimization_time: float = Field(
-        default=0.0,
-        description="Total optimization time in seconds"
+        default=0.0, description="Total optimization time in seconds"
     )
     error_message: Optional[str] = Field(
-        default=None,
-        description="Error message if optimization failed"
+        default=None, description="Error message if optimization failed"
     )
 
 
 class EnsembleStatusResponseDTO(BaseModel):
     """Response DTO for ensemble system status."""
-    
+
     available_voting_strategies: List[Dict[str, Any]] = Field(
         description="Available voting strategies with descriptions"
     )
@@ -689,23 +673,17 @@ class EnsembleStatusResponseDTO(BaseModel):
     system_capabilities: Dict[str, Any] = Field(
         description="System capabilities and limits"
     )
-    system_statistics: Dict[str, Any] = Field(
-        description="Current system statistics"
-    )
+    system_statistics: Dict[str, Any] = Field(description="Current system statistics")
 
 
 class EnsembleMetricsResponseDTO(BaseModel):
     """Response DTO for ensemble performance metrics."""
-    
+
     detector_performance_metrics: Dict[str, Dict[str, Any]] = Field(
         description="Individual detector performance metrics"
     )
-    ensemble_statistics: Dict[str, Any] = Field(
-        description="Ensemble-level statistics"
-    )
+    ensemble_statistics: Dict[str, Any] = Field(description="Ensemble-level statistics")
     recent_optimizations: List[Dict[str, Any]] = Field(
         description="Recent optimization runs"
     )
-    system_health: Dict[str, Any] = Field(
-        description="System health indicators"
-    )
+    system_health: Dict[str, Any] = Field(description="System health indicators")

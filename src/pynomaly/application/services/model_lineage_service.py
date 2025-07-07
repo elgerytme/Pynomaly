@@ -26,11 +26,13 @@ from pynomaly.shared.protocols.repository_protocol import (
 
 class LineageTrackingError(Exception):
     """Exception raised when lineage tracking fails."""
+
     pass
 
 
 class CircularDependencyError(Exception):
     """Exception raised when a circular dependency is detected in lineage."""
+
     pass
 
 
@@ -44,7 +46,7 @@ class ModelLineageService:
         lineage_repository: Any,  # LineageRepositoryProtocol when implemented
     ):
         """Initialize the lineage service.
-        
+
         Args:
             model_repository: Model repository
             model_version_repository: Model version repository
@@ -67,7 +69,7 @@ class ModelLineageService:
         metadata: dict[str, Any] | None = None,
     ) -> LineageRecord:
         """Create a new lineage record.
-        
+
         Args:
             child_model_id: Child model identifier
             parent_model_ids: Parent model identifiers
@@ -78,13 +80,13 @@ class ModelLineageService:
             run_id: Associated run ID
             tags: Record tags
             metadata: Additional metadata
-            
+
         Returns:
             Created lineage record
         """
         # Validate models exist
         await self._validate_models_exist(parent_model_ids + [child_model_id])
-        
+
         # Create lineage record
         record = LineageRecord(
             child_model_id=child_model_id,
@@ -97,10 +99,10 @@ class ModelLineageService:
             tags=tags or [],
             metadata=metadata or {},
         )
-        
+
         # Store in repository
         stored_record = await self.lineage_repository.create(record)
-        
+
         return stored_record
 
     async def track_model_derivation(
@@ -116,7 +118,7 @@ class ModelLineageService:
         resource_usage: dict[str, Any] | None = None,
     ) -> LineageRecord:
         """Track a simple parent-child model derivation.
-        
+
         Args:
             parent_model_id: Parent model ID
             child_model_id: Child model ID
@@ -127,7 +129,7 @@ class ModelLineageService:
             tool: Tool or framework used
             execution_time: Execution time in seconds
             resource_usage: Resource usage information
-            
+
         Returns:
             Created lineage record
         """
@@ -141,11 +143,11 @@ class ModelLineageService:
             TransformationType.FEDERATED_LEARNING: LineageRelationType.FEDERATED_FROM,
             TransformationType.MODEL_MERGING: LineageRelationType.MERGED_FROM,
         }
-        
+
         relation_type = relation_type_mapping.get(
             transformation_type, LineageRelationType.DERIVED_FROM
         )
-        
+
         transformation = LineageTransformation(
             type=transformation_type,
             parameters=transformation_metadata,
@@ -154,7 +156,7 @@ class ModelLineageService:
             execution_time=execution_time,
             resource_usage=resource_usage or {},
         )
-        
+
         return await self.create_lineage_record(
             child_model_id=child_model_id,
             parent_model_ids=[parent_model_id],
@@ -173,7 +175,7 @@ class ModelLineageService:
         tool: str | None = None,
     ) -> LineageRecord:
         """Track ensemble model creation.
-        
+
         Args:
             ensemble_model_id: Ensemble model ID
             component_model_ids: Component model IDs
@@ -181,7 +183,7 @@ class ModelLineageService:
             created_by: User creating the record
             algorithm: Ensemble algorithm
             tool: Tool used for ensemble
-            
+
         Returns:
             Created lineage record
         """
@@ -191,7 +193,7 @@ class ModelLineageService:
             algorithm=algorithm,
             tool=tool,
         )
-        
+
         return await self.create_lineage_record(
             child_model_id=ensemble_model_id,
             parent_model_ids=component_model_ids,
@@ -208,13 +210,13 @@ class ModelLineageService:
         max_depth: int = 10,
     ) -> LineageGraph:
         """Get complete lineage graph for a model.
-        
+
         Args:
             model_id: Target model ID
             include_ancestors: Include ancestor models
             include_descendants: Include descendant models
             max_depth: Maximum depth to traverse
-            
+
         Returns:
             Complete lineage graph
         """
@@ -225,18 +227,18 @@ class ModelLineageService:
             include_descendants=include_descendants,
             max_depth=max_depth,
         )
-        
+
         lineage_records = await self.lineage_repository.query_lineage(query)
-        
+
         # Build nodes and edges
         nodes = {}
         edges = []
-        
+
         # Collect all model IDs
         all_model_ids = set()
         for record in lineage_records:
             all_model_ids.update(record.get_all_model_ids())
-        
+
         # Create nodes
         for model_id in all_model_ids:
             model = await self.model_repository.get_by_id(model_id)
@@ -248,7 +250,7 @@ class ModelLineageService:
                     created_at=model.created_at,
                     metadata=model.metadata,
                 )
-        
+
         # Create edges
         for record in lineage_records:
             for parent_id in record.parent_model_ids:
@@ -262,10 +264,10 @@ class ModelLineageService:
                         metadata=record.metadata,
                     )
                 )
-        
+
         # Calculate depth
         depth = self._calculate_graph_depth(model_id, edges)
-        
+
         return LineageGraph(
             root_model_id=model_id,
             nodes=nodes,
@@ -277,16 +279,19 @@ class ModelLineageService:
         self, model_id: UUID, max_depth: int = 10
     ) -> list[UUID]:
         """Get all ancestor models.
-        
+
         Args:
             model_id: Target model ID
             max_depth: Maximum depth to traverse
-            
+
         Returns:
             List of ancestor model IDs
         """
         lineage_graph = await self.get_model_lineage(
-            model_id, include_ancestors=True, include_descendants=False, max_depth=max_depth
+            model_id,
+            include_ancestors=True,
+            include_descendants=False,
+            max_depth=max_depth,
         )
         return list(lineage_graph.get_ancestors(model_id))
 
@@ -294,16 +299,19 @@ class ModelLineageService:
         self, model_id: UUID, max_depth: int = 10
     ) -> list[UUID]:
         """Get all descendant models.
-        
+
         Args:
             model_id: Target model ID
             max_depth: Maximum depth to traverse
-            
+
         Returns:
             List of descendant model IDs
         """
         lineage_graph = await self.get_model_lineage(
-            model_id, include_ancestors=False, include_descendants=True, max_depth=max_depth
+            model_id,
+            include_ancestors=False,
+            include_descendants=True,
+            max_depth=max_depth,
         )
         return list(lineage_graph.get_descendants(model_id))
 
@@ -311,22 +319,22 @@ class ModelLineageService:
         self, model_id1: UUID, model_id2: UUID
     ) -> UUID | None:
         """Find common ancestor of two models.
-        
+
         Args:
             model_id1: First model ID
             model_id2: Second model ID
-            
+
         Returns:
             Common ancestor model ID or None
         """
         ancestors1 = set(await self.get_model_ancestors(model_id1))
         ancestors2 = set(await self.get_model_ancestors(model_id2))
-        
+
         common_ancestors = ancestors1.intersection(ancestors2)
-        
+
         if not common_ancestors:
             return None
-        
+
         # Return the most recent common ancestor
         # This would need additional logic to determine recency
         return next(iter(common_ancestors))
@@ -335,36 +343,36 @@ class ModelLineageService:
         self, from_model_id: UUID, to_model_id: UUID
     ) -> list[UUID] | None:
         """Find lineage path between two models.
-        
+
         Args:
             from_model_id: Source model ID
             to_model_id: Target model ID
-            
+
         Returns:
             Path as list of model IDs or None if no path exists
         """
         # Get lineage graph that includes both models
         lineage_graph = await self.get_model_lineage(from_model_id, max_depth=20)
-        
+
         # Check if target model is in the graph
         if to_model_id not in lineage_graph.nodes:
             # Try from the other direction
             lineage_graph = await self.get_model_lineage(to_model_id, max_depth=20)
             if from_model_id not in lineage_graph.nodes:
                 return None
-        
+
         return lineage_graph.find_path(from_model_id, to_model_id)
 
     async def get_lineage_statistics(self) -> LineageStatistics:
         """Get overall lineage statistics.
-        
+
         Returns:
             Lineage statistics
         """
         # This would be implemented based on the lineage repository
         # For now, return a placeholder implementation
         total_records = await self.lineage_repository.count()
-        
+
         return LineageStatistics(
             total_models=await self.model_repository.count(),
             total_relationships=total_records,
@@ -380,10 +388,10 @@ class ModelLineageService:
 
     async def query_lineage(self, query: LineageQuery) -> list[LineageRecord]:
         """Query lineage records with filters.
-        
+
         Args:
             query: Lineage query with filters
-            
+
         Returns:
             Matching lineage records
         """
@@ -391,10 +399,10 @@ class ModelLineageService:
 
     async def delete_lineage_record(self, record_id: UUID) -> bool:
         """Delete a lineage record.
-        
+
         Args:
             record_id: Record ID to delete
-            
+
         Returns:
             Success status
         """
@@ -404,10 +412,10 @@ class ModelLineageService:
         self, lineage_records: list[LineageRecord]
     ) -> list[LineageRecord]:
         """Bulk import lineage records.
-        
+
         Args:
             lineage_records: Records to import
-            
+
         Returns:
             Imported records
         """
@@ -415,23 +423,23 @@ class ModelLineageService:
         all_model_ids = set()
         for record in lineage_records:
             all_model_ids.update(record.get_all_model_ids())
-        
+
         await self._validate_models_exist(list(all_model_ids))
-        
+
         # Import records
         imported_records = []
         for record in lineage_records:
             imported_record = await self.lineage_repository.create(record)
             imported_records.append(imported_record)
-        
+
         return imported_records
 
     async def _validate_models_exist(self, model_ids: list[UUID]) -> None:
         """Validate that all models exist.
-        
+
         Args:
             model_ids: Model IDs to validate
-            
+
         Raises:
             ValueError: If any model doesn't exist
         """
@@ -439,20 +447,20 @@ class ModelLineageService:
         validation_tasks = [
             self.model_repository.get_by_id(model_id) for model_id in model_ids
         ]
-        
+
         models = await asyncio.gather(*validation_tasks, return_exceptions=True)
-        
+
         for i, result in enumerate(models):
             if isinstance(result, Exception) or result is None:
                 raise ValueError(f"Model {model_ids[i]} does not exist")
 
     def _calculate_graph_depth(self, root_id: UUID, edges: list[LineageEdge]) -> int:
         """Calculate the maximum depth of a lineage graph.
-        
+
         Args:
             root_id: Root model ID
             edges: Graph edges
-            
+
         Returns:
             Maximum depth
         """
@@ -462,7 +470,7 @@ class ModelLineageService:
             if edge.parent_id not in children:
                 children[edge.parent_id] = []
             children[edge.parent_id].append(edge.child_id)
-        
+
         # Calculate depth using DFS
         def dfs(node_id: UUID, current_depth: int) -> int:
             max_depth = current_depth
@@ -470,5 +478,5 @@ class ModelLineageService:
                 child_depth = dfs(child_id, current_depth + 1)
                 max_depth = max(max_depth, child_depth)
             return max_depth
-        
+
         return dfs(root_id, 0)

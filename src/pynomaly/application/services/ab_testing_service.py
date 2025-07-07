@@ -286,7 +286,9 @@ class ABTestingService:
         self.traffic_router: "TrafficRouter" = None  # Will be initialized later
 
         # Statistical analyzer
-        self.statistical_analyzer: "StatisticalAnalyzer" = None  # Will be initialized later
+        self.statistical_analyzer: "StatisticalAnalyzer" = (
+            None  # Will be initialized later
+        )
 
         # Guardrail monitor
         self.guardrail_monitor: "GuardrailMonitor" = None  # Will be initialized later
