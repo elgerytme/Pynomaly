@@ -7,18 +7,22 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import Boolean, Column, DateTime, String, Text
+from sqlalchemy import Boolean, Column, DateTime, String, Text, ForeignKey, Table, Enum
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.types import VARCHAR, TypeDecorator
 
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector
+from pynomaly.domain.entities.user import User, Role, Permission, UserTenantRole, Tenant, UserRole, UserStatus, TenantStatus, TenantPlan
 from pynomaly.shared.protocols import (
     DatasetRepositoryProtocol,
     DetectionResultRepositoryProtocol,
     DetectorRepositoryProtocol,
 )
+
+# Import user models to register them with Base
+from . import user_models
 
 Base = declarative_base()
 
@@ -114,6 +118,88 @@ class DetectionResultModel(Base):
     labels = Column(JSONType)
     entity_metadata = Column("metadata", JSONType)
     created_at = Column(DateTime, nullable=False)
+
+
+class UserModel(Base):
+    """SQLAlchemy model for User entity."""
+
+    __tablename__ = "users"
+
+    id = Column(UUIDType, primary_key=True)
+    email = Column(String(255), nullable=False, unique=True)
+    username = Column(String(100), nullable=False)
+    first_name = Column(String(100))
+    last_name = Column(String(100))
+    status = Column(String(50))
+    password_hash = Column(String(255))
+    settings = Column(JSONType)
+    created_at = Column(DateTime, nullable=False)
+    updated_at = Column(DateTime, nullable=False)
+    last_login_at = Column(DateTime)
+    email_verified_at = Column(DateTime)
+
+
+class TenantModel(Base):
+    """SQLAlchemy model for Tenant entity."""
+
+    __tablename__ = "tenants"
+
+    id = Column(UUIDType, primary_key=True)
+    name = Column(String(255), nullable=False)
+    domain = Column(String(255), nullable=False)
+    plan = Column(String(50), nullable=False)
+    status = Column(String(50), nullable=False)
+    limits = Column(JSONType)
+    usage = Column(JSONType)
+    created_at = Column(DateTime, nullable=False)
+    updated_at = Column(DateTime, nullable=False)
+    expires_at = Column(DateTime)
+    contact_email = Column(String(255))
+    billing_email = Column(String(255))
+    settings = Column(JSONType)
+
+
+class RoleModel(Base):
+    """SQLAlchemy model for Role entity."""
+
+    __tablename__ = "roles"
+
+    id = Column(UUIDType, primary_key=True)
+    name = Column(String(100), nullable=False)
+    description = Column(Text)
+    permissions = Column(JSONType)
+    is_system_role = Column(Boolean, default=False)
+    created_at = Column(DateTime, nullable=False)
+
+
+class UserRoleModel(Base):
+    """SQLAlchemy association model for User, Tenant, and Role."""
+
+    __tablename__ = "user_roles"
+
+    user_id = Column(UUIDType, ForeignKey('users.id'), primary_key=True)
+    tenant_id = Column(UUIDType, ForeignKey('tenants.id'), primary_key=True)
+    role_id = Column(UUIDType, ForeignKey('roles.id'), primary_key=True)
+    permissions = Column(JSONType)
+    granted_at = Column(DateTime, nullable=False)
+    granted_by = Column(UUIDType, ForeignKey('users.id'))
+    expires_at = Column(DateTime)
+
+
+class MetricModel(Base):
+    """SQLAlchemy model for storing metrics."""
+
+    __tablename__ = "metrics"
+
+    id = Column(UUIDType, primary_key=True)
+    name = Column(String(255), nullable=False)
+    value = Column(Float, nullable=False)
+    unit = Column(String(50))
+    tags = Column(JSONType)
+    timestamp = Column(DateTime, nullable=False)
+    entity_type = Column(String(100))  # e.g., 'detector', 'dataset', 'user'
+    entity_id = Column(UUIDType)  # ID of the related entity
+    metadata = Column(JSONType)
 
 
 class DatabaseDetectorRepository(DetectorRepositoryProtocol):

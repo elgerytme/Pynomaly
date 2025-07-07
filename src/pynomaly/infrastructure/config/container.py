@@ -14,6 +14,9 @@ from pynomaly.application.services import (
     ExperimentTrackingService,
     ModelPersistenceService,
 )
+from pynomaly.application.services.api_key_service import ApiKeyService
+from pynomaly.application.services.rate_limit_service import RateLimitService
+from pynomaly.application.services.workflow_service import WorkflowService
 from pynomaly.application.use_cases import (
     DetectAnomaliesUseCase,
     EvaluateModelUseCase,
@@ -866,6 +869,11 @@ class Container(containers.DeclarativeContainer):
     evaluate_model_use_case = providers.Factory(
         EvaluateModelUseCase, detector_repository=detector_repository
     )
+
+    # New Management Services  
+    api_key_service = providers.Singleton(ApiKeyService)
+    rate_limit_service = providers.Singleton(RateLimitService)
+    workflow_service = providers.Singleton(WorkflowService)
 
 
 # Initialize optional providers

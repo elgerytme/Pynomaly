@@ -9,6 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from .database import DatabaseManager
 from .database_repositories import Base
+from .seed_data import seed_default_roles_and_permissions, seed_custom_roles
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +78,7 @@ class DatabaseMigrator:
             True if all tables exist, False otherwise
         """
         try:
-            required_tables = {"datasets", "detectors", "detection_results"}
+            required_tables = {"datasets", "detectors", "detection_results", "users", "roles", "permissions", "tenants", "user_roles"}
             existing_tables = set(self.engine.table_names())
             missing_tables = required_tables - existing_tables
 
@@ -108,7 +109,10 @@ class DatabaseMigrator:
             if not self.create_all_tables():
                 return False
 
-        # Add any initial data here if needed
+        # Seed default roles and permissions
+        if not self.seed_default_data():
+            logger.warning("Failed to seed default data, but database is initialized")
+        
         logger.info("Database initialization completed successfully")
         return True
 

@@ -46,7 +46,7 @@ class TenantPlan(str, Enum):
     ENTERPRISE = "enterprise"
 
 
-@dataclass
+@dataclass(frozen=True)
 class Permission:
     """Individual permission."""
     name: str
