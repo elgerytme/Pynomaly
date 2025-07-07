@@ -1,6 +1,5 @@
 """Detection endpoints."""
 
-
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query

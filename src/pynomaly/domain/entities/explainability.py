@@ -11,7 +11,7 @@ from uuid import UUID, uuid4
 
 class ExplanationType(str, Enum):
     """Types of explanations for anomaly detection."""
-    
+
     GLOBAL = "global"
     LOCAL = "local"
     COUNTERFACTUAL = "counterfactual"
@@ -26,7 +26,7 @@ class ExplanationType(str, Enum):
 
 class ExplanationScope(str, Enum):
     """Scope of the explanation."""
-    
+
     INSTANCE = "instance"
     FEATURE = "feature"
     MODEL = "model"
@@ -36,7 +36,7 @@ class ExplanationScope(str, Enum):
 
 class ConfidenceLevel(str, Enum):
     """Confidence levels for explanations."""
-    
+
     VERY_LOW = "very_low"
     LOW = "low"
     MEDIUM = "medium"
@@ -47,14 +47,14 @@ class ConfidenceLevel(str, Enum):
 @dataclass
 class FeatureContribution:
     """Individual feature contribution to anomaly score."""
-    
+
     feature_name: str
     contribution_score: float
     feature_value: Any
     baseline_value: Any | None = None
     rank: int | None = None
     confidence: float | None = None
-    
+
     def __post_init__(self) -> None:
         """Validate feature contribution."""
         if self.confidence is not None and not (0.0 <= self.confidence <= 1.0):
@@ -66,7 +66,7 @@ class FeatureContribution:
 @dataclass
 class CounterfactualExample:
     """Counterfactual example for explanation."""
-    
+
     original_values: dict[str, Any]
     counterfactual_values: dict[str, Any]
     original_score: float
@@ -74,7 +74,7 @@ class CounterfactualExample:
     distance: float
     changed_features: list[str]
     explanation: str | None = None
-    
+
     def __post_init__(self) -> None:
         """Validate counterfactual example."""
         if not (0.0 <= self.original_score <= 1.0):
@@ -88,14 +88,14 @@ class CounterfactualExample:
 @dataclass
 class ExplanationRule:
     """Rule-based explanation for anomaly detection."""
-    
+
     condition: str
     support: float
     confidence: float
     lift: float
     description: str
     examples: list[dict[str, Any]] = field(default_factory=list)
-    
+
     def __post_init__(self) -> None:
         """Validate explanation rule."""
         if not (0.0 <= self.support <= 1.0):
@@ -109,18 +109,18 @@ class ExplanationRule:
 @dataclass
 class SHAPValues:
     """SHAP (SHapley Additive exPlanations) values."""
-    
+
     feature_values: dict[str, float]
     base_value: float
     prediction: float
     expected_value: float
     feature_names: list[str] = field(default_factory=list)
-    
+
     def __post_init__(self) -> None:
         """Validate SHAP values."""
         if not self.feature_names:
             self.feature_names = list(self.feature_values.keys())
-        
+
         # Verify additivity property: sum(shap_values) + base_value ≈ prediction
         shap_sum = sum(self.feature_values.values()) + self.base_value
         tolerance = 1e-6
@@ -133,9 +133,7 @@ class SHAPValues:
     def get_top_features(self, n: int = 5) -> list[tuple[str, float]]:
         """Get top N features by absolute SHAP value."""
         sorted_features = sorted(
-            self.feature_values.items(),
-            key=lambda x: abs(x[1]),
-            reverse=True
+            self.feature_values.items(), key=lambda x: abs(x[1]), reverse=True
         )
         return sorted_features[:n]
 
@@ -143,7 +141,7 @@ class SHAPValues:
 @dataclass
 class ExplanationMetadata:
     """Metadata for explanations."""
-    
+
     model_id: UUID
     model_version: str | None = None
     algorithm: str | None = None
@@ -151,7 +149,7 @@ class ExplanationMetadata:
     computation_time: float | None = None
     memory_usage: float | None = None
     parameters: dict[str, Any] = field(default_factory=dict)
-    
+
     def __post_init__(self) -> None:
         """Validate explanation metadata."""
         if self.computation_time is not None and self.computation_time < 0:
@@ -163,42 +161,42 @@ class ExplanationMetadata:
 @dataclass
 class AnomalyExplanation:
     """Comprehensive explanation for anomaly detection result."""
-    
+
     # Identity
     instance_id: str | UUID
     explanation_type: ExplanationType
     scope: ExplanationScope
     metadata: ExplanationMetadata
-    
+
     # Core explanation data
     anomaly_score: float
     feature_contributions: list[FeatureContribution]
-    
+
     # Auto-generated fields
     id: UUID = field(default_factory=uuid4)
     created_at: datetime = field(default_factory=datetime.utcnow)
-    
+
     # Optional explanation components
     shap_values: SHAPValues | None = None
     counterfactuals: list[CounterfactualExample] = field(default_factory=list)
     rules: list[ExplanationRule] = field(default_factory=list)
-    
+
     # Text explanations
     summary: str | None = None
     detailed_explanation: str | None = None
     recommendations: list[str] = field(default_factory=list)
-    
+
     # Confidence and quality metrics
     explanation_confidence: ConfidenceLevel = ConfidenceLevel.MEDIUM
     explanation_quality_score: float | None = None
-    
+
     # Visualization data
     visualization_data: dict[str, Any] = field(default_factory=dict)
-    
+
     # Context
     business_context: dict[str, Any] = field(default_factory=dict)
     technical_context: dict[str, Any] = field(default_factory=dict)
-    
+
     # Additional metadata
     tags: list[str] = field(default_factory=list)
     custom_fields: dict[str, Any] = field(default_factory=dict)
@@ -207,11 +205,12 @@ class AnomalyExplanation:
         """Validate anomaly explanation."""
         if not (0.0 <= self.anomaly_score <= 1.0):
             raise ValueError("Anomaly score must be between 0.0 and 1.0")
-        
-        if (self.explanation_quality_score is not None and 
-            not (0.0 <= self.explanation_quality_score <= 1.0)):
+
+        if self.explanation_quality_score is not None and not (
+            0.0 <= self.explanation_quality_score <= 1.0
+        ):
             raise ValueError("Explanation quality score must be between 0.0 and 1.0")
-        
+
         if not self.feature_contributions:
             raise ValueError("At least one feature contribution is required")
 
@@ -220,7 +219,7 @@ class AnomalyExplanation:
         return sorted(
             self.feature_contributions,
             key=lambda x: abs(x.contribution_score),
-            reverse=True
+            reverse=True,
         )[:n]
 
     def get_positive_contributions(self) -> list[FeatureContribution]:
@@ -239,14 +238,16 @@ class AnomalyExplanation:
         """Get explanation strength based on top features."""
         if not self.feature_contributions:
             return 0.0
-        
+
         top_features = self.get_top_features(3)
         total_abs_contribution = sum(abs(fc.contribution_score) for fc in top_features)
-        total_possible_contribution = sum(abs(fc.contribution_score) for fc in self.feature_contributions)
-        
+        total_possible_contribution = sum(
+            abs(fc.contribution_score) for fc in self.feature_contributions
+        )
+
         if total_possible_contribution == 0:
             return 0.0
-        
+
         return total_abs_contribution / total_possible_contribution
 
     def add_recommendation(self, recommendation: str) -> None:
@@ -262,42 +263,46 @@ class AnomalyExplanation:
     def is_high_confidence(self) -> bool:
         """Check if explanation has high confidence."""
         return self.explanation_confidence in [
-            ConfidenceLevel.HIGH, 
-            ConfidenceLevel.VERY_HIGH
+            ConfidenceLevel.HIGH,
+            ConfidenceLevel.VERY_HIGH,
         ]
 
     def requires_review(self) -> bool:
         """Check if explanation requires human review."""
         return (
-            self.explanation_confidence in [ConfidenceLevel.VERY_LOW, ConfidenceLevel.LOW]
+            self.explanation_confidence
+            in [ConfidenceLevel.VERY_LOW, ConfidenceLevel.LOW]
             or self.get_explanation_strength() < 0.5
-            or (self.explanation_quality_score is not None and self.explanation_quality_score < 0.6)
+            or (
+                self.explanation_quality_score is not None
+                and self.explanation_quality_score < 0.6
+            )
         )
 
 
 @dataclass
 class ExplanationQuery:
     """Query for requesting explanations."""
-    
+
     instance_ids: list[str | UUID]
     explanation_types: list[ExplanationType]
-    
+
     # Query parameters
     top_features: int = 5
     include_counterfactuals: bool = False
     include_rules: bool = False
     include_shap: bool = True
-    
+
     # Filter parameters
     min_confidence: ConfidenceLevel = ConfidenceLevel.LOW
     model_ids: list[UUID] | None = None
     created_after: datetime | None = None
     created_before: datetime | None = None
-    
+
     # Pagination
     limit: int = 100
     offset: int = 0
-    
+
     def __post_init__(self) -> None:
         """Validate explanation query."""
         if not self.instance_ids:
@@ -315,7 +320,7 @@ class ExplanationQuery:
 @dataclass
 class ExplanationSummary:
     """Summary of explanation results."""
-    
+
     total_explanations: int
     explanations_by_type: dict[str, int]
     explanations_by_confidence: dict[str, int]
@@ -323,29 +328,30 @@ class ExplanationSummary:
     most_important_features: list[str] = field(default_factory=list)
     common_patterns: list[str] = field(default_factory=list)
     summary_generated_at: datetime = field(default_factory=datetime.utcnow)
-    
+
     def __post_init__(self) -> None:
         """Validate explanation summary."""
         if self.total_explanations < 0:
             raise ValueError("Total explanations must be non-negative")
-        if (self.average_quality_score is not None and 
-            not (0.0 <= self.average_quality_score <= 1.0)):
+        if self.average_quality_score is not None and not (
+            0.0 <= self.average_quality_score <= 1.0
+        ):
             raise ValueError("Average quality score must be between 0.0 and 1.0")
 
 
 @dataclass
 class ExplanationTemplate:
     """Template for generating text explanations."""
-    
+
     name: str
     template_text: str
     explanation_type: ExplanationType
     required_fields: list[str]
-    
+
     optional_fields: list[str] = field(default_factory=list)
     language: str = "en"
     format_type: str = "text"  # text, html, markdown
-    
+
     def __post_init__(self) -> None:
         """Validate explanation template."""
         if not self.template_text.strip():
@@ -358,12 +364,16 @@ class ExplanationTemplate:
         # Check if all required fields are available
         explanation_dict = {
             "anomaly_score": explanation.anomaly_score,
-            "top_feature": explanation.get_top_features(1)[0].feature_name if explanation.feature_contributions else None,
+            "top_feature": (
+                explanation.get_top_features(1)[0].feature_name
+                if explanation.feature_contributions
+                else None
+            ),
             "contribution_count": len(explanation.feature_contributions),
             "confidence": explanation.explanation_confidence.value,
             # Add more fields as needed
         }
-        
+
         return all(
             field in explanation_dict and explanation_dict[field] is not None
             for field in self.required_fields
@@ -373,20 +383,22 @@ class ExplanationTemplate:
         """Generate explanation text using template."""
         if not self.can_generate(explanation):
             raise ValueError("Cannot generate explanation: missing required fields")
-        
+
         # Simple template substitution (in production, use a proper template engine)
         top_features = explanation.get_top_features(3)
-        
+
         context = {
             "anomaly_score": f"{explanation.anomaly_score:.2f}",
             "top_feature": top_features[0].feature_name if top_features else "Unknown",
             "contribution_count": len(explanation.feature_contributions),
-            "confidence": explanation.explanation_confidence.value.replace("_", " ").title(),
+            "confidence": explanation.explanation_confidence.value.replace(
+                "_", " "
+            ).title(),
         }
-        
+
         text = self.template_text
         for field, value in context.items():
             placeholder = f"{{{field}}}"
             text = text.replace(placeholder, str(value))
-        
+
         return text

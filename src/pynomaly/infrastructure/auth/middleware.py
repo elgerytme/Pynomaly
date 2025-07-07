@@ -131,20 +131,22 @@ async def get_current_user(
 
 async def get_current_active_user(
     current_user: Annotated[UserModel | None, Depends(get_current_user)],
-    settings: Annotated[Settings, Depends(lambda: Settings())],
 ) -> UserModel | None:
     """Get current active user, enforcing auth if enabled.
 
     Args:
         current_user: Current user from auth
-        settings: Application settings
 
     Returns:
-        Active user
+        Active user or None
 
     Raises:
         HTTPException: If auth required but not provided
     """
+    # Get settings
+    settings = Settings()
+    
+    # Check if auth is enabled and user is required
     if settings.auth_enabled and not current_user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -152,6 +154,7 @@ async def get_current_active_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+    # Return the user as-is (already a UserModel or None)
     return current_user
 
 

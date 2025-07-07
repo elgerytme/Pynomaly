@@ -17,7 +17,6 @@ def get_container(request: Request) -> Container:
 
 
 async def get_current_user(
-    request: Request,
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)],
     container: Container = Depends(get_container),
 ) -> str | None:

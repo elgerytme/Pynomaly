@@ -14,7 +14,8 @@ class BaseResponse(BaseModel):
     """Base response model with common metadata."""
 
     timestamp: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc), description="Response timestamp in UTC"
+        default_factory=lambda: datetime.now(timezone.utc),
+        description="Response timestamp in UTC",
     )
     request_id: str | None = Field(
         None, description="Unique request identifier for tracking"

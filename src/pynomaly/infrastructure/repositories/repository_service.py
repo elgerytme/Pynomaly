@@ -22,7 +22,7 @@ class RepositoryService:
         result_repository: DetectionResultRepositoryProtocol,
     ) -> None:
         """Initialize repository service.
-        
+
         Args:
             detector_repository: Repository for detector entities
             dataset_repository: Repository for dataset entities
@@ -70,49 +70,49 @@ class RepositoryService:
     def clear_all(self) -> dict[str, int]:
         """Clear all repositories and return counts of deleted items."""
         deleted_counts = {}
-        
+
         # Clear results first (no dependencies)
         results = self._result_repository.find_all()
         for result in results:
             self._result_repository.delete(result.id)
         deleted_counts["results"] = len(results)
-        
+
         # Clear datasets
         datasets = self._dataset_repository.find_all()
         for dataset in datasets:
             self._dataset_repository.delete(dataset.id)
         deleted_counts["datasets"] = len(datasets)
-        
+
         # Clear detectors
         detectors = self._detector_repository.find_all()
         for detector in detectors:
             self._detector_repository.delete(detector.id)
         deleted_counts["detectors"] = len(detectors)
-        
+
         return deleted_counts
 
     def health_check(self) -> dict[str, bool]:
         """Perform health check on all repositories."""
         health = {}
-        
+
         try:
             self._detector_repository.count()
             health["detector_repository"] = True
         except Exception:
             health["detector_repository"] = False
-        
+
         try:
             self._dataset_repository.count()
             health["dataset_repository"] = True
         except Exception:
             health["dataset_repository"] = False
-        
+
         try:
             self._result_repository.count()
             health["result_repository"] = True
         except Exception:
             health["result_repository"] = False
-        
+
         return health
 
 
@@ -133,7 +133,7 @@ def create_memory_repository_service() -> RepositoryService:
 
 def create_filesystem_repository_service(base_path: str = "data") -> RepositoryService:
     """Create repository service with file system implementations.
-    
+
     Args:
         base_path: Base directory for file storage
     """

@@ -19,7 +19,7 @@ import requests
 
 class AlertSeverity(Enum):
     """Alert severity levels."""
-    
+
     INFO = "info"
     WARNING = "warning"
     CRITICAL = "critical"
@@ -28,7 +28,7 @@ class AlertSeverity(Enum):
 
 class AlertStatus(Enum):
     """Alert status."""
-    
+
     ACTIVE = "active"
     RESOLVED = "resolved"
     SUPPRESSED = "suppressed"
@@ -37,7 +37,7 @@ class AlertStatus(Enum):
 @dataclass
 class Alert:
     """Alert definition."""
-    
+
     id: str
     title: str
     description: str
@@ -53,14 +53,14 @@ class Alert:
 
 class AlertNotifier(ABC):
     """Abstract base class for alert notifiers."""
-    
+
     @abstractmethod
     async def send_alert(self, alert: Alert) -> bool:
         """Send an alert notification.
-        
+
         Args:
             alert: Alert to send
-            
+
         Returns:
             True if sent successfully, False otherwise
         """
@@ -69,7 +69,7 @@ class AlertNotifier(ABC):
 
 class EmailNotifier(AlertNotifier):
     """Email alert notifier."""
-    
+
     def __init__(
         self,
         smtp_host: str,
@@ -81,7 +81,7 @@ class EmailNotifier(AlertNotifier):
         use_tls: bool = True,
     ):
         """Initialize email notifier.
-        
+
         Args:
             smtp_host: SMTP server hostname
             smtp_port: SMTP server port
@@ -108,24 +108,24 @@ class EmailNotifier(AlertNotifier):
             msg["From"] = self.from_email
             msg["To"] = ", ".join(self.to_emails)
             msg["Subject"] = f"[{alert.severity.value.upper()}] {alert.title}"
-            
+
             # Create email body
             body = self._create_email_body(alert)
             msg.attach(MIMEText(body, "html"))
-            
+
             # Send email
             with smtplib.SMTP(self.smtp_host, self.smtp_port) as server:
                 if self.use_tls:
                     server.starttls()
-                
+
                 if self.username and self.password:
                     server.login(self.username, self.password)
-                
+
                 server.send_message(msg)
-            
+
             self.logger.info(f"Alert email sent: {alert.id}")
             return True
-            
+
         except Exception as e:
             self.logger.error(f"Failed to send alert email: {e}")
             return False
@@ -138,9 +138,9 @@ class EmailNotifier(AlertNotifier):
             AlertSeverity.CRITICAL: "#dc3545",
             AlertSeverity.EMERGENCY: "#6f42c1",
         }
-        
+
         color = severity_colors.get(alert.severity, "#6c757d")
-        
+
         return f"""
         <html>
         <body style="font-family: Arial, sans-serif;">
@@ -176,27 +176,28 @@ class EmailNotifier(AlertNotifier):
 
     def _format_metrics_html(self, metrics: dict[str, Any]) -> str:
         """Format metrics as HTML."""
-        items = "".join([
-            f"<li><strong>{key}:</strong> {value}</li>"
-            for key, value in metrics.items()
-        ])
+        items = "".join(
+            [
+                f"<li><strong>{key}:</strong> {value}</li>"
+                for key, value in metrics.items()
+            ]
+        )
         return f"<div><h3>Metrics</h3><ul>{items}</ul></div>"
 
     def _format_tags_html(self, tags: dict[str, str]) -> str:
         """Format tags as HTML."""
-        items = "".join([
-            f"<li><strong>{key}:</strong> {value}</li>"
-            for key, value in tags.items()
-        ])
+        items = "".join(
+            [f"<li><strong>{key}:</strong> {value}</li>" for key, value in tags.items()]
+        )
         return f"<div><h3>Tags</h3><ul>{items}</ul></div>"
 
 
 class SlackNotifier(AlertNotifier):
     """Slack alert notifier."""
-    
+
     def __init__(self, webhook_url: str):
         """Initialize Slack notifier.
-        
+
         Args:
             webhook_url: Slack webhook URL
         """
@@ -213,7 +214,7 @@ class SlackNotifier(AlertNotifier):
                 AlertSeverity.CRITICAL: "#ff0000",
                 AlertSeverity.EMERGENCY: "#800080",
             }
-            
+
             payload = {
                 "text": f"Alert: {alert.title}",
                 "attachments": [
@@ -232,7 +233,9 @@ class SlackNotifier(AlertNotifier):
                             },
                             {
                                 "title": "Time",
-                                "value": alert.created_at.strftime('%Y-%m-%d %H:%M:%S UTC'),
+                                "value": alert.created_at.strftime(
+                                    "%Y-%m-%d %H:%M:%S UTC"
+                                ),
                                 "short": True,
                             },
                             {
@@ -249,19 +252,20 @@ class SlackNotifier(AlertNotifier):
                     }
                 ],
             }
-            
+
             # Add metrics if present
             if alert.metrics:
-                metrics_text = "\n".join([
-                    f"• {key}: {value}"
-                    for key, value in alert.metrics.items()
-                ])
-                payload["attachments"][0]["fields"].append({
-                    "title": "Metrics",
-                    "value": f"```{metrics_text}```",
-                    "short": False,
-                })
-            
+                metrics_text = "\n".join(
+                    [f"• {key}: {value}" for key, value in alert.metrics.items()]
+                )
+                payload["attachments"][0]["fields"].append(
+                    {
+                        "title": "Metrics",
+                        "value": f"```{metrics_text}```",
+                        "short": False,
+                    }
+                )
+
             # Send to Slack
             response = requests.post(
                 self.webhook_url,
@@ -269,10 +273,10 @@ class SlackNotifier(AlertNotifier):
                 timeout=10,
             )
             response.raise_for_status()
-            
+
             self.logger.info(f"Alert sent to Slack: {alert.id}")
             return True
-            
+
         except Exception as e:
             self.logger.error(f"Failed to send Slack alert: {e}")
             return False
@@ -280,10 +284,10 @@ class SlackNotifier(AlertNotifier):
 
 class WebhookNotifier(AlertNotifier):
     """Generic webhook alert notifier."""
-    
+
     def __init__(self, webhook_url: str, headers: dict[str, str] | None = None):
         """Initialize webhook notifier.
-        
+
         Args:
             webhook_url: Webhook URL
             headers: Additional HTTP headers
@@ -303,12 +307,14 @@ class WebhookNotifier(AlertNotifier):
                 "severity": alert.severity.value,
                 "status": alert.status.value,
                 "created_at": alert.created_at.isoformat(),
-                "resolved_at": alert.resolved_at.isoformat() if alert.resolved_at else None,
+                "resolved_at": (
+                    alert.resolved_at.isoformat() if alert.resolved_at else None
+                ),
                 "source": alert.source,
                 "tags": alert.tags,
                 "metrics": alert.metrics,
             }
-            
+
             # Send webhook
             response = requests.post(
                 self.webhook_url,
@@ -317,10 +323,10 @@ class WebhookNotifier(AlertNotifier):
                 timeout=10,
             )
             response.raise_for_status()
-            
+
             self.logger.info(f"Alert sent via webhook: {alert.id}")
             return True
-            
+
         except Exception as e:
             self.logger.error(f"Failed to send webhook alert: {e}")
             return False
@@ -328,7 +334,7 @@ class WebhookNotifier(AlertNotifier):
 
 class AlertingService:
     """Main alerting service."""
-    
+
     def __init__(self):
         """Initialize alerting service."""
         self.notifiers: list[AlertNotifier] = []
@@ -347,15 +353,17 @@ class AlertingService:
         duration_minutes: int = 60,
     ) -> None:
         """Add alert suppression rule.
-        
+
         Args:
             tags: Tags that must match for suppression
             duration_minutes: Suppression duration in minutes
         """
-        self.suppression_rules.append({
-            "tags": tags,
-            "duration": timedelta(minutes=duration_minutes),
-        })
+        self.suppression_rules.append(
+            {
+                "tags": tags,
+                "duration": timedelta(minutes=duration_minutes),
+            }
+        )
 
     async def send_alert(
         self,
@@ -366,14 +374,14 @@ class AlertingService:
         metrics: dict[str, Any] | None = None,
     ) -> str:
         """Send an alert.
-        
+
         Args:
             title: Alert title
             description: Alert description
             severity: Alert severity
             tags: Alert tags
             metrics: Alert metrics
-            
+
         Returns:
             Alert ID
         """
@@ -387,45 +395,45 @@ class AlertingService:
             tags=tags or {},
             metrics=metrics or {},
         )
-        
+
         # Check suppression rules
         if self._is_suppressed(alert):
             alert.status = AlertStatus.SUPPRESSED
             self.logger.info(f"Alert suppressed: {alert_id}")
             return alert_id
-        
+
         # Store alert
         self.alerts[alert_id] = alert
         self.alert_history.append(alert)
-        
+
         # Send notifications
         await self._send_notifications(alert)
-        
+
         self.logger.info(f"Alert created: {alert_id}")
         return alert_id
 
     async def resolve_alert(self, alert_id: str) -> bool:
         """Resolve an alert.
-        
+
         Args:
             alert_id: Alert ID to resolve
-            
+
         Returns:
             True if resolved successfully
         """
         if alert_id not in self.alerts:
             return False
-        
+
         alert = self.alerts[alert_id]
         alert.status = AlertStatus.RESOLVED
         alert.resolved_at = datetime.utcnow()
-        
+
         # Send resolution notification
         await self._send_notifications(alert)
-        
+
         # Remove from active alerts
         del self.alerts[alert_id]
-        
+
         self.logger.info(f"Alert resolved: {alert_id}")
         return True
 
@@ -435,33 +443,27 @@ class AlertingService:
 
     def get_alert_history(self, hours: int = 24) -> list[Alert]:
         """Get alert history.
-        
+
         Args:
             hours: Hours of history to retrieve
-            
+
         Returns:
             List of alerts from the specified time period
         """
         cutoff = datetime.utcnow() - timedelta(hours=hours)
-        return [
-            alert for alert in self.alert_history
-            if alert.created_at >= cutoff
-        ]
+        return [alert for alert in self.alert_history if alert.created_at >= cutoff]
 
     def _is_suppressed(self, alert: Alert) -> bool:
         """Check if alert should be suppressed."""
         for rule in self.suppression_rules:
             # Check if tags match
             rule_tags = rule["tags"]
-            if all(
-                alert.tags.get(key) == value
-                for key, value in rule_tags.items()
-            ):
+            if all(alert.tags.get(key) == value for key, value in rule_tags.items()):
                 # Check if we're within suppression window
                 suppression_end = datetime.utcnow() + rule["duration"]
                 alert.suppressed_until = suppression_end
                 return True
-        
+
         return False
 
     async def _send_notifications(self, alert: Alert) -> None:
@@ -469,15 +471,12 @@ class AlertingService:
         if not self.notifiers:
             self.logger.warning("No notifiers configured")
             return
-        
+
         # Send to all notifiers concurrently
-        tasks = [
-            notifier.send_alert(alert)
-            for notifier in self.notifiers
-        ]
-        
+        tasks = [notifier.send_alert(alert) for notifier in self.notifiers]
+
         results = await asyncio.gather(*tasks, return_exceptions=True)
-        
+
         # Log results
         success_count = sum(1 for result in results if result is True)
         self.logger.info(
@@ -491,30 +490,30 @@ def create_alerting_service(
     webhook_url: str | None = None,
 ) -> AlertingService:
     """Create alerting service with configured notifiers.
-    
+
     Args:
         email_config: Email configuration
         slack_webhook: Slack webhook URL
         webhook_url: Generic webhook URL
-        
+
     Returns:
         Configured alerting service
     """
     service = AlertingService()
-    
+
     # Add email notifier if configured
     if email_config:
         notifier = EmailNotifier(**email_config)
         service.add_notifier(notifier)
-    
+
     # Add Slack notifier if configured
     if slack_webhook:
         notifier = SlackNotifier(slack_webhook)
         service.add_notifier(notifier)
-    
+
     # Add webhook notifier if configured
     if webhook_url:
         notifier = WebhookNotifier(webhook_url)
         service.add_notifier(notifier)
-    
+
     return service

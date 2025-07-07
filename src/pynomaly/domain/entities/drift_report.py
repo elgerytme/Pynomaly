@@ -279,7 +279,9 @@ class DriftMonitor:
         """Validate drift monitor configuration."""
         valid_frequencies = {"hourly", "daily", "weekly"}
         if self.monitoring_frequency not in valid_frequencies:
-            raise ValueError(f"Monitoring frequency must be one of: {valid_frequencies}")
+            raise ValueError(
+                f"Monitoring frequency must be one of: {valid_frequencies}"
+            )
 
     def should_check_now(self) -> bool:
         """Check if drift detection should be performed now."""

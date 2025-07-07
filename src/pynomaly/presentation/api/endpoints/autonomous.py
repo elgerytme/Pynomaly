@@ -1,6 +1,5 @@
 """Autonomous detection API endpoints."""
 
-
 from uuid import UUID
 
 from fastapi import (

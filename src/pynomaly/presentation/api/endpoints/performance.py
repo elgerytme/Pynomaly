@@ -1,6 +1,5 @@
 """Performance monitoring and optimization API endpoints."""
 
-
 from typing import Any
 
 from dependency_injector.wiring import Provide, inject

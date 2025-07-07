@@ -1,6 +1,7 @@
 """PyTorch adapter stub when PyTorch is not available."""
 
 from __future__ import annotations
+
 from typing import Any
 
 

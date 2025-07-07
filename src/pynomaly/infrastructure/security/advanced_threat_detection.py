@@ -508,7 +508,9 @@ class SessionHijackingDetector(ThreatDetector):
         if detector_config:
             self.max_ip_changes = detector_config.config.get("max_ip_changes", 3)
             self.time_window = detector_config.config.get("time_window_seconds", 3600)
-            self.geographic_distance_km = detector_config.config.get("geographic_distance_km", 1000)
+            self.geographic_distance_km = detector_config.config.get(
+                "geographic_distance_km", 1000
+            )
         else:
             # Default configuration
             self.max_ip_changes = 3  # More than 3 IP changes in time window
@@ -520,40 +522,43 @@ class SessionHijackingDetector(ThreatDetector):
         session_id = event_data.get("session_id")
         user_id = event_data.get("user_id")
         ip_address = event_data.get("ip_address")
-        
+
         if not session_id or not ip_address:
             return None
 
         current_time = time.time()
-        
+
         # Initialize session tracking if new
         if session_id not in self.session_tracking:
             self.session_tracking[session_id] = {
                 "user_id": user_id,
                 "start_time": current_time,
                 "ip_history": [],
-                "last_activity": current_time
+                "last_activity": current_time,
             }
 
         session_info = self.session_tracking[session_id]
-        
+
         # Update last activity
         session_info["last_activity"] = current_time
-        
+
         # Track IP changes
         if ip_address not in [entry["ip"] for entry in session_info["ip_history"]]:
-            session_info["ip_history"].append({
-                "ip": ip_address,
-                "timestamp": current_time,
-                "user_agent": event_data.get("user_agent", "")
-            })
-            
+            session_info["ip_history"].append(
+                {
+                    "ip": ip_address,
+                    "timestamp": current_time,
+                    "user_agent": event_data.get("user_agent", ""),
+                }
+            )
+
             # Check for suspicious IP changes
             recent_ips = [
-                entry for entry in session_info["ip_history"]
+                entry
+                for entry in session_info["ip_history"]
                 if current_time - entry["timestamp"] <= self.time_window
             ]
-            
+
             if len(recent_ips) > self.max_ip_changes:
                 return SecurityAlert(
                     alert_id=f"hijack_{session_id}_{int(current_time)}",
@@ -568,7 +573,10 @@ class SessionHijackingDetector(ThreatDetector):
                     indicators={
                         "ip_change_count": len(recent_ips),
                         "max_allowed": self.max_ip_changes,
-                        "session_duration_minutes": (current_time - session_info["start_time"]) / 60,
+                        "session_duration_minutes": (
+                            current_time - session_info["start_time"]
+                        )
+                        / 60,
                     },
                     evidence=[
                         f"Session changed IPs {len(recent_ips)} times in {self.time_window / 60} minutes",
@@ -598,7 +606,9 @@ class SessionHijackingDetector(ThreatDetector):
         """Update detector configuration."""
         self.max_ip_changes = config.get("max_ip_changes", self.max_ip_changes)
         self.time_window = config.get("time_window_seconds", self.time_window)
-        self.geographic_distance_km = config.get("geographic_distance_km", self.geographic_distance_km)
+        self.geographic_distance_km = config.get(
+            "geographic_distance_km", self.geographic_distance_km
+        )
 
 
 class DataExfiltrationDetector(ThreatDetector):

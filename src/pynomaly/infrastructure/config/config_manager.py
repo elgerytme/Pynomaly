@@ -11,6 +11,7 @@ import yaml
 from pydantic import BaseModel, ValidationError
 
 from pynomaly.domain.exceptions import ConfigurationError
+
 from .settings import Settings
 
 T = TypeVar("T", bound=BaseModel)
@@ -25,7 +26,7 @@ class ConfigurationManager:
         environment: str | None = None,
     ) -> None:
         """Initialize configuration manager.
-        
+
         Args:
             config_dir: Directory containing configuration files
             environment: Environment name (dev, test, prod, etc.)
@@ -47,7 +48,7 @@ class ConfigurationManager:
                     parameter="settings",
                     actual=str(e),
                 ) from e
-        
+
         return self._settings
 
     def load_config_file(
@@ -57,12 +58,12 @@ class ConfigurationManager:
         required: bool = True,
     ) -> T | None:
         """Load configuration from file with validation.
-        
+
         Args:
             filename: Configuration file name
             config_class: Pydantic model class for validation
             required: Whether the file is required
-            
+
         Returns:
             Validated configuration object or None if not required and missing
         """
@@ -71,7 +72,7 @@ class ConfigurationManager:
             return self._config_cache[cache_key]
 
         config_files = self._get_config_file_paths(filename)
-        
+
         for config_file in config_files:
             if config_file.exists():
                 try:
@@ -86,7 +87,7 @@ class ConfigurationManager:
                         expected=str(config_class),
                         actual=str(e),
                     ) from e
-        
+
         if required:
             raise ConfigurationError(
                 f"Required configuration file '{filename}' not found",
@@ -94,20 +95,20 @@ class ConfigurationManager:
                 expected=f"File in {self.config_dir}",
                 actual="File not found",
             )
-        
+
         return None
 
     def _get_config_file_paths(self, filename: str) -> list[Path]:
         """Get ordered list of configuration file paths to check."""
         base_name = Path(filename).stem
         extension = Path(filename).suffix or ".yaml"
-        
+
         # Try environment-specific files first, then default
         filenames = [
             f"{base_name}.{self.environment}{extension}",
             f"{base_name}{extension}",
         ]
-        
+
         return [self.config_dir / fname for fname in filenames]
 
     def _load_file_data(self, file_path: Path) -> dict[str, Any]:
@@ -130,7 +131,11 @@ class ConfigurationManager:
         errors = []
 
         # Validate paths exist or can be created
-        for path_name in ["storage_path", "model_storage_path", "experiment_storage_path"]:
+        for path_name in [
+            "storage_path",
+            "model_storage_path",
+            "experiment_storage_path",
+        ]:
             path = getattr(settings, path_name)
             try:
                 path.mkdir(parents=True, exist_ok=True)
@@ -139,7 +144,9 @@ class ConfigurationManager:
 
         # Validate database configuration if enabled
         if settings.use_database_repositories and not settings.database_url:
-            errors.append("Database repositories enabled but database_url not configured")
+            errors.append(
+                "Database repositories enabled but database_url not configured"
+            )
 
         # Validate Redis configuration if caching enabled
         if settings.cache_enabled and not settings.redis_url:
@@ -150,7 +157,7 @@ class ConfigurationManager:
         if settings.app.environment == "production":
             if settings.secret_key == "change-me-in-production":
                 errors.append("Secret key must be changed for production environment")
-            
+
             if not settings.auth_enabled:
                 errors.append("Authentication should be enabled in production")
 
@@ -174,16 +181,16 @@ class ConfigurationManager:
         """Override a setting value (useful for testing)."""
         if self._settings is None:
             self._settings = self.load_settings()
-        
+
         # Navigate nested attributes
         obj = self._settings
         keys = key.split(".")
-        
+
         for k in keys[:-1]:
             obj = getattr(obj, k)
-        
+
         setattr(obj, keys[-1], value)
-        
+
         # Clear cache to force revalidation
         self._config_cache.clear()
 
@@ -191,14 +198,14 @@ class ConfigurationManager:
         """Export current configuration as dictionary."""
         settings = self.load_settings()
         config_dict = settings.model_dump()
-        
+
         if not include_secrets:
             # Remove sensitive information
             sensitive_keys = ["secret_key", "database_url", "redis_url"]
             for key in sensitive_keys:
                 if key in config_dict:
                     config_dict[key] = "***REDACTED***"
-        
+
         return config_dict
 
     def validate_config_schema(self, config_data: dict[str, Any]) -> list[str]:

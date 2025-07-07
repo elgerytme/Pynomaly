@@ -1,6 +1,7 @@
 """JAX adapter stub when JAX is not available."""
 
 from __future__ import annotations
+
 from typing import Any
 
 

@@ -11,7 +11,7 @@ from uuid import UUID, uuid4
 
 class StreamingMode(str, Enum):
     """Streaming processing modes."""
-    
+
     REAL_TIME = "real_time"
     NEAR_REAL_TIME = "near_real_time"
     BATCH = "batch"
@@ -20,7 +20,7 @@ class StreamingMode(str, Enum):
 
 class StreamState(str, Enum):
     """Stream processing states."""
-    
+
     IDLE = "idle"
     STARTING = "starting"
     RUNNING = "running"
@@ -34,7 +34,7 @@ class StreamState(str, Enum):
 
 class BackpressureStrategy(str, Enum):
     """Backpressure handling strategies."""
-    
+
     DROP_OLDEST = "drop_oldest"
     DROP_NEWEST = "drop_newest"
     BLOCK = "block"
@@ -44,7 +44,7 @@ class BackpressureStrategy(str, Enum):
 
 class AlertSeverity(str, Enum):
     """Alert severity levels."""
-    
+
     INFO = "info"
     WARNING = "warning"
     ERROR = "error"
@@ -54,40 +54,40 @@ class AlertSeverity(str, Enum):
 @dataclass
 class StreamingMetrics:
     """Real-time metrics for streaming anomaly detection."""
-    
+
     # Throughput metrics
     records_processed: int = 0
     records_per_second: float = 0.0
     bytes_processed: int = 0
     bytes_per_second: float = 0.0
-    
+
     # Detection metrics
     anomalies_detected: int = 0
     anomaly_rate: float = 0.0
     false_positive_rate: float = 0.0
     false_negative_rate: float = 0.0
-    
+
     # Performance metrics
     avg_processing_latency: float = 0.0
     max_processing_latency: float = 0.0
     min_processing_latency: float = 0.0
     memory_usage: float = 0.0
     cpu_usage: float = 0.0
-    
+
     # Quality metrics
     model_accuracy: float | None = None
     model_confidence: float | None = None
     data_quality_score: float | None = None
-    
+
     # Buffer and queue metrics
     input_queue_size: int = 0
     output_queue_size: int = 0
     max_queue_size: int = 1000
     dropped_records: int = 0
-    
+
     # Time tracking
     last_updated: datetime = field(default_factory=datetime.utcnow)
-    
+
     def __post_init__(self) -> None:
         """Validate streaming metrics."""
         if self.records_processed < 0:
@@ -111,7 +111,7 @@ class StreamingMetrics:
         else:
             # Simple moving average
             self.avg_processing_latency = (self.avg_processing_latency + latency) / 2
-        
+
         self.max_processing_latency = max(self.max_processing_latency, latency)
         if self.min_processing_latency == 0:
             self.min_processing_latency = latency
@@ -127,31 +127,31 @@ class StreamingMetrics:
     def is_healthy(self) -> bool:
         """Check if streaming metrics indicate healthy processing."""
         return (
-            self.cpu_usage < 90.0 and
-            self.memory_usage < 85.0 and
-            self.input_queue_size < self.max_queue_size * 0.8 and
-            self.avg_processing_latency < 1000.0  # 1 second threshold
+            self.cpu_usage < 90.0
+            and self.memory_usage < 85.0
+            and self.input_queue_size < self.max_queue_size * 0.8
+            and self.avg_processing_latency < 1000.0  # 1 second threshold
         )
 
 
 @dataclass
 class StreamingWindow:
     """Time-based or count-based window for streaming data."""
-    
+
     window_type: str  # "time" or "count"
     size: int | timedelta
     slide: int | timedelta | None = None
-    
+
     # Current window state
     current_data: list[Any] = field(default_factory=list)
     window_start: datetime | None = None
     window_end: datetime | None = None
-    
+
     def __post_init__(self) -> None:
         """Validate streaming window configuration."""
         if self.window_type not in ["time", "count"]:
             raise ValueError("Window type must be 'time' or 'count'")
-        
+
         if self.window_type == "time":
             if not isinstance(self.size, timedelta):
                 raise ValueError("Time window size must be a timedelta")
@@ -167,19 +167,19 @@ class StreamingWindow:
         """Add data to window and return True if window is complete."""
         if timestamp is None:
             timestamp = datetime.utcnow()
-        
+
         self.current_data.append((data, timestamp))
-        
+
         if self.window_start is None:
             self.window_start = timestamp
-        
+
         return self.is_complete()
 
     def is_complete(self) -> bool:
         """Check if window is complete and ready for processing."""
         if not self.current_data:
             return False
-        
+
         if self.window_type == "count":
             return len(self.current_data) >= self.size
         else:  # time window
@@ -199,7 +199,7 @@ class StreamingWindow:
             self.current_data.clear()
             self.window_start = None
             return
-        
+
         if self.window_type == "count":
             # Remove slide number of oldest items
             slide_count = min(self.slide, len(self.current_data))
@@ -209,8 +209,7 @@ class StreamingWindow:
             if self.window_start:
                 new_start = self.window_start + self.slide
                 self.current_data = [
-                    (data, ts) for data, ts in self.current_data
-                    if ts >= new_start
+                    (data, ts) for data, ts in self.current_data if ts >= new_start
                 ]
                 self.window_start = new_start
 
@@ -218,31 +217,31 @@ class StreamingWindow:
 @dataclass
 class StreamingAlert:
     """Alert for streaming anomaly detection."""
-    
+
     # Identity
     alert_id: UUID
     stream_id: UUID
     detector_id: UUID
-    
+
     # Alert details
     severity: AlertSeverity
     title: str
     message: str
     anomaly_score: float
-    
+
     # Data context
     triggering_data: dict[str, Any]
     window_data: list[Any] | None = None
-    
+
     # Timing
     triggered_at: datetime
     alert_window_start: datetime | None = None
     alert_window_end: datetime | None = None
-    
+
     # Metadata
     tags: list[str] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
-    
+
     def __post_init__(self) -> None:
         """Validate streaming alert."""
         if not (0.0 <= self.anomaly_score <= 1.0):
@@ -258,37 +257,39 @@ class StreamingAlert:
 @dataclass
 class StreamingConfiguration:
     """Configuration for real-time streaming anomaly detection."""
-    
+
     # Stream settings
     stream_id: UUID
     stream_name: str
     processing_mode: StreamingMode = StreamingMode.REAL_TIME
-    
+
     # Detector configuration
     detector_id: UUID
     detector_config: dict[str, Any] = field(default_factory=dict)
-    
+
     # Window configuration
     window_config: StreamingWindow | None = None
-    
+
     # Performance settings
     batch_size: int = 100
     max_latency: timedelta = field(default_factory=lambda: timedelta(seconds=1))
     buffer_size: int = 10000
     backpressure_strategy: BackpressureStrategy = BackpressureStrategy.DROP_OLDEST
-    
+
     # Alert settings
     alert_threshold: float = 0.7
     alert_cooldown: timedelta = field(default_factory=lambda: timedelta(minutes=5))
-    
+
     # Quality settings
     enable_drift_detection: bool = True
     enable_model_updates: bool = False
     update_frequency: timedelta = field(default_factory=lambda: timedelta(hours=1))
-    
+
     # Monitoring
-    metrics_collection_interval: timedelta = field(default_factory=lambda: timedelta(seconds=30))
-    
+    metrics_collection_interval: timedelta = field(
+        default_factory=lambda: timedelta(seconds=30)
+    )
+
     def __post_init__(self) -> None:
         """Validate streaming configuration."""
         if self.batch_size <= 0:
@@ -299,32 +300,32 @@ class StreamingConfiguration:
             raise ValueError("Alert threshold must be between 0.0 and 1.0")
 
 
-@dataclass  
+@dataclass
 class StreamingSession:
     """Active streaming anomaly detection session."""
-    
+
     # Identity
     session_id: UUID
     configuration: StreamingConfiguration
-    
+
     # Session state
     state: StreamState = StreamState.IDLE
     start_time: datetime | None = None
     end_time: datetime | None = None
-    
+
     # Runtime data
     current_window: StreamingWindow | None = None
     metrics: StreamingMetrics = field(default_factory=StreamingMetrics)
     recent_alerts: list[StreamingAlert] = field(default_factory=list)
-    
+
     # Error handling
     last_error: str | None = None
     error_count: int = 0
     recovery_attempts: int = 0
-    
+
     # Callbacks and handlers
     alert_handlers: list[Callable[[StreamingAlert], None]] = field(default_factory=list)
-    
+
     # Metadata
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
@@ -335,11 +336,11 @@ class StreamingSession:
         """Start the streaming session."""
         if self.state != StreamState.IDLE:
             raise ValueError(f"Cannot start session in {self.state} state")
-        
+
         self.state = StreamState.STARTING
         self.start_time = datetime.utcnow()
         self.updated_at = datetime.utcnow()
-        
+
         # Initialize window if configured
         if self.configuration.window_config:
             self.current_window = StreamingWindow(
@@ -352,7 +353,7 @@ class StreamingSession:
         """Pause the streaming session."""
         if self.state != StreamState.RUNNING:
             raise ValueError(f"Cannot pause session in {self.state} state")
-        
+
         self.state = StreamState.PAUSING
         self.updated_at = datetime.utcnow()
 
@@ -360,7 +361,7 @@ class StreamingSession:
         """Resume the streaming session."""
         if self.state != StreamState.PAUSED:
             raise ValueError(f"Cannot resume session in {self.state} state")
-        
+
         self.state = StreamState.RUNNING
         self.updated_at = datetime.utcnow()
 
@@ -368,7 +369,7 @@ class StreamingSession:
         """Stop the streaming session."""
         if self.state in [StreamState.STOPPED, StreamState.STOPPING]:
             return
-        
+
         self.state = StreamState.STOPPING
         self.end_time = datetime.utcnow()
         self.updated_at = datetime.utcnow()
@@ -395,11 +396,11 @@ class StreamingSession:
     def add_alert(self, alert: StreamingAlert) -> None:
         """Add alert to session."""
         self.recent_alerts.append(alert)
-        
+
         # Keep only recent alerts (last 100)
         if len(self.recent_alerts) > 100:
             self.recent_alerts = self.recent_alerts[-100:]
-        
+
         # Trigger alert handlers
         for handler in self.alert_handlers:
             try:
@@ -412,15 +413,21 @@ class StreamingSession:
         """Get session duration."""
         if not self.start_time:
             return None
-        
+
         end_time = self.end_time or datetime.utcnow()
         return end_time - self.start_time
 
     def is_active(self) -> bool:
         """Check if session is actively processing."""
-        return self.state in [StreamState.RUNNING, StreamState.STARTING, StreamState.PAUSING]
+        return self.state in [
+            StreamState.RUNNING,
+            StreamState.STARTING,
+            StreamState.PAUSING,
+        ]
 
-    def get_recent_alerts(self, severity: AlertSeverity | None = None) -> list[StreamingAlert]:
+    def get_recent_alerts(
+        self, severity: AlertSeverity | None = None
+    ) -> list[StreamingAlert]:
         """Get recent alerts, optionally filtered by severity."""
         if severity is None:
             return self.recent_alerts
@@ -433,7 +440,9 @@ class StreamingSession:
             "is_healthy": self.metrics.is_healthy(),
             "error_count": self.error_count,
             "last_error": self.last_error,
-            "duration": self.get_duration().total_seconds() if self.get_duration() else None,
+            "duration": (
+                self.get_duration().total_seconds() if self.get_duration() else None
+            ),
             "metrics": {
                 "records_processed": self.metrics.records_processed,
                 "anomalies_detected": self.metrics.anomalies_detected,
@@ -446,39 +455,39 @@ class StreamingSession:
                 "total": len(self.recent_alerts),
                 "critical": len(self.get_recent_alerts(AlertSeverity.CRITICAL)),
                 "error": len(self.get_recent_alerts(AlertSeverity.ERROR)),
-            }
+            },
         }
 
 
 @dataclass
 class StreamingQueryFilter:
     """Filter for querying streaming sessions and alerts."""
-    
+
     # Session filters
     session_ids: list[UUID] | None = None
     states: list[StreamState] | None = None
     detector_ids: list[UUID] | None = None
-    
+
     # Time filters
     created_after: datetime | None = None
     created_before: datetime | None = None
     active_during: tuple[datetime, datetime] | None = None
-    
+
     # Performance filters
     min_records_processed: int | None = None
     min_anomalies_detected: int | None = None
     min_anomaly_rate: float | None = None
-    
+
     # Alert filters
     alert_severities: list[AlertSeverity] | None = None
     min_alert_count: int | None = None
-    
+
     # Pagination
     limit: int = 100
     offset: int = 0
     sort_by: str = "created_at"
     sort_order: str = "desc"
-    
+
     def __post_init__(self) -> None:
         """Validate streaming query filter."""
         if self.limit <= 0:
@@ -487,29 +496,31 @@ class StreamingQueryFilter:
             raise ValueError("Offset must be non-negative")
         if self.sort_order not in ["asc", "desc"]:
             raise ValueError("Sort order must be 'asc' or 'desc'")
-        
-        if self.min_anomaly_rate is not None and not (0.0 <= self.min_anomaly_rate <= 1.0):
+
+        if self.min_anomaly_rate is not None and not (
+            0.0 <= self.min_anomaly_rate <= 1.0
+        ):
             raise ValueError("Min anomaly rate must be between 0.0 and 1.0")
 
 
 @dataclass
 class StreamingSummary:
     """Summary of streaming anomaly detection activity."""
-    
+
     total_sessions: int
     active_sessions: int
     sessions_by_state: dict[str, int]
     total_records_processed: int
     total_anomalies_detected: float
     average_anomaly_rate: float
-    
+
     alert_counts_by_severity: dict[str, int]
     top_detectors: list[dict[str, Any]] = field(default_factory=list)
     performance_metrics: dict[str, float] = field(default_factory=dict)
-    
+
     time_range: dict[str, datetime] = field(default_factory=dict)
     summary_generated_at: datetime = field(default_factory=datetime.utcnow)
-    
+
     def __post_init__(self) -> None:
         """Validate streaming summary."""
         if self.total_sessions < 0:

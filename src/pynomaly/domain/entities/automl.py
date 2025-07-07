@@ -11,7 +11,7 @@ from uuid import UUID, uuid4
 
 class OptimizationObjective(str, Enum):
     """AutoML optimization objectives."""
-    
+
     ACCURACY = "accuracy"
     PRECISION = "precision"
     RECALL = "recall"
@@ -25,7 +25,7 @@ class OptimizationObjective(str, Enum):
 
 class SearchStrategy(str, Enum):
     """Hyperparameter search strategies."""
-    
+
     GRID_SEARCH = "grid_search"
     RANDOM_SEARCH = "random_search"
     BAYESIAN_OPTIMIZATION = "bayesian_optimization"
@@ -37,7 +37,7 @@ class SearchStrategy(str, Enum):
 
 class FeatureSelectionMethod(str, Enum):
     """Feature selection methods."""
-    
+
     MUTUAL_INFORMATION = "mutual_information"
     CORRELATION = "correlation"
     VARIANCE_THRESHOLD = "variance_threshold"
@@ -50,7 +50,7 @@ class FeatureSelectionMethod(str, Enum):
 
 class AutoMLStatus(str, Enum):
     """AutoML pipeline execution status."""
-    
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -62,7 +62,7 @@ class AutoMLStatus(str, Enum):
 @dataclass
 class HyperparameterSpace:
     """Hyperparameter search space definition."""
-    
+
     parameter_name: str
     parameter_type: str  # int, float, categorical, boolean
     min_value: Any | None = None
@@ -70,17 +70,17 @@ class HyperparameterSpace:
     step: Any | None = None
     choices: list[Any] | None = None
     default_value: Any | None = None
-    
+
     def __post_init__(self) -> None:
         """Validate hyperparameter space."""
         valid_types = {"int", "float", "categorical", "boolean"}
         if self.parameter_type not in valid_types:
             raise ValueError(f"Parameter type must be one of: {valid_types}")
-        
+
         if self.parameter_type == "categorical":
             if not self.choices:
                 raise ValueError("Categorical parameters must have choices")
-        
+
         if self.parameter_type in ["int", "float"]:
             if self.min_value is None or self.max_value is None:
                 raise ValueError("Numeric parameters must have min and max values")
@@ -99,24 +99,24 @@ class HyperparameterSpace:
 @dataclass
 class AlgorithmConfiguration:
     """Configuration for an anomaly detection algorithm."""
-    
+
     algorithm_name: str
     algorithm_class: str
     hyperparameter_space: list[HyperparameterSpace]
-    
+
     # Algorithm metadata
     supports_incremental: bool = False
     supports_streaming: bool = False
     memory_requirements: str = "medium"  # low, medium, high
     computational_complexity: str = "medium"  # low, medium, high
-    
+
     # Default configuration
     default_parameters: dict[str, Any] = field(default_factory=dict)
-    
+
     # Constraints
     min_samples: int = 100
     max_features: int | None = None
-    
+
     def __post_init__(self) -> None:
         """Validate algorithm configuration."""
         if not self.algorithm_name.strip():
@@ -131,32 +131,38 @@ class AlgorithmConfiguration:
     def validate_parameters(self, parameters: dict[str, Any]) -> bool:
         """Validate if parameters are within defined space."""
         param_spaces = {hp.parameter_name: hp for hp in self.hyperparameter_space}
-        
+
         for param_name, value in parameters.items():
             if param_name not in param_spaces:
                 return False
             if not param_spaces[param_name].validate_value(value):
                 return False
-        
+
         return True
 
 
 @dataclass
 class FeatureEngineeringStep:
     """Feature engineering step configuration."""
-    
+
     step_name: str
     step_type: str  # scaling, encoding, selection, transformation
     method: str
     parameters: dict[str, Any] = field(default_factory=dict)
-    
+
     # Execution order
     order: int = 0
     depends_on: list[str] = field(default_factory=list)
-    
+
     def __post_init__(self) -> None:
         """Validate feature engineering step."""
-        valid_types = {"scaling", "encoding", "selection", "transformation", "imputation"}
+        valid_types = {
+            "scaling",
+            "encoding",
+            "selection",
+            "transformation",
+            "imputation",
+        }
         if self.step_type not in valid_types:
             raise ValueError(f"Step type must be one of: {valid_types}")
 
@@ -164,42 +170,48 @@ class FeatureEngineeringStep:
 @dataclass
 class AutoMLConfiguration:
     """Complete AutoML pipeline configuration."""
-    
+
     # Basic configuration
     pipeline_name: str
     optimization_objective: OptimizationObjective
     search_strategy: SearchStrategy
-    
+
     # Algorithm selection
     candidate_algorithms: list[AlgorithmConfiguration]
-    algorithm_selection_strategy: str = "performance_based"  # performance_based, resource_based, ensemble
-    
+    algorithm_selection_strategy: str = (
+        "performance_based"  # performance_based, resource_based, ensemble
+    )
+
     # Feature engineering
-    feature_engineering_steps: list[FeatureEngineeringStep] = field(default_factory=list)
+    feature_engineering_steps: list[FeatureEngineeringStep] = field(
+        default_factory=list
+    )
     feature_selection_method: FeatureSelectionMethod | None = None
     max_features: int | None = None
-    
+
     # Search configuration
     max_trials: int = 100
     max_time: timedelta = field(default_factory=lambda: timedelta(hours=4))
     early_stopping_patience: int = 10
-    
+
     # Validation strategy
-    validation_strategy: str = "time_series_split"  # time_series_split, stratified_kfold, hold_out
+    validation_strategy: str = (
+        "time_series_split"  # time_series_split, stratified_kfold, hold_out
+    )
     validation_splits: int = 5
     test_size: float = 0.2
-    
+
     # Resource constraints
     max_memory_gb: float = 8.0
     max_cpu_cores: int = 4
     enable_gpu: bool = False
-    
+
     # Advanced options
     enable_ensemble: bool = True
     ensemble_size: int = 5
     enable_model_explanation: bool = True
     enable_drift_detection: bool = True
-    
+
     # Metadata
     created_at: datetime = field(default_factory=datetime.utcnow)
     tags: list[str] = field(default_factory=list)
@@ -232,9 +244,13 @@ class AutoMLConfiguration:
                     # Estimate based on range and step
                     if hp.step:
                         if hp.parameter_type == "int":
-                            algorithm_size *= (hp.max_value - hp.min_value) // hp.step + 1
+                            algorithm_size *= (
+                                hp.max_value - hp.min_value
+                            ) // hp.step + 1
                         else:
-                            algorithm_size *= int((hp.max_value - hp.min_value) / hp.step) + 1
+                            algorithm_size *= (
+                                int((hp.max_value - hp.min_value) / hp.step) + 1
+                            )
                     else:
                         # Assume 10 values for continuous parameters
                         algorithm_size *= 10
@@ -245,14 +261,14 @@ class AutoMLConfiguration:
         """Estimate total runtime based on configuration."""
         # Simple estimation based on trials and algorithms
         base_time_per_trial = timedelta(minutes=5)  # Base assumption
-        
+
         complexity_multiplier = 1.0
         for algorithm in self.candidate_algorithms:
             if algorithm.computational_complexity == "high":
                 complexity_multiplier = max(complexity_multiplier, 2.0)
             elif algorithm.computational_complexity == "low":
                 complexity_multiplier = max(complexity_multiplier, 0.5)
-        
+
         estimated_time = base_time_per_trial * self.max_trials * complexity_multiplier
         return min(estimated_time, self.max_time)
 
@@ -260,36 +276,36 @@ class AutoMLConfiguration:
 @dataclass
 class TrialResult:
     """Result of a single AutoML trial."""
-    
+
     trial_id: UUID
     algorithm_name: str
     hyperparameters: dict[str, Any]
-    
+
     # Performance metrics
     performance_metrics: dict[str, float]
     objective_score: float
-    
+
     # Resource usage
     training_time: timedelta
     memory_usage: float
     cpu_usage: float
-    
+
     # Model metadata
     model_size: int | None = None
     model_complexity: dict[str, Any] = field(default_factory=dict)
-    
+
     # Validation results
     cross_validation_scores: list[float] = field(default_factory=list)
     validation_std: float | None = None
-    
+
     # Additional information
     feature_importance: dict[str, float] = field(default_factory=dict)
     feature_count: int | None = None
-    
+
     # Status
     trial_status: str = "completed"
     error_message: str | None = None
-    
+
     # Timing
     started_at: datetime = field(default_factory=datetime.utcnow)
     completed_at: datetime | None = None
@@ -314,37 +330,37 @@ class TrialResult:
 @dataclass
 class AutoMLPipeline:
     """AutoML pipeline execution context."""
-    
+
     # Identity
     pipeline_id: UUID
     configuration: AutoMLConfiguration
-    
+
     # Execution state
     status: AutoMLStatus = AutoMLStatus.PENDING
     current_trial: int = 0
-    
+
     # Results
     trial_results: list[TrialResult] = field(default_factory=list)
     best_trial: TrialResult | None = None
     best_model_config: dict[str, Any] = field(default_factory=dict)
-    
+
     # Feature engineering results
     selected_features: list[str] = field(default_factory=list)
     feature_engineering_pipeline: list[dict[str, Any]] = field(default_factory=list)
-    
+
     # Ensemble configuration
     ensemble_config: dict[str, Any] = field(default_factory=dict)
     ensemble_weights: dict[str, float] = field(default_factory=dict)
-    
+
     # Execution tracking
     started_at: datetime | None = None
     completed_at: datetime | None = None
     progress_percentage: float = 0.0
-    
+
     # Error handling
     last_error: str | None = None
     failed_trials: int = 0
-    
+
     # Metadata
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
@@ -355,7 +371,7 @@ class AutoMLPipeline:
         """Start the AutoML pipeline execution."""
         if self.status != AutoMLStatus.PENDING:
             raise ValueError(f"Cannot start pipeline in {self.status} status")
-        
+
         self.status = AutoMLStatus.RUNNING
         self.started_at = datetime.utcnow()
         self.updated_at = datetime.utcnow()
@@ -364,10 +380,12 @@ class AutoMLPipeline:
         """Add trial result and update best trial if necessary."""
         self.trial_results.append(result)
         self.current_trial += 1
-        
+
         if result.is_successful():
-            if (self.best_trial is None or 
-                result.objective_score > self.best_trial.objective_score):
+            if (
+                self.best_trial is None
+                or result.objective_score > self.best_trial.objective_score
+            ):
                 self.best_trial = result
                 self.best_model_config = {
                     "algorithm": result.algorithm_name,
@@ -376,9 +394,11 @@ class AutoMLPipeline:
                 }
         else:
             self.failed_trials += 1
-        
+
         # Update progress
-        self.progress_percentage = (self.current_trial / self.configuration.max_trials) * 100
+        self.progress_percentage = (
+            self.current_trial / self.configuration.max_trials
+        ) * 100
         self.updated_at = datetime.utcnow()
 
     def complete_pipeline(self) -> None:
@@ -399,7 +419,7 @@ class AutoMLPipeline:
         """Get pipeline execution duration."""
         if not self.started_at:
             return None
-        
+
         end_time = self.completed_at or datetime.utcnow()
         return end_time - self.started_at
 
@@ -407,14 +427,20 @@ class AutoMLPipeline:
         """Get trial success rate."""
         if not self.trial_results:
             return 0.0
-        
-        successful_trials = sum(1 for result in self.trial_results if result.is_successful())
+
+        successful_trials = sum(
+            1 for result in self.trial_results if result.is_successful()
+        )
         return successful_trials / len(self.trial_results)
 
     def get_top_trials(self, n: int = 5) -> list[TrialResult]:
         """Get top N trials by objective score."""
-        successful_trials = [result for result in self.trial_results if result.is_successful()]
-        return sorted(successful_trials, key=lambda x: x.objective_score, reverse=True)[:n]
+        successful_trials = [
+            result for result in self.trial_results if result.is_successful()
+        ]
+        return sorted(successful_trials, key=lambda x: x.objective_score, reverse=True)[
+            :n
+        ]
 
     def get_pipeline_summary(self) -> dict[str, Any]:
         """Get comprehensive pipeline summary."""
@@ -423,52 +449,58 @@ class AutoMLPipeline:
             "status": self.status.value,
             "progress": self.progress_percentage,
             "trials_completed": len(self.trial_results),
-            "trials_successful": len([r for r in self.trial_results if r.is_successful()]),
+            "trials_successful": len(
+                [r for r in self.trial_results if r.is_successful()]
+            ),
             "trials_failed": self.failed_trials,
             "success_rate": self.get_success_rate(),
             "best_score": self.best_trial.objective_score if self.best_trial else None,
-            "best_algorithm": self.best_trial.algorithm_name if self.best_trial else None,
-            "duration": self.get_duration().total_seconds() if self.get_duration() else None,
+            "best_algorithm": (
+                self.best_trial.algorithm_name if self.best_trial else None
+            ),
+            "duration": (
+                self.get_duration().total_seconds() if self.get_duration() else None
+            ),
             "selected_features_count": len(self.selected_features),
             "configuration": {
                 "objective": self.configuration.optimization_objective.value,
                 "max_trials": self.configuration.max_trials,
                 "algorithms": len(self.configuration.candidate_algorithms),
                 "search_strategy": self.configuration.search_strategy.value,
-            }
+            },
         }
 
 
 @dataclass
 class AutoMLQuery:
     """Query for AutoML pipelines and results."""
-    
+
     # Pipeline filters
     pipeline_ids: list[UUID] | None = None
     statuses: list[AutoMLStatus] | None = None
     objectives: list[OptimizationObjective] | None = None
-    
+
     # Performance filters
     min_objective_score: float | None = None
     min_trials: int | None = None
     min_success_rate: float | None = None
-    
+
     # Time filters
     created_after: datetime | None = None
     created_before: datetime | None = None
     completed_after: datetime | None = None
     completed_before: datetime | None = None
-    
+
     # Configuration filters
     algorithms: list[str] | None = None
     search_strategies: list[SearchStrategy] | None = None
-    
+
     # Pagination
     limit: int = 50
     offset: int = 0
     sort_by: str = "created_at"
     sort_order: str = "desc"
-    
+
     def __post_init__(self) -> None:
         """Validate AutoML query."""
         if self.limit <= 0:
@@ -477,29 +509,30 @@ class AutoMLQuery:
             raise ValueError("Offset must be non-negative")
         if self.sort_order not in ["asc", "desc"]:
             raise ValueError("Sort order must be 'asc' or 'desc'")
-        
-        if (self.min_objective_score is not None and 
-            not (0.0 <= self.min_objective_score <= 1.0)):
+
+        if self.min_objective_score is not None and not (
+            0.0 <= self.min_objective_score <= 1.0
+        ):
             raise ValueError("Min objective score must be between 0.0 and 1.0")
 
 
 @dataclass
 class AutoMLSummary:
     """Summary of AutoML pipeline executions."""
-    
+
     total_pipelines: int
     pipelines_by_status: dict[str, int]
     pipelines_by_objective: dict[str, int]
-    
+
     average_success_rate: float
     average_best_score: float
     total_trials_executed: int
-    
+
     top_algorithms: list[dict[str, Any]] = field(default_factory=list)
     performance_trends: dict[str, list[float]] = field(default_factory=dict)
-    
+
     summary_generated_at: datetime = field(default_factory=datetime.utcnow)
-    
+
     def __post_init__(self) -> None:
         """Validate AutoML summary."""
         if self.total_pipelines < 0:

@@ -22,7 +22,10 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from pynomaly.domain.entities.governance_workflow import ApprovalStatus, ComplianceStatus
+from pynomaly.domain.entities.governance_workflow import (
+    ApprovalStatus,
+    ComplianceStatus,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +98,7 @@ class ComplianceStatus(Enum):
 @dataclass
 class RiskAssessment:
     """Risk assessment for governance items."""
-    
+
     risk_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     risk_level: RiskLevel = RiskLevel.MEDIUM
     risk_score: float = 0.5
@@ -109,7 +112,7 @@ class RiskAssessment:
 @dataclass
 class ChangeRequest:
     """Change request for governance workflows."""
-    
+
     request_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     title: str = ""
     description: str = ""
@@ -125,7 +128,7 @@ class ChangeRequest:
 @dataclass
 class ComplianceMetric:
     """Compliance metric tracking."""
-    
+
     metric_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     metric_name: str = ""
     metric_value: float = 0.0
@@ -139,7 +142,7 @@ class ComplianceMetric:
 @dataclass
 class GovernancePolicy:
     """Governance policy definition."""
-    
+
     policy_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     policy_name: str = ""
     policy_type: PolicyType = PolicyType.COMPLIANCE
@@ -434,16 +437,18 @@ class GovernanceFrameworkService:
     - Change management with approval workflows
     """
 
-    def __init__(self, storage_path: Path, enable_real_time_monitoring: bool = True):
+    def __init__(self, storage_path: Path, retention_years: int = 7, enable_real_time_monitoring: bool = True):
         """Initialize governance framework service.
 
         Args:
             storage_path: Path for storing governance artifacts
+            retention_years: Number of years to retain audit data
             enable_real_time_monitoring: Enable real-time compliance monitoring
         """
         self.storage_path = Path(storage_path)
         self.storage_path.mkdir(parents=True, exist_ok=True)
 
+        self.retention_years = retention_years
         self.enable_real_time_monitoring = enable_real_time_monitoring
 
         # Audit trail storage
@@ -454,6 +459,14 @@ class GovernanceFrameworkService:
         self.policies: dict[str, GovernancePolicy] = {}
         self.policies_file = self.storage_path / "policies.json"
 
+        # Risk assessments storage
+        self.risk_assessments: dict[str, RiskAssessment] = {}
+        self.risk_assessments_file = self.storage_path / "risk_assessments.json"
+
+        # Change requests storage
+        self.change_requests: dict[str, ChangeRequest] = {}
+        self.change_requests_file = self.storage_path / "change_requests.json"
+
         # Data lineage storage
         self.data_lineage: list[DataLineageEntry] = []
         self.lineage_file = self.storage_path / "data_lineage.jsonl"
@@ -461,6 +474,10 @@ class GovernanceFrameworkService:
         # Compliance monitoring
         self.compliance_violations: list[dict[str, Any]] = []
         self.compliance_file = self.storage_path / "compliance_violations.json"
+        
+        # Compliance metrics storage
+        self.compliance_metrics: dict[str, ComplianceMetric] = {}
+        self.compliance_metrics_file = self.storage_path / "compliance_metrics.json"
 
         # Load existing data
         self._load_policies()

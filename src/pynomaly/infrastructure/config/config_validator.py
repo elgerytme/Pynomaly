@@ -11,6 +11,7 @@ from urllib.parse import urlparse
 from pydantic import ValidationError
 
 from pynomaly.domain.exceptions import ConfigurationError
+
 from .settings import Settings
 
 
@@ -54,7 +55,9 @@ class ConfigurationValidator:
             Settings.model_validate(self.settings.model_dump())
             self.info.append("Basic settings validation passed")
         except ValidationError as e:
-            self.errors.extend([f"Settings validation: {error['msg']}" for error in e.errors()])
+            self.errors.extend(
+                [f"Settings validation: {error['msg']}" for error in e.errors()]
+            )
 
     def _validate_paths(self) -> None:
         """Validate filesystem paths."""
@@ -70,14 +73,14 @@ class ConfigurationValidator:
             try:
                 # Check if path exists or can be created
                 path.mkdir(parents=True, exist_ok=True)
-                
+
                 # Check write permissions
                 test_file = path / ".write_test"
                 test_file.touch()
                 test_file.unlink()
-                
+
                 self.info.append(f"Path {name} is accessible: {path}")
-                
+
             except PermissionError:
                 self.errors.append(f"No write permission for {name}: {path}")
             except Exception as e:
@@ -87,36 +90,42 @@ class ConfigurationValidator:
         """Validate database configuration."""
         if not self.settings.database_url:
             if self.settings.use_database_repositories:
-                self.errors.append("Database repositories enabled but no database URL configured")
+                self.errors.append(
+                    "Database repositories enabled but no database URL configured"
+                )
             else:
-                self.info.append("Database not configured (using in-memory repositories)")
+                self.info.append(
+                    "Database not configured (using in-memory repositories)"
+                )
             return
 
         try:
             parsed = urlparse(self.settings.database_url)
-            
+
             # Check URL format
             if not parsed.scheme:
                 self.errors.append("Database URL missing scheme")
                 return
-            
+
             supported_schemes = ["sqlite", "postgresql", "mysql", "oracle"]
             if parsed.scheme not in supported_schemes:
-                self.warnings.append(f"Database scheme '{parsed.scheme}' may not be supported")
+                self.warnings.append(
+                    f"Database scheme '{parsed.scheme}' may not be supported"
+                )
 
             # For SQLite, check file permissions
             if parsed.scheme == "sqlite":
                 if parsed.path and parsed.path != ":memory:":
                     db_path = Path(parsed.path)
                     db_dir = db_path.parent
-                    
+
                     if not db_dir.exists():
                         try:
                             db_dir.mkdir(parents=True, exist_ok=True)
                             self.info.append(f"Created database directory: {db_dir}")
                         except Exception as e:
                             self.errors.append(f"Cannot create database directory: {e}")
-                    
+
                     # Check write permissions
                     if db_dir.exists():
                         try:
@@ -124,20 +133,26 @@ class ConfigurationValidator:
                             test_file.touch()
                             test_file.unlink()
                         except PermissionError:
-                            self.errors.append(f"No write permission for database directory: {db_dir}")
+                            self.errors.append(
+                                f"No write permission for database directory: {db_dir}"
+                            )
 
             # For network databases, test connectivity
             elif parsed.hostname:
                 port = parsed.port or 5432  # Default PostgreSQL port
                 if self._test_network_connectivity(parsed.hostname, port):
-                    self.info.append(f"Database host {parsed.hostname}:{port} is reachable")
+                    self.info.append(
+                        f"Database host {parsed.hostname}:{port} is reachable"
+                    )
                 else:
-                    self.warnings.append(f"Cannot reach database host {parsed.hostname}:{port}")
+                    self.warnings.append(
+                        f"Cannot reach database host {parsed.hostname}:{port}"
+                    )
 
             # Validate pool settings
             if self.settings.database_pool_size <= 0:
                 self.errors.append("Database pool size must be positive")
-            
+
             if self.settings.database_max_overflow < 0:
                 self.errors.append("Database max overflow cannot be negative")
 
@@ -157,16 +172,20 @@ class ConfigurationValidator:
                 parsed = urlparse(self.settings.redis_url)
                 if parsed.scheme != "redis":
                     self.warnings.append("Redis URL should use 'redis://' scheme")
-                
+
                 if parsed.hostname:
                     port = parsed.port or 6379
                     if self._test_network_connectivity(parsed.hostname, port):
-                        self.info.append(f"Redis host {parsed.hostname}:{port} is reachable")
+                        self.info.append(
+                            f"Redis host {parsed.hostname}:{port} is reachable"
+                        )
                     else:
-                        self.warnings.append(f"Cannot reach Redis host {parsed.hostname}:{port}")
-                
+                        self.warnings.append(
+                            f"Cannot reach Redis host {parsed.hostname}:{port}"
+                        )
+
                 self.info.append("Redis cache configuration validated")
-                
+
             except Exception as e:
                 self.errors.append(f"Invalid Redis URL: {e}")
         else:
@@ -192,10 +211,14 @@ class ConfigurationValidator:
         # Check Prometheus port
         if monitoring.prometheus_enabled:
             if not (1 <= monitoring.prometheus_port <= 65535):
-                self.errors.append(f"Invalid Prometheus port: {monitoring.prometheus_port}")
-            
+                self.errors.append(
+                    f"Invalid Prometheus port: {monitoring.prometheus_port}"
+                )
+
             if self._is_port_in_use(monitoring.prometheus_port):
-                self.warnings.append(f"Prometheus port {monitoring.prometheus_port} is already in use")
+                self.warnings.append(
+                    f"Prometheus port {monitoring.prometheus_port} is already in use"
+                )
 
         # Validate OTLP endpoint if tracing enabled
         if monitoring.tracing_enabled and monitoring.otlp_endpoint:
@@ -225,10 +248,10 @@ class ConfigurationValidator:
         if self.settings.app.environment == "production":
             if not self.settings.auth_enabled:
                 self.warnings.append("Authentication disabled in production")
-            
+
             if self.settings.app.debug:
                 self.errors.append("Debug mode should be disabled in production")
-            
+
             if self.settings.docs_enabled:
                 self.warnings.append("API documentation enabled in production")
 
@@ -239,14 +262,14 @@ class ConfigurationValidator:
         # Check API port
         if not (1 <= self.settings.api_port <= 65535):
             self.errors.append(f"Invalid API port: {self.settings.api_port}")
-        
+
         if self._is_port_in_use(self.settings.api_port):
             self.warnings.append(f"API port {self.settings.api_port} is already in use")
 
         # Check worker count
         if self.settings.api_workers <= 0:
             self.errors.append("API worker count must be positive")
-        
+
         if self.settings.api_workers > 16:
             self.warnings.append("High worker count may cause resource issues")
 
@@ -263,14 +286,21 @@ class ConfigurationValidator:
         # Check required environment variables
         required_vars = []
         if env == "production":
-            required_vars.extend([
-                "PYNOMALY_SECRET_KEY",
-                "PYNOMALY_DATABASE_URL",
-            ])
+            required_vars.extend(
+                [
+                    "PYNOMALY_SECRET_KEY",
+                    "PYNOMALY_DATABASE_URL",
+                ]
+            )
 
         missing_vars = [var for var in required_vars if not os.getenv(var)]
         if missing_vars:
-            self.errors.extend([f"Missing required environment variable: {var}" for var in missing_vars])
+            self.errors.extend(
+                [
+                    f"Missing required environment variable: {var}"
+                    for var in missing_vars
+                ]
+            )
 
         # Environment-specific warnings
         if env == "development" and self.settings.auth_enabled:
@@ -281,7 +311,9 @@ class ConfigurationValidator:
 
         self.info.append(f"Environment '{env}' configuration validated")
 
-    def _test_network_connectivity(self, host: str, port: int, timeout: float = 5.0) -> bool:
+    def _test_network_connectivity(
+        self, host: str, port: int, timeout: float = 5.0
+    ) -> bool:
         """Test network connectivity to host:port."""
         try:
             sock = socket.create_connection((host, port), timeout)

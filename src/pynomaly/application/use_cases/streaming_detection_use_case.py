@@ -27,16 +27,19 @@ logger = logging.getLogger(__name__)
 
 class BackpressureError(Exception):
     """Exception raised when backpressure conditions are detected."""
+
     pass
 
 
 class DetectorNotFoundError(Exception):
     """Exception raised when a detector is not found."""
+
     pass
 
 
 class StreamProcessingError(Exception):
     """Exception raised when stream processing fails."""
+
     pass
 
 
@@ -174,7 +177,7 @@ class StreamingMetrics:
     average_processing_time_ms: float = 0.0
     window_start: Optional[float] = None
     window_end: Optional[float] = None
-    
+
     def __post_init__(self):
         """Initialize computed fields."""
         if self.window_start is None:
@@ -474,57 +477,61 @@ class StreamingDetectionUseCase:
 
     async def process_batch(self, request) -> Any:
         """Process a batch of streaming detection requests.
-        
+
         Args:
             request: StreamDetectionRequestDTO with batch processing request
-            
+
         Returns:
             StreamDetectionResponseDTO with batch processing results
         """
         try:
             # Import here to avoid circular imports
-            from pynomaly.application.dto.streaming_dto import StreamDetectionResponseDTO
-            
+            from pynomaly.application.dto.streaming_dto import (
+                StreamDetectionResponseDTO,
+            )
+
             # Get detector
             detector = await self.detector_repository.get_by_id(request.detector_id)
             if not detector:
                 raise DetectorNotFoundError(f"Detector {request.detector_id} not found")
-            
+
             # Process the batch
             results = []
             start_time = time.time()
-            
+
             for data_point in request.batch.data_points:
                 # Convert data point to array format
                 if isinstance(data_point.features, dict):
                     features = np.array([list(data_point.features.values())])
                 else:
                     features = np.array([data_point.features])
-                
+
                 # Get adapter and make prediction
                 adapter = self.adapter_registry.get_adapter(detector.algorithm.lower())
                 predictions, scores = adapter.predict(detector, features)
-                
+
                 result = {
-                    'timestamp': data_point.timestamp,
-                    'anomaly_score': float(scores[0]),
-                    'prediction': int(predictions[0]),
-                    'features': data_point.features,
-                    'metadata': data_point.metadata
+                    "timestamp": data_point.timestamp,
+                    "anomaly_score": float(scores[0]),
+                    "prediction": int(predictions[0]),
+                    "features": data_point.features,
+                    "metadata": data_point.metadata,
                 }
                 results.append(result)
-            
-            processing_time = (time.time() - start_time) * 1000  # Convert to milliseconds
-            
+
+            processing_time = (
+                time.time() - start_time
+            ) * 1000  # Convert to milliseconds
+
             return StreamDetectionResponseDTO(
                 success=True,
                 request_id=request.request_id,
                 detector_id=request.detector_id,
                 results=results,
                 processing_time_ms=processing_time,
-                batch_id=request.batch.batch_id
+                batch_id=request.batch.batch_id,
             )
-            
+
         except Exception as e:
             logger.error(f"Error processing batch: {str(e)}")
             return StreamDetectionResponseDTO(
@@ -533,17 +540,19 @@ class StreamingDetectionUseCase:
                 detector_id=request.detector_id,
                 results=[],
                 processing_time_ms=0.0,
-                error_message=str(e)
+                error_message=str(e),
             )
 
-    async def process_single_point(self, data_point, detector_id: str, configuration) -> Any:
+    async def process_single_point(
+        self, data_point, detector_id: str, configuration
+    ) -> Any:
         """Process a single data point for anomaly detection.
-        
+
         Args:
             data_point: Single data point to process
             detector_id: ID of detector to use
             configuration: Stream configuration
-            
+
         Returns:
             Processing result for the single point
         """
@@ -552,265 +561,277 @@ class StreamingDetectionUseCase:
             detector = await self.detector_repository.get_by_id(detector_id)
             if not detector:
                 raise DetectorNotFoundError(f"Detector {detector_id} not found")
-            
+
             # Convert data point to array format
             if isinstance(data_point.features, dict):
                 features = np.array([list(data_point.features.values())])
             else:
                 features = np.array([data_point.features])
-            
+
             # Get adapter and make prediction
             adapter = self.adapter_registry.get_adapter(detector.algorithm.lower())
             predictions, scores = adapter.predict(detector, features)
-            
+
             # Create result object
-            result = type('Result', (), {
-                'anomaly_score': float(scores[0]),
-                'prediction': int(predictions[0]),
-                'timestamp': data_point.timestamp,
-                'features': data_point.features,
-                'metadata': getattr(data_point, 'metadata', {})
-            })()
-            
+            result = type(
+                "Result",
+                (),
+                {
+                    "anomaly_score": float(scores[0]),
+                    "prediction": int(predictions[0]),
+                    "timestamp": data_point.timestamp,
+                    "features": data_point.features,
+                    "metadata": getattr(data_point, "metadata", {}),
+                },
+            )()
+
             return result
-            
+
         except Exception as e:
             logger.error(f"Error processing single point: {str(e)}")
             raise StreamProcessingError(f"Failed to process single point: {str(e)}")
 
-    async def _aggregate_into_batches(self, data_points: List[Any], configuration) -> AsyncIterator[Any]:
+    async def _aggregate_into_batches(
+        self, data_points: List[Any], configuration
+    ) -> AsyncIterator[Any]:
         """Aggregate data points into batches.
-        
+
         Args:
             data_points: List of data points to aggregate
             configuration: Stream configuration
-            
+
         Yields:
             Batches of data points
         """
         try:
             # Import here to avoid circular imports
             from pynomaly.application.dto.streaming_dto import StreamDataBatchDTO
-            
+
             batch_size = configuration.batch_size
             batch_count = 0
-            
+
             for i in range(0, len(data_points), batch_size):
-                batch_data = data_points[i:i + batch_size]
-                
+                batch_data = data_points[i : i + batch_size]
+
                 # Create batch
                 batch = StreamDataBatchDTO(
                     batch_id=f"batch_{batch_count}_{int(time.time())}",
                     data_points=batch_data,
                     window_start=batch_data[0].timestamp,
-                    window_end=batch_data[-1].timestamp
+                    window_end=batch_data[-1].timestamp,
                 )
-                
+
                 batch_count += 1
                 yield batch
-                
+
         except Exception as e:
             logger.error(f"Error aggregating batches: {str(e)}")
             return
 
     async def create_stream(self, configuration) -> Any:
         """Create a new stream with the given configuration.
-        
+
         Args:
             configuration: Stream configuration
-            
+
         Returns:
             Stream status result
         """
         try:
             # Import here to avoid circular imports
             from pynomaly.application.dto.streaming_dto import StreamStatusDTO
-            
+
             stream_id = configuration.stream_id
-            
+
             # Initialize stream state
             stream_state = {
                 "configuration": configuration,
                 "status": "created",
                 "created_at": time.time(),
                 "is_healthy": True,
-                "buffer": deque(maxlen=getattr(configuration, 'max_buffer_size', 1000)),
-                "result_buffer": deque(maxlen=getattr(configuration, 'result_buffer_size', 1000)),
+                "buffer": deque(maxlen=getattr(configuration, "max_buffer_size", 1000)),
+                "result_buffer": deque(
+                    maxlen=getattr(configuration, "result_buffer_size", 1000)
+                ),
             }
-            
+
             self._active_streams[stream_id] = stream_state
             self._stream_metrics[stream_id] = StreamingMetrics(stream_id=stream_id)
-            
+
             return StreamStatusDTO(
                 stream_id=stream_id,
                 status="created",
                 is_healthy=True,
                 uptime_seconds=0,
-                created_at=time.time()
+                created_at=time.time(),
             )
-            
+
         except Exception as e:
             logger.error(f"Error creating stream: {str(e)}")
             raise StreamProcessingError(f"Failed to create stream: {str(e)}")
 
     async def start_stream(self, stream_id: str) -> Any:
         """Start a stream by ID.
-        
+
         Args:
             stream_id: ID of stream to start
-            
+
         Returns:
             Stream status result
         """
         try:
             # Import here to avoid circular imports
             from pynomaly.application.dto.streaming_dto import StreamStatusDTO
-            
+
             if stream_id not in self._active_streams:
                 raise StreamProcessingError(f"Stream {stream_id} not found")
-            
+
             stream_state = self._active_streams[stream_id]
             stream_state["status"] = "running"
             stream_state["started_at"] = time.time()
-            
+
             return StreamStatusDTO(
                 stream_id=stream_id,
                 status="running",
                 is_healthy=True,
                 uptime_seconds=0,
-                created_at=stream_state.get("created_at", time.time())
+                created_at=stream_state.get("created_at", time.time()),
             )
-            
+
         except Exception as e:
             logger.error(f"Error starting stream: {str(e)}")
             raise StreamProcessingError(f"Failed to start stream: {str(e)}")
 
     async def stop_stream(self, stream_id: str) -> Any:
         """Stop a stream by ID.
-        
+
         Args:
             stream_id: ID of stream to stop
-            
+
         Returns:
             Stream status result
         """
         try:
             # Import here to avoid circular imports
             from pynomaly.application.dto.streaming_dto import StreamStatusDTO
-            
+
             if stream_id not in self._active_streams:
                 raise StreamProcessingError(f"Stream {stream_id} not found")
-            
+
             stream_state = self._active_streams[stream_id]
             stream_state["status"] = "stopped"
             stream_state["stopped_at"] = time.time()
-            
+
             return StreamStatusDTO(
                 stream_id=stream_id,
                 status="stopped",
                 is_healthy=False,
-                uptime_seconds=stream_state.get("stopped_at", time.time()) - stream_state.get("started_at", time.time()),
-                created_at=stream_state.get("created_at", time.time())
+                uptime_seconds=stream_state.get("stopped_at", time.time())
+                - stream_state.get("started_at", time.time()),
+                created_at=stream_state.get("created_at", time.time()),
             )
-            
+
         except Exception as e:
             logger.error(f"Error stopping stream: {str(e)}")
             raise StreamProcessingError(f"Failed to stop stream: {str(e)}")
 
     async def get_stream_status(self, stream_id: str) -> Any:
         """Get status of a stream by ID.
-        
+
         Args:
             stream_id: ID of stream to get status for
-            
+
         Returns:
             Stream status result
         """
         try:
             # Import here to avoid circular imports
             from pynomaly.application.dto.streaming_dto import StreamStatusDTO
-            
+
             if stream_id not in self._active_streams:
                 raise StreamProcessingError(f"Stream {stream_id} not found")
-            
+
             stream_state = self._active_streams[stream_id]
             current_time = time.time()
-            
+
             # Calculate uptime
             uptime = 0
             if stream_state.get("started_at"):
                 uptime = current_time - stream_state["started_at"]
-            
+
             return StreamStatusDTO(
                 stream_id=stream_id,
                 status=stream_state.get("status", "unknown"),
                 is_healthy=stream_state.get("is_healthy", True),
                 uptime_seconds=uptime,
-                created_at=stream_state.get("created_at", current_time)
+                created_at=stream_state.get("created_at", current_time),
             )
-            
+
         except Exception as e:
             logger.error(f"Error getting stream status: {str(e)}")
             raise StreamProcessingError(f"Stream not found: {stream_id}")
 
     async def update_stream_configuration(self, stream_id: str, configuration) -> bool:
         """Update configuration of a stream.
-        
+
         Args:
             stream_id: ID of stream to update
             configuration: New configuration
-            
+
         Returns:
             True if successful, False otherwise
         """
         try:
             if stream_id not in self._active_streams:
                 return False
-            
+
             stream_state = self._active_streams[stream_id]
             stream_state["configuration"] = configuration
-            
+
             return True
-            
+
         except Exception as e:
             logger.error(f"Error updating stream configuration: {str(e)}")
             return False
 
     async def _check_backpressure(self, configuration) -> None:
         """Check for backpressure conditions.
-        
+
         Args:
             configuration: Stream configuration
-            
+
         Raises:
             BackpressureError: If backpressure conditions are detected
         """
         # This is a simplified check - in practice would be more sophisticated
-        if hasattr(configuration, 'backpressure') and configuration.backpressure.enabled:
+        if (
+            hasattr(configuration, "backpressure")
+            and configuration.backpressure.enabled
+        ):
             # Simulate backpressure check
-            if hasattr(self, '_simulate_backpressure') and self._simulate_backpressure:
+            if hasattr(self, "_simulate_backpressure") and self._simulate_backpressure:
                 raise BackpressureError("Backpressure detected")
 
     async def _handle_backpressure(self, queue: List[Any], configuration) -> List[Any]:
         """Handle backpressure by applying the configured strategy.
-        
+
         Args:
             queue: Current queue of items
             configuration: Stream configuration
-            
+
         Returns:
             Modified queue after applying backpressure strategy
         """
         try:
-            if not hasattr(configuration, 'backpressure'):
+            if not hasattr(configuration, "backpressure"):
                 return queue
-            
+
             backpressure_config = configuration.backpressure
             max_size = backpressure_config.max_queue_size
-            
+
             if len(queue) <= max_size:
                 return queue
-            
+
             # Apply drop policy
             if backpressure_config.drop_policy == "oldest":
                 # Keep the newest items
@@ -821,14 +842,16 @@ class StreamingDetectionUseCase:
             else:
                 # Default to keeping newest
                 return queue[-max_size:]
-                
+
         except Exception as e:
             logger.error(f"Error handling backpressure: {str(e)}")
             return queue
 
-    async def _update_processing_metrics(self, stream_id: str, processing_time_ms: float, success: bool) -> None:
+    async def _update_processing_metrics(
+        self, stream_id: str, processing_time_ms: float, success: bool
+    ) -> None:
         """Update processing metrics for a stream.
-        
+
         Args:
             stream_id: ID of stream to update metrics for
             processing_time_ms: Processing time in milliseconds
@@ -837,37 +860,39 @@ class StreamingDetectionUseCase:
         try:
             if stream_id not in self._stream_metrics:
                 self._stream_metrics[stream_id] = StreamingMetrics(stream_id=stream_id)
-            
+
             metrics = self._stream_metrics[stream_id]
             metrics.samples_processed += 1
             metrics.messages_processed += 1
-            
+
             if not success:
                 metrics.samples_dropped += 1
                 metrics.messages_failed += 1
-            
+
             # Update success rate
             total_samples = metrics.samples_processed + metrics.samples_dropped
             if total_samples > 0:
-                if hasattr(metrics, 'success_rate'):
-                    metrics.success_rate = (metrics.samples_processed - metrics.samples_dropped) / total_samples
+                if hasattr(metrics, "success_rate"):
+                    metrics.success_rate = (
+                        metrics.samples_processed - metrics.samples_dropped
+                    ) / total_samples
                 else:
                     metrics.success_rate = 1.0
-            
+
             # Update average processing time
-            if hasattr(metrics, 'average_processing_time_ms'):
+            if hasattr(metrics, "average_processing_time_ms"):
                 metrics.average_processing_time_ms = (
                     metrics.average_processing_time_ms * 0.9 + processing_time_ms * 0.1
                 )
             else:
                 metrics.average_processing_time_ms = processing_time_ms
-                
+
         except Exception as e:
             logger.error(f"Error updating processing metrics: {str(e)}")
 
     async def _save_checkpoint(self, stream_id: str) -> None:
         """Save checkpoint for a stream.
-        
+
         Args:
             stream_id: ID of stream to save checkpoint for
         """
@@ -875,16 +900,16 @@ class StreamingDetectionUseCase:
             # This would typically save to persistent storage
             # For now, just log the checkpoint
             logger.info(f"Saving checkpoint for stream {stream_id}")
-            
+
         except Exception as e:
             logger.error(f"Error saving checkpoint: {str(e)}")
 
     async def _load_checkpoint(self, stream_id: str) -> Optional[Dict[str, Any]]:
         """Load checkpoint for a stream.
-        
+
         Args:
             stream_id: ID of stream to load checkpoint for
-            
+
         Returns:
             Checkpoint data if available, None otherwise
         """
@@ -893,14 +918,14 @@ class StreamingDetectionUseCase:
             # For now, just return None
             logger.info(f"Loading checkpoint for stream {stream_id}")
             return None
-            
+
         except Exception as e:
             logger.error(f"Error loading checkpoint: {str(e)}")
             return None
 
     async def _cleanup_old_checkpoints(self, stream_id: str) -> None:
         """Clean up old checkpoints for a stream.
-        
+
         Args:
             stream_id: ID of stream to cleanup checkpoints for
         """
@@ -908,7 +933,7 @@ class StreamingDetectionUseCase:
             # This would typically clean up old checkpoint files
             # For now, just log the cleanup
             logger.info(f"Cleaning up old checkpoints for stream {stream_id}")
-            
+
         except Exception as e:
             logger.error(f"Error cleaning up checkpoints: {str(e)}")
 

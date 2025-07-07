@@ -1,6 +1,5 @@
 """Monitoring and observability API endpoints."""
 
-
 from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response

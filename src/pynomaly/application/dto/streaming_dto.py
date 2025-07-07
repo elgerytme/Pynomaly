@@ -41,6 +41,33 @@ class StreamDataPointDTO(BaseModel):
             raise ValueError("Anomaly score must be between 0.0 and 1.0")
         return v
 
+    def to_dict(self) -> dict:
+        """Convert to dictionary with proper timestamp serialization."""
+        return {
+            "timestamp": self.timestamp.isoformat() if self.timestamp else None,
+            "features": self.features,
+            "metadata": self.metadata,
+            "anomaly_score": self.anomaly_score,
+            "is_anomaly": self.is_anomaly,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "StreamDataPointDTO":
+        """Create from dictionary with proper timestamp deserialization."""
+        # Handle timestamp deserialization
+        timestamp = None
+        if data.get("timestamp"):
+            from datetime import datetime
+            timestamp = datetime.fromisoformat(data["timestamp"].replace('Z', '+00:00'))
+        
+        return cls(
+            timestamp=timestamp,
+            features=data["features"],
+            metadata=data.get("metadata", {}),
+            anomaly_score=data.get("anomaly_score"),
+            is_anomaly=data.get("is_anomaly"),
+        )
+
 
 class StreamDataBatchDTO(BaseModel):
     """DTO for batch of stream data points."""
@@ -50,14 +77,50 @@ class StreamDataBatchDTO(BaseModel):
         description="List of data points in the batch"
     )
     timestamp: Optional[datetime] = Field(default=None, description="Batch timestamp")
+    window_start: Optional[datetime] = Field(default=None, description="Window start time")
+    window_end: Optional[datetime] = Field(default=None, description="Window end time")
 
     @field_validator("data_points")
     @classmethod
     def validate_data_points(cls, v):
         """Validate data points."""
         if not v:
-            raise ValueError("Data points cannot be empty")
+            raise ValueError("Batch cannot be empty")
         return v
+
+    @property
+    def batch_size(self) -> int:
+        """Get the number of data points in the batch."""
+        return len(self.data_points)
+
+    def to_pandas(self):
+        """Convert to pandas DataFrame."""
+        try:
+            import pandas as pd
+        except ImportError:
+            raise ImportError("pandas is required for to_pandas() method")
+        
+        if not self.data_points:
+            return pd.DataFrame()
+        
+        # Convert data points to records
+        records = []
+        for point in self.data_points:
+            record = {
+                "timestamp": point.timestamp,
+                "anomaly_score": point.anomaly_score,
+                "is_anomaly": point.is_anomaly,
+            }
+            # Add feature columns
+            if point.features:
+                record.update(point.features)
+            # Add metadata columns with prefix
+            if point.metadata:
+                for k, v in point.metadata.items():
+                    record[f"meta_{k}"] = v
+            records.append(record)
+        
+        return pd.DataFrame(records)
 
 
 class StreamDetectionRequestDTO(BaseModel):

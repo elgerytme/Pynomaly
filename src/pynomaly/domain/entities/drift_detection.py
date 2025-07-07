@@ -526,7 +526,7 @@ class ModelMonitoringConfig:
 @dataclass
 class DriftAlert:
     """Alert for drift detection events."""
-    
+
     alert_id: UUID = field(default_factory=uuid4)
     drift_type: str = "data_drift"
     severity: str = "medium"

@@ -17,11 +17,11 @@ class RepositoryFactory:
         base_path: str = "data",
     ) -> RepositoryService:
         """Create repository service with specified storage backend.
-        
+
         Args:
             storage_type: Type of storage backend ("memory" or "filesystem")
             base_path: Base path for file storage (only used for filesystem)
-            
+
         Returns:
             Configured repository service
         """
@@ -35,29 +35,28 @@ class RepositoryFactory:
     @staticmethod
     def create_from_environment() -> RepositoryService:
         """Create repository service based on environment variables.
-        
+
         Environment variables:
         - PYNOMALY_STORAGE_TYPE: "memory" or "filesystem" (default: "memory")
         - PYNOMALY_DATA_PATH: Base path for data storage (default: "data")
-        
+
         Returns:
             Configured repository service
         """
         storage_type = os.getenv("PYNOMALY_STORAGE_TYPE", "memory")
         base_path = os.getenv("PYNOMALY_DATA_PATH", "data")
-        
+
         if storage_type not in ["memory", "filesystem"]:
             storage_type = "memory"  # Fallback to safe default
-        
+
         return RepositoryFactory.create_repository_service(
-            storage_type=storage_type,  # type: ignore
-            base_path=base_path
+            storage_type=storage_type, base_path=base_path  # type: ignore
         )
 
     @staticmethod
     def create_test_repositories() -> RepositoryService:
         """Create repository service optimized for testing.
-        
+
         Returns:
             In-memory repository service for testing
         """

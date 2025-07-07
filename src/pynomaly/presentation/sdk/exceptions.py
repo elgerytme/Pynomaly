@@ -36,7 +36,9 @@ class AuthenticationError(PynomaliSDKError):
 class AuthorizationError(PynomaliSDKError):
     """Raised when the user lacks permissions for the requested operation."""
 
-    def __init__(self, message: str = "Insufficient permissions", **kwargs: Any) -> None:
+    def __init__(
+        self, message: str = "Insufficient permissions", **kwargs: Any
+    ) -> None:
         super().__init__(message, status_code=403, **kwargs)
 
 
@@ -66,7 +68,9 @@ class ResourceNotFoundError(PynomaliSDKError):
 class ConflictError(PynomaliSDKError):
     """Raised when a request conflicts with the current state."""
 
-    def __init__(self, message: str = "Request conflicts with current state", **kwargs: Any) -> None:
+    def __init__(
+        self, message: str = "Request conflicts with current state", **kwargs: Any
+    ) -> None:
         super().__init__(message, status_code=409, **kwargs)
 
 
@@ -93,7 +97,9 @@ class ServerError(PynomaliSDKError):
 class ServiceUnavailableError(PynomaliSDKError):
     """Raised when the service is temporarily unavailable."""
 
-    def __init__(self, message: str = "Service temporarily unavailable", **kwargs: Any) -> None:
+    def __init__(
+        self, message: str = "Service temporarily unavailable", **kwargs: Any
+    ) -> None:
         super().__init__(message, status_code=503, **kwargs)
 
 
@@ -114,7 +120,9 @@ class NetworkError(PynomaliSDKError):
 class ConfigurationError(PynomaliSDKError):
     """Raised when SDK configuration is invalid."""
 
-    def __init__(self, message: str = "Invalid SDK configuration", **kwargs: Any) -> None:
+    def __init__(
+        self, message: str = "Invalid SDK configuration", **kwargs: Any
+    ) -> None:
         super().__init__(message, **kwargs)
 
 

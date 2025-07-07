@@ -4,6 +4,7 @@ import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
+from typing import List, Optional
 
 import typer
 from rich.console import Console
@@ -11,7 +12,6 @@ from rich.layout import Layout
 from rich.panel import Panel
 from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn
 from rich.table import Table
-from typing import List, Optional
 
 from pynomaly.application.services.performance_testing_service import (
     PerformanceTestingService,
@@ -23,17 +23,23 @@ console = Console()
 
 
 # Create Typer app for performance commands
-performance_app = typer.Typer(name="performance", help="Performance testing and benchmarking commands")
+performance_app = typer.Typer(
+    name="performance", help="Performance testing and benchmarking commands"
+)
 
 
 @performance_app.command()
 def benchmark(
     suite: str = typer.Option("quick", help="Benchmark suite to run"),
-    algorithms: Optional[List[str]] = typer.Option(None, help="Specific algorithms to benchmark"),
+    algorithms: Optional[List[str]] = typer.Option(
+        None, help="Specific algorithms to benchmark"
+    ),
     output_dir: Optional[str] = typer.Option(None, help="Output directory for results"),
     iterations: int = typer.Option(3, help="Number of benchmark iterations"),
     timeout: int = typer.Option(300, help="Timeout per test in seconds"),
-    export_format: List[str] = typer.Option(["json"], help="Export formats for results"),
+    export_format: List[str] = typer.Option(
+        ["json"], help="Export formats for results"
+    ),
 ):
     """Run comprehensive algorithm benchmarking suite."""
 
@@ -159,7 +165,9 @@ def scalability(
     min_features: int = typer.Option(10, help="Minimum feature count"),
     max_features: int = typer.Option(200, help="Maximum feature count"),
     steps: int = typer.Option(10, help="Number of test points"),
-    output_file: Optional[str] = typer.Option(None, help="Output file for scalability analysis"),
+    output_file: Optional[str] = typer.Option(
+        None, help="Output file for scalability analysis"
+    ),
 ):
     """Run detailed scalability analysis for an algorithm."""
 
@@ -237,7 +245,9 @@ def stress_test(
     memory_pressure: int = typer.Option(500, help="Memory pressure in MB"),
     cpu_stress: int = typer.Option(1000, help="CPU intensive operations"),
     endurance_hours: int = typer.Option(0, help="Endurance test duration in hours"),
-    output_file: Optional[str] = typer.Option(None, help="Output file for stress test results"),
+    output_file: Optional[str] = typer.Option(
+        None, help="Output file for stress test results"
+    ),
 ):
     """Run comprehensive stress testing for an algorithm."""
 
@@ -313,9 +323,13 @@ def stress_test(
 @performance_app.command()
 def compare(
     algorithms: Optional[List[str]] = typer.Option(None, help="Algorithms to compare"),
-    datasets: Optional[List[str]] = typer.Option(None, help="Datasets to use for comparison"),
+    datasets: Optional[List[str]] = typer.Option(
+        None, help="Datasets to use for comparison"
+    ),
     metrics: Optional[List[str]] = typer.Option(None, help="Metrics to compare"),
-    output_file: Optional[str] = typer.Option(None, help="Output file for comparison results"),
+    output_file: Optional[str] = typer.Option(
+        None, help="Output file for comparison results"
+    ),
 ):
     """Compare multiple algorithms across different datasets and metrics."""
 
@@ -417,7 +431,9 @@ def compare(
 
 @performance_app.command()
 def report(
-    results_dir: Optional[str] = typer.Option(None, help="Directory containing benchmark results"),
+    results_dir: Optional[str] = typer.Option(
+        None, help="Directory containing benchmark results"
+    ),
     report_format: str = typer.Option("console", help="Report format"),
     output_file: Optional[str] = typer.Option(None, help="Output file for report"),
 ):

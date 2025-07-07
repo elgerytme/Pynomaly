@@ -88,9 +88,13 @@ class DataQualityEventData:
         """Validate data quality event data."""
         if not (0.0 <= self.severity_score <= 1.0):
             raise ValueError("Severity score must be between 0.0 and 1.0")
-        if self.missing_percentage is not None and not (0.0 <= self.missing_percentage <= 100.0):
+        if self.missing_percentage is not None and not (
+            0.0 <= self.missing_percentage <= 100.0
+        ):
             raise ValueError("Missing percentage must be between 0.0 and 100.0")
-        if self.outlier_percentage is not None and not (0.0 <= self.outlier_percentage <= 100.0):
+        if self.outlier_percentage is not None and not (
+            0.0 <= self.outlier_percentage <= 100.0
+        ):
             raise ValueError("Outlier percentage must be between 0.0 and 100.0")
 
 
@@ -253,7 +257,6 @@ class AnomalyEvent:
             self.tags.remove(tag)
 
 
-
 @dataclass
 class EventFilter:
     """Filter criteria for querying events."""
@@ -304,9 +307,13 @@ class EventFilter:
             raise ValueError("Offset must be non-negative")
         if self.sort_order not in ["asc", "desc"]:
             raise ValueError("Sort order must be 'asc' or 'desc'")
-        if self.min_anomaly_score is not None and not (0.0 <= self.min_anomaly_score <= 1.0):
+        if self.min_anomaly_score is not None and not (
+            0.0 <= self.min_anomaly_score <= 1.0
+        ):
             raise ValueError("Min anomaly score must be between 0.0 and 1.0")
-        if self.max_anomaly_score is not None and not (0.0 <= self.max_anomaly_score <= 1.0):
+        if self.max_anomaly_score is not None and not (
+            0.0 <= self.max_anomaly_score <= 1.0
+        ):
             raise ValueError("Max anomaly score must be between 0.0 and 1.0")
 
 

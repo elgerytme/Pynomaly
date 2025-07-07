@@ -30,7 +30,7 @@ class ErrorHandler:
         enable_reporting: bool = True,
     ) -> None:
         """Initialize error handler.
-        
+
         Args:
             logger: Logger instance for error logging
             enable_recovery: Whether to attempt error recovery
@@ -48,19 +48,19 @@ class ErrorHandler:
         operation: str | None = None,
     ) -> dict[str, Any]:
         """Handle an error with logging, reporting, and response formatting.
-        
+
         Args:
             error: The exception to handle
             context: Additional context information
             user_id: ID of the user who encountered the error
             operation: Operation that was being performed
-            
+
         Returns:
             Formatted error response
         """
         # Generate error ID for tracking
         error_id = str(uuid4())
-        
+
         # Create error context
         error_context = {
             "error_id": error_id,
@@ -69,29 +69,31 @@ class ErrorHandler:
             "user_id": user_id,
             **(context or {}),
         }
-        
+
         # Log the error
         self._log_error(error, error_context)
-        
+
         # Report the error if enabled
         if self.enable_reporting:
             self._report_error(error, error_context)
-        
+
         # Format response
         return self._format_error_response(error, error_context)
 
     def _log_error(self, error: Exception, context: dict[str, Any]) -> None:
         """Log the error with appropriate level and context."""
         error_level = self._get_error_log_level(error)
-        
-        log_message = f"Error {context['error_id']}: {type(error).__name__}: {str(error)}"
-        
+
+        log_message = (
+            f"Error {context['error_id']}: {type(error).__name__}: {str(error)}"
+        )
+
         # Add context to log message
         if context.get("operation"):
             log_message += f" | Operation: {context['operation']}"
         if context.get("user_id"):
             log_message += f" | User: {context['user_id']}"
-        
+
         # Log with stack trace for severe errors
         if error_level >= logging.ERROR:
             self.logger.log(
@@ -157,12 +159,12 @@ class ErrorHandler:
             "type": type(error).__name__,
             "message": str(error),
         }
-        
+
         # Add details for domain errors
         if isinstance(error, PynamolyError):
             if error.details:
                 response["details"] = error.details
-        
+
         # Add specific handling for different error types
         if isinstance(error, ValidationError):
             response["error_code"] = "VALIDATION_ERROR"
@@ -182,16 +184,16 @@ class ErrorHandler:
         else:
             response["error_code"] = "UNKNOWN_ERROR"
             response["category"] = "server_error"
-        
+
         # Add recovery suggestions
         response["recovery_suggestions"] = self._get_recovery_suggestions(error)
-        
+
         return response
 
     def _get_recovery_suggestions(self, error: Exception) -> list[str]:
         """Get recovery suggestions for the error."""
         suggestions = []
-        
+
         if isinstance(error, ValidationError):
             suggestions.append("Check input parameters and try again")
             suggestions.append("Refer to API documentation for valid parameters")
@@ -211,7 +213,7 @@ class ErrorHandler:
             suggestions.append("Contact support if problem persists")
         else:
             suggestions.append("Try again or contact support")
-        
+
         return suggestions
 
     def handle_validation_error(
@@ -233,7 +235,7 @@ class ErrorHandler:
     ) -> dict[str, Any]:
         """Handle resource not found error."""
         from pynomaly.domain.exceptions import EntityNotFoundError
-        
+
         error = EntityNotFoundError(
             f"{resource_type} with ID '{resource_id}' not found",
             entity_type=resource_type,

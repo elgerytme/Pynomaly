@@ -1,6 +1,5 @@
 """AutoML API endpoints."""
 
-
 import logging
 import time
 from uuid import UUID

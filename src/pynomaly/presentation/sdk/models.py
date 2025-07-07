@@ -153,7 +153,11 @@ class Dataset(BaseSDKModel):
     @field_validator("feature_names")
     @classmethod
     def validate_feature_names(cls, v, info):
-        if hasattr(info, 'data') and "num_features" in info.data and len(v) != info.data["num_features"]:
+        if (
+            hasattr(info, "data")
+            and "num_features" in info.data
+            and len(v) != info.data["num_features"]
+        ):
             raise ValueError("Number of feature names must match num_features")
         return v
 
@@ -252,7 +256,7 @@ class DetectionResult(BaseSDKModel):
             raise ValueError("Predictions must be 0 or 1")
         return v
 
-    @model_validator(mode='before')
+    @model_validator(mode="before")
     @classmethod
     def validate_consistency(cls, values):
         predictions = values.get("predictions", [])

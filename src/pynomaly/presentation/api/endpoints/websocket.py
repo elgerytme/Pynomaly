@@ -1,6 +1,5 @@
 """WebSocket endpoints for real-time updates."""
 
-
 import json
 import logging
 

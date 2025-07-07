@@ -13,32 +13,32 @@ from .health_service import HealthService, SystemMetrics
 @dataclass
 class DashboardMetrics:
     """Combined metrics for dashboard display."""
-    
+
     # System overview
     system_health: str
     uptime_seconds: float
     cpu_percent: float
     memory_percent: float
     disk_percent: float
-    
+
     # Application metrics
     total_detectors: int
     total_datasets: int
     total_results: int
     active_sessions: int
-    
+
     # Performance metrics
     avg_detection_time_ms: float
     total_detections_today: int
     error_rate_24h: float
-    
+
     # Health status by component
     component_health: dict[str, str]
-    
+
     # Recent activity
     recent_detections: list[dict[str, Any]]
     recent_errors: list[dict[str, Any]]
-    
+
     # Timestamp
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
@@ -48,7 +48,7 @@ class MonitoringDashboardService:
 
     def __init__(self, health_service: HealthService):
         """Initialize dashboard service.
-        
+
         Args:
             health_service: Health monitoring service
         """
@@ -63,11 +63,11 @@ class MonitoringDashboardService:
         force_refresh: bool = False,
     ) -> DashboardMetrics:
         """Get comprehensive dashboard metrics.
-        
+
         Args:
             container: Dependency injection container
             force_refresh: Force refresh of cached data
-            
+
         Returns:
             Dashboard metrics
         """
@@ -82,37 +82,36 @@ class MonitoringDashboardService:
 
         # Collect fresh metrics
         metrics = await self._collect_metrics(container)
-        
+
         # Cache results
         self._cached_metrics = metrics
         self._last_update = datetime.utcnow()
-        
+
         return metrics
 
     async def _collect_metrics(self, container) -> DashboardMetrics:
         """Collect all dashboard metrics."""
         # Get system metrics
         system_metrics = self.health_service.get_system_metrics()
-        
+
         # Get health checks
         health_checks = await self.health_service.perform_comprehensive_health_check()
         overall_health = self.health_service.get_overall_status(health_checks)
-        
+
         # Get application metrics
         app_metrics = await self._get_application_metrics(container)
-        
+
         # Get performance metrics
         perf_metrics = await self._get_performance_metrics(container)
-        
+
         # Get component health
         component_health = {
-            name: check.status.value
-            for name, check in health_checks.items()
+            name: check.status.value for name, check in health_checks.items()
         }
-        
+
         # Get recent activity
         recent_activity = await self._get_recent_activity(container)
-        
+
         return DashboardMetrics(
             # System overview
             system_health=overall_health.value,
@@ -120,21 +119,17 @@ class MonitoringDashboardService:
             cpu_percent=system_metrics.cpu_percent,
             memory_percent=system_metrics.memory_percent,
             disk_percent=system_metrics.disk_percent,
-            
             # Application metrics
             total_detectors=app_metrics["detectors"],
             total_datasets=app_metrics["datasets"],
             total_results=app_metrics["results"],
             active_sessions=app_metrics["sessions"],
-            
             # Performance metrics
             avg_detection_time_ms=perf_metrics["avg_detection_time"],
             total_detections_today=perf_metrics["detections_today"],
             error_rate_24h=perf_metrics["error_rate"],
-            
             # Component health
             component_health=component_health,
-            
             # Recent activity
             recent_detections=recent_activity["detections"],
             recent_errors=recent_activity["errors"],
@@ -146,18 +141,18 @@ class MonitoringDashboardService:
             detector_count = container.detector_repository().count()
             dataset_count = container.dataset_repository().count()
             result_count = container.result_repository().count()
-            
+
             # For active sessions, we'd need session management
             # For now, use a placeholder
             active_sessions = 0
-            
+
             return {
                 "detectors": detector_count,
                 "datasets": dataset_count,
                 "results": result_count,
                 "sessions": active_sessions,
             }
-            
+
         except Exception:
             return {
                 "detectors": 0,
@@ -171,30 +166,27 @@ class MonitoringDashboardService:
         try:
             # Get recent detection results for performance analysis
             results = container.result_repository().find_recent(100)
-            
+
             # Calculate average detection time
             if results:
                 total_time = sum(r.execution_time_ms or 0 for r in results)
                 avg_time = total_time / len(results)
             else:
                 avg_time = 0.0
-            
+
             # Count detections today
             today = datetime.utcnow().date()
-            detections_today = sum(
-                1 for r in results
-                if r.timestamp.date() == today
-            )
-            
+            detections_today = sum(1 for r in results if r.timestamp.date() == today)
+
             # Calculate error rate (placeholder - would need error tracking)
             error_rate = 0.0
-            
+
             return {
                 "avg_detection_time": avg_time,
                 "detections_today": detections_today,
                 "error_rate": error_rate,
             }
-            
+
         except Exception:
             return {
                 "avg_detection_time": 0.0,
@@ -207,7 +199,7 @@ class MonitoringDashboardService:
         try:
             # Get recent detection results
             recent_results = container.result_repository().find_recent(10)
-            
+
             detections = [
                 {
                     "id": str(r.id),
@@ -219,16 +211,16 @@ class MonitoringDashboardService:
                 }
                 for r in recent_results
             ]
-            
+
             # Recent errors would come from error tracking
             # For now, use placeholder
             errors = []
-            
+
             return {
                 "detections": detections,
                 "errors": errors,
             }
-            
+
         except Exception:
             return {
                 "detections": [],
@@ -249,62 +241,72 @@ class MonitoringDashboardService:
         """Check if any alert conditions are met."""
         alerts = []
         thresholds = self.get_alert_thresholds()
-        
+
         # CPU alert
         if metrics.cpu_percent > thresholds["cpu_percent"]:
-            alerts.append({
-                "type": "resource",
-                "severity": "warning",
-                "metric": "cpu_percent",
-                "value": metrics.cpu_percent,
-                "threshold": thresholds["cpu_percent"],
-                "message": f"High CPU usage: {metrics.cpu_percent:.1f}%",
-            })
-        
+            alerts.append(
+                {
+                    "type": "resource",
+                    "severity": "warning",
+                    "metric": "cpu_percent",
+                    "value": metrics.cpu_percent,
+                    "threshold": thresholds["cpu_percent"],
+                    "message": f"High CPU usage: {metrics.cpu_percent:.1f}%",
+                }
+            )
+
         # Memory alert
         if metrics.memory_percent > thresholds["memory_percent"]:
-            alerts.append({
-                "type": "resource",
-                "severity": "warning",
-                "metric": "memory_percent",
-                "value": metrics.memory_percent,
-                "threshold": thresholds["memory_percent"],
-                "message": f"High memory usage: {metrics.memory_percent:.1f}%",
-            })
-        
+            alerts.append(
+                {
+                    "type": "resource",
+                    "severity": "warning",
+                    "metric": "memory_percent",
+                    "value": metrics.memory_percent,
+                    "threshold": thresholds["memory_percent"],
+                    "message": f"High memory usage: {metrics.memory_percent:.1f}%",
+                }
+            )
+
         # Disk alert
         if metrics.disk_percent > thresholds["disk_percent"]:
-            alerts.append({
-                "type": "resource",
-                "severity": "critical",
-                "metric": "disk_percent",
-                "value": metrics.disk_percent,
-                "threshold": thresholds["disk_percent"],
-                "message": f"High disk usage: {metrics.disk_percent:.1f}%",
-            })
-        
+            alerts.append(
+                {
+                    "type": "resource",
+                    "severity": "critical",
+                    "metric": "disk_percent",
+                    "value": metrics.disk_percent,
+                    "threshold": thresholds["disk_percent"],
+                    "message": f"High disk usage: {metrics.disk_percent:.1f}%",
+                }
+            )
+
         # Error rate alert
         if metrics.error_rate_24h > thresholds["error_rate"]:
-            alerts.append({
-                "type": "application",
-                "severity": "warning",
-                "metric": "error_rate",
-                "value": metrics.error_rate_24h,
-                "threshold": thresholds["error_rate"],
-                "message": f"High error rate: {metrics.error_rate_24h:.1f}%",
-            })
-        
+            alerts.append(
+                {
+                    "type": "application",
+                    "severity": "warning",
+                    "metric": "error_rate",
+                    "value": metrics.error_rate_24h,
+                    "threshold": thresholds["error_rate"],
+                    "message": f"High error rate: {metrics.error_rate_24h:.1f}%",
+                }
+            )
+
         # Response time alert
         if metrics.avg_detection_time_ms > thresholds["avg_response_time_ms"]:
-            alerts.append({
-                "type": "performance",
-                "severity": "warning",
-                "metric": "avg_detection_time_ms",
-                "value": metrics.avg_detection_time_ms,
-                "threshold": thresholds["avg_response_time_ms"],
-                "message": f"Slow detection time: {metrics.avg_detection_time_ms:.0f}ms",
-            })
-        
+            alerts.append(
+                {
+                    "type": "performance",
+                    "severity": "warning",
+                    "metric": "avg_detection_time_ms",
+                    "value": metrics.avg_detection_time_ms,
+                    "threshold": thresholds["avg_response_time_ms"],
+                    "message": f"Slow detection time: {metrics.avg_detection_time_ms:.0f}ms",
+                }
+            )
+
         return alerts
 
     async def export_metrics_for_prometheus(self, metrics: DashboardMetrics) -> str:
@@ -354,7 +356,7 @@ class MonitoringDashboardService:
             "# TYPE pynomaly_error_rate_24h gauge",
             f"pynomaly_error_rate_24h {metrics.error_rate_24h}",
         ]
-        
+
         return "\n".join(prometheus_metrics)
 
     def _health_to_numeric(self, health_status: str) -> float:

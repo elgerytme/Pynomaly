@@ -16,6 +16,7 @@ from pynomaly.domain.exceptions import (
     PynamolyError,
     ValidationError,
 )
+
 from .error_handler import ErrorHandler
 
 
@@ -29,7 +30,7 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
         include_debug_info: bool = False,
     ) -> None:
         """Initialize error handling middleware.
-        
+
         Args:
             app: FastAPI application instance
             error_handler: Error handler instance
@@ -43,23 +44,23 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """Handle request and catch any errors."""
         start_time = time.time()
-        
+
         try:
             # Extract request context
             context = await self._extract_request_context(request)
-            
+
             # Process request
             response = await call_next(request)
-            
+
             # Log successful requests
             duration = time.time() - start_time
             self.logger.info(
                 f"Request completed: {request.method} {request.url.path} "
                 f"-> {response.status_code} ({duration:.3f}s)"
             )
-            
+
             return response
-            
+
         except HTTPException as http_error:
             # Let FastAPI handle HTTP exceptions normally
             duration = time.time() - start_time
@@ -68,23 +69,23 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
                 f"-> {http_error.status_code} ({duration:.3f}s): {http_error.detail}"
             )
             raise
-            
+
         except Exception as error:
             # Handle all other errors
             duration = time.time() - start_time
             context = await self._extract_request_context(request)
             context["request_duration"] = duration
-            
+
             # Handle the error
             error_response = self.error_handler.handle_error(
                 error=error,
                 context=context,
                 operation=f"{request.method} {request.url.path}",
             )
-            
+
             # Determine HTTP status code
             status_code = self._get_http_status_code(error)
-            
+
             # Add debug information if enabled
             if self.include_debug_info:
                 error_response["debug"] = {
@@ -93,7 +94,7 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
                     "path": str(request.url.path),
                     "method": request.method,
                 }
-            
+
             return JSONResponse(
                 status_code=status_code,
                 content=error_response,
@@ -109,18 +110,19 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
             "headers": dict(request.headers),
             "client_ip": request.client.host if request.client else None,
         }
-        
+
         # Extract user information if available
         if hasattr(request.state, "user"):
             context["user_id"] = getattr(request.state.user, "id", None)
-        
+
         # Generate request ID if not present
         if "x-request-id" in request.headers:
             context["request_id"] = request.headers["x-request-id"]
         else:
             import uuid
+
             context["request_id"] = str(uuid.uuid4())
-        
+
         return context
 
     def _get_http_status_code(self, error: Exception) -> int:
@@ -148,14 +150,15 @@ def create_error_middleware(
     debug: bool = False,
 ) -> type[ErrorHandlingMiddleware]:
     """Create error handling middleware class with configuration.
-    
+
     Args:
         error_handler: Error handler instance to use
         debug: Whether to include debug information
-        
+
     Returns:
         Configured middleware class
     """
+
     class ConfiguredErrorMiddleware(ErrorHandlingMiddleware):
         def __init__(self, app):
             super().__init__(
@@ -163,5 +166,5 @@ def create_error_middleware(
                 error_handler=error_handler,
                 include_debug_info=debug,
             )
-    
+
     return ConfiguredErrorMiddleware

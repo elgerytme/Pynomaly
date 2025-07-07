@@ -1,6 +1,7 @@
 """TensorFlow adapter stub when TensorFlow is not available."""
 
 from __future__ import annotations
+
 from typing import Any
 
 

@@ -59,7 +59,7 @@ class AlertCategory(Enum):
 @dataclass
 class AlertMetadata:
     """Metadata for alerts."""
-    
+
     metadata_id: str = field(default_factory=lambda: str(uuid4()))
     alert_id: str = ""
     key: str = ""

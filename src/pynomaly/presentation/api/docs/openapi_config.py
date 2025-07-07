@@ -137,7 +137,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
         servers = [{"url": "/", "description": "Current server"}]
 
         # Add additional servers based on environment
-        environment = getattr(self.settings.app, 'environment', 'development')
+        environment = getattr(self.settings.app, "environment", "development")
         if environment == "development":
             servers.extend(
                 [

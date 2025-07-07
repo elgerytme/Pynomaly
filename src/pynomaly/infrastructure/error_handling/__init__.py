@@ -8,7 +8,7 @@ from .recovery_strategies import RecoveryStrategy, RecoveryStrategyRegistry
 
 __all__ = [
     "ErrorHandler",
-    "ErrorHandlingMiddleware", 
+    "ErrorHandlingMiddleware",
     "ErrorReporter",
     "ErrorResponseFormatter",
     "RecoveryStrategy",

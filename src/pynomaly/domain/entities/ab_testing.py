@@ -645,15 +645,15 @@ class ABTesting:
         """Validate A/B testing configuration."""
         if not self.test_name:
             self.test_name = f"ab_test_{str(self.test_id)[:8]}"
-        
+
         if self.status not in ["draft", "active", "paused", "completed", "terminated"]:
             raise ValueError("Invalid test status")
-        
+
         # Validate that we have at least one control and one treatment
         if len(self.variants) >= 2:
             control_count = sum(1 for v in self.variants if v.is_control)
             treatment_count = sum(1 for v in self.variants if v.is_treatment)
-            
+
             if control_count == 0:
                 raise ValueError("Must have at least one control variant")
             if treatment_count == 0:
@@ -665,13 +665,12 @@ class ABTesting:
         total_allocation = sum(v.allocation_percentage for v in self.variants)
         if total_allocation + variant.allocation_percentage > 100.0:
             raise ValueError("Total allocation would exceed 100%")
-        
+
         self.variants.append(variant)
-        
+
         # Initialize performance tracking
         self.variant_performances[variant.variant_id] = VariantPerformance(
-            variant_id=variant.variant_id,
-            variant_name=variant.variant_name
+            variant_id=variant.variant_id, variant_name=variant.variant_name
         )
 
     def add_metric(self, metric: MetricDefinition) -> None:
@@ -681,25 +680,25 @@ class ABTesting:
             for existing_metric in self.metrics:
                 if existing_metric.is_primary:
                     existing_metric.is_primary = False
-        
+
         self.metrics.append(metric)
 
     def start_test(self) -> None:
         """Start the A/B test."""
         if self.status != "draft":
             raise ValueError("Can only start test from draft status")
-        
+
         # Validate test is ready
         if len(self.variants) < 2:
             raise ValueError("Need at least 2 variants to start test")
         if len(self.metrics) == 0:
             raise ValueError("Need at least 1 metric to track")
-        
+
         # Check total allocation is 100%
         total_allocation = sum(v.allocation_percentage for v in self.variants)
         if abs(total_allocation - 100.0) > 0.01:
             raise ValueError("Total variant allocation must equal 100%")
-        
+
         self.status = "active"
         self.current_phase = TestPhase.EXECUTION
         self.start_time = datetime.utcnow()
@@ -708,21 +707,21 @@ class ABTesting:
         """Pause the A/B test."""
         if self.status != "active":
             raise ValueError("Can only pause active test")
-        
+
         self.status = "paused"
 
     def resume_test(self) -> None:
         """Resume a paused A/B test."""
         if self.status != "paused":
             raise ValueError("Can only resume paused test")
-        
+
         self.status = "active"
 
     def complete_test(self) -> None:
         """Complete the A/B test."""
         if self.status not in ["active", "paused"]:
             raise ValueError("Can only complete active or paused test")
-        
+
         self.status = "completed"
         self.current_phase = TestPhase.ANALYSIS
         self.end_time = datetime.utcnow()
@@ -731,51 +730,55 @@ class ABTesting:
         """Add an observation to the test."""
         if self.status != "active":
             raise ValueError("Can only add observations to active test")
-        
+
         # Validate variant exists
         variant_ids = {v.variant_id for v in self.variants}
         if observation.variant_id not in variant_ids:
             raise ValueError("Observation variant_id not found in test variants")
-        
+
         self.observations.append(observation)
-        
+
         # Update variant performance
         if observation.variant_id in self.variant_performances:
             for metric in self.metrics:
                 if observation.has_outcome(metric.metric_name):
                     value = observation.get_outcome_value(metric.metric_name)
                     if isinstance(value, (int, float)):
-                        self.variant_performances[observation.variant_id].add_observation(
-                            metric.metric_name, float(value)
-                        )
+                        self.variant_performances[
+                            observation.variant_id
+                        ].add_observation(metric.metric_name, float(value))
 
     def calculate_results(self) -> None:
         """Calculate test results and comparisons."""
         if len(self.observations) == 0:
             return
-        
+
         # Update variant performance metrics
         for variant_id, performance in self.variant_performances.items():
             performance.calculate_aggregated_metrics(self.metrics)
-        
+
         # Perform statistical comparisons
         control_variants = [v for v in self.variants if v.is_control]
         treatment_variants = [v for v in self.variants if v.is_treatment]
-        
+
         self.comparison_results.clear()
-        
+
         for control in control_variants:
             for treatment in treatment_variants:
                 for metric in self.metrics:
-                    if (control.variant_id in self.variant_performances and 
-                        treatment.variant_id in self.variant_performances):
-                        
+                    if (
+                        control.variant_id in self.variant_performances
+                        and treatment.variant_id in self.variant_performances
+                    ):
+
                         control_perf = self.variant_performances[control.variant_id]
                         treatment_perf = self.variant_performances[treatment.variant_id]
-                        
-                        if (metric.metric_name in control_perf.aggregated_metrics and
-                            metric.metric_name in treatment_perf.aggregated_metrics):
-                            
+
+                        if (
+                            metric.metric_name in control_perf.aggregated_metrics
+                            and metric.metric_name in treatment_perf.aggregated_metrics
+                        ):
+
                             result = self._perform_statistical_test(
                                 control, treatment, metric, control_perf, treatment_perf
                             )
@@ -787,40 +790,52 @@ class ABTesting:
         treatment_variant: TestVariant,
         metric: MetricDefinition,
         control_performance: VariantPerformance,
-        treatment_performance: VariantPerformance
+        treatment_performance: VariantPerformance,
     ) -> ComparisonResult:
         """Perform statistical test between variants."""
         control_value = control_performance.aggregated_metrics[metric.metric_name]
         treatment_value = treatment_performance.aggregated_metrics[metric.metric_name]
-        
+
         # Simple t-test implementation (placeholder)
         # In practice, would use proper statistical libraries
         from scipy import stats
-        
+
         control_values = np.array(control_performance.metric_values[metric.metric_name])
-        treatment_values = np.array(treatment_performance.metric_values[metric.metric_name])
-        
+        treatment_values = np.array(
+            treatment_performance.metric_values[metric.metric_name]
+        )
+
         if len(control_values) > 1 and len(treatment_values) > 1:
             t_stat, p_value = stats.ttest_ind(treatment_values, control_values)
-            
+
             # Calculate effect size (Cohen's d)
-            pooled_std = np.sqrt(((len(control_values) - 1) * np.var(control_values, ddof=1) +
-                                  (len(treatment_values) - 1) * np.var(treatment_values, ddof=1)) /
-                                 (len(control_values) + len(treatment_values) - 2))
-            
-            effect_size = (treatment_value - control_value) / pooled_std if pooled_std > 0 else 0.0
-            
+            pooled_std = np.sqrt(
+                (
+                    (len(control_values) - 1) * np.var(control_values, ddof=1)
+                    + (len(treatment_values) - 1) * np.var(treatment_values, ddof=1)
+                )
+                / (len(control_values) + len(treatment_values) - 2)
+            )
+
+            effect_size = (
+                (treatment_value - control_value) / pooled_std
+                if pooled_std > 0
+                else 0.0
+            )
+
             # Confidence interval for difference
-            se_diff = pooled_std * np.sqrt(1/len(control_values) + 1/len(treatment_values))
+            se_diff = pooled_std * np.sqrt(
+                1 / len(control_values) + 1 / len(treatment_values)
+            )
             ci_margin = 1.96 * se_diff
             ci_lower = (treatment_value - control_value) - ci_margin
             ci_upper = (treatment_value - control_value) + ci_margin
-            
+
         else:
             t_stat, p_value = 0.0, 1.0
             effect_size = 0.0
             ci_lower, ci_upper = 0.0, 0.0
-        
+
         return ComparisonResult(
             control_variant_id=control_variant.variant_id,
             treatment_variant_id=treatment_variant.variant_id,
@@ -833,7 +848,9 @@ class ABTesting:
             p_value=float(p_value),
             confidence_interval=(ci_lower, ci_upper),
             is_significant=p_value < self.hypothesis_test.significance_level,
-            practical_significance=metric.is_improvement(control_value, treatment_value)
+            practical_significance=metric.is_improvement(
+                control_value, treatment_value
+            ),
         )
 
     def get_test_summary(self) -> dict[str, Any]:
@@ -846,12 +863,18 @@ class ABTesting:
             "phase": self.current_phase.value,
             "start_time": self.start_time.isoformat() if self.start_time else None,
             "end_time": self.end_time.isoformat() if self.end_time else None,
-            "duration": str(self.end_time - self.start_time) if self.start_time and self.end_time else None,
+            "duration": (
+                str(self.end_time - self.start_time)
+                if self.start_time and self.end_time
+                else None
+            ),
             "variants": len(self.variants),
             "metrics": len(self.metrics),
             "observations": len(self.observations),
             "comparison_results": len(self.comparison_results),
-            "significant_results": len([r for r in self.comparison_results if r.is_significant]),
+            "significant_results": len(
+                [r for r in self.comparison_results if r.is_significant]
+            ),
         }
 
     def get_decision_recommendation(self) -> dict[str, Any]:
@@ -859,7 +882,7 @@ class ABTesting:
         if not self.comparison_results:
             return {
                 "recommendation": "insufficient_data",
-                "rationale": "No comparison results available"
+                "rationale": "No comparison results available",
             }
-        
+
         return self.decision_framework.evaluate_decision(self.comparison_results)

@@ -70,9 +70,7 @@ class MemoryDetectorRepository(DetectorRepositoryProtocol):
 
     def find_fitted(self) -> list[Detector]:
         """Find all fitted detectors."""
-        return [
-            detector for detector in self._detectors.values() if detector.is_fitted
-        ]
+        return [detector for detector in self._detectors.values() if detector.is_fitted]
 
     def save_model_artifact(self, detector_id: UUID, artifact: bytes) -> None:
         """Save model artifact."""
@@ -167,9 +165,11 @@ class MemoryDatasetRepository(DatasetRepositoryProtocol):
 
         if parquet_path.exists():
             import pandas as pd
+
             dataset.data = pd.read_parquet(parquet_path)
         elif csv_path.exists():
             import pandas as pd
+
             dataset.data = pd.read_csv(csv_path)
 
         return dataset
@@ -244,7 +244,9 @@ class MemoryDetectionResultRepository(DetectionResultRepositoryProtocol):
             "dataset_id": str(result.dataset_id),
             "total_anomalies": len(result.anomalies),
             "total_samples": len(result.scores),
-            "anomaly_rate": len(result.anomalies) / len(result.scores) if result.scores else 0,
+            "anomaly_rate": (
+                len(result.anomalies) / len(result.scores) if result.scores else 0
+            ),
             "execution_time_ms": result.execution_time_ms,
             "threshold": result.threshold,
             "timestamp": result.timestamp.isoformat(),
@@ -292,7 +294,7 @@ class FileSystemDetectorRepository(DetectorRepositoryProtocol):
         """Delete detector by ID."""
         file_path = self._storage_path / f"{entity_id}.pkl"
         model_path = self._models_path / f"{entity_id}.pkl"
-        
+
         deleted = False
         if file_path.exists():
             file_path.unlink()

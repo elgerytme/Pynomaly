@@ -13,7 +13,7 @@ class ErrorResponseFormatter:
 
     def __init__(self, include_stack_traces: bool = False):
         """Initialize formatter.
-        
+
         Args:
             include_stack_traces: Whether to include stack traces in responses
         """
@@ -33,22 +33,23 @@ class ErrorResponseFormatter:
                 "type": type(error).__name__,
                 "message": str(error),
                 "timestamp": datetime.utcnow().isoformat(),
-            }
+            },
         }
-        
+
         # Add domain error details
         if isinstance(error, PynamolyError) and error.details:
             response["error"]["details"] = error.details
-        
+
         # Add context if provided
         if context:
             response["error"]["context"] = context
-        
+
         # Add stack trace if enabled
         if self.include_stack_traces:
             import traceback
+
             response["error"]["stack_trace"] = traceback.format_exc()
-        
+
         return response
 
     def format_for_cli(
@@ -61,19 +62,19 @@ class ErrorResponseFormatter:
             f"❌ Error: {type(error).__name__}",
             f"Message: {str(error)}",
         ]
-        
+
         # Add domain error details
         if isinstance(error, PynamolyError) and error.details:
             lines.append("Details:")
             for key, value in error.details.items():
                 lines.append(f"  {key}: {value}")
-        
+
         # Add context
         if context:
             lines.append("Context:")
             for key, value in context.items():
                 lines.append(f"  {key}: {value}")
-        
+
         return "\n".join(lines)
 
     def format_for_logging(
@@ -87,7 +88,7 @@ class ErrorResponseFormatter:
             "error_message": str(error),
             "timestamp": datetime.utcnow().isoformat(),
         }
-        
+
         # Add domain error details
         if isinstance(error, PynamolyError):
             if error.details:
@@ -97,11 +98,11 @@ class ErrorResponseFormatter:
                     "type": type(error.cause).__name__,
                     "message": str(error.cause),
                 }
-        
+
         # Add context
         if context:
             log_data["context"] = context
-        
+
         return log_data
 
     def format_validation_errors(
@@ -118,7 +119,7 @@ class ErrorResponseFormatter:
                 "message": "Input validation failed",
                 "timestamp": datetime.utcnow().isoformat(),
                 "validation_errors": validation_errors,
-            }
+            },
         }
 
     def format_for_user_display(
@@ -136,27 +137,29 @@ class ErrorResponseFormatter:
             "DetectorError": "There's an issue with the anomaly detector. Please try again or contact support.",
             "InfrastructureError": "We're experiencing technical difficulties. Please try again in a few moments.",
         }
-        
+
         error_type = type(error).__name__
-        user_message = friendly_messages.get(error_type, "An unexpected error occurred.")
-        
+        user_message = friendly_messages.get(
+            error_type, "An unexpected error occurred."
+        )
+
         response = {
             "title": "Error",
             "message": user_message,
             "type": "error",
             "timestamp": datetime.utcnow().isoformat(),
         }
-        
+
         # Add technical details if not hidden
         if not hide_technical_details:
             response["technical"] = {
                 "error_type": error_type,
                 "error_message": str(error),
             }
-            
+
             if isinstance(error, PynamolyError) and error.details:
                 response["technical"]["details"] = error.details
-        
+
         return response
 
     def create_error_summary(
@@ -169,7 +172,7 @@ class ErrorResponseFormatter:
         for error in errors:
             error_type = type(error).__name__
             error_counts[error_type] = error_counts.get(error_type, 0) + 1
-        
+
         return {
             "title": title,
             "total_errors": len(errors),

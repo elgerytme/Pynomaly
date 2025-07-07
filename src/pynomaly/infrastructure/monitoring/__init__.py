@@ -3,16 +3,15 @@
 # Enhanced monitoring services
 from .alerting_service import (
     Alert,
+    AlertingService,
     AlertNotifier,
     AlertSeverity,
     AlertStatus,
-    AlertingService,
     EmailNotifier,
     SlackNotifier,
     WebhookNotifier,
     create_alerting_service,
 )
-from .dashboard_service import DashboardMetrics, MonitoringDashboardService
 
 # Legacy monitoring services
 from .complexity_monitor import (
@@ -21,6 +20,7 @@ from .complexity_monitor import (
     print_complexity_report,
     run_complexity_check,
 )
+from .dashboard_service import DashboardMetrics, MonitoringDashboardService
 from .health_service import HealthCheck, HealthService, HealthStatus, SystemMetrics
 from .performance_monitor import (
     PerformanceAlert,
@@ -56,18 +56,16 @@ __all__ = [
     "AlertStatus",
     "AlertNotifier",
     "EmailNotifier",
-    "SlackNotifier", 
+    "SlackNotifier",
     "WebhookNotifier",
     "create_alerting_service",
     "MonitoringDashboardService",
     "DashboardMetrics",
-    
     # Health monitoring
     "HealthService",
     "HealthCheck",
     "HealthStatus",
     "SystemMetrics",
-    
     # Performance and complexity monitoring
     "ComplexityMonitor",
     "ComplexityMetrics",
@@ -79,7 +77,6 @@ __all__ = [
     "PerformanceTracker",
     "monitor_performance",
     "monitor_async_performance",
-    
     # Production monitoring
     "ProductionMonitor",
     "LogLevel",
