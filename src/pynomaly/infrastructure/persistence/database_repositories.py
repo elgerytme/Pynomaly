@@ -10,7 +10,7 @@ from uuid import UUID
 from sqlalchemy import Boolean, Column, DateTime, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.types import VARCHAR, TypeDecorator
 
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector

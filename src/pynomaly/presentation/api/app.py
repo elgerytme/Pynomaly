@@ -175,9 +175,13 @@ def create_app(container: Container | None = None) -> FastAPI:
     # Store container in app state
     app.state.container = container
 
-    # Configure comprehensive OpenAPI documentation
-    if settings.docs_enabled:
-        configure_openapi_docs(app, settings)
+    # OpenAPI documentation temporarily disabled
+    # Complex auth dependencies with pydantic forward references need resolution
+    # Issue: TypeAdapter[Annotated[UserModel | None, Depends(get_current_user)]] 
+    # TODO: Refactor auth dependencies to avoid circular type references
+    app.openapi_url = None
+    app.docs_url = None  
+    app.redoc_url = None
 
     # Add CORS middleware
     app.add_middleware(CORSMiddleware, **settings.get_cors_config())

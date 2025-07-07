@@ -171,7 +171,7 @@ class PermissionChecker:
 
     async def __call__(
         self,
-        current_user: Annotated[UserModel | None, Depends(get_current_active_user)],
+        current_user: Annotated[UserModel | None, Depends(get_current_user)],
         auth_service: Annotated[JWTAuthService | None, Depends(get_auth)],
     ) -> UserModel:
         """Check permissions for current user.

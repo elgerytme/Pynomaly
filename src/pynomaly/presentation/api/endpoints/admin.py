@@ -7,7 +7,10 @@ from pynomaly.infrastructure.auth import (
     get_auth,
 )
 from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.deps import get_container, get_current_user
+from pynomaly.presentation.api.auth_deps import (
+    get_container_simple,
+    get_current_user_simple,
+)
 
 router = APIRouter()
 
@@ -77,8 +80,8 @@ async def list_users(
     is_active: bool | None = Query(None, description="Filter by active status"),
     role: str | None = Query(None, description="Filter by role"),
     limit: int = Query(100, ge=1, le=1000),
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> list[UserResponse]:
     """List all users. Requires admin permissions."""
     auth_service = get_auth()
@@ -121,8 +124,8 @@ async def list_users(
 @router.get("/users/{user_id}", response_model=UserResponse)
 async def get_user(
     user_id: str,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> UserResponse:
     """Get a specific user. Requires admin permissions."""
     auth_service = get_auth()
@@ -152,8 +155,8 @@ async def get_user(
 @router.post("/users", response_model=UserResponse)
 async def create_user(
     user_data: CreateUserRequest,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> UserResponse:
     """Create a new user. Requires admin permissions."""
     auth_service = get_auth()
@@ -196,8 +199,8 @@ async def create_user(
 async def update_user(
     user_id: str,
     update_data: UpdateUserRequest,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> UserResponse:
     """Update a user. Requires admin permissions."""
     auth_service = get_auth()
@@ -257,8 +260,8 @@ async def update_user(
 @router.delete("/users/{user_id}")
 async def delete_user(
     user_id: str,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> dict:
     """Delete a user. Requires admin permissions."""
     auth_service = get_auth()
@@ -293,8 +296,8 @@ async def delete_user(
 async def create_api_key(
     user_id: str,
     api_key_data: CreateApiKeyRequest,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> ApiKeyResponse:
     """Create an API key for a user. Requires admin permissions."""
     auth_service = get_auth()
@@ -315,8 +318,8 @@ async def create_api_key(
 @router.delete("/api-keys/{api_key}")
 async def revoke_api_key(
     api_key: str,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> dict:
     """Revoke an API key. Requires admin permissions."""
     auth_service = get_auth()
@@ -334,8 +337,8 @@ async def revoke_api_key(
 
 @router.get("/roles", response_model=list[RoleInfo])
 async def list_roles(
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> list[RoleInfo]:
     """List all available roles and their permissions. Requires admin permissions."""
     auth_service = get_auth()
@@ -367,8 +370,8 @@ async def list_roles(
 
 @router.get("/permissions")
 async def list_permissions(
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> dict:
     """List all available permissions organized by resource. Requires admin permissions."""
     return {
@@ -383,8 +386,8 @@ async def list_permissions(
 @router.get("/users/{user_id}/permissions")
 async def get_user_permissions(
     user_id: str,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> dict:
     """Get effective permissions for a user. Requires admin permissions."""
     auth_service = get_auth()
