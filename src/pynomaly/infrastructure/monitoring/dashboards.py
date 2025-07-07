@@ -19,15 +19,12 @@ PYNOMALY_DASHBOARD_TEMPLATE = {
         "style": "dark",
         "timezone": "browser",
         "refresh": "30s",
-        "time": {
-            "from": "now-1h",
-            "to": "now"
-        },
+        "time": {"from": "now-1h", "to": "now"},
         "timepicker": {
             "refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h"],
-            "time_options": ["5m", "15m", "1h", "6h", "12h", "24h", "2d", "7d", "30d"]
+            "time_options": ["5m", "15m", "1h", "6h", "12h", "24h", "2d", "7d", "30d"],
         },
-        "panels": []
+        "panels": [],
     }
 }
 
@@ -41,7 +38,7 @@ OVERVIEW_PANELS = [
             {
                 "expr": "pynomaly_active_models",
                 "legendFormat": "Active Models",
-                "refId": "A"
+                "refId": "A",
             }
         ],
         "fieldConfig": {
@@ -51,11 +48,11 @@ OVERVIEW_PANELS = [
                     "steps": [
                         {"color": "green", "value": None},
                         {"color": "yellow", "value": 10},
-                        {"color": "red", "value": 50}
+                        {"color": "red", "value": 50},
                     ]
-                }
+                },
             }
-        }
+        },
     },
     {
         "id": 2,
@@ -66,13 +63,10 @@ OVERVIEW_PANELS = [
             {
                 "expr": "rate(pynomaly_http_requests_total[5m])",
                 "legendFormat": "{{method}} {{endpoint}}",
-                "refId": "A"
+                "refId": "A",
             }
         ],
-        "yAxes": [
-            {"label": "Requests/sec", "min": 0},
-            {"show": False}
-        ]
+        "yAxes": [{"label": "Requests/sec", "min": 0}, {"show": False}],
     },
     {
         "id": 3,
@@ -83,24 +77,21 @@ OVERVIEW_PANELS = [
             {
                 "expr": "histogram_quantile(0.50, rate(pynomaly_http_request_duration_seconds_bucket[5m]))",
                 "legendFormat": "P50",
-                "refId": "A"
+                "refId": "A",
             },
             {
                 "expr": "histogram_quantile(0.95, rate(pynomaly_http_request_duration_seconds_bucket[5m]))",
                 "legendFormat": "P95",
-                "refId": "B"
+                "refId": "B",
             },
             {
                 "expr": "histogram_quantile(0.99, rate(pynomaly_http_request_duration_seconds_bucket[5m]))",
                 "legendFormat": "P99",
-                "refId": "C"
-            }
+                "refId": "C",
+            },
         ],
-        "yAxes": [
-            {"label": "Duration (s)", "min": 0},
-            {"show": False}
-        ]
-    }
+        "yAxes": [{"label": "Duration (s)", "min": 0}, {"show": False}],
+    },
 ]
 
 DETECTION_PANELS = [
@@ -113,13 +104,10 @@ DETECTION_PANELS = [
             {
                 "expr": "rate(pynomaly_detections_total[5m])",
                 "legendFormat": "{{algorithm}} - {{status}}",
-                "refId": "A"
+                "refId": "A",
             }
         ],
-        "yAxes": [
-            {"label": "Detections/sec", "min": 0},
-            {"show": False}
-        ]
+        "yAxes": [{"label": "Detections/sec", "min": 0}, {"show": False}],
     },
     {
         "id": 11,
@@ -130,13 +118,10 @@ DETECTION_PANELS = [
             {
                 "expr": "histogram_quantile(0.95, rate(pynomaly_detection_duration_seconds_bucket[5m]))",
                 "legendFormat": "P95 - {{algorithm}}",
-                "refId": "A"
+                "refId": "A",
             }
         ],
-        "yAxes": [
-            {"label": "Duration (s)", "min": 0},
-            {"show": False}
-        ]
+        "yAxes": [{"label": "Duration (s)", "min": 0}, {"show": False}],
     },
     {
         "id": 12,
@@ -147,7 +132,7 @@ DETECTION_PANELS = [
             {
                 "expr": "increase(pynomaly_anomalies_found_total[1h])",
                 "legendFormat": "Last Hour",
-                "refId": "A"
+                "refId": "A",
             }
         ],
         "fieldConfig": {
@@ -157,11 +142,11 @@ DETECTION_PANELS = [
                     "steps": [
                         {"color": "green", "value": None},
                         {"color": "yellow", "value": 100},
-                        {"color": "red", "value": 500}
+                        {"color": "red", "value": 500},
                     ]
-                }
+                },
             }
-        }
+        },
     },
     {
         "id": 13,
@@ -172,7 +157,7 @@ DETECTION_PANELS = [
             {
                 "expr": "avg(pynomaly_detection_accuracy_ratio)",
                 "legendFormat": "Average Accuracy",
-                "refId": "A"
+                "refId": "A",
             }
         ],
         "fieldConfig": {
@@ -184,12 +169,12 @@ DETECTION_PANELS = [
                     "steps": [
                         {"color": "red", "value": 0},
                         {"color": "yellow", "value": 0.7},
-                        {"color": "green", "value": 0.85}
+                        {"color": "green", "value": 0.85},
                     ]
-                }
+                },
             }
-        }
-    }
+        },
+    },
 ]
 
 STREAMING_PANELS = [
@@ -202,13 +187,10 @@ STREAMING_PANELS = [
             {
                 "expr": "pynomaly_streaming_throughput_per_second",
                 "legendFormat": "{{stream_id}}",
-                "refId": "A"
+                "refId": "A",
             }
         ],
-        "yAxes": [
-            {"label": "Samples/sec", "min": 0},
-            {"show": False}
-        ]
+        "yAxes": [{"label": "Samples/sec", "min": 0}, {"show": False}],
     },
     {
         "id": 21,
@@ -219,13 +201,10 @@ STREAMING_PANELS = [
             {
                 "expr": "pynomaly_streaming_buffer_utilization_ratio",
                 "legendFormat": "{{stream_id}}",
-                "refId": "A"
+                "refId": "A",
             }
         ],
-        "yAxes": [
-            {"label": "Utilization %", "min": 0, "max": 1},
-            {"show": False}
-        ]
+        "yAxes": [{"label": "Utilization %", "min": 0, "max": 1}, {"show": False}],
     },
     {
         "id": 22,
@@ -236,13 +215,10 @@ STREAMING_PANELS = [
             {
                 "expr": "rate(pynomaly_streaming_backpressure_events_total[5m])",
                 "legendFormat": "{{stream_id}} - {{strategy}}",
-                "refId": "A"
+                "refId": "A",
             }
         ],
-        "yAxes": [
-            {"label": "Events/sec", "min": 0},
-            {"show": False}
-        ]
+        "yAxes": [{"label": "Events/sec", "min": 0}, {"show": False}],
     },
     {
         "id": 23,
@@ -253,10 +229,10 @@ STREAMING_PANELS = [
             {
                 "expr": "pynomaly_active_streams",
                 "legendFormat": "Active Streams",
-                "refId": "A"
+                "refId": "A",
             }
-        ]
-    }
+        ],
+    },
 ]
 
 ENSEMBLE_PANELS = [
@@ -269,13 +245,10 @@ ENSEMBLE_PANELS = [
             {
                 "expr": "rate(pynomaly_ensemble_predictions_total[5m])",
                 "legendFormat": "{{voting_strategy}} ({{detector_count}} detectors)",
-                "refId": "A"
+                "refId": "A",
             }
         ],
-        "yAxes": [
-            {"label": "Predictions/sec", "min": 0},
-            {"show": False}
-        ]
+        "yAxes": [{"label": "Predictions/sec", "min": 0}, {"show": False}],
     },
     {
         "id": 31,
@@ -286,14 +259,11 @@ ENSEMBLE_PANELS = [
             {
                 "expr": "histogram_quantile(0.95, rate(pynomaly_ensemble_agreement_ratio_bucket[5m]))",
                 "legendFormat": "P95 Agreement - {{voting_strategy}}",
-                "refId": "A"
+                "refId": "A",
             }
         ],
-        "yAxes": [
-            {"label": "Agreement Ratio", "min": 0, "max": 1},
-            {"show": False}
-        ]
-    }
+        "yAxes": [{"label": "Agreement Ratio", "min": 0, "max": 1}, {"show": False}],
+    },
 ]
 
 SYSTEM_PANELS = [
@@ -306,13 +276,10 @@ SYSTEM_PANELS = [
             {
                 "expr": "pynomaly_memory_usage_bytes",
                 "legendFormat": "{{component}}",
-                "refId": "A"
+                "refId": "A",
             }
         ],
-        "yAxes": [
-            {"label": "Bytes", "min": 0},
-            {"show": False}
-        ]
+        "yAxes": [{"label": "Bytes", "min": 0}, {"show": False}],
     },
     {
         "id": 41,
@@ -323,13 +290,10 @@ SYSTEM_PANELS = [
             {
                 "expr": "pynomaly_cpu_usage_ratio",
                 "legendFormat": "{{component}}",
-                "refId": "A"
+                "refId": "A",
             }
         ],
-        "yAxes": [
-            {"label": "CPU %", "min": 0, "max": 1},
-            {"show": False}
-        ]
+        "yAxes": [{"label": "CPU %", "min": 0, "max": 1}, {"show": False}],
     },
     {
         "id": 42,
@@ -340,13 +304,10 @@ SYSTEM_PANELS = [
             {
                 "expr": "rate(pynomaly_errors_total[5m])",
                 "legendFormat": "{{error_type}} - {{component}} ({{severity}})",
-                "refId": "A"
+                "refId": "A",
             }
         ],
-        "yAxes": [
-            {"label": "Errors/sec", "min": 0},
-            {"show": False}
-        ]
+        "yAxes": [{"label": "Errors/sec", "min": 0}, {"show": False}],
     },
     {
         "id": 43,
@@ -357,7 +318,7 @@ SYSTEM_PANELS = [
             {
                 "expr": "pynomaly_cache_hit_ratio",
                 "legendFormat": "{{cache_type}}",
-                "refId": "A"
+                "refId": "A",
             }
         ],
         "fieldConfig": {
@@ -369,26 +330,26 @@ SYSTEM_PANELS = [
                     "steps": [
                         {"color": "red", "value": 0},
                         {"color": "yellow", "value": 0.8},
-                        {"color": "green", "value": 0.95}
+                        {"color": "green", "value": 0.95},
                     ]
-                }
+                },
             }
-        }
-    }
+        },
+    },
 ]
 
 
 @dataclass
 class DashboardConfig:
     """Configuration for Grafana dashboard."""
-    
+
     title: str
     description: str
     tags: List[str] = field(default_factory=list)
     refresh_interval: str = "30s"
     time_range: str = "1h"
     panels: List[Dict[str, Any]] = field(default_factory=list)
-    
+
     def to_json(self) -> str:
         """Convert dashboard config to Grafana JSON format."""
         dashboard = PYNOMALY_DASHBOARD_TEMPLATE.copy()
@@ -398,13 +359,13 @@ class DashboardConfig:
         dashboard["dashboard"]["refresh"] = self.refresh_interval
         dashboard["dashboard"]["time"]["from"] = f"now-{self.time_range}"
         dashboard["dashboard"]["panels"] = self.panels
-        
+
         return json.dumps(dashboard, indent=2)
 
 
 class DashboardGenerator:
     """Generator for Pynomaly Grafana dashboards."""
-    
+
     @staticmethod
     def create_overview_dashboard() -> DashboardConfig:
         """Create main overview dashboard."""
@@ -412,9 +373,9 @@ class DashboardGenerator:
             title="Pynomaly - System Overview",
             description="High-level overview of Pynomaly anomaly detection system",
             tags=["pynomaly", "overview", "monitoring"],
-            panels=OVERVIEW_PANELS + DETECTION_PANELS[:2] + SYSTEM_PANELS[:2]
+            panels=OVERVIEW_PANELS + DETECTION_PANELS[:2] + SYSTEM_PANELS[:2],
         )
-    
+
     @staticmethod
     def create_detection_dashboard() -> DashboardConfig:
         """Create anomaly detection focused dashboard."""
@@ -422,19 +383,19 @@ class DashboardGenerator:
             title="Pynomaly - Anomaly Detection",
             description="Detailed metrics for anomaly detection operations",
             tags=["pynomaly", "detection", "ml"],
-            panels=DETECTION_PANELS
+            panels=DETECTION_PANELS,
         )
-    
+
     @staticmethod
     def create_streaming_dashboard() -> DashboardConfig:
         """Create streaming operations dashboard."""
         return DashboardConfig(
-            title="Pynomaly - Streaming Operations", 
+            title="Pynomaly - Streaming Operations",
             description="Real-time streaming anomaly detection metrics",
             tags=["pynomaly", "streaming", "realtime"],
-            panels=STREAMING_PANELS
+            panels=STREAMING_PANELS,
         )
-    
+
     @staticmethod
     def create_ensemble_dashboard() -> DashboardConfig:
         """Create ensemble methods dashboard."""
@@ -442,9 +403,9 @@ class DashboardGenerator:
             title="Pynomaly - Ensemble Detection",
             description="Ensemble anomaly detection methods and voting strategies",
             tags=["pynomaly", "ensemble", "ml"],
-            panels=ENSEMBLE_PANELS
+            panels=ENSEMBLE_PANELS,
         )
-    
+
     @staticmethod
     def create_system_dashboard() -> DashboardConfig:
         """Create system health dashboard."""
@@ -452,9 +413,9 @@ class DashboardGenerator:
             title="Pynomaly - System Health",
             description="System performance, errors, and resource utilization",
             tags=["pynomaly", "system", "health"],
-            panels=SYSTEM_PANELS
+            panels=SYSTEM_PANELS,
         )
-    
+
     @staticmethod
     def create_business_dashboard() -> DashboardConfig:
         """Create business metrics dashboard."""
@@ -468,9 +429,9 @@ class DashboardGenerator:
                     {
                         "expr": "rate(pynomaly_datasets_processed_total[1h])",
                         "legendFormat": "{{source_type}} - {{format}}",
-                        "refId": "A"
+                        "refId": "A",
                     }
-                ]
+                ],
             },
             {
                 "id": 51,
@@ -481,7 +442,7 @@ class DashboardGenerator:
                     {
                         "expr": "avg(pynomaly_data_quality_score)",
                         "legendFormat": "Average Quality",
-                        "refId": "A"
+                        "refId": "A",
                     }
                 ],
                 "fieldConfig": {
@@ -493,11 +454,11 @@ class DashboardGenerator:
                             "steps": [
                                 {"color": "red", "value": 0},
                                 {"color": "yellow", "value": 0.7},
-                                {"color": "green", "value": 0.9}
+                                {"color": "green", "value": 0.9},
                             ]
-                        }
+                        },
                     }
-                }
+                },
             },
             {
                 "id": 52,
@@ -508,57 +469,57 @@ class DashboardGenerator:
                     {
                         "expr": "histogram_quantile(0.95, rate(pynomaly_prediction_confidence_score_bucket[5m]))",
                         "legendFormat": "P95 Confidence - {{algorithm}}",
-                        "refId": "A"
+                        "refId": "A",
                     }
-                ]
-            }
+                ],
+            },
         ]
-        
+
         return DashboardConfig(
             title="Pynomaly - Business Metrics",
             description="Business-focused metrics and KPIs",
             tags=["pynomaly", "business", "kpi"],
-            panels=business_panels
+            panels=business_panels,
         )
-    
+
     @staticmethod
     def generate_all_dashboards() -> Dict[str, str]:
         """Generate all Pynomaly dashboards.
-        
+
         Returns:
             Dictionary mapping dashboard names to JSON configurations
         """
         generator = DashboardGenerator()
-        
+
         dashboards = {
             "overview": generator.create_overview_dashboard().to_json(),
             "detection": generator.create_detection_dashboard().to_json(),
             "streaming": generator.create_streaming_dashboard().to_json(),
             "ensemble": generator.create_ensemble_dashboard().to_json(),
             "system": generator.create_system_dashboard().to_json(),
-            "business": generator.create_business_dashboard().to_json()
+            "business": generator.create_business_dashboard().to_json(),
         }
-        
+
         return dashboards
-    
+
     @staticmethod
     def save_dashboards(output_dir: str = "dashboards"):
         """Save all dashboards to files.
-        
+
         Args:
             output_dir: Directory to save dashboard files
         """
         import os
-        
+
         os.makedirs(output_dir, exist_ok=True)
-        
+
         dashboards = DashboardGenerator.generate_all_dashboards()
-        
+
         for name, config in dashboards.items():
             filename = os.path.join(output_dir, f"pynomaly-{name}.json")
-            with open(filename, 'w') as f:
+            with open(filename, "w") as f:
                 f.write(config)
-        
+
         print(f"Generated {len(dashboards)} dashboard files in {output_dir}/")
 
 
@@ -568,83 +529,66 @@ ALERT_RULES = {
         "alert": "PynomayHighErrorRate",
         "expr": "rate(pynomaly_errors_total[5m]) > 0.1",
         "for": "2m",
-        "labels": {
-            "severity": "warning",
-            "service": "pynomaly"
-        },
+        "labels": {"severity": "warning", "service": "pynomaly"},
         "annotations": {
             "summary": "High error rate detected in Pynomaly",
-            "description": "Error rate is {{ $value }} errors/second"
-        }
+            "description": "Error rate is {{ $value }} errors/second",
+        },
     },
     "low_detection_accuracy": {
-        "alert": "PynomayLowAccuracy", 
+        "alert": "PynomayLowAccuracy",
         "expr": "avg(pynomaly_detection_accuracy_ratio) < 0.7",
         "for": "5m",
-        "labels": {
-            "severity": "warning",
-            "service": "pynomaly"
-        },
+        "labels": {"severity": "warning", "service": "pynomaly"},
         "annotations": {
             "summary": "Detection accuracy below threshold",
-            "description": "Average detection accuracy is {{ $value | humanizePercentage }}"
-        }
+            "description": "Average detection accuracy is {{ $value | humanizePercentage }}",
+        },
     },
     "high_memory_usage": {
         "alert": "PynomayHighMemoryUsage",
         "expr": "pynomaly_memory_usage_bytes > 8e9",  # 8GB
         "for": "3m",
-        "labels": {
-            "severity": "critical",
-            "service": "pynomaly"
-        },
+        "labels": {"severity": "critical", "service": "pynomaly"},
         "annotations": {
             "summary": "High memory usage in Pynomaly",
-            "description": "Memory usage is {{ $value | humanizeBytes }}"
-        }
+            "description": "Memory usage is {{ $value | humanizeBytes }}",
+        },
     },
     "streaming_backpressure": {
         "alert": "PynomayStreamingBackpressure",
         "expr": "rate(pynomaly_streaming_backpressure_events_total[1m]) > 0",
         "for": "1m",
-        "labels": {
-            "severity": "warning",
-            "service": "pynomaly"
-        },
+        "labels": {"severity": "warning", "service": "pynomaly"},
         "annotations": {
             "summary": "Streaming backpressure detected",
-            "description": "Backpressure events occurring at {{ $value }} events/second"
-        }
-    }
+            "description": "Backpressure events occurring at {{ $value }} events/second",
+        },
+    },
 }
 
 
 def generate_alert_rules_yaml() -> str:
     """Generate Prometheus alert rules YAML configuration.
-    
+
     Returns:
         YAML configuration string for Prometheus alert rules
     """
     import yaml
-    
+
     rules_config = {
-        "groups": [
-            {
-                "name": "pynomaly.rules",
-                "rules": list(ALERT_RULES.values())
-            }
-        ]
+        "groups": [{"name": "pynomaly.rules", "rules": list(ALERT_RULES.values())}]
     }
-    
+
     return yaml.dump(rules_config, default_flow_style=False)
 
 
 if __name__ == "__main__":
     # Generate all dashboards when run as script
     DashboardGenerator.save_dashboards()
-    
+
     # Generate alert rules
     with open("pynomaly-alerts.yml", "w") as f:
         f.write(generate_alert_rules_yaml())
-    
+
     print("Dashboard and alert configurations generated successfully!")

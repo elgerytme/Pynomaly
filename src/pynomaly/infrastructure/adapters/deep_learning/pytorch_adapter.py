@@ -115,6 +115,7 @@ class LSTMConfig(BaseModel):
 
 
 if PYTORCH_AVAILABLE:
+
     class AutoEncoder(nn.Module):
         """AutoEncoder neural network for anomaly detection."""
 
@@ -133,7 +134,11 @@ if PYTORCH_AVAILABLE:
                 encoder_layers.extend(
                     [
                         nn.Linear(in_dim, hidden_dim),
-                        nn.BatchNorm1d(hidden_dim) if config.batch_norm else nn.Identity(),
+                        (
+                            nn.BatchNorm1d(hidden_dim)
+                            if config.batch_norm
+                            else nn.Identity()
+                        ),
                         self._get_activation(config.activation),
                         nn.Dropout(config.dropout_rate),
                     ]
@@ -152,7 +157,11 @@ if PYTORCH_AVAILABLE:
                 decoder_layers.extend(
                     [
                         nn.Linear(in_dim, hidden_dim),
-                        nn.BatchNorm1d(hidden_dim) if config.batch_norm else nn.Identity(),
+                        (
+                            nn.BatchNorm1d(hidden_dim)
+                            if config.batch_norm
+                            else nn.Identity()
+                        ),
                         self._get_activation(config.activation),
                         nn.Dropout(config.dropout_rate),
                     ]
@@ -188,10 +197,13 @@ else:
     # Fallback class when PyTorch is not available
     class AutoEncoder:
         def __init__(self, *args, **kwargs):
-            raise ImportError("PyTorch is required for AutoEncoder. Install with: pip install torch")
+            raise ImportError(
+                "PyTorch is required for AutoEncoder. Install with: pip install torch"
+            )
 
 
 if PYTORCH_AVAILABLE:
+
     class VAE(nn.Module):
         """Variational AutoEncoder for anomaly detection."""
 
@@ -208,7 +220,11 @@ if PYTORCH_AVAILABLE:
 
             for hidden_dim in config.encoder_dims:
                 encoder_layers.extend(
-                    [nn.Linear(in_dim, hidden_dim), nn.ReLU(), nn.BatchNorm1d(hidden_dim)]
+                    [
+                        nn.Linear(in_dim, hidden_dim),
+                        nn.ReLU(),
+                        nn.BatchNorm1d(hidden_dim),
+                    ]
                 )
                 in_dim = hidden_dim
 
@@ -222,7 +238,11 @@ if PYTORCH_AVAILABLE:
 
             for hidden_dim in config.decoder_dims:
                 decoder_layers.extend(
-                    [nn.Linear(in_dim, hidden_dim), nn.ReLU(), nn.BatchNorm1d(hidden_dim)]
+                    [
+                        nn.Linear(in_dim, hidden_dim),
+                        nn.ReLU(),
+                        nn.BatchNorm1d(hidden_dim),
+                    ]
                 )
                 in_dim = hidden_dim
 
@@ -257,10 +277,13 @@ else:
     # Fallback class when PyTorch is not available
     class VAE:
         def __init__(self, *args, **kwargs):
-            raise ImportError("PyTorch is required for VAE. Install with: pip install torch")
+            raise ImportError(
+                "PyTorch is required for VAE. Install with: pip install torch"
+            )
 
 
 if PYTORCH_AVAILABLE:
+
     class LSTMAutoEncoder(nn.Module):
         """LSTM-based AutoEncoder for time series anomaly detection."""
 
@@ -316,7 +339,9 @@ else:
     # Fallback classes when PyTorch is not available
     class LSTMAutoEncoder:
         def __init__(self, *args, **kwargs):
-            raise ImportError("PyTorch is required for LSTMAutoEncoder. Install with: pip install torch")
+            raise ImportError(
+                "PyTorch is required for LSTMAutoEncoder. Install with: pip install torch"
+            )
 
 
 class PyTorchAdapter(DetectorProtocol):
@@ -748,4 +773,3 @@ class PyTorchAdapter(DetectorProtocol):
             )
 
         return info
-

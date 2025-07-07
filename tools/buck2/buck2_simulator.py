@@ -5,12 +5,13 @@ This simulator provides a mock Buck2 environment that mimics Buck2's behavior
 for testing the integration framework, build hooks, and workflow validation.
 """
 
-import sys
 import json
-import time
 import subprocess
+import sys
+import time
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
 
 class Buck2Simulator:
     """Simulator for Buck2 build system."""

@@ -14,7 +14,9 @@ class AppSettings(BaseModel):
 
     name: str = "Pynomaly"
     version: str = "0.1.0"
-    description: str = "Advanced anomaly detection API with unified multi-algorithm interface"
+    description: str = (
+        "Advanced anomaly detection API with unified multi-algorithm interface"
+    )
     environment: str = "development"
     debug: bool = False
 

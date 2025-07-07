@@ -29,10 +29,6 @@ from pynomaly.infrastructure.config.service_registry import (
     RepositoryFactory,
     ServiceGroupFactory,
 )
-from pynomaly.infrastructure.repositories.in_memory_repositories import (
-    InMemoryDetectorRepository,
-    InMemoryResultRepository,
-)
 from pynomaly.infrastructure.config.settings import Settings
 from pynomaly.infrastructure.repositories import (
     FileDatasetRepository,
@@ -46,6 +42,10 @@ from pynomaly.infrastructure.repositories.async_wrappers import (
     AsyncDatasetRepositoryWrapper,
     AsyncDetectionResultRepositoryWrapper,
     AsyncDetectorRepositoryWrapper,
+)
+from pynomaly.infrastructure.repositories.in_memory_repositories import (
+    InMemoryDetectorRepository,
+    InMemoryResultRepository,
 )
 
 
