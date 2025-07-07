@@ -176,8 +176,9 @@ def create_app(container: Container | None = None) -> FastAPI:
     app.state.container = container
 
     # Configure comprehensive OpenAPI documentation
-    if settings.docs_enabled:
-        configure_openapi_docs(app, settings)
+    # Temporarily disabled - fixing pydantic forward reference issue
+    # if settings.docs_enabled:
+    #     configure_openapi_docs(app, settings)
 
     # Add CORS middleware
     app.add_middleware(CORSMiddleware, **settings.get_cors_config())
@@ -194,7 +195,7 @@ def create_app(container: Container | None = None) -> FastAPI:
     app.include_router(api_docs.router, tags=["documentation"])
 
     # Include API routers
-    app.include_router(health.router, prefix="/api/health", tags=["health"])
+    app.include_router(health.router, prefix="/api", tags=["health"])
 
     app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
 
