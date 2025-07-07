@@ -137,10 +137,14 @@ def check_applied(db_manager: DatabaseManager) -> bool:
                 return False
         
         # Check if default roles exist
-        with db_manager.get_session() as session:
+        session_gen = db_manager.get_session()
+        session = next(session_gen)
+        try:
             system_roles = session.query(RoleModel).filter(RoleModel.is_system_role == True).count()
             if system_roles == 0:
                 return False
+        finally:
+            session.close()
         
         return True
         

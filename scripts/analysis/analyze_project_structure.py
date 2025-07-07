@@ -467,7 +467,11 @@ def main():
         for i, rec in enumerate(analysis["recommendations"], 1):
             print(f"  {i}. {rec}")
 
-    print(f"\n📄 Detailed analysis saved to: {output_file}")
+    print(f"\n📄 Reports generated:")
+    print(f"  - Full tree layout: {current_layout_file}")
+    print(f"  - Violations report: {violations_file}")
+    print(f"  - Detailed analysis: {output_file}")
+    print(f"\n🎯 Found {violations['total_violations']} violations that need attention.")
 
     return analysis
 
