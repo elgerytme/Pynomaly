@@ -112,7 +112,8 @@ celerybeat.pid
 # Virtual Environments
 # --------------------
 # All environments are now centralized in environments/ directory
-environments/
+environments/environments/
+environments/.*
 !environments/README.md
 
 # Legacy environment patterns (keep for backwards compatibility)

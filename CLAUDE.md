@@ -24,6 +24,8 @@ Pynomaly: Python 3.11+ anomaly detection package integrating PyOD, PyGOD, scikit
 - **PWA**: HTMX + Tailwind + D3.js + ECharts, offline-capable, installable
 
 ## Structure
+**Reference**: See `PROJECT_STRUCTURE.md` for complete directory layout and organization rules.
+
 ```
 src/pynomaly/
 ├── domain/ presentation/ infrastructure/ application/ shared/
@@ -49,10 +51,12 @@ npm install htmx.org d3 echarts tailwindcss
 4. Objective and critical assessment of code quality
 
 ## File Organization (ENFORCED)
+**Reference**: See `PROJECT_STRUCTURE.md` for complete directory structure and AI assistant guidelines.
 **Root**: Only essential config files (README.md, pyproject.toml, etc.)
 **Move**: tests/ → tests/, scripts/ → scripts/, docs/ → docs/, reports/ → reports/
 **Delete**: temp files, build artifacts, stray environments
 **Validate**: `pre-commit install`, `python scripts/validate_file_organization.py`
+**AI Note**: Project organization is difficult to maintain consistently with AI agents - always reference PROJECT_STRUCTURE.md
 
 ## Documentation (AUTO-UPDATE)
 **Every commit**: Update README.md/TODO.md for accuracy
