@@ -354,6 +354,14 @@ benchmarks/results/
 /DEPLOYMENT_*.md
 /IMPLEMENTATION_*.md
 
+# Build and temp directories that need to be ignored
+buck-out/
+build/
+toolchains/
+tools/
+environments/
+stories/
+
 # Temporary development files
 /temp_*
 /tmp_*
