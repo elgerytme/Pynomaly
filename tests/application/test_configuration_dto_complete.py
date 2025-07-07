@@ -11,10 +11,10 @@ import pytest
 from pynomaly.application.dto.configuration_dto import (
     AlgorithmConfigurationDTO,
     ConfigurationMetadataDTO,
-    DatasetConfigurationDTO,
-    EvaluationConfigurationDTO,
+    DatasetConfigDTO,
+    EvaluationConfigDTO,
     ExperimentConfigurationDTO,
-    PreprocessingConfigurationDTO,
+    PreprocessingConfigDTO,
     merge_configurations,
     validate_configuration_compatibility,
 )
@@ -34,24 +34,22 @@ class TestMergeConfigurations:
                 algorithm_type="ensemble",
                 parameters={"contamination": 0.1, "n_estimators": 100},
             ),
-            dataset_config=DatasetConfigurationDTO(
+            dataset_config=DatasetConfigDTO(
                 dataset_path="/data/base_dataset.csv",
-                dataset_format="csv",
+                file_format="csv",
                 target_column="target",
                 feature_columns=["feature1", "feature2", "feature3"],
-                validation_split=0.2,
             ),
-            preprocessing_config=PreprocessingConfigurationDTO(
+            preprocessing_config=PreprocessingConfigDTO(
                 scaling_method="standard",
-                handle_missing="mean",
+                missing_value_strategy="mean",
                 feature_selection_method="none",
-                outlier_removal=False,
             ),
-            evaluation_config=EvaluationConfigurationDTO(
-                metrics=["precision", "recall", "f1"],
-                cross_validation_folds=5,
+            evaluation_config=EvaluationConfigDTO(
+                secondary_metrics=["precision", "recall", "f1"],
+                cv_folds=5,
                 test_size=0.2,
-                random_state=42,
+                cv_random_state=42,
             ),
             metadata=ConfigurationMetadataDTO(
                 created_at=datetime.now(),

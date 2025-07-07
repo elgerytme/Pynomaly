@@ -27,7 +27,9 @@ class Permission:
     description: str = ""
 
 # Now load the permission matrix file directly
-permission_matrix_path = Path(__file__).parent / "src" / "pynomaly" / "domain" / "security" / "permission_matrix.py"
+# Find the project root by going up from the test file
+project_root = Path(__file__).parent.parent.parent
+permission_matrix_path = project_root / "src" / "pynomaly" / "domain" / "security" / "permission_matrix.py"
 
 # Read and execute the permission matrix code
 with open(permission_matrix_path, 'r') as f:

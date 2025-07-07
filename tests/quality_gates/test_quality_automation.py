@@ -440,7 +440,7 @@ class TestCodeQualityGate:
         assert result["missing_docstrings_count"] == 1
 
 
-class TestCICD Integration:
+class TestCICDIntegration:
     """Test suite for CI/CD pipeline integration."""
 
     def test_github_actions_integration(self):

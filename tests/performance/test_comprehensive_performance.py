@@ -989,8 +989,8 @@ class TestSystemPerformance:
         assert step_times["create_detector"] < 0.5  # Under 0.5 seconds
         assert step_times["detect_anomalies"] < 2.0 # Under 2 seconds
         
-        print(f"E2E Performance: {total_time:.2f}s total, "
-              f"steps: {[f'{s[\"step\"]}:{s[\"duration\"]:.2f}s' for s in workflow_steps]}")
+        step_details = [f"{s['step']}:{s['duration']:.2f}s" for s in workflow_steps]
+        print(f"E2E Performance: {total_time:.2f}s total, steps: {step_details}")
     
     def test_performance_regression_detection(self):
         """Test for performance regressions."""
