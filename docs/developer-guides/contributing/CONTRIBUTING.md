@@ -4,8 +4,17 @@
 
 ---
 
+Thank you for your interest in contributing to Pynomaly! This comprehensive guide will help you get started with contributing to our state-of-the-art anomaly detection library.
 
-Thank you for your interest in contributing to Pynomaly! This document provides guidelines and instructions for contributing to the project.
+## 🌟 Welcome Contributors!
+
+We welcome contributions of all kinds:
+- 🐛 Bug reports and fixes
+- 🚀 New features and algorithms
+- 📚 Documentation improvements
+- 🧪 Tests and benchmarks
+- 💡 Performance optimizations
+- 🎨 Examples and tutorials
 
 ## Code of Conduct
 
@@ -39,26 +48,61 @@ By participating in this project, you agree to abide by our Code of Conduct. Ple
 8. Push to your fork
 9. Open a pull request
 
-## Development Setup
+## 🚀 Quick Start
 
-### Prerequisites
-
-- Python 3.11 or higher
-- Poetry for dependency management
-- Git for version control
-
-### Installation
+### 1. Set Up Development Environment
 
 ```bash
-# Clone your fork
-git clone https://github.com/your-username/pynomaly.git
+# Clone the repository
+git clone https://github.com/pynomaly/pynomaly.git
 cd pynomaly
 
-# Install dependencies
-poetry install --with dev
+# Set up virtual environment (using our preferred structure)
+mkdir -p environments
+python -m venv environments/.venv
+source environments/.venv/bin/activate  # On Windows: environments\.venv\Scripts\activate
+
+# Install development dependencies
+pip install -e ".[dev,test,docs]"
 
 # Install pre-commit hooks
 pre-commit install
+
+# Verify installation
+python -c "import pynomaly; print('✅ Pynomaly installed successfully!')"
+```
+
+### 2. Run Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=src/pynomaly --cov-report=html
+
+# Run specific test categories
+pytest tests/unit/          # Unit tests
+pytest tests/integration/   # Integration tests
+pytest tests/performance/   # Performance tests
+```
+
+### 3. Code Quality Checks
+
+```bash
+# Format code
+black src/ tests/
+isort src/ tests/
+
+# Type checking
+mypy src/pynomaly
+
+# Linting
+flake8 src/ tests/
+pylint src/pynomaly
+
+# All-in-one quality check
+pre-commit run --all-files
 ```
 
 ### Running Tests

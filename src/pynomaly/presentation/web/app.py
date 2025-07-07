@@ -99,7 +99,7 @@ async def login_post(
     settings = container.config()
 
     if not settings.auth_enabled:
-        return RedirectResponse(url="/web/", status_code=302)
+        return RedirectResponse(url="/", status_code=302)
 
     try:
         from pynomaly.domain.exceptions import AuthenticationError
@@ -116,7 +116,7 @@ async def login_post(
         token_response = auth_service.create_access_token(user)
 
         # Create redirect response with token as cookie
-        response = RedirectResponse(url="/web/", status_code=302)
+        response = RedirectResponse(url="/", status_code=302)
         response.set_cookie(
             key="access_token",
             value=f"Bearer {token_response.access_token}",
@@ -137,7 +137,7 @@ async def login_post(
 @router.post("/logout")
 async def logout():
     """Handle logout."""
-    response = RedirectResponse(url="/web/login", status_code=302)
+    response = RedirectResponse(url="/login", status_code=302)
     response.delete_cookie("access_token")
     return response
 
@@ -498,7 +498,7 @@ async def users_page(
 
     # Check if user is authenticated and has admin permissions
     if not current_user:
-        return RedirectResponse(url="/web/login", status_code=302)
+        return RedirectResponse(url="/login", status_code=302)
 
     # Check admin permissions
     from pynomaly.infrastructure.auth import get_auth
@@ -1668,7 +1668,7 @@ async def htmx_bulk_export(
                 <h4 class="font-medium text-green-900">Export completed!</h4>
                 <p class="text-sm text-green-700 mt-2">Exported {len(ids)} items in {format.upper()} format</p>
                 <div class="mt-4 space-y-2">
-                    <a href="/web/download/{download_filename}"
+                    <a href="/download/{download_filename}"
                        class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
                         <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -1694,7 +1694,7 @@ def mount_web_ui(app):
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
     # Include web routes
-    app.include_router(router, prefix="/web", tags=["Web UI"])
+    app.include_router(router, prefix="", tags=["Web UI"])
 
 
 def create_web_app():

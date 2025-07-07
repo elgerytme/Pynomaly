@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
+from typing import Any
 from uuid import UUID, uuid4
 
 
@@ -539,3 +540,129 @@ class CostOptimizationPlan:
         phase4 = [r for r in recommendations if r.risk_level == "high"]
 
         return [phase for phase in [phase1, phase2, phase3, phase4] if phase]
+
+
+@dataclass
+class CostOptimization:
+    """Main entity for cost optimization system management."""
+    
+    optimization_id: UUID = field(default_factory=uuid4)
+    tenant_id: UUID | None = None
+    name: str = ""
+    description: str = ""
+    
+    # Configuration
+    optimization_enabled: bool = True
+    strategy: OptimizationStrategy = OptimizationStrategy.BALANCED
+    auto_implementation_enabled: bool = False
+    max_risk_level: str = "medium"
+    
+    # Current state
+    total_resources_monitored: int = 0
+    resources_with_recommendations: int = 0
+    active_recommendations: int = 0
+    implemented_recommendations: int = 0
+    
+    # Financial metrics
+    total_monthly_cost: float = 0.0
+    potential_monthly_savings: float = 0.0
+    actual_monthly_savings: float = 0.0
+    optimization_roi: float = 0.0
+    
+    # Optimization plans
+    active_plans: list[UUID] = field(default_factory=list)
+    completed_plans: list[UUID] = field(default_factory=list)
+    
+    # System health
+    optimization_health_score: float = 1.0
+    last_optimization_run: datetime | None = None
+    optimization_frequency_hours: int = 24
+    
+    # Tracking
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    last_updated: datetime = field(default_factory=datetime.utcnow)
+    created_by: str = ""
+    
+    # Metadata
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self):
+        """Validate cost optimization configuration."""
+        if self.optimization_frequency_hours <= 0:
+            raise ValueError("Optimization frequency must be positive")
+
+    @property 
+    def savings_rate(self) -> float:
+        """Calculate savings rate as percentage of total cost."""
+        if self.total_monthly_cost == 0:
+            return 0.0
+        return (self.actual_monthly_savings / self.total_monthly_cost) * 100
+
+    @property
+    def recommendation_coverage(self) -> float:
+        """Calculate percentage of resources with recommendations."""
+        if self.total_resources_monitored == 0:
+            return 0.0
+        return (self.resources_with_recommendations / self.total_resources_monitored) * 100
+
+    @property
+    def implementation_rate(self) -> float:
+        """Calculate percentage of recommendations implemented."""
+        if self.active_recommendations == 0:
+            return 100.0  # No recommendations to implement
+        return (self.implemented_recommendations / (self.active_recommendations + self.implemented_recommendations)) * 100
+
+    @property
+    def is_optimization_healthy(self) -> bool:
+        """Check if optimization system is healthy."""
+        return (
+            self.optimization_health_score > 0.8
+            and self.savings_rate > 0.0
+            and self.recommendation_coverage > 50.0
+        )
+
+    def needs_optimization_run(self) -> bool:
+        """Check if optimization analysis needs to be run."""
+        if not self.last_optimization_run:
+            return True
+        
+        time_since_last_run = datetime.utcnow() - self.last_optimization_run
+        return time_since_last_run.total_seconds() / 3600 >= self.optimization_frequency_hours
+
+    def get_optimization_summary(self) -> dict[str, Any]:
+        """Get comprehensive optimization summary."""
+        return {
+            "optimization_id": str(self.optimization_id),
+            "tenant_id": str(self.tenant_id) if self.tenant_id else None,
+            "name": self.name,
+            "enabled": self.optimization_enabled,
+            "strategy": self.strategy.value,
+            "health": {
+                "score": self.optimization_health_score,
+                "is_healthy": self.is_optimization_healthy,
+            },
+            "financial_metrics": {
+                "total_monthly_cost": self.total_monthly_cost,
+                "potential_savings": self.potential_monthly_savings,
+                "actual_savings": self.actual_monthly_savings,
+                "savings_rate": self.savings_rate,
+                "roi": self.optimization_roi,
+            },
+            "resource_metrics": {
+                "total_monitored": self.total_resources_monitored,
+                "with_recommendations": self.resources_with_recommendations,
+                "coverage": self.recommendation_coverage,
+            },
+            "recommendation_metrics": {
+                "active": self.active_recommendations,
+                "implemented": self.implemented_recommendations,
+                "implementation_rate": self.implementation_rate,
+            },
+            "system_info": {
+                "last_run": self.last_optimization_run.isoformat() if self.last_optimization_run else None,
+                "needs_run": self.needs_optimization_run(),
+                "frequency_hours": self.optimization_frequency_hours,
+                "auto_implementation": self.auto_implementation_enabled,
+            },
+            "metadata": self.metadata,
+        }
