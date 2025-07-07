@@ -6,6 +6,16 @@ Pynomaly is an anomaly detection platform with clean architecture and PyOD integ
 
 ## ✅ **Recently Completed Work**
 
+### ✅ **COMPLETED: Run Scripts & CI/CD Pipeline** (July 2025)
+- **Run Scripts Testing**: All 8 scripts in `scripts/run/` tested and verified working
+- **Issue Resolution**: Fixed import errors, timeout issues, and dependency injection warnings
+- **CI/CD Pipeline**: Comprehensive GitHub Actions workflows for:
+  - Continuous Integration with multi-Python testing
+  - Continuous Deployment with Docker and Kubernetes
+  - Security scanning with CodeQL, Bandit, and Trivy
+  - Quality gates with coverage, complexity, and performance metrics
+- **Documentation Updates**: README.md updated with verified run script examples
+
 ### ✅ **COMPLETED: Test Infrastructure & Quality Systems**
 - Comprehensive testing framework with 85%+ coverage
 - Mutation testing, property-based testing with Hypothesis

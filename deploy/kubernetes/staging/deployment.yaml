@@ -1,0 +1,123 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pynomaly-api
+  namespace: pynomaly-staging
+  labels:
+    app: pynomaly-api
+    component: backend
+    environment: staging
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pynomaly-api
+      component: backend
+  template:
+    metadata:
+      labels:
+        app: pynomaly-api
+        component: backend
+        environment: staging
+    spec:
+      containers:
+      - name: api
+        image: ghcr.io/pynomaly/pynomaly:latest-api
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: ENVIRONMENT
+          value: "staging"
+        - name: LOG_LEVEL
+          value: "info"
+        - name: WORKERS
+          value: "2"
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pynomaly-web
+  namespace: pynomaly-staging
+  labels:
+    app: pynomaly-web
+    component: frontend
+    environment: staging
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pynomaly-web
+      component: frontend
+  template:
+    metadata:
+      labels:
+        app: pynomaly-web
+        component: frontend
+        environment: staging
+    spec:
+      containers:
+      - name: web
+        image: ghcr.io/pynomaly/pynomaly:latest-web
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: ENVIRONMENT
+          value: "staging"
+        - name: API_URL
+          value: "http://pynomaly-api:8000"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL

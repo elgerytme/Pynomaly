@@ -167,6 +167,37 @@ Pynomaly is designed to work seamlessly across different operating systems and e
 
 ## Quick Start
 
+### Verified Run Scripts
+
+All run scripts in `scripts/run/` are tested and working:
+
+```bash
+# CLI Interface
+python scripts/run/cli.py --help                    # Main CLI interface  ✅
+python scripts/run/run_pynomaly.py --help          # Alternative CLI entry  ✅
+python scripts/run/run_cli.py --help               # Streamlined CLI  ✅
+
+# API Server
+python scripts/run/run_api.py --help               # FastAPI server  ✅
+python scripts/run/run_api.py --port 8080          # Run on custom port
+python scripts/run/run_api.py --reload             # Development mode
+
+# Web Application
+python scripts/run/run_app.py --help               # Complete app runner  ✅
+python scripts/run/run_app.py --mode api           # API only
+python scripts/run/run_app.py --mode cli detect    # CLI mode
+
+# Web UI
+python scripts/run/run_web_app.py --help           # Combined web app  ✅
+python scripts/run/run_web_ui.py --help            # UI server only  ✅
+python scripts/run/run_web_ui.py --dev             # Development mode
+
+# Legacy CLI (Full-featured)
+python scripts/run/pynomaly_cli.py help            # Comprehensive CLI tools  ✅
+```
+
+**Status**: All scripts tested and verified working in both current and fresh environments.
+
 ### CLI Usage
 
 ```bash
@@ -242,9 +273,9 @@ if __name__ == "__main__":
 
 Access the API and Progressive Web App at http://localhost:8000 after starting the server.
 
-**📚 Complete Setup Guide**: See [docs/WEB_API_SETUP_GUIDE.md](docs/WEB_API_SETUP_GUIDE.md) for detailed instructions across all environments.
+**📚 Complete Setup Guide**: See [docs/developer-guides/api-integration/WEB_API_SETUP_GUIDE.md](docs/developer-guides/api-integration/WEB_API_SETUP_GUIDE.md) for detailed instructions across all environments.
 
-**⚡ Quick Reference**: See [docs/API_QUICK_REFERENCE.md](docs/API_QUICK_REFERENCE.md) for commands and endpoints.
+**⚡ Quick Reference**: See [docs/developer-guides/api-integration/API_QUICK_REFERENCE.md](docs/developer-guides/api-integration/API_QUICK_REFERENCE.md) for commands and endpoints.
 
 - **Real-time Dashboard**: Live anomaly detection with WebSocket updates
 - **Interactive Visualizations**: D3.js custom charts and Apache ECharts statistical plots
