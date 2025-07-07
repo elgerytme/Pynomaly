@@ -87,6 +87,7 @@ class ComplianceStatus(Enum):
     COMPLIANT = "compliant"
     NON_COMPLIANT = "non_compliant"
     PARTIALLY_COMPLIANT = "partially_compliant"
+    NOT_ASSESSED = "not_assessed"
     UNDER_REVIEW = "under_review"
     REMEDIATION_REQUIRED = "remediation_required"
 

@@ -50,6 +50,10 @@ class OpenAPIConfig:
         # Add custom OpenAPI extensions
         openapi_schema.update(self._get_openapi_extensions())
 
+        # Ensure components section exists
+        if "components" not in openapi_schema:
+            openapi_schema["components"] = {}
+
         # Add security schemes
         openapi_schema["components"]["securitySchemes"] = self._get_security_schemes()
 
@@ -135,7 +139,8 @@ The API uses standard HTTP status codes and returns detailed error messages:
         servers = [{"url": "/", "description": "Current server"}]
 
         # Add additional servers based on environment
-        if self.settings.app.environment == "development":
+        environment = getattr(self.settings.app, 'environment', 'development')
+        if environment == "development":
             servers.extend(
                 [
                     {
@@ -148,14 +153,14 @@ The API uses standard HTTP status codes and returns detailed error messages:
                     },
                 ]
             )
-        elif self.settings.app.environment == "staging":
+        elif environment == "staging":
             servers.append(
                 {
                     "url": "https://staging-api.pynomaly.io",
                     "description": "Staging server",
                 }
             )
-        elif self.settings.app.environment == "production":
+        elif environment == "production":
             servers.append(
                 {"url": "https://api.pynomaly.io", "description": "Production server"}
             )
