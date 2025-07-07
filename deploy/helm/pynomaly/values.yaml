@@ -1,0 +1,455 @@
+# Default values for pynomaly
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Global configuration
+global:
+  # Image registry
+  imageRegistry: ""
+  # Image pull secrets
+  imagePullSecrets: []
+  # Storage class for persistent volumes
+  storageClass: ""
+  # PostgreSQL authentication
+  postgresql:
+    auth:
+      postgresPassword: ""
+      username: "pynomaly"
+      password: ""
+      database: "pynomaly"
+  # Redis authentication
+  redis:
+    auth:
+      enabled: true
+      password: ""
+
+# Pynomaly application configuration
+pynomaly:
+  # Image configuration
+  image:
+    registry: docker.io
+    repository: pynomaly/pynomaly
+    tag: "1.0.0"
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+
+  # Environment
+  environment: production
+  logLevel: INFO
+
+  # Application configuration
+  config:
+    # Security
+    secretKey: ""
+    jwtSecretKey: ""
+    encryptionKey: ""
+    
+    # Features
+    authEnabled: true
+    cacheEnabled: true
+    metricsEnabled: true
+    tracingEnabled: false
+    
+    # API configuration
+    apiPrefix: "/api/v1"
+    docsEnabled: false
+    corsEnabled: false
+    
+    # Performance
+    workersConcurrency: 2
+    maxRequestSize: "16MB"
+    requestTimeout: 30
+
+# API deployment configuration
+api:
+  # Replica configuration
+  replicaCount: 3
+  
+  # Deployment strategy
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  
+  # Container configuration
+  image:
+    repository: pynomaly/pynomaly
+    tag: ""
+    pullPolicy: IfNotPresent
+  
+  # Resource requirements
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+  
+  # Health checks
+  livenessProbe:
+    httpGet:
+      path: /api/v1/health
+      port: http
+    initialDelaySeconds: 60
+    periodSeconds: 30
+    timeoutSeconds: 10
+    failureThreshold: 3
+  
+  readinessProbe:
+    httpGet:
+      path: /api/v1/health/ready
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  
+  startupProbe:
+    httpGet:
+      path: /api/v1/health
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+  
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+  
+  # Pod security context
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  
+  # Node selection
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  
+  # Pod disruption budget
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 2
+  
+  # Horizontal pod autoscaler
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+# Worker deployment configuration
+worker:
+  # Replica configuration
+  replicaCount: 2
+  
+  # Container configuration
+  image:
+    repository: pynomaly/pynomaly
+    tag: ""
+    pullPolicy: IfNotPresent
+  
+  # Worker-specific configuration
+  concurrency: 2
+  
+  # Resource requirements
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+    limits:
+      memory: "4Gi"
+      cpu: "2000m"
+  
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+  
+  # Pod disruption budget
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  
+  # Horizontal pod autoscaler
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 85
+
+# Service configuration
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 8000
+  annotations: {}
+  
+  # Internal service for metrics
+  internal:
+    enabled: true
+    port: 8000
+    metricsPort: 9090
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: api.pynomaly.ai
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: pynomaly-tls
+      hosts:
+        - api.pynomaly.ai
+
+# PostgreSQL configuration
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: ""
+    username: "pynomaly"
+    password: ""
+    database: "pynomaly"
+  architecture: standalone
+  primary:
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "4Gi"
+        cpu: "2000m"
+    persistence:
+      enabled: true
+      size: 20Gi
+      storageClass: ""
+    securityContext:
+      enabled: true
+      fsGroup: 1001
+      runAsUser: 1001
+    containerSecurityContext:
+      enabled: true
+      runAsUser: 1001
+      runAsNonRoot: true
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: false
+      capabilities:
+        drop: ["ALL"]
+  metrics:
+    enabled: true
+    image:
+      registry: docker.io
+      repository: prometheuscommunity/postgres-exporter
+      tag: v0.15.0
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "50m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+
+# Redis configuration
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: ""
+  architecture: standalone
+  master:
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
+    persistence:
+      enabled: true
+      size: 5Gi
+      storageClass: ""
+    securityContext:
+      enabled: true
+      fsGroup: 1001
+      runAsUser: 1001
+    containerSecurityContext:
+      enabled: true
+      runAsUser: 1001
+      runAsNonRoot: true
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop: ["ALL"]
+  metrics:
+    enabled: true
+    image:
+      registry: docker.io
+      repository: oliver006/redis_exporter
+      tag: v1.56.0
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "50m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+
+# Persistent storage
+persistence:
+  enabled: true
+  storageClass: ""
+  accessMode: ReadWriteMany
+  size: 50Gi
+  annotations: {}
+
+# ServiceAccount configuration
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+  automountServiceAccountToken: false
+
+# RBAC configuration
+rbac:
+  create: true
+  rules:
+    - apiGroups: [""]
+      resources: ["configmaps", "secrets"]
+      verbs: ["get", "list"]
+    - apiGroups: [""]
+      resources: ["pods"]
+      verbs: ["get", "list"]
+
+# Security policies
+securityPolicies:
+  networkPolicy:
+    enabled: true
+    ingress:
+      - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+        ports:
+        - protocol: TCP
+          port: 8000
+      - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+        ports:
+        - protocol: TCP
+          port: 9090
+    egress:
+      - to: []
+        ports:
+        - protocol: TCP
+          port: 5432  # PostgreSQL
+        - protocol: TCP
+          port: 6379  # Redis
+        - protocol: TCP
+          port: 53    # DNS
+        - protocol: UDP
+          port: 53    # DNS
+
+  podSecurityPolicy:
+    enabled: false
+    
+  podSecurityStandards:
+    enforce: "restricted"
+    audit: "restricted"
+    warn: "restricted"
+
+# Monitoring configuration
+monitoring:
+  # Prometheus metrics
+  metrics:
+    enabled: true
+    port: 9090
+    path: /metrics
+    serviceMonitor:
+      enabled: true
+      interval: 30s
+      scrapeTimeout: 10s
+      labels: {}
+      annotations: {}
+  
+  # Prometheus (if deploying with chart)
+  prometheus:
+    enabled: false
+    
+  # Grafana (if deploying with chart)
+  grafana:
+    enabled: false
+
+# Backup configuration
+backup:
+  enabled: false
+  schedule: "0 2 * * *"
+  retention: "30d"
+  storage:
+    type: s3
+    bucket: ""
+    region: ""
+    accessKey: ""
+    secretKey: ""
+
+# Migration jobs
+migrations:
+  enabled: true
+  image:
+    repository: pynomaly/pynomaly
+    tag: ""
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "1Gi"
+      cpu: "500m"
+
+# Tests
+tests:
+  enabled: true
+  image:
+    repository: pynomaly/pynomaly
+    tag: ""
+    pullPolicy: IfNotPresent
+
+# Extra objects to deploy
+extraObjects: []
+
+# Common labels to apply to all resources
+commonLabels: {}
+
+# Common annotations to apply to all resources
+commonAnnotations: {}

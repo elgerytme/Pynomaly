@@ -78,7 +78,7 @@ class DatabaseMigrator:
             True if all tables exist, False otherwise
         """
         try:
-            required_tables = {"datasets", "detectors", "detection_results", "users", "roles", "permissions", "tenants", "user_roles"}
+            required_tables = {"datasets", "detectors", "detection_results", "users", "roles", "tenants", "user_roles"}
             existing_tables = set(self.engine.table_names())
             missing_tables = required_tables - existing_tables
 

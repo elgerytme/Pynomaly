@@ -89,11 +89,8 @@ def downgrade(db_manager: DatabaseManager) -> bool:
         engine = db_manager.engine
         
         # Drop tables in reverse order
-        user_roles_association.drop(engine, checkfirst=True)
+        UserRoleModel.__table__.drop(engine, checkfirst=True)
         logger.info("Dropped user_roles association table")
-        
-        PermissionModel.__table__.drop(engine, checkfirst=True)
-        logger.info("Dropped permissions table")
         
         RoleModel.__table__.drop(engine, checkfirst=True)
         logger.info("Dropped roles table")
@@ -128,7 +125,7 @@ def check_applied(db_manager: DatabaseManager) -> bool:
         engine = db_manager.engine
         
         # Check if all required tables exist
-        required_tables = ['users', 'roles', 'permissions', 'tenants', 'user_roles']
+        required_tables = ['users', 'roles', 'tenants', 'user_roles']
         existing_tables = engine.table_names()
         
         for table in required_tables:

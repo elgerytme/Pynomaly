@@ -509,7 +509,7 @@ class DatabaseDetectionResultRepository(DetectionResultRepositoryProtocol):
                 # Update existing
                 existing.scores = scores_data
                 existing.labels = getattr(result, "labels", [])
-                existing.metadata = result.metadata
+                existing.meta_data = result.metadata
             else:
                 # Insert new
                 model = DetectionResultModel(
@@ -518,7 +518,7 @@ class DatabaseDetectionResultRepository(DetectionResultRepositoryProtocol):
                     dataset_id=result.dataset_id,
                     scores=scores_data,
                     labels=getattr(result, "labels", []),
-                    metadata=result.metadata,
+                    meta_data=result.metadata,
                     created_at=result.timestamp,
                 )
                 session.add(model)
@@ -647,7 +647,7 @@ class DatabaseDetectionResultRepository(DetectionResultRepositoryProtocol):
             detector_id=model.detector_id,
             dataset_id=model.dataset_id,
             scores=scores,
-            metadata=model.metadata or {},
+            metadata=model.meta_data or {},
             id=model.id,
             timestamp=model.created_at,
         )
