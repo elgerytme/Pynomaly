@@ -23,7 +23,7 @@ from pynomaly.presentation.cli import (
     tdd,
 )
 
-# from pynomaly.presentation.cli import performance  # Temporarily disabled due to Typer type issues
+from pynomaly.presentation.cli.performance import performance_app
 from pynomaly.presentation.cli.export import export_app
 
 # from pynomaly.presentation.cli import deep_learning  # Fixed syntax errors but uses click, needs typer conversion
@@ -90,7 +90,7 @@ app.add_typer(
     export_app, name="export", help="Export results to business intelligence platforms"
 )
 app.add_typer(server.app, name="server", help="Manage API server")
-# app.add_typer(performance.app, name="perf", help="Performance monitoring and optimization")  # Disabled
+app.add_typer(performance_app, name="perf", help="Performance monitoring and optimization")
 
 # Configuration recommendation commands
 if RECOMMENDATION_CLI_AVAILABLE:

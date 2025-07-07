@@ -5,12 +5,13 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-import click
+import typer
 from rich.console import Console
 from rich.layout import Layout
 from rich.panel import Panel
 from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn
 from rich.table import Table
+from typing import List, Optional
 
 from pynomaly.application.services.performance_testing_service import (
     PerformanceTestingService,
@@ -21,39 +22,18 @@ from pynomaly.infrastructure.config.container import Container
 console = Console()
 
 
-@click.group(name="performance")
-def performance_commands():
-    """Performance testing and benchmarking commands."""
-    pass
+# Create Typer app for performance commands
+performance_app = typer.Typer(name="performance", help="Performance testing and benchmarking commands")
 
 
-@performance_commands.command()
-@click.option(
-    "--suite",
-    type=click.Choice(["quick", "comprehensive", "scalability", "custom"]),
-    default="quick",
-    help="Benchmark suite to run",
-)
-@click.option("--algorithms", multiple=True, help="Specific algorithms to benchmark")
-@click.option("--output-dir", help="Output directory for results")
-@click.option(
-    "--iterations", type=int, default=3, help="Number of benchmark iterations"
-)
-@click.option("--timeout", type=int, default=300, help="Timeout per test in seconds")
-@click.option(
-    "--export-format",
-    type=click.Choice(["json", "csv", "html", "excel"]),
-    multiple=True,
-    default=["json"],
-    help="Export formats for results",
-)
+@performance_app.command()
 def benchmark(
-    suite: str,
-    algorithms: list[str],
-    output_dir: str | None,
-    iterations: int,
-    timeout: int,
-    export_format: list[str],
+    suite: str = typer.Option("quick", help="Benchmark suite to run"),
+    algorithms: Optional[List[str]] = typer.Option(None, help="Specific algorithms to benchmark"),
+    output_dir: Optional[str] = typer.Option(None, help="Output directory for results"),
+    iterations: int = typer.Option(3, help="Number of benchmark iterations"),
+    timeout: int = typer.Option(300, help="Timeout per test in seconds"),
+    export_format: List[str] = typer.Option(["json"], help="Export formats for results"),
 ):
     """Run comprehensive algorithm benchmarking suite."""
 
@@ -171,22 +151,15 @@ def benchmark(
     asyncio.run(run_benchmark())
 
 
-@performance_commands.command()
-@click.option("--algorithm", required=True, help="Algorithm to analyze")
-@click.option("--min-size", type=int, default=1000, help="Minimum dataset size")
-@click.option("--max-size", type=int, default=100000, help="Maximum dataset size")
-@click.option("--min-features", type=int, default=10, help="Minimum feature count")
-@click.option("--max-features", type=int, default=200, help="Maximum feature count")
-@click.option("--steps", type=int, default=10, help="Number of test points")
-@click.option("--output-file", help="Output file for scalability analysis")
+@performance_app.command()
 def scalability(
-    algorithm: str,
-    min_size: int,
-    max_size: int,
-    min_features: int,
-    max_features: int,
-    steps: int,
-    output_file: str | None,
+    algorithm: str = typer.Option(..., help="Algorithm to analyze"),
+    min_size: int = typer.Option(1000, help="Minimum dataset size"),
+    max_size: int = typer.Option(100000, help="Maximum dataset size"),
+    min_features: int = typer.Option(10, help="Minimum feature count"),
+    max_features: int = typer.Option(200, help="Maximum feature count"),
+    steps: int = typer.Option(10, help="Number of test points"),
+    output_file: Optional[str] = typer.Option(None, help="Output file for scalability analysis"),
 ):
     """Run detailed scalability analysis for an algorithm."""
 
@@ -256,26 +229,15 @@ def scalability(
     asyncio.run(run_scalability())
 
 
-@performance_commands.command()
-@click.option("--algorithm", required=True, help="Algorithm to stress test")
-@click.option(
-    "--concurrent-requests", type=int, default=10, help="Number of concurrent requests"
-)
-@click.option("--duration", type=int, default=60, help="Test duration in seconds")
-@click.option("--memory-pressure", type=int, default=500, help="Memory pressure in MB")
-@click.option("--cpu-stress", type=int, default=1000, help="CPU intensive operations")
-@click.option(
-    "--endurance-hours", type=int, default=0, help="Endurance test duration in hours"
-)
-@click.option("--output-file", help="Output file for stress test results")
+@performance_app.command()
 def stress_test(
-    algorithm: str,
-    concurrent_requests: int,
-    duration: int,
-    memory_pressure: int,
-    cpu_stress: int,
-    endurance_hours: int,
-    output_file: str | None,
+    algorithm: str = typer.Option(..., help="Algorithm to stress test"),
+    concurrent_requests: int = typer.Option(10, help="Number of concurrent requests"),
+    duration: int = typer.Option(60, help="Test duration in seconds"),
+    memory_pressure: int = typer.Option(500, help="Memory pressure in MB"),
+    cpu_stress: int = typer.Option(1000, help="CPU intensive operations"),
+    endurance_hours: int = typer.Option(0, help="Endurance test duration in hours"),
+    output_file: Optional[str] = typer.Option(None, help="Output file for stress test results"),
 ):
     """Run comprehensive stress testing for an algorithm."""
 
@@ -348,16 +310,12 @@ def stress_test(
     asyncio.run(run_stress_test())
 
 
-@performance_commands.command()
-@click.option("--algorithms", multiple=True, help="Algorithms to compare")
-@click.option("--datasets", multiple=True, help="Datasets to use for comparison")
-@click.option("--metrics", multiple=True, help="Metrics to compare")
-@click.option("--output-file", help="Output file for comparison results")
+@performance_app.command()
 def compare(
-    algorithms: list[str],
-    datasets: list[str],
-    metrics: list[str],
-    output_file: str | None,
+    algorithms: Optional[List[str]] = typer.Option(None, help="Algorithms to compare"),
+    datasets: Optional[List[str]] = typer.Option(None, help="Datasets to use for comparison"),
+    metrics: Optional[List[str]] = typer.Option(None, help="Metrics to compare"),
+    output_file: Optional[str] = typer.Option(None, help="Output file for comparison results"),
 ):
     """Compare multiple algorithms across different datasets and metrics."""
 
@@ -457,17 +415,12 @@ def compare(
     asyncio.run(run_comparison())
 
 
-@performance_commands.command()
-@click.option("--results-dir", help="Directory containing benchmark results")
-@click.option(
-    "--format",
-    "report_format",
-    type=click.Choice(["console", "html", "pdf"]),
-    default="console",
-    help="Report format",
-)
-@click.option("--output-file", help="Output file for report")
-def report(results_dir: str | None, report_format: str, output_file: str | None):
+@performance_app.command()
+def report(
+    results_dir: Optional[str] = typer.Option(None, help="Directory containing benchmark results"),
+    report_format: str = typer.Option("console", help="Report format"),
+    output_file: Optional[str] = typer.Option(None, help="Output file for report"),
+):
     """Generate comprehensive performance analysis report."""
 
     # Load results
@@ -497,7 +450,7 @@ def report(results_dir: str | None, report_format: str, output_file: str | None)
         _generate_pdf_report(result_files, output_file or "performance_report.pdf")
 
 
-@performance_commands.command()
+@performance_app.command()
 def monitor():
     """Start real-time performance monitoring dashboard."""
 
@@ -779,4 +732,4 @@ def _generate_pdf_report(result_files: list[Path], output_file: str):
 
 
 if __name__ == "__main__":
-    performance_commands()
+    performance_app()
