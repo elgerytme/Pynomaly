@@ -26,7 +26,7 @@ from pynomaly.domain.entities.streaming_session import (
     StreamingSession,
 )
 from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.deps import get_container
+from pynomaly.presentation.api.auth_deps import get_container_simple
 from pynomaly.presentation.api.docs.response_models import (
     ErrorResponse,
     HTTPResponses,
@@ -93,7 +93,7 @@ class ProcessDataRequest(BaseModel):
 
 
 async def get_streaming_service(
-    container: Container = Depends(get_container),
+    container: Container = Depends(get_container_simple),
 ) -> StreamingService:
     """Get streaming service."""
     # This would be properly injected in a real implementation

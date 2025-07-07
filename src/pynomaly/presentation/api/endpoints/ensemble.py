@@ -21,12 +21,9 @@ from pynomaly.application.use_cases.ensemble_detection_use_case import (
     VotingStrategy,
 )
 from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.deps import (
-    get_container,
-    get_current_user,
-    require_admin,
-    require_read,
-    require_write,
+from pynomaly.presentation.api.auth_deps import (
+    get_container_simple,
+    get_current_user_simple,
 )
 
 router = APIRouter(prefix="/ensemble", tags=["ensemble"])
@@ -37,9 +34,8 @@ security = HTTPBearer()
 async def detect_anomalies_ensemble(
     request: EnsembleDetectionRequestDTO,
     background_tasks: BackgroundTasks,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
-    _permissions: str = Depends(require_read),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> EnsembleDetectionResponseDTO:
     """
     Perform ensemble-based anomaly detection using multiple detectors.
@@ -142,9 +138,8 @@ async def detect_anomalies_ensemble(
 async def optimize_ensemble(
     request: EnsembleOptimizationRequestDTO,
     background_tasks: BackgroundTasks,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
-    _permissions: str = Depends(require_write),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> EnsembleOptimizationResponseDTO:
     """
     Optimize ensemble configuration for better performance.
@@ -250,9 +245,8 @@ async def optimize_ensemble(
 
 @router.get("/status", response_model=EnsembleStatusResponseDTO)
 async def get_ensemble_status(
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
-    _permissions: str = Depends(require_read),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> EnsembleStatusResponseDTO:
     """
     Get current ensemble system status and capabilities.
@@ -318,9 +312,8 @@ async def get_ensemble_status(
 @router.get("/metrics", response_model=EnsembleMetricsResponseDTO)
 async def get_ensemble_metrics(
     detector_ids: Optional[List[str]] = None,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
-    _permissions: str = Depends(require_read),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> EnsembleMetricsResponseDTO:
     """
     Get ensemble performance metrics and analytics.

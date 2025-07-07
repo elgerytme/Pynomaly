@@ -56,6 +56,98 @@ class AlertCategory(Enum):
     PERFORMANCE = "performance"
 
 
+class AlertSource(Enum):
+    """Source system or component generating alerts."""
+
+    DETECTOR = "detector"
+    PIPELINE = "pipeline"
+    MODEL = "model"
+    INFRASTRUCTURE = "infrastructure"
+    APPLICATION = "application"
+    MONITORING = "monitoring"
+    EXTERNAL = "external"
+    SCHEDULER = "scheduler"
+    USER = "user"
+    API = "api"
+    WEBHOOK = "webhook"
+    MANUAL = "manual"
+
+
+class NoiseClassification(Enum):
+    """Classification of alert noise types."""
+
+    TRUE_POSITIVE = "true_positive"
+    FALSE_POSITIVE = "false_positive"
+    UNKNOWN = "unknown"
+    SUSPECTED_NOISE = "suspected_noise"
+    CONFIRMED_NOISE = "confirmed_noise"
+    LEGITIMATE = "legitimate"
+
+
+@dataclass
+class MLNoiseFeatures:
+    """Machine learning features for alert noise detection."""
+
+    alert_id: str
+    frequency_score: float = 0.0
+    time_pattern_score: float = 0.0
+    correlation_score: float = 0.0
+    severity_consistency: float = 0.0
+    historical_resolution_rate: float = 0.0
+    source_reliability: float = 0.0
+    context_similarity: float = 0.0
+    duration_anomaly: float = 0.0
+    prediction_confidence: float = 0.0
+    feature_vector: list[float] = field(default_factory=list)
+    classification: NoiseClassification = NoiseClassification.UNKNOWN
+    model_version: str = "1.0"
+    created_at: datetime = field(default_factory=datetime.utcnow)
+
+    def __post_init__(self):
+        """Validate ML noise features."""
+        scores = [
+            self.frequency_score,
+            self.time_pattern_score,
+            self.correlation_score,
+            self.severity_consistency,
+            self.historical_resolution_rate,
+            self.source_reliability,
+            self.context_similarity,
+            self.duration_anomaly,
+            self.prediction_confidence,
+        ]
+        
+        for score in scores:
+            if not (0.0 <= score <= 1.0):
+                raise ValueError("All scores must be between 0.0 and 1.0")
+
+    @property
+    def noise_probability(self) -> float:
+        """Calculate overall noise probability."""
+        scores = [
+            self.frequency_score,
+            self.time_pattern_score,
+            self.correlation_score,
+            self.severity_consistency,
+            self.historical_resolution_rate,
+            self.source_reliability,
+            self.context_similarity,
+            self.duration_anomaly,
+        ]
+        return sum(scores) / len(scores) if scores else 0.0
+
+    @property
+    def is_likely_noise(self) -> bool:
+        """Check if alert is likely noise based on ML features."""
+        return self.noise_probability > 0.7
+
+    def update_classification(self, classification: NoiseClassification, confidence: float = None):
+        """Update the noise classification."""
+        self.classification = classification
+        if confidence is not None:
+            self.prediction_confidence = confidence
+
+
 @dataclass
 class AlertMetadata:
     """Metadata for alerts."""

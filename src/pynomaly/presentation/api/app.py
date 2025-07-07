@@ -201,8 +201,7 @@ def create_app(container: Container | None = None) -> FastAPI:
 
     app.include_router(admin.router, prefix="/api/admin", tags=["administration"])
 
-    # TODO: Update autonomous router to use simplified auth dependencies
-    # app.include_router(autonomous.router, prefix="/api/autonomous", tags=["autonomous"])
+    app.include_router(autonomous.router, prefix="/api/autonomous", tags=["autonomous"])
 
     app.include_router(detectors.router, prefix="/api/detectors", tags=["detectors"])
 
@@ -210,8 +209,7 @@ def create_app(container: Container | None = None) -> FastAPI:
 
     app.include_router(detection.router, prefix="/api/detection", tags=["detection"])
 
-    # TODO: Update automl routers to use simplified auth dependencies  
-    # app.include_router(automl.router, prefix="/api/automl", tags=["automl"])
+    app.include_router(automl.router, prefix="/api/automl", tags=["automl"])
 
     # Include enhanced AutoML router if available
     # if ENHANCED_AUTOML_AVAILABLE:
@@ -222,17 +220,16 @@ def create_app(container: Container | None = None) -> FastAPI:
         experiments.router, prefix="/api/experiments", tags=["experiments"]
     )
 
-    # TODO: Update remaining routers to use simplified auth dependencies
-    # app.include_router(ensemble.router, prefix="/api/ensemble", tags=["ensemble"])
-    # app.include_router(
-    #     explainability.router, prefix="/api/explainability", tags=["explainability"]
-    # )
+    app.include_router(ensemble.router, prefix="/api/ensemble", tags=["ensemble"])
+    app.include_router(
+        explainability.router, prefix="/api/explainability", tags=["explainability"]
+    )
     # app.include_router(
     #     performance.router, prefix="/api/performance", tags=["performance"]
     # )
     # app.include_router(export.router, prefix="/api", tags=["export"])
     # app.include_router(model_lineage.router, prefix="/api", tags=["model_lineage"])
-    # app.include_router(streaming.router, prefix="/api", tags=["streaming"])
+    app.include_router(streaming.router, prefix="/api", tags=["streaming"])
     # app.include_router(events.router, prefix="/api", tags=["events"])
 
     # Distributed processing API removed for simplification

@@ -26,7 +26,7 @@ from pynomaly.infrastructure.data_loaders.csv_loader import CSVLoader
 from pynomaly.infrastructure.data_loaders.excel_loader import ExcelLoader
 from pynomaly.infrastructure.data_loaders.json_loader import JSONLoader
 from pynomaly.infrastructure.data_loaders.parquet_loader import ParquetLoader
-from pynomaly.presentation.api.deps import get_container, get_current_user
+from pynomaly.presentation.api.auth_deps import get_container_simple, get_current_user_simple
 
 router = APIRouter()
 
@@ -90,8 +90,8 @@ async def autonomous_detect(
     request: AutonomousDetectionRequest,
     background_tasks: BackgroundTasks,
     file: UploadFile | None = File(None),
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> dict:
     """Run autonomous anomaly detection.
 
@@ -192,8 +192,8 @@ async def autonomous_detect(
 async def automl_optimize(
     request: AutoMLRequest,
     background_tasks: BackgroundTasks,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> dict:
     """Run AutoML optimization for dataset.
 
@@ -254,8 +254,8 @@ async def automl_optimize(
 @router.post("/ensemble/create")
 async def create_ensemble(
     request: EnsembleRequest,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> dict:
     """Create ensemble from multiple detectors."""
 
@@ -293,8 +293,8 @@ async def create_ensemble(
 async def create_family_ensemble(
     request: FamilyEnsembleRequest,
     background_tasks: BackgroundTasks,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> dict:
     """Create hierarchical ensemble organized by algorithm families."""
 
@@ -395,8 +395,8 @@ async def create_family_ensemble(
 async def explain_algorithm_choices(
     request: ExplainChoicesRequest,
     data_file: UploadFile | None = File(None),
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> dict:
     """Explain algorithm selection choices for a dataset."""
 
@@ -608,7 +608,7 @@ async def list_algorithm_families() -> dict:
 
 
 @router.get("/status")
-async def get_autonomous_status(container: Container = Depends(get_container)) -> dict:
+async def get_autonomous_status(container: Container = Depends(get_container_simple)) -> dict:
     """Get status of autonomous detection capabilities."""
 
     # Check available adapters

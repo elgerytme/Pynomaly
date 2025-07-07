@@ -711,3 +711,209 @@ class DriftAnalysisResult:
             "recommended_actions": self.recommended_actions,
             "analysis_metadata": self.analysis_metadata,
         }
+
+
+@dataclass
+class DriftMetrics:
+    """Comprehensive metrics for drift monitoring and analysis."""
+
+    metrics_id: UUID = field(default_factory=uuid4)
+    model_id: UUID = field(default_factory=uuid4)
+    timestamp: datetime = field(default_factory=datetime.utcnow)
+    monitoring_window_hours: int = 24
+    
+    # Detection statistics
+    total_detections: int = 0
+    drift_detections: int = 0
+    false_positive_rate: float = 0.0
+    false_negative_rate: float = 0.0
+    detection_accuracy: float = 1.0
+    
+    # Drift characteristics
+    avg_drift_score: float = 0.0
+    max_drift_score: float = 0.0
+    drift_frequency: float = 0.0  # Drifts per hour
+    drift_duration_minutes: float = 0.0  # Average duration
+    
+    # Feature-level metrics
+    features_monitored: int = 0
+    features_with_drift: int = 0
+    most_unstable_features: list[str] = field(default_factory=list)
+    feature_stability_scores: dict[str, float] = field(default_factory=dict)
+    
+    # Performance impact
+    prediction_degradation: float = 0.0
+    model_confidence_drop: float = 0.0
+    retraining_triggered: bool = False
+    last_retrain_timestamp: datetime | None = None
+    
+    # Alert metrics
+    alerts_generated: int = 0
+    alerts_resolved: int = 0
+    avg_resolution_time_minutes: float = 0.0
+    critical_alerts: int = 0
+    
+    # System metrics
+    monitoring_coverage: float = 1.0  # Percentage of data monitored
+    data_quality_score: float = 1.0
+    monitoring_latency_ms: float = 0.0
+    computational_cost: float = 0.0
+    
+    # Trend analysis
+    drift_trend: str = "stable"  # stable, increasing, decreasing
+    seasonality_detected: bool = False
+    seasonal_patterns: list[str] = field(default_factory=list)
+    
+    # Additional metadata
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self):
+        """Validate drift metrics."""
+        if self.monitoring_window_hours <= 0:
+            raise ValueError("Monitoring window must be positive")
+        
+        rates = [self.false_positive_rate, self.false_negative_rate, self.detection_accuracy]
+        for rate in rates:
+            if not (0.0 <= rate <= 1.0):
+                raise ValueError("Rates must be between 0.0 and 1.0")
+        
+        scores = [self.avg_drift_score, self.max_drift_score]
+        for score in scores:
+            if not (0.0 <= score <= 1.0):
+                raise ValueError("Drift scores must be between 0.0 and 1.0")
+
+    @property
+    def drift_detection_rate(self) -> float:
+        """Calculate drift detection rate."""
+        if self.total_detections == 0:
+            return 0.0
+        return self.drift_detections / self.total_detections
+
+    @property
+    def feature_drift_rate(self) -> float:
+        """Calculate feature drift rate."""
+        if self.features_monitored == 0:
+            return 0.0
+        return self.features_with_drift / self.features_monitored
+
+    @property
+    def alert_resolution_rate(self) -> float:
+        """Calculate alert resolution rate."""
+        if self.alerts_generated == 0:
+            return 1.0
+        return self.alerts_resolved / self.alerts_generated
+
+    @property
+    def monitoring_health_score(self) -> float:
+        """Calculate overall monitoring health score."""
+        scores = [
+            self.detection_accuracy,
+            1.0 - self.false_positive_rate,
+            1.0 - self.false_negative_rate,
+            self.monitoring_coverage,
+            self.data_quality_score,
+            self.alert_resolution_rate,
+        ]
+        return sum(scores) / len(scores)
+
+    def is_monitoring_healthy(self) -> bool:
+        """Check if monitoring system is healthy."""
+        return (
+            self.monitoring_health_score > 0.8
+            and self.false_positive_rate < 0.1
+            and self.data_quality_score > 0.9
+        )
+
+    def needs_attention(self) -> bool:
+        """Check if monitoring needs attention."""
+        return (
+            self.drift_detection_rate > 0.5
+            or self.critical_alerts > 0
+            or self.prediction_degradation > 0.2
+            or not self.is_monitoring_healthy()
+        )
+
+    def update_from_detection_result(self, result: DriftAnalysisResult):
+        """Update metrics from a drift detection result."""
+        self.total_detections += 1
+        
+        if result.has_any_drift():
+            self.drift_detections += 1
+            self.max_drift_score = max(self.max_drift_score, result.overall_drift_score)
+            
+            # Update running average
+            n = self.drift_detections
+            self.avg_drift_score = ((n - 1) * self.avg_drift_score + result.overall_drift_score) / n
+            
+            # Update feature metrics
+            critical_features = result.get_critical_features()
+            self.most_unstable_features.extend(critical_features)
+            # Keep only top 10 most recent unstable features
+            self.most_unstable_features = list(set(self.most_unstable_features))[-10:]
+            
+            if result.needs_immediate_action():
+                self.critical_alerts += 1
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary representation."""
+        return {
+            "metrics_id": str(self.metrics_id),
+            "model_id": str(self.model_id),
+            "timestamp": self.timestamp.isoformat(),
+            "monitoring_window_hours": self.monitoring_window_hours,
+            "detection_stats": {
+                "total_detections": self.total_detections,
+                "drift_detections": self.drift_detections,
+                "detection_rate": self.drift_detection_rate,
+                "accuracy": self.detection_accuracy,
+                "false_positive_rate": self.false_positive_rate,
+                "false_negative_rate": self.false_negative_rate,
+            },
+            "drift_characteristics": {
+                "avg_score": self.avg_drift_score,
+                "max_score": self.max_drift_score,
+                "frequency": self.drift_frequency,
+                "avg_duration_minutes": self.drift_duration_minutes,
+            },
+            "feature_metrics": {
+                "monitored": self.features_monitored,
+                "with_drift": self.features_with_drift,
+                "drift_rate": self.feature_drift_rate,
+                "most_unstable": self.most_unstable_features,
+            },
+            "performance_impact": {
+                "prediction_degradation": self.prediction_degradation,
+                "confidence_drop": self.model_confidence_drop,
+                "retraining_needed": self.retraining_triggered,
+                "last_retrain": (
+                    self.last_retrain_timestamp.isoformat()
+                    if self.last_retrain_timestamp
+                    else None
+                ),
+            },
+            "alert_metrics": {
+                "generated": self.alerts_generated,
+                "resolved": self.alerts_resolved,
+                "resolution_rate": self.alert_resolution_rate,
+                "avg_resolution_time": self.avg_resolution_time_minutes,
+                "critical": self.critical_alerts,
+            },
+            "system_health": {
+                "monitoring_coverage": self.monitoring_coverage,
+                "data_quality": self.data_quality_score,
+                "latency_ms": self.monitoring_latency_ms,
+                "cost": self.computational_cost,
+                "health_score": self.monitoring_health_score,
+                "is_healthy": self.is_monitoring_healthy(),
+                "needs_attention": self.needs_attention(),
+            },
+            "trend_analysis": {
+                "trend": self.drift_trend,
+                "drift_frequency": self.drift_frequency,
+                "avg_duration": self.drift_duration_minutes,
+                "seasonality": self.seasonality_detected,
+                "patterns": self.seasonal_patterns,
+                "unstable_features": self.most_unstable_features[:5],
+            },
+            "metadata": self.metadata,
+        }
