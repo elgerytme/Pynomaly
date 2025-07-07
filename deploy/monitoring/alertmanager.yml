@@ -1,0 +1,388 @@
+# AlertManager configuration for Pynomaly
+global:
+  # Global SMTP configuration
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alerts@pynomaly.ai'
+  smtp_auth_username: 'alerts@pynomaly.ai'
+  smtp_auth_password: '${SMTP_PASSWORD}'
+  smtp_require_tls: true
+
+  # Slack webhook URL (set via environment)
+  slack_api_url: '${SLACK_WEBHOOK_URL}'
+
+  # PagerDuty integration key
+  pagerduty_url: 'https://events.pagerduty.com/v2/enqueue'
+
+# Templates for notifications
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# The directory from which notification templates are read.
+route:
+  group_by: ['alertname', 'severity', 'component']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  receiver: 'web.hook'
+  routes:
+    # Critical alerts - immediate notification to all channels
+    - matchers:
+        - severity="critical"
+      receiver: 'critical-alerts'
+      group_wait: 0s
+      group_interval: 1m
+      repeat_interval: 5m
+      continue: true
+
+    # Platform team alerts
+    - matchers:
+        - team="platform"
+      receiver: 'platform-team'
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 2h
+
+    # ML team alerts
+    - matchers:
+        - team="ml"
+      receiver: 'ml-team'
+      group_wait: 1m
+      group_interval: 10m
+      repeat_interval: 4h
+
+    # Business/Product alerts
+    - matchers:
+        - team="product"
+      receiver: 'product-team'
+      group_wait: 5m
+      group_interval: 30m
+      repeat_interval: 12h
+
+    # API specific alerts
+    - matchers:
+        - component="api"
+      receiver: 'api-alerts'
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 1h
+
+    # Detection system alerts
+    - matchers:
+        - component="detection"
+      receiver: 'detection-alerts'
+      group_wait: 1m
+      group_interval: 10m
+      repeat_interval: 2h
+
+    # Training system alerts
+    - matchers:
+        - component="training"
+      receiver: 'training-alerts'
+      group_wait: 2m
+      group_interval: 15m
+      repeat_interval: 4h
+
+    # Streaming system alerts
+    - matchers:
+        - component="streaming"
+      receiver: 'streaming-alerts'
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 1h
+
+    # System resource alerts
+    - matchers:
+        - component="system"
+      receiver: 'system-alerts'
+      group_wait: 2m
+      group_interval: 10m
+      repeat_interval: 2h
+
+    # Error alerts
+    - matchers:
+        - component="errors"
+      receiver: 'error-alerts'
+      group_wait: 1m
+      group_interval: 5m
+      repeat_interval: 1h
+
+    # Data quality alerts
+    - matchers:
+        - component="data_quality"
+      receiver: 'data-quality-alerts'
+      group_wait: 5m
+      group_interval: 30m
+      repeat_interval: 6h
+
+    # Default route for unmatched alerts
+    - receiver: 'default-alerts'
+
+receivers:
+  # Default webhook receiver
+  - name: 'web.hook'
+    webhook_configs:
+      - url: 'http://pynomaly-webhook-receiver:5001/webhook'
+        send_resolved: true
+        http_config:
+          bearer_token: '${WEBHOOK_TOKEN}'
+
+  # Critical alerts - all channels
+  - name: 'critical-alerts'
+    email_configs:
+      - to: 'oncall@pynomaly.ai'
+        subject: '[CRITICAL] Pynomaly Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts -}}
+          **Alert:** {{ .Annotations.summary }}
+          **Severity:** {{ .Labels.severity }}
+          **Component:** {{ .Labels.component }}
+          **Description:** {{ .Annotations.description }}
+          **Runbook:** {{ .Annotations.runbook_url }}
+          **Time:** {{ .StartsAt.Format "2006-01-02 15:04:05 UTC" }}
+          {{ end }}
+
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#alerts-critical'
+        title: 'Critical Pynomaly Alert'
+        text: |
+          {{ range .Alerts -}}
+          *{{ .Annotations.summary }}*
+          Severity: {{ .Labels.severity | toUpper }}
+          Component: {{ .Labels.component }}
+          {{ .Annotations.description }}
+          {{ if .Annotations.runbook_url }}Runbook: {{ .Annotations.runbook_url }}{{ end }}
+          {{ end }}
+        color: 'danger'
+        send_resolved: true
+
+    pagerduty_configs:
+      - routing_key: '${PAGERDUTY_ROUTING_KEY}'
+        description: '{{ .GroupLabels.alertname }}: {{ .CommonAnnotations.summary }}'
+        severity: 'critical'
+        details:
+          summary: '{{ .CommonAnnotations.summary }}'
+          description: '{{ .CommonAnnotations.description }}'
+          component: '{{ .GroupLabels.component }}'
+          runbook_url: '{{ .CommonAnnotations.runbook_url }}'
+
+  # Platform team alerts
+  - name: 'platform-team'
+    email_configs:
+      - to: 'platform-team@pynomaly.ai'
+        subject: '[{{ .Labels.severity | toUpper }}] Platform Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          Platform team, please investigate the following alert:
+          
+          {{ range .Alerts -}}
+          **Alert:** {{ .Annotations.summary }}
+          **Severity:** {{ .Labels.severity }}
+          **Component:** {{ .Labels.component }}
+          **Description:** {{ .Annotations.description }}
+          **Time:** {{ .StartsAt.Format "2006-01-02 15:04:05 UTC" }}
+          {{ if .Annotations.runbook_url }}**Runbook:** {{ .Annotations.runbook_url }}{{ end }}
+          {{ end }}
+
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#platform-alerts'
+        title: 'Platform Alert - {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts -}}
+          {{ .Annotations.summary }}
+          Component: {{ .Labels.component }}
+          {{ .Annotations.description }}
+          {{ end }}
+        color: '{{ if eq .Status "firing" }}{{ if eq .CommonLabels.severity "critical" }}danger{{ else if eq .CommonLabels.severity "warning" }}warning{{ else }}good{{ end }}{{ else }}good{{ end }}'
+
+  # ML team alerts
+  - name: 'ml-team'
+    email_configs:
+      - to: 'ml-team@pynomaly.ai'
+        subject: '[{{ .Labels.severity | toUpper }}] ML System Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          ML team, please investigate the following alert:
+          
+          {{ range .Alerts -}}
+          **Alert:** {{ .Annotations.summary }}
+          **Severity:** {{ .Labels.severity }}
+          **Component:** {{ .Labels.component }}
+          **Description:** {{ .Annotations.description }}
+          **Time:** {{ .StartsAt.Format "2006-01-02 15:04:05 UTC" }}
+          {{ if .Annotations.runbook_url }}**Runbook:** {{ .Annotations.runbook_url }}{{ end }}
+          {{ end }}
+
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#ml-alerts'
+        title: 'ML System Alert - {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts -}}
+          {{ .Annotations.summary }}
+          Component: {{ .Labels.component }}
+          {{ .Annotations.description }}
+          {{ end }}
+
+  # Product team alerts
+  - name: 'product-team'
+    email_configs:
+      - to: 'product-team@pynomaly.ai'
+        subject: '[{{ .Labels.severity | toUpper }}] Business Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          Product team, please review the following business metric alert:
+          
+          {{ range .Alerts -}}
+          **Alert:** {{ .Annotations.summary }}
+          **Severity:** {{ .Labels.severity }}
+          **Description:** {{ .Annotations.description }}
+          **Time:** {{ .StartsAt.Format "2006-01-02 15:04:05 UTC" }}
+          {{ end }}
+
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#product-alerts'
+        title: 'Business Metrics Alert'
+        text: |
+          {{ range .Alerts -}}
+          {{ .Annotations.summary }}
+          {{ .Annotations.description }}
+          {{ end }}
+
+  # Component-specific receivers
+  - name: 'api-alerts'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#api-alerts'
+        title: 'API Alert - {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts -}}
+          *API Issue:* {{ .Annotations.summary }}
+          {{ .Annotations.description }}
+          {{ end }}
+
+  - name: 'detection-alerts'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#detection-alerts'
+        title: 'Detection System Alert'
+        text: |
+          {{ range .Alerts -}}
+          *Detection Issue:* {{ .Annotations.summary }}
+          {{ .Annotations.description }}
+          {{ end }}
+
+  - name: 'training-alerts'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#training-alerts'
+        title: 'Training System Alert'
+        text: |
+          {{ range .Alerts -}}
+          *Training Issue:* {{ .Annotations.summary }}
+          {{ .Annotations.description }}
+          {{ end }}
+
+  - name: 'streaming-alerts'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#streaming-alerts'
+        title: 'Streaming System Alert'
+        text: |
+          {{ range .Alerts -}}
+          *Streaming Issue:* {{ .Annotations.summary }}
+          {{ .Annotations.description }}
+          {{ end }}
+
+  - name: 'system-alerts'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#system-alerts'
+        title: 'System Resource Alert'
+        text: |
+          {{ range .Alerts -}}
+          *System Issue:* {{ .Annotations.summary }}
+          {{ .Annotations.description }}
+          {{ end }}
+
+  - name: 'error-alerts'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#error-alerts'
+        title: 'Error Alert'
+        text: |
+          {{ range .Alerts -}}
+          *Error Detected:* {{ .Annotations.summary }}
+          {{ .Annotations.description }}
+          {{ end }}
+
+  - name: 'data-quality-alerts'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#data-quality-alerts'
+        title: 'Data Quality Alert'
+        text: |
+          {{ range .Alerts -}}
+          *Data Quality Issue:* {{ .Annotations.summary }}
+          {{ .Annotations.description }}
+          {{ end }}
+
+  # Default alerts
+  - name: 'default-alerts'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#general-alerts'
+        title: 'Pynomaly Alert'
+        text: |
+          {{ range .Alerts -}}
+          {{ .Annotations.summary }}
+          {{ .Annotations.description }}
+          {{ end }}
+
+# Inhibition rules to suppress certain alerts when others are firing
+inhibit_rules:
+  # Suppress API alerts when the service is down
+  - source_matchers:
+      - alertname="PynomalyAPIDown"
+    target_matchers:
+      - component="api"
+    equal: ['instance']
+
+  # Suppress specific detection alerts when there are general detection failures
+  - source_matchers:
+      - alertname="PynomalyDetectionFailureRate"
+    target_matchers:
+      - component="detection"
+      - severity!="critical"
+    equal: ['algorithm']
+
+  # Suppress memory alerts when CPU is very high (might be related)
+  - source_matchers:
+      - alertname="PynomalyHighCPUUsage"
+      - severity="critical"
+    target_matchers:
+      - alertname="PynomalyHighMemoryUsage"
+    equal: ['component']
+
+  # Suppress cache alerts when there are general system issues
+  - source_matchers:
+      - component="system"
+      - severity="critical"
+    target_matchers:
+      - component="cache"
+      - severity!="critical"
+
+# Mute configuration for maintenance windows
+mute_time_intervals:
+  - name: maintenance-window
+    time_intervals:
+      - times:
+          - start_time: '02:00'
+            end_time: '04:00'
+        weekdays: ['sunday']
+        months: ['1:12']
+
+# Template files for custom formatting
+templates:
+  - '/etc/alertmanager/templates/default.tmpl'
+  - '/etc/alertmanager/templates/slack.tmpl'
+  - '/etc/alertmanager/templates/email.tmpl'

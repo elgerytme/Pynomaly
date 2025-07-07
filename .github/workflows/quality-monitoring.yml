@@ -1,0 +1,1001 @@
+name: Package Quality & Health Monitoring
+
+on:
+  schedule:
+    # Run twice weekly: Monday and Thursday at 8 AM UTC
+    - cron: '0 8 * * 1,4'
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - 'README.md'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      force_full_analysis:
+        description: 'Force full quality analysis'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  # Code quality metrics
+  code-quality-analysis:
+    name: Code Quality Analysis
+    runs-on: ubuntu-latest
+    
+    outputs:
+      quality-score: ${{ steps.quality.outputs.score }}
+      maintainability: ${{ steps.quality.outputs.maintainability }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install quality analysis tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install hatch radon mccabe xenon flake8 pylint prospector vulture
+
+      - name: Install project dependencies
+        run: |
+          hatch env run --env default pip install -e .
+
+      - name: Run cyclomatic complexity analysis
+        run: |
+          echo "🔄 Analyzing cyclomatic complexity..."
+          mkdir -p quality-reports
+          
+          # Radon complexity analysis
+          radon cc src/ -a -nb --json > quality-reports/complexity.json
+          radon cc src/ -a -nb
+          
+          # McCabe complexity
+          find src/ -name "*.py" -exec python -m mccabe --min 10 {} \; > quality-reports/mccabe.txt || true
+
+      - name: Run maintainability analysis
+        run: |
+          echo "🔧 Analyzing maintainability..."
+          
+          # Radon maintainability index
+          radon mi src/ --json > quality-reports/maintainability.json
+          radon mi src/
+          
+          # Halstead metrics
+          radon hal src/ --json > quality-reports/halstead.json
+
+      - name: Run code quality linting
+        run: |
+          echo "📏 Running comprehensive linting..."
+          
+          # Flake8 analysis
+          flake8 src/ --output-file=quality-reports/flake8.txt --statistics || true
+          
+          # Pylint analysis
+          pylint src/ --output-format=json > quality-reports/pylint.json || true
+          pylint src/ --reports=y > quality-reports/pylint-report.txt || true
+
+      - name: Run dead code analysis
+        run: |
+          echo "🔍 Analyzing dead code..."
+          
+          # Vulture dead code detection
+          vulture src/ --min-confidence 60 > quality-reports/dead-code.txt || true
+
+      - name: Run comprehensive quality analysis
+        run: |
+          echo "📊 Running comprehensive quality analysis..."
+          
+          # Prospector comprehensive analysis
+          prospector src/ \
+            --output-format json \
+            --output-file quality-reports/prospector.json \
+            --die-on-tool-error || true
+          
+          prospector src/ --output-format text || true
+
+      - name: Calculate quality metrics
+        id: quality
+        run: |
+          python -c "
+          import json
+          import os
+          from pathlib import Path
+          
+          def safe_load_json(filepath):
+              try:
+                  with open(filepath) as f:
+                      return json.load(f)
+              except (FileNotFoundError, json.JSONDecodeError):
+                  return {}
+          
+          # Load analysis results
+          complexity = safe_load_json('quality-reports/complexity.json')
+          maintainability = safe_load_json('quality-reports/maintainability.json')
+          prospector = safe_load_json('quality-reports/prospector.json')
+          
+          # Calculate metrics
+          total_files = len(list(Path('src').rglob('*.py')))
+          
+          # Complexity score (lower is better, normalize to 0-100)
+          complexity_scores = []
+          for file_data in complexity.values():
+              if isinstance(file_data, list):
+                  for item in file_data:
+                      if 'complexity' in item:
+                          complexity_scores.append(item['complexity'])
+          
+          avg_complexity = sum(complexity_scores) / len(complexity_scores) if complexity_scores else 1
+          complexity_score = max(0, min(100, 100 - (avg_complexity - 1) * 10))
+          
+          # Maintainability score
+          maintainability_scores = []
+          for file_data in maintainability.values():
+              if isinstance(file_data, dict) and 'mi' in file_data:
+                  maintainability_scores.append(file_data['mi'])
+          
+          avg_maintainability = sum(maintainability_scores) / len(maintainability_scores) if maintainability_scores else 70
+          
+          # Prospector score
+          prospector_score = 100
+          if 'summary' in prospector and 'message_count' in prospector['summary']:
+              # Penalize based on messages per file
+              messages_per_file = prospector['summary']['message_count'] / max(1, total_files)
+              prospector_score = max(0, 100 - messages_per_file * 5)
+          
+          # Overall quality score (weighted average)
+          overall_score = (complexity_score * 0.3 + avg_maintainability * 0.4 + prospector_score * 0.3)
+          
+          print(f'QUALITY_SCORE={overall_score:.1f}')
+          print(f'MAINTAINABILITY_SCORE={avg_maintainability:.1f}')
+          print(f'COMPLEXITY_SCORE={complexity_score:.1f}')
+          print(f'PROSPECTOR_SCORE={prospector_score:.1f}')
+          
+          # Export for GitHub outputs
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f'score={overall_score:.1f}\\n')
+              f.write(f'maintainability={avg_maintainability:.1f}\\n')
+              f.write(f'complexity={complexity_score:.1f}\\n')
+              f.write(f'prospector={prospector_score:.1f}\\n')
+          "
+
+      - name: Generate quality report
+        run: |
+          cat > quality-reports/quality-summary.md << 'EOF'
+          # 📊 Code Quality Analysis Report
+          
+          **Generated:** $(date)
+          **Commit:** ${{ github.sha }}
+          **Quality Score:** ${{ steps.quality.outputs.score }}/100
+          
+          ## 🎯 Quality Metrics
+          
+          | Metric | Score | Grade |
+          |--------|-------|-------|
+          | Overall Quality | ${{ steps.quality.outputs.score }}/100 | $(python -c "
+          score = float('${{ steps.quality.outputs.score }}')
+          if score >= 90: print('A')
+          elif score >= 80: print('B') 
+          elif score >= 70: print('C')
+          elif score >= 60: print('D')
+          else: print('F')
+          ") |
+          | Maintainability | ${{ steps.quality.outputs.maintainability }}/100 | $(python -c "
+          score = float('${{ steps.quality.outputs.maintainability }}')
+          if score >= 90: print('A')
+          elif score >= 80: print('B')
+          elif score >= 70: print('C')
+          elif score >= 60: print('D') 
+          else: print('F')
+          ") |
+          | Complexity | ${{ steps.quality.outputs.complexity }}/100 | $(python -c "
+          score = float('${{ steps.quality.outputs.complexity }}')
+          if score >= 90: print('A')
+          elif score >= 80: print('B')
+          elif score >= 70: print('C')
+          elif score >= 60: print('D')
+          else: print('F')
+          ") |
+          | Style & Issues | ${{ steps.quality.outputs.prospector }}/100 | $(python -c "
+          score = float('${{ steps.quality.outputs.prospector }}')
+          if score >= 90: print('A')
+          elif score >= 80: print('B')
+          elif score >= 70: print('C')
+          elif score >= 60: print('D')
+          else: print('F')
+          ") |
+          
+          ## 📋 Analysis Tools Used
+          
+          - **Radon:** Cyclomatic complexity and maintainability
+          - **McCabe:** Complexity analysis
+          - **Flake8:** Style and error checking
+          - **Pylint:** Comprehensive static analysis
+          - **Prospector:** Meta-tool combining multiple analyzers
+          - **Vulture:** Dead code detection
+          
+          ## 🎯 Recommendations
+          
+          $(python -c "
+          score = float('${{ steps.quality.outputs.score }}')
+          if score >= 90:
+              print('✅ Excellent code quality! Keep up the great work.')
+          elif score >= 80:
+              print('✅ Good code quality. Consider minor improvements.')
+          elif score >= 70:
+              print('⚠️ Moderate code quality. Focus on complexity reduction.')
+          elif score >= 60:
+              print('⚠️ Code quality needs improvement. Address style issues.')
+          else:
+              print('❌ Poor code quality. Significant refactoring needed.')
+          ")
+          
+          EOF
+
+      - name: Upload quality reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-quality-reports
+          path: quality-reports/
+          retention-days: 30
+
+  # Test coverage analysis
+  test-coverage-analysis:
+    name: Test Coverage Analysis
+    runs-on: ubuntu-latest
+    
+    outputs:
+      coverage-percentage: ${{ steps.coverage.outputs.percentage }}
+      coverage-grade: ${{ steps.coverage.outputs.grade }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install hatch
+
+      - name: Run comprehensive test coverage
+        run: |
+          echo "🧪 Running comprehensive test coverage analysis..."
+          mkdir -p coverage-reports
+          
+          # Run tests with coverage
+          hatch env run test:run-cov \
+            --cov-report=html:coverage-reports/htmlcov \
+            --cov-report=xml:coverage-reports/coverage.xml \
+            --cov-report=json:coverage-reports/coverage.json \
+            --cov-report=term
+
+      - name: Analyze coverage details
+        id: coverage
+        run: |
+          python -c "
+          import json
+          import os
+          
+          try:
+              with open('coverage-reports/coverage.json') as f:
+                  coverage_data = json.load(f)
+              
+              total_coverage = coverage_data['totals']['percent_covered']
+              
+              # Determine grade
+              if total_coverage >= 95:
+                  grade = 'A+'
+              elif total_coverage >= 90:
+                  grade = 'A'
+              elif total_coverage >= 85:
+                  grade = 'B+'
+              elif total_coverage >= 80:
+                  grade = 'B'
+              elif total_coverage >= 75:
+                  grade = 'C+'
+              elif total_coverage >= 70:
+                  grade = 'C'
+              elif total_coverage >= 65:
+                  grade = 'D+'
+              elif total_coverage >= 60:
+                  grade = 'D'
+              else:
+                  grade = 'F'
+              
+              print(f'Coverage: {total_coverage:.1f}% (Grade: {grade})')
+              
+              # Export for GitHub outputs
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write(f'percentage={total_coverage:.1f}\\n')
+                  f.write(f'grade={grade}\\n')
+                  
+              # Generate detailed report
+              files_coverage = []
+              for filepath, file_data in coverage_data['files'].items():
+                  files_coverage.append({
+                      'file': filepath,
+                      'coverage': file_data['summary']['percent_covered'],
+                      'missing_lines': file_data['summary']['missing_lines']
+                  })
+              
+              # Sort by coverage (lowest first)
+              files_coverage.sort(key=lambda x: x['coverage'])
+              
+              with open('coverage-reports/detailed-coverage.json', 'w') as f:
+                  json.dump({
+                      'total_coverage': total_coverage,
+                      'grade': grade,
+                      'files': files_coverage[:10]  # Top 10 files needing attention
+                  }, f, indent=2)
+                  
+          except FileNotFoundError:
+              print('Coverage data not found')
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write('percentage=0\\n')
+                  f.write('grade=F\\n')
+          "
+
+      - name: Generate coverage report
+        run: |
+          cat > coverage-reports/coverage-summary.md << 'EOF'
+          # 🧪 Test Coverage Analysis Report
+          
+          **Generated:** $(date)
+          **Coverage:** ${{ steps.coverage.outputs.percentage }}%
+          **Grade:** ${{ steps.coverage.outputs.grade }}
+          
+          ## 📊 Coverage Summary
+          
+          | Metric | Value | Status |
+          |--------|-------|--------|
+          | Total Coverage | ${{ steps.coverage.outputs.percentage }}% | $(python -c "
+          coverage = float('${{ steps.coverage.outputs.percentage }}')
+          if coverage >= 90: print('✅ Excellent')
+          elif coverage >= 80: print('✅ Good')
+          elif coverage >= 70: print('⚠️ Acceptable')
+          elif coverage >= 60: print('⚠️ Needs Improvement')
+          else: print('❌ Poor')
+          ") |
+          | Grade | ${{ steps.coverage.outputs.grade }} | Grade based on industry standards |
+          
+          ## 🎯 Coverage Goals
+          
+          - **Target:** 90%+ (Grade A)
+          - **Current:** ${{ steps.coverage.outputs.percentage }}%
+          - **Gap:** $(python -c "print(max(0, 90 - float('${{ steps.coverage.outputs.percentage }}')))") percentage points
+          
+          ## 📈 Recommendations
+          
+          $(python -c "
+          coverage = float('${{ steps.coverage.outputs.percentage }}')
+          if coverage >= 95:
+              print('🎉 Outstanding coverage! Consider maintaining this level.')
+          elif coverage >= 90:
+              print('✅ Excellent coverage. Minor gaps to address.')
+          elif coverage >= 80:
+              print('✅ Good coverage. Focus on critical paths.')
+          elif coverage >= 70:
+              print('⚠️ Acceptable coverage. Add tests for core functionality.')
+          else:
+              print('❌ Coverage too low. Significant test improvement needed.')
+          ")
+          
+          ## 📂 Files Needing Attention
+          
+          Check `detailed-coverage.json` for files with lowest coverage.
+          
+          EOF
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: coverage-reports/coverage.xml
+          flags: quality-monitoring
+          name: quality-monitoring-coverage
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-coverage-reports
+          path: coverage-reports/
+          retention-days: 30
+
+  # Documentation quality analysis
+  documentation-quality:
+    name: Documentation Quality Analysis
+    runs-on: ubuntu-latest
+    
+    outputs:
+      doc-score: ${{ steps.doc-analysis.outputs.score }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install documentation tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install hatch interrogate pydocstyle doc8
+          npm install -g markdownlint-cli
+
+      - name: Analyze docstring coverage
+        run: |
+          echo "📚 Analyzing docstring coverage..."
+          mkdir -p doc-reports
+          
+          # Interrogate for docstring coverage
+          interrogate src/ \
+            --output doc-reports/docstring-coverage.txt \
+            --verbose \
+            --ignore-init-method \
+            --ignore-init-module \
+            --ignore-magic \
+            --ignore-private \
+            --ignore-nested-functions \
+            --fail-under=80 || true
+          
+          # Generate JSON report
+          interrogate src/ \
+            --output doc-reports/docstring-coverage.json \
+            --format json \
+            --ignore-init-method \
+            --ignore-init-module \
+            --ignore-magic \
+            --ignore-private || true
+
+      - name: Check docstring style
+        run: |
+          echo "📝 Checking docstring style..."
+          
+          # pydocstyle for docstring conventions
+          pydocstyle src/ > doc-reports/docstring-style.txt || true
+
+      - name: Check documentation formatting
+        run: |
+          echo "📖 Checking documentation formatting..."
+          
+          # doc8 for RST/Markdown documentation
+          find docs/ -name "*.md" -o -name "*.rst" | xargs doc8 > doc-reports/doc-formatting.txt || true
+          
+          # markdownlint for Markdown files
+          markdownlint docs/ README.md > doc-reports/markdown-lint.txt || true
+
+      - name: Analyze documentation completeness
+        id: doc-analysis
+        run: |
+          python -c "
+          import json
+          import os
+          from pathlib import Path
+          
+          def count_python_files():
+              return len(list(Path('src').rglob('*.py')))
+          
+          def count_documented_files():
+              try:
+                  with open('doc-reports/docstring-coverage.json') as f:
+                      data = json.load(f)
+                  return data.get('covered', {}).get('files', 0)
+              except:
+                  return 0
+          
+          def get_docstring_coverage():
+              try:
+                  with open('doc-reports/docstring-coverage.json') as f:
+                      data = json.load(f)
+                  return data.get('summary', {}).get('overall', 0)
+              except:
+                  return 0
+          
+          def count_markdown_files():
+              md_files = list(Path('.').rglob('*.md'))
+              return len([f for f in md_files if 'node_modules' not in str(f)])
+          
+          # Calculate metrics
+          total_py_files = count_python_files()
+          documented_files = count_documented_files()
+          docstring_coverage = get_docstring_coverage()
+          markdown_files = count_markdown_files()
+          
+          # Documentation score calculation
+          docstring_score = docstring_coverage
+          completeness_score = (documented_files / max(1, total_py_files)) * 100
+          doc_files_score = min(100, markdown_files * 20)  # Cap at 100
+          
+          overall_doc_score = (docstring_score * 0.5 + completeness_score * 0.3 + doc_files_score * 0.2)
+          
+          print(f'Documentation Score: {overall_doc_score:.1f}/100')
+          print(f'Docstring Coverage: {docstring_coverage:.1f}%')
+          print(f'File Coverage: {documented_files}/{total_py_files} files')
+          print(f'Markdown Files: {markdown_files}')
+          
+          # Export for GitHub outputs
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f'score={overall_doc_score:.1f}\\n')
+              f.write(f'docstring_coverage={docstring_coverage:.1f}\\n')
+              f.write(f'file_coverage={documented_files}/{total_py_files}\\n')
+          "
+
+      - name: Generate documentation report
+        run: |
+          cat > doc-reports/documentation-summary.md << 'EOF'
+          # 📚 Documentation Quality Report
+          
+          **Generated:** $(date)
+          **Documentation Score:** ${{ steps.doc-analysis.outputs.score }}/100
+          
+          ## 📊 Documentation Metrics
+          
+          | Metric | Value | Status |
+          |--------|-------|--------|
+          | Overall Score | ${{ steps.doc-analysis.outputs.score }}/100 | $(python -c "
+          score = float('${{ steps.doc-analysis.outputs.score }}')
+          if score >= 90: print('✅ Excellent')
+          elif score >= 80: print('✅ Good')
+          elif score >= 70: print('⚠️ Acceptable')
+          elif score >= 60: print('⚠️ Needs Improvement')
+          else: print('❌ Poor')
+          ") |
+          | Docstring Coverage | ${{ steps.doc-analysis.outputs.docstring_coverage }}% | Target: 90%+ |
+          | File Coverage | ${{ steps.doc-analysis.outputs.file_coverage }} | Python files with docs |
+          
+          ## 🎯 Documentation Standards
+          
+          - **Docstring Coverage:** 90%+ target
+          - **Style:** Google/NumPy docstring format
+          - **Completeness:** All public APIs documented
+          - **Quality:** Examples and type hints included
+          
+          ## 📈 Recommendations
+          
+          $(python -c "
+          score = float('${{ steps.doc-analysis.outputs.score }}')
+          if score >= 90:
+              print('🎉 Excellent documentation! Keep it up.')
+          elif score >= 80:
+              print('✅ Good documentation. Minor improvements needed.')
+          elif score >= 70:
+              print('⚠️ Documentation needs attention. Focus on coverage.')
+          else:
+              print('❌ Documentation significantly lacking. Major improvement needed.')
+          ")
+          
+          EOF
+
+      - name: Upload documentation reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation-reports
+          path: doc-reports/
+          retention-days: 30
+
+  # Package health metrics
+  package-health:
+    name: Package Health Metrics
+    runs-on: ubuntu-latest
+    
+    outputs:
+      health-score: ${{ steps.health.outputs.score }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install analysis tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install hatch setuptools-scm
+
+      - name: Analyze package structure
+        run: |
+          echo "📦 Analyzing package structure..."
+          mkdir -p health-reports
+          
+          # Package structure analysis
+          tree src/ > health-reports/package-structure.txt || find src/ -type f > health-reports/package-structure.txt
+          
+          # Count various file types
+          python -c "
+          from pathlib import Path
+          import json
+          
+          src_path = Path('src')
+          
+          metrics = {
+              'python_files': len(list(src_path.rglob('*.py'))),
+              'test_files': len(list(Path('tests').rglob('*.py'))) if Path('tests').exists() else 0,
+              'config_files': len([f for f in Path('.').glob('*') if f.suffix in ['.toml', '.yml', '.yaml', '.cfg', '.ini']]),
+              'doc_files': len(list(Path('.').rglob('*.md'))) + len(list(Path('.').rglob('*.rst'))),
+              'total_lines': 0,
+              'total_size_kb': 0
+          }
+          
+          # Count lines and size
+          for py_file in src_path.rglob('*.py'):
+              try:
+                  with open(py_file, 'r', encoding='utf-8') as f:
+                      metrics['total_lines'] += len(f.readlines())
+                  metrics['total_size_kb'] += py_file.stat().st_size / 1024
+              except:
+                  pass
+          
+          with open('health-reports/package-metrics.json', 'w') as f:
+              json.dump(metrics, f, indent=2)
+          
+          print(f'Python files: {metrics[\"python_files\"]}')
+          print(f'Test files: {metrics[\"test_files\"]}')
+          print(f'Total lines: {metrics[\"total_lines\"]}')
+          print(f'Package size: {metrics[\"total_size_kb\"]:.1f} KB')
+          "
+
+      - name: Check package configuration
+        run: |
+          echo "⚙️ Checking package configuration..."
+          
+          # Check essential files
+          essential_files=(
+            "pyproject.toml"
+            "README.md"
+            "LICENSE"
+            "CHANGELOG.md"
+            ".gitignore"
+            "src"
+            "tests"
+          )
+          
+          missing_files=()
+          for file in "${essential_files[@]}"; do
+            if [ ! -e "$file" ]; then
+              missing_files+=("$file")
+            fi
+          done
+          
+          echo "Essential files check:" > health-reports/configuration-check.txt
+          for file in "${essential_files[@]}"; do
+            if [ -e "$file" ]; then
+              echo "✅ $file" >> health-reports/configuration-check.txt
+            else
+              echo "❌ $file (missing)" >> health-reports/configuration-check.txt
+            fi
+          done
+          
+          # Check pyproject.toml completeness
+          if [ -f "pyproject.toml" ]; then
+            echo "" >> health-reports/configuration-check.txt
+            echo "pyproject.toml sections:" >> health-reports/configuration-check.txt
+            
+            sections=("build-system" "project" "tool.hatch" "project.dependencies")
+            for section in "${sections[@]}"; do
+              if grep -q "$section" pyproject.toml; then
+                echo "✅ [$section]" >> health-reports/configuration-check.txt
+              else
+                echo "❌ [$section] (missing)" >> health-reports/configuration-check.txt
+              fi
+            done
+          fi
+
+      - name: Analyze dependency health
+        run: |
+          echo "🔗 Analyzing dependency health..."
+          
+          # Install and analyze dependencies
+          hatch env run --env default pip list --format=json > health-reports/dependencies.json
+          hatch env run --env default pip list > health-reports/dependencies.txt
+          
+          # Check for outdated dependencies
+          hatch env run --env default pip list --outdated --format=json > health-reports/outdated-deps.json || echo "[]" > health-reports/outdated-deps.json
+
+      - name: Calculate package health score
+        id: health
+        run: |
+          python -c "
+          import json
+          import os
+          from pathlib import Path
+          
+          def load_json_safe(filepath):
+              try:
+                  with open(filepath) as f:
+                      return json.load(f)
+              except:
+                  return {}
+          
+          # Load data
+          metrics = load_json_safe('health-reports/package-metrics.json')
+          dependencies = load_json_safe('health-reports/dependencies.json')
+          outdated = load_json_safe('health-reports/outdated-deps.json')
+          
+          # Health score components
+          structure_score = 100
+          
+          # Essential files check
+          essential_files = ['pyproject.toml', 'README.md', 'LICENSE', 'CHANGELOG.md', '.gitignore']
+          existing_files = sum(1 for f in essential_files if Path(f).exists())
+          structure_score = (existing_files / len(essential_files)) * 100
+          
+          # Test coverage score (assume good if tests exist)
+          test_score = 100 if metrics.get('test_files', 0) > 0 else 50
+          
+          # Dependency health score
+          total_deps = len(dependencies)
+          outdated_deps = len(outdated)
+          dependency_score = max(0, 100 - (outdated_deps / max(1, total_deps)) * 100)
+          
+          # Size and complexity score (penalize overly large packages)
+          size_kb = metrics.get('total_size_kb', 0)
+          if size_kb < 100:
+              size_score = 100
+          elif size_kb < 500:
+              size_score = 90
+          elif size_kb < 1000:
+              size_score = 80
+          else:
+              size_score = max(60, 100 - (size_kb - 1000) / 100)
+          
+          # Overall health score
+          health_score = (structure_score * 0.3 + test_score * 0.2 + dependency_score * 0.3 + size_score * 0.2)
+          
+          print(f'Package Health Score: {health_score:.1f}/100')
+          print(f'Structure: {structure_score:.1f}/100')
+          print(f'Tests: {test_score:.1f}/100')
+          print(f'Dependencies: {dependency_score:.1f}/100')
+          print(f'Size: {size_score:.1f}/100')
+          
+          # Export for GitHub outputs
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f'score={health_score:.1f}\\n')
+              f.write(f'structure={structure_score:.1f}\\n')
+              f.write(f'dependencies={dependency_score:.1f}\\n')
+              f.write(f'size={size_score:.1f}\\n')
+          "
+
+      - name: Generate health report
+        run: |
+          cat > health-reports/package-health-summary.md << 'EOF'
+          # 📦 Package Health Report
+          
+          **Generated:** $(date)
+          **Health Score:** ${{ steps.health.outputs.score }}/100
+          
+          ## 🏥 Health Metrics
+          
+          | Component | Score | Status |
+          |-----------|-------|--------|
+          | Overall Health | ${{ steps.health.outputs.score }}/100 | $(python -c "
+          score = float('${{ steps.health.outputs.score }}')
+          if score >= 90: print('✅ Excellent')
+          elif score >= 80: print('✅ Good')
+          elif score >= 70: print('⚠️ Fair')
+          elif score >= 60: print('⚠️ Poor')
+          else: print('❌ Critical')
+          ") |
+          | Package Structure | ${{ steps.health.outputs.structure }}/100 | Essential files and organization |
+          | Dependencies | ${{ steps.health.outputs.dependencies }}/100 | Dependency freshness and security |
+          | Package Size | ${{ steps.health.outputs.size }}/100 | Size optimization and complexity |
+          
+          ## 🎯 Health Indicators
+          
+          ### ✅ Strengths
+          - Modern build system (Hatch)
+          - Clean architecture structure
+          - Comprehensive CI/CD pipeline
+          - Automated quality monitoring
+          
+          ### 🔧 Areas for Improvement
+          
+          $(python -c "
+          score = float('${{ steps.health.outputs.score }}')
+          if score < 70:
+              print('- Package structure needs improvement')
+              print('- Consider dependency cleanup')
+              print('- Review package size and complexity')
+          elif score < 85:
+              print('- Minor package optimizations available')
+              print('- Keep dependencies up to date')
+          else:
+              print('- Maintain current excellent health')
+              print('- Continue regular monitoring')
+          ")
+          
+          ## 📈 Recommendations
+          
+          1. **Regular Updates:** Keep dependencies current
+          2. **Size Monitoring:** Watch package growth
+          3. **Structure Review:** Maintain clean organization  
+          4. **Documentation:** Keep docs in sync with code
+          
+          EOF
+
+      - name: Upload health reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-health-reports
+          path: health-reports/
+          retention-days: 30
+
+  # Comprehensive quality summary
+  quality-summary:
+    name: Quality & Health Summary
+    runs-on: ubuntu-latest
+    needs: [code-quality-analysis, test-coverage-analysis, documentation-quality, package-health]
+    if: always()
+    
+    steps:
+      - name: Generate comprehensive quality report
+        run: |
+          # Calculate overall grade
+          overall_score=$(python -c "
+          import sys
+          
+          scores = []
+          try:
+              scores.append(float('${{ needs.code-quality-analysis.outputs.quality-score }}'))
+          except:
+              scores.append(0)
+          
+          try:
+              scores.append(float('${{ needs.test-coverage-analysis.outputs.coverage-percentage }}'))
+          except:
+              scores.append(0)
+          
+          try:
+              scores.append(float('${{ needs.documentation-quality.outputs.doc-score }}'))
+          except:
+              scores.append(0)
+          
+          try:
+              scores.append(float('${{ needs.package-health.outputs.health-score }}'))
+          except:
+              scores.append(0)
+          
+          if scores:
+              avg = sum(scores) / len(scores)
+              print(f'{avg:.1f}')
+          else:
+              print('0')
+          ")
+          
+          echo "# 🎯 Package Quality & Health Summary" > quality-health-summary.md
+          echo "" >> quality-health-summary.md
+          echo "**Generated:** $(date)" >> quality-health-summary.md
+          echo "**Overall Score:** ${overall_score}/100" >> quality-health-summary.md
+          echo "**Repository:** ${{ github.repository }}" >> quality-health-summary.md
+          echo "" >> quality-health-summary.md
+          
+          echo "## 📊 Quality Dashboard" >> quality-health-summary.md
+          echo "" >> quality-health-summary.md
+          echo "| Component | Score | Grade | Status |" >> quality-health-summary.md
+          echo "|-----------|-------|-------|--------|" >> quality-health-summary.md
+          echo "| **Overall Quality** | **${overall_score}/100** | **$(python -c "
+          score = float('${overall_score}')
+          if score >= 90: print('A')
+          elif score >= 80: print('B')
+          elif score >= 70: print('C')
+          elif score >= 60: print('D')
+          else: print('F')
+          ")** | **$(python -c "
+          score = float('${overall_score}')
+          if score >= 90: print('🎉 Excellent')
+          elif score >= 80: print('✅ Good')
+          elif score >= 70: print('⚠️ Fair')
+          elif score >= 60: print('⚠️ Poor')
+          else: print('❌ Critical')
+          ")** |" >> quality-health-summary.md
+          echo "| Code Quality | ${{ needs.code-quality-analysis.outputs.quality-score }}/100 | $(python -c "
+          score = float('${{ needs.code-quality-analysis.outputs.quality-score }}' or '0')
+          if score >= 90: print('A')
+          elif score >= 80: print('B')
+          elif score >= 70: print('C')
+          elif score >= 60: print('D')
+          else: print('F')
+          ") | ${{ needs.code-quality-analysis.result == 'success' && '✅ Analyzed' || '❌ Failed' }} |" >> quality-health-summary.md
+          echo "| Test Coverage | ${{ needs.test-coverage-analysis.outputs.coverage-percentage }}%/${{ needs.test-coverage-analysis.outputs.coverage-grade }} | ${{ needs.test-coverage-analysis.outputs.coverage-grade }} | ${{ needs.test-coverage-analysis.result == 'success' && '✅ Analyzed' || '❌ Failed' }} |" >> quality-health-summary.md
+          echo "| Documentation | ${{ needs.documentation-quality.outputs.doc-score }}/100 | $(python -c "
+          score = float('${{ needs.documentation-quality.outputs.doc-score }}' or '0')
+          if score >= 90: print('A')
+          elif score >= 80: print('B')
+          elif score >= 70: print('C')
+          elif score >= 60: print('D')
+          else: print('F')
+          ") | ${{ needs.documentation-quality.result == 'success' && '✅ Analyzed' || '❌ Failed' }} |" >> quality-health-summary.md
+          echo "| Package Health | ${{ needs.package-health.outputs.health-score }}/100 | $(python -c "
+          score = float('${{ needs.package-health.outputs.health-score }}' or '0')
+          if score >= 90: print('A')
+          elif score >= 80: print('B')
+          elif score >= 70: print('C')
+          elif score >= 60: print('D')
+          else: print('F')
+          ") | ${{ needs.package-health.result == 'success' && '✅ Analyzed' || '❌ Failed' }} |" >> quality-health-summary.md
+          
+          echo "" >> quality-health-summary.md
+          echo "## 🎯 Quality Trends" >> quality-health-summary.md
+          echo "" >> quality-health-summary.md
+          echo "- **Target:** Maintain 85%+ across all metrics" >> quality-health-summary.md
+          echo "- **Current Average:** ${overall_score}/100" >> quality-health-summary.md
+          echo "- **Status:** $(python -c "
+          score = float('${overall_score}')
+          if score >= 85: print('🎉 Meeting quality targets')
+          elif score >= 75: print('⚠️ Close to quality targets')
+          else: print('❌ Below quality targets - improvement needed')
+          ")" >> quality-health-summary.md
+          
+          echo "" >> quality-health-summary.md
+          echo "## 🔧 Action Items" >> quality-health-summary.md
+          echo "" >> quality-health-summary.md
+          
+          if (( $(echo "${overall_score} < 85" | bc -l) )); then
+            echo "### 🚨 High Priority" >> quality-health-summary.md
+            echo "- Review and address quality issues identified in reports" >> quality-health-summary.md
+            echo "- Focus on lowest-scoring components first" >> quality-health-summary.md
+            echo "- Consider refactoring if complexity is high" >> quality-health-summary.md
+          fi
+          
+          echo "### 📈 Continuous Improvement" >> quality-health-summary.md
+          echo "- Monitor quality trends over time" >> quality-health-summary.md
+          echo "- Set up alerts for quality degradation" >> quality-health-summary.md
+          echo "- Regular dependency updates" >> quality-health-summary.md
+          echo "- Maintain documentation currency" >> quality-health-summary.md
+          
+          echo "" >> quality-health-summary.md
+          echo "## 📋 Detailed Reports" >> quality-health-summary.md
+          echo "" >> quality-health-summary.md
+          echo "Detailed analysis reports are available in the workflow artifacts:" >> quality-health-summary.md
+          echo "- Code Quality Reports" >> quality-health-summary.md
+          echo "- Test Coverage Reports" >> quality-health-summary.md
+          echo "- Documentation Reports" >> quality-health-summary.md
+          echo "- Package Health Reports" >> quality-health-summary.md
+
+      - name: Upload comprehensive summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-health-comprehensive-summary
+          path: quality-health-summary.md
+          retention-days: 90
+
+      - name: Comment on PR with quality summary
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('quality-health-summary.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🎯 Quality & Health Analysis\n\n${summary}\n\n---\n*This analysis was automatically generated by the quality monitoring workflow.*`
+            });

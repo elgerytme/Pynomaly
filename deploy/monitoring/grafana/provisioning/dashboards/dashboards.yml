@@ -1,0 +1,23 @@
+# Grafana dashboard provisioning configuration
+apiVersion: 1
+
+providers:
+  - name: 'Pynomaly Dashboards'
+    orgId: 1
+    folder: 'Pynomaly'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+
+  - name: 'System Dashboards'
+    orgId: 1
+    folder: 'System'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards/system

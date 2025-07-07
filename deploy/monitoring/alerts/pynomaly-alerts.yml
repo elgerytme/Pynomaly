@@ -1,0 +1,350 @@
+# Prometheus Alert Rules for Pynomaly
+groups:
+  - name: pynomaly.api
+    interval: 30s
+    rules:
+      # API Health and Availability
+      - alert: PynomalyAPIDown
+        expr: up{job="pynomaly-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: api
+          team: platform
+        annotations:
+          summary: "Pynomaly API is down"
+          description: "Pynomaly API has been down for more than 1 minute. Instance: {{ $labels.instance }}"
+          runbook_url: "https://docs.pynomaly.ai/runbooks/api-down"
+
+      - alert: PynomalyAPIHighLatency
+        expr: histogram_quantile(0.95, rate(pynomaly_http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          component: api
+          team: platform
+        annotations:
+          summary: "High API latency detected"
+          description: "95th percentile latency is {{ $value }}s for endpoint {{ $labels.endpoint }}"
+
+      - alert: PynomalyAPIHighErrorRate
+        expr: rate(pynomaly_http_requests_total{status=~"5.."}[5m]) / rate(pynomaly_http_requests_total[5m]) > 0.05
+        for: 3m
+        labels:
+          severity: critical
+          component: api
+          team: platform
+        annotations:
+          summary: "High API error rate"
+          description: "API error rate is {{ $value | humanizePercentage }} for endpoint {{ $labels.endpoint }}"
+
+      - alert: PynomalyHealthCheckFailing
+        expr: probe_success{job="blackbox"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: api
+          team: platform
+        annotations:
+          summary: "Health check failing"
+          description: "Health check for {{ $labels.instance }} has been failing for 2 minutes"
+
+  - name: pynomaly.detection
+    interval: 30s
+    rules:
+      # Detection Performance
+      - alert: PynomalyDetectionHighLatency
+        expr: histogram_quantile(0.95, rate(pynomaly_detection_duration_seconds_bucket[10m])) > 60
+        for: 5m
+        labels:
+          severity: warning
+          component: detection
+          team: ml
+        annotations:
+          summary: "High detection latency"
+          description: "95th percentile detection time is {{ $value }}s for algorithm {{ $labels.algorithm }}"
+
+      - alert: PynomalyDetectionFailureRate
+        expr: rate(pynomaly_detections_total{status="failure"}[10m]) / rate(pynomaly_detections_total[10m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+          component: detection
+          team: ml
+        annotations:
+          summary: "High detection failure rate"
+          description: "Detection failure rate is {{ $value | humanizePercentage }} for algorithm {{ $labels.algorithm }}"
+
+      - alert: PynomalyAnomalyRateSpike
+        expr: rate(pynomaly_anomalies_found_total[5m]) > 100
+        for: 3m
+        labels:
+          severity: warning
+          component: detection
+          team: ml
+        annotations:
+          summary: "Anomaly rate spike detected"
+          description: "Anomaly detection rate is {{ $value }} per second for algorithm {{ $labels.algorithm }}"
+
+      - alert: PynomalyDetectionAccuracyDrop
+        expr: pynomaly_detection_accuracy_ratio < 0.8
+        for: 10m
+        labels:
+          severity: warning
+          component: detection
+          team: ml
+        annotations:
+          summary: "Detection accuracy dropped"
+          description: "Detection accuracy is {{ $value | humanizePercentage }} for algorithm {{ $labels.algorithm }}"
+
+  - name: pynomaly.training
+    interval: 60s
+    rules:
+      # Training Jobs
+      - alert: PynomalyTrainingFailureRate
+        expr: rate(pynomaly_training_requests_total{status="failure"}[1h]) / rate(pynomaly_training_requests_total[1h]) > 0.2
+        for: 10m
+        labels:
+          severity: critical
+          component: training
+          team: ml
+        annotations:
+          summary: "High training failure rate"
+          description: "Training failure rate is {{ $value | humanizePercentage }} for algorithm {{ $labels.algorithm }}"
+
+      - alert: PynomalyTrainingHighDuration
+        expr: histogram_quantile(0.95, rate(pynomaly_training_duration_seconds_bucket[1h])) > 3600
+        for: 5m
+        labels:
+          severity: warning
+          component: training
+          team: ml
+        annotations:
+          summary: "Training jobs taking too long"
+          description: "95th percentile training time is {{ $value | humanizeDuration }} for algorithm {{ $labels.algorithm }}"
+
+      - alert: PynomalyModelSizeGrowth
+        expr: histogram_quantile(0.95, rate(pynomaly_model_size_bytes_bucket[1h])) > 104857600  # 100MB
+        for: 15m
+        labels:
+          severity: warning
+          component: training
+          team: ml
+        annotations:
+          summary: "Model sizes growing large"
+          description: "95th percentile model size is {{ $value | humanizeBytes }} for algorithm {{ $labels.algorithm }}"
+
+  - name: pynomaly.streaming
+    interval: 30s
+    rules:
+      # Streaming Performance
+      - alert: PynomalyStreamingThroughputDrop
+        expr: pynomaly_streaming_throughput_per_second < 10
+        for: 5m
+        labels:
+          severity: warning
+          component: streaming
+          team: platform
+        annotations:
+          summary: "Streaming throughput dropped"
+          description: "Streaming throughput is {{ $value }} samples/sec for stream {{ $labels.stream_id }}"
+
+      - alert: PynomalyStreamingHighBufferUtilization
+        expr: pynomaly_streaming_buffer_utilization_ratio > 0.9
+        for: 3m
+        labels:
+          severity: critical
+          component: streaming
+          team: platform
+        annotations:
+          summary: "High streaming buffer utilization"
+          description: "Buffer utilization is {{ $value | humanizePercentage }} for stream {{ $labels.stream_id }}"
+
+      - alert: PynomalyStreamingBackpressureEvents
+        expr: rate(pynomaly_streaming_backpressure_events_total[5m]) > 1
+        for: 2m
+        labels:
+          severity: warning
+          component: streaming
+          team: platform
+        annotations:
+          summary: "Streaming backpressure events"
+          description: "Backpressure events at {{ $value }} events/sec for stream {{ $labels.stream_id }}"
+
+  - name: pynomaly.system
+    interval: 30s
+    rules:
+      # System Resources
+      - alert: PynomalyHighMemoryUsage
+        expr: pynomaly_memory_usage_bytes / (1024*1024*1024) > 8  # 8GB
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+          team: platform
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value | humanizeBytes }} for component {{ $labels.component }}"
+
+      - alert: PynomalyHighCPUUsage
+        expr: pynomaly_cpu_usage_ratio > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+          team: platform
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is {{ $value | humanizePercentage }} for component {{ $labels.component }}"
+
+      - alert: PynomalyActiveModelsHigh
+        expr: pynomaly_active_models > 100
+        for: 10m
+        labels:
+          severity: warning
+          component: system
+          team: ml
+        annotations:
+          summary: "High number of active models"
+          description: "{{ $value }} models are currently active"
+
+      - alert: PynomalyActiveStreamsHigh
+        expr: pynomaly_active_streams > 50
+        for: 10m
+        labels:
+          severity: warning
+          component: system
+          team: platform
+        annotations:
+          summary: "High number of active streams"
+          description: "{{ $value }} streams are currently active"
+
+  - name: pynomaly.cache
+    interval: 30s
+    rules:
+      # Cache Performance
+      - alert: PynomalyCacheLowHitRatio
+        expr: pynomaly_cache_hit_ratio < 0.7
+        for: 10m
+        labels:
+          severity: warning
+          component: cache
+          team: platform
+        annotations:
+          summary: "Low cache hit ratio"
+          description: "Cache hit ratio is {{ $value | humanizePercentage }} for cache {{ $labels.cache_type }}"
+
+      - alert: PynomalyCacheHighSize
+        expr: pynomaly_cache_size_items > 10000
+        for: 15m
+        labels:
+          severity: warning
+          component: cache
+          team: platform
+        annotations:
+          summary: "Cache growing large"
+          description: "Cache has {{ $value }} items for cache {{ $labels.cache_type }}"
+
+  - name: pynomaly.errors
+    interval: 30s
+    rules:
+      # Error Monitoring
+      - alert: PynomalyHighErrorRate
+        expr: rate(pynomaly_errors_total[5m]) > 10
+        for: 3m
+        labels:
+          severity: critical
+          component: "{{ $labels.component }}"
+          team: platform
+        annotations:
+          summary: "High error rate"
+          description: "Error rate is {{ $value }} errors/sec for component {{ $labels.component }}, error type: {{ $labels.error_type }}"
+
+      - alert: PynomalyCriticalErrors
+        expr: rate(pynomaly_errors_total{severity="critical"}[5m]) > 1
+        for: 1m
+        labels:
+          severity: critical
+          component: "{{ $labels.component }}"
+          team: platform
+        annotations:
+          summary: "Critical errors detected"
+          description: "Critical error rate is {{ $value }} errors/sec for component {{ $labels.component }}, error type: {{ $labels.error_type }}"
+
+  - name: pynomaly.business
+    interval: 60s
+    rules:
+      # Business Metrics
+      - alert: PynomalyLowDatasetProcessing
+        expr: rate(pynomaly_datasets_processed_total[1h]) < 0.1
+        for: 30m
+        labels:
+          severity: warning
+          component: business
+          team: product
+        annotations:
+          summary: "Low dataset processing rate"
+          description: "Dataset processing rate is {{ $value }} datasets/hour"
+
+      - alert: PynomalyLowAPIResponseSize
+        expr: histogram_quantile(0.50, rate(pynomaly_api_response_size_bytes_bucket[1h])) < 100
+        for: 30m
+        labels:
+          severity: info
+          component: business
+          team: product
+        annotations:
+          summary: "Unusually small API responses"
+          description: "Median API response size is {{ $value | humanizeBytes }} for endpoint {{ $labels.endpoint }}"
+
+  - name: pynomaly.data_quality
+    interval: 60s
+    rules:
+      # Data Quality
+      - alert: PynomalyLowDataQuality
+        expr: pynomaly_data_quality_score < 0.7
+        for: 15m
+        labels:
+          severity: warning
+          component: data_quality
+          team: ml
+        annotations:
+          summary: "Low data quality score"
+          description: "Data quality score is {{ $value }} for dataset {{ $labels.dataset_id }}, metric: {{ $labels.metric_type }}"
+
+      - alert: PynomalyLowPredictionConfidence
+        expr: histogram_quantile(0.50, rate(pynomaly_prediction_confidence_score_bucket[1h])) < 0.6
+        for: 20m
+        labels:
+          severity: warning
+          component: prediction
+          team: ml
+        annotations:
+          summary: "Low prediction confidence"
+          description: "Median prediction confidence is {{ $value }} for algorithm {{ $labels.algorithm }}"
+
+  - name: pynomaly.ensemble
+    interval: 60s
+    rules:
+      # Ensemble Methods
+      - alert: PynomalyLowEnsembleAgreement
+        expr: histogram_quantile(0.50, rate(pynomaly_ensemble_agreement_ratio_bucket[1h])) < 0.6
+        for: 15m
+        labels:
+          severity: warning
+          component: ensemble
+          team: ml
+        annotations:
+          summary: "Low ensemble agreement"
+          description: "Median ensemble agreement is {{ $value }} for voting strategy {{ $labels.voting_strategy }}"
+
+      - alert: PynomalyEnsemblePredictionSpike
+        expr: rate(pynomaly_ensemble_predictions_total[5m]) > 1000
+        for: 5m
+        labels:
+          severity: info
+          component: ensemble
+          team: ml
+        annotations:
+          summary: "High ensemble prediction rate"
+          description: "Ensemble prediction rate is {{ $value }} predictions/sec for strategy {{ $labels.voting_strategy }}"

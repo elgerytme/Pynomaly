@@ -1,0 +1,253 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Pynomaly - ML Metrics",
+    "tags": ["pynomaly", "ml", "detection", "training"],
+    "style": "dark",
+    "timezone": "browser",
+    "editable": true,
+    "graphTooltip": 1,
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "refresh": "1m",
+    "schemaVersion": 30,
+    "version": 1,
+    "panels": [
+      {
+        "id": 1,
+        "title": "Detection Rate by Algorithm",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "rate(pynomaly_detections_total{status=\"success\"}[5m])",
+            "legendFormat": "{{algorithm}}",
+            "refId": "A"
+          }
+        ],
+        "yAxes": [
+          {"label": "detections/sec", "min": 0},
+          {"show": false}
+        ],
+        "legend": {"show": true, "alignAsTable": true, "rightSide": true}
+      },
+      {
+        "id": 2,
+        "title": "Detection Accuracy",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "targets": [
+          {
+            "expr": "pynomaly_detection_accuracy_ratio",
+            "legendFormat": "{{algorithm}} - {{dataset_type}}",
+            "refId": "A"
+          }
+        ],
+        "yAxes": [
+          {"label": "accuracy", "min": 0, "max": 1},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Detection Duration",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(pynomaly_detection_duration_seconds_bucket[5m]))",
+            "legendFormat": "p50 - {{algorithm}}",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(pynomaly_detection_duration_seconds_bucket[5m]))",
+            "legendFormat": "p95 - {{algorithm}}",
+            "refId": "B"
+          }
+        ],
+        "yAxes": [
+          {"label": "seconds", "min": 0},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Anomalies Found",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+        "targets": [
+          {
+            "expr": "rate(pynomaly_anomalies_found_total[5m])",
+            "legendFormat": "{{algorithm}} - {{confidence_level}}",
+            "refId": "A"
+          }
+        ],
+        "yAxes": [
+          {"label": "anomalies/sec", "min": 0},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Training Success Rate",
+        "type": "singlestat",
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 16},
+        "targets": [
+          {
+            "expr": "rate(pynomaly_training_requests_total{status=\"success\"}[1h]) / rate(pynomaly_training_requests_total[1h]) * 100",
+            "refId": "A"
+          }
+        ],
+        "valueName": "current",
+        "unit": "percent",
+        "thresholds": "80,95",
+        "colorBackground": true,
+        "colors": ["red", "yellow", "green"]
+      },
+      {
+        "id": 6,
+        "title": "Training Duration",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 18, "x": 6, "y": 16},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(pynomaly_training_duration_seconds_bucket[1h]))",
+            "legendFormat": "p50 - {{algorithm}}",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(pynomaly_training_duration_seconds_bucket[1h]))",
+            "legendFormat": "p95 - {{algorithm}}",
+            "refId": "B"
+          }
+        ],
+        "yAxes": [
+          {"label": "seconds", "min": 0},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Model Size Distribution",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(pynomaly_model_size_bytes_bucket[1h])) / 1024 / 1024",
+            "legendFormat": "p50 - {{algorithm}}",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(pynomaly_model_size_bytes_bucket[1h])) / 1024 / 1024",
+            "legendFormat": "p95 - {{algorithm}}",
+            "refId": "B"
+          }
+        ],
+        "yAxes": [
+          {"label": "MB", "min": 0},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Prediction Confidence",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(pynomaly_prediction_confidence_score_bucket[1h]))",
+            "legendFormat": "p50 - {{algorithm}}",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.90, rate(pynomaly_prediction_confidence_score_bucket[1h]))",
+            "legendFormat": "p90 - {{algorithm}}",
+            "refId": "B"
+          }
+        ],
+        "yAxes": [
+          {"label": "confidence", "min": 0, "max": 1},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Ensemble Performance",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 32},
+        "targets": [
+          {
+            "expr": "rate(pynomaly_ensemble_predictions_total[5m])",
+            "legendFormat": "{{voting_strategy}} ({{detector_count}} detectors)",
+            "refId": "A"
+          }
+        ],
+        "yAxes": [
+          {"label": "predictions/sec", "min": 0},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Ensemble Agreement",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 32},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(pynomaly_ensemble_agreement_ratio_bucket[5m]))",
+            "legendFormat": "p50 - {{voting_strategy}}",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(pynomaly_ensemble_agreement_ratio_bucket[5m]))",
+            "legendFormat": "p95 - {{voting_strategy}}",
+            "refId": "B"
+          }
+        ],
+        "yAxes": [
+          {"label": "agreement ratio", "min": 0, "max": 1},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Data Quality Scores",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 40},
+        "targets": [
+          {
+            "expr": "pynomaly_data_quality_score",
+            "legendFormat": "{{dataset_id}} - {{metric_type}}",
+            "refId": "A"
+          }
+        ],
+        "yAxes": [
+          {"label": "quality score", "min": 0, "max": 1},
+          {"show": false}
+        ]
+      }
+    ],
+    "templating": {
+      "list": [
+        {
+          "name": "algorithm",
+          "type": "query",
+          "query": "label_values(pynomaly_detections_total, algorithm)",
+          "refresh": 1,
+          "includeAll": true,
+          "multi": true
+        },
+        {
+          "name": "dataset_type",
+          "type": "query",
+          "query": "label_values(pynomaly_detection_accuracy_ratio, dataset_type)",
+          "refresh": 1,
+          "includeAll": true,
+          "multi": true
+        }
+      ]
+    }
+  }
+}
