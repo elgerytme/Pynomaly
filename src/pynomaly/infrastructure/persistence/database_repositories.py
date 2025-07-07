@@ -366,7 +366,7 @@ class DatabaseDatasetRepository(DatasetRepositoryProtocol):
                 existing.file_path = dataset.file_path
                 existing.target_column = dataset.target_column
                 existing.features = dataset.features
-                existing.metadata = dataset.metadata
+                existing.meta_data = dataset.metadata
                 existing.updated_at = dataset.updated_at
             else:
                 # Insert new
@@ -377,7 +377,7 @@ class DatabaseDatasetRepository(DatasetRepositoryProtocol):
                     file_path=dataset.file_path,
                     target_column=dataset.target_column,
                     features=dataset.features,
-                    metadata=dataset.metadata,
+                    meta_data=dataset.metadata,
                     created_at=dataset.created_at,
                     updated_at=dataset.updated_at,
                 )
@@ -409,7 +409,7 @@ class DatabaseDatasetRepository(DatasetRepositoryProtocol):
             models = session.query(DatasetModel).all()
             matching_models = []
             for model in models:
-                if model.metadata and model.metadata.get(key) == value:
+                if model.meta_data and model.meta_data.get(key) == value:
                     matching_models.append(model)
 
             return [self._model_to_entity(model) for model in matching_models]
@@ -450,11 +450,11 @@ class DatabaseDatasetRepository(DatasetRepositoryProtocol):
                 raise ValueError(f"Dataset {dataset_id} not found")
 
             # For now, just update metadata to indicate data was saved
-            if not model.metadata:
-                model.metadata = {}
-            model.metadata["data_saved"] = True
-            model.metadata["data_format"] = format
-            model.metadata["data_saved_at"] = datetime.utcnow().isoformat()
+            if not model.meta_data:
+                model.meta_data = {}
+            model.meta_data["data_saved"] = True
+            model.meta_data["data_format"] = format
+            model.meta_data["data_saved_at"] = datetime.utcnow().isoformat()
             session.commit()
 
             return f"database://{dataset_id}.{format}"
@@ -474,7 +474,7 @@ class DatabaseDatasetRepository(DatasetRepositoryProtocol):
             file_path=model.file_path,
             target_column=model.target_column,
             features=model.features or [],
-            metadata=model.metadata or {},
+            metadata=model.meta_data or {},
             id=model.id,
             created_at=model.created_at,
             updated_at=model.updated_at,

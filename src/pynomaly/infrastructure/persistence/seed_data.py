@@ -100,6 +100,7 @@ def create_custom_role(session: Session, name: str, description: str = "", permi
         session.flush()
         
         # Create permissions if provided
+        permissions_json = []
         if permissions:
             for perm_data in permissions:
                 if len(perm_data) == 4:
@@ -108,15 +109,14 @@ def create_custom_role(session: Session, name: str, description: str = "", permi
                     perm_name, resource, action = perm_data[:3]
                     desc = f"{action} {resource}"
                 
-                perm = PermissionModel(
-                    id=str(uuid4()),
-                    name=perm_name,
-                    resource=resource,
-                    action=action,
-                    description=desc,
-                    role_id=role.id
-                )
-                session.add(perm)
+                permissions_json.append({
+                    "name": perm_name,
+                    "resource": resource,
+                    "action": action,
+                    "description": desc
+                })
+        
+        role.permissions = permissions_json
         
         session.commit()
         logger.info(f"Created custom role: {name}")
@@ -173,10 +173,7 @@ def delete_role(session: Session, role_id: str) -> bool:
             logger.error(f"Cannot delete system role: {role.name}")
             return False
         
-        # Delete permissions first
-        session.query(PermissionModel).filter(PermissionModel.role_id == role_id).delete()
-        
-        # Delete role
+        # Delete role (permissions are stored as JSON within the role)
         session.delete(role)
         session.commit()
         

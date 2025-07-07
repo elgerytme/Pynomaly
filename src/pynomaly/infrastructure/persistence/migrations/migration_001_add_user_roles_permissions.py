@@ -48,13 +48,10 @@ def upgrade(db_manager: DatabaseManager) -> bool:
         RoleModel.__table__.create(engine, checkfirst=True)
         logger.info("Created roles table")
         
-        PermissionModel.__table__.create(engine, checkfirst=True)
-        logger.info("Created permissions table")
-        
         TenantModel.__table__.create(engine, checkfirst=True)
         logger.info("Created tenants table")
         
-        user_roles_association.create(engine, checkfirst=True)
+        UserRoleModel.__table__.create(engine, checkfirst=True)
         logger.info("Created user_roles association table")
         
         # Seed default data

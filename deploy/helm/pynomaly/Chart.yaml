@@ -1,0 +1,70 @@
+apiVersion: v2
+name: pynomaly
+description: A Helm chart for Pynomaly anomaly detection platform
+home: https://pynomaly.ai
+sources:
+  - https://github.com/pynomaly/pynomaly
+maintainers:
+  - name: Pynomaly Team
+    email: team@pynomaly.ai
+    url: https://pynomaly.ai
+
+# Chart version
+version: 1.0.0
+
+# Application version
+appVersion: "1.0.0"
+
+# Chart type
+type: application
+
+# Keywords for Helm Hub
+keywords:
+  - anomaly-detection
+  - machine-learning
+  - ai
+  - data-science
+  - python
+  - monitoring
+  - alerting
+
+# Dependencies
+dependencies:
+  - name: postgresql
+    version: "13.2.24"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled
+    tags:
+      - database
+  - name: redis
+    version: "18.4.0"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: redis.enabled
+    tags:
+      - cache
+  - name: prometheus
+    version: "25.8.0"
+    repository: "https://prometheus-community.github.io/helm-charts"
+    condition: monitoring.prometheus.enabled
+    tags:
+      - monitoring
+  - name: grafana
+    version: "7.0.19"
+    repository: "https://grafana.github.io/helm-charts"
+    condition: monitoring.grafana.enabled
+    tags:
+      - monitoring
+
+# Annotations
+annotations:
+  category: Analytics
+  licenses: MIT
+  images: |
+    - name: pynomaly
+      image: pynomaly:1.0.0
+    - name: nginx
+      image: nginx:1.25-alpine
+    - name: postgres-exporter
+      image: prometheuscommunity/postgres-exporter:v0.15.0
+    - name: redis-exporter
+      image: oliver006/redis_exporter:v1.56.0
