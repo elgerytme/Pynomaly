@@ -25,11 +25,9 @@ from pynomaly.application.use_cases.explainability_use_case import (
 )
 from pynomaly.domain.services.explainability_service import ExplanationMethod
 from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.deps import (
-    get_container,
-    get_current_user,
-    require_read,
-    require_write,
+from pynomaly.presentation.api.auth_deps import (
+    get_container_simple,
+    get_current_user_simple,
 )
 
 logger = logging.getLogger(__name__)
@@ -41,9 +39,8 @@ router = APIRouter(prefix="/api/v1/explainability", tags=["explainability"])
 async def explain_prediction(
     request: ExplanationRequestDTO,
     background_tasks: BackgroundTasks,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
-    _permissions: str = Depends(require_read),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> ExplanationResponseDTO:
     """Explain a single anomaly prediction.
 
@@ -126,9 +123,8 @@ async def explain_prediction(
 async def explain_model(
     request: ExplainModelRequestDTO,
     background_tasks: BackgroundTasks,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
-    _permissions: str = Depends(require_read),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> ExplanationResponseDTO:
     """Explain global model behavior and feature importance.
 
@@ -214,9 +210,8 @@ async def explain_model(
 @router.post("/explain/cohort", response_model=ExplanationResponseDTO)
 async def explain_cohort(
     request: ExplainCohortRequestDTO,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
-    _permissions: str = Depends(require_read),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> ExplanationResponseDTO:
     """Explain behavior for a cohort of similar instances.
 
@@ -305,9 +300,8 @@ async def explain_cohort(
 @router.post("/explain/compare", response_model=ExplanationResponseDTO)
 async def compare_explanations(
     request: CompareMethodsRequestDTO,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
-    _permissions: str = Depends(require_read),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> ExplanationResponseDTO:
     """Compare explanations across different methods.
 
@@ -394,9 +388,8 @@ async def compare_explanations(
 
 @router.get("/methods", response_model=List[str])
 async def get_available_methods(
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
-    _permissions: str = Depends(require_read),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> List[str]:
     """Get list of available explanation methods.
 
@@ -439,9 +432,8 @@ async def get_explanation_statistics(
     dataset_id: str,
     method: str = "shap",
     sample_size: int = 100,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
-    _permissions: str = Depends(require_read),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> JSONResponse:
     """Get explanation statistics for a detector across multiple instances.
 
@@ -547,9 +539,8 @@ async def get_explanation_statistics(
 
 @router.delete("/cache", status_code=status.HTTP_204_NO_CONTENT)
 async def clear_explanation_cache(
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
-    _permissions: str = Depends(require_write),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ):
     """Clear the explanation cache.
 
@@ -608,7 +599,7 @@ async def _analyze_feature_interactions_background(
 
 @router.get("/health")
 async def explainability_health_check(
-    container: Container = Depends(get_container),
+    container: Container = Depends(get_container_simple),
 ) -> Dict[str, Any]:
     """Health check for explainability service.
 

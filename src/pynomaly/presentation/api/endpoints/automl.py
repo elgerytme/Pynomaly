@@ -19,9 +19,11 @@ from pynomaly.application.dto.automl_dto import (
     HyperparameterOptimizationResponseDTO,
 )
 from pynomaly.application.use_cases.automl_optimization import AutoMLOptimizationUseCase
-from pynomaly.infrastructure.auth import require_read, require_write
 from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.deps import get_container, get_current_user
+from pynomaly.presentation.api.auth_deps import (
+    get_container_simple,
+    get_current_user_simple,
+)
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -30,9 +32,8 @@ router = APIRouter()
 @router.post("/profile", response_model=AutoMLProfileResponseDTO)
 async def profile_dataset(
     request: AutoMLProfileRequestDTO,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
-    _permissions: str = Depends(require_read),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> AutoMLProfileResponseDTO:
     """Profile a dataset and get algorithm recommendations."""
     start_time = time.time()
@@ -131,9 +132,8 @@ async def profile_dataset(
 async def optimize_automl(
     request: AutoMLRequestDTO,
     background_tasks: BackgroundTasks,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
-    _permissions: str = Depends(require_write),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> AutoMLResponseDTO:
     """Run complete AutoML optimization."""
     start_time = time.time()
@@ -215,9 +215,8 @@ async def optimize_automl(
 )
 async def optimize_single_algorithm(
     request: HyperparameterOptimizationRequestDTO,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
-    _permissions: str = Depends(require_write),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> HyperparameterOptimizationResponseDTO:
     """Optimize hyperparameters for a specific algorithm."""
     start_time = time.time()
@@ -275,9 +274,8 @@ async def optimize_single_algorithm(
 
 @router.get("/algorithms", response_model=dict)
 async def list_supported_algorithms(
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
-    _permissions: str = Depends(require_read),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> dict:
     """List all supported algorithms for AutoML."""
     try:
@@ -326,9 +324,8 @@ async def list_supported_algorithms(
 @router.get("/status/{optimization_id}")
 async def get_optimization_status(
     optimization_id: UUID,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
-    _permissions: str = Depends(require_read),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> dict:
     """Get status of a running AutoML optimization."""
     try:
@@ -356,9 +353,8 @@ async def get_optimization_status(
 @router.delete("/optimization/{optimization_id}")
 async def cancel_optimization(
     optimization_id: UUID,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
-    _permissions: str = Depends(require_write),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> dict:
     """Cancel a running AutoML optimization."""
     try:
@@ -382,9 +378,8 @@ async def cancel_optimization(
 async def get_algorithm_recommendations(
     dataset_id: str,
     max_recommendations: int = 5,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
-    _permissions: str = Depends(require_read),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> dict:
     """Get algorithm recommendations for a specific dataset."""
     try:
@@ -430,9 +425,8 @@ async def batch_optimize(
     max_algorithms_per_dataset: int = 3,
     enable_ensemble: bool = True,
     background_tasks: BackgroundTasks = None,
-    container: Container = Depends(get_container),
-    current_user: str | None = Depends(get_current_user),
-    _permissions: str = Depends(require_write),
+    container: Container = Depends(get_container_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> dict:
     """Run AutoML optimization on multiple datasets."""
     try:
