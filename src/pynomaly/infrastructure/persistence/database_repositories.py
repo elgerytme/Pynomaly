@@ -91,6 +91,7 @@ class DetectorModel(Base):
     __tablename__ = "detectors"
 
     id = Column(UUIDType, primary_key=True)
+    name = Column(String(255), nullable=False)
     algorithm = Column(String(100), nullable=False)
     parameters = Column(JSONType)
     is_fitted = Column(Boolean, default=False)
@@ -98,6 +99,7 @@ class DetectorModel(Base):
     entity_metadata = Column("metadata", JSONType)
     created_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, nullable=False)
+    trained_at = Column(DateTime, nullable=True)
 
 
 class DetectionResultModel(Base):
@@ -127,27 +129,31 @@ class DatabaseDetectorRepository(DetectorRepositoryProtocol):
             existing = session.query(DetectorModel).filter_by(id=detector.id).first()
             if existing:
                 # Update existing
+                existing.name = detector.name
                 existing.algorithm = detector.algorithm_name
                 existing.parameters = detector.parameters
                 existing.is_fitted = detector.is_fitted
                 existing.model_data = (
-                    detector.model_data if hasattr(detector, "model_data") else None
+                    getattr(detector, "model_data", None)
                 )
                 existing.metadata = detector.metadata
-                existing.updated_at = detector.updated_at
+                existing.updated_at = datetime.now()
+                existing.trained_at = detector.trained_at
             else:
                 # Insert new
                 model = DetectorModel(
                     id=detector.id,
+                    name=detector.name,
                     algorithm=detector.algorithm_name,
                     parameters=detector.parameters,
                     is_fitted=detector.is_fitted,
                     model_data=(
-                        detector.model_data if hasattr(detector, "model_data") else None
+                        getattr(detector, "model_data", None)
                     ),
                     metadata=detector.metadata,
                     created_at=detector.created_at,
-                    updated_at=detector.updated_at,
+                    updated_at=datetime.now(),
+                    trained_at=detector.trained_at,
                 )
                 session.add(model)
 
@@ -242,7 +248,8 @@ class DatabaseDetectorRepository(DetectorRepositoryProtocol):
 
     def _model_to_entity(self, model: DetectorModel) -> Detector:
         """Convert database model to domain entity."""
-        return Detector(
+        detector = Detector(
+            name=model.name,
             algorithm_name=model.algorithm,
             parameters=model.parameters or {},
             is_fitted=model.is_fitted,
@@ -250,7 +257,12 @@ class DatabaseDetectorRepository(DetectorRepositoryProtocol):
             id=model.id,
             created_at=model.created_at,
             updated_at=model.updated_at,
+            trained_at=model.trained_at,
         )
+        # Attach model_data if it exists
+        if model.model_data:
+            detector.model_data = model.model_data
+        return detector
 
 
 class DatabaseDatasetRepository(DatasetRepositoryProtocol):

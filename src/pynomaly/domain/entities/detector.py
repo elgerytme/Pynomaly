@@ -6,7 +6,7 @@ import time
 
 # Removed ABC and abstractmethod - Detector is a concrete domain entity
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any, Protocol
 from uuid import UUID, uuid4
 
@@ -63,7 +63,8 @@ class Detector:
     id: UUID = field(default_factory=uuid4)
     parameters: dict[str, Any] = field(default_factory=dict)
     metadata: dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     trained_at: datetime | None = None
     is_fitted: bool = False
 
@@ -113,6 +114,7 @@ class Detector:
     def update_metadata(self, key: str, value: Any) -> None:
         """Update detector metadata."""
         self.metadata[key] = value
+        self.updated_at = datetime.now(timezone.utc)
 
     def update_parameters(self, **params: Any) -> None:
         """Update algorithm parameters."""
@@ -120,6 +122,7 @@ class Detector:
         # Reset fitted state when parameters change
         self.is_fitted = False
         self.trained_at = None
+        self.updated_at = datetime.now(timezone.utc)
 
     def get_info(self) -> dict[str, Any]:
         """Get comprehensive information about the detector."""
@@ -187,7 +190,8 @@ class Detector:
 
             # Update detector state
             self.is_fitted = True
-            self.trained_at = datetime.utcnow()
+            self.trained_at = datetime.now(timezone.utc)
+            self.updated_at = datetime.now(timezone.utc)
 
             return TrainingResult.success_result(
                 detector_id=self.id,
