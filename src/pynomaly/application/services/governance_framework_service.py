@@ -22,7 +22,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from pynomaly.domain.entities.governance_workflow import ApprovalStatus
+from pynomaly.domain.entities.governance_workflow import ApprovalStatus, ComplianceStatus
 
 logger = logging.getLogger(__name__)
 

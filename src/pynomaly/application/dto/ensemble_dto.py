@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class EnsembleStrategyDTO(BaseModel):
@@ -442,7 +442,8 @@ class EnsembleDetectionRequestDTO(BaseModel):
         default=False, description="Return individual detector results"
     )
 
-    @validator("voting_strategy")
+    @field_validator("voting_strategy")
+    @classmethod
     def validate_voting_strategy(cls, v):
         """Validate voting strategy."""
         valid_strategies = {
@@ -465,7 +466,8 @@ class EnsembleDetectionRequestDTO(BaseModel):
             )
         return v
 
-    @validator("data")
+    @field_validator("data")
+    @classmethod
     def validate_data(cls, v):
         """Validate input data format."""
         if not v:
@@ -585,7 +587,8 @@ class EnsembleOptimizationRequestDTO(BaseModel):
         default=42, description="Random state for reproducibility"
     )
 
-    @validator("optimization_objective")
+    @field_validator("optimization_objective")
+    @classmethod
     def validate_optimization_objective(cls, v):
         """Validate optimization objective."""
         valid_objectives = {
@@ -605,7 +608,8 @@ class EnsembleOptimizationRequestDTO(BaseModel):
             )
         return v
 
-    @validator("target_voting_strategies")
+    @field_validator("target_voting_strategies")
+    @classmethod
     def validate_target_strategies(cls, v):
         """Validate target voting strategies."""
         valid_strategies = {

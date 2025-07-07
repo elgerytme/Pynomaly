@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, Field, field_validator, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class StreamDataPointDTO(BaseModel):
