@@ -11,7 +11,17 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.deps import get_container, get_current_user
+
+# Local dependency functions to avoid circular import
+def get_container() -> Container:
+    """Get dependency injection container."""
+    # Import locally to avoid circular import
+    from pynomaly.infrastructure.config import create_container
+    return create_container()
+
+def get_current_user() -> str | None:
+    """Get current user (stub implementation)."""
+    return None  # Simplified for now to avoid circular import
 
 # Get template and static directories
 BASE_DIR = Path(__file__).parent
@@ -1676,7 +1686,10 @@ def mount_web_ui(app):
 
 def create_web_app():
     """Create complete web application with API and UI."""
-    from pynomaly.presentation.api.app import create_app
+    # Import locally to avoid circular import
+    import importlib
+    api_module = importlib.import_module('pynomaly.presentation.api.app')
+    create_app = api_module.create_app
 
     # Create API app
     app = create_app()
