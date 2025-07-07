@@ -29,14 +29,14 @@ class PynomaliSDKError(Exception):
 class AuthenticationError(PynomaliSDKError):
     """Raised when authentication fails or credentials are invalid."""
 
-    def __init__(self, message: str = "Authentication failed", **kwargs):
+    def __init__(self, message: str = "Authentication failed", **kwargs: Any) -> None:
         super().__init__(message, status_code=401, **kwargs)
 
 
 class AuthorizationError(PynomaliSDKError):
     """Raised when the user lacks permissions for the requested operation."""
 
-    def __init__(self, message: str = "Insufficient permissions", **kwargs):
+    def __init__(self, message: str = "Insufficient permissions", **kwargs: Any) -> None:
         super().__init__(message, status_code=403, **kwargs)
 
 
@@ -47,8 +47,8 @@ class ValidationError(PynomaliSDKError):
         self,
         message: str = "Validation failed",
         validation_errors: dict[str, Any] | None = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         super().__init__(message, status_code=400, **kwargs)
         self.validation_errors = validation_errors or {}
 
@@ -56,7 +56,7 @@ class ValidationError(PynomaliSDKError):
 class ResourceNotFoundError(PynomaliSDKError):
     """Raised when a requested resource is not found."""
 
-    def __init__(self, resource_type: str, resource_id: str, **kwargs):
+    def __init__(self, resource_type: str, resource_id: str, **kwargs: Any) -> None:
         message = f"{resource_type} with ID '{resource_id}' not found"
         super().__init__(message, status_code=404, **kwargs)
         self.resource_type = resource_type
@@ -66,7 +66,7 @@ class ResourceNotFoundError(PynomaliSDKError):
 class ConflictError(PynomaliSDKError):
     """Raised when a request conflicts with the current state."""
 
-    def __init__(self, message: str = "Request conflicts with current state", **kwargs):
+    def __init__(self, message: str = "Request conflicts with current state", **kwargs: Any) -> None:
         super().__init__(message, status_code=409, **kwargs)
 
 
@@ -77,8 +77,8 @@ class RateLimitError(PynomaliSDKError):
         self,
         message: str = "Rate limit exceeded",
         retry_after: int | None = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         super().__init__(message, status_code=429, **kwargs)
         self.retry_after = retry_after
 
@@ -86,35 +86,35 @@ class RateLimitError(PynomaliSDKError):
 class ServerError(PynomaliSDKError):
     """Raised when the server encounters an internal error."""
 
-    def __init__(self, message: str = "Internal server error", **kwargs):
+    def __init__(self, message: str = "Internal server error", **kwargs: Any) -> None:
         super().__init__(message, status_code=500, **kwargs)
 
 
 class ServiceUnavailableError(PynomaliSDKError):
     """Raised when the service is temporarily unavailable."""
 
-    def __init__(self, message: str = "Service temporarily unavailable", **kwargs):
+    def __init__(self, message: str = "Service temporarily unavailable", **kwargs: Any) -> None:
         super().__init__(message, status_code=503, **kwargs)
 
 
 class TimeoutError(PynomaliSDKError):
     """Raised when a request times out."""
 
-    def __init__(self, message: str = "Request timed out", **kwargs):
+    def __init__(self, message: str = "Request timed out", **kwargs: Any) -> None:
         super().__init__(message, **kwargs)
 
 
 class NetworkError(PynomaliSDKError):
     """Raised when network connectivity issues occur."""
 
-    def __init__(self, message: str = "Network error occurred", **kwargs):
+    def __init__(self, message: str = "Network error occurred", **kwargs: Any) -> None:
         super().__init__(message, **kwargs)
 
 
 class ConfigurationError(PynomaliSDKError):
     """Raised when SDK configuration is invalid."""
 
-    def __init__(self, message: str = "Invalid SDK configuration", **kwargs):
+    def __init__(self, message: str = "Invalid SDK configuration", **kwargs: Any) -> None:
         super().__init__(message, **kwargs)
 
 
@@ -146,4 +146,7 @@ def map_http_error(
         resource_id = details.get("resource_id", "unknown") if details else "unknown"
         return ResourceNotFoundError(resource_type, resource_id, details=details)
 
-    return error_class(message, status_code=status_code, details=details)
+    try:
+        return error_class(message, status_code=status_code, details=details)  # type: ignore[misc]
+    except Exception:
+        return PynomaliSDKError(message, status_code=status_code, details=details)

@@ -61,7 +61,7 @@ class ExportOptions:
     # Visualization options
     chart_types: list[str] = field(default_factory=lambda: ["scatter", "histogram"])
     color_scheme: str = "default"
-    chart_size: tuple = (640, 480)
+    chart_size: tuple[int, int] = (640, 480)
 
     # Authentication and security
     credentials: dict[str, Any] | None = None
@@ -81,7 +81,7 @@ class ExportOptions:
     # Custom options for extensibility
     custom_options: dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate export options after initialization."""
         # Set default sheet names if not provided
         if self.sheet_names is None:
