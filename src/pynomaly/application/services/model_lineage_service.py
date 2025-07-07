@@ -24,6 +24,16 @@ from pynomaly.shared.protocols.repository_protocol import (
 )
 
 
+class LineageTrackingError(Exception):
+    """Exception raised when lineage tracking fails."""
+    pass
+
+
+class CircularDependencyError(Exception):
+    """Exception raised when a circular dependency is detected in lineage."""
+    pass
+
+
 class ModelLineageService:
     """Service for tracking and analyzing model lineage."""
 

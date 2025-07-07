@@ -46,8 +46,16 @@ except ImportError:
 # Distributed processing endpoints removed for simplification
 distributed = None
 DISTRIBUTED_API_AVAILABLE = False
-# Temporarily disabled web UI mounting due to circular import
-# from pynomaly.presentation.web.app import mount_web_ui
+# Web UI mounting - resolved circular import by using late import
+def _mount_web_ui_lazy(app):
+    """Lazy import and mount web UI to avoid circular imports."""
+    try:
+        from pynomaly.presentation.web.app import mount_web_ui
+        mount_web_ui(app)
+        return True
+    except ImportError as e:
+        print(f"Warning: Could not mount web UI: {e}")
+        return False
 
 
 @asynccontextmanager
@@ -225,8 +233,8 @@ def create_app(container: Container | None = None) -> FastAPI:
 
     # Distributed processing API removed for simplification
 
-    # Temporarily disabled web UI mounting due to circular import
-    # mount_web_ui(app)
+    # Mount web UI with lazy import to avoid circular dependencies
+    _mount_web_ui_lazy(app)
 
     @app.get("/", include_in_schema=False)
     async def root():

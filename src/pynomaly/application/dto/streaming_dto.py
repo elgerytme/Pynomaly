@@ -3,7 +3,146 @@
 from typing import Any, Dict, List, Optional, Union
 from datetime import datetime
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, field_validator
+
+
+class StreamDataPointDTO(BaseModel):
+    """DTO for individual stream data point."""
+    
+    id: Optional[str] = Field(
+        default=None,
+        description="Data point ID (auto-generated if not provided)"
+    )
+    timestamp: Optional[datetime] = Field(
+        default=None,
+        description="Data point timestamp"
+    )
+    values: List[float] = Field(
+        description="Numeric values for the data point"
+    )
+    labels: Optional[Dict[str, Any]] = Field(
+        default_factory=dict,
+        description="Optional labels/metadata"
+    )
+    
+    @field_validator("values")
+    @classmethod
+    def validate_values(cls, v):
+        """Validate numeric values."""
+        if not v:
+            raise ValueError("Values cannot be empty")
+        if not all(isinstance(x, (int, float)) for x in v):
+            raise ValueError("All values must be numeric")
+        return v
+
+
+class StreamDataBatchDTO(BaseModel):
+    """DTO for batch of stream data points."""
+    
+    batch_id: Optional[str] = Field(
+        default=None,
+        description="Batch identifier"
+    )
+    data_points: List[StreamDataPointDTO] = Field(
+        description="List of data points in the batch"
+    )
+    timestamp: Optional[datetime] = Field(
+        default=None,
+        description="Batch timestamp"
+    )
+    
+    @field_validator("data_points")
+    @classmethod
+    def validate_data_points(cls, v):
+        """Validate data points."""
+        if not v:
+            raise ValueError("Data points cannot be empty")
+        return v
+
+
+class StreamDetectionRequestDTO(BaseModel):
+    """DTO for stream detection request."""
+    
+    detector_id: str = Field(description="Detector identifier")
+    data_batch: StreamDataBatchDTO = Field(description="Data batch to process")
+    configuration: Optional[Dict[str, Any]] = Field(
+        default_factory=dict,
+        description="Additional configuration"
+    )
+
+
+class StreamDetectionResponseDTO(BaseModel):
+    """DTO for stream detection response."""
+    
+    request_id: str = Field(description="Request identifier")
+    predictions: List[int] = Field(description="Anomaly predictions")
+    scores: List[float] = Field(description="Anomaly scores")
+    processing_time: float = Field(description="Processing time in seconds")
+    timestamp: datetime = Field(description="Response timestamp")
+
+
+class StreamConfigurationDTO(BaseModel):
+    """DTO for stream configuration."""
+    
+    buffer_size: int = Field(default=1000, description="Buffer size")
+    batch_size: int = Field(default=100, description="Batch size")
+    timeout_ms: int = Field(default=1000, description="Timeout in milliseconds")
+
+
+class StreamMetricsDTO(BaseModel):
+    """DTO for stream metrics."""
+    
+    stream_id: str = Field(description="Stream identifier")
+    throughput: float = Field(description="Throughput in samples/second")
+    latency_ms: float = Field(description="Average latency in milliseconds")
+    error_rate: float = Field(description="Error rate percentage")
+    buffer_utilization: float = Field(description="Buffer utilization percentage")
+
+
+class StreamStatusDTO(BaseModel):
+    """DTO for stream status."""
+    
+    stream_id: str = Field(description="Stream identifier")
+    status: str = Field(description="Current status")
+    last_updated: datetime = Field(description="Last update timestamp")
+    message: Optional[str] = Field(default=None, description="Status message")
+
+
+class StreamErrorDTO(BaseModel):
+    """DTO for stream errors."""
+    
+    stream_id: str = Field(description="Stream identifier")
+    error_code: str = Field(description="Error code")
+    error_message: str = Field(description="Error message")
+    timestamp: datetime = Field(description="Error timestamp")
+    severity: str = Field(description="Error severity level")
+
+
+class BackpressureConfigDTO(BaseModel):
+    """DTO for backpressure configuration."""
+    
+    enabled: bool = Field(default=True, description="Enable backpressure")
+    high_watermark: float = Field(default=0.8, description="High watermark threshold")
+    low_watermark: float = Field(default=0.3, description="Low watermark threshold")
+    strategy: str = Field(default="drop_oldest", description="Backpressure strategy")
+
+
+class WindowConfigDTO(BaseModel):
+    """DTO for window configuration."""
+    
+    window_type: str = Field(description="Window type (sliding, tumbling, session)")
+    size_ms: int = Field(description="Window size in milliseconds")
+    advance_ms: Optional[int] = Field(default=None, description="Window advance in milliseconds")
+    allowed_lateness_ms: int = Field(default=0, description="Allowed lateness in milliseconds")
+
+
+class CheckpointConfigDTO(BaseModel):
+    """DTO for checkpoint configuration."""
+    
+    enabled: bool = Field(default=True, description="Enable checkpointing")
+    interval_ms: int = Field(default=10000, description="Checkpoint interval in milliseconds")
+    storage_path: str = Field(description="Checkpoint storage path")
+    retention_count: int = Field(default=5, description="Number of checkpoints to retain")
 
 
 class StreamingConfigurationDTO(BaseModel):
@@ -110,7 +249,8 @@ class StreamingConfigurationDTO(BaseModel):
         description="Enable metrics collection"
     )
     
-    @validator("strategy")
+    @field_validator("strategy")
+    @classmethod
     def validate_strategy(cls, v):
         """Validate streaming strategy."""
         valid_strategies = {
@@ -120,7 +260,8 @@ class StreamingConfigurationDTO(BaseModel):
             raise ValueError(f"Invalid strategy. Must be one of: {valid_strategies}")
         return v
     
-    @validator("backpressure_strategy")
+    @field_validator("backpressure_strategy")
+    @classmethod
     def validate_backpressure_strategy(cls, v):
         """Validate backpressure strategy."""
         valid_strategies = {
@@ -131,7 +272,8 @@ class StreamingConfigurationDTO(BaseModel):
             raise ValueError(f"Invalid backpressure strategy. Must be one of: {valid_strategies}")
         return v
     
-    @validator("mode")
+    @field_validator("mode")
+    @classmethod
     def validate_mode(cls, v):
         """Validate streaming mode."""
         valid_modes = {"continuous", "burst", "scheduled", "event_driven"}
@@ -139,17 +281,19 @@ class StreamingConfigurationDTO(BaseModel):
             raise ValueError(f"Invalid mode. Must be one of: {valid_modes}")
         return v
     
-    @validator("max_batch_size")
-    def validate_batch_sizes(cls, v, values):
+    @field_validator("max_batch_size")
+    @classmethod
+    def validate_batch_sizes(cls, v, info):
         """Validate batch size consistency."""
-        if "min_batch_size" in values and v < values["min_batch_size"]:
+        if hasattr(info, 'data') and "min_batch_size" in info.data and v < info.data["min_batch_size"]:
             raise ValueError("max_batch_size must be >= min_batch_size")
         return v
     
-    @validator("high_watermark")
-    def validate_watermarks(cls, v, values):
+    @field_validator("high_watermark")
+    @classmethod
+    def validate_watermarks(cls, v, info):
         """Validate watermark consistency."""
-        if "low_watermark" in values and v <= values["low_watermark"]:
+        if hasattr(info, 'data') and "low_watermark" in info.data and v <= info.data["low_watermark"]:
             raise ValueError("high_watermark must be > low_watermark")
         return v
 
@@ -179,7 +323,8 @@ class StreamingSampleDTO(BaseModel):
         description="Sample priority (0=lowest, 10=highest)"
     )
     
-    @validator("data")
+    @field_validator("data")
+    @classmethod
     def validate_data(cls, v):
         """Validate sample data format."""
         if isinstance(v, list):
@@ -219,10 +364,11 @@ class StreamingRequestDTO(BaseModel):
         description="Callback handler settings"
     )
     
-    @validator("ensemble_detector_ids")
-    def validate_ensemble_detectors(cls, v, values):
+    @field_validator("ensemble_detector_ids")
+    @classmethod
+    def validate_ensemble_detectors(cls, v, info):
         """Validate ensemble detector configuration."""
-        if values.get("enable_ensemble", False) and not v:
+        if hasattr(info, 'data') and info.data.get("enable_ensemble", False) and not v:
             raise ValueError("ensemble_detector_ids required when enable_ensemble is True")
         return v
 
@@ -431,7 +577,8 @@ class StreamingControlDTO(BaseModel):
         description="Force the action even if it may cause data loss"
     )
     
-    @validator("action")
+    @field_validator("action")
+    @classmethod
     def validate_action(cls, v):
         """Validate control action."""
         valid_actions = {"start", "stop", "pause", "resume", "configure"}
@@ -439,10 +586,11 @@ class StreamingControlDTO(BaseModel):
             raise ValueError(f"Invalid action. Must be one of: {valid_actions}")
         return v
     
-    @validator("stream_id")
-    def validate_stream_id_requirement(cls, v, values):
+    @field_validator("stream_id")
+    @classmethod
+    def validate_stream_id_requirement(cls, v, info):
         """Validate stream_id requirement for certain actions."""
-        action = values.get("action")
+        action = info.data.get("action") if hasattr(info, 'data') else None
         if action in {"stop", "pause", "resume", "configure"} and not v:
             raise ValueError(f"stream_id is required for action '{action}'")
         return v

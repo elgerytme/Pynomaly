@@ -109,7 +109,6 @@ class OptimizationResultResponse(BaseModel):
     summary="Get connection pool information",
     description="Retrieve information about all connection pools including statistics and configuration",
 )
-@inject
 async def get_pools(
     # pool_manager: ConnectionPoolManager = Depends(Provide[Container.connection_pool_manager])
 ) -> list[PoolInfoResponse]:
@@ -173,7 +172,6 @@ async def get_pools(
     summary="Get specific pool information",
     description="Retrieve information about a specific connection pool",
 )
-@inject
 async def get_pool(
     pool_name: str,
     # pool_manager: ConnectionPoolManager = Depends(Provide[Container.connection_pool_manager])
@@ -229,7 +227,6 @@ async def get_pool(
     summary="Reset pool statistics",
     description="Reset statistics for a specific connection pool",
 )
-@inject
 async def reset_pool_stats(
     pool_name: str,
     # pool_manager: ConnectionPoolManager = Depends(Provide[Container.connection_pool_manager])
@@ -261,7 +258,6 @@ async def reset_pool_stats(
     summary="Reset all pool statistics",
     description="Reset statistics for all connection pools",
 )
-@inject
 async def reset_all_pool_stats(
     # pool_manager: ConnectionPoolManager = Depends(Provide[Container.connection_pool_manager])
 ) -> dict[str, str]:
@@ -534,7 +530,6 @@ async def get_cache_stats(
     summary="Get system performance metrics",
     description="Get overall system performance metrics including pools and queries",
 )
-@inject
 async def get_system_metrics(
     # pool_manager: ConnectionPoolManager = Depends(Provide[Container.connection_pool_manager]),
     # optimizer: QueryOptimizer = Depends(Provide[Container.query_optimizer])

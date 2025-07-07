@@ -462,6 +462,22 @@ class ConceptDriftResult:
 
 
 @dataclass
+class DriftDetectionResult:
+    """General drift detection result."""
+    
+    drift_detected: bool
+    drift_score: float
+    method: DriftDetectionMethod
+    timestamp: datetime = field(default_factory=datetime.utcnow)
+    metadata: dict[str, Any] = field(default_factory=dict)
+    
+    def __post_init__(self):
+        """Validate drift detection result."""
+        if not (0.0 <= self.drift_score <= 1.0):
+            raise ValueError("Drift score must be between 0.0 and 1.0")
+
+
+@dataclass
 class DriftAnalysisResult:
     """Comprehensive drift analysis result."""
 

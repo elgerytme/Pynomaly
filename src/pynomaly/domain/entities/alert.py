@@ -45,6 +45,17 @@ class AlertType(Enum):
     CUSTOM = "custom"
 
 
+class AlertCategory(Enum):
+    """Category classification for alerts."""
+
+    OPERATIONAL = "operational"
+    TECHNICAL = "technical"
+    BUSINESS = "business"
+    SECURITY = "security"
+    COMPLIANCE = "compliance"
+    PERFORMANCE = "performance"
+
+
 class NotificationChannel(Enum):
     """Available notification channels."""
 

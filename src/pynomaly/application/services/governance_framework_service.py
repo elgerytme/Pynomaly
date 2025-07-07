@@ -22,6 +22,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
+from pynomaly.domain.entities.governance_workflow import ApprovalStatus
+
 logger = logging.getLogger(__name__)
 
 
