@@ -1,6 +1,6 @@
 """FastAPI endpoints for multi-tenant management."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID
 
@@ -384,7 +384,7 @@ async def get_tenant_usage(
             usage_percentage=quota_info["usage_percentage"],
             is_exceeded=quota_info["is_exceeded"],
             is_unlimited=quota_info["limit"] == "unlimited",
-            period_start=datetime.utcnow(),  # Simplified
+            period_start=datetime.now(timezone.utc),  # Simplified
             period_end=None,
         )
 
@@ -449,7 +449,7 @@ async def consume_quota(
         "success": True,
         "quota_type": request.quota_type.value,
         "amount_consumed": request.amount,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -501,7 +501,7 @@ async def reset_quotas(
     return {
         "success": True,
         "tenant_id": str(tenant_id),
-        "reset_timestamp": datetime.utcnow().isoformat(),
+        "reset_timestamp": datetime.now(timezone.utc).isoformat(),
         "message": "All quotas reset for new billing period",
     }
 
@@ -523,7 +523,7 @@ async def validate_access(
         "resource_path": resource_path,
         "operation": operation,
         "access_granted": is_valid,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -542,7 +542,7 @@ async def get_tenant_statistics(
             "by_tier": {},
             "active_tenants": 0,
             "total_usage": {"api_requests": 0, "cpu_hours": 0.0, "storage_gb": 0.0},
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         for tenant in all_tenants:

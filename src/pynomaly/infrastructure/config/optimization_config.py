@@ -316,7 +316,7 @@ class OptimizationConfig:
     enable_experimental_features: bool = False
     experimental_config: Dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate configuration."""
         if self.n_trials <= 0:
             raise ValueError("n_trials must be positive")

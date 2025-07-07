@@ -48,7 +48,7 @@ class ClusterMetrics:
 class ClusterCoordinator:
     """Placeholder cluster coordinator."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize cluster coordinator."""
         self.nodes: dict[str, ClusterNode] = {}
         self.status = ClusterStatus.OFFLINE

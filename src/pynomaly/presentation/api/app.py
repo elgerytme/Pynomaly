@@ -176,8 +176,7 @@ def create_app(container: Container | None = None) -> FastAPI:
     app.state.container = container
 
     # Configure comprehensive OpenAPI documentation
-    # Temporarily disabled to debug 500 error
-    # configure_openapi_docs(app, settings)
+    configure_openapi_docs(app, settings)
 
     # Add CORS middleware
     app.add_middleware(CORSMiddleware, **settings.get_cors_config())
