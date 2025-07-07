@@ -12,10 +12,10 @@ import numpy as np
 import pandas as pd
 
 from pynomaly.domain.entities import Dataset
-from pynomaly.infrastructure.data_loaders.base_loader import BaseDataLoader
+from pynomaly.infrastructure.data_loaders.csv_loader import CSVLoader
 
 
-class OptimizedCSVLoader(BaseDataLoader):
+class OptimizedCSVLoader(CSVLoader):
     """Memory-optimized CSV loader with intelligent type inference and chunked processing."""
     
     def __init__(
