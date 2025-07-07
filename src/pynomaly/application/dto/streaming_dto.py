@@ -143,6 +143,41 @@ class StreamDetectionResponseDTO(BaseModel):
     timestamp: datetime = Field(description="Response timestamp")
 
 
+class BackpressureConfigDTO(BaseModel):
+    """DTO for backpressure configuration."""
+
+    enabled: bool = Field(default=True, description="Enable backpressure")
+    high_watermark: float = Field(default=0.8, description="High watermark threshold")
+    low_watermark: float = Field(default=0.3, description="Low watermark threshold")
+    strategy: str = Field(default="drop_oldest", description="Backpressure strategy")
+
+
+class WindowConfigDTO(BaseModel):
+    """DTO for window configuration."""
+
+    type: str = Field(description="Window type (sliding, tumbling, session)")
+    size_ms: int = Field(description="Window size in milliseconds")
+    slide_ms: Optional[int] = Field(
+        default=None, description="Window slide in milliseconds"
+    )
+    allowed_lateness_ms: int = Field(
+        default=0, description="Allowed lateness in milliseconds"
+    )
+
+
+class CheckpointConfigDTO(BaseModel):
+    """DTO for checkpoint configuration."""
+
+    enabled: bool = Field(default=True, description="Enable checkpointing")
+    interval_ms: int = Field(
+        default=10000, description="Checkpoint interval in milliseconds"
+    )
+    storage_path: str = Field(description="Checkpoint storage path")
+    retention_count: int = Field(
+        default=5, description="Number of checkpoints to retain"
+    )
+
+
 class StreamConfigurationDTO(BaseModel):
     """DTO for stream configuration."""
 
@@ -191,41 +226,6 @@ class StreamErrorDTO(BaseModel):
     error_message: str = Field(description="Error message")
     timestamp: datetime = Field(description="Error timestamp")
     severity: str = Field(description="Error severity level")
-
-
-class BackpressureConfigDTO(BaseModel):
-    """DTO for backpressure configuration."""
-
-    enabled: bool = Field(default=True, description="Enable backpressure")
-    high_watermark: float = Field(default=0.8, description="High watermark threshold")
-    low_watermark: float = Field(default=0.3, description="Low watermark threshold")
-    strategy: str = Field(default="drop_oldest", description="Backpressure strategy")
-
-
-class WindowConfigDTO(BaseModel):
-    """DTO for window configuration."""
-
-    type: str = Field(description="Window type (sliding, tumbling, session)")
-    size_ms: int = Field(description="Window size in milliseconds")
-    slide_ms: Optional[int] = Field(
-        default=None, description="Window slide in milliseconds"
-    )
-    allowed_lateness_ms: int = Field(
-        default=0, description="Allowed lateness in milliseconds"
-    )
-
-
-class CheckpointConfigDTO(BaseModel):
-    """DTO for checkpoint configuration."""
-
-    enabled: bool = Field(default=True, description="Enable checkpointing")
-    interval_ms: int = Field(
-        default=10000, description="Checkpoint interval in milliseconds"
-    )
-    storage_path: str = Field(description="Checkpoint storage path")
-    retention_count: int = Field(
-        default=5, description="Number of checkpoints to retain"
-    )
 
 
 class StreamingConfigurationDTO(BaseModel):
