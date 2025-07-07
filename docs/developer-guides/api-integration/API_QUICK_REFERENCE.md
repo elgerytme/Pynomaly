@@ -31,7 +31,7 @@ pwsh -File scripts/test_api_powershell.ps1  # PowerShell test
 
 | Endpoint | URL | Description |
 |----------|-----|-------------|
-| **Root** | `http://localhost:8000/` | API info and version |
+| **Root** | `http://localhost:8000/api` | API info and version |
 | **Health** | `http://localhost:8000/api/health/` | System health status |
 | **Docs** | `http://localhost:8000/api/docs` | Interactive API documentation |
 | **OpenAPI** | `http://localhost:8000/api/openapi.json` | API schema |
@@ -48,14 +48,14 @@ pwsh -File scripts/test_api_powershell.ps1  # PowerShell test
 
 ### Basic API Test
 ```bash
-# Test root endpoint
-curl http://localhost:8000/
+# Test API root endpoint
+curl http://localhost:8000/api
 
 # Test health endpoint
 curl http://localhost:8000/api/health/
 
 # Test with JSON formatting
-curl -s http://localhost:8000/ | jq '.'
+curl -s http://localhost:8000/api | jq '.'
 ```
 
 ### Health Status Check

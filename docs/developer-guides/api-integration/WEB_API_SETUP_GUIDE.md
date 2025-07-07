@@ -146,7 +146,7 @@ uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 --reload
 Once the server is running, you can access these endpoints:
 
 ### Core Endpoints
-- **Root API**: `http://localhost:8000/`
+- **Root API**: `http://localhost:8000/api`
   - Basic API information and version
 - **Health Check**: `http://localhost:8000/api/health/`
   - System health status and metrics
@@ -167,14 +167,14 @@ Once the server is running, you can access these endpoints:
 
 ### Testing Endpoints
 ```bash
-# Test root endpoint
-curl http://localhost:8000/
+# Test API root endpoint
+curl http://localhost:8000/api
 
 # Test health endpoint
 curl http://localhost:8000/api/health/
 
 # Test with JSON formatting (if jq is available)
-curl -s http://localhost:8000/ | jq '.'
+curl -s http://localhost:8000/api | jq '.'
 ```
 
 ## Testing
