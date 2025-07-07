@@ -1,9 +1,9 @@
-# Pre-commit configuration for Pynomaly using Hatch
+# Enhanced Pre-commit configuration for Pynomaly - PyPI Release Ready
 # Install: pre-commit install
 # Run manually: pre-commit run --all-files
 
 repos:
-  # Hatch-based Quality Checks (Primary)
+  # Hatch-based Quality Checks (Primary) - Enhanced for PyPI
   - repo: local
     hooks:
       - id: hatch-version-check
@@ -39,6 +39,34 @@ repos:
       - id: hatch-build-test
         name: 📦 Hatch Build Test
         entry: bash -c 'hatch build --clean >/dev/null 2>&1 && echo "✅ Package builds successfully" || (echo "❌ Package build failed" && exit 1)'
+        language: system
+        pass_filenames: false
+        stages: [push]
+
+      - id: pypi-readiness-check
+        name: 🚀 PyPI Readiness Check
+        entry: bash -c '
+          echo "🔍 Checking PyPI readiness..."
+          # Check version format
+          VERSION=$(hatch version)
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
+            echo "❌ Invalid version format: $VERSION (expected: X.Y.Z)"
+            exit 1
+          fi
+          # Check required files
+          for file in README.md LICENSE CHANGELOG.md; do
+            if [[ ! -f "$file" ]]; then
+              echo "❌ Missing required file: $file"
+              exit 1
+            fi
+          done
+          # Check package metadata
+          if ! hatch project metadata name >/dev/null 2>&1; then
+            echo "❌ Invalid package metadata"
+            exit 1
+          fi
+          echo "✅ PyPI readiness check passed"
+        '
         language: system
         pass_filenames: false
         stages: [push]

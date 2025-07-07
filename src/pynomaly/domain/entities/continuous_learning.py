@@ -589,3 +589,89 @@ class ModelEvolution:
             return True
 
         return False
+
+
+
+@dataclass
+class ContinuousLearning:
+    """Main entity for continuous learning system management."""
+
+    learning_id: UUID = field(default_factory=uuid4)
+    model_id: UUID = field(default_factory=uuid4)
+    strategy: LearningStrategy = LearningStrategy.INCREMENTAL
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    last_updated: datetime = field(default_factory=datetime.utcnow)
+    
+    # Configuration
+    learning_enabled: bool = True
+    adaptation_threshold: float = 0.05
+    evolution_triggers: list[EvolutionTrigger] = field(default_factory=list)
+    
+    # Learning history
+    learning_sessions: list[LearningSession] = field(default_factory=list)
+    model_evolutions: list[ModelEvolution] = field(default_factory=list)
+    drift_events: list[DriftEvent] = field(default_factory=list)
+    user_feedback_history: list[UserFeedback] = field(default_factory=list)
+    
+    # Current state
+    current_performance_baseline: PerformanceBaseline  < /dev/null |  None = None
+    consecutive_improvements: int = 0
+    consecutive_degradations: int = 0
+    
+    # Adaptation metrics
+    total_adaptations: int = 0
+    successful_adaptations: int = 0
+    adaptation_frequency: float = 0.0
+    average_improvement: float = 0.0
+    knowledge_retention_score: float = 1.0
+    
+    # System health
+    learning_health_score: float = 1.0
+    adaptation_latency_ms: float = 0.0
+    resource_efficiency: float = 1.0
+    
+    # Metadata
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self):
+        """Validate continuous learning configuration."""
+        if not (0.0 <= self.adaptation_threshold <= 1.0):
+            raise ValueError("Adaptation threshold must be between 0.0 and 1.0")
+
+    @property
+    def adaptation_success_rate(self) -> float:
+        """Calculate adaptation success rate."""
+        if self.total_adaptations == 0:
+            return 1.0
+        return self.successful_adaptations / self.total_adaptations
+
+    @property
+    def is_learning_healthy(self) -> bool:
+        """Check if learning system is healthy."""
+        return (
+            self.learning_health_score > 0.8
+            and self.adaptation_success_rate > 0.7
+            and self.knowledge_retention_score > 0.8
+        )
+
+    def get_learning_summary(self) -> dict[str, Any]:
+        """Get comprehensive learning system summary."""
+        return {
+            "learning_id": str(self.learning_id),
+            "model_id": str(self.model_id),
+            "strategy": self.strategy.value,
+            "enabled": self.learning_enabled,
+            "health": {
+                "score": self.learning_health_score,
+                "is_healthy": self.is_learning_healthy(),
+            },
+            "adaptation_metrics": {
+                "total": self.total_adaptations,
+                "success_rate": self.adaptation_success_rate,
+                "frequency": self.adaptation_frequency,
+                "average_improvement": self.average_improvement,
+            },
+            "last_updated": self.last_updated.isoformat(),
+            "metadata": self.metadata,
+        }
+
