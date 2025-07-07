@@ -319,7 +319,7 @@ def generate_recommendations(analysis: dict) -> list[str]:
     return recommendations
 
 
-def generate_full_tree_report(project_root: Path) - dict:
+def generate_full_tree_report(project_root: Path) -> dict:
     """Generate a full tree report of all files and directories."""
     full_tree = {
         "timestamp": datetime.now().isoformat(),
@@ -327,7 +327,7 @@ def generate_full_tree_report(project_root: Path) - dict:
         "tree": []
     }
     
-    def scan_directory(directory: Path, relative_path: str = "") - list:
+    def scan_directory(directory: Path, relative_path: str = "") -> list:
         items = []
         try:
             for item in sorted(directory.iterdir()):
@@ -343,16 +343,47 @@ def generate_full_tree_report(project_root: Path) - dict:
                     })
                     continue
                     
+                try:
+                    # Safely check file type
+                    is_dir = item.is_dir()
+                    is_file = item.is_file()
+                except (OSError, PermissionError):
+                    # Handle broken symlinks, permission issues, etc.
+                    items.append({
+                        "name": item.name,
+                        "type": "unknown",
+                        "path": str(item.relative_to(project_root)),
+                        "size": None,
+                        "modified": None,
+                        "note": "Access denied or broken symlink"
+                    })
+                    continue
+                
+                # Safely get file stats
+                size = None
+                modified = None
+                try:
+                    if is_file:
+                        size = item.stat().st_size
+                    if item.exists():
+                        modified = datetime.fromtimestamp(item.stat().st_mtime).isoformat()
+                except (OSError, PermissionError):
+                    pass
+                    
                 item_info = {
                     "name": item.name,
-                    "type": "directory" if item.is_dir() else "file",
+                    "type": "directory" if is_dir else "file",
                     "path": str(item.relative_to(project_root)),
-                    "size": item.stat().st_size if item.is_file() else None,
-                    "modified": datetime.fromtimestamp(item.stat().st_mtime).isoformat() if item.exists() else None
+                    "size": size,
+                    "modified": modified
                 }
                 
-                if item.is_dir() and item.name != '__pycache__':
-                    item_info["children"] = scan_directory(item)
+                if is_dir and item.name != '__pycache__':
+                    try:
+                        item_info["children"] = scan_directory(item)
+                    except (OSError, PermissionError):
+                        item_info["note"] = "Directory access denied"
+                        item_info["children"] = []
                     
                 items.append(item_info)
         except PermissionError:
@@ -364,7 +395,7 @@ def generate_full_tree_report(project_root: Path) - dict:
     return full_tree
 
 
-def generate_violations_report(analysis: dict) - dict:
+def generate_violations_report(analysis: dict) -> dict:
     """Generate a report of only violating/offending paths."""
     violations = {
         "timestamp": datetime.now().isoformat(),

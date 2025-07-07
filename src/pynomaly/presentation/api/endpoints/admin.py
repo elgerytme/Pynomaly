@@ -155,7 +155,7 @@ async def get_user(
 async def create_user(
     user_data: CreateUserRequest,
     container: Container = Depends(get_container_simple),
-    current_user: str | None = Depends(get_current_user_simple),
+    _user = Depends(require_role(UserRole.TENANT_ADMIN)),
 ) -> UserResponse:
     """Create a new user. Requires admin permissions."""
     auth_service = get_auth()
@@ -199,7 +199,7 @@ async def update_user(
     user_id: str,
     update_data: UpdateUserRequest,
     container: Container = Depends(get_container_simple),
-    current_user: str | None = Depends(get_current_user_simple),
+    current_user = Depends(require_role(UserRole.TENANT_ADMIN)),
 ) -> UserResponse:
     """Update a user. Requires admin permissions."""
     auth_service = get_auth()

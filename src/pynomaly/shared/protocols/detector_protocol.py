@@ -96,7 +96,6 @@ class DetectorProtocol(Protocol):
         ...
 
 
-@runtime_checkable
 class StreamingDetectorProtocol(DetectorProtocol):
     """Protocol for detectors that support streaming/online detection."""
 
@@ -120,7 +119,6 @@ class StreamingDetectorProtocol(DetectorProtocol):
         ...
 
 
-@runtime_checkable
 class ExplainableDetectorProtocol(DetectorProtocol):
     """Protocol for detectors that provide explanations."""
 
@@ -147,7 +145,6 @@ class ExplainableDetectorProtocol(DetectorProtocol):
         ...
 
 
-@runtime_checkable
 class EnsembleDetectorProtocol(DetectorProtocol):
     """Protocol for ensemble detectors."""
 
