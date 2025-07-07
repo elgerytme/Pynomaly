@@ -11,7 +11,6 @@ from typing import List, Optional
 
 import typer
 import click
-import click
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn

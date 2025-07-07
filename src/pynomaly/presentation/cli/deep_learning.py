@@ -55,7 +55,8 @@ def train(
         None,
         "-f", "--framework",
         help="Deep learning framework (auto-select if not specified)",
-        click_type=click.Choice(["pytorch", "tensorflow", "jax"]),
+        click_type=click.Choice(["pytorch", "tensorflow", "jax"])
+    ),
     epochs: int = typer.Option(100, "--epochs", help="Number of training epochs"),
     batch_size: int = typer.Option(32, "--batch-size", help="Batch size for training"),
     learning_rate: float = typer.Option(0.001, "--learning-rate", help="Learning rate"),
@@ -87,6 +88,7 @@ def train(
             "learning_rate": learning_rate,
             "latent_dim": latent_dim,
             "contamination": contamination,
+            "hidden_dims": hidden_dims
         }
 
         if hidden_dims:
@@ -178,13 +180,11 @@ def benchmark(
         "autoencoder",
         "-a", "--algorithm",
         help="Deep learning algorithm",
-        click_type=click.Choice(["autoencoder", "vae", "lstm", "transformer", "gmm", "svdd"])
     ),
     frameworks: Optional[List[str]] = typer.Option(
         None,
         "-f", "--frameworks",
         help="Frameworks to benchmark (all available if not specified)",
-        click_type=click.Choice(["pytorch", "tensorflow", "jax"])
     ),
     epochs: int = typer.Option(50, "--epochs", help="Number of training epochs"),
     output: Optional[Path] = typer.Option(None, "--output", help="Output file for benchmark results"),

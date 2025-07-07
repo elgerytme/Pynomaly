@@ -10,7 +10,7 @@ block content %}
       </p>
     </div>
     <button
-      onclick="window.location='/web/automl/optimize'"
+      onclick="window.location='/automl/optimize'"
       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
     >
       <svg
@@ -34,7 +34,7 @@ block content %}
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
     <div
       class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer"
-      onclick="window.location='/web/automl/optimize'"
+      onclick="window.location='/automl/optimize'"
     >
       <div class="p-6 text-center">
         <div class="text-4xl mb-3">⚡</div>
@@ -78,7 +78,7 @@ block content %}
         </h3>
         <div
           id="active-optimizations"
-          hx-get="/web/htmx/automl-active"
+          hx-get="/htmx/automl-active"
           hx-trigger="load, every 10s"
           hx-indicator="#active-loading"
         >
@@ -119,7 +119,7 @@ block content %}
           ⚡ Quick Optimize
         </h3>
         <form
-          hx-post="/web/htmx/automl-optimize"
+          hx-post="/htmx/automl-optimize"
           hx-target="#optimization-result"
           hx-indicator="#optimize-spinner"
           class="space-y-4"

@@ -10,7 +10,7 @@ endblock %} {% block content %}
       </p>
     </div>
     <button
-      onclick="window.location='/web/ensemble/create'"
+      onclick="window.location='/ensemble/create'"
       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
     >
       <svg
@@ -47,7 +47,7 @@ endblock %} {% block content %}
 
     <div
       class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer"
-      onclick="window.location='/web/ensemble/compare'"
+      onclick="window.location='/ensemble/compare'"
     >
       <div class="p-6 text-center">
         <div class="text-4xl mb-3">📊</div>
@@ -161,7 +161,7 @@ endblock %} {% block content %}
       </h3>
       <div
         id="ensemble-list"
-        hx-get="/web/htmx/ensemble-list"
+        hx-get="/htmx/ensemble-list"
         hx-trigger="load"
         hx-indicator="#ensemble-loading"
       >

@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Any
 
 # Add src to path for imports
-PROJECT_ROOT = Path(__file__).parent.parent
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 

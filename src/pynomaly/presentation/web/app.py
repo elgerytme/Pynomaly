@@ -1554,6 +1554,11 @@ async def collaboration_page(
     )
 
 
+@router.get("/web/explorer", response_class=HTMLResponse)
+async def explorer_page(request: Request, container: Container = Depends(get_container)):
+    """API Explorer Page."""
+    return templates.TemplateResponse("explorer.html", {"request": request})
+
 @router.get("/advanced-visualizations", response_class=HTMLResponse)
 async def advanced_visualizations_page(
     request: Request, container: Container = Depends(get_container)

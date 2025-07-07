@@ -230,7 +230,7 @@
     );
 
     // Start bulk training via HTMX
-    htmx.post("/web/htmx/bulk-train", {
+    htmx.post('/htmx/bulk-train', {
       values: { detector_ids: bulkOperations.selectedItems.join(",") },
       target: "#bulk-progress-content",
     });
@@ -253,7 +253,7 @@
     showBulkModal("Deleting Selected Items", "Preparing to delete items...");
 
     // Start bulk deletion via HTMX
-    htmx.post("/web/htmx/bulk-delete", {
+    htmx.post('/htmx/bulk-delete', {
       values: { item_ids: bulkOperations.selectedItems.join(",") },
       target: "#bulk-progress-content",
     });
@@ -311,7 +311,7 @@
 
     // Redirect to ensemble creation with selected detectors
     const detectorIds = bulkOperations.selectedItems.join(",");
-    window.location.href = `/web/ensemble/create?detectors=${detectorIds}`;
+    window.location.href = `/ensemble/create?detectors=${detectorIds}`;
   }
 
   function startBulkExport() {
@@ -331,7 +331,7 @@
     };
 
     // Start export via HTMX
-    htmx.post("/web/htmx/bulk-export", {
+    htmx.post('/htmx/bulk-export', {
       values: exportData,
       target: "#bulk-progress-content",
     });
