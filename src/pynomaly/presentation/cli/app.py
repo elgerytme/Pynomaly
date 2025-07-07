@@ -26,9 +26,9 @@ from pynomaly.presentation.cli import (
 # from pynomaly.presentation.cli import performance  # Temporarily disabled due to Typer type issues
 from pynomaly.presentation.cli.export import export_app
 
-from pynomaly.presentation.cli import deep_learning
-from pynomaly.presentation.cli import explainability
-from pynomaly.presentation.cli import selection
+# from pynomaly.presentation.cli import deep_learning  # Fixed syntax errors but uses click, needs typer conversion
+# from pynomaly.presentation.cli import explainability  # Uses click, needs typer conversion  
+# from pynomaly.presentation.cli import selection  # Uses click, needs typer conversion
 # from pynomaly.presentation.cli.security import security_commands  # Temporarily disabled
 # from pynomaly.presentation.cli.dashboard import dashboard_commands  # Temporarily disabled
 # from pynomaly.presentation.cli.governance import governance_commands  # Temporarily disabled
@@ -80,9 +80,9 @@ app.add_typer(detection.app, name="detect", help="Run anomaly detection")
 app.add_typer(
     tdd.app, name="tdd", help="Test-Driven Development (TDD) management and enforcement"
 )
-app.add_typer(deep_learning.deep_learning, name="deep-learning", help="🧠 Deep learning anomaly detection (PyTorch, TensorFlow, JAX)")
-app.add_typer(explainability.explainability, name="explainability", help="🔍 Explainable AI (model interpretability, bias analysis)")
-app.add_typer(selection.selection, name="selection", help="🧠 Intelligent algorithm selection with learning capabilities")
+# app.add_typer(deep_learning.deep_learning, name="deep-learning", help="🧠 Deep learning anomaly detection (PyTorch, TensorFlow, JAX)")  # Uses click
+# app.add_typer(explainability.explainability, name="explainability", help="🔍 Explainable AI (model interpretability, bias analysis)")  # Uses click
+# app.add_typer(selection.selection, name="selection", help="🧠 Intelligent algorithm selection with learning capabilities")  # Uses click
 # app.add_typer(security_commands, name="security", help="🔒 Security & compliance (SOC2, GDPR, HIPAA, encryption)")  # Temporarily disabled
 # app.add_typer(dashboard_commands, name="dashboard", help="📊 Advanced visualization dashboards (executive, operational, analytical)")  # Temporarily disabled
 # app.add_typer(governance_commands, name="governance", help="⚖️ Governance framework (audit trails, policies, risk management)")  # Temporarily disabled
