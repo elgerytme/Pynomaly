@@ -86,12 +86,13 @@ class DeploymentSetup:
         result = self.run_command(["pre-commit", "install"], check=False)
         if result.returncode == 0:
             print("✅ Pre-commit hooks installed successfully")
+            
+            # Install additional hook types
+            self.run_command(["pre-commit", "install", "--hook-type", "commit-msg"], check=False)
+            self.run_command(["pre-commit", "install", "--hook-type", "pre-push"], check=False)
         else:
             print("⚠️  Pre-commit installation had issues")
-        
-        # Install commit-msg hook
-        self.run_command(["pre-commit", "install", "--hook-type", "commit-msg"], check=False)
-        self.run_command(["pre-commit", "install", "--hook-type", "pre-push"], check=False)
+            print(f"   Error: {result.stderr}")
         
         # Test hooks
         print("🧪 Testing pre-commit hooks...")
