@@ -1,12 +1,13 @@
 """PyTorch adapter stub when PyTorch is not available."""
 
 from __future__ import annotations
+from typing import Any
 
 
 class PyTorchAdapter:
     """Stub PyTorchAdapter when PyTorch is not available."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         raise ImportError(
             "PyTorch is required for PyTorchAdapter. "
             "Install with: pip install torch torchvision"
@@ -16,7 +17,7 @@ class PyTorchAdapter:
 class AutoEncoder:
     """Stub AutoEncoder when PyTorch is not available."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         raise ImportError(
             "PyTorch is required for AutoEncoder. "
             "Install with: pip install torch torchvision"
@@ -26,7 +27,7 @@ class AutoEncoder:
 class VAE:
     """Stub VAE when PyTorch is not available."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         raise ImportError(
             "PyTorch is required for VAE. "
             "Install with: pip install torch torchvision"
@@ -36,7 +37,7 @@ class VAE:
 class LSTMAutoEncoder:
     """Stub LSTMAutoEncoder when PyTorch is not available."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         raise ImportError(
             "PyTorch is required for LSTMAutoEncoder. "
             "Install with: pip install torch torchvision"
