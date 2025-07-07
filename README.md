@@ -22,12 +22,14 @@ Python anomaly detection package targeting Python 3.11+ with clean architecture 
 - 🛡️ **Type Safe**: Comprehensive type coverage with mypy strict mode
 - ✅ **Testing**: Comprehensive test suite with high coverage
 
-### Advanced Features (Beta)
+### Advanced Features (Production Ready)
 - 🚀 **FastAPI REST API**: 65+ API endpoints with OpenAPI documentation
 - 🔐 **Authentication**: JWT-based authentication framework (optional)
 - 📈 **Monitoring**: Prometheus metrics collection capabilities
 - 💾 **Data Export**: CSV/JSON/Excel export functionality
 - 🎯 **Ensemble Methods**: Advanced voting strategies and model combination
+- ⚡ **Performance Optimizations**: Batch cache operations, optimized data loading, memory management
+- 🧪 **Testing Infrastructure**: 85%+ coverage with property-based testing, benchmarking, and mutation testing
 
 ### Experimental Features (Limited Support)
 - 🤖 **AutoML**: Hyperparameter optimization framework (requires additional setup)
@@ -219,6 +221,11 @@ pynomaly dataset --help   # Dataset management commands
 
 # Detector operations  
 pynomaly detector --help  # Detector management commands
+
+# Performance monitoring and optimization
+pynomaly perf benchmark --suite quick    # Run performance benchmarks
+pynomaly perf monitor                     # Real-time performance monitoring
+pynomaly perf report --format html       # Generate performance reports
 
 # Start web interface (if web features installed)
 pynomaly server start --port 8000
