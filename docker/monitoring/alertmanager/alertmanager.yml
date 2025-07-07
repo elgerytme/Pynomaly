@@ -1,0 +1,165 @@
+# AlertManager configuration for Pynomaly
+global:
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alerts@pynomaly.io'
+  smtp_auth_username: 'alerts@pynomaly.io'
+  smtp_auth_password: 'your-smtp-password'
+  smtp_require_tls: true
+
+# Templates
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# Route configuration
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'web.hook'
+  routes:
+    # Critical alerts
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      group_wait: 5s
+      repeat_interval: 15m
+    
+    # Warning alerts
+    - match:
+        severity: warning
+      receiver: 'warning-alerts'
+      group_wait: 30s
+      repeat_interval: 4h
+    
+    # Infrastructure alerts
+    - match:
+        category: infrastructure
+      receiver: 'infrastructure-alerts'
+    
+    # Application alerts
+    - match:
+        category: application
+      receiver: 'application-alerts'
+
+# Inhibit rules
+inhibit_rules:
+  # Inhibit warning alerts when critical alerts are firing
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'cluster', 'service']
+
+# Receivers
+receivers:
+  # Default webhook receiver
+  - name: 'web.hook'
+    webhook_configs:
+      - url: 'http://localhost:5001/'
+        send_resolved: true
+
+  # Critical alerts - multiple channels
+  - name: 'critical-alerts'
+    email_configs:
+      - to: 'oncall@pynomaly.io'
+        subject: '🚨 CRITICAL: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        body: |
+          {{ range .Alerts }}
+          **Alert:** {{ .Annotations.summary }}
+          **Description:** {{ .Annotations.description }}
+          **Instance:** {{ .Labels.instance }}
+          **Severity:** {{ .Labels.severity }}
+          **Time:** {{ .StartsAt }}
+          {{ end }}
+        headers:
+          Priority: 'high'
+    
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#alerts-critical'
+        title: '🚨 Critical Alert'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Instance:* {{ .Labels.instance }}
+          *Severity:* {{ .Labels.severity }}
+          {{ end }}
+        send_resolved: true
+    
+    webhook_configs:
+      - url: 'http://pynomaly-api:8000/api/v1/alerts/webhook'
+        send_resolved: true
+        http_config:
+          bearer_token: 'your-webhook-token'
+
+  # Warning alerts
+  - name: 'warning-alerts'
+    email_configs:
+      - to: 'team@pynomaly.io'
+        subject: '⚠️ WARNING: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        body: |
+          {{ range .Alerts }}
+          **Alert:** {{ .Annotations.summary }}
+          **Description:** {{ .Annotations.description }}
+          **Instance:** {{ .Labels.instance }}
+          **Severity:** {{ .Labels.severity }}
+          **Time:** {{ .StartsAt }}
+          {{ end }}
+    
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#alerts-warning'
+        title: '⚠️ Warning Alert'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Instance:* {{ .Labels.instance }}
+          {{ end }}
+        send_resolved: true
+
+  # Infrastructure alerts
+  - name: 'infrastructure-alerts'
+    email_configs:
+      - to: 'infrastructure@pynomaly.io'
+        subject: '🔧 Infrastructure Alert: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        body: |
+          {{ range .Alerts }}
+          **Alert:** {{ .Annotations.summary }}
+          **Description:** {{ .Annotations.description }}
+          **Instance:** {{ .Labels.instance }}
+          **Job:** {{ .Labels.job }}
+          **Time:** {{ .StartsAt }}
+          {{ end }}
+
+  # Application alerts
+  - name: 'application-alerts'
+    email_configs:
+      - to: 'developers@pynomaly.io'
+        subject: '🐛 Application Alert: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        body: |
+          {{ range .Alerts }}
+          **Alert:** {{ .Annotations.summary }}
+          **Description:** {{ .Annotations.description }}
+          **Service:** {{ .Labels.service }}
+          **Instance:** {{ .Labels.instance }}
+          **Time:** {{ .StartsAt }}
+          {{ end }}
+    
+    webhook_configs:
+      - url: 'http://pynomaly-api:8000/api/v1/alerts/application'
+        send_resolved: true
+        http_config:
+          bearer_token: 'your-webhook-token'
+
+# Silence configuration
+# silences:
+#   - matcher:
+#       name: 'alertname'
+#       value: 'HighMemoryUsage'
+#     start_time: '2024-01-01T00:00:00Z'
+#     end_time: '2024-01-01T23:59:59Z'
+#     created_by: 'admin@pynomaly.io'
+#     comment: 'Maintenance window'
