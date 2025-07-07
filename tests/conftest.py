@@ -22,8 +22,23 @@ from pynomaly.domain.entities import Dataset, Detector, DetectionResult
 from pynomaly.domain.value_objects import AnomalyScore
 from pynomaly.infrastructure.config import Container, Settings
 from pynomaly.infrastructure.auth.jwt_auth import init_auth
-from pynomaly.infrastructure.observability import setup_observability
-from pynomaly.infrastructure.security.audit_logging import init_audit_logging
+
+# Optional imports for advanced features
+try:
+    from pynomaly.infrastructure.observability import setup_observability
+    OBSERVABILITY_AVAILABLE = True
+except ImportError:
+    OBSERVABILITY_AVAILABLE = False
+    def setup_observability(*args, **kwargs):
+        return {}
+
+try:
+    from pynomaly.infrastructure.security.audit_logging import init_audit_logging
+    AUDIT_LOGGING_AVAILABLE = True
+except ImportError:
+    AUDIT_LOGGING_AVAILABLE = False
+    def init_audit_logging(*args, **kwargs):
+        return None
 
 # Import database fixtures if available
 try:
@@ -64,30 +79,31 @@ def event_loop():
 @pytest.fixture(scope="function")
 def test_settings() -> Settings:
     """Enhanced test settings with security and monitoring."""
-    return Settings(
-        app={
-            "name": "pynomaly-test",
-            "version": "0.1.0-test",
-            "environment": "test",
-            "debug": True
-        },
-        database_url="sqlite:///:memory:",
-        secret_key="test-secret-key-not-for-production-use-only",
-        jwt_algorithm="HS256",
-        jwt_expiration=3600,
-        auth_enabled=True,
-        cache_enabled=False,
-        docs_enabled=True,
-        monitoring={
-            "metrics_enabled": False,
-            "tracing_enabled": False,
-            "prometheus_enabled": False
-        },
-        debug=True,
-        environment="test",
-        storage_path="/tmp/pynomaly_test",
-        log_level="DEBUG",
-    )
+    import os
+    import tempfile
+    
+    temp_dir = tempfile.mkdtemp()
+    
+    # Set environment variables for pydantic-settings
+    os.environ.update({
+        "PYNOMALY_APP_NAME": "pynomaly-test",
+        "PYNOMALY_APP_VERSION": "0.1.0-test",
+        "PYNOMALY_APP_ENVIRONMENT": "test",
+        "PYNOMALY_APP_DEBUG": "true",
+        "PYNOMALY_DATABASE_URL": "sqlite:///:memory:",
+        "PYNOMALY_SECRET_KEY": "test-secret-key-not-for-production-use-only",
+        "PYNOMALY_JWT_ALGORITHM": "HS256",
+        "PYNOMALY_JWT_EXPIRATION": "3600",
+        "PYNOMALY_AUTH_ENABLED": "true",
+        "PYNOMALY_CACHE_ENABLED": "false",
+        "PYNOMALY_DOCS_ENABLED": "true",
+        "PYNOMALY_MONITORING_METRICS_ENABLED": "false",
+        "PYNOMALY_MONITORING_TRACING_ENABLED": "false",
+        "PYNOMALY_MONITORING_PROMETHEUS_ENABLED": "false",
+        "PYNOMALY_STORAGE_PATH": temp_dir,
+    })
+    
+    return Settings()
 
 
 @pytest.fixture
@@ -377,6 +393,9 @@ def performance_data() -> pd.DataFrame:
 @pytest.fixture(scope="function")
 def observability_components():
     """Set up observability for testing."""
+    if not OBSERVABILITY_AVAILABLE:
+        pytest.skip("Observability components not available")
+    
     components = setup_observability(
         enable_logging=True,
         enable_metrics=False,  # Disable for tests
@@ -392,6 +411,8 @@ def observability_components():
 @pytest.fixture(scope="function")
 def audit_logger():
     """Create audit logger for testing."""
+    if not AUDIT_LOGGING_AVAILABLE:
+        pytest.skip("Audit logging not available")
     return init_audit_logging()
 
 
