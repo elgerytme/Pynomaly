@@ -1,0 +1,13 @@
+# Architecture Decision Record: Enhancing FastAPI with New Routers and WebSocket Endpoints
+
+## Context
+We aim to enhance the existing FastAPI application by adding new routes and WebSocket endpoints for management and workflows capabilities.
+
+## Decision
+Integrate new REST API routers `/api/management`, `/api/workflows`, and a real-time WebSocket endpoint `/ws/real-time-detection`.
+
+## Consequences
+1. Enhanced user experience with real-time capabilities.
+2. Improved separation of concerns with dedicated routers.
+3. Needs additional security review to ensure data protection across new endpoints.
+
