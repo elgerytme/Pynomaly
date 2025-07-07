@@ -7,11 +7,17 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
-import pyarrow.parquet as pq
 
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.exceptions import DataValidationError
 from pynomaly.shared.protocols import BatchDataLoaderProtocol
+
+# Optional pyarrow dependency
+try:
+    import pyarrow.parquet as pq
+    _PYARROW_AVAILABLE = True
+except ImportError:
+    _PYARROW_AVAILABLE = False
 
 
 class ParquetLoader(BatchDataLoaderProtocol):
@@ -24,8 +30,16 @@ class ParquetLoader(BatchDataLoaderProtocol):
             use_pyarrow: Whether to use PyArrow engine
             columns: Specific columns to load
         """
-        self.use_pyarrow = use_pyarrow
+        self.use_pyarrow = use_pyarrow and _PYARROW_AVAILABLE
         self.columns = columns
+        
+        if use_pyarrow and not _PYARROW_AVAILABLE:
+            import warnings
+            warnings.warn(
+                "PyArrow is not available. Falling back to pandas engine.",
+                UserWarning,
+                stacklevel=2
+            )
 
     @property
     def supported_formats(self) -> list[str]:
@@ -86,21 +100,33 @@ class ParquetLoader(BatchDataLoaderProtocol):
                 )
 
             # Get Parquet metadata
-            parquet_file = pq.ParquetFile(source_path)
             metadata = {
                 "source": str(source_path),
                 "loader": "ParquetLoader",
                 "file_size_mb": source_path.stat().st_size / 1024 / 1024,
-                "num_row_groups": parquet_file.num_row_groups,
-                "compression": str(
-                    parquet_file.metadata.row_group(0).column(0).compression
-                ),
-                "created_by": (
-                    str(parquet_file.metadata.created_by)
-                    if parquet_file.metadata.created_by
-                    else None
-                ),
+                "shape": df.shape,
+                "columns": list(df.columns),
+                "dtypes": df.dtypes.to_dict(),
             }
+            
+            # Add detailed metadata if PyArrow is available
+            if _PYARROW_AVAILABLE:
+                try:
+                    parquet_file = pq.ParquetFile(source_path)
+                    metadata.update({
+                        "num_row_groups": parquet_file.num_row_groups,
+                        "compression": str(
+                            parquet_file.metadata.row_group(0).column(0).compression
+                        ),
+                        "created_by": (
+                            str(parquet_file.metadata.created_by)
+                            if parquet_file.metadata.created_by
+                            else None
+                        ),
+                    })
+                except Exception:
+                    # If metadata reading fails, continue without it
+                    pass
 
             dataset = Dataset(
                 name=dataset_name,
@@ -142,7 +168,11 @@ class ParquetLoader(BatchDataLoaderProtocol):
 
         # Try to open as Parquet file
         try:
-            pq.ParquetFile(source_path)
+            if _PYARROW_AVAILABLE:
+                pq.ParquetFile(source_path)
+            else:
+                # Basic validation using pandas
+                pd.read_parquet(source_path, engine="fastparquet", nrows=1)
             return True
         except Exception:
             return False
@@ -177,52 +207,81 @@ class ParquetLoader(BatchDataLoaderProtocol):
         columns_to_read = kwargs.get("columns", self.columns)
 
         try:
-            # Open Parquet file
-            parquet_file = pq.ParquetFile(source_path)
+            if _PYARROW_AVAILABLE:
+                # Use PyArrow for efficient batch loading
+                parquet_file = pq.ParquetFile(source_path)
 
-            # Calculate batches based on row groups
-            total_rows = parquet_file.metadata.num_rows
-            rows_read = 0
-            batch_index = 0
+                # Calculate batches based on row groups
+                total_rows = parquet_file.metadata.num_rows
+                rows_read = 0
+                batch_index = 0
 
-            # Read by row groups for efficiency
-            for row_group_idx in range(parquet_file.num_row_groups):
-                row_group = parquet_file.read_row_group(
-                    row_group_idx, columns=columns_to_read
-                )
-                df_group = row_group.to_pandas()
+                # Read by row groups for efficiency
+                for row_group_idx in range(parquet_file.num_row_groups):
+                    row_group = parquet_file.read_row_group(
+                        row_group_idx, columns=columns_to_read
+                    )
+                    df_group = row_group.to_pandas()
 
-                # Split row group into batches if needed
-                group_size = len(df_group)
+                    # Split row group into batches if needed
+                    group_size = len(df_group)
 
-                for start_idx in range(0, group_size, batch_size):
-                    end_idx = min(start_idx + batch_size, group_size)
-                    batch_df = df_group.iloc[start_idx:end_idx]
+                    for start_idx in range(0, group_size, batch_size):
+                        end_idx = min(start_idx + batch_size, group_size)
+                        batch_df = df_group.iloc[start_idx:end_idx]
+
+                        if batch_df.empty:
+                            continue
+
+                        # Create dataset for this batch
+                        batch_dataset = Dataset(
+                            name=f"{dataset_name}_batch_{batch_index}",
+                            data=batch_df,
+                            target_column=target_column,
+                            metadata={
+                                "source": str(source_path),
+                                "loader": "ParquetLoader",
+                                "batch_index": batch_index,
+                                "batch_size": len(batch_df),
+                                "row_group": row_group_idx,
+                                "total_rows": total_rows,
+                                "rows_read": rows_read + len(batch_df),
+                                "is_batch": True,
+                            },
+                        )
+
+                        yield batch_dataset
+
+                        batch_index += 1
+                        rows_read += len(batch_df)
+            else:
+                # Fallback to simple chunking without PyArrow
+                df = pd.read_parquet(source_path, engine="fastparquet", columns=columns_to_read)
+                total_rows = len(df)
+                
+                for start_idx in range(0, total_rows, batch_size):
+                    end_idx = min(start_idx + batch_size, total_rows)
+                    batch_df = df.iloc[start_idx:end_idx]
 
                     if batch_df.empty:
                         continue
 
-                    # Create dataset for this batch
                     batch_dataset = Dataset(
-                        name=f"{dataset_name}_batch_{batch_index}",
+                        name=f"{dataset_name}_batch_{start_idx // batch_size}",
                         data=batch_df,
                         target_column=target_column,
                         metadata={
                             "source": str(source_path),
                             "loader": "ParquetLoader",
-                            "batch_index": batch_index,
+                            "batch_index": start_idx // batch_size,
                             "batch_size": len(batch_df),
-                            "row_group": row_group_idx,
                             "total_rows": total_rows,
-                            "rows_read": rows_read + len(batch_df),
+                            "rows_read": end_idx,
                             "is_batch": True,
                         },
                     )
 
                     yield batch_dataset
-
-                    batch_index += 1
-                    rows_read += len(batch_df)
 
         except Exception as e:
             raise DataValidationError(
@@ -246,61 +305,87 @@ class ParquetLoader(BatchDataLoaderProtocol):
             )
 
         try:
-            # Open Parquet file for metadata
-            parquet_file = pq.ParquetFile(source_path)
-            metadata = parquet_file.metadata
-
             # Get basic info
             file_size_bytes = source_path.stat().st_size
-            num_rows = metadata.num_rows
-            num_columns = len(parquet_file.schema)
+            
+            if _PYARROW_AVAILABLE:
+                # Use PyArrow for detailed metadata
+                parquet_file = pq.ParquetFile(source_path)
+                metadata = parquet_file.metadata
 
-            # Get column types
-            schema_info = {}
-            numeric_columns = 0
+                num_rows = metadata.num_rows
+                num_columns = len(parquet_file.schema)
 
-            for field in parquet_file.schema:
-                schema_info[field.name] = str(field.type)
-                if (
-                    "int" in str(field.type).lower()
-                    or "float" in str(field.type).lower()
-                    or "double" in str(field.type).lower()
-                ):
-                    numeric_columns += 1
+                # Get column types
+                schema_info = {}
+                numeric_columns = 0
 
-            # Estimate memory usage
-            # This is a rough estimate - actual usage depends on data
-            # Parquet is compressed, so in-memory will be larger
-            compression_ratio = 3  # Typical compression ratio
-            estimated_memory_mb = (file_size_bytes * compression_ratio) / 1024 / 1024
+                for field in parquet_file.schema:
+                    schema_info[field.name] = str(field.type)
+                    if (
+                        "int" in str(field.type).lower()
+                        or "float" in str(field.type).lower()
+                        or "double" in str(field.type).lower()
+                    ):
+                        numeric_columns += 1
 
-            # Get row group info
-            row_groups_info = []
-            for i in range(parquet_file.num_row_groups):
-                rg = metadata.row_group(i)
-                row_groups_info.append(
-                    {
-                        "num_rows": rg.num_rows,
-                        "total_byte_size": rg.total_byte_size,
-                        "compressed_size": sum(
-                            rg.column(j).total_compressed_size
-                            for j in range(rg.num_columns)
-                        ),
+                # Estimate memory usage
+                # This is a rough estimate - actual usage depends on data
+                # Parquet is compressed, so in-memory will be larger
+                compression_ratio = 3  # Typical compression ratio
+                estimated_memory_mb = (file_size_bytes * compression_ratio) / 1024 / 1024
+
+                # Get row group info
+                row_groups_info = []
+                for i in range(parquet_file.num_row_groups):
+                    rg = metadata.row_group(i)
+                    row_groups_info.append(
+                        {
+                            "num_rows": rg.num_rows,
+                            "total_byte_size": rg.total_byte_size,
+                            "compressed_size": sum(
+                                rg.column(j).total_compressed_size
+                                for j in range(rg.num_columns)
+                            ),
+                        }
+                    )
+
+                return {
+                    "file_size_mb": file_size_bytes / 1024 / 1024,
+                    "num_rows": num_rows,
+                    "num_columns": num_columns,
+                    "numeric_columns": numeric_columns,
+                    "estimated_memory_mb": estimated_memory_mb,
+                    "num_row_groups": metadata.num_row_groups,
+                    "schema": schema_info,
+                    "row_groups": row_groups_info,
+                    "created_by": str(metadata.created_by) if metadata.created_by else None,
+                    "format_version": str(metadata.format_version),
+                }
+            else:
+                # Fallback without PyArrow - read sample to estimate
+                try:
+                    sample_df = pd.read_parquet(source_path, engine="fastparquet", nrows=100)
+                    num_columns = len(sample_df.columns)
+                    numeric_columns = len(sample_df.select_dtypes(include=['number']).columns)
+                    
+                    # Rough estimation
+                    compression_ratio = 3
+                    estimated_memory_mb = (file_size_bytes * compression_ratio) / 1024 / 1024
+                    
+                    return {
+                        "file_size_mb": file_size_bytes / 1024 / 1024,
+                        "num_columns": num_columns,
+                        "numeric_columns": numeric_columns,
+                        "estimated_memory_mb": estimated_memory_mb,
+                        "schema": sample_df.dtypes.to_dict(),
+                        "pyarrow_available": False,
                     }
-                )
-
-            return {
-                "file_size_mb": file_size_bytes / 1024 / 1024,
-                "num_rows": num_rows,
-                "num_columns": num_columns,
-                "numeric_columns": numeric_columns,
-                "estimated_memory_mb": estimated_memory_mb,
-                "num_row_groups": metadata.num_row_groups,
-                "schema": schema_info,
-                "row_groups": row_groups_info,
-                "created_by": str(metadata.created_by) if metadata.created_by else None,
-                "format_version": str(metadata.format_version),
-            }
+                except Exception:
+                    return {
+                        "file_size_mb": file_size_bytes / 1024 / 1024,
+                        "pyarrow_available": False,
+                    }
 
         except Exception as e:
             return {
