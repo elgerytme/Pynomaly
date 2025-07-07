@@ -515,7 +515,8 @@
       "Bash(/dev/null)",
       "Bash(mypy:*)",
       "Bash(./scripts/testing/test-current.sh:*)",
-      "Bash(do)"
+      "Bash(do)",
+      "Bash(/mnt/c/Users/andre/Pynomaly/environments/.venv/bin/python -c \"\nimport sys\nsys.path.insert(0, 'src')\nfrom pynomaly.presentation.api.main import app\nprint('FastAPI app imported successfully')\nprint('OpenAPI schema generation test...')\ntry:\n    schema = app.openapi()\n    print('OpenAPI schema generated successfully')\n    print(f'Schema has {len(schema.get(\\\"paths\\\", {}))} paths')\nexcept Exception as e:\n    print(f'Error generating OpenAPI schema: {e}')\n    import traceback\n    traceback.print_exc()\n\")"
     ],
     "deny": [],
     "//": "This sets the default policy to 'allow' for any action that doesn't have a more specific rule below. This is the top-level 'allow all actions' setting.",

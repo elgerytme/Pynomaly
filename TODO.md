@@ -37,7 +37,10 @@ Pynomaly is an anomaly detection platform with clean architecture and PyOD integ
 - **Documentation**: Testing report generated with detailed findings and recommendations
 
 #### **Remaining Issues (Non-Critical)**
-- ⏳ **OpenAPI Schema**: Pydantic forward reference issue preventing docs generation (complex issue requiring dependency investigation)
+- ⚠️ **OpenAPI Schema**: Complex pydantic forward reference issue with auth dependencies
+  - **Root Cause**: `TypeAdapter[Annotated[UserModel | None, Depends(get_current_user)]]` circular references
+  - **Status**: API functionality unaffected, only documentation generation disabled
+  - **Solution**: Requires auth dependency refactoring to avoid nested Annotated types
 - ✅ **Authentication API**: Fixed request validation errors (proper 503 responses instead of 422)
 
 ### ✅ **COMPLETED: Run Scripts & CI/CD Pipeline** (July 2025)
