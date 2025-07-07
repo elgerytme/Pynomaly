@@ -231,10 +231,11 @@ pynomaly server start --port 8000
 ```python
 import pandas as pd
 import numpy as np
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+from pynomaly.domain.entities import Dataset
+from pynomaly.domain.value_objects import ContaminationRate
+from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
-# Basic usage example
+# Basic usage example with Pynomaly's SklearnAdapter
 def basic_example():
     # Create sample data with outliers
     np.random.seed(42)
@@ -246,28 +247,29 @@ def basic_example():
     df = pd.DataFrame(data, columns=['feature1', 'feature2'])
     dataset = Dataset(name="Sample Data", data=df)
     
-    # Create detector
-    detector = Detector(
-        name="Basic Detector",
+    # Create detector using Pynomaly's clean architecture
+    detector = SklearnAdapter(
         algorithm_name="IsolationForest",
-        parameters={"contamination": 0.1, "random_state": 42}
+        name="Basic Detector",
+        contamination_rate=ContaminationRate(0.1),
+        random_state=42,
+        n_estimators=100
     )
     
-    # Use PyOD adapter directly for basic detection
-    adapter = PyODAdapter()
-    model = adapter.create_detector(detector)
+    # Train detector
+    detector.fit(dataset)
     
-    # Train and predict
-    model.fit(dataset.data)
-    predictions = model.predict(dataset.data)
-    scores = model.decision_function(dataset.data)
+    # Detect anomalies
+    result = detector.detect(dataset)
     
     # Results
-    anomaly_count = np.sum(predictions)
+    anomaly_count = len(result.anomalies)
+    scores = [score.value for score in result.scores]
     print(f"Detected {anomaly_count} anomalies out of {len(data)} samples")
-    print(f"Anomaly scores range: {scores.min():.3f} to {scores.max():.3f}")
+    print(f"Anomaly scores range: {min(scores):.3f} to {max(scores):.3f}")
+    print(f"Detection completed in {result.execution_time_ms:.2f}ms")
     
-    return predictions, scores
+    return result.labels, scores
 
 # Run example
 if __name__ == "__main__":
