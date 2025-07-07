@@ -1,0 +1,514 @@
+name: PyPI Release Pipeline
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 0.1.0)'
+        required: true
+        type: string
+      environment:
+        description: 'Release environment'
+        required: true
+        default: 'testpypi'
+        type: choice
+        options:
+          - testpypi
+          - pypi
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write  # For trusted publishing
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  # Job 1: Pre-release validation
+  pre-release-validation:
+    name: Pre-release Validation
+    runs-on: ubuntu-latest
+    
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      changelog-updated: ${{ steps.changelog.outputs.updated }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Hatch
+      run: |
+        python -m pip install --upgrade pip
+        pip install hatch
+
+    - name: Get version information
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          VERSION="${{ github.event.inputs.version }}"
+          echo "Using manual version: $VERSION"
+        else
+          VERSION=$(hatch version)
+          echo "Using git tag version: $VERSION"
+        fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+    - name: Validate version format
+      run: |
+        if [[ ! "${{ steps.version.outputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
+          echo "❌ Invalid version format: ${{ steps.version.outputs.version }}"
+          echo "Expected format: X.Y.Z or X.Y.Z-suffix"
+          exit 1
+        fi
+        echo "✅ Version format is valid: ${{ steps.version.outputs.version }}"
+
+    - name: Check changelog updated
+      id: changelog
+      run: |
+        if grep -q "## \[${{ steps.version.outputs.version }}\]" CHANGELOG.md; then
+          echo "✅ Changelog updated for version ${{ steps.version.outputs.version }}"
+          echo "updated=true" >> $GITHUB_OUTPUT
+        else
+          echo "⚠️ Changelog not updated for version ${{ steps.version.outputs.version }}"
+          echo "updated=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Validate project metadata
+      run: |
+        echo "📋 Validating project metadata..."
+        
+        # Check that all required fields are present
+        hatch project metadata name
+        hatch project metadata version
+        hatch project metadata description
+        hatch project metadata authors
+        
+        # Validate dependencies
+        echo "🔍 Checking dependencies..."
+        hatch dep show requirements
+        
+        echo "✅ Project metadata validation complete"
+
+    - name: Run comprehensive tests
+      run: |
+        echo "🧪 Running comprehensive test suite..."
+        
+        # Run critical tests that must pass for release
+        hatch env run test:run tests/domain/ tests/application/ -v
+        hatch env run test:run tests/infrastructure/test_optimization_service.py -v
+        
+        # Run integration tests
+        hatch env run test:run tests/integration/ -v --ignore=tests/integration/test_*_performance*
+        
+        echo "✅ All tests passed"
+
+    - name: Run security scans
+      run: |
+        echo "🔒 Running security scans..."
+        
+        pip install bandit safety
+        bandit -r src/ -f txt
+        safety check
+        
+        echo "✅ Security scans completed"
+
+  # Job 2: Build package
+  build-package:
+    name: Build Package
+    runs-on: ubuntu-latest
+    needs: pre-release-validation
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Hatch
+      run: |
+        python -m pip install --upgrade pip
+        pip install hatch
+
+    - name: Clean previous builds
+      run: |
+        hatch clean
+        rm -rf dist/ build/ *.egg-info/
+
+    - name: Build package
+      run: |
+        echo "🏗️ Building package for version ${{ needs.pre-release-validation.outputs.version }}..."
+        hatch build --clean
+        
+        echo "📦 Build artifacts:"
+        ls -la dist/
+        
+        # Verify build contents
+        echo "🔍 Verifying wheel contents:"
+        unzip -l dist/*.whl | head -20
+        
+        echo "🔍 Verifying sdist contents:"
+        tar -tzf dist/*.tar.gz | head -20
+
+    - name: Test package installation
+      run: |
+        echo "🧪 Testing package installation..."
+        
+        # Test wheel installation
+        pip install dist/*.whl
+        python -c "import pynomaly; print(f'✅ Package version: {pynomaly.__version__}')"
+        
+        # Test basic functionality
+        python -c "
+        from pynomaly.domain.entities import Dataset, Anomaly
+        from pynomaly.domain.value_objects import AnomalyScore
+        print('✅ Core imports successful')
+        "
+        
+        # Uninstall for clean slate
+        pip uninstall pynomaly -y
+        
+        # Test sdist installation
+        pip install dist/*.tar.gz
+        python -c "import pynomaly; print('✅ Sdist installation successful')"
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist-${{ needs.pre-release-validation.outputs.version }}
+        path: dist/
+        retention-days: 30
+
+  # Job 3: Test PyPI upload (TestPyPI)
+  test-pypi-upload:
+    name: Test PyPI Upload
+    runs-on: ubuntu-latest
+    needs: [pre-release-validation, build-package]
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'testpypi'
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/project/pynomaly/
+    
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dist-${{ needs.pre-release-validation.outputs.version }}
+        path: dist/
+
+    - name: Publish to TestPyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
+        user: __token__
+        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        verbose: true
+
+    - name: Test installation from TestPyPI
+      run: |
+        echo "🧪 Testing installation from TestPyPI..."
+        sleep 60  # Wait for package to be available
+        
+        # Install from TestPyPI
+        pip install --index-url https://test.pypi.org/simple/ \
+                   --extra-index-url https://pypi.org/simple/ \
+                   pynomaly==${{ needs.pre-release-validation.outputs.version }}
+        
+        # Test basic functionality
+        python -c "
+        import pynomaly
+        print(f'✅ TestPyPI installation successful: {pynomaly.__version__}')
+        "
+
+  # Job 4: Production PyPI upload
+  pypi-upload:
+    name: PyPI Upload
+    runs-on: ubuntu-latest
+    needs: [pre-release-validation, build-package]
+    if: |
+      (github.event_name == 'release' && github.event.action == 'published') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'pypi')
+    environment:
+      name: pypi
+      url: https://pypi.org/project/pynomaly/
+    
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dist-${{ needs.pre-release-validation.outputs.version }}
+        path: dist/
+
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        verbose: true
+
+    - name: Verify PyPI publication
+      run: |
+        echo "🔍 Verifying PyPI publication..."
+        sleep 60  # Wait for package to be available
+        
+        # Check package exists on PyPI
+        curl -f "https://pypi.org/pypi/pynomaly/${{ needs.pre-release-validation.outputs.version }}/json" || exit 1
+        
+        echo "✅ Package successfully published to PyPI"
+
+  # Job 5: Post-release actions
+  post-release:
+    name: Post-release Actions
+    runs-on: ubuntu-latest
+    needs: [pre-release-validation, build-package, pypi-upload]
+    if: always() && (needs.pypi-upload.result == 'success' || needs.test-pypi-upload.result == 'success')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Test installation from PyPI
+      if: needs.pypi-upload.result == 'success'
+      run: |
+        echo "🧪 Testing installation from PyPI..."
+        sleep 120  # Wait for PyPI propagation
+        
+        # Install from PyPI
+        pip install pynomaly==${{ needs.pre-release-validation.outputs.version }}
+        
+        # Test comprehensive functionality
+        python -c "
+        import pynomaly
+        from pynomaly.domain.entities import Dataset, Anomaly
+        from pynomaly.domain.value_objects import AnomalyScore
+        print(f'✅ PyPI installation successful: {pynomaly.__version__}')
+        print('✅ All core imports working')
+        "
+
+    - name: Create GitHub release notes
+      if: github.event_name == 'workflow_dispatch'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          // Read changelog for this version
+          const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
+          const versionRegex = new RegExp(`## \\[${{ needs.pre-release-validation.outputs.version }}\\].*?(?=## \\[|$)`, 'gs');
+          const versionChanges = changelog.match(versionRegex);
+          
+          let releaseNotes = `# 🚀 Pynomaly v${{ needs.pre-release-validation.outputs.version }}
+
+**Released:** ${new Date().toISOString().split('T')[0]}
+
+## 📦 Installation
+
+\`\`\`bash
+pip install pynomaly==${{ needs.pre-release-validation.outputs.version }}
+\`\`\`
+
+## 🔗 Links
+
+- [PyPI Package](https://pypi.org/project/pynomaly/${{ needs.pre-release-validation.outputs.version }}/)
+- [Documentation](https://pynomaly.readthedocs.io)
+- [GitHub Repository](https://github.com/pynomaly/pynomaly)
+
+`;
+
+          if (versionChanges && versionChanges[0]) {
+            releaseNotes += `## 📝 Changes\n\n${versionChanges[0]}`;
+          }
+          
+          releaseNotes += `
+
+## 🛠️ Development
+
+This release was built with:
+- Python ${{ env.PYTHON_VERSION }}
+- Hatch build system
+- Comprehensive CI/CD pipeline
+- Automated testing and validation
+
+## 🙏 Contributors
+
+Thank you to all contributors who made this release possible!
+`;
+
+          // Create or update release
+          try {
+            await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: `v${{ needs.pre-release-validation.outputs.version }}`,
+              name: `Pynomaly v${{ needs.pre-release-validation.outputs.version }}`,
+              body: releaseNotes,
+              draft: false,
+              prerelease: false
+            });
+            console.log('✅ GitHub release created successfully');
+          } catch (error) {
+            console.log('ℹ️ Release may already exist, updating...');
+            // Try to update existing release
+            const releases = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            
+            const existingRelease = releases.data.find(r => r.tag_name === `v${{ needs.pre-release-validation.outputs.version }}`);
+            if (existingRelease) {
+              await github.rest.repos.updateRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: existingRelease.id,
+                body: releaseNotes
+              });
+              console.log('✅ GitHub release updated successfully');
+            }
+          }
+
+    - name: Update documentation
+      run: |
+        echo "📚 Updating documentation..."
+        
+        # Update version in documentation files
+        if [ -f docs/installation.md ]; then
+          sed -i "s/pip install pynomaly.*/pip install pynomaly==${{ needs.pre-release-validation.outputs.version }}/" docs/installation.md
+        fi
+        
+        # Update README if needed
+        if grep -q "pip install pynomaly" README.md; then
+          sed -i "s/pip install pynomaly.*/pip install pynomaly==${{ needs.pre-release-validation.outputs.version }}/" README.md
+        fi
+        
+        echo "✅ Documentation updated"
+
+    - name: Notify success
+      run: |
+        echo "🎉 Release pipeline completed successfully!"
+        echo ""
+        echo "📦 Package: pynomaly==${{ needs.pre-release-validation.outputs.version }}"
+        echo "🔗 PyPI: https://pypi.org/project/pynomaly/${{ needs.pre-release-validation.outputs.version }}/"
+        echo "📚 Install: pip install pynomaly==${{ needs.pre-release-validation.outputs.version }}"
+        echo ""
+        echo "🚀 Package is now available to the community!"
+
+  # Job 6: Failure cleanup
+  cleanup-on-failure:
+    name: Cleanup on Failure
+    runs-on: ubuntu-latest
+    needs: [pre-release-validation, build-package, pypi-upload]
+    if: failure()
+    
+    steps:
+    - name: Report failure
+      run: |
+        echo "❌ Release pipeline failed!"
+        echo ""
+        echo "🔍 Check the following:"
+        echo "- Pre-release validation: ${{ needs.pre-release-validation.result }}"
+        echo "- Package build: ${{ needs.build-package.result }}" 
+        echo "- PyPI upload: ${{ needs.pypi-upload.result }}"
+        echo ""
+        echo "📋 Common issues:"
+        echo "- Version format incorrect"
+        echo "- Tests failing"
+        echo "- Security scan issues"
+        echo "- PyPI credentials invalid"
+        echo "- Package already exists on PyPI"
+        echo ""
+        echo "🛠️ Next steps:"
+        echo "1. Fix the identified issues"
+        echo "2. Update version if needed"
+        echo "3. Re-run the release workflow"
+
+    - name: Create failure issue
+      if: github.event_name == 'release'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: `❌ Release v${{ needs.pre-release-validation.outputs.version || 'unknown' }} failed`,
+            body: `## Release Failure Report
+
+**Version:** ${{ needs.pre-release-validation.outputs.version || 'unknown' }}
+**Workflow:** ${{ github.workflow }}
+**Run ID:** ${{ github.run_id }}
+
+### Job Results
+- Pre-release validation: ${{ needs.pre-release-validation.result }}
+- Build package: ${{ needs.build-package.result }}
+- PyPI upload: ${{ needs.pypi-upload.result }}
+
+### Next Steps
+1. Review the failed job logs
+2. Fix identified issues
+3. Update version if necessary
+4. Re-trigger release workflow
+
+**Links:**
+- [Failed workflow run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+`,
+            labels: ['release', 'bug', 'high-priority']
+          });
+
+# Summary job
+  release-summary:
+    name: Release Summary
+    runs-on: ubuntu-latest
+    needs: [pre-release-validation, build-package, test-pypi-upload, pypi-upload, post-release]
+    if: always()
+    
+    steps:
+    - name: Generate release summary
+      run: |
+        echo "# 🚀 PyPI Release Pipeline Summary" > release-summary.md
+        echo "" >> release-summary.md
+        echo "**Version:** ${{ needs.pre-release-validation.outputs.version || 'unknown' }}" >> release-summary.md
+        echo "**Date:** $(date)" >> release-summary.md
+        echo "**Trigger:** ${{ github.event_name }}" >> release-summary.md
+        echo "" >> release-summary.md
+        
+        echo "## 📊 Job Results" >> release-summary.md
+        echo "" >> release-summary.md
+        echo "| Job | Status | Description |" >> release-summary.md
+        echo "|-----|--------|-------------|" >> release-summary.md
+        echo "| Pre-release Validation | ${{ needs.pre-release-validation.result == 'success' && '✅ Passed' || needs.pre-release-validation.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | Version validation, tests, security scans |" >> release-summary.md
+        echo "| Build Package | ${{ needs.build-package.result == 'success' && '✅ Passed' || needs.build-package.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | Hatch build, wheel/sdist creation |" >> release-summary.md
+        echo "| TestPyPI Upload | ${{ needs.test-pypi-upload.result == 'success' && '✅ Passed' || needs.test-pypi-upload.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | Test package upload and installation |" >> release-summary.md
+        echo "| PyPI Upload | ${{ needs.pypi-upload.result == 'success' && '✅ Passed' || needs.pypi-upload.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | Production package publication |" >> release-summary.md
+        echo "| Post-release | ${{ needs.post-release.result == 'success' && '✅ Passed' || needs.post-release.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | GitHub release, documentation updates |" >> release-summary.md
+        
+        cat release-summary.md
+
+    - name: Upload release summary
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-summary
+        path: release-summary.md
+        retention-days: 90
