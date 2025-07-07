@@ -85,7 +85,7 @@
             </div>
             <div class="bg-gray-50 px-5 py-3">
                 <div class="text-sm">
-                    <a href="/web/detectors" class="font-medium text-blue-600 hover:text-blue-700 flex items-center">
+                    <a href="/detectors" class="font-medium text-blue-600 hover:text-blue-700 flex items-center">
                         View all
                         <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -118,7 +118,7 @@
             </div>
             <div class="bg-gray-50 px-5 py-3">
                 <div class="text-sm">
-                    <a href="/web/datasets" class="font-medium text-secondary hover:text-green-700">
+                    <a href="/datasets" class="font-medium text-secondary hover:text-green-700">
                         View all
                     </a>
                 </div>
@@ -148,7 +148,7 @@
             </div>
             <div class="bg-gray-50 px-5 py-3">
                 <div class="text-sm">
-                    <a href="/web/detection" class="font-medium text-accent hover:text-amber-700">
+                    <a href="/detection" class="font-medium text-accent hover:text-amber-700">
                         Run detection
                     </a>
                 </div>
@@ -161,7 +161,7 @@
         <div class="px-4 py-5 sm:p-6">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-medium text-gray-900">Recent Detection Results</h2>
-                <button hx-get="/web/htmx/results-table"
+                <button hx-get="/htmx/results-table"
                         hx-target="#results-table"
                         hx-trigger="click"
                         class="text-sm text-primary hover:text-blue-700">
@@ -180,7 +180,7 @@
     
     <!-- Quick Actions -->
     <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <a href="/web/detectors" class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400">
+        <a href="/detectors" class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400">
             <div class="flex-shrink-0">
                 <svg class="h-10 w-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -193,7 +193,7 @@
             </div>
         </a>
         
-        <a href="/web/datasets" class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400">
+        <a href="/datasets" class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400">
             <div class="flex-shrink-0">
                 <svg class="h-10 w-10 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
@@ -206,7 +206,7 @@
             </div>
         </a>
         
-        <a href="/web/detection" class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400">
+        <a href="/detection" class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400">
             <div class="flex-shrink-0">
                 <svg class="h-10 w-10 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -219,7 +219,7 @@
             </div>
         </a>
         
-        <a href="/web/visualizations" class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400">
+        <a href="/visualizations" class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400">
             <div class="flex-shrink-0">
                 <svg class="h-10 w-10 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
@@ -234,7 +234,7 @@
     </div>
     
     <!-- Auto-refresh recent results every 30 seconds -->
-    <div hx-get="/web/htmx/results-table?limit=5" 
+    <div hx-get="/htmx/results-table?limit=5" 
          hx-trigger="every 30s"
          hx-target="#results-table"
          hx-swap="outerHTML">

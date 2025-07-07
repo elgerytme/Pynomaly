@@ -274,9 +274,9 @@
                                 </svg>
                             </button>
                             <div class="hidden group-hover:block absolute top-full left-0 bg-white shadow-lg rounded-md mt-1 min-w-48 z-50">
-                                <a href="/web/visualizations" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📊 Standard Charts</a>
-                                <a href="/web/advanced-visualizations" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📈 Advanced Viz</a>
-                                <a href="/web/monitoring" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📡 Real-time Monitor</a>
+                                <a href="/visualizations" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📊 Standard Charts</a>
+                                <a href="/advanced-visualizations" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📈 Advanced Viz</a>
+                                <a href="/monitoring" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📡 Real-time Monitor</a>
                             </div>
                         </div>
                         <div class="relative group">
@@ -287,11 +287,11 @@
                                 </svg>
                             </button>
                             <div class="hidden group-hover:block absolute top-full left-0 bg-white shadow-lg rounded-md mt-1 min-w-48 z-50">
-                                <a href="/web/workflows" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🔄 Workflows</a>
-                                <a href="/web/exports" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📤 Export Data</a>
-                                <a href="/web/collaboration" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">👥 Collaborate</a>
+                                <a href="/workflows" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🔄 Workflows</a>
+                                <a href="/exports" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📤 Export Data</a>
+                                <a href="/collaboration" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">👥 Collaborate</a>
                                 {% if auth_enabled and current_user %}
-                                <a href="/web/users" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">👥 Users</a>
+                                <a href="/users" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">👥 Users</a>
                                 {% endif %}
                             </div>
                         </div>
@@ -314,45 +314,45 @@
         <!-- Mobile menu -->
         <div x-show="mobileMenuOpen" class="sm:hidden">
             <div class="pt-2 pb-3 space-y-1">
-                <a href="/web/" class="block pl-3 pr-4 py-2 border-l-4 {% if request.url.path == '/web/' %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
+                <a href="/" class="block pl-3 pr-4 py-2 border-l-4 {% if request.url.path == '/' %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
                     Dashboard
                 </a>
-                <a href="/web/detectors" class="block pl-3 pr-4 py-2 border-l-4 {% if '/detectors' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
+                <a href="/detectors" class="block pl-3 pr-4 py-2 border-l-4 {% if '/detectors' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
                     Detectors
                 </a>
-                <a href="/web/datasets" class="block pl-3 pr-4 py-2 border-l-4 {% if '/datasets' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
+                <a href="/datasets" class="block pl-3 pr-4 py-2 border-l-4 {% if '/datasets' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
                     Datasets
                 </a>
-                <a href="/web/detection" class="block pl-3 pr-4 py-2 border-l-4 {% if '/detection' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
+                <a href="/detection" class="block pl-3 pr-4 py-2 border-l-4 {% if '/detection' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
                     Detection
                 </a>
-                <a href="/web/explainability" class="block pl-3 pr-4 py-2 border-l-4 {% if '/explainability' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
+                <a href="/explainability" class="block pl-3 pr-4 py-2 border-l-4 {% if '/explainability' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
                     🔍 Explainability
                 </a>
-                <a href="/web/monitoring" class="block pl-3 pr-4 py-2 border-l-4 {% if '/monitoring' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
+                <a href="/monitoring" class="block pl-3 pr-4 py-2 border-l-4 {% if '/monitoring' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
                     📊 Monitoring
                 </a>
                 {% if auth_enabled and current_user %}
-                <a href="/web/users" class="block pl-3 pr-4 py-2 border-l-4 {% if '/users' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
+                <a href="/users" class="block pl-3 pr-4 py-2 border-l-4 {% if '/users' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
                     👥 Users
                 </a>
                 {% endif %}
-                <a href="/web/experiments" class="block pl-3 pr-4 py-2 border-l-4 {% if '/experiments' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
+                <a href="/experiments" class="block pl-3 pr-4 py-2 border-l-4 {% if '/experiments' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
                     Experiments
                 </a>
-                <a href="/web/visualizations" class="block pl-3 pr-4 py-2 border-l-4 {% if '/visualizations' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
+                <a href="/visualizations" class="block pl-3 pr-4 py-2 border-l-4 {% if '/visualizations' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
                     Visualizations
                 </a>
-                <a href="/web/workflows" class="block pl-3 pr-4 py-2 border-l-4 {% if '/workflows' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
+                <a href="/workflows" class="block pl-3 pr-4 py-2 border-l-4 {% if '/workflows' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
                     🔄 Workflows
                 </a>
-                <a href="/web/collaboration" class="block pl-3 pr-4 py-2 border-l-4 {% if '/collaboration' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
+                <a href="/collaboration" class="block pl-3 pr-4 py-2 border-l-4 {% if '/collaboration' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
                     👥 Collaborate
                 </a>
-                <a href="/web/advanced-visualizations" class="block pl-3 pr-4 py-2 border-l-4 {% if '/advanced-visualizations' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
+                <a href="/advanced-visualizations" class="block pl-3 pr-4 py-2 border-l-4 {% if '/advanced-visualizations' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
                     📊 Advanced Viz
                 </a>
-                <a href="/web/exports" class="block pl-3 pr-4 py-2 border-l-4 {% if '/exports' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
+                <a href="/exports" class="block pl-3 pr-4 py-2 border-l-4 {% if '/exports' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium">
                     📤 Exports
                 </a>
             </div>

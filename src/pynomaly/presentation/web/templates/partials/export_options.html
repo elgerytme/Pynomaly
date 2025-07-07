@@ -305,7 +305,7 @@ function performExport(exportData) {
     }
     
     // Start export via HTMX
-    htmx.post('/web/htmx/export-data', {
+    htmx.post('/htmx/export-data', {
         values: exportData,
         target: '#export-progress',
         swap: 'innerHTML'

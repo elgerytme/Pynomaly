@@ -9,7 +9,7 @@
             <h1 class="text-3xl font-bold text-gray-900">⚡ AutoML</h1>
             <p class="mt-2 text-gray-600">Automated hyperparameter optimization and algorithm selection</p>
         </div>
-        <button onclick="window.location='/web/automl/optimize'" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+        <button onclick="window.location='/automl/optimize'" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
             <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
             </svg>
@@ -19,7 +19,7 @@
 
     <!-- Quick Actions Grid -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer" onclick="window.location='/web/automl/optimize'">
+        <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer" onclick="window.location='/automl/optimize'">
             <div class="p-6 text-center">
                 <div class="text-4xl mb-3">⚡</div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">Quick Optimize</h3>
@@ -51,7 +51,7 @@
             <div class="px-4 py-5 sm:p-6">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">🚀 Active Optimizations</h3>
                 <div id="active-optimizations" 
-                     hx-get="/web/htmx/automl-active" 
+                     hx-get="/htmx/automl-active" 
                      hx-trigger="load, every 10s"
                      hx-indicator="#active-loading">
                     <div id="active-loading" class="flex justify-center items-center py-8">
@@ -69,7 +69,7 @@
         <div class="bg-white shadow rounded-lg">
             <div class="px-4 py-5 sm:p-6">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">⚡ Quick Optimize</h3>
-                <form hx-post="/web/htmx/automl-optimize" 
+                <form hx-post="/htmx/automl-optimize" 
                       hx-target="#optimization-result"
                       hx-indicator="#optimize-spinner"
                       class="space-y-4">
@@ -132,7 +132,7 @@
         <div class="px-4 py-5 sm:p-6">
             <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">📈 Optimization History</h3>
             <div id="optimization-history" 
-                 hx-get="/web/htmx/automl-history" 
+                 hx-get="/htmx/automl-history" 
                  hx-trigger="load"
                  hx-indicator="#history-loading">
                 <div id="history-loading" class="flex justify-center items-center py-8">

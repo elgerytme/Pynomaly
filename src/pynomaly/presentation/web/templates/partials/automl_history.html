@@ -46,7 +46,7 @@
                     {% endif %}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <a href="/web/automl/experiment/{{ experiment.id }}" class="text-primary hover:text-blue-900">View</a>
+                    <a href="/automl/experiment/{{ experiment.id }}" class="text-primary hover:text-blue-900">View</a>
                     <span class="text-gray-300 mx-2">|</span>
                     <button onclick="downloadResults('{{ experiment.id }}')" class="text-green-600 hover:text-green-900">Download</button>
                 </td>
@@ -60,7 +60,7 @@
     <div class="text-6xl mb-4">📊</div>
     <h3 class="text-lg font-medium text-gray-900 mb-2">No optimization history</h3>
     <p class="text-gray-500 mb-4">Start your first optimization to see results here</p>
-    <button onclick="window.location='/web/automl/optimize'" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-blue-700">
+    <button onclick="window.location='/automl/optimize'" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-blue-700">
         Start First Optimization
     </button>
 </div>

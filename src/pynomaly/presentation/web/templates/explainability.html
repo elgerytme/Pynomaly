@@ -58,7 +58,7 @@
         <div class="bg-white shadow rounded-lg">
             <div class="px-4 py-5 sm:p-6">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">📋 Analysis Setup</h3>
-                <form hx-post="/web/htmx/explainability-analyze" 
+                <form hx-post="/htmx/explainability-analyze" 
                       hx-target="#explanation-result"
                       hx-indicator="#analyze-spinner"
                       class="space-y-4">
@@ -129,7 +129,7 @@
             <div class="px-4 py-5 sm:p-6">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">💡 Quick Insights</h3>
                 <div id="quick-insights" 
-                     hx-get="/web/htmx/explainability-insights" 
+                     hx-get="/htmx/explainability-insights" 
                      hx-trigger="load"
                      hx-indicator="#insights-loading">
                     <div id="insights-loading" class="flex justify-center items-center py-8">

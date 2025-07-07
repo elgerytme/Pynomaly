@@ -28,7 +28,7 @@
     <!-- User Statistics -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div id="total-users-card" 
-             hx-get="/web/htmx/user-stats-total" 
+             hx-get="/htmx/user-stats-total" 
              hx-trigger="load, every 30s"
              class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-5">
@@ -49,7 +49,7 @@
         </div>
 
         <div id="active-users-card" 
-             hx-get="/web/htmx/user-stats-active" 
+             hx-get="/htmx/user-stats-active" 
              hx-trigger="load, every 30s"
              class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-5">
@@ -70,7 +70,7 @@
         </div>
 
         <div id="admin-users-card" 
-             hx-get="/web/htmx/user-stats-admins" 
+             hx-get="/htmx/user-stats-admins" 
              hx-trigger="load, every 30s"
              class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-5">
@@ -91,7 +91,7 @@
         </div>
 
         <div id="api-keys-card" 
-             hx-get="/web/htmx/user-stats-api-keys" 
+             hx-get="/htmx/user-stats-api-keys" 
              hx-trigger="load, every 30s"
              class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-5">
@@ -139,7 +139,7 @@
             </div>
             
             <div id="users-table" 
-                 hx-get="/web/htmx/users-list" 
+                 hx-get="/htmx/users-list" 
                  hx-trigger="load">
                 <div class="animate-pulse">
                     <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
@@ -157,7 +157,7 @@
             <div class="px-4 py-5 sm:p-6">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">🔑 Roles</h3>
                 <div id="roles-list" 
-                     hx-get="/web/htmx/roles-list" 
+                     hx-get="/htmx/roles-list" 
                      hx-trigger="load">
                     <div class="animate-pulse">
                         <div class="h-4 bg-gray-200 rounded w-full mb-2"></div>
@@ -173,7 +173,7 @@
             <div class="px-4 py-5 sm:p-6">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">🛡️ Permissions</h3>
                 <div id="permissions-list" 
-                     hx-get="/web/htmx/permissions-list" 
+                     hx-get="/htmx/permissions-list" 
                      hx-trigger="load">
                     <div class="animate-pulse">
                         <div class="h-4 bg-gray-200 rounded w-full mb-2"></div>
@@ -191,7 +191,7 @@
     <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div class="mt-3">
             <h3 class="text-lg font-medium text-gray-900 mb-4">Create New User</h3>
-            <form hx-post="/web/htmx/users-create" 
+            <form hx-post="/htmx/users-create" 
                   hx-target="#create-user-result"
                   hx-indicator="#create-user-spinner">
                 
@@ -287,7 +287,7 @@ function filterUsers() {
     const roleFilter = document.getElementById('role-filter').value;
     const statusFilter = document.getElementById('status-filter').value;
     
-    let url = '/web/htmx/users-list';
+    let url = '/htmx/users-list';
     const params = new URLSearchParams();
     
     if (roleFilter) params.append('role', roleFilter);
@@ -302,7 +302,7 @@ function filterUsers() {
 
 function editUser(userId) {
     // Create edit modal dynamically
-    htmx.ajax('GET', `/web/htmx/users-edit-form/${userId}`, {
+    htmx.ajax('GET', `/htmx/users-edit-form/${userId}`, {
         target: 'body',
         swap: 'beforeend'
     });
@@ -310,7 +310,7 @@ function editUser(userId) {
 
 function deleteUser(userId, username) {
     if (confirm(`Are you sure you want to delete user "${username}"? This action cannot be undone.`)) {
-        htmx.ajax('DELETE', `/web/htmx/users-delete/${userId}`, {
+        htmx.ajax('DELETE', `/htmx/users-delete/${userId}`, {
             target: '#users-table',
             swap: 'outerHTML'
         }).then(() => {
@@ -323,7 +323,7 @@ function deleteUser(userId, username) {
 function toggleUserStatus(userId, currentStatus) {
     const action = currentStatus ? 'deactivate' : 'activate';
     if (confirm(`Are you sure you want to ${action} this user?`)) {
-        htmx.ajax('PATCH', `/web/htmx/users-toggle-status/${userId}`, {
+        htmx.ajax('PATCH', `/htmx/users-toggle-status/${userId}`, {
             target: '#users-table',
             swap: 'outerHTML'
         }).then(() => {
@@ -336,7 +336,7 @@ function toggleUserStatus(userId, currentStatus) {
 function createApiKey(userId, username) {
     const keyName = prompt(`Enter a name for the new API key for ${username}:`);
     if (keyName) {
-        htmx.ajax('POST', `/web/htmx/users-create-api-key/${userId}`, {
+        htmx.ajax('POST', `/htmx/users-create-api-key/${userId}`, {
             values: {key_name: keyName},
             target: 'body',
             swap: 'beforeend'
@@ -346,7 +346,7 @@ function createApiKey(userId, username) {
 
 function revokeApiKey(apiKey) {
     if (confirm('Are you sure you want to revoke this API key? This action cannot be undone.')) {
-        htmx.ajax('DELETE', `/web/htmx/api-keys-revoke/${apiKey}`, {
+        htmx.ajax('DELETE', `/htmx/api-keys-revoke/${apiKey}`, {
             target: '#users-table',
             swap: 'outerHTML'
         }).then(() => {
@@ -357,7 +357,7 @@ function revokeApiKey(apiKey) {
 }
 
 function showUserPermissions(userId) {
-    htmx.ajax('GET', `/web/htmx/users-permissions/${userId}`, {
+    htmx.ajax('GET', `/htmx/users-permissions/${userId}`, {
         target: 'body',
         swap: 'beforeend'
     });

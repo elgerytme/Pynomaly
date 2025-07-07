@@ -20,7 +20,7 @@
                 <h3 class="card-title">🎯 Train Detector</h3>
             </div>
             <div class="card-content">
-                <form hx-post="/web/htmx/train-detector" 
+                <form hx-post="/htmx/train-detector" 
                       hx-target="#training-result"
                       hx-indicator="#training-spinner">
                     
@@ -79,7 +79,7 @@
                 <h3 class="card-title">🔍 Run Detection</h3>
             </div>
             <div class="card-content">
-                <form hx-post="/web/htmx/detect-anomalies" 
+                <form hx-post="/htmx/detect-anomalies" 
                       hx-target="#detection-result"
                       hx-indicator="#detection-spinner">
                     
@@ -143,7 +143,7 @@
     <div class="card">
         <div class="card-header flex justify-between items-center">
             <h3 class="card-title">📊 Recent Detection Results</h3>
-            <button hx-get="/web/htmx/results-table" 
+            <button hx-get="/htmx/results-table" 
                     hx-target="#results-table"
                     class="btn btn-outline btn-sm">
                 🔄 Refresh
@@ -151,7 +151,7 @@
         </div>
         <div class="card-content">
             <div id="results-table" 
-                 hx-get="/web/htmx/results-table" 
+                 hx-get="/htmx/results-table" 
                  hx-trigger="load, every 30s">
                 <!-- Results loaded via HTMX -->
                 <div class="text-center py-8">

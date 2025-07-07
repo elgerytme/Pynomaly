@@ -747,18 +747,18 @@ window.CollaborationManager = {
     
     getPageName(path) {
         const pageNames = {
-            '/web/': 'Dashboard',
-            '/web/detectors': 'Detectors',
-            '/web/datasets': 'Datasets',
-            '/web/detection': 'Detection',
-            '/web/ensemble': 'Ensemble',
-            '/web/automl': 'AutoML',
-            '/web/explainability': 'Explainability',
-            '/web/monitoring': 'Monitoring',
-            '/web/visualizations': 'Visualizations',
-            '/web/workflows': 'Workflows',
-            '/web/collaboration': 'Collaboration',
-            '/web/advanced-visualizations': 'Advanced Visualizations'
+            '/': 'Dashboard',
+            '/detectors': 'Detectors',
+            '/datasets': 'Datasets',
+            '/detection': 'Detection',
+            '/ensemble': 'Ensemble',
+            '/automl': 'AutoML',
+            '/explainability': 'Explainability',
+            '/monitoring': 'Monitoring',
+            '/visualizations': 'Visualizations',
+            '/workflows': 'Workflows',
+            '/collaboration': 'Collaboration',
+            '/advanced-visualizations': 'Advanced Visualizations'
         };
         
         return pageNames[path] || 'Unknown Page';

@@ -11,7 +11,7 @@
             <p class="text-gray-600 mt-1">{{ detector.algorithm }} Detector</p>
         </div>
         <div class="flex space-x-3">
-            <a href="/web/detectors" 
+            <a href="/detectors" 
                class="btn btn-outline">
                 ← Back to Detectors
             </a>
@@ -155,7 +155,7 @@
     <!-- Actions -->
     {% if detector.is_fitted %}
     <div class="mt-8 text-center">
-        <a href="/web/detection?detector={{ detector.id }}" 
+        <a href="/detection?detector={{ detector.id }}" 
            class="btn btn-primary">
             Run Detection
         </a>
@@ -163,7 +163,7 @@
     {% else %}
     <div class="mt-8 text-center">
         <p class="text-gray-600 mb-4">This detector needs to be trained before it can detect anomalies.</p>
-        <a href="/web/detection?detector={{ detector.id }}" 
+        <a href="/detection?detector={{ detector.id }}" 
            class="btn btn-primary">
             Train Detector
         </a>
