@@ -147,9 +147,18 @@ class BackpressureConfigDTO(BaseModel):
     """DTO for backpressure configuration."""
 
     enabled: bool = Field(default=True, description="Enable backpressure")
-    high_watermark: float = Field(default=0.8, description="High watermark threshold")
-    low_watermark: float = Field(default=0.3, description="Low watermark threshold")
-    strategy: str = Field(default="drop_oldest", description="Backpressure strategy")
+    max_queue_size: int = Field(default=1000, description="Maximum queue size")
+    drop_policy: str = Field(default="oldest", description="Drop policy when queue is full")
+    threshold_percentage: float = Field(default=0.8, description="Threshold percentage for backpressure activation")
+
+    @field_validator("drop_policy")
+    @classmethod
+    def validate_drop_policy(cls, v):
+        """Validate drop policy."""
+        valid_policies = {"oldest", "newest", "random", "reject"}
+        if v not in valid_policies:
+            raise ValueError(f"Invalid drop policy. Must be one of: {valid_policies}")
+        return v
 
 
 class WindowConfigDTO(BaseModel):
@@ -173,6 +182,7 @@ class CheckpointConfigDTO(BaseModel):
         default=10000, description="Checkpoint interval in milliseconds"
     )
     storage_path: str = Field(description="Checkpoint storage path")
+    compression: bool = Field(default=False, description="Enable compression for checkpoints")
     retention_count: int = Field(
         default=5, description="Number of checkpoints to retain"
     )
@@ -187,6 +197,22 @@ class StreamConfigurationDTO(BaseModel):
     backpressure: BackpressureConfigDTO = Field(description="Backpressure configuration")
     window: WindowConfigDTO = Field(description="Window configuration")
     checkpoint: CheckpointConfigDTO = Field(description="Checkpoint configuration")
+
+    @field_validator("batch_size")
+    @classmethod
+    def validate_batch_size(cls, v):
+        """Validate batch size is positive."""
+        if v <= 0:
+            raise ValueError("Batch size must be positive")
+        return v
+
+    @field_validator("timeout_ms")
+    @classmethod
+    def validate_timeout(cls, v):
+        """Validate timeout is positive."""
+        if v <= 0:
+            raise ValueError("Timeout must be positive")
+        return v
 
 
 class StreamMetricsDTO(BaseModel):
