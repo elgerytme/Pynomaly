@@ -477,6 +477,52 @@ class DriftDetectionResult:
             raise ValueError("Drift score must be between 0.0 and 1.0")
 
 
+class DriftType(Enum):
+    """Types of drift that can be detected."""
+    
+    DATA_DRIFT = "data_drift"
+    CONCEPT_DRIFT = "concept_drift"
+    COVARIATE_SHIFT = "covariate_shift"
+    LABEL_SHIFT = "label_shift"
+
+
+class DriftSeverity(Enum):
+    """Severity levels for detected drift."""
+    
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+class MonitoringStatus(Enum):
+    """Status of drift monitoring."""
+    
+    ACTIVE = "active"
+    PAUSED = "paused"
+    STOPPED = "stopped"
+    ERROR = "error"
+
+
+@dataclass
+class ModelMonitoringConfig:
+    """Configuration for model monitoring."""
+    
+    monitoring_enabled: bool = True
+    check_interval_minutes: int = 60
+    drift_threshold: float = 0.1
+    severity_threshold: DriftSeverity = DriftSeverity.MEDIUM
+    notification_enabled: bool = True
+    auto_retrain_enabled: bool = False
+    
+    def __post_init__(self):
+        """Validate monitoring configuration."""
+        if self.check_interval_minutes <= 0:
+            raise ValueError("Check interval must be positive")
+        if not (0.0 <= self.drift_threshold <= 1.0):
+            raise ValueError("Drift threshold must be between 0.0 and 1.0")
+
+
 @dataclass
 class DriftAnalysisResult:
     """Comprehensive drift analysis result."""

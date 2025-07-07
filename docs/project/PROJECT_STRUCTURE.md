@@ -10,6 +10,15 @@ This project organization is complex and difficult to maintain consistently with
 - Understanding the architectural boundaries
 - Implementing new features
 
+**🔧 RECENT FIXES APPLIED (2025-01-07):**
+- ✅ Root directory cleaned - moved stray files to appropriate locations
+- ✅ Virtual environment structure created in `environments/.venv/`
+- ✅ AsyncClient compatibility fixed in test scripts
+- ✅ Bash script paths corrected for proper execution
+- ✅ Domain layer architecture violations partially addressed
+- ✅ Missing test directories created
+- ✅ .gitignore updated with proper build directory patterns
+
 ## Root Level Structure
 
 ```
