@@ -1,0 +1,38 @@
+{
+  "is_valid": false,
+  "violations": [
+    "Stray file in root: analyze_docs_links.py",
+    "Stray file in root: BROKEN_LINKS_DETAILED_ANALYSIS.md",
+    "Stray directory in root: buck-out/",
+    "Stray directory in root: build/",
+    "Stray file in root: CROSS_LINKING_IMPLEMENTATION_STRATEGY.md",
+    "Stray file in root: docs_cross_linking_analysis.json",
+    "Stray file in root: DOCUMENTATION_CROSS_LINKING_ANALYSIS_REPORT.md",
+    "Stray file in root: DOCUMENTATION_CROSS_LINKING_EXECUTIVE_SUMMARY.md",
+    "Stray directory in root: environments/",
+    "Stray file in root: PROJECT_STRUCTURE.md",
+    "Stray file in root: PYNOMALY_FEATURE_GAP_ANALYSIS.md",
+    "Stray directory in root: stories/",
+    "Stray directory in root: toolchains/",
+    "Stray directory in root: tools/",
+    "Stray file in root: ui_quality_metrics.db"
+  ],
+  "suggestions": [
+    "Move analyze_docs_links.py to scripts/",
+    "Move BROKEN_LINKS_DETAILED_ANALYSIS.md to docs/",
+    "Review buck-out/ and move to appropriate location",
+    "Review build/ and move to appropriate location",
+    "Move CROSS_LINKING_IMPLEMENTATION_STRATEGY.md to docs/",
+    "Move docs_cross_linking_analysis.json to reports/",
+    "Move DOCUMENTATION_CROSS_LINKING_ANALYSIS_REPORT.md to docs/",
+    "Move DOCUMENTATION_CROSS_LINKING_EXECUTIVE_SUMMARY.md to docs/",
+    "DELETE environments/ (temporary/environment directory)",
+    "Move PROJECT_STRUCTURE.md to docs/",
+    "Move PYNOMALY_FEATURE_GAP_ANALYSIS.md to docs/",
+    "Review stories/ and move to appropriate location",
+    "Review toolchains/ and move to appropriate location",
+    "Review tools/ and move to appropriate location",
+    "Move ui_quality_metrics.db to REVIEW (manual classification needed)"
+  ],
+  "timestamp": "/mnt/c/Users/andre/Pynomaly"
+}
