@@ -7,7 +7,7 @@ from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class LineageRelationType(str, Enum):
@@ -142,14 +142,10 @@ class LineageRecord(BaseModel):
         """Check if child is a direct descendant of parent."""
         return child_id == self.child_model_id and parent_id in self.parent_model_ids
 
-    class Config:
-        """Pydantic model configuration."""
-
-        validate_assignment = True
-        use_enum_values = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-        }
+    model_config = ConfigDict(
+        validate_assignment=True,
+        use_enum_values=True,
+    )
 
 
 class LineageNode(BaseModel):

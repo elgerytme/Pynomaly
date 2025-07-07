@@ -7,7 +7,7 @@ from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class SessionStatus(str, Enum):
@@ -401,15 +401,10 @@ class StreamingSession(BaseModel):
             "uptime_seconds": uptime.total_seconds(),
         }
 
-    class Config:
-        """Pydantic model configuration."""
-
-        validate_assignment = True
-        use_enum_values = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            timedelta: lambda v: v.total_seconds(),
-        }
+    model_config = ConfigDict(
+        validate_assignment=True,
+        use_enum_values=True,
+    )
 
 
 class StreamingAlert(BaseModel):
