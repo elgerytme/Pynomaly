@@ -6,7 +6,7 @@ from uuid import UUID, uuid4
 
 import numpy as np
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 from pynomaly.application.services.explainable_ai_service import (
     ExplainabilityError,
@@ -53,13 +53,15 @@ class ExplainPredictionRequest(BaseModel):
         False, description="Generate counterfactual explanations"
     )
 
-    @validator("instance_data")
+    @field_validator("instance_data")
+    @classmethod
     def validate_instance_data(cls, v):
         if not v:
             raise ValueError("Instance data cannot be empty")
         return v
 
-    @validator("num_features")
+    @field_validator("num_features")
+    @classmethod
     def validate_num_features(cls, v):
         if v <= 0:
             raise ValueError("Number of features must be positive")
@@ -81,7 +83,8 @@ class ExplainModelGlobalRequest(BaseModel):
     )
     enable_bias_detection: bool = Field(True, description="Detect model bias")
 
-    @validator("sample_size")
+    @field_validator("sample_size")
+    @classmethod
     def validate_sample_size(cls, v):
         if v <= 0:
             raise ValueError("Sample size must be positive")
@@ -98,7 +101,8 @@ class FeatureImportanceRequest(BaseModel):
     )
     sample_size: int = Field(1000, description="Sample size for analysis")
 
-    @validator("explanation_method")
+    @field_validator("explanation_method")
+    @classmethod
     def validate_method(cls, v):
         valid_methods = [
             "permutation_importance",
@@ -123,13 +127,15 @@ class BiasDetectionRequest(BaseModel):
     sample_size: int = Field(1000, description="Sample size for bias analysis")
     bias_threshold: float = Field(0.3, description="Bias detection threshold")
 
-    @validator("protected_attributes")
+    @field_validator("protected_attributes")
+    @classmethod
     def validate_protected_attributes(cls, v):
         if not v:
             raise ValueError("Protected attributes cannot be empty")
         return v
 
-    @validator("bias_threshold")
+    @field_validator("bias_threshold")
+    @classmethod
     def validate_bias_threshold(cls, v):
         if not (0.0 <= v <= 1.0):
             raise ValueError("Bias threshold must be between 0.0 and 1.0")
@@ -147,7 +153,8 @@ class CounterfactualRequest(BaseModel):
         None, description="Maximum distance for counterfactuals"
     )
 
-    @validator("num_counterfactuals")
+    @field_validator("num_counterfactuals")
+    @classmethod
     def validate_num_counterfactuals(cls, v):
         if not (1 <= v <= 20):
             raise ValueError("Number of counterfactuals must be between 1 and 20")

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+from datetime import datetime
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
@@ -260,12 +261,20 @@ async def experiments_page(
     experiments = []
 
     for exp_id, exp_data in experiment_service.experiments.items():
+        # Convert created_at string back to datetime object for template
+        created_at_str = exp_data["created_at"]
+        try:
+            created_at = datetime.fromisoformat(created_at_str.replace('Z', '+00:00'))
+        except (ValueError, AttributeError):
+            # Fallback to current time if parsing fails
+            created_at = datetime.utcnow()
+        
         experiments.append(
             {
                 "id": exp_id,
                 "name": exp_data["name"],
                 "description": exp_data.get("description", ""),
-                "created_at": exp_data["created_at"],
+                "created_at": created_at,
                 "run_count": len(exp_data.get("runs", [])),
             }
         )

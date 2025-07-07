@@ -10,7 +10,7 @@ from enum import Enum
 from typing import Any
 
 import numpy as np
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class TaskStatus(str, Enum):
@@ -82,7 +82,8 @@ class AnomalyScore(BaseSDKModel):
         None, ge=0.0, le=100.0, description="Percentile rank"
     )
 
-    @validator("value")
+    @field_validator("value")
+    @classmethod
     def validate_score(cls, v):
         if not 0.0 <= v <= 1.0:
             raise ValueError("Anomaly score must be between 0 and 1")
@@ -149,9 +150,10 @@ class Dataset(BaseSDKModel):
     storage_path: str | None = Field(None, description="Storage location")
     is_public: bool = Field(False, description="Whether dataset is publicly accessible")
 
-    @validator("feature_names")
-    def validate_feature_names(cls, v, values):
-        if "num_features" in values and len(v) != values["num_features"]:
+    @field_validator("feature_names")
+    @classmethod
+    def validate_feature_names(cls, v, info):
+        if hasattr(info, 'data') and "num_features" in info.data and len(v) != info.data["num_features"]:
             raise ValueError("Number of feature names must match num_features")
         return v
 
@@ -243,13 +245,15 @@ class DetectionResult(BaseSDKModel):
         None, description="Uncertainty estimates"
     )
 
-    @validator("predictions")
+    @field_validator("predictions")
+    @classmethod
     def validate_predictions(cls, v):
         if any(pred not in [0, 1] for pred in v):
             raise ValueError("Predictions must be 0 or 1")
         return v
 
-    @root_validator(skip_on_failure=True)
+    @model_validator(mode='before')
+    @classmethod
     def validate_consistency(cls, values):
         predictions = values.get("predictions", [])
         anomaly_scores = values.get("anomaly_scores", [])
