@@ -18,11 +18,11 @@ Example:
     @given("I am on the homepage")
     def given_homepage(page):
         page.goto("/")
-        
+
     @when("I click the login button")
     def when_click_login(page):
         page.click("button[data-testid='login']")
-        
+
     @then("I should see the dashboard")
     def then_see_dashboard(page):
         expect(page.locator("h1")).to_contain_text("Dashboard")

@@ -5,10 +5,12 @@ import json
 import os
 import time
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any, Dict, List
+
 import pytest
-from pytest_bdd import scenarios, given, when, then
-from playwright.sync_api import Page, Browser
+from playwright.sync_api import Browser, Page
+from pytest_bdd import given, scenarios, then, when
+
 from tests.ui.enhanced_page_objects.base_page import BasePage
 
 # Import all feature files
@@ -16,7 +18,7 @@ FEATURES_DIR = Path(__file__).parent / "features"
 
 # Load all scenarios from feature files
 scenarios(FEATURES_DIR / "data_scientist_workflows.feature")
-scenarios(FEATURES_DIR / "security_analyst_workflows.feature") 
+scenarios(FEATURES_DIR / "security_analyst_workflows.feature")
 scenarios(FEATURES_DIR / "ml_engineer_workflows.feature")
 scenarios(FEATURES_DIR / "user_workflows.feature")
 scenarios(FEATURES_DIR / "accessibility_compliance.feature")
@@ -32,7 +34,7 @@ BDD_CONFIG = {
     "timeout_per_scenario": 300,  # 5 minutes
     "browsers": ["chromium", "firefox", "webkit"],
     "devices": ["desktop", "tablet", "mobile"],
-    "environments": ["local", "staging", "production"]
+    "environments": ["local", "staging", "production"],
 }
 
 # Global test results tracking
@@ -44,28 +46,29 @@ test_results = {
     "execution_time": 0,
     "browser_results": {},
     "feature_results": {},
-    "error_summary": []
+    "error_summary": [],
 }
 
 
 class BDDTestRunner:
     """Comprehensive BDD test runner with advanced reporting."""
-    
+
     def __init__(self, config: Dict[str, Any] = None):
         self.config = config or BDD_CONFIG
         self.results = test_results.copy()
         self.start_time = None
         self.reports_dir = Path("test_reports/bdd")
         self.reports_dir.mkdir(parents=True, exist_ok=True)
-    
+
     def setup_test_environment(self, page: Page, scenario_name: str):
         """Setup test environment for each scenario."""
         # Clear any existing state
         page.evaluate("localStorage.clear()")
         page.evaluate("sessionStorage.clear()")
-        
+
         # Set test metadata
-        page.add_init_script(f"""
+        page.add_init_script(
+            f"""
             window.testMetadata = {{
                 scenario: '{scenario_name}',
                 timestamp: '{time.time()}',
@@ -75,22 +78,23 @@ class BDDTestRunner:
                     height: {page.viewport_size['height']}
                 }}
             }};
-        """)
-        
+        """
+        )
+
         # Setup error tracking
         page.on("pageerror", lambda error: self._log_page_error(error, scenario_name))
         page.on("console", lambda msg: self._log_console_message(msg, scenario_name))
-    
+
     def _log_page_error(self, error, scenario_name: str):
         """Log page errors during scenario execution."""
         error_info = {
             "scenario": scenario_name,
             "error": str(error),
             "timestamp": time.time(),
-            "type": "page_error"
+            "type": "page_error",
         }
         self.results["error_summary"].append(error_info)
-    
+
     def _log_console_message(self, msg, scenario_name: str):
         """Log console messages during scenario execution."""
         if msg.type in ["error", "warning"]:
@@ -98,14 +102,14 @@ class BDDTestRunner:
                 "scenario": scenario_name,
                 "message": msg.text,
                 "type": msg.type,
-                "timestamp": time.time()
+                "timestamp": time.time(),
             }
             self.results["error_summary"].append(log_info)
-    
+
     async def run_scenario_with_retry(self, scenario_func, *args, **kwargs):
         """Run scenario with retry logic."""
         max_retries = self.config.get("retry_failed_scenarios", 2)
-        
+
         for attempt in range(max_retries + 1):
             try:
                 await scenario_func(*args, **kwargs)
@@ -113,35 +117,37 @@ class BDDTestRunner:
             except Exception as e:
                 if attempt == max_retries:
                     self.results["scenarios_failed"] += 1
-                    self._log_scenario_failure(scenario_func.__name__, str(e), attempt + 1)
+                    self._log_scenario_failure(
+                        scenario_func.__name__, str(e), attempt + 1
+                    )
                     return False
                 else:
                     # Wait before retry
-                    await asyncio.sleep(2 ** attempt)
-        
+                    await asyncio.sleep(2**attempt)
+
         return False
-    
+
     def _log_scenario_failure(self, scenario_name: str, error: str, attempts: int):
         """Log scenario failure details."""
         failure_info = {
             "scenario": scenario_name,
             "error": error,
             "attempts": attempts,
-            "timestamp": time.time()
+            "timestamp": time.time(),
         }
         self.results["error_summary"].append(failure_info)
-    
+
     def generate_comprehensive_report(self):
         """Generate comprehensive BDD test report."""
         self.results["execution_time"] = time.time() - (self.start_time or time.time())
-        
+
         # Calculate success rate
         total_scenarios = self.results["scenarios_run"]
         if total_scenarios > 0:
             success_rate = (self.results["scenarios_passed"] / total_scenarios) * 100
         else:
             success_rate = 0
-        
+
         report = {
             "summary": {
                 "total_scenarios": total_scenarios,
@@ -149,24 +155,24 @@ class BDDTestRunner:
                 "failed": self.results["scenarios_failed"],
                 "skipped": self.results["scenarios_skipped"],
                 "success_rate": round(success_rate, 2),
-                "execution_time": round(self.results["execution_time"], 2)
+                "execution_time": round(self.results["execution_time"], 2),
             },
             "browser_breakdown": self.results.get("browser_results", {}),
             "feature_breakdown": self.results.get("feature_results", {}),
             "error_analysis": self._analyze_errors(),
             "performance_metrics": self._calculate_performance_metrics(),
             "recommendations": self._generate_recommendations(),
-            "timestamp": time.time()
+            "timestamp": time.time(),
         }
-        
+
         # Save JSON report
         json_report_path = self.reports_dir / "bdd_comprehensive_report.json"
-        with open(json_report_path, 'w') as f:
+        with open(json_report_path, "w") as f:
             json.dump(report, f, indent=2)
-        
+
         # Generate HTML report
         html_report_path = self._generate_html_report(report)
-        
+
         print(f"\n🎯 BDD Test Execution Summary")
         print(f"{'='*50}")
         print(f"Total Scenarios: {total_scenarios}")
@@ -178,78 +184,106 @@ class BDDTestRunner:
         print(f"\n📊 Reports Generated:")
         print(f"  JSON: {json_report_path}")
         print(f"  HTML: {html_report_path}")
-        
+
         return report
-    
+
     def _analyze_errors(self):
         """Analyze error patterns and frequency."""
         error_analysis = {
             "total_errors": len(self.results["error_summary"]),
             "error_types": {},
             "most_common_errors": [],
-            "error_patterns": []
+            "error_patterns": [],
         }
-        
+
         # Group errors by type
         for error in self.results["error_summary"]:
             error_type = error.get("type", "unknown")
             if error_type not in error_analysis["error_types"]:
                 error_analysis["error_types"][error_type] = 0
             error_analysis["error_types"][error_type] += 1
-        
+
         # Find most common errors
-        error_messages = [error.get("error", error.get("message", "")) for error in self.results["error_summary"]]
+        error_messages = [
+            error.get("error", error.get("message", ""))
+            for error in self.results["error_summary"]
+        ]
         from collections import Counter
+
         error_counter = Counter(error_messages)
         error_analysis["most_common_errors"] = error_counter.most_common(5)
-        
+
         return error_analysis
-    
+
     def _calculate_performance_metrics(self):
         """Calculate performance metrics from test execution."""
         return {
-            "average_scenario_time": self.results["execution_time"] / max(self.results["scenarios_run"], 1),
-            "scenarios_per_minute": (self.results["scenarios_run"] / (self.results["execution_time"] / 60)) if self.results["execution_time"] > 0 else 0,
-            "failure_rate": (self.results["scenarios_failed"] / max(self.results["scenarios_run"], 1)) * 100,
-            "retry_rate": len([e for e in self.results["error_summary"] if "attempts" in e and e["attempts"] > 1])
+            "average_scenario_time": self.results["execution_time"]
+            / max(self.results["scenarios_run"], 1),
+            "scenarios_per_minute": (
+                (self.results["scenarios_run"] / (self.results["execution_time"] / 60))
+                if self.results["execution_time"] > 0
+                else 0
+            ),
+            "failure_rate": (
+                self.results["scenarios_failed"] / max(self.results["scenarios_run"], 1)
+            )
+            * 100,
+            "retry_rate": len(
+                [
+                    e
+                    for e in self.results["error_summary"]
+                    if "attempts" in e and e["attempts"] > 1
+                ]
+            ),
         }
-    
+
     def _generate_recommendations(self):
         """Generate recommendations based on test results."""
         recommendations = []
-        
+
         # Performance recommendations
-        avg_time = self.results["execution_time"] / max(self.results["scenarios_run"], 1)
+        avg_time = self.results["execution_time"] / max(
+            self.results["scenarios_run"], 1
+        )
         if avg_time > 60:
-            recommendations.append({
-                "category": "Performance",
-                "priority": "high",
-                "recommendation": "Scenario execution time is high. Consider parallelization or test optimization.",
-                "details": f"Average scenario time: {avg_time:.1f}s"
-            })
-        
+            recommendations.append(
+                {
+                    "category": "Performance",
+                    "priority": "high",
+                    "recommendation": "Scenario execution time is high. Consider parallelization or test optimization.",
+                    "details": f"Average scenario time: {avg_time:.1f}s",
+                }
+            )
+
         # Reliability recommendations
-        failure_rate = (self.results["scenarios_failed"] / max(self.results["scenarios_run"], 1)) * 100
+        failure_rate = (
+            self.results["scenarios_failed"] / max(self.results["scenarios_run"], 1)
+        ) * 100
         if failure_rate > 10:
-            recommendations.append({
-                "category": "Reliability",
-                "priority": "high", 
-                "recommendation": "High failure rate detected. Review failing scenarios and improve test stability.",
-                "details": f"Failure rate: {failure_rate:.1f}%"
-            })
-        
+            recommendations.append(
+                {
+                    "category": "Reliability",
+                    "priority": "high",
+                    "recommendation": "High failure rate detected. Review failing scenarios and improve test stability.",
+                    "details": f"Failure rate: {failure_rate:.1f}%",
+                }
+            )
+
         # Error pattern recommendations
         error_types = self._analyze_errors()["error_types"]
         if "page_error" in error_types and error_types["page_error"] > 5:
-            recommendations.append({
-                "category": "Application Quality",
-                "priority": "medium",
-                "recommendation": "Multiple page errors detected. Review application error handling.",
-                "details": f"Page errors: {error_types['page_error']}"
-            })
-        
+            recommendations.append(
+                {
+                    "category": "Application Quality",
+                    "priority": "medium",
+                    "recommendation": "Multiple page errors detected. Review application error handling.",
+                    "details": f"Page errors: {error_types['page_error']}",
+                }
+            )
+
         return recommendations
-    
+
     def _generate_html_report(self, report_data: Dict[str, Any]) -> Path:
         """Generate HTML report from test data."""
         html_template = """
@@ -347,40 +381,42 @@ class BDDTestRunner:
         </body>
         </html>
         """
-        
+
         # Format recommendations section
         recommendations_html = ""
         if report_data.get("recommendations"):
-            recommendations_html = '''
+            recommendations_html = """
                 <div class="section">
                     <h2>💡 Recommendations</h2>
                     <div class="recommendations">
-            '''
+            """
             for rec in report_data["recommendations"]:
-                recommendations_html += f'''
+                recommendations_html += f"""
                     <div class="recommendation">
                         <span class="priority {rec['priority']}">{rec['priority']}</span> - 
                         <strong>{rec['category']}:</strong> {rec['recommendation']}
                         <br><small>{rec['details']}</small>
                     </div>
-                '''
+                """
             recommendations_html += "</div></div>"
-        
+
         # Format errors section
         errors_html = ""
         error_analysis = report_data.get("error_analysis", {})
         if error_analysis.get("total_errors", 0) > 0:
-            errors_html = f'''
+            errors_html = f"""
                 <div class="section">
                     <h2>🐛 Error Analysis</h2>
                     <div class="error-list">
                         <p><strong>Total Errors:</strong> {error_analysis['total_errors']}</p>
                         <h4>Most Common Errors:</h4>
-            '''
+            """
             for error, count in error_analysis.get("most_common_errors", [])[:3]:
-                errors_html += f"<div class='error-item'>{error} (occurred {count} times)</div>"
+                errors_html += (
+                    f"<div class='error-item'>{error} (occurred {count} times)</div>"
+                )
             errors_html += "</div></div>"
-        
+
         # Fill template
         html_content = html_template.format(
             timestamp=time.strftime("%Y-%m-%d %H:%M:%S"),
@@ -389,17 +425,21 @@ class BDDTestRunner:
             failed=report_data["summary"]["failed"],
             success_rate=report_data["summary"]["success_rate"],
             execution_time=report_data["summary"]["execution_time"],
-            avg_scenario_time=report_data["performance_metrics"]["average_scenario_time"],
-            scenarios_per_minute=report_data["performance_metrics"]["scenarios_per_minute"],
+            avg_scenario_time=report_data["performance_metrics"][
+                "average_scenario_time"
+            ],
+            scenarios_per_minute=report_data["performance_metrics"][
+                "scenarios_per_minute"
+            ],
             failure_rate=report_data["performance_metrics"]["failure_rate"],
             recommendations_section=recommendations_html,
-            errors_section=errors_html
+            errors_section=errors_html,
         )
-        
+
         html_report_path = self.reports_dir / "bdd_comprehensive_report.html"
-        with open(html_report_path, 'w') as f:
+        with open(html_report_path, "w") as f:
             f.write(html_content)
-        
+
         return html_report_path
 
 
@@ -409,23 +449,25 @@ def bdd_runner():
     """Create BDD test runner instance."""
     return BDDTestRunner()
 
+
 @pytest.fixture(autouse=True)
 def setup_scenario(request, page: Page, bdd_runner: BDDTestRunner):
     """Setup each scenario with proper context."""
     scenario_name = request.node.name
     bdd_runner.setup_test_environment(page, scenario_name)
     bdd_runner.results["scenarios_run"] += 1
-    
+
     if not bdd_runner.start_time:
         bdd_runner.start_time = time.time()
-    
+
     yield
-    
+
     # Check if scenario passed or failed
-    if hasattr(request.node, 'rep_call') and request.node.rep_call.passed:
+    if hasattr(request.node, "rep_call") and request.node.rep_call.passed:
         bdd_runner.results["scenarios_passed"] += 1
-    elif hasattr(request.node, 'rep_call') and request.node.rep_call.failed:
+    elif hasattr(request.node, "rep_call") and request.node.rep_call.failed:
         bdd_runner.results["scenarios_failed"] += 1
+
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
@@ -434,10 +476,12 @@ def pytest_runtest_makereport(item, call):
     rep = outcome.get_result()
     setattr(item, "rep_" + rep.when, rep)
 
+
 def pytest_sessionfinish(session, exitstatus):
     """Generate final report after all tests complete."""
-    if hasattr(session, '_bdd_runner'):
+    if hasattr(session, "_bdd_runner"):
         session._bdd_runner.generate_comprehensive_report()
+
 
 @pytest.fixture(scope="session", autouse=True)
 def session_bdd_runner(request):
@@ -451,19 +495,19 @@ def session_bdd_runner(request):
 # Example test class for organizing BDD tests
 class TestDataScientistWorkflows:
     """Data scientist workflow BDD tests."""
-    
+
     @pytest.mark.critical
     @pytest.mark.smoke
     def test_complete_research_workflow_financial_fraud_detection(self):
         """Test complete research workflow for financial fraud detection."""
         pass  # Implementation handled by step definitions
-    
+
     @pytest.mark.analysis
     @pytest.mark.advanced
     def test_multi_algorithm_comparison_study(self):
         """Test multi-algorithm comparison study."""
         pass
-    
+
     @pytest.mark.preprocessing
     @pytest.mark.data_quality
     def test_advanced_data_preprocessing_workflow(self):
@@ -473,14 +517,14 @@ class TestDataScientistWorkflows:
 
 class TestSecurityAnalystWorkflows:
     """Security analyst workflow BDD tests."""
-    
+
     @pytest.mark.critical
     @pytest.mark.security
     @pytest.mark.real_time
     def test_real_time_network_traffic_monitoring(self):
         """Test real-time network traffic monitoring."""
         pass
-    
+
     @pytest.mark.incident_response
     @pytest.mark.investigation
     def test_security_incident_investigation_workflow(self):
@@ -490,14 +534,14 @@ class TestSecurityAnalystWorkflows:
 
 class TestMLEngineerWorkflows:
     """ML engineer workflow BDD tests."""
-    
+
     @pytest.mark.deployment
     @pytest.mark.production
     @pytest.mark.critical
     def test_production_model_deployment_pipeline(self):
         """Test production model deployment pipeline."""
         pass
-    
+
     @pytest.mark.monitoring
     @pytest.mark.observability
     def test_production_model_monitoring_and_observability(self):
@@ -508,17 +552,19 @@ class TestMLEngineerWorkflows:
 # CLI integration for running BDD tests
 if __name__ == "__main__":
     # Run BDD tests with comprehensive reporting
-    exit_code = pytest.main([
-        __file__,
-        "-v",
-        "--html=test_reports/bdd/bdd_test_report.html",
-        "--self-contained-html",
-        "--tb=short",
-        f"--maxfail=10"
-    ])
-    
+    exit_code = pytest.main(
+        [
+            __file__,
+            "-v",
+            "--html=test_reports/bdd/bdd_test_report.html",
+            "--self-contained-html",
+            "--tb=short",
+            f"--maxfail=10",
+        ]
+    )
+
     print(f"\n🎯 BDD Test Execution Complete")
     print(f"Exit Code: {exit_code}")
     print(f"Reports available in: test_reports/bdd/")
-    
+
     exit(exit_code)
