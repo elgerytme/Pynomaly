@@ -1,6 +1,5 @@
 """WebSocket endpoints for real-time updates."""
 
-from __future__ import annotations
 
 import json
 import logging
