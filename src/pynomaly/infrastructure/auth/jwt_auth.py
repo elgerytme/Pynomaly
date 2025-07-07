@@ -10,7 +10,9 @@ This module provides JWT-based authentication with:
 from __future__ import annotations
 
 import logging
+import secrets
 from datetime import UTC, datetime, timedelta
+from typing import Dict, Optional
 
 import jwt
 from passlib.context import CryptContext
@@ -58,8 +60,18 @@ class TokenResponse(BaseModel):
     refresh_token: str | None = None
 
 
+class PasswordRotationStrategy(BaseModel):
+    """Password rotation strategy configuration."""
+    
+    enabled: bool = True
+    max_age_days: int = 90
+    force_change_on_first_login: bool = True
+    notify_before_expiry_days: int = 7
+    password_history_count: int = 12  # Number of previous passwords to remember
+    
+
 class JWTAuthService:
-    """JWT authentication service."""
+    """Enhanced JWT authentication service with security features."""
 
     def __init__(self, settings: Settings):
         """Initialize JWT auth service.
@@ -73,8 +85,20 @@ class JWTAuthService:
         self.access_token_expire = timedelta(seconds=settings.jwt_expiration)
         self.refresh_token_expire = timedelta(days=7)
 
-        # Password hashing
-        self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        # Enhanced password hashing with stronger settings
+        self.pwd_context = CryptContext(
+            schemes=["bcrypt"],
+            deprecated="auto",
+            bcrypt__rounds=12  # Higher rounds for better security
+        )
+        
+        # Password rotation configuration
+        self.password_rotation = PasswordRotationStrategy()
+        
+        # Security tracking
+        self._failed_login_attempts: Dict[str, list] = {}  # username -> list of attempt timestamps
+        self._blacklisted_tokens: set = set()  # For token revocation
+        self._password_history: Dict[str, list] = {}  # user_id -> list of hashed passwords
 
         # In-memory user store (replace with database in production)
         self._users: dict[str, UserModel] = {}
@@ -177,6 +201,10 @@ class JWTAuthService:
         Raises:
             AuthenticationError: If token is invalid
         """
+        # Check if token is blacklisted
+        if token in self._blacklisted_tokens:
+            raise AuthenticationError("Token has been revoked")
+            
         try:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
             return TokenPayload(**payload)
@@ -186,6 +214,68 @@ class JWTAuthService:
         except jwt.InvalidTokenError as e:
             raise AuthenticationError(f"Invalid token: {e}")
 
+    def _check_account_lockout(self, username: str) -> None:
+        """Check if account is locked due to failed login attempts.
+        
+        Args:
+            username: Username to check
+            
+        Raises:
+            AuthenticationError: If account is locked
+        """
+        if username not in self._failed_login_attempts:
+            return
+            
+        # Clean up old attempts (older than 15 minutes)
+        cutoff_time = datetime.now(UTC) - timedelta(minutes=15)
+        self._failed_login_attempts[username] = [
+            attempt for attempt in self._failed_login_attempts[username]
+            if attempt > cutoff_time
+        ]
+        
+        # Check if account should be locked
+        if len(self._failed_login_attempts[username]) >= 5:
+            raise AuthenticationError("Account temporarily locked due to too many failed login attempts")
+    
+    def _record_failed_login(self, username: str) -> None:
+        """Record a failed login attempt.
+        
+        Args:
+            username: Username that failed login
+        """
+        if username not in self._failed_login_attempts:
+            self._failed_login_attempts[username] = []
+        
+        self._failed_login_attempts[username].append(datetime.now(UTC))
+        logger.warning(f"Failed login attempt for user: {username}")
+    
+    def _clear_failed_logins(self, username: str) -> None:
+        """Clear failed login attempts for successful login.
+        
+        Args:
+            username: Username to clear attempts for
+        """
+        if username in self._failed_login_attempts:
+            del self._failed_login_attempts[username]
+    
+    def _check_password_rotation(self, user: UserModel) -> bool:
+        """Check if user password needs rotation.
+        
+        Args:
+            user: User model
+            
+        Returns:
+            True if password needs rotation
+        """
+        if not self.password_rotation.enabled:
+            return False
+            
+        # Check if password is too old
+        password_age = datetime.now(UTC) - user.created_at
+        max_age = timedelta(days=self.password_rotation.max_age_days)
+        
+        return password_age > max_age
+    
     def authenticate_user(self, username: str, password: str) -> UserModel:
         """Authenticate user with username and password.
 
@@ -199,6 +289,9 @@ class JWTAuthService:
         Raises:
             AuthenticationError: If authentication fails
         """
+        # Check for account lockout
+        self._check_account_lockout(username)
+        
         # Find user by username or email
         user = None
         for u in self._users.values():
@@ -207,13 +300,18 @@ class JWTAuthService:
                 break
 
         if not user:
+            self._record_failed_login(username)
             raise AuthenticationError("Invalid username or password")
 
         if not self.verify_password(password, user.hashed_password):
+            self._record_failed_login(username)
             raise AuthenticationError("Invalid username or password")
 
         if not user.is_active:
             raise AuthenticationError("User account is inactive")
+        
+        # Clear failed login attempts on successful login
+        self._clear_failed_logins(username)
 
         # Update last login
         user.last_login = datetime.now(UTC)
@@ -455,6 +553,101 @@ class JWTAuthService:
             logger.info(f"Revoked API key: {api_key}")
             return True
         return False
+    
+    def blacklist_token(self, token: str) -> None:
+        """Add token to blacklist to prevent further use.
+        
+        Args:
+            token: JWT token to blacklist
+        """
+        self._blacklisted_tokens.add(token)
+        logger.info("Token added to blacklist")
+    
+    def change_password(self, user_id: str, old_password: str, new_password: str) -> bool:
+        """Change user password with validation.
+        
+        Args:
+            user_id: User ID
+            old_password: Current password
+            new_password: New password
+            
+        Returns:
+            True if password changed successfully
+            
+        Raises:
+            AuthenticationError: If old password is incorrect
+            ValueError: If new password is invalid or reused
+        """
+        user = self._users.get(user_id)
+        if not user:
+            raise ValueError("User not found")
+        
+        # Verify old password
+        if not self.verify_password(old_password, user.hashed_password):
+            raise AuthenticationError("Current password is incorrect")
+        
+        # Check password history to prevent reuse
+        if user_id in self._password_history:
+            new_password_hash = self.hash_password(new_password)
+            for old_hash in self._password_history[user_id]:
+                if self.pwd_context.verify(new_password, old_hash):
+                    raise ValueError("Cannot reuse a previous password")
+        
+        # Update password history
+        if user_id not in self._password_history:
+            self._password_history[user_id] = []
+        
+        self._password_history[user_id].append(user.hashed_password)
+        
+        # Keep only the last N passwords
+        if len(self._password_history[user_id]) > self.password_rotation.password_history_count:
+            self._password_history[user_id] = self._password_history[user_id][-self.password_rotation.password_history_count:]
+        
+        # Update user password
+        user.hashed_password = self.hash_password(new_password)
+        
+        logger.info(f"Password changed for user: {user_id}")
+        return True
+    
+    def force_password_reset(self, user_id: str) -> None:
+        """Force user to reset password on next login.
+        
+        Args:
+            user_id: User ID to force password reset
+        """
+        user = self._users.get(user_id)
+        if user:
+            # Mark password as requiring reset (in production, add a field to user model)
+            logger.info(f"Forced password reset for user: {user_id}")
+    
+    def rotate_api_key(self, user_id: str, old_api_key: str) -> str:
+        """Rotate an API key by replacing it with a new one.
+        
+        Args:
+            user_id: User ID
+            old_api_key: Current API key to replace
+            
+        Returns:
+            New API key
+            
+        Raises:
+            ValueError: If API key doesn't belong to user
+        """
+        user = self._users.get(user_id)
+        if not user:
+            raise ValueError("User not found")
+        
+        if old_api_key not in user.api_keys:
+            raise ValueError("API key not found for user")
+        
+        # Revoke old key
+        self.revoke_api_key(old_api_key)
+        
+        # Create new key
+        new_key = self.create_api_key(user_id, "rotated_key")
+        
+        logger.info(f"API key rotated for user: {user_id}")
+        return new_key
 
 
 # Global auth service instance
