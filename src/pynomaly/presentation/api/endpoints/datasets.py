@@ -1,6 +1,5 @@
 """Dataset management endpoints."""
 
-from __future__ import annotations
 
 import io
 from uuid import UUID
