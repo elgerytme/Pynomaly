@@ -8,7 +8,7 @@ import os
 import traceback
 
 # Add src to path
-sys.path.insert(0, 'src')
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 def test_app_creation():
     """Test FastAPI app creation and basic functionality"""

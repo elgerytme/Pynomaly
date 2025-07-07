@@ -4,7 +4,7 @@
 import os
 import sys
 
-sys.path.insert(0, '/mnt/c/Users/andre/Pynomaly/src')
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 try:
     # Test if the main API module can be imported

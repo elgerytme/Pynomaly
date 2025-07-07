@@ -4,11 +4,12 @@ Test authentication flows with the new simplified dependencies
 """
 
 import sys
+import os
 import traceback
 from unittest.mock import Mock, AsyncMock
 
 # Add src to path
-sys.path.insert(0, 'src')
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 def test_auth_deps_functionality():
     """Test that auth dependencies work correctly"""
