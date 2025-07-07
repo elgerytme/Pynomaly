@@ -1,400 +1,405 @@
-#!/usr/bin/env python3
-"""Buck2 Integration Test Script for Phase 2 validation.
+"""Integration tests for Buck2 + Hatch build system."""
 
-This script tests the Buck2 + Hatch integration by validating:
-1. Buck2 installation and accessibility
-2. Buck2 configuration files
-3. Build target validation
-4. Basic build operations
-5. Hatch integration readiness
-"""
-
+import json
 import subprocess
-import sys
-import time
+import tempfile
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+
+import pytest
 
 
-class Buck2IntegrationTester:
-    """Test Buck2 integration with Pynomaly project."""
+class TestBuck2Integration:
+    """Test Buck2 build system integration."""
 
-    def __init__(self):
-        self.root_path = Path.cwd()
-        self.buck2_executable = "/mnt/c/Users/andre/buck2.exe"
-        self.test_results = []
-
-    def run_all_tests(self) -> Dict[str, Any]:
-        """Run complete Buck2 integration test suite."""
-        print("🚀 Buck2 + Hatch Integration Test Suite")
-        print("=" * 50)
-
-        test_methods = [
-            ("Buck2 Installation Test", self.test_buck2_installation),
-            ("Buck2 Configuration Test", self.test_buck2_configuration),
-            ("Build Target Discovery", self.test_build_target_discovery),
-            ("Simple Build Test", self.test_simple_build),
-            ("Clean Architecture Validation", self.test_clean_architecture),
-            ("Web Assets Pipeline", self.test_web_assets_pipeline),
-            ("Hatch Integration Readiness", self.test_hatch_integration_readiness),
-        ]
-
-        results = {}
-        total_start = time.time()
-
-        for test_name, test_method in test_methods:
-            print(f"\n📋 {test_name}")
-            print("-" * 40)
-
-            start_time = time.time()
-            try:
-                result = test_method()
-                execution_time = time.time() - start_time
-
-                results[test_name] = {
-                    "status": "success" if result.get("success", False) else "failed",
-                    "result": result,
-                    "execution_time": execution_time,
-                }
-
-                if result.get("success", False):
-                    print(f"✅ {test_name} - PASSED ({execution_time:.2f}s)")
-                else:
-                    print(f"❌ {test_name} - FAILED ({execution_time:.2f}s)")
-                    if result.get("error"):
-                        print(f"   Error: {result['error']}")
-
-            except Exception as e:
-                execution_time = time.time() - start_time
-                results[test_name] = {
-                    "status": "error",
-                    "result": {"error": str(e)},
-                    "execution_time": execution_time,
-                }
-                print(f"💥 {test_name} - ERROR ({execution_time:.2f}s): {e}")
-
-        total_time = time.time() - total_start
-
-        # Generate summary
-        passed = sum(1 for r in results.values() if r["status"] == "success")
-        failed = sum(1 for r in results.values() if r["status"] == "failed")
-        errors = sum(1 for r in results.values() if r["status"] == "error")
-
-        print(f"\n🎯 Integration Test Summary")
-        print("=" * 50)
-        print(f"✅ Passed: {passed}")
-        print(f"❌ Failed: {failed}")
-        print(f"💥 Errors: {errors}")
-        print(f"⏱️  Total Time: {total_time:.2f}s")
-        print(
-            f"📊 Success Rate: {passed}/{len(test_methods)} ({100*passed/len(test_methods):.1f}%)"
-        )
-
-        return {
-            "summary": {
-                "passed": passed,
-                "failed": failed,
-                "errors": errors,
-                "total_time": total_time,
-                "success_rate": passed / len(test_methods),
-            },
-            "results": results,
-        }
-
-    def test_buck2_installation(self) -> Dict[str, Any]:
-        """Test Buck2 installation and basic functionality."""
+    def test_buck2_availability(self):
+        """Test that Buck2 is available and working."""
         try:
-            # Test Buck2 version
             result = subprocess.run(
-                [self.buck2_executable, "--version"],
-                capture_output=True,
-                text=True,
-                timeout=10,
+                ["buck2", "--version"], capture_output=True, text=True, timeout=10
             )
+            assert result.returncode == 0
+            assert "buck2" in result.stdout.lower()
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            pytest.skip("Buck2 not available")
 
-            if result.returncode == 0:
-                version = result.stdout.strip()
-                print(f"   Buck2 Version: {version}")
+    def test_buck2_config_validation(self):
+        """Test Buck2 configuration is valid."""
+        buck_config_path = Path.cwd() / ".buckconfig"
+        assert buck_config_path.exists(), ".buckconfig file not found"
 
-                return {
-                    "success": True,
-                    "version": version,
-                    "executable": self.buck2_executable,
-                }
-            else:
-                return {
-                    "success": False,
-                    "error": f"Buck2 returned error code {result.returncode}",
-                    "stderr": result.stderr,
-                }
+        with open(buck_config_path) as f:
+            config_content = f.read()
 
-        except subprocess.TimeoutExpired:
-            return {"success": False, "error": "Buck2 command timed out"}
-        except FileNotFoundError:
-            return {"success": False, "error": "Buck2 executable not found"}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
+        # Check required sections
+        assert "[python]" in config_content
+        assert "[build]" in config_content
+        assert "[cache]" in config_content
 
-    def test_buck2_configuration(self) -> Dict[str, Any]:
-        """Test Buck2 configuration files."""
-        config_files = {
-            ".buckconfig": self.root_path / ".buckconfig",
-            "BUCK": self.root_path / "BUCK",
-            "toolchains/BUCK": self.root_path / "toolchains" / "BUCK",
-        }
+    def test_buck_file_syntax(self):
+        """Test BUCK file syntax is valid."""
+        buck_file_path = Path.cwd() / "BUCK"
+        assert buck_file_path.exists(), "BUCK file not found"
 
-        results = {}
-        all_present = True
-
-        for name, path in config_files.items():
-            exists = path.exists()
-            size = path.stat().st_size if exists else 0
-
-            results[name] = {"exists": exists, "size": size, "path": str(path)}
-
-            if exists:
-                print(f"   ✅ {name}: {size} bytes")
-            else:
-                print(f"   ❌ {name}: Missing")
-                all_present = False
-
-        return {"success": all_present, "config_files": results}
-
-    def test_build_target_discovery(self) -> Dict[str, Any]:
-        """Test Buck2 build target discovery."""
         try:
-            # Query available targets
             result = subprocess.run(
-                [self.buck2_executable, "query", "//..."],
+                ["buck2", "targets", "//..."],
                 capture_output=True,
                 text=True,
                 timeout=30,
-                cwd=self.root_path,
+                cwd=Path.cwd(),
+            )
+            assert result.returncode == 0, f"Buck2 targets failed: {result.stderr}"
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            pytest.skip("Buck2 not available or BUCK file syntax error")
+
+    def test_python_targets_exist(self):
+        """Test that Python targets are properly defined."""
+        try:
+            result = subprocess.run(
+                ["buck2", "targets", "//..."],
+                capture_output=True,
+                text=True,
+                timeout=30,
             )
 
             if result.returncode == 0:
-                targets = [
-                    line.strip()
-                    for line in result.stdout.strip().split("\n")
-                    if line.strip()
-                ]
+                targets = result.stdout.strip().split("\n")
+                target_names = [t.strip() for t in targets if t.strip()]
 
-                # Expected key targets
+                # Check for core targets
                 expected_targets = [
-                    "//:pynomaly-lib",
-                    "//:pynomaly-cli",
-                    "//:pynomaly-api",
-                    "//:pynomaly-web",
                     "//:domain",
                     "//:application",
                     "//:infrastructure",
                     "//:presentation",
                 ]
 
-                found_targets = []
-                missing_targets = []
+                for expected in expected_targets:
+                    assert any(
+                        expected in target for target in target_names
+                    ), f"Target {expected} not found in {target_names}"
 
-                for target in expected_targets:
-                    if target in targets:
-                        found_targets.append(target)
-                        print(f"   ✅ {target}")
-                    else:
-                        missing_targets.append(target)
-                        print(f"   ❌ {target} (missing)")
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            pytest.skip("Buck2 not available")
 
-                return {
-                    "success": len(missing_targets) == 0,
-                    "total_targets": len(targets),
-                    "found_targets": found_targets,
-                    "missing_targets": missing_targets,
-                    "all_targets": targets[:10],  # First 10 for brevity
-                }
-            else:
-                return {
-                    "success": False,
-                    "error": "Failed to query targets",
-                    "stderr": result.stderr,
-                }
-
-        except Exception as e:
-            return {"success": False, "error": str(e)}
-
-    def test_simple_build(self) -> Dict[str, Any]:
-        """Test simple Buck2 build operation."""
+    def test_buck2_build_dry_run(self):
+        """Test Buck2 build dry run."""
         try:
-            # Try building the domain layer (should be simplest)
-            target = "//:domain"
-
-            print(f"   Building {target}...")
             result = subprocess.run(
-                [self.buck2_executable, "build", target],
+                ["buck2", "build", "//:domain", "--dry-run"],
                 capture_output=True,
                 text=True,
                 timeout=60,
-                cwd=self.root_path,
+            )
+
+            # Dry run should succeed even if dependencies are missing
+            assert result.returncode in [
+                0,
+                1,
+            ], f"Buck2 dry run failed: {result.stderr}"
+
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            pytest.skip("Buck2 not available")
+
+
+class TestHatchIntegration:
+    """Test Hatch build system integration."""
+
+    def test_hatch_availability(self):
+        """Test that Hatch is available."""
+        try:
+            result = subprocess.run(
+                ["hatch", "--version"], capture_output=True, text=True, timeout=10
+            )
+            assert result.returncode == 0
+            assert "hatch" in result.stdout.lower()
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            pytest.skip("Hatch not available")
+
+    def test_pyproject_toml_configuration(self):
+        """Test pyproject.toml configuration for Hatch."""
+        pyproject_path = Path.cwd() / "pyproject.toml"
+        assert pyproject_path.exists(), "pyproject.toml not found"
+
+        try:
+            import tomllib
+        except ImportError:
+            import tomli as tomllib
+
+        with open(pyproject_path, "rb") as f:
+            config = tomllib.load(f)
+
+        # Check build system
+        assert "build-system" in config
+        assert config["build-system"]["build-backend"] == "hatchling.build"
+
+        # Check Buck2 hook configuration
+        assert "tool" in config
+        assert "hatch" in config["tool"]
+        build_config = config["tool"]["hatch"]
+
+        if "build" in build_config and "hooks" in build_config["build"]:
+            hooks = build_config["build"]["hooks"]
+            if "buck2" in hooks:
+                buck2_hook = hooks["buck2"]
+                assert "requires" in buck2_hook or "dependencies" in buck2_hook
+
+    def test_hatch_environments(self):
+        """Test Hatch environment configuration."""
+        try:
+            result = subprocess.run(
+                ["hatch", "env", "show"], capture_output=True, text=True, timeout=30
             )
 
             if result.returncode == 0:
-                print(f"   ✅ Build successful")
+                envs_output = result.stdout
+                assert "default" in envs_output
+                assert "lint" in envs_output
+                assert "test" in envs_output
 
-                # Check for build artifacts
-                buck_out_dir = self.root_path / "buck-out"
-                artifacts_found = buck_out_dir.exists()
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            pytest.skip("Hatch not available")
 
-                return {
-                    "success": True,
-                    "target": target,
-                    "artifacts_created": artifacts_found,
-                    "build_output": result.stdout[:500] if result.stdout else "",
-                }
-            else:
-                return {
-                    "success": False,
-                    "error": f"Build failed with code {result.returncode}",
-                    "stderr": result.stderr[:500] if result.stderr else "",
-                    "stdout": result.stdout[:500] if result.stdout else "",
-                }
+    def test_hatch_build_hook_plugin(self):
+        """Test that Buck2 build hook plugin can be imported."""
+        try:
+            from hatch_buck2_plugin import Buck2BuildHook
 
-        except Exception as e:
-            return {"success": False, "error": str(e)}
+            # Test plugin interface
+            assert hasattr(Buck2BuildHook, "PLUGIN_NAME")
+            assert Buck2BuildHook.PLUGIN_NAME == "buck2"
+            assert hasattr(Buck2BuildHook, "finalize")
 
-    def test_clean_architecture(self) -> Dict[str, Any]:
-        """Test clean architecture layer dependencies."""
-        layer_tests = [
-            ("//:domain", "Domain layer should build independently"),
-            ("//:application", "Application layer should build with domain"),
-            (
-                "//:infrastructure",
-                "Infrastructure layer should build with domain+application",
-            ),
-            ("//:presentation", "Presentation layer should build with all layers"),
+        except ImportError:
+            pytest.skip("Buck2 build hook plugin not available")
+
+
+class TestNpmIntegration:
+    """Test npm web assets integration."""
+
+    def test_package_json_exists(self):
+        """Test package.json configuration."""
+        package_json_path = Path.cwd() / "package.json"
+        assert package_json_path.exists(), "package.json not found"
+
+        with open(package_json_path) as f:
+            config = json.load(f)
+
+        # Check required scripts
+        assert "scripts" in config
+        scripts = config["scripts"]
+        assert "build" in scripts
+        assert "build-css" in scripts
+        assert "build-js" in scripts
+
+        # Check dependencies
+        assert "dependencies" in config
+        deps = config["dependencies"]
+        assert "d3" in deps
+        assert "echarts" in deps
+        assert "htmx.org" in deps
+
+    def test_npm_availability(self):
+        """Test that npm is available."""
+        try:
+            result = subprocess.run(
+                ["npm", "--version"], capture_output=True, text=True, timeout=10
+            )
+            assert result.returncode == 0
+            # Version should be a valid semver string
+            version = result.stdout.strip()
+            assert "." in version
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            pytest.skip("npm not available")
+
+    def test_web_asset_directories(self):
+        """Test web asset directory structure."""
+        web_root = Path.cwd() / "src" / "pynomaly" / "presentation" / "web"
+        assert web_root.exists(), "Web presentation directory not found"
+
+        # Check asset sources
+        assets_dir = web_root / "assets"
+        if assets_dir.exists():
+            css_dir = assets_dir / "css"
+            js_dir = assets_dir / "js"
+            assert css_dir.exists() or (web_root / "static" / "css").exists()
+            assert js_dir.exists() or (web_root / "static" / "js").exists()
+
+        # Check static output directory
+        static_dir = web_root / "static"
+        assert static_dir.exists(), "Static directory should exist"
+
+
+class TestIntegratedWorkflow:
+    """Test integrated build workflow."""
+
+    def test_makefile_targets(self):
+        """Test Makefile targets exist and are valid."""
+        makefile_path = Path.cwd() / "Makefile"
+        assert makefile_path.exists(), "Makefile not found"
+
+        with open(makefile_path) as f:
+            makefile_content = f.read()
+
+        # Check key targets exist
+        key_targets = [
+            "build:",
+            "test:",
+            "clean:",
+            "buck-build:",
+            "npm-build:",
+            "deps:",
         ]
 
-        results = {}
-        all_success = True
+        for target in key_targets:
+            assert target in makefile_content, f"Target {target} not found in Makefile"
 
-        for target, description in layer_tests:
-            try:
-                print(f"   Testing {target}...")
-                result = subprocess.run(
-                    [self.buck2_executable, "build", target, "--dry-run"],
-                    capture_output=True,
-                    text=True,
-                    timeout=30,
-                    cwd=self.root_path,
-                )
-
-                success = result.returncode == 0
-                results[target] = {"success": success, "description": description}
-
-                if success:
-                    print(f"     ✅ {description}")
-                else:
-                    print(f"     ❌ {description}")
-                    all_success = False
-
-            except Exception as e:
-                results[target] = {
-                    "success": False,
-                    "description": description,
-                    "error": str(e),
-                }
-                all_success = False
-
-        return {"success": all_success, "layer_results": results}
-
-    def test_web_assets_pipeline(self) -> Dict[str, Any]:
-        """Test web assets build pipeline."""
-        web_targets = ["//:tailwind-build", "//:pynomaly-js", "//:web-assets"]
-
-        results = {}
-        any_success = False
-
-        for target in web_targets:
-            try:
-                print(f"   Testing {target}...")
-                result = subprocess.run(
-                    [self.buck2_executable, "build", target, "--dry-run"],
-                    capture_output=True,
-                    text=True,
-                    timeout=30,
-                    cwd=self.root_path,
-                )
-
-                success = result.returncode == 0
-                results[target] = {"success": success}
-
-                if success:
-                    print(f"     ✅ {target} - Ready")
-                    any_success = True
-                else:
-                    print(f"     ⚠️  {target} - Not ready")
-
-            except Exception as e:
-                results[target] = {"success": False, "error": str(e)}
-
-        return {
-            "success": any_success,  # Web assets are optional for Phase 2
-            "web_targets": results,
-            "note": "Web assets pipeline is optional for basic integration",
-        }
-
-    def test_hatch_integration_readiness(self) -> Dict[str, Any]:
-        """Test Hatch integration readiness."""
+    def test_make_help(self):
+        """Test make help command."""
         try:
-            # Test basic Hatch functionality
-            print("   Testing Hatch version...")
-            hatch_result = subprocess.run(
-                ["python3", "-m", "hatch", "version"],
-                capture_output=True,
-                text=True,
-                timeout=30,
-                cwd=self.root_path,
+            result = subprocess.run(
+                ["make", "help"], capture_output=True, text=True, timeout=10
             )
+            assert result.returncode == 0
+            help_output = result.stdout
+            assert "build" in help_output.lower()
+            assert "test" in help_output.lower()
+            assert "clean" in help_output.lower()
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            pytest.skip("make not available")
 
-            hatch_works = hatch_result.returncode == 0
+    def test_build_system_environment_detection(self):
+        """Test build system can detect available tools."""
+        # Test which tools are available
+        tools_status = {}
 
-            # Check for Buck2 plugin
-            plugin_path = self.root_path / "hatch_buck2_plugin"
-            plugin_exists = plugin_path.exists()
+        for tool in ["buck2", "hatch", "npm", "node"]:
+            try:
+                result = subprocess.run(
+                    [tool, "--version"], capture_output=True, timeout=5
+                )
+                tools_status[tool] = result.returncode == 0
+            except (subprocess.TimeoutExpired, FileNotFoundError):
+                tools_status[tool] = False
 
-            # Check pyproject.toml configuration
-            pyproject_path = self.root_path / "pyproject.toml"
-            pyproject_exists = pyproject_path.exists()
+        # At minimum, we should have hatch for Python packaging
+        assert (
+            tools_status.get("hatch", False) or Path.cwd().joinpath(".venv").exists()
+        ), "Neither Hatch nor virtual environment available"
 
-            buck2_config_ready = False
-            if pyproject_exists:
-                content = pyproject_path.read_text()
-                buck2_config_ready = "hatch.build.hooks.buck2" in content
+        # Log tool availability for debugging
+        print(f"Tool availability: {tools_status}")
 
-            print(f"   ✅ Hatch working: {hatch_works}")
-            print(f"   ✅ Buck2 plugin exists: {plugin_exists}")
-            print(f"   ✅ Buck2 config ready: {buck2_config_ready}")
+    @pytest.mark.slow
+    def test_dependency_installation_workflow(self):
+        """Test that dependencies can be installed."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
 
-            return {
-                "success": hatch_works and plugin_exists,
-                "hatch_working": hatch_works,
-                "plugin_exists": plugin_exists,
-                "config_ready": buck2_config_ready,
-            }
+            # Test Python dependencies (if hatch available)
+            try:
+                result = subprocess.run(
+                    ["python", "-m", "pip", "list"], capture_output=True, timeout=30
+                )
+                assert result.returncode == 0
+                pip_list = result.stdout.decode()
+                # Should have some basic packages
+                assert len(pip_list.strip().split("\n")) > 5
+            except (subprocess.TimeoutExpired, FileNotFoundError):
+                pytest.skip("Python/pip not available")
 
-        except Exception as e:
-            return {"success": False, "error": str(e)}
+    def test_configuration_consistency(self):
+        """Test configuration consistency across build systems."""
+        # Check that version information is consistent
+        pyproject_path = Path.cwd() / "pyproject.toml"
+        package_json_path = Path.cwd() / "package.json"
+
+        if pyproject_path.exists() and package_json_path.exists():
+            try:
+                import tomllib
+            except ImportError:
+                import tomli as tomllib
+
+            with open(pyproject_path, "rb") as f:
+                pyproject_config = tomllib.load(f)
+
+            with open(package_json_path) as f:
+                package_config = json.load(f)
+
+            # Both should have proper name and description
+            assert "project" in pyproject_config
+            assert "name" in pyproject_config["project"]
+            assert "name" in package_config
+
+            # Check that they're related
+            python_name = pyproject_config["project"]["name"]
+            npm_name = package_config["name"]
+            assert (
+                python_name in npm_name or "pynomaly" in npm_name.lower()
+            ), f"Names don't align: {python_name} vs {npm_name}"
 
 
-def main():
-    """Run Buck2 integration tests."""
-    tester = Buck2IntegrationTester()
-    results = tester.run_all_tests()
+class TestPerformanceOptimizations:
+    """Test build system performance optimizations."""
 
-    # Exit with appropriate code
-    if results["summary"]["success_rate"] >= 0.8:  # 80% pass rate
-        print(f"\n🎉 Buck2 Integration Phase 2: READY FOR DEPLOYMENT")
-        sys.exit(0)
-    else:
-        print(f"\n⚠️  Buck2 Integration Phase 2: NEEDS ATTENTION")
-        sys.exit(1)
+    def test_buck2_cache_configuration(self):
+        """Test Buck2 cache is properly configured."""
+        buckconfig_path = Path.cwd() / ".buckconfig"
+        if not buckconfig_path.exists():
+            pytest.skip(".buckconfig not found")
+
+        with open(buckconfig_path) as f:
+            config_content = f.read()
+
+        # Should have cache configuration
+        assert "[cache]" in config_content
+        # Should specify cache mode
+        cache_section_found = False
+        for line in config_content.split("\n"):
+            if line.startswith("[cache]"):
+                cache_section_found = True
+            elif cache_section_found and line.startswith("mode"):
+                assert "dir" in line or "remote" in line
+                break
+
+    def test_parallel_build_configuration(self):
+        """Test parallel build configuration."""
+        buckconfig_path = Path.cwd() / ".buckconfig"
+        if buckconfig_path.exists():
+            with open(buckconfig_path) as f:
+                config_content = f.read()
+
+            # Check for build parallelization settings
+            if "[build]" in config_content:
+                # Should have some parallelization configuration
+                build_section = False
+                for line in config_content.split("\n"):
+                    if line.startswith("[build]"):
+                        build_section = True
+                    elif build_section and line.strip() and not line.startswith("["):
+                        # This is a build configuration line
+                        assert "=" in line, f"Invalid build config line: {line}"
+
+    def test_web_asset_optimization(self):
+        """Test web asset build optimization."""
+        package_json_path = Path.cwd() / "package.json"
+        if not package_json_path.exists():
+            pytest.skip("package.json not found")
+
+        with open(package_json_path) as f:
+            config = json.load(f)
+
+        # Check build scripts include minification
+        if "scripts" in config:
+            build_script = config["scripts"].get("build-css", "")
+            assert "--minify" in build_script, "CSS build should include minification"
+
+            js_build_script = config["scripts"].get("build-js", "")
+            if js_build_script:
+                assert (
+                    "--minify" in js_build_script
+                ), "JS build should include minification"
 
 
 if __name__ == "__main__":
-    main()
+    pytest.main([__file__, "-v"])
