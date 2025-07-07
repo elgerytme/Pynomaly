@@ -1,0 +1,438 @@
+# Kubernetes deployment for Pynomaly Streaming Service
+# High-performance streaming anomaly detection with backpressure control
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pynomaly-streaming
+  namespace: pynomaly
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: streaming
+    app.kubernetes.io/part-of: anomaly-detection
+    app.kubernetes.io/managed-by: kubectl
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    kubernetes.io/change-cause: "Initial streaming service deployment"
+spec:
+  replicas: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pynomaly
+      app.kubernetes.io/component: streaming
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pynomaly
+        app.kubernetes.io/component: streaming
+        app.kubernetes.io/instance: production
+        version: "1.0.0"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9091"
+        prometheus.io/path: "/metrics"
+        sidecar.istio.io/inject: "true"
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "false"  # Stateful streaming
+    spec:
+      serviceAccountName: pynomaly-streaming
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1002
+        runAsGroup: 1002
+        fsGroup: 1002
+        seccompProfile:
+          type: RuntimeDefault
+      terminationGracePeriodSeconds: 60  # Allow graceful stream shutdown
+      containers:
+      - name: pynomaly-streaming
+        image: ghcr.io/pynomaly/streaming:latest
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1002
+          capabilities:
+            drop:
+            - ALL
+        ports:
+        - name: grpc
+          containerPort: 8080
+          protocol: TCP
+        - name: metrics
+          containerPort: 9091
+          protocol: TCP
+        - name: health
+          containerPort: 8081
+          protocol: TCP
+        env:
+        - name: PYNOMALY_ENVIRONMENT
+          value: "production"
+        - name: PYNOMALY_STREAMING_PORT
+          value: "8080"
+        - name: PYNOMALY_METRICS_PORT
+          value: "9091"
+        - name: PYNOMALY_HEALTH_PORT
+          value: "8081"
+        - name: STREAMING_BATCH_SIZE
+          value: "500"
+        - name: STREAMING_MAX_QUEUE_SIZE
+          value: "50000"
+        - name: STREAMING_BACKPRESSURE_THRESHOLD
+          value: "0.8"
+        - name: STREAMING_ENABLE_DRIFT_DETECTION
+          value: "true"
+        - name: STREAMING_WORKER_THREADS
+          value: "8"
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-secrets
+              key: redis-url
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-secrets
+              key: kafka-bootstrap-servers
+        - name: KAFKA_CONSUMER_GROUP
+          value: "pynomaly-streaming"
+        - name: OPENTELEMETRY_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector:4317"
+        - name: OPENTELEMETRY_SERVICE_NAME
+          value: "pynomaly-streaming"
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        envFrom:
+        - configMapRef:
+            name: pynomaly-streaming-config
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+            ephemeral-storage: "5Gi"
+          limits:
+            memory: "8Gi"
+            cpu: "4000m"
+            ephemeral-storage: "20Gi"
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: health
+          initialDelaySeconds: 90
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+          successThreshold: 1
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: health
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+        startupProbe:
+          httpGet:
+            path: /health/startup
+            port: health
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 30
+          successThreshold: 1
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - |
+                echo "Gracefully shutting down streaming service..."
+                curl -X POST http://localhost:8081/shutdown
+                sleep 30
+        volumeMounts:
+        - name: streaming-data
+          mountPath: /app/data
+        - name: streaming-logs
+          mountPath: /app/logs
+        - name: config
+          mountPath: /app/config
+          readOnly: true
+        - name: tmp
+          mountPath: /tmp
+        - name: var-tmp
+          mountPath: /var/tmp
+        - name: model-cache
+          mountPath: /app/model-cache
+      volumes:
+      - name: streaming-data
+        persistentVolumeClaim:
+          claimName: pynomaly-streaming-data-pvc
+      - name: streaming-logs
+        persistentVolumeClaim:
+          claimName: pynomaly-streaming-logs-pvc
+      - name: config
+        configMap:
+          name: pynomaly-streaming-config
+      - name: tmp
+        emptyDir:
+          sizeLimit: 2Gi
+      - name: var-tmp
+        emptyDir:
+          sizeLimit: 2Gi
+      - name: model-cache
+        emptyDir:
+          sizeLimit: 5Gi
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                - pynomaly
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                - streaming
+            topologyKey: kubernetes.io/hostname
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: node-type
+                operator: In
+                values:
+                - compute-optimized
+          - weight: 50
+            preference:
+              matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+      tolerations:
+      - key: node.kubernetes.io/not-ready
+        operator: Exists
+        effect: NoExecute
+        tolerationSeconds: 30
+      - key: node.kubernetes.io/unreachable
+        operator: Exists
+        effect: NoExecute
+        tolerationSeconds: 30
+      - key: streaming-workload
+        operator: Equal
+        value: "true"
+        effect: NoSchedule
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pynomaly-streaming-service
+  namespace: pynomaly
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/component: streaming
+    app.kubernetes.io/instance: production
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9091"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 3600
+  ports:
+  - name: grpc
+    port: 8080
+    targetPort: grpc
+    protocol: TCP
+  - name: metrics
+    port: 9091
+    targetPort: metrics
+    protocol: TCP
+  - name: health
+    port: 8081
+    targetPort: health
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/component: streaming
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pynomaly-streaming-headless
+  namespace: pynomaly
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/component: streaming
+    app.kubernetes.io/instance: production
+spec:
+  type: ClusterIP
+  clusterIP: None
+  publishNotReadyAddresses: true
+  ports:
+  - name: grpc
+    port: 8080
+    targetPort: grpc
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/component: streaming
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: pynomaly-streaming-hpa
+  namespace: pynomaly
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/component: streaming
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pynomaly-streaming
+  minReplicas: 3
+  maxReplicas: 50
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 75
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 85
+  - type: Pods
+    pods:
+      metric:
+        name: streaming_queue_utilization
+      target:
+        type: AverageValue
+        averageValue: "0.7"
+  - type: Pods
+    pods:
+      metric:
+        name: streaming_throughput_per_second
+      target:
+        type: AverageValue
+        averageValue: "1000"
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+      - type: Pods
+        value: 1
+        periodSeconds: 60
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 30
+      - type: Pods
+        value: 5
+        periodSeconds: 30
+      selectPolicy: Max
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: pynomaly-streaming-pdb
+  namespace: pynomaly
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/component: streaming
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pynomaly
+      app.kubernetes.io/component: streaming
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pynomaly-streaming-config
+  namespace: pynomaly
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/component: streaming
+data:
+  streaming.yaml: |
+    streaming:
+      batch_size: 500
+      max_queue_size: 50000
+      processing_timeout_seconds: 5.0
+      backpressure_threshold: 0.8
+      backpressure_strategy: "drop_oldest"
+      backpressure_recovery_threshold: 0.5
+      max_concurrent_batches: 10
+      enable_adaptive_batching: true
+      adaptive_batch_min_size: 50
+      adaptive_batch_max_size: 2000
+      enable_drift_detection: true
+      drift_window_size: 2000
+      drift_threshold: 0.15
+      enable_quality_checks: true
+      max_processing_latency_ms: 500.0
+      min_throughput_samples_per_second: 100.0
+      persist_results: true
+      result_buffer_size: 2000
+      enable_metrics: true
+      metrics_window_size: 1000
+
+    performance:
+      worker_threads: 8
+      io_threads: 4
+      max_memory_mb: 6144
+      gc_threshold: 0.8
+      
+    kafka:
+      consumer_timeout_ms: 1000
+      max_poll_records: 1000
+      fetch_min_bytes: 1024
+      fetch_max_wait_ms: 500
+      enable_auto_commit: false
+      auto_offset_reset: "latest"
+      
+    monitoring:
+      enable_detailed_metrics: true
+      metrics_interval_seconds: 10
+      alert_on_backpressure: true
+      alert_on_drift: true
+      alert_on_high_latency: true
