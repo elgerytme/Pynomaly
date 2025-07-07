@@ -35,7 +35,6 @@ from pynomaly.presentation.api.endpoints import (
     streaming,
     version,
 )
-
 # Enhanced AutoML endpoints
 try:
     from pynomaly.presentation.api import enhanced_automl
@@ -199,52 +198,52 @@ def create_app(container: Container | None = None) -> FastAPI:
     # Include documentation router (before API routers for proper URL handling)
     app.include_router(api_docs.router, tags=["documentation"])
 
-    # Include API routers
-    app.include_router(health.router, prefix="/api", tags=["health"])
+    # Include API routers with v1 versioning
+    app.include_router(health.router, prefix="/api/v1", tags=["health"])
 
-    app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
+    app.include_router(auth.router, prefix="/api/v1/auth", tags=["authentication"])
 
-    app.include_router(admin.router, prefix="/api/admin", tags=["administration"])
+    app.include_router(admin.router, prefix="/api/v1/admin", tags=["administration"])
 
-    app.include_router(autonomous.router, prefix="/api/autonomous", tags=["autonomous"])
+    app.include_router(autonomous.router, prefix="/api/v1/autonomous", tags=["autonomous"])
 
-    app.include_router(detectors.router, prefix="/api/detectors", tags=["detectors"])
+    app.include_router(detectors.router, prefix="/api/v1/detectors", tags=["detectors"])
 
-    app.include_router(datasets.router, prefix="/api/datasets", tags=["datasets"])
+    app.include_router(datasets.router, prefix="/api/v1/datasets", tags=["datasets"])
 
-    app.include_router(detection.router, prefix="/api/detection", tags=["detection"])
+    app.include_router(detection.router, prefix="/api/v1/detection", tags=["detection"])
 
-    app.include_router(automl.router, prefix="/api/automl", tags=["automl"])
+    app.include_router(automl.router, prefix="/api/v1/automl", tags=["automl"])
 
     # Include enhanced AutoML router if available
     if ENHANCED_AUTOML_AVAILABLE:
-        app.include_router(enhanced_automl.router, tags=["enhanced_automl"])
+        app.include_router(enhanced_automl.router, prefix="/api/v1", tags=["enhanced_automl"])
 
-    app.include_router(ensemble.router, prefix="/api/ensemble", tags=["ensemble"])
+    app.include_router(ensemble.router, prefix="/api/v1/ensemble", tags=["ensemble"])
 
     app.include_router(
-        explainability.router, prefix="/api/explainability", tags=["explainability"]
+        explainability.router, prefix="/api/v1/explainability", tags=["explainability"]
     )
 
     app.include_router(
-        experiments.router, prefix="/api/experiments", tags=["experiments"]
+        experiments.router, prefix="/api/v1/experiments", tags=["experiments"]
     )
 
     # Include version endpoint
     app.include_router(version.router, prefix="/api/v1", tags=["version"])
 
     app.include_router(
-        performance.router, prefix="/api/performance", tags=["performance"]
+        performance.router, prefix="/api/v1/performance", tags=["performance"]
     )
 
-    app.include_router(export.router, prefix="/api", tags=["export"])
+    app.include_router(export.router, prefix="/api/v1", tags=["export"])
 
     # Advanced model management endpoints
-    app.include_router(model_lineage.router, prefix="/api", tags=["model_lineage"])
+    app.include_router(model_lineage.router, prefix="/api/v1", tags=["model_lineage"])
 
     # Real-time streaming and event processing endpoints
-    app.include_router(streaming.router, prefix="/api", tags=["streaming"])
-    app.include_router(events.router, prefix="/api", tags=["events"])
+    app.include_router(streaming.router, prefix="/api/v1", tags=["streaming"])
+    app.include_router(events.router, prefix="/api/v1", tags=["events"])
 
     # Distributed processing API removed for simplification
 
@@ -257,8 +256,12 @@ def create_app(container: Container | None = None) -> FastAPI:
         return {
             "message": "Pynomaly API",
             "version": settings.app.version,
-            "docs": "/api/docs",
-            "health": "/api/health",
+            "api_version": "v1",
+            "docs": "/api/v1/docs",
+            "health": "/api/v1/health",
+            "version_info": "/api/v1/version",
+        }
+            "version_info": "/api/v1/version",
         }
 
     return app
