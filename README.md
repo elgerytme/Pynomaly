@@ -68,16 +68,22 @@ pip install -e .
 python -c "import pynomaly; print('Installation successful')"
 ```
 
-#### Optional Features
+#### Feature Installation Options
 ```bash
-# Install with specific feature sets
-pip install -e ".[api,cli]"      # API + CLI tools
-pip install -e ".[web]"          # Web interface
-pip install -e ".[ml-extra]"     # Additional ML libraries
+# 🎯 Quick Start (recommended for most users)
+pip install -e ".[server]"       # Complete server (CLI + API + web)
 
-# Note: Some features require additional dependencies
-# Install only what you need to avoid compatibility issues
+# 🧪 Research & ML  
+pip install -e ".[server,automl,explainability]"
+
+# 🚀 Production Deployment
+pip install -e ".[production]"   # Authentication + monitoring
+
+# 🛠️ Interactive Installer (recommended)
+python scripts/setup/install_features.py
 ```
+
+**📚 Complete Guide**: See [Feature Installation Guide](docs/getting-started/FEATURE_INSTALLATION_GUIDE.md) for detailed options and troubleshooting.
 
 ### Alternative Setup (Traditional pip/venv)
 
