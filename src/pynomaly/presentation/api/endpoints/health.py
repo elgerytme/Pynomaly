@@ -1,6 +1,5 @@
 """Health check endpoints with comprehensive OpenAPI documentation."""
 
-from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import Any

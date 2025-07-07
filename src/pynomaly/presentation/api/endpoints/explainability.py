@@ -1,6 +1,5 @@
 """API endpoints for explainability operations."""
 
-from __future__ import annotations
 
 import logging
 from typing import Any, Dict, List, Optional
@@ -306,7 +305,7 @@ async def explain_cohort(
 
 @router.post("/explain/compare", response_model=ExplanationResponseDTO)
 async def compare_explanations(
-    request: CompareExplanationsRequestDTO,
+    request: CompareMethodsRequestDTO,
     container: Container = Depends(get_container),
     current_user: str | None = Depends(get_current_user),
     _permissions: str = Depends(require_read),
