@@ -223,6 +223,254 @@ class DeepSVDD(Model):
         return self.center
 
 
+class ConvAutoEncoder(Model):
+    """Convolutional AutoEncoder for high-dimensional and image-like data."""
+
+    def __init__(
+        self,
+        input_shape: tuple[int, ...],
+        filters: list[int] | None = None,
+        activation: str = "relu",
+        dropout_rate: float = 0.1,
+    ):
+        """Initialize Convolutional AutoEncoder.
+
+        Args:
+            input_shape: Shape of input data (height, width, channels)
+            filters: Number of filters for each conv layer
+            activation: Activation function
+            dropout_rate: Dropout rate for regularization
+        """
+        super().__init__()
+
+        self.input_shape = input_shape
+        self.filters = filters or [32, 64, 128, 256]
+        self.activation = activation
+        self.dropout_rate = dropout_rate
+
+        # Build encoder
+        encoder_layers = []
+        for i, f in enumerate(self.filters):
+            encoder_layers.extend([
+                layers.Conv2D(f, (3, 3), activation=activation, padding='same'),
+                layers.BatchNormalization(),
+                layers.Dropout(dropout_rate)
+            ])
+            if i < len(self.filters) - 1:
+                encoder_layers.append(layers.MaxPooling2D((2, 2), padding='same'))
+
+        # Add global pooling and dense layer
+        encoder_layers.extend([
+            layers.GlobalAveragePooling2D(),
+            layers.Dense(self.filters[-1] // 4, activation=activation),
+        ])
+
+        self.encoder = keras.Sequential(encoder_layers)
+
+        # Build decoder
+        # This is a simplified decoder - in practice you'd want to carefully
+        # match the encoder structure with upsampling layers
+        decoder_layers = [
+            layers.Dense(np.prod(input_shape), activation='sigmoid'),
+            layers.Reshape(input_shape)
+        ]
+
+        self.decoder = keras.Sequential(decoder_layers)
+
+    def call(self, x, training=None):
+        """Forward pass through the convolutional autoencoder."""
+        encoded = self.encoder(x, training=training)
+        decoded = self.decoder(encoded, training=training)
+        return decoded
+
+    def encode(self, x):
+        """Encode input to latent representation."""
+        return self.encoder(x, training=False)
+
+
+class LSTMAutoEncoder(Model):
+    """LSTM AutoEncoder for time series anomaly detection."""
+
+    def __init__(
+        self,
+        sequence_length: int,
+        n_features: int,
+        lstm_units: list[int] | None = None,
+        dropout: float = 0.2,
+        recurrent_dropout: float = 0.2,
+    ):
+        """Initialize LSTM AutoEncoder.
+
+        Args:
+            sequence_length: Length of input sequences
+            n_features: Number of features per timestep
+            lstm_units: List of LSTM layer units
+            dropout: Dropout rate
+            recurrent_dropout: Recurrent dropout rate
+        """
+        super().__init__()
+
+        self.sequence_length = sequence_length
+        self.n_features = n_features
+        self.lstm_units = lstm_units or [50, 25]
+        self.dropout = dropout
+        self.recurrent_dropout = recurrent_dropout
+
+        # Encoder LSTM layers
+        encoder_layers = []
+        for i, units in enumerate(self.lstm_units):
+            return_sequences = i < len(self.lstm_units) - 1
+            encoder_layers.append(
+                layers.LSTM(
+                    units,
+                    return_sequences=return_sequences,
+                    dropout=dropout,
+                    recurrent_dropout=recurrent_dropout,
+                )
+            )
+
+        self.encoder = keras.Sequential(encoder_layers)
+
+        # Decoder - repeat vector and LSTM layers
+        decoder_layers = [layers.RepeatVector(sequence_length)]
+        
+        for units in reversed(self.lstm_units):
+            decoder_layers.append(
+                layers.LSTM(
+                    units,
+                    return_sequences=True,
+                    dropout=dropout,
+                    recurrent_dropout=recurrent_dropout,
+                )
+            )
+
+        decoder_layers.append(layers.TimeDistributed(layers.Dense(n_features)))
+        self.decoder = keras.Sequential(decoder_layers)
+
+    def call(self, x, training=None):
+        """Forward pass through LSTM autoencoder."""
+        encoded = self.encoder(x, training=training)
+        decoded = self.decoder(encoded, training=training)
+        return decoded
+
+
+class AttentionAutoEncoder(Model):
+    """AutoEncoder with multi-head attention mechanism."""
+
+    def __init__(
+        self,
+        input_dim: int,
+        hidden_dims: list[int] | None = None,
+        attention_heads: int = 8,
+        dropout_rate: float = 0.1,
+    ):
+        """Initialize Attention AutoEncoder.
+
+        Args:
+            input_dim: Input feature dimension
+            hidden_dims: Hidden layer dimensions
+            attention_heads: Number of attention heads
+            dropout_rate: Dropout rate
+        """
+        super().__init__()
+
+        self.input_dim = input_dim
+        self.hidden_dims = hidden_dims or [256, 128, 64]
+        self.attention_heads = attention_heads
+        self.dropout_rate = dropout_rate
+
+        # Encoder
+        encoder_layers = []
+        for dim in self.hidden_dims:
+            encoder_layers.extend([
+                layers.Dense(dim, activation='relu'),
+                layers.BatchNormalization(),
+                layers.Dropout(dropout_rate)
+            ])
+
+        self.encoder_dense = keras.Sequential(encoder_layers)
+
+        # Attention mechanism
+        self.attention = layers.MultiHeadAttention(
+            num_heads=attention_heads,
+            key_dim=self.hidden_dims[-1] // attention_heads
+        )
+        self.layer_norm = layers.LayerNormalization()
+
+        # Decoder
+        decoder_layers = []
+        for dim in reversed(self.hidden_dims[:-1]):
+            decoder_layers.extend([
+                layers.Dense(dim, activation='relu'),
+                layers.BatchNormalization(),
+                layers.Dropout(dropout_rate)
+            ])
+
+        decoder_layers.append(layers.Dense(input_dim, activation='linear'))
+        self.decoder = keras.Sequential(decoder_layers)
+
+    def call(self, x, training=None):
+        """Forward pass with attention mechanism."""
+        # Encode
+        encoded = self.encoder_dense(x, training=training)
+        
+        # Reshape for attention (add sequence dimension)
+        encoded_reshaped = tf.expand_dims(encoded, axis=1)
+        
+        # Apply self-attention
+        attended = self.attention(encoded_reshaped, encoded_reshaped, training=training)
+        attended = self.layer_norm(encoded_reshaped + attended)
+        
+        # Flatten back
+        attended_flat = tf.squeeze(attended, axis=1)
+        
+        # Decode
+        decoded = self.decoder(attended_flat, training=training)
+        return decoded
+
+
+class EnsembleDetector(Model):
+    """Ensemble of multiple models for robust anomaly detection."""
+
+    def __init__(
+        self,
+        models: list[Model],
+        weights: list[float] | None = None,
+    ):
+        """Initialize ensemble detector.
+
+        Args:
+            models: List of trained models
+            weights: Weights for combining model outputs
+        """
+        super().__init__()
+
+        self.models = models
+        self.weights = weights or [1.0 / len(models)] * len(models)
+
+        if len(self.weights) != len(self.models):
+            raise ValueError("Number of weights must match number of models")
+
+    def call(self, x, training=None):
+        """Forward pass through ensemble."""
+        if not self.models:
+            raise ValueError("No models in ensemble")
+
+        # Get predictions from all models
+        predictions = []
+        for model in self.models:
+            pred = model(x, training=training)
+            predictions.append(pred)
+
+        # Weighted average
+        weighted_predictions = [
+            tf.multiply(pred, weight) 
+            for pred, weight in zip(predictions, self.weights)
+        ]
+
+        return tf.add_n(weighted_predictions)
+
+
 class TensorFlowAdapter(Detector):
     """TensorFlow adapter for deep learning anomaly detection."""
 
@@ -230,6 +478,10 @@ class TensorFlowAdapter(Detector):
         "AutoEncoder": AutoEncoder,
         "VAE": VariationalAutoEncoder,
         "DeepSVDD": DeepSVDD,
+        "ConvAutoEncoder": ConvAutoEncoder,  # Added for enhanced functionality
+        "LSTMAutoEncoder": LSTMAutoEncoder,  # Added for time series
+        "AttentionAutoEncoder": AttentionAutoEncoder,  # Added for attention-based
+        "EnsembleDetector": EnsembleDetector,  # Added for ensemble methods
     }
 
     def __init__(
@@ -308,9 +560,49 @@ class TensorFlowAdapter(Detector):
         """Create TensorFlow model based on algorithm."""
         algorithm_class = self.ALGORITHM_MAPPING[self.algorithm_name]
 
-        # Prepare parameters
-        model_params = {"input_dim": input_dim}
-        model_params.update(self.algorithm_params)
+        # Prepare parameters based on algorithm type
+        if self.algorithm_name == "ConvAutoEncoder":
+            # For convolutional, we need input_shape instead of input_dim
+            # Assume square image if single dimension
+            if isinstance(input_dim, int):
+                side_length = int(np.sqrt(input_dim))
+                if side_length * side_length == input_dim:
+                    input_shape = (side_length, side_length, 1)
+                else:
+                    # Fallback to 1D convolution reshape
+                    input_shape = (input_dim, 1, 1)
+            else:
+                input_shape = input_dim
+            
+            model_params = {"input_shape": input_shape}
+            model_params.update(self.algorithm_params)
+            
+        elif self.algorithm_name == "LSTMAutoEncoder":
+            # LSTM needs sequence_length and n_features
+            sequence_length = self.algorithm_params.get("sequence_length", 10)
+            n_features = input_dim // sequence_length if isinstance(input_dim, int) else input_dim[0]
+            
+            model_params = {
+                "sequence_length": sequence_length,
+                "n_features": n_features
+            }
+            model_params.update(self.algorithm_params)
+            
+        elif self.algorithm_name == "EnsembleDetector":
+            # Ensemble needs pre-trained models
+            models = self.algorithm_params.get("models", [])
+            if not models:
+                raise ValueError("EnsembleDetector requires pre-trained models")
+            
+            model_params = {"models": models}
+            weights = self.algorithm_params.get("weights")
+            if weights:
+                model_params["weights"] = weights
+                
+        else:
+            # Standard parameters for basic algorithms
+            model_params = {"input_dim": input_dim}
+            model_params.update(self.algorithm_params)
 
         return algorithm_class(**model_params)
 
@@ -656,6 +948,65 @@ class TensorFlowAdapter(Detector):
                     "hidden_layers": "List of hidden layer dimensions",
                     "activation": "Activation function",
                     "epochs": "Number of training epochs",
+                    "batch_size": "Training batch size",
+                    "learning_rate": "Learning rate for optimizer",
+                },
+            },
+            "ConvAutoEncoder": {
+                "description": "Convolutional autoencoder for high-dimensional and image-like data",
+                "type": "Convolutional Neural Network",
+                "unsupervised": True,
+                "gpu_support": True,
+                "parameters": {
+                    "input_shape": "Shape of input data (height, width, channels)",
+                    "filters": "Number of filters for each conv layer",
+                    "activation": "Activation function",
+                    "dropout_rate": "Dropout rate for regularization",
+                    "epochs": "Number of training epochs",
+                    "batch_size": "Training batch size",
+                    "learning_rate": "Learning rate for optimizer",
+                },
+            },
+            "LSTMAutoEncoder": {
+                "description": "LSTM-based autoencoder for time series anomaly detection",
+                "type": "Recurrent Neural Network",
+                "unsupervised": True,
+                "gpu_support": True,
+                "parameters": {
+                    "sequence_length": "Length of input sequences",
+                    "n_features": "Number of features per timestep",
+                    "lstm_units": "List of LSTM layer units",
+                    "dropout": "Dropout rate",
+                    "recurrent_dropout": "Recurrent dropout rate",
+                    "epochs": "Number of training epochs",
+                    "batch_size": "Training batch size",
+                    "learning_rate": "Learning rate for optimizer",
+                },
+            },
+            "AttentionAutoEncoder": {
+                "description": "Autoencoder with multi-head attention mechanism",
+                "type": "Attention-based Neural Network",
+                "unsupervised": True,
+                "gpu_support": True,
+                "parameters": {
+                    "input_dim": "Input feature dimension",
+                    "hidden_dims": "Hidden layer dimensions",
+                    "attention_heads": "Number of attention heads",
+                    "dropout_rate": "Dropout rate",
+                    "epochs": "Number of training epochs",
+                    "batch_size": "Training batch size",
+                    "learning_rate": "Learning rate for optimizer",
+                },
+            },
+            "EnsembleDetector": {
+                "description": "Ensemble of multiple models for robust anomaly detection",
+                "type": "Ensemble Method",
+                "unsupervised": True,
+                "gpu_support": True,
+                "parameters": {
+                    "models": "List of trained models to ensemble",
+                    "weights": "Weights for combining model outputs",
+                    "epochs": "Number of training epochs (for base models)",
                     "batch_size": "Training batch size",
                     "learning_rate": "Learning rate for optimizer",
                 },
