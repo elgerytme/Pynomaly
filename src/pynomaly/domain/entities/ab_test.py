@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
-
-from pydantic import BaseModel, Field
 
 
 class ABTestStatus(str, Enum):
@@ -30,96 +29,93 @@ class ABTestResult(str, Enum):
     INCONCLUSIVE = "inconclusive"
 
 
-class TrafficSplit(BaseModel):
+@dataclass
+class TrafficSplit:
     """Traffic split configuration for A/B testing."""
 
-    control_percentage: float = Field(
-        ..., ge=0, le=100, description="Percentage of traffic to control model"
-    )
-    treatment_percentage: float = Field(
-        ..., ge=0, le=100, description="Percentage of traffic to treatment model"
-    )
+    control_percentage: float
+    treatment_percentage: float
 
-    def model_post_init(self, __context: Any) -> None:
+    def __post_init__(self) -> None:
         """Validate traffic split percentages sum to 100."""
+        if not (0 <= self.control_percentage <= 100):
+            raise ValueError("Control percentage must be between 0 and 100")
+        if not (0 <= self.treatment_percentage <= 100):
+            raise ValueError("Treatment percentage must be between 0 and 100")
+        
         total = self.control_percentage + self.treatment_percentage
         if abs(total - 100.0) > 0.01:  # Allow for floating point precision
             raise ValueError("Traffic split percentages must sum to 100")
 
 
-class SuccessMetric(BaseModel):
+@dataclass
+class SuccessMetric:
     """Success metric definition for A/B testing."""
 
-    name: str = Field(..., description="Metric name")
-    type: str = Field(..., description="Metric type (accuracy, precision, recall, f1, custom)")
-    target_value: float | None = Field(None, description="Target value for success")
-    improvement_threshold: float = Field(
-        0.05, description="Minimum improvement threshold for statistical significance"
-    )
-    is_primary: bool = Field(False, description="Whether this is the primary success metric")
+    name: str
+    type: str  # accuracy, precision, recall, f1, custom
+    target_value: float | None = None
+    improvement_threshold: float = 0.05
+    is_primary: bool = False
 
 
-class ABTestConfiguration(BaseModel):
+@dataclass
+class ABTestConfiguration:
     """A/B test configuration."""
 
-    traffic_split: TrafficSplit = Field(..., description="Traffic allocation between models")
-    duration: timedelta = Field(..., description="Test duration")
-    min_sample_size: int = Field(100, description="Minimum sample size for valid results")
-    confidence_level: float = Field(0.95, ge=0.8, le=0.99, description="Statistical confidence level")
-    success_metrics: list[SuccessMetric] = Field(..., description="Success metrics to evaluate")
-    early_stopping_enabled: bool = Field(True, description="Enable early stopping for clear results")
-    randomization_unit: str = Field("user", description="Unit of randomization (user, session, request)")
+    traffic_split: TrafficSplit
+    duration: timedelta
+    success_metrics: list[SuccessMetric]
+    min_sample_size: int = 100
+    confidence_level: float = 0.95
+    early_stopping_enabled: bool = True
+    randomization_unit: str = "user"
+
+    def __post_init__(self) -> None:
+        """Validate configuration parameters."""
+        if not (0.8 <= self.confidence_level <= 0.99):
+            raise ValueError("Confidence level must be between 0.8 and 0.99")
+        if self.min_sample_size < 1:
+            raise ValueError("Minimum sample size must be at least 1")
+        if not self.success_metrics:
+            raise ValueError("At least one success metric must be defined")
 
 
-class ABTestMetrics(BaseModel):
+@dataclass
+class ABTestMetrics:
     """A/B test performance metrics."""
 
-    control_sample_size: int = Field(0, description="Control group sample size")
-    treatment_sample_size: int = Field(0, description="Treatment group sample size")
-    control_metrics: dict[str, float] = Field(default_factory=dict, description="Control group metrics")
-    treatment_metrics: dict[str, float] = Field(default_factory=dict, description="Treatment group metrics")
-    statistical_significance: dict[str, bool] = Field(
-        default_factory=dict, description="Statistical significance per metric"
-    )
-    p_values: dict[str, float] = Field(default_factory=dict, description="P-values per metric")
-    confidence_intervals: dict[str, tuple[float, float]] = Field(
-        default_factory=dict, description="Confidence intervals per metric"
-    )
-    effect_sizes: dict[str, float] = Field(default_factory=dict, description="Effect sizes per metric")
+    control_sample_size: int = 0
+    treatment_sample_size: int = 0
+    control_metrics: dict[str, float] = field(default_factory=dict)
+    treatment_metrics: dict[str, float] = field(default_factory=dict)
+    statistical_significance: dict[str, bool] = field(default_factory=dict)
+    p_values: dict[str, float] = field(default_factory=dict)
+    confidence_intervals: dict[str, tuple[float, float]] = field(default_factory=dict)
+    effect_sizes: dict[str, float] = field(default_factory=dict)
 
 
-class ABTest(BaseModel):
+@dataclass
+class ABTest:
     """A/B test entity for model experimentation."""
 
-    id: UUID = Field(default_factory=uuid4, description="Unique test identifier")
-    name: str = Field(..., description="Test name")
-    description: str | None = Field(None, description="Test description")
-    
-    # Model references
-    control_model_id: UUID = Field(..., description="Control model identifier")
-    treatment_model_id: UUID = Field(..., description="Treatment model identifier")
-    
-    # Test configuration
-    configuration: ABTestConfiguration = Field(..., description="Test configuration")
-    
-    # Test status and timing
-    status: ABTestStatus = Field(default=ABTestStatus.DRAFT, description="Test status")
-    created_at: datetime = Field(default_factory=datetime.utcnow, description="Creation timestamp")
-    started_at: datetime | None = Field(None, description="Start timestamp")
-    ended_at: datetime | None = Field(None, description="End timestamp")
-    updated_at: datetime = Field(default_factory=datetime.utcnow, description="Last update timestamp")
-    
-    # Results and metrics
-    current_metrics: ABTestMetrics = Field(
-        default_factory=ABTestMetrics, description="Current test metrics"
-    )
-    result: ABTestResult = Field(default=ABTestResult.PENDING, description="Test result")
-    conclusion: str | None = Field(None, description="Test conclusion and recommendation")
-    
-    # Metadata
-    created_by: str = Field(..., description="User who created the test")
-    tags: list[str] = Field(default_factory=list, description="Test tags")
-    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
+    name: str
+    control_model_id: UUID
+    treatment_model_id: UUID
+    configuration: ABTestConfiguration
+    created_by: str
+    id: UUID = field(default_factory=uuid4)
+    description: str | None = None
+    status: ABTestStatus = ABTestStatus.DRAFT
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    started_at: datetime | None = None
+    ended_at: datetime | None = None
+    updated_at: datetime = field(default_factory=datetime.utcnow)
+    current_metrics: ABTestMetrics = field(default_factory=ABTestMetrics)
+    result: ABTestResult = ABTestResult.PENDING
+    conclusion: str | None = None
+    tags: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def start_test(self) -> None:
         """Start the A/B test."""
