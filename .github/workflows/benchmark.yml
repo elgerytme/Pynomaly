@@ -1,0 +1,187 @@
+name: Performance Benchmarks
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'src/**'
+      - 'tests/benchmarks/**'
+      - 'pyproject.toml'
+      - '.github/workflows/benchmark.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'tests/benchmarks/**'
+      - 'pyproject.toml'
+  workflow_dispatch:
+    inputs:
+      update_baseline:
+        description: 'Update performance baseline'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  PYTHONPATH: src
+  BENCHMARK_RESULTS_DIR: reports/benchmarks
+  BASELINE_DIR: .github/baselines
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Needed for baseline comparison
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install hatch
+          hatch env create test
+          hatch run test:pip install pytest-benchmark
+
+      - name: Create benchmark results directory
+        run: |
+          mkdir -p ${{ env.BENCHMARK_RESULTS_DIR }}
+          mkdir -p reports/coverage
+
+      - name: Run performance benchmarks
+        run: |
+          hatch run test:pytest tests/benchmarks \
+            --benchmark-only \
+            --benchmark-json=${{ env.BENCHMARK_RESULTS_DIR }}/benchmark_results.json \
+            --benchmark-histogram=${{ env.BENCHMARK_RESULTS_DIR }}/benchmark_histogram \
+            --benchmark-min-rounds=3 \
+            --benchmark-warmup=true \
+            --benchmark-warmup-iterations=2 \
+            --benchmark-disable-gc \
+            --benchmark-sort=mean \
+            --tb=short \
+            -v
+        env:
+          PYTHONPATH: src
+
+      - name: Generate benchmark report
+        run: |
+          python scripts/benchmark_reporter.py \
+            --results-file ${{ env.BENCHMARK_RESULTS_DIR }}/benchmark_results.json \
+            --output-file ${{ env.BENCHMARK_RESULTS_DIR }}/benchmark_report.md \
+            --format markdown
+
+      - name: Compare with baseline (PR only)
+        if: github.event_name == 'pull_request'
+        run: |
+          python scripts/compare_benchmarks.py \
+            --baseline-file ${{ env.BASELINE_DIR }}/performance_baseline.json \
+            --current-file ${{ env.BENCHMARK_RESULTS_DIR }}/benchmark_results.json \
+            --output-file ${{ env.BENCHMARK_RESULTS_DIR }}/comparison_report.md \
+            --threshold 0.1 \
+            --fail-on-regression
+
+      - name: Update baseline (main branch or manual trigger)
+        if: |
+          (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.update_baseline == 'true')
+        run: |
+          python scripts/update_baseline.py \
+            --benchmark-file ${{ env.BENCHMARK_RESULTS_DIR }}/benchmark_results.json \
+            --baseline-file ${{ env.BASELINE_DIR }}/performance_baseline.json \
+            --git-commit ${{ github.sha }}
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: benchmark-results-${{ github.run_number }}
+          path: |
+            ${{ env.BENCHMARK_RESULTS_DIR }}/
+            reports/coverage/
+          retention-days: 30
+
+      - name: Comment benchmark results on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const path = '${{ env.BENCHMARK_RESULTS_DIR }}/comparison_report.md';
+            
+            if (fs.existsSync(path)) {
+              const report = fs.readFileSync(path, 'utf8');
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `## 📊 Performance Benchmark Results\n\n${report}`
+              });
+            }
+
+      - name: Check for performance regressions
+        if: github.event_name == 'pull_request'
+        run: |
+          if [ -f "${{ env.BENCHMARK_RESULTS_DIR }}/regression_detected" ]; then
+            echo "❌ Performance regression detected! Check the comparison report."
+            exit 1
+          else
+            echo "✅ No performance regressions detected."
+          fi
+
+  benchmark-matrix:
+    runs-on: ${{ matrix.os }}
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.11', '3.12']
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install hatch
+          hatch env create test
+          hatch run test:pip install pytest-benchmark
+
+      - name: Run cross-platform benchmarks
+        run: |
+          hatch run test:pytest tests/benchmarks \
+            --benchmark-only \
+            --benchmark-json=benchmark_results_${{ matrix.os }}_${{ matrix.python-version }}.json \
+            --benchmark-min-rounds=2 \
+            --benchmark-warmup=true \
+            -k "not slow" \
+            --tb=short
+        env:
+          PYTHONPATH: src
+
+      - name: Upload cross-platform results
+        uses: actions/upload-artifact@v3
+        with:
+          name: cross-platform-benchmarks
+          path: benchmark_results_${{ matrix.os }}_${{ matrix.python-version }}.json
