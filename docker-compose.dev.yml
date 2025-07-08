@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  pynomaly-debug:
+    build:
+      context: .
+      dockerfile: Dockerfile.debug
+    environment:
+      - PYTHONPATH=/app/src
+      - PYNOMALY_ENVIRONMENT=development
+      - PYNOMALY_DEBUG=true
+      - PYNOMALY_LOG_LEVEL=DEBUG
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - .:/app
+      - ./logs:/app/logs
+      - ./debug_reports:/app/debug_reports
+    ports:
+      - "8000:8000"
+      - "8080:8080"
+    working_dir: /app
+    command: >
+      bash -c "
+        echo '=== Pynomaly Circular Import Debug Environment ===';
+        echo 'Starting import tracing...';
+        python debug_imports.py > debug_reports/import_trace_$(date +%Y%m%d_%H%M%S).log 2>&1;
+        echo 'Running web application with debug mode...';
+        python scripts/development/run_web_app.py --port 8000 --reload
+      "
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/api/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  pynomaly-trace:
+    build:
+      context: .
+      dockerfile: Dockerfile.debug
+    environment:
+      - PYTHONPATH=/app/src
+      - PYNOMALY_ENVIRONMENT=development
+      - PYNOMALY_DEBUG=true
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - .:/app
+      - ./debug_reports:/app/debug_reports
+    working_dir: /app
+    command: >
+      bash -c "
+        echo '=== Circular Import Trace Service ===';
+        echo 'Running comprehensive import analysis...';
+        python debug_circular_imports.py;
+        echo 'Keeping container alive for debugging...';
+        tail -f /dev/null
+      "
+    profiles:
+      - debug
+
+  redis-debug:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_debug_data:/data
+    command: redis-server --appendonly yes --appendfsync everysec
+
+  postgres-debug:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=pynomaly_debug
+      - POSTGRES_USER=pynomaly
+      - POSTGRES_PASSWORD=pynomaly_debug_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_debug_data:/var/lib/postgresql/data
+      - ./scripts/sql:/docker-entrypoint-initdb.d
+
+volumes:
+  redis_debug_data:
+  postgres_debug_data:

@@ -1,0 +1,68 @@
+# Multi-stage Dockerfile for Pynomaly with deep learning (CPU-only)
+FROM python:3.11-slim as base
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    DEBIAN_FRONTEND=noninteractive
+
+# Install system dependencies
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        build-essential \
+        curl \
+        git \
+        pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create app user and directory
+RUN useradd --create-home --shell /bin/bash app
+WORKDIR /app
+
+# Install Python build tools
+FROM base as builder
+
+# Install hatch for building
+RUN pip install hatch
+
+# Copy source code
+COPY . .
+RUN chown -R app:app /app
+
+# Switch to app user
+USER app
+
+# Build the package
+RUN hatch build
+
+# Production stage
+FROM base as production
+
+# Install runtime dependencies only
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        curl \
+        ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy built package from builder
+COPY --from=builder /app/dist/*.whl /tmp/
+
+# Install the package with deep learning CPU-only dependencies
+RUN pip install /tmp/*.whl[deep-cpu] \
+    && rm -rf /tmp/*.whl
+
+# Switch to app user
+USER app
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/api/health || exit 1
+
+# Expose port
+EXPOSE 8000
+
+# Set default command
+CMD ["uvicorn", "pynomaly.presentation.api.app:app", "--host", "0.0.0.0", "--port", "8000"]
