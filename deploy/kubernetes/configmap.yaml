@@ -11,7 +11,7 @@ data:
       version: 0.1.0
       environment: production
       debug: false
-    
+
     api:
       host: 0.0.0.0
       port: 8000
@@ -20,38 +20,38 @@ data:
         - https://app.pynomaly.example.com
       rate_limit_requests: 100
       rate_limit_period: 60
-    
+
     storage:
       storage_path: /app/storage
       log_path: /app/logs
       temp_path: /app/temp
       model_path: /app/models
-    
+
     performance:
       max_workers: 4
       batch_size: 1000
       cache_ttl_seconds: 300
       gpu_enabled: false
-    
+
     data:
       max_dataset_size_mb: 1000
       default_contamination_rate: 0.1
-    
+
     monitoring:
       metrics_enabled: true
       tracing_enabled: true
       log_level: INFO
       log_format: json
-  
+
   nginx.conf: |
     upstream pynomaly {
         server localhost:8000;
     }
-    
+
     server {
         listen 8080;
         server_name _;
-        
+
         location / {
             proxy_pass http://pynomaly;
             proxy_set_header Host $host;
@@ -59,7 +59,7 @@ data:
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
         }
-        
+
         location /static/ {
             proxy_pass http://pynomaly;
             proxy_cache_valid 200 1d;

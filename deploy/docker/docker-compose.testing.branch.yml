@@ -1,0 +1,117 @@
+# Generated branch-specific docker-compose file for branch: bugfix/security-patch
+# Generated from: C:\Users\andre\pynomaly\deploy\docker\docker-compose.testing.yml
+# Branch suffix: bugfix-security-patch
+
+version: '3.8'
+services:
+  pynomaly-test-bugfix-security-patch:
+    build:
+      context: .
+      dockerfile: Dockerfile.testing
+    volumes:
+    - ./src:/app/src
+    - ./tests:/app/tests
+    - ./test-results:/app/test-results
+    - ./coverage-reports:/app/coverage-reports
+    - ./pytest.ini:/app/pytest.ini
+    environment:
+    - PYTHONPATH=/app/src
+    - TESTING=true
+    - POSTGRES_HOST=postgres-test
+    - REDIS_HOST=redis-test
+    - POSTGRES_USER=pynomaly_test
+    - POSTGRES_PASSWORD=test_password
+    - POSTGRES_DB=pynomaly_test
+    - REDIS_URL=redis://redis-test-bugfix-security-patch:6379/0
+    - GIT_BRANCH=bugfix/security-patch
+    depends_on:
+    - postgres-test-bugfix-security-patch
+    - redis-test-bugfix-security-patch
+    networks:
+    - pynomaly-test-network-bugfix-security-patch
+    command: "sh -c \"\n  echo 'Waiting for dependencies...' &&\n  sleep 10 &&\n \
+      \ echo 'Running comprehensive test suite...' &&\n  pytest tests/ -v\n    --cov=pynomaly\n\
+      \    --cov-report=html:/app/coverage-reports\n    --cov-report=term-missing\n\
+      \    --cov-report=xml:/app/coverage-reports/coverage.xml\n    --junit-xml=/app/test-results/junit.xml\n\
+      \    --tb=short\n    --maxfail=10\n    -x\n\"\n"
+  postgres-test-bugfix-security-patch:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: pynomaly_test
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: pynomaly_test
+      GIT_BRANCH: bugfix/security-patch
+    volumes:
+    - postgres_test_data-bugfix-security-patch:/var/lib/postgresql/data
+    networks:
+    - pynomaly-test-network-bugfix-security-patch
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U pynomaly_test
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  redis-test-bugfix-security-patch:
+    image: redis:7-alpine
+    networks:
+    - pynomaly-test-network-bugfix-security-patch
+    healthcheck:
+      test:
+      - CMD
+      - redis-cli
+      - ping
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+    - GIT_BRANCH=bugfix/security-patch
+  pynomaly-test-parallel-bugfix-security-patch:
+    build:
+      context: .
+      dockerfile: Dockerfile.testing
+    volumes:
+    - ./src:/app/src
+    - ./tests:/app/tests
+    - ./test-results:/app/test-results
+    - ./coverage-reports:/app/coverage-reports
+    environment:
+    - PYTHONPATH=/app/src
+    - TESTING=true
+    - POSTGRES_HOST=postgres-test
+    - REDIS_HOST=redis-test
+    - POSTGRES_USER=pynomaly_test
+    - POSTGRES_PASSWORD=test_password
+    - POSTGRES_DB=pynomaly_test
+    - REDIS_URL=redis://redis-test-bugfix-security-patch:6379/0
+    - GIT_BRANCH=bugfix/security-patch
+    depends_on:
+    - postgres-test-bugfix-security-patch
+    - redis-test-bugfix-security-patch
+    networks:
+    - pynomaly-test-network-bugfix-security-patch
+    command: "sh -c \"\n  echo 'Running parallel test suite...' &&\n  pytest tests/\
+      \ -v\n    --cov=pynomaly\n    --cov-report=html:/app/coverage-reports\n    --cov-report=term-missing\n\
+      \    --cov-report=xml:/app/coverage-reports/coverage.xml\n    --junit-xml=/app/test-results/junit.xml\n\
+      \    -n auto\n    --tb=short\n    --maxfail=5\n\"\n"
+  coverage-report-bugfix-security-patch:
+    build:
+      context: .
+      dockerfile: Dockerfile.testing
+    volumes:
+    - ./src:/app/src
+    - ./tests:/app/tests
+    - ./coverage-reports:/app/coverage-reports
+    environment:
+    - PYTHONPATH=/app/src
+    - GIT_BRANCH=bugfix/security-patch
+    command: "sh -c \"\n  echo 'Generating comprehensive coverage reports...' &&\n\
+      \  coverage combine &&\n  coverage report --show-missing &&\n  coverage html\
+      \ -d /app/coverage-reports &&\n  coverage xml -o /app/coverage-reports/coverage.xml\
+      \ &&\n  echo 'Coverage reports generated in coverage-reports/'\n\"\n"
+volumes:
+  postgres_test_data-bugfix-security-patch: null
+networks:
+  pynomaly-test-network-bugfix-security-patch:
+    driver: bridge
+    name: pynomaly-test-network-bugfix-security-patch

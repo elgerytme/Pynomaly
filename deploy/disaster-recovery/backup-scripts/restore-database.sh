@@ -71,7 +71,7 @@ EXAMPLES:
 ENVIRONMENT VARIABLES:
     ENCRYPTION_KEY          Required: GPG passphrase for decryption
     SLACK_WEBHOOK_URL       Optional: Slack notification webhook
-    
+
 EOF
 }
 
@@ -134,7 +134,7 @@ list_backups() {
     echo
     echo "Filename                                    Size      Last Modified"
     echo "------------------------------------------ --------- -------------------"
-    
+
     aws s3 ls "s3://${S3_BUCKET}/${S3_PREFIX}/" --human-readable | \
         grep "\.sql\.gpg$" | \
         sort -k1,2 -r | \
@@ -146,13 +146,13 @@ list_backups() {
 # Validate requirements
 validate_requirements() {
     log "Validating requirements..."
-    
+
     # Check if running in Kubernetes
     if [[ ! -f /var/run/secrets/kubernetes.io/serviceaccount/token ]]; then
         log "ERROR: This script must run in a Kubernetes pod"
         exit 1
     fi
-    
+
     # Check required tools
     for tool in kubectl pg_restore aws gpg; do
         if ! command -v "$tool" &> /dev/null; then
@@ -160,19 +160,19 @@ validate_requirements() {
             exit 1
         fi
     done
-    
+
     # Check environment variables
     if [[ -z "$ENCRYPTION_KEY" ]]; then
         log "ERROR: ENCRYPTION_KEY environment variable is required"
         exit 1
     fi
-    
+
     # Validate restore mode
     if [[ ! "$RESTORE_MODE" =~ ^(full|data-only|schema-only)$ ]]; then
         log "ERROR: Invalid restore mode: $RESTORE_MODE"
         exit 1
     fi
-    
+
     log "Requirements validation passed"
 }
 
@@ -180,18 +180,18 @@ validate_requirements() {
 get_backup_file() {
     if [[ -z "$BACKUP_FILE" ]]; then
         log "Finding latest backup..."
-        
+
         BACKUP_FILE=$(aws s3 ls "s3://${S3_BUCKET}/${S3_PREFIX}/" | \
             grep "\.sql\.gpg$" | \
             sort -k1,2 -r | \
             head -n1 | \
             awk '{print $4}')
-        
+
         if [[ -z "$BACKUP_FILE" ]]; then
             log "ERROR: No backup files found in s3://${S3_BUCKET}/${S3_PREFIX}/"
             exit 1
         fi
-        
+
         log "Latest backup found: $BACKUP_FILE"
     fi
 }
@@ -199,31 +199,31 @@ get_backup_file() {
 # Download and decrypt backup
 download_backup() {
     log "Downloading and decrypting backup: $BACKUP_FILE"
-    
+
     mkdir -p "$LOCAL_RESTORE_DIR"
-    
+
     local encrypted_file="${LOCAL_RESTORE_DIR}/${BACKUP_FILE}"
     local decrypted_file="${LOCAL_RESTORE_DIR}/restore_${TIMESTAMP}.sql"
-    
+
     # Download backup
     aws s3 cp "s3://${S3_BUCKET}/${S3_PREFIX}/${BACKUP_FILE}" "$encrypted_file"
-    
+
     # Decrypt backup
     echo "$ENCRYPTION_KEY" | gpg --batch --yes --passphrase-fd 0 \
         --decrypt "$encrypted_file" > "$decrypted_file"
-    
+
     # Verify decrypted file
     if [[ ! -f "$decrypted_file" ]] || [[ ! -s "$decrypted_file" ]]; then
         log "ERROR: Failed to decrypt backup file"
         exit 1
     fi
-    
+
     # Check if it's a valid PostgreSQL dump
     if ! file "$decrypted_file" | grep -q "PostgreSQL custom database dump"; then
         log "ERROR: Decrypted file is not a valid PostgreSQL dump"
         exit 1
     fi
-    
+
     DECRYPTED_BACKUP="$decrypted_file"
     local backup_size=$(du -h "$DECRYPTED_BACKUP" | cut -f1)
     log "Backup decrypted successfully: ${backup_size}"
@@ -232,53 +232,53 @@ download_backup() {
 # Test database connectivity
 test_database_connection() {
     log "Testing database connection..."
-    
+
     if ! kubectl exec -n "$NAMESPACE" deployment/pynomaly-api -- \
         pg_isready -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -q; then
         log "ERROR: Cannot connect to database"
         exit 1
     fi
-    
+
     log "Database connection successful"
 }
 
 # Create database backup before restore
 backup_current_database() {
     log "Creating backup of current database before restore..."
-    
+
     local pre_restore_backup="pre_restore_backup_${TIMESTAMP}.sql"
-    
+
     kubectl exec -n "$NAMESPACE" deployment/pynomaly-api -- \
         pg_dump -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" \
         --format=custom \
         --compress=9 > "${LOCAL_RESTORE_DIR}/${pre_restore_backup}"
-    
+
     log "Current database backed up to: $pre_restore_backup"
 }
 
 # Stop application services
 stop_services() {
     log "Scaling down application services..."
-    
+
     kubectl scale deployment pynomaly-api --replicas=0 -n "$NAMESPACE"
     kubectl scale deployment pynomaly-worker --replicas=0 -n "$NAMESPACE"
-    
+
     # Wait for pods to terminate
     kubectl wait --for=delete pod -l app.kubernetes.io/name=pynomaly -n "$NAMESPACE" --timeout=300s
-    
+
     log "Application services stopped"
 }
 
 # Start application services
 start_services() {
     log "Scaling up application services..."
-    
+
     kubectl scale deployment pynomaly-api --replicas=3 -n "$NAMESPACE"
     kubectl scale deployment pynomaly-worker --replicas=2 -n "$NAMESPACE"
-    
+
     # Wait for pods to be ready
     kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=pynomaly -n "$NAMESPACE" --timeout=600s
-    
+
     log "Application services started"
 }
 
@@ -286,9 +286,9 @@ start_services() {
 restore_database() {
     log "Restoring database from backup..."
     log "Restore mode: $RESTORE_MODE"
-    
+
     local restore_args=()
-    
+
     case "$RESTORE_MODE" in
         "data-only")
             restore_args+=(--data-only)
@@ -304,7 +304,7 @@ restore_database() {
                 psql -U postgres -c "CREATE DATABASE ${DB_NAME} OWNER ${DB_USER};"
             ;;
     esac
-    
+
     # Perform restore
     kubectl exec -i -n "$NAMESPACE" deployment/pynomaly-postgresql-0 -- \
         pg_restore -h localhost -U "$DB_USER" -d "$DB_NAME" \
@@ -314,31 +314,31 @@ restore_database() {
         --no-owner \
         --no-privileges \
         "${restore_args[@]}" < "$DECRYPTED_BACKUP"
-    
+
     log "Database restore completed"
 }
 
 # Verify restore
 verify_restore() {
     log "Verifying database restore..."
-    
+
     # Test basic connectivity
     kubectl exec -n "$NAMESPACE" deployment/pynomaly-api -- \
         psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -c "SELECT version();"
-    
+
     # Check table count
     local table_count
     table_count=$(kubectl exec -n "$NAMESPACE" deployment/pynomaly-api -- \
         psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -t -c \
         "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';")
-    
+
     log "Database verification completed. Tables found: $table_count"
-    
+
     if [[ $table_count -eq 0 ]]; then
         log "WARNING: No tables found in restored database"
         return 1
     fi
-    
+
     return 0
 }
 
@@ -346,9 +346,9 @@ verify_restore() {
 send_notification() {
     local status=$1
     local message=$2
-    
+
     log "Sending notification: $status - $message"
-    
+
     # Send to Slack if webhook URL is configured
     if [[ -n "${SLACK_WEBHOOK_URL:-}" ]]; then
         curl -X POST -H 'Content-type: application/json' \
@@ -364,16 +364,16 @@ main() {
     log "Database: $DB_NAME"
     log "Restore mode: $RESTORE_MODE"
     log "S3 Bucket: $S3_BUCKET"
-    
+
     validate_requirements
     get_backup_file
-    
+
     if [[ "${DRY_RUN:-false}" == "true" ]]; then
         log "DRY RUN: Would restore backup: $BACKUP_FILE"
         log "DRY RUN: Would use restore mode: $RESTORE_MODE"
         exit 0
     fi
-    
+
     # Confirmation prompt
     echo
     echo "⚠️  WARNING: This will restore the database from backup!"
@@ -386,13 +386,13 @@ main() {
         log "Restore cancelled by user"
         exit 1
     fi
-    
+
     test_database_connection
     download_backup
     backup_current_database
     stop_services
     restore_database
-    
+
     if verify_restore; then
         start_services
         local restore_info="Database restored successfully from: $BACKUP_FILE"
@@ -403,7 +403,7 @@ main() {
         send_notification "FAILED" "Database restore verification failed"
         exit 1
     fi
-    
+
     log "Restore process completed successfully"
 }
 

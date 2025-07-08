@@ -46,10 +46,10 @@ services:
       sh -c "
         echo 'Waiting for application to be ready...' &&
         sleep 10 &&
-        pytest tests/ui/ -v 
-        --html=reports/ui-test-report.html 
-        --self-contained-html 
-        --screenshot=on 
+        pytest tests/ui/ -v
+        --html=reports/ui-test-report.html
+        --self-contained-html
+        --screenshot=on
         --video=on
         --capture=no
       "
@@ -78,8 +78,8 @@ services:
       sh -c "
         echo 'Running visual regression tests...' &&
         sleep 10 &&
-        pytest tests/ui/test_visual_regression.py -v 
-        --html=reports/visual-test-report.html 
+        pytest tests/ui/test_visual_regression.py -v
+        --html=reports/visual-test-report.html
         --self-contained-html
       "
 

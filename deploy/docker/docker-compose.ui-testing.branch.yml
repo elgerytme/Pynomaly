@@ -1,0 +1,85 @@
+# Generated branch-specific docker-compose file for branch: bugfix/security-patch
+# Generated from: C:\Users\andre\pynomaly\deploy\docker\docker-compose.ui-testing.yml
+# Branch suffix: bugfix-security-patch
+
+version: '3.8'
+services:
+  pynomaly-app-bugfix-security-patch:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+    - 8000:8000
+    environment:
+    - PYNOMALY_ENV=testing
+    - PYNOMALY_DATABASE_URL=sqlite:///testing.db
+    - PYNOMALY_LOG_LEVEL=INFO
+    - GIT_BRANCH=bugfix/security-patch
+    volumes:
+    - ./storage:/app/storage
+    networks:
+    - ui-testing-network-bugfix-security-patch
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8000/health
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+  ui-tests-bugfix-security-patch:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ui-testing
+    depends_on:
+      pynomaly-app-bugfix-security-patch:
+        condition: service_healthy
+    environment:
+    - PYNOMALY_BASE_URL=http://pynomaly-app-bugfix-security-patch:8000
+    - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+    - PYTHONPATH=/app/src
+    - GIT_BRANCH=bugfix/security-patch
+    volumes:
+    - ./test-results:/app/test-results
+    - ./screenshots:/app/screenshots
+    - ./reports:/app/reports
+    - ./tests/ui:/app/tests/ui
+    networks:
+    - ui-testing-network-bugfix-security-patch
+    command: "sh -c \"\n  echo 'Waiting for application to be ready...' &&\n  sleep\
+      \ 10 &&\n  pytest tests/ui/ -v\n  --html=reports/ui-test-report.html\n  --self-contained-html\n\
+      \  --screenshot=on\n  --video=on\n  --capture=no\n\"\n"
+  visual-tests-bugfix-security-patch:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ui-testing
+    depends_on:
+      pynomaly-app-bugfix-security-patch:
+        condition: service_healthy
+    environment:
+    - PYNOMALY_BASE_URL=http://pynomaly-app-bugfix-security-patch:8000
+    - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+    - PYTHONPATH=/app/src
+    - GIT_BRANCH=bugfix/security-patch
+    volumes:
+    - ./test-results:/app/test-results
+    - ./screenshots:/app/screenshots
+    - ./reports:/app/reports
+    - ./tests/ui:/app/tests/ui
+    - ./visual-baselines:/app/visual-baselines
+    networks:
+    - ui-testing-network-bugfix-security-patch
+    command: "sh -c \"\n  echo 'Running visual regression tests...' &&\n  sleep 10\
+      \ &&\n  pytest tests/ui/test_visual_regression.py -v\n  --html=reports/visual-test-report.html\n\
+      \  --self-contained-html\n\"\n"
+networks:
+  ui-testing-network-bugfix-security-patch:
+    driver: bridge
+    name: ui-testing-network-bugfix-security-patch
+volumes:
+  test-results-bugfix-security-patch: null
+  screenshots-bugfix-security-patch: null
+  reports-bugfix-security-patch: null
+  visual-baselines-bugfix-security-patch: null

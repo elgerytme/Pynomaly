@@ -1,0 +1,70 @@
+# Generated branch-specific docker-compose file for branch: bugfix/security-patch
+# Generated from: C:\Users\andre\pynomaly\deploy\docker\docker-compose.yml
+# Branch suffix: bugfix-security-patch
+
+version: '3.8'
+services:
+  pynomaly-bugfix-security-patch:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+    - 8000:8000
+    environment:
+    - PYNOMALY_ENVIRONMENT=production
+    - PYNOMALY_API_HOST=0.0.0.0
+    - PYNOMALY_API_PORT=8000
+    - PYNOMALY_STORAGE_PATH=/app/storage
+    - PYNOMALY_LOG_PATH=/app/logs
+    - GIT_BRANCH=bugfix/security-patch
+    volumes:
+    - ./storage:/app/storage
+    - ./logs:/app/logs
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8000/api/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+  redis-bugfix-security-patch:
+    image: redis:7-alpine
+    ports:
+    - 6379:6379
+    volumes:
+    - redis_data-bugfix-security-patch:/data
+    restart: unless-stopped
+    environment:
+    - GIT_BRANCH=bugfix/security-patch
+  postgres-bugfix-security-patch:
+    image: postgres:16-alpine
+    environment:
+    - POSTGRES_DB=pynomaly
+    - POSTGRES_USER=pynomaly
+    - POSTGRES_PASSWORD=pynomaly_secret
+    - GIT_BRANCH=bugfix/security-patch
+    ports:
+    - 5432:5432
+    volumes:
+    - postgres_data-bugfix-security-patch:/var/lib/postgresql/data
+    restart: unless-stopped
+  nginx-bugfix-security-patch:
+    image: nginx:alpine
+    ports:
+    - 80:80
+    - 443:443
+    volumes:
+    - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    - ./certs:/etc/nginx/certs:ro
+    depends_on:
+    - pynomaly-bugfix-security-patch
+    restart: unless-stopped
+    environment:
+    - GIT_BRANCH=bugfix/security-patch
+volumes:
+  redis_data-bugfix-security-patch: null
+  postgres_data-bugfix-security-patch: null

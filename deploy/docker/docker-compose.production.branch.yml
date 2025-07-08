@@ -1,0 +1,379 @@
+# Generated branch-specific docker-compose file for branch: bugfix/security-patch
+# Generated from: C:\Users\andre\pynomaly\deploy\docker\docker-compose.production.yml
+# Branch suffix: bugfix-security-patch
+
+version: '3.8'
+services:
+  pynomaly-api-bugfix-security-patch:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.production
+      args:
+        BUILD_DATE: ${BUILD_DATE:-$(date -u +'%Y-%m-%dT%H:%M:%SZ')}
+        VERSION: ${VERSION:-latest}
+        VCS_REF: ${VCS_REF:-$(git rev-parse HEAD)}
+    image: pynomaly/api:${VERSION:-latest}
+    container_name: pynomaly-api-bugfix-security-patch
+    restart: unless-stopped
+    ports:
+    - ${API_PORT:-8000}:8000
+    environment:
+    - PYNOMALY_ENVIRONMENT=production
+    - PYNOMALY_API_HOST=0.0.0.0
+    - PYNOMALY_API_PORT=8000
+    - PYNOMALY_STORAGE_PATH=/app/storage
+    - PYNOMALY_LOG_PATH=/app/logs
+    - PYNOMALY_CONFIG_PATH=/app/config
+    - DATABASE_URL=postgresql://pynomaly:${POSTGRES_PASSWORD}@postgres-bugfix-security-patch:5432/pynomaly
+    - REDIS_URL=redis://redis-bugfix-security-patch:6379/0
+    - CELERY_BROKER_URL=redis://redis-bugfix-security-patch:6379/0
+    - CELERY_RESULT_BACKEND=redis://redis-bugfix-security-patch:6379/0
+    - PROMETHEUS_METRICS_PORT=9090
+    - OPENTELEMETRY_EXPORTER_OTLP_ENDPOINT=http://otel-collector-bugfix-security-patch:4317
+    - GIT_BRANCH=bugfix/security-patch
+    volumes:
+    - pynomaly_storage-bugfix-security-patch:/app/storage
+    - pynomaly_logs-bugfix-security-patch:/app/logs
+    - pynomaly_config-bugfix-security-patch:/app/config
+    - ./config/production:/app/config:ro
+    networks:
+    - pynomaly-network-bugfix-security-patch
+    depends_on:
+      postgres-bugfix-security-patch:
+        condition: service_healthy
+      redis-bugfix-security-patch:
+        condition: service_healthy
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8000/api/health/ready
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+  pynomaly-web-bugfix-security-patch:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.production
+      target: frontend-builder
+    image: pynomaly/web:${VERSION:-latest}
+    container_name: pynomaly-web-bugfix-security-patch
+    restart: unless-stopped
+    ports:
+    - ${WEB_PORT:-8080}:8080
+    environment:
+    - PYNOMALY_ENVIRONMENT=production
+    - PYNOMALY_API_URL=http://pynomaly-api-bugfix-security-patch:8000
+    - GIT_BRANCH=bugfix/security-patch
+    volumes:
+    - pynomaly_web_assets-bugfix-security-patch:/app/static
+    networks:
+    - pynomaly-network-bugfix-security-patch
+    depends_on:
+    - pynomaly-api-bugfix-security-patch
+    command:
+    - python
+    - -m
+    - http.server
+    - '8080'
+    - --directory
+    - /app/static
+  pynomaly-worker-training-bugfix-security-patch:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.worker
+      target: training-worker
+    image: pynomaly/worker-training:${VERSION:-latest}
+    container_name: pynomaly-worker-training-bugfix-security-patch
+    restart: unless-stopped
+    environment:
+    - PYNOMALY_ENVIRONMENT=production
+    - CELERY_BROKER_URL=redis://redis-bugfix-security-patch:6379/0
+    - CELERY_RESULT_BACKEND=redis://redis-bugfix-security-patch:6379/0
+    - DATABASE_URL=postgresql://pynomaly:${POSTGRES_PASSWORD}@postgres-bugfix-security-patch:5432/pynomaly
+    - WORKER_CONCURRENCY=4
+    - WORKER_QUEUE=model_training,anomaly_detection
+    - GIT_BRANCH=bugfix/security-patch
+    volumes:
+    - pynomaly_storage-bugfix-security-patch:/app/storage
+    - pynomaly_logs-bugfix-security-patch:/app/logs
+    networks:
+    - pynomaly-network-bugfix-security-patch
+    depends_on:
+    - redis-bugfix-security-patch
+    - postgres-bugfix-security-patch
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+        reservations:
+          memory: 2G
+          cpus: '1.0'
+  pynomaly-worker-drift-bugfix-security-patch:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.worker
+      target: drift-worker
+    image: pynomaly/worker-drift:${VERSION:-latest}
+    container_name: pynomaly-worker-drift-bugfix-security-patch
+    restart: unless-stopped
+    environment:
+    - PYNOMALY_ENVIRONMENT=production
+    - CELERY_BROKER_URL=redis://redis-bugfix-security-patch:6379/0
+    - CELERY_RESULT_BACKEND=redis://redis-bugfix-security-patch:6379/0
+    - DATABASE_URL=postgresql://pynomaly:${POSTGRES_PASSWORD}@postgres-bugfix-security-patch:5432/pynomaly
+    - WORKER_CONCURRENCY=2
+    - WORKER_QUEUE=drift_monitoring,alert_processing
+    - DRIFT_CHECK_INTERVAL=3600
+    - GIT_BRANCH=bugfix/security-patch
+    volumes:
+    - pynomaly_storage-bugfix-security-patch:/app/storage
+    - pynomaly_logs-bugfix-security-patch:/app/logs
+    networks:
+    - pynomaly-network-bugfix-security-patch
+    depends_on:
+    - redis-bugfix-security-patch
+    - postgres-bugfix-security-patch
+  pynomaly-scheduler-bugfix-security-patch:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.worker
+      target: scheduler-worker
+    image: pynomaly/scheduler:${VERSION:-latest}
+    container_name: pynomaly-scheduler-bugfix-security-patch
+    restart: unless-stopped
+    environment:
+    - PYNOMALY_ENVIRONMENT=production
+    - CELERY_BROKER_URL=redis://redis-bugfix-security-patch:6379/0
+    - CELERY_RESULT_BACKEND=redis://redis-bugfix-security-patch:6379/0
+    - DATABASE_URL=postgresql://pynomaly:${POSTGRES_PASSWORD}@postgres-bugfix-security-patch:5432/pynomaly
+    - GIT_BRANCH=bugfix/security-patch
+    volumes:
+    - pynomaly_storage-bugfix-security-patch:/app/storage
+    - pynomaly_logs-bugfix-security-patch:/app/logs
+    networks:
+    - pynomaly-network-bugfix-security-patch
+    depends_on:
+    - redis-bugfix-security-patch
+    - postgres-bugfix-security-patch
+  pynomaly-flower-bugfix-security-patch:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.worker
+      target: flower-monitor
+    image: pynomaly/flower:${VERSION:-latest}
+    container_name: pynomaly-flower-bugfix-security-patch
+    restart: unless-stopped
+    ports:
+    - ${FLOWER_PORT:-5555}:5555
+    environment:
+    - CELERY_BROKER_URL=redis://redis-bugfix-security-patch:6379/0
+    - FLOWER_BASIC_AUTH=${FLOWER_USER:-admin}:${FLOWER_PASSWORD:-flower_secret}
+    - GIT_BRANCH=bugfix/security-patch
+    networks:
+    - pynomaly-network-bugfix-security-patch
+    depends_on:
+    - redis-bugfix-security-patch
+  prometheus-bugfix-security-patch:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.monitoring
+      target: prometheus
+    image: pynomaly/prometheus:${VERSION:-latest}
+    container_name: pynomaly-prometheus-bugfix-security-patch
+    restart: unless-stopped
+    ports:
+    - ${PROMETHEUS_PORT:-9090}:9090
+    volumes:
+    - prometheus_data-bugfix-security-patch:/prometheus
+    - ./config/prometheus:/etc/prometheus:ro
+    networks:
+    - pynomaly-network-bugfix-security-patch
+    command:
+    - --config.file=/etc/prometheus/prometheus.yml
+    - --storage.tsdb.path=/prometheus
+    - --web.console.libraries=/etc/prometheus/console_libraries
+    - --web.console.templates=/etc/prometheus/consoles
+    - --storage.tsdb.retention.time=30d
+    - --web.enable-lifecycle
+    - --web.enable-admin-api
+    environment:
+    - GIT_BRANCH=bugfix/security-patch
+  grafana-bugfix-security-patch:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.monitoring
+      target: grafana
+    image: pynomaly/grafana:${VERSION:-latest}
+    container_name: pynomaly-grafana-bugfix-security-patch
+    restart: unless-stopped
+    ports:
+    - ${GRAFANA_PORT:-3000}:3000
+    environment:
+    - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+    - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-grafana_secret}
+    - GF_USERS_ALLOW_SIGN_UP=false
+    - GF_SERVER_DOMAIN=${GRAFANA_DOMAIN:-localhost}
+    - GIT_BRANCH=bugfix/security-patch
+    volumes:
+    - grafana_data-bugfix-security-patch:/var/lib/grafana
+    - ./config/grafana:/etc/grafana/provisioning:ro
+    networks:
+    - pynomaly-network-bugfix-security-patch
+    depends_on:
+    - prometheus-bugfix-security-patch
+  otel-collector-bugfix-security-patch:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.monitoring
+      target: otel-collector
+    image: pynomaly/otel-collector:${VERSION:-latest}
+    container_name: pynomaly-otel-collector-bugfix-security-patch
+    restart: unless-stopped
+    ports:
+    - 4317:4317
+    - 4318:4318
+    - 8889:8889
+    volumes:
+    - ./config/otel:/etc/otelcol-contrib:ro
+    networks:
+    - pynomaly-network-bugfix-security-patch
+    depends_on:
+    - prometheus-bugfix-security-patch
+    environment:
+    - GIT_BRANCH=bugfix/security-patch
+  postgres-bugfix-security-patch:
+    image: postgres:16-alpine
+    container_name: pynomaly-postgres-bugfix-security-patch
+    restart: unless-stopped
+    ports:
+    - ${POSTGRES_PORT:-5432}:5432
+    environment:
+    - POSTGRES_DB=pynomaly
+    - POSTGRES_USER=pynomaly
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-pynomaly_secret}
+    - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    - GIT_BRANCH=bugfix/security-patch
+    volumes:
+    - postgres_data-bugfix-security-patch:/var/lib/postgresql/data
+    - ./init/postgres:/docker-entrypoint-initdb.d:ro
+    networks:
+    - pynomaly-network-bugfix-security-patch
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U pynomaly -d pynomaly
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+  redis-bugfix-security-patch:
+    image: redis:7-alpine
+    container_name: pynomaly-redis-bugfix-security-patch
+    restart: unless-stopped
+    ports:
+    - ${REDIS_PORT:-6379}:6379
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_secret}
+    volumes:
+    - redis_data-bugfix-security-patch:/data
+    - ./config/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    networks:
+    - pynomaly-network-bugfix-security-patch
+    healthcheck:
+      test:
+      - CMD
+      - redis-cli
+      - --raw
+      - incr
+      - ping
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.25'
+    environment:
+    - GIT_BRANCH=bugfix/security-patch
+  nginx-bugfix-security-patch:
+    image: nginx:1.25-alpine
+    container_name: pynomaly-nginx-bugfix-security-patch
+    restart: unless-stopped
+    ports:
+    - 80:80
+    - 443:443
+    volumes:
+    - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    - ./config/nginx/conf.d:/etc/nginx/conf.d:ro
+    - ./certs:/etc/nginx/certs:ro
+    - pynomaly_web_assets-bugfix-security-patch:/var/www/static:ro
+    networks:
+    - pynomaly-network-bugfix-security-patch
+    depends_on:
+    - pynomaly-api-bugfix-security-patch
+    - pynomaly-web-bugfix-security-patch
+    - grafana-bugfix-security-patch
+    healthcheck:
+      test:
+      - CMD
+      - wget
+      - --quiet
+      - --tries=1
+      - --spider
+      - http://localhost/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    environment:
+    - GIT_BRANCH=bugfix/security-patch
+networks:
+  pynomaly-network-bugfix-security-patch:
+    driver: bridge
+    name: pynomaly-production-bugfix-security-patch
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.20.0.0/16
+volumes:
+  pynomaly_storage-bugfix-security-patch:
+    name: pynomaly_storage-bugfix-security-patch
+    driver: local
+  pynomaly_logs-bugfix-security-patch:
+    name: pynomaly_logs-bugfix-security-patch
+    driver: local
+  pynomaly_config-bugfix-security-patch:
+    name: pynomaly_config-bugfix-security-patch
+    driver: local
+  pynomaly_web_assets-bugfix-security-patch:
+    name: pynomaly_web_assets-bugfix-security-patch
+    driver: local
+  postgres_data-bugfix-security-patch:
+    name: pynomaly_postgres_data-bugfix-security-patch
+    driver: local
+  redis_data-bugfix-security-patch:
+    name: pynomaly_redis_data-bugfix-security-patch
+    driver: local
+  prometheus_data-bugfix-security-patch:
+    name: pynomaly_prometheus_data-bugfix-security-patch
+    driver: local
+  grafana_data-bugfix-security-patch:
+    name: pynomaly_grafana_data-bugfix-security-patch
+    driver: local

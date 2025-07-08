@@ -115,7 +115,7 @@ services:
   # ============================================================================
   # Infrastructure Services
   # ============================================================================
-  
+
   # Development Redis
   redis:
     image: redis:7.2-alpine
@@ -238,7 +238,7 @@ services:
   # ============================================================================
   # Monitoring and Management
   # ============================================================================
-  
+
   # Production Nginx Reverse Proxy
   nginx:
     image: nginx:1.25-alpine
@@ -269,11 +269,11 @@ networks:
   pynomaly-network:
     driver: bridge
     name: pynomaly-dev-network
-  
+
   pynomaly-test-network:
     driver: bridge
     name: pynomaly-test-network
-    
+
   pynomaly-prod-network:
     driver: bridge
     name: pynomaly-prod-network
@@ -291,11 +291,11 @@ volumes:
     name: pynomaly-redis-dev-data
   pynomaly-postgres-dev-data:
     name: pynomaly-postgres-dev-data
-  
+
   # Testing volumes
   pynomaly-test-reports:
     name: pynomaly-test-reports
-  
+
   # Production volumes
   pynomaly-prod-storage:
     name: pynomaly-prod-storage

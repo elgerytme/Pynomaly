@@ -309,18 +309,18 @@ spec:
     requests.memory: "20Gi"
     limits.cpu: "20"
     limits.memory: "40Gi"
-    
+
     # Storage resources
     requests.storage: "1Ti"
     persistentvolumeclaims: "20"
-    
+
     # Object counts
     pods: "50"
     services: "20"
     secrets: "20"
     configmaps: "20"
     replicationcontrollers: "0"
-    
+
     # Load balancers
     services.loadbalancers: "5"
     services.nodeports: "0"

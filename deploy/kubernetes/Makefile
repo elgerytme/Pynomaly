@@ -77,13 +77,13 @@ deploy: check-prerequisites validate ## Deploy Pynomaly to Kubernetes
 	@echo "Namespace: $(NAMESPACE)"
 	@echo "Environment: $(ENVIRONMENT)"
 	@echo ""
-	
+
 	# Create namespace if it doesn't exist
 	@kubectl create namespace $(NAMESPACE) --dry-run=client -o yaml | kubectl apply -f -
-	
+
 	# Apply manifests with kustomize
 	@kustomize build $(KUSTOMIZE_DIR) | kubectl apply -f - --timeout=$(TIMEOUT)
-	
+
 	@echo "✅ Deployment initiated"
 	@echo "Use 'make status' to check deployment progress"
 
