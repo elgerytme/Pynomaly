@@ -334,6 +334,7 @@ def configure_openapi_docs(app: FastAPI, settings: Settings) -> None:
     apply_openapi_overrides(app)
     
     # Import and use the custom OpenAPI generator
+    # This handles forward reference issues that prevent normal OpenAPI generation
     from pynomaly.presentation.api.docs.openapi_utils import apply_custom_openapi_to_app
     apply_custom_openapi_to_app(app, config)
 

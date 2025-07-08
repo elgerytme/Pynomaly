@@ -180,18 +180,29 @@ class ModelPerformanceDegradationDetector:
             # Log detected degradation
             logger.info(f"Performance degradation detected for model {model_name}")
 
-            # Instantiate PerformanceAlertService
+            # Instantiate PerformanceAlertService (simplified version)
             from pynomaly.application.services.performance_alert_service import PerformanceAlertService
             from pynomaly.application.services.intelligent_alert_service import IntelligentAlertService
-            performance_alert_service = PerformanceAlertService(IntelligentAlertService())
+            
+            # Create a simplified alert service
+            intelligent_service = IntelligentAlertService()
+            performance_alert_service = PerformanceAlertService(intelligent_service)
 
-            # Create a performance alert
-            await performance_alert_service.create_performance_alert(
-                degradation_result=degradation_result,
-                model_id=model_id,
-                model_name=model_name,
-                notification_channels=notification_channels
-            )
+            try:
+                # Create a performance alert
+                alert = await performance_alert_service.create_performance_alert(
+                    degradation_result=degradation_result,
+                    model_id=model_id,
+                    model_name=model_name,
+                    notification_channels=notification_channels
+                )
+                logger.info(f"✓ Alert created: {alert.name} (ID: {alert.id})")
+                logger.info(f"  Alert severity: {alert.severity.value}")
+                logger.info(f"  Alert source: {alert.source}")
+                logger.info(f"  Notifications via: {[ch.value for ch in (notification_channels or [])]}")
+            except Exception as e:
+                logger.error(f"Failed to create alert: {e}")
+                # Continue with detection even if alerting fails
 
         return degradation_result
 
