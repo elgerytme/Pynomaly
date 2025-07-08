@@ -8,13 +8,13 @@ from .contamination_rate import ContaminationRate
 from .model_storage_info import ModelStorageInfo, SerializationFormat, StorageBackend
 from .performance_metrics import PerformanceMetrics
 from .semantic_version import SemanticVersion
-from .severity_score import SeverityLevel, SeverityScore
+from .severity_score import SeverityScore, SeverityLevel
 from .threshold_config import ThresholdConfig
 
 __all__ = [
+    "AnomalyCategory",
     "AnomalyScore",
     "AnomalyType",
-    "AnomalyCategory",
     "ConfidenceInterval",
     "ContaminationRate",
     "ThresholdConfig",

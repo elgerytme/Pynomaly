@@ -86,13 +86,13 @@ class LineageRecord(BaseModel):
     # Relationship information
     child_model_id: UUID = Field(..., description="Child (derived) model identifier")
     parent_model_ids: list[UUID] = Field(..., description="Parent model identifiers")
-    relation_type: LineageRelationType = Field(
+    relationship_type: LineageRelationType = Field(
         ..., description="Type of lineage relationship"
     )
 
     # Transformation details
-    transformation: LineageTransformation = Field(
-        ..., description="Transformation applied"
+    transformation_type: TransformationType = Field(
+        ..., description="Transformation type applied"
     )
 
     # Input artifacts
@@ -107,15 +107,16 @@ class LineageRecord(BaseModel):
     )
 
     # Metadata
-    created_at: datetime = Field(
+    timestamp: datetime = Field(
         default_factory=datetime.utcnow, description="Creation timestamp"
     )
-    created_by: str = Field(..., description="User who created the record")
+    created_by: str = Field(default="system", description="User who created the record")
     experiment_id: UUID | None = Field(
         None, description="Associated experiment identifier"
     )
     run_id: str | None = Field(None, description="Associated run identifier")
     tags: list[str] = Field(default_factory=list, description="Lineage tags")
+    description: str | None = Field(None, description="Lineage description")
     metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional metadata"
     )

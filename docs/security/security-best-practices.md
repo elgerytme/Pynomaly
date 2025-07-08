@@ -1,6 +1,6 @@
 # Security Best Practices Guide
 
-🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Security
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 [Security](README.md)
 
 ---
 
@@ -8,6 +8,8 @@
 ## Overview
 
 This comprehensive guide covers security best practices for deploying and operating Pynomaly in production environments. It addresses authentication, authorization, data protection, network security, and compliance considerations for enterprise deployments.
+
+> **Development Security:** For secure development lifecycle practices, see the [SDLC Security Guide](SDLC-security-guide.md).
 
 ## Table of Contents
 
