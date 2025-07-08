@@ -8,11 +8,9 @@ organization rules to their appropriate directories.
 
 import argparse
 import fnmatch
-import os
 import shutil
 import sys
 from pathlib import Path
-from typing import Dict, List
 
 
 class RootDirectoryFixer:
@@ -21,8 +19,8 @@ class RootDirectoryFixer:
     def __init__(self, project_root: Path = None, dry_run: bool = True):
         self.project_root = project_root or Path.cwd()
         self.dry_run = dry_run
-        self.moves_made: List[str] = []
-        self.deletions_made: List[str] = []
+        self.moves_made: list[str] = []
+        self.deletions_made: list[str] = []
 
     def fix_violations(self) -> bool:
         """
@@ -183,7 +181,7 @@ class RootDirectoryFixer:
         return success
 
     def _move_files_by_pattern(
-        self, patterns: List[str], target_dir: str, description: str
+        self, patterns: list[str], target_dir: str, description: str
     ) -> bool:
         """Move files matching patterns to target directory."""
         success = True
@@ -227,7 +225,7 @@ class RootDirectoryFixer:
             print("\n🔍 DRY RUN COMPLETE - No changes were made")
             print("Run with --apply to actually make changes")
         else:
-            print(f"\n✅ AUTO-FIX COMPLETE")
+            print("\n✅ AUTO-FIX COMPLETE")
             print(f"Files moved: {len(self.moves_made)}")
             print(f"Files deleted: {len(self.deletions_made)}")
 

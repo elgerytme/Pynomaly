@@ -9,7 +9,6 @@ new violations to the organization standards.
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
 
 # Import the existing validation logic
 sys.path.insert(0, str(Path(__file__).parent))

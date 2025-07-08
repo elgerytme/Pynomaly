@@ -7,7 +7,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 
 class TestRunner:
@@ -26,7 +26,7 @@ class TestRunner:
         self.reports_dir.mkdir(exist_ok=True)
         (self.reports_dir / "coverage").mkdir(exist_ok=True)
 
-    def run_unit_tests(self, verbose: bool = False) -> Dict[str, Any]:
+    def run_unit_tests(self, verbose: bool = False) -> dict[str, Any]:
         """Run unit tests.
 
         Args:
@@ -70,7 +70,7 @@ class TestRunner:
             "stderr": result.stderr,
         }
 
-    def run_integration_tests(self, verbose: bool = False) -> Dict[str, Any]:
+    def run_integration_tests(self, verbose: bool = False) -> dict[str, Any]:
         """Run integration tests.
 
         Args:
@@ -114,7 +114,7 @@ class TestRunner:
             "stderr": result.stderr,
         }
 
-    def run_security_tests(self, verbose: bool = False) -> Dict[str, Any]:
+    def run_security_tests(self, verbose: bool = False) -> dict[str, Any]:
         """Run security tests.
 
         Args:
@@ -158,7 +158,7 @@ class TestRunner:
             "stderr": result.stderr,
         }
 
-    def run_performance_tests(self, verbose: bool = False) -> Dict[str, Any]:
+    def run_performance_tests(self, verbose: bool = False) -> dict[str, Any]:
         """Run performance tests.
 
         Args:
@@ -204,7 +204,7 @@ class TestRunner:
             "stderr": result.stderr,
         }
 
-    def run_all_tests(self, verbose: bool = False) -> Dict[str, Any]:
+    def run_all_tests(self, verbose: bool = False) -> dict[str, Any]:
         """Run all tests with comprehensive coverage.
 
         Args:
@@ -253,7 +253,7 @@ class TestRunner:
             "stderr": result.stderr,
         }
 
-    def run_quick_tests(self, verbose: bool = False) -> Dict[str, Any]:
+    def run_quick_tests(self, verbose: bool = False) -> dict[str, Any]:
         """Run quick tests (unit tests only, no slow tests).
 
         Args:
@@ -295,7 +295,7 @@ class TestRunner:
             "stderr": result.stderr,
         }
 
-    def run_coverage_report(self) -> Dict[str, Any]:
+    def run_coverage_report(self) -> dict[str, Any]:
         """Generate coverage report.
 
         Returns:
@@ -330,7 +330,7 @@ class TestRunner:
             "report_success": report_result.returncode == 0,
         }
 
-    def run_lint_checks(self) -> Dict[str, Any]:
+    def run_lint_checks(self) -> dict[str, Any]:
         """Run linting and static analysis.
 
         Returns:
@@ -387,7 +387,7 @@ class TestRunner:
 
         return results
 
-    def print_summary(self, results: List[Dict[str, Any]]) -> None:
+    def print_summary(self, results: list[dict[str, Any]]) -> None:
         """Print test summary.
 
         Args:
@@ -469,7 +469,7 @@ def main():
     runner = TestRunner(project_root)
     results = []
 
-    print(f"🚀 Starting Pynomaly Test Suite")
+    print("🚀 Starting Pynomaly Test Suite")
     print(f"📁 Project Root: {project_root}")
     print(f"🧪 Test Type: {args.type}")
 

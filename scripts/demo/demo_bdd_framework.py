@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Demo script showcasing the comprehensive BDD framework implementation."""
 
-import asyncio
 import sys
 from pathlib import Path
 

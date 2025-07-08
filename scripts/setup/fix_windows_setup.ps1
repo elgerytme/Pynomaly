@@ -18,7 +18,7 @@ Write-Host "`n📌 Step 2: Setting up virtual environment" -ForegroundColor Yell
 
 if (Test-Path ".venv") {
     Write-Host "Virtual environment exists, checking integrity..." -ForegroundColor Blue
-    
+
     if (!(Test-Path ".venv\Scripts\python.exe")) {
         Write-Host "❌ Virtual environment appears broken, recreating..." -ForegroundColor Red
         Remove-Item -Recurse -Force ".venv" -ErrorAction SilentlyContinue
@@ -54,7 +54,7 @@ Write-Host "`n📌 Step 4: Installing missing dependencies" -ForegroundColor Yel
 
 $dependencies = @(
     "prometheus-fastapi-instrumentator>=7.0.0",
-    "shap>=0.46.0", 
+    "shap>=0.46.0",
     "lime>=0.2.0.1"
 )
 
@@ -95,7 +95,7 @@ try {
 # Final instructions
 Write-Host "`n📌 Setup Complete! Next Steps:" -ForegroundColor Cyan
 Write-Host "1. CLI: python -m pynomaly.presentation.cli.app --help"
-Write-Host "2. API: python scripts\run_api.py"  
+Write-Host "2. API: python scripts\run_api.py"
 Write-Host "3. Web UI: python scripts\run_web_ui.py"
 Write-Host "4. For production: python -m pip install -e .[production]"
 Write-Host "`nEnvironment is ready for development!" -ForegroundColor Green

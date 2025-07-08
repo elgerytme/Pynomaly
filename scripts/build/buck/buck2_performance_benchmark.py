@@ -10,7 +10,7 @@ import statistics
 import subprocess
 import time
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 
 class Buck2PerformanceBenchmark:
@@ -20,7 +20,7 @@ class Buck2PerformanceBenchmark:
         self.root_path = Path.cwd()
         self.buck2_executable = "/mnt/c/Users/andre/buck2.exe"
 
-    def run_benchmarks(self) -> Dict[str, Any]:
+    def run_benchmarks(self) -> dict[str, Any]:
         """Run comprehensive performance benchmarks."""
         print("🚀 Buck2 Performance Benchmark Suite")
         print("=" * 50)
@@ -35,7 +35,7 @@ class Buck2PerformanceBenchmark:
         self.generate_performance_report(results)
         return results
 
-    def benchmark_buck2_basic_builds(self) -> Dict[str, Any]:
+    def benchmark_buck2_basic_builds(self) -> dict[str, Any]:
         """Benchmark basic Buck2 build operations."""
         print("\n📊 Buck2 Basic Build Performance")
         print("-" * 40)
@@ -97,7 +97,7 @@ class Buck2PerformanceBenchmark:
             "targets_tested": targets,
         }
 
-    def benchmark_hatch_operations(self) -> Dict[str, Any]:
+    def benchmark_hatch_operations(self) -> dict[str, Any]:
         """Benchmark Hatch operations for comparison."""
         print("\n📊 Hatch Operations Performance")
         print("-" * 40)
@@ -133,7 +133,7 @@ class Buck2PerformanceBenchmark:
 
         return results
 
-    def benchmark_incremental_builds(self) -> Dict[str, Any]:
+    def benchmark_incremental_builds(self) -> dict[str, Any]:
         """Benchmark incremental build performance."""
         print("\n📊 Incremental Build Performance")
         print("-" * 40)
@@ -215,7 +215,7 @@ class Buck2PerformanceBenchmark:
 
         return results
 
-    def benchmark_cache_performance(self) -> Dict[str, Any]:
+    def benchmark_cache_performance(self) -> dict[str, Any]:
         """Benchmark Buck2 cache performance."""
         print("\n📊 Buck2 Cache Performance")
         print("-" * 40)
@@ -281,21 +281,21 @@ class Buck2PerformanceBenchmark:
 
         return results
 
-    def generate_performance_report(self, results: Dict[str, Any]):
+    def generate_performance_report(self, results: dict[str, Any]):
         """Generate comprehensive performance report."""
         print("\n🎯 Performance Benchmark Summary")
         print("=" * 50)
 
         # Buck2 build performance
         buck2_results = results["buck2_basic_builds"]
-        print(f"🔨 Buck2 Build Performance:")
+        print("🔨 Buck2 Build Performance:")
         print(f"   Clean builds: {buck2_results['avg_clean_time']:.3f}s average")
         print(f"   Cached builds: {buck2_results['avg_cached_time']:.3f}s average")
         print(f"   Cache speedup: {buck2_results['cache_speedup']:.1f}x")
 
         # Incremental build performance
         incremental_results = results["incremental_build_comparison"]
-        print(f"\n⚡ Incremental Build Performance:")
+        print("\n⚡ Incremental Build Performance:")
         print(f"   Full rebuild: {incremental_results['avg_full_rebuild']:.3f}s")
         print(f"   Incremental: {incremental_results['avg_incremental']:.3f}s")
         print(f"   No changes: {incremental_results['avg_no_change']:.3f}s")
@@ -307,14 +307,14 @@ class Buck2PerformanceBenchmark:
         # Cache performance
         cache_results = results["cache_performance"]
         if cache_results.get("cache_exists", True):
-            print(f"\n💾 Cache Performance:")
+            print("\n💾 Cache Performance:")
             print(f"   Cache size: {cache_results.get('cache_size_mb', 0):.2f} MB")
             print(
                 f"   Cache effectiveness: {cache_results.get('cache_effectiveness', 1.0):.1f}x"
             )
 
         # Overall assessment
-        print(f"\n📊 Buck2 Integration Assessment:")
+        print("\n📊 Buck2 Integration Assessment:")
         if buck2_results["cache_speedup"] > 2.0:
             print("   ✅ Excellent cache performance")
         elif buck2_results["cache_speedup"] > 1.5:

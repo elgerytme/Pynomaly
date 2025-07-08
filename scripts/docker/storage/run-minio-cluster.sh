@@ -123,13 +123,13 @@ for i in $(seq 1 $NODES); do
     NODE_PORT=$((9000 + i - 1))
     CONSOLE_PORT=$((9001 + i - 1))
     echo "Starting MinIO Node $i on ports $NODE_PORT (API) and $CONSOLE_PORT (Console)..."
-    
+
     # Create volume mounts for this node
     VOLUME_MOUNTS=""
     for vol in $(seq 1 $VOLUMES_PER_NODE); do
         VOLUME_MOUNTS="$VOLUME_MOUNTS -v minio-node-${i}-data${vol}:/data${vol}"
     done
-    
+
     docker run -d \
         --name "${CLUSTER_NAME}-node-${i}" \
         --network "$NETWORK_NAME" \
@@ -172,33 +172,33 @@ docker run --rm \
 # Start Nginx load balancer if requested
 if [[ "$WITH_NGINX" == "true" ]]; then
     echo "Starting Nginx load balancer..."
-    
+
     # Create Nginx configuration
     cat > /tmp/nginx-minio.conf << EOF
 upstream minio_servers {
 EOF
-    
+
     for i in $(seq 1 $NODES); do
         echo "    server ${CLUSTER_NAME}-node-${i}:9000;" >> /tmp/nginx-minio.conf
     done
-    
+
     cat >> /tmp/nginx-minio.conf << EOF
 }
 
 upstream minio_console {
 EOF
-    
+
     for i in $(seq 1 $NODES); do
         echo "    server ${CLUSTER_NAME}-node-${i}:9001;" >> /tmp/nginx-minio.conf
     done
-    
+
     cat >> /tmp/nginx-minio.conf << EOF
 }
 
 server {
     listen 80;
     server_name _;
-    
+
     # API requests
     location / {
         proxy_pass http://minio_servers;
@@ -206,7 +206,7 @@ server {
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
-        
+
         # MinIO specific headers
         proxy_set_header Connection "";
         proxy_http_version 1.1;
@@ -218,7 +218,7 @@ server {
 server {
     listen 8080;
     server_name _;
-    
+
     # Console requests
     location / {
         proxy_pass http://minio_console;
@@ -226,7 +226,7 @@ server {
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
-        
+
         proxy_set_header Connection "";
         proxy_http_version 1.1;
         proxy_buffering off;
@@ -267,7 +267,7 @@ fi
 # Set up automated backups if requested
 if [[ "$BACKUP" == "true" ]]; then
     echo "Setting up automated backups..."
-    
+
     # Create backup script
     cat > /tmp/minio-backup.sh << 'EOF'
 #!/bin/bash
@@ -293,7 +293,7 @@ echo "Backup completed: $BACKUP_DATE"
 EOF
 
     chmod +x /tmp/minio-backup.sh
-    
+
     docker run -d \
         --name "${CLUSTER_NAME}-backup" \
         --network "$NETWORK_NAME" \

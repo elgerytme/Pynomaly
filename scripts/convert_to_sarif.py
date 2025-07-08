@@ -27,16 +27,23 @@ def convert_bandit_to_sarif(input_file, output_file):
 
         # Add rules if not already added
         if not any(rule["id"] == rule_id for rule in sarif_data["runs"][0]["tool"]["driver"]["rules"]):
+            # Map severity to SARIF levels
+            severity_map = {
+                "HIGH": "error",
+                "MEDIUM": "warning", 
+                "LOW": "note"
+            }
+            
             sarif_data["runs"][0]["tool"]["driver"]["rules"].append({
                 "id": rule_id,
                 "shortDescription": {
                     "text": result["issue_text"]
                 },
                 "fullDescription": {
-                    "text": result["issue_long_description"]
+                    "text": result.get("more_info", result["issue_text"])
                 },
                 "defaultConfiguration": {
-                    "level": "note"
+                    "level": severity_map.get(result["issue_severity"], "note")
                 }
             })
 

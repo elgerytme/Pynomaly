@@ -7,7 +7,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 
 class IntegrationTestRunner:
@@ -19,7 +19,7 @@ class IntegrationTestRunner:
         self.reports_dir = project_root / "test_reports"
         self.reports_dir.mkdir(exist_ok=True)
 
-    def setup_environment(self, config: Dict[str, Any]) -> None:
+    def setup_environment(self, config: dict[str, Any]) -> None:
         """Setup test environment variables."""
         env_vars = {
             "PYNOMALY_ENVIRONMENT": "testing",
@@ -43,8 +43,8 @@ class IntegrationTestRunner:
             print(f"Set {key}={value}")
 
     def run_test_suite(
-        self, test_pattern: str, config: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, test_pattern: str, config: dict[str, Any]
+    ) -> dict[str, Any]:
         """Run a specific test suite and return results."""
         print(f"\n{'='*60}")
         print(f"Running test suite: {test_pattern}")
@@ -137,7 +137,7 @@ class IntegrationTestRunner:
                 "stderr": f"Error running tests: {str(e)}",
             }
 
-    def run_all_suites(self, config: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def run_all_suites(self, config: dict[str, Any]) -> list[dict[str, Any]]:
         """Run all integration test suites."""
 
         # Define test suites in order of execution
@@ -174,7 +174,7 @@ class IntegrationTestRunner:
 
         return results
 
-    def generate_summary_report(self, results: List[Dict[str, Any]]) -> None:
+    def generate_summary_report(self, results: list[dict[str, Any]]) -> None:
         """Generate summary report of test results."""
 
         # Calculate summary statistics
@@ -204,7 +204,7 @@ class IntegrationTestRunner:
 </head>
 <body>
     <h1>Pynomaly Integration Test Report</h1>
-    
+
     <div class="summary">
         <h2>Summary</h2>
         <p><strong>Total Suites:</strong> {total_suites}</p>
@@ -214,7 +214,7 @@ class IntegrationTestRunner:
         <p><strong>Total Duration:</strong> {total_duration:.1f} seconds</p>
         <p><strong>Generated:</strong> {time.strftime('%Y-%m-%d %H:%M:%S')}</p>
     </div>
-    
+
     <h2>Test Suite Results</h2>
 """
 
@@ -289,7 +289,7 @@ class IntegrationTestRunner:
         print(f"Total Duration: {total_duration:.1f} seconds")
 
         if failed_suites > 0:
-            print(f"\nFAILED SUITES:")
+            print("\nFAILED SUITES:")
             for result in results:
                 if not result["success"]:
                     print(f"  - {result['pattern']}")

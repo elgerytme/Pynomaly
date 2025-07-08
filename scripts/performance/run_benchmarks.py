@@ -20,7 +20,7 @@ import sys
 import tempfile
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 try:
     import yaml
@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 class PerformanceBenchmarkRunner:
     """Runs performance benchmarks using pytest and standalone services."""
 
-    def __init__(self, config_path: Optional[Path] = None, verbose: bool = False):
+    def __init__(self, config_path: Path | None = None, verbose: bool = False):
         self.config_path = (
             config_path or Path(__file__).parent / "performance_config.yml"
         )
@@ -52,7 +52,7 @@ class PerformanceBenchmarkRunner:
         if self.verbose:
             logger.setLevel(logging.DEBUG)
 
-    def _load_config(self) -> Dict[str, Any]:
+    def _load_config(self) -> dict[str, Any]:
         """Load configuration from YAML file."""
         if not self.config_path.exists():
             logger.warning(f"Config file not found: {self.config_path}")
@@ -63,7 +63,7 @@ class PerformanceBenchmarkRunner:
             return self._get_default_config()
 
         try:
-            with open(self.config_path, "r") as f:
+            with open(self.config_path) as f:
                 config = yaml.safe_load(f)
                 logger.info(f"Loaded configuration from {self.config_path}")
                 return config
@@ -71,7 +71,7 @@ class PerformanceBenchmarkRunner:
             logger.error(f"Error loading config: {e}")
             return self._get_default_config()
 
-    def _get_default_config(self) -> Dict[str, Any]:
+    def _get_default_config(self) -> dict[str, Any]:
         """Get default configuration if YAML file is not available."""
         return {
             "benchmark_config": {
@@ -91,7 +91,7 @@ class PerformanceBenchmarkRunner:
             "ci_settings": {"save_detailed_results": True, "report_formats": ["json"]},
         }
 
-    def run_pytest_performance_tests(self) -> Dict[str, Any]:
+    def run_pytest_performance_tests(self) -> dict[str, Any]:
         """Run pytest with performance markers."""
         logger.info("Running pytest performance tests...")
 
@@ -133,7 +133,7 @@ class PerformanceBenchmarkRunner:
 
             # Log results
             if result.returncode == 0:
-                logger.info(f"Pytest performance tests completed successfully")
+                logger.info("Pytest performance tests completed successfully")
                 logger.info(f"Tests run: {pytest_results.get('test_count', 0)}")
                 logger.info(f"Passed: {pytest_results.get('passed', 0)}")
                 logger.info(f"Failed: {pytest_results.get('failed', 0)}")
@@ -159,10 +159,10 @@ class PerformanceBenchmarkRunner:
             except:
                 pass
 
-    def _parse_pytest_json_report(self, json_path: str) -> Dict[str, Any]:
+    def _parse_pytest_json_report(self, json_path: str) -> dict[str, Any]:
         """Parse pytest JSON report file."""
         try:
-            with open(json_path, "r") as f:
+            with open(json_path) as f:
                 data = json.load(f)
 
             # Extract key metrics
@@ -193,8 +193,8 @@ class PerformanceBenchmarkRunner:
             return {"error": str(e), "test_count": 0, "passed": 0, "failed": 0}
 
     def _extract_performance_metrics(
-        self, test_data: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+        self, test_data: dict[str, Any]
+    ) -> dict[str, Any] | None:
         """Extract performance metrics from test data."""
         try:
             # Extract basic timing information
@@ -242,7 +242,7 @@ class PerformanceBenchmarkRunner:
                 return algo
         return "Unknown"
 
-    async def run_standalone_benchmarks(self) -> Dict[str, Any]:
+    async def run_standalone_benchmarks(self) -> dict[str, Any]:
         """Run standalone benchmarking service."""
         logger.info("Running standalone benchmarking service...")
 
@@ -324,7 +324,7 @@ class PerformanceBenchmarkRunner:
                 "performance_grade": suite.performance_grade,
             }
 
-            logger.info(f"Standalone benchmarks completed successfully")
+            logger.info("Standalone benchmarks completed successfully")
             logger.info(f"Total test runs: {len(suite.individual_results)}")
             logger.info(f"Duration: {suite.total_duration_seconds:.2f} seconds")
 
@@ -338,8 +338,8 @@ class PerformanceBenchmarkRunner:
             return {"error": "runtime_error", "message": str(e)}
 
     def combine_results(
-        self, pytest_results: Dict[str, Any], standalone_results: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, pytest_results: dict[str, Any], standalone_results: dict[str, Any]
+    ) -> dict[str, Any]:
         """Combine pytest and standalone benchmark results."""
         combined = {
             "metadata": {
@@ -391,7 +391,7 @@ class PerformanceBenchmarkRunner:
 
         return combined
 
-    def save_results(self, results: Dict[str, Any], output_path: Path):
+    def save_results(self, results: dict[str, Any], output_path: Path):
         """Save results to JSON file."""
         try:
             with open(output_path, "w") as f:

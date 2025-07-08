@@ -231,7 +231,9 @@ class UIQualityMonitor:
             trend_direction = (
                 "📈"
                 if recent_score > older_score
-                else "📉" if recent_score < older_score else "➡️"
+                else "📉"
+                if recent_score < older_score
+                else "➡️"
             )
             score_change = recent_score - older_score
         else:

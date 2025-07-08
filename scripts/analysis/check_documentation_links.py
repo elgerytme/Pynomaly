@@ -12,12 +12,10 @@ Checks for:
 """
 
 import json
-import os
 import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
 from urllib.parse import unquote, urlparse
 
 
@@ -31,18 +29,18 @@ class BrokenLink:
     line_number: int
     issue_type: str
     context: str
-    suggested_fix: Optional[str] = None
+    suggested_fix: str | None = None
 
 
 @dataclass
 class LinkAnalysisResult:
     """Results of link analysis"""
 
-    broken_links: List[BrokenLink]
+    broken_links: list[BrokenLink]
     total_links_checked: int
     files_analyzed: int
-    critical_files_missing: List[str]
-    recommendations: List[str]
+    critical_files_missing: list[str]
+    recommendations: list[str]
 
 
 class DocumentationLinkChecker:
@@ -120,7 +118,7 @@ class DocumentationLinkChecker:
             recommendations=recommendations,
         )
 
-    def _get_documentation_files(self) -> List[Path]:
+    def _get_documentation_files(self) -> list[Path]:
         """Get all documentation files to analyze"""
         files = []
 
@@ -150,10 +148,10 @@ class DocumentationLinkChecker:
 
         return list(set(files))  # Remove duplicates
 
-    def _analyze_file(self, file_path: Path) -> Tuple[List[BrokenLink], int]:
+    def _analyze_file(self, file_path: Path) -> tuple[list[BrokenLink], int]:
         """Analyze a single file for broken links"""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
         except UnicodeDecodeError:
             # Skip binary files
@@ -181,7 +179,7 @@ class DocumentationLinkChecker:
 
     def _check_markdown_links(
         self, file_path: Path, content: str
-    ) -> Tuple[List[BrokenLink], int]:
+    ) -> tuple[list[BrokenLink], int]:
         """Check markdown-style links [text](path)"""
         broken_links = []
         matches = list(self.markdown_link_pattern.finditer(content))
@@ -215,7 +213,7 @@ class DocumentationLinkChecker:
 
     def _check_file_references(
         self, file_path: Path, content: str
-    ) -> Tuple[List[BrokenLink], int]:
+    ) -> tuple[list[BrokenLink], int]:
         """Check file references in text"""
         broken_links = []
         matches = list(self.file_ref_pattern.finditer(content))
@@ -248,7 +246,7 @@ class DocumentationLinkChecker:
 
     def _check_code_references(
         self, file_path: Path, content: str
-    ) -> Tuple[List[BrokenLink], int]:
+    ) -> tuple[list[BrokenLink], int]:
         """Check code-style references `path/to/file.ext`"""
         broken_links = []
         matches = list(self.code_ref_pattern.finditer(content))
@@ -346,7 +344,7 @@ class DocumentationLinkChecker:
 
         return "\n".join(context_lines)
 
-    def _suggest_fix(self, target_path: str) -> Optional[str]:
+    def _suggest_fix(self, target_path: str) -> str | None:
         """Suggest a fix for a broken link"""
         # Look for similar files
         target_name = Path(target_path).name
@@ -370,7 +368,7 @@ class DocumentationLinkChecker:
 
         return None
 
-    def _check_critical_files(self) -> List[str]:
+    def _check_critical_files(self) -> list[str]:
         """Check for critical files that should exist"""
         missing = []
 
@@ -381,8 +379,8 @@ class DocumentationLinkChecker:
         return missing
 
     def _generate_recommendations(
-        self, broken_links: List[BrokenLink], critical_missing: List[str]
-    ) -> List[str]:
+        self, broken_links: list[BrokenLink], critical_missing: list[str]
+    ) -> list[str]:
         """Generate recommendations for fixing issues"""
         recommendations = []
 
@@ -425,19 +423,19 @@ def main():
     print("🔍 Analyzing documentation links...")
     result = checker.analyze_documentation()
 
-    print(f"\n📊 Analysis Results:")
+    print("\n📊 Analysis Results:")
     print(f"   Files analyzed: {result.files_analyzed}")
     print(f"   Total links checked: {result.total_links_checked}")
     print(f"   Broken links found: {len(result.broken_links)}")
     print(f"   Critical files missing: {len(result.critical_files_missing)}")
 
     if result.critical_files_missing:
-        print(f"\n❌ Missing Critical Files:")
+        print("\n❌ Missing Critical Files:")
         for file in result.critical_files_missing:
             print(f"   - {file}")
 
     if result.broken_links:
-        print(f"\n🔗 Broken Links Found:")
+        print("\n🔗 Broken Links Found:")
 
         # Group by source file
         by_file = {}
@@ -459,7 +457,7 @@ def main():
                 print()
 
     if result.recommendations:
-        print(f"\n💡 Recommendations:")
+        print("\n💡 Recommendations:")
         for i, rec in enumerate(result.recommendations, 1):
             print(f"   {i}. {rec}")
 

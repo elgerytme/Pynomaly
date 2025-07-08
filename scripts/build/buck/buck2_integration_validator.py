@@ -7,12 +7,10 @@ Validates Buck2 integration with the existing Pynomaly codebase and provides fal
 import argparse
 import json
 import logging
-import os
 import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 # Configure logging
 logging.basicConfig(
@@ -28,7 +26,7 @@ class Buck2IntegrationValidator:
         self.repo_root = repo_root or Path.cwd()
         self.validation_results = {}
 
-    def check_buck2_installation(self) -> Dict:
+    def check_buck2_installation(self) -> dict:
         """Check if Buck2 is installed and working."""
         logger.info("Checking Buck2 installation...")
 
@@ -64,7 +62,7 @@ class Buck2IntegrationValidator:
 
         return result
 
-    def validate_buck_configuration(self) -> Dict:
+    def validate_buck_configuration(self) -> dict:
         """Validate Buck2 configuration files."""
         logger.info("Validating Buck2 configuration...")
 
@@ -77,7 +75,7 @@ class Buck2IntegrationValidator:
                 result["details"]["buck_file"] = "exists"
 
                 # Basic syntax check
-                with open(buck_file, "r") as f:
+                with open(buck_file) as f:
                     content = f.read()
 
                 # Check for required targets
@@ -129,7 +127,7 @@ class Buck2IntegrationValidator:
 
         return result
 
-    def test_buck2_targets(self) -> Dict:
+    def test_buck2_targets(self) -> dict:
         """Test Buck2 targets if Buck2 is available."""
         logger.info("Testing Buck2 targets...")
 
@@ -172,7 +170,7 @@ class Buck2IntegrationValidator:
 
         return result
 
-    def test_basic_build(self) -> Dict:
+    def test_basic_build(self) -> dict:
         """Test a basic Buck2 build if possible."""
         logger.info("Testing basic Buck2 build...")
 
@@ -212,7 +210,7 @@ class Buck2IntegrationValidator:
 
         return result
 
-    def validate_python_environment(self) -> Dict:
+    def validate_python_environment(self) -> dict:
         """Validate Python environment compatibility."""
         logger.info("Validating Python environment...")
 
@@ -260,7 +258,7 @@ class Buck2IntegrationValidator:
 
         return result
 
-    def create_fallback_strategy(self, validation_results: Dict) -> Dict:
+    def create_fallback_strategy(self, validation_results: dict) -> dict:
         """Create fallback strategy based on validation results."""
         logger.info("Creating fallback strategy...")
 
@@ -297,9 +295,9 @@ class Buck2IntegrationValidator:
                 "Map Buck2 targets to pytest commands",
                 "Install Buck2 for full functionality",
             ]
-            strategy["alternatives"][
-                "pytest_commands"
-            ] = self._generate_pytest_commands()
+            strategy["alternatives"]["pytest_commands"] = (
+                self._generate_pytest_commands()
+            )
 
         elif python_compatible:
             strategy["fallback_strategy"] = "basic_incremental"
@@ -320,7 +318,7 @@ class Buck2IntegrationValidator:
 
         return strategy
 
-    def _generate_pytest_commands(self) -> Dict:
+    def _generate_pytest_commands(self) -> dict:
         """Generate pytest commands as Buck2 alternatives."""
         return {
             "domain_tests": "pytest tests/domain/ -v",
@@ -332,7 +330,7 @@ class Buck2IntegrationValidator:
             "coverage": "pytest --cov=src/pynomaly --cov-report=html",
         }
 
-    def _generate_basic_commands(self) -> Dict:
+    def _generate_basic_commands(self) -> dict:
         """Generate basic test commands."""
         return {
             "change_analysis": "python3 scripts/buck2_change_detector.py",
@@ -341,7 +339,7 @@ class Buck2IntegrationValidator:
             "workflow": "python3 scripts/buck2_workflow.py --help",
         }
 
-    def run_comprehensive_validation(self) -> Dict:
+    def run_comprehensive_validation(self) -> dict:
         """Run comprehensive validation and return results."""
         logger.info("Starting comprehensive Buck2 integration validation...")
         start_time = time.time()
@@ -421,14 +419,14 @@ class Buck2IntegrationValidator:
 
         return results
 
-    def print_validation_summary(self, results: Dict):
+    def print_validation_summary(self, results: dict):
         """Print human-readable validation summary."""
-        print(f"\n=== Buck2 Integration Validation Results ===")
+        print("\n=== Buck2 Integration Validation Results ===")
         print(f"Overall Status: {results['summary']['overall_status'].upper()}")
         print(f"Duration: {results['summary']['duration']:.2f}s")
         print(f"Success Rate: {results['summary']['success_rate']:.1%}")
 
-        print(f"\nComponent Results:")
+        print("\nComponent Results:")
         for component, result in results["components"].items():
             status_symbol = {
                 "available": "✓",
@@ -462,7 +460,7 @@ class Buck2IntegrationValidator:
                 print(f"  • {rec}")
 
         if strategy.get("alternatives"):
-            print(f"\nAlternative Commands:")
+            print("\nAlternative Commands:")
             for category, commands in strategy["alternatives"].items():
                 print(f"  {category}:")
                 if isinstance(commands, dict):
@@ -472,7 +470,7 @@ class Buck2IntegrationValidator:
                     for cmd in commands:
                         print(f"    {cmd}")
 
-    def save_validation_results(self, results: Dict, output_file: Path = None) -> Path:
+    def save_validation_results(self, results: dict, output_file: Path = None) -> Path:
         """Save validation results to JSON file."""
         if output_file is None:
             timestamp = int(time.time())

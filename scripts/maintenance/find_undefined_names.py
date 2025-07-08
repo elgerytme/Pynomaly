@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 
 import ast
-import sys
 from pathlib import Path
-from typing import List, Set, Tuple
 
 
 class UndefinedNameFinder(ast.NodeVisitor):
@@ -169,10 +167,10 @@ class UndefinedNameFinder(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-def find_undefined_names_in_file(file_path: Path) -> List[Tuple[str, int, int]]:
+def find_undefined_names_in_file(file_path: Path) -> list[tuple[str, int, int]]:
     """Find undefined names in a Python file."""
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         tree = ast.parse(content, filename=str(file_path))

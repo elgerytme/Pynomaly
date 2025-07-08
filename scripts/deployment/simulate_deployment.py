@@ -4,12 +4,9 @@ Deployment simulation script to test URL refactoring from /web to /
 """
 
 import os
-import signal
-import subprocess
 import sys
 import threading
 import time
-from contextlib import contextmanager
 from pathlib import Path
 
 import requests

@@ -13,8 +13,6 @@ import logging
 import sys
 import time
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 import httpx
 import psycopg2
@@ -39,8 +37,8 @@ class TestResult:
     name: str
     passed: bool
     duration: float
-    error: Optional[str] = None
-    details: Optional[Dict] = None
+    error: str | None = None
+    details: dict | None = None
 
 
 class SmokeTestSuite:
@@ -49,9 +47,9 @@ class SmokeTestSuite:
     def __init__(self, base_url: str = "http://localhost:8000", timeout: int = 30):
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
-        self.results: List[TestResult] = []
+        self.results: list[TestResult] = []
 
-    async def run_all_tests(self) -> Tuple[bool, List[TestResult]]:
+    async def run_all_tests(self) -> tuple[bool, list[TestResult]]:
         """Run all smoke tests and return results."""
         logger.info("Starting comprehensive smoke test suite...")
 
@@ -494,7 +492,7 @@ class SmokeTestSuite:
         failed_tests = total_tests - passed_tests
 
         logger.info(f"\n{'='*60}")
-        logger.info(f"SMOKE TEST RESULTS SUMMARY")
+        logger.info("SMOKE TEST RESULTS SUMMARY")
         logger.info(f"{'='*60}")
         logger.info(f"Total Tests: {total_tests}")
         logger.info(f"Passed: {passed_tests}")

@@ -6,12 +6,11 @@ and CI/CD acceleration using GitHub Actions cache or external services.
 """
 
 import argparse
-import json
 import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class Buck2RemoteCacheSetup:
@@ -22,7 +21,7 @@ class Buck2RemoteCacheSetup:
         self.buckconfig_path = self.root_path / ".buckconfig"
         self.buckconfig_remote_path = self.root_path / ".buckconfig.remote"
 
-    def setup_cache_strategy(self, strategy: str = "github-actions") -> Dict[str, Any]:
+    def setup_cache_strategy(self, strategy: str = "github-actions") -> dict[str, Any]:
         """Setup remote cache strategy."""
         print(f"🚀 Setting up Buck2 remote cache strategy: {strategy}")
 
@@ -40,7 +39,7 @@ class Buck2RemoteCacheSetup:
 
         return strategies[strategy]()
 
-    def _setup_github_actions_cache(self) -> Dict[str, Any]:
+    def _setup_github_actions_cache(self) -> dict[str, Any]:
         """Setup GitHub Actions cache integration."""
         print("  📦 Configuring GitHub Actions cache integration...")
 
@@ -60,7 +59,7 @@ class Buck2RemoteCacheSetup:
             cache_dir = self.root_path / ".buck-cache"
             cache_dir.mkdir(exist_ok=True)
 
-            print(f"    ✅ GitHub Actions cache configured")
+            print("    ✅ GitHub Actions cache configured")
             print(f"    📁 Cache directory: {cache_dir}")
             print(f"    🔑 Cache key prefix: {cache_config['cache_key_prefix']}")
 
@@ -85,7 +84,7 @@ class Buck2RemoteCacheSetup:
             "is_ci": is_github_actions,
         }
 
-    def _setup_http_cache(self) -> Dict[str, Any]:
+    def _setup_http_cache(self) -> dict[str, Any]:
         """Setup HTTP-based remote cache."""
         print("  🌐 Configuring HTTP remote cache...")
 
@@ -123,7 +122,7 @@ class Buck2RemoteCacheSetup:
             "cache_url": cache_url,
         }
 
-    def _setup_s3_cache(self) -> Dict[str, Any]:
+    def _setup_s3_cache(self) -> dict[str, Any]:
         """Setup S3-based remote cache."""
         print("  ☁️  Configuring S3 remote cache...")
 
@@ -159,7 +158,7 @@ class Buck2RemoteCacheSetup:
             "s3_bucket": s3_bucket,
         }
 
-    def _disable_remote_cache(self) -> Dict[str, Any]:
+    def _disable_remote_cache(self) -> dict[str, Any]:
         """Disable remote cache - use local only."""
         print("  🚫 Disabling remote cache - using local cache only...")
 
@@ -169,16 +168,16 @@ class Buck2RemoteCacheSetup:
 
         return {"strategy": "disabled", "success": True, "config": cache_config}
 
-    def _update_buckconfig_cache(self, cache_config: Dict[str, Any]):
+    def _update_buckconfig_cache(self, cache_config: dict[str, Any]):
         """Update .buckconfig with cache configuration."""
         # For now, we'll work with the remote config template
         # In production, this would modify the actual .buckconfig
 
-        print(f"    📝 Cache configuration prepared:")
+        print("    📝 Cache configuration prepared:")
         for key, value in cache_config.items():
             print(f"      {key}: {value}")
 
-    def validate_cache_setup(self) -> Dict[str, Any]:
+    def validate_cache_setup(self) -> dict[str, Any]:
         """Validate Buck2 cache setup."""
         print("🧪 Validating Buck2 cache setup...")
 
@@ -264,7 +263,7 @@ class Buck2RemoteCacheSetup:
 
         return validation_results
 
-    def generate_cache_performance_test(self) -> Dict[str, Any]:
+    def generate_cache_performance_test(self) -> dict[str, Any]:
         """Generate cache performance test."""
         print("🚀 Running Buck2 cache performance test...")
 

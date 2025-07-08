@@ -64,36 +64,36 @@ on:
 jobs:
   performance:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -e .[test]
         pip install pytest-json-report pyyaml
-    
+
     - name: Run performance benchmarks
       run: |
         python scripts/performance/run_benchmarks.py --config scripts/performance/performance_config.yml --output current_results.json
-    
+
     - name: Download baseline results
       run: |
         # Download or generate baseline.json from main branch
         # This is implementation-specific
-        
+
     - name: Check for regressions
       id: regression_check
       run: |
         python scripts/performance/check_regressions.py --baseline baseline.json --current current_results.json --config scripts/performance/performance_config.yml > pr_comment.md
         echo "regression_found=$?" >> $GITHUB_OUTPUT
-    
+
     - name: Comment PR
       if: steps.regression_check.outputs.regression_found == '1'
       uses: actions/github-script@v6

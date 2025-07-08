@@ -83,7 +83,6 @@ def show_version():
 def list_detectors():
     """List available detectors"""
     try:
-
         print("Available Detectors:")
         print("- IsolationForest (Isolation Forest)")
         print("- LocalOutlierFactor (Local Outlier Factor)")

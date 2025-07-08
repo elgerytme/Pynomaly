@@ -7,12 +7,9 @@ Identifies affected files and their dependencies for incremental testing.
 import argparse
 import json
 import logging
-import os
 import subprocess
-import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
 
 # Configure logging
 logging.basicConfig(
@@ -25,12 +22,12 @@ logger = logging.getLogger(__name__)
 class ChangeAnalysis:
     """Analysis of changes and their impact on Buck2 targets."""
 
-    changed_files: List[str]
-    affected_targets: Set[str]
-    test_targets: Set[str]
-    build_targets: Set[str]
+    changed_files: list[str]
+    affected_targets: set[str]
+    test_targets: set[str]
+    build_targets: set[str]
     commit_range: str
-    analysis_metadata: Dict
+    analysis_metadata: dict
 
 
 class Buck2ChangeDetector:
@@ -41,7 +38,7 @@ class Buck2ChangeDetector:
         self.buck_file = self.repo_root / "BUCK"
         self.target_map = self._build_target_map()
 
-    def _build_target_map(self) -> Dict[str, Set[str]]:
+    def _build_target_map(self) -> dict[str, set[str]]:
         """Build mapping from file patterns to Buck2 targets."""
         target_map = {
             # Domain layer
@@ -87,7 +84,7 @@ class Buck2ChangeDetector:
 
     def get_changed_files(
         self, base_commit: str = "HEAD~1", target_commit: str = "HEAD"
-    ) -> List[str]:
+    ) -> list[str]:
         """Get list of changed files between commits."""
         try:
             cmd = ["git", "diff", "--name-only", f"{base_commit}..{target_commit}"]
@@ -101,7 +98,7 @@ class Buck2ChangeDetector:
             logger.error(f"Failed to get changed files: {e}")
             return []
 
-    def map_files_to_targets(self, changed_files: List[str]) -> Set[str]:
+    def map_files_to_targets(self, changed_files: list[str]) -> set[str]:
         """Map changed files to affected Buck2 targets."""
         affected_targets = set()
 
@@ -132,7 +129,7 @@ class Buck2ChangeDetector:
         )
         return affected_targets
 
-    def get_dependent_targets(self, targets: Set[str]) -> Set[str]:
+    def get_dependent_targets(self, targets: set[str]) -> set[str]:
         """Get targets that depend on the given targets."""
         # Define dependency relationships
         dependencies = {
@@ -163,7 +160,7 @@ class Buck2ChangeDetector:
 
         return dependent_targets
 
-    def categorize_targets(self, targets: Set[str]) -> Tuple[Set[str], Set[str]]:
+    def categorize_targets(self, targets: set[str]) -> tuple[set[str], set[str]]:
         """Categorize targets into test and build targets."""
         test_targets = {
             t
@@ -243,7 +240,7 @@ class Buck2ChangeDetector:
 
     def load_analysis(self, input_file: Path) -> ChangeAnalysis:
         """Load change analysis from JSON file."""
-        with open(input_file, "r") as f:
+        with open(input_file) as f:
             data = json.load(f)
 
         # Convert lists back to sets
@@ -290,19 +287,19 @@ def main():
         print(f"Build targets: {len(analysis.build_targets)}")
 
         if analysis.changed_files:
-            print(f"\nChanged files:")
+            print("\nChanged files:")
             for file in analysis.changed_files[:10]:  # Show first 10
                 print(f"  - {file}")
             if len(analysis.changed_files) > 10:
                 print(f"  ... and {len(analysis.changed_files) - 10} more")
 
         if analysis.test_targets:
-            print(f"\nTest targets to run:")
+            print("\nTest targets to run:")
             for target in sorted(analysis.test_targets):
                 print(f"  - {target}")
 
         if analysis.build_targets:
-            print(f"\nBuild targets to run:")
+            print("\nBuild targets to run:")
             for target in sorted(analysis.build_targets):
                 print(f"  - {target}")
 

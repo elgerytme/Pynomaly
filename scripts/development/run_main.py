@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Main entry point for Pynomaly FastAPI application."""
 
-from pynomaly.presentation.api.app import app
-
 if __name__ == "__main__":
     import uvicorn
 

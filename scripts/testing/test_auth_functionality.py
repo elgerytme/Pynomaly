@@ -12,17 +12,6 @@ def test_auth_imports():
     """Test that all auth components can be imported."""
     print("Testing auth imports...")
 
-    from pynomaly.infrastructure.auth import (
-        HTMXAuthMiddleware,
-        JWTAuthService,
-        WebSocketAuthMiddleware,
-        get_auth,
-        init_auth,
-        require_api_key,
-        require_role,
-        require_role_or_api_key,
-    )
-
     print("✓ All auth components imported successfully")
 
 

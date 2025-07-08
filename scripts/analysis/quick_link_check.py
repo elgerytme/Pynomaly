@@ -5,7 +5,6 @@ Quick Documentation Link Checker
 Focused check for the most critical broken links in documentation.
 """
 
-import os
 import re
 from pathlib import Path
 
@@ -85,7 +84,7 @@ def check_doc_links(file_path, project_root):
     issues = []
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
     except:
         return issues
@@ -138,7 +137,7 @@ def check_doc_links(file_path, project_root):
                 "line": line_num,
                 "text": link_text,
                 "target": link_target,
-                "fix": f"Check if target exists or update link",
+                "fix": "Check if target exists or update link",
             }
             issues.append(issue)
             print(f"   ❌ Line {line_num}: [{link_text}]({link_target})")
@@ -152,11 +151,11 @@ def main():
 
     issues = check_critical_links()
 
-    print(f"\n📊 Summary:")
+    print("\n📊 Summary:")
     print(f"   Total issues found: {len(issues)}")
 
     if issues:
-        print(f"\n🔧 Recommended fixes:")
+        print("\n🔧 Recommended fixes:")
         for i, issue in enumerate(issues, 1):
             print(f"{i}. {issue['fix']}")
     else:

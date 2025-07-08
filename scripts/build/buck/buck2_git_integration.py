@@ -5,20 +5,14 @@ Advanced Git integration for change detection and commit-based testing.
 """
 
 import argparse
-import json
 import logging
-import os
-import re
 import subprocess
 import sys
-import time
-from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple, Union
 
 # Import our change detector
-from buck2_change_detector import Buck2ChangeDetector, ChangeAnalysis
+from buck2_change_detector import Buck2ChangeDetector
 from buck2_incremental_test import Buck2IncrementalTestRunner, TestRunSummary
 
 # Configure logging
@@ -36,7 +30,7 @@ class CommitInfo:
     author: str
     date: str
     message: str
-    files_changed: List[str]
+    files_changed: list[str]
 
 
 @dataclass
@@ -46,8 +40,8 @@ class BranchInfo:
     name: str
     base_commit: str
     head_commit: str
-    commits: List[CommitInfo]
-    total_files_changed: Set[str]
+    commits: list[CommitInfo]
+    total_files_changed: set[str]
 
 
 class Buck2GitIntegration:
@@ -248,7 +242,7 @@ class Buck2GitIntegration:
 
     def test_per_commit(
         self, base_branch: str = None, **kwargs
-    ) -> Dict[str, TestRunSummary]:
+    ) -> dict[str, TestRunSummary]:
         """Test each commit individually in the current branch."""
         branch_info = self.get_branch_info(base_branch=base_branch)
         results = {}
@@ -283,7 +277,7 @@ class Buck2GitIntegration:
 
         return results
 
-    def find_breaking_commit(self, base_branch: str = None, **kwargs) -> Optional[str]:
+    def find_breaking_commit(self, base_branch: str = None, **kwargs) -> str | None:
         """Find the first commit that introduced test failures using binary search."""
         branch_info = self.get_branch_info(base_branch=base_branch)
 
@@ -386,7 +380,7 @@ python scripts/buck2_git_integration.py test-branch --fail-fast
 
         logger.info("Git hooks installed successfully")
 
-    def test_staged_changes(self, **kwargs) -> Optional[TestRunSummary]:
+    def test_staged_changes(self, **kwargs) -> TestRunSummary | None:
         """Test only staged changes."""
         try:
             # Get staged files

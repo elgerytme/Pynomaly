@@ -7,19 +7,16 @@ Analyzes the impact of changes on the codebase and determines optimal test strat
 import argparse
 import json
 import logging
-import os
 import subprocess
 import sys
 import time
-from collections import Counter, defaultdict
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple, Union
 
 # Import our existing tools
 from buck2_change_detector import Buck2ChangeDetector, ChangeAnalysis
-from buck2_git_integration import BranchInfo, Buck2GitIntegration, CommitInfo
-from buck2_incremental_test import Buck2IncrementalTestRunner, TestRunSummary
+from buck2_git_integration import Buck2GitIntegration
+from buck2_incremental_test import Buck2IncrementalTestRunner
 
 # import networkx as nx  # Not currently used
 
@@ -37,8 +34,8 @@ class ImpactRisk:
 
     level: str  # "low", "medium", "high", "critical"
     score: float  # 0-1
-    reasons: List[str]
-    affected_components: Set[str]
+    reasons: list[str]
+    affected_components: set[str]
 
 
 @dataclass
@@ -46,11 +43,11 @@ class TestStrategy:
     """Recommended testing strategy based on impact analysis."""
 
     priority: str  # "minimal", "standard", "comprehensive", "full"
-    test_targets: Set[str]
-    build_targets: Set[str]
+    test_targets: set[str]
+    build_targets: set[str]
     estimated_duration: float
-    risk_factors: List[str]
-    recommendations: List[str]
+    risk_factors: list[str]
+    recommendations: list[str]
 
 
 @dataclass
@@ -62,8 +59,8 @@ class ComponentMetrics:
     test_coverage: float
     change_frequency: int
     bug_frequency: int
-    dependencies: Set[str]
-    dependents: Set[str]
+    dependencies: set[str]
+    dependents: set[str]
 
 
 @dataclass
@@ -73,8 +70,8 @@ class ImpactAnalysisResult:
     change_analysis: ChangeAnalysis
     risk_assessment: ImpactRisk
     test_strategy: TestStrategy
-    component_metrics: Dict[str, ComponentMetrics]
-    analysis_metadata: Dict
+    component_metrics: dict[str, ComponentMetrics]
+    analysis_metadata: dict
 
 
 class Buck2ImpactAnalyzer:
@@ -133,7 +130,7 @@ class Buck2ImpactAnalyzer:
             complexity = 0.0
 
             if Path(file_path).exists():
-                with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                with open(file_path, encoding="utf-8", errors="ignore") as f:
                     lines = f.readlines()
                     loc = len(
                         [
@@ -223,7 +220,7 @@ class Buck2ImpactAnalyzer:
 
         return 0.0  # No test file found
 
-    def _analyze_dependencies(self, file_path: str) -> Tuple[Set[str], Set[str]]:
+    def _analyze_dependencies(self, file_path: str) -> tuple[set[str], set[str]]:
         """Analyze dependencies and dependents for a file."""
         dependencies = set()
         dependents = set()
@@ -232,7 +229,7 @@ class Buck2ImpactAnalyzer:
             return dependencies, dependents
 
         try:
-            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            with open(file_path, encoding="utf-8", errors="ignore") as f:
                 content = f.read()
 
                 # Find imports
@@ -529,12 +526,12 @@ class Buck2ImpactAnalyzer:
 
     def print_analysis(self, result: ImpactAnalysisResult):
         """Print human-readable impact analysis."""
-        print(f"\n=== Buck2 Impact Analysis ===")
+        print("\n=== Buck2 Impact Analysis ===")
         print(f"Commit range: {result.change_analysis.commit_range}")
         print(f"Files changed: {len(result.change_analysis.changed_files)}")
         print(f"Targets affected: {len(result.change_analysis.affected_targets)}")
 
-        print(f"\n=== Risk Assessment ===")
+        print("\n=== Risk Assessment ===")
         print(f"Risk level: {result.risk_assessment.level.upper()}")
         print(f"Risk score: {result.risk_assessment.score:.2f}")
 
@@ -543,7 +540,7 @@ class Buck2ImpactAnalyzer:
             for reason in result.risk_assessment.reasons[:5]:
                 print(f"  - {reason}")
 
-        print(f"\n=== Test Strategy ===")
+        print("\n=== Test Strategy ===")
         print(f"Priority: {result.test_strategy.priority}")
         print(
             f"Estimated duration: {result.test_strategy.estimated_duration / 60:.1f} minutes"
@@ -598,7 +595,7 @@ def main():
 
         # Run tests if requested
         if args.run_tests:
-            print(f"\n=== Running Recommended Tests ===")
+            print("\n=== Running Recommended Tests ===")
             summary = analyzer.test_runner.run_incremental_tests(
                 args.base,
                 args.target,

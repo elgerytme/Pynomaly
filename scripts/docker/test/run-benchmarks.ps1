@@ -48,7 +48,7 @@ if ($Clean) {
 # Start monitoring stack if requested
 if ($Monitoring) {
     Write-Host "Starting monitoring stack..."
-    
+
     # Start Prometheus
     docker run -d `
         --name "pynomaly-prometheus" `

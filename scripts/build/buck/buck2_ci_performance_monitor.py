@@ -11,9 +11,9 @@ import os
 import subprocess
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class Buck2CIPerformanceMonitor:
@@ -41,10 +41,10 @@ class Buck2CIPerformanceMonitor:
 
         raise RuntimeError("Buck2 not found in any expected location")
 
-    def collect_system_metrics(self) -> Dict[str, Any]:
+    def collect_system_metrics(self) -> dict[str, Any]:
         """Collect system performance metrics."""
         metrics = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "environment": "ci" if self.is_ci else "local",
             "platform": os.uname().sysname if hasattr(os, "uname") else "unknown",
             "python_version": sys.version.split()[0],
@@ -81,12 +81,12 @@ class Buck2CIPerformanceMonitor:
 
         return metrics
 
-    def run_performance_benchmark(self, targets: List[str] = None) -> Dict[str, Any]:
+    def run_performance_benchmark(self, targets: list[str] = None) -> dict[str, Any]:
         """Run comprehensive Buck2 performance benchmark."""
         if targets is None:
             targets = ["//:validation"]
 
-        print(f"🚀 Starting Buck2 CI/CD performance benchmark...")
+        print("🚀 Starting Buck2 CI/CD performance benchmark...")
         print(f"📋 Targets: {', '.join(targets)}")
 
         buck2_cmd = self.get_buck2_command()
@@ -124,7 +124,7 @@ class Buck2CIPerformanceMonitor:
             # Generate performance summary
             results["performance_summary"] = self._generate_performance_summary(results)
 
-            print(f"\n✅ Performance benchmark completed successfully")
+            print("\n✅ Performance benchmark completed successfully")
 
         except Exception as e:
             results["error"] = str(e)
@@ -132,7 +132,7 @@ class Buck2CIPerformanceMonitor:
 
         return results
 
-    def _benchmark_target(self, buck2_cmd: str, target: str) -> Dict[str, Any]:
+    def _benchmark_target(self, buck2_cmd: str, target: str) -> dict[str, Any]:
         """Benchmark a specific Buck2 target."""
         print(f"  🧹 Clean build test for {target}...")
 
@@ -239,7 +239,7 @@ class Buck2CIPerformanceMonitor:
         except Exception:
             pass  # Incremental test is optional
 
-    def _collect_cache_metrics(self) -> Dict[str, Any]:
+    def _collect_cache_metrics(self) -> dict[str, Any]:
         """Collect Buck2 cache metrics."""
         cache_dir = self.root_path / ".buck-cache"
         metrics = {
@@ -279,7 +279,7 @@ class Buck2CIPerformanceMonitor:
 
         return metrics
 
-    def _generate_performance_summary(self, results: Dict[str, Any]) -> Dict[str, Any]:
+    def _generate_performance_summary(self, results: dict[str, Any]) -> dict[str, Any]:
         """Generate a performance summary from benchmark results."""
         if not results["benchmark_results"]:
             return {"error": "No benchmark results available"}
@@ -352,7 +352,7 @@ class Buck2CIPerformanceMonitor:
         else:
             return "D (Needs Improvement)"
 
-    def _generate_recommendations(self, results: Dict[str, Any]) -> List[str]:
+    def _generate_recommendations(self, results: dict[str, Any]) -> list[str]:
         """Generate performance improvement recommendations."""
         recommendations = []
 
@@ -404,14 +404,14 @@ class Buck2CIPerformanceMonitor:
 
         return recommendations
 
-    def save_performance_history(self, results: Dict[str, Any]):
+    def save_performance_history(self, results: dict[str, Any]):
         """Save performance results to history file."""
         history = []
 
         # Load existing history
         if self.performance_history_file.exists():
             try:
-                with open(self.performance_history_file, "r") as f:
+                with open(self.performance_history_file) as f:
                     history = json.load(f)
             except (json.JSONDecodeError, FileNotFoundError):
                 history = []
@@ -428,7 +428,7 @@ class Buck2CIPerformanceMonitor:
 
         print(f"📊 Performance history saved to {self.performance_history_file}")
 
-    def generate_ci_summary(self, results: Dict[str, Any]) -> str:
+    def generate_ci_summary(self, results: dict[str, Any]) -> str:
         """Generate a CI-friendly summary of performance results."""
         summary = results.get("performance_summary", {})
 
@@ -463,7 +463,7 @@ class Buck2CIPerformanceMonitor:
 
         return ci_summary
 
-    def set_github_output(self, results: Dict[str, Any]):
+    def set_github_output(self, results: dict[str, Any]):
         """Set GitHub Actions outputs for use in workflow."""
         if not self.github_actions:
             return

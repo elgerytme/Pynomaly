@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import ast
-import sys
 from pathlib import Path
 
 
@@ -262,7 +261,7 @@ class RealErrorFinder(ast.NodeVisitor):
 def find_real_errors_in_file(file_path: Path) -> list:
     """Find real undefined names in a Python file."""
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         tree = ast.parse(content, filename=str(file_path))

@@ -16,7 +16,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 try:
     import yaml
@@ -39,7 +39,7 @@ class PerformanceRegressionChecker:
         self.current_path = current_path
         self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
+    def _load_config(self) -> dict[str, Any]:
         """Load configuration from YAML file."""
         if not self.config_path.exists():
             logger.error(f"Config file not found: {self.config_path}")
@@ -50,7 +50,7 @@ class PerformanceRegressionChecker:
             sys.exit(1)
 
         try:
-            with open(self.config_path, "r") as f:
+            with open(self.config_path) as f:
                 config = yaml.safe_load(f)
                 logger.info(f"Loaded configuration from {self.config_path}")
                 return config
@@ -58,10 +58,10 @@ class PerformanceRegressionChecker:
             logger.error(f"Error loading config: {e}")
             sys.exit(1)
 
-    def _load_json(self, path: Path) -> Dict[str, Any]:
+    def _load_json(self, path: Path) -> dict[str, Any]:
         """Load JSON file."""
         try:
-            with open(path, "r") as f:
+            with open(path) as f:
                 data = json.load(f)
                 logger.info(f"Loaded JSON data from {path}")
                 return data
@@ -69,7 +69,7 @@ class PerformanceRegressionChecker:
             logger.error(f"Error loading {path}: {e}")
             sys.exit(1)
 
-    def compare_results(self) -> Dict[str, Any]:
+    def compare_results(self) -> dict[str, Any]:
         """Compare baseline and current results."""
         # Load JSON files
         baseline_data = self._load_json(self.baseline_path)
@@ -86,7 +86,7 @@ class PerformanceRegressionChecker:
         for algo, baseline_list in baseline_metrics.items():
             current_list = current_metrics.get(algo, [])
 
-            for baseline, current in zip(baseline_list, current_list):
+            for baseline, current in zip(baseline_list, current_list, strict=False):
                 regression_data = self._compare_algorithm_metrics(
                     algo, baseline, current
                 )
@@ -126,8 +126,8 @@ class PerformanceRegressionChecker:
         }
 
     def _compare_algorithm_metrics(
-        self, algorithm: str, baseline: Dict[str, Any], current: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, algorithm: str, baseline: dict[str, Any], current: dict[str, Any]
+    ) -> dict[str, Any]:
         """Compare individual algorithm's performance metrics."""
         severity_thresholds = self.config.get("severity_thresholds", {})
 
@@ -204,7 +204,7 @@ class PerformanceRegressionChecker:
             return {}
 
     def _calculate_severity(
-        self, percent_change: float, thresholds: Dict[str, float]
+        self, percent_change: float, thresholds: dict[str, float]
     ) -> str:
         """Calculate severity based on percentage change."""
         if percent_change >= thresholds.get("critical_threshold", 0.30) * 100:
@@ -216,7 +216,7 @@ class PerformanceRegressionChecker:
         else:
             return "negligible"
 
-    def generate_markdown_summary(self, comparison_results: Dict[str, Any]) -> str:
+    def generate_markdown_summary(self, comparison_results: dict[str, Any]) -> str:
         """Generate a markdown summary for the comparison results."""
         summary = comparison_results["summary"]
 

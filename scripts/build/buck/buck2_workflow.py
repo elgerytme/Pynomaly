@@ -7,18 +7,15 @@ Main entry point for all Buck2 incremental testing operations.
 import argparse
 import json
 import logging
-import os
-import subprocess
 import sys
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple, Union
 
 # Import our tools
 from buck2_change_detector import Buck2ChangeDetector, ChangeAnalysis
-from buck2_git_integration import BranchInfo, Buck2GitIntegration, CommitInfo
-from buck2_impact_analyzer import Buck2ImpactAnalyzer, ImpactAnalysisResult
+from buck2_git_integration import Buck2GitIntegration
+from buck2_impact_analyzer import Buck2ImpactAnalyzer
 from buck2_incremental_test import Buck2IncrementalTestRunner, TestRunSummary
 
 # Configure logging
@@ -61,7 +58,7 @@ class Buck2Workflow:
         self.test_runner.parallel_jobs = self.config.parallel_jobs
         self.test_runner.test_timeout = self.config.timeout
 
-    def run_standard_workflow(self) -> Dict:
+    def run_standard_workflow(self) -> dict:
         """Run the standard Buck2 incremental testing workflow."""
         logger.info("Starting Buck2 standard workflow")
         start_time = time.time()
@@ -121,7 +118,7 @@ class Buck2Workflow:
             results["duration"] = time.time() - start_time
             return results
 
-    def run_commit_validation_workflow(self) -> Dict:
+    def run_commit_validation_workflow(self) -> dict:
         """Run workflow to validate each commit in a branch."""
         logger.info("Starting Buck2 commit validation workflow")
         start_time = time.time()
@@ -218,7 +215,7 @@ class Buck2Workflow:
             results["duration"] = time.time() - start_time
             return results
 
-    def run_bisect_workflow(self) -> Dict:
+    def run_bisect_workflow(self) -> dict:
         """Run workflow to find the first failing commit."""
         logger.info("Starting Buck2 bisect workflow")
         start_time = time.time()
@@ -312,7 +309,7 @@ class Buck2Workflow:
                 fail_fast=self.config.fail_fast,
             )
 
-    def _save_workflow_results(self, results: Dict) -> Path:
+    def _save_workflow_results(self, results: dict) -> Path:
         """Save workflow results to file."""
         timestamp = int(time.time())
         output_file = self.repo_root / f"buck2_workflow_results_{timestamp}.json"
@@ -323,9 +320,9 @@ class Buck2Workflow:
         logger.info(f"Workflow results saved to {output_file}")
         return output_file
 
-    def print_workflow_summary(self, results: Dict):
+    def print_workflow_summary(self, results: dict):
         """Print a summary of workflow results."""
-        print(f"\n=== Buck2 Workflow Summary ===")
+        print("\n=== Buck2 Workflow Summary ===")
         print(f"Type: {results['workflow_type']}")
         print(f"Status: {results['status']}")
         print(f"Duration: {results['duration']:.2f}s")
