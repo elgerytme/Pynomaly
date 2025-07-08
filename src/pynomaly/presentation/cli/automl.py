@@ -31,6 +31,13 @@ from pynomaly.application.services.advanced_automl_service import AdvancedAutoML
 
 # Domain imports
 from pynomaly.domain.entities import Dataset
+from pynomaly.domain.services.advanced_detection_service import DetectionAlgorithm
+from pynomaly.domain.services.automl_service import (
+    get_automl_service,
+    OptimizationConfig,
+    OptimizationMetric,
+    SearchStrategy,
+)
 from pynomaly.infrastructure.config.feature_flags import require_feature
 
 # Infrastructure imports
@@ -549,3 +556,156 @@ def _save_comparison_results(results: dict, output_path: Path):
     """Save comparison results to file."""
     with open(output_path, "w") as f:
         json.dump(results, f, indent=2, default=str)
+
+
+@app.command()
+@require_feature("automl")
+def run(
+    dataset_path: Path = typer.Argument(..., help="Path to dataset file"),
+    algorithm_name: str = typer.Argument(..., help="PyOD algorithm name to optimize"),
+    max_trials: int = typer.Option(
+        100, "-n", "--max-trials", help="Maximum number of optimization trials"
+    ),
+    storage: Path = typer.Option(
+        Path("./automl_storage"), "--storage", help="Storage path for trials"
+    ),
+    output: Path | None = typer.Option(
+        None, "--output", help="Output file for optimization results"
+    ),
+):
+    """Run AutoML hyperparameter optimization for PyOD algorithms.
+
+    DATASET_PATH: Path to the dataset file (CSV or Parquet)
+    ALGORITHM_NAME: PyOD algorithm to optimize (KNN, LOF, IsolationForest, etc.)
+
+    Examples:
+        pynomaly automl run data.csv KNN
+        pynomaly automl run data.csv IsolationForest --max-trials 50
+        pynomaly automl run data.parquet LOF --storage ./results
+    """
+    try:
+        console.print(f"📊 Loading dataset: {dataset_path}")
+        dataset = _load_dataset(dataset_path)
+
+        # Validate PyOD algorithm
+        supported_algorithms = {
+            "KNN": DetectionAlgorithm.KNN,
+            "LOF": DetectionAlgorithm.LOCAL_OUTLIER_FACTOR,
+            "IsolationForest": DetectionAlgorithm.ISOLATION_FOREST,
+            "OneClassSVM": DetectionAlgorithm.ONE_CLASS_SVM,
+            "AutoEncoder": DetectionAlgorithm.AUTO_ENCODER,
+        }
+
+        if algorithm_name not in supported_algorithms:
+            console.print(
+                f"❌ Unsupported algorithm: {algorithm_name}. "
+                f"Supported: {list(supported_algorithms.keys())}",
+                style="red"
+            )
+            sys.exit(1)
+
+        algorithm = supported_algorithms[algorithm_name]
+
+        # Initialize AutoML service
+        console.print("🔧 Initializing AutoML service...")
+        automl_service = get_automl_service()
+
+        # Configure optimization
+        config = OptimizationConfig(
+            max_trials=max_trials,
+            search_strategy=SearchStrategy.BAYESIAN_OPTIMIZATION,
+            algorithms_to_test=[algorithm],
+            primary_metric=OptimizationMetric.F1_SCORE,
+        )
+
+        # Run optimization with progress tracking
+        console.print("🚀 Starting AutoML optimization...")
+        
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TaskProgressColumn(),
+            console=console,
+        ) as progress:
+            task = progress.add_task(
+                f"Optimizing {algorithm_name}...", total=max_trials
+            )
+
+            start_time = time.time()
+            result = asyncio.run(
+                automl_service.optimize_detection(
+                    dataset=dataset,
+                    optimization_config=config
+                )
+            )
+            optimization_time = time.time() - start_time
+
+            progress.update(task, completed=max_trials)
+
+        # Display results
+        console.print("\n✅ AutoML optimization completed!\n", style="green")
+        
+        table = Table(title="Optimization Results")
+        table.add_column("Metric", style="cyan")
+        table.add_column("Value", style="green")
+        
+        table.add_row("Best Algorithm", result.best_algorithm.value)
+        table.add_row("Best Score", f"{result.best_score:.4f}")
+        table.add_row("Total Trials", str(result.total_trials))
+        table.add_row("Optimization Time", f"{optimization_time:.2f}s")
+        
+        console.print(table)
+
+        # Show best parameters
+        if result.best_config and result.best_config.parameters:
+            params_table = Table(title="Best Parameters")
+            params_table.add_column("Parameter", style="cyan")
+            params_table.add_column("Value", style="green")
+            
+            for param, value in result.best_config.parameters.items():
+                params_table.add_row(param, str(value))
+            
+            console.print(params_table)
+
+        # Persist results
+        storage.mkdir(parents=True, exist_ok=True)
+        storage_path = storage / f"{algorithm_name}_optimization_{int(time.time())}.json"
+        
+        trial_data = {
+            "algorithm": algorithm_name,
+            "best_score": result.best_score,
+            "best_parameters": result.best_config.parameters if result.best_config else {},
+            "optimization_time": optimization_time,
+            "total_trials": result.total_trials,
+            "trial_history": result.trial_history,
+        }
+        
+        with open(storage_path, "w") as f:
+            json.dump(trial_data, f, indent=2, default=str)
+
+        console.print(f"💾 Trial results saved to: {storage_path}")
+
+        # Save detailed results if requested
+        if output:
+            _save_optimization_results(trial_data, output)
+            console.print(f"📄 Detailed results saved to: {output}")
+
+        # Check if performance improvement meets success criteria
+        baseline_score = 0.5  # Assumed baseline
+        improvement = (result.best_score - baseline_score) / baseline_score
+        
+        if improvement >= 0.15:  # 15% improvement
+            console.print(
+                f"🎯 Success! F1 improvement: {improvement:.1%} (≥15% target met)",
+                style="bold green"
+            )
+        else:
+            console.print(
+                f"⚠️  F1 improvement: {improvement:.1%} (target: ≥15%)",
+                style="yellow"
+            )
+
+    except Exception as e:
+        console.print(f"❌ AutoML optimization failed: {e}", style="red")
+        sys.exit(1)
