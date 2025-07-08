@@ -39,6 +39,9 @@ help: ## Show this help message
 	@echo "  make test-unit      - Run only unit tests"
 	@echo "  make test-integration - Run only integration tests"
 	@echo ""
+	@echo "Security:"
+	@echo "  make security-scan  - Run comprehensive security scan (bandit, safety, pip-audit)"
+	@echo ""
 	@echo "Build & Package:"
 	@echo "  make build          - Build wheel and source distribution"
 	@echo "  make version        - Show current version"
@@ -162,6 +165,18 @@ test-parallel: ## Run tests in parallel
 	@echo "🧪 Running tests in parallel..."
 	hatch env run test:run-parallel
 
+# === SECURITY SCANNING ===
+
+security-scan: ## Run comprehensive security scan (bandit, safety, pip-audit)
+	@echo "🔒 Running comprehensive security scan..."
+	tox -e security
+	@echo "📄 Security scan reports generated in:"
+	@echo "  - JSON reports: $(shell find .tox/security/tmp -name '*.json' 2>/dev/null | head -3 || echo 'None found')"
+	@echo "  - TXT reports: $(shell find .tox/security/tmp -name '*.txt' 2>/dev/null | head -3 || echo 'None found')"
+	@echo "  - SARIF reports: $(shell find .tox/security/tmp -name '*.sarif' 2>/dev/null | head -3 || echo 'None found')"
+	@echo "  - Full artifacts: artifacts/security/"
+	@echo "✅ Security scan completed!"
+
 # === BUILD & PACKAGE ===
 
 build: ## Build wheel and source distribution
@@ -193,6 +208,14 @@ env-clean: ## Clean and recreate environments
 	hatch env create
 	@echo "✅ Environments recreated!"
 
+# === SECURITY ===
+
+security-scan: ## Run full security scan locally
+	hatch env run security:scan
+
+security-ci: ## Run scan & fail on high severity
+	hatch env run security:scan --severity HIGH
+
 # === PRE-COMMIT & CI ===
 
 pre-commit: ## Install and run pre-commit hooks
@@ -213,11 +236,13 @@ ci: ## Run full CI pipeline locally
 	$(MAKE) test
 	@echo "4️⃣ Integration tests..."
 	$(MAKE) test-integration
-	@echo "5️⃣ Build package..."
+	@echo "5️⃣ Security scan..."
+	$(MAKE) security-ci
+	@echo "6️⃣ Build package..."
 	$(MAKE) build
-	@echo "6️⃣ CLI test..."
+	@echo "7️⃣ CLI test..."
 	hatch env run cli:test-cli
-	@echo "7️⃣ Core imports..."
+	@echo "8️⃣ Core imports..."
 	python -c "import sys; sys.path.insert(0, 'src'); from pynomaly.domain.entities import Dataset; print('✅ Core imports successful')"
 	@echo "✅ Full CI pipeline completed successfully!"
 
