@@ -90,10 +90,24 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
         # init_telemetry(settings)  # Temporarily disabled
         pass
 
+    # Setup forward-reference-free dependencies
+    from pynomaly.infrastructure.dependencies.setup import setup_dependencies
+    try:
+        dependency_setup = setup_dependencies(container)
+        app.state.dependency_setup = dependency_setup
+        print(f"Initialized {len(dependency_setup.get_registered_services())} dependencies")
+    except Exception as e:
+        print(f"Warning: Failed to setup dependencies: {e}")
+        # Continue startup even if some dependencies fail
+
     yield
 
     # Shutdown
     print("Shutting down...")
+    
+    # Clear dependencies on shutdown
+    from pynomaly.infrastructure.dependencies import clear_dependencies
+    clear_dependencies()
 
     # Cleanup services
     # Telemetry cleanup temporarily disabled
