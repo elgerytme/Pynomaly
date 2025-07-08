@@ -25,7 +25,8 @@ from pynomaly.domain.services import (
     FeatureValidator,
     ThresholdCalculator,
 )
-from pynomaly.infrastructure.config.feature_flags import FeatureFlagManager
+# Lazy import to avoid circular dependency
+# from pynomaly.infrastructure.config.feature_flags import FeatureFlagManager
 from pynomaly.infrastructure.config.settings import Settings
 from pynomaly.infrastructure.repositories import (
     FileDatasetRepository,
@@ -426,7 +427,12 @@ class Container(containers.DeclarativeContainer):
 
     # Configuration
     config = providers.Singleton(Settings)
-    feature_flag_manager = providers.Singleton(FeatureFlagManager)
+    
+    # Lazy import to avoid circular dependency
+    @providers.Singleton
+    def feature_flag_manager():
+        from pynomaly.infrastructure.config.feature_flags import FeatureFlagManager
+        return FeatureFlagManager()
 
     # Initialize service manager
     _service_manager = OptionalServiceManager()
