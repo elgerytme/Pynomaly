@@ -60,7 +60,6 @@ async def get_current_user(
     except AuthenticationError:
         # Return None if authentication fails
         return None
-        )
 
 
 async def require_auth(
