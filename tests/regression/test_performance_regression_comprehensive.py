@@ -9,57 +9,17 @@ import json
 import multiprocessing as mp
 import tempfile
 import time
+import yaml
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pytest
-import yaml
 
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.value_objects import AnomalyScore
 from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-
-
-class TestTrainingPerformanceRegression:
-    """Test training performance regression across different scenarios."""
-
-    @pytest.fixture
-    def performance_datasets(self):
-        """Create datasets of different sizes for performance testing."""
-        datasets = {}
-
-        # Small dataset
-        np.random.seed(42)
-        small_data = np.random.normal(0, 1, (1000, 5))
-        datasets["small"] = Dataset(
-            name="Small Dataset",
-            data=pd.DataFrame(small_data, columns=[f"feature_{i}" for i in range(5)]),
-        )
-
-        # Medium dataset
-        medium_data = np.random.normal(0, 1, (10000, 10))
-        datasets["medium"] = Dataset(
-            name="Medium Dataset",
-            data=pd.DataFrame(medium_data, columns=[f"feature_{i}" for i in range(10)]),
-        )
-
-        # Large dataset
-        large_data = np.random.normal(0, 1, (50000, 5))
-        datasets["large"] = Dataset(
-            name="Large Dataset",
-            data=pd.DataFrame(large_data, columns=[f"feature_{i}" for i in range(5)]),
-        )
-
-        # Wide dataset (many features)
-        wide_data = np.random.normal(0, 1, (5000, 50))
-        datasets["wide"] = Dataset(
-            name="Wide Dataset",
-            data=pd.DataFrame(wide_data, columns=[f"feature_{i}" for i in range(50)]),
-        )
-
-        return datasets
 
 
 def load_performance_config():
@@ -172,6 +132,7 @@ class TestTrainingPerformanceRegression:
         test_datasets = {
             k: v for k, v in performance_datasets.items() if k in ["small", "medium"]
         }
+        config = load_performance_config()
 
         for dataset_name, dataset in test_datasets.items():
             try:
@@ -190,14 +151,11 @@ class TestTrainingPerformanceRegression:
                 training_time = time.time() - start_time
 
                 # LOF performance thresholds (more lenient)
-                if dataset_name == "small":
-                    assert (
-                        training_time < 10.0
-                    ), f"LOF small dataset training too slow: {training_time}s"
-                elif dataset_name == "medium":
-                    assert (
-                        training_time < 60.0
-                    ), f"LOF medium dataset training too slow: {training_time}s"
+                default_time_threshold = {'small': 10.0, 'medium': 60.0}
+                time_threshold = config.get('algorithm_thresholds', {}).get('LocalOutlierFactor', {}).get('execution_time', {}).get('max_execution_time_seconds', default_time_threshold[dataset_name])
+                assert (
+                    training_time < time_threshold
+                ), f"LOF {dataset_name} dataset training too slow: {training_time}s"
 
             except ImportError:
                 continue

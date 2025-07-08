@@ -1323,14 +1323,80 @@ class VisualizationDashboardService:
     async def _generate_correlation_matrix_chart(
         self, config: ChartConfig, data: dict[str, Any]
     ) -> dict[str, Any]:
-        return self._build_chart_payload(
-            chart_id=config.chart_id,
-            chart_type="heatmap",
-            title="Correlation Matrix",
-            x_data=data.get("variables"),
-            series=self._get_metrics_series(data),
-            engine=config.engine.value,
-        )
+        """Generate correlation matrix heatmap chart."""
+        try:
+            # Prepare correlation matrix data
+            variables = data.get('variables', ['Var1', 'Var2', 'Var3', 'Var4', 'Var5'])
+            correlations = data.get('correlations', [
+                [1, 0.8, 0.5, 0.3, 0.1],
+                [0.8, 1, 0.4, 0.2, 0.05],
+                [0.5, 0.4, 1, 0.6, 0.3],
+                [0.3, 0.2, 0.6, 1, 0.7],
+                [0.1, 0.05, 0.3, 0.7, 1]
+            ])
+            
+            # Create heatmap data
+            heatmap_data = []
+            for i, row in enumerate(correlations):
+                for j, value in enumerate(row):
+                    heatmap_data.append([i, j, value])
+            
+            # Create heatmap series
+            series = [
+                {
+                    "name": "Correlation Coefficients",
+                    "type": "heatmap",
+                    "data": heatmap_data,
+                    "label": {
+                        "show": True,
+                        "formatter": "{c}",
+                        "fontSize": 10
+                    },
+                    "itemStyle": {
+                        "emphasis": {
+                            "shadowBlur": 10,
+                            "shadowColor": "rgba(0, 0, 0, 0.5)"
+                        }
+                    }
+                }
+            ]
+            
+            # Custom visualization map configuration
+            custom_config = {
+                "xAxis": {
+                    "type": "category",
+                    "data": variables
+                },
+                "yAxis": {
+                    "type": "category",
+                    "data": variables
+                },
+                "visualMap": {
+                    "min": -1,
+                    "max": 1,
+                    "calculable": True,
+                    "inRange": {
+                        "color": ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#fdae61", "#f46d43"]
+                    }
+                },
+                "series": series
+            }
+            
+            return self._build_chart_payload(
+                chart_id=config.chart_id,
+                chart_type="heatmap",
+                title="Correlation Matrix",
+                engine=config.engine.value,
+                custom_options=custom_config,
+                tooltip={
+                    "position": "top",
+                    "formatter": "{a} br/{i}:{j} = {c}"
+                }
+            )
+            
+        except Exception as e:
+            logger.error(f"Failed to generate correlation matrix chart: {e}")
+            return {}
 
     async def _generate_live_alert_stream_chart(
         self, config: ChartConfig, data: dict[str, Any]

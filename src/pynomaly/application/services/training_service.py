@@ -122,7 +122,7 @@ class AutomatedTrainingService:
         self.active_jobs[job.id] = job
 
         # Start training asynchronously
-        asyncio.create_task(self._execute_training_pipeline(job))
+        asyncio.create_task(self._run_training_job(job))
 
         logger.info(f"Training job created: {job.id}")
         return job
@@ -286,7 +286,10 @@ class AutomatedTrainingService:
         # Train final model with best parameters
         model = await adapter.train(X_train, y_train, best_params)
 
-        # Evaluate model
+        # Evaluate model and get predictions
+        y_pred = model.predict(X_val)
+        y_proba = model.predict_proba(X_val)[:, 1] if hasattr(model, 'predict_proba') else y_pred
+        
         metrics = await self._evaluate_model(model, X_val, y_val, algorithm_name)
 
         # Create model version
@@ -303,13 +306,19 @@ class AutomatedTrainingService:
         # Save model
         await self.model_repository.save_version(model_version)
 
+        # Store predictions and probabilities in metrics for later use
+        metrics_dict = metrics.to_dict()
+        metrics_dict['y_pred'] = y_pred.tolist() if hasattr(y_pred, 'tolist') else y_pred
+        metrics_dict['proba'] = y_proba.tolist() if hasattr(y_proba, 'tolist') else y_proba
+
         return {
             "algorithm": algorithm_name,
             "model_id": model_version.id,
             "hyperparameters": best_params,
-            "metrics": metrics.to_dict(),
+            "metrics": metrics_dict,
             "optimization_history": optimization_history,
             "training_time": metrics.training_time,
+            "model_data": model,  # Store model for immediate use
         }
 
     async def _optimize_hyperparameters(

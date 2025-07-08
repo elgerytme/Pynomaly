@@ -37,7 +37,7 @@ class AlgorithmMetadata:
     typical_use_cases: Optional[List[str]] = None
 
 
-class EnhancedPyODAdapter(DetectorProtocol, ExplainableDetectorProtocol):
+class EnhancedPyODAdapter(ExplainableDetectorProtocol):
     """Enhanced PyOD adapter with comprehensive algorithm support."""
 
     # Comprehensive algorithm mapping with metadata
