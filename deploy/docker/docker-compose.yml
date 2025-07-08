@@ -7,6 +7,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+      - "9090:9090"  # Metrics for API
     environment:
       - PYNOMALY_ENVIRONMENT=production
       - PYNOMALY_API_HOST=0.0.0.0
@@ -22,6 +23,26 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    restart: unless-stopped
+
+  streaming-worker:
+    build:
+      context: ./src/pynomaly/workers
+      dockerfile: Dockerfile
+    ports:
+      - "9091:9091"  # Metrics for Streaming
+    environment:
+      - WORKER_TYPE=streaming
+    restart: unless-stopped
+  
+  training-worker:
+    build:
+      context: ./src/pynomaly/workers
+      dockerfile: Dockerfile
+    ports:
+      - "9092:9092"  # Metrics for Training
+    environment:
+      - WORKER_TYPE=training
     restart: unless-stopped
 
   redis:

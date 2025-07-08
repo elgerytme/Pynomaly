@@ -38,6 +38,8 @@ dependencies = [
     "structlog==24.4.0",
     "dependency-injector==4.42.0",
     "networkx==3.0",
+    "boto3",
+    "mypy-boto3-s3"
 ]
 
 [project.urls]
@@ -321,6 +323,9 @@ source = "vcs"
 [tool.hatch.build.hooks.vcs]
 version-file = "src/pynomaly/_version.py"
 
+[tool.hatch.build.hooks.custom]
+path = "scripts/build_hooks.py"
+
 # Buck2 integration (Buck2 is installed and available)
 # [tool.hatch.build.hooks.buck2]
 # Buck2 build hook configuration - accelerated builds with caching
@@ -356,6 +361,7 @@ include = [
     "/tests",
     "/docs",
     "/examples",
+    "/deploy/grafana/provisioning/dashboards",
     "/README.md",
     "/LICENSE",
     "/CHANGELOG.md",

@@ -42,19 +42,20 @@ scrape_configs:
         target_label: service
         replacement: 'pynomaly-api'
 
-  # Pynomaly worker metrics
-  - job_name: 'pynomaly-workers'
+# Pynomaly worker metrics
+  - job_name: 'pynomaly-training-worker'
     static_configs:
       - targets: 
-          - 'pynomaly-worker-training:9090'
-          - 'pynomaly-worker-drift:9090'
+          - 'training-worker:9092'
     metrics_path: /metrics
     scrape_interval: 15s
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: worker_type
-        regex: 'pynomaly-worker-([^:]+):.*'
-        replacement: '${1}'
+  
+  - job_name: 'pynomaly-streaming-worker'
+    static_configs:
+      - targets: 
+          - 'streaming-worker:9091'
+    metrics_path: /metrics
+    scrape_interval: 15s
 
   # Redis metrics
   - job_name: 'redis'
