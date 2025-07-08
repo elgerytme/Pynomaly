@@ -66,6 +66,20 @@ try:
 except ImportError:
     APP_AVAILABLE = False
 
+# Import test data management utilities
+try:
+    from tests.fixtures.test_data_generator import (
+        HIGH_DIM_DATASET_PARAMS,
+        LARGE_DATASET_PARAMS,
+        MEDIUM_DATASET_PARAMS,
+        SMALL_DATASET_PARAMS,
+        TestDataManager,
+        TestScenarioFactory,
+    )
+    TEST_DATA_MANAGER_AVAILABLE = True
+except ImportError:
+    TEST_DATA_MANAGER_AVAILABLE = False
+
 
 @pytest.fixture(scope="session")
 def event_loop():
@@ -414,6 +428,53 @@ def audit_logger():
     if not AUDIT_LOGGING_AVAILABLE:
         pytest.skip("Audit logging not available")
     return init_audit_logging()
+
+
+# Test data manager fixtures (consolidated from tests/fixtures/conftest.py)
+@pytest.fixture(scope="session")
+def test_data_manager():
+    """Provide a test data manager for the entire test session."""
+    if not TEST_DATA_MANAGER_AVAILABLE:
+        pytest.skip("Test data manager dependencies not available")
+    manager = TestDataManager()
+    yield manager
+    # Cleanup after session
+    manager.clear_cache()
+
+
+@pytest.fixture(scope="session")
+def test_scenario_factory():
+    """Provide a test scenario factory for the entire test session."""
+    if not TEST_DATA_MANAGER_AVAILABLE:
+        pytest.skip("Test scenario factory dependencies not available")
+    return TestScenarioFactory()
+
+
+@pytest.fixture
+def various_datasets(test_data_manager):
+    """Provide various types of datasets for parameterized tests."""
+    if not TEST_DATA_MANAGER_AVAILABLE:
+        pytest.skip("Test data manager dependencies not available")
+    # Return a simple dataset as default
+    return test_data_manager.get_dataset("simple", **SMALL_DATASET_PARAMS)
+
+
+# Benchmark configuration fixtures
+@pytest.fixture(scope="session")
+def benchmark_config():
+    """Configuration for benchmark tests."""
+    return {
+        "warmup_rounds": 1,
+        "min_rounds": 3,
+        "max_time": 30.0,
+        "timer": "time.perf_counter",
+    }
+
+
+@pytest.fixture
+def benchmark_group():
+    """Group related benchmarks together."""
+    return "anomaly_detection_algorithms"
 
 
 # Cleanup fixtures

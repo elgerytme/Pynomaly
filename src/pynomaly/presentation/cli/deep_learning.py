@@ -9,7 +9,6 @@ import time
 from pathlib import Path
 from typing import List, Optional
 
-import click
 import numpy as np
 import typer
 from rich.console import Console
@@ -177,13 +176,15 @@ def benchmark(
     algorithm: str = typer.Option(
         "autoencoder",
         "-a", "--algorithm",
-        help="Deep learning algorithm"
+        help="Deep learning algorithm",
     ),
     frameworks: Optional[List[str]] = typer.Option(
         None,
         "-f", "--frameworks",
         help="Frameworks to benchmark (all available if not specified)"
     ),
+    epochs: int = typer.Option(50, "--epochs", help="Number of training epochs"),
+    output: Optional[Path] = typer.Option(None, "--output", help="Output file for benchmark results"),
 ):
     """Benchmark deep learning frameworks on anomaly detection task.
 
@@ -346,8 +347,7 @@ def frameworks():
 def info(
     algorithm: str = typer.Argument(
         ...,
-        help="Algorithm to get information about",
-        click_type=click.Choice(["autoencoder", "vae", "lstm", "transformer", "gmm", "svdd"])
+        help="Algorithm to get information about"
     ),
 ):
     """Get detailed information about a deep learning algorithm.
