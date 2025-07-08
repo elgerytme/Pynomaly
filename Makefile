@@ -261,6 +261,110 @@ status: ## Show project status and environment info
 	@echo "📦 Build artifacts:"
 	@ls -la dist/ 2>/dev/null || echo "No build artifacts (run 'make build')"
 
+# === BRANCHING & GIT ===
+
+branch-new: ## Create new branch with validation (usage: make branch-new TYPE=feature NAME=my-feature)
+	@echo "🌿 Creating new branch..."
+	@if [ -z "$(TYPE)" ] || [ -z "$(NAME)" ]; then \
+		echo "❌ Error: Both TYPE and NAME are required"; \
+		echo "Usage: make branch-new TYPE=<type> NAME=<name>"; \
+		echo "Valid types: feature, bugfix, hotfix, release, chore, docs"; \
+		echo "Example: make branch-new TYPE=feature NAME=anomaly-detection"; \
+		exit 1; \
+	fi
+	@case "$(TYPE)" in \
+		feature|bugfix|hotfix|release|chore|docs) \
+			echo "✅ Branch type '$(TYPE)' is valid"; \
+			;; \
+		*) \
+			echo "❌ Error: Invalid branch type '$(TYPE)'"; \
+			echo "Valid types: feature, bugfix, hotfix, release, chore, docs"; \
+			exit 1; \
+			;; \
+	esac
+	@if echo "$(NAME)" | grep -qE '^[a-z0-9-]+$$'; then \
+		echo "✅ Branch name '$(NAME)' is valid"; \
+	else \
+		echo "❌ Error: Invalid branch name '$(NAME)'"; \
+		echo "Branch names must contain only lowercase letters, numbers, and hyphens"; \
+		exit 1; \
+	fi
+	@BRANCH_NAME="$(TYPE)/$(NAME)"; \
+	echo "🔍 Checking if branch exists..."; \
+	if git show-ref --verify --quiet refs/heads/$$BRANCH_NAME; then \
+		echo "❌ Error: Branch '$$BRANCH_NAME' already exists"; \
+		exit 1; \
+	fi; \
+	echo "🌿 Creating branch '$$BRANCH_NAME'..."; \
+	git checkout -b $$BRANCH_NAME; \
+	echo "✅ Branch '$$BRANCH_NAME' created and switched to!"
+
+branch-switch: ## Switch branches with safety checks (usage: make branch-switch NAME=feature/my-feature)
+	@echo "🔄 Switching branches with safety checks..."
+	@if [ -z "$(NAME)" ]; then \
+		echo "❌ Error: NAME is required"; \
+		echo "Usage: make branch-switch NAME=<branch-name>"; \
+		echo "Example: make branch-switch NAME=feature/anomaly-detection"; \
+		exit 1; \
+	fi
+	@echo "🔍 Checking if branch exists..."
+	@if ! git show-ref --verify --quiet refs/heads/$(NAME) && ! git show-ref --verify --quiet refs/remotes/origin/$(NAME); then \
+		echo "❌ Error: Branch '$(NAME)' does not exist locally or remotely"; \
+		echo "Available branches:"; \
+		git branch -a --format='%(refname:short)' | grep -v HEAD | sed 's/^/  /'; \
+		exit 1; \
+	fi
+	@echo "🔍 Checking for uncommitted changes..."
+	@if ! git diff-index --quiet HEAD --; then \
+		echo "❌ Error: You have uncommitted changes"; \
+		echo "Please commit or stash your changes before switching branches:"; \
+		git status --porcelain; \
+		exit 1; \
+	fi
+	@echo "🔍 Checking for running processes that might be affected..."
+	@if pgrep -f "python.*pynomaly" > /dev/null 2>&1; then \
+		echo "⚠️  Warning: Python processes related to pynomaly are running"; \
+		echo "Consider stopping them before switching branches"; \
+		echo "Running processes:"; \
+		pgrep -f "python.*pynomaly" | head -5; \
+		echo "Continue anyway? (y/N)"; \
+		read -r response; \
+		if [ "$$response" != "y" ] && [ "$$response" != "Y" ]; then \
+			echo "❌ Branch switch cancelled"; \
+			exit 1; \
+		fi; \
+	fi
+	@echo "🔄 Switching to branch '$(NAME)'..."
+	@git switch $(NAME) || (echo "❌ Failed to switch to branch '$(NAME)'"; exit 1)
+	@echo "✅ Successfully switched to branch '$(NAME)'"
+	@echo "📊 Current branch status:"
+	@git status --short
+
+branch-validate: ## Validate current branch name for CI compliance
+	@echo "🔍 Validating current branch name..."
+	@CURRENT_BRANCH=$$(git branch --show-current 2>/dev/null); \
+	if [ -z "$$CURRENT_BRANCH" ]; then \
+		echo "❌ Error: Not in a git repository or no current branch"; \
+		exit 1; \
+	fi; \
+	echo "Current branch: $$CURRENT_BRANCH"; \
+	if [ "$$CURRENT_BRANCH" = "main" ] || [ "$$CURRENT_BRANCH" = "master" ] || [ "$$CURRENT_BRANCH" = "develop" ]; then \
+		echo "✅ Main branch '$$CURRENT_BRANCH' - validation passed"; \
+		exit 0; \
+	fi; \
+	if echo "$$CURRENT_BRANCH" | grep -qE '^(feature|bugfix|hotfix|release|chore|docs)/[a-z0-9-]+$$'; then \
+		echo "✅ Branch name '$$CURRENT_BRANCH' follows naming convention"; \
+		echo "📋 Branch type: $$(echo $$CURRENT_BRANCH | cut -d'/' -f1)"; \
+		echo "📋 Branch name: $$(echo $$CURRENT_BRANCH | cut -d'/' -f2)"; \
+	else \
+		echo "❌ Error: Branch name '$$CURRENT_BRANCH' does not follow naming convention"; \
+		echo "Expected format: <type>/<name>"; \
+		echo "Valid types: feature, bugfix, hotfix, release, chore, docs"; \
+		echo "Name must contain only lowercase letters, numbers, and hyphens"; \
+		echo "Examples: feature/anomaly-detection, bugfix/memory-leak, docs/api-updates"; \
+		exit 1; \
+	fi
+
 # === PRODUCTION COMMANDS ===
 
 prod-api: ## Start production API server

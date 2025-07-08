@@ -802,30 +802,19 @@ class VisualizationDashboardService:
     ) -> dict[str, Any]:
         """Generate line chart configuration."""
         try:
-            chart_config = {
-                "type": "line",
-                "title": {"text": config.title},
-                "xAxis": {"type": "category", "data": data.get("x_data", [])},
-                "yAxis": {"type": "value", "name": config.y_axis_label},
-                "series": [
-                    {
-                        "data": data.get("y_data", []),
-                        "type": "line",
-                        "smooth": True,
-                        "lineStyle": {"width": 2},
-                        "itemStyle": {"borderRadius": 4},
-                    }
-                ],
-                "tooltip": {"trigger": "axis"},
-                "grid": {"containLabel": True},
-            }
-
-            return {
-                "id": config.chart_id,
-                "config": chart_config,
-                "engine": config.engine.value,
-                "data": data,
-            }
+            # Use the common helper method
+            metrics_data = {"series": data.get("y_data", [])}
+            series = self._get_metrics_series(metrics_data, {"type": "line"})
+            
+            return self._build_chart_payload(
+                chart_id=config.chart_id,
+                chart_type="line",
+                title=config.title,
+                x_data=data.get("x_data", []),
+                series=series,
+                engine=config.engine.value,
+                y_axis_name=config.y_axis_label
+            )
 
         except Exception as e:
             logger.error(f"Failed to generate line chart: {e}")
@@ -872,22 +861,26 @@ class VisualizationDashboardService:
                         "data": [{"value": value, "name": name}],
                         "detail": {"fontSize": 10},
                         "title": {"fontSize": 12},
+                        "axisLine": {"lineStyle": {"width": 8}},
+                        "axisLabel": {"fontSize": 8},
+                        "splitLine": {"lineStyle": {"width": 2}},
+                        "pointer": {"width": 3},
+                        "itemStyle": {"color": "auto"},
+                        "animation": True,
+                        "animationDuration": 1000,
+                        "animationEasing": "cubicOut"
                     }
                 )
 
-            chart_config = {
-                "type": "gauge",
-                "title": {"text": config.title},
-                "series": series,
-                "tooltip": {"formatter": "{a} <br/>{b} : {c}%"},
-            }
-
-            return {
-                "id": config.chart_id,
-                "config": chart_config,
-                "engine": config.engine.value,
-                "data": data,
-            }
+            return self._build_chart_payload(
+                chart_id=config.chart_id,
+                chart_type="gauge",
+                title=config.title,
+                engine=config.engine.value,
+                series=series,
+                tooltip={"formatter": "{a} <br/>{b} : {c}%"},
+                custom_options={"backgroundColor": "transparent"}
+            )
 
         except Exception as e:
             logger.error(f"Failed to generate gauge chart: {e}")
