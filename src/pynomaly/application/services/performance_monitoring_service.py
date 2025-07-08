@@ -444,16 +444,20 @@ class PerformanceMonitoringService:
             },
         }
 
-    def _default_alert_handler(self, alert: PerformanceAlert) -> None:
+    def _default_alert_handler(self, alert) -> None:
         """Default handler for performance alerts."""
-        print(f"🚨 Performance Alert: {alert.severity.upper()} - {alert.message}")
+        # Use lazy import to avoid circular import
+        from ...infrastructure.monitoring.performance_monitor import PerformanceAlert
+        
+        if isinstance(alert, PerformanceAlert):
+            print(f"🚨 Performance Alert: {alert.severity.upper()} - {alert.message}")
 
-        # Call custom alert handlers
-        for handler in self.alert_handlers:
-            try:
-                handler(alert)
-            except Exception as e:
-                print(f"Alert handler error: {e}")
+            # Call custom alert handlers
+            for handler in self.alert_handlers:
+                try:
+                    handler(alert)
+                except Exception as e:
+                    print(f"Alert handler error: {e}")
 
     def _calculate_reliability_score(self, metrics: list[PerformanceMetrics]) -> float:
         """Calculate reliability score based on consistency of metrics."""
