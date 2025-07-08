@@ -495,17 +495,23 @@ report = "pytest tests/ui/ --html=test_reports/ui_test_report.html --self-contai
 
 # Security environment for unified security scanning
 [tool.hatch.envs.security]
+extra-dependencies = ["pynomaly[lint]"]
 dependencies = [
-    "safety",
-    "bandit[toml]",
-    "pip-audit",
-    "trivy",
-    "trufflehog",
+    "bandit[toml]>=1.7",
+    "safety>=3.0",
+    "pip-audit>=2.6",
 ]
 
 [tool.hatch.envs.security.scripts]
 scan = "python scripts/security/run_security_scans.py {args}"
 quick = "bandit -r src/ -q && safety check -q"
+# Individual security scan commands matching tox configuration
+bandit-scan = "bandit -r src/ -f json -o artifacts/security/bandit_results.json -ll --skip B101,B601"
+bandit-txt = "bandit -r src/ -f txt -o artifacts/security/bandit_results.txt -ll --skip B101,B601"
+bandit-sarif = "bandit -r src/ -f sarif -o artifacts/security/bandit_results.sarif -ll --skip B101,B601"
+safety-scan = "safety check --json --output artifacts/security/safety_results.json --continue-on-error"
+pip-audit-scan = "pip-audit --format=json --output=artifacts/security/pip_audit_results.json"
+pip-audit-cyclonedx = "pip-audit --format=cyclonedx --output=artifacts/security/pip_audit_cyclonedx.json"
 
 # Tool configuration (existing tools)
 [tool.ruff]

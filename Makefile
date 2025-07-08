@@ -40,7 +40,7 @@ help: ## Show this help message
 	@echo "  make test-integration - Run only integration tests"
 	@echo ""
 	@echo "Security:"
-	@echo "  make security-scan  - Run full security scan locally"
+	@echo "  make security-scan  - Run comprehensive security scan (bandit, safety, pip-audit)"
 	@echo "  make security-ci    - Run scan & fail on high severity"
 	@echo ""
 	@echo "Build & Package:"
@@ -91,6 +91,7 @@ help-detailed: ## Show detailed help with examples
 	@echo "• default: Basic development (path: .venv)"
 	@echo "• test: Full test suite with matrix (py3.11, py3.12)"
 	@echo "• lint: Code quality tools (detached)"
+	@echo "• security: Security scanning tools (bandit, safety, pip-audit)"
 	@echo "• docs: Documentation building"
 	@echo "• dev: Development tools and pre-commit"
 	@echo "• prod: Production environment"
@@ -166,6 +167,17 @@ test-parallel: ## Run tests in parallel
 	@echo "🧪 Running tests in parallel..."
 	hatch env run test:run-parallel
 
+# === SECURITY SCANNING ===
+
+security-scan: ## Run comprehensive security scan (bandit, safety, pip-audit)
+	@echo "🔒 Running comprehensive security scan..."
+	tox -e security
+	@echo "📄 Security scan reports generated in:"
+	@echo "  - JSON reports: $$(find .tox/security/tmp -name '*.json' 2>/dev/null | head -3 || echo 'None found')"
+	@echo "  - TXT reports: $$(find .tox/security/tmp -name '*.txt' 2>/dev/null | head -3 || echo 'None found')"
+	@echo "  - SARIF reports: $$(find .tox/security/tmp -name '*.sarif' 2>/dev/null | head -3 || echo 'None found')"
+	@echo "  - Full artifacts: artifacts/security/"
+	@echo "✅ Security scan completed!"
 
 # === BUILD & PACKAGE ===
 

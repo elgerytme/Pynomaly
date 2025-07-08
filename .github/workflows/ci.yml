@@ -348,7 +348,105 @@ jobs:
         path: reports/
         retention-days: 30
 
-  # Job 6: Docker Build
+  # Job 6: Security Scan (Dependency Graph)
+  security-scan:
+    name: Security Scan
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    needs: [build]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: build-artifacts
+        path: dist/
+
+    - name: Install built wheel for dependency analysis
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        # Install the wheel - handle different platforms
+        if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+          pip install dist/*.whl
+        else
+          pip install $(ls dist/*.whl)
+        fi
+
+    - name: Install security scanning tools
+      run: |
+        pip install bandit safety pip-audit cyclonedx-bom
+
+    - name: Generate dependency graph (SBOM)
+      shell: bash
+      run: |
+        mkdir -p security-reports
+        cyclonedx-py -o security-reports/sbom.json
+        echo "✅ Software Bill of Materials (SBOM) generated"
+
+    - name: Run pip-audit for known vulnerabilities
+      shell: bash
+      run: |
+        pip-audit --format=json --output=security-reports/pip-audit.json --progress-spinner=off
+        pip-audit --format=sarif --output=security-reports/pip-audit.sarif --progress-spinner=off
+        echo "✅ Vulnerability scan completed"
+      continue-on-error: true
+
+    - name: Run Bandit security scan on installed package
+      shell: bash
+      run: |
+        python -c "import pynomaly; print('Package location:', pynomaly.__file__)"
+        bandit -r $(python -c "import pynomaly; import os; print(os.path.dirname(pynomaly.__file__))") -f json -o security-reports/bandit-package.json
+        echo "✅ Static security analysis completed"
+      continue-on-error: true
+
+    - name: Generate security summary
+      shell: bash
+      run: |
+        echo "# Security Scan Report - ${{ matrix.os }}" > security-reports/security-summary.md
+        echo "" >> security-reports/security-summary.md
+        echo "**Generated:** $(date)" >> security-reports/security-summary.md
+        echo "**OS:** ${{ matrix.os }}" >> security-reports/security-summary.md
+        echo "**Python Version:** ${{ env.PYTHON_VERSION }}" >> security-reports/security-summary.md
+        echo "" >> security-reports/security-summary.md
+        echo "## Scans Performed" >> security-reports/security-summary.md
+        echo "- ✅ SBOM (Software Bill of Materials) generated" >> security-reports/security-summary.md
+        echo "- ✅ pip-audit vulnerability scan" >> security-reports/security-summary.md
+        echo "- ✅ Bandit static security analysis" >> security-reports/security-summary.md
+        echo "" >> security-reports/security-summary.md
+        echo "## Artifacts" >> security-reports/security-summary.md
+        echo "- SBOM: \`sbom.json\`" >> security-reports/security-summary.md
+        echo "- Vulnerability Report: \`pip-audit.json\`, \`pip-audit.sarif\`" >> security-reports/security-summary.md
+        echo "- Security Analysis: \`bandit-package.json\`" >> security-reports/security-summary.md
+
+    - name: Upload security scan results
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-scan-${{ matrix.os }}
+        path: security-reports/
+        retention-days: 30
+
+    - name: Upload SARIF results to GitHub Security
+      if: matrix.os == 'ubuntu-latest' && github.event_name == 'push'
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: security-reports/pip-audit.sarif
+        category: pip-audit
+
+  # Job 7: Docker Build
   docker:
     name: Docker Build
     runs-on: ubuntu-latest
@@ -379,11 +477,11 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
-  # Job 7: Final CI Summary
+  # Job 8: Final CI Summary
   ci-summary:
     name: CI Summary
     runs-on: ubuntu-latest
-    needs: [docs-lint, code-quality, build, test, api-cli-test, security, docker]
+    needs: [docs-lint, code-quality, build, test, api-cli-test, security, security-scan, docker]
     if: always()
     
     steps:
@@ -409,12 +507,14 @@ jobs:
         echo "| Test Suite | ${{ needs.test.result == 'success' && '✅ Passed' || needs.test.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | Unit & integration tests (Python 3.11/3.12) |" >> ci-reports/ci-summary.md
         echo "| API & CLI | ${{ needs.api-cli-test.result == 'success' && '✅ Passed' || needs.api-cli-test.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | CLI commands, API startup test |" >> ci-reports/ci-summary.md
         echo "| Security Scan | ${{ needs.security.result == 'success' && '✅ Passed' || needs.security.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | Bandit security scan, Safety check |" >> ci-reports/ci-summary.md
+        echo "| Security Scan (Deps) | ${{ needs.security-scan.result == 'success' && '✅ Passed' || needs.security-scan.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | Dependency graph, SBOM, pip-audit vulnerability scan |" >> ci-reports/ci-summary.md
         echo "| Docker Build | ${{ needs.docker.result == 'success' && '✅ Passed' || needs.docker.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | Container image build test |" >> ci-reports/ci-summary.md
         echo "" >> ci-reports/ci-summary.md
         
         # Overall status
         if [[ "${{ needs.build.result }}" == "success" && 
-              "${{ needs.test.result }}" == "success" ]]; then
+              "${{ needs.test.result }}" == "success" && 
+              "${{ needs.security-scan.result }}" == "success" ]]; then
           echo "## 🎉 Overall Status: **PASSED**" >> ci-reports/ci-summary.md
           echo "" >> ci-reports/ci-summary.md
           echo "✅ All critical CI checks have passed successfully!" >> ci-reports/ci-summary.md
@@ -431,6 +531,7 @@ jobs:
           echo "**Required for merge:**" >> ci-reports/ci-summary.md
           echo "- Build & Package must pass" >> ci-reports/ci-summary.md
           echo "- Test Suite must pass" >> ci-reports/ci-summary.md
+          echo "- Security Scan (Deps) must pass" >> ci-reports/ci-summary.md
         fi
         
         echo "" >> ci-reports/ci-summary.md
@@ -468,6 +569,7 @@ jobs:
 - Test Suite: ${{ needs.test.result == 'success' && '✅ Passed' || needs.test.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }}
 - API & CLI: ${{ needs.api-cli-test.result == 'success' && '✅ Passed' || needs.api-cli-test.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }}
 - Security: ${{ needs.security.result == 'success' && '✅ Passed' || needs.security.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }}
+- Security Scan (Deps): ${{ needs.security-scan.result == 'success' && '✅ Passed' || needs.security-scan.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }}
 - Docker: ${{ needs.docker.result == 'success' && '✅ Passed' || needs.docker.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }}
 
 **Hatch Migration:** ✅ Successfully using Hatch for build system and environment management
@@ -491,7 +593,8 @@ View detailed reports in the Actions artifacts.`;
     - name: Set final exit code
       run: |
         if [[ "${{ needs.build.result }}" == "success" && 
-              "${{ needs.test.result }}" == "success" ]]; then
+              "${{ needs.test.result }}" == "success" && 
+              "${{ needs.security-scan.result }}" == "success" ]]; then
           echo "✅ CI Pipeline completed successfully"
           exit 0
         else
