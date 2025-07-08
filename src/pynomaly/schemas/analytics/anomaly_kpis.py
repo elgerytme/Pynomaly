@@ -16,7 +16,7 @@ from typing import Optional, List, Dict, Any
 from enum import Enum
 from datetime import datetime
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 from .base import RealTimeMetricFrame, MetricMetadata
 
@@ -51,16 +51,19 @@ class AnomalyDetectionMetrics(BaseModel):
     roc_auc: Optional[float] = Field(None, ge=0.0, le=1.0, description="ROC AUC score")
     pr_auc: Optional[float] = Field(None, ge=0.0, le=1.0, description="PR AUC score")
     
-    @validator('f1_score')
-    def validate_f1_score(cls, v: float, values: Dict[str, Any]) -> float:
+    @field_validator('f1_score')
+    @classmethod
+    def validate_f1_score(cls, v: float, info) -> float:
         """Validate F1 score consistency with precision and recall."""
-        if 'precision' in values and 'recall' in values:
-            precision = values['precision']
-            recall = values['recall']
-            if precision + recall > 0:
-                expected_f1 = 2 * (precision * recall) / (precision + recall)
-                if abs(v - expected_f1) > 0.01:  # Allow small floating point errors
-                    raise ValueError(f"F1 score {v} inconsistent with precision {precision} and recall {recall}")
+        if hasattr(info, 'data') and info.data:
+            values = info.data
+            if 'precision' in values and 'recall' in values:
+                precision = values['precision']
+                recall = values['recall']
+                if precision + recall > 0:
+                    expected_f1 = 2 * (precision * recall) / (precision + recall)
+                    if abs(v - expected_f1) > 0.01:  # Allow small floating point errors
+                        raise ValueError(f"F1 score {v} inconsistent with precision {precision} and recall {recall}")
         return v
 
 
@@ -86,11 +89,13 @@ class AnomalyClassificationMetrics(BaseModel):
         description="Distribution of anomalies by category"
     )
     
-    @validator('anomalies_confirmed')
-    def validate_confirmed_anomalies(cls, v: int, values: Dict[str, Any]) -> int:
+    @field_validator('anomalies_confirmed')
+    @classmethod
+    def validate_confirmed_anomalies(cls, v: int, info) -> int:
         """Validate confirmed anomalies don't exceed detected."""
-        if 'anomalies_detected' in values and v > values['anomalies_detected']:
-            raise ValueError("Confirmed anomalies cannot exceed detected anomalies")
+        if hasattr(info, 'data') and info.data and 'anomalies_detected' in info.data:
+            if v > info.data['anomalies_detected']:
+                raise ValueError("Confirmed anomalies cannot exceed detected anomalies")
         return v
 
 
@@ -111,7 +116,8 @@ class AnomalyTimeSeriesMetrics(BaseModel):
     drift_detected: bool = Field(default=False, description="Concept drift detected")
     seasonality_score: Optional[float] = Field(None, ge=0.0, le=1.0, description="Seasonality score")
     
-    @validator('sample_rate')
+    @field_validator('sample_rate')
+    @classmethod
     def validate_sample_rate(cls, v: float) -> float:
         """Validate sample rate is reasonable."""
         if v > 1000.0:  # 1kHz max
@@ -149,20 +155,23 @@ class AnomalyKPIFrame(RealTimeMetricFrame):
     # Additional context
     business_context: Optional[Dict[str, Any]] = Field(None, description="Business context metadata")
     
-    class Config:
-        """Pydantic configuration."""
-        use_enum_values = True
-        validate_assignment = True
-        extra = "forbid"
+    model_config = ConfigDict(
+        use_enum_values=True,
+        validate_assignment=True,
+        extra="forbid"
+    )
         
-    @validator('critical_alerts')
-    def validate_critical_alerts(cls, v: int, values: Dict[str, Any]) -> int:
+    @field_validator('critical_alerts')
+    @classmethod
+    def validate_critical_alerts(cls, v: int, info) -> int:
         """Validate critical alerts don't exceed active alerts."""
-        if 'active_alerts' in values and v > values['active_alerts']:
-            raise ValueError("Critical alerts cannot exceed active alerts")
+        if hasattr(info, 'data') and info.data and 'active_alerts' in info.data:
+            if v > info.data['active_alerts']:
+                raise ValueError("Critical alerts cannot exceed active alerts")
         return v
     
-    @validator('memory_usage')
+    @field_validator('memory_usage')
+    @classmethod
     def validate_memory_usage(cls, v: float) -> float:
         """Validate memory usage is reasonable."""
         if v > 100000.0:  # 100GB max

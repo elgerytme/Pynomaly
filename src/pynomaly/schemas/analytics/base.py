@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 
 class TimestampedMetric(BaseModel):
@@ -49,7 +49,8 @@ class RealTimeMetricFrame(MetricFrame):
         description="Time delay in seconds for metric collection"
     )
 
-    @validator('value')
+    @field_validator('value')
+    @classmethod
     def validate_value(cls, v: float) -> float:
         """Ensure the metric value is non-negative."""
         if v < 0:

@@ -16,7 +16,7 @@ from typing import Optional, Dict, Any, List
 from enum import Enum
 from datetime import datetime
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 from .base import RealTimeMetricFrame
 
@@ -71,18 +71,22 @@ class SystemResourceMetrics(BaseModel):
     process_count: int = Field(ge=0, description="Number of running processes")
     thread_count: int = Field(ge=0, description="Number of active threads")
     
-    @validator('memory_used_mb')
-    def validate_memory_used(cls, v: float, values: Dict[str, Any]) -> float:
+    @field_validator('memory_used_mb')
+    @classmethod
+    def validate_memory_used(cls, v: float, info) -> float:
         """Validate memory used doesn't exceed total."""
-        if 'memory_total_mb' in values and v > values['memory_total_mb']:
-            raise ValueError("Memory used cannot exceed total memory")
+        if hasattr(info, 'data') and info.data and 'memory_total_mb' in info.data:
+            if v > info.data['memory_total_mb']:
+                raise ValueError("Memory used cannot exceed total memory")
         return v
     
-    @validator('disk_used_gb')
-    def validate_disk_used(cls, v: float, values: Dict[str, Any]) -> float:
+    @field_validator('disk_used_gb')
+    @classmethod
+    def validate_disk_used(cls, v: float, info) -> float:
         """Validate disk used doesn't exceed total."""
-        if 'disk_total_gb' in values and v > values['disk_total_gb']:
-            raise ValueError("Disk used cannot exceed total disk space")
+        if hasattr(info, 'data') and info.data and 'disk_total_gb' in info.data:
+            if v > info.data['disk_total_gb']:
+                raise ValueError("Disk used cannot exceed total disk space")
         return v
 
 
@@ -116,18 +120,22 @@ class SystemPerformanceMetrics(BaseModel):
     queue_depth: int = Field(ge=0, description="Queue depth")
     queue_processing_time_ms: float = Field(ge=0.0, description="Queue processing time in milliseconds")
     
-    @validator('p95_response_time_ms')
-    def validate_p95_response_time(cls, v: float, values: Dict[str, Any]) -> float:
+    @field_validator('p95_response_time_ms')
+    @classmethod
+    def validate_p95_response_time(cls, v: float, info) -> float:
         """Validate P95 response time is >= average."""
-        if 'avg_response_time_ms' in values and v < values['avg_response_time_ms']:
-            raise ValueError("P95 response time cannot be less than average response time")
+        if hasattr(info, 'data') and info.data and 'avg_response_time_ms' in info.data:
+            if v < info.data['avg_response_time_ms']:
+                raise ValueError("P95 response time cannot be less than average response time")
         return v
     
-    @validator('p99_response_time_ms')
-    def validate_p99_response_time(cls, v: float, values: Dict[str, Any]) -> float:
+    @field_validator('p99_response_time_ms')
+    @classmethod
+    def validate_p99_response_time(cls, v: float, info) -> float:
         """Validate P99 response time is >= P95."""
-        if 'p95_response_time_ms' in values and v < values['p95_response_time_ms']:
-            raise ValueError("P99 response time cannot be less than P95 response time")
+        if hasattr(info, 'data') and info.data and 'p95_response_time_ms' in info.data:
+            if v < info.data['p95_response_time_ms']:
+                raise ValueError("P99 response time cannot be less than P95 response time")
         return v
 
 
@@ -161,18 +169,22 @@ class SystemStatusMetrics(BaseModel):
     last_backup_timestamp: Optional[datetime] = Field(None, description="Last backup timestamp")
     backup_status: Optional[str] = Field(None, description="Backup status")
     
-    @validator('services_healthy')
-    def validate_services_healthy(cls, v: int, values: Dict[str, Any]) -> int:
+    @field_validator('services_healthy')
+    @classmethod
+    def validate_services_healthy(cls, v: int, info) -> int:
         """Validate healthy services don't exceed total."""
-        if 'services_total' in values and v > values['services_total']:
-            raise ValueError("Healthy services cannot exceed total services")
+        if hasattr(info, 'data') and info.data and 'services_total' in info.data:
+            if v > info.data['services_total']:
+                raise ValueError("Healthy services cannot exceed total services")
         return v
     
-    @validator('critical_alerts')
-    def validate_critical_alerts(cls, v: int, values: Dict[str, Any]) -> int:
+    @field_validator('critical_alerts')
+    @classmethod
+    def validate_critical_alerts(cls, v: int, info) -> int:
         """Validate critical alerts don't exceed active alerts."""
-        if 'active_alerts' in values and v > values['active_alerts']:
-            raise ValueError("Critical alerts cannot exceed active alerts")
+        if hasattr(info, 'data') and info.data and 'active_alerts' in info.data:
+            if v > info.data['active_alerts']:
+                raise ValueError("Critical alerts cannot exceed active alerts")
         return v
 
 
@@ -207,11 +219,11 @@ class SystemHealthFrame(RealTimeMetricFrame):
     configuration_version: Optional[str] = Field(None, description="Configuration version")
     deployment_version: Optional[str] = Field(None, description="Deployment version")
     
-    class Config:
-        """Pydantic configuration."""
-        use_enum_values = True
-        validate_assignment = True
-        extra = "forbid"
+    model_config = ConfigDict(
+        use_enum_values=True,
+        validate_assignment=True,
+        extra="forbid"
+    )
     
     def get_resource_health_score(self) -> float:
         """Calculate resource health score based on utilization."""

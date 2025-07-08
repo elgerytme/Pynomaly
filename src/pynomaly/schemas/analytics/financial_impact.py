@@ -18,7 +18,7 @@ from __future__ import annotations
 from typing import Optional, Dict, Any
 from datetime import date
 
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from .base import RealTimeMetricFrame
 
@@ -30,7 +30,8 @@ class CostMetrics(BaseModel):
     cost_per_unit: float = Field(ge=0.0, description="Cost per unit")
     budget: Optional[float] = Field(None, ge=0.0, description="Allocated budget")
     
-    @validator('total_cost', 'cost_per_unit')
+    @field_validator('total_cost', 'cost_per_unit')
+    @classmethod
     def validate_non_negative(cls, v: float) -> float:
         """Ensure cost metrics are non-negative."""
         if v < 0:
@@ -48,7 +49,8 @@ class SavingsMetrics(BaseModel):
     total_savings: float = Field(ge=0.0, description="Total savings achieved")
     savings_rate: float = Field(ge=0.0, le=1.0, description="Rate of savings")
     
-    @validator('savings_rate')
+    @field_validator('savings_rate')
+    @classmethod
     def validate_savings_rate(cls, v: float) -> float:
         """Ensure savings rate is between 0 and 1."""
         if not 0 <= v <= 1:
@@ -63,7 +65,8 @@ class RevenueMetrics(BaseModel):
     revenue_per_unit: float = Field(ge=0.0, description="Revenue per unit")
     revenue_growth_rate: Optional[float] = Field(None, description="Revenue growth rate")
     
-    @validator('total_revenue', 'revenue_per_unit')
+    @field_validator('total_revenue', 'revenue_per_unit')
+    @classmethod
     def validate_non_negative(cls, v: float) -> float:
         """Ensure revenue metrics are non-negative."""
         if v < 0:
@@ -80,13 +83,15 @@ class ROICalculation(BaseModel):
     period_start_date: Optional[date] = Field(None, description="Start date of the investment period")
     period_end_date: Optional[date] = Field(None, description="End date of the investment period")
     
-    @root_validator(pre=True)
+    @model_validator(mode='before')
+    @classmethod
     def calculate_roi(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         """Calculate ROI based on investment and returns."""
-        investment = values.get('investment', 0)
-        returns = values.get('returns', 0)
-        if investment > 0:
-            values['roi'] = (returns - investment) / investment
+        if isinstance(values, dict):
+            investment = values.get('investment', 0)
+            returns = values.get('returns', 0)
+            if investment > 0:
+                values['roi'] = (returns - investment) / investment
         return values
     
     def is_profitable(self) -> bool:
