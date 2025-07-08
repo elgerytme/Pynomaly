@@ -10,6 +10,9 @@ from uuid import UUID, uuid4
 
 import numpy as np
 
+# Import drift types from the main drift_detection module
+from .drift_detection import DriftEvent, DriftMetrics, DriftSeverity, DriftType, RecommendedAction
+
 
 class LearningStrategy(Enum):
     """Strategy for continuous learning."""
@@ -30,43 +33,6 @@ class EvolutionTrigger(Enum):
     TIME_BASED = "time_based"
     USER_FEEDBACK = "user_feedback"
     BUSINESS_RULE = "business_rule"
-
-
-class DriftType(Enum):
-    """Types of drift in machine learning."""
-
-    DATA_DRIFT = "data_drift"
-    CONCEPT_DRIFT = "concept_drift"
-    LABEL_DRIFT = "label_drift"
-    PRIOR_PROBABILITY_DRIFT = "prior_probability_drift"
-    FEATURE_DRIFT = "feature_drift"
-
-
-class DriftSeverity(Enum):
-    """Severity levels for drift events."""
-
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
-    CRITICAL = "critical"
-
-    def __lt__(self, other):
-        severity_order = {
-            DriftSeverity.LOW: 1,
-            DriftSeverity.MEDIUM: 2,
-            DriftSeverity.HIGH: 3,
-            DriftSeverity.CRITICAL: 4,
-        }
-        return severity_order[self] < severity_order[other]
-
-    def __gt__(self, other):
-        severity_order = {
-            DriftSeverity.LOW: 1,
-            DriftSeverity.MEDIUM: 2,
-            DriftSeverity.HIGH: 3,
-            DriftSeverity.CRITICAL: 4,
-        }
-        return severity_order[self] > severity_order[other]
 
 
 class FeedbackType(Enum):
@@ -276,126 +242,6 @@ class LearningSession:
             1 for adaptation in self.adaptation_history if adaptation.was_successful()
         )
         return successful_adaptations / len(self.adaptation_history)
-
-
-@dataclass
-class DriftMetrics:
-    """Comprehensive drift detection metrics."""
-
-    statistical_distance: float
-    p_value: float
-    effect_size: float
-    confidence_interval: tuple[float, float]
-    power: float
-    sample_size: int
-    feature_importance_shift: dict[str, float] | None = None
-    distribution_shift_score: float | None = None
-    temporal_stability_score: float | None = None
-
-    def __post_init__(self):
-        """Validate drift metrics."""
-        if not (0.0 <= self.p_value <= 1.0):
-            raise ValueError("P-value must be between 0.0 and 1.0")
-        if not (0.0 <= self.power <= 1.0):
-            raise ValueError("Power must be between 0.0 and 1.0")
-        if self.sample_size <= 0:
-            raise ValueError("Sample size must be positive")
-
-    def is_significant(self, alpha: float = 0.05) -> bool:
-        """Check if drift is statistically significant."""
-        return self.p_value < alpha
-
-    def get_drift_magnitude(self) -> str:
-        """Get qualitative description of drift magnitude."""
-        if self.effect_size < 0.2:
-            return "negligible"
-        elif self.effect_size < 0.5:
-            return "small"
-        elif self.effect_size < 0.8:
-            return "medium"
-        else:
-            return "large"
-
-
-@dataclass
-class RecommendedAction:
-    """Recommended action for addressing drift or performance issues."""
-
-    action_type: str
-    priority: str  # HIGH, MEDIUM, LOW
-    description: str
-    estimated_effort: str  # HOURS, DAYS, WEEKS
-    expected_impact: str  # HIGH, MEDIUM, LOW
-    prerequisites: list[str] = field(default_factory=list)
-    implementation_steps: list[str] = field(default_factory=list)
-    success_criteria: list[str] = field(default_factory=list)
-    risks: list[str] = field(default_factory=list)
-    alternatives: list[str] = field(default_factory=list)
-
-    def get_priority_score(self) -> int:
-        """Get numeric priority score."""
-        priority_map = {"HIGH": 3, "MEDIUM": 2, "LOW": 1}
-        return priority_map.get(self.priority, 1)
-
-    def get_impact_score(self) -> int:
-        """Get numeric impact score."""
-        impact_map = {"HIGH": 3, "MEDIUM": 2, "LOW": 1}
-        return impact_map.get(self.expected_impact, 1)
-
-    def get_urgency_score(self) -> float:
-        """Calculate urgency score based on priority and impact."""
-        return (self.get_priority_score() + self.get_impact_score()) / 2
-
-
-@dataclass
-class DriftEvent:
-    """Represents a detected drift event."""
-
-    drift_id: UUID = field(default_factory=uuid4)
-    detected_at: datetime = field(default_factory=datetime.utcnow)
-    drift_type: DriftType = DriftType.DATA_DRIFT
-    severity: DriftSeverity = DriftSeverity.MEDIUM
-    affected_features: list[str] = field(default_factory=list)
-    drift_metrics: DriftMetrics | None = None
-    recommended_actions: list[RecommendedAction] = field(default_factory=list)
-    detection_method: str = "statistical"
-    confidence: float = 0.5
-    business_impact_assessment: dict[str, Any] | None = None
-    resolution_status: str = "OPEN"  # OPEN, IN_PROGRESS, RESOLVED, IGNORED
-    resolution_notes: str | None = None
-    resolved_at: datetime | None = None
-
-    def __post_init__(self):
-        """Validate drift event."""
-        if not (0.0 <= self.confidence <= 1.0):
-            raise ValueError("Confidence must be between 0.0 and 1.0")
-
-    def get_time_since_detection(self) -> timedelta:
-        """Get time elapsed since drift detection."""
-        return datetime.utcnow() - self.detected_at
-
-    def is_critical(self) -> bool:
-        """Check if drift event is critical."""
-        return self.severity == DriftSeverity.CRITICAL
-
-    def needs_immediate_attention(self) -> bool:
-        """Check if drift needs immediate attention."""
-        return (
-            self.severity in [DriftSeverity.HIGH, DriftSeverity.CRITICAL]
-            and self.resolution_status == "OPEN"
-        )
-
-    def add_recommended_action(self, action: RecommendedAction) -> None:
-        """Add a recommended action."""
-        self.recommended_actions.append(action)
-        # Sort by urgency score
-        self.recommended_actions.sort(key=lambda x: x.get_urgency_score(), reverse=True)
-
-    def resolve(self, resolution_notes: str) -> None:
-        """Mark drift event as resolved."""
-        self.resolution_status = "RESOLVED"
-        self.resolution_notes = resolution_notes
-        self.resolved_at = datetime.utcnow()
 
 
 @dataclass

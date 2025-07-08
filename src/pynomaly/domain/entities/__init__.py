@@ -15,6 +15,7 @@ from .anomaly import Anomaly
 from .dataset import Dataset
 from .detection_result import DetectionResult
 from .detector import Detector
+from .drift_detection import *  # Import all drift detection entities
 from .experiment import Experiment, ExperimentRun, ExperimentStatus, ExperimentType
 from .model import Model, ModelStage, ModelType
 from .model_version import ModelStatus, ModelVersion
@@ -56,4 +57,30 @@ __all__ = [
     "MLNoiseFeatures",
     "NoiseClassification",
     "NotificationChannel",
+    # Drift detection entities
+    "DriftDetectionMethod",
+    "DriftScope",
+    "SeasonalPattern",
+    "DriftType",
+    "DriftSeverity",
+    "MonitoringStatus",
+    "DriftDetectionConfig",
+    "DriftConfiguration",
+    "DriftThresholds",
+    "ModelMonitoringConfig",
+    "TimeWindow",
+    "FeatureData",
+    "FeatureDrift",
+    "UnivariateDriftResult",
+    "MultivariateDriftResult",
+    "ConceptDriftResult",
+    "DriftDetectionResult",
+    "FeatureDriftAnalysis",
+    "DriftAnalysisResult",
+    "DriftReport",
+    "DriftMonitor",
+    "DriftAlert",
+    "DriftMetrics",
+    "DriftEvent",
+    "RecommendedAction",
 ]

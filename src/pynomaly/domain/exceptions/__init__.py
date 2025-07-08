@@ -45,6 +45,18 @@ from .result_exceptions import (
     ScoreCalculationError,
     ThresholdError,
 )
+from .storage_exceptions import (
+    CorruptedDataError,
+    EncryptionError,
+    InvalidOperationError,
+    QuotaExceededError,
+    StorageAuthenticationError,
+    StorageConnectionError,
+    StorageError,
+    StorageException,
+    StorageNotFoundError,
+    StoragePermissionError,
+)
 
 # Aliases for backward compatibility
 InvalidDataError = DataValidationError
@@ -95,6 +107,17 @@ __all__ = [
     "InvalidPipelineStateError",
     "AlertNotFoundError",
     "InvalidAlertStateError",
+    # Storage exceptions
+    "StorageException",
+    "StorageError",
+    "StorageAuthenticationError",
+    "StoragePermissionError",
+    "StorageNotFoundError",
+    "StorageConnectionError",
+    "EncryptionError",
+    "QuotaExceededError",
+    "InvalidOperationError",
+    "CorruptedDataError",
     # Aliases
     "InvalidDataError",
     "InvalidValueError",

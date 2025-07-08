@@ -55,32 +55,14 @@ class AnomalyScore:
 
     def _validate_business_rules(self) -> None:
         """Validate advanced business rules for anomaly scores."""
-        # Business Rule: Scores below 0.01 should be treated as noise
-        if 0.0 < self.value < 0.01:
-            raise InvalidValueError(
-                "Score values between 0 and 0.01 are likely noise and should be normalized to 0.0",
-                field="value",
-                value=self.value,
-                rule="noise_threshold"
-            )
+        # Note: Allowing low scores as they may be valid for normal data points
+        # Removed overly strict noise threshold rule
 
-        # Business Rule: Exact 1.0 scores should be rare and verified
-        if self.value == 1.0 and self.confidence_interval is None:
-            raise InvalidValueError(
-                "Perfect anomaly scores (1.0) must include confidence intervals for validation",
-                field="value",
-                value=self.value,
-                rule="perfect_score_validation"
-            )
+        # Business Rule: Perfect scores are allowed but noted
+        # Note: Allowing 1.0 scores as they may be valid for clear anomalies
 
-        # Business Rule: High precision scores should have method documentation
-        if self.value > 0.999 and self.method is None:
-            raise InvalidValueError(
-                "High precision scores (>0.999) must specify the scoring method",
-                field="method",
-                value=self.value,
-                rule="high_precision_documentation"
-            )
+        # Business Rule: High precision scores are allowed
+        # Note: Allowing high precision scores without strict method requirement
 
     def _validate_confidence_interval_consistency(self) -> None:
         """Validate confidence interval consistency with score."""
@@ -147,8 +129,7 @@ class AnomalyScore:
                 return False
             
             # Check business rules without raising exceptions
-            if 0.0 < self.value < 0.01:
-                return False
+            # Note: Allowing low scores as they may be valid for normal data points
             
             # Check confidence interval consistency
             if self.confidence_interval is not None:

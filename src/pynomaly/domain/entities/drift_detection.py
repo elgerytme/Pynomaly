@@ -489,6 +489,7 @@ class DriftType(Enum):
 class DriftSeverity(Enum):
     """Severity levels for detected drift."""
 
+    NONE = "none"
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -505,13 +506,525 @@ class MonitoringStatus(Enum):
 
 
 @dataclass
+class DriftDetectionConfig:
+    """Configuration for drift detection."""
+
+    # Detection methods
+    enabled_methods: list[DriftDetectionMethod] = field(
+        default_factory=lambda: [DriftDetectionMethod.KOLMOGOROV_SMIRNOV]
+    )
+
+    # Thresholds
+    drift_threshold: float = 0.05
+    method_thresholds: dict[str, float] = field(default_factory=dict)
+    thresholds: DriftThresholds = field(default_factory=DriftThresholds)
+
+    # Severity mapping
+    severity_thresholds: dict[str, float] = field(
+        default_factory=lambda: {
+            "low": 0.1,
+            "medium": 0.3,
+            "high": 0.6,
+            "critical": 0.8,
+        }
+    )
+
+    # Detection settings
+    min_sample_size: int = 100
+    reference_window_size: int | None = None
+    detection_window_size: int = 1000
+    time_window: TimeWindow | None = None
+    drift_scope: DriftScope = DriftScope.GLOBAL
+
+    # Feature selection
+    features_to_monitor: list[str] | None = None
+    exclude_features: list[str] = field(default_factory=list)
+
+    # Advanced settings
+    enable_multivariate_detection: bool = True
+    enable_concept_drift: bool = True
+    enable_univariate_detection: bool = True
+    adaptive_thresholds: bool = False
+    seasonal_patterns: list[SeasonalPattern] = field(default_factory=list)
+
+    # Alerting
+    alert_on_drift: bool = True
+    alert_severity_threshold: DriftSeverity = field(default_factory=lambda: DriftSeverity.MEDIUM)
+    monitoring_config: ModelMonitoringConfig | None = None
+
+    # Metadata
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        """Validate drift detection configuration."""
+        if not (0.0 <= self.drift_threshold <= 1.0):
+            raise ValueError("Drift threshold must be between 0.0 and 1.0")
+        if self.min_sample_size <= 0:
+            raise ValueError("Minimum sample size must be positive")
+        if self.detection_window_size <= 0:
+            raise ValueError("Detection window size must be positive")
+        if self.reference_window_size is not None and self.reference_window_size <= 0:
+            raise ValueError("Reference window size must be positive")
+
+        # Initialize monitoring config if not provided
+        if self.monitoring_config is None:
+            self.monitoring_config = ModelMonitoringConfig(
+                drift_threshold=self.drift_threshold,
+                severity_threshold=self.alert_severity_threshold,
+                notification_enabled=self.alert_on_drift,
+            )
+
+    def get_threshold_for_method(self, method: DriftDetectionMethod) -> float:
+        """Get threshold for specific drift detection method."""
+        method_name = method.value if isinstance(method, DriftDetectionMethod) else str(method)
+        return self.method_thresholds.get(method_name, self.thresholds.get_threshold_for_method(method))
+
+    def get_severity_for_score(self, score: float) -> DriftSeverity:
+        """Get severity level for drift score."""
+        if score >= self.severity_thresholds["critical"]:
+            return DriftSeverity.CRITICAL
+        elif score >= self.severity_thresholds["high"]:
+            return DriftSeverity.HIGH
+        elif score >= self.severity_thresholds["medium"]:
+            return DriftSeverity.MEDIUM
+        elif score >= self.severity_thresholds["low"]:
+            return DriftSeverity.LOW
+        else:
+            return DriftSeverity.NONE
+
+    def is_method_enabled(self, method: DriftDetectionMethod) -> bool:
+        """Check if a detection method is enabled."""
+        return method in self.enabled_methods
+
+    def should_monitor_feature(self, feature_name: str) -> bool:
+        """Check if a feature should be monitored."""
+        if feature_name in self.exclude_features:
+            return False
+        if self.features_to_monitor is None:
+            return True
+        return feature_name in self.features_to_monitor
+
+    def get_effective_window_size(self, data_size: int) -> int:
+        """Get effective window size based on data size and configuration."""
+        if self.reference_window_size is not None:
+            return min(self.reference_window_size, data_size)
+        return min(self.detection_window_size, data_size)
+
+
+@dataclass
+class FeatureDrift:
+    """Drift information for a single feature."""
+
+    feature_name: str
+    drift_score: float
+    threshold: float
+    is_drifted: bool
+    severity: DriftSeverity
+    method: DriftDetectionMethod
+
+    # Statistical information
+    p_value: float | None = None
+    reference_mean: float | None = None
+    current_mean: float | None = None
+    reference_std: float | None = None
+    current_std: float | None = None
+
+    # Distribution information
+    reference_distribution: dict[str, Any] = field(default_factory=dict)
+    current_distribution: dict[str, Any] = field(default_factory=dict)
+
+    # Visualization data
+    histogram_data: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class DriftConfiguration:
+    """Configuration for drift detection (legacy alias for DriftDetectionConfig)."""
+
+    # Detection methods
+    enabled_methods: list[DriftDetectionMethod] = field(
+        default_factory=lambda: [DriftDetectionMethod.KOLMOGOROV_SMIRNOV]
+    )
+
+    # Thresholds
+    drift_threshold: float = 0.05
+    method_thresholds: dict[str, float] = field(default_factory=dict)
+
+    # Severity mapping
+    severity_thresholds: dict[str, float] = field(
+        default_factory=lambda: {
+            "low": 0.1,
+            "medium": 0.3,
+            "high": 0.6,
+            "critical": 0.8,
+        }
+    )
+
+    # Detection settings
+    min_sample_size: int = 100
+    reference_window_size: int | None = None
+    detection_window_size: int = 1000
+
+    # Feature selection
+    features_to_monitor: list[str] | None = None
+    exclude_features: list[str] = field(default_factory=list)
+
+    # Advanced settings
+    enable_multivariate_detection: bool = True
+    enable_concept_drift: bool = True
+    adaptive_thresholds: bool = False
+
+    # Alerting
+    alert_on_drift: bool = True
+    alert_severity_threshold: DriftSeverity = field(default_factory=lambda: DriftSeverity.MEDIUM)
+
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        """Validate drift configuration."""
+        if not (0.0 <= self.drift_threshold <= 1.0):
+            raise ValueError("Drift threshold must be between 0.0 and 1.0")
+        if self.min_sample_size <= 0:
+            raise ValueError("Minimum sample size must be positive")
+        if self.detection_window_size <= 0:
+            raise ValueError("Detection window size must be positive")
+
+
+@dataclass
+class DriftReport:
+    """Comprehensive drift detection report."""
+
+    # Required fields
+    model_id: UUID
+    reference_sample_size: int
+    current_sample_size: int
+    overall_drift_detected: bool
+    overall_drift_severity: DriftSeverity
+    drift_types_detected: list[DriftType]
+    feature_drift: dict[str, FeatureDrift]
+    drifted_features: list[str]
+    configuration: DriftConfiguration
+    detection_start_time: datetime
+    detection_end_time: datetime
+
+    # Auto-generated fields
+    id: UUID = field(default_factory=uuid4)
+    created_at: datetime = field(default_factory=datetime.utcnow)
+
+    # Data information
+    reference_data_id: UUID | None = None
+    current_data_id: UUID | None = None
+    reference_period: str | None = None
+    detection_period: str | None = None
+
+    # Multivariate drift
+    multivariate_drift_score: float | None = None
+    multivariate_drift_detected: bool = False
+
+    # Concept drift
+    concept_drift_score: float | None = None
+    concept_drift_detected: bool = False
+
+    # Model performance impact
+    performance_degradation: dict[str, float] = field(default_factory=dict)
+
+    # Recommendations
+    recommendations: list[str] = field(default_factory=list)
+
+    # Metadata
+    created_by: str | None = None
+    tags: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def get_high_priority_features(self) -> list[str]:
+        """Get features with high or critical drift severity."""
+        return [
+            feature_name
+            for feature_name, drift in self.feature_drift.items()
+            if drift.severity in [DriftSeverity.HIGH, DriftSeverity.CRITICAL]
+        ]
+
+    def get_drift_summary(self) -> dict[str, Any]:
+        """Get a summary of drift detection results."""
+        severity_counts = {}
+        for severity in DriftSeverity:
+            severity_counts[severity.value] = len(
+                [f for f in self.feature_drift.values() if f.severity == severity]
+            )
+
+        return {
+            "total_features": len(self.feature_drift),
+            "drifted_features": len(self.drifted_features),
+            "drift_percentage": len(self.drifted_features)
+            / len(self.feature_drift)
+            * 100,
+            "severity_distribution": severity_counts,
+            "multivariate_drift": self.multivariate_drift_detected,
+            "concept_drift": self.concept_drift_detected,
+            "overall_severity": self.overall_drift_severity.value,
+        }
+
+    def requires_immediate_attention(self) -> bool:
+        """Check if the drift requires immediate attention."""
+        return (
+            self.overall_drift_severity in [DriftSeverity.HIGH, DriftSeverity.CRITICAL]
+            or self.concept_drift_detected
+            or len(self.get_high_priority_features()) > 0
+        )
+
+    def get_recommended_actions(self) -> list[str]:
+        """Get recommended actions based on drift severity."""
+        actions = []
+
+        if self.overall_drift_severity == DriftSeverity.CRITICAL:
+            actions.append("URGENT: Consider immediate model retraining")
+            actions.append("Investigate data pipeline for potential issues")
+
+        elif self.overall_drift_severity == DriftSeverity.HIGH:
+            actions.append("Schedule model retraining within next maintenance window")
+            actions.append("Monitor model performance closely")
+
+        elif self.overall_drift_severity == DriftSeverity.MEDIUM:
+            actions.append("Plan model retraining for next release cycle")
+            actions.append("Increase monitoring frequency")
+
+        if self.concept_drift_detected:
+            actions.append("Investigate changes in target variable distribution")
+
+        if self.multivariate_drift_detected:
+            actions.append("Analyze feature interactions and correlations")
+
+        return actions
+
+
+@dataclass
+class DriftMonitor:
+    """Drift monitoring configuration and state."""
+
+    # Required fields
+    model_id: UUID
+    name: str
+    configuration: DriftConfiguration
+    created_by: str
+
+    # Auto-generated fields
+    id: UUID = field(default_factory=uuid4)
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=datetime.utcnow)
+
+    # Optional fields
+    description: str | None = None
+
+    # Monitoring schedule
+    monitoring_enabled: bool = True
+    monitoring_frequency: str = "daily"
+    last_check_time: datetime | None = None
+    next_check_time: datetime | None = None
+
+    # State
+    consecutive_drift_detections: int = 0
+    last_drift_detection: datetime | None = None
+    current_drift_severity: DriftSeverity = field(default_factory=lambda: DriftSeverity.NONE)
+
+    # Alerts
+    alert_enabled: bool = True
+    alert_recipients: list[str] = field(default_factory=list)
+    last_alert_time: datetime | None = None
+
+    # History
+    recent_reports: list[UUID] = field(default_factory=list)
+
+    # Metadata
+    tags: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        """Validate drift monitor configuration."""
+        valid_frequencies = {"hourly", "daily", "weekly"}
+        if self.monitoring_frequency not in valid_frequencies:
+            raise ValueError(
+                f"Monitoring frequency must be one of: {valid_frequencies}"
+            )
+
+    def should_check_now(self) -> bool:
+        """Check if drift detection should be performed now."""
+        if not self.monitoring_enabled:
+            return False
+
+        if self.next_check_time is None:
+            return True
+
+        return datetime.utcnow() >= self.next_check_time
+
+    def record_drift_detection(self, severity: DriftSeverity, report_id: UUID) -> None:
+        """Record a drift detection result."""
+        self.last_check_time = datetime.utcnow()
+        self.updated_at = datetime.utcnow()
+
+        if severity != DriftSeverity.NONE:
+            self.consecutive_drift_detections += 1
+            self.last_drift_detection = datetime.utcnow()
+            self.current_drift_severity = severity
+        else:
+            self.consecutive_drift_detections = 0
+            self.current_drift_severity = DriftSeverity.NONE
+
+        # Add to recent reports (keep last 10)
+        self.recent_reports.append(report_id)
+        if len(self.recent_reports) > 10:
+            self.recent_reports = self.recent_reports[-10:]
+
+    def needs_alert(self, current_severity: DriftSeverity) -> bool:
+        """Check if an alert should be sent."""
+        if not self.alert_enabled:
+            return False
+
+        # Alert if severity meets threshold
+        severity_order = [
+            DriftSeverity.NONE,
+            DriftSeverity.LOW,
+            DriftSeverity.MEDIUM,
+            DriftSeverity.HIGH,
+            DriftSeverity.CRITICAL,
+        ]
+
+        current_level = severity_order.index(current_severity)
+        threshold_level = severity_order.index(
+            self.configuration.alert_severity_threshold
+        )
+
+        return current_level >= threshold_level
+
+
+@dataclass
+class DriftMetrics:
+    """Comprehensive drift detection metrics."""
+
+    statistical_distance: float
+    p_value: float
+    effect_size: float
+    confidence_interval: tuple[float, float]
+    power: float
+    sample_size: int
+    feature_importance_shift: dict[str, float] | None = None
+    distribution_shift_score: float | None = None
+    temporal_stability_score: float | None = None
+
+    def __post_init__(self):
+        """Validate drift metrics."""
+        if not (0.0 <= self.p_value <= 1.0):
+            raise ValueError("P-value must be between 0.0 and 1.0")
+        if not (0.0 <= self.power <= 1.0):
+            raise ValueError("Power must be between 0.0 and 1.0")
+        if self.sample_size <= 0:
+            raise ValueError("Sample size must be positive")
+
+    def is_significant(self, alpha: float = 0.05) -> bool:
+        """Check if drift is statistically significant."""
+        return self.p_value < alpha
+
+    def get_drift_magnitude(self) -> str:
+        """Get qualitative description of drift magnitude."""
+        if self.effect_size < 0.2:
+            return "negligible"
+        elif self.effect_size < 0.5:
+            return "small"
+        elif self.effect_size < 0.8:
+            return "medium"
+        else:
+            return "large"
+
+
+@dataclass
+class RecommendedAction:
+    """Recommended action for addressing drift or performance issues."""
+
+    action_type: str
+    priority: str  # HIGH, MEDIUM, LOW
+    description: str
+    estimated_effort: str  # HOURS, DAYS, WEEKS
+    expected_impact: str  # HIGH, MEDIUM, LOW
+    prerequisites: list[str] = field(default_factory=list)
+    implementation_steps: list[str] = field(default_factory=list)
+    success_criteria: list[str] = field(default_factory=list)
+    risks: list[str] = field(default_factory=list)
+    alternatives: list[str] = field(default_factory=list)
+
+    def get_priority_score(self) -> int:
+        """Get numeric priority score."""
+        priority_map = {"HIGH": 3, "MEDIUM": 2, "LOW": 1}
+        return priority_map.get(self.priority, 1)
+
+    def get_impact_score(self) -> int:
+        """Get numeric impact score."""
+        impact_map = {"HIGH": 3, "MEDIUM": 2, "LOW": 1}
+        return impact_map.get(self.expected_impact, 1)
+
+    def get_urgency_score(self) -> float:
+        """Calculate urgency score based on priority and impact."""
+        return (self.get_priority_score() + self.get_impact_score()) / 2
+
+
+@dataclass
+class DriftEvent:
+    """Represents a detected drift event."""
+
+    drift_id: UUID = field(default_factory=uuid4)
+    detected_at: datetime = field(default_factory=datetime.utcnow)
+    drift_type: DriftType = DriftType.DATA_DRIFT
+    severity: DriftSeverity = field(default_factory=lambda: DriftSeverity.MEDIUM)
+    affected_features: list[str] = field(default_factory=list)
+    drift_metrics: DriftMetrics | None = None
+    recommended_actions: list[RecommendedAction] = field(default_factory=list)
+    detection_method: str = "statistical"
+    confidence: float = 0.5
+    business_impact_assessment: dict[str, Any] | None = None
+    resolution_status: str = "OPEN"  # OPEN, IN_PROGRESS, RESOLVED, IGNORED
+    resolution_notes: str | None = None
+    resolved_at: datetime | None = None
+
+    def __post_init__(self):
+        """Validate drift event."""
+        if not (0.0 <= self.confidence <= 1.0):
+            raise ValueError("Confidence must be between 0.0 and 1.0")
+
+    def get_time_since_detection(self) -> timedelta:
+        """Get time elapsed since drift detection."""
+        return datetime.utcnow() - self.detected_at
+
+    def is_critical(self) -> bool:
+        """Check if drift event is critical."""
+        return self.severity == DriftSeverity.CRITICAL
+
+    def needs_immediate_attention(self) -> bool:
+        """Check if drift needs immediate attention."""
+        return (
+            self.severity in [DriftSeverity.HIGH, DriftSeverity.CRITICAL]
+            and self.resolution_status == "OPEN"
+        )
+
+    def add_recommended_action(self, action: RecommendedAction) -> None:
+        """Add a recommended action."""
+        self.recommended_actions.append(action)
+        # Sort by urgency score
+        self.recommended_actions.sort(key=lambda x: x.get_urgency_score(), reverse=True)
+
+    def resolve(self, resolution_notes: str) -> None:
+        """Mark drift event as resolved."""
+        self.resolution_status = "RESOLVED"
+        self.resolution_notes = resolution_notes
+        self.resolved_at = datetime.utcnow()
+
+
+@dataclass
 class ModelMonitoringConfig:
     """Configuration for model monitoring."""
 
     monitoring_enabled: bool = True
     check_interval_minutes: int = 60
     drift_threshold: float = 0.1
-    severity_threshold: DriftSeverity = DriftSeverity.MEDIUM
+    severity_threshold: DriftSeverity = field(default_factory=lambda: DriftSeverity.MEDIUM)
     notification_enabled: bool = True
     auto_retrain_enabled: bool = False
 
@@ -711,3 +1224,46 @@ class DriftAnalysisResult:
             "recommended_actions": self.recommended_actions,
             "analysis_metadata": self.analysis_metadata,
         }
+
+
+# Export all drift detection entities
+__all__ = [
+    # Enums
+    "DriftDetectionMethod",
+    "DriftScope",
+    "SeasonalPattern",
+    "DriftType",
+    "DriftSeverity",
+    "MonitoringStatus",
+    
+    # Configuration classes
+    "DriftDetectionConfig",
+    "DriftConfiguration",
+    "DriftThresholds",
+    "ModelMonitoringConfig",
+    
+    # Core data classes
+    "TimeWindow",
+    "FeatureData",
+    "FeatureDrift",
+    
+    # Result classes
+    "UnivariateDriftResult",
+    "MultivariateDriftResult",
+    "ConceptDriftResult",
+    "DriftDetectionResult",
+    
+    # Analysis classes
+    "FeatureDriftAnalysis",
+    "DriftAnalysisResult",
+    
+    # Reporting classes
+    "DriftReport",
+    "DriftMonitor",
+    "DriftAlert",
+    
+    # Metrics and Events
+    "DriftMetrics",
+    "DriftEvent",
+    "RecommendedAction",
+]
