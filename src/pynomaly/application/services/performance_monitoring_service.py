@@ -8,9 +8,10 @@ monitoring for anomaly detection workflows.
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, Optional
 
 from ...domain.entities import Dataset, DetectionResult, Detector
+from ...domain.entities.model_performance import ModelPerformanceMetrics, ModelPerformanceBaseline
 from ...infrastructure.config.feature_flags import require_feature
 from ...infrastructure.monitoring.performance_monitor import (
     PerformanceAlert,
@@ -18,6 +19,14 @@ from ...infrastructure.monitoring.performance_monitor import (
     PerformanceMonitor,
     PerformanceTracker,
 )
+from .model_performance_degradation_detector import (
+    ModelPerformanceDegradationDetector,
+    DegradationDetectorConfig,
+    DetectionAlgorithm,
+    DegradationResult,
+)
+from .performance_alert_service import PerformanceAlertService
+from .intelligent_alert_service import IntelligentAlertService
 
 
 class PerformanceMonitoringService:
@@ -120,6 +129,55 @@ class PerformanceMonitoringService:
                     dataset_size=len(dataset.data),
                 )
                 return result, dummy_metrics
+
+    @require_feature("performance_monitoring")
+    def record_model_performance(
+        self, detector: Detector, dataset: Dataset, metrics: ModelPerformanceMetrics
+    ) -> None:
+        """Record and process model performance metrics.
+
+        Args:
+            detector: The model/detector being monitored.
+            dataset: The dataset related to the performance metrics.
+            metrics: The performance metrics to record and examine.
+        """
+        # Persist the metrics (storage layer integration required)
+        # Example: self.metrics_repository.save(metrics)
+
+        # Fetch the baseline for the detector and dataset
+        baseline: Optional[ModelPerformanceBaseline] = self.performance_baselines.get(detector.name)
+
+        # If baseline is not available, this could be an initial recording
+        if not baseline:
+            baseline = ModelPerformanceBaseline(
+                model_id=metrics.model_id,
+                version="1.0",
+                mean=metrics.accuracy,  # Example metric; adjust as needed
+                std=0.0  # Initial std deviation
+            )
+            self.performance_baselines[detector.name] = baseline
+
+        # Initiate degradation detection
+        detector_config = DegradationDetectorConfig(
+            algorithm=DetectionAlgorithm.SIMPLE_THRESHOLD
+        )
+        degradation_detector = ModelPerformanceDegradationDetector(detector_config)
+        degradation_result = degradation_detector.detect(
+            current_metrics=metrics,
+            baseline=baseline,
+            model_id=metrics.model_id,
+            model_name=detector.name
+        )
+
+        # Handle alerts based on degradation detection
+        if degradation_result.degrade_flag:
+            intelligent_service = IntelligentAlertService()
+            alert_service = PerformanceAlertService(intelligent_service)
+            alert_service.create_performance_alert(
+                degradation_result=degradation_result,
+                model_id=metrics.model_id,
+                model_name=detector.name
+            )
 
     @require_feature("performance_monitoring")
     def monitor_training_operation(

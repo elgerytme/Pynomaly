@@ -463,18 +463,33 @@ class ConceptDriftResult:
 
 @dataclass
 class DriftDetectionResult:
-    """General drift detection result."""
+    """General drift detection result with additional attributes for use case compatibility."""
 
     drift_detected: bool
     drift_score: float
     method: DriftDetectionMethod
     timestamp: datetime = field(default_factory=datetime.utcnow)
     metadata: dict[str, Any] = field(default_factory=dict)
-
+    
+    # Additional fields for use case compatibility
+    detector_id: str | None = None
+    severity: DriftSeverity = field(default_factory=lambda: DriftSeverity.NONE)
+    
     def __post_init__(self):
         """Validate drift detection result."""
         if not (0.0 <= self.drift_score <= 1.0):
             raise ValueError("Drift score must be between 0.0 and 1.0")
+        
+        # Auto-assign severity based on drift score if not provided
+        if self.severity == DriftSeverity.NONE and self.drift_detected:
+            if self.drift_score >= 0.8:
+                self.severity = DriftSeverity.CRITICAL
+            elif self.drift_score >= 0.6:
+                self.severity = DriftSeverity.HIGH
+            elif self.drift_score >= 0.3:
+                self.severity = DriftSeverity.MEDIUM
+            else:
+                self.severity = DriftSeverity.LOW
 
 
 class DriftType(Enum):
@@ -1027,6 +1042,17 @@ class ModelMonitoringConfig:
     severity_threshold: DriftSeverity = field(default_factory=lambda: DriftSeverity.MEDIUM)
     notification_enabled: bool = True
     auto_retrain_enabled: bool = False
+    
+    # Additional attributes expected by use cases
+    enabled: bool = True
+    check_interval_hours: int = 1
+    min_sample_size: int = 100
+    enabled_methods: list[DriftDetectionMethod] = field(
+        default_factory=lambda: [DriftDetectionMethod.KOLMOGOROV_SMIRNOV]
+    )
+    notification_channels: list[str] = field(
+        default_factory=lambda: ["email"]
+    )
 
     def __post_init__(self):
         """Validate monitoring configuration."""
@@ -1034,6 +1060,30 @@ class ModelMonitoringConfig:
             raise ValueError("Check interval must be positive")
         if not (0.0 <= self.drift_threshold <= 1.0):
             raise ValueError("Drift threshold must be between 0.0 and 1.0")
+        
+        # Sync enabled with monitoring_enabled
+        if not hasattr(self, 'enabled') or self.enabled is None:
+            self.enabled = self.monitoring_enabled
+        
+        # Convert minutes to hours if needed
+        if not hasattr(self, 'check_interval_hours') or self.check_interval_hours <= 0:
+            self.check_interval_hours = max(1, self.check_interval_minutes // 60)
+    
+    def should_alert(self, severity: DriftSeverity) -> bool:
+        """Check if an alert should be sent for the given severity."""
+        if not self.notification_enabled:
+            return False
+        
+        # Define severity order
+        severity_order = {
+            DriftSeverity.NONE: 0,
+            DriftSeverity.LOW: 1,
+            DriftSeverity.MEDIUM: 2,
+            DriftSeverity.HIGH: 3,
+            DriftSeverity.CRITICAL: 4,
+        }
+        
+        return severity_order.get(severity, 0) >= severity_order.get(self.severity_threshold, 2)
 
 
 @dataclass
@@ -1050,6 +1100,48 @@ class DriftAlert:
     detection_timestamp: datetime = field(default_factory=datetime.utcnow)
     alert_message: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
+    
+    # Additional attributes expected by use cases
+    detector_id: str = ""
+    alert_type: DriftType = DriftType.DATA_DRIFT
+    severity_enum: DriftSeverity = field(default_factory=lambda: DriftSeverity.MEDIUM)
+    title: str = ""
+    message: str = ""
+    id: str = field(default_factory=lambda: str(uuid4()))
+    
+    def __post_init__(self):
+        """Synchronize string and enum fields."""
+        # Sync detector_id with model_id if not provided
+        if not self.detector_id and self.model_id:
+            self.detector_id = str(self.model_id)
+        
+        # Sync alert_type with drift_type
+        if isinstance(self.alert_type, DriftType):
+            self.drift_type = self.alert_type.value
+        else:
+            try:
+                self.alert_type = DriftType(self.drift_type)
+            except ValueError:
+                self.alert_type = DriftType.DATA_DRIFT
+        
+        # Sync severity fields
+        if isinstance(self.severity_enum, DriftSeverity):
+            self.severity = self.severity_enum.value
+        else:
+            try:
+                self.severity_enum = DriftSeverity(self.severity)
+            except ValueError:
+                self.severity_enum = DriftSeverity.MEDIUM
+        
+        # Sync message fields
+        if not self.message and self.alert_message:
+            self.message = self.alert_message
+        elif not self.alert_message and self.message:
+            self.alert_message = self.message
+        
+        # Sync id with alert_id
+        if not self.id and self.alert_id:
+            self.id = str(self.alert_id)
 
 
 @dataclass

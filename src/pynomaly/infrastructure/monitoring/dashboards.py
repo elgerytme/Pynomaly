@@ -28,6 +28,26 @@ PYNOMALY_DASHBOARD_TEMPLATE = {
     }
 }
 
+def get_complete_dashboard_template() -> dict:
+    """Get the complete dashboard template with all panels.
+    
+    Returns:
+        Dictionary containing the complete dashboard configuration with all panels
+    """
+    template = PYNOMALY_DASHBOARD_TEMPLATE.copy()
+    
+    # Concatenate all panels: OVERVIEW + DETECTION + STREAMING + ENSEMBLE + SYSTEM
+    all_panels = (
+        OVERVIEW_PANELS + 
+        DETECTION_PANELS + 
+        STREAMING_PANELS + 
+        ENSEMBLE_PANELS + 
+        SYSTEM_PANELS
+    )
+    
+    template["dashboard"]["panels"] = all_panels
+    return template
+
 OVERVIEW_PANELS = [
     {
         "id": 1,
