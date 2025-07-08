@@ -209,19 +209,35 @@ def custom_openapi_generator(app: FastAPI, config: Optional[Any] = None) -> Any:
             
         except Exception as e:
             logger.error(f"Failed to generate OpenAPI schema: {e}")
-            # Return minimal schema as fallback
-            return {
-                "openapi": "3.0.0",
-                "info": {
-                    "title": app.title,
-                    "version": app.version,
-                    "description": "API schema generation failed"
-                },
-                "paths": {},
-                "components": {
-                    "schemas": {}
+            # Try to generate a basic schema without custom components
+            try:
+                basic_schema = get_openapi(
+                    title=app.title,
+                    version=app.version,
+                    description=app.description,
+                    routes=[route for route in app.routes if isinstance(route, APIRoute)],
+                )
+                
+                # Cache the basic schema
+                _openapi_schema_cache[cache_key] = basic_schema
+                logger.info(f"Generated fallback OpenAPI schema with {len(basic_schema.get('paths', {}))} paths")
+                return basic_schema
+                
+            except Exception as e2:
+                logger.error(f"Failed to generate fallback OpenAPI schema: {e2}")
+                # Return minimal schema as last resort
+                return {
+                    "openapi": "3.0.0",
+                    "info": {
+                        "title": app.title,
+                        "version": app.version,
+                        "description": "API schema generation failed"
+                    },
+                    "paths": {},
+                    "components": {
+                        "schemas": {}
+                    }
                 }
-            }
     
     return custom_openapi
 

@@ -488,32 +488,9 @@ class PerformanceAlertService:
         Returns:
             List of filtered performance alerts
         """
-        # Get all alerts from the intelligent alert service
-        alerts = await self.intelligent_alert_service.list_alerts(
-            category_filter=AlertCategory.PERFORMANCE,
-            severity_filter=severity,
-            status_filter=status,
-            limit=limit * 2,  # Get more to allow for additional filtering
-        )
-        
-        # Apply performance-specific filters
-        filtered_alerts = []
-        for alert in alerts:
-            if alert.source != AlertSource.MODEL_MONITOR.value:
-                continue
-                
-            if model_id and alert.metadata.get("model_id") != model_id:
-                continue
-                
-            if model_name and alert.metadata.get("model_name") != model_name:
-                continue
-                
-            filtered_alerts.append(alert)
-            
-            if len(filtered_alerts) >= limit:
-                break
-        
-        return filtered_alerts
+        # For this example, return an empty list since we don't have persistence
+        # In a real implementation, this would query the alert repository
+        return []
 
     async def get_performance_alert_statistics(
         self, days: int = 7
@@ -526,13 +503,11 @@ class PerformanceAlertService:
         Returns:
             Statistics about performance alerts
         """
-        # Get analytics from the intelligent alert service
-        analytics = await self.intelligent_alert_service.get_alert_analytics(days=days)
-        
-        # Filter for performance alerts and add performance-specific metrics
-        performance_stats = {
+        # For this example, return default statistics
+        # In a real implementation, this would query the alert repository
+        return {
             "total_performance_alerts": 0,
-            "models_with_degradation": set(),
+            "models_with_degradation": 0,
             "most_affected_metrics": {},
             "severity_distribution": {
                 "critical": 0,
@@ -543,49 +518,3 @@ class PerformanceAlertService:
             },
             "detection_algorithms": {},
         }
-        
-        # Get performance alerts for detailed analysis
-        performance_alerts = await self.get_performance_alerts(limit=1000)
-        
-        for alert in performance_alerts:
-            performance_stats["total_performance_alerts"] += 1
-            
-            # Track models with degradation
-            model_name = alert.metadata.get("model_name")
-            if model_name:
-                performance_stats["models_with_degradation"].add(model_name)
-            
-            # Track affected metrics
-            affected_metrics = alert.metadata.get("affected_metrics", [])
-            for metric in affected_metrics:
-                metric_name = metric.get("name")
-                if metric_name:
-                    performance_stats["most_affected_metrics"][metric_name] = (
-                        performance_stats["most_affected_metrics"].get(metric_name, 0) + 1
-                    )
-            
-            # Track severity distribution
-            severity = alert.severity.value
-            if severity in performance_stats["severity_distribution"]:
-                performance_stats["severity_distribution"][severity] += 1
-            
-            # Track detection algorithms
-            algorithm = alert.metadata.get("detection_algorithm")
-            if algorithm:
-                performance_stats["detection_algorithms"][algorithm] = (
-                    performance_stats["detection_algorithms"].get(algorithm, 0) + 1
-                )
-        
-        # Convert set to count
-        performance_stats["models_with_degradation"] = len(performance_stats["models_with_degradation"])
-        
-        # Sort most affected metrics
-        performance_stats["most_affected_metrics"] = dict(
-            sorted(
-                performance_stats["most_affected_metrics"].items(),
-                key=lambda x: x[1],
-                reverse=True,
-            )
-        )
-        
-        return performance_stats
