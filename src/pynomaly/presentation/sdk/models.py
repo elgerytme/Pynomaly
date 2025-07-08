@@ -10,7 +10,7 @@ from enum import Enum
 from typing import Any
 
 import numpy as np
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict
 
 
 class TaskStatus(str, Enum):
@@ -60,13 +60,11 @@ class DataFormat(str, Enum):
 class BaseSDKModel(BaseModel):
     """Base model for all SDK models."""
 
-    class Config:
-        # Allow arbitrary types for numpy arrays, etc.
-        arbitrary_types_allowed = True
-        # Use enum values in JSON
-        use_enum_values = True
-        # Allow population by field name or alias
-        allow_population_by_field_name = True
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+        use_enum_values=True,
+        populate_by_name=True
+    )
 
 
 class AnomalyScore(BaseSDKModel):

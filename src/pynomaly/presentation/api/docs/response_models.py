@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any, Generic, TypeVar
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 T = TypeVar("T")
 
@@ -29,8 +29,8 @@ class SuccessResponse(BaseResponse, Generic[T]):
     data: T = Field(..., description="Response data")
     message: str | None = Field(None, description="Optional success message")
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "success": True,
                 "data": {"example": "data"},
@@ -39,6 +39,7 @@ class SuccessResponse(BaseResponse, Generic[T]):
                 "request_id": "req_12345",
             }
         }
+    )
 
 
 class ErrorResponse(BaseResponse):
@@ -49,8 +50,8 @@ class ErrorResponse(BaseResponse):
     error_code: str | None = Field(None, description="Specific error code")
     details: dict[str, Any] | None = Field(None, description="Additional error details")
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "success": False,
                 "error": "Validation failed",
@@ -60,6 +61,7 @@ class ErrorResponse(BaseResponse):
                 "request_id": "req_12345",
             }
         }
+    )
 
 
 class ValidationErrorResponse(ErrorResponse):
@@ -69,8 +71,8 @@ class ValidationErrorResponse(ErrorResponse):
         ..., description="List of validation errors"
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "success": False,
                 "error": "Validation failed",
@@ -91,6 +93,7 @@ class ValidationErrorResponse(ErrorResponse):
                 "request_id": "req_12345",
             }
         }
+    )
 
 
 class PaginationMeta(BaseModel):
@@ -103,8 +106,8 @@ class PaginationMeta(BaseModel):
     has_next: bool = Field(..., description="Whether there is a next page")
     has_previous: bool = Field(..., description="Whether there is a previous page")
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "page": 2,
                 "page_size": 20,
@@ -114,6 +117,7 @@ class PaginationMeta(BaseModel):
                 "has_previous": True,
             }
         }
+    )
 
 
 class PaginationResponse(BaseResponse, Generic[T]):
@@ -123,8 +127,8 @@ class PaginationResponse(BaseResponse, Generic[T]):
     data: list[T] = Field(..., description="List of items for current page")
     pagination: PaginationMeta = Field(..., description="Pagination metadata")
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "success": True,
                 "data": [{"id": 1, "name": "Item 1"}, {"id": 2, "name": "Item 2"}],
@@ -140,6 +144,7 @@ class PaginationResponse(BaseResponse, Generic[T]):
                 "request_id": "req_12345",
             }
         }
+    )
 
 
 class HealthResponse(BaseResponse):
@@ -151,8 +156,8 @@ class HealthResponse(BaseResponse):
     uptime: float = Field(..., description="Uptime in seconds")
     services: dict[str, str] = Field(..., description="Individual service statuses")
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "status": "healthy",
                 "version": "1.0.0",
@@ -167,6 +172,7 @@ class HealthResponse(BaseResponse):
                 "request_id": "health_12345",
             }
         }
+    )
 
 
 class TaskResponse(BaseResponse):
@@ -180,8 +186,8 @@ class TaskResponse(BaseResponse):
     )
     result_url: str | None = Field(None, description="URL to retrieve task result")
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "task_id": "task_abc123",
                 "status": "running",
@@ -192,6 +198,7 @@ class TaskResponse(BaseResponse):
                 "request_id": "req_12345",
             }
         }
+    )
 
 
 class MetricsResponse(BaseResponse):
@@ -201,8 +208,8 @@ class MetricsResponse(BaseResponse):
     period: str = Field(..., description="Time period for metrics")
     aggregation: str = Field(..., description="Aggregation method used")
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "metrics": {
                     "requests_total": 15420,
@@ -216,6 +223,7 @@ class MetricsResponse(BaseResponse):
                 "request_id": "req_12345",
             }
         }
+    )
 
 
 # Common HTTP status code responses for OpenAPI documentation

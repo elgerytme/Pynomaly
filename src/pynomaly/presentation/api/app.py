@@ -19,6 +19,10 @@ except ImportError:
 from pynomaly.infrastructure.auth import init_auth, track_request_metrics
 from pynomaly.infrastructure.cache import init_cache
 from pynomaly.infrastructure.config import Container
+from pynomaly.infrastructure.monitoring.service_initialization import (
+    initialize_monitoring_service,
+    shutdown_monitoring_service,
+)
 
 # Temporarily disabled telemetry
 # from pynomaly.infrastructure.monitoring import init_telemetry
@@ -95,8 +99,37 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
         monitoring_service = await initialize_monitoring_service(settings)
         app.state.monitoring_service = monitoring_service
         print(f"Initialized external monitoring service with {len(monitoring_service.providers)} providers")
+        
+        # Initialize dual metrics service
+        from pynomaly.infrastructure.monitoring.dual_metrics_service import (
+            initialize_dual_metrics_service,
+        )
+        from pynomaly.infrastructure.monitoring.prometheus_metrics import (
+            get_metrics_service,
+            initialize_metrics,
+        )
+        
+        # Initialize Prometheus metrics if not already done
+        prometheus_service = get_metrics_service()
+        if prometheus_service is None and settings.monitoring.prometheus_enabled:
+            prometheus_service = initialize_metrics(
+                enable_default_metrics=True,
+                namespace="pynomaly",
+                port=settings.monitoring.prometheus_port if settings.monitoring.prometheus_enabled else None,
+            )
+        
+        # Initialize dual metrics service
+        dual_metrics_service = initialize_dual_metrics_service(
+            prometheus_service=prometheus_service,
+            external_service=monitoring_service,
+        )
+        app.state.dual_metrics_service = dual_metrics_service
+        print("Initialized dual metrics service")
+        
     except Exception as e:
         print(f"Warning: Failed to initialize monitoring service: {e}")
+        app.state.monitoring_service = None
+        app.state.dual_metrics_service = None
 
     yield
 
@@ -104,7 +137,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     print("Shutting down...")
 
     # Shutdown monitoring service
-    if hasattr(app.state, 'monitoring_service'):
+    if hasattr(app.state, 'monitoring_service') and app.state.monitoring_service is not None:
         try:
             await shutdown_monitoring_service(app.state.monitoring_service)
             print("Monitoring service shutdown complete")

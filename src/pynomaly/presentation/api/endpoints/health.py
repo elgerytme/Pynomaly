@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from pynomaly.infrastructure.config import Container
 from pynomaly.infrastructure.monitoring.health_service import (
@@ -45,8 +45,8 @@ class HealthCheckResponse(BaseModel):
         default_factory=dict, description="Additional check details"
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "name": "database",
                 "status": "healthy",
@@ -56,6 +56,7 @@ class HealthCheckResponse(BaseModel):
                 "details": {"connection_pool_size": 10, "active_connections": 3},
             }
         }
+    )
 
 
 class HealthResponse(BaseModel):
@@ -74,8 +75,9 @@ class HealthResponse(BaseModel):
     )
     summary: dict[str, Any] = Field(..., description="Health summary statistics")
 
-    class Config:
-        json_schema_extra = {"example": SchemaExamples.health_check_response()["value"]}
+    model_config = ConfigDict(
+        json_schema_extra={"example": SchemaExamples.health_check_response()["value"]}
+    )
 
 
 class SystemMetricsResponse(BaseModel):
@@ -101,8 +103,8 @@ class SystemMetricsResponse(BaseModel):
     process_count: int = Field(..., description="Number of active processes", ge=0)
     uptime_seconds: float = Field(..., description="System uptime in seconds", ge=0)
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "cpu_percent": 23.5,
                 "memory_percent": 68.2,
@@ -120,6 +122,7 @@ class SystemMetricsResponse(BaseModel):
                 "uptime_seconds": 86400.0,
             }
         }
+    )
 
 
 @router.get(
