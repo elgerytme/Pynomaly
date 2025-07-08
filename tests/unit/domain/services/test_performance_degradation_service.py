@@ -17,7 +17,7 @@ from pynomaly.domain.entities.performance_degradation import (
 from pynomaly.domain.services.performance_degradation_service import (
     PerformanceDegradationService,
 )
-from pynomaly.domain.exceptions import DomainValidationError
+from pynomaly.domain.exceptions import ValidationError
 
 
 class TestPerformanceDegradationService:
@@ -164,7 +164,7 @@ class TestPerformanceDegradationService:
     def test_evaluate_performance_degradation_validation_errors(self):
         """Test validation errors in performance degradation evaluation."""
         # Test with empty metrics
-        with pytest.raises(DomainValidationError, match="Current metrics are required"):
+        with pytest.raises(ValidationError, match="Current metrics are required"):
             self.service.evaluate_performance_degradation(
                 current_metrics=[],
                 baseline=self.sample_baseline,
@@ -180,7 +180,7 @@ class TestPerformanceDegradationService:
         )
         invalid_baseline.invalidate("Test invalidation")
         
-        with pytest.raises(DomainValidationError, match="Baseline is not valid"):
+        with pytest.raises(ValidationError, match="Baseline is not valid"):
             self.service.evaluate_performance_degradation(
                 current_metrics=self.sample_metrics,
                 baseline=invalid_baseline,
@@ -193,7 +193,7 @@ class TestPerformanceDegradationService:
             enabled=False
         )
         
-        with pytest.raises(DomainValidationError, match="Monitoring configuration is disabled"):
+        with pytest.raises(ValidationError, match="Monitoring configuration is disabled"):
             self.service.evaluate_performance_degradation(
                 current_metrics=self.sample_metrics,
                 baseline=self.sample_baseline,
@@ -207,7 +207,7 @@ class TestPerformanceDegradationService:
             performance_thresholds=[]
         )
         
-        with pytest.raises(DomainValidationError, match="No performance thresholds configured"):
+        with pytest.raises(ValidationError, match="No performance thresholds configured"):
             self.service.evaluate_performance_degradation(
                 current_metrics=self.sample_metrics,
                 baseline=self.sample_baseline,
@@ -292,7 +292,7 @@ class TestPerformanceDegradationService:
                 PerformanceMetric(
                     detector_id=self.detector_id,
                     metric_type=PerformanceMetricType.ACCURACY,
-                    value=0.90 - i * 0.02,  # Declining from 0.90 to 0.72
+                    value=0.90 - (9 - i) * 0.02,  # Declining from 0.90 to 0.72
                     timestamp=datetime.utcnow() - timedelta(days=i),
                     sample_count=1000
                 )
@@ -307,10 +307,10 @@ class TestPerformanceDegradationService:
         assert trend_analysis['trend'] == 'declining'
         assert trend_analysis['slope'] < 0  # Negative slope for declining trend
         assert trend_analysis['sample_count'] == 10
-        assert trend_analysis['recent_value'] == 0.90  # Most recent value
-        assert trend_analysis['initial_value'] == 0.72  # Oldest value in sorted order
-        assert trend_analysis['total_change'] == 0.18  # 0.90 - 0.72
-        assert trend_analysis['percentage_change'] == 25.0  # (0.90 - 0.72) / 0.72 * 100
+        assert trend_analysis['recent_value'] == 0.72  # Most recent value
+        assert trend_analysis['initial_value'] == 0.90  # Oldest value in sorted order
+        assert abs(trend_analysis['total_change'] - (-0.18)) < 0.001  # 0.72 - 0.90
+        assert abs(trend_analysis['percentage_change'] - (-20.0)) < 0.001  # (0.72 - 0.90) / 0.90 * 100
     
     def test_analyze_performance_trend_insufficient_data(self):
         """Test analyzing performance trend with insufficient data."""
