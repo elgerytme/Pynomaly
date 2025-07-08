@@ -17,6 +17,9 @@ from pynomaly.infrastructure.auth import (
     require_viewer,
 )
 
+# Also import deps that might be used in endpoints
+from pynomaly.presentation.api.deps import get_container
+
 
 def create_api_router_with_overrides() -> APIRouter:
     """Create API router with simplified dependency overrides.
@@ -38,6 +41,7 @@ def create_api_router_with_overrides() -> APIRouter:
         require_viewer: require_auth_safe,
         # Container dependencies
         get_container_simple: get_container_safe,
+        get_container: get_container_safe,
     }
     
     return router
@@ -61,4 +65,5 @@ def apply_openapi_overrides(app: FastAPI) -> None:
         require_viewer: require_auth_safe,
         # Container dependencies
         get_container_simple: get_container_safe,
+        get_container: get_container_safe,
     })
