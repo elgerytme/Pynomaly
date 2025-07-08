@@ -18,6 +18,26 @@ env:
 
 jobs:
 
+  validate-structure:
+    name: Validate Structure
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Run validation scripts
+      run: |
+        python scripts/validation/validate_structure.py
+        python scripts/validation/validate_environment_organization.py
+        python scripts/validation/validate_file_organization.py
+        python scripts/validation/validate_quality_gates.py
+  
   docs-lint:
     name: Documentation Lint
     runs-on: ubuntu-latest
@@ -236,8 +256,9 @@ jobs:
         name: test-results-${{ matrix.test-type }}-py${{ matrix.python-version }}
         path: |
           htmlcov/
-          coverage.xml
+          coverage-reports/
           .coverage
+          coverage-combined.xml
         retention-days: 30
 
   # Job 4: API & CLI Testing
@@ -334,9 +355,17 @@ jobs:
     needs: [build]
     
     steps:
+    - name: Cache Python packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/pip
+          ~/scripts/**
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+
     - name: Checkout code
       uses: actions/checkout@v4
-    
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
     

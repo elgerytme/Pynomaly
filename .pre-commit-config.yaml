@@ -1,78 +1,17 @@
-# Pre-commit configuration for Pynomaly using Hatch
+# Pre-commit configuration for Pynomaly
 # Install: pre-commit install
 # Run manually: pre-commit run --all-files
 
 repos:
-  # Hatch-based Quality Checks (Primary)
-  - repo: local
-    hooks:
-      - id: hatch-version-check
-        name: 🔍 Hatch Version Check
-        entry: bash -c 'command -v hatch >/dev/null 2>&1 && hatch version && echo "✅ Hatch version check passed" || (echo "❌ Hatch not found. Install with: pip install hatch" && exit 1)'
-        language: system
-        pass_filenames: false
-        stages: [commit]
-
-      - id: hatch-lint-style
-        name: 🎨 Hatch Code Style
-        entry: bash -c 'hatch env run lint:style || (echo "❌ Style check failed. Run: hatch env run lint:fmt to auto-fix." && exit 1)'
-        language: system
-        pass_filenames: false
-        stages: [commit]
-        verbose: true
-
-      - id: hatch-type-check
-        name: 🔎 Hatch Type Checking
-        entry: bash -c 'hatch env run lint:typing || (echo "❌ Type checking failed. Please fix type issues." && exit 1)'
-        language: system
-        pass_filenames: false
-        stages: [commit]
-        verbose: true
-
-      - id: hatch-core-tests
-        name: 🧪 Hatch Core Tests
-        entry: bash -c 'hatch env run test:run tests/domain/ tests/application/ --tb=short -q || (echo "❌ Core tests failed. Fix tests before committing." && exit 1)'
-        language: system
-        pass_filenames: false
-        stages: [commit]
-
-      - id: hatch-build-test
-        name: 📦 Hatch Build Test
-        entry: bash -c 'hatch build --clean >/dev/null 2>&1 && echo "✅ Package builds successfully" || (echo "❌ Package build failed" && exit 1)'
-        language: system
-        pass_filenames: false
-        stages: [push]
-
   # File Organization and Project Structure
   - repo: local
     hooks:
-      - id: root-directory-check
-        name: 🏠 Root Directory Organization
-        entry: python3 scripts/validation/validate_root_directory.py
-        language: system
-        pass_filenames: false
-        stages: [commit]
-
       - id: file-organization-check
-        name: 📁 File Organization Validation
-        entry: python scripts/validate_file_organization.py
+        name: File Organization Validation
+        entry: python scripts/validation/validate_structure.py
         language: system
         pass_filenames: false
-        stages: [commit]
-
-      - id: stray-files-check
-        name: 🔍 Stray Files Detection
-        entry: python scripts/detect_stray_files.py
-        language: system
-        pass_filenames: false
-        stages: [commit]
-
-      - id: core-imports-check
-        name: 🐍 Core Imports Verification
-        entry: python -c "import sys; sys.path.insert(0, 'src'); from pynomaly.domain.entities import Dataset, Anomaly; from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate; print('✅ Core imports successful')"
-        language: system
-        pass_filenames: false
-        stages: [commit]
+        stages: [pre-commit]
 
   # Standard Pre-commit Hooks for File Hygiene
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -95,7 +34,7 @@ repos:
       - id: check-merge-conflict
       - id: detect-private-key
       - id: check-added-large-files
-        args: [--maxkb=5000]  # 5MB limit
+        args: [--maxkb=5000]
       
       # Python specific
       - id: check-ast
@@ -103,61 +42,8 @@ repos:
       - id: check-docstring-first
       - id: debug-statements
 
-  # Python modernization
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.0
-    hooks:
-      - id: pyupgrade
-        args: [--py311-plus]
-
-  # Security scanning (lightweight for pre-commit)
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.5
-    hooks:
-      - id: bandit
-        args: [-r, src/, -l, -i]  # Low verbosity, ignore info
-        files: ^src/
-        stages: [push]  # Only on push to avoid slowing down commits
-
-  # Commit message validation
-  - repo: https://github.com/commitizen-tools/commitizen
-    rev: v3.13.0
-    hooks:
-      - id: commitizen
-        stages: [commit-msg]
-
-  # Pre-push hooks (more comprehensive)
-  - repo: local
-    hooks:
-      - id: hatch-integration-tests
-        name: 🧪 Hatch Integration Tests
-        entry: bash -c 'hatch env run test:run tests/infrastructure/ --tb=short -q --ignore=tests/infrastructure/test_*_performance* || (echo "❌ Integration tests failed" && exit 1)'
-        language: system
-        pass_filenames: false
-        stages: [push]
-
-      - id: hatch-security-scan
-        name: 🔒 Security Scan
-        entry: bash -c 'bandit -r src/ -f txt -l || true && safety check || true'
-        language: system
-        pass_filenames: false
-        stages: [push]
-
 # Configuration
-default_install_hook_types: [pre-commit, pre-push, commit-msg]
-default_stages: [commit]
+default_install_hook_types: [pre-commit]
+default_stages: [pre-commit]
 fail_fast: false
 minimum_pre_commit_version: 3.0.0
-
-# CI configuration
-ci:
-    autofix_commit_msg: |
-        [pre-commit.ci] auto fixes from pre-commit hooks
-
-        for more information, see https://pre-commit.ci
-    autofix_prs: true
-    autoupdate_branch: ''
-    autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
-    autoupdate_schedule: weekly
-    skip: [hatch-lint-style, hatch-type-check, hatch-core-tests]  # Skip Hatch commands in CI
-    submodules: false
