@@ -22,7 +22,23 @@
     "/mnt/c/Users/andre/Pynomaly/tests/e2e/test_fresh_powershell.py",
     "/mnt/c/Users/andre/Pynomaly/tests/e2e/test_health_check.py",
     "... more extra file paths ..."
-  ]
+  ],
+  "system_audit": {
+    "system_dependencies": {
+      "python_packages": {
+        "pyjwt": "Successfully installed for JWT handling",
+        "passlib": "Successfully installed for password hashing",
+        "typer": "Successfully installed for CLI framework",
+        "rich": "Successfully installed for terminal output",
+        "sqlalchemy": "Successfully installed for database ORM",
+        "psutil": "Successfully installed for system monitoring",
+        "fastapi": "Successfully installed for web API framework",
+        "pyarrow": "Successfully installed for Apache Arrow data format",
+        "pyyaml": "Successfully installed for YAML configuration",
+        "pydantic-settings": "Successfully installed for settings management"
+      },
+      "environment_status": "Virtual environment configured and activated",
+      "repository_status": "Repository on main branch with all dependencies installed"
+    }
+  }
 }
-
-

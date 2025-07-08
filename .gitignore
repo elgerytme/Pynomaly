@@ -216,7 +216,11 @@ tests/ui/ui_test_env/
 tests/ui_integration_results.json
 
 # Test artifacts (moved from tests/)
-reports/
+reports/coverage/coverage.json
+reports/coverage/*.html
+reports/coverage/htmlcov/
+reports/test-results/
+reports/*.xml
 artifacts/
 
 # Profiling
