@@ -8,19 +8,19 @@ metadata:
   created_by: "researcher"
   created_at: "2025-06-24"
   tags: ["baseline", "comparison", "evaluation"]
-  
+
   # Experiment tracking (optional integrations)
   tracking:
     mlflow:
       enabled: false
       experiment_name: "pynomaly_experiments"
       tracking_uri: "http://localhost:5000"
-    
+
     wandb:
       enabled: false
       project: "pynomaly-anomaly-detection"
       entity: "your-team"
-    
+
     tensorboard:
       enabled: false
       log_dir: "./logs/tensorboard"
@@ -32,17 +32,17 @@ dataset:
     type: "file"  # file, database, stream, synthetic
     path: "data/experiment_dataset.csv"
     format: "csv"  # csv, json, parquet, excel
-    
+
     # Database configuration (if type: database)
     database:
       connection_string: null
       query: null
-      
+
     # Streaming configuration (if type: stream)
     stream:
       kafka_config: null
       batch_size: 1000
-      
+
     # Synthetic data configuration (if type: synthetic)
     synthetic:
       generator: "make_blobs"  # make_blobs, make_classification, custom
@@ -50,7 +50,7 @@ dataset:
       n_features: 10
       contamination: 0.1
       random_state: 42
-  
+
   # Data properties
   properties:
     target_column: "is_anomaly"  # null for unsupervised
@@ -58,7 +58,7 @@ dataset:
     exclude_columns: ["id", "timestamp"]  # columns to exclude
     datetime_columns: []  # columns to parse as datetime
     categorical_columns: []  # columns to treat as categorical
-    
+
   # Data validation
   validation:
     check_missing: true
@@ -67,7 +67,7 @@ dataset:
     check_target_distribution: true
     min_samples: 100
     max_missing_percent: 20.0
-    
+
   # Data splitting
   splitting:
     method: "random"  # random, temporal, stratified, custom
@@ -75,12 +75,12 @@ dataset:
     validation_size: 0.15
     test_size: 0.15
     random_state: 42
-    
+
     # Temporal splitting (if method: temporal)
     temporal:
       datetime_column: "timestamp"
       split_dates: ["2024-01-01", "2024-07-01"]
-    
+
     # Stratified splitting (if method: stratified)
     stratified:
       stratify_column: "category"
@@ -95,29 +95,29 @@ preprocessing:
       - type: "missing_value_imputation"
         strategy: "median"  # mean, median, mode, constant, knn
         fill_value: null
-        
+
       - type: "outlier_treatment"
         method: "iqr"  # iqr, zscore, isolation_forest, none
         threshold: 1.5
         action: "clip"  # clip, remove, flag
-        
+
       - type: "scaling"
         method: "standard"  # standard, minmax, robust, quantile, none
         feature_range: [0, 1]  # for minmax scaling
-        
+
       - type: "encoding"
         categorical_method: "onehot"  # onehot, label, target, binary
         handle_unknown: "ignore"
-        
+
       - type: "feature_selection"
         method: "variance_threshold"  # variance_threshold, univariate, rfe, none
         threshold: 0.01
         k_best: 10  # for univariate selection
-        
+
       - type: "dimensionality_reduction"
         method: "none"  # pca, tsne, umap, ica, none
         n_components: null
-        
+
   # Advanced preprocessing
   advanced:
     # Time series features (if applicable)
@@ -128,14 +128,14 @@ preprocessing:
         windows: [7, 30, 90]
         statistics: ["mean", "std", "min", "max"]
       seasonal_decomposition: false
-      
-    # Text features (if applicable)  
+
+    # Text features (if applicable)
     text:
       enabled: false
       vectorization: "tfidf"  # tfidf, count, word2vec, bert
       max_features: 10000
       ngram_range: [1, 2]
-      
+
     # Image features (if applicable)
     image:
       enabled: false
@@ -156,7 +156,7 @@ algorithms:
       bootstrap: false
       random_state: 42
       n_jobs: -1
-    
+
     # Hyperparameter tuning
     hyperparameter_tuning:
       enabled: true
@@ -167,17 +167,17 @@ algorithms:
         contamination: [0.05, 0.1, 0.15, 0.2]
         n_estimators: [50, 100, 200]
         max_samples: ["auto", 0.5, 0.8]
-      
+
       # Advanced tuning options
       bayesian:
         n_calls: 50
         acquisition_function: "EI"
-      
+
       optuna:
         n_trials: 100
         sampler: "TPE"
         pruner: "MedianPruner"
-  
+
   # Algorithm 2: Local Outlier Factor
   - name: "LocalOutlierFactor"
     enabled: true
@@ -191,7 +191,7 @@ algorithms:
       p: 2
       novelty: true
       n_jobs: -1
-    
+
     hyperparameter_tuning:
       enabled: true
       method: "random_search"
@@ -202,7 +202,7 @@ algorithms:
         contamination: [0.05, 0.1, 0.15, 0.2]
         n_neighbors: [10, 15, 20, 25, 30]
         algorithm: ["auto", "ball_tree", "kd_tree", "brute"]
-  
+
   # Algorithm 3: One-Class SVM
   - name: "OneClassSVM"
     enabled: true
@@ -217,7 +217,7 @@ algorithms:
       shrinking: true
       cache_size: 200
       max_iter: -1
-    
+
     hyperparameter_tuning:
       enabled: true
       method: "grid_search"
@@ -235,16 +235,16 @@ ensemble:
     - type: "voting"
       strategy: "soft"  # hard, soft
       weights: null  # null for equal weights
-      
+
     - type: "stacking"
       meta_learner: "LogisticRegression"
       cv_folds: 5
-      
+
     - type: "bagging"
       n_estimators: 10
       max_samples: 0.8
       bootstrap: true
-      
+
   # Ensemble selection
   selection:
     method: "best_n"  # best_n, threshold, all
@@ -260,32 +260,32 @@ evaluation:
     n_splits: 5
     shuffle: true
     random_state: 42
-    
+
     # Time series CV (if method: time_series_split)
     time_series:
       max_train_size: null
       test_size: null
       gap: 0
-  
+
   # Metrics to calculate
   metrics:
     primary: "average_precision"
     secondary: ["precision", "recall", "f1_score", "auc_roc", "auc_pr"]
-    
+
     # Custom metrics
     custom:
       - name: "detection_rate_at_fpr"
         params: {"max_fpr": 0.05}
       - name: "precision_at_k"
         params: {"k": 100}
-  
+
   # Statistical testing
   statistical_tests:
     enabled: true
     tests: ["wilcoxon", "friedman", "nemenyi"]
     significance_level: 0.05
     multiple_comparisons: "bonferroni"
-  
+
   # Baseline comparison
   baseline:
     enabled: true
@@ -302,13 +302,13 @@ performance:
     track_gpu: false
     track_disk: false
     sampling_interval: 1.0  # seconds
-  
+
   # Performance thresholds
   thresholds:
     max_training_time: 3600  # seconds
     max_memory_usage: 8192  # MB
     max_cpu_usage: 90  # percent
-    
+
   # Benchmarking
   benchmarking:
     enabled: true
@@ -325,12 +325,12 @@ output:
     save_probabilities: true
     save_feature_importance: true
     save_cross_validation: true
-    
+
   # Export formats
   export:
     formats: ["json", "csv", "pickle"]
     compression: "gzip"
-    
+
   # Visualization
   visualization:
     enabled: true
@@ -342,13 +342,13 @@ output:
       - "learning_curve"
       - "validation_curve"
       - "calibration_curve"
-    
+
     # Plot configuration
     style: "seaborn"
     figsize: [10, 8]
     dpi: 300
     format: "png"
-  
+
   # Reporting
   reporting:
     enabled: true
@@ -363,18 +363,18 @@ reproducibility:
   random_state: 42
   numpy_seed: 42
   python_hash_seed: 0
-  
+
   # Environment
   capture_environment: true
   requirements_file: "requirements.txt"
   conda_environment: "environment.yml"
   docker_image: null
-  
+
   # Version control
   git:
     capture_commit: true
     require_clean_repo: false
-    
+
   # Data versioning
   data_versioning:
     enabled: false
@@ -385,19 +385,19 @@ reproducibility:
 logging:
   level: "INFO"  # DEBUG, INFO, WARNING, ERROR
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  
+
   # File logging
   file:
     enabled: true
     path: "logs/experiment.log"
     max_size: "10MB"
     backup_count: 5
-    
+
   # Console logging
   console:
     enabled: true
     colored: true
-    
+
   # Structured logging
   structured:
     enabled: false
@@ -413,30 +413,30 @@ advanced:
     resources_per_worker:
       cpu: 2
       memory: "4GB"
-  
+
   # GPU acceleration
   gpu:
     enabled: false
     device: "cuda:0"
     memory_fraction: 0.8
-    
+
   # Caching
   caching:
     enabled: true
     backend: "disk"  # memory, disk, redis
     cache_dir: ".cache"
     ttl: 3600  # seconds
-  
+
   # Optimization
   optimization:
     early_stopping:
       enabled: false
       patience: 10
       min_delta: 0.001
-      
+
     model_selection:
       strategy: "best_cv_score"  # best_cv_score, best_test_score, ensemble
-      
+
   # Safety and limits
   safety:
     max_experiment_time: 86400  # seconds (24 hours)
@@ -447,7 +447,7 @@ advanced:
 # Notifications (optional)
 notifications:
   enabled: false
-  
+
   # Email notifications
   email:
     enabled: false
@@ -456,13 +456,13 @@ notifications:
     username: "your-email@gmail.com"
     password: "your-app-password"
     recipients: ["team@company.com"]
-    
+
   # Slack notifications
   slack:
     enabled: false
     webhook_url: "https://hooks.slack.com/services/..."
     channel: "#data-science"
-    
+
   # Teams notifications
   teams:
     enabled: false
@@ -474,12 +474,12 @@ extensions:
   custom_algorithms:
     enabled: false
     module_path: "custom.algorithms"
-    
+
   # Custom metrics
   custom_metrics:
     enabled: false
     module_path: "custom.metrics"
-    
+
   # Custom preprocessors
   custom_preprocessors:
     enabled: false

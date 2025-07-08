@@ -1250,9 +1250,7 @@ def main():
             feat_type in col.lower()
             for feat_type in ["bmi", "pressure", "_flag", "_missing", "_abnormal"]
         )
-    ][
-        :10
-    ]  # Show first 10 feature columns
+    ][:10]  # Show first 10 feature columns
 
     if feature_cols:
         print(processed_df[feature_cols].head(3))

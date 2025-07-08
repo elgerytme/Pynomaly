@@ -39,4 +39,3 @@ AutoML Stubs,`README.md`,High
 Explainability Missing,`README.md`,Medium
 PWA Basic Features,`README.md`,Medium
 ```
-

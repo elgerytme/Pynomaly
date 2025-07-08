@@ -115,6 +115,13 @@ Legend:
 
 ## Branch State Machine
 
+### Branch Compliance and Validation
+
+All branches must pass branch compliance checks in CI/CD: 
+- Names must follow established conventions (e.g., `feat/*`, `fix/*`)
+- Direct pushes to `main` and `develop` are restricted
+- `make branch-validate` to ensure correct naming before any push
+
 ### Allowed Branch Transitions
 
 | From Branch | To Branch | Operation | Conditions |
@@ -213,17 +220,28 @@ Legend:
 
 ### Feature Development
 ```bash
-# Create feature branch
-git checkout develop
-git pull origin develop
-git checkout -b feat/user-profile-page
+# Create feature branch (with validation)
+make branch-new TYPE=feature NAME=user-profile-page
+# OR manually:
+# git checkout develop
+# git pull origin develop
+# git checkout -b feat/user-profile-page
+
+# Validate branch name before starting work
+make branch-validate
 
 # Development work
 git add .
 git commit -m "Add user profile component"
+
+# Validate again before push (recommended)
+make branch-validate
 git push origin feat/user-profile-page
 
 # Create pull request to develop
+# CI Pipeline runs:
+# 1. Branch compliance (validates name, checks for direct push)
+# 2. All other jobs run only if branch compliance passes
 # After approval and CI pass, merge to develop
 ```
 
@@ -287,8 +305,33 @@ git push origin hotfix/security-patch
 
 ## Integration with CI/CD
 
+### Branch Compliance Pipeline
+
+**New First-Stage Validation (2024):**
+- **Branch Compliance Job**: Runs first in all CI pipelines
+- **Naming Validation**: Executes `make branch-validate` automatically
+- **Direct Push Protection**: Blocks direct pushes to `main`/`develop`
+- **Early Failure**: Stops entire pipeline if branch name is invalid
+- **Dependency Chain**: All subsequent jobs depend on branch compliance
+
+#### CI Job Order
+```
+1. branch-compliance     ← NEW: First validation step
+2. pre-commit           ← Depends on branch-compliance
+3. validate-structure   ← Depends on branch-compliance
+4. docs-lint           ← Depends on branch-compliance
+5. code-quality        ← Depends on branch-compliance
+6. build               ← Depends on branch-compliance
+7. test                ← Depends on branch-compliance
+8. api-cli-test        ← Depends on branch-compliance
+9. security            ← Depends on branch-compliance
+10. docker             ← Depends on branch-compliance + build
+11. ci-summary         ← Depends on all jobs
+```
+
 ### Continuous Integration
 - All branches trigger CI builds
+- Branch compliance checked before any other tests
 - Tests must pass before merging
 - Code quality checks enforced
 - Security scans on all commits

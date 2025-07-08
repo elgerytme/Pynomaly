@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 import threading
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from queue import Empty, Queue
 
 import numpy as np

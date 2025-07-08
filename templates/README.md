@@ -36,7 +36,8 @@ Research and development workflow templates:
 - **Pipelines**: End-to-end experiment workflows
 - **Analysis**: Post-experiment analysis and reporting
 
-#### = **Script Templates** (`/scripts/`)
+#### =
+ **Script Templates** (`/scripts/`)
 Reusable code templates and utilities:
 - **Datasets**: Data type specific processing scripts
 - **Preprocessing**: Data preparation pipeline templates

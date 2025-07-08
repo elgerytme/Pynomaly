@@ -257,9 +257,9 @@ class TemplateValidator:
                     category_result = self._validate_category(
                         template_path, category_name, category_config
                     )
-                    result_data["validation_categories"][
-                        category_name
-                    ] = category_result
+                    result_data["validation_categories"][category_name] = (
+                        category_result
+                    )
 
                     # Aggregate errors and warnings
                     result_data["errors"].extend(category_result.get("errors", []))
@@ -566,9 +566,9 @@ class TemplateValidator:
                         # Try with basic config
                         try:
                             instance = template_class(config={})
-                            result["metrics"][
-                                f"{class_name}_instantiation"
-                            ] = "success_with_config"
+                            result["metrics"][f"{class_name}_instantiation"] = (
+                                "success_with_config"
+                            )
                         except Exception as e:
                             result["errors"].append(
                                 f"Failed to instantiate {class_name}: {str(e)}"
@@ -596,9 +596,9 @@ class TemplateValidator:
                                 ]:
                                     method(X, y)
 
-                                result["metrics"][
-                                    f"{class_name}_{method_name}"
-                                ] = "success"
+                                result["metrics"][f"{class_name}_{method_name}"] = (
+                                    "success"
+                                )
                                 break
                             except Exception as e:
                                 result["warnings"].append(

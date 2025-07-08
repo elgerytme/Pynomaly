@@ -36,7 +36,7 @@ module.exports = {
         'categories:best-practices': ['error', { minScore: 0.90 }],
         'categories:seo': ['error', { minScore: 0.85 }],
         'categories:pwa': ['error', { minScore: 0.80 }],
-        
+
         // Core Web Vitals
         'first-contentful-paint': ['error', { maxNumericValue: 2000 }],
         'largest-contentful-paint': ['error', { maxNumericValue: 2500 }],
@@ -44,14 +44,14 @@ module.exports = {
         'cumulative-layout-shift': ['error', { maxNumericValue: 0.1 }],
         'speed-index': ['error', { maxNumericValue: 3000 }],
         'total-blocking-time': ['error', { maxNumericValue: 300 }],
-        
+
         // Resource Optimization
         'unused-css-rules': ['warn', { maxLength: 5 }],
         'unused-javascript': ['warn', { maxLength: 5 }],
         'unminified-css': ['error', { maxLength: 0 }],
         'unminified-javascript': ['error', { maxLength: 0 }],
         'render-blocking-resources': ['warn', { maxLength: 3 }],
-        
+
         // Network Optimization
         'uses-text-compression': 'error',
         'uses-rel-preconnect': 'warn',
@@ -60,12 +60,12 @@ module.exports = {
         'modern-image-formats': 'warn',
         'uses-optimized-images': 'warn',
         'uses-responsive-images': 'warn',
-        
+
         // JavaScript Performance
         'bootup-time': ['warn', { maxNumericValue: 4000 }],
         'mainthread-work-breakdown': ['warn', { maxNumericValue: 4000 }],
         'dom-size': ['warn', { maxNumericValue: 800 }],
-        
+
         // Accessibility
         'color-contrast': 'error',
         'heading-order': 'error',
@@ -74,7 +74,7 @@ module.exports = {
         'image-alt': 'error',
         'aria-valid-attr': 'error',
         'aria-required-attr': 'error',
-        
+
         // PWA
         'installable-manifest': 'error',
         'service-worker': 'error',
@@ -82,7 +82,7 @@ module.exports = {
         'viewport': 'error',
         'themed-omnibox': 'warn',
         'maskable-icon': 'warn',
-        
+
         // Security & Best Practices
         'is-on-https': 'error',
         'redirects-http': 'error',

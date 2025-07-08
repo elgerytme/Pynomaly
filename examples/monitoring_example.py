@@ -4,7 +4,6 @@ Example usage of the enhanced monitoring system with Prometheus metrics and aler
 
 import asyncio
 import logging
-from datetime import datetime, timedelta
 
 from src.pynomaly.domain.services.advanced_detection_service import DetectionAlgorithm
 from src.pynomaly.domain.services.processing_orchestrator import ProcessingOrchestrator

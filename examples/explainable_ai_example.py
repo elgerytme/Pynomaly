@@ -120,7 +120,7 @@ class SimpleExplainer:
             # Calculate feature contributions (simplified)
             if self.feature_importance is not None:
                 for i, (feature_name, importance) in enumerate(
-                    zip(self.feature_names, self.feature_importance)
+                    zip(self.feature_names, self.feature_importance, strict=False)
                 ):
                     value = sample.iloc[i]
                     # Contribution = importance * deviation from mean
@@ -162,10 +162,12 @@ class SimpleExplainer:
             },
             "feature_importance": {
                 name: importance
-                for name, importance in zip(self.feature_names, self.feature_importance)
+                for name, importance in zip(
+                    self.feature_names, self.feature_importance, strict=False
+                )
             },
             "top_features": sorted(
-                zip(self.feature_names, self.feature_importance),
+                zip(self.feature_names, self.feature_importance, strict=False),
                 key=lambda x: x[1],
                 reverse=True,
             ),
@@ -272,7 +274,7 @@ def run_explainable_ai_example():
     importance_scores = explainer.calculate_feature_importance(dataset)
 
     print("\n📊 Feature Importance Results:")
-    for name, importance in zip(dataset.feature_names, importance_scores):
+    for name, importance in zip(dataset.feature_names, importance_scores, strict=False):
         print(
             f"   {name:20}: {importance:.3f} {'🔥' if importance > 0.3 else '🟡' if importance > 0.1 else '🔵'}"
         )
@@ -320,7 +322,7 @@ def run_explainable_ai_example():
     predicted_labels = result.labels
     accuracy = np.mean(predicted_labels == true_labels)
 
-    print(f"\n🎯 Model Performance:")
+    print("\n🎯 Model Performance:")
     print(f"   Accuracy: {accuracy:.3f}")
     print(f"   True anomalies: {np.sum(true_labels)}")
     print(f"   Detected anomalies: {np.sum(predicted_labels)}")

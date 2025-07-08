@@ -1,0 +1,7 @@
+{
+    "pynomaly.infrastructure.adapters.tensorflow_adapter": "missing",
+    "pynomaly.infrastructure.adaptors.deep_learning.pytorch_adapter": "stub",
+    "pynomaly.infrastructure.explainers.shap_explainer": "implemented (untested)",
+    "pynomaly.infrastructure.streaming.stream_processor": "implemented (untested)",
+    "pynomaly.infrastructure.automl.advanced_optimizer": "implemented (untested)"
+}

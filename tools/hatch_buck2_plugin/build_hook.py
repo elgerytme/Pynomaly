@@ -5,11 +5,10 @@ allowing Buck2 to handle compilation and optimization while Hatch
 manages packaging and distribution.
 """
 
-import os
 import shutil
 import subprocess
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 from hatchling.plugin import hookimpl
@@ -20,7 +19,7 @@ class Buck2BuildHook(BuildHookInterface):
 
     PLUGIN_NAME = "buck2"
 
-    def __init__(self, root: str, config: Dict[str, Any]) -> None:
+    def __init__(self, root: str, config: dict[str, Any]) -> None:
         super().__init__(root, config)
         self.root_path = Path(root)
         self.config = config
@@ -31,7 +30,7 @@ class Buck2BuildHook(BuildHookInterface):
         self.web_assets_enabled = config.get("web_assets", True)
         self.artifacts_dir = self.root_path / config.get("artifacts_dir", "buck-out")
 
-    def initialize(self, version: str, build_data: Dict[str, Any]) -> None:
+    def initialize(self, version: str, build_data: dict[str, Any]) -> None:
         """Initialize the build hook."""
         self.app.display_info("Initializing Buck2 build hook")
 
@@ -45,13 +44,13 @@ class Buck2BuildHook(BuildHookInterface):
         # Clean previous artifacts
         self._clean_artifacts()
 
-    def clean(self, versions: List[str]) -> None:
+    def clean(self, versions: list[str]) -> None:
         """Clean Buck2 build artifacts."""
         self.app.display_info("Cleaning Buck2 artifacts")
         self._clean_artifacts()
 
     def finalize(
-        self, version: str, build_data: Dict[str, Any], artifact_path: str
+        self, version: str, build_data: dict[str, Any], artifact_path: str
     ) -> None:
         """Run Buck2 builds and copy artifacts."""
         if not self._check_buck2_available():

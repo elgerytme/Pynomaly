@@ -1189,9 +1189,7 @@ def main():
                 "_cluster",
             ]
         )
-    ][
-        :10
-    ]  # Show first 10 feature columns
+    ][:10]  # Show first 10 feature columns
 
     if feature_cols:
         print(processed_df[feature_cols].head())

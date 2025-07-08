@@ -10,7 +10,7 @@ Optimizing Pynomaly for exceptional performance across all devices and network c
 
 ### Performance Metrics
 - **Largest Contentful Paint (LCP)**: < 2.5 seconds
-- **First Input Delay (FID)**: < 100 milliseconds  
+- **First Input Delay (FID)**: < 100 milliseconds
 - **Cumulative Layout Shift (CLS)**: < 0.1
 - **First Contentful Paint (FCP)**: < 1.8 seconds
 - **Time to Interactive (TTI)**: < 3.5 seconds
@@ -56,9 +56,9 @@ const Analytics = lazy(() => import('./components/Analytics'));
 const Settings = lazy(() => import('./components/Settings'));
 
 // Feature-based splitting
-const ChartEngine = lazy(() => 
-  import('./charts/ChartEngine').then(module => ({ 
-    default: module.ChartEngine 
+const ChartEngine = lazy(() =>
+  import('./charts/ChartEngine').then(module => ({
+    default: module.ChartEngine
   }))
 );
 
@@ -78,11 +78,11 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js');
-      
+
       // Monitor service worker performance
       performance.mark('sw-registered');
       console.log('SW registered:', registration);
-      
+
     } catch (error) {
       console.warn('SW registration failed:', error);
     }
@@ -102,15 +102,15 @@ class VirtualizedChart {
     this.viewportSize = 1000;  // Render only visible items
     this.bufferSize = 100;     // Extra items for smooth scrolling
   }
-  
+
   getVisibleData(scrollTop, viewportHeight) {
-    const startIndex = Math.max(0, 
+    const startIndex = Math.max(0,
       Math.floor(scrollTop / this.itemHeight) - this.bufferSize
     );
     const endIndex = Math.min(this.data.length,
       startIndex + this.viewportSize + (2 * this.bufferSize)
     );
-    
+
     return {
       data: this.data.slice(startIndex, endIndex),
       startIndex,
@@ -132,10 +132,10 @@ const debouncedUpdate = useMemo(
 // Efficient data aggregation
 function aggregateDataPoints(data, timeWindow = '5min') {
   const aggregated = new Map();
-  
+
   data.forEach(point => {
     const timeKey = roundToWindow(point.timestamp, timeWindow);
-    
+
     if (!aggregated.has(timeKey)) {
       aggregated.set(timeKey, {
         timestamp: timeKey,
@@ -143,12 +143,12 @@ function aggregateDataPoints(data, timeWindow = '5min') {
         count: 0
       });
     }
-    
+
     const bucket = aggregated.get(timeKey);
     bucket.values.push(point.value);
     bucket.count++;
   });
-  
+
   return Array.from(aggregated.values()).map(bucket => ({
     timestamp: bucket.timestamp,
     value: bucket.values.reduce((a, b) => a + b, 0) / bucket.count,
@@ -169,26 +169,26 @@ class OptimizedCanvasChart {
     this.dpr = window.devicePixelRatio || 1;
     this.animationId = null;
     this.isDirty = false;
-    
+
     this.setupCanvas();
     this.setupAnimationLoop();
   }
-  
+
   setupCanvas() {
     const rect = this.canvas.getBoundingClientRect();
-    
+
     // Set actual size in memory (scaled to account for extra pixel density)
     this.canvas.width = rect.width * this.dpr;
     this.canvas.height = rect.height * this.dpr;
-    
+
     // Scale the canvas back down using CSS
     this.canvas.style.width = rect.width + 'px';
     this.canvas.style.height = rect.height + 'px';
-    
+
     // Scale the drawing context to match device pixel ratio
     this.ctx.scale(this.dpr, this.dpr);
   }
-  
+
   setupAnimationLoop() {
     const animate = () => {
       if (this.isDirty) {
@@ -199,11 +199,11 @@ class OptimizedCanvasChart {
     };
     animate();
   }
-  
+
   render() {
     // Clear with efficient method
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    
+
     // Batch drawing operations
     this.ctx.save();
     this.drawBackground();
@@ -211,11 +211,11 @@ class OptimizedCanvasChart {
     this.drawAxes();
     this.ctx.restore();
   }
-  
+
   invalidate() {
     this.isDirty = true;
   }
-  
+
   destroy() {
     if (this.animationId) {
       cancelAnimationFrame(this.animationId);
@@ -245,16 +245,16 @@ class RingBuffer {
     this.size = 0;
     this.head = 0;
   }
-  
+
   push(item) {
     this.buffer[this.head] = item;
     this.head = (this.head + 1) % this.capacity;
-    
+
     if (this.size < this.capacity) {
       this.size++;
     }
   }
-  
+
   toArray() {
     const result = new Array(this.size);
     for (let i = 0; i < this.size; i++) {
@@ -270,11 +270,11 @@ class ComponentWithCleanup extends Component {
     super(props);
     this.subscriptions = new Set();
   }
-  
+
   addSubscription(subscription) {
     this.subscriptions.add(subscription);
   }
-  
+
   componentWillUnmount() {
     // Automatic cleanup to prevent memory leaks
     this.subscriptions.forEach(unsub => unsub());
@@ -293,11 +293,11 @@ class LazyImageLoader {
       { rootMargin: '50px 0px' }
     );
   }
-  
+
   observe(img) {
     this.observer.observe(img);
   }
-  
+
   handleIntersection(entries) {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -314,14 +314,14 @@ class LazyImageLoader {
 function createProgressiveImage(src, placeholder) {
   const img = new Image();
   img.src = placeholder; // Low-quality placeholder
-  
+
   const highRes = new Image();
   highRes.onload = () => {
     img.src = highRes.src;
     img.classList.add('high-res-loaded');
   };
   highRes.src = src;
-  
+
   return img;
 }
 ```
@@ -336,20 +336,20 @@ class APIClient {
     this.cache = new Map();
     this.pendingRequests = new Map();
   }
-  
+
   async get(url, options = {}) {
     const cacheKey = `${url}-${JSON.stringify(options)}`;
-    
+
     // Return cached response if available
     if (this.cache.has(cacheKey)) {
       return this.cache.get(cacheKey);
     }
-    
+
     // Return pending request if in flight
     if (this.pendingRequests.has(cacheKey)) {
       return this.pendingRequests.get(cacheKey);
     }
-    
+
     // Make new request
     const request = fetch(url, {
       ...options,
@@ -369,7 +369,7 @@ class APIClient {
       this.pendingRequests.delete(cacheKey);
       throw error;
     });
-    
+
     this.pendingRequests.set(cacheKey, request);
     return request;
   }
@@ -383,24 +383,24 @@ class BatchProcessor {
     this.queue = [];
     this.timeoutId = null;
   }
-  
+
   add(request) {
     this.queue.push(request);
-    
+
     if (this.queue.length >= this.batchSize) {
       this.flush();
     } else if (!this.timeoutId) {
       this.timeoutId = setTimeout(() => this.flush(), this.delay);
     }
   }
-  
+
   flush() {
     if (this.queue.length === 0) return;
-    
+
     const batch = this.queue.splice(0, this.batchSize);
     clearTimeout(this.timeoutId);
     this.timeoutId = null;
-    
+
     // Send batch request
     fetch('/api/batch', {
       method: 'POST',
@@ -422,23 +422,23 @@ class OptimizedWebSocket {
     this.isConnected = false;
     this.reconnectAttempts = 0;
     this.maxReconnectAttempts = 5;
-    
+
     this.connect();
   }
-  
+
   connect() {
     this.ws = new WebSocket(this.url);
-    
+
     this.ws.onopen = () => {
       this.isConnected = true;
       this.reconnectAttempts = 0;
-      
+
       // Send queued messages
       while (this.messageQueue.length > 0) {
         this.ws.send(this.messageQueue.shift());
       }
     };
-    
+
     this.ws.onmessage = (event) => {
       // Use efficient JSON parsing for large messages
       const data = event.data;
@@ -451,27 +451,27 @@ class OptimizedWebSocket {
         this.handleMessage(JSON.parse(data));
       }
     };
-    
+
     this.ws.onclose = () => {
       this.isConnected = false;
       this.attemptReconnect();
     };
   }
-  
+
   send(message) {
     const serialized = JSON.stringify(message);
-    
+
     if (this.isConnected) {
       this.ws.send(serialized);
     } else {
       this.messageQueue.push(serialized);
     }
   }
-  
+
   attemptReconnect() {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
-      
+
       setTimeout(() => {
         this.reconnectAttempts++;
         this.connect();
@@ -490,10 +490,10 @@ class PerformanceMonitor {
   constructor() {
     this.metrics = new Map();
     this.observers = new Map();
-    
+
     this.setupObservers();
   }
-  
+
   setupObservers() {
     // Largest Contentful Paint
     if ('PerformanceObserver' in window) {
@@ -503,7 +503,7 @@ class PerformanceMonitor {
         this.recordMetric('LCP', lastEntry.startTime);
       });
       lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
-      
+
       // First Input Delay
       const fidObserver = new PerformanceObserver((list) => {
         list.getEntries().forEach((entry) => {
@@ -511,7 +511,7 @@ class PerformanceMonitor {
         });
       });
       fidObserver.observe({ entryTypes: ['first-input'] });
-      
+
       // Cumulative Layout Shift
       const clsObserver = new PerformanceObserver((list) => {
         let clsValue = 0;
@@ -525,32 +525,32 @@ class PerformanceMonitor {
       clsObserver.observe({ entryTypes: ['layout-shift'] });
     }
   }
-  
+
   recordMetric(name, value) {
     this.metrics.set(name, {
       value,
       timestamp: performance.now()
     });
-    
+
     // Send to analytics if threshold exceeded
     this.checkThresholds(name, value);
   }
-  
+
   checkThresholds(name, value) {
     const thresholds = {
       'LCP': 2500,  // 2.5 seconds
       'FID': 100,   // 100 milliseconds
       'CLS': 0.1    // 0.1 cumulative score
     };
-    
+
     if (thresholds[name] && value > thresholds[name]) {
       console.warn(`Performance threshold exceeded: ${name} = ${value}`);
-      
+
       // Send to monitoring service
       this.sendMetricToAnalytics(name, value);
     }
   }
-  
+
   sendMetricToAnalytics(name, value) {
     // Send performance data to analytics service
     fetch('/api/analytics/performance', {
@@ -584,7 +584,7 @@ module.exports = {
       openAnalyzer: false
     })
   ],
-  
+
   optimization: {
     splitChunks: {
       chunks: 'all',
@@ -633,25 +633,25 @@ module.exports = {
 ```html
 <!-- Responsive images with performance optimization -->
 <picture>
-  <source 
-    media="(max-width: 480px)" 
+  <source
+    media="(max-width: 480px)"
     srcset="chart-small.webp 480w, chart-small@2x.webp 960w"
     type="image/webp">
-  <source 
-    media="(max-width: 480px)" 
+  <source
+    media="(max-width: 480px)"
     srcset="chart-small.jpg 480w, chart-small@2x.jpg 960w">
-  <source 
-    media="(max-width: 1024px)" 
+  <source
+    media="(max-width: 1024px)"
     srcset="chart-medium.webp 1024w, chart-medium@2x.webp 2048w"
     type="image/webp">
-  <source 
-    media="(max-width: 1024px)" 
+  <source
+    media="(max-width: 1024px)"
     srcset="chart-medium.jpg 1024w, chart-medium@2x.jpg 2048w">
-  <source 
+  <source
     srcset="chart-large.webp 1920w, chart-large@2x.webp 3840w"
     type="image/webp">
-  <img 
-    src="chart-large.jpg" 
+  <img
+    src="chart-large.jpg"
     srcset="chart-large.jpg 1920w, chart-large@2x.jpg 3840w"
     sizes="(max-width: 480px) 100vw, (max-width: 1024px) 100vw, 1920px"
     alt="Anomaly detection chart"
@@ -694,23 +694,23 @@ module.exports = {
 describe('Performance Tests', () => {
   it('should load dashboard within performance budget', async () => {
     const startTime = performance.now();
-    
+
     render(<Dashboard />);
-    
+
     await waitFor(() => {
       expect(screen.getByRole('main')).toBeInTheDocument();
     });
-    
+
     const loadTime = performance.now() - startTime;
     expect(loadTime).toBeLessThan(3000); // 3 second budget
   });
-  
+
   it('should handle large datasets efficiently', async () => {
     const largeDataset = generateTestData(10000);
     const startTime = performance.now();
-    
+
     render(<Chart data={largeDataset} />);
-    
+
     const renderTime = performance.now() - startTime;
     expect(renderTime).toBeLessThan(500); // 500ms budget
   });

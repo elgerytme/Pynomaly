@@ -18,21 +18,21 @@ dataset:
     type: "file"
     path: "data/banking_transactions.csv"
     format: "csv"
-    
+
     # Production database connection (commented for security)
     # database:
     #   connection_string: "postgresql://user:pass@host:5432/fraud_db"
     #   query: |
-    #     SELECT transaction_id, customer_id, amount, timestamp, 
+    #     SELECT transaction_id, customer_id, amount, timestamp,
     #            merchant_category, location, is_fraudulent
-    #     FROM transactions 
+    #     FROM transactions
     #     WHERE timestamp >= NOW() - INTERVAL '6 months'
-  
+
   properties:
     target_column: "is_fraudulent"
-    feature_columns: 
+    feature_columns:
       - "amount"
-      - "hour" 
+      - "hour"
       - "day_of_week"
       - "merchant_category"
       - "location_risk_score"
@@ -43,7 +43,7 @@ dataset:
     exclude_columns: ["transaction_id", "customer_id", "raw_timestamp"]
     datetime_columns: ["timestamp"]
     categorical_columns: ["merchant_category", "location_country"]
-    
+
     # Financial-specific data properties
     financial_properties:
       currency: "USD"
@@ -52,7 +52,7 @@ dataset:
       customer_id_column: "customer_id"
       merchant_columns: ["merchant_id", "merchant_category"]
       location_columns: ["location_country", "location_city"]
-  
+
   validation:
     check_missing: true
     check_duplicates: true
@@ -60,7 +60,7 @@ dataset:
     check_target_distribution: true
     min_samples: 10000
     max_missing_percent: 5.0
-    
+
     # Financial-specific validations
     financial_validation:
       check_negative_amounts: true
@@ -70,7 +70,7 @@ dataset:
         max_daily_amount: 50000
         max_single_transaction: 25000
         valid_merchant_categories: ["grocery", "gas", "restaurant", "retail", "online"]
-  
+
   splitting:
     method: "temporal"  # Critical for fraud detection
     temporal:
@@ -78,7 +78,7 @@ dataset:
       train_end_date: "2024-10-01"
       validation_end_date: "2024-11-01"
       test_end_date: "2024-12-01"
-    
+
     # Ensure no data leakage in fraud detection
     leakage_prevention:
       customer_isolation: true  # Same customer not in train/test
@@ -96,7 +96,7 @@ preprocessing:
           amount: "zero_fill"  # Missing amounts treated as $0
           merchant_category: "unknown_category"
           location: "domestic_default"
-      
+
       # Fraud-specific outlier treatment
       - type: "outlier_treatment"
         method: "financial_rules"
@@ -108,7 +108,7 @@ preprocessing:
           frequency:
             max_transactions_per_minute: 10
             max_transactions_per_hour: 100
-      
+
       # Financial data scaling
       - type: "scaling"
         method: "robust"  # Robust to outliers in financial data
@@ -116,13 +116,13 @@ preprocessing:
           amount: "log_transform"  # Log transform for amount
           frequency_features: "minmax"
           risk_scores: "standard"
-      
+
       # Financial categorical encoding
       - type: "encoding"
         categorical_method: "target"  # Target encoding for high-cardinality
         handle_unknown: "fraud_risk_score"  # Unknown categories get risk score
         high_cardinality_threshold: 50
-      
+
       # Financial feature selection
       - type: "feature_selection"
         method: "fraud_relevance"
@@ -131,7 +131,7 @@ preprocessing:
           - "business_importance"
           - "regulatory_requirement"
         min_fraud_correlation: 0.05
-  
+
   # Advanced financial feature engineering
   advanced:
     # Time-based fraud patterns
@@ -141,7 +141,7 @@ preprocessing:
       rolling_features:
         windows: [60, 1440, 10080]  # 1hr, 1day, 1week in minutes
         statistics: ["count", "sum", "mean", "std", "max"]
-      
+
       # Fraud-specific time features
       fraud_time_features:
         weekend_indicator: true
@@ -149,7 +149,7 @@ preprocessing:
         night_time_risk: true
         holiday_indicator: true
         rush_hour_indicator: true
-    
+
     # Customer behavior profiling
     customer_profiling:
       enabled: true
@@ -159,14 +159,14 @@ preprocessing:
         - "location_deviation_score"
         - "merchant_diversity_score"
         - "time_pattern_deviation"
-      
+
       # Behavioral anomaly detection
       behavioral_anomalies:
         location_outliers: true
         amount_outliers: true
         timing_outliers: true
         frequency_outliers: true
-    
+
     # Network analysis features
     network_analysis:
       enabled: true
@@ -174,7 +174,7 @@ preprocessing:
         - "merchant_risk_propagation"
         - "customer_similarity_networks"
         - "transaction_graph_features"
-      
+
       # Graph-based fraud detection
       graph_features:
         centrality_measures: ["degree", "betweenness", "eigenvector"]
@@ -195,7 +195,7 @@ algorithms:
       bootstrap: false
       random_state: 42
       n_jobs: -1
-    
+
     hyperparameter_tuning:
       enabled: true
       method: "bayesian"
@@ -207,7 +207,7 @@ algorithms:
         n_estimators: [100, 500]
         max_samples: [0.5, 1.0]
         max_features: [0.5, 1.0]
-  
+
   # Secondary: Local Outlier Factor
   - name: "LocalOutlierFactor"
     enabled: true
@@ -220,7 +220,7 @@ algorithms:
       metric: "manhattan"  # Good for mixed financial data
       novelty: true
       n_jobs: -1
-    
+
     hyperparameter_tuning:
       enabled: true
       method: "grid_search"
@@ -230,7 +230,7 @@ algorithms:
         contamination: [0.01, 0.02, 0.03, 0.05]
         n_neighbors: [10, 20, 30, 50]
         metric: ["manhattan", "euclidean", "cosine"]
-  
+
   # Advanced: Autoencoder for complex patterns
   - name: "Autoencoder"
     enabled: true
@@ -245,13 +245,13 @@ algorithms:
       epochs: 100
       contamination: 0.02
       random_state: 42
-    
+
     hyperparameter_tuning:
       enabled: true
       method: "optuna"
       n_trials: 100
       parameters:
-        hidden_layers: 
+        hidden_layers:
           - [32, 16, 32]
           - [64, 32, 16, 32, 64]
           - [128, 64, 32, 64, 128]
@@ -265,12 +265,12 @@ ensemble:
     - type: "voting"
       strategy: "soft"
       weights: [0.4, 0.3, 0.3]  # Weight Isolation Forest higher
-      
+
     - type: "stacking"
       meta_learner: "LogisticRegression"
       cv_folds: 5
       meta_features: ["prediction_confidence", "algorithm_consensus"]
-  
+
   # Fraud-specific ensemble selection
   selection:
     method: "precision_focused"  # Minimize false positives
@@ -286,17 +286,17 @@ evaluation:
     max_train_size: null
     test_size: 86400  # 1 day in seconds
     gap: 3600  # 1 hour gap
-  
+
   metrics:
     primary: "average_precision"  # Best for imbalanced fraud data
-    secondary: 
+    secondary:
       - "precision"
-      - "recall" 
+      - "recall"
       - "f1_score"
       - "auc_roc"
       - "false_positive_rate"
       - "detection_rate_at_fpr_001"  # Detection rate at 0.1% FPR
-    
+
     # Fraud-specific metrics
     fraud_metrics:
       - "precision_at_k"  # Precision in top K predictions
@@ -304,7 +304,7 @@ evaluation:
       - "investigation_efficiency"  # True fraud / total alerts
       - "dollar_value_caught"       # $ amount of fraud caught
       - "dollar_value_missed"       # $ amount of fraud missed
-  
+
   # Business impact evaluation
   business_impact:
     enabled: true
@@ -314,7 +314,7 @@ evaluation:
       true_positive_benefit: 500 # Fraud amount saved
       investigation_time_hours: 0.5
       analyst_hourly_rate: 50
-    
+
     # Alert volume analysis
     alert_analysis:
       max_daily_alerts: 1000
@@ -328,13 +328,13 @@ deployment:
     latency_requirements:
       max_prediction_time_ms: 100
       max_feature_computation_time_ms: 50
-    
+
     # Streaming configuration
     streaming:
       kafka_topics: ["transactions", "customer_updates"]
       batch_size: 100
       processing_window_seconds: 5
-    
+
     # Model serving
     serving:
       platform: "kubernetes"
@@ -342,7 +342,7 @@ deployment:
       cpu_request: "500m"
       memory_request: "1Gi"
       auto_scaling: true
-  
+
   # Model monitoring
   monitoring:
     enabled: true
@@ -350,7 +350,7 @@ deployment:
       feature_drift_threshold: 0.1
       prediction_drift_threshold: 0.05
       alert_on_drift: true
-    
+
     performance_monitoring:
       track_precision: true
       track_recall: true
@@ -368,7 +368,7 @@ compliance:
     right_to_explanation: true
     data_retention_days: 2555  # 7 years
     audit_trail: true
-    
+
   # Model explainability
   explainability:
     enabled: true
@@ -376,14 +376,14 @@ compliance:
     global_explanations: true
     local_explanations: true
     explanation_storage: true
-  
+
   # Bias and fairness
   fairness:
     enabled: true
     protected_attributes: ["customer_age", "location_country"]
     fairness_metrics: ["demographic_parity", "equalized_odds"]
     bias_threshold: 0.1
-  
+
   # Documentation
   documentation:
     model_cards: true
@@ -399,13 +399,13 @@ security:
     encryption_in_transit: true
     pii_anonymization: true
     data_masking: true
-  
+
   # Access controls
   access_control:
     role_based_access: true
     audit_logging: true
     secure_api_endpoints: true
-    
+
   # Privacy preservation
   privacy:
     differential_privacy: false  # Can impact fraud detection accuracy
@@ -420,13 +420,13 @@ performance:
     model_caching: true
     parallel_processing: true
     gpu_acceleration: false  # Usually not needed for tree-based models
-  
+
   # Scalability
   scalability:
     horizontal_scaling: true
     load_balancing: true
     database_optimization: true
-    
+
   # Benchmarking
   benchmarking:
     datasets: ["small_1k", "medium_100k", "large_1m", "xlarge_10m"]
@@ -444,14 +444,14 @@ output:
     save_probabilities: true
     save_explanations: true
     save_feature_importance: true
-    
+
     # Fraud-specific outputs
     fraud_outputs:
       save_risk_scores: true
       save_alert_details: true
       save_investigation_notes: true
       save_feedback_loop_data: true
-  
+
   reporting:
     enabled: true
     formats: ["html", "pdf"]
@@ -460,7 +460,7 @@ output:
       - "weekly_pattern_analysis"
       - "monthly_performance_review"
       - "quarterly_model_assessment"
-    
+
     stakeholder_reports:
       fraud_analysts: ["detailed_technical"]
       compliance_team: ["regulatory_compliance"]
@@ -475,27 +475,27 @@ integrations:
       enabled: false
       system: "actimize"
       api_endpoint: "https://fraud-system/api/cases"
-    
+
     transaction_monitoring:
       enabled: false
       system: "fiserv"
       real_time_scoring: true
-    
+
     risk_management:
       enabled: false
       system: "sas"
       risk_score_integration: true
-  
+
   # External data sources
   external_data:
     credit_bureaus:
       enabled: false
       providers: ["experian", "equifax", "transunion"]
-    
+
     blacklists:
       enabled: true
       sources: ["internal", "industry_shared", "regulatory"]
-    
+
     geolocation:
       enabled: true
       provider: "maxmind"

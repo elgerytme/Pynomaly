@@ -31,7 +31,7 @@
 ### Test Files That Passed
 - `tests/domain/test_entities.py` - Core domain entity tests including:
   - TestDetector (3 tests)
-  - TestDataset (4 tests) 
+  - TestDataset (4 tests)
   - TestAnomaly (2 tests)
   - TestDetectionResult (2 tests)
 

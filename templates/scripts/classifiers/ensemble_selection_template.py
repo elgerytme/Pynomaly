@@ -478,9 +478,9 @@ class EnsembleSelector:
                     )
 
                 strategy_results[strategy_name]["best_ensemble"] = best_ensemble
-                strategy_results[strategy_name][
-                    "ensemble_performances"
-                ] = ensemble_performances
+                strategy_results[strategy_name]["ensemble_performances"] = (
+                    ensemble_performances
+                )
 
                 # Calculate average performance
                 if y is not None:

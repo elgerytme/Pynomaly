@@ -19,7 +19,7 @@
 | `developer-guides/README.md` | "Security" | `../deployment/SECURITY.md` | Same as above |
 | `getting-started/README.md` | "Security Setup" | `../deployment/SECURITY.md` | Same as above |
 
-**Recommended Action**: 
+**Recommended Action**:
 1. Create `/docs/deployment/security.md` (note: lowercase to match existing pattern)
 2. Update all references to point to `deployment/security.md`
 3. Include content covering: authentication, authorization, encryption, audit logging

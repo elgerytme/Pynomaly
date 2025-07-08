@@ -274,7 +274,7 @@ def cross_analyze_deposits_fx(deposits_df, fx_df):
     # Find customers with both suspicious deposits and FX activity
     suspicious_deposits = deposits_df[deposits_df['predicted_anomaly'] == 1]
     suspicious_fx = fx_df[fx_df['predicted_anomaly'] == 1]
-    
+
     common_customers = set(suspicious_deposits['customer_id']) & set(suspicious_fx['customer_id'])
     return common_customers
 ```
@@ -285,7 +285,7 @@ def cross_analyze_deposits_fx(deposits_df, fx_df):
 def detect_temporal_anomalies(df, time_window='1D'):
     # Aggregate transactions by time window
     time_series = df.groupby(pd.Grouper(key='timestamp', freq=time_window))['amount'].sum()
-    
+
     # Detect anomalies in the time series
     # Implementation would use statistical methods or ML
     return anomalous_periods
@@ -342,7 +342,7 @@ Customize features based on business requirements:
 features = ['amount', 'hour', 'day_of_week']
 
 # Comprehensive feature set (better accuracy)
-features = ['amount', 'amount_log', 'hour', 'day_of_week', 
+features = ['amount', 'amount_log', 'hour', 'day_of_week',
            'customer_velocity', 'amount_deviation', 'category_encoded']
 
 # Domain-specific features
@@ -359,15 +359,15 @@ from kafka import KafkaConsumer
 import json
 
 def process_transaction_stream():
-    consumer = KafkaConsumer('transactions', 
+    consumer = KafkaConsumer('transactions',
                            value_deserializer=lambda x: json.loads(x.decode('utf-8')))
-    
+
     for message in consumer:
         transaction = message.value
-        
+
         # Real-time anomaly detection
         anomaly_score = detect_anomaly(transaction)
-        
+
         if anomaly_score > threshold:
             # Trigger alert or block transaction
             handle_suspicious_transaction(transaction, anomaly_score)
@@ -379,13 +379,13 @@ def process_transaction_stream():
 def daily_anomaly_analysis():
     # Load yesterday's transactions
     transactions = load_daily_transactions(date.today() - timedelta(days=1))
-    
+
     # Run anomaly detection
     results = detect_anomalies(transactions)
-    
+
     # Generate reports
     generate_daily_report(results)
-    
+
     # Update ML models
     retrain_models_if_needed(results)
 ```
@@ -400,13 +400,13 @@ app = Flask(__name__)
 @app.route('/score_transaction', methods=['POST'])
 def score_transaction():
     transaction = request.json
-    
+
     # Extract features
     features = extract_features(transaction)
-    
+
     # Score transaction
     anomaly_score = model.predict(features)
-    
+
     return jsonify({
         'transaction_id': transaction['id'],
         'anomaly_score': float(anomaly_score),
@@ -467,17 +467,17 @@ def score_transaction():
 def optimize_detection_pipeline():
     # Feature selection
     important_features = select_features_by_importance(X, y)
-    
+
     # Sampling for large datasets
     if len(data) > 100000:
         sample_data = data.sample(n=50000, random_state=42)
-    
+
     # Parallel processing
     from joblib import Parallel, delayed
     results = Parallel(n_jobs=-1)(
         delayed(detect_anomalies)(chunk) for chunk in data_chunks
     )
-    
+
     return results
 ```
 

@@ -5,12 +5,10 @@ This simulator provides a mock Buck2 environment that mimics Buck2's behavior
 for testing the integration framework, build hooks, and workflow validation.
 """
 
-import json
-import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 
 class Buck2Simulator:
@@ -21,7 +19,7 @@ class Buck2Simulator:
         self.buck_out_dir = self.root_path / "buck-out"
         self.build_cache = {}
 
-    def simulate_command(self, args: List[str]) -> Dict[str, Any]:
+    def simulate_command(self, args: list[str]) -> dict[str, Any]:
         """Simulate Buck2 command execution."""
         if not args:
             return {"error": "No command provided"}
@@ -41,7 +39,7 @@ class Buck2Simulator:
         else:
             return {"error": f"Unknown command: {cmd}"}
 
-    def _simulate_build(self, targets: List[str]) -> Dict[str, Any]:
+    def _simulate_build(self, targets: list[str]) -> dict[str, Any]:
         """Simulate build command."""
         if not targets:
             return {"error": "No targets specified"}
@@ -71,7 +69,7 @@ class Buck2Simulator:
             "total_time": len(targets) * 0.1,
         }
 
-    def _simulate_test(self, targets: List[str]) -> Dict[str, Any]:
+    def _simulate_test(self, targets: list[str]) -> dict[str, Any]:
         """Simulate test command."""
         print(f"🧪 Buck2 Simulator: Running tests for {targets}")
 
@@ -93,7 +91,7 @@ class Buck2Simulator:
             "total_tests": len(targets) * 10,
         }
 
-    def _simulate_clean(self) -> Dict[str, Any]:
+    def _simulate_clean(self) -> dict[str, Any]:
         """Simulate clean command."""
         print("🧹 Buck2 Simulator: Cleaning build artifacts...")
 
@@ -105,7 +103,7 @@ class Buck2Simulator:
 
         return {"success": True, "message": "Build artifacts cleaned"}
 
-    def _simulate_query(self, args: List[str]) -> Dict[str, Any]:
+    def _simulate_query(self, args: list[str]) -> dict[str, Any]:
         """Simulate query command."""
         return {
             "success": True,
