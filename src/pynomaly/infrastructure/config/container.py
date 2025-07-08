@@ -14,6 +14,9 @@ from pynomaly.application.services import (
     ExperimentTrackingService,
     ModelPersistenceService,
 )
+from pynomaly.application.services.performance_monitoring_service import (
+    PerformanceMonitoringService,
+)
 from pynomaly.application.use_cases import (
     DetectAnomaliesUseCase,
     EvaluateModelUseCase,

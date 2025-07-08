@@ -128,7 +128,36 @@ class PipelineStep:
             "retry_count": self.retry_count,
             "configuration": self.configuration.copy(),
             "metadata": self.metadata.copy(),
+            "batch_job_id": self.batch_job_id,
+            "batch_status": self.batch_status,
+            "batch_config": self.batch_config.copy(),
         }
+    
+    def is_batch_step(self) -> bool:
+        """Check if this is a batch processing step."""
+        return self.step_type == StepType.BATCH_PROCESS
+    
+    def set_batch_job(self, job_id: str, status: str = "pending") -> None:
+        """Associate a batch job with this step."""
+        self.batch_job_id = job_id
+        self.batch_status = status
+        self.metadata["batch_job_assigned_at"] = datetime.utcnow().isoformat()
+    
+    def update_batch_status(self, status: str) -> None:
+        """Update the batch job status."""
+        self.batch_status = status
+        self.metadata["batch_status_updated_at"] = datetime.utcnow().isoformat()
+    
+    def set_batch_config(self, config: dict[str, Any]) -> None:
+        """Set batch processing configuration."""
+        self.batch_config = config
+        self.metadata["batch_config_updated_at"] = datetime.utcnow().isoformat()
+    
+    def get_batch_artifacts(self) -> list[str]:
+        """Get expected batch processing artifacts."""
+        if not self.is_batch_step():
+            return []
+        return [artifact for artifact in self.outputs if artifact.startswith("batch_")]
 
 
 @dataclass
@@ -148,6 +177,10 @@ class PipelineRun:
     artifacts: dict[str, str] = field(default_factory=dict)  # artifact_name -> path
     error_message: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
+    
+    # Batch processing tracking
+    batch_jobs: dict[str, str] = field(default_factory=dict)  # step_id -> batch_job_id
+    batch_statuses: dict[str, str] = field(default_factory=dict)  # step_id -> batch_status
 
     @property
     def duration_seconds(self) -> float | None:
@@ -196,6 +229,38 @@ class PipelineRun:
     def get_step_result(self, step_id: str) -> dict[str, Any] | None:
         """Get result for a specific step."""
         return self.step_results.get(step_id)
+    
+    def register_batch_job(self, step_id: str, batch_job_id: str) -> None:
+        """Register a batch job for a pipeline step."""
+        self.batch_jobs[step_id] = batch_job_id
+        self.batch_statuses[step_id] = "pending"
+        self.metadata[f"batch_job_{step_id}_registered_at"] = datetime.utcnow().isoformat()
+    
+    def update_batch_status(self, step_id: str, status: str) -> None:
+        """Update batch job status for a step."""
+        if step_id in self.batch_jobs:
+            self.batch_statuses[step_id] = status
+            self.metadata[f"batch_job_{step_id}_status_updated_at"] = datetime.utcnow().isoformat()
+    
+    def get_batch_job_id(self, step_id: str) -> str | None:
+        """Get batch job ID for a step."""
+        return self.batch_jobs.get(step_id)
+    
+    def get_batch_status(self, step_id: str) -> str | None:
+        """Get batch job status for a step."""
+        return self.batch_statuses.get(step_id)
+    
+    def get_batch_jobs_summary(self) -> dict[str, Any]:
+        """Get summary of all batch jobs in this run."""
+        return {
+            "total_batch_jobs": len(self.batch_jobs),
+            "batch_jobs": dict(self.batch_jobs),
+            "batch_statuses": dict(self.batch_statuses),
+            "pending_jobs": len([s for s in self.batch_statuses.values() if s == "pending"]),
+            "running_jobs": len([s for s in self.batch_statuses.values() if s == "running"]),
+            "completed_jobs": len([s for s in self.batch_statuses.values() if s == "completed"]),
+            "failed_jobs": len([s for s in self.batch_statuses.values() if s == "failed"]),
+        }
 
 
 @dataclass

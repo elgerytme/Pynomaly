@@ -39,6 +39,26 @@ By participating in this project, you agree to abide by our Code of Conduct. Ple
 8. Push to your fork
 9. Open a pull request
 
+## Synchronization Process
+
+The project includes an automated synchronization script that manages synchronization between the `TODO.md` file and GitHub issues.
+
+- **Location**: `scripts/sync_todo_issues.py`
+- **Description**: This script identifies drift between TODO items in the documentation and GitHub issues.
+- **Execution**: The script runs weekly via GitHub Actions (`.github/workflows/sync.yml`).
+  - **Environment Variables**: Ensure `GITHUB_REPO` and `GITHUB_TOKEN` are set up in the repository secrets.
+- **Actions**:
+  - Creates an issue labeled "Sync Alert" if drift is detected.
+  - Automatically updates GitHub issues based on the TODO list if configured.
+
+- To manually run the script:
+  ```bash
+  export GITHUB_REPO="your-org/your-repo"
+  export GITHUB_TOKEN="your-personal-access-token"
+  export AUTO_UPDATE="true"
+  python scripts/sync_todo_issues.py
+  ```
+
 ## Development Setup
 
 ### Prerequisites

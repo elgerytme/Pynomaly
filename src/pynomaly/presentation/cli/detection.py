@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Annotated
 
 import typer
 from rich.console import Console
@@ -17,14 +18,14 @@ console = Console()
 
 @app.command("train")
 def train_detector(
-    detector: str = typer.Argument(..., help="Detector ID or name (can be partial)"),
-    dataset: str = typer.Argument(..., help="Dataset ID or name (can be partial)"),
-    validate: bool = typer.Option(
-        True, "--validate/--no-validate", help="Validate data before training"
-    ),
-    save_model: bool = typer.Option(
-        True, "--save/--no-save", help="Save trained model"
-    ),
+    detector: Annotated[str, typer.Argument(help="Detector ID or name (can be partial)")],
+    dataset: Annotated[str, typer.Argument(help="Dataset ID or name (can be partial)")],
+    validate: Annotated[bool, typer.Option(
+        "--validate/--no-validate", help="Validate data before training"
+    )] = True,
+    save_model: Annotated[bool, typer.Option(
+        "--save/--no-save", help="Save trained model"
+    )] = True,
 ):
     """Train a detector on a dataset."""
     container = get_cli_container()
@@ -119,17 +120,17 @@ def train_detector(
 
 @app.command("run")
 def detect_anomalies(
-    detector: str = typer.Argument(..., help="Detector ID or name (can be partial)"),
-    dataset: str = typer.Argument(..., help="Dataset ID or name (can be partial)"),
-    validate: bool = typer.Option(
-        True, "--validate/--no-validate", help="Validate features"
-    ),
-    save_results: bool = typer.Option(
-        True, "--save/--no-save", help="Save detection results"
-    ),
-    output: Path | None = typer.Option(
-        None, "--output", "-o", help="Export results to file"
-    ),
+    detector: Annotated[str, typer.Argument(help="Detector ID or name (can be partial)")],
+    dataset: Annotated[str, typer.Argument(help="Dataset ID or name (can be partial)")],
+    validate: Annotated[bool, typer.Option(
+        "--validate/--no-validate", help="Validate features"
+    )] = True,
+    save_results: Annotated[bool, typer.Option(
+        "--save/--no-save", help="Save detection results"
+    )] = True,
+    output: Annotated[Path | None, typer.Option(
+        "--output", "-o", help="Export results to file"
+    )] = None,
 ):
     """Run anomaly detection on a dataset."""
     container = get_cli_container()
