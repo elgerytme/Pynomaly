@@ -27,6 +27,7 @@ from pynomaly.presentation.cli import (
 )
 from pynomaly.presentation.cli.export import export_app
 from pynomaly.presentation.cli.performance import performance_app
+from pynomaly.presentation.cli.benchmarking import benchmark_commands
 
 # These modules are now properly converted to Typer
 # from pynomaly.presentation.cli import deep_learning  # ✅ Now uses Typer - re-enabled below
@@ -87,7 +88,14 @@ app.add_typer(deep_learning.app, name="deep-learning", help="🧠 Deep learning 
 app.add_typer(explainability.app, name="explainability", help="🔍 Explainable AI (model interpretability, bias analysis)")
 app.add_typer(selection.app, name="selection", help="🧠 Intelligent algorithm selection with learning capabilities")
 # app.add_typer(security_commands, name="security", help="🔒 Security & compliance (SOC2, GDPR, HIPAA, encryption)")  # Still uses Click - needs conversion
-# app.add_typer(dashboard_commands, name="dashboard", help="📊 Advanced visualization dashboards (executive, operational, analytical)")  # Still uses Click - needs conversion
+from pynomaly.presentation.cli.dashboard import app as dashboard_app
+
+# Add dashboard commands
+app.add_typer(
+    dashboard_app,
+    name="dashboard",
+    help="📊 Advanced visualization dashboards (executive, operational, analytical)",
+)
 # app.add_typer(governance_commands, name="governance", help="⚖️ Governance framework (audit trails, policies, risk management)")  # Still uses Click - needs conversion
 app.add_typer(
     export_app, name="export", help="Export results to business intelligence platforms"
@@ -95,6 +103,9 @@ app.add_typer(
 app.add_typer(server.app, name="server", help="Manage API server")
 app.add_typer(
     performance_app, name="perf", help="Performance monitoring and optimization"
+)
+app.add_typer(
+    benchmark_commands, name="benchmark", help="🔬 Performance benchmarking and testing"
 )
 
 # Configuration recommendation commands

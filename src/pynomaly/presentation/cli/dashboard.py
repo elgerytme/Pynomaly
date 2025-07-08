@@ -4,7 +4,7 @@ import asyncio
 import json
 from pathlib import Path
 
-import click
+import typer
 from rich.console import Console
 from rich.layout import Layout
 from rich.live import Live
@@ -19,55 +19,76 @@ from pynomaly.application.services.visualization_dashboard_service import (
 )
 from pynomaly.infrastructure.config.container import Container
 
+# Create Typer app
+app = typer.Typer(help="Dashboard related commands")
+
 console = Console()
 
+# Valid dashboard types
+VALID_DASHBOARD_TYPES = {
+    "executive", "operational", "analytical", "performance", "real_time", "compliance"
+}
 
-@click.group(name="dashboard")
-def dashboard_commands():
-    """Visualization dashboard management commands."""
-    pass
+# Valid export formats
+VALID_EXPORT_FORMATS = {"html", "png", "pdf", "svg", "json"}
+
+# Valid themes
+VALID_THEMES = {"default", "dark", "light", "corporate"}
+
+def validate_dashboard_type(value: str) -> str:
+    """Validate dashboard type."""
+    if value not in VALID_DASHBOARD_TYPES:
+        raise typer.BadParameter(
+            f"Invalid dashboard type '{value}'. Must be one of: {', '.join(VALID_DASHBOARD_TYPES)}"
+        )
+    return value
+
+def validate_export_format(value: str) -> str:
+    """Validate export format."""
+    if value not in VALID_EXPORT_FORMATS:
+        raise typer.BadParameter(
+            f"Invalid export format '{value}'. Must be one of: {', '.join(VALID_EXPORT_FORMATS)}"
+        )
+    return value
+
+def validate_theme(value: str) -> str:
+    """Validate theme."""
+    if value not in VALID_THEMES:
+        raise typer.BadParameter(
+            f"Invalid theme '{value}'. Must be one of: {', '.join(VALID_THEMES)}"
+        )
+    return value
 
 
-@dashboard_commands.command()
-@click.option(
-    "--type",
-    "dashboard_type",
-    type=click.Choice(
-        [
-            "executive",
-            "operational",
-            "analytical",
-            "performance",
-            "real_time",
-            "compliance",
-        ]
-    ),
-    default="analytical",
-    help="Type of dashboard to generate",
-)
-@click.option("--output-path", help="Path to save dashboard files")
-@click.option(
-    "--format",
-    "export_format",
-    type=click.Choice(["html", "png", "pdf", "svg", "json"]),
-    default="html",
-    help="Export format for dashboard",
-)
-@click.option(
-    "--theme",
-    type=click.Choice(["default", "dark", "light", "corporate"]),
-    default="default",
-    help="Dashboard theme",
-)
-@click.option("--real-time", is_flag=True, help="Enable real-time updates")
-@click.option("--websocket-endpoint", help="WebSocket endpoint for real-time data")
+@app.command()
 def generate(
-    dashboard_type: str,
-    output_path: str | None,
-    export_format: str,
-    theme: str,
-    real_time: bool,
-    websocket_endpoint: str | None,
+    dashboard_type: str = typer.Option(
+        "analytical",
+        "--type",
+        help="Type of dashboard to generate (executive, operational, analytical, performance, real_time, compliance)",
+        callback=validate_dashboard_type,
+    ),
+    output_path: str | None = typer.Option(
+        None, "--output-path", help="Path to save dashboard files"
+    ),
+    export_format: str = typer.Option(
+        "html",
+        "--format",
+        help="Export format for dashboard (html, png, pdf, svg, json)",
+        callback=validate_export_format,
+    ),
+    theme: str = typer.Option(
+        "default",
+        "--theme",
+        help="Dashboard theme (default, dark, light, corporate)",
+        callback=validate_theme,
+    ),
+    real_time: bool = typer.Option(
+        False, "--real-time", help="Enable real-time updates"
+    ),
+    websocket_endpoint: str | None = typer.Option(
+        None, "--websocket-endpoint", help="WebSocket endpoint for real-time data"
+    ),
 ):
     """Generate comprehensive visualization dashboard."""
 
@@ -167,10 +188,15 @@ def generate(
     asyncio.run(run_generation())
 
 
-@dashboard_commands.command()
-@click.option("--dashboard-id", help="Specific dashboard ID to show status for")
-@click.option("--detailed", is_flag=True, help="Show detailed status information")
-def status(dashboard_id: str | None, detailed: bool):
+@app.command()
+def status(
+    dashboard_id: str | None = typer.Option(
+        None, "--dashboard-id", help="Specific dashboard ID to show status for"
+    ),
+    detailed: bool = typer.Option(
+        False, "--detailed", help="Show detailed status information"
+    ),
+):
     """Show dashboard service status and active dashboards."""
 
     async def run_status():
@@ -209,13 +235,20 @@ def status(dashboard_id: str | None, detailed: bool):
     asyncio.run(run_status())
 
 
-@dashboard_commands.command()
-@click.option("--interval", type=int, default=5, help="Update interval in seconds")
-@click.option(
-    "--websocket-endpoint", default="ws://localhost:8000/ws", help="WebSocket endpoint"
-)
-@click.option("--duration", type=int, help="Duration to monitor in seconds")
-def monitor(interval: int, websocket_endpoint: str, duration: int | None):
+@app.command()
+def monitor(
+    interval: int = typer.Option(
+        5, "--interval", help="Update interval in seconds"
+    ),
+    websocket_endpoint: str = typer.Option(
+        "ws://localhost:8000/ws",
+        "--websocket-endpoint",
+        help="WebSocket endpoint",
+    ),
+    duration: int | None = typer.Option(
+        None, "--duration", help="Duration to monitor in seconds"
+    ),
+):
     """Start real-time dashboard monitoring."""
 
     async def run_monitoring():
@@ -283,16 +316,20 @@ def monitor(interval: int, websocket_endpoint: str, duration: int | None):
     asyncio.run(run_monitoring())
 
 
-@dashboard_commands.command()
-@click.option(
-    "--dashboard-type",
-    type=click.Choice(["executive", "operational", "analytical", "performance"]),
-    default="analytical",
-    help="Dashboard type to compare",
-)
-@click.option("--metrics", multiple=True, help="Specific metrics to compare")
-@click.option("--time-period", type=int, default=30, help="Time period in days")
-def compare(dashboard_type: str, metrics: list[str], time_period: int):
+@app.command()
+def compare(
+    dashboard_type: str = typer.Option(
+        "analytical",
+        "--dashboard-type",
+        help="Dashboard type to compare (executive, operational, analytical, performance)",
+    ),
+    metrics: list[str] = typer.Option(
+        [], "--metrics", help="Specific metrics to compare"
+    ),
+    time_period: int = typer.Option(
+        30, "--time-period", help="Time period in days"
+    ),
+):
     """Compare dashboard metrics across different time periods."""
 
     async def run_comparison():
@@ -336,18 +373,23 @@ def compare(dashboard_type: str, metrics: list[str], time_period: int):
     asyncio.run(run_comparison())
 
 
-@dashboard_commands.command()
-@click.option("--dashboard-id", required=True, help="Dashboard ID to export")
-@click.option(
-    "--format",
-    "export_format",
-    type=click.Choice(["html", "png", "pdf", "svg", "json"]),
-    default="html",
-    help="Export format",
-)
-@click.option("--output", required=True, help="Output file path")
-@click.option("--config-file", help="Export configuration file")
-def export(dashboard_id: str, export_format: str, output: str, config_file: str | None):
+@app.command()
+def export(
+    dashboard_id: str = typer.Option(
+        ..., "--dashboard-id", help="Dashboard ID to export"
+    ),
+    export_format: str = typer.Option(
+        "html",
+        "--format",
+        help="Export format (html, png, pdf, svg, json)",
+    ),
+    output: str = typer.Option(
+        ..., "--output", help="Output file path"
+    ),
+    config_file: str | None = typer.Option(
+        None, "--config-file", help="Export configuration file"
+    ),
+):
     """Export dashboard to various formats."""
 
     async def run_export():
@@ -411,23 +453,30 @@ def export(dashboard_id: str, export_format: str, output: str, config_file: str 
     asyncio.run(run_export())
 
 
-@dashboard_commands.command()
-@click.option("--clear-cache", is_flag=True, help="Clear dashboard cache")
-@click.option("--reset-metrics", is_flag=True, help="Reset metrics history")
-@click.option("--force", is_flag=True, help="Force cleanup without confirmation")
-def cleanup(clear_cache: bool, reset_metrics: bool, force: bool):
+@app.command()
+def cleanup(
+    clear_cache: bool = typer.Option(
+        False, "--clear-cache", help="Clear dashboard cache"
+    ),
+    reset_metrics: bool = typer.Option(
+        False, "--reset-metrics", help="Reset metrics history"
+    ),
+    force: bool = typer.Option(
+        False, "--force", help="Force cleanup without confirmation"
+    ),
+):
     """Clean up dashboard service resources."""
 
     async def run_cleanup():
         if not force:
             if clear_cache:
-                confirm = click.confirm("Clear all cached dashboards?")
+                confirm = typer.confirm("Clear all cached dashboards?")
                 if not confirm:
                     console.print("[yellow]Cache cleanup cancelled[/yellow]")
                     return
 
             if reset_metrics:
-                confirm = click.confirm("Reset all metrics history?")
+                confirm = typer.confirm("Reset all metrics history?")
                 if not confirm:
                     console.print("[yellow]Metrics reset cancelled[/yellow]")
                     return
@@ -703,5 +752,10 @@ def _display_metrics_comparison(
     console.print(table)
 
 
+# Allow stand-alone execution
+def main():
+    """Main entry point for stand-alone execution."""
+    app()
+
 if __name__ == "__main__":
-    dashboard_commands()
+    main()
