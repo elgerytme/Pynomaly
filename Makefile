@@ -42,6 +42,7 @@ help: ## Show this help message
 	@echo "Security:"
 	@echo "  make security-scan  - Run comprehensive security scan (bandit, safety, pip-audit)"
 	@echo "  make security-ci    - Run scan & fail on high severity"
+	@echo "  make aggregate-sarif SARIF_FILES='...' - Aggregate SARIF files into combined.sarif"
 	@echo ""
 	@echo "Build & Package:"
 	@echo "  make build          - Build wheel and source distribution"
@@ -213,6 +214,15 @@ env-clean: ## Clean and recreate environments
 security-ci: ## Run scan & fail on high severity
 	@echo "🔒 Running security scan (CI mode)..."
 	hatch env run security:scan --severity HIGH
+
+aggregate-sarif: ## Aggregate SARIF files into combined.sarif
+	@echo "📊 Aggregating SARIF files..."
+	@if [ -z "$(SARIF_FILES)" ]; then \
+		echo "Usage: make aggregate-sarif SARIF_FILES='file1.sarif file2.sarif'"; \
+		exit 1; \
+	fi
+	python scripts/aggregate_sarif.py $(SARIF_FILES)
+	@echo "✅ SARIF files aggregated into combined.sarif"
 
 # === PRE-COMMIT & CI ===
 
