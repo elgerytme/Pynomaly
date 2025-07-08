@@ -18,7 +18,7 @@ import pytest
 
 # Try to import domain entities - use try/except for optional imports
 try:
-    from pynomaly.domain.entities import Dataset, Detector, DetectionResult
+    from pynomaly.domain.entities import Dataset, DetectionResult, Detector
     from pynomaly.domain.value_objects import AnomalyScore
 
     DOMAIN_ENTITIES_AVAILABLE = True

@@ -9,15 +9,16 @@ Tests critical functionality across all system components.
 
 import asyncio
 import json
+import logging
 import sys
 import time
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+
 import httpx
 import psycopg2
 import redis
-import logging
-from dataclasses import dataclass
-from pathlib import Path
 
 # Configure logging
 logging.basicConfig(

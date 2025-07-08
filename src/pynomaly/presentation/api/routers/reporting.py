@@ -3,19 +3,19 @@ FastAPI router for reporting and business metrics dashboard.
 """
 
 from datetime import datetime, timedelta
-from typing import List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
 
 from pynomaly.application.services.reporting_service import ReportingService
-from pynomaly.domain.entities.reporting import ReportType, TimeGranularity, MetricType
+from pynomaly.domain.entities.reporting import MetricType, ReportType, TimeGranularity
 from pynomaly.domain.entities.user import User
 from pynomaly.shared.exceptions import (
-    ValidationError,
     AuthorizationError,
     ReportNotFoundError,
+    ValidationError,
 )
 from pynomaly.shared.types import TenantId, UserId
 

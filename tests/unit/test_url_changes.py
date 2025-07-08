@@ -3,8 +3,8 @@
 Test script to verify URL routing changes from /web to /
 """
 
-import sys
 import os
+import sys
 from pathlib import Path
 
 # Add the src directory to the path
@@ -14,7 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 def test_app_imports():
     """Test that the app imports correctly after URL changes."""
     try:
-        from pynomaly.presentation.web.app import router, mount_web_ui, create_web_app
+        from pynomaly.presentation.web.app import create_web_app, mount_web_ui, router
 
         print("✅ App imports successfully")
         return True
@@ -29,8 +29,9 @@ def test_app_imports():
 def test_router_prefix():
     """Test that the router prefix has been updated."""
     try:
-        from pynomaly.presentation.web.app import mount_web_ui
         from fastapi import FastAPI
+
+        from pynomaly.presentation.web.app import mount_web_ui
 
         # Create a test FastAPI app
         app = FastAPI()

@@ -3,9 +3,10 @@
 import asyncio
 import logging
 import time
-from typing import Any, Dict, List, Optional, Tuple, Union
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple, Union
+
 import numpy as np
 import pandas as pd
 
@@ -25,19 +26,18 @@ except ImportError:
     LIME_AVAILABLE = False
 
 try:
+    from sklearn.ensemble import RandomForestClassifier
     from sklearn.inspection import permutation_importance
     from sklearn.tree import DecisionTreeClassifier
-    from sklearn.ensemble import RandomForestClassifier
 
     SKLEARN_AVAILABLE = True
 except ImportError:
     SKLEARN_AVAILABLE = False
 
+from ...infrastructure.monitoring.distributed_tracing import trace_operation
 from ..entities.anomaly import Anomaly
 from ..entities.dataset import Dataset
 from ..entities.detection_result import DetectionResult
-from ...infrastructure.monitoring.distributed_tracing import trace_operation
-
 
 logger = logging.getLogger(__name__)
 

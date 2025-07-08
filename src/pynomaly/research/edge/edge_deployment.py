@@ -1,12 +1,14 @@
 """Edge computing deployment system (streamlined version)"""
 
 from __future__ import annotations
-import numpy as np
-from typing import Dict, Any, Optional, List, Tuple
+
+import logging
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from dataclasses import dataclass
-import logging
+from typing import Any, Dict, List, Optional, Tuple
+
+import numpy as np
 
 logger = logging.getLogger(__name__)
 

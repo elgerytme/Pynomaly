@@ -8,14 +8,15 @@ Validate environment variable parsing in Settings.
 
 from __future__ import annotations
 
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
+from pynomaly.infrastructure.cache.redis_cache import RedisCache
 from pynomaly.infrastructure.config.settings import Settings
 from pynomaly.infrastructure.persistence.database import DatabaseManager
-from pynomaly.infrastructure.cache.redis_cache import RedisCache
 
 
 class TestPersistenceAdapter:

@@ -9,7 +9,6 @@ from typing import Any, Dict, List
 import pytest
 from playwright.sync_api import Page, expect
 from pytest_bdd import given, parsers, then, when
-
 from tests.ui.enhanced_page_objects.base_page import BasePage
 
 # Test data and configuration

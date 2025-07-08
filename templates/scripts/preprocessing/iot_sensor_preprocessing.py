@@ -24,11 +24,7 @@ from sklearn.feature_selection import VarianceThreshold
 from sklearn.impute import KNNImputer
 
 # Data processing imports
-from sklearn.preprocessing import (
-    MinMaxScaler,
-    RobustScaler,
-    StandardScaler,
-)
+from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
 from statsmodels.tsa.seasonal import seasonal_decompose
 
 # Setup logging

@@ -13,10 +13,7 @@ from rich.table import Table
 from pynomaly.application.services.cost_optimization_service import (
     CostOptimizationService,
 )
-from pynomaly.domain.entities.cost_optimization import (
-    CostBudget,
-    OptimizationStrategy,
-)
+from pynomaly.domain.entities.cost_optimization import CostBudget, OptimizationStrategy
 
 console = Console()
 

@@ -1,13 +1,14 @@
 """Real-time streaming anomaly detection processor."""
 
 import asyncio
+import json
 import logging
 import time
-from typing import Any, AsyncIterator, Dict, List, Optional, Union, Callable
 from dataclasses import dataclass, field
-from enum import Enum
-import json
 from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any, AsyncIterator, Callable, Dict, List, Optional, Union
+
 import numpy as np
 import pandas as pd
 
@@ -31,12 +32,11 @@ except ImportError:
 from ...domain.entities.dataset import Dataset
 from ...domain.entities.detection_result import DetectionResult
 from ...domain.services.advanced_detection_service import (
-    get_detection_service,
     DetectionAlgorithm,
+    get_detection_service,
 )
 from ...shared.config import Config
 from ..monitoring.distributed_tracing import trace_operation
-
 
 logger = logging.getLogger(__name__)
 
@@ -484,8 +484,10 @@ class StreamProcessor:
                 logger.error(f"Error in processing loop: {e}")
                 
                 # Implement retry logic with exponential backoff
+                from ...infrastructure.error_handling.recovery_strategies import (
+                    RetryStrategy,
+                )
                 from ...infrastructure.resilience.retry import retry_with_backoff
-                from ...infrastructure.error_handling.recovery_strategies import RetryStrategy
                 
                 retry_strategy = RetryStrategy(
                     max_retries=self.config.max_retries,

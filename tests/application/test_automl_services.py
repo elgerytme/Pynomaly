@@ -4,6 +4,7 @@ import uuid
 from unittest.mock import Mock, patch
 
 import pytest
+from tests.conftest_dependencies import requires_dependency
 
 from pynomaly.application.dto.automl_dto import (
     AlgorithmRecommendationRequestDTO,
@@ -18,7 +19,6 @@ from pynomaly.application.dto.automl_dto import (
 from pynomaly.application.services.automl_service import AutoMLService
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.exceptions import ProcessingError, ValidationError
-from tests.conftest_dependencies import requires_dependency
 
 
 @requires_dependency("optuna")

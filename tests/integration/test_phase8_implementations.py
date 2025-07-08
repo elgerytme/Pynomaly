@@ -3,12 +3,13 @@ Integration tests for Phase 8: Global Scale & Performance
 Tests all Phase 8 components and their integration
 """
 
-import pytest
-import numpy as np
+import os
+import sys
 from datetime import datetime
 from pathlib import Path
-import sys
-import os
+
+import numpy as np
+import pytest
 
 # Add src to path for testing
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
@@ -28,15 +29,11 @@ class TestPhase8Integration:
         """Test if multi-region deployment implementation is available"""
         try:
             from pynomaly.infrastructure.global_scale.multi_region_deployment import (
-                MultiRegionDeploymentOrchestrator,
-            )
-            from pynomaly.infrastructure.global_scale.multi_region_deployment import (
-                RegionConfig,
-                GlobalLoadBalancer,
-            )
-            from pynomaly.infrastructure.global_scale.multi_region_deployment import (
                 DataReplicationManager,
                 FailoverManager,
+                GlobalLoadBalancer,
+                MultiRegionDeploymentOrchestrator,
+                RegionConfig,
             )
 
             print("✅ Multi-region deployment implementations found")
@@ -49,14 +46,10 @@ class TestPhase8Integration:
         """Test if massive dataset processing implementation is available"""
         try:
             from pynomaly.infrastructure.global_scale.massive_dataset_processing import (
-                MassiveDatasetProcessor,
-            )
-            from pynomaly.infrastructure.global_scale.massive_dataset_processing import (
-                DistributedComputeCluster,
-            )
-            from pynomaly.infrastructure.global_scale.massive_dataset_processing import (
-                StreamingProcessor,
                 DataPartitionManager,
+                DistributedComputeCluster,
+                MassiveDatasetProcessor,
+                StreamingProcessor,
             )
 
             print("✅ Massive dataset processing implementations found")
@@ -69,15 +62,11 @@ class TestPhase8Integration:
         """Test if ultra-high performance implementation is available"""
         try:
             from pynomaly.infrastructure.performance_v2.ultra_high_performance import (
-                UltraHighPerformanceOrchestrator,
-            )
-            from pynomaly.infrastructure.performance_v2.ultra_high_performance import (
-                GPUClusterManager,
-                CustomKernelManager,
-            )
-            from pynomaly.infrastructure.performance_v2.ultra_high_performance import (
-                MemoryPool,
                 ComputeStream,
+                CustomKernelManager,
+                GPUClusterManager,
+                MemoryPool,
+                UltraHighPerformanceOrchestrator,
             )
 
             print("✅ Ultra-high performance implementations found")
@@ -90,15 +79,11 @@ class TestPhase8Integration:
         """Test if advanced caching v2 implementation is available"""
         try:
             from pynomaly.infrastructure.performance_v2.advanced_caching_v2 import (
-                AdvancedCacheOrchestrator,
-            )
-            from pynomaly.infrastructure.performance_v2.advanced_caching_v2 import (
-                MultiTierCache,
                 AccessPredictor,
-            )
-            from pynomaly.infrastructure.performance_v2.advanced_caching_v2 import (
-                PrefetchManager,
+                AdvancedCacheOrchestrator,
                 CacheWarmer,
+                MultiTierCache,
+                PrefetchManager,
             )
 
             print("✅ Advanced caching v2 implementations found")
@@ -111,14 +96,10 @@ class TestPhase8Integration:
         """Test if real-time processing enhancement implementation is available"""
         try:
             from pynomaly.infrastructure.performance_v2.real_time_processing_enhancement import (
-                RealTimeProcessingOrchestrator,
-            )
-            from pynomaly.infrastructure.performance_v2.real_time_processing_enhancement import (
-                UltraLowLatencyProcessor,
-            )
-            from pynomaly.infrastructure.performance_v2.real_time_processing_enhancement import (
-                StreamProcessor,
                 NetworkOptimizer,
+                RealTimeProcessingOrchestrator,
+                StreamProcessor,
+                UltraLowLatencyProcessor,
             )
 
             print("✅ Real-time processing enhancement implementations found")
@@ -131,14 +112,10 @@ class TestPhase8Integration:
         """Test if resource optimization implementation is available"""
         try:
             from pynomaly.infrastructure.performance_v2.resource_optimization import (
-                ResourceOptimizationOrchestrator,
-            )
-            from pynomaly.infrastructure.performance_v2.resource_optimization import (
-                DynamicResourceAllocator,
-            )
-            from pynomaly.infrastructure.performance_v2.resource_optimization import (
                 CostOptimizer,
+                DynamicResourceAllocator,
                 PerformanceOptimizer,
+                ResourceOptimizationOrchestrator,
             )
 
             print("✅ Resource optimization implementations found")
@@ -154,11 +131,9 @@ class TestPhase8Integration:
 
         try:
             from pynomaly.infrastructure.global_scale.multi_region_deployment import (
-                MultiRegionDeploymentOrchestrator,
-            )
-            from pynomaly.infrastructure.global_scale.multi_region_deployment import (
-                RegionConfig,
                 LoadBalancingStrategy,
+                MultiRegionDeploymentOrchestrator,
+                RegionConfig,
             )
 
             config = {
@@ -195,12 +170,8 @@ class TestPhase8Integration:
         try:
             from pynomaly.infrastructure.global_scale.massive_dataset_processing import (
                 MassiveDatasetProcessor,
-            )
-            from pynomaly.infrastructure.global_scale.massive_dataset_processing import (
                 ProcessingConfig,
                 ProcessingMode,
-            )
-            from pynomaly.infrastructure.global_scale.massive_dataset_processing import (
                 create_sample_dataset,
             )
 
@@ -234,14 +205,10 @@ class TestPhase8Integration:
 
         try:
             from pynomaly.infrastructure.performance_v2.ultra_high_performance import (
-                UltraHighPerformanceOrchestrator,
-            )
-            from pynomaly.infrastructure.performance_v2.ultra_high_performance import (
-                create_sample_hardware_profile,
-            )
-            from pynomaly.infrastructure.performance_v2.ultra_high_performance import (
                 OptimizationConfig,
                 OptimizationLevel,
+                UltraHighPerformanceOrchestrator,
+                create_sample_hardware_profile,
             )
 
             config = {
@@ -272,8 +239,6 @@ class TestPhase8Integration:
         try:
             from pynomaly.infrastructure.performance_v2.advanced_caching_v2 import (
                 AdvancedCacheOrchestrator,
-            )
-            from pynomaly.infrastructure.performance_v2.advanced_caching_v2 import (
                 CacheStrategy,
             )
 
@@ -299,12 +264,8 @@ class TestPhase8Integration:
 
         try:
             from pynomaly.infrastructure.performance_v2.real_time_processing_enhancement import (
-                RealTimeProcessingOrchestrator,
-            )
-            from pynomaly.infrastructure.performance_v2.real_time_processing_enhancement import (
                 ProcessingMode,
-            )
-            from pynomaly.infrastructure.performance_v2.real_time_processing_enhancement import (
+                RealTimeProcessingOrchestrator,
                 create_sample_real_time_data,
             )
 
@@ -336,12 +297,8 @@ class TestPhase8Integration:
 
         try:
             from pynomaly.infrastructure.performance_v2.resource_optimization import (
-                ResourceOptimizationOrchestrator,
-            )
-            from pynomaly.infrastructure.performance_v2.resource_optimization import (
                 OptimizationObjective,
-            )
-            from pynomaly.infrastructure.performance_v2.resource_optimization import (
+                ResourceOptimizationOrchestrator,
                 create_sample_resource_requirements,
             )
 

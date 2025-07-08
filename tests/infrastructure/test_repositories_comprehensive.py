@@ -9,10 +9,7 @@ import pytest
 
 from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
 from pynomaly.domain.exceptions import EntityNotFoundError, RepositoryError
-from pynomaly.domain.value_objects import (
-    AnomalyScore,
-    ContaminationRate,
-)
+from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
 from pynomaly.infrastructure.repositories import (
     DatabaseDatasetRepository,
     DatabaseDetectorRepository,

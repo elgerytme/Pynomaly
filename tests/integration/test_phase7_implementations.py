@@ -3,12 +3,13 @@ Integration tests for Phase 7: Research & Innovation Features
 Tests all Phase 7 components and their integration
 """
 
-import pytest
-import numpy as np
+import os
+import sys
 from datetime import datetime
 from pathlib import Path
-import sys
-import os
+
+import numpy as np
+import pytest
 
 # Add src to path for testing
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
@@ -29,14 +30,10 @@ class TestPhase7Integration:
         """Test if explainable AI implementations are available"""
         try:
             from pynomaly.research.explainability.explainable_ai import (
+                CounterfactualExplainer,
                 ExplainableAIOrchestrator,
-            )
-            from pynomaly.research.explainability.explainable_ai import (
                 LIMEExplainer,
                 SHAPExplainer,
-            )
-            from pynomaly.research.explainability.explainable_ai import (
-                CounterfactualExplainer,
             )
 
             print("✅ Explainable AI implementations found")
@@ -49,14 +46,10 @@ class TestPhase7Integration:
         """Test if synthetic data generation implementations are available"""
         try:
             from pynomaly.research.synthetic.synthetic_data_generation import (
-                SyntheticDataOrchestrator,
-            )
-            from pynomaly.research.synthetic.synthetic_data_generation import (
-                VanillaGANGenerator,
-                VAEGenerator,
-            )
-            from pynomaly.research.synthetic.synthetic_data_generation import (
                 StatisticalGenerator,
+                SyntheticDataOrchestrator,
+                VAEGenerator,
+                VanillaGANGenerator,
             )
 
             print("✅ Synthetic data generation implementations found")
@@ -68,9 +61,10 @@ class TestPhase7Integration:
     def test_causal_models_availability(self):
         """Test if causal anomaly detection models are available"""
         try:
-            from pynomaly.domain.models.causal import CausalGraph, CausalInferenceMethod
             from pynomaly.domain.models.causal import (
                 CausalAnomalyEvent,
+                CausalGraph,
+                CausalInferenceMethod,
                 InterventionSpecification,
             )
 
@@ -84,12 +78,10 @@ class TestPhase7Integration:
         """Test if multimodal fusion models are available"""
         try:
             from pynomaly.domain.models.multimodal import (
-                MultiModalDetector,
-                ModalityType,
-            )
-            from pynomaly.domain.models.multimodal import (
                 FusionStrategy,
                 ModalityEncoder,
+                ModalityType,
+                MultiModalDetector,
             )
 
             print("✅ Multimodal models found")
@@ -141,8 +133,6 @@ class TestPhase7Integration:
         try:
             from pynomaly.research.explainability.explainable_ai import (
                 ExplainableAIOrchestrator,
-            )
-            from pynomaly.research.explainability.explainable_ai import (
                 ExplanationMethod,
             )
 
@@ -173,14 +163,10 @@ class TestPhase7Integration:
 
         try:
             from pynomaly.research.synthetic.synthetic_data_generation import (
-                SyntheticDataOrchestrator,
-            )
-            from pynomaly.research.synthetic.synthetic_data_generation import (
-                SyntheticDataConfig,
-            )
-            from pynomaly.research.synthetic.synthetic_data_generation import (
-                SyntheticMethod,
                 DataType,
+                SyntheticDataConfig,
+                SyntheticDataOrchestrator,
+                SyntheticMethod,
             )
 
             orchestrator = SyntheticDataOrchestrator({})

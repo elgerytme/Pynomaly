@@ -17,8 +17,8 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 from pynomaly.domain.models.security import (
     AccessRequest,
-    AuditEvent,
     ActionType,
+    AuditEvent,
     PermissionType,
     SecurityPolicy,
     User,

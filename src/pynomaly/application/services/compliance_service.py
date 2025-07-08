@@ -5,30 +5,30 @@ Compliance and audit logging service.
 import hashlib
 import uuid
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from pynomaly.domain.entities.compliance import (
-    AuditEvent,
+    DEFAULT_COMPLIANCE_RULES,
     AuditAction,
+    AuditEvent,
     AuditSeverity,
+    BackupRecord,
+    ComplianceCheck,
     ComplianceFramework,
+    ComplianceReport,
+    ComplianceRule,
     DataClassification,
     DataRetentionPolicy,
-    ComplianceRule,
-    ComplianceCheck,
-    GDPRRequest,
     EncryptionKey,
-    BackupRecord,
-    ComplianceReport,
-    DEFAULT_COMPLIANCE_RULES,
+    GDPRRequest,
     get_default_retention_policies,
 )
-from pynomaly.shared.types import TenantId, UserId
 from pynomaly.shared.exceptions import (
-    ValidationError,
-    ComplianceError,
     AuthorizationError,
+    ComplianceError,
+    ValidationError,
 )
+from pynomaly.shared.types import TenantId, UserId
 
 
 class ComplianceService:

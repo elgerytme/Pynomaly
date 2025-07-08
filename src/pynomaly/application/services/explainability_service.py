@@ -8,9 +8,7 @@ from typing import Any
 
 import numpy as np
 
-from pynomaly.domain.services.explainability_service import (
-    CohortExplanation,
-)
+from pynomaly.domain.services.explainability_service import CohortExplanation
 from pynomaly.domain.services.explainability_service import (
     ExplainabilityService as DomainExplainabilityService,
 )

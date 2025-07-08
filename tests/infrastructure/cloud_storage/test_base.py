@@ -1,9 +1,10 @@
 """Unit tests for cloud storage base components."""
 
-import pytest
 from datetime import datetime
-from unittest.mock import Mock, AsyncMock
-from typing import Dict, Any
+from typing import Any, Dict
+from unittest.mock import AsyncMock, Mock
+
+import pytest
 
 from pynomaly.infrastructure.cloud_storage.base import (
     CloudStorageAdapter,

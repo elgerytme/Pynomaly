@@ -8,7 +8,6 @@ from typing import Any, Dict, List
 
 import pytest
 from playwright.sync_api import Page, expect
-
 from tests.ui.enhanced_page_objects.base_page import BasePage
 
 # Configuration

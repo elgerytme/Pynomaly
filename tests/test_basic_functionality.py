@@ -1,8 +1,8 @@
 """Basic functionality test to verify the refactor is working."""
 
-import pytest
 import numpy as np
 import pandas as pd
+import pytest
 
 
 def test_numpy_integration():

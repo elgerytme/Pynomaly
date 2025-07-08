@@ -1,7 +1,8 @@
 """Mock external clients for testing purposes using pytest-mock."""
 
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 
 
 @pytest.fixture

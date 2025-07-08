@@ -17,10 +17,7 @@ from pynomaly.domain.entities import Dataset, DetectionResult
 from pynomaly.domain.services.anomaly_scorer import AnomalyScorer
 from pynomaly.domain.services.ensemble_aggregator import EnsembleAggregator
 from pynomaly.domain.services.threshold_calculator import ThresholdCalculator
-from pynomaly.domain.value_objects import (
-    ContaminationRate,
-    PerformanceMetrics,
-)
+from pynomaly.domain.value_objects import ContaminationRate, PerformanceMetrics
 from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
 

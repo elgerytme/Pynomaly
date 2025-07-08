@@ -9,8 +9,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from .entities import Schedule, ScheduleExecution, ExecutionResult
-
+from .entities import ExecutionResult, Schedule, ScheduleExecution
 
 logger = logging.getLogger(__name__)
 

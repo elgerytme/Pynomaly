@@ -9,22 +9,23 @@ Tests cover:
 - Multivariate drift detection
 """
 
+from datetime import datetime, timedelta
+
 import numpy as np
 import pandas as pd
 import pytest
 from sklearn.datasets import make_classification
-from datetime import datetime, timedelta
 
 from pynomaly.domain.entities import Dataset, Detector
 from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
 from pynomaly.infrastructure.adapters.drift_detection_adapter import (
+    DistanceBasedDriftDetector,
     DriftDetectionAdapter,
     DriftDetectionResult,
     DriftSeverity,
     DriftType,
-    StatisticalDriftDetector,
-    DistanceBasedDriftDetector,
     PerformanceBasedDriftDetector,
+    StatisticalDriftDetector,
     StreamingDriftDetector,
 )
 

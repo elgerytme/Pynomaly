@@ -9,7 +9,6 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from .jwt_auth import JWTAuthService, get_auth
 from .middleware import get_current_user
 
-
 security = HTTPBearer()
 
 

@@ -16,9 +16,7 @@ from pynomaly.application.services.explainable_ai_service import (
     ExplainableAIService,
     ExplanationConfiguration,
 )
-from pynomaly.domain.entities.explainable_ai import (
-    ExplanationMethod,
-)
+from pynomaly.domain.entities.explainable_ai import ExplanationMethod
 from pynomaly.infrastructure.config.container import Container
 
 console = Console()

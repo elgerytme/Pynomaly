@@ -5,6 +5,7 @@ Serialized model handling is experimental and behind a feature flag.
 """
 
 from __future__ import annotations
+
 import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union

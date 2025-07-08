@@ -12,11 +12,11 @@ import pytest
 def test_user_models_import():
     """Test that user models can be imported without circular dependencies."""
     from src.pynomaly.infrastructure.persistence.user_models import (
-        UserModel,
-        RoleModel,
-        PermissionModel,
         APIKeyModel,
+        PermissionModel,
+        RoleModel,
         TenantModel,
+        UserModel,
     )
 
     assert UserModel is not None
@@ -28,8 +28,8 @@ def test_user_models_import():
 
 def test_auth_jwt_service():
     """Test JWT auth service functionality."""
-    from src.pynomaly.infrastructure.config import Settings
     from src.pynomaly.infrastructure.auth.jwt_auth import JWTAuthService
+    from src.pynomaly.infrastructure.config import Settings
 
     # Create test settings
     settings = Settings()
@@ -45,6 +45,7 @@ def test_auth_jwt_service():
 def test_create_require_role_dependency():
     """Test creating role-based dependency functions."""
     from fastapi import HTTPException
+
     from src.pynomaly.infrastructure.auth.middleware import PermissionChecker
 
     # Test creating a role checker
@@ -74,8 +75,8 @@ def test_default_roles_and_permissions():
 
 def test_api_key_generation():
     """Test API key generation and hashing."""
-    from src.pynomaly.infrastructure.config import Settings
     from src.pynomaly.infrastructure.auth.jwt_auth import JWTAuthService
+    from src.pynomaly.infrastructure.config import Settings
 
     settings = Settings()
     auth_service = JWTAuthService(settings)

@@ -4,11 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, EmailStr
 
 from pynomaly.infrastructure.auth import (
+    UserModel,
     get_auth,
     require_role,
     require_super_admin,
     require_tenant_admin,
-    UserModel,
 )
 from pynomaly.infrastructure.config import Container
 from pynomaly.presentation.api.auth_deps import (

@@ -10,11 +10,7 @@ from typing import Dict, List
 import numpy as np
 import psutil
 import pytest
-
-from tests.integration.conftest import (
-    IntegrationTestAssertions,
-    IntegrationTestHelper,
-)
+from tests.integration.conftest import IntegrationTestAssertions, IntegrationTestHelper
 
 
 @pytest.mark.performance

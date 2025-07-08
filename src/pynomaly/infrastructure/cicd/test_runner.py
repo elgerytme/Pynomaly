@@ -10,12 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
 from uuid import UUID, uuid4
 
-from pynomaly.domain.models.cicd import (
-    PipelineStatus,
-    TestResult,
-    TestSuite,
-    TestType,
-)
+from pynomaly.domain.models.cicd import PipelineStatus, TestResult, TestSuite, TestType
 
 
 class TestRunner:

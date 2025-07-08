@@ -14,18 +14,18 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import numpy as np
 from sklearn.metrics import (
     accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
-    roc_auc_score,
-    precision_recall_curve,
+    adjusted_rand_score,
     auc,
     average_precision_score,
-    confusion_matrix,
     classification_report,
-    silhouette_score,
-    adjusted_rand_score,
+    confusion_matrix,
+    f1_score,
     normalized_mutual_info_score,
+    precision_recall_curve,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+    silhouette_score,
 )
 
 

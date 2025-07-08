@@ -3,8 +3,8 @@
 Production readiness test - logging, health checks, monitoring, security
 """
 
-import sys
 import os
+import sys
 
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))

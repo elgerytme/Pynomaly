@@ -2,7 +2,7 @@
 Shared exception classes for the Pynomaly application.
 """
 
-from typing import Optional, Any, Dict
+from typing import Any, Dict, Optional
 
 
 class PynomaryError(Exception):

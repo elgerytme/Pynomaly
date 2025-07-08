@@ -6,26 +6,27 @@ import asyncio
 import logging
 from datetime import datetime, timedelta
 
+from src.pynomaly.domain.services.advanced_detection_service import DetectionAlgorithm
+from src.pynomaly.domain.services.processing_orchestrator import ProcessingOrchestrator
+
 # Import the enhanced monitoring components
 from src.pynomaly.infrastructure.batch.batch_processor import (
-    BatchProcessor,
     BatchConfig,
     BatchEngine,
+    BatchProcessor,
 )
-from src.pynomaly.domain.services.processing_orchestrator import ProcessingOrchestrator
+from src.pynomaly.infrastructure.monitoring.alerting_system import (
+    AlertRule,
+    AlertSeverity,
+    AlertType,
+    NotificationConfig,
+    NotificationType,
+    get_alerting_system,
+    setup_default_alerts,
+)
 from src.pynomaly.infrastructure.monitoring.prometheus_metrics_enhanced import (
     get_metrics_collector,
 )
-from src.pynomaly.infrastructure.monitoring.alerting_system import (
-    get_alerting_system,
-    setup_default_alerts,
-    NotificationConfig,
-    NotificationType,
-    AlertRule,
-    AlertType,
-    AlertSeverity,
-)
-from src.pynomaly.domain.services.advanced_detection_service import DetectionAlgorithm
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)

@@ -1,18 +1,19 @@
 """AutoML service for automated anomaly detection model selection and optimization."""
 
 import asyncio
+import itertools
 import logging
 import time
-from typing import Any, Dict, List, Optional, Tuple, Union
 from dataclasses import dataclass, field
 from enum import Enum
-import itertools
+from typing import Any, Dict, List, Optional, Tuple, Union
+
 import numpy as np
 import pandas as pd
 
 try:
-    from sklearn.model_selection import ParameterGrid, cross_val_score, StratifiedKFold
-    from sklearn.metrics import roc_auc_score, f1_score, precision_score, recall_score
+    from sklearn.metrics import f1_score, precision_score, recall_score, roc_auc_score
+    from sklearn.model_selection import ParameterGrid, StratifiedKFold, cross_val_score
     from sklearn.preprocessing import LabelEncoder
 
     SKLEARN_AVAILABLE = True
@@ -20,33 +21,32 @@ except ImportError:
     SKLEARN_AVAILABLE = False
 
 try:
-    from optuna import create_study, Trial
-    from optuna.samplers import TPESampler
+    from optuna import Trial, create_study
     from optuna.pruners import MedianPruner
+    from optuna.samplers import TPESampler
 
     OPTUNA_AVAILABLE = True
 except ImportError:
     OPTUNA_AVAILABLE = False
 
 try:
-    from hyperopt import fmin, tpe, hp, Trials, STATUS_OK
+    from hyperopt import STATUS_OK, Trials, fmin, hp, tpe
 
     HYPEROPT_AVAILABLE = True
 except ImportError:
     HYPEROPT_AVAILABLE = False
 
+from ...infrastructure.monitoring.distributed_tracing import trace_operation
 from ..entities.dataset import Dataset
 from ..entities.detection_result import DetectionResult
 from .advanced_detection_service import (
     AdvancedDetectionService,
-    DetectionAlgorithm,
     AlgorithmConfig,
+    DetectionAlgorithm,
     EnsembleConfig,
     ScalingMethod,
     get_detection_service,
 )
-from ...infrastructure.monitoring.distributed_tracing import trace_operation
-
 
 logger = logging.getLogger(__name__)
 

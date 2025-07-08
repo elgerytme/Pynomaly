@@ -10,11 +10,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from pynomaly.infrastructure.auth.middleware import (
-    require_role,
     require_analyst,
     require_data_scientist,
-    require_tenant_admin,
+    require_role,
     require_super_admin,
+    require_tenant_admin,
     require_viewer,
 )
 from pynomaly.infrastructure.persistence.user_models import UserModel

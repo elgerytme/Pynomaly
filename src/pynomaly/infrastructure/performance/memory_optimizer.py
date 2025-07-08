@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import gc
 import logging
-import psutil
 import sys
 import tracemalloc
 from contextlib import contextmanager
@@ -15,6 +14,7 @@ from weakref import WeakSet
 
 import numpy as np
 import pandas as pd
+import psutil
 
 logger = logging.getLogger(__name__)
 

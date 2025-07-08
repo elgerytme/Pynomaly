@@ -5,6 +5,7 @@ Simple URL routing test to verify the refactoring works without full dependencie
 
 import sys
 from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 

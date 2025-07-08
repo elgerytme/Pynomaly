@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Test script to verify API versioning implementation."""
 
-import re
 import os
+import re
 import sys
 
 

@@ -1,12 +1,12 @@
-from sqlalchemy import Boolean, Column, DateTime, String, Text, ForeignKey, Table
-from sqlalchemy.orm import relationship, declarative_base
+import json
+from datetime import datetime
+from uuid import UUID
+
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String, Table, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
+from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.types import VARCHAR, TypeDecorator
-from uuid import UUID
-from datetime import datetime
-import json
-
 
 # Create a separate base for user models to avoid circular imports
 Base = declarative_base()

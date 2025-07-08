@@ -1,11 +1,12 @@
 """Unit tests for CI/CD pipeline service."""
 
 import asyncio
-import pytest
 from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
+
+import pytest
 
 from pynomaly.domain.models.cicd import (
     DeploymentEnvironment,

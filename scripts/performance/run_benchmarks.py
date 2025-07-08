@@ -250,8 +250,8 @@ class PerformanceBenchmarkRunner:
             # Import benchmarking service
             sys.path.insert(0, str(self.project_root / "src"))
             from pynomaly.application.services.performance_benchmarking_service import (
-                PerformanceBenchmarkingService,
                 BenchmarkConfig,
+                PerformanceBenchmarkingService,
             )
 
             # Create service

@@ -2,13 +2,15 @@
 
 import asyncio
 import json
+from pathlib import Path
+from unittest.mock import AsyncMock, Mock, patch
+
 import numpy as np
 import pandas as pd
 import pytest
-from pathlib import Path
-from unittest.mock import Mock, patch, AsyncMock
 
 from pynomaly.domain.entities.dataset import Dataset
+from pynomaly.domain.services.advanced_detection_service import DetectionAlgorithm
 from pynomaly.domain.services.automl_service import (
     AutoMLService,
     OptimizationConfig,
@@ -17,7 +19,6 @@ from pynomaly.domain.services.automl_service import (
     SearchStrategy,
     get_automl_service,
 )
-from pynomaly.domain.services.advanced_detection_service import DetectionAlgorithm
 
 
 class TestAutoMLService:

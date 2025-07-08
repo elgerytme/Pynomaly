@@ -9,7 +9,6 @@ import pytest
 
 from pynomaly.infrastructure.adapters.algorithm_factory import AlgorithmFactory
 
-
 # Optional PyTorch imports with fallbacks
 try:
     import torch

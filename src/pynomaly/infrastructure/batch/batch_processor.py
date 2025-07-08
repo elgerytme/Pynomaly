@@ -1,21 +1,22 @@
 """Large-scale batch processing for anomaly detection."""
 
 import asyncio
-import logging
-import time
-import os
-import tempfile
-import shutil
-from typing import Any, Dict, List, Optional, Union, AsyncIterator, Callable
-from dataclasses import dataclass, field
-from enum import Enum
-from datetime import datetime, timedelta
-import uuid
-import pickle
 import json
+import logging
+import os
+import pickle
+import shutil
+import tempfile
+import time
+import uuid
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from enum import Enum
+from pathlib import Path
+from typing import Any, AsyncIterator, Callable, Dict, List, Optional, Union
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
 
 try:
     import dask
@@ -43,12 +44,11 @@ except ImportError:
 from ...domain.entities.dataset import Dataset
 from ...domain.entities.detection_result import DetectionResult
 from ...domain.services.advanced_detection_service import (
-    get_detection_service,
     DetectionAlgorithm,
+    get_detection_service,
 )
 from ...shared.config import Config
 from ..monitoring.distributed_tracing import trace_operation
-
 
 logger = logging.getLogger(__name__)
 

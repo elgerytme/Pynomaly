@@ -1,10 +1,10 @@
 """Base cloud storage adapter and models."""
 
+import io
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any, Dict, List, Optional, BinaryIO, Union
 from pathlib import Path
-import io
+from typing import Any, BinaryIO, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field
 

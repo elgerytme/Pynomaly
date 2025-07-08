@@ -1,12 +1,12 @@
 """Mutation testing fixtures that extend the root conftest.py."""
 
 # Import all fixtures from root conftest
-from ..conftest import *
-
 # Mutation-specific fixtures
 import numpy as np
 import pandas as pd
 import pytest
+
+from ..conftest import *
 
 try:
     from pynomaly.domain.entities import Dataset, Detector

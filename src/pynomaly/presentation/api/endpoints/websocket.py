@@ -11,8 +11,8 @@ from pynomaly.application.services.task_tracking_service import (
     TaskInfo,
     TaskTrackingService,
 )
+from pynomaly.infrastructure.auth import create_websocket_auth_dependency, get_auth
 from pynomaly.infrastructure.config import Container
-from pynomaly.infrastructure.auth import get_auth, create_websocket_auth_dependency
 from pynomaly.presentation.api.deps import get_container
 
 router = APIRouter()

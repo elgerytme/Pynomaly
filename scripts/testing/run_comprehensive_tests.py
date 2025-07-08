@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Comprehensive test runner for Pynomaly with coverage analysis."""
 
-import os
-import sys
-import subprocess
 import argparse
+import os
+import subprocess
+import sys
 import time
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 
 class TestRunner:

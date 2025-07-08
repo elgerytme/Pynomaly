@@ -9,6 +9,10 @@ from uuid import uuid4
 import factory
 import pandas as pd
 from factory import fuzzy
+from tests.factories.value_object_factories import (
+    AnomalyScoreFactory,
+    ContaminationRateFactory,
+)
 
 from pynomaly.domain.entities.anomaly import Anomaly
 from pynomaly.domain.entities.dataset import Dataset
@@ -17,7 +21,6 @@ from pynomaly.domain.entities.detector import Detector
 from pynomaly.domain.entities.training_result import TrainingResult
 from pynomaly.domain.entities.user import User
 from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from tests.factories.value_object_factories import AnomalyScoreFactory, ContaminationRateFactory
 
 
 class AnomalyFactory(factory.Factory):

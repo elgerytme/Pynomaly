@@ -1,12 +1,14 @@
 """AutoML 2.0 with neural architecture search (streamlined version)"""
 
 from __future__ import annotations
-import numpy as np
-from typing import Dict, Any, Optional, List, Tuple
+
+import logging
+from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from dataclasses import dataclass, field
-import logging
+from typing import Any, Dict, List, Optional, Tuple
+
+import numpy as np
 
 logger = logging.getLogger(__name__)
 

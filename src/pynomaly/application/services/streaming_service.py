@@ -25,9 +25,7 @@ from pynomaly.domain.entities.streaming_session import (
     StreamingMetrics,
     StreamingSession,
 )
-from pynomaly.shared.protocols.repository_protocol import (
-    ModelRepositoryProtocol,
-)
+from pynomaly.shared.protocols.repository_protocol import ModelRepositoryProtocol
 
 logger = logging.getLogger(__name__)
 

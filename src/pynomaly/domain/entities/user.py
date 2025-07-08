@@ -10,7 +10,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Dict, List, Optional, Set
 
-from pynomaly.shared.types import UserId, TenantId, RoleId
+from pynomaly.shared.types import RoleId, TenantId, UserId
 
 
 class UserRole(str, Enum):

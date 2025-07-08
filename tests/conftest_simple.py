@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import asyncio
+
+import numpy as np
 import pandas as pd
 import pytest
-import numpy as np
 
 
 # Simple settings for testing

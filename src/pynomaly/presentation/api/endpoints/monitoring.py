@@ -5,6 +5,11 @@ from typing import Any, Dict, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from pydantic import BaseModel
 
+from pynomaly.infrastructure.auth import (
+    UserModel,
+    require_super_admin,
+    require_tenant_admin,
+)
 from pynomaly.infrastructure.monitoring.health_checks import (
     ProbeResponse,
     SystemHealth,
@@ -15,11 +20,6 @@ from pynomaly.infrastructure.monitoring.health_checks import (
 from pynomaly.infrastructure.monitoring.prometheus_metrics import (
     PrometheusMetricsService,
     get_metrics_service,
-)
-from pynomaly.infrastructure.auth import (
-    UserModel,
-    require_tenant_admin,
-    require_super_admin,
 )
 from pynomaly.infrastructure.monitoring.telemetry import get_telemetry
 from pynomaly.presentation.api.docs.response_models import (

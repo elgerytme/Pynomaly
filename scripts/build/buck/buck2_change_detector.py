@@ -4,15 +4,15 @@ Buck2 Change Detection System for Pynomaly
 Identifies affected files and their dependencies for incremental testing.
 """
 
+import argparse
 import json
+import logging
 import os
 import subprocess
 import sys
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Dict, List, Set, Optional, Tuple
-import argparse
-import logging
+from typing import Dict, List, Optional, Set, Tuple
 
 # Configure logging
 logging.basicConfig(

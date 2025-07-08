@@ -2,13 +2,13 @@
 
 import asyncio
 import logging
+import secrets
 import time
+import uuid
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Set
-from dataclasses import dataclass, field
-import uuid
-import secrets
 
 from pynomaly.shared.config import Config
 
@@ -21,8 +21,7 @@ def get_telemetry_service():
     return None
 
 
-from ..compliance.audit_system import get_audit_system, EventType, Severity
-
+from ..compliance.audit_system import EventType, Severity, get_audit_system
 
 logger = logging.getLogger(__name__)
 

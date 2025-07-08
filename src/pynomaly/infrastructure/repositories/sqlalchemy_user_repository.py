@@ -7,39 +7,39 @@ from datetime import datetime
 from typing import List, Optional
 
 from sqlalchemy import (
-    Column,
-    String,
-    DateTime,
     Boolean,
-    Text,
-    Integer,
+    Column,
+    DateTime,
     Float,
     ForeignKey,
+    Integer,
+    String,
     Table,
+    Text,
 )
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
-from sqlalchemy.dialects.postgresql import UUID, JSONB
 
 from pynomaly.domain.entities.user import (
-    User,
-    Tenant,
-    UserSession,
-    UserTenantRole,
-    UserRole,
-    UserStatus,
-    TenantStatus,
-    TenantPlan,
-    TenantLimits,
-    TenantUsage,
     Permission,
+    Tenant,
+    TenantLimits,
+    TenantPlan,
+    TenantStatus,
+    TenantUsage,
+    User,
+    UserRole,
+    UserSession,
+    UserStatus,
+    UserTenantRole,
 )
 from pynomaly.domain.repositories.user_repository import (
-    UserRepositoryProtocol,
-    TenantRepositoryProtocol,
     SessionRepositoryProtocol,
+    TenantRepositoryProtocol,
+    UserRepositoryProtocol,
 )
-from pynomaly.shared.types import UserId, TenantId
+from pynomaly.shared.types import TenantId, UserId
 
 Base = declarative_base()
 

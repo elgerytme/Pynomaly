@@ -4,9 +4,10 @@ Simple smoke test for API endpoints after auth migration
 """
 
 import sys
-import requests
 import time
 from multiprocessing import Process
+
+import requests
 import uvicorn
 
 

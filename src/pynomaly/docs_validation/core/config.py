@@ -1,11 +1,12 @@
 """Configuration management for documentation validation."""
 
 import os
-import yaml
-from pathlib import Path
-from typing import List, Dict, Any, Optional, Union
 from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
+
 import structlog
+import yaml
 
 logger = structlog.get_logger(__name__)
 
@@ -89,7 +90,14 @@ class ValidationConfig:
             return cls()
         
         try:
-            import tomllib if hasattr(__builtins__, 'tomllib') else tomli
+            import tomllib
+
+            import 'tomllib'
+            import __builtins__
+            import else
+            import hasattr
+            import if
+            import tomli
             
             with open(pyproject_path, 'rb') as f:
                 pyproject_data = tomllib.load(f) if hasattr(__builtins__, 'tomllib') else tomli.load(f)

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import gc
 import logging
-import psutil
 import threading
 import time
 from contextlib import contextmanager
@@ -14,6 +13,7 @@ from uuid import UUID
 
 import numpy as np
 import pandas as pd
+import psutil
 from memory_profiler import profile
 
 logger = logging.getLogger(__name__)
@@ -283,8 +283,8 @@ class ModelMemoryOptimizer:
     @staticmethod
     def optimize_model_storage(model: Any, compression_level: int = 1) -> bytes:
         """Optimize model storage using compression."""
-        import pickle
         import lzma
+        import pickle
 
         # Serialize model
         model_bytes = pickle.dumps(model)
@@ -304,8 +304,8 @@ class ModelMemoryOptimizer:
     @staticmethod
     def load_optimized_model(compressed_data: bytes, compression_level: int = 1) -> Any:
         """Load model from optimized storage."""
-        import pickle
         import lzma
+        import pickle
 
         # Decompress based on level
         if compression_level == 0:
@@ -323,8 +323,8 @@ class ModelMemoryOptimizer:
     @staticmethod
     def get_model_memory_usage(model: Any) -> Dict[str, Any]:
         """Get model memory usage information."""
-        import sys
         import pickle
+        import sys
 
         # Get object size
         size_bytes = sys.getsizeof(model)

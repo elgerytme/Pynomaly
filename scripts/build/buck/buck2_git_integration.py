@@ -4,18 +4,18 @@ Buck2 Git Integration for Pynomaly
 Advanced Git integration for change detection and commit-based testing.
 """
 
+import argparse
 import json
+import logging
 import os
+import re
 import subprocess
 import sys
 import time
-from dataclasses import dataclass, asdict
-from pathlib import Path
-from typing import Dict, List, Set, Optional, Tuple, Union
-import argparse
-import logging
-import re
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 # Import our change detector
 from buck2_change_detector import Buck2ChangeDetector, ChangeAnalysis

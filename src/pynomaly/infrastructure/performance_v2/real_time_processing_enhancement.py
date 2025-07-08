@@ -5,11 +5,11 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
+from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union, Callable, Deque
-from collections import deque
+from typing import Any, Callable, Deque, Dict, List, Optional, Tuple, Union
 from uuid import UUID, uuid4
 
 import numpy as np

@@ -5,15 +5,15 @@ This script monitors Buck2 build performance in CI/CD environments,
 tracking cache effectiveness, build times, and providing alerts for regressions.
 """
 
-import os
-import sys
-import json
-import time
 import argparse
+import json
+import os
 import subprocess
-from pathlib import Path
-from typing import Dict, List, Any, Optional
+import sys
+import time
 from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 
 class Buck2CIPerformanceMonitor:

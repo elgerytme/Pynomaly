@@ -4,12 +4,13 @@ import asyncio
 import io
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, BinaryIO, Union
+from typing import Any, BinaryIO, Dict, List, Optional, Union
+
 import aiofiles
 from azure.storage.blob.aio import BlobServiceClient
 
-from .base import CloudStorageAdapter, CloudStorageConfig, StorageMetadata
 from ...shared.exceptions import CloudStorageError
+from .base import CloudStorageAdapter, CloudStorageConfig, StorageMetadata
 
 
 class AzureAdapter(CloudStorageAdapter):

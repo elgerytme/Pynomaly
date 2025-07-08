@@ -7,7 +7,6 @@ from typing import Any, Dict, List
 
 import pytest
 from playwright.async_api import Page, expect
-
 from tests.ui.conftest import ACCESSIBILITY_REPORTS_DIR, TEST_CONFIG, UITestHelper
 
 

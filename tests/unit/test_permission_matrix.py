@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Test script for permission matrix functionality."""
 
-import sys
 import os
+import sys
 from pathlib import Path
 
 # Add the src directory to the path to import our modules
@@ -13,15 +13,15 @@ try:
     # Test direct import without triggering package imports
     import importlib.util
 
-    # Minimal import to avoid circular dependencies
-    from src.pynomaly.domain.security.permission_matrix import (
-        PermissionMatrix,
-        ResourceType,
-        ActionType,
-    )
-
     # Define mock user entities here
     from enum import Enum
+
+    # Minimal import to avoid circular dependencies
+    from src.pynomaly.domain.security.permission_matrix import (
+        ActionType,
+        PermissionMatrix,
+        ResourceType,
+    )
 
     class UserRole(str, Enum):
         SUPER_ADMIN = "super_admin"

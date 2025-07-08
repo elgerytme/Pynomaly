@@ -2,32 +2,32 @@
 FastAPI router for user management and multi-tenancy.
 """
 
+import hashlib
+import secrets
 from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
-import secrets
-import hashlib
 
-from fastapi import APIRouter, Depends, HTTPException, status, Request
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, EmailStr, Field
 
 from pynomaly.application.services.user_management_service import UserManagementService
-from pynomaly.domain.entities.user import UserRole, TenantPlan, UserStatus, TenantStatus
+from pynomaly.domain.entities.user import TenantPlan, TenantStatus, UserRole, UserStatus
 from pynomaly.infrastructure.security.audit_logging import (
-    get_audit_logger,
     AuditEventType,
     AuditSeverity,
+    get_audit_logger,
 )
 from pynomaly.shared.exceptions import (
-    UserNotFoundError,
-    TenantNotFoundError,
-    ValidationError,
     AuthenticationError,
     AuthorizationError,
     ResourceLimitError,
+    TenantNotFoundError,
+    UserNotFoundError,
+    ValidationError,
 )
-from pynomaly.shared.types import UserId, TenantId
+from pynomaly.shared.types import TenantId, UserId
 
 # Router setup
 router = APIRouter(prefix="/api/users", tags=["User Management"])
@@ -126,12 +126,13 @@ async def get_user_management_service() -> UserManagementService:
     """Get user management service instance."""
     # TODO: Implement proper dependency injection
     # For now, this is a placeholder
-    from pynomaly.infrastructure.repositories.sqlalchemy_user_repository import (
-        SQLAlchemyUserRepository,
-        SQLAlchemyTenantRepository,
-        SQLAlchemySessionRepository,
-    )
     from sqlalchemy.orm import sessionmaker
+
+    from pynomaly.infrastructure.repositories.sqlalchemy_user_repository import (
+        SQLAlchemySessionRepository,
+        SQLAlchemyTenantRepository,
+        SQLAlchemyUserRepository,
+    )
 
     # This should be injected via container
     session_factory = sessionmaker()  # Configure with actual database

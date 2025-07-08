@@ -10,10 +10,7 @@ import numpy as np
 from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult
 from pynomaly.domain.services import AnomalyScorer, EnsembleAggregator
 from pynomaly.domain.value_objects import AnomalyScore
-from pynomaly.shared.protocols import (
-    DetectorProtocol,
-    DetectorRepositoryProtocol,
-)
+from pynomaly.shared.protocols import DetectorProtocol, DetectorRepositoryProtocol
 
 
 class EnsembleService:

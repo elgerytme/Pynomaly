@@ -1,42 +1,43 @@
 """Advanced data preprocessing for anomaly detection."""
 
 import asyncio
+import json
 import logging
 import warnings
-from typing import Any, Dict, List, Optional, Tuple, Union, Callable
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+
 import numpy as np
 import pandas as pd
-from datetime import datetime
-import json
 
 try:
-    from sklearn.preprocessing import (
-        StandardScaler,
-        RobustScaler,
-        MinMaxScaler,
-        MaxAbsScaler,
-        PowerTransformer,
-        QuantileTransformer,
-        LabelEncoder,
-        OneHotEncoder,
-    )
-    from sklearn.impute import SimpleImputer, KNNImputer, IterativeImputer
+    from sklearn.compose import ColumnTransformer
     from sklearn.decomposition import PCA, FastICA, TruncatedSVD
+    from sklearn.ensemble import RandomForestRegressor
     from sklearn.feature_selection import (
-        SelectKBest,
-        SelectPercentile,
         RFE,
         RFECV,
+        SelectKBest,
+        SelectPercentile,
         VarianceThreshold,
-        mutual_info_regression,
-        f_regression,
         chi2,
+        f_regression,
+        mutual_info_regression,
     )
-    from sklearn.compose import ColumnTransformer
+    from sklearn.impute import IterativeImputer, KNNImputer, SimpleImputer
     from sklearn.pipeline import Pipeline
-    from sklearn.ensemble import RandomForestRegressor
+    from sklearn.preprocessing import (
+        LabelEncoder,
+        MaxAbsScaler,
+        MinMaxScaler,
+        OneHotEncoder,
+        PowerTransformer,
+        QuantileTransformer,
+        RobustScaler,
+        StandardScaler,
+    )
 
     SKLEARN_AVAILABLE = True
 except ImportError:

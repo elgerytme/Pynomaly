@@ -4,17 +4,17 @@ Buck2 Incremental Test Runner for Pynomaly
 Runs only tests affected by changes for faster feedback loops.
 """
 
+import argparse
 import json
+import logging
 import os
 import subprocess
 import sys
 import time
-from dataclasses import dataclass, asdict
-from pathlib import Path
-from typing import Dict, List, Set, Optional, Tuple
-import argparse
-import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import asdict, dataclass
+from pathlib import Path
+from typing import Dict, List, Optional, Set, Tuple
 
 # Import our change detector
 from buck2_change_detector import Buck2ChangeDetector, ChangeAnalysis

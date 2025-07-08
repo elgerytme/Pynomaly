@@ -35,10 +35,7 @@ from pynomaly.infrastructure.security.advanced_threat_detection import (
     create_advanced_threat_detectors,
 )
 from pynomaly.infrastructure.security.audit_logger import SecurityEventType
-from pynomaly.infrastructure.security.security_monitor import (
-    AlertType,
-    ThreatLevel,
-)
+from pynomaly.infrastructure.security.security_monitor import AlertType, ThreatLevel
 from pynomaly.infrastructure.security.security_service import (
     AuditEventType,
     SecurityConfig,

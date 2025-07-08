@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Test that database models can be created without import errors."""
 
+import sqlite3
 import sys
 from pathlib import Path
-import sqlite3
+
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
@@ -15,11 +16,11 @@ try:
     # Import database models directly to check for metadata issues
     from pynomaly.infrastructure.persistence.database_repositories import (
         Base,
-        UserModel,
-        TenantModel,
-        RoleModel,
-        UserRoleModel,
         MetricModel,
+        RoleModel,
+        TenantModel,
+        UserModel,
+        UserRoleModel,
     )
 
     print("✓ Successfully imported all database models")

@@ -24,7 +24,6 @@ from pynomaly.infrastructure.config import Container
 # Temporarily disabled telemetry
 # from pynomaly.infrastructure.monitoring import init_telemetry
 from pynomaly.presentation.api.docs import api_docs, configure_openapi_docs
-from pynomaly.presentation.api.router_factory import apply_openapi_overrides
 from pynomaly.presentation.api.endpoints import (
     admin,
     auth,
@@ -44,6 +43,7 @@ from pynomaly.presentation.api.endpoints import (
     streaming,
     version,
 )
+from pynomaly.presentation.api.router_factory import apply_openapi_overrides
 from pynomaly.presentation.api.routers import user_management
 
 # Enhanced AutoML endpoints

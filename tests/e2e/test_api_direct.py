@@ -3,8 +3,8 @@
 Direct API test without server - tests app creation and endpoint verification
 """
 
-import sys
 import os
+import sys
 import traceback
 
 # Add src to path
@@ -72,8 +72,8 @@ def test_authentication_dependencies():
     try:
         print("🔐 Testing authentication dependencies...")
         from pynomaly.presentation.api.auth_deps import (
-            get_current_user_simple,
             get_container_simple,
+            get_current_user_simple,
         )
 
         # Test that functions exist and are callable

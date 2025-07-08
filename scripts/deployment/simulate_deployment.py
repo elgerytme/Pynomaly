@@ -4,14 +4,15 @@ Deployment simulation script to test URL refactoring from /web to /
 """
 
 import os
-import sys
-import time
-import subprocess
-import requests
-import threading
-from pathlib import Path
-from contextlib import contextmanager
 import signal
+import subprocess
+import sys
+import threading
+import time
+from contextlib import contextmanager
+from pathlib import Path
+
+import requests
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
@@ -55,8 +56,9 @@ class DeploymentSimulator:
                 os.environ["PYTHONPATH"] = str(Path(__file__).parent / "src")
 
                 # Import after setting path
-                from pynomaly.presentation.web.app import create_web_app
                 import uvicorn
+
+                from pynomaly.presentation.web.app import create_web_app
 
                 print("Creating web application...")
                 app = create_web_app()

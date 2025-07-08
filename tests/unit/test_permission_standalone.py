@@ -4,12 +4,12 @@ Standalone test for permission matrix functionality.
 This loads the permission matrix module directly without importing the full package.
 """
 
-import sys
 import os
-from pathlib import Path
-from enum import Enum
+import sys
 from dataclasses import dataclass
-from typing import Set, List, Dict
+from enum import Enum
+from pathlib import Path
+from typing import Dict, List, Set
 
 
 # Define the UserRole and Permission classes needed by the permission matrix

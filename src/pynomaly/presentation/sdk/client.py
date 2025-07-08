@@ -17,12 +17,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 from .config import SDKConfig, load_config
-from .exceptions import (
-    NetworkError,
-    PynomaliSDKError,
-    TimeoutError,
-    map_http_error,
-)
+from .exceptions import NetworkError, PynomaliSDKError, TimeoutError, map_http_error
 from .models import (
     AlgorithmType,
     DataFormat,

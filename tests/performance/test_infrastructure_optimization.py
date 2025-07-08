@@ -3,8 +3,8 @@
 Infrastructure optimization test - caching, monitoring, telemetry
 """
 
-import sys
 import os
+import sys
 
 # Add src to path
 sys.path.insert(0, "src")

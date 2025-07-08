@@ -9,32 +9,32 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 
 from pynomaly.domain.entities.user import (
-    User,
     Tenant,
-    UserSession,
-    UserTenantRole,
-    UserRole,
-    UserStatus,
-    TenantStatus,
-    TenantPlan,
     TenantLimits,
+    TenantPlan,
+    TenantStatus,
     TenantUsage,
+    User,
+    UserRole,
+    UserSession,
+    UserStatus,
+    UserTenantRole,
     get_default_permissions,
 )
 from pynomaly.domain.repositories.user_repository import (
-    UserRepositoryProtocol,
-    TenantRepositoryProtocol,
     SessionRepositoryProtocol,
+    TenantRepositoryProtocol,
+    UserRepositoryProtocol,
 )
 from pynomaly.shared.exceptions import (
-    UserNotFoundError,
-    TenantNotFoundError,
-    ValidationError,
     AuthenticationError,
     AuthorizationError,
     ResourceLimitError,
+    TenantNotFoundError,
+    UserNotFoundError,
+    ValidationError,
 )
-from pynomaly.shared.types import UserId, TenantId
+from pynomaly.shared.types import TenantId, UserId
 
 
 class UserManagementService:

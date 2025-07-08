@@ -5,12 +5,12 @@ Compares Buck2 build performance against standard Python tools
 to demonstrate the benefits of Buck2 + Hatch integration.
 """
 
+import json
+import statistics
 import subprocess
 import time
-import statistics
 from pathlib import Path
-from typing import Dict, List, Any
-import json
+from typing import Any, Dict, List
 
 
 class Buck2PerformanceBenchmark:

@@ -1,15 +1,16 @@
 """Performance tests for Pynomaly."""
 
 import time
-import pytest
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from unittest.mock import MagicMock, patch
+
 import numpy as np
 import pandas as pd
-from unittest.mock import patch, MagicMock
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import pytest
 
-from pynomaly.domain.entities import Dataset, Detector
 from pynomaly.application.use_cases.detect_anomalies import DetectAnomaliesUseCase
 from pynomaly.application.use_cases.train_detector import TrainDetectorUseCase
+from pynomaly.domain.entities import Dataset, Detector
 
 
 @pytest.mark.performance
@@ -70,8 +71,9 @@ class TestDetectionPerformance:
     @pytest.mark.slow
     def test_memory_usage_large_dataset(self, performance_data):
         """Test memory usage with large datasets."""
-        import psutil
         import os
+
+        import psutil
 
         process = psutil.Process(os.getpid())
         initial_memory = process.memory_info().rss / 1024 / 1024  # MB
@@ -180,9 +182,9 @@ class TestDatabasePerformance:
         """Test bulk insert performance."""
         try:
             from pynomaly.infrastructure.persistence.database_repositories import (
+                DatabaseDatasetRepository,
                 DatasetModel,
                 DetectorModel,
-                DatabaseDatasetRepository,
             )
         except ImportError:
             pytest.skip("Database repositories not available")
@@ -334,8 +336,9 @@ class TestMemoryEfficiency:
     def test_no_memory_leaks_in_detection(self, sample_dataset, sample_detector):
         """Test that detection doesn't leak memory."""
         import gc
-        import psutil
         import os
+
+        import psutil
 
         process = psutil.Process(os.getpid())
 

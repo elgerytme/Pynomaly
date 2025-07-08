@@ -10,11 +10,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from pynomaly.domain.entities import (
-    Dataset,
-    DetectionResult,
-    Detector,
-)
+from pynomaly.domain.entities import Dataset, DetectionResult, Detector
 
 # from pynomaly.domain.services import (
 #     DetectionService, EnsembleService, ModelValidationService,

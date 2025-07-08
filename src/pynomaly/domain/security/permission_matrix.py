@@ -9,8 +9,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Set, List
-from pynomaly.domain.entities.user import UserRole, Permission
+from typing import Dict, List, Set
+
+from pynomaly.domain.entities.user import Permission, UserRole
 
 
 class ResourceType(str, Enum):

@@ -27,24 +27,25 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import load_only, selectinload, sessionmaker
 from sqlalchemy.sql import Select
 
+from pynomaly.domain.entities import Dataset, DetectionResult, Detector
+from pynomaly.shared.protocols import (
+    DatasetRepositoryProtocol,
+    DetectionResultRepositoryProtocol,
+    DetectorRepositoryProtocol,
+)
+
 from .database_repositories import (
     Base,
     DatasetModel,
     DetectionResultModel,
     DetectorModel,
     JSONType,
-    UUIDType,
-    UserModel,
-    TenantModel,
-    RoleModel,
-    UserRoleModel,
     MetricModel,
-)
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.shared.protocols import (
-    DatasetRepositoryProtocol,
-    DetectionResultRepositoryProtocol,
-    DetectorRepositoryProtocol,
+    RoleModel,
+    TenantModel,
+    UserModel,
+    UserRoleModel,
+    UUIDType,
 )
 
 logger = logging.getLogger(__name__)

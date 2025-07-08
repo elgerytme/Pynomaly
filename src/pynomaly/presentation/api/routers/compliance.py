@@ -3,10 +3,10 @@ FastAPI router for compliance and audit logging.
 """
 
 from datetime import datetime, timedelta
-from typing import List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, EmailStr
 
 from pynomaly.application.services.compliance_service import ComplianceService
@@ -19,9 +19,9 @@ from pynomaly.domain.entities.compliance import (
 )
 from pynomaly.domain.entities.user import User
 from pynomaly.shared.exceptions import (
-    ValidationError,
-    ComplianceError,
     AuthorizationError,
+    ComplianceError,
+    ValidationError,
 )
 from pynomaly.shared.types import TenantId, UserId
 

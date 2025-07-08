@@ -4,8 +4,8 @@ from typing import Dict, List, Optional
 from uuid import UUID
 
 from pynomaly.domain.entities.anomaly import Anomaly
-from pynomaly.domain.entities.detector import Detector
 from pynomaly.domain.entities.detection_result import DetectionResult
+from pynomaly.domain.entities.detector import Detector
 
 
 class AnomalyRepository:

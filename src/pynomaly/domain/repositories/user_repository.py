@@ -6,13 +6,13 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 
 from pynomaly.domain.entities.user import (
-    User,
     Tenant,
+    User,
+    UserRole,
     UserSession,
     UserTenantRole,
-    UserRole,
 )
-from pynomaly.shared.types import UserId, TenantId
+from pynomaly.shared.types import TenantId, UserId
 
 
 class UserRepositoryProtocol(ABC):

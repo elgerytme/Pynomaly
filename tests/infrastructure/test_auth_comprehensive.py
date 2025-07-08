@@ -17,9 +17,7 @@ from pynomaly.infrastructure.auth.jwt_auth import (
     get_auth,
     init_auth,
 )
-from pynomaly.infrastructure.auth.middleware import (
-    AuthenticationMiddleware,
-)
+from pynomaly.infrastructure.auth.middleware import AuthenticationMiddleware
 from pynomaly.infrastructure.config.settings import Settings
 
 

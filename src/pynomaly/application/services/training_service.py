@@ -24,7 +24,7 @@ from sklearn.metrics import (
     recall_score,
     roc_auc_score,
 )
-from sklearn.model_selection import StratifiedKFold, train_test_split
+from sklearn.model_selection import train_test_split
 
 from pynomaly.application.dto.training_dto import (
     TrainingConfigDTO,

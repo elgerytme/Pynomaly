@@ -2,13 +2,6 @@
 
 from fastapi import APIRouter, FastAPI
 
-from pynomaly.presentation.api.dependencies import (
-    get_current_user_safe,
-    require_auth_safe,
-    get_container_simple,
-)
-from pynomaly.presentation.api.dependencies.container import get_container_safe
-
 # Import the existing complex auth dependencies that cause issues
 from pynomaly.infrastructure.auth import (
     get_current_user,
@@ -16,6 +9,12 @@ from pynomaly.infrastructure.auth import (
     require_analyst,
     require_viewer,
 )
+from pynomaly.presentation.api.dependencies import (
+    get_container_simple,
+    get_current_user_safe,
+    require_auth_safe,
+)
+from pynomaly.presentation.api.dependencies.container import get_container_safe
 
 # Also import deps that might be used in endpoints
 from pynomaly.presentation.api.deps import get_container

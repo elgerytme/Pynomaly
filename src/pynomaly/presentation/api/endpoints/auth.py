@@ -6,8 +6,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 
-from pynomaly.infrastructure.security.rbac_middleware import require_auth
-
 # from pydantic import EmailStr  # Temporarily disabled due to missing email-validator
 from pynomaly.domain.exceptions import AuthenticationError
 from pynomaly.infrastructure.auth import (
@@ -17,6 +15,7 @@ from pynomaly.infrastructure.auth import (
     get_auth,
 )
 from pynomaly.infrastructure.auth.middleware import get_current_user
+from pynomaly.infrastructure.security.rbac_middleware import require_auth
 
 router = APIRouter()
 

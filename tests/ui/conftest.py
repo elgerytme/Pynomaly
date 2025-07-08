@@ -1,8 +1,6 @@
 """UI Test Configuration - Playwright-specific fixtures that extend the root conftest.py."""
 
 # Import all fixtures from root conftest
-from ..conftest import *
-
 import asyncio
 import json
 import os
@@ -21,6 +19,8 @@ from playwright.async_api import (
     Playwright,
     async_playwright,
 )
+
+from ..conftest import *
 
 # Enhanced Configuration
 BASE_URL = os.getenv("PYNOMALY_BASE_URL", "http://localhost:8000")

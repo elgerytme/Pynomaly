@@ -4,24 +4,25 @@ Buck2 Impact Analysis Tool for Pynomaly
 Analyzes the impact of changes on the codebase and determines optimal test strategy.
 """
 
+import argparse
 import json
+import logging
 import os
 import subprocess
 import sys
 import time
-from dataclasses import dataclass, asdict
+from collections import Counter, defaultdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Dict, List, Set, Optional, Tuple, Union
-import argparse
-import logging
-from collections import defaultdict, Counter
-
-# import networkx as nx  # Not currently used
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 # Import our existing tools
 from buck2_change_detector import Buck2ChangeDetector, ChangeAnalysis
+from buck2_git_integration import BranchInfo, Buck2GitIntegration, CommitInfo
 from buck2_incremental_test import Buck2IncrementalTestRunner, TestRunSummary
-from buck2_git_integration import Buck2GitIntegration, CommitInfo, BranchInfo
+
+# import networkx as nx  # Not currently used
+
 
 # Configure logging
 logging.basicConfig(

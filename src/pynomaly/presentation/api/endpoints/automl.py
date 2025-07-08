@@ -492,8 +492,8 @@ async def run_automl(
             }
 
             # Save to storage (simplified)
-            import os
             import json
+            import os
 
             os.makedirs(storage_path, exist_ok=True)
             storage_file = os.path.join(

@@ -8,7 +8,7 @@ import math
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Iterator, Tuple, Union, Callable
+from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
 from uuid import UUID, uuid4
 
 import numpy as np

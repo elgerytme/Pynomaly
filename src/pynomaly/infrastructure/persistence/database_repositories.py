@@ -560,7 +560,7 @@ class DatabaseDetectionResultRepository(DetectionResultRepositoryProtocol):
 
 # User Management Models
 
-from sqlalchemy import ForeignKey, Float
+from sqlalchemy import Float, ForeignKey
 
 
 class UserModel(Base):

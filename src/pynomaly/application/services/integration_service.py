@@ -6,32 +6,32 @@ import asyncio
 import json
 import uuid
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
 
 import aiohttp
 from cryptography.fernet import Fernet
 
 from pynomaly.domain.entities.integrations import (
+    DEFAULT_TEMPLATES,
     Integration,
-    IntegrationType,
-    IntegrationStatus,
     IntegrationConfig,
     IntegrationCredentials,
+    IntegrationMetrics,
+    IntegrationStatus,
+    IntegrationType,
+    NotificationHistory,
+    NotificationLevel,
     NotificationPayload,
     NotificationTemplate,
-    NotificationHistory,
-    IntegrationMetrics,
     TriggerType,
-    NotificationLevel,
-    DEFAULT_TEMPLATES,
 )
-from pynomaly.shared.types import TenantId, UserId
 from pynomaly.shared.exceptions import (
-    ValidationError,
+    AuthenticationError,
     IntegrationError,
     NotificationError,
-    AuthenticationError,
+    ValidationError,
 )
+from pynomaly.shared.types import TenantId, UserId
 
 
 class IntegrationService:

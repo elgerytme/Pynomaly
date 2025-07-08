@@ -1,5 +1,6 @@
 """Infrastructure authentication and authorization."""
 
+from .dependencies import require_api_key, require_role_or_api_key
 from .jwt_auth import (
     JWTAuthService,
     TokenPayload,
@@ -29,13 +30,9 @@ from .middleware import (
     strict_limiter,
     track_request_metrics,
 )
-from .dependencies import (
-    require_api_key,
-    require_role_or_api_key,
-)
 from .websocket_auth import (
-    WebSocketAuthMiddleware,
     HTMXAuthMiddleware,
+    WebSocketAuthMiddleware,
     create_websocket_auth_dependency,
     get_htmx_user,
     require_htmx_auth,

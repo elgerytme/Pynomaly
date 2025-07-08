@@ -13,14 +13,14 @@ def test_auth_imports():
     print("Testing auth imports...")
 
     from pynomaly.infrastructure.auth import (
-        require_role,
-        require_api_key,
-        require_role_or_api_key,
-        WebSocketAuthMiddleware,
         HTMXAuthMiddleware,
         JWTAuthService,
+        WebSocketAuthMiddleware,
         get_auth,
         init_auth,
+        require_api_key,
+        require_role,
+        require_role_or_api_key,
     )
 
     print("✓ All auth components imported successfully")
@@ -77,8 +77,8 @@ def test_api_key_functionality():
     """Test API key generation and validation."""
     print("Testing API key functionality...")
 
-    from pynomaly.infrastructure.config import Settings
     from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService
+    from pynomaly.infrastructure.config import Settings
 
     settings = Settings()
     auth_service = JWTAuthService(settings)
@@ -108,9 +108,9 @@ def test_websocket_auth_middleware():
     """Test WebSocket authentication middleware."""
     print("Testing WebSocket auth middleware...")
 
+    from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService
     from pynomaly.infrastructure.auth.websocket_auth import WebSocketAuthMiddleware
     from pynomaly.infrastructure.config import Settings
-    from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService
 
     settings = Settings()
     auth_service = JWTAuthService(settings)
@@ -128,9 +128,9 @@ def test_htmx_auth_middleware():
     """Test HTMX authentication middleware."""
     print("Testing HTMX auth middleware...")
 
+    from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService
     from pynomaly.infrastructure.auth.websocket_auth import HTMXAuthMiddleware
     from pynomaly.infrastructure.config import Settings
-    from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService
 
     settings = Settings()
     auth_service = JWTAuthService(settings)

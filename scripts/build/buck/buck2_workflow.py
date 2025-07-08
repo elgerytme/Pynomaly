@@ -4,22 +4,22 @@ Buck2 Comprehensive Workflow Script for Pynomaly
 Main entry point for all Buck2 incremental testing operations.
 """
 
+import argparse
 import json
+import logging
 import os
 import subprocess
 import sys
 import time
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Dict, List, Set, Optional, Tuple, Union
-import argparse
-import logging
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 # Import our tools
 from buck2_change_detector import Buck2ChangeDetector, ChangeAnalysis
-from buck2_incremental_test import Buck2IncrementalTestRunner, TestRunSummary
-from buck2_git_integration import Buck2GitIntegration, CommitInfo, BranchInfo
+from buck2_git_integration import BranchInfo, Buck2GitIntegration, CommitInfo
 from buck2_impact_analyzer import Buck2ImpactAnalyzer, ImpactAnalysisResult
+from buck2_incremental_test import Buck2IncrementalTestRunner, TestRunSummary
 
 # Configure logging
 logging.basicConfig(

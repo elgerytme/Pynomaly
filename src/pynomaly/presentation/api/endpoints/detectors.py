@@ -12,10 +12,10 @@ from pynomaly.domain.entities import Detector
 from pynomaly.domain.value_objects import ContaminationRate
 from pynomaly.infrastructure.auth import (
     UserModel,
-    require_viewer,
     require_analyst,
     require_data_scientist,
     require_tenant_admin,
+    require_viewer,
 )
 from pynomaly.infrastructure.config import Container
 

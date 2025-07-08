@@ -14,7 +14,6 @@ from typing import Any, Dict, List, Optional
 
 import pytest
 from playwright.async_api import Browser, BrowserContext, Page, expect
-
 from tests.ui.accessibility.wcag_validation_framework import (
     WCAGLevel,
     WCAGValidationFramework,

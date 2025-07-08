@@ -15,7 +15,6 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import pytest
 from playwright.async_api import Browser, BrowserContext, Page
-
 from tests.ui.enhanced_page_objects.base_page import BasePage
 
 

@@ -26,6 +26,9 @@ from pynomaly.shared.exceptions import RepositoryError
 
 logger = logging.getLogger(__name__)
 
+# Alias for backwards compatibility
+TrainingRepository = TrainingRepositoryProtocol
+
 
 class TrainingRepositoryProtocol(ABC):
     """Protocol for training job repositories."""

@@ -1568,8 +1568,8 @@ async def explorer_logs_websocket(websocket):
     await websocket.accept()
 
     import asyncio
-    import time
     import json
+    import time
 
     try:
         while True:

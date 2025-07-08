@@ -8,9 +8,9 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Dict, List, Optional, Any, Union
+from typing import Any, Dict, List, Optional, Union
 
-from pynomaly.shared.types import UserId, TenantId, DatasetId, DetectorId
+from pynomaly.shared.types import DatasetId, DetectorId, TenantId, UserId
 
 
 class ReportType(str, Enum):

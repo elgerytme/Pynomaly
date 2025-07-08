@@ -2,8 +2,8 @@
 Shared type definitions for the Pynomaly application.
 """
 
-from typing import NewType, Union
 import uuid
+from typing import NewType, Union
 
 # Domain identifier types
 DatasetId = NewType("DatasetId", str)

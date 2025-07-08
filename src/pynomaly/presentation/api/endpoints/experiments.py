@@ -11,10 +11,10 @@ from pynomaly.application.dto import (
 )
 from pynomaly.infrastructure.auth import (
     UserModel,
-    require_viewer,
+    get_current_user,
     require_analyst,
     require_data_scientist,
-    get_current_user,
+    require_viewer,
 )
 from pynomaly.infrastructure.config import Container
 from pynomaly.presentation.api.deps import get_container

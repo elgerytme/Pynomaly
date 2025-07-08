@@ -20,9 +20,7 @@ from pynomaly.infrastructure.logging.log_analysis import (
     PatternType,
     Severity,
 )
-from pynomaly.infrastructure.logging.metrics_collector import (
-    MetricsCollector,
-)
+from pynomaly.infrastructure.logging.metrics_collector import MetricsCollector
 from pynomaly.infrastructure.logging.observability_service import (
     ObservabilityConfig,
     ObservabilityService,

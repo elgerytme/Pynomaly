@@ -3,10 +3,10 @@
 Test authentication flows with the new simplified dependencies
 """
 
-import sys
 import os
+import sys
 import traceback
-from unittest.mock import Mock, AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
@@ -19,9 +19,9 @@ def test_auth_deps_functionality():
     try:
         print("🔐 Testing auth dependencies functionality...")
         from pynomaly.presentation.api.auth_deps import (
-            get_current_user_simple,
-            get_current_user_model,
             get_container_simple,
+            get_current_user_model,
+            get_current_user_simple,
         )
 
         # Test 1: Dependencies are callable
@@ -82,6 +82,7 @@ def test_auth_integration_with_endpoints():
     try:
         print("🔗 Testing auth integration with endpoints...")
         from fastapi.testclient import TestClient
+
         from pynomaly.presentation.api.app import create_app
 
         app = create_app()
@@ -137,10 +138,9 @@ def test_no_circular_imports():
         print("🔄 Testing for circular import issues...")
 
         # Import auth dependencies
-        from pynomaly.presentation.api.auth_deps import get_current_user_simple
-
         # Import main app
         from pynomaly.presentation.api.app import create_app
+        from pynomaly.presentation.api.auth_deps import get_current_user_simple
 
         # Import endpoint modules that use auth deps
         from pynomaly.presentation.api.endpoints import (

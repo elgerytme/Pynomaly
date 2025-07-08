@@ -9,9 +9,7 @@ from pydantic import BaseModel, Field
 from pynomaly.application.services.streaming_pipeline_manager import (
     StreamingPipelineManager,
 )
-from pynomaly.infrastructure.streaming.real_time_anomaly_pipeline import (
-    AlertSeverity,
-)
+from pynomaly.infrastructure.streaming.real_time_anomaly_pipeline import AlertSeverity
 from pynomaly.presentation.api.deps import (
     get_current_user,
     get_streaming_pipeline_manager,

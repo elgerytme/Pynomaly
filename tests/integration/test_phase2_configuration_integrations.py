@@ -11,9 +11,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.application.dto.configuration_dto import (
-    ConfigurationSource,
-)
+from pynomaly.application.dto.configuration_dto import ConfigurationSource
 from pynomaly.application.services.automl_configuration_integration import (
     AutoMLConfigurationIntegration,
     AutoMLConfigurationManager,

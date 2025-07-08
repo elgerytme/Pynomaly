@@ -21,9 +21,7 @@ import structlog
 from structlog import get_logger
 
 from .health_service import HealthService, HealthStatus
-from .performance_monitor import (
-    PerformanceMonitor,
-)
+from .performance_monitor import PerformanceMonitor
 
 
 class LogLevel(Enum):

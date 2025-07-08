@@ -33,10 +33,10 @@ from pynomaly.application.services.advanced_automl_service import AdvancedAutoML
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.services.advanced_detection_service import DetectionAlgorithm
 from pynomaly.domain.services.automl_service import (
-    get_automl_service,
     OptimizationConfig,
     OptimizationMetric,
     SearchStrategy,
+    get_automl_service,
 )
 from pynomaly.infrastructure.config.feature_flags import require_feature
 

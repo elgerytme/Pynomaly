@@ -15,6 +15,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+import yaml
 
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.value_objects import AnomalyScore
@@ -60,9 +61,64 @@ class TestTrainingPerformanceRegression:
 
         return datasets
 
+
+def load_performance_config():
+    """Load performance configuration from YAML file."""
+    try:
+        with open('scripts/performance/performance_config.yml', 'r') as file:
+            return yaml.safe_load(file)
+    except FileNotFoundError:
+        return {}
+
+
+def get_threshold(config, category, metric, default):
+    """Get threshold value from config or return default."""
+    return config.get('algorithm_thresholds', {}).get('IsolationForest', {}).get(category, {}).get(metric, default)
+
+
+class TestTrainingPerformanceRegression:
+    """Test training performance regression across different scenarios."""
+
+    @pytest.fixture
+    def performance_datasets(self):
+        """Create datasets of different sizes for performance testing."""
+        datasets = {}
+
+        # Small dataset
+        np.random.seed(42)
+        small_data = np.random.normal(0, 1, (1000, 5))
+        datasets["small"] = Dataset(
+            name="Small Dataset",
+            data=pd.DataFrame(small_data, columns=[f"feature_{i}" for i in range(5)]),
+        )
+
+        # Medium dataset
+        medium_data = np.random.normal(0, 1, (10000, 10))
+        datasets["medium"] = Dataset(
+            name="Medium Dataset",
+            data=pd.DataFrame(medium_data, columns=[f"feature_{i}" for i in range(10)]),
+        )
+
+        # Large dataset
+        large_data = np.random.normal(0, 1, (50000, 5))
+        datasets["large"] = Dataset(
+            name="Large Dataset",
+            data=pd.DataFrame(large_data, columns=[f"feature_{i}" for i in range(5)]),
+        )
+
+        # Wide dataset (many features)
+        wide_data = np.random.normal(0, 1, (5000, 50))
+        datasets["wide"] = Dataset(
+            name="Wide Dataset",
+            data=pd.DataFrame(wide_data, columns=[f"feature_{i}" for i in range(50)]),
+        )
+
+        return datasets
+
     def test_isolation_forest_training_performance(self, performance_datasets):
         """Test IsolationForest training performance regression."""
         performance_results = {}
+        config = load_performance_config()
 
         for dataset_name, dataset in performance_datasets.items():
             try:
@@ -89,27 +145,17 @@ class TestTrainingPerformanceRegression:
                 }
 
                 # Performance thresholds based on dataset size
-                if dataset_name == "small":
-                    assert (
-                        training_time < 5.0
-                    ), f"Small dataset training too slow: {training_time}s"
-                elif dataset_name == "medium":
-                    assert (
-                        training_time < 30.0
-                    ), f"Medium dataset training too slow: {training_time}s"
-                elif dataset_name == "large":
-                    assert (
-                        training_time < 120.0
-                    ), f"Large dataset training too slow: {training_time}s"
-                elif dataset_name == "wide":
-                    assert (
-                        training_time < 60.0
-                    ), f"Wide dataset training too slow: {training_time}s"
+                default_time_threshold = {'small': 5.0, 'medium': 30.0, 'large': 120.0, 'wide': 60.0}
+                time_threshold = get_threshold(config, 'execution_time', 'max_execution_time_seconds', default_time_threshold[dataset_name])
+                assert (
+                    training_time < time_threshold
+                ), f"{dataset_name.capitalize()} dataset training too slow: {training_time}s"
 
                 # Throughput should be reasonable
+                min_throughput = get_threshold(config, 'throughput', 'min_throughput_samples_per_second', 100)
                 samples_per_second = dataset.n_samples / training_time
                 assert (
-                    samples_per_second > 100
+                    samples_per_second > min_throughput
                 ), f"Training throughput too low: {samples_per_second} samples/s"
 
             except ImportError:

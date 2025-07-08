@@ -15,6 +15,7 @@ import numpy as np
 from pydantic import BaseModel, Field
 
 from pynomaly.domain.entities import Dataset, Detector
+
 from .business_impact_scoring import (
     BusinessImpactAnalyzer,
     BusinessImpactScore,

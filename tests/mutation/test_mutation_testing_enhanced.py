@@ -11,9 +11,7 @@ from typing import Any
 import numpy as np
 import pytest
 
-from pynomaly.domain.value_objects import (
-    AnomalyScore,
-)
+from pynomaly.domain.value_objects import AnomalyScore
 
 
 class MutationOperator:

@@ -3,21 +3,22 @@
 import asyncio
 import logging
 import time
-from typing import Any, Dict, List, Optional, Tuple, Union
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple, Union
+
 import numpy as np
 import pandas as pd
 
 try:
-    from sklearn.ensemble import IsolationForest
-    from sklearn.neighbors import LocalOutlierFactor
-    from sklearn.svm import OneClassSVM
     from sklearn.cluster import DBSCAN
     from sklearn.covariance import EllipticEnvelope
-    from sklearn.preprocessing import StandardScaler, RobustScaler
     from sklearn.decomposition import PCA
-    from sklearn.metrics import roc_auc_score, precision_recall_curve
+    from sklearn.ensemble import IsolationForest
+    from sklearn.metrics import precision_recall_curve, roc_auc_score
+    from sklearn.neighbors import LocalOutlierFactor
+    from sklearn.preprocessing import RobustScaler, StandardScaler
+    from sklearn.svm import OneClassSVM
 
     SKLEARN_AVAILABLE = True
 except ImportError:
@@ -25,16 +26,16 @@ except ImportError:
 
 try:
     import pyod
-    from pyod.models.knn import KNN
     from pyod.models.abod import ABOD
     from pyod.models.auto_encoder import AutoEncoder
-    from pyod.models.vae import VAE
-    from pyod.models.ocsvm import OCSVM
-    from pyod.models.pca import PCA as PyOD_PCA
-    from pyod.models.mcd import MCD
-    from pyod.models.loda import LODA
     from pyod.models.copod import COPOD
     from pyod.models.ecod import ECOD
+    from pyod.models.knn import KNN
+    from pyod.models.loda import LODA
+    from pyod.models.mcd import MCD
+    from pyod.models.ocsvm import OCSVM
+    from pyod.models.pca import PCA as PyOD_PCA
+    from pyod.models.vae import VAE
 
     PYOD_AVAILABLE = True
 except ImportError:

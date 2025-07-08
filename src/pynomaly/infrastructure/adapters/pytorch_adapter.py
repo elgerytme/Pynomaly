@@ -1,5 +1,7 @@
 import torch
+
 from src.pynomaly.domain.detectors import Detector
+
 
 class PyTorchAdapter(Detector):
     def __init__(self, algorithm_name: str, **kwargs):

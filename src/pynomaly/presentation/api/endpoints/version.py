@@ -1,8 +1,9 @@
 """Version information endpoints."""
 
+from typing import List
+
 from fastapi import APIRouter
 from pydantic import BaseModel
-from typing import List
 
 from pynomaly.presentation.api.versioning import get_version_manager
 

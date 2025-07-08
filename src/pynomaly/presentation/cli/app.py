@@ -9,25 +9,19 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from pynomaly.presentation.cli import (
-    automl,
-    autonomous,
-    deep_learning,
-    explainability,
-    selection,
-)
+from pynomaly.presentation.cli import automl, autonomous
 from pynomaly.presentation.cli import config as config_cli
+from pynomaly.presentation.cli import datasets, deep_learning, detection, detectors
+from pynomaly.presentation.cli import enterprise_dashboard as dashboard
 from pynomaly.presentation.cli import (
-    datasets,
-    detection,
-    detectors,
+    explainability,
     preprocessing,
+    selection,
     server,
     tdd,
 )
 from pynomaly.presentation.cli.export import export_app
 from pynomaly.presentation.cli.performance import performance_app
-from pynomaly.presentation.cli import enterprise_dashboard as dashboard
 
 # These modules are now properly converted to Typer
 # from pynomaly.presentation.cli import deep_learning  # ✅ Now uses Typer - re-enabled below

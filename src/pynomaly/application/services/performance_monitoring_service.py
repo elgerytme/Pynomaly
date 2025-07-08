@@ -8,12 +8,12 @@ monitoring for anomaly detection workflows.
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import Any, List, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from ...domain.entities import Dataset, DetectionResult, Detector
 from ...domain.entities.model_performance import (
-    ModelPerformanceMetrics,
     ModelPerformanceBaseline,
+    ModelPerformanceMetrics,
 )
 from ...infrastructure.config.feature_flags import require_feature
 from ...infrastructure.monitoring.performance_monitor import (

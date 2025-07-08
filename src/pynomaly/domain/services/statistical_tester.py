@@ -5,11 +5,12 @@ This module provides statistical significance testing for comparing
 model performance metrics.
 """
 
-from typing import Dict, Any, List, Optional, Tuple
+import logging
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
 from scipy import stats
-from dataclasses import dataclass
-import logging
 
 logger = logging.getLogger(__name__)
 

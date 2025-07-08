@@ -2,17 +2,13 @@
 
 import asyncio
 import json
-import pytest
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, mock_open, patch
 from uuid import uuid4
 
-from pynomaly.domain.models.cicd import (
-    PipelineStatus,
-    TestResult,
-    TestSuite,
-    TestType,
-)
+import pytest
+
+from pynomaly.domain.models.cicd import PipelineStatus, TestResult, TestSuite, TestType
 from pynomaly.infrastructure.cicd.test_runner import TestRunner
 
 

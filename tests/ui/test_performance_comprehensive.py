@@ -10,7 +10,6 @@ from typing import Any, Dict, List, Optional
 
 import pytest
 from playwright.sync_api import Page
-
 from tests.ui.enhanced_page_objects.base_page import BasePage
 
 # Configuration

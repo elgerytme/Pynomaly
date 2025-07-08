@@ -2,11 +2,12 @@
 
 import asyncio
 import json
-import pytest
 from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
 from uuid import uuid4
+
+import pytest
 
 from pynomaly.domain.models.cicd import (
     DeploymentEnvironment,

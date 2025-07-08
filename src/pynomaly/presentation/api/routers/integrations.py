@@ -3,7 +3,7 @@ FastAPI router for third-party integrations management.
 """
 
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -11,20 +11,20 @@ from pydantic import BaseModel, HttpUrl
 
 from pynomaly.application.services.integration_service import IntegrationService
 from pynomaly.domain.entities.integrations import (
-    IntegrationType,
-    IntegrationStatus,
     IntegrationConfig,
+    IntegrationStatus,
+    IntegrationType,
     NotificationLevel,
-    TriggerType,
     NotificationPayload,
     NotificationTemplate,
+    TriggerType,
 )
 from pynomaly.domain.entities.user import User
 from pynomaly.shared.exceptions import (
-    ValidationError,
+    AuthenticationError,
     IntegrationError,
     NotificationError,
-    AuthenticationError,
+    ValidationError,
 )
 from pynomaly.shared.types import TenantId, UserId
 

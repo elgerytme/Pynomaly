@@ -1,14 +1,15 @@
 """Integration tests for Pynomaly major workflows."""
 
-import pytest
-import pandas as pd
+from unittest.mock import MagicMock, patch
+
 import numpy as np
-from unittest.mock import patch, MagicMock
+import pandas as pd
+import pytest
 from fastapi.testclient import TestClient
 
-from pynomaly.domain.entities import Dataset, Detector, DetectionResult
 from pynomaly.application.use_cases.detect_anomalies import DetectAnomaliesUseCase
 from pynomaly.application.use_cases.train_detector import TrainDetectorUseCase
+from pynomaly.domain.entities import Dataset, DetectionResult, Detector
 
 
 @pytest.mark.integration
@@ -454,8 +455,8 @@ class TestDatabaseIntegration:
         try:
             from pynomaly.infrastructure.persistence.database_repositories import (
                 DatabaseDatasetRepository,
-                DatabaseDetectorRepository,
                 DatabaseDetectionResultRepository,
+                DatabaseDetectorRepository,
             )
         except ImportError:
             pytest.skip("Database repositories not available")

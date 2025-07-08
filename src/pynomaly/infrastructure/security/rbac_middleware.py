@@ -17,16 +17,16 @@ from uuid import UUID
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from pynomaly.domain.entities.user import User, UserRole, Permission
+from pynomaly.domain.entities.user import Permission, User, UserRole
 from pynomaly.domain.security.permission_matrix import (
+    ActionType,
     PermissionMatrix,
     ResourceType,
-    ActionType,
     has_resource_access,
 )
-from pynomaly.infrastructure.security.rbac_service import RBACService
 from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService, get_auth
 from pynomaly.infrastructure.config import Container
+from pynomaly.infrastructure.security.rbac_service import RBACService
 
 logger = logging.getLogger(__name__)
 bearer_scheme = HTTPBearer(auto_error=False)

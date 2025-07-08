@@ -7,9 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from pynomaly.infrastructure.config import Container
-from pynomaly.infrastructure.monitoring.health_service import (
-    HealthService,
-)
+from pynomaly.infrastructure.monitoring.health_service import HealthService
 from pynomaly.presentation.api.deps import get_container
 from pynomaly.presentation.api.docs.response_models import HTTPResponses
 from pynomaly.presentation.api.docs.schema_examples import SchemaExamples

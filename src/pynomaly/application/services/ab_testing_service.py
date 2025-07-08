@@ -15,12 +15,7 @@ from uuid import UUID, uuid4
 import numpy as np
 from scipy import stats
 from sklearn.base import BaseEstimator
-from sklearn.metrics import (
-    accuracy_score,
-    f1_score,
-    precision_score,
-    recall_score,
-)
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 
 from pynomaly.application.services.auto_retraining_service import AutoRetrainingService
 from pynomaly.domain.entities.ab_test import ABTest

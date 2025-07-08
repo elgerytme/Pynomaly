@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Set
 from uuid import UUID
 
-from pynomaly.domain.entities.user import User, UserRole, Permission
+from pynomaly.domain.entities.user import Permission, User, UserRole
 from pynomaly.domain.security.permission_matrix import PermissionMatrix
 from pynomaly.infrastructure.security.rbac_service import RBACService
 

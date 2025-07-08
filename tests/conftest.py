@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import asyncio
 import os
-import tempfile
 import shutil
-from typing import Generator, AsyncGenerator
+import tempfile
+from typing import AsyncGenerator, Generator
 from unittest.mock import AsyncMock, MagicMock
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 import pytest
 from dependency_injector import providers
 from fastapi.testclient import TestClient
@@ -18,10 +18,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from pynomaly.domain.entities import Dataset, Detector, DetectionResult
+from pynomaly.domain.entities import Dataset, DetectionResult, Detector
 from pynomaly.domain.value_objects import AnomalyScore
-from pynomaly.infrastructure.config import Container, Settings
 from pynomaly.infrastructure.auth.jwt_auth import init_auth
+from pynomaly.infrastructure.config import Container, Settings
 
 # Optional imports for advanced features
 try:
