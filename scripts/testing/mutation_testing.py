@@ -10,7 +10,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 
-import click
+import typer
 
 
 class MutationTester:
@@ -487,27 +487,30 @@ class MutationTester:
         return str(output_path)
 
 
-@click.group()
-def cli():
+app = typer.Typer(name="mutation-testing", help="Mutation testing CLI for test quality assessment")
+
+@app.callback()
+def main():
     """Mutation testing CLI for test quality assessment."""
     logging.basicConfig(level=logging.INFO)
 
 
-@cli.command()
-@click.option("--paths", "-p", multiple=True, required=True, help="Paths to mutate")
-@click.option("--test-command", "-c", default="python -m pytest", help="Test command")
-@click.option("--timeout-factor", "-t", default=2.0, help="Timeout multiplier")
-@click.option("--max-mutations", "-m", type=int, help="Maximum mutations to test")
-@click.option("--output", "-o", default="mutation_results.json", help="Output file")
-@click.option("--report", "-r", default="mutation_report.html", help="HTML report file")
-def run(paths, test_command, timeout_factor, max_mutations, output, report):
+@app.command("run")
+def run(
+    paths: list[str] = typer.Option(..., "--paths", "-p", help="Paths to mutate"),
+    test_command: str = typer.Option("python -m pytest", "--test-command", "-c", help="Test command"),
+    timeout_factor: float = typer.Option(2.0, "--timeout-factor", "-t", help="Timeout multiplier"),
+    max_mutations: int = typer.Option(None, "--max-mutations", "-m", help="Maximum mutations to test"),
+    output: str = typer.Option("mutation_results.json", "--output", "-o", help="Output file"),
+    report: str = typer.Option("mutation_report.html", "--report", "-r", help="HTML report file"),
+):
     """Run mutation testing."""
     tester = MutationTester()
 
     try:
-        click.echo("🧬 Starting mutation testing...")
+        typer.echo("🧬 Starting mutation testing...")
         results = tester.run_mutation_testing(
-            target_paths=list(paths),
+            target_paths=paths,
             test_command=test_command,
             timeout_factor=timeout_factor,
             max_mutations=max_mutations,
@@ -515,47 +518,46 @@ def run(paths, test_command, timeout_factor, max_mutations, output, report):
 
         # Save results
         results_path = tester.save_results(output)
-        click.echo(f"📄 Results saved to: {results_path}")
-
+        typer.echo(f"📄 Results saved to: {results_path}")
+        
         # Generate report
         report_path = tester.generate_report(report)
-        click.echo(f"📊 Report generated: {report_path}")
+        typer.echo(f"📊 Report generated: {report_path}")
 
         # Print summary
         summary = results["summary"]
-        click.echo(f"\n🎯 Mutation Score: {summary['mutation_score']:.1f}%")
-        click.echo(f"   Total mutations: {summary['total_mutations']}")
-        click.echo(f"   Killed: {summary['killed']}")
-        click.echo(f"   Survived: {summary['survived']}")
-        click.echo(f"   Skipped: {summary['skipped']}")
+        typer.echo(f"\n🎯 Mutation Score: {summary['mutation_score']:.1f}%")
+        typer.echo(f"   Total mutations: {summary['total_mutations']}")
+        typer.echo(f"   Killed: {summary['killed']}")
+        typer.echo(f"   Survived: {summary['survived']}")
+        typer.echo(f"   Skipped: {summary['skipped']}")
 
         # Exit with non-zero code if mutation score is too low
         if summary["mutation_score"] < 60:
-            click.echo("⚠️  Mutation score below 60%, consider improving test quality")
+            typer.echo("⚠️  Mutation score below 60%, consider improving test quality")
             sys.exit(1)
         else:
-            click.echo("✅ Good mutation score!")
+            typer.echo("✅ Good mutation score!")
 
     except Exception as e:
-        click.echo(f"❌ Mutation testing failed: {e}")
+        typer.echo(f"❌ Mutation testing failed: {e}")
         sys.exit(1)
 
 
-@cli.command()
-@click.option("--domain-only", is_flag=True, help="Test only domain layer")
-@click.option(
-    "--fast", is_flag=True, help="Run fast mutation testing (limited mutations)"
-)
-def quick(domain_only, fast):
+@app.command("quick")
+def quick(
+    domain_only: bool = typer.Option(False, "--domain-only", help="Test only domain layer"),
+    fast: bool = typer.Option(False, "--fast", help="Run fast mutation testing (limited mutations)"),
+):
     """Run quick mutation testing on critical paths."""
     tester = MutationTester()
 
     if domain_only:
         paths = ["src/pynomaly/domain/"]
-        click.echo("🎯 Quick mutation testing: Domain layer only")
+        typer.echo("🎯 Quick mutation testing: Domain layer only")
     else:
         paths = ["src/pynomaly/domain/", "src/pynomaly/application/"]
-        click.echo("🎯 Quick mutation testing: Domain + Application layers")
+        typer.echo("🎯 Quick mutation testing: Domain + Application layers")
 
     max_mutations = 50 if fast else None
     test_command = "python -m pytest tests/domain/ tests/application/ -x"
@@ -572,17 +574,18 @@ def quick(domain_only, fast):
         report_path = tester.generate_report("quick_mutation_report.html")
 
         summary = results["summary"]
-        click.echo(f"\n🎯 Quick Mutation Score: {summary['mutation_score']:.1f}%")
-        click.echo(f"📊 Report: {report_path}")
+        typer.echo(f"\n🎯 Quick Mutation Score: {summary['mutation_score']:.1f}%")
+        typer.echo(f"📊 Report: {report_path}")
 
     except Exception as e:
-        click.echo(f"❌ Quick mutation testing failed: {e}")
+        typer.echo(f"❌ Quick mutation testing failed: {e}")
         sys.exit(1)
 
 
-@cli.command()
-@click.argument("results_file")
-def report(results_file):
+@app.command("report")
+def report(
+    results_file: str = typer.Argument(..., help="Results file path"),
+):
     """Generate HTML report from existing results."""
     tester = MutationTester()
 
@@ -591,12 +594,12 @@ def report(results_file):
             tester.results = json.load(f)
 
         report_path = tester.generate_report()
-        click.echo(f"📊 Report generated: {report_path}")
+        typer.echo(f"📊 Report generated: {report_path}")
 
     except Exception as e:
-        click.echo(f"❌ Report generation failed: {e}")
+        typer.echo(f"❌ Report generation failed: {e}")
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    cli()
+    app()

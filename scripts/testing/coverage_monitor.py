@@ -10,7 +10,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List
 
-import click
+import typer
 
 
 class CoverageMonitor:
@@ -436,16 +436,19 @@ class CoverageMonitor:
             return "unknown"
 
 
-@click.group()
-def cli():
+app = typer.Typer(name="coverage-monitor", help="Coverage monitoring CLI")
+
+@app.callback()
+def main():
     """Coverage monitoring CLI."""
     logging.basicConfig(level=logging.INFO)
 
 
-@cli.command()
-@click.option("--test-command", "-c", help="Custom test command to run")
-@click.option("--db-path", default="coverage_history.db", help="Database path")
-def run(test_command: str, db_path: str):
+@app.command("run")
+def run(
+    test_command: str = typer.Option(None, "--test-command", "-c", help="Custom test command to run"),
+    db_path: str = typer.Option("coverage_history.db", "--db-path", help="Database path"),
+):
     """Run coverage analysis and store results."""
     monitor = CoverageMonitor(db_path)
 
@@ -453,47 +456,49 @@ def run(test_command: str, db_path: str):
         coverage_data = monitor.run_coverage(test_command)
         run_id = monitor.store_coverage(coverage_data)
 
-        click.echo(f"✅ Coverage analysis complete!")
-        click.echo(f"📊 Total coverage: {coverage_data['total_coverage']:.1f}%")
-        click.echo(f"📁 Run ID: {run_id}")
+        typer.echo(f"✅ Coverage analysis complete!")
+        typer.echo(f"📊 Total coverage: {coverage_data['total_coverage']:.1f}%")
+        typer.echo(f"📁 Run ID: {run_id}")
 
         # Check for regression
         regression = monitor.check_coverage_regression()
         if regression["has_regression"]:
-            click.echo(f"⚠️  Coverage regression detected: {regression['message']}")
+            typer.echo(f"⚠️  Coverage regression detected: {regression['message']}")
             sys.exit(1)
         else:
-            click.echo(f"✅ {regression['message']}")
+            typer.echo(f"✅ {regression['message']}")
 
     except Exception as e:
-        click.echo(f"❌ Coverage analysis failed: {e}")
+        typer.echo(f"❌ Coverage analysis failed: {e}")
         sys.exit(1)
 
 
-@cli.command()
-@click.option("--days", "-d", default=30, help="Days to look back")
-@click.option("--db-path", default="coverage_history.db", help="Database path")
-def trends(days: int, db_path: str):
+@app.command("trends")
+def trends(
+    days: int = typer.Option(30, "--days", "-d", help="Days to look back"),
+    db_path: str = typer.Option("coverage_history.db", "--db-path", help="Database path"),
+):
     """Show coverage trends."""
     monitor = CoverageMonitor(db_path)
     trends_data = monitor.get_coverage_trends(days)
 
     if not trends_data:
-        click.echo("No coverage data found")
+        typer.echo("No coverage data found")
         return
 
-    click.echo(f"\n📈 Coverage trends (last {days} days):")
-    click.echo("-" * 60)
+    typer.echo(f"\n📈 Coverage trends (last {days} days):")
+    typer.echo("-" * 60)
 
     for trend in trends_data[-10:]:  # Show last 10 entries
         date = datetime.fromisoformat(trend["timestamp"]).strftime("%Y-%m-%d %H:%M")
-        click.echo(f"{date} | {trend['total_coverage']:6.1f}% | {trend['branch']}")
+        typer.echo(f"{date} | {trend['total_coverage']:6.1f}% | {trend['branch']}")
 
 
-@cli.command()
-@click.option("--output", "-o", default="coverage_report.html", help="Output file")
-@click.option("--db-path", default="coverage_history.db", help="Database path")
-def report(output: str, db_path: str):
+@app.command("report")
+def report(
+    output: str = typer.Option("coverage_report.html", "--output", "-o", help="Output file"),
+    db_path: str = typer.Option("coverage_history.db", "--db-path", help="Database path"),
+):
     """Generate HTML coverage report."""
     monitor = CoverageMonitor(db_path)
     html_report = monitor.generate_coverage_report()
@@ -501,26 +506,27 @@ def report(output: str, db_path: str):
     with open(output, "w") as f:
         f.write(html_report)
 
-    click.echo(f"📄 Coverage report generated: {output}")
+    typer.echo(f"📄 Coverage report generated: {output}")
 
 
-@cli.command()
-@click.option("--threshold", "-t", default=2.0, help="Regression threshold (%)")
-@click.option("--db-path", default="coverage_history.db", help="Database path")
-def check(threshold: float, db_path: str):
+@app.command("check")
+def check(
+    threshold: float = typer.Option(2.0, "--threshold", "-t", help="Regression threshold (%)"),
+    db_path: str = typer.Option("coverage_history.db", "--db-path", help="Database path"),
+):
     """Check for coverage regression."""
     monitor = CoverageMonitor(db_path)
     regression = monitor.check_coverage_regression(threshold)
 
     if regression["has_regression"]:
-        click.echo(f"❌ Coverage regression detected!")
-        click.echo(f"   {regression['message']}")
-        click.echo(f"   Threshold: {threshold}%")
+        typer.echo(f"❌ Coverage regression detected!")
+        typer.echo(f"   {regression['message']}")
+        typer.echo(f"   Threshold: {threshold}%")
         sys.exit(1)
     else:
-        click.echo(f"✅ No coverage regression detected")
-        click.echo(f"   {regression['message']}")
+        typer.echo(f"✅ No coverage regression detected")
+        typer.echo(f"   {regression['message']}")
 
 
 if __name__ == "__main__":
-    cli()
+    app()

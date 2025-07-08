@@ -2,6 +2,16 @@
 
 This directory contains comprehensive security scanning tools for the Pynomaly project.
 
+## Scripts
+
+### `run_security_scans.py` - Python Code Security Scanning
+
+Comprehensive security scanning script that runs multiple security tools and aggregates results into a unified report with GitHub Actions integration.
+
+### `run_container_scans.py` - Container Security Scanning
+
+Container security scanning script that runs Trivy and Clair scans on Docker images and Dockerfiles, generates SBOMs, and produces unified reports.
+
 ## Main Script: `run_security_scans.py`
 
 A comprehensive security scanning script that runs multiple security tools and aggregates results into a unified report with GitHub Actions integration.
@@ -219,3 +229,222 @@ To customize the script:
 3. **Review Findings**: Don't ignore security warnings
 4. **Severity Thresholds**: Use appropriate exit codes for CI/CD
 5. **SARIF Integration**: Upload results to GitHub Security tab
+
+## Container Security Script: `run_container_scans.py`
+
+A comprehensive container security scanning script that runs Trivy and Clair scans on Docker images and Dockerfiles, generates SBOMs, and aggregates results into a unified report.
+
+### Features
+
+- **Image and Dockerfile Support**: Accepts container images or Dockerfiles for scanning
+- **Dockerfile Building**: Automatically builds Docker images from Dockerfiles when needed
+- **Multi-Tool Scanning**: Runs both Trivy and Clair vulnerability scanners
+- **SARIF Output**: Generates SARIF files for GitHub Security tab integration
+- **SBOM Generation**: Creates Software Bill of Materials using Trivy with CycloneDX format
+- **Unified Reporting**: Aggregates results into comprehensive reports
+- **Severity Analysis**: Counts vulnerabilities by severity level with configurable exit codes
+- **Flexible Input**: Accepts image lists via CLI arguments or manifest files
+
+### Usage
+
+#### Basic Usage
+
+```bash
+# Scan specific images
+python scripts/security/run_container_scans.py --images nginx:latest python:3.9-slim
+
+# Scan images from manifest file
+python scripts/security/run_container_scans.py --manifest images.txt
+
+# Scan Dockerfiles
+python scripts/security/run_container_scans.py --images Dockerfile.prod Dockerfile.dev
+
+# Run in soft mode (don't exit with non-zero code on HIGH/CRITICAL findings)
+python scripts/security/run_container_scans.py --images nginx:latest --soft
+```
+
+#### Manifest File Format
+
+Create a text file with one image or Dockerfile per line:
+
+```
+nginx:latest
+python:3.9-slim
+ubuntu:20.04
+./docker/Dockerfile.prod
+./docker/Dockerfile.dev
+```
+
+### Tools Included
+
+#### 1. Trivy
+- **Purpose**: Comprehensive vulnerability scanner for containers
+- **Commands**:
+  - `trivy image --format sarif --output [file] [image]` (SARIF output)
+  - `trivy image --format json --output [file] [image]` (JSON output)
+  - `trivy image --format cyclonedx --output [file] [image]` (SBOM generation)
+- **Output**: `*_trivy.sarif`, `*_trivy.json`, `*_sbom.json`
+
+#### 2. Clair
+- **Purpose**: Container vulnerability analysis
+- **Commands**:
+  - `clairctl analyze --format json --output [file] [image]` (preferred)
+  - `docker run arminc/clair-local-scan` (fallback)
+- **Output**: `*_clair.json`
+
+### Output Files
+
+All output files are saved to `security-results/`:
+
+| File Pattern | Description |
+|--------------|-------------|
+| `{image}_trivy.sarif` | Trivy scan results in SARIF format |
+| `{image}_trivy.json` | Trivy scan results in JSON format |
+| `{image}_clair.json` | Clair scan results in JSON format |
+| `{image}_sbom.json` | Software Bill of Materials in CycloneDX format |
+| `container_consolidated_sarif.json` | Consolidated SARIF file for GitHub upload |
+| `container_consolidated_results.json` | All scan results in unified format |
+| `container_security_summary.md` | Human-readable summary report |
+
+### Container Security Summary Report
+
+The script generates a comprehensive `container_security_summary.md` report that includes:
+
+- **Overall Summary**: Total scanned images and failed scans
+- **Vulnerability Summary**: Total issues by severity level
+- **Per-Image Results**: Detailed breakdown for each scanned image
+- **Tool-Specific Results**: Separate results for Trivy and Clair
+- **SBOM Status**: Whether SBOMs were successfully generated
+- **Files Generated**: List of all output files
+
+### Dockerfile Building
+
+The script automatically detects Dockerfiles and builds them before scanning:
+
+```bash
+# This will build the Dockerfile and then scan the resulting image
+python scripts/security/run_container_scans.py --images ./Dockerfile.prod
+```
+
+- Dockerfiles are detected by filename patterns: `Dockerfile*` or `*.dockerfile`
+- Images are built with auto-generated tags: `container-scan-{dockerfile-name}`
+- Build context is the current directory
+
+### Exit Codes
+
+| Exit Code | Condition |
+|-----------|-----------|
+| 0 | No HIGH/CRITICAL findings OR --soft mode enabled |
+| 1 | HIGH/CRITICAL findings detected (unless --soft mode) |
+
+### GitHub Actions Integration
+
+The script generates SARIF files that can be uploaded to GitHub Security tab:
+
+```yaml
+- name: Run Container Security Scans
+  run: python scripts/security/run_container_scans.py --images nginx:latest python:3.9
+
+- name: Upload SARIF to GitHub Security Tab
+  uses: github/codeql-action/upload-sarif@v2
+  with:
+    sarif_file: security-results/container_consolidated_sarif.json
+```
+
+### Requirements
+
+The script requires the following tools to be installed:
+
+- **Docker**: For building Dockerfiles and running containers
+- **Trivy**: For vulnerability scanning and SBOM generation
+- **Clair**: For additional vulnerability analysis (optional, falls back to Docker-based scan)
+
+#### Installation
+
+```bash
+# Install Trivy
+curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+# Install Clair (optional)
+go install github.com/quay/clair/v4/cmd/clairctl@latest
+```
+
+### Severity Levels
+
+| Severity | Description | Exit Impact |
+|----------|-------------|-------------|
+| Critical | Immediate security risk | Causes exit code 1 |
+| High | High-priority security issue | Causes exit code 1 |
+| Medium | Medium-priority security issue | No exit impact |
+| Low | Low-priority security issue | No exit impact |
+| Info | Informational finding | No exit impact |
+
+### Integration Examples
+
+#### Local Development
+
+```bash
+# Scan production images before deployment
+python scripts/security/run_container_scans.py --manifest production-images.txt
+
+# Quick check in soft mode
+python scripts/security/run_container_scans.py --images myapp:latest --soft
+
+# Build and scan Dockerfiles
+python scripts/security/run_container_scans.py --images Dockerfile.prod Dockerfile.dev
+```
+
+#### CI/CD Pipeline
+
+```yaml
+steps:
+  - name: Install Security Tools
+    run: |
+      curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+  
+  - name: Run Container Security Scans
+    run: python scripts/security/run_container_scans.py --manifest container-images.txt
+  
+  - name: Upload Security Reports
+    uses: actions/upload-artifact@v3
+    with:
+      name: container-security-reports
+      path: security-results/
+```
+
+### Troubleshooting
+
+#### Common Issues
+
+1. **Docker not available**: Ensure Docker is installed and the daemon is running
+2. **Trivy not found**: Install Trivy or ensure it's in PATH
+3. **Clair not found**: Install clairctl or ensure Docker can pull clair-local-scan image
+4. **Permission errors**: Ensure write permissions to `security-results/` directory
+5. **Command timeouts**: Container scans have a 10-minute timeout limit
+6. **Image pull failures**: Ensure images are accessible and credentials are configured
+
+#### Debug Mode
+
+For debugging, you can examine the individual result files:
+- `*_trivy.json` - Detailed Trivy scan results
+- `*_clair.json` - Detailed Clair scan results
+- `container_consolidated_results.json` - Complete results with exit codes
+
+### Customization
+
+To customize the script:
+
+1. **Modify severity estimation**: Update `_estimate_clair_severity()` method
+2. **Add new scanners**: Extend the `ContainerScanner` class
+3. **Change output formats**: Modify the report generation methods
+4. **Adjust timeouts**: Update the timeout value in `run_command()`
+5. **Customize image tags**: Modify the `build_dockerfile()` method
+
+### Security Best Practices
+
+1. **Regular Scans**: Scan container images on every build/deployment
+2. **Base Image Updates**: Keep base images updated with security patches
+3. **Review Findings**: Don't ignore container security warnings
+4. **SBOM Tracking**: Maintain Software Bill of Materials for compliance
+5. **Multi-Tool Scanning**: Use both Trivy and Clair for comprehensive coverage
+6. **Severity Thresholds**: Use appropriate exit codes for CI/CD pipelines
