@@ -22,7 +22,7 @@ from pynomaly.domain.entities.performance_degradation import (
     PerformanceMonitoringConfiguration,
     PerformanceThreshold,
 )
-from pynomaly.domain.exceptions import DomainValidationError
+from pynomaly.domain.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ class PerformanceDegradationService:
             List of degradation events detected
             
         Raises:
-            DomainValidationError: If inputs are invalid
+            ValidationError: If inputs are invalid
         """
         self._validate_inputs(current_metrics, baseline, configuration)
         
@@ -349,23 +349,23 @@ class PerformanceDegradationService:
     ) -> None:
         """Validate inputs for degradation evaluation."""
         if not current_metrics:
-            raise DomainValidationError("Current metrics are required")
+            raise ValidationError("Current metrics are required")
         
         if not baseline.is_valid:
-            raise DomainValidationError("Baseline is not valid")
+            raise ValidationError("Baseline is not valid")
         
         if not configuration.enabled:
-            raise DomainValidationError("Monitoring configuration is disabled")
+            raise ValidationError("Monitoring configuration is disabled")
         
         if not configuration.performance_thresholds:
-            raise DomainValidationError("No performance thresholds configured")
+            raise ValidationError("No performance thresholds configured")
         
         # Check if current metrics are recent enough
         oldest_allowed = datetime.utcnow() - configuration.evaluation_window
         recent_metrics = [m for m in current_metrics if m.timestamp >= oldest_allowed]
         
         if len(recent_metrics) < configuration.min_samples_required:
-            raise DomainValidationError(
+            raise ValidationError(
                 f"Insufficient recent metrics: got {len(recent_metrics)}, "
                 f"need {configuration.min_samples_required}"
             )
