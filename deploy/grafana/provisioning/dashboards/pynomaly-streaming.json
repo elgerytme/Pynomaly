@@ -1,0 +1,144 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Pynomaly - Streaming Operations",
+    "tags": [
+      "pynomaly",
+      "streaming",
+      "realtime"
+    ],
+    "style": "dark",
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {
+      "refresh_intervals": [
+        "5s",
+        "10s",
+        "30s",
+        "1m",
+        "5m",
+        "15m",
+        "30m",
+        "1h"
+      ],
+      "time_options": [
+        "5m",
+        "15m",
+        "1h",
+        "6h",
+        "12h",
+        "24h",
+        "2d",
+        "7d",
+        "30d"
+      ]
+    },
+    "panels": [
+      {
+        "id": 20,
+        "title": "Streaming Throughput",
+        "type": "graph",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 20
+        },
+        "targets": [
+          {
+            "expr": "pynomaly_streaming_throughput_per_second",
+            "legendFormat": "{{stream_id}}",
+            "refId": "A"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Samples/sec",
+            "min": 0
+          },
+          {
+            "show": false
+          }
+        ]
+      },
+      {
+        "id": 21,
+        "title": "Buffer Utilization",
+        "type": "graph",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 20
+        },
+        "targets": [
+          {
+            "expr": "pynomaly_streaming_buffer_utilization_ratio",
+            "legendFormat": "{{stream_id}}",
+            "refId": "A"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Utilization %",
+            "min": 0,
+            "max": 1
+          },
+          {
+            "show": false
+          }
+        ]
+      },
+      {
+        "id": 22,
+        "title": "Backpressure Events",
+        "type": "graph",
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 0,
+          "y": 28
+        },
+        "targets": [
+          {
+            "expr": "rate(pynomaly_streaming_backpressure_events_total[5m])",
+            "legendFormat": "{{stream_id}} - {{strategy}}",
+            "refId": "A"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Events/sec",
+            "min": 0
+          },
+          {
+            "show": false
+          }
+        ]
+      },
+      {
+        "id": 23,
+        "title": "Active Streams",
+        "type": "stat",
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 12,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "pynomaly_active_streams",
+            "legendFormat": "Active Streams",
+            "refId": "A"
+          }
+        ]
+      }
+    ],
+    "description": "Real-time streaming anomaly detection metrics"
+  }
+}

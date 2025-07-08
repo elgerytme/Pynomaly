@@ -1,0 +1,222 @@
+@startuml Model Evaluation System - Class Diagram
+
+!define DOMAIN_COLOR #E8F4FD
+!define APPLICATION_COLOR #FFF2CC
+!define INFRASTRUCTURE_COLOR #D5E8D4
+!define PRESENTATION_COLOR #F8CECC
+
+package "Domain Layer" <<Rectangle>> {
+  
+  enum TaskType {
+    BINARY_ANOMALY
+    MULTI_CLASS
+    REGRESSION
+  }
+  
+  enum MetricType {
+    F1_SCORE
+    PRECISION
+    RECALL
+    AUC_ROC
+    PR_AUC
+    LATENCY
+    MEMORY_USAGE
+  }
+  
+  enum StatisticalTest {
+    MCNEMAR
+    WILCOXON
+    BOOTSTRAP_CI
+    FRIEDMAN_NEMENYI
+  }
+  
+  class EvaluationResult <<DOMAIN_COLOR>> {
+    +task_type: TaskType
+    +metrics: Dict[MetricType, float]
+    +confidence_intervals: Dict[MetricType, Tuple[float, float]]
+    +execution_time: float
+    +memory_usage: float
+    +model_id: str
+    +dataset_id: str
+    +timestamp: datetime
+    +get_primary_metrics(): Dict[MetricType, float]
+    +get_secondary_metrics(): Dict[MetricType, float]
+    +is_better_than(other: EvaluationResult): bool
+  }
+  
+  class ComparisonResult <<DOMAIN_COLOR>> {
+    +model_results: List[EvaluationResult]
+    +statistical_tests: Dict[StatisticalTest, TestResult]
+    +rankings: Dict[MetricType, List[str]]
+    +pareto_front: List[EvaluationResult]
+    +get_top_k_models(k: int): List[EvaluationResult]
+    +get_significant_differences(): List[Tuple[str, str, float]]
+  }
+  
+  class TestResult <<DOMAIN_COLOR>> {
+    +test_type: StatisticalTest
+    +p_value: float
+    +statistic: float
+    +is_significant: bool
+    +effect_size: float
+    +confidence_level: float
+    +model_a_id: str
+    +model_b_id: str
+  }
+  
+  class EvaluationConfig <<DOMAIN_COLOR>> {
+    +significance_level: float
+    +min_practical_difference: float
+    +top_k: int
+    +pareto_objectives: List[MetricType]
+    +bootstrap_samples: int
+    +cv_folds: int
+    +task_type: TaskType
+    +primary_metrics: List[MetricType]
+    +secondary_metrics: List[MetricType]
+    +validate(): ValidationResult
+  }
+  
+  interface ModelEvaluationService <<DOMAIN_COLOR>> {
+    +evaluate_model(model, dataset, config): EvaluationResult
+    +compare_models(models, dataset, config): ComparisonResult
+    +calculate_metrics(predictions, ground_truth, task_type): Dict[MetricType, float]
+  }
+  
+  interface StatisticalTestService <<DOMAIN_COLOR>> {
+    +mcnemar_test(result_a, result_b): TestResult
+    +wilcoxon_test(scores_a, scores_b): TestResult
+    +bootstrap_ci(scores, confidence_level): TestResult
+    +friedman_nemenyi(results_matrix): List[TestResult]
+  }
+  
+  interface MetricsCalculator <<DOMAIN_COLOR>> {
+    +calculate_f1_score(predictions, ground_truth): float
+    +calculate_precision(predictions, ground_truth): float
+    +calculate_recall(predictions, ground_truth): float
+    +calculate_auc_roc(predictions, ground_truth): float
+    +calculate_pr_auc(predictions, ground_truth): float
+    +measure_latency(model, dataset): float
+    +measure_memory_usage(model, dataset): float
+  }
+  
+  interface ComparisonEngine <<DOMAIN_COLOR>> {
+    +rank_models(results, metric): List[EvaluationResult]
+    +find_pareto_front(results, objectives): List[EvaluationResult]
+    +detect_significant_differences(results, test_type): List[TestResult]
+  }
+}
+
+package "Application Layer" <<Rectangle>> {
+  
+  class EvaluateModelUseCase <<APPLICATION_COLOR>> {
+    -evaluation_service: ModelEvaluationService
+    -metrics_calculator: MetricsCalculator
+    +execute(model, dataset, config): EvaluationResult
+  }
+  
+  class CompareModelsUseCase <<APPLICATION_COLOR>> {
+    -evaluation_service: ModelEvaluationService
+    -statistical_test_service: StatisticalTestService
+    -comparison_engine: ComparisonEngine
+    +execute(models, dataset, config): ComparisonResult
+  }
+  
+  class StatisticalTestUseCase <<APPLICATION_COLOR>> {
+    -statistical_test_service: StatisticalTestService
+    +execute(results, test_type, config): List[TestResult]
+  }
+  
+  class BenchmarkSuiteUseCase <<APPLICATION_COLOR>> {
+    -evaluation_service: ModelEvaluationService
+    -comparison_engine: ComparisonEngine
+    +execute(models, datasets, config): BenchmarkResult
+  }
+}
+
+package "Infrastructure Layer" <<Rectangle>> {
+  
+  class ModelEvaluationServiceImpl <<INFRASTRUCTURE_COLOR>> {
+    -metrics_calculator: MetricsCalculator
+    -performance_monitor: PerformanceMonitor
+    +evaluate_model(model, dataset, config): EvaluationResult
+    +compare_models(models, dataset, config): ComparisonResult
+  }
+  
+  class StatisticalTestServiceImpl <<INFRASTRUCTURE_COLOR>> {
+    -scipy_adapter: ScipyAdapter
+    +mcnemar_test(result_a, result_b): TestResult
+    +wilcoxon_test(scores_a, scores_b): TestResult
+    +bootstrap_ci(scores, confidence_level): TestResult
+    +friedman_nemenyi(results_matrix): List[TestResult]
+  }
+  
+  class MetricsCalculatorImpl <<INFRASTRUCTURE_COLOR>> {
+    -sklearn_adapter: SklearnAdapter
+    +calculate_f1_score(predictions, ground_truth): float
+    +calculate_precision(predictions, ground_truth): float
+    +calculate_recall(predictions, ground_truth): float
+    +calculate_auc_roc(predictions, ground_truth): float
+    +calculate_pr_auc(predictions, ground_truth): float
+  }
+  
+  class PerformanceMonitor <<INFRASTRUCTURE_COLOR>> {
+    +measure_latency(model, dataset): float
+    +measure_memory_usage(model, dataset): float
+    +measure_throughput(model, dataset): float
+  }
+  
+  class MetricsRepository <<INFRASTRUCTURE_COLOR>> {
+    +save_evaluation_result(result: EvaluationResult): void
+    +get_evaluation_results(model_id: str): List[EvaluationResult]
+    +get_comparison_results(model_ids: List[str]): List[ComparisonResult]
+  }
+}
+
+package "Presentation Layer" <<Rectangle>> {
+  
+  class EvaluationEndpoints <<PRESENTATION_COLOR>> {
+    -evaluate_model_use_case: EvaluateModelUseCase
+    -compare_models_use_case: CompareModelsUseCase
+    +evaluate_model(request: EvaluationRequest): EvaluationResponse
+    +compare_models(request: ComparisonRequest): ComparisonResponse
+    +get_evaluation_history(model_id: str): List[EvaluationResult]
+  }
+  
+  class EvaluationCLI <<PRESENTATION_COLOR>> {
+    -evaluate_model_use_case: EvaluateModelUseCase
+    -compare_models_use_case: CompareModelsUseCase
+    +evaluate_command(model_path: str, dataset_path: str): void
+    +compare_command(model_paths: List[str], dataset_path: str): void
+    +benchmark_command(config_path: str): void
+  }
+  
+  class EvaluationDashboard <<PRESENTATION_COLOR>> {
+    -evaluation_service: ModelEvaluationService
+    +render_evaluation_results(results: List[EvaluationResult]): Html
+    +render_comparison_chart(comparison: ComparisonResult): Html
+    +render_statistical_tests(tests: List[TestResult]): Html
+  }
+}
+
+' Relationships
+EvaluationResult ||--o{ ComparisonResult : contains
+TestResult ||--o{ ComparisonResult : contains
+EvaluationConfig ||--o EvaluateModelUseCase : configures
+EvaluationConfig ||--o CompareModelsUseCase : configures
+
+ModelEvaluationService ||--o EvaluateModelUseCase : uses
+StatisticalTestService ||--o CompareModelsUseCase : uses
+MetricsCalculator ||--o ModelEvaluationService : uses
+ComparisonEngine ||--o CompareModelsUseCase : uses
+
+ModelEvaluationServiceImpl ..|> ModelEvaluationService : implements
+StatisticalTestServiceImpl ..|> StatisticalTestService : implements
+MetricsCalculatorImpl ..|> MetricsCalculator : implements
+
+EvaluateModelUseCase ||--o EvaluationEndpoints : uses
+CompareModelsUseCase ||--o EvaluationEndpoints : uses
+EvaluateModelUseCase ||--o EvaluationCLI : uses
+CompareModelsUseCase ||--o EvaluationCLI : uses
+
+@enduml

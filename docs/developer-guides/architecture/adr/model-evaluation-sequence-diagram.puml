@@ -1,0 +1,212 @@
+@startuml Model Evaluation System - Sequence Diagram
+
+!define ACTOR_COLOR #FFE4B5
+!define PRESENTATION_COLOR #F8CECC
+!define APPLICATION_COLOR #FFF2CC
+!define DOMAIN_COLOR #E8F4FD
+!define INFRASTRUCTURE_COLOR #D5E8D4
+
+actor "Data Scientist" as DS <<ACTOR_COLOR>>
+participant "EvaluationCLI" as CLI <<PRESENTATION_COLOR>>
+participant "EvaluationEndpoints" as API <<PRESENTATION_COLOR>>
+participant "EvaluateModelUseCase" as EvalUC <<APPLICATION_COLOR>>
+participant "CompareModelsUseCase" as CompUC <<APPLICATION_COLOR>>
+participant "StatisticalTestUseCase" as StatUC <<APPLICATION_COLOR>>
+participant "ModelEvaluationService" as EvalSvc <<DOMAIN_COLOR>>
+participant "StatisticalTestService" as StatSvc <<DOMAIN_COLOR>>
+participant "MetricsCalculator" as MetricsCalc <<DOMAIN_COLOR>>
+participant "ComparisonEngine" as CompEngine <<DOMAIN_COLOR>>
+participant "PerformanceMonitor" as PerfMon <<INFRASTRUCTURE_COLOR>>
+participant "MetricsRepository" as Repo <<INFRASTRUCTURE_COLOR>>
+
+== Single Model Evaluation ==
+
+DS -> CLI: evaluate_command(model_path, dataset_path, config)
+activate CLI
+
+CLI -> EvalUC: execute(model, dataset, config)
+activate EvalUC
+
+EvalUC -> EvalSvc: evaluate_model(model, dataset, config)
+activate EvalSvc
+
+EvalSvc -> MetricsCalc: calculate_f1_score(predictions, ground_truth)
+activate MetricsCalc
+MetricsCalc -> MetricsCalc: compute_confusion_matrix()
+MetricsCalc -> MetricsCalc: compute_precision_recall()
+MetricsCalc --> EvalSvc: f1_score
+deactivate MetricsCalc
+
+EvalSvc -> MetricsCalc: calculate_auc_roc(predictions, ground_truth)
+activate MetricsCalc
+MetricsCalc -> MetricsCalc: compute_roc_curve()
+MetricsCalc -> MetricsCalc: compute_area_under_curve()
+MetricsCalc --> EvalSvc: auc_roc
+deactivate MetricsCalc
+
+EvalSvc -> PerfMon: measure_latency(model, dataset)
+activate PerfMon
+PerfMon -> PerfMon: time_predictions()
+PerfMon --> EvalSvc: latency_ms
+deactivate PerfMon
+
+EvalSvc -> PerfMon: measure_memory_usage(model, dataset)
+activate PerfMon
+PerfMon -> PerfMon: monitor_memory_peak()
+PerfMon --> EvalSvc: memory_mb
+deactivate PerfMon
+
+EvalSvc -> EvalSvc: create_evaluation_result()
+EvalSvc --> EvalUC: EvaluationResult
+deactivate EvalSvc
+
+EvalUC -> Repo: save_evaluation_result(result)
+activate Repo
+Repo -> Repo: persist_to_database()
+Repo --> EvalUC: success
+deactivate Repo
+
+EvalUC --> CLI: EvaluationResult
+deactivate EvalUC
+
+CLI -> CLI: format_output()
+CLI --> DS: Evaluation Report
+deactivate CLI
+
+== Multi-Model Comparison ==
+
+DS -> API: POST /evaluate/compare
+activate API
+
+API -> CompUC: execute(models, dataset, config)
+activate CompUC
+
+loop for each model in models
+    CompUC -> EvalUC: execute(model, dataset, config)
+    activate EvalUC
+    EvalUC -> EvalSvc: evaluate_model(model, dataset, config)
+    activate EvalSvc
+    EvalSvc -> MetricsCalc: calculate_metrics(predictions, ground_truth, task_type)
+    activate MetricsCalc
+    MetricsCalc --> EvalSvc: metrics_dict
+    deactivate MetricsCalc
+    EvalSvc --> EvalUC: EvaluationResult
+    deactivate EvalSvc
+    EvalUC --> CompUC: EvaluationResult
+    deactivate EvalUC
+end
+
+CompUC -> CompEngine: rank_models(results, primary_metric)
+activate CompEngine
+CompEngine -> CompEngine: sort_by_metric()
+CompEngine --> CompUC: ranked_results
+deactivate CompEngine
+
+CompUC -> CompEngine: find_pareto_front(results, objectives)
+activate CompEngine
+CompEngine -> CompEngine: pareto_optimization()
+CompEngine --> CompUC: pareto_front
+deactivate CompEngine
+
+CompUC -> StatUC: execute(results, MCNEMAR, config)
+activate StatUC
+StatUC -> StatSvc: mcnemar_test(result_a, result_b)
+activate StatSvc
+StatSvc -> StatSvc: compute_contingency_table()
+StatSvc -> StatSvc: calculate_chi_square()
+StatSvc --> StatUC: TestResult
+deactivate StatSvc
+StatUC --> CompUC: List[TestResult]
+deactivate StatUC
+
+CompUC -> StatUC: execute(results, WILCOXON, config)
+activate StatUC
+StatUC -> StatSvc: wilcoxon_test(scores_a, scores_b)
+activate StatSvc
+StatSvc -> StatSvc: compute_rank_sum()
+StatSvc -> StatSvc: calculate_z_statistic()
+StatSvc --> StatUC: TestResult
+deactivate StatSvc
+StatUC --> CompUC: List[TestResult]
+deactivate StatUC
+
+alt if more than 2 models
+    CompUC -> StatUC: execute(results, FRIEDMAN_NEMENYI, config)
+    activate StatUC
+    StatUC -> StatSvc: friedman_nemenyi(results_matrix)
+    activate StatSvc
+    StatSvc -> StatSvc: compute_friedman_statistic()
+    StatSvc -> StatSvc: nemenyi_post_hoc()
+    StatSvc --> StatUC: List[TestResult]
+    deactivate StatSvc
+    StatUC --> CompUC: List[TestResult]
+    deactivate StatUC
+end
+
+CompUC -> CompUC: create_comparison_result()
+CompUC --> API: ComparisonResult
+deactivate CompUC
+
+API -> Repo: save_comparison_result(result)
+activate Repo
+Repo --> API: success
+deactivate Repo
+
+API --> DS: JSON Response with Comparison Results
+deactivate API
+
+== Bootstrap Confidence Intervals ==
+
+DS -> CLI: evaluate_command(--bootstrap-ci, model_path, dataset_path)
+activate CLI
+
+CLI -> EvalUC: execute(model, dataset, config)
+activate EvalUC
+
+EvalUC -> StatUC: execute(results, BOOTSTRAP_CI, config)
+activate StatUC
+
+StatUC -> StatSvc: bootstrap_ci(scores, confidence_level)
+activate StatSvc
+
+loop bootstrap_samples times
+    StatSvc -> StatSvc: resample_with_replacement()
+    StatSvc -> MetricsCalc: calculate_metrics(resampled_data)
+    activate MetricsCalc
+    MetricsCalc --> StatSvc: metric_value
+    deactivate MetricsCalc
+end
+
+StatSvc -> StatSvc: calculate_percentiles()
+StatSvc -> StatSvc: compute_confidence_interval()
+StatSvc --> StatUC: TestResult with CI
+deactivate StatSvc
+
+StatUC --> EvalUC: TestResult
+deactivate StatUC
+
+EvalUC --> CLI: EvaluationResult with CI
+deactivate EvalUC
+
+CLI --> DS: Report with Confidence Intervals
+deactivate CLI
+
+== Error Handling ==
+
+DS -> API: POST /evaluate/compare (invalid config)
+activate API
+
+API -> CompUC: execute(models, dataset, invalid_config)
+activate CompUC
+
+CompUC -> CompUC: validate_config()
+CompUC -> CompUC: ConfigurationError
+
+CompUC --> API: ConfigurationError
+deactivate CompUC
+
+API -> API: format_error_response()
+API --> DS: 400 Bad Request: Invalid Configuration
+deactivate API
+
+@enduml
