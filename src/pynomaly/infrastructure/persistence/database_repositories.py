@@ -91,6 +91,7 @@ class DetectorModel(Base):
     __tablename__ = "detectors"
 
     id = Column(UUIDType, primary_key=True)
+    name = Column(String(255), nullable=False)
     algorithm = Column(String(100), nullable=False)
     parameters = Column(JSONType)
     is_fitted = Column(Boolean, default=False)
@@ -121,12 +122,13 @@ class DatabaseDetectorRepository(DetectorRepositoryProtocol):
         """Initialize with session factory."""
         self.session_factory = session_factory
 
-    def save(self, detector: Detector) -> None:
+    def save(self, detector: Detector) -> Detector:
         """Save detector to database."""
         with self.session_factory() as session:
             existing = session.query(DetectorModel).filter_by(id=detector.id).first()
             if existing:
                 # Update existing
+                existing.name = detector.name
                 existing.algorithm = detector.algorithm_name
                 existing.parameters = detector.parameters
                 existing.is_fitted = detector.is_fitted
@@ -134,11 +136,14 @@ class DatabaseDetectorRepository(DetectorRepositoryProtocol):
                     detector.model_data if hasattr(detector, "model_data") else None
                 )
                 existing.metadata = detector.metadata
-                existing.updated_at = detector.updated_at
+                existing.updated_at = datetime.utcnow()
+                session.commit()
+                return self._model_to_entity(existing)
             else:
                 # Insert new
                 model = DetectorModel(
                     id=detector.id,
+                    name=detector.name,
                     algorithm=detector.algorithm_name,
                     parameters=detector.parameters,
                     is_fitted=detector.is_fitted,
@@ -147,11 +152,11 @@ class DatabaseDetectorRepository(DetectorRepositoryProtocol):
                     ),
                     metadata=detector.metadata,
                     created_at=detector.created_at,
-                    updated_at=detector.updated_at,
+                    updated_at=detector.created_at,
                 )
                 session.add(model)
-
-            session.commit()
+                session.commit()
+                return self._model_to_entity(model)
 
     def find_by_id(self, detector_id: UUID) -> Detector | None:
         """Find detector by ID."""
@@ -165,13 +170,10 @@ class DatabaseDetectorRepository(DetectorRepositoryProtocol):
     def find_by_name(self, name: str) -> Detector | None:
         """Find detector by name."""
         with self.session_factory() as session:
-            # Note: DetectorModel doesn't have a name field currently
-            # We'll search by metadata for now
-            models = session.query(DetectorModel).all()
-            for model in models:
-                if model.metadata and model.metadata.get("name") == name:
-                    return self._model_to_entity(model)
-            return None
+            model = session.query(DetectorModel).filter_by(name=name).first()
+            if not model:
+                return None
+            return self._model_to_entity(model)
 
     def find_by_algorithm(self, algorithm_name: str) -> list[Detector]:
         """Find detectors by algorithm."""
@@ -243,13 +245,13 @@ class DatabaseDetectorRepository(DetectorRepositoryProtocol):
     def _model_to_entity(self, model: DetectorModel) -> Detector:
         """Convert database model to domain entity."""
         return Detector(
+            name=model.name,
             algorithm_name=model.algorithm,
             parameters=model.parameters or {},
             is_fitted=model.is_fitted,
             metadata=model.metadata or {},
             id=model.id,
             created_at=model.created_at,
-            updated_at=model.updated_at,
         )
 
 
