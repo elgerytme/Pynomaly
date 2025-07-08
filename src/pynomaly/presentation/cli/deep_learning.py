@@ -8,10 +8,6 @@ import sys
 import time
 from pathlib import Path
 from typing import List, Optional
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 import numpy as np
 import typer

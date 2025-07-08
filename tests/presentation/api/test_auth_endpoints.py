@@ -55,7 +55,7 @@ class TestAuthEndpoints:
 
     def test_login_successful(self, client, mock_auth_handler, valid_user_credentials):
         """Test successful user login."""
-        response = client.post("/auth/login", json=valid_user_credentials)
+        response = client.post("/api/auth/login", json=valid_user_credentials)
 
         assert response.status_code == 200
         data = response.json()
@@ -72,7 +72,7 @@ class TestAuthEndpoints:
         )
 
         response = client.post(
-            "/auth/login",
+            "/api/auth/login",
             json={"email": "invalid@example.com", "password": "wrong_password"},
         )
 
@@ -83,7 +83,7 @@ class TestAuthEndpoints:
 
     def test_login_missing_fields(self, client):
         """Test login with missing required fields."""
-        response = client.post("/auth/login", json={"email": "test@example.com"})
+        response = client.post("/api/auth/login", json={"email": "test@example.com"})
 
         assert response.status_code == 422
         data = response.json()
@@ -92,7 +92,7 @@ class TestAuthEndpoints:
     def test_login_invalid_email_format(self, client):
         """Test login with invalid email format."""
         response = client.post(
-            "/auth/login", json={"email": "invalid-email", "password": "password123"}
+            "/api/auth/login", json={"email": "invalid-email", "password": "password123"}
         )
 
         assert response.status_code == 422
@@ -100,7 +100,7 @@ class TestAuthEndpoints:
     def test_logout_successful(self, client, mock_auth_handler):
         """Test successful user logout."""
         headers = {"Authorization": "Bearer test-jwt-token"}
-        response = client.post("/auth/logout", headers=headers)
+        response = client.post("/api/auth/logout", headers=headers)
 
         assert response.status_code == 200
         data = response.json()
@@ -108,14 +108,14 @@ class TestAuthEndpoints:
 
     def test_logout_without_token(self, client):
         """Test logout without authentication token."""
-        response = client.post("/auth/logout")
+        response = client.post("/api/auth/logout")
 
         assert response.status_code == 401
 
     def test_refresh_token_successful(self, client, mock_auth_handler):
         """Test successful token refresh."""
         headers = {"Authorization": "Bearer test-jwt-token"}
-        response = client.post("/auth/refresh", headers=headers)
+        response = client.post("/api/auth/refresh", headers=headers)
 
         assert response.status_code == 200
         data = response.json()
@@ -127,7 +127,7 @@ class TestAuthEndpoints:
         mock_auth_handler.verify_token.side_effect = jwt.ExpiredSignatureError()
 
         headers = {"Authorization": "Bearer expired-token"}
-        response = client.post("/auth/refresh", headers=headers)
+        response = client.post("/api/auth/refresh", headers=headers)
 
         assert response.status_code == 401
 
@@ -136,7 +136,7 @@ class TestAuthEndpoints:
     def test_get_current_user(self, client, mock_auth_handler):
         """Test getting current user information."""
         headers = {"Authorization": "Bearer test-jwt-token"}
-        response = client.get("/auth/me", headers=headers)
+        response = client.get("/api/auth/me", headers=headers)
 
         assert response.status_code == 200
         data = response.json()
@@ -146,7 +146,7 @@ class TestAuthEndpoints:
 
     def test_get_current_user_unauthorized(self, client):
         """Test getting current user without authentication."""
-        response = client.get("/auth/me")
+        response = client.get("/api/auth/me")
 
         assert response.status_code == 401
 
@@ -160,7 +160,7 @@ class TestAuthEndpoints:
         }
 
         response = client.post(
-            "/auth/change-password", json=password_data, headers=headers
+            "/api/auth/change-password", json=password_data, headers=headers
         )
 
         assert response.status_code == 200
@@ -177,7 +177,7 @@ class TestAuthEndpoints:
         }
 
         response = client.post(
-            "/auth/change-password", json=password_data, headers=headers
+            "/api/auth/change-password", json=password_data, headers=headers
         )
 
         assert response.status_code == 400
@@ -192,7 +192,7 @@ class TestAuthEndpoints:
         }
 
         response = client.post(
-            "/auth/change-password", json=password_data, headers=headers
+            "/api/auth/change-password", json=password_data, headers=headers
         )
 
         assert response.status_code == 400

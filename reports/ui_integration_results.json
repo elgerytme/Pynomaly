@@ -1,0 +1,20 @@
+{
+  "server_startup": {
+    "success": false,
+    "error": "Server failed to start or respond to health check"
+  },
+  "ui_tests": {
+    "success": false,
+    "error": "Server startup failed"
+  },
+  "cleanup": {
+    "success": true,
+    "server_stopped": true
+  },
+  "summary": {
+    "server_startup_success": false,
+    "ui_tests_success": false,
+    "cleanup_success": true,
+    "overall_success": false
+  }
+}

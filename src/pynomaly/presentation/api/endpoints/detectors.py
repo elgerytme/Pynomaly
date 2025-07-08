@@ -11,13 +11,12 @@ from pynomaly.application.services.algorithm_adapter_registry import (
 from pynomaly.domain.entities import Detector
 from pynomaly.domain.value_objects import ContaminationRate
 from pynomaly.infrastructure.auth import (
-    PermissionChecker,
+    UserModel,
+    require_viewer,
+    require_analyst,
+    require_data_scientist,
 )
 from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.auth_deps import (
-    get_container_simple,
-    get_current_user_simple,
-)
 
 router = APIRouter()
 
@@ -27,8 +26,8 @@ async def list_detectors(
     algorithm: str | None = Query(None, description="Filter by algorithm"),
     is_fitted: bool | None = Query(None, description="Filter by fitted status"),
     limit: int = Query(100, ge=1, le=1000),
-    container: Container = Depends(get_container_simple),
-    current_user: str | None = Depends(get_current_user_simple),
+    current_user: UserModel = Depends(require_viewer),
+    container: Container = Depends(lambda: Container()),
 ) -> list[DetectorDTO]:
     """List all detectors."""
     detector_repo = container.detector_repository()
@@ -92,8 +91,8 @@ async def list_algorithms() -> dict:
 @router.get("/{detector_id}", response_model=DetectorDTO)
 async def get_detector(
     detector_id: UUID,
-    container: Container = Depends(get_container_simple),
-    current_user: str | None = Depends(get_current_user_simple),
+    current_user: UserModel = Depends(require_viewer),
+    container: Container = Depends(lambda: Container()),
 ) -> DetectorDTO:
     """Get a specific detector."""
     detector_repo = container.detector_repository()
@@ -123,8 +122,8 @@ async def get_detector(
 @router.post("/", response_model=DetectorDTO)
 async def create_detector(
     detector_data: CreateDetectorDTO,
-    container: Container = Depends(get_container_simple),
-    current_user: str | None = Depends(get_current_user_simple),
+    current_user: UserModel = Depends(require_data_scientist),
+    container: Container = Depends(lambda: Container()),
 ) -> DetectorDTO:
     """Create a new detector."""
     detector_repo = container.detector_repository()
@@ -181,8 +180,8 @@ async def create_detector(
 async def update_detector(
     detector_id: UUID,
     update_data: UpdateDetectorDTO,
-    container: Container = Depends(get_container_simple),
-    current_user: str | None = Depends(get_current_user_simple),
+    current_user: UserModel = Depends(require_analyst),
+    container: Container = Depends(lambda: Container()),
 ) -> DetectorDTO:
     """Update detector parameters."""
     detector_repo = container.detector_repository()

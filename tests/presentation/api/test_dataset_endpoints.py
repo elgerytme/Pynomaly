@@ -418,7 +418,7 @@ class TestDatasetEndpoints:
             mock_use_case.return_value = mock_instance
 
             response = client.post(
-                "/datasets/dataset123/validate", headers=auth_headers
+                "/api/datasets/dataset123/validate", headers=auth_headers
             )
 
             assert response.status_code == 200
@@ -442,7 +442,7 @@ class TestDatasetEndpoints:
             }
             mock_use_case.return_value = mock_instance
 
-            response = client.get("/datasets/dataset123/preview", headers=auth_headers)
+            response = client.get("/api/datasets/dataset123/preview", headers=auth_headers)
 
             assert response.status_code == 200
             data = response.json()
@@ -475,7 +475,7 @@ class TestDatasetEndpoints:
             mock_use_case.return_value = mock_instance
 
             response = client.get(
-                "/datasets/dataset123/statistics", headers=auth_headers
+                "/api/datasets/dataset123/statistics", headers=auth_headers
             )
 
             assert response.status_code == 200
@@ -495,7 +495,7 @@ class TestDatasetEndpoints:
         }
 
         response = client.post(
-            "/datasets/dataset123/export", json=export_params, headers=auth_headers
+            "/api/datasets/dataset123/export", json=export_params, headers=auth_headers
         )
 
         assert response.status_code == 202
@@ -516,7 +516,7 @@ class TestDatasetEndpoints:
             }
             mock_use_case.return_value = mock_instance
 
-            response = client.get("/datasets/dataset123/download", headers=auth_headers)
+            response = client.get("/api/datasets/dataset123/download", headers=auth_headers)
 
             assert response.status_code == 200
             assert response.headers["content-type"] == "text/csv"
@@ -532,7 +532,7 @@ class TestDatasetEndpoints:
         }
 
         response = client.post(
-            "/datasets/dataset123/share", json=share_data, headers=auth_headers
+            "/api/datasets/dataset123/share", json=share_data, headers=auth_headers
         )
 
         assert response.status_code == 200
@@ -541,7 +541,7 @@ class TestDatasetEndpoints:
 
     def test_get_dataset_permissions(self, client, mock_auth, auth_headers):
         """Test getting dataset permissions."""
-        response = client.get("/datasets/dataset123/permissions", headers=auth_headers)
+        response = client.get("/api/datasets/dataset123/permissions", headers=auth_headers)
 
         assert response.status_code == 200
         data = response.json()
@@ -559,7 +559,7 @@ class TestDatasetEndpoints:
             "permissions": ["read:own_datasets"],
         }
 
-        response = client.get("/datasets/dataset123", headers=auth_headers)
+        response = client.get("/api/datasets/dataset123", headers=auth_headers)
 
         assert response.status_code == 403
 
@@ -586,7 +586,7 @@ class TestDatasetEndpoints:
             )
             mock_use_case.return_value = mock_instance
 
-            response = client.get("/datasets/dataset123/preview", headers=auth_headers)
+            response = client.get("/api/datasets/dataset123/preview", headers=auth_headers)
 
             assert response.status_code == 409  # Conflict - dataset not ready
 
@@ -623,39 +623,39 @@ class TestDatasetEndpointsIntegration:
         data = {"name": "lifecycle_test", "description": "Lifecycle test dataset"}
 
         upload_response = authenticated_client.post(
-            "/datasets/upload", files=files, data=data
+            "/api/datasets/upload", files=files, data=data
         )
         assert upload_response.status_code == 202
 
         # 2. Check upload status (simulate polling)
         upload_id = upload_response.json()["id"]
         status_response = authenticated_client.get(
-            f"/datasets/upload/{upload_id}/status"
+            f"/api/datasets/upload/{upload_id}/status"
         )
         assert status_response.status_code == 200
 
         # 3. Get dataset (assume upload completed)
         dataset_id = "dataset123"  # Simulated completed dataset ID
-        get_response = authenticated_client.get(f"/datasets/{dataset_id}")
+        get_response = authenticated_client.get(f"/api/datasets/{dataset_id}")
         assert get_response.status_code in [200, 404]
 
         # 4. Update dataset metadata
         update_data = {"description": "Updated description"}
         update_response = authenticated_client.put(
-            f"/datasets/{dataset_id}", json=update_data
+            f"/api/datasets/{dataset_id}", json=update_data
         )
         assert update_response.status_code in [200, 404]
 
         # 5. Get statistics and preview
-        authenticated_client.get(f"/datasets/{dataset_id}/statistics")
-        authenticated_client.get(f"/datasets/{dataset_id}/preview")
+        authenticated_client.get(f"/api/datasets/{dataset_id}/statistics")
+        authenticated_client.get(f"/api/datasets/{dataset_id}/preview")
 
         # 6. Export dataset
         export_data = {"format": "csv"}
-        authenticated_client.post(f"/datasets/{dataset_id}/export", json=export_data)
+        authenticated_client.post(f"/api/datasets/{dataset_id}/export", json=export_data)
 
         # 7. Delete dataset
-        delete_response = authenticated_client.delete(f"/datasets/{dataset_id}")
+        delete_response = authenticated_client.delete(f"/api/datasets/{dataset_id}")
         assert delete_response.status_code in [204, 404]
 
     def test_dataset_permission_workflow(self, authenticated_client):
@@ -664,7 +664,7 @@ class TestDatasetEndpointsIntegration:
 
         # 1. Check initial permissions
         permissions_response = authenticated_client.get(
-            f"/datasets/{dataset_id}/permissions"
+            f"/api/datasets/{dataset_id}/permissions"
         )
         assert permissions_response.status_code in [200, 404]
 
@@ -675,12 +675,12 @@ class TestDatasetEndpointsIntegration:
             "expiry_date": "2024-12-31",
         }
         share_response = authenticated_client.post(
-            f"/datasets/{dataset_id}/share", json=share_data
+            f"/api/datasets/{dataset_id}/share", json=share_data
         )
         assert share_response.status_code in [200, 404]
 
         # 3. Check updated permissions
         updated_permissions = authenticated_client.get(
-            f"/datasets/{dataset_id}/permissions"
+            f"/api/datasets/{dataset_id}/permissions"
         )
         assert updated_permissions.status_code in [200, 404]
