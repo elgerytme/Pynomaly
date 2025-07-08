@@ -37,7 +37,7 @@ router = APIRouter(
 )
 
 
-class CreateLineageRequest(BaseModel):
+class CreateLineageRecordRequest(BaseModel):
     """Request for creating lineage record."""
 
     child_model_id: UUID = Field(..., description="Child model identifier")
@@ -49,9 +49,13 @@ class CreateLineageRequest(BaseModel):
     experiment_id: UUID | None = Field(None, description="Associated experiment ID")
     run_id: str | None = Field(None, description="Associated run ID")
     tags: list[str] = Field(default_factory=list, description="Lineage tags")
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata"
-    )
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
+
+    class Config:
+        arbitrary_types_allowed = True
+
+
+CreateLineageRecordRequest.model_rebuild()
 
 
 class TrackDerivationRequest(BaseModel):
@@ -142,7 +146,7 @@ async def get_lineage_service(
     },
 )
 async def create_lineage_record(
-    request: CreateLineageRequest,
+    request: CreateLineageRecordRequest,
     created_by: str = Query(..., description="User creating the record"),
     lineage_service: ModelLineageService = Depends(get_lineage_service),
 ) -> SuccessResponse[LineageRecord]:

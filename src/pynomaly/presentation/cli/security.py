@@ -3,8 +3,9 @@
 import asyncio
 import json
 from pathlib import Path
+from typing import Annotated
 
-import click
+import typer
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -23,29 +24,35 @@ from pynomaly.infrastructure.config.container import Container
 
 console = Console()
 
-
-@click.group(name="security")
-def security_commands():
-    """Security and compliance management commands."""
-    pass
-
-
-@security_commands.command()
-@click.option(
-    "--frameworks",
-    type=click.Choice(["soc2", "gdpr", "hipaa", "pci_dss", "iso27001", "nist", "ccpa"]),
-    multiple=True,
-    default=["soc2", "gdpr"],
-    help="Compliance frameworks to assess",
+# Create Typer app
+app = typer.Typer(
+    name="security",
+    help="Security and compliance management commands.",
+    rich_markup_mode="rich",
 )
-@click.option("--output-path", help="Path to save assessment reports")
-@click.option("--scope", help="Assessment scope description")
-@click.option("--detailed", is_flag=True, help="Generate detailed assessment report")
+
+
+@app.command()
 def assess_compliance(
-    frameworks: list[str],
-    output_path: str | None,
-    scope: str | None,
-    detailed: bool,
+    frameworks: Annotated[
+        list[str],
+        typer.Option(
+            "--frameworks",
+            help="Compliance frameworks to assess",
+        )
+    ] = ["soc2", "gdpr"],
+    output_path: Annotated[
+        str | None,
+        typer.Option("--output-path", help="Path to save assessment reports")
+    ] = None,
+    scope: Annotated[
+        str | None,
+        typer.Option("--scope", help="Assessment scope description")
+    ] = None,
+    detailed: Annotated[
+        bool,
+        typer.Option("--detailed", help="Generate detailed assessment report")
+    ] = False,
 ):
     """Assess compliance with regulatory frameworks."""
 
@@ -93,28 +100,30 @@ def assess_compliance(
     asyncio.run(run_assessment())
 
 
-@security_commands.command()
-@click.option("--data-file", required=True, help="Path to data file for encryption")
-@click.option("--output-file", help="Path for encrypted output")
-@click.option(
-    "--classification",
-    type=click.Choice(
-        ["public", "internal", "confidential", "restricted", "personal", "phi"]
-    ),
-    default="confidential",
-    help="Data classification level",
-)
-@click.option(
-    "--frameworks",
-    type=click.Choice(["soc2", "gdpr", "hipaa", "pci_dss"]),
-    multiple=True,
-    help="Applicable compliance frameworks",
-)
+@app.command()
 def encrypt_data(
-    data_file: str,
-    output_file: str | None,
-    classification: str,
-    frameworks: list[str],
+    data_file: Annotated[
+        str,
+        typer.Option("--data-file", help="Path to data file for encryption")
+    ],
+    output_file: Annotated[
+        str | None,
+        typer.Option("--output-file", help="Path for encrypted output")
+    ] = None,
+    classification: Annotated[
+        str,
+        typer.Option(
+            "--classification",
+            help="Data classification level",
+        )
+    ] = "confidential",
+    frameworks: Annotated[
+        list[str],
+        typer.Option(
+            "--frameworks",
+            help="Applicable compliance frameworks",
+        )
+    ] = [],
 ):
     """Encrypt sensitive data with compliance controls."""
 
@@ -185,16 +194,20 @@ def encrypt_data(
     asyncio.run(run_encryption())
 
 
-@security_commands.command()
-@click.option(
-    "--subject-data", required=True, help="JSON file with data subject information"
-)
-@click.option(
-    "--processing-purposes", required=True, help="Comma-separated processing purposes"
-)
-@click.option("--consent-given", is_flag=True, help="Whether consent was given")
+@app.command()
 def register_data_subject(
-    subject_data: str, processing_purposes: str, consent_given: bool
+    subject_data: Annotated[
+        str,
+        typer.Option("--subject-data", help="JSON file with data subject information")
+    ],
+    processing_purposes: Annotated[
+        str,
+        typer.Option("--processing-purposes", help="Comma-separated processing purposes")
+    ],
+    consent_given: Annotated[
+        bool,
+        typer.Option("--consent-given", help="Whether consent was given")
+    ] = False,
 ):
     """Register data subject for GDPR compliance."""
 
@@ -250,16 +263,24 @@ def register_data_subject(
     asyncio.run(run_registration())
 
 
-@security_commands.command()
-@click.option("--subject-id", required=True, help="Data subject UUID")
-@click.option(
-    "--request-type",
-    type=click.Choice(["access", "rectification", "erasure", "portability"]),
-    required=True,
-    help="Type of GDPR request",
-)
-@click.option("--output-file", help="File to save request response")
-def gdpr_request(subject_id: str, request_type: str, output_file: str | None):
+@app.command()
+def gdpr_request(
+    subject_id: Annotated[
+        str,
+        typer.Option("--subject-id", help="Data subject UUID")
+    ],
+    request_type: Annotated[
+        str,
+        typer.Option(
+            "--request-type",
+            help="Type of GDPR request",
+        )
+    ],
+    output_file: Annotated[
+        str | None,
+        typer.Option("--output-file", help="File to save request response")
+    ] = None,
+):
     """Handle GDPR data subject rights requests."""
 
     async def run_gdpr_request():
@@ -321,13 +342,21 @@ def gdpr_request(subject_id: str, request_type: str, output_file: str | None):
     asyncio.run(run_gdpr_request())
 
 
-@security_commands.command()
-@click.option("--access-logs", required=True, help="JSON file with access logs")
-@click.option("--output-file", help="File to save breach detection results")
-@click.option(
-    "--alert-threshold", type=int, default=3, help="Minimum incidents for alert"
-)
-def detect_breach(access_logs: str, output_file: str | None, alert_threshold: int):
+@app.command()
+def detect_breach(
+    access_logs: Annotated[
+        str,
+        typer.Option("--access-logs", help="JSON file with access logs")
+    ],
+    output_file: Annotated[
+        str | None,
+        typer.Option("--output-file", help="File to save breach detection results")
+    ] = None,
+    alert_threshold: Annotated[
+        int,
+        typer.Option("--alert-threshold", help="Minimum incidents for alert")
+    ] = 3,
+):
     """Detect potential data breaches from access logs."""
 
     async def run_breach_detection():
@@ -451,10 +480,17 @@ def anonymize_data(
     asyncio.run(run_anonymization())
 
 
-@security_commands.command()
-@click.option("--config-file", help="Security configuration file")
-@click.option("--output-file", help="File to save security status")
-def status(config_file: str | None, output_file: str | None):
+@app.command()
+def status(
+    config_file: Annotated[
+        str | None,
+        typer.Option("--config-file", help="Security configuration file")
+    ] = None,
+    output_file: Annotated[
+        str | None,
+        typer.Option("--output-file", help="File to save security status")
+    ] = None,
+):
     """Get overall security and compliance status."""
 
     async def run_status_check():
@@ -505,14 +541,20 @@ def status(config_file: str | None, output_file: str | None):
     asyncio.run(run_status_check())
 
 
-@security_commands.command()
-@click.option(
-    "--dry-run",
-    is_flag=True,
-    help="Show what would be cleaned without actually doing it",
-)
-@click.option("--force", is_flag=True, help="Force cleanup without confirmation")
-def cleanup(dry_run: bool, force: bool):
+@app.command()
+def cleanup(
+    dry_run: Annotated[
+        bool,
+        typer.Option(
+            "--dry-run",
+            help="Show what would be cleaned without actually doing it",
+        )
+    ] = False,
+    force: Annotated[
+        bool,
+        typer.Option("--force", help="Force cleanup without confirmation")
+    ] = False,
+):
     """Clean up expired data per retention policies."""
 
     async def run_cleanup():
@@ -568,7 +610,8 @@ def cleanup(dry_run: bool, force: bool):
                 else:
                     # Confirm cleanup
                     if not force:
-                        confirm = click.confirm(
+                        import typer
+                        confirm = typer.confirm(
                             "This will permanently delete expired data. Continue?"
                         )
                         if not confirm:
@@ -811,4 +854,4 @@ async def _save_compliance_reports(reports: dict, output_path: str):
 
 
 if __name__ == "__main__":
-    security_commands()
+    app()

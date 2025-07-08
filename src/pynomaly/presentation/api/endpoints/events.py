@@ -5,7 +5,7 @@ from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, TypeAdapter
 
 from pynomaly.application.services.event_processing_service import (
     EventProcessingService,
@@ -45,17 +45,35 @@ class AcknowledgeEventRequest(BaseModel):
 
     notes: str | None = Field(None, description="Acknowledgment notes")
 
+    class Config:
+        arbitrary_types_allowed = True
+
+
+AcknowledgeEventRequest.model_rebuild()
+
 
 class ResolveEventRequest(BaseModel):
     """Request for resolving an event."""
 
     notes: str | None = Field(None, description="Resolution notes")
 
+    class Config:
+        arbitrary_types_allowed = True
+
+
+ResolveEventRequest.model_rebuild()
+
 
 class IgnoreEventRequest(BaseModel):
     """Request for ignoring an event."""
 
     reason: str | None = Field(None, description="Reason for ignoring")
+
+    class Config:
+        arbitrary_types_allowed = True
+
+
+IgnoreEventRequest.model_rebuild()
 
 
 class CreatePatternRequest(BaseModel):
@@ -74,6 +92,19 @@ class CreatePatternRequest(BaseModel):
     alert_threshold: int = Field(
         default=1, description="Number of matches before alerting"
     )
+
+    class Config:
+        arbitrary_types_allowed = True
+
+
+CreatePatternRequest.model_rebuild()
+
+# Rebuild TypeAdapter to resolve any potential forward references
+for req_class in [AcknowledgeEventRequest, ResolveEventRequest, IgnoreEventRequest, CreatePatternRequest]:
+    try:
+        TypeAdapter(req_class).rebuild()
+    except Exception:
+        pass  # Ignore if rebuild fails
 
 
 class EventQueryRequest(BaseModel):
