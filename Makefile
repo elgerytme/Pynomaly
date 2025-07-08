@@ -27,6 +27,11 @@ help: ## Show this help message
 	@echo "  make dev-install    - Install package in development mode with all dependencies"
 	@echo ""
 	@echo "Development & Quality:"
+	@echo "  make dev            - Start Docker development environment (recommended)"
+	@echo "  make dev-storage    - Start development with storage services (PostgreSQL, Redis, MinIO)"
+	@echo "  make dev-test       - Run tests in Docker environment"
+	@echo "  make dev-clean      - Clean Docker development environment"
+	@echo "  make dev-legacy     - Start legacy npm watch mode (deprecated)"
 	@echo "  make lint           - Run all code quality checks (style, type, format)"
 	@echo "  make format         - Auto-format code (ruff, black, isort)"
 	@echo "  make style          - Check code style without fixing"
@@ -75,12 +80,13 @@ help-detailed: ## Show detailed help with examples
 	@echo "4. Run: make pre-commit"
 	@echo ""
 	@echo "=== DAILY DEVELOPMENT WORKFLOW ==="
-	@echo "1. make format        # Auto-fix code style"
-	@echo "2. make test          # Run core tests"
-	@echo "3. make lint          # Check quality"
-	@echo "4. git add . && git commit -m 'feat: your changes'"
-	@echo "5. make ci            # Full CI check before push"
-	@echo "6. git push"
+	@echo "1. make dev           # Start Docker development environment"
+	@echo "2. make format        # Auto-fix code style"
+	@echo "3. make dev-test      # Run tests in Docker"
+	@echo "4. make lint          # Check quality"
+	@echo "5. git add . && git commit -m 'feat: your changes'"
+	@echo "6. make ci            # Full CI check before push"
+	@echo "7. git push"
 	@echo ""
 	@echo "=== HATCH COMMANDS USED ==="
 	@echo "• hatch version       → Git-based version management"
@@ -447,7 +453,11 @@ dev: ## Start development environment with Docker (recommended)
 	@echo "This will start the full development stack with hot-reload"
 	@echo "API will be available at http://localhost:8000"
 	@echo "Press Ctrl+C to stop"
+ifeq ($(OS),Windows_NT)
+	@powershell -ExecutionPolicy Bypass -File ./scripts/docker/dev/run-dev.ps1 -build
+else
 	@./scripts/docker/dev/run-dev.sh --build
+endif
 
 dev-legacy: ## Start legacy development environment with watch mode (deprecated)
 	@echo "⚠️  Starting legacy development environment..."

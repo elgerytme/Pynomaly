@@ -171,6 +171,10 @@ class SecurityEvent(BaseModel):
 class AuditEvent(BaseModel):
     """General audit event for non-security activities."""
 
+    model_config = ConfigDict(
+        json_encoders={datetime: lambda v: v.isoformat()}
+    )
+
     event_type: str
     level: AuditLevel
     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
@@ -193,9 +197,6 @@ class AuditEvent(BaseModel):
     # Compliance
     compliance_standards: list[ComplianceStandard] | None = None
     retention_period_days: int | None = None
-
-    class Config:
-        json_encoders = {datetime: lambda v: v.isoformat()}
 
 
 class AuditLogger:
