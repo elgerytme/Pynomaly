@@ -1,0 +1,691 @@
+# Enhanced Production Kubernetes Deployment with Advanced Features
+# This file includes additional production-ready components for maximum reliability
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: pynomaly-network-policy
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: network-policy
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: pynomaly
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: pynomaly-production
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 8000
+    - protocol: TCP
+      port: 9090
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: pynomaly-production
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 5432  # PostgreSQL
+    - protocol: TCP
+      port: 6379  # Redis
+    - protocol: TCP
+      port: 443   # HTTPS outbound
+    - protocol: TCP
+      port: 80    # HTTP outbound
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pynomaly-monitoring-config
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+    
+    rule_files:
+      - "/etc/prometheus/alert_rules.yml"
+    
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets:
+              - alertmanager:9093
+    
+    scrape_configs:
+      - job_name: 'pynomaly-api'
+        static_configs:
+          - targets: ['pynomaly-api-internal:9090']
+        metrics_path: '/metrics'
+        scrape_interval: 30s
+        
+      - job_name: 'pynomaly-worker'
+        static_configs:
+          - targets: ['pynomaly-worker-internal:9090']
+        metrics_path: '/metrics'
+        scrape_interval: 30s
+
+  alert_rules.yml: |
+    groups:
+    - name: pynomaly_alerts
+      rules:
+      - alert: PynomalyAPIHighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate in Pynomaly API"
+          description: "Error rate is {{ $value }} errors per second"
+          
+      - alert: PynomalyAPIHighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High latency in Pynomaly API"
+          description: "95th percentile latency is {{ $value }} seconds"
+          
+      - alert: PynomalyMemoryUsageHigh
+        expr: container_memory_usage_bytes{pod=~"pynomaly-.*"} / container_spec_memory_limit_bytes > 0.9
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage in Pynomaly"
+          description: "Memory usage is {{ $value | humanizePercentage }}"
+          
+      - alert: PynomaliyCPUUsageHigh
+        expr: rate(container_cpu_usage_seconds_total{pod=~"pynomaly-.*"}[5m]) / container_spec_cpu_quota * 100 > 90
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage in Pynomaly"
+          description: "CPU usage is {{ $value }}%"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pynomaly-fluent-bit-config
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: logging
+data:
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush         1
+        Log_Level     info
+        Daemon        off
+        Parsers_File  parsers.conf
+        HTTP_Server   On
+        HTTP_Listen   0.0.0.0
+        HTTP_Port     2020
+
+    [INPUT]
+        Name              tail
+        Path              /app/logs/*.log
+        Parser            json
+        Tag               pynomaly.*
+        Refresh_Interval  5
+
+    [FILTER]
+        Name                kubernetes
+        Match               pynomaly.*
+        Kube_URL            https://kubernetes.default.svc:443
+        Kube_CA_File        /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        Kube_Token_File     /var/run/secrets/kubernetes.io/serviceaccount/token
+        Merge_Log           On
+        Keep_Log            Off
+
+    [OUTPUT]
+        Name  es
+        Match *
+        Host  elasticsearch.logging.svc.cluster.local
+        Port  9200
+        Index pynomaly-logs
+        Type  _doc
+
+  parsers.conf: |
+    [PARSER]
+        Name        json
+        Format      json
+        Time_Key    timestamp
+        Time_Format %Y-%m-%dT%H:%M:%S.%L
+        Time_Keep   On
+
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: pynomaly-fluent-bit
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: fluent-bit
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: logging
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: fluent-bit
+      app.kubernetes.io/instance: production
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: fluent-bit
+        app.kubernetes.io/instance: production
+        app.kubernetes.io/component: logging
+    spec:
+      serviceAccountName: fluent-bit
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+      containers:
+      - name: fluent-bit
+        image: fluent/fluent-bit:2.1.8
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 2020
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        volumeMounts:
+        - name: config
+          mountPath: /fluent-bit/etc/
+        - name: varlog
+          mountPath: /var/log
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+        - name: pynomaly-logs
+          mountPath: /app/logs
+          readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: pynomaly-fluent-bit-config
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: pynomaly-logs
+        persistentVolumeClaim:
+          claimName: pynomaly-storage-pvc
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fluent-bit
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: fluent-bit
+    app.kubernetes.io/instance: production
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: fluent-bit
+  labels:
+    app.kubernetes.io/name: fluent-bit
+    app.kubernetes.io/instance: production
+rules:
+- apiGroups: [""]
+  resources:
+  - namespaces
+  - pods
+  - pods/logs
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: fluent-bit
+  labels:
+    app.kubernetes.io/name: fluent-bit
+    app.kubernetes.io/instance: production
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: fluent-bit
+subjects:
+- kind: ServiceAccount
+  name: fluent-bit
+  namespace: pynomaly-production
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pynomaly-backup-scripts
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: backup
+data:
+  backup.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    
+    TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+    BACKUP_DIR="/backup"
+    DB_HOST="${DATABASE_HOST}"
+    DB_NAME="${DATABASE_NAME}"
+    DB_USER="${DATABASE_USER}"
+    
+    echo "Starting backup at $(date)"
+    
+    # Create backup directory
+    mkdir -p "${BACKUP_DIR}/${TIMESTAMP}"
+    
+    # Database backup
+    echo "Backing up database..."
+    PGPASSWORD="${DATABASE_PASSWORD}" pg_dump \
+      -h "${DB_HOST}" \
+      -U "${DB_USER}" \
+      -d "${DB_NAME}" \
+      --verbose \
+      --no-owner \
+      --no-privileges \
+      -f "${BACKUP_DIR}/${TIMESTAMP}/database.sql"
+    
+    # Storage backup
+    echo "Backing up storage..."
+    tar -czf "${BACKUP_DIR}/${TIMESTAMP}/storage.tar.gz" -C /app/storage .
+    
+    # Models backup
+    echo "Backing up models..."
+    tar -czf "${BACKUP_DIR}/${TIMESTAMP}/models.tar.gz" -C /app/models .
+    
+    # Create metadata
+    cat > "${BACKUP_DIR}/${TIMESTAMP}/metadata.json" << EOF
+    {
+      "timestamp": "${TIMESTAMP}",
+      "date": "$(date -Iseconds)",
+      "database_size": "$(du -sh ${BACKUP_DIR}/${TIMESTAMP}/database.sql | cut -f1)",
+      "storage_size": "$(du -sh ${BACKUP_DIR}/${TIMESTAMP}/storage.tar.gz | cut -f1)",
+      "models_size": "$(du -sh ${BACKUP_DIR}/${TIMESTAMP}/models.tar.gz | cut -f1)",
+      "kubernetes_namespace": "${POD_NAMESPACE}",
+      "backup_version": "1.0"
+    }
+    EOF
+    
+    # Cleanup old backups (keep last 7 days)
+    find "${BACKUP_DIR}" -type d -mtime +7 -exec rm -rf {} \; 2>/dev/null || true
+    
+    echo "Backup completed successfully at $(date)"
+    echo "Backup location: ${BACKUP_DIR}/${TIMESTAMP}"
+
+  restore.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    
+    if [ $# -ne 1 ]; then
+      echo "Usage: $0 <backup_timestamp>"
+      exit 1
+    fi
+    
+    TIMESTAMP="$1"
+    BACKUP_DIR="/backup/${TIMESTAMP}"
+    
+    if [ ! -d "${BACKUP_DIR}" ]; then
+      echo "Backup directory ${BACKUP_DIR} not found"
+      exit 1
+    fi
+    
+    echo "Starting restore from backup: ${TIMESTAMP}"
+    
+    # Restore database
+    echo "Restoring database..."
+    PGPASSWORD="${DATABASE_PASSWORD}" psql \
+      -h "${DATABASE_HOST}" \
+      -U "${DATABASE_USER}" \
+      -d "${DATABASE_NAME}" \
+      -f "${BACKUP_DIR}/database.sql"
+    
+    # Restore storage
+    echo "Restoring storage..."
+    tar -xzf "${BACKUP_DIR}/storage.tar.gz" -C /app/storage
+    
+    # Restore models
+    echo "Restoring models..."
+    tar -xzf "${BACKUP_DIR}/models.tar.gz" -C /app/models
+    
+    echo "Restore completed successfully at $(date)"
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: pynomaly-backup
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: backup
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  timeZone: "UTC"
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 3
+  successfulJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: pynomaly
+            app.kubernetes.io/instance: production
+            app.kubernetes.io/component: backup-job
+        spec:
+          restartPolicy: OnFailure
+          serviceAccountName: pynomaly-service-account
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+          containers:
+          - name: backup
+            image: postgres:15-alpine
+            imagePullPolicy: IfNotPresent
+            command: ["/bin/sh"]
+            args: ["/scripts/backup.sh"]
+            envFrom:
+            - configMapRef:
+                name: pynomaly-config
+            - secretRef:
+                name: pynomaly-secrets
+            env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "100m"
+              limits:
+                memory: "1Gi"
+                cpu: "500m"
+            volumeMounts:
+            - name: backup-scripts
+              mountPath: /scripts
+            - name: backup-storage
+              mountPath: /backup
+            - name: app-storage
+              mountPath: /app/storage
+            - name: app-models
+              mountPath: /app/models
+          volumes:
+          - name: backup-scripts
+            configMap:
+              name: pynomaly-backup-scripts
+              defaultMode: 0755
+          - name: backup-storage
+            persistentVolumeClaim:
+              claimName: pynomaly-backup-pvc
+          - name: app-storage
+            persistentVolumeClaim:
+              claimName: pynomaly-storage-pvc
+          - name: app-models
+            persistentVolumeClaim:
+              claimName: pynomaly-models-pvc
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pynomaly-backup-pvc
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: backup-storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: gp2
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pynomaly-models-pvc
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: model-storage
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: efs-sc
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: pynomaly-api
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: routing
+spec:
+  hosts:
+  - api.pynomaly.prod
+  gateways:
+  - pynomaly-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /api/health
+    route:
+    - destination:
+        host: pynomaly-api-internal.pynomaly-production.svc.cluster.local
+        port:
+          number: 8000
+    timeout: 5s
+  - match:
+    - uri:
+        prefix: /api/v1
+    route:
+    - destination:
+        host: pynomaly-api-internal.pynomaly-production.svc.cluster.local
+        port:
+          number: 8000
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+      retryOn: 5xx,gateway-error,connect-failure,refused-stream
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: pynomaly-api-internal.pynomaly-production.svc.cluster.local
+        port:
+          number: 8000
+    timeout: 30s
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: pynomaly-gateway
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: pynomaly-tls-secret
+    hosts:
+    - api.pynomaly.prod
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - api.pynomaly.prod
+    tls:
+      httpsRedirect: true
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: pynomaly-mtls
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: security
+spec:
+  mtls:
+    mode: STRICT
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: pynomaly-authz
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: security
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pynomaly
+      app.kubernetes.io/component: api
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account"]
+  - to:
+    - operation:
+        methods: ["GET"]
+        paths: ["/api/health*", "/metrics"]
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pynomaly-chaos-config
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: chaos-testing
+data:
+  chaos-experiments.yaml: |
+    apiVersion: chaos-mesh.org/v1alpha1
+    kind: Schedule
+    metadata:
+      name: pynomaly-chaos-schedule
+      namespace: pynomaly-production
+    spec:
+      schedule: '0 3 * * 1'  # Weekly on Monday at 3 AM
+      historyLimit: 5
+      concurrencyPolicy: "Forbid"
+      type: 'PodChaos'
+      podChaos:
+        selector:
+          namespaces:
+            - pynomaly-production
+          labelSelectors:
+            "app.kubernetes.io/name": "pynomaly"
+            "app.kubernetes.io/component": "api"
+        mode: one
+        action: pod-kill
+        duration: "30s"
+        
+    ---
+    apiVersion: chaos-mesh.org/v1alpha1
+    kind: Schedule
+    metadata:
+      name: pynomaly-network-chaos
+      namespace: pynomaly-production
+    spec:
+      schedule: '0 4 * * 2'  # Weekly on Tuesday at 4 AM
+      historyLimit: 3
+      type: 'NetworkChaos'
+      networkChaos:
+        selector:
+          namespaces:
+            - pynomaly-production
+          labelSelectors:
+            "app.kubernetes.io/name": "pynomaly"
+        mode: one
+        action: delay
+        delay:
+          latency: "100ms"
+          correlation: "100"
+          jitter: "0ms"
+        duration: "60s"

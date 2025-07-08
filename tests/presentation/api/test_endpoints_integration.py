@@ -89,7 +89,7 @@ class TestDetectorEndpointsIntegration:
     @pytest.mark.integration
     def test_list_available_algorithms(self, client):
         """Test listing available algorithms."""
-        response = client.get("/detectors/algorithms")
+        response = client.get("/api/detectors/algorithms")
 
         assert response.status_code == 200
         data = response.json()
@@ -117,7 +117,7 @@ class TestDetectorEndpointsIntegration:
                 "metadata": {"description": "Integration test detector"},
             }
 
-            response = client.post("/detectors/", json=detector_data)
+            response = client.post("/api/detectors/", json=detector_data)
 
             assert response.status_code == 200
             data = response.json()
@@ -151,7 +151,7 @@ class TestDetectorEndpointsIntegration:
                 "save_model": True,
             }
 
-            response = client.post("/detection/train", json=train_request)
+            response = client.post("/api/detection/train", json=train_request)
 
             assert response.status_code == 200
             data = response.json()
@@ -185,7 +185,7 @@ class TestDetectorEndpointsIntegration:
                 "save_model": True,
             }
 
-            train_response = client.post("/detection/train", json=train_request)
+            train_response = client.post("/api/detection/train", json=train_request)
             assert train_response.status_code == 200
 
             # Now test detection
@@ -196,7 +196,7 @@ class TestDetectorEndpointsIntegration:
                 "save_results": True,
             }
 
-            response = client.post("/detection/detect", json=detect_request)
+            response = client.post("/api/detection/detect", json=detect_request)
 
             assert response.status_code == 200
             data = response.json()
@@ -265,7 +265,7 @@ class TestDetectorEndpointsIntegration:
                 "save_results": True,
             }
 
-            response = client.post("/detection/detect/batch", json=batch_request)
+            response = client.post("/api/detection/detect/batch", json=batch_request)
 
             assert response.status_code == 200
             data = response.json()
@@ -338,7 +338,7 @@ class TestDetectorEndpointsIntegration:
 
         with app.container.override(mock_container):
             response = client.get(
-                f"/detection/compare?dataset_id={test_dataset.id}",
+                f"/api/detection/compare?dataset_id={test_dataset.id}",
                 params={"detector_ids": [str(d.id) for d in detectors]},
             )
 
@@ -363,7 +363,7 @@ class TestDetectorEndpointsIntegration:
                 "save_model": True,
             }
 
-            response = client.post("/detection/train", json=train_request)
+            response = client.post("/api/detection/train", json=train_request)
             assert response.status_code == 404
             assert "Detector not found" in response.json()["detail"]
 
@@ -375,7 +375,7 @@ class TestDetectorEndpointsIntegration:
                 "save_results": True,
             }
 
-            response = client.post("/detection/detect", json=detect_request)
+            response = client.post("/api/detection/detect", json=detect_request)
             assert response.status_code == 404
             assert "Detector not found" in response.json()["detail"]
 
@@ -406,7 +406,7 @@ class TestDetectorEndpointsIntegration:
                 "save_model": True,
             }
 
-            response = client.post("/detection/train", json=train_request)
+            response = client.post("/api/detection/train", json=train_request)
             training_time = time.time() - start_time
 
             assert response.status_code == 200
@@ -422,7 +422,7 @@ class TestDetectorEndpointsIntegration:
                 "save_results": False,
             }
 
-            response = client.post("/detection/detect", json=detect_request)
+            response = client.post("/api/detection/detect", json=detect_request)
             detection_time = time.time() - start_time
 
             assert response.status_code == 200
@@ -462,7 +462,7 @@ class TestDetectorEndpointsIntegration:
                         "save_results": False,
                     }
 
-                    response = client.post("/detection/detect", json=detect_request)
+                    response = client.post("/api/detection/detect", json=detect_request)
                     results.append(response.status_code == 200)
             except Exception as e:
                 errors.append(str(e))

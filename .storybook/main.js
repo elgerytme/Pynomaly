@@ -51,11 +51,13 @@ const config = {
     };
     
     // Add PostCSS support for Tailwind
+    const { default: tailwindcss } = await import('tailwindcss');
+    const { default: autoprefixer } = await import('autoprefixer');
     config.css = config.css || {};
     config.css.postcss = {
       plugins: [
-        require('tailwindcss'),
-        require('autoprefixer')
+        tailwindcss,
+        autoprefixer
       ]
     };
     

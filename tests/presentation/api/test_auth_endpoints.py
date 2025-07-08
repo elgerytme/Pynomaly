@@ -208,21 +208,21 @@ class TestAuthEndpoints:
         }
 
         headers = {"Authorization": "Bearer admin-token"}
-        response = client.get("/auth/admin/users", headers=headers)
+        response = client.get("/api/auth/admin/users", headers=headers)
 
         assert response.status_code == 200
 
     def test_admin_endpoint_forbidden_for_user(self, client, mock_auth_handler):
         """Test admin endpoint forbidden for regular user."""
         headers = {"Authorization": "Bearer test-jwt-token"}
-        response = client.get("/auth/admin/users", headers=headers)
+        response = client.get("/api/auth/admin/users", headers=headers)
 
         assert response.status_code == 403
 
     def test_permission_check_valid(self, client, mock_auth_handler):
         """Test permission check with valid permission."""
         headers = {"Authorization": "Bearer test-jwt-token"}
-        response = client.get("/datasets", headers=headers)
+        response = client.get("/api/datasets", headers=headers)
 
         assert response.status_code in [200, 404]  # 404 if no datasets, but auth passed
 
@@ -235,7 +235,7 @@ class TestAuthEndpoints:
         }
 
         headers = {"Authorization": "Bearer limited-token"}
-        response = client.post("/datasets", json={}, headers=headers)
+        response = client.post("/api/datasets", json={}, headers=headers)
 
         assert response.status_code == 403
 
@@ -244,7 +244,7 @@ class TestAuthEndpoints:
     def test_invalid_token_format(self, client):
         """Test request with invalid token format."""
         headers = {"Authorization": "Invalid token-format"}
-        response = client.get("/auth/me", headers=headers)
+        response = client.get("/api/auth/me", headers=headers)
 
         assert response.status_code == 401
 
@@ -253,7 +253,7 @@ class TestAuthEndpoints:
         mock_auth_handler.verify_token.side_effect = jwt.DecodeError()
 
         headers = {"Authorization": "Bearer malformed-jwt-token"}
-        response = client.get("/auth/me", headers=headers)
+        response = client.get("/api/auth/me", headers=headers)
 
         assert response.status_code == 401
 
@@ -262,7 +262,7 @@ class TestAuthEndpoints:
         mock_auth_handler.verify_token.return_value = {"exp": datetime.utcnow()}
 
         headers = {"Authorization": "Bearer incomplete-token"}
-        response = client.get("/auth/me", headers=headers)
+        response = client.get("/api/auth/me", headers=headers)
 
         assert response.status_code == 401
 
@@ -277,7 +277,7 @@ class TestAuthEndpoints:
 
         # Simulate multiple failed login attempts
         for _ in range(6):  # Assuming 5 is the rate limit
-            response = client.post("/auth/login", json=invalid_credentials)
+            response = client.post("/api/auth/login", json=invalid_credentials)
 
         # Should be rate limited after multiple failures
         assert response.status_code in [429, 401]
@@ -287,7 +287,7 @@ class TestAuthEndpoints:
     def test_password_reset_request(self, client):
         """Test password reset request."""
         response = client.post(
-            "/auth/password-reset", json={"email": "test@example.com"}
+            "/api/auth/password-reset", json={"email": "test@example.com"}
         )
 
         assert response.status_code == 200
@@ -302,7 +302,7 @@ class TestAuthEndpoints:
             "confirm_password": "new_secure_password_123",
         }
 
-        response = client.post("/auth/password-reset/confirm", json=reset_data)
+        response = client.post("/api/auth/password-reset/confirm", json=reset_data)
 
         assert response.status_code == 200
 
@@ -314,7 +314,7 @@ class TestAuthEndpoints:
             "confirm_password": "new_password_123",
         }
 
-        response = client.post("/auth/password-reset/confirm", json=reset_data)
+        response = client.post("/api/auth/password-reset/confirm", json=reset_data)
 
         assert response.status_code == 400
 
@@ -323,7 +323,7 @@ class TestAuthEndpoints:
     def test_mfa_setup_request(self, client, mock_auth_handler):
         """Test MFA setup request."""
         headers = {"Authorization": "Bearer test-jwt-token"}
-        response = client.post("/auth/mfa/setup", headers=headers)
+        response = client.post("/api/auth/mfa/setup", headers=headers)
 
         assert response.status_code == 200
         data = response.json()
@@ -335,7 +335,7 @@ class TestAuthEndpoints:
         headers = {"Authorization": "Bearer test-jwt-token"}
         mfa_data = {"code": "123456"}
 
-        response = client.post("/auth/mfa/verify", json=mfa_data, headers=headers)
+        response = client.post("/api/auth/mfa/verify", json=mfa_data, headers=headers)
 
         assert response.status_code == 200
 
@@ -344,7 +344,7 @@ class TestAuthEndpoints:
         headers = {"Authorization": "Bearer test-jwt-token"}
         mfa_data = {"code": "000000"}
 
-        response = client.post("/auth/mfa/verify", json=mfa_data, headers=headers)
+        response = client.post("/api/auth/mfa/verify", json=mfa_data, headers=headers)
 
         assert response.status_code == 400
 
@@ -353,7 +353,7 @@ class TestAuthEndpoints:
     def test_active_sessions_list(self, client, mock_auth_handler):
         """Test listing active user sessions."""
         headers = {"Authorization": "Bearer test-jwt-token"}
-        response = client.get("/auth/sessions", headers=headers)
+        response = client.get("/api/auth/sessions", headers=headers)
 
         assert response.status_code == 200
         data = response.json()
@@ -363,14 +363,14 @@ class TestAuthEndpoints:
     def test_revoke_session(self, client, mock_auth_handler):
         """Test revoking a specific session."""
         headers = {"Authorization": "Bearer test-jwt-token"}
-        response = client.delete("/auth/sessions/session-id-123", headers=headers)
+        response = client.delete("/api/auth/sessions/session-id-123", headers=headers)
 
         assert response.status_code == 200
 
     def test_revoke_all_sessions(self, client, mock_auth_handler):
         """Test revoking all user sessions."""
         headers = {"Authorization": "Bearer test-jwt-token"}
-        response = client.delete("/auth/sessions", headers=headers)
+        response = client.delete("/api/auth/sessions", headers=headers)
 
         assert response.status_code == 200
 
@@ -385,7 +385,7 @@ class TestAuthEndpoints:
             "expires_in_days": 30,
         }
 
-        response = client.post("/auth/api-keys", json=api_key_data, headers=headers)
+        response = client.post("/api/auth/api-keys", json=api_key_data, headers=headers)
 
         assert response.status_code == 201
         data = response.json()
@@ -395,7 +395,7 @@ class TestAuthEndpoints:
     def test_list_api_keys(self, client, mock_auth_handler):
         """Test listing user's API keys."""
         headers = {"Authorization": "Bearer test-jwt-token"}
-        response = client.get("/auth/api-keys", headers=headers)
+        response = client.get("/api/auth/api-keys", headers=headers)
 
         assert response.status_code == 200
         data = response.json()
@@ -404,7 +404,7 @@ class TestAuthEndpoints:
     def test_revoke_api_key(self, client, mock_auth_handler):
         """Test revoking an API key."""
         headers = {"Authorization": "Bearer test-jwt-token"}
-        response = client.delete("/auth/api-keys/key-id-123", headers=headers)
+        response = client.delete("/api/auth/api-keys/key-id-123", headers=headers)
 
         assert response.status_code == 200
 
@@ -413,7 +413,7 @@ class TestAuthEndpoints:
     def test_security_events_log(self, client, mock_auth_handler):
         """Test retrieving security events for user."""
         headers = {"Authorization": "Bearer test-jwt-token"}
-        response = client.get("/auth/security-events", headers=headers)
+        response = client.get("/api/auth/security-events", headers=headers)
 
         assert response.status_code == 200
         data = response.json()
@@ -424,14 +424,14 @@ class TestAuthEndpoints:
         self, client, mock_auth_handler, valid_user_credentials
     ):
         """Test that login attempts are properly logged."""
-        response = client.post("/auth/login", json=valid_user_credentials)
+        response = client.post("/api/auth/login", json=valid_user_credentials)
 
         # Verify login was successful
         assert response.status_code == 200
 
         # Check that security event was logged
         headers = {"Authorization": f"Bearer {response.json()['access_token']}"}
-        events_response = client.get("/auth/security-events", headers=headers)
+        events_response = client.get("/api/auth/security-events", headers=headers)
 
         assert events_response.status_code == 200
         events = events_response.json()["events"]
@@ -446,7 +446,7 @@ class TestAuthEndpointsIntegration:
         """Client with pre-authenticated user."""
         # Perform login
         credentials = {"email": "test@example.com", "password": "password123"}
-        response = client.post("/auth/login", json=credentials)
+        response = client.post("/api/auth/login", json=credentials)
         token = response.json()["access_token"]
 
         # Return client with auth headers
@@ -457,14 +457,14 @@ class TestAuthEndpointsIntegration:
         """Test complete authentication flow from login to logout."""
         # 1. Login
         credentials = {"email": "test@example.com", "password": "password123"}
-        login_response = client.post("/auth/login", json=credentials)
+        login_response = client.post("/api/auth/login", json=credentials)
         assert login_response.status_code == 200
 
         token = login_response.json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
 
         # 2. Access protected resource
-        user_response = client.get("/auth/me", headers=headers)
+        user_response = client.get("/api/auth/me", headers=headers)
         assert user_response.status_code == 200
 
         # 3. Change password
@@ -474,12 +474,12 @@ class TestAuthEndpointsIntegration:
             "confirm_password": "new_password_456",
         }
         password_response = client.post(
-            "/auth/change-password", json=password_data, headers=headers
+            "/api/auth/change-password", json=password_data, headers=headers
         )
         assert password_response.status_code == 200
 
         # 4. Logout
-        logout_response = client.post("/auth/logout", headers=headers)
+        logout_response = client.post("/api/auth/logout", headers=headers)
         assert logout_response.status_code == 200
 
     def test_role_based_access_control(self, client, mock_auth_handler):
@@ -516,9 +516,9 @@ class TestAuthEndpointsIntegration:
             headers = {"Authorization": "Bearer test-token"}
 
             # Test admin endpoint
-            admin_response = client.get("/auth/admin/users", headers=headers)
+            admin_response = client.get("/api/auth/admin/users", headers=headers)
             assert admin_response.status_code == case["expected_admin_access"]
 
             # Test user endpoint
-            user_response = client.get("/auth/me", headers=headers)
+            user_response = client.get("/api/auth/me", headers=headers)
             assert user_response.status_code == case["expected_user_access"]
