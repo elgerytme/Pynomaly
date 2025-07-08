@@ -15,6 +15,10 @@ permissions:
 env:
   PYTHON_VERSION: "3.11"
   HATCH_VERBOSE: 1
+  # Cache configuration
+  POETRY_CACHE_DIR: ~/.cache/pypoetry
+  PIP_CACHE_DIR: ~/.cache/pip
+  WHEEL_CACHE_DIR: ~/.cache/wheels
 
 jobs:
 
@@ -198,7 +202,7 @@ jobs:
         path: dist/
         retention-days: 30
 
-  # Job 3: Test Suite (Matrix)
+  # Job 3: Test Suite (Matrix) with Services
   test:
     name: Test Suite
     runs-on: ubuntu-latest
@@ -207,6 +211,32 @@ jobs:
         python-version: ["3.11", "3.12"]
         test-type: ["unit", "integration"]
       fail-fast: false
+    
+    # Add services for integration tests
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: pynomaly_test
+          POSTGRES_USER: pynomaly
+          POSTGRES_PASSWORD: pynomaly_test_password
+        options: >
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 3s
+          --health-retries 3
+        ports:
+          - 6379:6379
     
     steps:
     - name: Checkout code
@@ -218,11 +248,53 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+        cache-dependency-path: 'pyproject.toml'
+
+    - name: Cache Python wheels for ML dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/pip
+          ~/.cache/wheels
+          ~/.cache/torch
+          ~/.cache/tensorflow
+          ~/.cache/jax
+        key: ${{ runner.os }}-wheels-${{ matrix.python-version }}-${{ hashFiles('pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-wheels-${{ matrix.python-version }}-
+          ${{ runner.os }}-wheels-
 
     - name: Install Hatch
       run: |
         python -m pip install --upgrade pip
         pip install hatch
+
+    - name: Pre-install heavy ML dependencies (cached)
+      run: |
+        # Install heavy ML dependencies with caching
+        python -m pip install --upgrade pip wheel setuptools
+        
+        # Install core ML dependencies that are commonly cached
+        pip install --cache-dir ~/.cache/pip numpy==1.26.0 scipy scikit-learn
+        
+        # Only install deep learning deps for specific tests
+        if [ "${{ matrix.test-type }}" = "integration" ]; then
+          pip install --cache-dir ~/.cache/pip torch --index-url https://download.pytorch.org/whl/cpu
+          pip install --cache-dir ~/.cache/pip tensorflow-cpu
+        fi
+
+    - name: Set up test environment variables
+      run: |
+        echo "PYNOMALY_DB_HOST=localhost" >> $GITHUB_ENV
+        echo "PYNOMALY_DB_PORT=5432" >> $GITHUB_ENV
+        echo "PYNOMALY_DB_NAME=pynomaly_test" >> $GITHUB_ENV
+        echo "PYNOMALY_DB_USER=pynomaly" >> $GITHUB_ENV
+        echo "PYNOMALY_DB_PASSWORD=pynomaly_test_password" >> $GITHUB_ENV
+        echo "PYNOMALY_REDIS_HOST=localhost" >> $GITHUB_ENV
+        echo "PYNOMALY_REDIS_PORT=6379" >> $GITHUB_ENV
+        echo "PYNOMALY_REDIS_DB=0" >> $GITHUB_ENV
+        echo "PYNOMALY_ENVIRONMENT=testing" >> $GITHUB_ENV
 
     - name: Run unit tests
       if: matrix.test-type == 'unit'
@@ -233,6 +305,10 @@ jobs:
     - name: Run integration tests
       if: matrix.test-type == 'integration'
       run: |
+        # Wait for services to be ready
+        timeout 60 bash -c 'until pg_isready -h localhost -p 5432; do sleep 1; done'
+        timeout 30 bash -c 'until redis-cli -h localhost -p 6379 ping; do sleep 1; done'
+        
         hatch env run test:run tests/infrastructure/ -v --tb=short --ignore=tests/infrastructure/test_*_performance*
       continue-on-error: true
 
@@ -261,10 +337,35 @@ jobs:
           coverage-combined.xml
         retention-days: 30
 
-  # Job 4: API & CLI Testing
+  # Job 4: API & CLI Testing with Services
   api-cli-test:
     name: API & CLI Testing
     runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: pynomaly_test
+          POSTGRES_USER: pynomaly
+          POSTGRES_PASSWORD: pynomaly_test_password
+        options: >
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 3s
+          --health-retries 3
+        ports:
+          - 6379:6379
     
     steps:
     - name: Checkout code
@@ -276,6 +377,18 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+        cache-dependency-path: 'pyproject.toml'
+
+    - name: Cache Python wheels
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/pip
+          ~/.cache/wheels
+        key: ${{ runner.os }}-api-cli-${{ hashFiles('pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-api-cli-
 
     - name: Install Hatch
       run: |
@@ -297,12 +410,27 @@ jobs:
         print('✅ Core domain imports successful')
         "
 
+    - name: Set up API test environment
+      run: |
+        echo "PYNOMALY_DB_HOST=localhost" >> $GITHUB_ENV
+        echo "PYNOMALY_DB_PORT=5432" >> $GITHUB_ENV
+        echo "PYNOMALY_DB_NAME=pynomaly_test" >> $GITHUB_ENV
+        echo "PYNOMALY_DB_USER=pynomaly" >> $GITHUB_ENV
+        echo "PYNOMALY_DB_PASSWORD=pynomaly_test_password" >> $GITHUB_ENV
+        echo "PYNOMALY_REDIS_HOST=localhost" >> $GITHUB_ENV
+        echo "PYNOMALY_REDIS_PORT=6379" >> $GITHUB_ENV
+        echo "PYNOMALY_ENVIRONMENT=testing" >> $GITHUB_ENV
+
     - name: Install API dependencies for testing
       run: |
         pip install "fastapi>=0.100.0" "uvicorn[standard]>=0.20.0"
 
     - name: Test API startup (10 second timeout)
       run: |
+        # Wait for services to be ready
+        timeout 60 bash -c 'until pg_isready -h localhost -p 5432; do sleep 1; done'
+        timeout 30 bash -c 'until redis-cli -h localhost -p 6379 ping; do sleep 1; done'
+        
         timeout 10s python -m uvicorn pynomaly.presentation.api.app:app --host 0.0.0.0 --port 8000 || echo "✅ API startup test completed (expected timeout)"
       continue-on-error: true
 
@@ -446,7 +574,7 @@ jobs:
         sarif_file: security-reports/pip-audit.sarif
         category: pip-audit
 
-  # Job 7: Docker Build
+  # Job 7: Docker Build with Services Testing
   docker:
     name: Docker Build
     runs-on: ubuntu-latest
@@ -459,7 +587,9 @@ jobs:
         path: |
           ~/.cache/pip
           ~/scripts/**
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        key: ${{ runner.os }}-docker-${{ hashFiles('**/requirements.txt', 'pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-docker-
 
     - name: Checkout code
       uses: actions/checkout@v4
@@ -476,6 +606,25 @@ jobs:
         tags: pynomaly:latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
+        build-args: |
+          BUILDKIT_INLINE_CACHE=1
+
+    - name: Test Docker Compose development setup
+      run: |
+        # Test that docker-compose file is valid
+        docker-compose -f docker-compose.development.yml config
+        
+        # Start services in background
+        docker-compose -f docker-compose.development.yml up -d postgres redis
+        
+        # Wait for services to be ready
+        timeout 60 bash -c 'until docker-compose -f docker-compose.development.yml exec -T postgres pg_isready -U pynomaly; do sleep 2; done'
+        timeout 30 bash -c 'until docker-compose -f docker-compose.development.yml exec -T redis redis-cli ping; do sleep 2; done'
+        
+        # Clean up
+        docker-compose -f docker-compose.development.yml down
+        
+        echo "✅ Docker Compose services test completed"
 
   # Job 8: Final CI Summary
   ci-summary:

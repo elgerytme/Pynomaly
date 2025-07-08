@@ -1,0 +1,341 @@
+name: Security Alerts and Notifications
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC to check for new alerts
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      force_notification:
+        description: 'Force send notification even if no new alerts'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: read
+  security-events: read
+  actions: read
+
+jobs:
+  check-security-alerts:
+    name: Check for HIGH/CRITICAL Security Alerts
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install sendmail and dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y sendmail mailutils curl jq
+
+    - name: Configure sendmail
+      run: |
+        # Basic sendmail configuration
+        echo "127.0.0.1 localhost" | sudo tee -a /etc/hosts
+        sudo service sendmail start || true
+        
+        # Create sendmail configuration for external SMTP if needed
+        if [ -n "${{ secrets.SMTP_SERVER }}" ]; then
+          sudo tee /etc/mail/sendmail.mc > /dev/null << 'EOF'
+        include(`/usr/share/sendmail/cf/m4/cf.m4')
+        FEATURE(`no_default_msa')
+        FEATURE(`smrsh')
+        FEATURE(`mailertable')
+        FEATURE(`virtusertable')
+        FEATURE(`redirect')
+        FEATURE(`always_add_domain')
+        FEATURE(`use_cw_file')
+        FEATURE(`use_ct_file')
+        FEATURE(`local_procmail')
+        OSTYPE(`linux')
+        MAILER(`local')
+        MAILER(`smtp')
+        EOF
+          sudo m4 /etc/mail/sendmail.mc > /etc/mail/sendmail.cf || true
+        fi
+
+    - name: Check for SLACK_WEBHOOK_URL secret
+      id: check_slack
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const slackWebhook = process.env.SLACK_WEBHOOK_URL;
+          const hasSlackWebhook = slackWebhook && slackWebhook.length > 0;
+          console.log(`Slack webhook available: ${hasSlackWebhook}`);
+          return hasSlackWebhook;
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+    - name: Get current security alerts
+      id: get_alerts
+      uses: actions/github-script@v7
+      with:
+        script: |
+          try {
+            const { data: alerts } = await github.rest.codeScanning.listAlertsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100
+            });
+            
+            // Filter for HIGH and CRITICAL alerts
+            const highCriticalAlerts = alerts.filter(alert => 
+              alert.rule.severity === 'high' || alert.rule.severity === 'critical'
+            );
+            
+            // Check if alerts are new (created in last 24 hours)
+            const now = new Date();
+            const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            
+            const newAlerts = highCriticalAlerts.filter(alert => {
+              const createdAt = new Date(alert.created_at);
+              return createdAt > yesterday;
+            });
+            
+            console.log(`Total HIGH/CRITICAL alerts: ${highCriticalAlerts.length}`);
+            console.log(`New HIGH/CRITICAL alerts (last 24h): ${newAlerts.length}`);
+            
+            const result = {
+              total: highCriticalAlerts.length,
+              new: newAlerts.length,
+              alerts: newAlerts.map(alert => ({
+                number: alert.number,
+                rule: alert.rule.name,
+                severity: alert.rule.severity,
+                description: alert.rule.description,
+                location: alert.most_recent_instance?.location?.path || 'Unknown',
+                line: alert.most_recent_instance?.location?.start_line || 'Unknown',
+                url: alert.html_url,
+                created_at: alert.created_at
+              }))
+            };
+            
+            return result;
+          } catch (error) {
+            console.error('Error fetching alerts:', error);
+            return { total: 0, new: 0, alerts: [] };
+          }
+
+    - name: Create alert summary
+      id: create_summary
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const alertData = ${{ steps.get_alerts.outputs.result }};
+          const forceNotification = ${{ github.event.inputs.force_notification || false }};
+          
+          let summary = `🚨 Security Alert Summary\n\n`;
+          summary += `Repository: ${context.repo.owner}/${context.repo.repo}\n`;
+          summary += `Scan Time: ${new Date().toISOString()}\n\n`;
+          
+          if (alertData.new > 0 || forceNotification) {
+            summary += `📊 Alert Statistics:\n`;
+            summary += `• Total HIGH/CRITICAL alerts: ${alertData.total}\n`;
+            summary += `• New alerts (last 24h): ${alertData.new}\n\n`;
+            
+            if (alertData.alerts.length > 0) {
+              summary += `🔍 New Alert Details:\n`;
+              alertData.alerts.forEach((alert, index) => {
+                summary += `${index + 1}. [${alert.severity.toUpperCase()}] ${alert.rule}\n`;
+                summary += `   File: ${alert.location}:${alert.line}\n`;
+                summary += `   URL: ${alert.url}\n`;
+                summary += `   Created: ${new Date(alert.created_at).toLocaleString()}\n\n`;
+              });
+            }
+            
+            summary += `🔗 View all alerts: https://github.com/${context.repo.owner}/${context.repo.repo}/security/code-scanning\n`;
+          } else {
+            summary += `✅ No new HIGH/CRITICAL alerts found in the last 24 hours.\n`;
+            summary += `📊 Current total: ${alertData.total} HIGH/CRITICAL alerts\n`;
+          }
+          
+          return {
+            summary: summary,
+            shouldNotify: alertData.new > 0 || forceNotification,
+            alertCount: alertData.new,
+            totalAlerts: alertData.total
+          };
+
+    - name: Send Slack notification
+      if: fromJSON(steps.create_summary.outputs.result).shouldNotify && fromJSON(steps.check_slack.outputs.result)
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const summaryData = ${{ steps.create_summary.outputs.result }};
+          const slackPayload = {
+            text: "🚨 Security Alert Notification",
+            blocks: [
+              {
+                type: "header",
+                text: {
+                  type: "plain_text",
+                  text: "🚨 Security Alert Notification"
+                }
+              },
+              {
+                type: "section",
+                text: {
+                  type: "mrkdwn",
+                  text: `*Repository:* ${context.repo.owner}/${context.repo.repo}\n*New HIGH/CRITICAL alerts:* ${summaryData.alertCount}\n*Total HIGH/CRITICAL alerts:* ${summaryData.totalAlerts}`
+                }
+              },
+              {
+                type: "actions",
+                elements: [
+                  {
+                    type: "button",
+                    text: {
+                      type: "plain_text",
+                      text: "View Alerts"
+                    },
+                    url: `https://github.com/${context.repo.owner}/${context.repo.repo}/security/code-scanning`
+                  }
+                ]
+              }
+            ]
+          };
+          
+          try {
+            const response = await fetch(process.env.SLACK_WEBHOOK_URL, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(slackPayload)
+            });
+            
+            if (response.ok) {
+              console.log('✅ Slack notification sent successfully');
+            } else {
+              throw new Error(`Slack API returned ${response.status}: ${await response.text()}`);
+            }
+          } catch (error) {
+            console.error('❌ Failed to send Slack notification:', error);
+            throw error;
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+    - name: Send email notification (fallback)
+      if: fromJSON(steps.create_summary.outputs.result).shouldNotify && !fromJSON(steps.check_slack.outputs.result)
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const summaryData = ${{ steps.create_summary.outputs.result }};
+          const { exec } = require('child_process');
+          const util = require('util');
+          const execAsync = util.promisify(exec);
+          
+          // Email configuration
+          const emailConfig = {
+            to: process.env.NOTIFICATION_EMAIL || 'admin@example.com',
+            from: process.env.FROM_EMAIL || 'github-actions@example.com',
+            subject: `🚨 Security Alert: ${summaryData.alertCount} new HIGH/CRITICAL issues in ${context.repo.repo}`,
+            smtpServer: process.env.SMTP_SERVER || 'localhost',
+            smtpPort: process.env.SMTP_PORT || '587',
+            smtpUser: process.env.SMTP_USERNAME || '',
+            smtpPass: process.env.SMTP_PASSWORD || ''
+          };
+          
+          // Create email body
+          const emailBody = `Subject: ${emailConfig.subject}
+From: ${emailConfig.from}
+To: ${emailConfig.to}
+Content-Type: text/plain; charset=utf-8
+
+${summaryData.summary}
+
+---
+This is an automated notification from GitHub Actions.
+Repository: https://github.com/${context.repo.owner}/${context.repo.repo}
+`;
+          
+          try {
+            // Write email content to temporary file
+            const fs = require('fs');
+            const tmpFile = '/tmp/security_alert_email.txt';
+            fs.writeFileSync(tmpFile, emailBody);
+            
+            // Method 1: Try with sendmail (if available)
+            try {
+              await execAsync(`sendmail -t < ${tmpFile}`);
+              console.log('✅ Email sent via sendmail');
+            } catch (sendmailError) {
+              console.log('sendmail not available, trying alternative methods...');
+              
+              // Method 2: Try with mail command
+              try {
+                await execAsync(`mail -s "${emailConfig.subject}" ${emailConfig.to} < ${tmpFile}`);
+                console.log('✅ Email sent via mail command');
+              } catch (mailError) {
+                console.log('mail command not available, using curl...');
+                
+                // Method 3: Use curl with SMTP (if SMTP server is configured)
+                if (emailConfig.smtpServer !== 'localhost') {
+                  const curlCmd = `curl -s --mail-from "${emailConfig.from}" --mail-rcpt "${emailConfig.to}" --upload-file ${tmpFile} "smtp://${emailConfig.smtpServer}:${emailConfig.smtpPort}"`;
+                  
+                  if (emailConfig.smtpUser && emailConfig.smtpPass) {
+                    curlCmd += ` --user "${emailConfig.smtpUser}:${emailConfig.smtpPass}"`;
+                  }
+                  
+                  await execAsync(curlCmd);
+                  console.log('✅ Email sent via curl SMTP');
+                } else {
+                  throw new Error('No email delivery method available');
+                }
+              }
+            }
+            
+            // Cleanup
+            fs.unlinkSync(tmpFile);
+            
+          } catch (error) {
+            console.error('❌ Failed to send email notification:', error);
+            // Log the email content for debugging
+            console.log('Email content that failed to send:');
+            console.log(emailBody);
+            throw error;
+          }
+      env:
+        NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+        FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
+        SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+        SMTP_PORT: ${{ secrets.SMTP_PORT }}
+        SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+        SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+
+    - name: Create notification summary
+      if: always()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const summaryData = ${{ steps.create_summary.outputs.result }};
+          const hasSlack = ${{ steps.check_slack.outputs.result }};
+          
+          let notificationSummary = '## 🔔 Notification Summary\n\n';
+          
+          if (summaryData.shouldNotify) {
+            notificationSummary += `✅ **Alert threshold met**: ${summaryData.alertCount} new HIGH/CRITICAL alerts found\n\n`;
+            
+            if (hasSlack) {
+              notificationSummary += '📱 **Slack notification**: Sent successfully\n';
+              notificationSummary += '📧 **Email notification**: Skipped (Slack available)\n';
+            } else {
+              notificationSummary += '📱 **Slack notification**: Skipped (webhook not configured)\n';
+              notificationSummary += '📧 **Email notification**: Sent as fallback\n';
+            }
+          } else {
+            notificationSummary += '✅ **No notifications sent**: No new HIGH/CRITICAL alerts\n';
+          }
+          
+          notificationSummary += `\n📊 **Current status**: ${summaryData.totalAlerts} total HIGH/CRITICAL alerts\n`;
+          notificationSummary += `🔗 **View alerts**: https://github.com/${context.repo.owner}/${context.repo.repo}/security/code-scanning\n`;
+          
+          console.log(notificationSummary);
+          
+          // Set as step output for potential use in other jobs
+          core.setOutput('notification_summary', notificationSummary);
