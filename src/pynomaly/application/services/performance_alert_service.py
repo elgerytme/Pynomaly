@@ -93,21 +93,16 @@ class PerformanceAlertService:
             degradation_result, model_id, model_name, additional_context
         )
         
-        # Create the alert using the intelligent alert service
-        alert_metadata = AlertMetadata()
-        alert_metadata.key = "performance_degradation"
-        alert_metadata.value = metadata
-        alert_metadata.value_type = "dict"
-        
-        alert = await self.intelligent_alert_service.create_alert(
-            title=f"Model Performance Degradation: {model_name}",
+        # Create the alert directly using the Alert class
+        alert = Alert(
+            name=f"Model Performance Degradation: {model_name}",
             description=description,
+            alert_type=AlertType.MODEL_PERFORMANCE,
             severity=severity,
-            category=AlertCategory.PERFORMANCE,
-            source=AlertSource.MODEL_MONITOR,
-            metadata=alert_metadata,
-            message=self._create_alert_message(degradation_result, model_name),
-            details=degradation_result.to_dict(),
+            condition=condition,
+            created_by="model_monitor_system",
+            source=AlertSource.MODEL_MONITOR.value,
+            metadata=metadata,
         )
         
         # Add performance-specific tags
@@ -184,21 +179,24 @@ class PerformanceAlertService:
         if additional_context:
             metadata.update(additional_context)
         
-        # Create the alert
-        alert_metadata = AlertMetadata()
-        alert_metadata.key = "metric_degradation"
-        alert_metadata.value = metadata
-        alert_metadata.value_type = "dict"
+        # Create condition for the specific metric
+        metric_condition = AlertCondition(
+            metric_name=degradation_detail.metric_name,
+            operator="lt",  # Performance degradation means value is lower than baseline
+            threshold=degradation_detail.baseline_value,
+            description=f"{degradation_detail.metric_name} degradation detected",
+        )
         
-        alert = await self.intelligent_alert_service.create_alert(
-            title=f"Metric Degradation: {degradation_detail.metric_name} - {model_name}",
+        # Create the alert directly
+        alert = Alert(
+            name=f"Metric Degradation: {degradation_detail.metric_name} - {model_name}",
             description=description,
+            alert_type=AlertType.MODEL_PERFORMANCE,
             severity=severity,
-            category=AlertCategory.PERFORMANCE,
-            source=AlertSource.MODEL_MONITOR,
-            metadata=alert_metadata,
-            message=f"{degradation_detail.metric_name} degraded by {degradation_detail.relative_deviation:.2f}%",
-            details=degradation_detail.__dict__,
+            condition=metric_condition,
+            created_by="model_monitor_system",
+            source=AlertSource.MODEL_MONITOR.value,
+            metadata=metadata,
         )
         
         # Add metric-specific tags
