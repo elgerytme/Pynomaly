@@ -145,7 +145,7 @@ async def get_current_active_user(
     """
     # Get settings
     settings = Settings()
-    
+
     # Check if auth is enabled and user is required
     if settings.auth_enabled and not current_user:
         raise HTTPException(
@@ -293,8 +293,12 @@ def require_role(*roles: str) -> RoleChecker:
 require_super_admin = RoleChecker(["super_admin"])
 require_tenant_admin = RoleChecker(["tenant_admin", "super_admin"])
 require_data_scientist = RoleChecker(["data_scientist", "tenant_admin", "super_admin"])
-require_analyst = RoleChecker(["analyst", "data_scientist", "tenant_admin", "super_admin"])
-require_viewer = RoleChecker(["viewer", "analyst", "data_scientist", "tenant_admin", "super_admin"])
+require_analyst = RoleChecker(
+    ["analyst", "data_scientist", "tenant_admin", "super_admin"]
+)
+require_viewer = RoleChecker(
+    ["viewer", "analyst", "data_scientist", "tenant_admin", "super_admin"]
+)
 
 # Rate limiter instances
 default_limiter = RateLimiter(requests=100, window=60)

@@ -435,31 +435,33 @@ async def run_automl(
 ) -> dict:
     """Run AutoML hyperparameter optimization for PyOD algorithms."""
     start_time = time.time()
-    
+
     try:
-        logger.info(f"Starting AutoML optimization for {algorithm_name} on {dataset_path}")
-        
+        logger.info(
+            f"Starting AutoML optimization for {algorithm_name} on {dataset_path}"
+        )
+
         # Validate PyOD algorithm
         supported_algorithms = {
             "KNN": "KNN",
-            "LOF": "LOCAL_OUTLIER_FACTOR", 
+            "LOF": "LOCAL_OUTLIER_FACTOR",
             "IsolationForest": "ISOLATION_FOREST",
             "OneClassSVM": "ONE_CLASS_SVM",
             "AutoEncoder": "AUTO_ENCODER",
         }
-        
+
         if algorithm_name not in supported_algorithms:
             raise HTTPException(
                 status_code=400,
-                detail=f"Unsupported algorithm: {algorithm_name}. Supported: {list(supported_algorithms.keys())}"
+                detail=f"Unsupported algorithm: {algorithm_name}. Supported: {list(supported_algorithms.keys())}",
             )
-        
+
         # Get AutoML use case
         automl_use_case = container.automl_optimization_use_case()
-        
+
         # Create optimization request
         from pynomaly.application.dto.automl_dto import AutoMLOptimizationRequest
-        
+
         optimization_request = AutoMLOptimizationRequest(
             dataset_id=dataset_path,  # Using path as ID for simplicity
             optimization_objective="f1_score",
@@ -470,14 +472,14 @@ async def run_automl(
             cross_validation_folds=5,
             random_state=42,
         )
-        
+
         # Run optimization
         optimization_response = await automl_use_case.auto_optimize(
             optimization_request
         )
-        
+
         execution_time = time.time() - start_time
-        
+
         if optimization_response.success:
             # Persist trial results
             trial_data = {
@@ -488,24 +490,26 @@ async def run_automl(
                 "trials_completed": optimization_response.trials_completed,
                 "storage_path": storage_path,
             }
-            
+
             # Save to storage (simplified)
             import os
             import json
+
             os.makedirs(storage_path, exist_ok=True)
             storage_file = os.path.join(
-                storage_path, 
-                f"{algorithm_name}_optimization_{int(time.time())}.json"
+                storage_path, f"{algorithm_name}_optimization_{int(time.time())}.json"
             )
-            
+
             with open(storage_file, "w") as f:
                 json.dump(trial_data, f, indent=2, default=str)
-            
+
             # Check success criteria (F1 ≥ baseline + 15%)
             baseline_score = 0.5  # Assumed baseline
-            improvement = (optimization_response.best_score - baseline_score) / baseline_score
+            improvement = (
+                optimization_response.best_score - baseline_score
+            ) / baseline_score
             meets_criteria = improvement >= 0.15
-            
+
             return {
                 "success": True,
                 "algorithm": algorithm_name,
@@ -527,11 +531,11 @@ async def run_automl(
                 "error": optimization_response.error_message,
                 "message": "AutoML optimization failed",
             }
-    
+
     except Exception as e:
         logger.error(f"AutoML run failed: {e}")
         execution_time = time.time() - start_time
-        
+
         return {
             "success": False,
             "algorithm": algorithm_name,

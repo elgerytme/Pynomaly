@@ -15,6 +15,7 @@ from pynomaly.shared.types import UserId, TenantId, RoleId
 
 class UserRole(str, Enum):
     """User roles within a tenant."""
+
     SUPER_ADMIN = "super_admin"  # Platform-wide admin
     TENANT_ADMIN = "tenant_admin"  # Tenant administrator
     DATA_SCIENTIST = "data_scientist"  # Can create/manage models
@@ -24,6 +25,7 @@ class UserRole(str, Enum):
 
 class UserStatus(str, Enum):
     """User account status."""
+
     ACTIVE = "active"
     INACTIVE = "inactive"
     SUSPENDED = "suspended"
@@ -32,6 +34,7 @@ class UserStatus(str, Enum):
 
 class TenantStatus(str, Enum):
     """Tenant account status."""
+
     ACTIVE = "active"
     SUSPENDED = "suspended"
     TRIAL = "trial"
@@ -40,6 +43,7 @@ class TenantStatus(str, Enum):
 
 class TenantPlan(str, Enum):
     """Tenant subscription plans."""
+
     FREE = "free"
     STARTER = "starter"
     PROFESSIONAL = "professional"
@@ -49,6 +53,7 @@ class TenantPlan(str, Enum):
 @dataclass(frozen=True)
 class Permission:
     """Individual permission."""
+
     name: str
     resource: str
     action: str
@@ -58,6 +63,7 @@ class Permission:
 @dataclass
 class Role:
     """User role with permissions."""
+
     id: RoleId
     name: str
     permissions: Set[Permission] = field(default_factory=set)
@@ -69,6 +75,7 @@ class Role:
 @dataclass
 class TenantLimits:
     """Resource limits for a tenant."""
+
     max_users: int = 10
     max_datasets: int = 100
     max_models: int = 50
@@ -81,6 +88,7 @@ class TenantLimits:
 @dataclass
 class TenantUsage:
     """Current resource usage for a tenant."""
+
     users_count: int = 0
     datasets_count: int = 0
     models_count: int = 0
@@ -94,6 +102,7 @@ class TenantUsage:
 @dataclass
 class Tenant:
     """Multi-tenant organization entity."""
+
     id: TenantId
     name: str
     domain: str
@@ -114,10 +123,13 @@ class Tenant:
             "users": self.usage.users_count <= self.limits.max_users,
             "datasets": self.usage.datasets_count <= self.limits.max_datasets,
             "models": self.usage.models_count <= self.limits.max_models,
-            "detections": self.usage.detections_this_month <= self.limits.max_detections_per_month,
+            "detections": self.usage.detections_this_month
+            <= self.limits.max_detections_per_month,
             "storage": self.usage.storage_used_gb <= self.limits.max_storage_gb,
-            "api_calls": self.usage.api_calls_this_minute <= self.limits.max_api_calls_per_minute,
-            "concurrent": self.usage.concurrent_detections <= self.limits.max_concurrent_detections,
+            "api_calls": self.usage.api_calls_this_minute
+            <= self.limits.max_api_calls_per_minute,
+            "concurrent": self.usage.concurrent_detections
+            <= self.limits.max_concurrent_detections,
         }
 
     def get_limit_usage_percentage(self, resource: str) -> float:
@@ -126,12 +138,21 @@ class Tenant:
             "users": (self.usage.users_count, self.limits.max_users),
             "datasets": (self.usage.datasets_count, self.limits.max_datasets),
             "models": (self.usage.models_count, self.limits.max_models),
-            "detections": (self.usage.detections_this_month, self.limits.max_detections_per_month),
+            "detections": (
+                self.usage.detections_this_month,
+                self.limits.max_detections_per_month,
+            ),
             "storage": (self.usage.storage_used_gb, self.limits.max_storage_gb),
-            "api_calls": (self.usage.api_calls_this_minute, self.limits.max_api_calls_per_minute),
-            "concurrent": (self.usage.concurrent_detections, self.limits.max_concurrent_detections),
+            "api_calls": (
+                self.usage.api_calls_this_minute,
+                self.limits.max_api_calls_per_minute,
+            ),
+            "concurrent": (
+                self.usage.concurrent_detections,
+                self.limits.max_concurrent_detections,
+            ),
         }
-        
+
         if resource in usage_map:
             usage, limit = usage_map[resource]
             return (usage / limit * 100) if limit > 0 else 0.0
@@ -141,6 +162,7 @@ class Tenant:
 @dataclass
 class UserTenantRole:
     """Association between user, tenant, and role."""
+
     user_id: UserId
     tenant_id: TenantId
     role: UserRole
@@ -153,6 +175,7 @@ class UserTenantRole:
 @dataclass
 class User:
     """User entity with multi-tenant support."""
+
     id: UserId
     email: str
     username: str
@@ -166,35 +189,37 @@ class User:
     email_verified_at: Optional[datetime] = None
     password_hash: str = ""
     settings: Dict[str, any] = field(default_factory=dict)
-    
+
     @property
     def full_name(self) -> str:
         """Get user's full name."""
         return f"{self.first_name} {self.last_name}".strip()
-    
+
     def get_tenant_role(self, tenant_id: TenantId) -> Optional[UserTenantRole]:
         """Get user's role for a specific tenant."""
         for tenant_role in self.tenant_roles:
             if tenant_role.tenant_id == tenant_id:
                 return tenant_role
         return None
-    
+
     def has_role_in_tenant(self, tenant_id: TenantId, role: UserRole) -> bool:
         """Check if user has specific role in tenant."""
         tenant_role = self.get_tenant_role(tenant_id)
         return tenant_role is not None and tenant_role.role == role
-    
-    def has_permission_in_tenant(self, tenant_id: TenantId, permission: Permission) -> bool:
+
+    def has_permission_in_tenant(
+        self, tenant_id: TenantId, permission: Permission
+    ) -> bool:
         """Check if user has specific permission in tenant."""
         tenant_role = self.get_tenant_role(tenant_id)
         if tenant_role is None:
             return False
         return permission in tenant_role.permissions
-    
+
     def get_tenant_ids(self) -> List[TenantId]:
         """Get list of tenant IDs user has access to."""
         return [tr.tenant_id for tr in self.tenant_roles]
-    
+
     def is_super_admin(self) -> bool:
         """Check if user is a super admin."""
         return any(tr.role == UserRole.SUPER_ADMIN for tr in self.tenant_roles)
@@ -203,11 +228,14 @@ class User:
 @dataclass
 class UserSession:
     """User session for authentication tracking."""
+
     id: str
     user_id: UserId
     tenant_id: Optional[TenantId]
     created_at: datetime = field(default_factory=datetime.utcnow)
-    expires_at: datetime = field(default_factory=lambda: datetime.utcnow().replace(hour=23, minute=59, second=59))
+    expires_at: datetime = field(
+        default_factory=lambda: datetime.utcnow().replace(hour=23, minute=59, second=59)
+    )
     ip_address: str = ""
     user_agent: str = ""
     is_active: bool = True

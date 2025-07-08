@@ -221,25 +221,31 @@ class VisualizationDashboardService:
         logger.info("Visualization dashboard service initialized")
 
     # Common helper methods to reduce duplication
-    def _get_metrics_series(self, metrics_data: dict[str, Any], series_config: dict[str, Any] = None) -> list[dict[str, Any]]:
+    def _get_metrics_series(
+        self, metrics_data: dict[str, Any], series_config: dict[str, Any] = None
+    ) -> list[dict[str, Any]]:
         """Get metrics series data with consistent formatting.
-        
+
         Args:
             metrics_data: Dictionary containing metrics data
             series_config: Optional configuration for series styling
-            
+
         Returns:
             List of series configurations
         """
         if series_config is None:
             series_config = {}
-            
+
         series = []
-        
+
         for metric_name, metric_values in metrics_data.items():
             series_item = {
                 "name": metric_name,
-                "data": metric_values if isinstance(metric_values, list) else [metric_values],
+                "data": (
+                    metric_values
+                    if isinstance(metric_values, list)
+                    else [metric_values]
+                ),
                 "type": series_config.get("type", "line"),
                 "smooth": series_config.get("smooth", True),
                 "symbol": series_config.get("symbol", "circle"),
@@ -247,25 +253,38 @@ class VisualizationDashboardService:
                 "lineStyle": series_config.get("lineStyle", {"width": 2}),
                 "itemStyle": series_config.get("itemStyle", {"borderRadius": 4}),
                 "emphasis": series_config.get("emphasis", {"focus": "series"}),
-                "markPoint": series_config.get("markPoint", {
-                    "data": [{"type": "max", "name": "Maximum"}, {"type": "min", "name": "Minimum"}]
-                }),
+                "markPoint": series_config.get(
+                    "markPoint",
+                    {
+                        "data": [
+                            {"type": "max", "name": "Maximum"},
+                            {"type": "min", "name": "Minimum"},
+                        ]
+                    },
+                ),
                 "animationDuration": series_config.get("animationDuration", 1000),
             }
-            
+
             # Add color if specified
             if "color" in series_config:
                 series_item["color"] = series_config["color"]
-                
+
             series.append(series_item)
-            
+
         return series
-    
-    def _build_chart_payload(self, chart_id: str, chart_type: str, title: str, 
-                           x_data: list = None, series: list = None, 
-                           engine: str = "echarts", **kwargs) -> dict[str, Any]:
+
+    def _build_chart_payload(
+        self,
+        chart_id: str,
+        chart_type: str,
+        title: str,
+        x_data: list = None,
+        series: list = None,
+        engine: str = "echarts",
+        **kwargs,
+    ) -> dict[str, Any]:
         """Build standardized chart payload with consistent structure.
-        
+
         Args:
             chart_id: Unique identifier for the chart
             chart_type: Type of chart (line, bar, etc.)
@@ -274,7 +293,7 @@ class VisualizationDashboardService:
             series: Series data
             engine: Visualization engine to use
             **kwargs: Additional chart options
-            
+
         Returns:
             Standardized chart payload
         """
@@ -283,49 +302,61 @@ class VisualizationDashboardService:
             "title": {
                 "text": title,
                 "left": kwargs.get("title_position", "center"),
-                "textStyle": kwargs.get("title_style", {"fontSize": 16, "fontWeight": "bold"})
+                "textStyle": kwargs.get(
+                    "title_style", {"fontSize": 16, "fontWeight": "bold"}
+                ),
             },
-            "tooltip": kwargs.get("tooltip", {
-                "trigger": "axis",
-                "axisPointer": {"type": "cross"},
-                "backgroundColor": "rgba(0,0,0,0.8)",
-                "borderColor": "#777",
-                "borderWidth": 1,
-                "textStyle": {"color": "#fff"},
-                "formatter": kwargs.get("tooltip_formatter")
-            }),
-            "legend": kwargs.get("legend", {
-                "show": True,
-                "top": "bottom",
-                "orient": "horizontal",
-                "align": "center",
-                "itemGap": 20
-            }),
-            "grid": kwargs.get("grid", {
-                "left": "3%",
-                "right": "4%",
-                "bottom": "10%",
-                "containLabel": True
-            }),
-            "toolbox": kwargs.get("toolbox", {
-                "show": True,
-                "feature": {
-                    "dataZoom": {"yAxisIndex": "none"},
-                    "dataView": {"readOnly": False},
-                    "magicType": {"type": ["line", "bar"]},
-                    "restore": {},
-                    "saveAsImage": {}
-                }
-            }),
-            "dataZoom": kwargs.get("dataZoom", [
-                {"type": "inside", "start": 0, "end": 100},
-                {"type": "slider", "start": 0, "end": 100, "height": 30}
-            ]),
+            "tooltip": kwargs.get(
+                "tooltip",
+                {
+                    "trigger": "axis",
+                    "axisPointer": {"type": "cross"},
+                    "backgroundColor": "rgba(0,0,0,0.8)",
+                    "borderColor": "#777",
+                    "borderWidth": 1,
+                    "textStyle": {"color": "#fff"},
+                    "formatter": kwargs.get("tooltip_formatter"),
+                },
+            ),
+            "legend": kwargs.get(
+                "legend",
+                {
+                    "show": True,
+                    "top": "bottom",
+                    "orient": "horizontal",
+                    "align": "center",
+                    "itemGap": 20,
+                },
+            ),
+            "grid": kwargs.get(
+                "grid",
+                {"left": "3%", "right": "4%", "bottom": "10%", "containLabel": True},
+            ),
+            "toolbox": kwargs.get(
+                "toolbox",
+                {
+                    "show": True,
+                    "feature": {
+                        "dataZoom": {"yAxisIndex": "none"},
+                        "dataView": {"readOnly": False},
+                        "magicType": {"type": ["line", "bar"]},
+                        "restore": {},
+                        "saveAsImage": {},
+                    },
+                },
+            ),
+            "dataZoom": kwargs.get(
+                "dataZoom",
+                [
+                    {"type": "inside", "start": 0, "end": 100},
+                    {"type": "slider", "start": 0, "end": 100, "height": 30},
+                ],
+            ),
             "animation": kwargs.get("animation", True),
             "animationDuration": kwargs.get("animationDuration", 1000),
-            "animationEasing": kwargs.get("animationEasing", "cubicOut")
+            "animationEasing": kwargs.get("animationEasing", "cubicOut"),
         }
-        
+
         # Add x-axis if provided
         if x_data is not None:
             config["xAxis"] = {
@@ -334,27 +365,30 @@ class VisualizationDashboardService:
                 "axisLabel": kwargs.get("x_axis_label_style", {"rotate": 0}),
                 "name": kwargs.get("x_axis_name", ""),
                 "nameLocation": "middle",
-                "nameGap": 30
+                "nameGap": 30,
             }
-            
+
         # Add y-axis configuration
-        config["yAxis"] = kwargs.get("yAxis", {
-            "type": "value",
-            "name": kwargs.get("y_axis_name", ""),
-            "nameLocation": "middle",
-            "nameGap": 50,
-            "axisLabel": {"formatter": kwargs.get("y_axis_formatter", "{value}")},
-            "splitLine": {"show": True, "lineStyle": {"type": "dashed"}}
-        })
-        
+        config["yAxis"] = kwargs.get(
+            "yAxis",
+            {
+                "type": "value",
+                "name": kwargs.get("y_axis_name", ""),
+                "nameLocation": "middle",
+                "nameGap": 50,
+                "axisLabel": {"formatter": kwargs.get("y_axis_formatter", "{value}")},
+                "splitLine": {"show": True, "lineStyle": {"type": "dashed"}},
+            },
+        )
+
         # Add series if provided
         if series is not None:
             config["series"] = series
-            
+
         # Add custom options
         if "custom_options" in kwargs:
             config.update(kwargs["custom_options"])
-            
+
         return {
             "id": chart_id,
             "config": config,
@@ -363,8 +397,8 @@ class VisualizationDashboardService:
                 "generated_at": datetime.utcnow().isoformat(),
                 "chart_type": chart_type,
                 "data_points": len(x_data) if x_data else 0,
-                "series_count": len(series) if series else 0
-            }
+                "series_count": len(series) if series else 0,
+            },
         }
 
     async def generate_executive_dashboard(
@@ -805,7 +839,7 @@ class VisualizationDashboardService:
             # Use the common helper method
             metrics_data = {"series": data.get("y_data", [])}
             series = self._get_metrics_series(metrics_data, {"type": "line"})
-            
+
             return self._build_chart_payload(
                 chart_id=config.chart_id,
                 chart_type="line",
@@ -813,7 +847,7 @@ class VisualizationDashboardService:
                 x_data=data.get("x_data", []),
                 series=series,
                 engine=config.engine.value,
-                y_axis_name=config.y_axis_label
+                y_axis_name=config.y_axis_label,
             )
 
         except Exception as e:
@@ -868,7 +902,7 @@ class VisualizationDashboardService:
                         "itemStyle": {"color": "auto"},
                         "animation": True,
                         "animationDuration": 1000,
-                        "animationEasing": "cubicOut"
+                        "animationEasing": "cubicOut",
                     }
                 )
 
@@ -879,7 +913,7 @@ class VisualizationDashboardService:
                 engine=config.engine.value,
                 series=series,
                 tooltip={"formatter": "{a} <br/>{b} : {c}%"},
-                custom_options={"backgroundColor": "transparent"}
+                custom_options={"backgroundColor": "transparent"},
             )
 
         except Exception as e:
@@ -988,53 +1022,160 @@ class VisualizationDashboardService:
         return {"id": "processing_latency", "type": "histogram", "data": {}}
 
     # New chart generation methods
-    async def _generate_financial_impact_chart(self, config: ChartConfig, data: dict[str, Any]) -> dict[str, Any]:
+    async def _generate_financial_impact_chart(
+        self, config: ChartConfig, data: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Generate financial impact chart with bar and line visualization."""
+        try:
+            # Prepare financial impact data
+            months = data.get(
+                "months",
+                [
+                    "Jan",
+                    "Feb",
+                    "Mar",
+                    "Apr",
+                    "May",
+                    "Jun",
+                    "Jul",
+                    "Aug",
+                    "Sep",
+                    "Oct",
+                    "Nov",
+                    "Dec",
+                ],
+            )
+            cost_savings = data.get(
+                "cost_savings",
+                [
+                    50000,
+                    75000,
+                    120000,
+                    95000,
+                    180000,
+                    210000,
+                    165000,
+                    190000,
+                    225000,
+                    240000,
+                    275000,
+                    320000,
+                ],
+            )
+            revenue_impact = data.get(
+                "revenue_impact",
+                [
+                    25000,
+                    45000,
+                    80000,
+                    65000,
+                    110000,
+                    135000,
+                    105000,
+                    125000,
+                    150000,
+                    160000,
+                    185000,
+                    200000,
+                ],
+            )
+
+            # Create series with both bar and line charts
+            series = [
+                {
+                    "name": "Cost Savings",
+                    "type": "bar",
+                    "data": cost_savings,
+                    "yAxisIndex": 0,
+                    "itemStyle": {"color": "#5470c6"},
+                    "emphasis": {"focus": "series"},
+                    "markLine": {
+                        "data": [{"type": "average", "name": "Average Cost Savings"}]
+                    },
+                },
+                {
+                    "name": "Revenue Impact",
+                    "type": "line",
+                    "data": revenue_impact,
+                    "yAxisIndex": 0,
+                    "smooth": True,
+                    "lineStyle": {"width": 3},
+                    "itemStyle": {"color": "#91cc75"},
+                    "emphasis": {"focus": "series"},
+                    "markPoint": {
+                        "data": [
+                            {"type": "max", "name": "Max"},
+                            {"type": "min", "name": "Min"},
+                        ]
+                    },
+                },
+            ]
+
+            return self._build_chart_payload(
+                chart_id=config.chart_id,
+                chart_type="mixed",
+                title="Financial Impact Analysis",
+                x_data=months,
+                series=series,
+                engine=config.engine.value,
+                y_axis_name="Amount ($)",
+                y_axis_formatter="${value:,.0f}",
+                tooltip={
+                    "trigger": "axis",
+                    "axisPointer": {"type": "cross"},
+                    "formatter": "{b}<br/>{a0}: ${c0:,.0f}<br/>{a1}: ${c1:,.0f}",
+                },
+            )
+
+        except Exception as e:
+            logger.error(f"Failed to generate financial impact chart: {e}")
+            return {}
+
+    async def _generate_roi_cost_savings_chart(
+        self, config: ChartConfig, data: dict[str, Any]
+    ) -> dict[str, Any]:
         return self._build_chart_payload(
             chart_id=config.chart_id,
-            chart_type='bar',
-            title='Financial Impact Analysis',
-            x_data=data.get('months'),
-            series=self._get_metrics_series(data),
-            engine=config.engine.value
+            chart_type="gauge",
+            title="ROI & Cost Savings Analysis",
+            series=self._get_metrics_series(data, {"type": "gauge"}),
+            engine=config.engine.value,
         )
 
-    async def _generate_roi_cost_savings_chart(self, config: ChartConfig, data: dict[str, Any]) -> dict[str, Any]:
+    async def _generate_choropleth_chart(
+        self, config: ChartConfig, data: dict[str, Any]
+    ) -> dict[str, Any]:
         return self._build_chart_payload(
             chart_id=config.chart_id,
-            chart_type='gauge',
-            title='ROI & Cost Savings Analysis',
-            series=self._get_metrics_series(data, {'type': 'gauge'}),
-            engine=config.engine.value
-        )
-
-    async def _generate_choropleth_chart(self, config: ChartConfig, data: dict[str, Any]) -> dict[str, Any]:
-        return self._build_chart_payload(
-            chart_id=config.chart_id,
-            chart_type='choropleth',
-            title='Geographic HeatMap',
-            x_data=data.get('regions'),
-            series=self._get_metrics_series(data),
-            engine=config.engine.value
-        )
-
-    async def _generate_correlation_matrix_chart(self, config: ChartConfig, data: dict[str, Any]) -> dict[str, Any]:
-        return self._build_chart_payload(
-            chart_id=config.chart_id,
-            chart_type='heatmap',
-            title='Correlation Matrix',
-            x_data=data.get('variables'),
-            series=self._get_metrics_series(data),
-            engine=config.engine.value
-        )
-
-    async def _generate_live_alert_stream_chart(self, config: ChartConfig, data: dict[str, Any]) -> dict[str, Any]:
-        return self._build_chart_payload(
-            chart_id=config.chart_id,
-            chart_type='time_series',
-            title='Live Alert Stream',
+            chart_type="choropleth",
+            title="Geographic HeatMap",
+            x_data=data.get("regions"),
             series=self._get_metrics_series(data),
             engine=config.engine.value,
-            dataZoom=[{'type': 'inside', 'start': 0, 'end': 100}]
+        )
+
+    async def _generate_correlation_matrix_chart(
+        self, config: ChartConfig, data: dict[str, Any]
+    ) -> dict[str, Any]:
+        return self._build_chart_payload(
+            chart_id=config.chart_id,
+            chart_type="heatmap",
+            title="Correlation Matrix",
+            x_data=data.get("variables"),
+            series=self._get_metrics_series(data),
+            engine=config.engine.value,
+        )
+
+    async def _generate_live_alert_stream_chart(
+        self, config: ChartConfig, data: dict[str, Any]
+    ) -> dict[str, Any]:
+        return self._build_chart_payload(
+            chart_id=config.chart_id,
+            chart_type="time_series",
+            title="Live Alert Stream",
+            series=self._get_metrics_series(data),
+            engine=config.engine.value,
+            dataZoom=[{"type": "inside", "start": 0, "end": 100}],
         )
 
     async def _notify_real_time_subscribers(self, metrics: RealTimeMetrics) -> None:

@@ -115,7 +115,9 @@ class TestDatasetEndpoints:
             "file_format": "invalid_format",
         }
 
-        response = client.post("/api/datasets", json=invalid_request, headers=auth_headers)
+        response = client.post(
+            "/api/datasets", json=invalid_request, headers=auth_headers
+        )
 
         assert response.status_code == 422
         data = response.json()
@@ -320,7 +322,9 @@ class TestDatasetEndpoints:
         """Test uploading dataset with invalid format."""
         files = {"file": ("test_data.txt", io.StringIO("invalid data"), "text/plain")}
 
-        response = client.post("/api/datasets/upload", files=files, headers=auth_headers)
+        response = client.post(
+            "/api/datasets/upload", files=files, headers=auth_headers
+        )
 
         assert response.status_code == 400
         data = response.json()
@@ -331,7 +335,9 @@ class TestDatasetEndpoints:
         large_data = "x" * (100 * 1024 * 1024)  # 100MB
         files = {"file": ("large_data.csv", io.StringIO(large_data), "text/csv")}
 
-        response = client.post("/api/datasets/upload", files=files, headers=auth_headers)
+        response = client.post(
+            "/api/datasets/upload", files=files, headers=auth_headers
+        )
 
         assert response.status_code == 413
         data = response.json()
@@ -442,7 +448,9 @@ class TestDatasetEndpoints:
             }
             mock_use_case.return_value = mock_instance
 
-            response = client.get("/api/datasets/dataset123/preview", headers=auth_headers)
+            response = client.get(
+                "/api/datasets/dataset123/preview", headers=auth_headers
+            )
 
             assert response.status_code == 200
             data = response.json()
@@ -516,7 +524,9 @@ class TestDatasetEndpoints:
             }
             mock_use_case.return_value = mock_instance
 
-            response = client.get("/api/datasets/dataset123/download", headers=auth_headers)
+            response = client.get(
+                "/api/datasets/dataset123/download", headers=auth_headers
+            )
 
             assert response.status_code == 200
             assert response.headers["content-type"] == "text/csv"
@@ -541,7 +551,9 @@ class TestDatasetEndpoints:
 
     def test_get_dataset_permissions(self, client, mock_auth, auth_headers):
         """Test getting dataset permissions."""
-        response = client.get("/api/datasets/dataset123/permissions", headers=auth_headers)
+        response = client.get(
+            "/api/datasets/dataset123/permissions", headers=auth_headers
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -586,7 +598,9 @@ class TestDatasetEndpoints:
             )
             mock_use_case.return_value = mock_instance
 
-            response = client.get("/api/datasets/dataset123/preview", headers=auth_headers)
+            response = client.get(
+                "/api/datasets/dataset123/preview", headers=auth_headers
+            )
 
             assert response.status_code == 409  # Conflict - dataset not ready
 
@@ -652,7 +666,9 @@ class TestDatasetEndpointsIntegration:
 
         # 6. Export dataset
         export_data = {"format": "csv"}
-        authenticated_client.post(f"/api/datasets/{dataset_id}/export", json=export_data)
+        authenticated_client.post(
+            f"/api/datasets/{dataset_id}/export", json=export_data
+        )
 
         # 7. Delete dataset
         delete_response = authenticated_client.delete(f"/api/datasets/{dataset_id}")

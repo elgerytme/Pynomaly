@@ -112,10 +112,10 @@ class DatabaseMigrator:
         if not self.seed_default_roles_and_permissions():
             logger.warning("Failed to seed default roles and permissions")
             # Don't fail the initialization for this
-        
+
         logger.info("Database initialization completed successfully")
         return True
-    
+
     def seed_default_roles_and_permissions(self) -> bool:
         """Seed default roles and permissions into the database.
 
@@ -137,10 +137,22 @@ class DatabaseMigrator:
             with self.engine.connect() as conn:
                 for role, permissions in roles_permissions:
                     # Insert role and permissions
-                    conn.execute(text(f"INSERT INTO roles (name) VALUES ('{role}') ON CONFLICT DO NOTHING"))
+                    conn.execute(
+                        text(
+                            f"INSERT INTO roles (name) VALUES ('{role}') ON CONFLICT DO NOTHING"
+                        )
+                    )
                     for perm in permissions:
-                        conn.execute(text(f"INSERT INTO permissions (name) VALUES ('{perm}') ON CONFLICT DO NOTHING"))
-                        conn.execute(text(f"INSERT INTO role_permissions (role, permission) VALUES ('{role}', '{perm}') ON CONFLICT DO NOTHING"))
+                        conn.execute(
+                            text(
+                                f"INSERT INTO permissions (name) VALUES ('{perm}') ON CONFLICT DO NOTHING"
+                            )
+                        )
+                        conn.execute(
+                            text(
+                                f"INSERT INTO role_permissions (role, permission) VALUES ('{role}', '{perm}') ON CONFLICT DO NOTHING"
+                            )
+                        )
             logger.info("Successfully seeded roles and permissions")
             return True
         except SQLAlchemyError as e:

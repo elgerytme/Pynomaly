@@ -60,23 +60,25 @@ class SimpleAuthContext:
     def __init__(self, user: UserModel, permissions: list[str]) -> None:
         self.user = user
         self.permissions = permissions
-    
+
     # Define properties for easy attribute access
     @property
     def username(self) -> str:
         return self.user.username
-    
+
     @property
     def roles(self) -> list[str]:
         return self.user.roles if self.user else []
-    
+
     def has_permission(self, permission: str) -> bool:
         """Check if user has a specific permission."""
         return permission in self.permissions
 
 
 # Create additional role-based requirements as simplified functions
-async def require_role_safe(roles: list[str], user: UserModel = Depends(get_current_user_safe)) -> UserModel:
+async def require_role_safe(
+    roles: list[str], user: UserModel = Depends(get_current_user_safe)
+) -> UserModel:
     """Require user to have specific roles.
 
     Args:

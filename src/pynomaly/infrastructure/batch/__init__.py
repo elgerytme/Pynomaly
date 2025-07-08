@@ -8,16 +8,16 @@ from .batch_processor import (
     DataFormat,
     BatchChunk,
     BatchJob,
-    create_batch_processor
+    create_batch_processor,
 )
 
 __all__ = [
     "BatchProcessor",
     "BatchConfig",
-    "BatchEngine", 
+    "BatchEngine",
     "BatchStatus",
     "DataFormat",
     "BatchChunk",
     "BatchJob",
-    "create_batch_processor"
+    "create_batch_processor",
 ]

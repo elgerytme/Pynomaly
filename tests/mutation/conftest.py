@@ -13,6 +13,7 @@ try:
     from pynomaly.domain.value_objects import ContaminationRate
     from pynomaly.infrastructure.adapters import PyODAdapter
     from pynomaly.infrastructure.repositories import InMemoryDatasetRepository
+
     MUTATION_DEPENDENCIES_AVAILABLE = True
 except ImportError:
     MUTATION_DEPENDENCIES_AVAILABLE = False
@@ -23,7 +24,7 @@ def mutation_sample_dataset() -> Dataset:
     """Create a sample dataset for mutation testing."""
     if not MUTATION_DEPENDENCIES_AVAILABLE:
         pytest.skip("Mutation testing dependencies not available")
-        
+
     # Generate synthetic data with known anomalies
     np.random.seed(42)
 
@@ -48,7 +49,7 @@ def basic_detector() -> Detector:
     """Create a basic detector for mutation testing."""
     if not MUTATION_DEPENDENCIES_AVAILABLE:
         pytest.skip("Mutation testing dependencies not available")
-        
+
     return PyODAdapter(
         algorithm_name="IsolationForest",
         contamination_rate=ContaminationRate(0.2),

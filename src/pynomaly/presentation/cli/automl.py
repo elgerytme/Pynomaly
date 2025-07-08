@@ -600,7 +600,7 @@ def run(
             console.print(
                 f"❌ Unsupported algorithm: {algorithm_name}. "
                 f"Supported: {list(supported_algorithms.keys())}",
-                style="red"
+                style="red",
             )
             sys.exit(1)
 
@@ -620,7 +620,7 @@ def run(
 
         # Run optimization with progress tracking
         console.print("🚀 Starting AutoML optimization...")
-        
+
         with Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
@@ -635,8 +635,7 @@ def run(
             start_time = time.time()
             result = asyncio.run(
                 automl_service.optimize_detection(
-                    dataset=dataset,
-                    optimization_config=config
+                    dataset=dataset, optimization_config=config
                 )
             )
             optimization_time = time.time() - start_time
@@ -645,16 +644,16 @@ def run(
 
         # Display results
         console.print("\n✅ AutoML optimization completed!\n", style="green")
-        
+
         table = Table(title="Optimization Results")
         table.add_column("Metric", style="cyan")
         table.add_column("Value", style="green")
-        
+
         table.add_row("Best Algorithm", result.best_algorithm.value)
         table.add_row("Best Score", f"{result.best_score:.4f}")
         table.add_row("Total Trials", str(result.total_trials))
         table.add_row("Optimization Time", f"{optimization_time:.2f}s")
-        
+
         console.print(table)
 
         # Show best parameters
@@ -662,25 +661,29 @@ def run(
             params_table = Table(title="Best Parameters")
             params_table.add_column("Parameter", style="cyan")
             params_table.add_column("Value", style="green")
-            
+
             for param, value in result.best_config.parameters.items():
                 params_table.add_row(param, str(value))
-            
+
             console.print(params_table)
 
         # Persist results
         storage.mkdir(parents=True, exist_ok=True)
-        storage_path = storage / f"{algorithm_name}_optimization_{int(time.time())}.json"
-        
+        storage_path = (
+            storage / f"{algorithm_name}_optimization_{int(time.time())}.json"
+        )
+
         trial_data = {
             "algorithm": algorithm_name,
             "best_score": result.best_score,
-            "best_parameters": result.best_config.parameters if result.best_config else {},
+            "best_parameters": (
+                result.best_config.parameters if result.best_config else {}
+            ),
             "optimization_time": optimization_time,
             "total_trials": result.total_trials,
             "trial_history": result.trial_history,
         }
-        
+
         with open(storage_path, "w") as f:
             json.dump(trial_data, f, indent=2, default=str)
 
@@ -694,16 +697,15 @@ def run(
         # Check if performance improvement meets success criteria
         baseline_score = 0.5  # Assumed baseline
         improvement = (result.best_score - baseline_score) / baseline_score
-        
+
         if improvement >= 0.15:  # 15% improvement
             console.print(
                 f"🎯 Success! F1 improvement: {improvement:.1%} (≥15% target met)",
-                style="bold green"
+                style="bold green",
             )
         else:
             console.print(
-                f"⚠️  F1 improvement: {improvement:.1%} (target: ≥15%)",
-                style="yellow"
+                f"⚠️  F1 improvement: {improvement:.1%} (target: ≥15%)", style="yellow"
             )
 
     except Exception as e:

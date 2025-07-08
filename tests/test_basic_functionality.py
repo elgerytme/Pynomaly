@@ -14,9 +14,9 @@ def test_numpy_integration():
 
 def test_pandas_integration():
     """Test that Pandas integration works."""
-    df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
+    df = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})
     assert len(df) == 3
-    assert df['A'].sum() == 6
+    assert df["A"].sum() == 6
 
 
 def test_demo_functions():

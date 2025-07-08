@@ -11,17 +11,26 @@ from pydantic import BaseModel, HttpUrl
 
 from pynomaly.application.services.integration_service import IntegrationService
 from pynomaly.domain.entities.integrations import (
-    IntegrationType, IntegrationStatus, IntegrationConfig, NotificationLevel,
-    TriggerType, NotificationPayload, NotificationTemplate
+    IntegrationType,
+    IntegrationStatus,
+    IntegrationConfig,
+    NotificationLevel,
+    TriggerType,
+    NotificationPayload,
+    NotificationTemplate,
 )
 from pynomaly.domain.entities.user import User
 from pynomaly.shared.exceptions import (
-    ValidationError, IntegrationError, NotificationError, AuthenticationError
+    ValidationError,
+    IntegrationError,
+    NotificationError,
+    AuthenticationError,
 )
 from pynomaly.shared.types import TenantId, UserId
 
 # Router setup
 router = APIRouter(prefix="/api/integrations", tags=["Integrations"])
+
 
 # Request/Response Models
 class CreateIntegrationRequest(BaseModel):
@@ -140,39 +149,48 @@ async def get_current_user() -> User:
     pass
 
 
-async def require_tenant_access(tenant_id: UUID, current_user: User = Depends(get_current_user)):
+async def require_tenant_access(
+    tenant_id: UUID, current_user: User = Depends(get_current_user)
+):
     """Require access to specific tenant."""
-    if not (current_user.is_super_admin() or 
-            current_user.has_role_in_tenant(TenantId(str(tenant_id)), ["data_scientist", "tenant_admin"])):
+    if not (
+        current_user.is_super_admin()
+        or current_user.has_role_in_tenant(
+            TenantId(str(tenant_id)), ["data_scientist", "tenant_admin"]
+        )
+    ):
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access denied to tenant"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Access denied to tenant"
         )
     return current_user
 
 
 # Integration Management Endpoints
-@router.post("/tenants/{tenant_id}/integrations", response_model=IntegrationResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/tenants/{tenant_id}/integrations",
+    response_model=IntegrationResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_integration(
     tenant_id: UUID,
     request: CreateIntegrationRequest,
     current_user: User = Depends(require_tenant_access),
-    integration_service: IntegrationService = Depends(get_integration_service)
+    integration_service: IntegrationService = Depends(get_integration_service),
 ):
     """Create a new integration."""
     try:
         # Convert config dict to IntegrationConfig object
         config = IntegrationConfig(**request.config)
-        
+
         integration = await integration_service.create_integration(
             name=request.name,
             integration_type=request.integration_type,
             tenant_id=TenantId(str(tenant_id)),
             user_id=UserId(current_user.id),
             config=config,
-            credentials=request.credentials
+            credentials=request.credentials,
         )
-        
+
         return IntegrationResponse(
             id=integration.id,
             name=integration.name,
@@ -186,25 +204,26 @@ async def create_integration(
             success_count=integration.success_count,
             error_count=integration.error_count,
             success_rate=integration.success_rate,
-            is_healthy=integration.is_healthy()
+            is_healthy=integration.is_healthy(),
         )
     except (ValidationError, IntegrationError) as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.get("/tenants/{tenant_id}/integrations", response_model=List[IntegrationResponse])
+@router.get(
+    "/tenants/{tenant_id}/integrations", response_model=List[IntegrationResponse]
+)
 async def list_integrations(
     tenant_id: UUID,
     current_user: User = Depends(require_tenant_access),
-    integration_service: IntegrationService = Depends(get_integration_service)
+    integration_service: IntegrationService = Depends(get_integration_service),
 ):
     """List all integrations for a tenant."""
     try:
-        integrations = await integration_service.get_integrations_for_tenant(TenantId(str(tenant_id)))
-        
+        integrations = await integration_service.get_integrations_for_tenant(
+            TenantId(str(tenant_id))
+        )
+
         return [
             IntegrationResponse(
                 id=integration.id,
@@ -219,35 +238,37 @@ async def list_integrations(
                 success_count=integration.success_count,
                 error_count=integration.error_count,
                 success_rate=integration.success_rate,
-                is_healthy=integration.is_healthy()
+                is_healthy=integration.is_healthy(),
             )
             for integration in integrations
         ]
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve integrations: {str(e)}"
+            detail=f"Failed to retrieve integrations: {str(e)}",
         )
 
 
-@router.get("/tenants/{tenant_id}/integrations/{integration_id}", response_model=IntegrationResponse)
+@router.get(
+    "/tenants/{tenant_id}/integrations/{integration_id}",
+    response_model=IntegrationResponse,
+)
 async def get_integration(
     tenant_id: UUID,
     integration_id: str,
     current_user: User = Depends(require_tenant_access),
-    integration_service: IntegrationService = Depends(get_integration_service)
+    integration_service: IntegrationService = Depends(get_integration_service),
 ):
     """Get a specific integration."""
     try:
         # TODO: Implement get_integration_by_id in service
         raise HTTPException(
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Get integration not implemented yet"
+            detail="Get integration not implemented yet",
         )
     except IntegrationError:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Integration not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Integration not found"
         )
 
 
@@ -257,26 +278,23 @@ async def update_integration_credentials(
     integration_id: str,
     request: UpdateCredentialsRequest,
     current_user: User = Depends(require_tenant_access),
-    integration_service: IntegrationService = Depends(get_integration_service)
+    integration_service: IntegrationService = Depends(get_integration_service),
 ):
     """Update integration credentials."""
     try:
         integration = await integration_service.update_integration_credentials(
             integration_id=integration_id,
             user_id=UserId(current_user.id),
-            credentials=request.credentials
+            credentials=request.credentials,
         )
-        
+
         return {
             "message": "Credentials updated successfully",
             "integration_id": integration.id,
-            "status": integration.status.value
+            "status": integration.status.value,
         }
     except (AuthenticationError, IntegrationError) as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.delete("/tenants/{tenant_id}/integrations/{integration_id}")
@@ -284,27 +302,22 @@ async def delete_integration(
     tenant_id: UUID,
     integration_id: str,
     current_user: User = Depends(require_tenant_access),
-    integration_service: IntegrationService = Depends(get_integration_service)
+    integration_service: IntegrationService = Depends(get_integration_service),
 ):
     """Delete an integration."""
     try:
         success = await integration_service.delete_integration(
-            integration_id=integration_id,
-            user_id=UserId(current_user.id)
+            integration_id=integration_id, user_id=UserId(current_user.id)
         )
-        
+
         if success:
             return {"message": "Integration deleted successfully"}
         else:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Integration not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Integration not found"
             )
     except AuthenticationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
 
 
 # Notification Endpoints
@@ -313,7 +326,7 @@ async def send_notification(
     tenant_id: UUID,
     request: SendNotificationRequest,
     current_user: User = Depends(require_tenant_access),
-    integration_service: IntegrationService = Depends(get_integration_service)
+    integration_service: IntegrationService = Depends(get_integration_service),
 ):
     """Send a notification to all matching integrations."""
     try:
@@ -324,49 +337,47 @@ async def send_notification(
             message=request.message,
             tenant_id=TenantId(str(tenant_id)),
             user_id=UserId(current_user.id),
-            data=request.data
+            data=request.data,
         )
-        
+
         results = await integration_service.send_notification(
             tenant_id=TenantId(str(tenant_id)),
             payload=payload,
-            integration_types=request.integration_types
+            integration_types=request.integration_types,
         )
-        
+
         successful_count = sum(1 for success in results.values() if success)
         total_count = len(results)
-        
+
         return {
             "message": "Notifications sent",
             "total_integrations": total_count,
             "successful_deliveries": successful_count,
             "failed_deliveries": total_count - successful_count,
-            "results": results
+            "results": results,
         }
     except (ValidationError, NotificationError) as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.get("/tenants/{tenant_id}/integrations/{integration_id}/history", response_model=List[NotificationHistoryResponse])
+@router.get(
+    "/tenants/{tenant_id}/integrations/{integration_id}/history",
+    response_model=List[NotificationHistoryResponse],
+)
 async def get_notification_history(
     tenant_id: UUID,
     integration_id: str,
     limit: int = 50,
     offset: int = 0,
     current_user: User = Depends(require_tenant_access),
-    integration_service: IntegrationService = Depends(get_integration_service)
+    integration_service: IntegrationService = Depends(get_integration_service),
 ):
     """Get notification history for an integration."""
     try:
         history = await integration_service.get_notification_history(
-            integration_id=integration_id,
-            limit=limit,
-            offset=offset
+            integration_id=integration_id, limit=limit, offset=offset
         )
-        
+
         return [
             NotificationHistoryResponse(
                 id=record.id,
@@ -380,34 +391,37 @@ async def get_notification_history(
                 sent_at=record.sent_at,
                 delivery_time_ms=record.delivery_time_ms,
                 retry_count=record.retry_count,
-                error_message=record.error_message
+                error_message=record.error_message,
             )
             for record in history
         ]
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve notification history: {str(e)}"
+            detail=f"Failed to retrieve notification history: {str(e)}",
         )
 
 
-@router.get("/tenants/{tenant_id}/integrations/{integration_id}/metrics", response_model=IntegrationMetricsResponse)
+@router.get(
+    "/tenants/{tenant_id}/integrations/{integration_id}/metrics",
+    response_model=IntegrationMetricsResponse,
+)
 async def get_integration_metrics(
     tenant_id: UUID,
     integration_id: str,
     current_user: User = Depends(require_tenant_access),
-    integration_service: IntegrationService = Depends(get_integration_service)
+    integration_service: IntegrationService = Depends(get_integration_service),
 ):
     """Get performance metrics for an integration."""
     try:
         metrics = await integration_service.get_integration_metrics(integration_id)
-        
+
         if not metrics:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Integration metrics not found"
+                detail="Integration metrics not found",
             )
-        
+
         return IntegrationMetricsResponse(
             integration_id=metrics.integration_id,
             total_notifications=metrics.total_notifications,
@@ -419,12 +433,12 @@ async def get_integration_metrics(
             last_success=metrics.last_success,
             last_failure=metrics.last_failure,
             uptime_percentage=metrics.uptime_percentage,
-            rate_limit_hits=metrics.rate_limit_hits
+            rate_limit_hits=metrics.rate_limit_hits,
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve integration metrics: {str(e)}"
+            detail=f"Failed to retrieve integration metrics: {str(e)}",
         )
 
 
@@ -433,12 +447,12 @@ async def retry_notification(
     tenant_id: UUID,
     history_id: str,
     current_user: User = Depends(require_tenant_access),
-    integration_service: IntegrationService = Depends(get_integration_service)
+    integration_service: IntegrationService = Depends(get_integration_service),
 ):
     """Retry a failed notification."""
     try:
         success = await integration_service.retry_failed_notification(history_id)
-        
+
         if success:
             return {"message": "Notification retry successful"}
         else:
@@ -446,17 +460,21 @@ async def retry_notification(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retry notification: {str(e)}"
+            detail=f"Failed to retry notification: {str(e)}",
         )
 
 
 # Template Management Endpoints
-@router.post("/tenants/{tenant_id}/templates", response_model=TemplateResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/tenants/{tenant_id}/templates",
+    response_model=TemplateResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_notification_template(
     tenant_id: UUID,
     request: CreateTemplateRequest,
     current_user: User = Depends(require_tenant_access),
-    integration_service: IntegrationService = Depends(get_integration_service)
+    integration_service: IntegrationService = Depends(get_integration_service),
 ):
     """Create a new notification template."""
     try:
@@ -469,11 +487,13 @@ async def create_notification_template(
             message_template=request.message_template,
             tenant_id=TenantId(str(tenant_id)),
             created_by=UserId(current_user.id),
-            variables=request.variables
+            variables=request.variables,
         )
-        
-        created_template = await integration_service.create_notification_template(template)
-        
+
+        created_template = await integration_service.create_notification_template(
+            template
+        )
+
         return TemplateResponse(
             id=created_template.id,
             name=created_template.name,
@@ -484,13 +504,10 @@ async def create_notification_template(
             is_default=created_template.is_default,
             variables=created_template.variables,
             created_at=created_template.created_at,
-            updated_at=created_template.updated_at
+            updated_at=created_template.updated_at,
         )
     except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.get("/tenants/{tenant_id}/templates", response_model=List[TemplateResponse])
@@ -498,19 +515,18 @@ async def list_notification_templates(
     tenant_id: UUID,
     integration_type: Optional[IntegrationType] = None,
     current_user: User = Depends(require_tenant_access),
-    integration_service: IntegrationService = Depends(get_integration_service)
+    integration_service: IntegrationService = Depends(get_integration_service),
 ):
     """List notification templates for a tenant."""
     try:
         if integration_type:
             templates = await integration_service.get_templates_for_integration(
-                integration_type=integration_type,
-                tenant_id=TenantId(str(tenant_id))
+                integration_type=integration_type, tenant_id=TenantId(str(tenant_id))
             )
         else:
             # TODO: Implement get_all_templates method
             templates = []
-        
+
         return [
             TemplateResponse(
                 id=template.id,
@@ -522,14 +538,14 @@ async def list_notification_templates(
                 is_default=template.is_default,
                 variables=template.variables,
                 created_at=template.created_at,
-                updated_at=template.updated_at
+                updated_at=template.updated_at,
             )
             for template in templates
         ]
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve templates: {str(e)}"
+            detail=f"Failed to retrieve templates: {str(e)}",
         )
 
 
@@ -539,7 +555,7 @@ async def test_integration(
     tenant_id: UUID,
     integration_id: str,
     current_user: User = Depends(require_tenant_access),
-    integration_service: IntegrationService = Depends(get_integration_service)
+    integration_service: IntegrationService = Depends(get_integration_service),
 ):
     """Test an integration by sending a test notification."""
     try:
@@ -550,26 +566,26 @@ async def test_integration(
             message="This is a test notification to verify your integration is working correctly.",
             tenant_id=TenantId(str(tenant_id)),
             user_id=UserId(current_user.id),
-            data={"test": True}
+            data={"test": True},
         )
-        
+
         results = await integration_service.send_notification(
             tenant_id=TenantId(str(tenant_id)),
             payload=test_payload,
-            integration_types=None  # Will send to all integrations
+            integration_types=None,  # Will send to all integrations
         )
-        
+
         integration_result = results.get(integration_id, False)
-        
+
         return {
             "message": "Test notification sent",
             "success": integration_result,
-            "integration_id": integration_id
+            "integration_id": integration_id,
         }
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Test failed: {str(e)}"
+            detail=f"Test failed: {str(e)}",
         )
 
 
@@ -580,35 +596,43 @@ async def quick_setup_slack(
     webhook_url: HttpUrl,
     name: str = "Slack Integration",
     current_user: User = Depends(require_tenant_access),
-    integration_service: IntegrationService = Depends(get_integration_service)
+    integration_service: IntegrationService = Depends(get_integration_service),
 ):
     """Quick setup for Slack integration."""
     try:
         config = IntegrationConfig(
-            notification_levels=[NotificationLevel.WARNING, NotificationLevel.ERROR, NotificationLevel.CRITICAL],
-            triggers=[TriggerType.ANOMALY_DETECTED, TriggerType.SYSTEM_ERROR, TriggerType.THRESHOLD_EXCEEDED]
+            notification_levels=[
+                NotificationLevel.WARNING,
+                NotificationLevel.ERROR,
+                NotificationLevel.CRITICAL,
+            ],
+            triggers=[
+                TriggerType.ANOMALY_DETECTED,
+                TriggerType.SYSTEM_ERROR,
+                TriggerType.THRESHOLD_EXCEEDED,
+            ],
         )
-        
+
         credentials = {"webhook_url": str(webhook_url)}
-        
+
         integration = await integration_service.create_integration(
             name=name,
             integration_type=IntegrationType.SLACK,
             tenant_id=TenantId(str(tenant_id)),
             user_id=UserId(current_user.id),
             config=config,
-            credentials=credentials
+            credentials=credentials,
         )
-        
+
         return {
             "message": "Slack integration created successfully",
             "integration_id": integration.id,
-            "status": integration.status.value
+            "status": integration.status.value,
         }
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to setup Slack integration: {str(e)}"
+            detail=f"Failed to setup Slack integration: {str(e)}",
         )
 
 
@@ -618,33 +642,37 @@ async def quick_setup_pagerduty(
     routing_key: str,
     name: str = "PagerDuty Integration",
     current_user: User = Depends(require_tenant_access),
-    integration_service: IntegrationService = Depends(get_integration_service)
+    integration_service: IntegrationService = Depends(get_integration_service),
 ):
     """Quick setup for PagerDuty integration."""
     try:
         config = IntegrationConfig(
             notification_levels=[NotificationLevel.ERROR, NotificationLevel.CRITICAL],
-            triggers=[TriggerType.ANOMALY_DETECTED, TriggerType.SYSTEM_ERROR, TriggerType.PERFORMANCE_DEGRADATION]
+            triggers=[
+                TriggerType.ANOMALY_DETECTED,
+                TriggerType.SYSTEM_ERROR,
+                TriggerType.PERFORMANCE_DEGRADATION,
+            ],
         )
-        
+
         credentials = {"routing_key": routing_key}
-        
+
         integration = await integration_service.create_integration(
             name=name,
             integration_type=IntegrationType.PAGERDUTY,
             tenant_id=TenantId(str(tenant_id)),
             user_id=UserId(current_user.id),
             config=config,
-            credentials=credentials
+            credentials=credentials,
         )
-        
+
         return {
             "message": "PagerDuty integration created successfully",
             "integration_id": integration.id,
-            "status": integration.status.value
+            "status": integration.status.value,
         }
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to setup PagerDuty integration: {str(e)}"
+            detail=f"Failed to setup PagerDuty integration: {str(e)}",
         )

@@ -7,12 +7,18 @@ from datetime import datetime
 
 import pytest
 
+
 # Test the user models independently
 def test_user_models_import():
     """Test that user models can be imported without circular dependencies."""
     from src.pynomaly.infrastructure.persistence.user_models import (
-        UserModel, RoleModel, PermissionModel, APIKeyModel, TenantModel
+        UserModel,
+        RoleModel,
+        PermissionModel,
+        APIKeyModel,
+        TenantModel,
     )
+
     assert UserModel is not None
     assert RoleModel is not None
     assert PermissionModel is not None
@@ -24,11 +30,11 @@ def test_auth_jwt_service():
     """Test JWT auth service functionality."""
     from src.pynomaly.infrastructure.config import Settings
     from src.pynomaly.infrastructure.auth.jwt_auth import JWTAuthService
-    
+
     # Create test settings
     settings = Settings()
     auth_service = JWTAuthService(settings)
-    
+
     # Test password hashing
     password = "test123"
     hashed = auth_service.hash_password(password)
@@ -40,7 +46,7 @@ def test_create_require_role_dependency():
     """Test creating role-based dependency functions."""
     from fastapi import HTTPException
     from src.pynomaly.infrastructure.auth.middleware import PermissionChecker
-    
+
     # Test creating a role checker
     admin_checker = PermissionChecker(["admin"])
     assert admin_checker.permissions == ["admin"]
@@ -49,14 +55,14 @@ def test_create_require_role_dependency():
 def test_default_roles_and_permissions():
     """Test default role and permission definitions."""
     from src.pynomaly.domain.entities.user import DEFAULT_PERMISSIONS, UserRole
-    
+
     # Test that we have default permissions for all roles
     assert UserRole.SUPER_ADMIN in DEFAULT_PERMISSIONS
     assert UserRole.TENANT_ADMIN in DEFAULT_PERMISSIONS
     assert UserRole.DATA_SCIENTIST in DEFAULT_PERMISSIONS
     assert UserRole.ANALYST in DEFAULT_PERMISSIONS
     assert UserRole.VIEWER in DEFAULT_PERMISSIONS
-    
+
     # Test that admin has different permissions than viewer
     admin_perms = DEFAULT_PERMISSIONS[UserRole.SUPER_ADMIN]
     viewer_perms = DEFAULT_PERMISSIONS[UserRole.VIEWER]
@@ -70,24 +76,24 @@ def test_api_key_generation():
     """Test API key generation and hashing."""
     from src.pynomaly.infrastructure.config import Settings
     from src.pynomaly.infrastructure.auth.jwt_auth import JWTAuthService
-    
+
     settings = Settings()
     auth_service = JWTAuthService(settings)
-    
+
     # Create a test user first
     user = auth_service.create_user(
         username="testuser",
         email="test@example.com",
         password="password123",
-        full_name="Test User"
+        full_name="Test User",
     )
-    
+
     # Test API key creation
     api_key = auth_service.create_api_key(user.id, "test_key")
-    
+
     assert api_key.startswith("pyn_")
     assert len(api_key) > 10
-    
+
     # Test API key authentication would work
     try:
         auth_user = auth_service.authenticate_api_key(api_key)
@@ -99,20 +105,22 @@ def test_api_key_generation():
 
 def test_require_role_function():
     """Test the require_role function we need to implement."""
-    
+
     # This is the signature we want to implement
     def require_role(role: str):
         """Require specific role for endpoint."""
+
         def dependency():
             # Mock implementation - would check user's roles
             return f"User has role: {role}"
+
         return dependency
-    
+
     # Test creating role dependencies
-    admin_dep = require_role('admin')
-    developer_dep = require_role('developer')
-    business_dep = require_role('business')
-    
+    admin_dep = require_role("admin")
+    developer_dep = require_role("developer")
+    business_dep = require_role("business")
+
     assert admin_dep() == "User has role: admin"
     assert developer_dep() == "User has role: developer"
     assert business_dep() == "User has role: business"
@@ -122,20 +130,20 @@ if __name__ == "__main__":
     print("Running simple auth tests...")
     test_user_models_import()
     print("✓ User models import successfully")
-    
+
     test_auth_jwt_service()
     print("✓ JWT auth service works")
-    
+
     test_create_require_role_dependency()
     print("✓ Role checker creation works")
-    
+
     test_default_roles_and_permissions()
     print("✓ Default roles and permissions are defined")
-    
+
     test_api_key_generation()
     print("✓ API key generation works")
-    
+
     test_require_role_function()
     print("✓ require_role function concept works")
-    
+
     print("\nAll simple auth tests passed! ✓")

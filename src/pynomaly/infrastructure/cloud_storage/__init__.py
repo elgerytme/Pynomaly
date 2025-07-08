@@ -7,7 +7,7 @@ from .gcp_adapter import GCPAdapter
 
 __all__ = [
     "CloudStorageAdapter",
-    "CloudStorageConfig", 
+    "CloudStorageConfig",
     "StorageMetadata",
     "S3Adapter",
     "AzureAdapter",

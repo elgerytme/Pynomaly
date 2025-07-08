@@ -18,16 +18,20 @@ from pynomaly.infrastructure.auth import (
 from pynomaly.infrastructure.config import Container
 from pynomaly.presentation.api.auth_deps import get_container_simple
 
+
 # Simplified permission system for OpenAPI compatibility
 def require_permissions(permission):
     """Simplified permission checker for OpenAPI compatibility."""
     return require_viewer  # Fallback to basic auth for now
 
+
 class CommonPermissions:
     """Common permission constants."""
+
     DATASET_READ = "dataset:read"
     DATASET_WRITE = "dataset:write"
     DATASET_DELETE = "dataset:delete"
+
 
 router = APIRouter()
 
@@ -229,7 +233,7 @@ async def get_dataset_sample(
     dataset_id: UUID,
     n: int = Query(10, ge=1, le=100, description="Number of rows to return"),
     container: Container = Depends(get_container_simple),
-    _user = Depends(require_permissions(CommonPermissions.DATASET_READ)),
+    _user=Depends(require_permissions(CommonPermissions.DATASET_READ)),
 ) -> dict:
     """Get a sample of dataset rows."""
     dataset_repo = container.dataset_repository()
@@ -258,7 +262,7 @@ async def split_dataset(
     test_size: float = Query(0.2, ge=0.1, le=0.5),
     random_state: int | None = Query(None),
     container: Container = Depends(get_container_simple),
-    _user = Depends(require_permissions(CommonPermissions.DATASET_WRITE)),
+    _user=Depends(require_permissions(CommonPermissions.DATASET_WRITE)),
 ) -> dict:
     """Split dataset into train and test sets."""
     dataset_repo = container.dataset_repository()
@@ -296,7 +300,7 @@ async def split_dataset(
 async def delete_dataset(
     dataset_id: UUID,
     container: Container = Depends(get_container_simple),
-    _user = Depends(require_permissions(CommonPermissions.DATASET_DELETE)),
+    _user=Depends(require_permissions(CommonPermissions.DATASET_DELETE)),
 ) -> dict:
     """Delete a dataset."""
     dataset_repo = container.dataset_repository()

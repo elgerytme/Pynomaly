@@ -7,15 +7,15 @@ from .stream_processor import (
     StreamFormat,
     StreamRecord,
     StreamBatch,
-    create_stream_processor
+    create_stream_processor,
 )
 
 __all__ = [
     "StreamProcessor",
-    "StreamConfig", 
+    "StreamConfig",
     "StreamSource",
     "StreamFormat",
     "StreamRecord",
     "StreamBatch",
-    "create_stream_processor"
+    "create_stream_processor",
 ]

@@ -217,7 +217,8 @@ class FeatureFlags(BaseSettings):
 
     # Experimental ML Features
     ml_severity_classifier: bool = Field(
-        default=False, description="Enable ML severity classifier with XGBoost/LightGBM models"
+        default=False,
+        description="Enable ML severity classifier with XGBoost/LightGBM models",
     )
 
     # Phase 5: Production Hardening (Selective enabling)

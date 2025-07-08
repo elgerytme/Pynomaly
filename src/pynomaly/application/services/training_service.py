@@ -32,9 +32,13 @@ from pynomaly.application.dto.training_dto import (
     TrainingResultDTO,
 )
 from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.entities.model import Model, ModelMetrics, ModelVersion
+from pynomaly.domain.entities.model import ModelMetrics, ModelVersion
 from pynomaly.domain.entities.training_job import TrainingJob, TrainingStatus
+from pynomaly.domain.optimization.pareto_optimizer import ParetoOptimizer
+from pynomaly.domain.services.metrics_calculator import MetricsCalculator
+from pynomaly.domain.services.model_selector import ModelSelector
 from pynomaly.domain.services.model_service import ModelService
+from pynomaly.domain.services.statistical_tester import StatisticalTester
 from pynomaly.domain.value_objects.hyperparameters import HyperparameterSet
 from pynomaly.infrastructure.adapters.algorithm_adapter import AlgorithmAdapter
 from pynomaly.infrastructure.config.training_config import TrainingConfig
@@ -177,33 +181,45 @@ class AutomatedTrainingService:
             for result in training_results:
                 evaluation = metrics_calculator.compute(
                     y_true=y_val,
-                    y_pred=result['metrics']['y_pred'],
-                    proba=result['metrics'].get('proba'),
-                    task_type='classification',
-                    confidence_level=0.95
+                    y_pred=result["metrics"]["y_pred"],
+                    proba=result["metrics"].get("proba"),
+                    task_type="classification",
+                    confidence_level=0.95,
                 )
                 model_evaluations.append(evaluation)
 
             # Call StatisticalTester & ParetoOptimizer
             statistical_tester = StatisticalTester()
             for i, result_a in enumerate(training_results):
-                for j, result_b in enumerate(training_results[i+1:], i+1):
+                for j, result_b in enumerate(training_results[i + 1 :], i + 1):
                     significant = statistical_tester.test_significance(
-                        result_a['metrics'],
-                        result_b['metrics']
+                        result_a["metrics"], result_b["metrics"]
                     )
                     # Handle significance result
 
-            pareto_optimizer = ParetoOptimizer(objectives=[{'name': 'f1_score', 'direction': 'max'}, {'name': 'roc_auc', 'direction': 'max'}])
-            pareto_optimal_models = pareto_optimizer.find_pareto_optimal(training_results)
+            pareto_optimizer = ParetoOptimizer(
+                objectives=[
+                    {"name": "f1_score", "direction": "max"},
+                    {"name": "roc_auc", "direction": "max"},
+                ]
+            )
+            pareto_optimal_models = pareto_optimizer.find_pareto_optimal(
+                training_results
+            )
 
             # Feed into ModelSelector
-            model_selector = ModelSelector(primary_metric='f1_score', secondary_metrics=['roc_auc'])
+            model_selector = ModelSelector(
+                primary_metric="f1_score", secondary_metrics=["roc_auc"]
+            )
             best_model_info = model_selector.select_best_model(pareto_optimal_models)
-            job.best_model_id = best_model_info['selected_model'] if best_model_info else None
+            job.best_model_id = (
+                best_model_info["selected_model"] if best_model_info else None
+            )
 
             # Persist comparison artifacts
-            await self.training_repository.save_comparison_artifacts(job.id, best_model_info)
+            await self.training_repository.save_comparison_artifacts(
+                job.id, best_model_info
+            )
             self.best_models[job.id] = best_model_info
 
             # Finalize job
@@ -214,11 +230,11 @@ class AutomatedTrainingService:
             await self._update_job_status(job, TrainingStatus.COMPLETED)
 
             # Trigger async progress events
-            await self._trigger_async_event('MODEL_TRAINING_COMPLETED', job.id)
-            await self._trigger_async_event('MODEL_EVALUATION_COMPLETED', job.id)
-            await self._trigger_async_event('SIGNIFICANCE_TESTING_COMPLETED', job.id)
-            await self._trigger_async_event('PARETO_OPTIMIZATION_COMPLETED', job.id)
-            await self._trigger_async_event('MODEL_SELECTION_COMPLETED', job.id)
+            await self._trigger_async_event("MODEL_TRAINING_COMPLETED", job.id)
+            await self._trigger_async_event("MODEL_EVALUATION_COMPLETED", job.id)
+            await self._trigger_async_event("SIGNIFICANCE_TESTING_COMPLETED", job.id)
+            await self._trigger_async_event("PARETO_OPTIMIZATION_COMPLETED", job.id)
+            await self._trigger_async_event("MODEL_SELECTION_COMPLETED", job.id)
 
             logger.info(f"Training job {job.id} completed successfully")
 

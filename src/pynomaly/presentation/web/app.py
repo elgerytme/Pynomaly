@@ -1555,7 +1555,9 @@ async def collaboration_page(
 
 
 @router.get("/explorer", response_class=HTMLResponse)
-async def explorer_page(request: Request, container: Container = Depends(get_container)):
+async def explorer_page(
+    request: Request, container: Container = Depends(get_container)
+):
     """API Explorer Page."""
     return templates.TemplateResponse("explorer.html", {"request": request})
 
@@ -1564,11 +1566,11 @@ async def explorer_page(request: Request, container: Container = Depends(get_con
 async def explorer_logs_websocket(websocket):
     """WebSocket endpoint for live log streaming in API Explorer."""
     await websocket.accept()
-    
+
     import asyncio
     import time
     import json
-    
+
     try:
         while True:
             # Simulate log messages (in real implementation, this would come from a log stream)
@@ -1579,14 +1581,15 @@ async def explorer_logs_websocket(websocket):
                 "method": "GET",
                 "path": "/api/v1/health",
                 "status": 200,
-                "duration": "45ms"
+                "duration": "45ms",
             }
-            
+
             await websocket.send_text(json.dumps(log_message))
             await asyncio.sleep(5)  # Send update every 5 seconds
-            
+
     except Exception as e:
         print(f"WebSocket connection closed: {e}")
+
 
 @router.get("/advanced-visualizations", response_class=HTMLResponse)
 async def advanced_visualizations_page(

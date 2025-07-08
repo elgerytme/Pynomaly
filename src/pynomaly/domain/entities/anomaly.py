@@ -26,23 +26,27 @@ class Anomaly:
     def __post_init__(self) -> None:
         """Validate anomaly after initialization."""
         from pynomaly.domain.value_objects import AnomalyScore
-        
+
         # Only accept AnomalyScore objects
         if not isinstance(self.score, AnomalyScore):
-            raise TypeError(f"Score must be AnomalyScore instance, got {type(self.score)}")
+            raise TypeError(
+                f"Score must be AnomalyScore instance, got {type(self.score)}"
+            )
 
         if not self.detector_name:
             raise ValueError("Detector name cannot be empty")
 
         if not isinstance(self.data_point, dict):
-            raise TypeError(f"Data point must be a dictionary, got {type(self.data_point)}")
+            raise TypeError(
+                f"Data point must be a dictionary, got {type(self.data_point)}"
+            )
 
     @property
     def severity(self) -> str:
         """Categorize anomaly severity based on score."""
         # Handle both AnomalyScore and float
-        score_value = self.score.value if hasattr(self.score, 'value') else self.score
-        
+        score_value = self.score.value if hasattr(self.score, "value") else self.score
+
         if score_value > 0.9:
             return "critical"
         elif score_value > 0.7:

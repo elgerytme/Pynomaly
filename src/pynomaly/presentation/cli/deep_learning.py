@@ -43,26 +43,38 @@ app = typer.Typer(
 @app.command()
 @require_feature("deep_learning")
 def train(
-    dataset_path: Path = typer.Argument(..., help="Path to the dataset file (CSV or Parquet)", exists=True),
+    dataset_path: Path = typer.Argument(
+        ..., help="Path to the dataset file (CSV or Parquet)", exists=True
+    ),
     algorithm: str = typer.Option(
         "autoencoder",
-        "-a", "--algorithm",
-        help="Deep learning algorithm (options: autoencoder, vae, lstm, gru, transformer)"
+        "-a",
+        "--algorithm",
+        help="Deep learning algorithm (options: autoencoder, vae, lstm, gru, transformer)",
     ),
     framework: Optional[str] = typer.Option(
         None,
-        "-f", "--framework",
-        help="Deep learning framework (options: pytorch, tensorflow, jax; auto-select if not specified)"
+        "-f",
+        "--framework",
+        help="Deep learning framework (options: pytorch, tensorflow, jax; auto-select if not specified)",
     ),
     epochs: int = typer.Option(100, "--epochs", help="Number of training epochs"),
     batch_size: int = typer.Option(32, "--batch-size", help="Batch size for training"),
     learning_rate: float = typer.Option(0.001, "--learning-rate", help="Learning rate"),
-    hidden_dims: Optional[List[int]] = typer.Option(None, "--hidden-dims", help="Hidden layer dimensions"),
+    hidden_dims: Optional[List[int]] = typer.Option(
+        None, "--hidden-dims", help="Hidden layer dimensions"
+    ),
     latent_dim: int = typer.Option(16, "--latent-dim", help="Latent space dimension"),
-    contamination: float = typer.Option(0.1, "--contamination", help="Expected contamination rate"),
+    contamination: float = typer.Option(
+        0.1, "--contamination", help="Expected contamination rate"
+    ),
     gpu: bool = typer.Option(True, "--gpu/--no-gpu", help="Enable GPU acceleration"),
-    output: Optional[Path] = typer.Option(None, "--output", help="Output file for results"),
-    save_model: Optional[Path] = typer.Option(None, "--save-model", help="Save trained model to file"),
+    output: Optional[Path] = typer.Option(
+        None, "--output", help="Output file for results"
+    ),
+    save_model: Optional[Path] = typer.Option(
+        None, "--save-model", help="Save trained model to file"
+    ),
 ):
     """Train a deep learning anomaly detection model.
 
@@ -85,7 +97,7 @@ def train(
             "learning_rate": learning_rate,
             "latent_dim": latent_dim,
             "contamination": contamination,
-            "hidden_dims": hidden_dims
+            "hidden_dims": hidden_dims,
         }
 
         if hidden_dims:
@@ -172,19 +184,25 @@ def train(
 @app.command()
 @require_feature("deep_learning")
 def benchmark(
-    dataset_path: Path = typer.Argument(..., help="Path to the dataset file", exists=True),
+    dataset_path: Path = typer.Argument(
+        ..., help="Path to the dataset file", exists=True
+    ),
     algorithm: str = typer.Option(
         "autoencoder",
-        "-a", "--algorithm",
-        help="Deep learning algorithm (options: autoencoder, vae, lstm, gru, transformer)"
+        "-a",
+        "--algorithm",
+        help="Deep learning algorithm (options: autoencoder, vae, lstm, gru, transformer)",
     ),
     frameworks: Optional[List[str]] = typer.Option(
         None,
-        "-f", "--frameworks",
-        help="Frameworks to benchmark (all available if not specified)"
+        "-f",
+        "--frameworks",
+        help="Frameworks to benchmark (all available if not specified)",
     ),
     epochs: int = typer.Option(50, "--epochs", help="Number of training epochs"),
-    output: Optional[Path] = typer.Option(None, "--output", help="Output file for benchmark results"),
+    output: Optional[Path] = typer.Option(
+        None, "--output", help="Output file for benchmark results"
+    ),
 ):
     """Benchmark deep learning frameworks on anomaly detection task.
 
@@ -237,11 +255,13 @@ def benchmark(
 @app.command()
 @require_feature("deep_learning")
 def recommend(
-    dataset_path: Path = typer.Argument(..., help="Path to the dataset file", exists=True),
+    dataset_path: Path = typer.Argument(
+        ..., help="Path to the dataset file", exists=True
+    ),
     priority: str = typer.Option(
         "balanced",
         "--priority",
-        help="Performance priority (speed, accuracy, memory, balanced)"
+        help="Performance priority (speed, accuracy, memory, balanced)",
     ),
     gpu: bool = typer.Option(True, "--gpu/--no-gpu", help="GPU availability"),
 ):
@@ -347,7 +367,7 @@ def frameworks():
 def info(
     algorithm: str = typer.Argument(
         ...,
-        help="Algorithm to get information about (options: autoencoder, vae, lstm, gru, transformer)"
+        help="Algorithm to get information about (options: autoencoder, vae, lstm, gru, transformer)",
     ),
 ):
     """Get detailed information about a deep learning algorithm.

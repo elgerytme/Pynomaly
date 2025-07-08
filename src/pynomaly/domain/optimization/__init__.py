@@ -7,4 +7,4 @@ and hyperparameter tuning.
 
 from .pareto_optimizer import ParetoOptimizer
 
-__all__ = ['ParetoOptimizer']
+__all__ = ["ParetoOptimizer"]

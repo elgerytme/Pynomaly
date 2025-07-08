@@ -437,7 +437,12 @@ class GovernanceFrameworkService:
     - Change management with approval workflows
     """
 
-    def __init__(self, storage_path: Path, retention_years: int = 7, enable_real_time_monitoring: bool = True):
+    def __init__(
+        self,
+        storage_path: Path,
+        retention_years: int = 7,
+        enable_real_time_monitoring: bool = True,
+    ):
         """Initialize governance framework service.
 
         Args:
@@ -474,7 +479,7 @@ class GovernanceFrameworkService:
         # Compliance monitoring
         self.compliance_violations: list[dict[str, Any]] = []
         self.compliance_file = self.storage_path / "compliance_violations.json"
-        
+
         # Compliance metrics storage
         self.compliance_metrics: dict[str, ComplianceMetric] = {}
         self.compliance_metrics_file = self.storage_path / "compliance_metrics.json"

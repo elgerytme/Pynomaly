@@ -15,6 +15,7 @@ from pynomaly.shared.types import UserId, TenantId
 
 class AuditAction(str, Enum):
     """Types of auditable actions."""
+
     # User actions
     USER_LOGIN = "user_login"
     USER_LOGOUT = "user_logout"
@@ -23,14 +24,14 @@ class AuditAction(str, Enum):
     USER_DELETED = "user_deleted"
     USER_INVITED = "user_invited"
     USER_ROLE_CHANGED = "user_role_changed"
-    
+
     # Data actions
     DATASET_CREATED = "dataset_created"
     DATASET_UPDATED = "dataset_updated"
     DATASET_DELETED = "dataset_deleted"
     DATASET_ACCESSED = "dataset_accessed"
     DATASET_EXPORTED = "dataset_exported"
-    
+
     # Model actions
     MODEL_CREATED = "model_created"
     MODEL_TRAINED = "model_trained"
@@ -38,25 +39,25 @@ class AuditAction(str, Enum):
     MODEL_DELETED = "model_deleted"
     MODEL_DEPLOYED = "model_deployed"
     MODEL_RETIRED = "model_retired"
-    
+
     # Detection actions
     DETECTION_PERFORMED = "detection_performed"
     ANOMALY_DETECTED = "anomaly_detected"
     ALERT_TRIGGERED = "alert_triggered"
     ALERT_ACKNOWLEDGED = "alert_acknowledged"
-    
+
     # System actions
     SYSTEM_CONFIGURATION_CHANGED = "system_configuration_changed"
     INTEGRATION_CREATED = "integration_created"
     INTEGRATION_UPDATED = "integration_updated"
     INTEGRATION_DELETED = "integration_deleted"
-    
+
     # Admin actions
     TENANT_CREATED = "tenant_created"
     TENANT_UPDATED = "tenant_updated"
     TENANT_SUSPENDED = "tenant_suspended"
     PERMISSIONS_CHANGED = "permissions_changed"
-    
+
     # Compliance actions
     GDPR_REQUEST = "gdpr_request"
     DATA_RETENTION_POLICY_APPLIED = "data_retention_policy_applied"
@@ -67,6 +68,7 @@ class AuditAction(str, Enum):
 
 class AuditSeverity(str, Enum):
     """Severity levels for audit events."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -75,18 +77,20 @@ class AuditSeverity(str, Enum):
 
 class ComplianceFramework(str, Enum):
     """Supported compliance frameworks."""
-    GDPR = "gdpr"              # General Data Protection Regulation
-    HIPAA = "hipaa"            # Health Insurance Portability and Accountability Act
-    SOX = "sox"                # Sarbanes-Oxley Act
-    PCI_DSS = "pci_dss"        # Payment Card Industry Data Security Standard
-    ISO_27001 = "iso_27001"    # Information Security Management
-    SOC2 = "soc2"              # Service Organization Control 2
-    CCPA = "ccpa"              # California Consumer Privacy Act
-    PIPEDA = "pipeda"          # Personal Information Protection and Electronic Documents Act
+
+    GDPR = "gdpr"  # General Data Protection Regulation
+    HIPAA = "hipaa"  # Health Insurance Portability and Accountability Act
+    SOX = "sox"  # Sarbanes-Oxley Act
+    PCI_DSS = "pci_dss"  # Payment Card Industry Data Security Standard
+    ISO_27001 = "iso_27001"  # Information Security Management
+    SOC2 = "soc2"  # Service Organization Control 2
+    CCPA = "ccpa"  # California Consumer Privacy Act
+    PIPEDA = "pipeda"  # Personal Information Protection and Electronic Documents Act
 
 
 class DataClassification(str, Enum):
     """Data classification levels."""
+
     PUBLIC = "public"
     INTERNAL = "internal"
     CONFIDENTIAL = "confidential"
@@ -95,6 +99,7 @@ class DataClassification(str, Enum):
 
 class RetentionPolicyStatus(str, Enum):
     """Status of data retention policies."""
+
     ACTIVE = "active"
     PENDING = "pending"
     EXPIRED = "expired"
@@ -104,6 +109,7 @@ class RetentionPolicyStatus(str, Enum):
 @dataclass
 class AuditEvent:
     """Individual audit event record."""
+
     id: str
     action: AuditAction
     severity: AuditSeverity
@@ -119,22 +125,23 @@ class AuditEvent:
     outcome: str = "success"  # success, failure, error
     risk_score: int = 0  # 0-100 risk assessment
     compliance_frameworks: List[ComplianceFramework] = field(default_factory=list)
-    
+
     @property
     def is_high_risk(self) -> bool:
         """Check if this is a high-risk event."""
         return (
-            self.risk_score >= 70 or
-            self.severity in [AuditSeverity.HIGH, AuditSeverity.CRITICAL] or
-            self.action in [
+            self.risk_score >= 70
+            or self.severity in [AuditSeverity.HIGH, AuditSeverity.CRITICAL]
+            or self.action
+            in [
                 AuditAction.USER_DELETED,
                 AuditAction.DATASET_DELETED,
                 AuditAction.MODEL_DELETED,
                 AuditAction.PERMISSIONS_CHANGED,
-                AuditAction.SYSTEM_CONFIGURATION_CHANGED
+                AuditAction.SYSTEM_CONFIGURATION_CHANGED,
             ]
         )
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
@@ -152,13 +159,14 @@ class AuditEvent:
             "session_id": self.session_id,
             "outcome": self.outcome,
             "risk_score": self.risk_score,
-            "compliance_frameworks": [f.value for f in self.compliance_frameworks]
+            "compliance_frameworks": [f.value for f in self.compliance_frameworks],
         }
 
 
 @dataclass
 class DataRetentionPolicy:
     """Data retention policy definition."""
+
     id: str
     name: str
     description: str
@@ -173,21 +181,23 @@ class DataRetentionPolicy:
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
     created_by: Optional[UserId] = None
-    
+
     @property
     def is_expired(self) -> bool:
         """Check if policy has expired."""
         return self.status == RetentionPolicyStatus.EXPIRED
-    
+
     def get_deletion_date(self, creation_date: datetime) -> datetime:
         """Calculate when data should be deleted based on policy."""
         from datetime import timedelta
+
         return creation_date + timedelta(days=self.retention_period_days)
 
 
 @dataclass
 class ComplianceRule:
     """Individual compliance rule."""
+
     id: str
     name: str
     description: str
@@ -204,6 +214,7 @@ class ComplianceRule:
 @dataclass
 class ComplianceCheck:
     """Result of a compliance check."""
+
     id: str
     rule_id: str
     tenant_id: TenantId
@@ -213,12 +224,12 @@ class ComplianceCheck:
     evidence: List[str] = field(default_factory=list)
     recommendations: List[str] = field(default_factory=list)
     next_check_due: Optional[datetime] = None
-    
+
     @property
     def is_compliant(self) -> bool:
         """Check if rule is compliant."""
         return self.status == "compliant"
-    
+
     @property
     def needs_attention(self) -> bool:
         """Check if check needs attention."""
@@ -228,6 +239,7 @@ class ComplianceCheck:
 @dataclass
 class GDPRRequest:
     """GDPR data subject request."""
+
     id: str
     request_type: str  # "access", "rectification", "erasure", "portability", "restriction", "objection"
     tenant_id: TenantId
@@ -241,18 +253,22 @@ class GDPRRequest:
     response_data: Optional[Dict[str, Any]] = None
     processed_at: Optional[datetime] = None
     notes: str = ""
-    
+
     @property
     def is_overdue(self) -> bool:
         """Check if request is overdue (GDPR 30-day requirement)."""
         if not self.completion_deadline:
             return False
-        return datetime.utcnow() > self.completion_deadline and self.status not in ["completed", "rejected"]
+        return datetime.utcnow() > self.completion_deadline and self.status not in [
+            "completed",
+            "rejected",
+        ]
 
 
 @dataclass
 class EncryptionKey:
     """Encryption key metadata for audit purposes."""
+
     id: str
     key_name: str
     algorithm: str
@@ -264,7 +280,7 @@ class EncryptionKey:
     rotated_at: Optional[datetime] = None
     status: str = "active"  # "active", "retired", "compromised"
     usage_count: int = 0
-    
+
     @property
     def needs_rotation(self) -> bool:
         """Check if key needs rotation."""
@@ -274,6 +290,7 @@ class EncryptionKey:
         if self.usage_count > 1000000:
             return True
         from datetime import timedelta
+
         if datetime.utcnow() > self.created_at + timedelta(days=90):
             return True
         return False
@@ -282,6 +299,7 @@ class EncryptionKey:
 @dataclass
 class BackupRecord:
     """Backup operation audit record."""
+
     id: str
     backup_type: str  # "full", "incremental", "differential"
     tenant_id: TenantId
@@ -295,14 +313,14 @@ class BackupRecord:
     compressed_size_bytes: int = 0
     checksum: str = ""
     retention_until: Optional[datetime] = None
-    
+
     @property
     def compression_ratio(self) -> float:
         """Calculate compression ratio."""
         if self.size_bytes == 0:
             return 0.0
         return self.compressed_size_bytes / self.size_bytes
-    
+
     @property
     def is_expired(self) -> bool:
         """Check if backup is expired."""
@@ -312,6 +330,7 @@ class BackupRecord:
 @dataclass
 class ComplianceReport:
     """Comprehensive compliance report."""
+
     id: str
     report_type: str  # "periodic", "incident", "audit_preparation"
     framework: ComplianceFramework
@@ -320,30 +339,30 @@ class ComplianceReport:
     reporting_period_end: datetime
     generated_at: datetime
     generated_by: UserId
-    
+
     # Summary statistics
     total_checks: int = 0
     compliant_checks: int = 0
     non_compliant_checks: int = 0
     warning_checks: int = 0
-    
+
     # Detailed findings
     findings: List[ComplianceCheck] = field(default_factory=list)
     recommendations: List[str] = field(default_factory=list)
     risk_assessment: Dict[str, Any] = field(default_factory=dict)
-    
+
     # Audit trail summary
     high_risk_events: int = 0
     total_audit_events: int = 0
     failed_operations: int = 0
-    
+
     @property
     def compliance_score(self) -> float:
         """Calculate overall compliance score (0-100)."""
         if self.total_checks == 0:
             return 0.0
         return (self.compliant_checks / self.total_checks) * 100
-    
+
     @property
     def risk_level(self) -> str:
         """Determine overall risk level."""
@@ -370,14 +389,14 @@ DEFAULT_COMPLIANCE_RULES = {
             requirements=[
                 "Implement data retention policies",
                 "Automatically delete expired data",
-                "Document retention periods"
+                "Document retention periods",
             ],
             validation_criteria={
                 "max_retention_days": 2555,  # 7 years max
                 "auto_delete_enabled": True,
-                "policy_documented": True
+                "policy_documented": True,
             },
-            severity=AuditSeverity.HIGH
+            severity=AuditSeverity.HIGH,
         ),
         ComplianceRule(
             id="gdpr_data_encryption",
@@ -388,14 +407,14 @@ DEFAULT_COMPLIANCE_RULES = {
             requirements=[
                 "Encrypt all personal data at rest",
                 "Use strong encryption algorithms",
-                "Manage encryption keys securely"
+                "Manage encryption keys securely",
             ],
             validation_criteria={
                 "encryption_enabled": True,
                 "algorithm_strength": "AES-256",
-                "key_rotation_enabled": True
+                "key_rotation_enabled": True,
             },
-            severity=AuditSeverity.CRITICAL
+            severity=AuditSeverity.CRITICAL,
         ),
         ComplianceRule(
             id="gdpr_audit_logging",
@@ -406,15 +425,15 @@ DEFAULT_COMPLIANCE_RULES = {
             requirements=[
                 "Log all data access and processing",
                 "Maintain logs for required period",
-                "Ensure log integrity and immutability"
+                "Ensure log integrity and immutability",
             ],
             validation_criteria={
                 "audit_logging_enabled": True,
                 "log_retention_days": 2555,  # 7 years
-                "log_integrity_protected": True
+                "log_integrity_protected": True,
             },
-            severity=AuditSeverity.HIGH
-        )
+            severity=AuditSeverity.HIGH,
+        ),
     ],
     ComplianceFramework.HIPAA: [
         ComplianceRule(
@@ -426,14 +445,14 @@ DEFAULT_COMPLIANCE_RULES = {
             requirements=[
                 "Unique user identification",
                 "Automatic logoff",
-                "Encryption and decryption"
+                "Encryption and decryption",
             ],
             validation_criteria={
                 "unique_user_id": True,
                 "auto_logoff_enabled": True,
-                "phi_encrypted": True
+                "phi_encrypted": True,
             },
-            severity=AuditSeverity.CRITICAL
+            severity=AuditSeverity.CRITICAL,
         )
     ],
     ComplianceFramework.SOX: [
@@ -446,16 +465,16 @@ DEFAULT_COMPLIANCE_RULES = {
             requirements=[
                 "Document all financial data processing",
                 "Maintain segregation of duties",
-                "Regular control testing"
+                "Regular control testing",
             ],
             validation_criteria={
                 "financial_data_documented": True,
                 "segregation_of_duties": True,
-                "control_testing_regular": True
+                "control_testing_regular": True,
             },
-            severity=AuditSeverity.HIGH
+            severity=AuditSeverity.HIGH,
         )
-    ]
+    ],
 }
 
 
@@ -470,7 +489,7 @@ def get_default_retention_policies() -> List[DataRetentionPolicy]:
             data_type="user_activity",
             classification=DataClassification.INTERNAL,
             retention_period_days=2555,  # 7 years
-            compliance_frameworks=[ComplianceFramework.GDPR, ComplianceFramework.HIPAA]
+            compliance_frameworks=[ComplianceFramework.GDPR, ComplianceFramework.HIPAA],
         ),
         DataRetentionPolicy(
             id="audit_logs",
@@ -480,7 +499,11 @@ def get_default_retention_policies() -> List[DataRetentionPolicy]:
             data_type="audit_log",
             classification=DataClassification.CONFIDENTIAL,
             retention_period_days=2555,  # 7 years
-            compliance_frameworks=[ComplianceFramework.GDPR, ComplianceFramework.SOX, ComplianceFramework.HIPAA]
+            compliance_frameworks=[
+                ComplianceFramework.GDPR,
+                ComplianceFramework.SOX,
+                ComplianceFramework.HIPAA,
+            ],
         ),
         DataRetentionPolicy(
             id="detection_results",
@@ -490,7 +513,7 @@ def get_default_retention_policies() -> List[DataRetentionPolicy]:
             data_type="detection_result",
             classification=DataClassification.CONFIDENTIAL,
             retention_period_days=1825,  # 5 years
-            compliance_frameworks=[ComplianceFramework.GDPR]
+            compliance_frameworks=[ComplianceFramework.GDPR],
         ),
         DataRetentionPolicy(
             id="user_datasets",
@@ -500,6 +523,6 @@ def get_default_retention_policies() -> List[DataRetentionPolicy]:
             data_type="user_dataset",
             classification=DataClassification.RESTRICTED,
             retention_period_days=365,  # 1 year default
-            compliance_frameworks=[ComplianceFramework.GDPR, ComplianceFramework.HIPAA]
-        )
+            compliance_frameworks=[ComplianceFramework.GDPR, ComplianceFramework.HIPAA],
+        ),
     ]

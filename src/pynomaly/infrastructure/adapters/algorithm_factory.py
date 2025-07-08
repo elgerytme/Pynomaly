@@ -19,6 +19,7 @@ from .ensemble_meta_adapter import AggregationMethod, EnsembleMetaAdapter
 # Optional deep learning adapters
 try:
     from .deep_learning.pytorch_adapter import PyTorchAdapter
+
     PYTORCH_AVAILABLE = True
 except ImportError:
     PyTorchAdapter = None
@@ -83,7 +84,7 @@ class AlgorithmFactory:
             AlgorithmLibrary.SKLEARN: EnhancedSklearnAdapter,
             AlgorithmLibrary.ENSEMBLE: EnsembleMetaAdapter,
         }
-        
+
         # Register PyTorch adapter if available
         if PYTORCH_AVAILABLE:
             self._library_adapters[AlgorithmLibrary.PYTORCH] = PyTorchAdapter
@@ -409,11 +410,16 @@ class AlgorithmFactory:
         """Auto-detect which library contains the algorithm."""
         # Check PyTorch first
         if PYTORCH_AVAILABLE and algorithm_name.lower() in [
-            "autoencoder", "pytorch_autoencoder", "vae", "pytorch_vae", 
-            "lstm", "pytorch_lstm", "pytorch"
+            "autoencoder",
+            "pytorch_autoencoder",
+            "vae",
+            "pytorch_vae",
+            "lstm",
+            "pytorch_lstm",
+            "pytorch",
         ]:
             return AlgorithmLibrary.PYTORCH
-            
+
         # Check PyOD first
         if algorithm_name in EnhancedPyODAdapter.list_algorithms():
             return AlgorithmLibrary.PYOD

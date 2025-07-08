@@ -11,7 +11,10 @@ from pynomaly.infrastructure.auth import (
     UserModel,
 )
 from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.auth_deps import get_container_simple, get_current_user_simple
+from pynomaly.presentation.api.auth_deps import (
+    get_container_simple,
+    get_current_user_simple,
+)
 
 router = APIRouter()
 
