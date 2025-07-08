@@ -347,7 +347,27 @@ class StreamProcessor:
 
             except Exception as e:
                 logger.error(f"Error in ingestion loop: {e}")
-                await asyncio.sleep(self.config.retry_delay_seconds)
+                try:
+                    if self.error_count < self.config.max_retries:
+                        await asyncio.sleep(self.config.retry_delay_seconds)
+                    else:
+                        # Send batch to dead letter queue
+                        self._send_to_dead_letter_queue(records, error=e)
+                        logger.error("Sent to dead letter queue due to repeated ingestion failures")
+                except Exception as de:
+                    logger.error(f"Error in dead letter handling: {de}")
+
+    def _send_to_dead_letter_queue(self, records, error):
+        if self.config.dead_letter_queue:
+            # Assuming dead_letter_queue is a Kafka topic
+            logger.info("Publishing records to dead letter queue")
+            for record in records:
+                # Include error details in record metadata
+                record.metadata['error'] = str(error)
+                record.metadata['error_type'] = type(error).__name__
+                record.metadata['timestamp'] = datetime.now().isoformat()
+            # Send to dead letter queue
+            self.sink_connector.send(self.config.dead_letter_queue, [r.data for r in records])
 
     async def _fetch_records(self) -> List[StreamRecord]:
         """Fetch records from source."""
@@ -462,6 +482,43 @@ class StreamProcessor:
             except Exception as e:
                 self.error_count += 1
                 logger.error(f"Error in processing loop: {e}")
+                
+                # Implement retry logic with exponential backoff
+                from ...infrastructure.resilience.retry import retry_with_backoff
+                from ...infrastructure.error_handling.recovery_strategies import RetryStrategy
+                
+                retry_strategy = RetryStrategy(
+                    max_retries=self.config.max_retries,
+                    base_delay=self.config.retry_delay_seconds,
+                    max_delay=60.0,
+                    exponential_base=2.0,
+                    jitter=True
+                )
+                
+                try:
+                    # Check if this error is recoverable
+                    if await retry_strategy.can_recover(e, {}):
+                        logger.info(f"Attempting recovery for error: {e}")
+                        # Retry the batch processing
+                        result = await retry_strategy.recover(
+                            lambda: self._process_batch(batch),
+                            e,
+                            {"batch_id": batch.batch_id, "attempt": self.error_count}
+                        )
+                        # If successful, reset error count
+                        self.error_count = 0
+                        await self.output_queue.put(result)
+                    else:
+                        # Send to dead letter queue for irrecoverable errors
+                        logger.error(f"Irrecoverable error processing batch {batch.batch_id}: {e}")
+                        self._send_to_dead_letter_queue(batch.records, error=e)
+                        await self._save_checkpoint(batch)
+                except Exception as recovery_error:
+                    # Final fallback - send to dead letter queue
+                    logger.error(f"Recovery failed for batch {batch.batch_id}: {recovery_error}")
+                    self._send_to_dead_letter_queue(batch.records, error=recovery_error)
+                    await self._save_checkpoint(batch)
+                    
                 await asyncio.sleep(self.config.retry_delay_seconds)
 
     async def _collect_batch(self) -> StreamBatch:
