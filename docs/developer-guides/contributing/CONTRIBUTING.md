@@ -196,6 +196,78 @@ feat(domain): add confidence intervals to anomaly scores
 Closes #123
 ```
 
+## Architectural Decision Records (ADRs)
+
+### When an ADR is Required
+
+An ADR must be created for any architectural decision that is:
+
+- **Irreversible**: Decisions that would be difficult or costly to change later
+- **High-impact**: Decisions that affect multiple components or the system architecture
+- **Significant precedent**: Decisions that establish patterns for future development
+- **Technology choices**: Major framework, library, or tool selections
+- **API design**: Public interface definitions that affect external integrations
+- **Data models**: Core domain model changes or database schema decisions
+- **Security architecture**: Authentication, authorization, or encryption approaches
+- **Performance considerations**: Decisions that significantly impact system performance
+- **Compliance requirements**: Decisions driven by regulatory or security compliance needs
+
+### ADR Authoring & PR Workflow
+
+1. **Draft Creation**: Create a new ADR in `docs/developer-guides/architecture/adr/` with status `PROPOSED`
+   ```bash
+   # Use the next sequential number
+   cp docs/developer-guides/architecture/adr/template.md docs/developer-guides/architecture/adr/ADR-###-descriptive-name.md
+   ```
+
+2. **Content Development**: Fill out all sections of the ADR template:
+   - Context: Describe the problem and constraints
+   - Decision: State the chosen solution
+   - Rationale: Explain why this decision was made
+   - Alternatives: Document other options considered
+   - Consequences: Describe positive and negative impacts
+   - Implementation: Outline the implementation approach
+
+3. **Pull Request**: Submit the ADR as a pull request with:
+   - Branch name: `adr/###-descriptive-name`
+   - Title: `docs(adr): Add ADR-### for [decision topic]`
+   - Assign relevant reviewers (architecture team, domain experts)
+   - Apply the `ADR` label
+
+4. **Review Process**:
+   - **Code Review**: Technical accuracy and completeness
+   - **Design Meeting**: Schedule if decision requires broader discussion
+   - **Stakeholder Input**: Gather input from affected teams
+   - **Consensus Building**: Address concerns and reach agreement
+
+5. **Approval**: Once approved:
+   - Update status from `PROPOSED` to `ACCEPTED`
+   - Update the approval section with date and reviewers
+   - Merge the pull request
+   - Update the ADR table of contents
+
+### Superseding ADRs
+
+When an ADR needs to be replaced:
+
+1. **Create New ADR**: Follow the normal process for the new decision
+2. **Reference Original**: Link to the ADR being superseded
+3. **Update Original**: Change the original ADR's status to `SUPERSEDED`
+4. **Update Change Log**: Document the change in CHANGELOG.md
+5. **Cross-Reference**: Ensure both ADRs reference each other
+
+### Change Log Updates
+
+All ADR changes must be documented in CHANGELOG.md:
+
+```markdown
+## [Unreleased]
+
+### Documentation
+- Added ADR-### for [decision topic] (#PR-number)
+- Superseded ADR-### with ADR-### for [updated decision] (#PR-number)
+```
+
 ## Release Process
 
 1. Update version in `pyproject.toml`

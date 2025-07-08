@@ -102,11 +102,15 @@ Best for: Production systems, advanced features
 3. **[User Guides](../user-guides/basic-usage/)** - Learn core concepts
 4. **[Algorithm Selection](../reference/algorithms/)** - Choose algorithms
 
+*For deep dive, see [Autonomous Mode Guide →](../user-guides/basic-usage/autonomous-mode.md) and [Algorithm Comparison →](../reference/algorithms/algorithm-comparison.md)*
+
 ### **ML Engineer**
 1. **[Development Install](installation.md#development-install)** - Full development setup
 2. **[CLI Setup](SETUP_CLI.md)** - Command-line tools
 3. **[API Integration](../developer-guides/api-integration/)** - Programming interfaces
 4. **[Architecture](../developer-guides/architecture/)** - System design
+
+*For deep dive, see [Web API Setup Guide →](../developer-guides/api-integration/WEB_API_SETUP_GUIDE.md) and [Contributing Guide →](../developer-guides/contributing/CONTRIBUTING.md)*
 
 ### **DevOps Engineer**
 1. **[Docker Install](installation.md#docker-install)** - Containerized deployment
@@ -114,11 +118,15 @@ Best for: Production systems, advanced features
 3. **[Deployment Guides](../deployment/)** - Production deployment
 4. **[Monitoring](../user-guides/basic-usage/monitoring.md)** - System observability
 
+*For deep dive, see [Production Deployment Guide →](../deployment/PRODUCTION_DEPLOYMENT_GUIDE.md) and [Security Best Practices →](../deployment/SECURITY.md)*
+
 ### **Business Analyst**
 1. **[Quick Install](installation.md#quick-install)** - Simple setup
 2. **[Quickstart](quickstart.md)** - Basic usage
 3. **[Examples](../examples/)** - Real-world use cases
 4. **[User Guides](../user-guides/)** - Feature documentation
+
+*For deep dive, see [Banking Examples →](../examples/banking/Banking_Anomaly_Detection_Guide.md) and [Dataset Analysis Guide →](../user-guides/advanced-features/dataset-analysis-guide.md)*
 
 ---
 

@@ -127,11 +127,15 @@ print(f"Detected {results.n_anomalies} anomalies with {results.confidence:.2f} c
 - **Experimental Research** - Cutting-edge deep learning methods
 - **Performance Guidance** - Algorithm comparison and selection
 
+*For deep dive, see [Algorithm Reference →](reference/algorithms/README.md) and [Algorithm Selection Guide →](reference/CLASSIFIER_SELECTION_GUIDE.md)*
+
 ### 🏗️ **Production Architecture**
 - **Clean Architecture** - Domain-driven design with hexagonal architecture
 - **Async Performance** - High-throughput with async/await patterns
 - **Enterprise Security** - JWT auth, encryption, audit logging
 - **Observability** - Comprehensive monitoring and metrics
+
+*For deep dive, see [Architecture Overview →](developer-guides/architecture/overview.md) and [Deployment Guide →](deployment/README.md)*
 
 ### 🔧 **Developer Experience**
 - **Test-Driven Development** - TDD enforcement with 85% coverage threshold
@@ -139,11 +143,15 @@ print(f"Detected {results.n_anomalies} anomalies with {results.confidence:.2f} c
 - **Rich APIs** - REST API, Python SDK, CLI, Progressive Web App
 - **Type Safety** - 100% type hint coverage with strict MyPy
 
+*For deep dive, see [Developer Guides →](developer-guides/README.md) and [Contributing Guide →](developer-guides/contributing/CONTRIBUTING.md)*
+
 ### 📊 **Business Intelligence**
 - **Interactive Visualizations** - D3.js and Apache ECharts integration
 - **Export Capabilities** - Excel, Power BI, CSV, JSON formats
 - **Real-time Dashboards** - Live anomaly detection monitoring
 - **Reporting** - Automated reports and alerting
+
+*For deep dive, see [Progressive Web App →](user-guides/progressive-web-app.md) and [Advanced Features →](user-guides/advanced-features/README.md)*
 
 ---
 
@@ -155,11 +163,15 @@ print(f"Detected {results.n_anomalies} anomalies with {results.confidence:.2f} c
 3. [Basic Usage](user-guides/basic-usage/) → Learn core concepts
 4. [Algorithm Selection](reference/algorithms/) → Choose optimal algorithms
 
+*For deep dive, see [Autonomous Mode Guide →](user-guides/basic-usage/autonomous-mode.md) and [Algorithm Comparison →](reference/algorithms/algorithm-comparison.md)*
+
 ### **ML Engineer - Integration**
 1. [API Integration](developer-guides/api-integration/) → Understand APIs
 2. [Architecture](developer-guides/architecture/) → System design  
 3. [Authentication](developer-guides/api-integration/authentication.md) → Security setup
 4. [Deployment](deployment/) → Production deployment
+
+*For deep dive, see [Web API Setup Guide →](developer-guides/api-integration/WEB_API_SETUP_GUIDE.md) and [Continuous Learning Framework →](developer-guides/architecture/continuous-learning-framework.md)*
 
 ### **DevOps - Production**
 1. [Docker Deployment](deployment/DOCKER_DEPLOYMENT_GUIDE.md) → Containerization
@@ -167,11 +179,15 @@ print(f"Detected {results.n_anomalies} anomalies with {results.confidence:.2f} c
 3. [Security](deployment/SECURITY.md) → Production security
 4. [Monitoring](user-guides/basic-usage/monitoring.md) → Observability
 
+*For deep dive, see [Production Deployment Guide →](deployment/PRODUCTION_DEPLOYMENT_GUIDE.md) and [Security Integration →](deployment/SECURITY_INTEGRATION.md)*
+
 ### **Business Analyst - Domain Expert**
 1. [Banking Examples](examples/banking/) → Industry use cases
 2. [Data Quality](examples/Data_Quality_Anomaly_Detection_Guide.md) → Data preparation
 3. [Explainability](user-guides/advanced-features/explainability.md) → Understanding results
 4. [Performance Tuning](user-guides/advanced-features/performance-tuning.md) → Optimization
+
+*For deep dive, see [Dataset Analysis Guide →](user-guides/advanced-features/dataset-analysis-guide.md) and [Banking Anomaly Detection Guide →](examples/banking/Banking_Anomaly_Detection_Guide.md)*
 
 ---
 

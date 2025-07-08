@@ -1297,6 +1297,19 @@ class IncidentResponse:
 
 This comprehensive security guide provides the foundation for deploying and operating Pynomaly securely in enterprise environments. Regular review and updates of these security measures are essential to maintain protection against evolving threats.
 
+## SDLC Security Integration
+
+For systematic security integration throughout the Software Development Life Cycle, refer to our **[Phase-Specific Security Checklists](checklists/README.md)**:
+
+- **[Planning & Requirements](checklists/planning-requirements-checklist.md)** - Security requirements, threat modeling, compliance planning
+- **[Design & Architecture](checklists/design-architecture-checklist.md)** - Secure architecture, data protection, network security
+- **[Implementation](checklists/implementation-checklist.md)** - Secure coding, input validation, API security
+- **[Testing](checklists/testing-checklist.md)** - Security testing, SAST/DAST, penetration testing
+- **[Deployment](checklists/deployment-checklist.md)** - Deployment security, configuration management, monitoring
+- **[Maintenance](checklists/maintenance-checklist.md)** - Ongoing monitoring, incident response, compliance audits
+
+These checklists provide actionable items for engineers to use in PR templates, release gates, and security reviews.
+
 ---
 
 ## 🔗 **Related Documentation**
