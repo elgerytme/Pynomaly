@@ -329,11 +329,13 @@ def configure_openapi_docs(app: FastAPI, settings: Settings) -> None:
     """
     config = OpenAPIConfig(settings)
 
-    # Set custom OpenAPI schema generator
-    def custom_openapi():
-        return config.get_openapi_schema(app)
-
-    app.openapi = custom_openapi
+    # Apply dependency overrides before OpenAPI generation
+    from pynomaly.presentation.api.router_factory import apply_openapi_overrides
+    apply_openapi_overrides(app)
+    
+    # Import and use the custom OpenAPI generator
+    from pynomaly.presentation.api.docs.openapi_utils import apply_custom_openapi_to_app
+    apply_custom_openapi_to_app(app, config)
 
     # Configure documentation URLs and settings
     app.docs_url = "/api/v1/docs" if settings.docs_enabled else None

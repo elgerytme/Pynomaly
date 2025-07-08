@@ -7,8 +7,6 @@ This module provides comprehensive REST API endpoints for:
 - Model lifecycle management
 """
 
-from __future__ import annotations
-
 import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional

@@ -146,22 +146,22 @@ async def get_lineage_service(
     },
 )
 async def create_lineage_record(
-    request: CreateLineageRecordRequest,
+    lineage_request: CreateLineageRecordRequest,
     created_by: str = Query(..., description="User creating the record"),
     lineage_service: ModelLineageService = Depends(get_lineage_service),
 ) -> SuccessResponse[LineageRecord]:
     """Create a new lineage record."""
     try:
         record = await lineage_service.create_lineage_record(
-            child_model_id=request.child_model_id,
-            parent_model_ids=request.parent_model_ids,
-            relation_type=request.relation_type,
-            transformation=request.transformation,
+            child_model_id=lineage_request.child_model_id,
+            parent_model_ids=lineage_request.parent_model_ids,
+            relation_type=lineage_request.relation_type,
+            transformation=lineage_request.transformation,
             created_by=created_by,
-            experiment_id=request.experiment_id,
-            run_id=request.run_id,
-            tags=request.tags,
-            metadata=request.metadata,
+            experiment_id=lineage_request.experiment_id,
+            run_id=lineage_request.run_id,
+            tags=lineage_request.tags,
+            metadata=lineage_request.metadata,
         )
 
         return SuccessResponse(
@@ -197,22 +197,22 @@ async def create_lineage_record(
     },
 )
 async def track_model_derivation(
-    request: TrackDerivationRequest,
+    derivation_request: TrackDerivationRequest,
     created_by: str = Query(..., description="User tracking the derivation"),
     lineage_service: ModelLineageService = Depends(get_lineage_service),
 ) -> SuccessResponse[LineageRecord]:
     """Track a model derivation."""
     try:
         record = await lineage_service.track_model_derivation(
-            parent_model_id=request.parent_model_id,
-            child_model_id=request.child_model_id,
-            transformation_type=request.transformation_type,
-            transformation_metadata=request.transformation_metadata,
+            parent_model_id=derivation_request.parent_model_id,
+            child_model_id=derivation_request.child_model_id,
+            transformation_type=derivation_request.transformation_type,
+            transformation_metadata=derivation_request.transformation_metadata,
             created_by=created_by,
-            algorithm=request.algorithm,
-            tool=request.tool,
-            execution_time=request.execution_time,
-            resource_usage=request.resource_usage,
+            algorithm=derivation_request.algorithm,
+            tool=derivation_request.tool,
+            execution_time=derivation_request.execution_time,
+            resource_usage=derivation_request.resource_usage,
         )
 
         return SuccessResponse(
@@ -248,19 +248,19 @@ async def track_model_derivation(
     },
 )
 async def track_ensemble_creation(
-    request: TrackEnsembleRequest,
+    ensemble_request: TrackEnsembleRequest,
     created_by: str = Query(..., description="User tracking the ensemble"),
     lineage_service: ModelLineageService = Depends(get_lineage_service),
 ) -> SuccessResponse[LineageRecord]:
     """Track ensemble model creation."""
     try:
         record = await lineage_service.track_ensemble_creation(
-            ensemble_model_id=request.ensemble_model_id,
-            component_model_ids=request.component_model_ids,
-            ensemble_metadata=request.ensemble_metadata,
+            ensemble_model_id=ensemble_request.ensemble_model_id,
+            component_model_ids=ensemble_request.component_model_ids,
+            ensemble_metadata=ensemble_request.ensemble_metadata,
             created_by=created_by,
-            algorithm=request.algorithm,
-            tool=request.tool,
+            algorithm=ensemble_request.algorithm,
+            tool=ensemble_request.tool,
         )
 
         return SuccessResponse(

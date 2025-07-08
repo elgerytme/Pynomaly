@@ -557,21 +557,21 @@ async def aggregate_events(
     },
 )
 async def create_event_pattern(
-    request: CreatePatternRequest,
+    pattern_request: CreatePatternRequest,
     created_by: str = Query(..., description="User creating the pattern"),
     event_service: EventProcessingService = Depends(get_event_service),
 ) -> SuccessResponse[EventPattern]:
     """Create an event pattern."""
     try:
         pattern = await event_service.create_event_pattern(
-            name=request.name,
-            pattern_type=request.pattern_type,
-            conditions=request.conditions,
-            time_window=request.time_window_seconds,
+            name=pattern_request.name,
+            pattern_type=pattern_request.pattern_type,
+            conditions=pattern_request.conditions,
+            time_window=pattern_request.time_window_seconds,
             created_by=created_by,
-            description=request.description,
-            confidence=request.confidence,
-            alert_threshold=request.alert_threshold,
+            description=pattern_request.description,
+            confidence=pattern_request.confidence,
+            alert_threshold=pattern_request.alert_threshold,
         )
 
         return SuccessResponse(

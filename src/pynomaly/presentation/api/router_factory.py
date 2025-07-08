@@ -56,6 +56,9 @@ def apply_openapi_overrides(app: FastAPI) -> None:
     Args:
         app: FastAPI application instance
     """
+    # Import container override that doesn't use Request type
+    from pynomaly.presentation.api.dependencies.container_override import get_container_override
+    
     # Override complex dependencies that cause OpenAPI generation issues
     app.dependency_overrides.update({
         # Auth dependencies
@@ -63,7 +66,7 @@ def apply_openapi_overrides(app: FastAPI) -> None:
         require_admin: require_auth_safe,
         require_analyst: require_auth_safe, 
         require_viewer: require_auth_safe,
-        # Container dependencies
-        get_container_simple: get_container_safe,
-        get_container: get_container_safe,
+        # Container dependencies - use override that doesn't use Request type
+        get_container_simple: get_container_override,
+        get_container: get_container_override,
     })

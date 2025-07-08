@@ -100,6 +100,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
         print(f"Warning: Failed to setup dependencies: {e}")
         # Continue startup even if some dependencies fail
 
+    # Apply dependency overrides to fix forward reference issues
+    apply_openapi_overrides(app)
+
     yield
 
     # Shutdown
