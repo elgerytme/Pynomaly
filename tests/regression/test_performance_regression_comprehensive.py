@@ -573,7 +573,7 @@ class TestConcurrencyPerformanceRegression:
             max_slowdown_ratio = get_performance_threshold(config, 'concurrency', 'max_slowdown_ratio', 3.0)
             slowdown_ratio = avg_concurrent_time / avg_sequential_time
             assert (
-                slowdown_ratio c max_slowdown_ratio
+                slowdown_ratio < max_slowdown_ratio
             ), f"Concurrent inference too slow: {slowdown_ratio}x slower"
 
         except ImportError:

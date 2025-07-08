@@ -158,6 +158,75 @@ async def log_run(
         raise HTTPException(status_code=400, detail=f"Failed to log run: {str(e)}")
 
 
+@router.post("/{experiment_id}/compare")
+async def trigger_comparison(
+    experiment_id: str,
+    run_ids: list[str] | None = Query(None),
+    current_user: UserModel = Depends(require_analyst),
+    container: Container = Depends(lambda: Container()),
+) -> dict:
+    """Perform comparison analysis for the experiment."""
+    experiment_service = container.experiment_tracking_service()
+
+    try:
+        comparison_df = await experiment_service.compare_runs(
+            experiment_id=experiment_id, run_ids=run_ids
+        )
+
+        return {
+            "success": True,
+            "experiment_id": experiment_id,
+            "compared_runs": len(comparison_df)
+        }
+
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to trigger comparison: {str(e)}")
+
+
+@router.get("/{experiment_id}/results", response_model=ComparisonResult)
+async def get_comparison_results(
+    experiment_id: str,
+    current_user: UserModel = Depends(require_viewer),
+    container: Container = Depends(lambda: Container()),
+) -> list[ComparisonResult]:
+    """Fetch comparison results for an experiment."""
+    experiment_service = container.experiment_tracking_service()
+
+    try:
+        comparison_df = await experiment_service.compare_runs(experiment_id=experiment_id)
+
+        # Transform DataFrame rows into ComparisonResult model
+        comparison_results = [
+            ComparisonResult(
+                comparison_id=uuid4(),  # Generate new UUID for comparison result
+                control_variant_id=UUID(run['run_id']),
+                treatment_variant_id=UUID(run['run_id']),
+                metric_name=metric,
+                control_value=float(run[metric]),
+                treatment_value=float(run[metric]),
+                difference=0,  # Placeholder
+                relative_difference=0,  # Placeholder
+                effect_size=0,  # Placeholder
+                test_statistic=0,  # Placeholder
+                p_value=0,  # Placeholder
+                confidence_interval=(0.0, 0.0),  # Placeholder
+                is_significant=False,  # Placeholder
+                practical_significance=False,  # Placeholder
+                interpretation="Not computed",  # Placeholder
+            )
+            for run in comparison_df.to_dict(orient="records")
+        ]
+
+        return comparison_results
+
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to fetch comparison results: {str(e)}")
+
+
 @router.get("/{experiment_id}/compare")
 async def compare_runs(
     experiment_id: str,
