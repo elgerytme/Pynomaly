@@ -557,6 +557,45 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed progress and [TODO.md](docs/projec
 - **Platform Support**: Tested on Linux/macOS/Windows with Python 3.11+
 - **Documentation**: Some documentation may describe planned rather than implemented features
 
+## Migration Notes
+
+### Version 0.1.dev813+g833c8bd.d20250708
+
+**Breaking Changes:**
+- **Default PyOD Algorithm**: The default PyOD algorithm has been changed from `LOF` to `IsolationForest` for better performance and stability with large datasets
+  - **Migration**: Update any hardcoded algorithm references from `LOF` to `IsolationForest` or explicitly specify the algorithm parameter
+  - **Rationale**: Isolation Forest provides better scalability (O(n log n) vs O(n²)) and more consistent performance across different data types
+
+**New Features:**
+- **Enhanced `create_web_app()` Function**: The `create_web_app()` function now supports additional configuration parameters for production deployment
+  - **New Parameters**:
+    - `enable_monitoring`: Enable/disable Prometheus metrics collection (default: True)
+    - `security_config`: Security configuration object for production environments
+    - `debug_mode`: Enable debug mode for development (default: False)
+  - **Example**:
+    ```python
+    from pynomaly.presentation.web.app import create_web_app
+    from pynomaly.infrastructure.config.security import SecurityConfig
+    
+    # Production configuration
+    app = create_web_app(
+        enable_monitoring=True,
+        security_config=SecurityConfig(enable_auth=True),
+        debug_mode=False
+    )
+    ```
+
+**Performance Improvements:**
+- **Advanced Performance Monitoring**: New metrics calculator with 658 lines of advanced analytics functionality
+- **System Health Monitoring**: Comprehensive health schemas for production analytics
+- **Security Enhancements**: Production-ready security checklists and testing validation
+
+**Migration Guide:**
+1. **Update Algorithm References**: Replace `LOF` with `IsolationForest` in detector configurations
+2. **Update Web App Creation**: Review `create_web_app()` calls and add new parameters as needed
+3. **Update Dependencies**: Ensure all security and monitoring dependencies are installed for production use
+4. **Test Configuration**: Run the basic functionality tests to validate your migration
+
 ## Contributing
 
 We welcome contributions! Please see our [Contributing Guide](docs/developer-guides/contributing/CONTRIBUTING.md) for details.

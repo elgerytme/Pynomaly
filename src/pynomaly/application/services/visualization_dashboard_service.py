@@ -994,7 +994,55 @@ class VisualizationDashboardService:
         """Generate processing latency chart."""
         return {"id": "processing_latency", "type": "histogram", "data": {}}
 
-    # Additional chart generation methods would be implemented similarly
+    # New chart generation methods
+    async def _generate_financial_impact_chart(self, config: ChartConfig, data: dict[str, Any]) -> dict[str, Any]:
+        return self._build_chart_payload(
+            chart_id=config.chart_id,
+            chart_type='bar',
+            title='Financial Impact Analysis',
+            x_data=data.get('months'),
+            series=self._get_metrics_series(data),
+            engine=config.engine.value
+        )
+
+    async def _generate_roi_cost_savings_chart(self, config: ChartConfig, data: dict[str, Any]) -> dict[str, Any]:
+        return self._build_chart_payload(
+            chart_id=config.chart_id,
+            chart_type='gauge',
+            title='ROI & Cost Savings Analysis',
+            series=self._get_metrics_series(data, {'type': 'gauge'}),
+            engine=config.engine.value
+        )
+
+    async def _generate_choropleth_chart(self, config: ChartConfig, data: dict[str, Any]) -> dict[str, Any]:
+        return self._build_chart_payload(
+            chart_id=config.chart_id,
+            chart_type='choropleth',
+            title='Geographic HeatMap',
+            x_data=data.get('regions'),
+            series=self._get_metrics_series(data),
+            engine=config.engine.value
+        )
+
+    async def _generate_correlation_matrix_chart(self, config: ChartConfig, data: dict[str, Any]) -> dict[str, Any]:
+        return self._build_chart_payload(
+            chart_id=config.chart_id,
+            chart_type='heatmap',
+            title='Correlation Matrix',
+            x_data=data.get('variables'),
+            series=self._get_metrics_series(data),
+            engine=config.engine.value
+        )
+
+    async def _generate_live_alert_stream_chart(self, config: ChartConfig, data: dict[str, Any]) -> dict[str, Any]:
+        return self._build_chart_payload(
+            chart_id=config.chart_id,
+            chart_type='time_series',
+            title='Live Alert Stream',
+            series=self._get_metrics_series(data),
+            engine=config.engine.value,
+            dataZoom=[{'type': 'inside', 'start': 0, 'end': 100}]
+        )
 
     async def _notify_real_time_subscribers(self, metrics: RealTimeMetrics) -> None:
         """Notify real-time dashboard subscribers of new metrics."""

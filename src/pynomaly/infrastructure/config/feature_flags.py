@@ -408,6 +408,14 @@ class FeatureFlagManager:
                 conflicts={"streaming_analytics"},  # Prevent both at once initially
                 required_packages={"dask", "ray"},
             ),
+            "ml_severity_classifier": FeatureDefinition(
+                name="ml_severity_classifier",
+                description="ML severity classifier with XGBoost/LightGBM models",
+                category=FeatureCategory.AUTOMATION,
+                stage=FeatureStage.EXPERIMENTAL,
+                dependencies={"algorithm_optimization"},
+                required_packages={"xgboost", "lightgbm"},
+            ),
         }
 
     def is_enabled(self, feature_name: str) -> bool:
