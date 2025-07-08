@@ -12,7 +12,7 @@ environments:
       - "pandas>=2.2.3"
       - "pydantic>=2.10.4"
     clean: false
-    
+
   # Standard environment with common ML dependencies
   - name: "standard"
     python_version: "3.11"
@@ -27,13 +27,13 @@ environments:
       - "scipy>=1.15.0"
       - "pyod>=2.0.5"
     clean: false
-    
+
   # Full environment with all optional dependencies
   - name: "full"
     python_version: "3.11"
     requirements_file: "requirements.txt"
     clean: false
-    
+
   # Python 3.12 environment
   - name: "python312"
     python_version: "3.12"
@@ -58,7 +58,7 @@ test_commands:
 matrix:
   - environment: "minimal"
     commands: ["unit"]
-  - environment: "standard" 
+  - environment: "standard"
     commands: ["unit", "integration"]
   - environment: "full"
     commands: ["unit", "integration", "property"]

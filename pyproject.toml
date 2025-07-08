@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "hatchling", 
+    "hatchling",
     "hatch-vcs",
 ]
 build-backend = "hatchling.build"
@@ -56,9 +56,9 @@ standard = ["scikit-learn>=1.6.0", "scipy>=1.15.0", "pyarrow>=18.1.0"]
 # Interface extras
 api = [
     "fastapi>=0.115.0",
-    "uvicorn[standard]>=0.34.0", 
+    "uvicorn[standard]>=0.34.0",
     "httpx>=0.28.1",
-    "requests>=2.32.3", 
+    "requests>=2.32.3",
     "python-multipart>=0.0.20",
     "jinja2>=3.1.5",
     "aiofiles>=24.1.0",
@@ -92,7 +92,7 @@ cloud-storage = [
 ]
 monitoring = [
     "opentelemetry-api>=1.29.0",
-    "opentelemetry-sdk>=1.29.0", 
+    "opentelemetry-sdk>=1.29.0",
     "opentelemetry-instrumentation-fastapi>=0.50b0",
     "prometheus-client>=0.21.1",
     "psutil>=6.1.1",
@@ -115,20 +115,29 @@ data-formats = [
 database = ["sqlalchemy>=2.0.36", "psycopg2-binary>=2.9.10"]
 spark = ["pyspark>=3.5.4"]
 
-# ML backend extras  
+# ML backend extras
 torch = ["torch>=2.5.1"]  # CPU version to avoid manylinux issues with GPU builds
 tensorflow = ["tensorflow>=2.18.0,<2.20.0", "keras>=3.8.0"]
 jax = ["jax>=0.4.37", "jaxlib>=0.4.37", "optax>=0.2.4"]
 
 # Specialized ML extras
 graph = ["pygod>=1.1.0", "torch-geometric>=2.6.1"]
+deep = [
+    "torch>=2.5.1",
+    "tensorflow>=2.18.0,<2.20.0",
+    "keras>=3.8.0",
+    "jax>=0.4.37",
+    "jaxlib>=0.4.37",
+    "optax>=0.2.4"
+]
 automl = [
     "optuna>=4.1.0",
-    "hyperopt>=0.2.7", 
+    "hyperopt>=0.2.7",
     "auto-sklearn2>=1.0.0",
     "scikit-learn>=1.6.0"
 ]
 explainability = ["shap>=0.46.0", "lime>=0.2.0.1"]
+streaming = ["kafka-python>=2.0.2", "redis>=5.2.1", "asyncio"]
 
 # Production extras
 production = [
@@ -297,7 +306,7 @@ version-file = "src/pynomaly/_version.py"
 # executable = "/mnt/c/Users/andre/buck2.exe"
 # targets = [
 #     "//:pynomaly-lib",
-#     "//:pynomaly-cli", 
+#     "//:pynomaly-cli",
 #     "//:pynomaly-api",
 #     "//:pynomaly-web",
 #     "//:web-assets",
@@ -383,6 +392,7 @@ dependencies = [
     "pytest-cov>=6.0.0",
     "pytest-asyncio>=0.24.0",
     "pytest-xdist>=3.6.0",
+    "pytest-watch>=4.2.0",
     "hypothesis>=6.115.0",
     "factory-boy>=3.3.1",
     "faker>=33.1.0",
@@ -392,6 +402,7 @@ dependencies = [
 run = "pytest {args:tests}"
 run-cov = "pytest --cov=pynomaly --cov-report=html --cov-report=xml {args:tests}"
 run-parallel = "pytest -n auto {args:tests}"
+watch = "ptw -- {args:tests}"
 
 # Matrix testing for different Python versions
 [[tool.hatch.envs.test.matrix]]
@@ -463,16 +474,27 @@ test-accessibility = "pytest tests/ui/test_accessibility*.py {args}"
 test-performance = "pytest tests/ui/test_performance*.py {args}"
 report = "pytest tests/ui/ --html=test_reports/ui_test_report.html --self-contained-html {args}"
 
+# Git helper environment
+[tool.hatch.envs.git]
+detached = true
+dependencies = []
+
+[tool.hatch.envs.git.scripts]
+git_new_branch_sh = "bash scripts/git/git_new_branch.sh {args}"
+git_new_branch_ps1 = "powershell scripts/git/git_new_branch.ps1 {args}"
+git_switch_safe_sh = "bash scripts/git/git_switch_safe.sh {args}"
+git_switch_safe_ps1 = "powershell scripts/git/git_switch_safe.ps1 {args}"
+
 # Tool configuration (existing tools)
 [tool.ruff]
 target-version = "py311"
 line-length = 88
 extend-exclude = [
-    "migrations", 
-    "environments", 
-    ".env*", 
-    ".venv*", 
-    "test_env*", 
+    "migrations",
+    "environments",
+    ".env*",
+    ".venv*",
+    "test_env*",
     "venv*"
 ]
 
@@ -508,7 +530,7 @@ known_first_party = ["pynomaly"]
 skip_glob = [
     "environments/*",
     ".env*",
-    ".venv*", 
+    ".venv*",
     "test_env*",
     "venv*"
 ]
@@ -592,12 +614,12 @@ exclude = [
     "venv*/"
 ]
 
-# PyRight configuration  
+# PyRight configuration
 [tool.pyright]
 exclude = [
     "environments/",
     ".env*/",
-    ".venv*/", 
+    ".venv*/",
     "test_env*/",
     "venv*/"
 ]
