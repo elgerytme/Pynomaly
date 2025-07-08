@@ -124,6 +124,23 @@ def install_deep_learning_stubs():
         torch_utils.data.TensorDataset = type('TensorDataset', (), {})
         sys.modules['torch.utils.data'] = torch_utils.data
     
+    # Special handling for torch.nn which needs Module class
+    if 'torch' in sys.modules and 'torch.nn' in sys.modules:
+        torch_nn = sys.modules['torch.nn']
+        torch_nn.Module = type('Module', (), {
+            '__init__': lambda self: None,
+            'forward': lambda self, x: x,
+            'parameters': lambda self: [],
+            'train': lambda self, mode=True: self,
+            'eval': lambda self: self,
+        })
+        torch_nn.Linear = type('Linear', (), {})
+        torch_nn.ReLU = type('ReLU', (), {})
+        torch_nn.Dropout = type('Dropout', (), {})
+        torch_nn.BatchNorm1d = type('BatchNorm1d', (), {})
+        torch_nn.functional = types.ModuleType('torch.nn.functional')
+        sys.modules['torch.nn.functional'] = torch_nn.functional
+    
     # Special handling for tensorflow.keras submodules
     if 'tensorflow' in sys.modules and 'tensorflow.keras' in sys.modules:
         tf_keras = sys.modules['tensorflow.keras']

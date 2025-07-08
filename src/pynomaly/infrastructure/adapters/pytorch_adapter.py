@@ -20,17 +20,24 @@ try:
     TORCH_AVAILABLE = True
 except ImportError:
     # Create dummy classes for when PyTorch is not available
+    class DummyModule:
+        def __init__(self, *args, **kwargs):
+            pass
+        def __call__(self, *args, **kwargs):
+            raise ImportError("PyTorch not available")
+    
     class nn:
         class Module:
-            pass
-        class Linear:
-            pass
-        class ReLU:
-            pass
-        class BatchNorm1d:
-            pass
-        class Sequential:
-            pass
+            def __init__(self):
+                pass
+            def __call__(self, *args, **kwargs):
+                raise ImportError("PyTorch not available")
+        
+        Linear = DummyModule
+        ReLU = DummyModule
+        BatchNorm1d = DummyModule
+        Sequential = DummyModule
+        
         class functional:
             @staticmethod
             def mse_loss(*args, **kwargs):
@@ -39,9 +46,16 @@ except ImportError:
     class torch:
         class Tensor:
             pass
+        
         @staticmethod
         def no_grad():
-            return None
+            class DummyContext:
+                def __enter__(self):
+                    return self
+                def __exit__(self, *args):
+                    pass
+            return DummyContext()
+        
         @staticmethod
         def randn_like(*args):
             raise ImportError("PyTorch not available")
@@ -57,13 +71,16 @@ except ImportError:
     
     class optim:
         class Adam:
-            pass
+            def __init__(self, *args, **kwargs):
+                pass
     
     class DataLoader:
-        pass
+        def __init__(self, *args, **kwargs):
+            pass
     
     class TensorDataset:
-        pass
+        def __init__(self, *args, **kwargs):
+            pass
     
     TORCH_AVAILABLE = False
 
@@ -185,7 +202,9 @@ class VariationalAutoEncoder(BaseAnomalyModel):
     """Variational Autoencoder (VAE) for anomaly detection."""
 
     def __init__(self, input_dim: int, hidden_dims: list[int], latent_dim: int):
-        super().__init__()
+        _check_torch_availability()
+        # Call parent's __init__ without extra parameters
+        nn.Module.__init__(self)
 
         # Encoder
         encoder_layers = []
@@ -258,7 +277,8 @@ class DeepSVDD(BaseAnomalyModel):
     """Deep Support Vector Data Description for anomaly detection."""
 
     def __init__(self, input_dim: int, hidden_dims: list[int], latent_dim: int):
-        super().__init__()
+        _check_torch_availability()
+        nn.Module.__init__(self)
 
         # Network layers
         layers = []

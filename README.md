@@ -433,6 +433,227 @@ src/pynomaly/
 
 Run `pynomaly detector algorithms` to see all available algorithms with their parameters and performance characteristics.
 
+## Performance Degradation Detection 🔻
+
+Pynomaly includes comprehensive performance degradation detection capabilities that monitor your models in production and automatically trigger retraining when performance drops below acceptable thresholds.
+
+### Key Features
+
+- **Real-time Performance Monitoring**: Continuous tracking of model performance metrics
+- **Automatic Degradation Detection**: Statistical analysis to identify performance regression
+- **Intelligent Alerting**: Configurable alerts for different severity levels
+- **Automated Retraining**: Automatic model retraining when degradation is detected
+- **Performance Baseline Management**: Maintain and update performance baselines
+- **Comprehensive Reporting**: Detailed performance analysis and trend reporting
+
+### Configuration
+
+Performance degradation detection is configured through the `PerformanceMonitoringService`:
+
+```python
+from pynomaly.application.services.performance_monitoring_service import PerformanceMonitoringService
+from pynomaly.infrastructure.monitoring.performance_monitor import PerformanceMonitor
+
+# Initialize performance monitoring
+performance_monitor = PerformanceMonitor(
+    max_history=1000,
+    alert_thresholds={
+        "execution_time": 30.0,     # seconds
+        "memory_usage": 1000.0,     # MB
+        "cpu_usage": 80.0,          # percentage
+        "samples_per_second": 100.0 # minimum throughput
+    },
+    monitoring_interval=1.0
+)
+
+# Create monitoring service
+monitoring_service = PerformanceMonitoringService(
+    performance_monitor=performance_monitor,
+    auto_start_monitoring=True
+)
+```
+
+### API Usage
+
+#### Recording Performance Metrics
+
+```python
+from pynomaly.application.services.performance_monitoring_service import PerformanceMonitoringService
+from pynomaly.domain.entities import Dataset, Detector
+from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+import pandas as pd
+import numpy as np
+
+# Create sample data and detector
+data = pd.DataFrame(np.random.normal(0, 1, (1000, 5)))
+dataset = Dataset(name="Production Data", data=data)
+detector = SklearnAdapter(algorithm_name="IsolationForest", name="Production Detector")
+
+# Initialize monitoring service
+monitoring_service = PerformanceMonitoringService()
+
+# Monitor detection operation
+def detect_anomalies(detector, dataset):
+    """Your detection logic here"""
+    detector.fit(dataset)
+    result = detector.detect(dataset)
+    return result
+
+# Execute with monitoring
+result, metrics = monitoring_service.monitor_detection_operation(
+    detector=detector,
+    dataset=dataset,
+    operation_func=detect_anomalies
+)
+
+print(f"Detection completed in {metrics.execution_time:.2f}s")
+print(f"Memory usage: {metrics.memory_usage:.1f}MB")
+print(f"Throughput: {metrics.samples_per_second:.1f} samples/sec")
+```
+
+#### Setting Performance Baselines
+
+```python
+# Set baseline performance expectations
+monitoring_service.set_performance_baseline(
+    operation_name="isolation_forest_detection",
+    baseline_metrics={
+        "execution_time": 2.5,   # seconds
+        "memory_usage": 150.0,   # MB
+        "cpu_usage": 45.0        # percentage
+    }
+)
+```
+
+#### Checking for Performance Regression
+
+```python
+from datetime import timedelta
+
+# Check for performance regression
+regression_result = monitoring_service.check_performance_regression(
+    operation_name="isolation_forest_detection",
+    recent_window=timedelta(hours=1)
+)
+
+if regression_result.get("regressions_detected", 0) > 0:
+    print("Performance regression detected!")
+    for metric, regression in regression_result["regressions"].items():
+        print(f"  {metric}: {regression['degradation_percent']:.1f}% degradation")
+```
+
+#### Handling Performance Alerts
+
+```python
+def handle_performance_alert(alert):
+    """Custom alert handler for performance issues"""
+    print(f"⚠️ Performance Alert: {alert.severity.upper()}")
+    print(f"   Metric: {alert.metric_name}")
+    print(f"   Current: {alert.current_value}")
+    print(f"   Threshold: {alert.threshold_value}")
+    print(f"   Operation: {alert.operation_name}")
+    
+    # Trigger automated response based on severity
+    if alert.severity == "critical":
+        # Trigger immediate retraining
+        trigger_emergency_retraining(alert.operation_name)
+    elif alert.severity == "high":
+        # Schedule retraining
+        schedule_retraining(alert.operation_name)
+    
+    # Send notification to operations team
+    send_alert_notification(alert)
+
+# Add custom alert handler
+monitoring_service.add_alert_handler(handle_performance_alert)
+```
+
+### Performance Trends Analysis
+
+```python
+# Get performance trends over time
+trends = monitoring_service.get_performance_trends(
+    operation_name="isolation_forest_detection",
+    time_window=timedelta(days=7),
+    bucket_size=timedelta(hours=1)
+)
+
+print(f"Analyzed {trends['total_operations']} operations")
+print(f"Execution time trend: {trends['trends']['execution_time']}")
+print(f"Memory usage trend: {trends['trends']['memory_usage']}")
+```
+
+### Automated Retraining Integration
+
+```python
+from pynomaly.application.services.auto_retraining_service import AutoRetrainingService
+
+# Initialize auto-retraining service
+auto_retraining = AutoRetrainingService()
+
+# Configure degradation thresholds for automatic retraining
+def check_and_retrain(alert):
+    """Check if retraining is needed based on performance alert"""
+    if alert.metric_name == "accuracy" and alert.severity in ["high", "critical"]:
+        # Create retraining decision
+        decision = auto_retraining.should_retrain_model(
+            model_id=get_model_id_from_operation(alert.operation_name),
+            performance_metrics=get_current_metrics(alert.operation_name)
+        )
+        
+        if decision.should_retrain:
+            print(f"Triggering retraining: {decision.primary_trigger}")
+            plan = auto_retraining.create_retraining_plan(
+                model_id=get_model_id_from_operation(alert.operation_name),
+                trigger=decision.primary_trigger
+            )
+            
+            # Execute retraining
+            result = auto_retraining.execute_retraining_plan(plan)
+            
+            if result.success:
+                print(f"Retraining completed successfully")
+                print(f"Performance improvement: {result.performance_improvement}")
+            else:
+                print(f"Retraining failed: {result.error_message}")
+
+# Add retraining handler to monitoring service
+monitoring_service.add_alert_handler(check_and_retrain)
+```
+
+### CLI Usage
+
+```bash
+# Monitor performance in real-time
+pynomaly perf monitor
+
+# Run performance benchmarks
+pynomaly perf benchmark --suite comprehensive
+
+# Generate performance report
+pynomaly perf report --format html --output performance_report.html
+
+# Check for performance regression
+pynomaly perf check-regression --operation isolation_forest_detection
+
+# Set performance baseline
+pynomaly perf set-baseline --operation my_detector --execution-time 2.5 --memory 150
+```
+
+### Dashboard Integration
+
+```python
+# Get dashboard data for visualization
+dashboard_data = monitoring_service.get_monitoring_dashboard_data()
+
+# Dashboard data includes:
+# - current_metrics: Real-time system metrics
+# - active_alerts: Current performance alerts
+# - recent_operations: Recent operation statistics
+# - system_status: Overall monitoring status
+# - performance_baselines: Configured baseline metrics
+```
+
 ## Development
 
 ### Development Setup

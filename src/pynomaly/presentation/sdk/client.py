@@ -280,15 +280,47 @@ class PynomaliClient:
                 raise FileNotFoundError(f"File not found: {file_path}")
 
             with open(file_path, "rb") as f:
-                files = {"file": (file_path.name, f, "application/octet-stream")}
-                data = {
-                    "name": name,
-                    "description": description or "",
-                    "format": format.value,
-                }
+                file_data = f.read()
+                
+                # Apply security hardening if available
+                if self._security_service:
+                    client_info = {
+                        'client_ip': '127.0.0.1',  # Would be detected from actual request
+                        'user_agent': self.config.client.user_agent,
+                        'sdk_version': '1.0.0',
+                        'python_version': '3.8+'
+                    }
+                    
+                    # Secure upload with encryption and checksum
+                    upload_metadata = self._security_service.secure_upload(
+                        file_data=file_data,
+                        file_name=file_path.name,
+                        content_type="application/octet-stream",
+                        client_info=client_info,
+                        encryption_key=self.config.client.encryption_key
+                    )
+                    
+                    # Add security metadata to upload
+                    data = {
+                        "name": name,
+                        "description": description or "",
+                        "format": format.value,
+                        "checksum": upload_metadata.checksum,
+                        "checksum_algorithm": upload_metadata.checksum_algorithm.value,
+                        "client_side_encrypted": upload_metadata.client_side_encrypted,
+                        "encryption_key_id": upload_metadata.encryption_key_id
+                    }
+                else:
+                    data = {
+                        "name": name,
+                        "description": description or "",
+                        "format": format.value,
+                    }
+                    
                 if feature_names:
                     data["feature_names"] = json.dumps(feature_names)
 
+                files = {"file": (file_path.name, file_data, "application/octet-stream")}
                 response = self._make_request(
                     "POST", "datasets", data=data, files=files
                 )

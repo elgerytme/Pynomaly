@@ -11,11 +11,11 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 try:
-    from pydantic import Field
+    from pydantic import Field, ConfigDict
     from pydantic_settings import BaseSettings
 except ImportError:
     # Fallback for older pydantic versions
-    from pydantic import BaseSettings, Field
+    from pydantic import BaseSettings, Field, ConfigDict
 
 
 class FeatureStage(Enum):
@@ -241,11 +241,10 @@ class FeatureFlags(BaseSettings):
         default=False, description="Enable multi-tenant isolation"
     )
 
-    class Config:
-        """Pydantic configuration."""
-
-        env_prefix = "PYNOMALY_"
-        case_sensitive = False
+    model_config = ConfigDict(
+        env_prefix="PYNOMALY_",
+        case_sensitive=False
+    )
 
 
 class FeatureFlagManager:
