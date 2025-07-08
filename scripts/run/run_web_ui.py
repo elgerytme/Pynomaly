@@ -62,7 +62,7 @@ class WebUIServer:
         log_level: str = "info",
     ) -> uvicorn.Config:
         """Create Uvicorn configuration optimized for Web UI serving."""
-        app = create_app(enable_cors=True)  # Enable CORS for UI development
+        app = create_app()  # CORS is already enabled by default
 
         config = uvicorn.Config(
             app,

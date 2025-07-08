@@ -44,6 +44,8 @@ STATIC_DIR.mkdir(exist_ok=True)
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 # Create router
+# URL Strategy: Web UI routes served at root "/" path for clean user experience
+# Separates web UI from API routes ("/api/v1") - see docs/url_scheme.md
 router = APIRouter()
 
 
@@ -142,13 +144,48 @@ async def logout():
     return response
 
 
+@router.get("/dashboard", response_class=HTMLResponse)
+async def dashboard_page(
+    request: Request, 
+    container: Container = Depends(get_container),
+    current_user: str | None = Depends(get_current_user),
+):
+    """Dashboard page."""
+    settings = container.config()
+
+    # Check if auth is enabled and user is not authenticated
+    if settings.auth_enabled and not current_user:
+        return templates.TemplateResponse("login.html", {"request": request})
+
+    # Get counts for dashboard
+    detector_count = container.detector_repository().count()
+    dataset_count = container.dataset_repository().count()
+    result_count = container.result_repository().count()
+
+    # Get recent results
+    recent_results = container.result_repository().find_recent(5)
+
+    return templates.TemplateResponse(
+        "dashboard.html",
+        {
+            "request": request,
+            "current_user": current_user,
+            "auth_enabled": settings.auth_enabled,
+            "detector_count": detector_count,
+            "dataset_count": dataset_count,
+            "result_count": result_count,
+            "recent_results": recent_results,
+        },
+    )
+
+
 @router.get("/detectors", response_class=HTMLResponse)
 async def detectors_page(
     request: Request, container: Container = Depends(get_container)
 ):
     """Detectors management page."""
     detectors = container.detector_repository().find_all()
-    pyod_adapter = container.pyod_adapter()
+    pyod_adapter = container.pyod_adapter("IsolationForest")
     algorithms = pyod_adapter.list_algorithms()
 
     return templates.TemplateResponse(
@@ -1725,9 +1762,12 @@ async def htmx_bulk_export(
 def mount_web_ui(app):
     """Mount web UI to FastAPI app."""
     # Mount static files
+    # URL Strategy: Static assets served at "/static" path
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
     # Include web routes
+    # URL Strategy: Web UI routes at root "/" path, separate from API "/api/v1"
+    # See docs/url_scheme.md for complete routing strategy
     app.include_router(router, tags=["Web UI"])
 
 

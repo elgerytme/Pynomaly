@@ -89,11 +89,31 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     if settings.monitoring.metrics_enabled or settings.monitoring.tracing_enabled:
         # init_telemetry(settings)  # Temporarily disabled
         pass
+    
+    # Initialize external monitoring service
+    try:
+        monitoring_service = await initialize_monitoring_service(settings)
+        app.state.monitoring_service = monitoring_service
+        print(f"Initialized external monitoring service with {len(monitoring_service.providers)} providers")
+    except Exception as e:
+        print(f"Warning: Failed to initialize monitoring service: {e}")
 
     yield
 
     # Shutdown
     print("Shutting down...")
+
+    # Shutdown monitoring service
+    if hasattr(app.state, 'monitoring_service'):
+        try:
+            await shutdown_monitoring_service(app.state.monitoring_service)
+            print("Monitoring service shutdown complete")
+        except Exception as e:
+            print(f"Warning: Error shutting down monitoring service: {e}")
+
+    # Clear dependencies on shutdown
+    from pynomaly.infrastructure.dependencies import clear_dependencies
+    clear_dependencies()
 
     # Cleanup services
     # Telemetry cleanup temporarily disabled
@@ -210,6 +230,8 @@ def create_app(container: Container | None = None) -> FastAPI:
     app.include_router(api_docs.router, tags=["documentation"])
 
     # Include API routers with v1 versioning
+    # URL Strategy: All API endpoints use "/api/v1" prefix for versioned REST API
+    # Web UI is served at root "/" path, API at "/api/v1" - see docs/url_scheme.md
     app.include_router(health.router, prefix="/api/v1", tags=["health"])
 
     app.include_router(auth.router, prefix="/api/v1/auth", tags=["authentication"])
@@ -261,6 +283,8 @@ def create_app(container: Container | None = None) -> FastAPI:
     # Distributed processing API removed for simplification
 
     # Mount web UI with lazy import to avoid circular dependencies
+    # URL Strategy: Web UI served at root "/" path for clean user experience
+    # Separates UI from API routes ("/api/v1") - see docs/url_scheme.md
     _mount_web_ui_lazy(app)
 
     @app.get("/", include_in_schema=False)

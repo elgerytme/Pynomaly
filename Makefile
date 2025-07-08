@@ -15,7 +15,7 @@
 #   make build    - Build package
 #   make clean    - Clean up artifacts
 
-.PHONY: help setup install dev-install lint format test test-cov build clean docker pre-commit ci status release docs
+.PHONY: help setup install dev-install lint format test test-cov build clean docker pre-commit ci status release docs container-scan container-scan-soft
 
 # Default target
 help: ## Show this help message
@@ -52,6 +52,10 @@ help: ## Show this help message
 	@echo "  make docs           - Build documentation"
 	@echo "  make docs-serve     - Serve documentation locally"
 	@echo "  make docker         - Build Docker image"
+	@echo ""
+	@echo "Security Scanning:"
+	@echo "  make container-scan - Run container security scan"
+	@echo "  make container-scan-soft - Run container security scan in soft mode"
 	@echo ""
 	@echo "Utilities:"
 	@echo "  make status         - Show project status and environment info"
@@ -368,6 +372,18 @@ t: test     ## Alias for test
 b: build    ## Alias for build
 c: clean    ## Alias for clean
 s: status   ## Alias for status
+
+# === CONTAINER SECURITY SCANNING ===
+
+container-scan: ## Run container security scan
+	@echo "🔍 Running container security scan..."
+	python scripts/security/run_container_scans.py
+	@echo "✅ Container security scan completed!"
+
+container-scan-soft: ## Run container security scan in soft mode
+	@echo "🔍 Running container security scan in soft mode..."
+	python scripts/security/run_container_scans.py --soft
+	@echo "✅ Container security scan completed (soft mode)!"
 
 # Make sure all targets are treated as commands, not files
 .DEFAULT_GOAL := help

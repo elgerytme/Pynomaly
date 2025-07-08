@@ -348,7 +348,137 @@ jobs:
         path: reports/
         retention-days: 30
 
-  # Job 6: Docker Build
+  # Job 6: CI & Code Quality Gate
+  ci-quality-gate:
+    name: CI & Code Quality Gate
+    runs-on: ubuntu-latest
+    
+    outputs:
+      forward-refs-found: ${{ steps.forward-ref-check.outputs.forward-refs-found }}
+      lint-passed: ${{ steps.lint.outcome == 'success' }}
+      type-check-passed: ${{ steps.type-check.outcome == 'success' }}
+      tests-passed: ${{ steps.tests.outcome == 'success' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install Hatch
+      run: |
+        python -m pip install --upgrade pip
+        pip install hatch
+    
+    - name: Show Hatch version and project info
+      run: |
+        hatch --version
+        hatch version
+        hatch env show
+    
+    - name: Make forward reference check script executable
+      run: |
+        chmod +x scripts/ci/check_forward_refs.py
+    
+    - name: Lint with ruff
+      id: lint
+      run: |
+        echo "Running ruff linting..."
+        hatch env run lint:style
+      continue-on-error: false
+    
+    - name: Type-check with mypy
+      id: type-check
+      run: |
+        echo "Running mypy type checking..."
+        hatch env run lint:typing
+      continue-on-error: false
+    
+    - name: Run tests
+      id: tests
+      run: |
+        echo "Running test suite..."
+        hatch env run test:run tests/ -v --tb=short
+      continue-on-error: false
+    
+    - name: Check for forward references
+      id: forward-ref-check
+      run: |
+        echo "Checking for forward references in generated schemas..."
+        python scripts/ci/check_forward_refs.py
+        if [ $? -eq 0 ]; then
+          echo "forward-refs-found=false" >> $GITHUB_OUTPUT
+        else
+          echo "forward-refs-found=true" >> $GITHUB_OUTPUT
+          echo "❌ Forward references detected - blocking merge"
+          exit 1
+        fi
+      continue-on-error: false
+    
+    - name: Generate quality gate report
+      if: always()
+      run: |
+        mkdir -p reports
+        echo "# CI & Code Quality Gate Report" > reports/quality-gate-report.md
+        echo "" >> reports/quality-gate-report.md
+        echo "**Generated:** $(date)" >> reports/quality-gate-report.md
+        echo "**Commit:** ${{ github.sha }}" >> reports/quality-gate-report.md
+        echo "" >> reports/quality-gate-report.md
+        echo "## Quality Gate Results" >> reports/quality-gate-report.md
+        echo "" >> reports/quality-gate-report.md
+        echo "| Check | Status | Required |" >> reports/quality-gate-report.md
+        echo "|-------|--------|----------|" >> reports/quality-gate-report.md
+        echo "| Ruff Linting | ${{ steps.lint.outcome == 'success' && '✅ Passed' || '❌ Failed' }} | ✅ Required |" >> reports/quality-gate-report.md
+        echo "| MyPy Type Check | ${{ steps.type-check.outcome == 'success' && '✅ Passed' || '❌ Failed' }} | ✅ Required |" >> reports/quality-gate-report.md
+        echo "| Test Suite | ${{ steps.tests.outcome == 'success' && '✅ Passed' || '❌ Failed' }} | ✅ Required |" >> reports/quality-gate-report.md
+        echo "| Forward Ref Check | ${{ steps.forward-ref-check.outcome == 'success' && '✅ Passed' || '❌ Failed' }} | ✅ Required |" >> reports/quality-gate-report.md
+        echo "" >> reports/quality-gate-report.md
+        
+        if [[ "${{ steps.lint.outcome }}" == "success" && 
+              "${{ steps.type-check.outcome }}" == "success" && 
+              "${{ steps.tests.outcome }}" == "success" && 
+              "${{ steps.forward-ref-check.outcome }}" == "success" ]]; then
+          echo "## ✅ Overall Status: **PASSED**" >> reports/quality-gate-report.md
+          echo "" >> reports/quality-gate-report.md
+          echo "All quality gates have passed. Ready for merge!" >> reports/quality-gate-report.md
+        else
+          echo "## ❌ Overall Status: **FAILED**" >> reports/quality-gate-report.md
+          echo "" >> reports/quality-gate-report.md
+          echo "One or more quality gates have failed. Fix issues before merging." >> reports/quality-gate-report.md
+        fi
+        
+        cat reports/quality-gate-report.md
+    
+    - name: Upload quality gate report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: quality-gate-report
+        path: reports/
+        retention-days: 30
+    
+    - name: Fail if quality gates not met
+      if: always()
+      run: |
+        if [[ "${{ steps.lint.outcome }}" != "success" || 
+              "${{ steps.type-check.outcome }}" != "success" || 
+              "${{ steps.tests.outcome }}" != "success" || 
+              "${{ steps.forward-ref-check.outcome }}" != "success" ]]; then
+          echo "❌ Quality gates failed - blocking merge"
+          echo "Lint: ${{ steps.lint.outcome }}"
+          echo "Type check: ${{ steps.type-check.outcome }}"
+          echo "Tests: ${{ steps.tests.outcome }}"
+          echo "Forward ref check: ${{ steps.forward-ref-check.outcome }}"
+          exit 1
+        fi
+        echo "✅ All quality gates passed!"
+
+  # Job 7: Docker Build
   docker:
     name: Docker Build
     runs-on: ubuntu-latest
@@ -379,11 +509,11 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
-  # Job 7: Final CI Summary
+  # Job 8: Final CI Summary
   ci-summary:
     name: CI Summary
     runs-on: ubuntu-latest
-    needs: [docs-lint, code-quality, build, test, api-cli-test, security, docker]
+    needs: [docs-lint, code-quality, build, test, api-cli-test, security, docker, ci-quality-gate]
     if: always()
     
     steps:
@@ -410,11 +540,13 @@ jobs:
         echo "| API & CLI | ${{ needs.api-cli-test.result == 'success' && '✅ Passed' || needs.api-cli-test.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | CLI commands, API startup test |" >> ci-reports/ci-summary.md
         echo "| Security Scan | ${{ needs.security.result == 'success' && '✅ Passed' || needs.security.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | Bandit security scan, Safety check |" >> ci-reports/ci-summary.md
         echo "| Docker Build | ${{ needs.docker.result == 'success' && '✅ Passed' || needs.docker.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | Container image build test |" >> ci-reports/ci-summary.md
+        echo "| CI Quality Gate | ${{ needs.ci-quality-gate.result == 'success' && '✅ Passed' || needs.ci-quality-gate.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | Ruff lint, MyPy type check, tests, forward ref detection |" >> ci-reports/ci-summary.md
         echo "" >> ci-reports/ci-summary.md
         
         # Overall status
         if [[ "${{ needs.build.result }}" == "success" && 
-              "${{ needs.test.result }}" == "success" ]]; then
+              "${{ needs.test.result }}" == "success" && 
+              "${{ needs.ci-quality-gate.result }}" == "success" ]]; then
           echo "## 🎉 Overall Status: **PASSED**" >> ci-reports/ci-summary.md
           echo "" >> ci-reports/ci-summary.md
           echo "✅ All critical CI checks have passed successfully!" >> ci-reports/ci-summary.md
@@ -431,6 +563,7 @@ jobs:
           echo "**Required for merge:**" >> ci-reports/ci-summary.md
           echo "- Build & Package must pass" >> ci-reports/ci-summary.md
           echo "- Test Suite must pass" >> ci-reports/ci-summary.md
+          echo "- CI Quality Gate must pass" >> ci-reports/ci-summary.md
         fi
         
         echo "" >> ci-reports/ci-summary.md
@@ -469,6 +602,7 @@ jobs:
 - API & CLI: ${{ needs.api-cli-test.result == 'success' && '✅ Passed' || needs.api-cli-test.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }}
 - Security: ${{ needs.security.result == 'success' && '✅ Passed' || needs.security.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }}
 - Docker: ${{ needs.docker.result == 'success' && '✅ Passed' || needs.docker.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }}
+- CI Quality Gate: ${{ needs.ci-quality-gate.result == 'success' && '✅ Passed' || needs.ci-quality-gate.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }}
 
 **Hatch Migration:** ✅ Successfully using Hatch for build system and environment management
 
@@ -491,7 +625,8 @@ View detailed reports in the Actions artifacts.`;
     - name: Set final exit code
       run: |
         if [[ "${{ needs.build.result }}" == "success" && 
-              "${{ needs.test.result }}" == "success" ]]; then
+              "${{ needs.test.result }}" == "success" && 
+              "${{ needs.ci-quality-gate.result }}" == "success" ]]; then
           echo "✅ CI Pipeline completed successfully"
           exit 0
         else

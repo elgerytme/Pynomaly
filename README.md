@@ -25,7 +25,7 @@ Python anomaly detection package targeting Python 3.11+ with clean architecture 
 ### Advanced Features (Production Ready)
 - 🚀 **FastAPI REST API**: 65+ API endpoints with OpenAPI documentation
 - 🔐 **Authentication**: JWT-based authentication framework (optional)
-- 📈 **Monitoring**: Prometheus metrics collection capabilities
+- 📈 **Monitoring**: Prometheus metrics collection + external monitoring providers (Grafana, Datadog, New Relic)
 - 💾 **Data Export**: CSV/JSON/Excel export functionality
 - 🎯 **Ensemble Methods**: Advanced voting strategies and model combination
 - ⚡ **Performance Optimizations**: Batch cache operations, optimized data loading, memory management

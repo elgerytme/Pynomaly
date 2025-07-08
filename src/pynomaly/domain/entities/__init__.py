@@ -1,5 +1,32 @@
 """Domain entities."""
 
+# Use explicit relative imports to avoid circular dependencies
+from __future__ import annotations
+
+# Core entities
+from .anomaly import Anomaly
+from .dataset import Dataset
+from .detection_result import DetectionResult
+from .detector import Detector
+
+# Model entities
+from .model import Model, ModelStage, ModelType
+from .model_version import ModelStatus, ModelVersion
+
+# Experiment entities
+from .experiment import Experiment, ExperimentRun, ExperimentStatus, ExperimentType
+
+# Pipeline entities
+from .pipeline import (
+    Pipeline,
+    PipelineRun,
+    PipelineStatus,
+    PipelineStep,
+    PipelineType,
+    StepType,
+)
+
+# Alert entities
 from .alert import (
     Alert,
     AlertCondition,
@@ -8,21 +35,6 @@ from .alert import (
     AlertStatus,
     AlertType,
     NotificationChannel,
-)
-from .anomaly import Anomaly
-from .dataset import Dataset
-from .detection_result import DetectionResult
-from .detector import Detector
-from .experiment import Experiment, ExperimentRun, ExperimentStatus, ExperimentType
-from .model import Model, ModelStage, ModelType
-from .model_version import ModelStatus, ModelVersion
-from .pipeline import (
-    Pipeline,
-    PipelineRun,
-    PipelineStatus,
-    PipelineStep,
-    PipelineType,
-    StepType,
 )
 
 __all__ = [

@@ -39,6 +39,7 @@
 - [ ] **Manual testing** completed
 - [ ] **Performance testing** (if applicable)
 - [ ] **Security testing** (if applicable)
+- [ ] **Security phase checklist** completed (see [Security Checklists](docs/security/checklists/README.md))
 
 ### Test Coverage
 - [ ] **Existing tests** cover the changes

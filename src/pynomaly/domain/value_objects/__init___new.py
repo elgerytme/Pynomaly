@@ -5,11 +5,11 @@ from .anomaly_score import AnomalyScore
 from .anomaly_type import AnomalyType
 from .confidence_interval import ConfidenceInterval
 from .contamination_rate import ContaminationRate
-from .hyperparameters import Hyperparameters
 from .model_storage_info import ModelStorageInfo, SerializationFormat, StorageBackend
 from .performance_metrics import PerformanceMetrics
 from .semantic_version import SemanticVersion
 from .severity_level import SeverityLevel
+from .severity_score import SeverityScore
 from .threshold_config import ThresholdConfig
 
 __all__ = [
@@ -18,12 +18,12 @@ __all__ = [
     "AnomalyType",
     "ConfidenceInterval",
     "ContaminationRate",
-    "Hyperparameters",
-    "ModelStorageInfo",
-    "PerformanceMetrics",
-    "SemanticVersion",
-    "SerializationFormat",
-    "SeverityLevel",
-    "StorageBackend",
     "ThresholdConfig",
+    "SemanticVersion",
+    "ModelStorageInfo",
+    "StorageBackend",
+    "SerializationFormat",
+    "PerformanceMetrics",
+    "SeverityLevel",
+    "SeverityScore",
 ]

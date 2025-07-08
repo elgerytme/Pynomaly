@@ -11,7 +11,6 @@ import numpy as np
 import pandas as pd
 
 from pynomaly.domain.entities.anomaly import Anomaly
-from pynomaly.domain.value_objects import AnomalyScore, ConfidenceInterval
 
 
 @dataclass
@@ -35,14 +34,14 @@ class DetectionResult:
     detector_id: UUID
     dataset_id: UUID
     anomalies: list[Anomaly]
-    scores: list[AnomalyScore]
+    scores: list[float]
     labels: np.ndarray
     threshold: float
     id: UUID = field(default_factory=uuid4)
     execution_time_ms: float | None = None
     timestamp: datetime = field(default_factory=datetime.utcnow)
     metadata: dict[str, Any] = field(default_factory=dict)
-    confidence_intervals: list[ConfidenceInterval] | None = None
+    confidence_intervals: list[dict[str, float]] | None = None
 
     def __post_init__(self) -> None:
         """Validate detection result after initialization."""
@@ -115,15 +114,14 @@ class DetectionResult:
     @property
     def score_statistics(self) -> dict[str, float]:
         """Get statistics of anomaly scores."""
-        score_values = [s.value for s in self.scores]
         return {
-            "min": float(np.min(score_values)),
-            "max": float(np.max(score_values)),
-            "mean": float(np.mean(score_values)),
-            "median": float(np.median(score_values)),
-            "std": float(np.std(score_values)),
-            "q25": float(np.percentile(score_values, 25)),
-            "q75": float(np.percentile(score_values, 75)),
+            "min": float(np.min(self.scores)),
+            "max": float(np.max(self.scores)),
+            "mean": float(np.mean(self.scores)),
+            "median": float(np.median(self.scores)),
+            "std": float(np.std(self.scores)),
+            "q25": float(np.percentile(self.scores, 25)),
+            "q75": float(np.percentile(self.scores, 75)),
         }
 
     @property
@@ -134,27 +132,27 @@ class DetectionResult:
     def get_top_anomalies(self, n: int = 10) -> list[Anomaly]:
         """Get top N anomalies by score."""
         sorted_anomalies = sorted(
-            self.anomalies, key=lambda a: a.score.value, reverse=True
+            self.anomalies, key=lambda a: a.score, reverse=True
         )
         return sorted_anomalies[:n]
 
     def get_scores_dataframe(self) -> pd.DataFrame:
         """Get scores as a DataFrame for analysis."""
         data = {
-            "score": [s.value for s in self.scores],
+            "score": self.scores,
             "label": self.labels,
         }
 
         if self.has_confidence_intervals:
-            data["ci_lower"] = [ci.lower for ci in self.confidence_intervals]  # type: ignore
-            data["ci_upper"] = [ci.upper for ci in self.confidence_intervals]  # type: ignore
-            data["ci_width"] = [ci.width for ci in self.confidence_intervals]  # type: ignore
+            data["ci_lower"] = [ci["lower"] for ci in self.confidence_intervals]  # type: ignore
+            data["ci_upper"] = [ci["upper"] for ci in self.confidence_intervals]  # type: ignore
+            data["ci_width"] = [ci["upper"] - ci["lower"] for ci in self.confidence_intervals]  # type: ignore
 
         return pd.DataFrame(data)
 
     def filter_by_score(self, min_score: float) -> list[Anomaly]:
         """Get anomalies with score above threshold."""
-        return [a for a in self.anomalies if a.score.value >= min_score]
+        return [a for a in self.anomalies if a.score >= min_score]
 
     def filter_by_confidence(self, min_level: float = 0.95) -> list[Anomaly]:
         """Get anomalies with high confidence."""

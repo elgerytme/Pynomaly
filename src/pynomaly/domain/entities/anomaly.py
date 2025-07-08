@@ -2,15 +2,18 @@
 
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 from uuid import UUID, uuid4
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from pynomaly.domain.value_objects import AnomalyScore, ConfidenceInterval
+from pynomaly.domain.value_objects import (
+    AnomalyScore,
+    AnomalyType,
+    ConfidenceInterval,
+    SeverityLevel,
+)
 
 
 @dataclass
@@ -26,9 +29,11 @@ class Anomaly:
         metadata: Additional metadata about the anomaly
         explanation: Optional explanation for why this is anomalous
         confidence_interval: Optional confidence interval for the anomaly
+        anomaly_type: Type of anomaly detected
+        severity_level: Severity level of the anomaly
     """
 
-    score: AnomalyScore  # Deprecated, use severity_score instead
+    score: AnomalyScore
     data_point: dict[str, Any]
     detector_name: str
     id: UUID = field(default_factory=uuid4)
@@ -36,13 +41,12 @@ class Anomaly:
     metadata: dict[str, Any] = field(default_factory=dict)
     explanation: str | None = None
     confidence_interval: ConfidenceInterval | None = None
-    anomaly_type: AnomalyType = field(default_factory=AnomalyType.get_default)
-    anomaly_category: AnomalyCategory = field(default_factory=AnomalyCategory.get_default)
-    severity_score: SeverityScore = field(default_factory=SeverityScore.create_minimal)
+    anomaly_type: AnomalyType = AnomalyType.UNKNOWN
+    severity_level: SeverityLevel | None = None
 
     def __post_init__(self) -> None:
         """Validate anomaly after initialization."""
-        if self.score is not None and not isinstance(self.score, AnomalyScore):
+        if not isinstance(self.score, AnomalyScore):
             raise TypeError(
                 f"Score must be AnomalyScore instance, got {type(self.score)}"
             )
@@ -55,10 +59,37 @@ class Anomaly:
                 f"Data point must be a dictionary, got {type(self.data_point)}"
             )
 
-        if not isinstance(self.severity_score, SeverityScore):
+        if not isinstance(self.anomaly_type, AnomalyType):
             raise TypeError(
-                f"SeverityScore must be an instance of SeverityScore, got {type(self.severity_score)}"
+                f"Anomaly type must be AnomalyType instance, got {type(self.anomaly_type)}"
             )
+
+        if self.severity_level is not None and not isinstance(self.severity_level, SeverityLevel):
+            raise TypeError(
+                f"Severity level must be SeverityLevel instance, got {type(self.severity_level)}"
+            )
+
+        # Auto-derive severity_level from score if not provided
+        if self.severity_level is None:
+            self.severity_level = SeverityLevel.from_score(self.score.value)
+
+        # Validate consistency between score, anomaly_type, and severity_level
+        self._validate_consistency()
+
+    def _validate_consistency(self) -> None:
+        """Validate consistency between score, anomaly_type, and severity_level."""
+        # Validate that severity_level is consistent with score
+        expected_severity = SeverityLevel.from_score(self.score.value)
+        if self.severity_level != expected_severity:
+            warnings.warn(
+                f"Severity level {self.severity_level} may not be consistent with score {self.score.value} "
+                f"(expected {expected_severity})",
+                UserWarning,
+                stacklevel=2,
+            )
+
+        # Additional consistency checks can be added here
+        # For example, certain anomaly types might require specific severity ranges
 
     @property
     def is_high_confidence(self) -> bool:
@@ -72,21 +103,13 @@ class Anomaly:
 
     @property
     def severity(self) -> str:
-        """Categorize anomaly severity based on score."""
-        # This is a simple example - could be customized per detector
-        if self.score.value > 0.9:
-            return "critical"
-        elif self.score.value > 0.7:
-            return "high"
-        elif self.score.value > 0.5:
-            return "medium"
-        else:
-            return "low"
-
-    @property
-    def severity_level(self) -> SeverityLevel:
-        """Get the severity level from severity score."""
-        return self.severity_score.severity_level
+        """DEPRECATED: Use severity_level instead. Redirects to severity_level."""
+        warnings.warn(
+            "The 'severity' property is deprecated. Use 'severity_level' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return str(self.severity_level)
 
     def add_metadata(self, key: str, value: Any) -> None:
         """Add metadata to the anomaly."""
@@ -101,7 +124,8 @@ class Anomaly:
             "timestamp": self.timestamp.isoformat(),
             "data_point": self.data_point,
             "metadata": self.metadata,
-            "severity": self.severity,
+            "anomaly_type": self.anomaly_type.value,
+            "severity_level": str(self.severity_level),
         }
 
         if self.score.confidence_lower is not None:

@@ -59,6 +59,8 @@ app = typer.Typer(
 console = Console()
 
 # Add subcommands
+# CLI Command Structure: Organized by functional domains
+# Maps to API routes under /api/v1/* - see docs/url_scheme.md
 app.add_typer(
     autonomous.app,
     name="auto",

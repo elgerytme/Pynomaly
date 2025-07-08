@@ -1301,6 +1301,7 @@ This comprehensive security guide provides the foundation for deploying and oper
 
 ## 🔗 **Related Documentation**
 
+- **[Security Checklists](checklists/README.md)** - Phase-specific security checklists for SDLC
 - **[User Guides](../user-guides/README.md)** - Feature documentation
 - **[Getting Started](../getting-started/README.md)** - Installation and setup
 - **[Examples](../examples/README.md)** - Real-world examples
