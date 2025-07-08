@@ -1,55 +1,68 @@
-# Core Package Documentation
+# Detailed Core Package Documentation
 
 ## Integration Points with Major ML Libraries
 
-- **Scikit-Learn & PyOD**: Utilized in `sklearn_adapter` and `pyod_adapter` for anomaly detection.
-- **TensorFlow**: Employed in `tensorflow_adapter` for deep learning models like AutoEncoders and VAE.
-- **PyTorch**: Possible usage in performance benchmarking for GPU availability.
+- **Scikit-Learn & PyOD**:
+  - Utilized in `sklearn_adapter` and `pyod_adapter` for integrating anomaly detection algorithms.
+  - Supports algorithms such as Isolation Forest, Local Outlier Factor, etc., providing flexibility and scalability in anomaly detection tasks.
+
+- **TensorFlow**:
+  - Employed in `tensorflow_adapter` for deep learning models including AutoEncoders and Variational AutoEncoders (VAE).
+  - Allows you to create custom neural network models for complex anomaly detection scenarios.
+
+- **PyTorch**:
+  - Provides GPU support for performance benchmarking, ensuring efficient training and evaluation.
 
 ## Clean Architecture Layers
 
-- **Domain Layer**: 
-  - **Entities**: `Detector`, `Anomaly` representing core domain concepts.
+- **Domain Layer**:
+  - **Entities**: Core classes like `Detector` and `Anomaly` capture the essence of anomaly detection without linking to external libraries.
+  - **Services**: Include functions such as `EnsembleAggregator` and `ExplainabilityService` that provide essential domain logic like ensemble voting and result explanation.
 
 - **Application Layer**:
-  - **Services**: `PerformanceBenchmarkingService`, handling benchmarking and evaluation.
+  - **Services**: `PerformanceBenchmarkingService` handles system performance metrics, ensuring efficient model deployment.
 
-- **Infrastructure Layer**: 
-  - **Adapters**: `PyODAdapter`, `SklearnAdapter`, `TensorFlowAdapter` facilitate interaction with ML libraries.
-  - **Configuration**: Managed by settings files for system settings and dependency injection.
+- **Infrastructure Layer**:
+  - **Adapters**: Interfaces such as `PyODAdapter`, `SklearnAdapter`, `TensorFlowAdapter` bridge the application logic with ML frameworks.
+  - **Monitoring and Security**: Implements `HealthService` and `SecurityService` for monitoring system health and reinforcing security protocols.
 
 ## Domain Entities
 
-- **Detector**: Represents anomaly detectors, includes algorithm-related metadata.
-- **Anomaly**: Represents detected anomalies.
+- **Detector**: Represents anomaly detectors, supporting different algorithms and configurations for robust anomaly detection.
+- **Anomaly**: Models detected anomalies, linking scores and metadata for further analysis.
 
 ## Services
 
-- **PerformanceBenchmarkingService**: Provides CPU/GPU/memory profiling and runtime measurements.
+- **PerformanceBenchmarkingService**:
+  - Provides comprehensive benchmarks for evaluating model performance.
+  - Collects CPU, memory, and GPU usage statistics to inform optimization decisions.
 
 ## Adapters
 
-- **Python-based Adapters**: Interfaces for integrating with existing ML libraries, updating application logic.
+- **Python-based Adapters**:
+  - Enable seamless integration with existing ML libraries.
+  - Include functionalities like model fitting, prediction, and scoring across various frameworks.
 
 ## Performance, Scalability, and Security Constraints
 
-- **Performance**: 
-  - Incorporates vectorization and caching for optimized performance.
-  - Designed to handle batch/offline mode for large datasets.
+- **Performance**:
+  - Implements vectorization, caching strategies, and supports batch processing for scalability.
+  - Asynchronous operations are employed in areas like health monitoring and data processing to boost concurrency.
 
 - **Scalability**:
-  - Asynchronous tasks and thread management in system monitoring.
-  - Settings configurations for adaptable scaling.
+  - Flexible settings (`config/settings.py`) allow tuning of resources such as maximum concurrent sessions and dataset size.
+  - Supports distributed processing and can adapt to various deployment environments.
 
 - **Security**:
-  - Configurations for audit logging, rate limiting, and input sanitization.
-  - Security monitoring can be optionally integrated.
+  - Comprehensive settings for encryption, audit logging, and threat detection ensure robust security measures.
+  - Role-based access control (RBAC) and advanced rate limiting are configured to control access and prevent misuse.
 
 ## Configuration
 
-- System settings customizable via Pydantic models.
-- Dependency Injection via a service registry pattern.
+- Configured using Pydantic models, providing a type-safe and easy-to-extend configuration framework.
+- Dependency Injection implemented via the `container.py` following the Service Registry pattern reducing coupling and enhancing testability.
 
 ---
 
-This documentation provides an overview of the core functionality, identifying integration points, and elucidating performance, scalability, and security aspects.
+This documentation provides a detailed view of integration points, clean architecture, domain logic, and constraints on performance, scalability, and security.
+
