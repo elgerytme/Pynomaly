@@ -9,11 +9,34 @@ on:
     # Run daily at 2 AM UTC
     - cron: '0 2 * * *'
   workflow_dispatch:
+    inputs:
+      severity-threshold:
+        description: 'Minimum severity level to fail the job (LOW, MEDIUM, HIGH, CRITICAL)'
+        required: false
+        default: 'HIGH'
+        type: choice
+        options:
+          - LOW
+          - MEDIUM
+          - HIGH
+          - CRITICAL
+  workflow_call:
+    inputs:
+      severity-threshold:
+        description: 'Minimum severity level to fail the job (LOW, MEDIUM, HIGH, CRITICAL)'
+        required: false
+        default: 'HIGH'
+        type: string
 
 permissions:
   contents: read
   security-events: write
   actions: read
+  pull-requests: write
+
+env:
+  SEVERITY_THRESHOLD: ${{ inputs.severity-threshold || 'HIGH' }}
+  IS_FORK: ${{ github.event.pull_request.head.repo.fork }}
 
 jobs:
   dependency-scan:
@@ -29,35 +52,111 @@ jobs:
       with:
         python-version: '3.12'
 
-    - name: Install dependencies
+    - name: Install Hatch
       run: |
         python -m pip install --upgrade pip
-        pip install safety pip-audit
+        pip install hatch
 
-    - name: Run Safety check
+    - name: Run Security Scan with Hatch
       run: |
-        safety check --json --output safety-report.json || true
-        safety check --output safety-report.txt || true
+        if [ "${{ env.IS_FORK }}" == "true" ]; then
+          echo "Running security scan in soft mode for fork"
+          hatch env run security:scan --soft
+        else
+          echo "Running full security scan"
+          hatch env run security:scan
+        fi
 
-    - name: Run pip-audit
+    - name: Process Security Results
+      if: always()
       run: |
-        pip-audit --format=json --output=pip-audit-report.json || true
-        pip-audit --format=cyclonedx-json --output=sbom.json || true
+        # Create combined SARIF report
+        mkdir -p security-results
+        
+        # Check for various security scan outputs and combine them
+        if [ -f "safety-report.sarif" ]; then
+          cp safety-report.sarif security-results/
+        fi
+        if [ -f "pip-audit-report.sarif" ]; then
+          cp pip-audit-report.sarif security-results/
+        fi
+        if [ -f "bandit-report.sarif" ]; then
+          cp bandit-report.sarif security-results/
+        fi
+        
+        # Create a combined SARIF file if multiple reports exist
+        if [ $(find security-results -name "*.sarif" | wc -l) -gt 1 ]; then
+          python -c "
+import json
+import glob
+import os
 
-    - name: Upload vulnerability reports
+combined_sarif = {
+    'version': '2.1.0',
+    'schema': 'https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json',
+    'runs': []
+}
+
+for sarif_file in glob.glob('security-results/*.sarif'):
+    with open(sarif_file, 'r') as f:
+        sarif_data = json.load(f)
+        if 'runs' in sarif_data:
+            combined_sarif['runs'].extend(sarif_data['runs'])
+
+with open('security-results/combined-security.sarif', 'w') as f:
+    json.dump(combined_sarif, f, indent=2)
+"
+        elif [ $(find security-results -name "*.sarif" | wc -l) -eq 1 ]; then
+          cp security-results/*.sarif security-results/combined-security.sarif
+        fi
+
+    - name: Check Severity Threshold
+      if: always()
+      run: |
+        # Check if any findings exceed the severity threshold
+        if [ -f "security-results/combined-security.sarif" ]; then
+          python -c "
+import json
+import sys
+
+threshold_map = {'LOW': 0, 'MEDIUM': 1, 'HIGH': 2, 'CRITICAL': 3}
+threshold = threshold_map.get('${{ env.SEVERITY_THRESHOLD }}', 2)
+
+with open('security-results/combined-security.sarif', 'r') as f:
+    sarif_data = json.load(f)
+
+high_severity_found = False
+for run in sarif_data.get('runs', []):
+    for result in run.get('results', []):
+        level = result.get('level', 'note')
+        if level == 'error' and threshold <= 3:
+            high_severity_found = True
+        elif level == 'warning' and threshold <= 2:
+            high_severity_found = True
+        elif level == 'note' and threshold <= 1:
+            high_severity_found = True
+        elif level == 'info' and threshold <= 0:
+            high_severity_found = True
+
+if high_severity_found:
+    print(f'Security issues found that exceed severity threshold: ${{ env.SEVERITY_THRESHOLD }}')
+    sys.exit(1)
+else:
+    print('No security issues found that exceed the severity threshold')
+"
+        fi
+
+    - name: Upload Security Results
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: vulnerability-reports
-        path: |
-          safety-report.json
-          safety-report.txt
-          pip-audit-report.json
-          sbom.json
+        name: security-results
+        path: security-results/
 
   code-security-scan:
     name: Code Security Analysis
     runs-on: ubuntu-latest
+    needs: [dependency-scan]
     
     steps:
     - name: Checkout code
@@ -68,30 +167,76 @@ jobs:
       with:
         python-version: '3.12'
 
-    - name: Install Bandit
+    - name: Install Hatch
       run: |
         python -m pip install --upgrade pip
-        pip install bandit[toml]
+        pip install hatch
 
-    - name: Run Bandit security linter
-      run: |
-        bandit -r src/ -f json -o bandit-report.json
-        bandit -r src/ -f txt -o bandit-report.txt
-
-    - name: Upload Bandit results to GitHub Security Tab
-      uses: github/codeql-action/upload-sarif@v3
-      if: always()
+    - name: Download Security Results
+      uses: actions/download-artifact@v4
       with:
-        sarif_file: bandit-report.json
+        name: security-results
+        path: security-results/
 
-    - name: Upload security reports
+    - name: Run Code Security Analysis with Hatch
+      run: |
+        if [ "${{ env.IS_FORK }}" == "true" ]; then
+          echo "Running code security scan in soft mode for fork"
+          hatch env run security:code-scan --soft
+        else
+          echo "Running full code security scan"
+          hatch env run security:code-scan
+        fi
+
+    - name: Update Combined SARIF
+      if: always()
+      run: |
+        # Add any new SARIF files to security-results
+        if [ -f "bandit-report.sarif" ]; then
+          cp bandit-report.sarif security-results/
+        fi
+        if [ -f "semgrep-report.sarif" ]; then
+          cp semgrep-report.sarif security-results/
+        fi
+        
+        # Recreate combined SARIF with all results
+        python -c "
+import json
+import glob
+import os
+
+combined_sarif = {
+    'version': '2.1.0',
+    'schema': 'https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json',
+    'runs': []
+}
+
+for sarif_file in glob.glob('security-results/*.sarif'):
+    if 'combined-security.sarif' not in sarif_file:
+        with open(sarif_file, 'r') as f:
+            try:
+                sarif_data = json.load(f)
+                if 'runs' in sarif_data:
+                    combined_sarif['runs'].extend(sarif_data['runs'])
+            except json.JSONDecodeError:
+                print(f'Warning: Could not parse {sarif_file}')
+
+with open('security-results/combined-security.sarif', 'w') as f:
+    json.dump(combined_sarif, f, indent=2)
+"
+
+    - name: Upload Combined SARIF to Security Tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always() && !env.IS_FORK
+      with:
+        sarif_file: security-results/combined-security.sarif
+
+    - name: Upload Updated Security Results
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: bandit-reports
-        path: |
-          bandit-report.json
-          bandit-report.txt
+        name: security-results
+        path: security-results/
 
   codeql-analysis:
     name: CodeQL Analysis
@@ -145,11 +290,18 @@ jobs:
   container-security:
     name: Container Security Scan
     runs-on: ubuntu-latest
+    needs: [code-security-scan]
     if: github.event_name == 'push'
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    - name: Download Security Results
+      uses: actions/download-artifact@v4
+      with:
+        name: security-results
+        path: security-results/
 
     - name: Build Docker image
       run: |
@@ -162,11 +314,52 @@ jobs:
         format: 'sarif'
         output: 'trivy-results.sarif'
 
-    - name: Upload Trivy scan results to GitHub Security tab
+    - name: Add Trivy results to combined SARIF
+      if: always()
+      run: |
+        # Add Trivy results to security-results directory
+        if [ -f "trivy-results.sarif" ]; then
+          cp trivy-results.sarif security-results/
+        fi
+        
+        # Recreate combined SARIF with all results including Trivy
+        python -c "
+import json
+import glob
+import os
+
+combined_sarif = {
+    'version': '2.1.0',
+    'schema': 'https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json',
+    'runs': []
+}
+
+for sarif_file in glob.glob('security-results/*.sarif'):
+    if 'combined-security.sarif' not in sarif_file:
+        with open(sarif_file, 'r') as f:
+            try:
+                sarif_data = json.load(f)
+                if 'runs' in sarif_data:
+                    combined_sarif['runs'].extend(sarif_data['runs'])
+            except json.JSONDecodeError:
+                print(f'Warning: Could not parse {sarif_file}')
+
+with open('security-results/combined-security.sarif', 'w') as f:
+    json.dump(combined_sarif, f, indent=2)
+"
+
+    - name: Upload Combined SARIF to Security Tab
       uses: github/codeql-action/upload-sarif@v3
+      if: always() && !env.IS_FORK
+      with:
+        sarif_file: 'security-results/combined-security.sarif'
+
+    - name: Upload Updated Security Results
+      uses: actions/upload-artifact@v4
       if: always()
       with:
-        sarif_file: 'trivy-results.sarif'
+        name: security-results
+        path: security-results/
 
   license-compliance:
     name: License Compliance Check
@@ -213,55 +406,166 @@ jobs:
   security-summary:
     name: Security Summary
     runs-on: ubuntu-latest
-    needs: [dependency-scan, code-security-scan, secret-scan, license-compliance]
+    needs: [dependency-scan, code-security-scan, secret-scan, license-compliance, container-security]
     if: always()
     
     steps:
     - name: Download all artifacts
       uses: actions/download-artifact@v4
 
-    - name: Create security summary
+    - name: Create enhanced security summary
       run: |
-        echo "# Security Scan Summary" > security-summary.md
-        echo "## Timestamp: $(date)" >> security-summary.md
-        echo "" >> security-summary.md
+        # Create comprehensive security summary
+        cat > security_summary.md << 'EOF'
+# 🔒 Security Scan Summary
+
+**Scan Time:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+**Severity Threshold:** ${{ env.SEVERITY_THRESHOLD }}
+**Fork Detection:** ${{ env.IS_FORK }}
+
+## 📊 Scan Results Overview
+
+EOF
+
+        # Process combined SARIF results
+        if [ -f "security-results/combined-security.sarif" ]; then
+          python3 -c "
+import json
+import sys
+from collections import defaultdict
+
+# Load combined SARIF
+with open('security-results/combined-security.sarif', 'r') as f:
+    sarif_data = json.load(f)
+
+# Count findings by severity and tool
+findings = defaultdict(lambda: defaultdict(int))
+total_findings = 0
+
+for run in sarif_data.get('runs', []):
+    tool_name = run.get('tool', {}).get('driver', {}).get('name', 'Unknown')
+    
+    for result in run.get('results', []):
+        level = result.get('level', 'note')
+        severity_map = {'error': 'CRITICAL', 'warning': 'HIGH', 'note': 'MEDIUM', 'info': 'LOW'}
+        severity = severity_map.get(level, 'UNKNOWN')
         
-        echo "## Dependency Vulnerabilities" >> security-summary.md
-        if [ -f vulnerability-reports/safety-report.txt ]; then
-          echo '```' >> security-summary.md
-          cat vulnerability-reports/safety-report.txt >> security-summary.md
-          echo '```' >> security-summary.md
+        findings[tool_name][severity] += 1
+        total_findings += 1
+
+# Generate summary
+print(f'| Tool | Critical | High | Medium | Low | Total |')
+print('|------|----------|------|--------|-----|-------|')
+
+for tool in sorted(findings.keys()):
+    critical = findings[tool]['CRITICAL']
+    high = findings[tool]['HIGH']
+    medium = findings[tool]['MEDIUM']
+    low = findings[tool]['LOW']
+    tool_total = critical + high + medium + low
+    print(f'| {tool} | {critical} | {high} | {medium} | {low} | {tool_total} |')
+
+print(f'| **Total** | {sum(f["CRITICAL"] for f in findings.values())} | {sum(f["HIGH"] for f in findings.values())} | {sum(f["MEDIUM"] for f in findings.values())} | {sum(f["LOW"] for f in findings.values())} | {total_findings} |')
+
+# Check if threshold exceeded
+threshold_map = {'LOW': 0, 'MEDIUM': 1, 'HIGH': 2, 'CRITICAL': 3}
+threshold = threshold_map.get('${{ env.SEVERITY_THRESHOLD }}', 2)
+
+exceeded = False
+for tool in findings:
+    if (threshold <= 3 and findings[tool]['CRITICAL'] > 0) or \
+       (threshold <= 2 and findings[tool]['HIGH'] > 0) or \
+       (threshold <= 1 and findings[tool]['MEDIUM'] > 0) or \
+       (threshold <= 0 and findings[tool]['LOW'] > 0):
+        exceeded = True
+        break
+
+if exceeded:
+    print(f'\n⚠️  **WARNING:** Findings exceed severity threshold ({"${{ env.SEVERITY_THRESHOLD }}"})!')
+else:
+    print(f'\n✅ **PASSED:** No findings exceed severity threshold ({"${{ env.SEVERITY_THRESHOLD }}"}).')
+
+print(f'\n---\n')
+" >> security_summary.md
         fi
-        
-        echo "## Code Security Issues" >> security-summary.md
-        if [ -f bandit-reports/bandit-report.txt ]; then
-          echo '```' >> security-summary.md
-          cat bandit-reports/bandit-report.txt >> security-summary.md
-          echo '```' >> security-summary.md
+
+        # Add license compliance info
+        echo "## 📋 License Compliance" >> security_summary.md
+        if [ -f "license-reports/licenses.csv" ]; then
+          echo "✅ License report generated successfully" >> security_summary.md
+          echo "" >> security_summary.md
+        else
+          echo "❌ License report not available" >> security_summary.md
+          echo "" >> security_summary.md
         fi
-        
-        echo "## License Compliance" >> security-summary.md
-        if [ -f license-reports/licenses.csv ]; then
-          echo "License report generated successfully" >> security-summary.md
+
+        # Add artifact information
+        echo "## 📁 Available Artifacts" >> security_summary.md
+        echo "" >> security_summary.md
+        echo "- 🔒 **security-results**: Combined SARIF reports and security scan outputs" >> security_summary.md
+        echo "- 📊 **security-summary**: This summary report" >> security_summary.md
+        if [ -d "license-reports" ]; then
+          echo "- 📋 **license-reports**: License compliance reports" >> security_summary.md
         fi
+        echo "" >> security_summary.md
+        echo "---" >> security_summary.md
+        echo "*Generated by GitHub Actions Security Workflow*" >> security_summary.md
 
     - name: Upload security summary
       uses: actions/upload-artifact@v4
       with:
         name: security-summary
-        path: security-summary.md
+        path: security_summary.md
 
-    - name: Comment on PR
+    - name: Comment on PR with security summary
       if: github.event_name == 'pull_request'
       uses: actions/github-script@v7
       with:
         script: |
           const fs = require('fs');
-          const summary = fs.readFileSync('security-summary.md', 'utf8');
           
-          github.rest.issues.createComment({
+          // Read the security summary
+          let summary = '';
+          try {
+            summary = fs.readFileSync('security_summary.md', 'utf8');
+          } catch (error) {
+            summary = '❌ Security summary not available';
+            console.log('Error reading security_summary.md:', error.message);
+          }
+          
+          // Find existing security comment
+          const { data: comments } = await github.rest.issues.listComments({
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: `## Security Scan Results\n\n${summary}`
           });
+          
+          const existingComment = comments.find(comment => 
+            comment.body.includes('🔒 Security Scan Summary') && 
+            comment.user.login === 'github-actions[bot]'
+          );
+          
+          const commentBody = `${summary}
+          
+---
+*This comment is automatically updated with the latest security scan results.*`;
+          
+          if (existingComment) {
+            // Update existing comment
+            await github.rest.issues.updateComment({
+              comment_id: existingComment.id,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: commentBody
+            });
+            console.log('Updated existing security comment');
+          } else {
+            // Create new comment
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: commentBody
+            });
+            console.log('Created new security comment');
+          }
