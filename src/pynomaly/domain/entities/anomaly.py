@@ -7,10 +7,14 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID, uuid4
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from pynomaly.domain.value_objects import AnomalyScore, ConfidenceInterval
+from pynomaly.domain.value_objects import (
+    AnomalyScore,
+    AnomalyType,
+    AnomalyCategory,
+    ConfidenceInterval,
+    SeverityScore,
+    SeverityLevel
+)
 
 
 @dataclass
