@@ -9,7 +9,7 @@ Learn how to effectively use Pynomaly for your anomaly detection needs. These gu
 
 ## 📋 Quick Navigation
 
-### 🏁 **[Basic Usage](basic-usage/)** 
+### 🏁 **[Basic Usage](basic-usage/)**
 Essential functionality for everyday anomaly detection tasks.
 - **[Autonomous Mode](basic-usage/autonomous-mode.md)** - Automatic algorithm selection
 - **[Datasets](basic-usage/datasets.md)** - Data management and preparation

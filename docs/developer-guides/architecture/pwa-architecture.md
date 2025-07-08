@@ -99,23 +99,23 @@ graph TB
     PM --> SW[Service Worker]
     SW --> IDB[(IndexedDB)]
     SW --> Cache[(Cache API)]
-    
+
     UI --> SM[Sync Manager]
     SM --> SW
     SM --> API[REST API]
-    
+
     UI --> OD[Offline Detector]
     OD --> IDB
-    
+
     UI --> OV[Offline Visualizer]
     OV --> IDB
-    
+
     UI --> ODash[Offline Dashboard]
     ODash --> IDB
-    
+
     SW --> BGSync[Background Sync]
     BGSync --> API
-    
+
     API --> Server[(Server)]
 ```
 
@@ -166,16 +166,16 @@ const STATIC_ASSETS = [
 async function cacheFirstStrategy(request, cacheName) {
   const cache = await caches.open(cacheName);
   const cachedResponse = await cache.match(request);
-  
+
   if (cachedResponse) {
     return cachedResponse;
   }
-  
+
   const networkResponse = await fetch(request);
   if (networkResponse.status === 200) {
     cache.put(request, networkResponse.clone());
   }
-  
+
   return networkResponse;
 }
 ```
@@ -211,7 +211,7 @@ async function networkFirstStrategy(request, cacheName) {
 async function staleWhileRevalidateStrategy(request, cacheName) {
   const cache = await caches.open(cacheName);
   const cachedResponse = await cache.match(request);
-  
+
   // Background update
   const fetchPromise = fetch(request).then((networkResponse) => {
     if (networkResponse.status === 200) {
@@ -219,7 +219,7 @@ async function staleWhileRevalidateStrategy(request, cacheName) {
     }
     return networkResponse;
   });
-  
+
   return cachedResponse || fetchPromise;
 }
 ```
@@ -232,7 +232,7 @@ async function staleWhileRevalidateStrategy(request, cacheName) {
 async function processDetectionQueue() {
   const db = await openIndexedDB();
   const requests = await getQueuedRequests(SYNC_TAGS.DETECTION_QUEUE);
-  
+
   for (const queuedRequest of requests) {
     try {
       const response = await fetch(queuedRequest.url, {
@@ -240,7 +240,7 @@ async function processDetectionQueue() {
         headers: queuedRequest.headers,
         body: queuedRequest.body
       });
-      
+
       if (response.ok) {
         await removeFromSyncQueue(queuedRequest.id);
         await saveDetectionResult(await response.json());
@@ -262,7 +262,7 @@ async function processDetectionQueue() {
 // Enhanced message handling for PWA components
 self.addEventListener('message', (event) => {
   const { type, payload } = event.data;
-  
+
   switch (type) {
     case 'GET_OFFLINE_DASHBOARD_DATA':
       event.waitUntil(getOfflineDashboardData().then(data => {
@@ -382,19 +382,19 @@ async function compressData(data) {
   const stream = new CompressionStream('gzip');
   const writer = stream.writable.getWriter();
   const reader = stream.readable.getReader();
-  
+
   writer.write(encoder.encode(jsonString));
   writer.close();
-  
+
   const chunks = [];
   let done = false;
-  
+
   while (!done) {
     const { value, done: readerDone } = await reader.read();
     done = readerDone;
     if (value) chunks.push(value);
   }
-  
+
   return new Uint8Array(chunks.reduce((acc, chunk) => [...acc, ...chunk], []));
 }
 ```
@@ -405,14 +405,14 @@ async function compressData(data) {
 async function cleanupStorage() {
   const usage = await navigator.storage.estimate();
   const usageRatio = usage.usage / usage.quota;
-  
+
   if (usageRatio > 0.8) {
     // Remove old completed results
     await removeOldResults(30); // 30 days
-    
+
     // Compress large datasets
     await compressLargeDatasets();
-    
+
     // Remove unused cached assets
     await cleanupUnusedCaches();
   }
@@ -429,7 +429,7 @@ async function cleanupStorage() {
 ```javascript
 async function detectConflicts(localItem, serverItem) {
   const conflicts = [];
-  
+
   // Version-based conflict
   if (localItem.version !== serverItem.version) {
     conflicts.push({
@@ -439,7 +439,7 @@ async function detectConflicts(localItem, serverItem) {
       serverValue: serverItem.version
     });
   }
-  
+
   // Timestamp-based conflict
   if (localItem.lastModified > serverItem.lastModified) {
     conflicts.push({
@@ -449,7 +449,7 @@ async function detectConflicts(localItem, serverItem) {
       serverValue: serverItem.lastModified
     });
   }
-  
+
   // Data integrity conflict
   if (localItem.checksum !== serverItem.checksum) {
     conflicts.push({
@@ -458,7 +458,7 @@ async function detectConflicts(localItem, serverItem) {
       message: 'Data checksums do not match'
     });
   }
-  
+
   return conflicts;
 }
 ```
@@ -476,13 +476,13 @@ async function resolveConflict(conflict, strategy, customResolution = null) {
   switch (strategy) {
     case RESOLUTION_STRATEGIES.SERVER_WINS:
       return await fetchServerVersion(conflict.entityId);
-      
+
     case RESOLUTION_STRATEGIES.CLIENT_WINS:
       return await forceSyncLocalVersion(conflict);
-      
+
     case RESOLUTION_STRATEGIES.MERGE:
       return await mergeVersions(conflict, customResolution);
-      
+
     case RESOLUTION_STRATEGIES.MANUAL:
       return await presentManualResolution(conflict);
   }
@@ -501,12 +501,12 @@ class SyncPriorityQueue {
       low: []
     };
   }
-  
+
   enqueue(item, priority = 'normal') {
     this.queues[priority].push(item);
     this.sort(priority);
   }
-  
+
   dequeue() {
     // Process high priority first
     for (const priority of ['high', 'normal', 'low']) {
@@ -516,7 +516,7 @@ class SyncPriorityQueue {
     }
     return null;
   }
-  
+
   sort(priority) {
     this.queues[priority].sort((a, b) => a.timestamp - b.timestamp);
   }
@@ -534,10 +534,10 @@ class SyncScheduler {
       manual: null       // No automatic sync
     };
   }
-  
+
   start() {
     if (this.strategy === 'manual') return;
-    
+
     const interval = this.intervals[this.strategy];
     setInterval(() => {
       if (navigator.onLine && this.hasPendingItems()) {
@@ -545,11 +545,11 @@ class SyncScheduler {
       }
     }, interval);
   }
-  
+
   async processSyncQueue() {
     const queue = new SyncPriorityQueue();
     await queue.loadFromStorage();
-    
+
     while (queue.hasItems()) {
       const item = queue.dequeue();
       await this.syncItem(item);
@@ -573,7 +573,7 @@ class BaseVisualization {
     this.chart = null;
     this.data = null;
   }
-  
+
   get defaultOptions() {
     return {
       theme: 'light',
@@ -582,26 +582,26 @@ class BaseVisualization {
       exportable: true
     };
   }
-  
+
   async render(data) {
     this.data = data;
     await this.preprocess();
     this.createChart();
     this.bindEvents();
   }
-  
+
   async preprocess() {
     // Data preprocessing logic
   }
-  
+
   createChart() {
     // Chart creation logic
   }
-  
+
   bindEvents() {
     // Event binding logic
   }
-  
+
   export(format = 'png') {
     // Export functionality
   }
@@ -635,11 +635,11 @@ class AnomalyScatterPlot extends BaseVisualization {
         }
       }]
     };
-    
+
     this.chart = echarts.init(this.container);
     this.chart.setOption(option);
   }
-  
+
   preprocessScatterData() {
     return this.data.map(point => ({
       value: [point.features[0], point.features[1]],
@@ -658,31 +658,31 @@ class AnomalyScatterPlot extends BaseVisualization {
 class DataSampler {
   static sample(data, maxPoints = 5000) {
     if (data.length <= maxPoints) return data;
-    
+
     const step = Math.ceil(data.length / maxPoints);
     const sampled = [];
-    
+
     for (let i = 0; i < data.length; i += step) {
       sampled.push(data[i]);
     }
-    
+
     return sampled;
   }
-  
+
   static stratifiedSample(data, maxPoints = 5000, stratifyBy = 'isAnomaly') {
     const groups = this.groupBy(data, stratifyBy);
     const sampledGroups = {};
-    
+
     const totalGroups = Object.keys(groups).length;
     const pointsPerGroup = Math.floor(maxPoints / totalGroups);
-    
+
     for (const [key, group] of Object.entries(groups)) {
       sampledGroups[key] = this.sample(group, pointsPerGroup);
     }
-    
+
     return Object.values(sampledGroups).flat();
   }
-  
+
   static groupBy(data, key) {
     return data.reduce((groups, item) => {
       const group = item[key];
@@ -704,19 +704,19 @@ class VirtualizedTable {
     this.scrollTop = 0;
     this.data = [];
   }
-  
+
   setData(data) {
     this.data = data;
     this.render();
   }
-  
+
   render() {
     const startIndex = Math.floor(this.scrollTop / this.rowHeight);
     const endIndex = Math.min(startIndex + this.visibleRows, this.data.length);
-    
+
     const visibleData = this.data.slice(startIndex, endIndex);
     const totalHeight = this.data.length * this.rowHeight;
-    
+
     this.container.innerHTML = `
       <div style="height: ${totalHeight}px; position: relative;">
         <div style="transform: translateY(${startIndex * this.rowHeight}px);">
@@ -724,10 +724,10 @@ class VirtualizedTable {
         </div>
       </div>
     `;
-    
+
     this.bindScrollEvents();
   }
-  
+
   renderRow(rowData) {
     return `
       <div class="table-row" style="height: ${this.rowHeight}px;">
@@ -735,7 +735,7 @@ class VirtualizedTable {
       </div>
     `;
   }
-  
+
   bindScrollEvents() {
     this.container.addEventListener('scroll', (e) => {
       this.scrollTop = e.target.scrollTop;
@@ -758,39 +758,39 @@ class ComponentManager {
     this.activeComponents = new Map();
     this.componentPool = new Map();
   }
-  
+
   createComponent(type, id, options) {
     // Check if component can be reused from pool
     const pooled = this.componentPool.get(type)?.pop();
-    
+
     if (pooled) {
       pooled.reset(options);
       this.activeComponents.set(id, pooled);
       return pooled;
     }
-    
+
     // Create new component
     const component = new ComponentTypes[type](options);
     this.activeComponents.set(id, component);
     return component;
   }
-  
+
   destroyComponent(id) {
     const component = this.activeComponents.get(id);
     if (component) {
       component.cleanup();
-      
+
       // Return to pool for reuse
       const type = component.constructor.name;
       if (!this.componentPool.has(type)) {
         this.componentPool.set(type, []);
       }
       this.componentPool.get(type).push(component);
-      
+
       this.activeComponents.delete(id);
     }
   }
-  
+
   cleanup() {
     // Clean up all components on page unload
     for (const component of this.activeComponents.values()) {
@@ -811,36 +811,36 @@ class MemoryMonitor {
       critical: 0.9   // 90% of heap limit
     };
   }
-  
+
   checkMemoryUsage() {
     if (!performance.memory) return null;
-    
+
     const used = performance.memory.usedJSHeapSize;
     const limit = performance.memory.jsHeapSizeLimit;
     const ratio = used / limit;
-    
+
     if (ratio > this.thresholds.critical) {
       this.handleCriticalMemory();
     } else if (ratio > this.thresholds.warning) {
       this.handleWarningMemory();
     }
-    
+
     return { used, limit, ratio };
   }
-  
+
   handleWarningMemory() {
     // Trigger garbage collection hints
     this.requestIdleGarbageCollection();
-    
+
     // Clean up old visualization instances
     this.cleanupOldVisualizations();
   }
-  
+
   handleCriticalMemory() {
     // Aggressive cleanup
     this.clearNonEssentialCaches();
     this.destroyInactiveComponents();
-    
+
     // Notify user
     this.showMemoryWarning();
   }
@@ -858,40 +858,40 @@ class RequestBatcher {
     this.pending = [];
     this.timer = null;
   }
-  
+
   add(request) {
     this.pending.push(request);
-    
+
     if (this.pending.length >= this.batchSize) {
       this.flush();
     } else {
       this.scheduleFlush();
     }
   }
-  
+
   scheduleFlush() {
     if (this.timer) return;
-    
+
     this.timer = setTimeout(() => {
       this.flush();
     }, this.flushInterval);
   }
-  
+
   async flush() {
     if (this.pending.length === 0) return;
-    
+
     clearTimeout(this.timer);
     this.timer = null;
-    
+
     const batch = this.pending.splice(0);
-    
+
     try {
       const response = await fetch('/api/batch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ requests: batch })
       });
-      
+
       const results = await response.json();
       this.processBatchResults(batch, results);
     } catch (error) {
@@ -914,7 +914,7 @@ class OfflineEncryption {
     this.algorithm = 'AES-GCM';
     this.keyLength = 256;
   }
-  
+
   async generateKey() {
     return await crypto.subtle.generateKey(
       { name: this.algorithm, length: this.keyLength },
@@ -922,33 +922,33 @@ class OfflineEncryption {
       ['encrypt', 'decrypt']
     );
   }
-  
+
   async encrypt(data, key) {
     const encoder = new TextEncoder();
     const encodedData = encoder.encode(JSON.stringify(data));
-    
+
     const iv = crypto.getRandomValues(new Uint8Array(12));
     const encrypted = await crypto.subtle.encrypt(
       { name: this.algorithm, iv },
       key,
       encodedData
     );
-    
+
     return {
       encrypted: Array.from(new Uint8Array(encrypted)),
       iv: Array.from(iv)
     };
   }
-  
+
   async decrypt(encryptedData, key) {
     const { encrypted, iv } = encryptedData;
-    
+
     const decrypted = await crypto.subtle.decrypt(
       { name: this.algorithm, iv: new Uint8Array(iv) },
       key,
       new Uint8Array(encrypted)
     );
-    
+
     const decoder = new TextDecoder();
     return JSON.parse(decoder.decode(decrypted));
   }
@@ -964,31 +964,31 @@ class SecureStorage {
     this.encryption = new OfflineEncryption();
     this.keyStore = new Map();
   }
-  
+
   async storeSecure(key, data, classification = 'sensitive') {
     const encryptionKey = await this.getOrCreateKey(classification);
     const encrypted = await this.encryption.encrypt(data, encryptionKey);
-    
+
     await this.store(key, {
       data: encrypted,
       classification,
       timestamp: Date.now()
     });
   }
-  
+
   async retrieveSecure(key) {
     const stored = await this.retrieve(key);
     if (!stored) return null;
-    
+
     const encryptionKey = await this.getOrCreateKey(stored.classification);
     return await this.encryption.decrypt(stored.data, encryptionKey);
   }
-  
+
   async getOrCreateKey(classification) {
     if (this.keyStore.has(classification)) {
       return this.keyStore.get(classification);
     }
-    
+
     const key = await this.encryption.generateKey();
     this.keyStore.set(classification, key);
     return key;
@@ -1010,10 +1010,10 @@ class PWAComponent {
     this.options = { ...this.defaultOptions, ...options };
     this.state = this.initialState;
     this.isInitialized = false;
-    
+
     this.init();
   }
-  
+
   get defaultOptions() {
     return {
       autoRender: true,
@@ -1021,7 +1021,7 @@ class PWAComponent {
       enableOffline: true
     };
   }
-  
+
   get initialState() {
     return {
       loading: false,
@@ -1029,26 +1029,26 @@ class PWAComponent {
       data: null
     };
   }
-  
+
   async init() {
     try {
       await this.setupEventListeners();
       await this.loadInitialData();
-      
+
       if (this.options.autoRender) {
         await this.render();
       }
-      
+
       this.isInitialized = true;
       this.emit('initialized');
     } catch (error) {
       this.handleError(error);
     }
   }
-  
+
   async loadInitialData() {
     this.setState({ loading: true });
-    
+
     try {
       const data = await this.fetchData();
       this.setState({ data, loading: false });
@@ -1057,27 +1057,27 @@ class PWAComponent {
       throw error;
     }
   }
-  
+
   async fetchData() {
     // Try offline first if enabled
     if (this.options.enableOffline) {
       const cachedData = await this.getCachedData();
       if (cachedData) return cachedData;
     }
-    
+
     // Fetch from server
     return await this.fetchFromServer();
   }
-  
+
   setState(newState) {
     this.state = { ...this.state, ...newState };
     this.emit('stateChange', this.state);
   }
-  
+
   emit(event, data) {
     this.container.dispatchEvent(new CustomEvent(event, { detail: data }));
   }
-  
+
   cleanup() {
     this.removeEventListeners();
     this.clearCache();
@@ -1092,15 +1092,15 @@ class PWAComponent {
 ```javascript
 describe('PWA Functionality', () => {
   let pwaManager;
-  
+
   beforeEach(() => {
     pwaManager = new PWAManager();
   });
-  
+
   afterEach(() => {
     pwaManager.cleanup();
   });
-  
+
   describe('Offline Capabilities', () => {
     it('should work without network connection', async () => {
       // Simulate offline
@@ -1108,41 +1108,41 @@ describe('PWA Functionality', () => {
         writable: true,
         value: false
       });
-      
+
       const detector = new OfflineDetector();
       const result = await detector.detectAnomalies('cached_dataset', 'zscore');
-      
+
       expect(result).toBeDefined();
       expect(result.isOffline).toBe(true);
     });
-    
+
     it('should cache data for offline use', async () => {
       const dataset = { id: 'test', data: [1, 2, 3, 4, 5] };
       await pwaManager.saveDataOffline('dataset', dataset);
-      
+
       const cached = await pwaManager.getCachedData('dataset', 'test');
       expect(cached).toEqual(dataset);
     });
   });
-  
+
   describe('Synchronization', () => {
     it('should queue operations when offline', async () => {
       const syncManager = new SyncManager();
-      
+
       // Simulate offline
       Object.defineProperty(navigator, 'onLine', {
         writable: true,
         value: false
       });
-      
+
       const syncId = await syncManager.queueForSync('create', {
         entityType: 'dataset',
         entityId: 'test',
         payload: { name: 'Test Dataset' }
       });
-      
+
       expect(syncId).toBeDefined();
-      
+
       const status = syncManager.getSyncStatus();
       expect(status.pending).toBe(1);
     });
@@ -1159,14 +1159,14 @@ class PWAPerformanceMonitor {
     this.metrics = new Map();
     this.observers = new Map();
   }
-  
+
   startMonitoring() {
     this.monitorServiceWorker();
     this.monitorCachePerformance();
     this.monitorOfflineOperations();
     this.monitorMemoryUsage();
   }
-  
+
   monitorServiceWorker() {
     const observer = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
@@ -1175,25 +1175,25 @@ class PWAPerformanceMonitor {
         }
       }
     });
-    
+
     observer.observe({ entryTypes: ['navigation', 'resource'] });
     this.observers.set('service_worker', observer);
   }
-  
+
   monitorCachePerformance() {
     const originalFetch = window.fetch;
     window.fetch = async (...args) => {
       const start = performance.now();
       const response = await originalFetch(...args);
       const duration = performance.now() - start;
-      
+
       const fromCache = response.headers.get('cache-control')?.includes('from-cache');
       this.recordMetric(fromCache ? 'cache_hit' : 'cache_miss', duration);
-      
+
       return response;
     };
   }
-  
+
   recordMetric(name, value) {
     if (!this.metrics.has(name)) {
       this.metrics.set(name, []);
@@ -1203,7 +1203,7 @@ class PWAPerformanceMonitor {
       timestamp: Date.now()
     });
   }
-  
+
   getMetrics() {
     const summary = {};
     for (const [name, values] of this.metrics.entries()) {
@@ -1218,7 +1218,7 @@ class PWAPerformanceMonitor {
     }
     return summary;
   }
-  
+
   percentile(arr, p) {
     const sorted = arr.sort((a, b) => a - b);
     const index = Math.ceil(sorted.length * p) - 1;

@@ -43,9 +43,9 @@ This guide provides comprehensive performance optimization strategies for the Py
 <picture>
   <source type="image/avif" srcset="chart.avif">
   <source type="image/webp" srcset="chart.webp">
-  <img src="chart.jpg" 
+  <img src="chart.jpg"
        alt="Anomaly detection chart showing 15 anomalies over 24 hours"
-       width="800" 
+       width="800"
        height="400"
        loading="lazy"
        decoding="async">
@@ -105,20 +105,20 @@ function processLargeDataset(data) {
   return new Promise((resolve) => {
     const chunks = chunkArray(data, 100);
     let results = [];
-    
+
     function processChunk(index = 0) {
       if (index >= chunks.length) {
         resolve(results);
         return;
       }
-      
+
       // Process chunk
       results.push(...processDataChunk(chunks[index]));
-      
+
       // Yield to browser
       setTimeout(() => processChunk(index + 1), 0);
     }
-    
+
     processChunk();
   });
 }
@@ -128,7 +128,7 @@ class AnomalyDetectionWorker {
   constructor() {
     this.worker = new Worker('/js/anomaly-worker.js');
   }
-  
+
   async detectAnomalies(data) {
     return new Promise((resolve, reject) => {
       this.worker.postMessage({ type: 'DETECT_ANOMALIES', data });
@@ -150,17 +150,17 @@ class DashboardManager {
     this.container = document.getElementById('dashboard');
     this.bindEvents();
   }
-  
+
   bindEvents() {
     // Single event listener for all chart interactions
     this.container.addEventListener('click', this.handleClick.bind(this));
     this.container.addEventListener('keydown', this.handleKeyDown.bind(this));
   }
-  
+
   handleClick(event) {
     const target = event.target.closest('[data-action]');
     if (!target) return;
-    
+
     const action = target.dataset.action;
     switch (action) {
       case 'toggle-chart':
@@ -182,12 +182,12 @@ const dashboardFeatures = {
     const { AdvancedCharts } = await import('./advanced-charts.js');
     return AdvancedCharts;
   },
-  
+
   async loadDataExport() {
     const { DataExport } = await import('./data-export.js');
     return DataExport;
   },
-  
+
   async loadAnomalyAnalysis() {
     const { AnomalyAnalysis } = await import('./anomaly-analysis.js');
     return AnomalyAnalysis;
@@ -437,26 +437,26 @@ class VirtualDataTable {
     this.itemHeight = itemHeight;
     this.visibleCount = Math.ceil(container.clientHeight / itemHeight);
     this.startIndex = 0;
-    
+
     this.render();
     this.bindEvents();
   }
-  
+
   render() {
     const visibleData = this.data.slice(
-      this.startIndex, 
+      this.startIndex,
       this.startIndex + this.visibleCount + 5 // Buffer
     );
-    
+
     this.container.innerHTML = visibleData
       .map((item, index) => this.renderRow(item, this.startIndex + index))
       .join('');
   }
-  
+
   handleScroll() {
     const scrollTop = this.container.scrollTop;
     const newStartIndex = Math.floor(scrollTop / this.itemHeight);
-    
+
     if (newStartIndex !== this.startIndex) {
       this.startIndex = newStartIndex;
       this.render();
@@ -473,36 +473,36 @@ class AnomalyDataProcessor {
     this.dataMap = new Map(); // Faster lookups than objects
     this.anomalySet = new Set(); // Faster existence checks
   }
-  
+
   processData(data) {
     // Batch DOM updates
     const fragment = document.createDocumentFragment();
-    
+
     data.forEach(item => {
       const element = this.createDataElement(item);
       fragment.appendChild(element);
     });
-    
+
     // Single DOM update
     this.container.appendChild(fragment);
   }
-  
+
   // Use requestAnimationFrame for smooth animations
   animateChart(targetValues) {
     const startTime = performance.now();
     const duration = 300;
-    
+
     const animate = (currentTime) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      
+
       this.updateChartValues(this.interpolateValues(progress));
-      
+
       if (progress < 1) {
         requestAnimationFrame(animate);
       }
     };
-    
+
     requestAnimationFrame(animate);
   }
 }
@@ -516,42 +516,42 @@ class ComponentManager {
     this.eventListeners = new WeakMap();
     this.observers = new Set();
   }
-  
+
   createComponent(type, element, options) {
     const component = new type(element, options);
     this.components.set(element, component);
-    
+
     // Track event listeners for cleanup
     const listeners = [];
     this.eventListeners.set(component, listeners);
-    
+
     return component;
   }
-  
+
   destroyComponent(element) {
     const component = this.components.get(element);
     if (!component) return;
-    
+
     // Clean up event listeners
     const listeners = this.eventListeners.get(component);
     listeners?.forEach(({ element, event, handler }) => {
       element.removeEventListener(event, handler);
     });
-    
+
     // Clean up component
     component.destroy?.();
     this.components.delete(element);
   }
-  
+
   // Use Intersection Observer for efficient visibility detection
   observeVisibility(element, callback) {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => callback(entry.isIntersecting));
     }, { threshold: 0.1 });
-    
+
     observer.observe(element);
     this.observers.add(observer);
-    
+
     return observer;
   }
 }
@@ -568,7 +568,7 @@ class ChartRenderer {
     if (dataPoints < 1000) {
       return new SVGChartRenderer();
     }
-    
+
     // Canvas for complex charts with many data points
     return new CanvasChartRenderer();
   }
@@ -579,18 +579,18 @@ class CanvasChartRenderer {
   render(data) {
     const canvas = this.canvas;
     const ctx = canvas.getContext('2d');
-    
+
     // Use OffscreenCanvas for heavy computation
     const offscreen = new OffscreenCanvas(canvas.width, canvas.height);
     const offscreenCtx = offscreen.getContext('2d');
-    
+
     // Render to offscreen canvas
     this.renderToContext(offscreenCtx, data);
-    
+
     // Copy to main canvas
     ctx.drawImage(offscreen, 0, 0);
   }
-  
+
   // Implement data decimation for zoom levels
   decimateData(data, zoomLevel) {
     if (zoomLevel < 0.5) {
@@ -609,34 +609,34 @@ class ProgressiveDataLoader {
     this.endpoint = endpoint;
     this.cache = new Map();
   }
-  
+
   async loadData(timeRange, resolution = 'hour') {
     const cacheKey = `${timeRange.start}-${timeRange.end}-${resolution}`;
-    
+
     if (this.cache.has(cacheKey)) {
       return this.cache.get(cacheKey);
     }
-    
+
     // Load data progressively
     const data = await this.fetchDataInChunks(timeRange, resolution);
     this.cache.set(cacheKey, data);
-    
+
     return data;
   }
-  
+
   async fetchDataInChunks(timeRange, resolution) {
     const chunkSize = this.getOptimalChunkSize(timeRange, resolution);
     const chunks = this.createTimeChunks(timeRange, chunkSize);
-    
+
     const results = [];
     for (const chunk of chunks) {
       const data = await this.fetchChunk(chunk, resolution);
       results.push(...data);
-      
+
       // Yield to browser between chunks
       await new Promise(resolve => setTimeout(resolve, 0));
     }
-    
+
     return results;
   }
 }
@@ -672,19 +672,19 @@ self.addEventListener('fetch', (event) => {
         if (response) {
           return response;
         }
-        
+
         // Cache miss - fetch from network
         return fetch(event.request).then(response => {
           // Don't cache non-successful responses
           if (!response || response.status !== 200) {
             return response;
           }
-          
+
           // Clone response for cache
           const responseToCache = response.clone();
           caches.open(CACHE_NAME)
             .then(cache => cache.put(event.request, responseToCache));
-          
+
           return response;
         });
       })
@@ -725,31 +725,31 @@ class DataCache {
     this.maxSize = maxSize;
     this.ttl = ttl;
   }
-  
+
   get(key) {
     const item = this.cache.get(key);
     if (!item) return null;
-    
+
     // Check if expired
     if (Date.now() > item.expiry) {
       this.cache.delete(key);
       return null;
     }
-    
+
     // Move to end (LRU)
     this.cache.delete(key);
     this.cache.set(key, item);
-    
+
     return item.value;
   }
-  
+
   set(key, value) {
     // Remove oldest if at capacity
     if (this.cache.size >= this.maxSize) {
       const firstKey = this.cache.keys().next().value;
       this.cache.delete(firstKey);
     }
-    
+
     this.cache.set(key, {
       value,
       expiry: Date.now() + this.ttl
@@ -766,20 +766,20 @@ class IndexedDBCache {
     this.version = version;
     this.db = null;
   }
-  
+
   async init() {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.dbName, this.version);
-      
+
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
         this.db = request.result;
         resolve();
       };
-      
+
       request.onupgradeneeded = (event) => {
         const db = event.target.result;
-        
+
         // Create object stores
         if (!db.objectStoreNames.contains('datasets')) {
           const store = db.createObjectStore('datasets', { keyPath: 'id' });
@@ -788,22 +788,22 @@ class IndexedDBCache {
       };
     });
   }
-  
+
   async storeDataset(id, data) {
     const transaction = this.db.transaction(['datasets'], 'readwrite');
     const store = transaction.objectStore('datasets');
-    
+
     await store.put({
       id,
       data,
       timestamp: Date.now()
     });
   }
-  
+
   async getDataset(id) {
     const transaction = this.db.transaction(['datasets'], 'readonly');
     const store = transaction.objectStore('datasets');
-    
+
     return new Promise((resolve, reject) => {
       const request = store.get(id);
       request.onsuccess = () => resolve(request.result?.data);
@@ -850,43 +850,43 @@ class PerformanceTracker {
   constructor() {
     this.metrics = new Map();
   }
-  
+
   startTiming(name) {
     this.metrics.set(name, performance.now());
   }
-  
+
   endTiming(name) {
     const startTime = this.metrics.get(name);
     if (!startTime) return;
-    
+
     const duration = performance.now() - startTime;
     this.metrics.delete(name);
-    
+
     // Send to analytics
     this.sendMetric({
       name: `custom.${name}`,
       value: duration,
       timestamp: Date.now()
     });
-    
+
     return duration;
   }
-  
+
   // Track chart rendering performance
   trackChartRender(chartType, dataPoints) {
     this.startTiming(`chart.${chartType}.render`);
-    
+
     return {
       end: () => {
         const duration = this.endTiming(`chart.${chartType}.render`);
-        
+
         // Additional context
         this.sendMetric({
           name: `chart.${chartType}.dataPoints`,
           value: dataPoints,
           timestamp: Date.now()
         });
-        
+
         return duration;
       }
     };
@@ -936,12 +936,12 @@ module.exports = {
         'categories:accessibility': ['error', { minScore: 1.0 }],
         'categories:best-practices': ['error', { minScore: 0.9 }],
         'categories:seo': ['error', { minScore: 0.8 }],
-        
+
         // Core Web Vitals
         'first-contentful-paint': ['error', { maxNumericValue: 2000 }],
         'largest-contentful-paint': ['error', { maxNumericValue: 2500 }],
         'cumulative-layout-shift': ['error', { maxNumericValue: 0.1 }],
-        
+
         // Custom audits
         'unused-javascript': ['warn', { maxNumericValue: 20000 }],
         'total-byte-weight': ['error', { maxNumericValue: 1000000 }]

@@ -73,14 +73,14 @@ config = CacheConfig(
     # Multi-level caching
     enable_l1_memory=True,
     enable_l2_redis=True,
-    
+
     # Memory optimization
     l1_max_size_mb=512,
     l1_max_entries=10000,
-    
+
     # Compression
     compression_algorithm="lz4",  # Fast compression
-    
+
     # TTL settings
     default_ttl_seconds=3600,  # 1 hour
 )

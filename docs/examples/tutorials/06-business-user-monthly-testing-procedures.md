@@ -85,14 +85,14 @@ data_sources:
     frequency: "daily"
     critical_level: "high"
     owner: "finance_team"
-    
+
   - name: "product_catalog"
     type: "file"
     location: "/data/products/catalog.csv"
     frequency: "weekly"
     critical_level: "medium"
     owner: "product_team"
-    
+
   - name: "web_analytics"
     type: "api"
     location: "analytics_api/events"
@@ -109,18 +109,18 @@ data_sources:
 testing_profile:
   name: "Monthly Data Quality Check"
   description: "Comprehensive monthly data validation"
-  
+
   data_quality_thresholds:
     completeness_minimum: 0.95
     accuracy_minimum: 0.98
     timeliness_maximum_delay_hours: 24
     consistency_score_minimum: 0.90
-    
+
   anomaly_detection:
     sensitivity_level: "medium"
     contamination_rate: 0.02
     confidence_threshold: 0.8
-    
+
   reporting:
     format: ["html", "pdf", "excel"]
     distribution_list: ["data_team@company.com", "management@company.com"]
@@ -145,7 +145,7 @@ baseline_metrics = {
     },
     "processing_times": {
         "customer_transactions": "45 minutes",
-        "product_catalog": "12 minutes", 
+        "product_catalog": "12 minutes",
         "web_analytics": "2 hours"
     }
 }
@@ -365,7 +365,7 @@ action_plan:
       due_date: "2024-07-15"
       estimated_effort: "2 weeks"
       business_impact: "high"
-      
+
     - action: "Investigate anomaly pattern in web_analytics"
       owner: "analytics_team"
       due_date: "2024-07-10"
@@ -376,7 +376,7 @@ action_plan:
     - adjustment: "Increase sensitivity for customer_transactions"
       rationale: "Missing subtle but important patterns"
       implementation_date: "2024-07-01"
-      
+
     - adjustment: "Add new data quality rule for product_catalog"
       rationale: "New business requirement"
       implementation_date: "2024-07-05"
@@ -396,9 +396,9 @@ action_plan:
 # Completeness testing procedure
 def assess_data_completeness(dataset_path: str) -> CompletenessReport:
     """Assess data completeness across all critical fields."""
-    
+
     completeness_checker = pynomaly.quality.CompletenessChecker()
-    
+
     # Define critical fields by data source
     critical_fields = {
         'customer_transactions': [
@@ -411,18 +411,18 @@ def assess_data_completeness(dataset_path: str) -> CompletenessReport:
             'session_id', 'user_id', 'page_url', 'timestamp'
         ]
     }
-    
+
     # Check completeness for each field
     completeness_results = {}
     for source, fields in critical_fields.items():
         source_data = load_data(dataset_path, source)
-        
+
         for field in fields:
             completeness_rate = completeness_checker.calculate_completeness(
                 source_data, field
             )
             completeness_results[f"{source}.{field}"] = completeness_rate
-    
+
     return CompletenessReport(
         overall_score=calculate_weighted_average(completeness_results),
         field_scores=completeness_results,
@@ -435,9 +435,9 @@ def assess_data_completeness(dataset_path: str) -> CompletenessReport:
 # Accuracy testing procedure
 def assess_data_accuracy(dataset_path: str) -> AccuracyReport:
     """Assess data accuracy using business rules and validation checks."""
-    
+
     accuracy_checker = pynomaly.quality.AccuracyChecker()
-    
+
     # Define business rules for validation
     business_rules = {
         'customer_transactions': [
@@ -451,18 +451,18 @@ def assess_data_accuracy(dataset_path: str) -> AccuracyReport:
             {'field': 'product_id', 'rule': 'unique_values'}
         ]
     }
-    
+
     # Run accuracy checks
     accuracy_results = {}
     for source, rules in business_rules.items():
         source_data = load_data(dataset_path, source)
-        
+
         for rule in rules:
             accuracy_score = accuracy_checker.validate_rule(
                 source_data, rule['field'], rule['rule']
             )
             accuracy_results[f"{source}.{rule['field']}.{rule['rule']}"] = accuracy_score
-    
+
     return AccuracyReport(
         overall_score=calculate_weighted_average(accuracy_results),
         rule_scores=accuracy_results,
@@ -475,9 +475,9 @@ def assess_data_accuracy(dataset_path: str) -> AccuracyReport:
 # Timeliness testing procedure
 def assess_data_timeliness(dataset_path: str) -> TimelinessReport:
     """Assess data timeliness and freshness."""
-    
+
     timeliness_checker = pynomaly.quality.TimelinessChecker()
-    
+
     # Define timeliness requirements
     timeliness_requirements = {
         'customer_transactions': {
@@ -493,28 +493,28 @@ def assess_data_timeliness(dataset_path: str) -> TimelinessReport:
             'expected_frequency': 'real_time'
         }
     }
-    
+
     # Check timeliness for each source
     timeliness_results = {}
     for source, requirements in timeliness_requirements.items():
         source_data = load_data(dataset_path, source)
-        
+
         # Calculate data freshness
         freshness_score = timeliness_checker.calculate_freshness(
             source_data, requirements['max_delay_hours']
         )
-        
+
         # Check update frequency
         frequency_score = timeliness_checker.validate_frequency(
             source_data, requirements['expected_frequency']
         )
-        
+
         timeliness_results[source] = {
             'freshness': freshness_score,
             'frequency': frequency_score,
             'overall': (freshness_score + frequency_score) / 2
         }
-    
+
     return TimelinessReport(
         source_scores=timeliness_results,
         overall_score=calculate_overall_timeliness(timeliness_results)
@@ -531,14 +531,14 @@ def generate_monthly_quality_scorecard(
     timeliness_report: TimelinessReport
 ) -> QualityScorecard:
     """Generate comprehensive monthly quality scorecard."""
-    
+
     scorecard = QualityScorecard()
-    
+
     # Calculate dimension scores
     scorecard.completeness_score = completeness_report.overall_score
     scorecard.accuracy_score = accuracy_report.overall_score
     scorecard.timeliness_score = timeliness_report.overall_score
-    
+
     # Calculate overall quality score (weighted average)
     weights = {'completeness': 0.3, 'accuracy': 0.5, 'timeliness': 0.2}
     scorecard.overall_score = (
@@ -546,15 +546,15 @@ def generate_monthly_quality_scorecard(
         scorecard.accuracy_score * weights['accuracy'] +
         scorecard.timeliness_score * weights['timeliness']
     )
-    
+
     # Determine quality grade
     scorecard.quality_grade = assign_quality_grade(scorecard.overall_score)
-    
+
     # Identify improvement areas
     scorecard.improvement_areas = identify_improvement_areas(
         completeness_report, accuracy_report, timeliness_report
     )
-    
+
     return scorecard
 ```
 
@@ -567,29 +567,29 @@ def generate_monthly_quality_scorecard(
 # Automated anomaly detection workflow
 def run_monthly_anomaly_detection(data_path: str) -> AnomalyDetectionResults:
     """Run comprehensive anomaly detection for monthly testing."""
-    
+
     # Initialize autonomous detector
     detector = pynomaly.AutonomousDetector(
         config_file='monthly_testing_config.yml'
     )
-    
+
     # Load and prepare data
     datasets = load_monthly_datasets(data_path)
-    
+
     detection_results = {}
-    
+
     for dataset_name, dataset in datasets.items():
         print(f"Processing {dataset_name}...")
-        
+
         # Run autonomous detection
         result = detector.fit_predict(
             dataset.data,
             dataset_name=dataset_name,
             business_context=dataset.business_context
         )
-        
+
         detection_results[dataset_name] = result
-    
+
     return AnomalyDetectionResults(
         results=detection_results,
         summary=generate_detection_summary(detection_results),
@@ -604,9 +604,9 @@ def prioritize_anomalies(
     detection_results: AnomalyDetectionResults
 ) -> PrioritizedAnomalies:
     """Prioritize anomalies based on business impact and confidence."""
-    
+
     prioritizer = pynomaly.anomaly.AnomalyPrioritizer()
-    
+
     # Define business impact criteria
     impact_criteria = {
         'revenue_impact': 0.4,
@@ -614,20 +614,20 @@ def prioritize_anomalies(
         'compliance_risk': 0.2,
         'operational_impact': 0.1
     }
-    
+
     prioritized_anomalies = []
-    
+
     for dataset_name, results in detection_results.results.items():
         for anomaly in results.anomalies:
-            
+
             # Calculate business impact score
             impact_score = prioritizer.calculate_business_impact(
                 anomaly, impact_criteria
             )
-            
+
             # Calculate priority score (impact × confidence)
             priority_score = impact_score * anomaly.confidence
-            
+
             prioritized_anomalies.append(PrioritizedAnomaly(
                 anomaly=anomaly,
                 dataset=dataset_name,
@@ -637,10 +637,10 @@ def prioritize_anomalies(
                     anomaly, impact_score
                 )
             ))
-    
+
     # Sort by priority score
     prioritized_anomalies.sort(key=lambda x: x.priority_score, reverse=True)
-    
+
     return PrioritizedAnomalies(
         high_priority=prioritized_anomalies[:10],
         medium_priority=prioritized_anomalies[10:25],
@@ -656,15 +656,15 @@ def conduct_manual_anomaly_review(
     prioritized_anomalies: PrioritizedAnomalies
 ) -> ManualReviewResults:
     """Conduct manual review of high-priority anomalies."""
-    
+
     review_results = ManualReviewResults()
-    
+
     # Review high-priority anomalies
     for anomaly in prioritized_anomalies.high_priority:
-        
+
         # Generate review package
         review_package = generate_anomaly_review_package(anomaly)
-        
+
         # Manual review checklist
         review_checklist = {
             'business_context_check': None,
@@ -674,14 +674,14 @@ def conduct_manual_anomaly_review(
             'impact_confirmation': None,
             'action_recommendation': None
         }
-        
+
         # Present for manual review (this would be interactive)
         manual_assessment = present_for_manual_review(
             anomaly, review_package, review_checklist
         )
-        
+
         review_results.add_review(anomaly.id, manual_assessment)
-    
+
     return review_results
 ```
 
@@ -695,29 +695,29 @@ def analyze_anomaly_patterns(
     historical_results: List[AnomalyDetectionResults]
 ) -> PatternAnalysisResults:
     """Analyze patterns in detected anomalies."""
-    
+
     pattern_analyzer = pynomaly.analytics.PatternAnalyzer()
-    
+
     # Combine current and historical anomalies
     all_anomalies = combine_anomaly_results(
         [detection_results] + historical_results
     )
-    
+
     # Detect recurring patterns
     recurring_patterns = pattern_analyzer.detect_recurring_patterns(
         all_anomalies, min_frequency=3
     )
-    
+
     # Analyze seasonal patterns
     seasonal_patterns = pattern_analyzer.detect_seasonal_patterns(
         all_anomalies, seasonality_types=['weekly', 'monthly', 'quarterly']
     )
-    
+
     # Identify evolving patterns
     evolving_patterns = pattern_analyzer.detect_evolving_patterns(
         all_anomalies, time_window='6_months'
     )
-    
+
     return PatternAnalysisResults(
         recurring_patterns=recurring_patterns,
         seasonal_patterns=seasonal_patterns,
@@ -736,31 +736,31 @@ def investigate_anomaly_root_causes(
     data_sources: Dict[str, Any]
 ) -> RootCauseInvestigation:
     """Investigate root causes of high-priority anomalies."""
-    
+
     investigator = pynomaly.investigation.RootCauseInvestigator()
-    
+
     investigation_results = {}
-    
+
     for anomaly in high_priority_anomalies:
-        
+
         # Gather investigation context
         context = gather_investigation_context(anomaly, data_sources)
-        
+
         # Run automated root cause analysis
         automated_analysis = investigator.automated_analysis(
             anomaly, context
         )
-        
+
         # Run correlation analysis
         correlation_analysis = investigator.correlation_analysis(
             anomaly, context, correlation_window='7_days'
         )
-        
+
         # Check for known issues
         known_issues = investigator.check_known_issues(
             anomaly, issue_database='known_issues.db'
         )
-        
+
         investigation_results[anomaly.id] = InvestigationResult(
             automated_findings=automated_analysis,
             correlations=correlation_analysis,
@@ -769,7 +769,7 @@ def investigate_anomaly_root_causes(
                 automated_analysis, correlation_analysis, known_issues
             )
         )
-    
+
     return RootCauseInvestigation(
         investigations=investigation_results,
         summary=generate_investigation_summary(investigation_results)
@@ -790,7 +790,7 @@ executive_summary_template = {
         "prepared_by": "Data Quality Team",
         "date": "{{report_date}}"
     },
-    
+
     "key_metrics": {
         "overall_data_quality_score": "{{overall_quality_score}}",
         "data_sources_assessed": "{{total_data_sources}}",
@@ -798,14 +798,14 @@ executive_summary_template = {
         "high_priority_issues": "{{high_priority_count}}",
         "improvement_from_last_month": "{{quality_improvement}}"
     },
-    
+
     "quality_scorecard": {
         "completeness": "{{completeness_score}}",
         "accuracy": "{{accuracy_score}}",
         "timeliness": "{{timeliness_score}}",
         "consistency": "{{consistency_score}}"
     },
-    
+
     "top_findings": [
         {
             "finding": "{{finding_description}}",
@@ -814,13 +814,13 @@ executive_summary_template = {
             "priority": "{{priority_level}}"
         }
     ],
-    
+
     "trend_analysis": {
         "quality_trend": "{{trend_direction}}",
         "anomaly_trend": "{{anomaly_trend}}",
         "key_insights": "{{trend_insights}}"
     },
-    
+
     "recommendations": [
         {
             "recommendation": "{{recommendation_text}}",
@@ -841,7 +841,7 @@ technical_report_template = {
         "validation_methods": "{{validation_approach}}",
         "data_sources": "{{data_source_details}}"
     },
-    
+
     "detailed_findings": {
         "by_data_source": [
             {
@@ -864,13 +864,13 @@ technical_report_template = {
             }
         ]
     },
-    
+
     "technical_analysis": {
         "algorithm_performance": "{{algorithm_performance_metrics}}",
         "false_positive_analysis": "{{false_positive_details}}",
         "model_effectiveness": "{{model_effectiveness_assessment}}"
     },
-    
+
     "implementation_details": {
         "configuration_changes": "{{config_changes}}",
         "performance_optimizations": "{{optimization_details}}",
@@ -890,9 +890,9 @@ def generate_monthly_reports(
     pattern_analysis: PatternAnalysisResults
 ) -> MonthlyReports:
     """Generate comprehensive monthly reports."""
-    
+
     report_generator = pynomaly.reporting.ReportGenerator()
-    
+
     # Generate executive summary
     executive_report = report_generator.generate_executive_summary(
         template=executive_summary_template,
@@ -903,7 +903,7 @@ def generate_monthly_reports(
             'pattern_analysis': pattern_analysis
         }
     )
-    
+
     # Generate technical report
     technical_report = report_generator.generate_technical_report(
         template=technical_report_template,
@@ -914,7 +914,7 @@ def generate_monthly_reports(
             'methodology': testing_methodology
         }
     )
-    
+
     # Generate data source specific reports
     source_reports = {}
     for source in anomaly_results.results.keys():
@@ -923,7 +923,7 @@ def generate_monthly_reports(
             quality_data=quality_results.get_source_data(source),
             anomaly_data=anomaly_results.get_source_data(source)
         )
-    
+
     return MonthlyReports(
         executive_summary=executive_report,
         technical_report=technical_report,
@@ -938,9 +938,9 @@ def generate_monthly_reports(
 # Automated report distribution
 def distribute_monthly_reports(reports: MonthlyReports) -> DistributionResults:
     """Distribute monthly reports to stakeholders."""
-    
+
     distributor = pynomaly.reporting.ReportDistributor()
-    
+
     # Define distribution lists
     distribution_config = {
         'executive_summary': {
@@ -959,27 +959,27 @@ def distribute_monthly_reports(reports: MonthlyReports) -> DistributionResults:
             'delivery_method': 'dashboard_update'
         }
     }
-    
+
     distribution_results = {}
-    
+
     # Distribute executive summary
     distribution_results['executive'] = distributor.distribute(
         report=reports.executive_summary,
         config=distribution_config['executive_summary']
     )
-    
+
     # Distribute technical report
     distribution_results['technical'] = distributor.distribute(
         report=reports.technical_report,
         config=distribution_config['technical_report']
     )
-    
+
     # Update dashboards
     distribution_results['dashboards'] = distributor.update_dashboards(
         reports=reports,
         config=distribution_config['dashboards']
     )
-    
+
     return DistributionResults(distribution_results)
 ```
 
@@ -1001,11 +1001,11 @@ severity_classification = {
         "escalation_level": "Director level",
         "notification_channels": ["email", "phone", "slack_urgent"]
     },
-    
+
     "high": {
         "criteria": [
             "Data quality score < 0.9",
-            "High-confidence anomalies affecting 5-10% of records", 
+            "High-confidence anomalies affecting 5-10% of records",
             "Data delays > 2 hours",
             "Business process impact"
         ],
@@ -1013,7 +1013,7 @@ severity_classification = {
         "escalation_level": "Manager level",
         "notification_channels": ["email", "slack"]
     },
-    
+
     "medium": {
         "criteria": [
             "Data quality score < 0.95",
@@ -1025,7 +1025,7 @@ severity_classification = {
         "escalation_level": "Team lead level",
         "notification_channels": ["email"]
     },
-    
+
     "low": {
         "criteria": [
             "Minor quality issues",
@@ -1049,29 +1049,29 @@ def handle_issue_escalation(
     severity: str
 ) -> EscalationResult:
     """Handle issue escalation based on severity."""
-    
+
     escalation_config = severity_classification[severity]
-    
+
     # Create escalation ticket
     ticket = create_escalation_ticket(
         issue=issue,
         severity=severity,
         config=escalation_config
     )
-    
+
     # Send notifications
     notification_results = send_escalation_notifications(
         issue=issue,
         ticket=ticket,
         channels=escalation_config['notification_channels']
     )
-    
+
     # Track response time
     response_tracker = ResponseTimeTracker(
         ticket_id=ticket.id,
         target_response_time=escalation_config['response_time']
     )
-    
+
     # Log escalation
     escalation_logger.log_escalation(
         issue=issue,
@@ -1079,7 +1079,7 @@ def handle_issue_escalation(
         ticket=ticket,
         timestamp=datetime.utcnow()
     )
-    
+
     return EscalationResult(
         ticket=ticket,
         notifications_sent=notification_results,
@@ -1096,9 +1096,9 @@ def track_issue_resolution(
     resolution_actions: List[ResolutionAction]
 ) -> ResolutionTracking:
     """Track issue resolution progress."""
-    
+
     tracker = IssueResolutionTracker()
-    
+
     for action in resolution_actions:
         # Record action taken
         tracker.record_action(
@@ -1106,13 +1106,13 @@ def track_issue_resolution(
             action=action,
             timestamp=datetime.utcnow()
         )
-        
+
         # Update ticket status
         tracker.update_ticket_status(
             ticket_id=ticket_id,
             status=action.resulting_status
         )
-        
+
         # Check if resolution is complete
         if action.resulting_status == 'resolved':
             # Validate resolution
@@ -1120,17 +1120,17 @@ def track_issue_resolution(
                 ticket_id=ticket_id,
                 resolution_actions=resolution_actions
             )
-            
+
             if validation_result.is_valid:
                 tracker.close_ticket(ticket_id)
-                
+
                 # Update knowledge base
                 update_knowledge_base(
                     issue_type=action.issue_type,
                     resolution=resolution_actions,
                     effectiveness=validation_result.effectiveness_score
                 )
-    
+
     return ResolutionTracking(
         ticket_id=ticket_id,
         resolution_timeline=tracker.get_timeline(ticket_id),
@@ -1152,21 +1152,21 @@ testing_standards = {
         "document_preprocessing_steps": True,
         "maintain_audit_trail": True
     },
-    
+
     "anomaly_detection": {
         "use_multiple_algorithms": True,
         "validate_with_domain_experts": True,
         "document_false_positives": True,
         "maintain_detection_baselines": True
     },
-    
+
     "quality_assessment": {
         "use_consistent_metrics": True,
         "compare_with_historical_data": True,
         "validate_business_rules": True,
         "document_exceptions": True
     },
-    
+
     "reporting": {
         "use_standardized_templates": True,
         "include_methodology_details": True,
@@ -1181,29 +1181,29 @@ testing_standards = {
 # Quality assurance procedures
 def implement_testing_qa(testing_results: TestingResults) -> QAResults:
     """Implement quality assurance for testing procedures."""
-    
+
     qa_checker = QualityAssuranceChecker()
-    
+
     # Validate testing completeness
     completeness_check = qa_checker.validate_testing_completeness(
         testing_results, required_tests=mandatory_test_list
     )
-    
+
     # Check result consistency
     consistency_check = qa_checker.validate_result_consistency(
         testing_results, historical_results=previous_results
     )
-    
+
     # Verify methodology compliance
     methodology_check = qa_checker.validate_methodology_compliance(
         testing_results, standards=testing_standards
     )
-    
+
     # Review documentation quality
     documentation_check = qa_checker.validate_documentation(
         testing_results, documentation_standards=doc_standards
     )
-    
+
     return QAResults(
         completeness=completeness_check,
         consistency=consistency_check,
@@ -1226,29 +1226,29 @@ def implement_continuous_improvement(
     feedback: StakeholderFeedback
 ) -> ImprovementPlan:
     """Implement continuous improvement based on results and feedback."""
-    
+
     improvement_analyzer = ProcessImprovementAnalyzer()
-    
+
     # Analyze testing effectiveness trends
     effectiveness_trends = improvement_analyzer.analyze_effectiveness(
         monthly_results
     )
-    
+
     # Identify recurring issues
     recurring_issues = improvement_analyzer.identify_recurring_issues(
         monthly_results
     )
-    
+
     # Analyze stakeholder feedback
     feedback_analysis = improvement_analyzer.analyze_feedback(
         feedback
     )
-    
+
     # Generate improvement recommendations
     improvements = improvement_analyzer.generate_improvements(
         effectiveness_trends, recurring_issues, feedback_analysis
     )
-    
+
     return ImprovementPlan(
         process_improvements=improvements.process_improvements,
         technology_improvements=improvements.technology_improvements,
@@ -1266,30 +1266,30 @@ def maintain_knowledge_base(
     lessons_learned: List[LessonLearned]
 ) -> KnowledgeBaseUpdate:
     """Maintain and update knowledge base with new insights."""
-    
+
     knowledge_manager = KnowledgeBaseManager()
-    
+
     # Update issue patterns
     knowledge_manager.update_issue_patterns(
         new_issues=testing_results.identified_issues,
         resolutions=resolution_actions
     )
-    
+
     # Update best practices
     knowledge_manager.update_best_practices(
         lessons_learned=lessons_learned,
         effective_procedures=testing_results.effective_procedures
     )
-    
+
     # Update algorithm effectiveness
     knowledge_manager.update_algorithm_effectiveness(
         algorithm_performance=testing_results.algorithm_performance,
         data_characteristics=testing_results.data_characteristics
     )
-    
+
     # Generate knowledge base report
     kb_report = knowledge_manager.generate_knowledge_report()
-    
+
     return KnowledgeBaseUpdate(
         patterns_updated=knowledge_manager.patterns_updated,
         practices_updated=knowledge_manager.practices_updated,
@@ -1321,7 +1321,7 @@ monthly_testing_kpis = {
             "frequency": "monthly"
         }
     },
-    
+
     "process_metrics": {
         "testing_completion_time": {
             "target": "< 5 days",
@@ -1339,7 +1339,7 @@ monthly_testing_kpis = {
             "frequency": "monthly"
         }
     },
-    
+
     "business_metrics": {
         "stakeholder_satisfaction": {
             "target": "> 4.0 out of 5",

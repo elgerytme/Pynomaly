@@ -58,7 +58,7 @@ from pynomaly.application.services.autonomous_service import (
 class AutonomousDetectionService:
     """
     Main service for autonomous anomaly detection.
-    
+
     Orchestrates the entire autonomous detection pipeline:
     1. Data loading and validation
     2. Data profiling and analysis
@@ -66,19 +66,19 @@ class AutonomousDetectionService:
     4. Detection execution
     5. Result aggregation and ranking
     """
-    
+
     async def detect_autonomous(
-        self, 
-        data_source: str, 
+        self,
+        data_source: str,
         config: AutonomousConfig
     ) -> AutonomousDetectionResult:
         """
         Execute complete autonomous detection pipeline.
-        
+
         Args:
             data_source: Path to data file or connection string
             config: Configuration for autonomous detection
-            
+
         Returns:
             Comprehensive detection results with recommendations
         """
@@ -93,7 +93,7 @@ from pynomaly.application.services.autonomous_service import DataProfiler
 
 class DataProfile:
     """Domain entity representing data characteristics."""
-    
+
     n_samples: int
     n_features: int
     numeric_features: int
@@ -108,13 +108,13 @@ class DataProfile:
     statistical_summary: Dict[str, Any]
 
 async def _profile_data(
-    self, 
-    dataset: Dataset, 
+    self,
+    dataset: Dataset,
     config: AutonomousConfig
 ) -> DataProfile:
     """
     Generate comprehensive data profile.
-    
+
     Analyzes:
     - Basic statistics (mean, std, min, max)
     - Data types and distributions
@@ -132,7 +132,7 @@ Intelligently selects optimal algorithms based on data characteristics.
 ```python
 class AlgorithmRecommendation:
     """Domain entity for algorithm recommendations."""
-    
+
     algorithm: str
     confidence: float
     reasoning: str
@@ -143,15 +143,15 @@ class AlgorithmRecommendation:
 
 class AlgorithmRecommender:
     """Service for generating algorithm recommendations."""
-    
+
     async def recommend_algorithms(
-        self, 
-        profile: DataProfile, 
+        self,
+        profile: DataProfile,
         config: AutonomousConfig
     ) -> List[AlgorithmRecommendation]:
         """
         Generate ranked algorithm recommendations.
-        
+
         Considers:
         - Data size and dimensionality
         - Feature types and distributions
@@ -171,32 +171,32 @@ Comprehensive configuration for autonomous detection:
 @dataclass
 class AutonomousConfig:
     """Configuration for autonomous detection."""
-    
+
     # Algorithm Selection
     max_algorithms: int = 3
     preferred_algorithms: Optional[List[str]] = None
     excluded_algorithms: Optional[List[str]] = None
-    
+
     # Performance Settings
     auto_tune_hyperparams: bool = True
     confidence_threshold: float = 0.7
     max_execution_time: Optional[int] = None
-    
+
     # Data Processing
     sample_size: Optional[int] = None
     contamination_override: Optional[float] = None
     feature_selection: bool = True
-    
+
     # Output Options
     save_results: bool = False
     export_results: bool = False
     export_format: str = "json"
     save_models: bool = False
-    
+
     # Monitoring
     verbose: bool = False
     progress_callback: Optional[Callable] = None
-    
+
     # Advanced Options
     ensemble_mode: bool = False
     cross_validation: bool = False
@@ -214,20 +214,20 @@ from pynomaly.shared.protocols import DetectorProtocol
 
 class CustomAlgorithmAdapter(DetectorProtocol):
     """Adapter for custom anomaly detection algorithm."""
-    
+
     def __init__(self, **hyperparams):
         self.hyperparams = hyperparams
         self.model = None
-    
+
     async def fit(self, data: np.ndarray) -> None:
         """Train the algorithm on data."""
         self.model = CustomAlgorithm(**self.hyperparams)
         self.model.fit(data)
-    
+
     async def predict(self, data: np.ndarray) -> np.ndarray:
         """Predict anomaly scores."""
         return self.model.decision_function(data)
-    
+
     def get_hyperparameter_space(self) -> Dict[str, Any]:
         """Define hyperparameter search space."""
         return {
@@ -259,7 +259,7 @@ AlgorithmRegistry.register(
 ```python
 class CustomAlgorithmRecommender:
     """Custom recommendation logic."""
-    
+
     def should_recommend(self, profile: DataProfile) -> bool:
         """Determine if algorithm is suitable for data."""
         return (
@@ -267,7 +267,7 @@ class CustomAlgorithmRecommender:
             profile.complexity_score > 0.5 and
             profile.categorical_features == 0
         )
-    
+
     def get_confidence(self, profile: DataProfile) -> float:
         """Calculate confidence score."""
         base_confidence = 0.7
@@ -287,16 +287,16 @@ from pynomaly.shared.protocols import DataLoaderProtocol
 
 class CustomDataLoader(DataLoaderProtocol):
     """Loader for custom data format."""
-    
+
     def can_load(self, source: str) -> bool:
         """Check if loader can handle the data source."""
         return source.endswith('.custom')
-    
+
     async def load(self, source: str) -> Dataset:
         """Load data from custom format."""
         # Custom loading logic
         data = load_custom_format(source)
-        
+
         return Dataset(
             name=Path(source).name,
             data=data,
@@ -315,27 +315,27 @@ Extend data profiling capabilities:
 ```python
 class CustomDataProfiler:
     """Custom data profiling logic."""
-    
+
     async def profile_domain_specific(
-        self, 
+        self,
         data: pd.DataFrame
     ) -> Dict[str, Any]:
         """Add domain-specific profiling."""
-        
+
         profile = {}
-        
+
         # Time series specific analysis
         if self._is_time_series(data):
             profile.update(self._analyze_temporal_patterns(data))
-        
+
         # Text data analysis
         if self._has_text_data(data):
             profile.update(self._analyze_text_features(data))
-        
+
         # Graph data analysis
         if self._is_graph_data(data):
             profile.update(self._analyze_graph_structure(data))
-        
+
         return profile
 ```
 
@@ -350,46 +350,46 @@ from pynomaly.application.services.autonomous_service import AutonomousDetection
 
 class TestAutonomousDetectionService:
     """Test suite for autonomous detection service."""
-    
+
     @pytest.fixture
     def service(self):
         """Create service instance with mocked dependencies."""
         detector_repo = Mock()
         result_repo = Mock()
         data_loaders = {"csv": Mock()}
-        
+
         return AutonomousDetectionService(
             detector_repository=detector_repo,
             result_repository=result_repo,
             data_loaders=data_loaders
         )
-    
+
     @pytest.mark.asyncio
     async def test_data_profiling(self, service):
         """Test data profiling functionality."""
         # Create test dataset
         dataset = create_test_dataset()
         config = AutonomousConfig()
-        
+
         # Profile data
         profile = await service._profile_data(dataset, config)
-        
+
         # Verify profile
         assert profile.n_samples > 0
         assert profile.n_features > 0
         assert 0 <= profile.complexity_score <= 1
         assert 0 <= profile.recommended_contamination <= 1
-    
+
     @pytest.mark.asyncio
     async def test_algorithm_recommendation(self, service):
         """Test algorithm recommendation engine."""
         # Create test profile
         profile = create_test_profile()
         config = AutonomousConfig(max_algorithms=3)
-        
+
         # Get recommendations
         recommendations = await service._recommend_algorithms(profile, config)
-        
+
         # Verify recommendations
         assert len(recommendations) <= 3
         assert all(0 <= rec.confidence <= 1 for rec in recommendations)
@@ -402,7 +402,7 @@ class TestAutonomousDetectionService:
 @pytest.mark.integration
 class TestAutonomousIntegration:
     """Integration tests for autonomous mode."""
-    
+
     @pytest.mark.asyncio
     async def test_end_to_end_detection(self, temp_csv_file):
         """Test complete autonomous detection pipeline."""
@@ -411,16 +411,16 @@ class TestAutonomousIntegration:
             max_algorithms=2,
             auto_tune_hyperparams=False
         )
-        
+
         # Run autonomous detection
         results = await service.detect_autonomous(str(temp_csv_file), config)
-        
+
         # Verify results
         assert results.success
         assert results.recommendations
         assert results.best_result
         assert results.data_profile
-    
+
     @pytest.mark.parametrize("data_type", ["tabular", "high_dimensional", "mixed"])
     async def test_different_data_types(self, data_type):
         """Test autonomous mode with different data types."""
@@ -445,10 +445,10 @@ def test_profiling_properties(data):
     """Property-based tests for data profiling."""
     if len(data) < 10:  # Skip very small datasets
         return
-    
+
     profiler = DataProfiler()
     profile = profiler.profile(data)
-    
+
     # Properties that should always hold
     assert profile.n_samples == len(data)
     assert profile.n_features == len(data.columns)
@@ -463,21 +463,21 @@ def test_profiling_properties(data):
 ```python
 class MemoryOptimizedProfiler:
     """Memory-efficient data profiling."""
-    
+
     def __init__(self, chunk_size: int = 10000):
         self.chunk_size = chunk_size
-    
+
     async def profile_large_dataset(
-        self, 
+        self,
         dataset: Dataset
     ) -> DataProfile:
         """Profile large datasets using chunking."""
-        
+
         profiles = []
         for chunk in self._chunk_data(dataset.data):
             chunk_profile = await self._profile_chunk(chunk)
             profiles.append(chunk_profile)
-        
+
         return self._aggregate_profiles(profiles)
 ```
 
@@ -489,20 +489,20 @@ from concurrent.futures import ProcessPoolExecutor
 
 class ParallelAutonomousService:
     """Parallel execution for autonomous detection."""
-    
+
     def __init__(self, max_workers: int = None):
         self.executor = ProcessPoolExecutor(max_workers=max_workers)
-    
+
     async def parallel_algorithm_evaluation(
-        self, 
+        self,
         algorithms: List[str],
         dataset: Dataset
     ) -> List[DetectionResult]:
         """Evaluate multiple algorithms in parallel."""
-        
+
         loop = asyncio.get_event_loop()
         tasks = []
-        
+
         for algorithm in algorithms:
             task = loop.run_in_executor(
                 self.executor,
@@ -511,7 +511,7 @@ class ParallelAutonomousService:
                 dataset
             )
             tasks.append(task)
-        
+
         return await asyncio.gather(*tasks)
 ```
 
@@ -523,33 +523,33 @@ import hashlib
 
 class CachedProfiler:
     """Caching for expensive profiling operations."""
-    
+
     @lru_cache(maxsize=100)
     def _cache_key(self, data_hash: str, config: str) -> str:
         """Generate cache key for profiling results."""
         return f"profile_{data_hash}_{config}"
-    
+
     async def profile_with_cache(
-        self, 
-        dataset: Dataset, 
+        self,
+        dataset: Dataset,
         config: AutonomousConfig
     ) -> DataProfile:
         """Profile data with caching."""
-        
+
         # Generate cache key
         data_hash = hashlib.md5(
             dataset.data.to_string().encode()
         ).hexdigest()
-        
+
         cache_key = self._cache_key(data_hash, str(config))
-        
+
         # Check cache
         if cache_key in self.cache:
             return self.cache[cache_key]
-        
+
         # Generate profile
         profile = await self._profile_data(dataset, config)
-        
+
         # Cache result
         self.cache[cache_key] = profile
         return profile
@@ -582,28 +582,28 @@ active_detections = Gauge(
 
 class MonitoredAutonomousService:
     """Autonomous service with monitoring."""
-    
+
     async def detect_autonomous(self, *args, **kwargs):
         """Monitored autonomous detection."""
         active_detections.inc()
         start_time = time.time()
-        
+
         try:
             result = await super().detect_autonomous(*args, **kwargs)
-            
+
             # Record metrics
             for rec in result.recommendations:
                 autonomous_detections.labels(
                     algorithm=rec.algorithm,
                     status='success'
                 ).inc()
-                
+
                 detection_duration.labels(
                     algorithm=rec.algorithm
                 ).observe(time.time() - start_time)
-            
+
             return result
-            
+
         except Exception as e:
             autonomous_detections.labels(
                 algorithm='unknown',
@@ -623,45 +623,45 @@ logger = structlog.get_logger()
 
 class LoggedAutonomousService:
     """Autonomous service with structured logging."""
-    
+
     async def detect_autonomous(
-        self, 
-        data_source: str, 
+        self,
+        data_source: str,
         config: AutonomousConfig
     ) -> AutonomousDetectionResult:
         """Logged autonomous detection."""
-        
+
         log = logger.bind(
             operation="autonomous_detection",
             data_source=data_source,
             config=config.dict()
         )
-        
+
         log.info("Starting autonomous detection")
-        
+
         try:
             # Load data
             log.info("Loading data")
             dataset = await self._auto_load_data(data_source, config)
             log.info("Data loaded", samples=dataset.data.shape[0])
-            
+
             # Profile data
             log.info("Profiling data")
             profile = await self._profile_data(dataset, config)
             log.info("Data profiled", complexity=profile.complexity_score)
-            
+
             # Get recommendations
             log.info("Generating recommendations")
             recommendations = await self._recommend_algorithms(profile, config)
             log.info("Recommendations generated", count=len(recommendations))
-            
+
             # Execute detection
             log.info("Executing detection")
             results = await self._execute_detection(dataset, recommendations, config)
             log.info("Detection completed", best_algorithm=results.best_result.algorithm)
-            
+
             return results
-            
+
         except Exception as e:
             log.error("Detection failed", error=str(e))
             raise
@@ -732,10 +732,10 @@ import cProfile
 def profile_autonomous_detection():
     profiler = cProfile.Profile()
     profiler.enable()
-    
+
     # Run detection
     result = autonomous_service.detect(...)
-    
+
     profiler.disable()
     profiler.dump_stats('autonomous_profile.stats')
 ```

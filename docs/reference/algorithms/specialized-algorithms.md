@@ -159,7 +159,7 @@ Facebook's time series forecasting tool adapted for anomaly detection by identif
 #### Usage Example
 ```python
 detector = await detection_service.create_detector(
-    name="Business Metrics Detector", 
+    name="Business Metrics Detector",
     algorithm="Prophet",
     library="prophet",
     parameters={
@@ -211,7 +211,7 @@ Uses ARIMA models to forecast time series values and identifies anomalies as poi
 detector = await detection_service.create_detector(
     name="ARIMA Anomaly Detector",
     algorithm="ARIMA",
-    library="statsmodels", 
+    library="statsmodels",
     parameters={
         "order": (2, 1, 2),
         "seasonal_order": (1, 1, 1, 12),
@@ -249,7 +249,7 @@ Deep anomaly detection on attributed networks using graph neural network autoenc
 ```python
 detector = await detection_service.create_detector(
     name="Graph Anomaly Detector",
-    algorithm="DOMINANT", 
+    algorithm="DOMINANT",
     library="pygod",
     parameters={
         "hid_dim": 128,
@@ -520,7 +520,7 @@ Combines multiple time series algorithms (LSTM, Prophet, ARIMA) for robust tempo
 ts_ensemble_config = {
     "algorithms": [
         {"name": "LSTM", "weight": 0.4},
-        {"name": "Prophet", "weight": 0.3}, 
+        {"name": "Prophet", "weight": 0.3},
         {"name": "MatrixProfile", "weight": 0.3}
     ],
     "voting_strategy": "weighted",
@@ -545,7 +545,7 @@ Combines algorithms from different domains (text, images, tabular) for comprehen
 ```python
 multimodal_config = {
     "tabular_algorithm": "IsolationForest",
-    "text_algorithm": "TFIDFClustering", 
+    "text_algorithm": "TFIDFClustering",
     "image_algorithm": "CNNAutoEncoder",
     "fusion_strategy": "late_fusion",
     "weights": [0.4, 0.3, 0.3]

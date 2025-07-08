@@ -1,0 +1,213 @@
+{
+  "scene_collection": "Pynomaly Recording Setup",
+  "scenes": [
+    {
+      "name": "Main Recording Scene",
+      "sources": [
+        {
+          "type": "display_capture",
+          "name": "Screen Capture",
+          "settings": {
+            "display": 0,
+            "capture_cursor": true,
+            "compatibility": false
+          },
+          "transform": {
+            "pos": {
+              "x": 0,
+              "y": 0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            }
+          }
+        },
+        {
+          "type": "text_gdiplus",
+          "name": "Title Overlay",
+          "settings": {
+            "text": "Pynomaly - Anomaly Detection Framework",
+            "font_face": "Arial",
+            "font_size": 24,
+            "color": 4294967295,
+            "outline": true,
+            "outline_color": 4278190080,
+            "outline_size": 2
+          },
+          "transform": {
+            "pos": {
+              "x": 50,
+              "y": 50
+            }
+          }
+        },
+        {
+          "type": "image_source",
+          "name": "Logo",
+          "settings": {
+            "file": "docs/video/assets/logo.png",
+            "unload": false
+          },
+          "transform": {
+            "pos": {
+              "x": 1820,
+              "y": 50
+            },
+            "scale": {
+              "x": 0.5,
+              "y": 0.5
+            }
+          }
+        }
+      ],
+      "audio_sources": [
+        {
+          "type": "audio_input_capture",
+          "name": "Microphone",
+          "settings": {
+            "device_id": "default",
+            "use_device_timing": false
+          },
+          "audio_track": 1
+        },
+        {
+          "type": "audio_output_capture",
+          "name": "System Audio",
+          "settings": {
+            "device_id": "default"
+          },
+          "audio_track": 2
+        }
+      ]
+    },
+    {
+      "name": "Code Editor Scene",
+      "sources": [
+        {
+          "type": "window_capture",
+          "name": "Code Editor Window",
+          "settings": {
+            "window": "VS Code",
+            "capture_cursor": true,
+            "compatibility": false
+          },
+          "transform": {
+            "pos": {
+              "x": 0,
+              "y": 0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Browser Demo Scene",
+      "sources": [
+        {
+          "type": "browser_source",
+          "name": "Pynomaly Web UI",
+          "settings": {
+            "url": "http://localhost:8080",
+            "width": 1920,
+            "height": 1080,
+            "fps": 30,
+            "shutdown": false,
+            "restart_when_active": false,
+            "css": "body { zoom: 1.2; }"
+          },
+          "transform": {
+            "pos": {
+              "x": 0,
+              "y": 0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Terminal Scene",
+      "sources": [
+        {
+          "type": "window_capture",
+          "name": "Terminal Window",
+          "settings": {
+            "window": "Windows Terminal",
+            "capture_cursor": true,
+            "compatibility": false
+          },
+          "transform": {
+            "pos": {
+              "x": 0,
+              "y": 0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "transitions": [
+    {
+      "name": "Cut",
+      "type": "cut_transition",
+      "duration": 0
+    },
+    {
+      "name": "Fade",
+      "type": "fade_transition",
+      "duration": 300
+    },
+    {
+      "name": "Slide",
+      "type": "slide_transition",
+      "duration": 500
+    }
+  ],
+  "audio_settings": {
+    "sample_rate": 44100,
+    "channels": 2,
+    "desktop_audio_track": 2,
+    "mic_audio_track": 1,
+    "noise_suppression": true,
+    "noise_gate": true,
+    "compressor": true
+  },
+  "video_settings": {
+    "base_resolution": "1920x1080",
+    "output_resolution": "1920x1080",
+    "fps": 30,
+    "format": "NV12",
+    "color_space": "709",
+    "color_range": "partial"
+  },
+  "output_settings": {
+    "recording": {
+      "format": "mp4",
+      "encoder": "x264",
+      "bitrate": 8000,
+      "keyframe_interval": 2,
+      "preset": "medium",
+      "profile": "high",
+      "separate_audio_tracks": true
+    },
+    "streaming": {
+      "encoder": "x264",
+      "bitrate": 2500,
+      "keyframe_interval": 2,
+      "preset": "veryfast",
+      "profile": "main"
+    }
+  }
+}

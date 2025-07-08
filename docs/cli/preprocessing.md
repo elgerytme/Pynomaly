@@ -434,7 +434,7 @@ echo "Preprocessing complete: ${DATASET_ID}_preprocessed"
       --missing fill_median \
       --outliers clip \
       --dry-run
-    
+
     pynomaly data pipeline apply \
       --name production_pipeline \
       --dataset ${{ env.DATASET_ID }}

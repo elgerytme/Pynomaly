@@ -88,17 +88,17 @@ graph TB
         C[CLI] --> B
         D[Web UI] --> B
     end
-    
+
     subgraph "Application Layer"
         B --> E[Domain Services]
         B --> F[Repositories]
     end
-    
+
     subgraph "Domain Layer"
         E --> G[Entities]
         E --> H[Value Objects]
     end
-    
+
     subgraph "Infrastructure Layer"
         F --> I[Database]
         F --> J[File System]
@@ -120,7 +120,7 @@ The domain layer contains the core business logic and is independent of external
 @dataclass
 class Detector:
     """Core detector entity representing an anomaly detection model."""
-    
+
     id: DetectorId
     name: str
     algorithm: AlgorithmType
@@ -129,10 +129,10 @@ class Detector:
     created_at: datetime
     trained_at: Optional[datetime] = None
     version: str = "1.0.0"
-    
+
     def is_trained(self) -> bool:
         return self.status == DetectorStatus.TRAINED
-    
+
     def can_detect(self) -> bool:
         return self.is_trained() and self.status == DetectorStatus.ACTIVE
 ```
@@ -144,16 +144,16 @@ class Detector:
 @dataclass(frozen=True)
 class AnomalyScore:
     """Immutable anomaly score with validation."""
-    
+
     value: float
     confidence: float
-    
+
     def __post_init__(self):
         if not 0.0 <= self.value <= 1.0:
             raise ValueError("Anomaly score must be between 0 and 1")
         if not 0.0 <= self.confidence <= 1.0:
             raise ValueError("Confidence must be between 0 and 1")
-    
+
     def is_anomaly(self, threshold: float = 0.5) -> bool:
         return self.value >= threshold
 ```
@@ -164,10 +164,10 @@ class AnomalyScore:
 # domain/services/anomaly_scorer.py
 class AnomalyScorer:
     """Domain service for scoring anomalies."""
-    
+
     def score_samples(
-        self, 
-        predictions: np.ndarray, 
+        self,
+        predictions: np.ndarray,
         confidence: np.ndarray
     ) -> List[AnomalyScore]:
         """Convert raw predictions to domain-specific scores."""
@@ -175,10 +175,10 @@ class AnomalyScorer:
             AnomalyScore(value=pred, confidence=conf)
             for pred, conf in zip(predictions, confidence)
         ]
-    
+
     def calculate_threshold(
-        self, 
-        scores: List[AnomalyScore], 
+        self,
+        scores: List[AnomalyScore],
         contamination_rate: ContaminationRate
     ) -> float:
         """Calculate optimal threshold based on contamination rate."""
@@ -196,7 +196,7 @@ The application layer orchestrates the domain layer and handles use cases.
 # application/use_cases/detect_anomalies.py
 class DetectAnomaliesUseCase:
     """Use case for detecting anomalies in data."""
-    
+
     def __init__(
         self,
         detector_repository: DetectorRepository,
@@ -206,27 +206,27 @@ class DetectAnomaliesUseCase:
         self._detector_repo = detector_repository
         self._dataset_repo = dataset_repository
         self._detection_service = detection_service
-    
+
     async def execute(
-        self, 
+        self,
         request: DetectAnomaliesRequest
     ) -> DetectAnomaliesResponse:
         """Execute anomaly detection use case."""
-        
+
         # 1. Validate inputs
         detector = await self._detector_repo.find_by_id(request.detector_id)
         if not detector.can_detect():
             raise DetectorNotReadyError(f"Detector {detector.id} not ready")
-        
+
         dataset = await self._dataset_repo.find_by_id(request.dataset_id)
-        
+
         # 2. Execute detection
         result = await self._detection_service.detect(
             detector=detector,
             data=dataset.data,
             threshold=request.threshold
         )
-        
+
         # 3. Return response
         return DetectAnomaliesResponse(
             detection_id=result.id,
@@ -242,7 +242,7 @@ class DetectAnomaliesUseCase:
 # application/services/detection_service.py
 class DetectionService:
     """Application service for anomaly detection orchestration."""
-    
+
     def __init__(
         self,
         algorithm_factory: AlgorithmFactory,
@@ -252,7 +252,7 @@ class DetectionService:
         self._algorithm_factory = algorithm_factory
         self._anomaly_scorer = anomaly_scorer
         self._result_repo = result_repository
-    
+
     async def detect(
         self,
         detector: Detector,
@@ -260,22 +260,22 @@ class DetectionService:
         threshold: float
     ) -> DetectionResult:
         """Orchestrate the anomaly detection process."""
-        
+
         # 1. Get algorithm implementation
         algorithm = self._algorithm_factory.create(detector.algorithm)
-        
+
         # 2. Load trained model
         model = await algorithm.load_model(detector.id)
-        
+
         # 3. Predict anomalies
         predictions = await algorithm.predict(model, data)
-        
+
         # 4. Score results
         scores = self._anomaly_scorer.score_samples(
-            predictions.scores, 
+            predictions.scores,
             predictions.confidence
         )
-        
+
         # 5. Create result
         result = DetectionResult(
             detector_id=detector.id,
@@ -283,10 +283,10 @@ class DetectionService:
             threshold=threshold,
             timestamp=datetime.utcnow()
         )
-        
+
         # 6. Persist result
         await self._result_repo.save(result)
-        
+
         return result
 ```
 
@@ -300,7 +300,7 @@ The infrastructure layer handles all external concerns and implements interfaces
 # infrastructure/adapters/pyod_adapter.py
 class PyODAdapter(DetectorProtocol):
     """Adapter for PyOD anomaly detection algorithms."""
-    
+
     def __init__(self, algorithm_name: str):
         self._algorithm_name = algorithm_name
         self._model_registry = {
@@ -308,49 +308,49 @@ class PyODAdapter(DetectorProtocol):
             "LOF": LOF,
             "OneClassSVM": OCSVM
         }
-    
+
     async def train(
-        self, 
-        data: np.ndarray, 
+        self,
+        data: np.ndarray,
         parameters: Dict[str, Any]
     ) -> TrainingResult:
         """Train PyOD model with given data and parameters."""
-        
+
         # 1. Get algorithm class
         AlgorithmClass = self._model_registry[self._algorithm_name]
-        
+
         # 2. Initialize model with parameters
         model = AlgorithmClass(**parameters)
-        
+
         # 3. Train model
         start_time = time.time()
         model.fit(data)
         training_time = time.time() - start_time
-        
+
         # 4. Return result
         return TrainingResult(
             model=model,
             training_time=training_time,
             metrics=self._calculate_training_metrics(model, data)
         )
-    
+
     async def predict(
-        self, 
-        model: Any, 
+        self,
+        model: Any,
         data: np.ndarray
     ) -> PredictionResult:
         """Make predictions using trained PyOD model."""
-        
+
         # 1. Get predictions
         predictions = model.decision_function(data)
         labels = model.predict(data)
-        
+
         # 2. Calculate confidence scores
         confidence = model.predict_proba(data)[:, 1] if hasattr(model, 'predict_proba') else np.ones_like(predictions)
-        
+
         # 3. Normalize scores
         normalized_scores = self._normalize_scores(predictions)
-        
+
         return PredictionResult(
             scores=normalized_scores,
             labels=labels,
@@ -364,10 +364,10 @@ class PyODAdapter(DetectorProtocol):
 # infrastructure/persistence/database_repositories.py
 class SQLDetectorRepository(DetectorRepository):
     """SQL database implementation of detector repository."""
-    
+
     def __init__(self, session_factory: Callable[[], AsyncSession]):
         self._session_factory = session_factory
-    
+
     async def save(self, detector: Detector) -> None:
         """Save detector to database."""
         async with self._session_factory() as session:
@@ -382,20 +382,20 @@ class SQLDetectorRepository(DetectorRepository):
                 trained_at=detector.trained_at,
                 version=detector.version
             )
-            
+
             session.add(db_detector)
             await session.commit()
-    
+
     async def find_by_id(self, detector_id: DetectorId) -> Optional[Detector]:
         """Find detector by ID."""
         async with self._session_factory() as session:
             query = select(DetectorModel).where(DetectorModel.id == str(detector_id))
             result = await session.execute(query)
             db_detector = result.scalar_one_or_none()
-            
+
             if not db_detector:
                 return None
-            
+
             # Map database model to domain entity
             return Detector(
                 id=DetectorId(db_detector.id),
@@ -424,7 +424,7 @@ async def detect_anomalies(
     current_user: User = Depends(get_current_user)
 ) -> DetectionResponse:
     """REST endpoint for anomaly detection."""
-    
+
     try:
         # Convert API request to use case request
         use_case_request = DetectAnomaliesRequest(
@@ -433,10 +433,10 @@ async def detect_anomalies(
             threshold=request.threshold,
             user_id=current_user.id
         )
-        
+
         # Execute use case
         result = await use_case.execute(use_case_request)
-        
+
         # Convert use case response to API response
         return DetectionResponse(
             detection_id=str(result.detection_id),
@@ -454,7 +454,7 @@ async def detect_anomalies(
                 processing_time_ms=result.metrics.processing_time_ms
             )
         )
-        
+
     except DomainException as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
@@ -473,29 +473,29 @@ def detect(
     output: Optional[str] = typer.Option(None, help="Output file path")
 ):
     """Detect anomalies using trained detector."""
-    
+
     try:
         # Get container and dependencies
         container = get_cli_container()
         use_case = container.detect_anomalies_use_case()
-        
+
         # Load dataset
         dataset = load_dataset_from_file(dataset_path)
-        
+
         # Create request
         request = DetectAnomaliesRequest(
             detector_id=DetectorId(detector_name),
             dataset_id=dataset.id,
             threshold=threshold
         )
-        
+
         # Execute detection
         with console.status("Detecting anomalies..."):
             result = asyncio.run(use_case.execute(request))
-        
+
         # Display results
         display_detection_results(result, output)
-        
+
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(1)
@@ -512,7 +512,7 @@ sequenceDiagram
     participant DS as Domain Service
     participant AD as Algorithm Adapter
     participant DB as Database
-    
+
     UI->>UC: Train Detector Request
     UC->>DB: Load Detector & Dataset
     UC->>DS: Validate Training Data
@@ -533,7 +533,7 @@ sequenceDiagram
     participant AD as Algorithm Adapter
     participant SC as Scorer
     participant DB as Database
-    
+
     UI->>UC: Detection Request
     UC->>DB: Load Detector & Dataset
     UC->>DS: Execute Detection
@@ -557,20 +557,20 @@ New algorithms are integrated through the adapter pattern:
 class DetectorProtocol(Protocol):
     async def train(self, data: np.ndarray, parameters: Dict[str, Any]) -> TrainingResult:
         ...
-    
+
     async def predict(self, model: Any, data: np.ndarray) -> PredictionResult:
         ...
-    
+
     async def save_model(self, model: Any, path: str) -> None:
         ...
-    
+
     async def load_model(self, path: str) -> Any:
         ...
 
 # Implement adapter for new library
 class NewLibraryAdapter(DetectorProtocol):
     """Adapter for integrating new anomaly detection library."""
-    
+
     async def train(self, data: np.ndarray, parameters: Dict[str, Any]) -> TrainingResult:
         # Implementation specific to new library
         pass
@@ -584,17 +584,17 @@ Data sources are integrated through the data loader protocol:
 class DataLoaderProtocol(Protocol):
     async def load(self, source: str, **kwargs) -> Dataset:
         ...
-    
+
     async def validate(self, dataset: Dataset) -> ValidationResult:
         ...
-    
+
     def supported_formats(self) -> List[str]:
         ...
 
 # Register new data loader
 class S3DataLoader(DataLoaderProtocol):
     """Load data from AWS S3."""
-    
+
     async def load(self, source: str, **kwargs) -> Dataset:
         # S3-specific loading logic
         pass
@@ -663,26 +663,26 @@ class CacheManager:
         self.l1_cache = LRUCache(maxsize=1000)  # In-memory
         self.l2_cache = RedisCache()            # Distributed
         self.l3_cache = DatabaseCache()         # Persistent
-    
+
     async def get(self, key: str) -> Optional[Any]:
         # Try L1 cache first
         value = self.l1_cache.get(key)
         if value is not None:
             return value
-        
+
         # Try L2 cache
         value = await self.l2_cache.get(key)
         if value is not None:
             self.l1_cache.set(key, value)
             return value
-        
+
         # Try L3 cache
         value = await self.l3_cache.get(key)
         if value is not None:
             await self.l2_cache.set(key, value)
             self.l1_cache.set(key, value)
             return value
-        
+
         return None
 ```
 
@@ -694,12 +694,12 @@ class TaskProcessor:
     def __init__(self, queue: AsyncQueue):
         self.queue = queue
         self.workers = []
-    
+
     async def start_workers(self, num_workers: int = 4):
         for i in range(num_workers):
             worker = asyncio.create_task(self._worker(f"worker-{i}"))
             self.workers.append(worker)
-    
+
     async def _worker(self, name: str):
         while True:
             try:
@@ -722,7 +722,7 @@ class JWTAuthService:
     def __init__(self, secret_key: str, algorithm: str = "HS256"):
         self.secret_key = secret_key
         self.algorithm = algorithm
-    
+
     def create_access_token(self, user: User) -> str:
         payload = {
             "sub": str(user.id),
@@ -731,7 +731,7 @@ class JWTAuthService:
             "exp": datetime.utcnow() + timedelta(hours=24)
         }
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
-    
+
     def verify_token(self, token: str) -> TokenPayload:
         try:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
@@ -745,7 +745,7 @@ class JWTAuthService:
 class PermissionChecker:
     def __init__(self, required_permissions: List[str]):
         self.required_permissions = required_permissions
-    
+
     def check_permissions(self, user: User) -> bool:
         user_permissions = self._get_user_permissions(user)
         return all(perm in user_permissions for perm in self.required_permissions)
@@ -758,7 +758,7 @@ class PermissionChecker:
 class EncryptionService:
     def __init__(self, key: bytes):
         self.cipher_suite = Fernet(key)
-    
+
     def encrypt_sensitive_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
         encrypted_data = {}
         for key, value in data.items():
@@ -769,7 +769,7 @@ class EncryptionService:
             else:
                 encrypted_data[key] = value
         return encrypted_data
-    
+
     def decrypt_sensitive_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
         decrypted_data = {}
         for key, value in data.items():

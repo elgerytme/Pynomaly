@@ -2,9 +2,9 @@ openapi: 3.1.1
 info:
   title: Pynomaly API
   description: |
-    **Pynomaly** is a state-of-the-art anomaly detection platform that provides a unified interface 
+    **Pynomaly** is a state-of-the-art anomaly detection platform that provides a unified interface
     for multiple machine learning frameworks and algorithms.
-    
+
     ## Features
     - 40+ anomaly detection algorithms from PyOD, scikit-learn, PyTorch, TensorFlow, and JAX
     - AutoML capabilities with intelligent algorithm selection and hyperparameter optimization
@@ -12,16 +12,16 @@ info:
     - Model explainability with SHAP and LIME integration
     - Distributed processing for horizontal scaling
     - Production-ready monitoring, health checks, and performance metrics
-    
+
     ## Authentication
     All API endpoints except health checks require authentication using JWT tokens.
     Obtain a token via the `/api/auth/token` endpoint.
-    
+
     ## Rate Limiting
     API requests are rate-limited to prevent abuse. Current limits:
     - 100 requests per minute for authenticated users
     - 10 requests per minute for unauthenticated users
-    
+
     ## Error Handling
     The API uses standard HTTP status codes and returns detailed error information:
     - 400: Bad Request (validation errors)
@@ -423,6 +423,60 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExplanationResponse'
+
+  /detection/statistics:
+    post:
+      tags:
+        - Detection
+        - Statistics
+      summary: Generate Statistical Analysis
+      description: |
+        Generate comprehensive statistical analysis for anomaly detection results.
+        Supports both parametric and non-parametric statistical methods.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatisticalAnalysisRequest'
+      responses:
+        '200':
+          description: Statistical analysis completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatisticalAnalysisResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /detection/confidence:
+    post:
+      tags:
+        - Detection
+        - Statistics
+      summary: Generate Confidence Intervals
+      description: |
+        Generate confidence intervals for anomaly scores using parametric or non-parametric methods.
+        Supports bootstrap, percentile, and t-distribution methods.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfidenceIntervalRequest'
+      responses:
+        '200':
+          description: Confidence intervals generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfidenceIntervalResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
 
   /experiments:
     get:
@@ -1011,6 +1065,158 @@ components:
         error_rate_percent:
           type: number
 
+    StatisticalAnalysisRequest:
+      type: object
+      required:
+        - detector_id
+        - anomaly_scores
+      properties:
+        detector_id:
+          type: string
+          format: uuid
+          description: Unique identifier for the detector
+        anomaly_scores:
+          type: array
+          items:
+            type: number
+          description: Array of anomaly scores for analysis
+        method:
+          type: string
+          enum: [parametric, non-parametric, both]
+          default: both
+          description: Statistical method to use
+        confidence_level:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          default: 0.95
+          description: Confidence level for statistical tests
+        bootstrap_samples:
+          type: integer
+          minimum: 100
+          maximum: 10000
+          default: 1000
+          description: Number of bootstrap samples for non-parametric methods
+
+    StatisticalAnalysisResponse:
+      type: object
+      required:
+        - summary_statistics
+        - confidence_intervals
+        - method_used
+        - processing_time_ms
+      properties:
+        summary_statistics:
+          type: object
+          properties:
+            mean:
+              type: number
+            median:
+              type: number
+            std_deviation:
+              type: number
+            min_value:
+              type: number
+            max_value:
+              type: number
+            quartiles:
+              type: object
+              properties:
+                q1:
+                  type: number
+                q3:
+                  type: number
+        confidence_intervals:
+          type: object
+          properties:
+            parametric:
+              type: object
+              properties:
+                lower_bound:
+                  type: number
+                upper_bound:
+                  type: number
+                method:
+                  type: string
+                  example: t-distribution
+            non_parametric:
+              type: object
+              properties:
+                lower_bound:
+                  type: number
+                upper_bound:
+                  type: number
+                method:
+                  type: string
+                  example: bootstrap
+        method_used:
+          type: string
+          enum: [parametric, non-parametric, both]
+        processing_time_ms:
+          type: number
+        recommendations:
+          type: array
+          items:
+            type: string
+          description: Statistical recommendations based on analysis
+
+    ConfidenceIntervalRequest:
+      type: object
+      required:
+        - detector_id
+        - anomaly_scores
+      properties:
+        detector_id:
+          type: string
+          format: uuid
+        anomaly_scores:
+          type: array
+          items:
+            type: number
+        confidence_level:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          default: 0.95
+        method:
+          type: string
+          enum: [bootstrap, percentile, t-distribution]
+          default: bootstrap
+        bootstrap_samples:
+          type: integer
+          minimum: 100
+          maximum: 10000
+          default: 1000
+
+    ConfidenceIntervalResponse:
+      type: object
+      required:
+        - intervals
+        - method_used
+        - confidence_level
+        - processing_time_ms
+      properties:
+        intervals:
+          type: array
+          items:
+            type: object
+            properties:
+              lower_bound:
+                type: number
+              upper_bound:
+                type: number
+              point_estimate:
+                type: number
+        method_used:
+          type: string
+        confidence_level:
+          type: number
+        processing_time_ms:
+          type: number
+        interpretation:
+          type: string
+          description: Human-readable interpretation of the confidence intervals
+
 tags:
   - name: Health
     description: Health check and monitoring endpoints
@@ -1026,3 +1232,8 @@ tags:
     description: Experiment tracking and management
   - name: Performance
     description: Performance monitoring and metrics
+  - name: Statistics
+    description: Statistical analysis and confidence intervals for anomaly detection results
+    externalDocs:
+      description: Statistical Methods Guide
+      url: https://pynomaly.readthedocs.io/statistical-analysis

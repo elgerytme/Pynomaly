@@ -344,7 +344,7 @@ CREATE INDEX CONCURRENTLY idx_detectors_algorithm ON detectors(algorithm_name);
 CREATE INDEX CONCURRENTLY idx_detection_results_created ON detection_results(created_at);
 
 -- Check index usage
-SELECT schemaname, tablename, attname, n_distinct, correlation 
+SELECT schemaname, tablename, attname, n_distinct, correlation
 FROM pg_stats WHERE tablename = 'detectors';
 ```
 

@@ -234,13 +234,13 @@ The results include comprehensive preprocessing metadata:
             "strategy": "median/mode"
         },
         {
-            "type": "outliers", 
+            "type": "outliers",
             "action": "clipped",
             "columns": ["amount", "balance"]
         },
         {
             "type": "duplicates",
-            "action": "removed", 
+            "action": "removed",
             "count": 15
         },
         {

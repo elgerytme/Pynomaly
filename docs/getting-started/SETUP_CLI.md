@@ -14,7 +14,7 @@ The CLI adapter integration issues have been resolved with the following changes
 - Added `sklearn_adapter` provider  
 - Added conditional providers for optional adapters:
   - `tods_adapter` (if TODS available)
-  - `pygod_adapter` (if PyGOD available) 
+  - `pygod_adapter` (if PyGOD available)
   - `pytorch_adapter` (if PyTorch available)
 
 ### 2. Graceful Error Handling ✅ COMPLETED

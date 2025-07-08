@@ -657,7 +657,7 @@ Retrain models when performance degrades:
 ```python
 async def check_and_retrain(detector_id, current_performance, threshold=0.1):
     historical_performance = await get_historical_performance(detector_id)
-    
+
     if current_performance < historical_performance - threshold:
         logger.warning(f"Performance drift detected for {detector_id}")
         await retrain_detector(detector_id)

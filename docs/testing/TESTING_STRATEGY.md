@@ -322,10 +322,10 @@ def test_contamination_rate_valid_range_creates_object():
 def test_service_with_mocked_dependency(mock_api):
     """Test service behavior with mocked external dependency."""
     mock_api.get_data.return_value = test_data
-    
+
     service = MyService(mock_api)
     result = service.process()
-    
+
     assert result.is_valid
     mock_api.get_data.assert_called_once()
 ```

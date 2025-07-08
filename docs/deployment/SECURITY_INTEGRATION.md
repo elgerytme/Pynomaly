@@ -274,26 +274,26 @@ class SecuritySettings(BaseModel):
     sanitization_level: str = "moderate"  # strict, moderate, permissive
     max_input_length: int = 10000
     allow_html: bool = False
-    
+
     # Encryption
     encryption_algorithm: str = "fernet"  # fernet, aes_gcm, aes_cbc
     encryption_key_length: int = 32
     enable_key_rotation: bool = True
     key_rotation_days: int = 90
-    
+
     # Audit logging
     enable_audit_logging: bool = True
     enable_compliance_logging: bool = False
     audit_retention_days: int = 2555  # 7 years
-    
+
     # Security monitoring
     enable_security_monitoring: bool = True
     threat_detection_enabled: bool = True
-    
+
     # Rate limiting
     brute_force_max_attempts: int = 5
     brute_force_time_window: int = 300  # 5 minutes
-    
+
     # Headers and CORS
     security_headers_enabled: bool = True
     csp_enabled: bool = True
@@ -341,7 +341,7 @@ from pynomaly.infrastructure.security import ThreatDetector, SecurityAlert, Thre
 class CustomThreatDetector(ThreatDetector):
     def __init__(self):
         super().__init__("custom_threat")
-    
+
     async def analyze(self, event_data: dict) -> Optional[SecurityAlert]:
         # Custom threat detection logic
         if self._detect_custom_threat(event_data):
@@ -356,7 +356,7 @@ class CustomThreatDetector(ThreatDetector):
                 recommended_actions=["Take action A", "Take action B"]
             )
         return None
-    
+
     def _detect_custom_threat(self, event_data: dict) -> bool:
         # Implement custom detection logic
         return False

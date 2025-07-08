@@ -222,7 +222,7 @@ severity = service.determine_severity(anomaly_score, historical_scores)
 
 # Generate explanation
 explanation = service.generate_explanation(
-    anomaly, 
+    anomaly,
     feature_contributions
 )
 ```
@@ -318,15 +318,15 @@ class DetectorRepository(ABC):
     @abstractmethod
     async def save(self, detector: Detector) -> None:
         pass
-    
+
     @abstractmethod
     async def get(self, detector_id: str) -> Optional[Detector]:
         pass
-    
+
     @abstractmethod
     async def list_all(self) -> List[Detector]:
         pass
-    
+
     @abstractmethod
     async def delete(self, detector_id: str) -> None:
         pass
@@ -343,11 +343,11 @@ class DatasetRepository(ABC):
     @abstractmethod
     async def save(self, dataset: Dataset) -> None:
         pass
-    
+
     @abstractmethod
     async def get(self, dataset_id: str) -> Optional[Dataset]:
         pass
-    
+
     @abstractmethod
     async def get_data(self, dataset_id: str) -> pd.DataFrame:
         pass
@@ -453,14 +453,14 @@ def test_detector_creation():
         algorithm="IsolationForest",
         parameters={"contamination": 0.1}
     )
-    
+
     assert detector.name == "Test Detector"
     assert not detector.is_trained
-    
+
 def test_detector_training():
     detector = Detector(name="Test", algorithm="LOF")
     detector.mark_as_trained()
-    
+
     assert detector.is_trained
 ```
 

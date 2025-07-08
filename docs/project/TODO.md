@@ -416,6 +416,15 @@ Pynomaly currently provides:
 - **Typer Conversion**: Fixed Literal type annotations that were causing Typer compatibility issues
 - **Import Issues Resolved**: All CLI modules now properly import and display help
 
+### ✅ **COMPLETED: Documentation & Examples** (January 8, 2025)
+- **Anomaly Classification Taxonomy**: Implemented comprehensive two-dimensional classification system (severity × type)
+- **ADR-010**: Created architectural decision record for taxonomy design decisions and rationale
+- **Domain Documentation**: Added detailed taxonomy documentation with usage examples and best practices
+- **Sphinx Integration**: Created Sphinx configuration and API documentation pages for classification system
+- **Example Notebooks**: Developed comprehensive Jupyter notebooks demonstrating classification outputs
+- **Enhanced Docstrings**: Added comprehensive docstrings to all classification service methods
+- **README Updates**: Updated main README with taxonomy overview and quick-start examples
+
 ### ⏳ **Immediate Priority Items**
 - **Dependency Resolution**: Simplify installation of optional features (AutoML, Deep Learning)
 - **Click-to-Typer Conversion**: Convert remaining CLI modules (security, dashboard, governance) from Click to Typer

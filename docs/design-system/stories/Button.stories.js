@@ -85,7 +85,7 @@ const createButton = ({
   ...props
 }) => {
   const button = document.createElement('button');
-  
+
   // Base classes
   const baseClasses = [
     'btn',
@@ -102,7 +102,7 @@ const createButton = ({
     'disabled:opacity-50',
     'disabled:cursor-not-allowed',
   ];
-  
+
   // Variant classes
   const variantClasses = {
     primary: [
@@ -141,7 +141,7 @@ const createButton = ({
       'underline', 'active:text-blue-800'
     ],
   };
-  
+
   // Size classes
   const sizeClasses = {
     xs: ['px-2', 'py-1', 'text-xs', 'min-h-[24px]'],
@@ -150,7 +150,7 @@ const createButton = ({
     lg: ['px-6', 'py-3', 'text-lg', 'min-h-[48px]'],
     xl: ['px-8', 'py-4', 'text-xl', 'min-h-[56px]'],
   };
-  
+
   // Apply classes
   const allClasses = [
     ...baseClasses,
@@ -159,27 +159,27 @@ const createButton = ({
     fullWidth ? 'w-full' : '',
     loading ? 'cursor-wait' : '',
   ].filter(Boolean);
-  
+
   button.className = allClasses.join(' ');
-  
+
   // Set attributes
   button.type = 'button';
   button.disabled = disabled || loading;
-  
+
   // Accessibility attributes
   if (loading) {
     button.setAttribute('aria-busy', 'true');
     button.setAttribute('aria-describedby', 'loading-description');
   }
-  
+
   if (disabled) {
     button.setAttribute('aria-disabled', 'true');
   }
-  
+
   // Create content
   const content = document.createElement('span');
   content.className = 'flex items-center justify-center gap-2';
-  
+
   // Add loading spinner
   if (loading) {
     const spinner = document.createElement('svg');
@@ -191,26 +191,26 @@ const createButton = ({
     spinner.setAttribute('viewBox', '0 0 24 24');
     content.appendChild(spinner);
   }
-  
+
   // Add icon (if provided and not loading)
   if (icon && !loading) {
     const iconElement = document.createElement('span');
     iconElement.className = 'icon';
     iconElement.setAttribute('data-icon', icon);
     iconElement.innerHTML = getIconSvg(icon);
-    
+
     if (iconPosition === 'left') {
       content.appendChild(iconElement);
     }
   }
-  
+
   // Add text
   if (children) {
     const textElement = document.createElement('span');
     textElement.textContent = loading ? 'Loading...' : children;
     content.appendChild(textElement);
   }
-  
+
   // Add icon (right position)
   if (icon && !loading && iconPosition === 'right') {
     const iconElement = document.createElement('span');
@@ -219,12 +219,12 @@ const createButton = ({
     iconElement.innerHTML = getIconSvg(icon);
     content.appendChild(iconElement);
   }
-  
+
   button.appendChild(content);
-  
+
   // Add event listeners
   button.addEventListener('click', onClick);
-  
+
   // Add accessibility enhancements
   button.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -234,7 +234,7 @@ const createButton = ({
       }
     }
   });
-  
+
   return button;
 };
 
@@ -372,7 +372,7 @@ export const Sizes = {
   render: () => {
     const container = document.createElement('div');
     container.className = 'space-y-4';
-    
+
     const sizes = ['xs', 'sm', 'base', 'lg', 'xl'];
     sizes.forEach(size => {
       const button = createButton({
@@ -382,7 +382,7 @@ export const Sizes = {
       });
       container.appendChild(button);
     });
-    
+
     return container;
   },
   parameters: {
@@ -398,7 +398,7 @@ export const Variants = {
   render: () => {
     const container = document.createElement('div');
     container.className = 'flex flex-wrap gap-4';
-    
+
     const variants = ['primary', 'secondary', 'success', 'warning', 'danger', 'ghost', 'link'];
     variants.forEach(variant => {
       const button = createButton({
@@ -408,7 +408,7 @@ export const Variants = {
       });
       container.appendChild(button);
     });
-    
+
     return container;
   },
   parameters: {

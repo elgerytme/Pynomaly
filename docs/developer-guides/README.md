@@ -32,6 +32,7 @@ Programming interfaces and integration patterns.
 Development setup, standards, and contribution guidelines.
 - **[Contributing Guidelines](contributing/CONTRIBUTING.md)** - How to contribute
 - **[Development Setup](contributing/README.md)** - Local development environment
+- **[Git Workflow](contributing/CI_CD_BRANCH_COMPLIANCE.md)** - Branch naming conventions, CI/CD integration, and development workflow
 - **[Hatch Guide](contributing/HATCH_GUIDE.md)** - Build system and environment management
 - **[Implementation Guide](contributing/IMPLEMENTATION_GUIDE.md)** - Architecture and coding patterns
 - **[File Organization](contributing/FILE_ORGANIZATION_STANDARDS.md)** - Project structure standards
@@ -47,8 +48,9 @@ Development setup, standards, and contribution guidelines.
 ### **New Contributor**
 1. **[Contributing Guidelines](contributing/CONTRIBUTING.md)** - Understand the process
 2. **[Development Setup](contributing/README.md)** - Set up local environment
-3. **[Hatch Guide](contributing/HATCH_GUIDE.md)** - Master the build system
-4. **[Architecture Overview](architecture/overview.md)** - Understand system design
+3. **[Git Workflow](contributing/CI_CD_BRANCH_COMPLIANCE.md)** - Master branch naming and CI/CD workflow
+4. **[Hatch Guide](contributing/HATCH_GUIDE.md)** - Master the build system
+5. **[Architecture Overview](architecture/overview.md)** - Understand system design
 
 ### **API Integration Developer**
 1. **[REST API](api-integration/rest-api.md)** - Understand HTTP endpoints

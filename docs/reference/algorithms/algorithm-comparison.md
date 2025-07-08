@@ -234,7 +234,7 @@ def analyze_requirements():
     requirements = {
         "performance": {
             "speed_priority": "high/medium/low",
-            "accuracy_priority": "high/medium/low", 
+            "accuracy_priority": "high/medium/low",
             "memory_constraints": "strict/moderate/flexible"
         },
         "operational": {
@@ -255,7 +255,7 @@ def analyze_requirements():
 ```python
 def filter_algorithms(data_characteristics, requirements):
     candidate_algorithms = []
-    
+
     # Filter by data size
     if data_characteristics["size"] > 100000:
         candidate_algorithms = ["IsolationForest", "HBOS", "ECOD"]
@@ -263,17 +263,17 @@ def filter_algorithms(data_characteristics, requirements):
         candidate_algorithms = ["LOF", "EllipticEnvelope", "ABOD"]
     else:
         candidate_algorithms = ["IsolationForest", "LOF", "OneClassSVM"]
-    
+
     # Filter by speed requirements
     if requirements["performance"]["speed_priority"] == "high":
-        candidate_algorithms = [alg for alg in candidate_algorithms 
+        candidate_algorithms = [alg for alg in candidate_algorithms
                               if alg in ["HBOS", "ECOD", "EllipticEnvelope"]]
-    
+
     # Filter by interpretability requirements
     if requirements["operational"]["interpretability"] == "required":
-        candidate_algorithms = [alg for alg in candidate_algorithms 
+        candidate_algorithms = [alg for alg in candidate_algorithms
                               if alg in ["LOF", "EllipticEnvelope", "Statistical"]]
-    
+
     return candidate_algorithms
 ```
 
@@ -281,23 +281,23 @@ def filter_algorithms(data_characteristics, requirements):
 ```python
 def select_final_algorithm(candidates, data_characteristics, requirements):
     scores = {}
-    
+
     for algorithm in candidates:
         score = 0
-        
+
         # Score based on data fit
         if is_good_fit(algorithm, data_characteristics):
             score += 40
-        
+
         # Score based on requirements match
         if meets_requirements(algorithm, requirements):
             score += 40
-        
+
         # Score based on proven performance
         score += get_benchmark_score(algorithm, data_characteristics) * 20
-        
+
         scores[algorithm] = score
-    
+
     return max(scores, key=scores.get)
 ```
 
@@ -309,7 +309,7 @@ Data Size?
 │   ├── Need Interpretability? → LOF, Statistical Methods
 │   ├── High Accuracy? → OneClassSVM, Ensemble
 │   └── Fast? → EllipticEnvelope, Z-Score
-├── Medium (1K-100K) 
+├── Medium (1K-100K)
 │   ├── High Dimensional? → AutoEncoder, COPOD
 │   ├── Mixed Data Types? → HBOS, Ensemble
 │   └── General Purpose? → IsolationForest
@@ -368,16 +368,16 @@ def bayesian_optimization_example():
         Real(0.1, 1.0, name='max_features'),
         Categorical(['auto', 0.5, 0.8], name='max_samples')
     ]
-    
+
     def objective(params):
         model = IsolationForest(
             n_estimators=params[0],
-            contamination=params[1], 
+            contamination=params[1],
             max_features=params[2],
             max_samples=params[3]
         )
         return -cross_val_score(model, X, y, cv=5).mean()
-    
+
     result = gp_minimize(objective, space, n_calls=50)
     return result.x
 ```
@@ -393,9 +393,9 @@ def tune_isolation_forest(X, y):
         model = IsolationForest(contamination=contamination)
         score = cross_val_score(model, X, y, cv=5).mean()
         contamination_scores.append((contamination, score))
-    
+
     best_contamination = max(contamination_scores, key=lambda x: x[1])[0]
-    
+
     # Then tune n_estimators
     n_estimators_scores = []
     for n_est in [50, 100, 200, 500]:
@@ -405,9 +405,9 @@ def tune_isolation_forest(X, y):
         )
         score = cross_val_score(model, X, y, cv=5).mean()
         n_estimators_scores.append((n_est, score))
-    
+
     best_n_estimators = max(n_estimators_scores, key=lambda x: x[1])[0]
-    
+
     return {
         "contamination": best_contamination,
         "n_estimators": best_n_estimators
@@ -418,26 +418,26 @@ def tune_isolation_forest(X, y):
 ```python
 def tune_autoencoder(X, y):
     import optuna
-    
+
     def objective(trial):
         # Architecture
         n_layers = trial.suggest_int('n_layers', 2, 5)
         layer_sizes = []
         current_size = X.shape[1]
-        
+
         for i in range(n_layers):
             layer_size = trial.suggest_int(f'layer_{i}', 8, 256)
             layer_sizes.append(layer_size)
             current_size = layer_size
-        
+
         # Symmetric decoder
         decoder_sizes = layer_sizes[:-1][::-1] + [X.shape[1]]
-        
+
         # Training parameters
         learning_rate = trial.suggest_float('lr', 1e-5, 1e-2, log=True)
         batch_size = trial.suggest_categorical('batch_size', [16, 32, 64, 128])
         dropout = trial.suggest_float('dropout', 0.0, 0.5)
-        
+
         model = AutoEncoder(
             encoder_layers=layer_sizes,
             decoder_layers=decoder_sizes,
@@ -445,13 +445,13 @@ def tune_autoencoder(X, y):
             batch_size=batch_size,
             dropout=dropout
         )
-        
+
         score = evaluate_autoencoder(model, X, y)
         return score
-    
+
     study = optuna.create_study(direction='maximize')
     study.optimize(objective, n_trials=100)
-    
+
     return study.best_params
 ```
 
@@ -465,48 +465,48 @@ def tune_autoencoder(X, y):
 ```python
 def build_diverse_ensemble(algorithms, X, y, max_algorithms=5):
     """Build ensemble focusing on algorithm diversity"""
-    
+
     # Calculate prediction diversity matrix
     predictions = {}
     for alg in algorithms:
         model = create_model(alg)
         model.fit(X)
         predictions[alg] = model.predict(X)
-    
+
     # Calculate pairwise disagreement
     disagreement_matrix = {}
     for alg1 in algorithms:
         for alg2 in algorithms:
             if alg1 != alg2:
                 disagreement = calculate_disagreement(
-                    predictions[alg1], 
+                    predictions[alg1],
                     predictions[alg2]
                 )
                 disagreement_matrix[(alg1, alg2)] = disagreement
-    
+
     # Select diverse subset
     selected = [algorithms[0]]  # Start with first algorithm
-    
+
     while len(selected) < max_algorithms and len(selected) < len(algorithms):
         best_candidate = None
         best_avg_disagreement = 0
-        
+
         for candidate in algorithms:
             if candidate not in selected:
                 avg_disagreement = np.mean([
                     disagreement_matrix.get((candidate, selected_alg), 0)
                     for selected_alg in selected
                 ])
-                
+
                 if avg_disagreement > best_avg_disagreement:
                     best_avg_disagreement = avg_disagreement
                     best_candidate = candidate
-        
+
         if best_candidate:
             selected.append(best_candidate)
         else:
             break
-    
+
     return selected
 ```
 
@@ -514,9 +514,9 @@ def build_diverse_ensemble(algorithms, X, y, max_algorithms=5):
 ```python
 def calculate_performance_weights(algorithms, X, y, cv=5):
     """Calculate weights based on cross-validation performance"""
-    
+
     performances = {}
-    
+
     for alg in algorithms:
         model = create_model(alg)
         scores = cross_val_score(model, X, y, cv=cv, scoring='f1')
@@ -525,11 +525,11 @@ def calculate_performance_weights(algorithms, X, y, cv=5):
             'std': scores.std(),
             'scores': scores
         }
-    
+
     # Calculate weights using softmax of mean scores
     mean_scores = np.array([performances[alg]['mean'] for alg in algorithms])
     weights = softmax(mean_scores)
-    
+
     return dict(zip(algorithms, weights))
 
 def softmax(x, temperature=1.0):
@@ -548,28 +548,28 @@ def softmax(x, temperature=1.0):
 ```python
 def comprehensive_evaluation(model, X_test, y_true):
     """Comprehensive anomaly detection evaluation"""
-    
+
     # Get predictions and scores
     y_pred = model.predict(X_test)
     y_scores = model.decision_function(X_test)
-    
+
     metrics = {}
-    
+
     # Classification metrics
     metrics['precision'] = precision_score(y_true, y_pred)
     metrics['recall'] = recall_score(y_true, y_pred)
     metrics['f1'] = f1_score(y_true, y_pred)
     metrics['accuracy'] = accuracy_score(y_true, y_pred)
-    
+
     # Ranking metrics
     metrics['roc_auc'] = roc_auc_score(y_true, y_scores)
     metrics['pr_auc'] = average_precision_score(y_true, y_scores)
-    
+
     # At-k metrics
     for k in [10, 50, 100]:
         metrics[f'precision_at_{k}'] = precision_at_k(y_true, y_scores, k)
         metrics[f'recall_at_{k}'] = recall_at_k(y_true, y_scores, k)
-    
+
     return metrics
 
 def precision_at_k(y_true, y_scores, k):
@@ -591,18 +591,18 @@ def recall_at_k(y_true, y_scores, k):
 def time_series_cv_evaluation(model, X, y, n_splits=5):
     """Time series specific cross-validation"""
     from sklearn.model_selection import TimeSeriesSplit
-    
+
     tscv = TimeSeriesSplit(n_splits=n_splits)
     scores = []
-    
+
     for train_idx, test_idx in tscv.split(X):
         X_train, X_test = X[train_idx], X[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
-        
+
         model.fit(X_train)
         score = comprehensive_evaluation(model, X_test, y_test)
         scores.append(score)
-    
+
     # Aggregate scores
     aggregated = {}
     for metric in scores[0].keys():
@@ -613,20 +613,20 @@ def time_series_cv_evaluation(model, X, y, n_splits=5):
             'min': np.min(values),
             'max': np.max(values)
         }
-    
+
     return aggregated
 
 def stratified_cv_evaluation(model, X, y, contamination_ratio=0.1, n_splits=5):
     """Stratified cross-validation maintaining contamination ratio"""
     from sklearn.model_selection import StratifiedKFold
-    
+
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
     scores = []
-    
+
     for train_idx, test_idx in skf.split(X, y):
         X_train, X_test = X[train_idx], X[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
-        
+
         # Ensure contamination ratio in training set
         train_contamination = y_train.sum() / len(y_train)
         if abs(train_contamination - contamination_ratio) > 0.02:
@@ -634,11 +634,11 @@ def stratified_cv_evaluation(model, X, y, contamination_ratio=0.1, n_splits=5):
             X_train, y_train = adjust_contamination_ratio(
                 X_train, y_train, contamination_ratio
             )
-        
+
         model.fit(X_train)
         score = comprehensive_evaluation(model, X_test, y_test)
         scores.append(score)
-    
+
     return aggregate_cv_scores(scores)
 ```
 
@@ -652,7 +652,7 @@ def stratified_cv_evaluation(model, X, y, contamination_ratio=0.1, n_splits=5):
 ```python
 def select_for_latency(algorithms, max_latency_ms=100):
     """Select algorithms meeting latency requirements"""
-    
+
     latency_benchmarks = {
         "HBOS": 1,           # Very fast
         "ECOD": 2,           # Very fast  
@@ -664,12 +664,12 @@ def select_for_latency(algorithms, max_latency_ms=100):
         "OneClassSVM": 500,  # Very slow
         "AutoEncoder": 25,   # Medium (post-training)
     }
-    
+
     suitable_algorithms = [
-        alg for alg in algorithms 
+        alg for alg in algorithms
         if latency_benchmarks.get(alg, float('inf')) <= max_latency_ms
     ]
-    
+
     return suitable_algorithms
 ```
 
@@ -677,7 +677,7 @@ def select_for_latency(algorithms, max_latency_ms=100):
 ```python
 def select_for_throughput(algorithms, min_throughput_rps=1000):
     """Select algorithms meeting throughput requirements"""
-    
+
     throughput_benchmarks = {
         "HBOS": 10000,        # Very high
         "ECOD": 8000,         # Very high
@@ -688,12 +688,12 @@ def select_for_throughput(algorithms, min_throughput_rps=1000):
         "LOF": 100,           # Low
         "OneClassSVM": 50,    # Very low
     }
-    
+
     suitable_algorithms = [
         alg for alg in algorithms
         if throughput_benchmarks.get(alg, 0) >= min_throughput_rps
     ]
-    
+
     return suitable_algorithms
 ```
 
@@ -701,7 +701,7 @@ def select_for_throughput(algorithms, min_throughput_rps=1000):
 ```python
 def select_for_resources(algorithms, max_memory_mb=1000, gpu_available=False):
     """Select algorithms fitting resource constraints"""
-    
+
     memory_requirements = {
         "Z-Score": 10,
         "HBOS": 50,
@@ -714,11 +714,11 @@ def select_for_resources(algorithms, max_memory_mb=1000, gpu_available=False):
         "AutoEncoder": 1000,  # Without GPU
         "LSTM": 3000,         # Without GPU
     }
-    
+
     gpu_algorithms = ["AutoEncoder", "VAE", "LSTM", "CNN", "Transformer"]
-    
+
     suitable_algorithms = []
-    
+
     for alg in algorithms:
         # Check memory constraint
         if memory_requirements.get(alg, float('inf')) <= max_memory_mb:
@@ -726,7 +726,7 @@ def select_for_resources(algorithms, max_memory_mb=1000, gpu_available=False):
             if alg in gpu_algorithms and not gpu_available:
                 continue
             suitable_algorithms.append(alg)
-    
+
     return suitable_algorithms
 ```
 

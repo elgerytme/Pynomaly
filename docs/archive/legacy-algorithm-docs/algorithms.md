@@ -525,14 +525,14 @@ async def evaluate_algorithm(algorithm, data, true_labels):
     detector = await create_detector(algorithm=algorithm)
     await train_detector(detector, data)
     predictions = await detect_anomalies(detector, data)
-    
+
     metrics = {
         "precision": calculate_precision(predictions, true_labels),
         "recall": calculate_recall(predictions, true_labels),
         "f1_score": calculate_f1(predictions, true_labels),
         "roc_auc": calculate_roc_auc(predictions, true_labels)
     }
-    
+
     return metrics
 ```
 
@@ -563,19 +563,19 @@ from sklearn.model_selection import KFold
 async def cross_validate_detector(algorithm, data, labels, k=5):
     kf = KFold(n_splits=k, shuffle=True, random_state=42)
     scores = []
-    
+
     for train_idx, test_idx in kf.split(data):
         train_data = data[train_idx]
         test_data = data[test_idx]
         test_labels = labels[test_idx]
-        
+
         detector = await create_detector(algorithm=algorithm)
         await train_detector(detector, train_data)
         predictions = await detect_anomalies(detector, test_data)
-        
+
         score = calculate_f1(predictions, test_labels)
         scores.append(score)
-    
+
     return np.mean(scores), np.std(scores)
 ```
 
@@ -590,7 +590,7 @@ class PerformanceMetrics:
     recall: float
     f1_score: float
     execution_time: float
-    
+
 async def log_performance(detector_id, metrics):
     await metrics_repository.save(PerformanceMetrics(
         timestamp=datetime.now(),
@@ -604,7 +604,7 @@ Retrain models when performance degrades:
 ```python
 async def check_and_retrain(detector_id, current_performance, threshold=0.1):
     historical_performance = await get_historical_performance(detector_id)
-    
+
     if current_performance < historical_performance - threshold:
         logger.warning(f"Performance drift detected for {detector_id}")
         await retrain_detector(detector_id)

@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  pynomaly-recording:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+      - "8080:8080"  # Web UI port
+    environment:
+      - PYNOMALY_ENVIRONMENT=demo
+      - PYNOMALY_API_HOST=0.0.0.0
+      - PYNOMALY_API_PORT=8000
+      - PYNOMALY_UI_PORT=8080
+      - PYNOMALY_STORAGE_PATH=/app/storage
+      - PYNOMALY_LOG_PATH=/app/logs
+      - PYNOMALY_LOG_LEVEL=INFO
+      - PYNOMALY_DEMO_MODE=true
+      - PYNOMALY_SAMPLE_DATA=true
+      - PYTHONPATH=/app/src
+    volumes:
+      - ./sample_data:/app/sample_data:ro
+      - ./logs:/app/logs
+      - ./storage:/app/storage
+    working_dir: /app
+    command: >
+      sh -c "
+        echo 'Starting Pynomaly Recording Environment...';
+        python -m pynomaly.presentation.cli.server --host 0.0.0.0 --port 8000 &
+        python scripts/development/run_web_ui.py --host 0.0.0.0 --port 8080 --dev &
+        wait
+      "
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # Clean Redis instance for demo data
+  redis-demo:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - demo_redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    restart: unless-stopped
+
+  # PostgreSQL with sample data
+  postgres-demo:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=pynomaly_demo
+      - POSTGRES_USER=pynomaly_demo
+      - POSTGRES_PASSWORD=demo_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - demo_postgres_data:/var/lib/postgresql/data
+      - ./sample_data/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql:ro
+    restart: unless-stopped
+
+  # Sample data generator service
+  data-generator:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres-demo
+      - redis-demo
+    environment:
+      - PYNOMALY_ENVIRONMENT=demo
+      - PYTHONPATH=/app/src
+    volumes:
+      - ./sample_data:/app/sample_data
+    working_dir: /app
+    command: >
+      sh -c "
+        echo 'Generating sample data for recording...';
+        sleep 10;
+        python examples/scripts/generate_sample_data.py --output /app/sample_data;
+        python examples/banking/scripts/generate_sample_data.py --output /app/sample_data/banking;
+        echo 'Sample data generation complete';
+      "
+    restart: "no"
+
+volumes:
+  demo_redis_data:
+  demo_postgres_data:
+
+networks:
+  default:
+    name: pynomaly-recording-network

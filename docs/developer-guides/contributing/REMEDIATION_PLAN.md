@@ -123,13 +123,13 @@ def diagnose_cli_issues():
     """Diagnose and fix CLI entry point issues"""
     import subprocess
     import sys
-    
+
     # Check Poetry installation
     result = subprocess.run(["poetry", "install"], capture_output=True)
     if result.returncode != 0:
         print("Poetry install failed:", result.stderr.decode())
         return False
-    
+
     # Test basic CLI import
     try:
         import pynomaly.presentation.cli
@@ -137,9 +137,9 @@ def diagnose_cli_issues():
     except ImportError as e:
         print(f"CLI import failed: {e}")
         return False
-    
+
     # Test CLI entry point
-    result = subprocess.run(["poetry", "run", "pynomaly", "--help"], 
+    result = subprocess.run(["poetry", "run", "pynomaly", "--help"],
                           capture_output=True, timeout=30)
     if result.returncode == 0:
         print("CLI working!")
@@ -155,7 +155,7 @@ def diagnose_cli_issues():
 def diagnose_api_issues():
     """Diagnose and fix API startup issues"""
     import asyncio
-    
+
     # Test FastAPI app import
     try:
         from pynomaly.presentation.api import app
@@ -163,7 +163,7 @@ def diagnose_api_issues():
     except ImportError as e:
         print(f"FastAPI import failed: {e}")
         return False
-    
+
     # Test dependency container
     try:
         from pynomaly.infrastructure.config.container import Container
@@ -173,7 +173,7 @@ def diagnose_api_issues():
     except Exception as e:
         print(f"Container failed: {e}")
         return False
-    
+
     return True
 ```
 
@@ -184,24 +184,24 @@ async def diagnose_ui_issues():
     """Diagnose and fix UI component issues"""
     import subprocess
     import time
-    
+
     # Start server for testing
     server_process = subprocess.Popen([
-        "poetry", "run", "uvicorn", 
-        "pynomaly.presentation.api:app", 
+        "poetry", "run", "uvicorn",
+        "pynomaly.presentation.api:app",
         "--port", "8000"
     ])
-    
+
     time.sleep(5)  # Wait for startup
-    
+
     try:
         # Test basic UI functionality
         from playwright.async_api import async_playwright
-        
+
         async with async_playwright() as p:
             browser = await p.chromium.launch()
             page = await browser.new_page()
-            
+
             # Test health endpoint
             response = await page.goto("http://localhost:8000/health")
             if response.status < 400:

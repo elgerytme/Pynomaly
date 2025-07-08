@@ -139,7 +139,7 @@ Combines autoencoder architecture with adversarial training to learn robust repr
 ```python
 detector = await detection_service.create_detector(
     name="Adversarial AutoEncoder",
-    algorithm="AAE", 
+    algorithm="AAE",
     library="pytorch",
     parameters={
         "encoder_layers": [512, 256, 128, 64],
@@ -198,7 +198,7 @@ detector = await detection_service.create_detector(
 ```python
 # GPT-style causal transformer
 gpt_params = {
-    "architecture": "gpt", 
+    "architecture": "gpt",
     "causal_mask": True,
     "position_encoding": "learned"
 }
@@ -241,7 +241,7 @@ Combines deep learning with one-class classification by training a neural networ
 detector = await detection_service.create_detector(
     name="Deep SVDD Detector",
     algorithm="DeepSVDD",
-    library="pytorch", 
+    library="pytorch",
     parameters={
         "nu": 0.1,
         "rep_dim": 64,
@@ -320,8 +320,8 @@ Dynamically adjusts weights of base algorithms based on their recent performance
 ```python
 adaptive_config = {
     "base_algorithms": [
-        "IsolationForest", 
-        "LOF", 
+        "IsolationForest",
+        "LOF",
         "AutoEncoder"
     ],
     "adaptation_method": "performance",
@@ -389,7 +389,7 @@ meta_config = {
         "distributional" # Distribution characteristics
     ],
     "base_algorithms": [
-        "IsolationForest", "LOF", "OneClassSVM", 
+        "IsolationForest", "LOF", "OneClassSVM",
         "AutoEncoder", "COPOD", "ECOD"
     ],
     "k_fold": 5
@@ -431,7 +431,7 @@ hierarchical_config = {
             "specialization": "global_anomalies"
         },
         {
-            "name": "ml_level", 
+            "name": "ml_level",
             "algorithms": ["IsolationForest", "OneClassSVM"],
             "specialization": "pattern_anomalies"
         },
@@ -478,12 +478,12 @@ Uses quantum-inspired algorithms on classical computers to potentially achieve q
 #### Usage Example
 ```python
 detector = await detection_service.create_detector(
-    name="Quantum-Inspired Detector", 
+    name="Quantum-Inspired Detector",
     algorithm="QuantumAD",
     library="qiskit",
     parameters={
         "num_qubits": 12,
-        "circuit_depth": 6, 
+        "circuit_depth": 6,
         "measurement_shots": 5000,
         "entanglement_structure": "circular"
     }
@@ -528,7 +528,7 @@ Implements spiking neural networks that mimic brain computation for efficient, l
 ```python
 detector = await detection_service.create_detector(
     name="Neuromorphic Detector",
-    algorithm="NeuromorphicAD", 
+    algorithm="NeuromorphicAD",
     library="nengo",
     parameters={
         "neuron_type": "adaptive_lif",
@@ -627,7 +627,7 @@ def objective(trial):
         "beta": trial.suggest_float("beta", 0.1, 10.0, log=True),
         "learning_rate": trial.suggest_float("lr", 1e-5, 1e-2, log=True)
     }
-    
+
     model = create_vae_detector(params)
     score = evaluate_model(model, validation_data)
     return score
@@ -664,11 +664,11 @@ def expanding_window_validation(model, data, initial_window=0.3):
     for i in range(int(len(data) * initial_window), len(data), step):
         train_data = data[:i]
         test_data = data[i:i+step]
-        
+
         model.fit(train_data)
         score = model.score(test_data)
         results.append(score)
-    
+
     return np.mean(results)
 
 # Ensemble: Out-of-bag validation
@@ -679,7 +679,7 @@ def ensemble_oob_validation(ensemble, data):
         oob_data = get_oob_data(data, i)
         score = base_model.score(oob_data)
         oob_scores.append(score)
-    
+
     return np.mean(oob_scores)
 ```
 
@@ -739,11 +739,11 @@ def quantize_model(model):
 # Pruning for model compression
 def prune_model(model, pruning_ratio=0.2):
     import torch.nn.utils.prune as prune
-    
+
     for module in model.modules():
         if isinstance(module, torch.nn.Linear):
             prune.l1_unstructured(module, name='weight', amount=pruning_ratio)
-    
+
     return model
 ```
 
