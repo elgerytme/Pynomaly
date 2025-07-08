@@ -43,6 +43,9 @@ safety = "^3.0.0"
 pre-commit = "^4.0.0"
 tox = "^4.0.0"
 pip-tools = "^7.4.0"
+fastapi = "^0.116.0"
+uvicorn = "^0.35.0"
+httpx = "^0.28.1"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.6.0"
