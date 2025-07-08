@@ -37,9 +37,9 @@ class FileUploadComponent {
 
   render() {
     this.container.innerHTML = `
-      <div class="file-upload ${this.options.disabled ? "disabled" : ""}" 
-           tabindex="0" 
-           role="button" 
+      <div class="file-upload ${this.options.disabled ? "disabled" : ""}"
+           tabindex="0"
+           role="button"
            aria-label="Click to select files or drag and drop files here">
         <div class="file-upload-icon" aria-hidden="true">📁</div>
         <div class="file-upload-text">
@@ -49,8 +49,8 @@ class FileUploadComponent {
           ${this.options.accept !== "*" ? `Accepts: ${this.options.accept}` : "All file types accepted"}
           ${this.options.maxSize ? ` • Max size: ${this.formatFileSize(this.options.maxSize)}` : ""}
         </div>
-        <input type="file" 
-               class="file-input sr-only" 
+        <input type="file"
+               class="file-input sr-only"
                ${this.options.maxFiles > 1 ? "multiple" : ""}
                ${this.options.accept !== "*" ? `accept="${this.options.accept}"` : ""}
                aria-describedby="file-upload-hint">
@@ -213,8 +213,8 @@ class FileUploadComponent {
         `
             : ""
         }
-        <button type="button" 
-                class="file-remove" 
+        <button type="button"
+                class="file-remove"
                 data-remove="${id}"
                 aria-label="Remove ${file.name}">
           ×
@@ -360,9 +360,9 @@ class DateRangePickerComponent {
       <div class="date-range-picker">
         <div class="date-input-group">
           <label for="${this.options.name}-start" class="sr-only">Start date</label>
-          <input type="date" 
+          <input type="date"
                  id="${this.options.name}-start"
-                 class="form-input date-start" 
+                 class="form-input date-start"
                  placeholder="${this.options.placeholder.start}"
                  ${this.options.minDate ? `min="${this.options.minDate}"` : ""}
                  ${this.options.maxDate ? `max="${this.options.maxDate}"` : ""}
@@ -371,9 +371,9 @@ class DateRangePickerComponent {
         <div class="date-range-separator" aria-hidden="true">to</div>
         <div class="date-input-group">
           <label for="${this.options.name}-end" class="sr-only">End date</label>
-          <input type="date" 
+          <input type="date"
                  id="${this.options.name}-end"
-                 class="form-input date-end" 
+                 class="form-input date-end"
                  placeholder="${this.options.placeholder.end}"
                  ${this.options.minDate ? `min="${this.options.minDate}"` : ""}
                  ${this.options.maxDate ? `max="${this.options.maxDate}"` : ""}
@@ -488,9 +488,9 @@ class MultiSelectComponent {
   render() {
     this.container.innerHTML = `
       <div class="multi-select">
-        <div class="multi-select-input form-input" 
-             tabindex="0" 
-             role="combobox" 
+        <div class="multi-select-input form-input"
+             tabindex="0"
+             role="combobox"
              aria-expanded="false"
              aria-haspopup="listbox"
              aria-label="${this.options.placeholder}">
@@ -502,9 +502,9 @@ class MultiSelectComponent {
             this.options.searchable
               ? `
             <div class="multi-select-search">
-              <input type="text" 
-                     class="form-input" 
-                     placeholder="Search options..." 
+              <input type="text"
+                     class="form-input"
+                     placeholder="Search options..."
                      aria-label="Search options">
             </div>
           `
@@ -540,12 +540,12 @@ class MultiSelectComponent {
     return filteredOptions
       .map(
         (option, index) => `
-      <div class="multi-select-option ${this.selected.includes(option.value) ? "selected" : ""}" 
+      <div class="multi-select-option ${this.selected.includes(option.value) ? "selected" : ""}"
            data-value="${option.value}"
            role="option"
            aria-selected="${this.selected.includes(option.value)}"
            tabindex="-1">
-        <input type="checkbox" 
+        <input type="checkbox"
                ${this.selected.includes(option.value) ? "checked" : ""}
                tabindex="-1"
                aria-hidden="true">
@@ -679,8 +679,8 @@ class MultiSelectComponent {
         (option) => `
       <span class="tag" data-value="${option.value}">
         <span>${option.label}</span>
-        <button type="button" 
-                class="tag-remove" 
+        <button type="button"
+                class="tag-remove"
                 data-remove="${option.value}"
                 aria-label="Remove ${option.label}">
           ×
@@ -867,8 +867,8 @@ class DynamicFieldsetComponent {
         ${
           this.items.length > this.options.minItems
             ? `
-          <button type="button" 
-                  class="btn btn--danger btn--sm remove-item-btn" 
+          <button type="button"
+                  class="btn btn--danger btn--sm remove-item-btn"
                   data-remove="${item.id}"
                   aria-label="Remove item ${this.items.length}">
             ${this.options.removeButtonText}
@@ -936,14 +936,14 @@ class DynamicFieldsetComponent {
       case "email":
       case "number":
         return `
-          <input type="${field.type}" 
+          <input type="${field.type}"
                  ${commonAttributes}
                  value="${value}"
                  placeholder="${field.placeholder || ""}">
         `;
       case "textarea":
         return `
-          <textarea ${commonAttributes} 
+          <textarea ${commonAttributes}
                     placeholder="${field.placeholder || ""}">${value}</textarea>
         `;
       case "select":
@@ -963,7 +963,7 @@ class DynamicFieldsetComponent {
         `;
       default:
         return `
-          <input type="text" 
+          <input type="text"
                  ${commonAttributes}
                  value="${value}"
                  placeholder="${field.placeholder || ""}">

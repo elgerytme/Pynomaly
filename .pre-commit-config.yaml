@@ -23,19 +23,19 @@ repos:
       - id: end-of-file-fixer
       - id: mixed-line-ending
         args: [--fix=lf]
-      
+
       # File validation
       - id: check-json
       - id: check-yaml
         args: [--allow-multiple-documents]
       - id: check-toml
-      
+
       # Security and conflict checks
       - id: check-merge-conflict
       - id: detect-private-key
       - id: check-added-large-files
         args: [--maxkb=5000]
-      
+
       # Python specific
       - id: check-ast
       - id: check-builtin-literals

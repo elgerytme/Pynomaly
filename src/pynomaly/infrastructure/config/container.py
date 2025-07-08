@@ -427,7 +427,7 @@ class Container(containers.DeclarativeContainer):
 
     # Configuration
     config = providers.Singleton(Settings)
-    
+
     # Lazy import to avoid circular dependency
     @providers.Singleton
     def feature_flag_manager():
@@ -917,7 +917,7 @@ def create_container(testing: bool = False) -> Container:
 
 def get_container_simple() -> Container:
     """Get a simple container instance for CLI usage.
-    
+
     This is a simple wrapper around create_container() for CLI usage.
     It creates a new container if one doesn't exist.
     """

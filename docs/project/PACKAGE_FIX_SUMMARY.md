@@ -14,14 +14,14 @@ The Pynomaly package installation issues have been successfully resolved. The pa
 ### 1. TensorFlow-NumPy Dependency Conflict ✅
 - **Problem**: TensorFlow 2.19.0 required `numpy<2.2.0,>=1.26.0` but numpy 2.2.6 was installed
 - **Solution**: Updated numpy constraint to `>=1.26.0,<2.2.0` in:
-  - `pyproject.toml` 
+  - `pyproject.toml`
   - `requirements.txt`
   - `requirements-server.txt`
   - `requirements-production.txt`
 
 ### 2. Setup.py Conflicts ✅
 - **Problem**: setup.py conflicted with pyproject.toml causing setuptools warnings
-- **Solution**: 
+- **Solution**:
   - Removed setup.py entirely
   - Migrated to pure pyproject.toml approach (PEP 621)
   - Fixed license format from `{text = "MIT"}` to `"MIT"`
@@ -33,7 +33,7 @@ The Pynomaly package installation issues have been successfully resolved. The pa
 
 ### 4. Missing Dependencies ✅ (Partially)
 - **Problem**: Missing prometheus-fastapi-instrumentator and structlog version conflicts
-- **Solution**: 
+- **Solution**:
   - Updated structlog constraint from `>=24.5.0` to `>=24.4.0`
   - Added prometheus-fastapi-instrumentator>=7.0.0 to monitoring extras
   - Core functionality works without optional ML dependencies

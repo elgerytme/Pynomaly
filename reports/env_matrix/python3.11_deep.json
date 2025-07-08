@@ -1,0 +1,21 @@
+{
+  "python_version": "3.11",
+  "extra": "deep",
+  "test_timestamp": "2025-07-08T14:20:22.505973",
+  "venv_creation": {
+    "success": true
+  },
+  "installation": {
+    "command": "C:\\Users\\andre\\AppData\\Local\\Temp\\tmpgeua0vfo\\venv_3.11_deep\\Scripts\\pip install -e .[deep] --verbose",
+    "success": false,
+    "returncode": -1,
+    "stdout": "",
+    "stderr": "Command timed out",
+    "warnings": [],
+    "errors": [],
+    "duration": 600.022421
+  },
+  "dependency_tree": {},
+  "lockfile": {},
+  "overall_success": false
+}

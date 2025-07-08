@@ -6,20 +6,20 @@ import { FullConfig } from '@playwright/test';
  */
 async function globalTeardown(config: FullConfig) {
   console.log('🧹 Running global teardown...');
-  
+
   const fs = require('fs');
   const path = require('path');
-  
+
   try {
     // Generate cross-browser compatibility summary
     await generateCompatibilitySummary();
-    
+
     // Archive test artifacts
     await archiveTestArtifacts();
-    
+
     // Generate final test report
     await generateFinalReport();
-    
+
     console.log('✅ Global teardown completed successfully');
   } catch (error) {
     console.error('❌ Global teardown failed:', error);
@@ -31,10 +31,10 @@ async function globalTeardown(config: FullConfig) {
  */
 async function generateCompatibilitySummary() {
   console.log('📊 Generating cross-browser compatibility summary...');
-  
+
   const fs = require('fs');
   const path = require('path');
-  
+
   try {
     // Read test results
     const resultsPath = 'test_reports/playwright-results.json';
@@ -42,9 +42,9 @@ async function generateCompatibilitySummary() {
       console.warn('⚠️  No test results found for compatibility summary');
       return;
     }
-    
+
     const results = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
-    
+
     // Analyze results by browser/project
     const summary = {
       timestamp: new Date().toISOString(),
@@ -64,14 +64,14 @@ async function generateCompatibilitySummary() {
       incompatibilities: [],
       recommendations: []
     };
-    
+
     // Process test suites
     if (results.suites) {
       for (const suite of results.suites) {
         for (const spec of suite.specs || []) {
           for (const test of spec.tests || []) {
             summary.overview.totalTests++;
-            
+
             const projectName = test.projectName || 'unknown';
             if (!summary.byBrowser[projectName]) {
               summary.byBrowser[projectName] = {
@@ -82,9 +82,9 @@ async function generateCompatibilitySummary() {
                 issues: []
               };
             }
-            
+
             summary.byBrowser[projectName].total++;
-            
+
             // Determine test outcome
             if (test.outcome === 'passed') {
               summary.overview.passedTests++;
@@ -92,7 +92,7 @@ async function generateCompatibilitySummary() {
             } else if (test.outcome === 'failed') {
               summary.overview.failedTests++;
               summary.byBrowser[projectName].failed++;
-              
+
               // Record browser-specific failure
               summary.byBrowser[projectName].issues.push({
                 test: spec.title,
@@ -102,7 +102,7 @@ async function generateCompatibilitySummary() {
               summary.overview.skippedTests++;
               summary.byBrowser[projectName].skipped++;
             }
-            
+
             // Categorize by device type
             if (projectName.includes('Mobile')) {
               summary.byCategory.mobile.total++;
@@ -121,25 +121,25 @@ async function generateCompatibilitySummary() {
         }
       }
     }
-    
+
     // Calculate pass rate
-    summary.overview.passRate = summary.overview.totalTests > 0 
-      ? (summary.overview.passedTests / summary.overview.totalTests) * 100 
+    summary.overview.passRate = summary.overview.totalTests > 0
+      ? (summary.overview.passedTests / summary.overview.totalTests) * 100
       : 0;
-    
+
     // Identify cross-browser incompatibilities
     summary.incompatibilities = identifyIncompatibilities(summary.byBrowser);
-    
+
     // Generate recommendations
     summary.recommendations = generateCompatibilityRecommendations(summary);
-    
+
     // Save summary
     const summaryPath = 'test_reports/cross-browser/compatibility-summary.json';
     fs.writeFileSync(summaryPath, JSON.stringify(summary, null, 2));
-    
+
     // Generate HTML report
     await generateCompatibilityHTMLReport(summary);
-    
+
     console.log(`  ✅ Compatibility summary generated (${summary.overview.passRate.toFixed(1)}% pass rate)`);
   } catch (error) {
     console.error('  ❌ Failed to generate compatibility summary:', error);
@@ -152,10 +152,10 @@ async function generateCompatibilitySummary() {
 function identifyIncompatibilities(browserResults: any) {
   const incompatibilities = [];
   const browsers = Object.keys(browserResults);
-  
+
   // Find tests that fail in some browsers but pass in others
   const testFailures = {};
-  
+
   for (const [browser, results] of Object.entries(browserResults) as any) {
     for (const issue of results.issues || []) {
       if (!testFailures[issue.test]) {
@@ -164,11 +164,11 @@ function identifyIncompatibilities(browserResults: any) {
       testFailures[issue.test].failedIn.push(browser);
     }
   }
-  
+
   // Identify which browsers passed tests that failed in others
   for (const [testName, failures] of Object.entries(testFailures) as any) {
     const passedIn = browsers.filter(browser => !failures.failedIn.includes(browser));
-    
+
     if (failures.failedIn.length > 0 && passedIn.length > 0) {
       incompatibilities.push({
         test: testName,
@@ -178,7 +178,7 @@ function identifyIncompatibilities(browserResults: any) {
       });
     }
   }
-  
+
   return incompatibilities;
 }
 
@@ -187,7 +187,7 @@ function identifyIncompatibilities(browserResults: any) {
  */
 function generateCompatibilityRecommendations(summary: any) {
   const recommendations = [];
-  
+
   // Overall pass rate recommendations
   if (summary.overview.passRate < 90) {
     recommendations.push({
@@ -197,11 +197,11 @@ function generateCompatibilityRecommendations(summary: any) {
       action: 'Review and fix failing tests before deployment'
     });
   }
-  
+
   // Browser-specific recommendations
   for (const [browser, results] of Object.entries(summary.byBrowser) as any) {
     const passRate = results.total > 0 ? (results.passed / results.total) * 100 : 0;
-    
+
     if (passRate < 85) {
       recommendations.push({
         type: 'high',
@@ -211,11 +211,11 @@ function generateCompatibilityRecommendations(summary: any) {
       });
     }
   }
-  
+
   // Device category recommendations
   for (const [category, results] of Object.entries(summary.byCategory) as any) {
     const passRate = results.total > 0 ? (results.passed / results.total) * 100 : 0;
-    
+
     if (passRate < 90) {
       recommendations.push({
         type: 'medium',
@@ -225,11 +225,11 @@ function generateCompatibilityRecommendations(summary: any) {
       });
     }
   }
-  
+
   // Incompatibility recommendations
   if (summary.incompatibilities.length > 0) {
     const highSeverityCount = summary.incompatibilities.filter(i => i.severity === 'high').length;
-    
+
     recommendations.push({
       type: highSeverityCount > 0 ? 'critical' : 'high',
       issue: 'Cross-browser incompatibilities detected',
@@ -237,7 +237,7 @@ function generateCompatibilityRecommendations(summary: any) {
       action: 'Implement progressive enhancement and browser-specific polyfills'
     });
   }
-  
+
   return recommendations.sort((a, b) => {
     const priority = { critical: 4, high: 3, medium: 2, low: 1 };
     return priority[b.type] - priority[a.type];
@@ -284,7 +284,7 @@ async function generateCompatibilityHTMLReport(summary: any) {
             <h1>Cross-Browser Compatibility Report</h1>
             <p>Generated on ${new Date().toLocaleString()}</p>
         </div>
-        
+
         <div class="summary">
             <div class="card">
                 <h3>Overall Pass Rate</h3>
@@ -307,14 +307,14 @@ async function generateCompatibilityHTMLReport(summary: any) {
                 <p>Action items</p>
             </div>
         </div>
-        
+
         ${generateBrowserTableHTML(summary.byBrowser)}
         ${generateIncompatibilityTableHTML(summary.incompatibilities)}
         ${generateRecommendationsHTML(summary.recommendations)}
     </div>
 </body>
 </html>`;
-  
+
   const fs = require('fs');
   const htmlPath = 'test_reports/cross-browser/compatibility-report.html';
   fs.writeFileSync(htmlPath, html);
@@ -413,29 +413,29 @@ function generateRecommendationsHTML(recommendations: any[]) {
  */
 async function archiveTestArtifacts() {
   console.log('📁 Archiving test artifacts...');
-  
+
   const fs = require('fs');
   const path = require('path');
-  
+
   const artifactDirs = [
     'test_reports/playwright-report',
     'test_reports/cross-browser',
     'test_reports/visual-regression'
   ];
-  
+
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const archiveDir = `test_reports/archives/${timestamp}`;
-  
+
   try {
     fs.mkdirSync(archiveDir, { recursive: true });
-    
+
     for (const dir of artifactDirs) {
       if (fs.existsSync(dir)) {
         const targetDir = path.join(archiveDir, path.basename(dir));
         fs.cpSync(dir, targetDir, { recursive: true });
       }
     }
-    
+
     console.log(`  ✅ Artifacts archived to ${archiveDir}`);
   } catch (error) {
     console.error('  ❌ Failed to archive artifacts:', error);
@@ -447,9 +447,9 @@ async function archiveTestArtifacts() {
  */
 async function generateFinalReport() {
   console.log('📄 Generating final test report...');
-  
+
   const fs = require('fs');
-  
+
   const summary = {
     timestamp: new Date().toISOString(),
     testRun: {
@@ -470,7 +470,7 @@ async function generateFinalReport() {
       'Consider implementing progressive enhancement for failing features'
     ]
   };
-  
+
   try {
     const reportPath = 'test_reports/final-report.json';
     fs.writeFileSync(reportPath, JSON.stringify(summary, null, 2));

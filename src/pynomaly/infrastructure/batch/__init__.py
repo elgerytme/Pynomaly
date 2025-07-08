@@ -14,7 +14,7 @@ from .batch_processor import (
 __all__ = [
     "BatchProcessor",
     "BatchConfig",
-    "BatchEngine", 
+    "BatchEngine",
     "BatchStatus",
     "DataFormat",
     "BatchChunk",

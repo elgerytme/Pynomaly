@@ -37,12 +37,12 @@ export default function () {
       'health check status is 200': (r) => r.status === 200,
       'health check response time < 500ms': (r) => r.timings.duration < 500,
     });
-    
+
     const readyRes = http.get(`${BASE_URL}/api/v1/health/ready`);
     check(readyRes, {
       'ready check status is 200': (r) => r.status === 200,
     });
-    
+
     errorRate.add(healthRes.status !== 200);
     responseTimeTrend.add(healthRes.timings.duration);
   });
@@ -52,7 +52,7 @@ export default function () {
     check(docsRes, {
       'docs accessible': (r) => r.status === 200,
     });
-    
+
     errorRate.add(docsRes.status !== 200);
   });
 
@@ -63,11 +63,11 @@ export default function () {
       algorithm: 'isolation_forest',
       contamination: 0.1
     });
-    
+
     const normalRes = http.post(`${BASE_URL}/api/v1/detect`, normalPayload, {
       headers: { 'Content-Type': 'application/json' },
     });
-    
+
     check(normalRes, {
       'normal detection status is 200': (r) => r.status === 200,
       'normal detection response time < 2s': (r) => r.timings.duration < 2000,
@@ -80,21 +80,21 @@ export default function () {
         }
       },
     });
-    
+
     errorRate.add(normalRes.status !== 200);
     responseTimeTrend.add(normalRes.timings.duration);
-    
+
     // Test anomalous data detection
     const anomalousPayload = JSON.stringify({
       data: testData.anomalous,
       algorithm: 'isolation_forest',
       contamination: 0.1
     });
-    
+
     const anomalousRes = http.post(`${BASE_URL}/api/v1/detect`, anomalousPayload, {
       headers: { 'Content-Type': 'application/json' },
     });
-    
+
     check(anomalousRes, {
       'anomalous detection status is 200': (r) => r.status === 200,
       'anomalous detection finds anomalies': (r) => {
@@ -106,7 +106,7 @@ export default function () {
         }
       },
     });
-    
+
     errorRate.add(anomalousRes.status !== 200);
   });
 
@@ -119,16 +119,16 @@ export default function () {
       algorithm: 'lof',
       contamination: 0.1
     });
-    
+
     const batchRes = http.post(`${BASE_URL}/api/v1/detect/batch`, batchPayload, {
       headers: { 'Content-Type': 'application/json' },
     });
-    
+
     check(batchRes, {
       'batch processing status is 200': (r) => r.status === 200,
       'batch processing response time < 5s': (r) => r.timings.duration < 5000,
     });
-    
+
     errorRate.add(batchRes.status !== 200);
     responseTimeTrend.add(batchRes.timings.duration);
   });
@@ -147,7 +147,7 @@ export default function () {
         }
       },
     });
-    
+
     errorRate.add(algorithmsRes.status !== 200);
   });
 
@@ -157,7 +157,7 @@ export default function () {
       'metrics endpoint accessible': (r) => r.status === 200,
       'metrics contain prometheus format': (r) => r.body.includes('# HELP'),
     });
-    
+
     errorRate.add(metricsRes.status !== 200);
   });
 
@@ -215,7 +215,7 @@ function htmlReport(data) {
             ${data.metrics.http_req_duration['p(95)'].toFixed(2)}ms
         </p>
     </div>
-    
+
     <h2>Detailed Metrics</h2>
     <table>
         <tr><th>Metric</th><th>Value</th><th>Threshold</th><th>Status</th></tr>

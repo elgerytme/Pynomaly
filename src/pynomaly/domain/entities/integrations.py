@@ -75,22 +75,22 @@ class IntegrationConfig:
     enabled: bool = True
     notification_levels: List[NotificationLevel] = field(default_factory=list)
     triggers: List[TriggerType] = field(default_factory=list)
-    
+
     # Delivery settings
     retry_count: int = 3
     retry_delay_seconds: int = 60
     timeout_seconds: int = 30
     rate_limit_per_minute: int = 60
-    
+
     # Content settings
     template_id: Optional[str] = None
     custom_template: Optional[str] = None
     include_charts: bool = False
     include_raw_data: bool = False
-    
+
     # Filtering
     filters: Dict[str, Any] = field(default_factory=dict)
-    
+
     # Integration-specific settings
     settings: Dict[str, Any] = field(default_factory=dict)
 
@@ -113,14 +113,14 @@ class Integration:
     trigger_count: int = 0
     success_count: int = 0
     error_count: int = 0
-    
+
     @property
     def success_rate(self) -> float:
         """Calculate success rate percentage."""
         if self.trigger_count == 0:
             return 0.0
         return (self.success_count / self.trigger_count) * 100
-    
+
     def is_healthy(self) -> bool:
         """Check if integration is healthy."""
         return (
@@ -142,7 +142,7 @@ class NotificationPayload:
     user_id: Optional[UserId] = None
     data: Dict[str, Any] = field(default_factory=dict)
     attachments: List[Dict[str, Any]] = field(default_factory=list)
-    
+
     def to_slack_format(self) -> Dict[str, Any]:
         """Convert to Slack message format."""
         color_map = {
@@ -151,7 +151,7 @@ class NotificationPayload:
             NotificationLevel.ERROR: "#ff0000",     # Red
             NotificationLevel.CRITICAL: "#8b0000"   # Dark red
         }
-        
+
         return {
             "text": self.title,
             "attachments": [
@@ -177,7 +177,7 @@ class NotificationPayload:
                 }
             ] + self.attachments
         }
-    
+
     def to_teams_format(self) -> Dict[str, Any]:
         """Convert to Microsoft Teams message format."""
         theme_color_map = {
@@ -186,7 +186,7 @@ class NotificationPayload:
             NotificationLevel.ERROR: "DC143C",     # Crimson
             NotificationLevel.CRITICAL: "8B0000"   # Dark red
         }
-        
+
         return {
             "@type": "MessageCard",
             "@context": "http://schema.org/extensions",
@@ -210,7 +210,7 @@ class NotificationPayload:
                 }
             ]
         }
-    
+
     def to_pagerduty_format(self) -> Dict[str, Any]:
         """Convert to PagerDuty event format."""
         severity_map = {
@@ -219,7 +219,7 @@ class NotificationPayload:
             NotificationLevel.ERROR: "error",
             NotificationLevel.CRITICAL: "critical"
         }
-        
+
         return {
             "payload": {
                 "summary": self.title,
@@ -235,7 +235,7 @@ class NotificationPayload:
             },
             "event_action": "trigger"
         }
-    
+
     def to_webhook_format(self) -> Dict[str, Any]:
         """Convert to generic webhook format."""
         return {
@@ -267,7 +267,7 @@ class NotificationTemplate:
     variables: List[str] = field(default_factory=list)
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
-    
+
     def render(self, context: Dict[str, Any]) -> Dict[str, str]:
         """Render template with provided context."""
         try:
@@ -293,7 +293,7 @@ class NotificationHistory:
     delivery_time_ms: Optional[int] = None
     retry_count: int = 0
     error_message: Optional[str] = None
-    
+
     @property
     def was_successful(self) -> bool:
         """Check if notification was successfully delivered."""
@@ -371,14 +371,14 @@ class IntegrationMetrics:
     last_failure: Optional[datetime] = None
     uptime_percentage: float = 100.0
     rate_limit_hits: int = 0
-    
+
     @property
     def success_rate(self) -> float:
         """Calculate success rate percentage."""
         if self.total_notifications == 0:
             return 0.0
         return (self.successful_notifications / self.total_notifications) * 100
-    
+
     @property
     def failure_rate(self) -> float:
         """Calculate failure rate percentage."""

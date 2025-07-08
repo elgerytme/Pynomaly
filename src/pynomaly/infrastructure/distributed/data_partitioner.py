@@ -91,8 +91,7 @@ class DataPartition(BaseModel):
         default=None, description="Processing start time"
     )
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed = True)
 
     @property
     def size_mb(self) -> float:

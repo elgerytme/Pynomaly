@@ -5,7 +5,7 @@ const config = {
     '../docs/ui/**/*.stories.@(js|jsx|ts|tsx|mdx)',
     '../stories/**/*.stories.@(js|jsx|ts|tsx|mdx)'
   ],
-  
+
   addons: [
     '@storybook/addon-essentials',
     '@storybook/addon-a11y',
@@ -18,27 +18,27 @@ const config = {
     '@storybook/addon-interactions',
     '@storybook/addon-toolbars'
   ],
-  
+
   framework: {
     name: '@storybook/html-vite',
     options: {}
   },
-  
+
   features: {
     buildStoriesJson: true,
     storyStoreV7: true
   },
-  
+
   docs: {
     autodocs: 'tag',
     defaultName: 'Documentation'
   },
-  
+
   staticDirs: [
     '../src/pynomaly/presentation/web/static',
     '../docs/ui/assets'
   ],
-  
+
   viteFinal: async (config) => {
     // Customize Vite config for Storybook
     config.resolve = config.resolve || {};
@@ -49,7 +49,7 @@ const config = {
       '@utils': '/src/pynomaly/presentation/web/static/js/src/utils',
       '@styles': '/src/pynomaly/presentation/web/static/css'
     };
-    
+
     // Add PostCSS support for Tailwind
     const { default: tailwindcss } = await import('tailwindcss');
     const { default: autoprefixer } = await import('autoprefixer');
@@ -60,15 +60,15 @@ const config = {
         autoprefixer
       ]
     };
-    
+
     return config;
   },
-  
+
   env: (config) => ({
     ...config,
     STORYBOOK_THEME: 'pynomaly'
   }),
-  
+
   typescript: {
     check: false,
     reactDocgen: 'react-docgen-typescript',

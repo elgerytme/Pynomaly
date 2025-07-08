@@ -326,7 +326,7 @@ def generate_full_tree_report(project_root: Path) -> dict:
         "project_root": str(project_root),
         "tree": []
     }
-    
+
     def scan_directory(directory: Path, relative_path: str = "") -> list:
         items = []
         try:
@@ -342,7 +342,7 @@ def generate_full_tree_report(project_root: Path) -> dict:
                         "note": "Git repository (contents not scanned)"
                     })
                     continue
-                    
+
                 try:
                     # Safely check file type
                     is_dir = item.is_dir()
@@ -358,7 +358,7 @@ def generate_full_tree_report(project_root: Path) -> dict:
                         "note": "Access denied or broken symlink"
                     })
                     continue
-                
+
                 # Safely get file stats
                 size = None
                 modified = None
@@ -369,7 +369,7 @@ def generate_full_tree_report(project_root: Path) -> dict:
                         modified = datetime.fromtimestamp(item.stat().st_mtime).isoformat()
                 except (OSError, PermissionError):
                     pass
-                    
+
                 item_info = {
                     "name": item.name,
                     "type": "directory" if is_dir else "file",
@@ -377,20 +377,20 @@ def generate_full_tree_report(project_root: Path) -> dict:
                     "size": size,
                     "modified": modified
                 }
-                
+
                 if is_dir and item.name != '__pycache__':
                     try:
                         item_info["children"] = scan_directory(item)
                     except (OSError, PermissionError):
                         item_info["note"] = "Directory access denied"
                         item_info["children"] = []
-                    
+
                 items.append(item_info)
         except PermissionError:
             pass
-            
+
         return items
-    
+
     full_tree["tree"] = scan_directory(project_root)
     return full_tree
 
@@ -403,7 +403,7 @@ def generate_violations_report(analysis: dict) -> dict:
         "total_violations": len(analysis["stray_files"]) + len(analysis["stray_directories"]),
         "violations": []
     }
-    
+
     # Add stray files as violations
     for file_info in analysis["stray_files"]:
         violations["violations"].append({
@@ -416,7 +416,7 @@ def generate_violations_report(analysis: dict) -> dict:
             "size": file_info["size"],
             "modified": file_info["modified"]
         })
-    
+
     # Add stray directories as violations
     for dir_info in analysis["stray_directories"]:
         violations["violations"].append({
@@ -428,7 +428,7 @@ def generate_violations_report(analysis: dict) -> dict:
             "recommended_location": dir_info["recommended_location"],
             "item_count": dir_info["item_count"]
         })
-    
+
     return violations
 
 
@@ -449,7 +449,7 @@ def main():
     current_layout_file = reports_dir / "current_layout.json"
     with open(current_layout_file, "w") as f:
         json.dump(full_tree, f, indent=2)
-    
+
     # Generate and save violations report
     print("⚠️  Generating violations report...")
     violations = generate_violations_report(analysis)

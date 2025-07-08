@@ -18,7 +18,7 @@ The autonomous service (`AutonomousDetectionService`) performs comprehensive dat
 ```python
 # Key data characteristics analyzed:
 - Sample count (n_samples)
-- Feature count (n_features) 
+- Feature count (n_features)
 - Feature types (numeric, categorical, temporal)
 - Missing values ratio
 - Data sparsity ratio
@@ -94,32 +94,32 @@ Each algorithm receives a suitability score based on:
 ```python
 def _calculate_algorithm_score(config: AlgorithmConfig, profile: DataProfile) -> float:
     score = 1.0
-    
+
     # Sample size suitability
     if profile.n_samples < config.recommended_min_samples:
         score *= 0.5  # Penalty for insufficient data
     elif profile.n_samples > config.recommended_max_samples:
         score *= 0.8  # Slight penalty for very large datasets
-    
+
     # Complexity matching
     complexity_diff = abs(config.complexity_score - profile.complexity_score)
     score *= (1.0 - complexity_diff * 0.3)
-    
+
     # Feature type compatibility
     if profile.categorical_features and not config.supports_categorical:
         score *= 0.7
-    
+
     # Temporal structure considerations
     if profile.has_temporal_structure and not config.supports_streaming:
         score *= 0.8
-    
+
     # Memory and performance considerations
     if profile.dataset_size_mb > 1000:  # >1GB
         score *= (1.0 - config.memory_factor * 0.3)
-    
+
     # Family-specific bonuses
     # ... (see implementation for full logic)
-    
+
     return max(score, 0.1)  # Minimum viable score
 ```
 
@@ -206,7 +206,7 @@ ensemble_config = {
 # By algorithm family
 families = {
     "statistical": ["ECOD", "COPOD"],
-    "distance_based": ["KNN", "LOF", "OneClassSVM"], 
+    "distance_based": ["KNN", "LOF", "OneClassSVM"],
     "isolation_based": ["IsolationForest"],
     "neural_networks": ["AutoEncoder", "VAE"]
 }
@@ -323,7 +323,7 @@ profile = DataProfile(
 ```bash
 # Proposed new CLI options:
 pynomaly auto detect data.csv --use-all-classifiers
-pynomaly auto detect data.csv --ensemble-by-family 
+pynomaly auto detect data.csv --ensemble-by-family
 pynomaly auto detect data.csv --explain-choices
 pynomaly auto detect data.csv --analyze-results
 ```
@@ -357,7 +357,7 @@ GET  /api/explain/algorithm-choices
     "reasoning": {
         "primary_factors": [
             "High-dimensional data (50 features)",
-            "Mixed data types supported", 
+            "Mixed data types supported",
             "Efficient for large datasets"
         ],
         "data_characteristics": {

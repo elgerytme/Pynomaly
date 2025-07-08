@@ -74,32 +74,32 @@ async def main():
         base_url="http://localhost:8000",
         api_key="your-api-key-here"
     ) as client:
-        
+
         # Create dataset
         dataset = await client.create_dataset(
             data_source=[[1, 2], [3, 4], [5, 6]],
             name="Async Dataset"
         )
-        
+
         # Train detector
         detector = await client.train_detector(
             dataset_id=dataset.id,
             algorithm=AlgorithmType.LOCAL_OUTLIER_FACTOR
         )
-        
+
         # Concurrent detection on multiple datasets
         data_batches = [
             [[1, 2], [3, 4]],
             [[5, 6], [7, 8]],
             [[9, 10], [11, 12]]
         ]
-        
+
         results = await client.batch_detect_concurrent(
             detector_id=detector.id,
             data_sources=data_batches,
             max_concurrent=3
         )
-        
+
         for i, result in enumerate(results):
             print(f"Batch {i+1}: {result.num_anomalies} anomalies")
 
@@ -273,7 +273,7 @@ async with AsyncPynomaliClient(...) as client:
         for dataset_id in dataset_ids
     ]
     detectors = await asyncio.gather(*tasks)
-    
+
     # Perform concurrent detection
     results = await client.batch_detect_concurrent(
         detector_id=detectors[0].id,
@@ -324,7 +324,7 @@ dataset: Dataset = client.get_dataset("dataset-123")
 print(f"Dataset has {dataset.num_samples} samples")
 print(f"Feature names: {dataset.feature_names}")
 
-detector: Detector = client.get_detector("detector-456") 
+detector: Detector = client.get_detector("detector-456")
 print(f"Algorithm: {detector.algorithm}")
 print(f"Status: {detector.status}")
 print(f"Performance: {detector.performance_metrics}")
@@ -420,7 +420,7 @@ For streaming applications, monitor memory usage:
 ```python
 async for result in client.stream_detection(...):
     process_result(result)
-    
+
     # Periodic cleanup
     if should_cleanup():
         gc.collect()
@@ -473,7 +473,7 @@ Main asynchronous client class with the same interface as `PynomaliClient` but w
 For SDK support and questions:
 
 1. Check the [main Pynomaly documentation](../../docs/)
-2. Review the [examples](examples.py) 
+2. Review the [examples](examples.py)
 3. Open an issue on the Pynomaly GitHub repository
 4. Contact the development team
 

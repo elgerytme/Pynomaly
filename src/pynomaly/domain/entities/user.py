@@ -131,7 +131,7 @@ class Tenant:
             "api_calls": (self.usage.api_calls_this_minute, self.limits.max_api_calls_per_minute),
             "concurrent": (self.usage.concurrent_detections, self.limits.max_concurrent_detections),
         }
-        
+
         if resource in usage_map:
             usage, limit = usage_map[resource]
             return (usage / limit * 100) if limit > 0 else 0.0
@@ -166,35 +166,35 @@ class User:
     email_verified_at: Optional[datetime] = None
     password_hash: str = ""
     settings: Dict[str, any] = field(default_factory=dict)
-    
+
     @property
     def full_name(self) -> str:
         """Get user's full name."""
         return f"{self.first_name} {self.last_name}".strip()
-    
+
     def get_tenant_role(self, tenant_id: TenantId) -> Optional[UserTenantRole]:
         """Get user's role for a specific tenant."""
         for tenant_role in self.tenant_roles:
             if tenant_role.tenant_id == tenant_id:
                 return tenant_role
         return None
-    
+
     def has_role_in_tenant(self, tenant_id: TenantId, role: UserRole) -> bool:
         """Check if user has specific role in tenant."""
         tenant_role = self.get_tenant_role(tenant_id)
         return tenant_role is not None and tenant_role.role == role
-    
+
     def has_permission_in_tenant(self, tenant_id: TenantId, permission: Permission) -> bool:
         """Check if user has specific permission in tenant."""
         tenant_role = self.get_tenant_role(tenant_id)
         if tenant_role is None:
             return False
         return permission in tenant_role.permissions
-    
+
     def get_tenant_ids(self) -> List[TenantId]:
         """Get list of tenant IDs user has access to."""
         return [tr.tenant_id for tr in self.tenant_roles]
-    
+
     def is_super_admin(self) -> bool:
         """Check if user is a super admin."""
         return any(tr.role == UserRole.SUPER_ADMIN for tr in self.tenant_roles)

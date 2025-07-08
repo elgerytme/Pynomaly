@@ -81,20 +81,20 @@ Our performance budget defines acceptable limits for key metrics:
 <picture>
   <source srcset="hero-image.avif" type="image/avif">
   <source srcset="hero-image.webp" type="image/webp">
-  <img src="hero-image.jpg" alt="Hero image" 
-       width="800" height="400" 
-       loading="eager" 
+  <img src="hero-image.jpg" alt="Hero image"
+       width="800" height="400"
+       loading="eager"
        fetchpriority="high">
 </picture>
 
 <!-- Responsive images for different viewport sizes -->
-<img srcset="chart-small.webp 480w, 
-             chart-medium.webp 800w, 
+<img srcset="chart-small.webp 480w,
+             chart-medium.webp 800w,
              chart-large.webp 1200w"
-     sizes="(max-width: 480px) 480px, 
-            (max-width: 800px) 800px, 
+     sizes="(max-width: 480px) 480px,
+            (max-width: 800px) 800px,
             1200px"
-     src="chart-medium.webp" 
+     src="chart-medium.webp"
      alt="Data visualization chart">
 ```
 
@@ -126,12 +126,12 @@ app = FastAPI()
 @app.middleware("http")
 async def add_performance_headers(request, call_next):
     response = await call_next(request)
-    
+
     # Add performance-related headers
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
-    
+
     return response
 
 @app.get("/api/data/large-dataset")
@@ -140,9 +140,9 @@ async def get_large_dataset():
     def generate_data():
         for chunk in get_data_chunks():
             yield chunk
-    
+
     return StreamingResponse(
-        generate_data(), 
+        generate_data(),
         media_type="application/json",
         headers={"Content-Encoding": "gzip"}
     )
@@ -174,11 +174,11 @@ class AnomalyWorker {
     this.worker = new Worker('/js/workers/anomaly-detection.js');
     this.setupMessageHandler();
   }
-  
+
   setupMessageHandler() {
     this.worker.onmessage = (event) => {
       const { type, data, id } = event.data;
-      
+
       switch (type) {
         case 'ANOMALY_DETECTED':
           this.handleAnomalyResult(data, id);
@@ -189,17 +189,17 @@ class AnomalyWorker {
       }
     };
   }
-  
+
   detectAnomalies(dataset, options = {}) {
     return new Promise((resolve, reject) => {
       const id = Date.now();
-      
+
       this.worker.postMessage({
         type: 'DETECT_ANOMALIES',
         data: { dataset, options },
         id
       });
-      
+
       // Store resolve/reject for this operation
       this.pendingOperations.set(id, { resolve, reject });
     });
@@ -212,29 +212,29 @@ class PerformantEventHandler {
     this.debounceMap = new Map();
     this.throttleMap = new Map();
   }
-  
+
   // Debounce for search inputs
   debounce(func, delay, key) {
     if (this.debounceMap.has(key)) {
       clearTimeout(this.debounceMap.get(key));
     }
-    
+
     const timeoutId = setTimeout(() => {
       func();
       this.debounceMap.delete(key);
     }, delay);
-    
+
     this.debounceMap.set(key, timeoutId);
   }
-  
+
   // Throttle for scroll events
   throttle(func, delay, key) {
     if (this.throttleMap.has(key)) {
       return;
     }
-    
+
     this.throttleMap.set(key, true);
-    
+
     setTimeout(() => {
       func();
       this.throttleMap.delete(key);
@@ -301,11 +301,11 @@ class LazyLoader {
       }
     );
   }
-  
+
   observe(element) {
     this.observer.observe(element);
   }
-  
+
   handleIntersection(entries) {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -314,10 +314,10 @@ class LazyLoader {
       }
     });
   }
-  
+
   async loadContent(element) {
     const componentType = element.dataset.component;
-    
+
     switch (componentType) {
       case 'chart':
         await this.loadChart(element);
@@ -330,7 +330,7 @@ class LazyLoader {
         break;
     }
   }
-  
+
   async loadChart(element) {
     const Chart = await loadChartingLibrary();
     const config = JSON.parse(element.dataset.config);
@@ -429,21 +429,21 @@ class LayoutStabilizer {
   static measureAndUpdate(container, updateCallback) {
     // Measure current layout
     const initialHeight = container.getBoundingClientRect().height;
-    
+
     // Perform update
     updateCallback();
-    
+
     // Measure new layout
     const newHeight = container.getBoundingClientRect().height;
-    
+
     // If height changed significantly, animate the transition
     if (Math.abs(newHeight - initialHeight) > 5) {
       container.style.transition = 'height 0.3s ease-out';
       container.style.height = `${initialHeight}px`;
-      
+
       requestAnimationFrame(() => {
         container.style.height = `${newHeight}px`;
-        
+
         setTimeout(() => {
           container.style.transition = '';
           container.style.height = '';
@@ -451,23 +451,23 @@ class LayoutStabilizer {
       });
     }
   }
-  
+
   static async loadImageWithPlaceholder(img, src) {
     return new Promise((resolve, reject) => {
       // Create a temporary image to get dimensions
       const tempImg = new Image();
-      
+
       tempImg.onload = () => {
         // Set placeholder with correct aspect ratio
         const aspectRatio = tempImg.height / tempImg.width;
         img.style.aspectRatio = `${tempImg.width} / ${tempImg.height}`;
-        
+
         // Load the actual image
         img.src = src;
         img.onload = resolve;
         img.onerror = reject;
       };
-      
+
       tempImg.src = src;
     });
   }
@@ -485,15 +485,15 @@ async function loadDynamicContent(container) {
         <div class="skeleton-text short"></div>
       `;
     });
-    
+
     // Fetch content
     const content = await fetch('/api/dynamic-content').then(r => r.json());
-    
+
     LayoutStabilizer.measureAndUpdate(container, () => {
       // Replace with actual content
       container.innerHTML = content.html;
     });
-    
+
   } catch (error) {
     console.error('Failed to load dynamic content:', error);
   }
@@ -530,7 +530,7 @@ async function loadDynamicContent(container) {
   transform: translateX(0);
   opacity: 1;
   transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-  
+
   /* Use will-change sparingly */
   will-change: transform, opacity;
 }
@@ -562,22 +562,22 @@ class DOMOptimizer {
   static batchUpdates(updates) {
     // Use DocumentFragment for multiple DOM insertions
     const fragment = document.createDocumentFragment();
-    
+
     updates.forEach(update => {
       const element = document.createElement(update.tag);
       element.className = update.className;
       element.textContent = update.content;
       fragment.appendChild(element);
     });
-    
+
     return fragment;
   }
-  
+
   static measureLayout() {
     // Batch DOM reads to avoid layout thrashing
     const measurements = [];
     const elements = document.querySelectorAll('[data-measure]');
-    
+
     // Read phase
     elements.forEach(element => {
       measurements.push({
@@ -586,27 +586,27 @@ class DOMOptimizer {
         scrollTop: element.scrollTop
       });
     });
-    
+
     // Write phase
     measurements.forEach(({ element, rect }) => {
       element.style.height = `${rect.height}px`;
     });
   }
-  
+
   static virtualizeList(container, items, renderItem, itemHeight = 50) {
     const viewportHeight = container.clientHeight;
     const visibleItems = Math.ceil(viewportHeight / itemHeight) + 2;
-    
+
     let scrollTop = 0;
     const totalHeight = items.length * itemHeight;
-    
+
     function render() {
       const startIndex = Math.floor(scrollTop / itemHeight);
       const endIndex = Math.min(startIndex + visibleItems, items.length);
-      
+
       const visibleItems = items.slice(startIndex, endIndex);
       const offsetY = startIndex * itemHeight;
-      
+
       container.innerHTML = `
         <div style="height: ${totalHeight}px; position: relative;">
           <div style="transform: translateY(${offsetY}px);">
@@ -615,12 +615,12 @@ class DOMOptimizer {
         </div>
       `;
     }
-    
+
     container.addEventListener('scroll', (e) => {
       scrollTop = e.target.scrollTop;
       requestAnimationFrame(render);
     });
-    
+
     render();
   }
 }
@@ -631,7 +631,7 @@ class MemoryManager {
     this.cache = new Map();
     this.maxCacheSize = 100;
   }
-  
+
   set(key, value) {
     // Implement LRU cache
     if (this.cache.has(key)) {
@@ -640,10 +640,10 @@ class MemoryManager {
       const firstKey = this.cache.keys().next().value;
       this.cache.delete(firstKey);
     }
-    
+
     this.cache.set(key, value);
   }
-  
+
   get(key) {
     const value = this.cache.get(key);
     if (value !== undefined) {
@@ -653,11 +653,11 @@ class MemoryManager {
     }
     return value;
   }
-  
+
   clear() {
     this.cache.clear();
   }
-  
+
   // Monitor memory usage
   getMemoryUsage() {
     if (performance.memory) {
@@ -681,53 +681,53 @@ class ResourcePreloader {
   constructor() {
     this.preloadedResources = new Set();
   }
-  
+
   preloadFont(href) {
     if (this.preloadedResources.has(href)) return;
-    
+
     const link = document.createElement('link');
     link.rel = 'preload';
     link.as = 'font';
     link.type = 'font/woff2';
     link.crossOrigin = 'anonymous';
     link.href = href;
-    
+
     document.head.appendChild(link);
     this.preloadedResources.add(href);
   }
-  
+
   preloadImage(src, priority = 'low') {
     if (this.preloadedResources.has(src)) return;
-    
+
     const link = document.createElement('link');
     link.rel = 'preload';
     link.as = 'image';
     link.href = src;
-    
+
     if (priority === 'high') {
       link.fetchPriority = 'high';
     }
-    
+
     document.head.appendChild(link);
     this.preloadedResources.add(src);
   }
-  
+
   preloadScript(src) {
     if (this.preloadedResources.has(src)) return;
-    
+
     const link = document.createElement('link');
     link.rel = 'preload';
     link.as = 'script';
     link.href = src;
-    
+
     document.head.appendChild(link);
     this.preloadedResources.add(src);
   }
-  
+
   // Intelligent preloading based on user behavior
   async preloadOnHover(element, resources) {
     let preloadTimer;
-    
+
     element.addEventListener('mouseenter', () => {
       preloadTimer = setTimeout(() => {
         resources.forEach(resource => {
@@ -745,7 +745,7 @@ class ResourcePreloader {
         });
       }, 100); // Small delay to avoid unnecessary preloads
     });
-    
+
     element.addEventListener('mouseleave', () => {
       clearTimeout(preloadTimer);
     });
@@ -757,14 +757,14 @@ class HTTP2PushSimulator {
   constructor() {
     this.pushedResources = new Set();
   }
-  
+
   pushCriticalResources() {
     const criticalResources = [
       { type: 'style', href: '/css/critical.css' },
       { type: 'script', href: '/js/critical.js' },
       { type: 'font', href: '/fonts/inter-var.woff2' }
     ];
-    
+
     criticalResources.forEach(resource => {
       if (!this.pushedResources.has(resource.href)) {
         this.simulatePush(resource);
@@ -772,18 +772,18 @@ class HTTP2PushSimulator {
       }
     });
   }
-  
+
   simulatePush(resource) {
     const link = document.createElement('link');
     link.rel = 'preload';
-    link.as = resource.type === 'style' ? 'style' : 
+    link.as = resource.type === 'style' ? 'style' :
                resource.type === 'script' ? 'script' : 'font';
     link.href = resource.href;
-    
+
     if (resource.type === 'font') {
       link.crossOrigin = 'anonymous';
     }
-    
+
     document.head.appendChild(link);
   }
 }
@@ -805,7 +805,7 @@ class PerformanceServiceWorker {
     this.cacheStrategies = new Map();
     this.setupStrategies();
   }
-  
+
   setupStrategies() {
     // Static assets - cache first
     this.cacheStrategies.set(/\.(css|js|woff2|png|jpg|webp|svg)$/, {
@@ -813,14 +813,14 @@ class PerformanceServiceWorker {
       cacheName: 'static-assets',
       maxAge: 31536000 // 1 year
     });
-    
+
     // API responses - network first with cache fallback
     this.cacheStrategies.set(/\/api\//, {
       strategy: CACHE_STRATEGY.NETWORK_FIRST,
       cacheName: 'api-cache',
       maxAge: 300 // 5 minutes
     });
-    
+
     // HTML pages - stale while revalidate
     this.cacheStrategies.set(/\.html$|^\/$/, {
       strategy: CACHE_STRATEGY.STALE_WHILE_REVALIDATE,
@@ -828,11 +828,11 @@ class PerformanceServiceWorker {
       maxAge: 86400 // 1 day
     });
   }
-  
+
   async handleFetch(event) {
     const url = new URL(event.request.url);
     const strategy = this.getStrategy(url.pathname);
-    
+
     switch (strategy.strategy) {
       case CACHE_STRATEGY.CACHE_FIRST:
         return this.cacheFirstStrategy(event.request, strategy);
@@ -844,7 +844,7 @@ class PerformanceServiceWorker {
         return fetch(event.request);
     }
   }
-  
+
   getStrategy(pathname) {
     for (const [pattern, strategy] of this.cacheStrategies) {
       if (pattern.test(pathname)) {
@@ -853,49 +853,49 @@ class PerformanceServiceWorker {
     }
     return { strategy: CACHE_STRATEGY.NETWORK_ONLY };
   }
-  
+
   async cacheFirstStrategy(request, strategy) {
     const cache = await caches.open(strategy.cacheName);
     const cachedResponse = await cache.match(request);
-    
+
     if (cachedResponse) {
       return cachedResponse;
     }
-    
+
     const networkResponse = await fetch(request);
     if (networkResponse.status === 200) {
       await cache.put(request, networkResponse.clone());
     }
-    
+
     return networkResponse;
   }
-  
+
   async networkFirstStrategy(request, strategy) {
     try {
       const networkResponse = await fetch(request);
-      
+
       if (networkResponse.status === 200) {
         const cache = await caches.open(strategy.cacheName);
         await cache.put(request, networkResponse.clone());
       }
-      
+
       return networkResponse;
     } catch (error) {
       const cache = await caches.open(strategy.cacheName);
       const cachedResponse = await cache.match(request);
-      
+
       if (cachedResponse) {
         return cachedResponse;
       }
-      
+
       throw error;
     }
   }
-  
+
   async staleWhileRevalidateStrategy(request, strategy) {
     const cache = await caches.open(strategy.cacheName);
     const cachedResponse = await cache.match(request);
-    
+
     // Always try to fetch from network in background
     const fetchPromise = fetch(request).then(networkResponse => {
       if (networkResponse.status === 200) {
@@ -903,12 +903,12 @@ class PerformanceServiceWorker {
       }
       return networkResponse;
     });
-    
+
     // Return cached response immediately if available
     if (cachedResponse) {
       return cachedResponse;
     }
-    
+
     // If no cache, wait for network
     return fetchPromise;
   }
@@ -956,7 +956,7 @@ class DatabaseManager:
     def __init__(self):
         self.pool = None
         self.redis_client = None
-    
+
     async def init_db(self):
         self.pool = await asyncpg.create_pool(
             dsn="postgresql://user:pass@localhost/db",
@@ -964,7 +964,7 @@ class DatabaseManager:
             max_size=20,
             command_timeout=60
         )
-        
+
         self.redis_client = redis.Redis(
             host='localhost',
             port=6379,
@@ -972,10 +972,10 @@ class DatabaseManager:
             decode_responses=True,
             max_connections=20
         )
-    
+
     async def get_connection(self):
         return await self.pool.acquire()
-    
+
     async def release_connection(self, conn):
         await self.pool.release(conn)
 
@@ -989,18 +989,18 @@ async def startup_event():
 @app.middleware("http")
 async def performance_middleware(request: Request, call_next):
     start_time = time.time()
-    
+
     # Add performance headers
     response = await call_next(request)
-    
+
     process_time = time.time() - start_time
     response.headers["X-Process-Time"] = str(process_time)
     response.headers["X-Timestamp"] = str(int(time.time()))
-    
+
     # Cache headers for static content
     if request.url.path.startswith("/static/"):
         response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
-    
+
     return response
 
 # Efficient data streaming
@@ -1018,7 +1018,7 @@ async def stream_dataset(dataset_id: str) -> StreamingResponse:
                     yield chunk_data.encode('utf-8')
         finally:
             await db_manager.release_connection(conn)
-    
+
     return StreamingResponse(
         generate_data(),
         media_type="application/x-ndjson",
@@ -1033,7 +1033,7 @@ class CacheManager:
     def __init__(self, redis_client):
         self.redis = redis_client
         self.default_ttl = 3600  # 1 hour
-    
+
     async def get(self, key: str):
         try:
             cached_data = await self.redis.get(key)
@@ -1042,7 +1042,7 @@ class CacheManager:
         except Exception as e:
             print(f"Cache get error: {e}")
         return None
-    
+
     async def set(self, key: str, value: dict, ttl: int = None):
         try:
             ttl = ttl or self.default_ttl
@@ -1053,7 +1053,7 @@ class CacheManager:
             )
         except Exception as e:
             print(f"Cache set error: {e}")
-    
+
     async def delete(self, key: str):
         try:
             await self.redis.delete(key)
@@ -1071,13 +1071,13 @@ async def detect_anomalies(
     # Check cache first
     cache_key = f"detection:{hash(str(request.dict()))}"
     cached_result = await cache_manager.get(cache_key)
-    
+
     if cached_result:
         return JSONResponse(
             content=cached_result,
             headers={"X-Cache": "HIT"}
         )
-    
+
     # Process detection
     try:
         # Use asyncio for concurrent processing
@@ -1087,9 +1087,9 @@ async def detect_anomalies(
                 run_detection_algorithm(algorithm, request.data)
             )
             tasks.append(task)
-        
+
         results = await asyncio.gather(*tasks, return_exceptions=True)
-        
+
         # Aggregate results
         detection_result = {
             "anomalies": [],
@@ -1097,15 +1097,15 @@ async def detect_anomalies(
             "processing_time": time.time() - start_time,
             "algorithms_used": request.algorithms
         }
-        
+
         for i, result in enumerate(results):
             if isinstance(result, Exception):
                 print(f"Algorithm {request.algorithms[i]} failed: {result}")
                 continue
-            
+
             detection_result["anomalies"].extend(result.anomalies)
             detection_result["confidence_scores"].extend(result.scores)
-        
+
         # Cache result
         background_tasks.add_task(
             cache_manager.set,
@@ -1113,12 +1113,12 @@ async def detect_anomalies(
             detection_result,
             ttl=1800  # 30 minutes
         )
-        
+
         return JSONResponse(
             content=detection_result,
             headers={"X-Cache": "MISS"}
         )
-        
+
     except Exception as e:
         return JSONResponse(
             content={"error": str(e)},
@@ -1133,21 +1133,21 @@ async def batch_detection(
 ) -> JSONResponse:
     # Generate job ID
     job_id = f"batch_{int(time.time())}_{hash(str(request.dict()))}"
-    
+
     # Store job status
     await cache_manager.set(
         f"job:{job_id}",
         {"status": "queued", "progress": 0},
         ttl=3600
     )
-    
+
     # Add to background processing
     background_tasks.add_task(
         process_batch_detection,
         job_id,
         request
     )
-    
+
     return JSONResponse(content={
         "job_id": job_id,
         "status": "queued",
@@ -1162,12 +1162,12 @@ async def process_batch_detection(job_id: str, request: BatchDetectionRequest):
             {"status": "processing", "progress": 0},
             ttl=3600
         )
-        
+
         total_datasets = len(request.datasets)
         processed = 0
-        
+
         results = []
-        
+
         for dataset in request.datasets:
             # Process individual dataset
             result = await run_detection_algorithm(
@@ -1175,11 +1175,11 @@ async def process_batch_detection(job_id: str, request: BatchDetectionRequest):
                 dataset
             )
             results.append(result)
-            
+
             # Update progress
             processed += 1
             progress = (processed / total_datasets) * 100
-            
+
             await cache_manager.set(
                 f"job:{job_id}",
                 {
@@ -1190,7 +1190,7 @@ async def process_batch_detection(job_id: str, request: BatchDetectionRequest):
                 },
                 ttl=3600
             )
-        
+
         # Store final results
         await cache_manager.set(
             f"job:{job_id}",
@@ -1202,7 +1202,7 @@ async def process_batch_detection(job_id: str, request: BatchDetectionRequest):
             },
             ttl=86400  # 24 hours
         )
-        
+
     except Exception as e:
         await cache_manager.set(
             f"job:{job_id}",
@@ -1220,28 +1220,28 @@ async def run_detection_algorithm(algorithm: str, data: dict):
     try:
         # Use prepared statements for better performance
         stmt = await conn.prepare("""
-            SELECT algorithm_function, parameters 
-            FROM algorithms 
+            SELECT algorithm_function, parameters
+            FROM algorithms
             WHERE name = $1 AND is_active = true
         """)
-        
+
         algorithm_config = await stmt.fetchrow(algorithm)
-        
+
         if not algorithm_config:
             raise ValueError(f"Algorithm {algorithm} not found")
-        
+
         # Execute algorithm with optimized parameters
         result = await execute_algorithm(
             algorithm_config['algorithm_function'],
             data,
             algorithm_config['parameters']
         )
-        
+
         # Store result asynchronously
         asyncio.create_task(store_detection_result(result))
-        
+
         return result
-        
+
     finally:
         await db_manager.release_connection(conn)
 ```
@@ -1253,20 +1253,20 @@ async def run_detection_algorithm(algorithm: str, data: dict):
 class DatabaseOptimizer:
     def __init__(self, pool):
         self.pool = pool
-    
+
     async def optimize_queries(self):
         """Run database optimization tasks"""
         conn = await self.pool.acquire()
         try:
             # Update table statistics
             await conn.execute("ANALYZE;")
-            
+
             # Vacuum tables periodically
             await conn.execute("VACUUM (ANALYZE, VERBOSE);")
-            
+
             # Check for missing indexes
             missing_indexes = await self.check_missing_indexes(conn)
-            
+
             return {
                 "optimizations_applied": True,
                 "missing_indexes": missing_indexes,
@@ -1274,7 +1274,7 @@ class DatabaseOptimizer:
             }
         finally:
             await self.pool.release(conn)
-    
+
     async def check_missing_indexes(self, conn):
         """Identify potentially missing indexes"""
         query = """
@@ -1285,10 +1285,10 @@ class DatabaseOptimizer:
         AND abs(correlation) < 0.1
         ORDER BY n_distinct DESC;
         """
-        
+
         results = await conn.fetch(query)
         return [dict(row) for row in results]
-    
+
     async def get_slow_queries(self, conn):
         """Get slow queries for optimization"""
         query = """
@@ -1298,7 +1298,7 @@ class DatabaseOptimizer:
         ORDER BY mean_time DESC
         LIMIT 10;
         """
-        
+
         results = await conn.fetch(query)
         return [dict(row) for row in results]
 
@@ -1311,7 +1311,7 @@ class OptimizedConnectionPool:
             "total_requests": 0,
             "average_query_time": 0
         }
-    
+
     async def init_pool(self):
         self.pool = await asyncpg.create_pool(
             dsn="postgresql://user:pass@localhost/db",
@@ -1327,31 +1327,31 @@ class OptimizedConnectionPool:
                 'tcp_keepalives_count': '3',
             }
         )
-    
+
     async def execute_with_metrics(self, query, *args):
         start_time = time.time()
-        
+
         async with self.pool.acquire() as conn:
             self.connection_metrics["active_connections"] += 1
             try:
                 result = await conn.fetch(query, *args)
-                
+
                 query_time = time.time() - start_time
                 self.connection_metrics["total_requests"] += 1
-                
+
                 # Update average query time
                 current_avg = self.connection_metrics["average_query_time"]
                 total_requests = self.connection_metrics["total_requests"]
-                
+
                 self.connection_metrics["average_query_time"] = (
                     (current_avg * (total_requests - 1)) + query_time
                 ) / total_requests
-                
+
                 return result
-                
+
             finally:
                 self.connection_metrics["active_connections"] -= 1
-    
+
     def get_pool_status(self):
         return {
             "pool_size": self.pool.get_size(),
@@ -1378,14 +1378,14 @@ module.exports = {
     vendor: ['d3', 'echarts'],
     worker: './src/workers/anomaly-detection.js'
   },
-  
+
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].[contenthash:8].js',
     chunkFilename: '[name].[contenthash:8].chunk.js',
     assetModuleFilename: 'assets/[name].[contenthash:8][ext]'
   },
-  
+
   optimization: {
     minimize: true,
     minimizer: [
@@ -1406,7 +1406,7 @@ module.exports = {
         extractComments: false
       })
     ],
-    
+
     splitChunks: {
       chunks: 'all',
       minSize: 20000,
@@ -1433,12 +1433,12 @@ module.exports = {
         }
       }
     },
-    
+
     runtimeChunk: {
       name: 'runtime'
     }
   },
-  
+
   module: {
     rules: [
       {
@@ -1501,7 +1501,7 @@ module.exports = {
       }
     ]
   },
-  
+
   plugins: [
     new CompressionPlugin({
       algorithm: 'gzip',
@@ -1509,14 +1509,14 @@ module.exports = {
       threshold: 8192,
       minRatio: 0.8
     }),
-    
+
     new BundleAnalyzerPlugin({
       analyzerMode: process.env.ANALYZE ? 'server' : 'disabled',
       openAnalyzer: false,
       reportFilename: 'bundle-report.html'
     })
   ],
-  
+
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
@@ -1541,7 +1541,7 @@ class BundleAnalyzer {
     this.buildDir = buildDir;
     this.previousReport = null;
   }
-  
+
   async analyzeBundles() {
     const bundles = await this.getBundleFiles();
     const analysis = {
@@ -1551,45 +1551,45 @@ class BundleAnalyzer {
       gzippedSize: 0,
       recommendations: []
     };
-    
+
     for (const bundle of bundles) {
       const bundleInfo = await this.analyzeSingleBundle(bundle);
       analysis.bundles.push(bundleInfo);
       analysis.totalSize += bundleInfo.size;
       analysis.gzippedSize += bundleInfo.gzippedSize;
     }
-    
+
     analysis.recommendations = this.generateRecommendations(analysis);
-    
+
     // Save report
     await this.saveReport(analysis);
-    
+
     // Compare with previous build
     if (this.previousReport) {
       analysis.comparison = this.compareReports(this.previousReport, analysis);
     }
-    
+
     this.previousReport = analysis;
     return analysis;
   }
-  
+
   async getBundleFiles() {
     const files = await fs.readdir(this.buildDir);
-    return files.filter(file => 
-      file.endsWith('.js') && 
+    return files.filter(file =>
+      file.endsWith('.js') &&
       !file.includes('.map') &&
       !file.includes('runtime')
     );
   }
-  
+
   async analyzeSingleBundle(filename) {
     const filepath = path.join(this.buildDir, filename);
     const stats = await fs.stat(filepath);
     const content = await fs.readFile(filepath, 'utf8');
-    
+
     // Calculate gzipped size
     const gzipped = require('zlib').gzipSync(content);
-    
+
     // Analyze content
     const analysis = {
       filename,
@@ -1599,20 +1599,20 @@ class BundleAnalyzer {
       duplicates: this.findDuplicates(content),
       unusedExports: this.findUnusedExports(content)
     };
-    
+
     return analysis;
   }
-  
+
   extractModules(content) {
     // Extract webpack modules from bundle
     const moduleRegex = /\/\*\* webpack\/bootstrap \*\*\//;
     const modules = [];
-    
+
     // Simple module extraction (in real implementation, use AST parsing)
     const lines = content.split('\n');
     let inModule = false;
     let currentModule = '';
-    
+
     for (const line of lines) {
       if (line.includes('__webpack_require__')) {
         inModule = true;
@@ -1623,17 +1623,17 @@ class BundleAnalyzer {
         currentModule = '';
       }
     }
-    
+
     return modules;
   }
-  
+
   findDuplicates(content) {
     // Find duplicate code patterns
     const duplicates = [];
     const codeBlocks = content.match(/function\s+\w+\([^)]*\)\s*{[^}]+}/g) || [];
-    
+
     const blockMap = new Map();
-    
+
     codeBlocks.forEach((block, index) => {
       const normalized = block.replace(/\s+/g, ' ').trim();
       if (blockMap.has(normalized)) {
@@ -1646,26 +1646,26 @@ class BundleAnalyzer {
         blockMap.set(normalized, index);
       }
     });
-    
+
     return duplicates;
   }
-  
+
   findUnusedExports(content) {
     // Find potentially unused exports
     const exports = content.match(/exports\.\w+/g) || [];
     const imports = content.match(/require\([^)]+\)/g) || [];
-    
+
     const unusedExports = exports.filter(exp => {
       const exportName = exp.split('.')[1];
       return !imports.some(imp => imp.includes(exportName));
     });
-    
+
     return unusedExports;
   }
-  
+
   generateRecommendations(analysis) {
     const recommendations = [];
-    
+
     // Check bundle sizes
     analysis.bundles.forEach(bundle => {
       if (bundle.size > 500000) { // 500KB
@@ -1676,7 +1676,7 @@ class BundleAnalyzer {
           bundle: bundle.filename
         });
       }
-      
+
       if (bundle.duplicates.length > 0) {
         recommendations.push({
           type: 'duplication',
@@ -1685,7 +1685,7 @@ class BundleAnalyzer {
           bundle: bundle.filename
         });
       }
-      
+
       if (bundle.unusedExports.length > 0) {
         recommendations.push({
           type: 'unused',
@@ -1695,7 +1695,7 @@ class BundleAnalyzer {
         });
       }
     });
-    
+
     // Check total size
     if (analysis.totalSize > 2000000) { // 2MB
       recommendations.push({
@@ -1704,20 +1704,20 @@ class BundleAnalyzer {
         message: `Total bundle size is ${Math.round(analysis.totalSize / 1024)}KB. Consider aggressive optimization.`
       });
     }
-    
+
     return recommendations;
   }
-  
+
   compareReports(previous, current) {
     const comparison = {
       sizeDiff: current.totalSize - previous.totalSize,
       gzippedDiff: current.gzippedSize - previous.gzippedSize,
       bundleChanges: []
     };
-    
+
     current.bundles.forEach(currentBundle => {
       const previousBundle = previous.bundles.find(b => b.filename === currentBundle.filename);
-      
+
       if (previousBundle) {
         const sizeDiff = currentBundle.size - previousBundle.size;
         if (Math.abs(sizeDiff) > 1024) { // 1KB threshold
@@ -1735,20 +1735,20 @@ class BundleAnalyzer {
         });
       }
     });
-    
+
     return comparison;
   }
-  
+
   async saveReport(analysis) {
     const reportPath = path.join(this.buildDir, 'bundle-analysis.json');
     await fs.writeFile(reportPath, JSON.stringify(analysis, null, 2));
-    
+
     // Generate HTML report
     const htmlReport = this.generateHTMLReport(analysis);
     const htmlPath = path.join(this.buildDir, 'bundle-analysis.html');
     await fs.writeFile(htmlPath, htmlReport);
   }
-  
+
   generateHTMLReport(analysis) {
     return `
 <!DOCTYPE html>
@@ -1769,11 +1769,11 @@ class BundleAnalyzer {
 <body>
     <h1>Bundle Analysis Report</h1>
     <p>Generated: ${analysis.timestamp}</p>
-    
+
     <h2>Summary</h2>
     <p>Total Size: <span class="size">${Math.round(analysis.totalSize / 1024)}KB</span></p>
     <p>Gzipped Size: <span class="size">${Math.round(analysis.gzippedSize / 1024)}KB</span></p>
-    
+
     <h2>Bundles</h2>
     ${analysis.bundles.map(bundle => `
         <div class="bundle">
@@ -1783,7 +1783,7 @@ class BundleAnalyzer {
             <p>Duplicates: ${bundle.duplicates.length}</p>
         </div>
     `).join('')}
-    
+
     <h2>Recommendations</h2>
     ${analysis.recommendations.map(rec => `
         <div class="recommendation ${rec.severity}">
@@ -1819,7 +1819,7 @@ class CacheManager {
     this.maxMemorySize = 50; // MB
     this.currentMemorySize = 0;
   }
-  
+
   async init() {
     // Initialize service worker cache
     if ('serviceWorker' in navigator && 'caches' in window) {
@@ -1829,11 +1829,11 @@ class CacheManager {
         console.warn('Service Worker cache unavailable:', error);
       }
     }
-    
+
     // Set up cache cleanup
     this.setupCacheCleanup();
   }
-  
+
   // Level 1: Memory Cache (fastest, smallest)
   setMemoryCache(key, data, ttl = 300000) { // 5 minutes default
     const item = {
@@ -1842,32 +1842,32 @@ class CacheManager {
       ttl,
       size: this.estimateSize(data)
     };
-    
+
     // Check if we need to free memory
     if (this.currentMemorySize + item.size > this.maxMemorySize * 1024 * 1024) {
       this.evictLRU();
     }
-    
+
     this.memoryCache.set(key, item);
     this.currentMemorySize += item.size;
   }
-  
+
   getMemoryCache(key) {
     const item = this.memoryCache.get(key);
     if (!item) return null;
-    
+
     // Check TTL
     if (Date.now() - item.timestamp > item.ttl) {
       this.memoryCache.delete(key);
       this.currentMemorySize -= item.size;
       return null;
     }
-    
+
     // Update access time for LRU
     item.lastAccessed = Date.now();
     return item.data;
   }
-  
+
   // Level 2: Session Storage (medium speed, session lifetime)
   setSessionCache(key, data) {
     try {
@@ -1886,7 +1886,7 @@ class CacheManager {
       }
     }
   }
-  
+
   getSessionCache(key) {
     try {
       const item = JSON.parse(this.sessionCache.getItem(key));
@@ -1895,7 +1895,7 @@ class CacheManager {
       return null;
     }
   }
-  
+
   // Level 3: Local Storage (persistent, larger capacity)
   setPersistentCache(key, data, ttl = 86400000) { // 24 hours default
     try {
@@ -1915,38 +1915,38 @@ class CacheManager {
       }
     }
   }
-  
+
   getPersistentCache(key) {
     try {
       const item = JSON.parse(this.persistentCache.getItem(key));
       if (!item) return null;
-      
+
       // Check TTL
       if (Date.now() - item.timestamp > item.ttl) {
         this.persistentCache.removeItem(key);
         return null;
       }
-      
+
       return item.data;
     } catch (error) {
       return null;
     }
   }
-  
+
   // Level 4: Service Worker Cache (network resources)
   async setNetworkCache(request, response) {
     if (!this.serviceWorkerCache) return;
-    
+
     try {
       await this.serviceWorkerCache.put(request, response.clone());
     } catch (error) {
       console.warn('Network cache failed:', error);
     }
   }
-  
+
   async getNetworkCache(request) {
     if (!this.serviceWorkerCache) return null;
-    
+
     try {
       return await this.serviceWorkerCache.match(request);
     } catch (error) {
@@ -1954,7 +1954,7 @@ class CacheManager {
       return null;
     }
   }
-  
+
   // Intelligent cache selection
   async set(key, data, options = {}) {
     const {
@@ -1962,10 +1962,10 @@ class CacheManager {
       ttl = 300000,
       priority = 'normal'
     } = options;
-    
+
     if (level === 'auto') {
       const size = this.estimateSize(data);
-      
+
       if (size < 100 * 1024 && priority === 'high') { // < 100KB, high priority
         this.setMemoryCache(key, data, ttl);
       } else if (size < 5 * 1024 * 1024) { // < 5MB
@@ -1987,12 +1987,12 @@ class CacheManager {
       }
     }
   }
-  
+
   async get(key) {
     // Try memory cache first
     let data = this.getMemoryCache(key);
     if (data) return data;
-    
+
     // Try session cache
     data = this.getSessionCache(key);
     if (data) {
@@ -2002,7 +2002,7 @@ class CacheManager {
       }
       return data;
     }
-    
+
     // Try persistent cache
     data = this.getPersistentCache(key);
     if (data) {
@@ -2010,15 +2010,15 @@ class CacheManager {
       this.setSessionCache(key, data);
       return data;
     }
-    
+
     return null;
   }
-  
+
   // Cache maintenance
   evictLRU() {
     let oldestTime = Date.now();
     let oldestKey = null;
-    
+
     for (const [key, item] of this.memoryCache) {
       const accessTime = item.lastAccessed || item.timestamp;
       if (accessTime < oldestTime) {
@@ -2026,14 +2026,14 @@ class CacheManager {
         oldestKey = key;
       }
     }
-    
+
     if (oldestKey) {
       const item = this.memoryCache.get(oldestKey);
       this.memoryCache.delete(oldestKey);
       this.currentMemorySize -= item.size;
     }
   }
-  
+
   clearOldestSessionData() {
     const items = [];
     for (let i = 0; i < this.sessionCache.length; i++) {
@@ -2046,20 +2046,20 @@ class CacheManager {
         this.sessionCache.removeItem(key);
       }
     }
-    
+
     // Sort by timestamp and remove oldest
     items.sort((a, b) => a.timestamp - b.timestamp);
     const toRemove = Math.ceil(items.length * 0.2); // Remove 20%
-    
+
     for (let i = 0; i < toRemove; i++) {
       this.sessionCache.removeItem(items[i].key);
     }
   }
-  
+
   clearExpiredPersistentData() {
     const now = Date.now();
     const toRemove = [];
-    
+
     for (let i = 0; i < this.persistentCache.length; i++) {
       const key = this.persistentCache.key(i);
       try {
@@ -2071,15 +2071,15 @@ class CacheManager {
         toRemove.push(key);
       }
     }
-    
+
     toRemove.forEach(key => this.persistentCache.removeItem(key));
   }
-  
+
   setupCacheCleanup() {
     // Clean up expired items every 5 minutes
     setInterval(() => {
       this.clearExpiredPersistentData();
-      
+
       // Clean memory cache
       const now = Date.now();
       for (const [key, item] of this.memoryCache) {
@@ -2090,11 +2090,11 @@ class CacheManager {
       }
     }, 300000);
   }
-  
+
   estimateSize(obj) {
     return new Blob([JSON.stringify(obj)]).size;
   }
-  
+
   getCacheStats() {
     return {
       memory: {
@@ -2112,7 +2112,7 @@ class CacheManager {
       }
     };
   }
-  
+
   getStorageSize(storage) {
     let total = 0;
     for (let key in storage) {
@@ -2131,27 +2131,27 @@ await cacheManager.init();
 // Cache API responses
 async function fetchWithCache(url, options = {}) {
   const cacheKey = `api:${url}:${JSON.stringify(options)}`;
-  
+
   // Try cache first
   let data = await cacheManager.get(cacheKey);
   if (data) {
     return data;
   }
-  
+
   // Fetch from network
   try {
     const response = await fetch(url, options);
     data = await response.json();
-    
+
     // Cache based on response type
     const cacheOptions = {
       ttl: response.headers.get('cache-control')?.includes('no-cache') ? 0 : 300000,
       priority: url.includes('/critical/') ? 'high' : 'normal'
     };
-    
+
     await cacheManager.set(cacheKey, data, cacheOptions);
     return data;
-    
+
   } catch (error) {
     console.error('Fetch failed:', error);
     throw error;

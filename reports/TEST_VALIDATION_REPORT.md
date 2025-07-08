@@ -250,7 +250,7 @@ python3 scripts/run_web_app.py
 
 ## Conclusion
 
-🎉 **The Pynomaly web application has passed all validation tests and is ready for production use.** 
+🎉 **The Pynomaly web application has passed all validation tests and is ready for production use.**
 
 The application demonstrates:
 - ✅ **Robust cross-platform compatibility**

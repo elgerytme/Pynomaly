@@ -330,7 +330,7 @@ class BDDTestRunner:
                     <div class="subtitle">Comprehensive Behavior-Driven Development Test Results</div>
                     <div class="timestamp">Generated: {timestamp}</div>
                 </div>
-                
+
                 <div class="summary">
                     <div class="metric">
                         <div class="number">{total_scenarios}</div>
@@ -353,7 +353,7 @@ class BDDTestRunner:
                         <div class="label">Execution Time</div>
                     </div>
                 </div>
-                
+
                 <div class="section">
                     <h2>📊 Performance Metrics</h2>
                     <div class="chart">
@@ -362,11 +362,11 @@ class BDDTestRunner:
                         <p><strong>Failure Rate:</strong> {failure_rate:.1f}%</p>
                     </div>
                 </div>
-                
+
                 {recommendations_section}
-                
+
                 {errors_section}
-                
+
                 <div class="section">
                     <h2>📋 Feature Coverage</h2>
                     <p>BDD scenarios cover the following user workflows:</p>
@@ -393,7 +393,7 @@ class BDDTestRunner:
             for rec in report_data["recommendations"]:
                 recommendations_html += f"""
                     <div class="recommendation">
-                        <span class="priority {rec['priority']}">{rec['priority']}</span> - 
+                        <span class="priority {rec['priority']}">{rec['priority']}</span> -
                         <strong>{rec['category']}:</strong> {rec['recommendation']}
                         <br><small>{rec['details']}</small>
                     </div>

@@ -333,11 +333,12 @@ npm-clean: ## Clean npm artifacts
 	-rm -rf src/pynomaly/presentation/web/static/js/app.js
 	@echo "✅ npm artifacts cleaned!"
 
-dev: ## Start development environment with watch mode
-	@echo "🚀 Starting development environment..."
-	@echo "This will start web asset watch mode"
-	@echo "Press Ctrl+C to stop"
-	@trap 'kill 0' EXIT; npm run watch
+dev: ## Set up the development environment
+	@echo "Setting up Pynomaly development environment..."
+	hatch env create dev
+	hatch run dev:setup
+	@echo "Development environment setup complete!"
+	@echo "You can now use 'hatch run dev:' to execute commands in the development environment."
 
 # Update existing targets to include Buck2 + npm integration
 build: npm-build ## Build package and web assets
@@ -363,11 +364,45 @@ clean: npm-clean buck-clean ## Clean all build artifacts
 # === QUICK ALIASES ===
 
 l: lint     ## Alias for lint
-f: format   ## Alias for format  
+f: format   ## Alias for format
 t: test     ## Alias for test
 b: build    ## Alias for build
 c: clean    ## Alias for clean
 s: status   ## Alias for status
+
+# === CONTAINER SECURITY TARGETS ===
+
+.PHONY: docker-build-hardened docker-security-scan docker-security-all docker-cis-benchmark
+
+docker-build-hardened: ## Build hardened Docker image
+	@echo "🔒 Building hardened Docker image..."
+	docker build -f deploy/docker/Dockerfile.hardened -t pynomaly:hardened .
+	@echo "✅ Hardened image built successfully"
+
+docker-security-scan: ## Run comprehensive container security scan
+	@echo "🔍 Running container security scan..."
+	@mkdir -p reports/security
+	python scripts/security/run_container_scans.py pynomaly:hardened --output-dir reports/security --html
+	@echo "✅ Security scan completed"
+
+docker-security-all: docker-build-hardened docker-security-scan ## Build and scan hardened image
+	@echo "🔒 Complete container security pipeline finished"
+
+docker-cis-benchmark: ## Run CIS Docker Benchmark
+	@echo "📋 Running CIS Docker Benchmark..."
+	docker run --rm --net host --pid host --userns host --cap-add audit_control \
+		-e DOCKER_CONTENT_TRUST=$$DOCKER_CONTENT_TRUST \
+		-v /var/lib:/var/lib:ro \
+		-v /var/run/docker.sock:/var/run/docker.sock:ro \
+		-v /usr/lib/systemd:/usr/lib/systemd:ro \
+		-v /etc:/etc:ro --label docker_bench_security \
+		docker/docker-bench-security
+
+docker-scan-prod: ## Scan production image
+	@echo "🔍 Scanning production image..."
+	@mkdir -p reports/security
+	python scripts/security/run_container_scans.py pynomaly:latest --output-dir reports/security --fail-on-critical --html
+	@echo "✅ Production image scan completed"
 
 # Make sure all targets are treated as commands, not files
 .DEFAULT_GOAL := help

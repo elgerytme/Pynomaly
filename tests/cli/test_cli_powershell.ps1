@@ -31,10 +31,10 @@ function Get-Timestamp {
 # Logging functions
 function Write-Log {
     param([string]$Message, [string]$Level = "Info")
-    
+
     $timestamp = Get-Timestamp
     $logMessage = "[$timestamp] [$Level] $Message"
-    
+
     switch ($Level) {
         "Success" { Write-Host $logMessage -ForegroundColor Green }
         "Error"   { Write-Host $logMessage -ForegroundColor Red }
@@ -42,7 +42,7 @@ function Write-Log {
         "Info"    { Write-Host $logMessage -ForegroundColor Blue }
         default   { Write-Host $logMessage }
     }
-    
+
     Add-Content -Path $LogFile -Value $logMessage
 }
 
@@ -71,15 +71,15 @@ function Invoke-Test {
         [int]$ExpectedExitCode = 0,
         [switch]$CaptureOutput = $true
     )
-    
+
     $script:TotalTests++
     Write-Log "Running test: $TestName"
-    
+
     $startTime = Get-Date
     $testPassed = $false
     $output = ""
     $exitCode = 0
-    
+
     try {
         if ($CaptureOutput) {
             $output = & $TestCommand 2>&1 | Out-String
@@ -88,9 +88,9 @@ function Invoke-Test {
             & $TestCommand
             $exitCode = $LASTEXITCODE
         }
-        
+
         if ($null -eq $exitCode) { $exitCode = 0 }
-        
+
         if ($exitCode -eq $ExpectedExitCode) {
             $testPassed = $true
         }
@@ -99,10 +99,10 @@ function Invoke-Test {
         $output = $_.Exception.Message
         $exitCode = 1
     }
-    
+
     $endTime = Get-Date
     $duration = ($endTime - $startTime).TotalSeconds
-    
+
     $testResult = @{
         name = $TestName
         status = if ($testPassed) { "PASS" } else { "FAIL" }
@@ -110,9 +110,9 @@ function Invoke-Test {
         exitCode = $exitCode
         output = $output
     }
-    
+
     $script:TestResults += $testResult
-    
+
     if ($testPassed) {
         Write-Success "$TestName ($($duration.ToString('F2'))s)"
     } else {
@@ -121,18 +121,18 @@ function Invoke-Test {
             Write-Log "Output: $output" "Error"
         }
     }
-    
+
     return $testPassed
 }
 
 # Setup test environment
 function Initialize-TestEnvironment {
     Write-Log "Setting up test environment..."
-    
+
     # Create directories
     New-Item -ItemType Directory -Path $TempDir -Force | Out-Null
     New-Item -ItemType Directory -Path $TestDataDir -Force | Out-Null
-    
+
     # Check Python availability
     try {
         $pythonVersion = python --version 2>&1
@@ -142,11 +142,11 @@ function Initialize-TestEnvironment {
         Write-Error "Python not found. Please install Python 3.11+ and ensure it's in PATH."
         exit 1
     }
-    
+
     # Create virtual environment
     Write-Log "Creating virtual environment at $VenvDir"
     python -m venv $VenvDir
-    
+
     # Activate virtual environment
     $activateScript = Join-Path $VenvDir "Scripts\Activate.ps1"
     if (Test-Path $activateScript) {
@@ -156,17 +156,17 @@ function Initialize-TestEnvironment {
         Write-Error "Failed to create virtual environment"
         exit 1
     }
-    
+
     # Upgrade pip
     python -m pip install --upgrade pip
-    
+
     Write-Log "Test environment setup complete"
 }
 
 # Generate test data
 function New-TestData {
     Write-Log "Generating test data..."
-    
+
     # Small CSV file
     $smallCsvContent = @"
 id,value1,value2,value3,category
@@ -181,10 +181,10 @@ id,value1,value2,value3,category
 9,10.1,19.9,4.9,A
 10,55.0,85.0,30.0,B
 "@
-    
+
     $smallCsvPath = Join-Path $TestDataDir "small_data.csv"
     $smallCsvContent | Out-File -FilePath $smallCsvPath -Encoding UTF8
-    
+
     # JSON file
     $jsonContent = @"
 [
@@ -195,10 +195,10 @@ id,value1,value2,value3,category
     {"id": 5, "value1": 9.9, "value2": 19.5, "value3": 4.8, "category": "A"}
 ]
 "@
-    
+
     $jsonPath = Join-Path $TestDataDir "sample_data.json"
     $jsonContent | Out-File -FilePath $jsonPath -Encoding UTF8
-    
+
     # Malformed CSV
     $malformedCsvContent = @"
 id,value1,value2,value3,category
@@ -208,10 +208,10 @@ id,value1,value2,value3,category
 4,not_a_number,80.0,25.0,B
 5,9.9,19.5,4.8,A
 "@
-    
+
     $malformedCsvPath = Join-Path $TestDataDir "malformed_data.csv"
     $malformedCsvContent | Out-File -FilePath $malformedCsvPath -Encoding UTF8
-    
+
     # Generate medium CSV with Python
     $pythonScript = @"
 import csv
@@ -254,20 +254,20 @@ with open(output_path, 'w', newline='', encoding='utf-8') as f:
 
 print(f'Generated {len(data)} samples in {output_path}')
 "@
-    
+
     $pythonScript | python
-    
+
     Write-Log "Test data generation complete"
 }
 
 # Install Pynomaly
 function Install-Pynomaly {
     Write-Log "Installing Pynomaly..."
-    
+
     # Install from local project
     Set-Location $ProjectRoot
     python -m pip install -e .
-    
+
     # Verify installation
     try {
         $version = pynomaly version 2>&1
@@ -283,58 +283,58 @@ function Install-Pynomaly {
 # Test basic commands
 function Test-BasicCommands {
     Write-Log "Testing basic CLI commands..."
-    
+
     Invoke-Test "CLI Help" { pynomaly --help }
     Invoke-Test "CLI Version" { pynomaly version }
     Invoke-Test "Config Show" { pynomaly config --show }
     Invoke-Test "System Status" { pynomaly status }
-    
+
     # Test quickstart with automated input
-    Invoke-Test "Quickstart Help" { 
-        echo "n" | pynomaly quickstart 
+    Invoke-Test "Quickstart Help" {
+        echo "n" | pynomaly quickstart
     } -ExpectedExitCode 0
 }
 
 # Test dataset commands
 function Test-DatasetCommands {
     Write-Log "Testing dataset commands..."
-    
+
     $smallDataPath = Join-Path $TestDataDir "small_data.csv"
     $jsonDataPath = Join-Path $TestDataDir "sample_data.json"
     $malformedDataPath = Join-Path $TestDataDir "malformed_data.csv"
-    
+
     Invoke-Test "Dataset Help" { pynomaly dataset --help }
     Invoke-Test "Dataset List Empty" { pynomaly dataset list }
-    
-    Invoke-Test "Load CSV Dataset" { 
-        pynomaly dataset load $smallDataPath --name test_small 
+
+    Invoke-Test "Load CSV Dataset" {
+        pynomaly dataset load $smallDataPath --name test_small
     }
-    
-    Invoke-Test "Load JSON Dataset" { 
-        pynomaly dataset load $jsonDataPath --name test_json 
+
+    Invoke-Test "Load JSON Dataset" {
+        pynomaly dataset load $jsonDataPath --name test_json
     }
-    
+
     Invoke-Test "Dataset List After Loading" { pynomaly dataset list }
     Invoke-Test "Dataset Info" { pynomaly dataset info test_small }
     Invoke-Test "Dataset Validation" { pynomaly dataset validate test_small }
-    
+
     # Test malformed data handling (should fail)
-    Invoke-Test "Load Malformed CSV" { 
-        pynomaly dataset load $malformedDataPath --name test_malformed 
+    Invoke-Test "Load Malformed CSV" {
+        pynomaly dataset load $malformedDataPath --name test_malformed
     } -ExpectedExitCode 1
 }
 
 # Test detector commands
 function Test-DetectorCommands {
     Write-Log "Testing detector commands..."
-    
+
     Invoke-Test "Detector Help" { pynomaly detector --help }
     Invoke-Test "Detector List Empty" { pynomaly detector list }
-    
-    Invoke-Test "Create IsolationForest Detector" { 
-        pynomaly detector create --name test_detector --algorithm IsolationForest 
+
+    Invoke-Test "Create IsolationForest Detector" {
+        pynomaly detector create --name test_detector --algorithm IsolationForest
     }
-    
+
     Invoke-Test "Detector List After Creation" { pynomaly detector list }
     Invoke-Test "Detector Info" { pynomaly detector info test_detector }
     Invoke-Test "Algorithm List" { pynomaly detector algorithms }
@@ -343,52 +343,52 @@ function Test-DetectorCommands {
 # Test detection commands
 function Test-DetectionCommands {
     Write-Log "Testing detection commands..."
-    
+
     Invoke-Test "Detection Help" { pynomaly detect --help }
-    
-    Invoke-Test "Train Detector" { 
-        pynomaly detect train --detector test_detector --dataset test_small 
+
+    Invoke-Test "Train Detector" {
+        pynomaly detect train --detector test_detector --dataset test_small
     }
-    
-    Invoke-Test "Run Detection" { 
-        pynomaly detect run --detector test_detector --dataset test_small 
+
+    Invoke-Test "Run Detection" {
+        pynomaly detect run --detector test_detector --dataset test_small
     }
-    
+
     Invoke-Test "View Results" { pynomaly detect results --latest }
-    
-    Invoke-Test "View Detector Results" { 
-        pynomaly detect results --detector test_detector 
+
+    Invoke-Test "View Detector Results" {
+        pynomaly detect results --detector test_detector
     }
 }
 
 # Test autonomous commands
 function Test-AutonomousCommands {
     Write-Log "Testing autonomous mode commands..."
-    
+
     $smallDataPath = Join-Path $TestDataDir "small_data.csv"
-    
+
     Invoke-Test "Autonomous Help" { pynomaly auto --help }
-    
-    Invoke-Test "Autonomous Detection" { 
-        pynomaly auto detect $smallDataPath --max-algorithms 2 
+
+    Invoke-Test "Autonomous Detection" {
+        pynomaly auto detect $smallDataPath --max-algorithms 2
     }
-    
-    Invoke-Test "Autonomous Profile" { 
-        pynomaly auto profile $smallDataPath 
+
+    Invoke-Test "Autonomous Profile" {
+        pynomaly auto profile $smallDataPath
     }
-    
-    Invoke-Test "Autonomous Quick" { 
-        pynomaly auto quick $smallDataPath --algorithm IsolationForest 
+
+    Invoke-Test "Autonomous Quick" {
+        pynomaly auto quick $smallDataPath --algorithm IsolationForest
     }
 }
 
 # Test export commands
 function Test-ExportCommands {
     Write-Log "Testing export commands..."
-    
+
     Invoke-Test "Export Help" { pynomaly export --help }
     Invoke-Test "List Export Formats" { pynomaly export list-formats }
-    
+
     # Create test results file
     $testResultsContent = @"
 {
@@ -403,20 +403,20 @@ function Test-ExportCommands {
     }
 }
 "@
-    
+
     $testResultsPath = Join-Path $TempDir "test_results.json"
     $testResultsContent | Out-File -FilePath $testResultsPath -Encoding UTF8
-    
+
     $csvExportPath = Join-Path $TempDir "exported_results.csv"
-    Invoke-Test "Export to CSV" { 
-        pynomaly export csv $testResultsPath $csvExportPath 
+    Invoke-Test "Export to CSV" {
+        pynomaly export csv $testResultsPath $csvExportPath
     }
-    
+
     # Test Excel export if available
     $excelExportPath = Join-Path $TempDir "exported_results.xlsx"
     try {
-        Invoke-Test "Export to Excel" { 
-            pynomaly export excel $testResultsPath $excelExportPath 
+        Invoke-Test "Export to Excel" {
+            pynomaly export excel $testResultsPath $excelExportPath
         }
     }
     catch {
@@ -430,47 +430,47 @@ function Test-Performance {
         Write-Log "Skipping performance tests (--SkipPerformance specified)"
         return
     }
-    
+
     Write-Log "Testing performance with medium dataset..."
-    
+
     $mediumDataPath = Join-Path $TestDataDir "medium_data.csv"
-    
+
     if (-not (Test-Path $mediumDataPath)) {
         Write-Warning "Medium dataset not found, skipping performance tests"
         return
     }
-    
-    Invoke-Test "Load Medium Dataset" { 
-        pynomaly dataset load $mediumDataPath --name test_medium 
+
+    Invoke-Test "Load Medium Dataset" {
+        pynomaly dataset load $mediumDataPath --name test_medium
     }
-    
-    Invoke-Test "Create Detector for Medium Data" { 
-        pynomaly detector create --name medium_detector --algorithm IsolationForest 
+
+    Invoke-Test "Create Detector for Medium Data" {
+        pynomaly detector create --name medium_detector --algorithm IsolationForest
     }
-    
+
     $trainingStart = Get-Date
-    Invoke-Test "Train on Medium Dataset" { 
-        pynomaly detect train --detector medium_detector --dataset test_medium 
+    Invoke-Test "Train on Medium Dataset" {
+        pynomaly detect train --detector medium_detector --dataset test_medium
     }
     $trainingEnd = Get-Date
     $trainingDuration = ($trainingEnd - $trainingStart).TotalSeconds
-    
+
     Write-Log "Training duration: $($trainingDuration.ToString('F2'))s"
-    
+
     $detectionStart = Get-Date
-    Invoke-Test "Detect on Medium Dataset" { 
-        pynomaly detect run --detector medium_detector --dataset test_medium 
+    Invoke-Test "Detect on Medium Dataset" {
+        pynomaly detect run --detector medium_detector --dataset test_medium
     }
     $detectionEnd = Get-Date
     $detectionDuration = ($detectionEnd - $detectionStart).TotalSeconds
-    
+
     Write-Log "Detection duration: $($detectionDuration.ToString('F2'))s"
-    
+
     # Performance assertions
     if ($trainingDuration -gt 120) {
         Write-Warning "Training took longer than expected: $($trainingDuration.ToString('F2'))s"
     }
-    
+
     if ($detectionDuration -gt 60) {
         Write-Warning "Detection took longer than expected: $($detectionDuration.ToString('F2'))s"
     }
@@ -479,43 +479,43 @@ function Test-Performance {
 # Test error handling
 function Test-ErrorHandling {
     Write-Log "Testing error handling..."
-    
+
     # Test non-existent dataset
-    Invoke-Test "Load Non-existent File" { 
-        pynomaly dataset load "C:\NonExistent\file.csv" --name test_missing 
+    Invoke-Test "Load Non-existent File" {
+        pynomaly dataset load "C:\NonExistent\file.csv" --name test_missing
     } -ExpectedExitCode 1
-    
+
     # Test invalid algorithm
-    Invoke-Test "Create Invalid Algorithm Detector" { 
-        pynomaly detector create --name bad_detector --algorithm NonExistentAlgorithm 
+    Invoke-Test "Create Invalid Algorithm Detector" {
+        pynomaly detector create --name bad_detector --algorithm NonExistentAlgorithm
     } -ExpectedExitCode 1
-    
+
     # Test train with non-existent detector
-    Invoke-Test "Train Non-existent Detector" { 
-        pynomaly detect train --detector non_existent --dataset test_small 
+    Invoke-Test "Train Non-existent Detector" {
+        pynomaly detect train --detector non_existent --dataset test_small
     } -ExpectedExitCode 1
-    
+
     # Test train with non-existent dataset
-    Invoke-Test "Train with Non-existent Dataset" { 
-        pynomaly detect train --detector test_detector --dataset non_existent 
+    Invoke-Test "Train with Non-existent Dataset" {
+        pynomaly detect train --detector test_detector --dataset non_existent
     } -ExpectedExitCode 1
 }
 
 # Cleanup function
 function Remove-TestEnvironment {
     Write-Log "Cleaning up test environment..."
-    
+
     try {
         # Deactivate virtual environment
         if ($env:VIRTUAL_ENV) {
             deactivate
         }
-        
+
         # Remove temporary directory
         if (Test-Path $TempDir) {
             Remove-Item -Recurse -Force $TempDir
         }
-        
+
         Write-Log "Cleanup complete"
     }
     catch {
@@ -526,13 +526,13 @@ function Remove-TestEnvironment {
 # Generate test report
 function New-TestReport {
     Write-Log "Generating test report..."
-    
-    $successRate = if ($TotalTests -gt 0) { 
-        [math]::Round(($PassedTests / $TotalTests) * 100, 2) 
-    } else { 
-        0 
+
+    $successRate = if ($TotalTests -gt 0) {
+        [math]::Round(($PassedTests / $TotalTests) * 100, 2)
+    } else {
+        0
     }
-    
+
     $report = @{
         test_run = @{
             timestamp = (Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ")
@@ -547,9 +547,9 @@ function New-TestReport {
         }
         test_results = $TestResults
     }
-    
+
     $report | ConvertTo-Json -Depth 5 | Out-File -FilePath $ResultsJson -Encoding UTF8
-    
+
     # Print summary
     Write-Host ""
     Write-Host "==============================================" -ForegroundColor Cyan
@@ -561,7 +561,7 @@ function New-TestReport {
     Write-Host "Success Rate:   $successRate%" -ForegroundColor Yellow
     Write-Host "==============================================" -ForegroundColor Cyan
     Write-Host ""
-    
+
     if ($FailedTests -eq 0) {
         Write-Host "🎉 All tests passed!" -ForegroundColor Green
         return $true
@@ -580,12 +580,12 @@ function Main {
         Write-Log "Platform: $($env:OS) - $(Get-ComputerInfo | Select-Object -ExpandProperty WindowsProductName)"
         Write-Log "PowerShell: $($PSVersionTable.PSVersion)"
         Write-Log "Python: $(python --version 2>&1)"
-        
+
         # Setup
         Initialize-TestEnvironment
         New-TestData
         Install-Pynomaly
-        
+
         # Run tests
         Test-BasicCommands
         Test-DatasetCommands
@@ -595,15 +595,15 @@ function Main {
         Test-ExportCommands
         Test-Performance
         Test-ErrorHandling
-        
+
         # Generate report
         $success = New-TestReport
-        
+
         if ($OutputPath) {
             Copy-Item $ResultsJson $OutputPath -Force
             Write-Log "Results copied to: $OutputPath"
         }
-        
+
         return $success
     }
     catch {

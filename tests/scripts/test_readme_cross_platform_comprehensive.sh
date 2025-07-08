@@ -57,28 +57,28 @@ test_cross_platform() {
     local test_name="$1"
     local command="$2"
     local expected_exit_code="${3:-0}"
-    
+
     ((total_tests++))
-    
+
     echo "----------------------------------------"
     print_status "TEST" "$test_name"
     echo "COMMAND: $command"
     echo "----------------------------------------"
-    
+
     # Execute command and capture output/errors
     local output
     local exit_code
-    
+
     output=$(eval "$command" 2>&1)
     exit_code=$?
-    
+
     # Display output (first 8 lines)
     echo "$output" | head -8
     local line_count=$(echo "$output" | wc -l)
     if [ $line_count -gt 8 ]; then
         echo "... (output truncated)"
     fi
-    
+
     # Check result
     if [ $exit_code -eq $expected_exit_code ]; then
         print_status "SUCCESS" "✅ PASSED: $test_name"
@@ -215,7 +215,7 @@ test_file = os.path.join(temp_dir, 'pynomaly_cross_platform_test.tmp')
 try:
     with open(test_file, 'w') as f:
         f.write('Cross-platform test content')
-    
+
     if os.path.exists(test_file):
         print('✓ Cross-platform file operations successful')
         os.unlink(test_file)
@@ -241,27 +241,27 @@ print('Testing CLI subcommands mentioned in README...')
 
 # Test main CLI access
 try:
-    result = subprocess.run([sys.executable, '-m', 'pynomaly', '--help'], 
+    result = subprocess.run([sys.executable, '-m', 'pynomaly', '--help'],
                           capture_output=True, text=True, timeout=15)
-    
+
     if result.returncode == 0:
         output = result.stdout.lower()
-        
+
         # Check for commands mentioned in README
         commands_to_check = ['detector', 'dataset', 'detect', 'server']
         found_commands = []
-        
+
         for cmd in commands_to_check:
             if cmd in output:
                 found_commands.append(cmd)
                 print(f'✓ Command \"{cmd}\" available')
             else:
                 print(f'⚠ Command \"{cmd}\" not clearly visible in help')
-        
+
         print(f'✓ CLI help accessible, {len(found_commands)}/{len(commands_to_check)} commands visible')
     else:
         print(f'⚠ CLI returned non-zero code: {result.returncode}')
-        
+
 except Exception as e:
     print(f'CLI test error: {e}')
 
@@ -282,16 +282,16 @@ try:
     # Create server as per README instructions
     container = create_container()
     app = create_app(container)
-    
+
     print(f'✓ Server created successfully: {type(app).__name__}')
     print(f'✓ FastAPI application ready for deployment')
-    
+
     # Test basic app properties
     if hasattr(app, 'routes'):
         print(f'✓ Routes available: {len(app.routes)} routes configured')
-    
+
     print('✓ README server creation example verified')
-    
+
 except Exception as e:
     print(f'✗ Server creation failed: {e}')
     raise
@@ -317,7 +317,7 @@ try:
     # Step 1: Initialize dependency injection container
     container = create_container()
     print('✓ Step 1: Container initialized')
-    
+
     # Step 2: Create detector with CORRECTED parameters
     detector = Detector(
         name='README Example Detector',
@@ -329,7 +329,7 @@ try:
         }
     )
     print(f'✓ Step 2: Detector created - {detector.name}')
-    
+
     # Step 3: Load and prepare dataset
     data = pd.DataFrame({
         'feature1': [1, 2, 3, 4, 5, 6, 7, 8, 9, 100],  # 100 is an outlier
@@ -337,21 +337,21 @@ try:
     })
     dataset = Dataset(name='README Example Data', data=data)
     print(f'✓ Step 3: Dataset created - {dataset.data.shape}')
-    
+
     # Step 4: Test adapter creation (infrastructure level)
     from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
     adapter = SklearnAdapter('IsolationForest', {'contamination': 0.1})
     print('✓ Step 4: Adapter created')
-    
+
     # Step 5: Test basic ML workflow
     adapter.fit(dataset)
     print('✓ Step 5: Model fitted')
-    
+
     result = adapter.detect(dataset)
     print(f'✓ Step 6: Detection completed - {len(result.anomalies)} anomalies found')
-    
+
     print('✓ End-to-end README workflow successful')
-    
+
 except Exception as e:
     print(f'✗ E2E workflow failed: {e}')
     import traceback
@@ -368,7 +368,7 @@ print('Validating requirements files mentioned in README...')
 
 required_files = [
     'requirements.txt',
-    'requirements-minimal.txt', 
+    'requirements-minimal.txt',
     'requirements-server.txt',
     'requirements-production.txt'
 ]
@@ -377,7 +377,7 @@ all_exist = True
 for req_file in required_files:
     if os.path.exists(req_file):
         print(f'✓ {req_file} exists')
-        
+
         # Check file has content
         with open(req_file, 'r') as f:
             content = f.read().strip()

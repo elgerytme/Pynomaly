@@ -16,16 +16,16 @@ sequenceDiagram
     participant Client
     participant API
     participant Auth Service
-    
+
     Client->>API: POST /api/auth/token (username, password)
     API->>Auth Service: Validate credentials
     Auth Service-->>API: User validated
     API-->>Client: JWT token + refresh token
-    
+
     Client->>API: Request with Authorization header
     API->>API: Validate JWT token
     API-->>Client: Protected resource
-    
+
     Client->>API: POST /api/auth/refresh (refresh token)
     API-->>Client: New JWT token
 ```
@@ -147,7 +147,7 @@ Permissions use the format: `resource:action`
 ```json
 {
   "admin": [
-    "detector:*", "dataset:*", "detection:*", 
+    "detector:*", "dataset:*", "detection:*",
     "experiment:*", "user:*", "system:*"
   ],
   "data_scientist": [
@@ -285,13 +285,13 @@ class TokenManager {
     this.accessToken = null;
     this.refreshToken = null;
   }
-  
+
   setTokens(accessToken, refreshToken) {
     this.accessToken = accessToken;
     // Store refresh token in httpOnly cookie or secure storage
     document.cookie = `refresh_token=${refreshToken}; HttpOnly; Secure; SameSite=Strict`;
   }
-  
+
   getAccessToken() {
     return this.accessToken;
   }
@@ -313,25 +313,25 @@ class ApiClient {
           ...options.headers
         }
       });
-      
+
       if (response.status === 401) {
         await this.refreshToken();
         // Retry original request
         return this.makeRequest(url, options);
       }
-      
+
       return response;
     } catch (error) {
       throw error;
     }
   }
-  
+
   async refreshToken() {
     const response = await fetch('/api/auth/refresh', {
       method: 'POST',
       credentials: 'include' // Include httpOnly cookie
     });
-    
+
     if (response.ok) {
       const tokens = await response.json();
       this.tokenManager.setTokens(tokens.access_token, tokens.refresh_token);
@@ -509,7 +509,7 @@ def create_test_token(user_id: str, roles: list = None):
     """Create test JWT token."""
     if roles is None:
         roles = ["data_scientist"]
-    
+
     payload = {
         "sub": user_id,
         "iat": int(time.time()),
@@ -521,13 +521,13 @@ def create_test_token(user_id: str, roles: list = None):
 def test_create_detector():
     client = TestClient(app)
     token = create_test_token("test_user", ["data_scientist"])
-    
+
     response = client.post(
         "/api/detectors",
         headers={"Authorization": f"Bearer {token}"},
         json={"name": "Test Detector", "algorithm_name": "IsolationForest"}
     )
-    
+
     assert response.status_code == 201
 ```
 
@@ -578,7 +578,7 @@ When updating API versions, maintain backward compatibility:
 def validate_token_version(token: str, required_version: str = "v1"):
     payload = jwt.decode(token, verify=False)  # Don't verify for version check
     token_version = payload.get("api_version", "v1")
-    
+
     if token_version != required_version:
         # Handle version mismatch
         if is_compatible_version(token_version, required_version):
@@ -586,7 +586,7 @@ def validate_token_version(token: str, required_version: str = "v1"):
             return upgrade_token_claims(payload)
         else:
             raise HTTPException(status_code=401, detail="Token version not supported")
-    
+
     return validate_token(token)
 ```
 

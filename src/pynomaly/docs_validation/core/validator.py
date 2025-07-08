@@ -17,7 +17,7 @@ class DocumentationValidator:
 class ValidationConfig:
     def __init__(self, path_to_docs):
         self.path_to_docs = path_to_docs
-        
+
     def load(self):
         # Load configuration logic
         print(f"Loading configuration from {self.path_to_docs}...")

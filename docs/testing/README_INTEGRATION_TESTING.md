@@ -352,7 +352,7 @@ The test runner generates comprehensive reports:
     <h1>Integration Test Summary</h1>
     <div class="summary">
         <p>Total Suites: 7</p>
-        <p>Passed: 6</p> 
+        <p>Passed: 6</p>
         <p>Failed: 1</p>
         <p>Success Rate: 85.7%</p>
         <p>Total Duration: 245.3 seconds</p>
@@ -373,37 +373,37 @@ on: [push, pull_request]
 jobs:
   integration-tests:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-    
+
     - name: Install dependencies
       run: |
         pip install poetry
         poetry install
-    
+
     - name: Health check
       run: poetry run python scripts/test_health_check.py
-    
+
     - name: Run integration tests
       run: |
         poetry run python scripts/run_integration_tests.py \
           --coverage \
           --max-failures 3 \
           --timeout 1800
-    
+
     - name: Upload test reports
       uses: actions/upload-artifact@v3
       if: always()
       with:
         name: integration-test-reports
         path: test_reports/
-    
+
     - name: Upload coverage
       uses: codecov/codecov-action@v3
       if: always()
@@ -541,20 +541,20 @@ async def test_new_feature_workflow(
     disable_auth
 ):
     """Test new feature end-to-end workflow."""
-    
+
     # Setup
     dataset = await integration_helper.upload_dataset(
         sample_dataset_csv,
         "new_feature_test"
     )
-    
+
     # Test new feature
     response = await async_test_client.post(
         "/api/new-feature",
         json={"dataset_id": dataset["id"]}
     )
     response.raise_for_status()
-    
+
     # Validate result
     result = response.json()["data"]
     assert "feature_result" in result

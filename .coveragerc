@@ -1,7 +1,7 @@
 # Enhanced Coverage configuration for Pynomaly
 [run]
 source = src/pynomaly
-omit = 
+omit =
     */tests/*
     */test_*
     */__pycache__/*
@@ -39,36 +39,36 @@ concurrency = multiprocessing,thread
 exclude_lines =
     # Have to re-enable the standard pragma
     pragma: no cover
-    
+
     # Don't complain about missing debug-only code:
     def __repr__
     if self\.debug
-    
+
     # Don't complain if tests don't hit defensive assertion code:
     raise AssertionError
     raise NotImplementedError
-    
+
     # Don't complain if non-runnable code isn't run:
     if 0:
     if False:
     if __name__ == .__main__.:
-    
+
     # Don't complain about abstract methods
     @(abc\.)?abstractmethod
-    
+
     # Don't complain about type checking imports
     if TYPE_CHECKING:
-    
+
     # Don't complain about protocol definitions
     \.\.\.
-    
+
     # Don't complain about platform specific code
     if sys.platform
     pragma: no cover
-    
+
     # Don't complain about deprecation warnings setup
     warnings\.warn
-    
+
 ignore_errors = True
 skip_covered = False
 skip_empty = True
@@ -92,7 +92,7 @@ pretty_print = True
 
 # Paths configuration for running in different environments
 [paths]
-source = 
+source =
     src/pynomaly/
     */site-packages/pynomaly/
     */pynomaly/src/pynomaly/

@@ -77,7 +77,7 @@ uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000
 
 ```bash
 python -m venv .venv
-# Error: ensurepip is not available. On Debian/Ubuntu systems, 
+# Error: ensurepip is not available. On Debian/Ubuntu systems,
 # you need to install the python3-venv package
 ```
 
@@ -106,7 +106,7 @@ PROJECT_ROOT="/mnt/c/Users/andre/Pynomaly"  # WSL-specific path
 ```
 
 **Impact**: Scripts not portable across environments
-**Affected Files**: 
+**Affected Files**:
 - `scripts/start_api_bash.sh`
 - Potentially other scripts
 

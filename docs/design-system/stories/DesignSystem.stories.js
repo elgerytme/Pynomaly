@@ -19,18 +19,18 @@ export default {
 const createColorPalette = () => {
   const container = document.createElement('div');
   container.className = 'space-y-8';
-  
+
   const title = document.createElement('h2');
   title.className = 'text-2xl font-bold text-gray-900 mb-6';
   title.textContent = 'Color System';
   container.appendChild(title);
-  
+
   const colorPalettes = {
     'Primary': {
       description: 'Main brand colors for primary actions and emphasis',
       colors: {
         'primary-50': '#eff6ff',
-        'primary-100': '#dbeafe', 
+        'primary-100': '#dbeafe',
         'primary-200': '#bfdbfe',
         'primary-300': '#93c5fd',
         'primary-400': '#60a5fa',
@@ -102,68 +102,68 @@ const createColorPalette = () => {
       }
     }
   };
-  
+
   Object.entries(colorPalettes).forEach(([paletteName, palette]) => {
     const section = document.createElement('div');
     section.className = 'space-y-4';
-    
+
     const sectionTitle = document.createElement('h3');
     sectionTitle.className = 'text-lg font-semibold text-gray-900';
     sectionTitle.textContent = paletteName;
     section.appendChild(sectionTitle);
-    
+
     const description = document.createElement('p');
     description.className = 'text-sm text-gray-600';
     description.textContent = palette.description;
     section.appendChild(description);
-    
+
     const colorGrid = document.createElement('div');
     colorGrid.className = 'grid grid-cols-5 gap-2';
-    
+
     Object.entries(palette.colors).forEach(([colorName, colorValue]) => {
       const colorSwatch = document.createElement('div');
       colorSwatch.className = 'space-y-2';
-      
+
       const swatch = document.createElement('div');
       swatch.className = 'h-16 rounded-lg border border-gray-200 shadow-sm flex items-center justify-center relative';
       swatch.style.backgroundColor = colorValue;
-      
+
       // Add contrast check
       const isLight = isLightColor(colorValue);
       swatch.style.color = isLight ? '#000000' : '#ffffff';
-      
+
       // Accessible color information
       swatch.setAttribute('title', `${colorName}: ${colorValue}`);
       swatch.setAttribute('aria-label', `Color swatch for ${colorName}, hex value ${colorValue}`);
-      
+
       const swatchInfo = document.createElement('div');
       swatchInfo.className = 'text-center';
-      
+
       const name = document.createElement('div');
       name.className = 'text-xs font-medium';
       name.textContent = colorName.split('-')[1] || colorName;
       swatchInfo.appendChild(name);
-      
+
       const value = document.createElement('div');
       value.className = 'text-xs opacity-80';
       value.textContent = colorValue.toUpperCase();
       swatchInfo.appendChild(value);
-      
+
       swatch.appendChild(swatchInfo);
       colorSwatch.appendChild(swatch);
-      
+
       const label = document.createElement('div');
       label.className = 'text-xs text-center text-gray-600 font-mono';
       label.textContent = colorName;
       colorSwatch.appendChild(label);
-      
+
       colorGrid.appendChild(colorSwatch);
     });
-    
+
     section.appendChild(colorGrid);
     container.appendChild(section);
   });
-  
+
   return container;
 };
 
@@ -181,12 +181,12 @@ const isLightColor = (color) => {
 const createTypographySystem = () => {
   const container = document.createElement('div');
   container.className = 'space-y-8';
-  
+
   const title = document.createElement('h2');
   title.className = 'text-2xl font-bold text-gray-900 mb-6';
   title.textContent = 'Typography';
   container.appendChild(title);
-  
+
   const typeScale = [
     { name: 'Display Large', class: 'text-6xl font-bold', usage: 'Hero headlines, marketing' },
     { name: 'Display Medium', class: 'text-5xl font-bold', usage: 'Page headers, major sections' },
@@ -201,33 +201,33 @@ const createTypographySystem = () => {
     { name: 'Caption', class: 'text-xs font-normal', usage: 'Labels, metadata' },
     { name: 'Code', class: 'text-sm font-mono', usage: 'Code snippets, technical text' },
   ];
-  
+
   typeScale.forEach(type => {
     const typeExample = document.createElement('div');
     typeExample.className = 'border-b border-gray-100 pb-4 mb-4';
-    
+
     const sample = document.createElement('div');
     sample.className = `${type.class} text-gray-900 mb-2`;
     sample.textContent = 'The quick brown fox jumps over the lazy dog';
     typeExample.appendChild(sample);
-    
+
     const info = document.createElement('div');
     info.className = 'flex justify-between items-center text-sm text-gray-600';
-    
+
     const details = document.createElement('div');
     details.innerHTML = `<span class="font-medium">${type.name}</span> • ${type.usage}`;
-    
+
     const classes = document.createElement('code');
     classes.className = 'bg-gray-100 px-2 py-1 rounded text-xs font-mono';
     classes.textContent = type.class;
-    
+
     info.appendChild(details);
     info.appendChild(classes);
     typeExample.appendChild(info);
-    
+
     container.appendChild(typeExample);
   });
-  
+
   return container;
 };
 
@@ -235,12 +235,12 @@ const createTypographySystem = () => {
 const createSpacingSystem = () => {
   const container = document.createElement('div');
   container.className = 'space-y-8';
-  
+
   const title = document.createElement('h2');
   title.className = 'text-2xl font-bold text-gray-900 mb-6';
   title.textContent = 'Spacing Scale';
   container.appendChild(title);
-  
+
   const spacingScale = [
     { name: 'xs', value: '0.25rem', px: '4px', class: 'p-1' },
     { name: 'sm', value: '0.5rem', px: '8px', class: 'p-2' },
@@ -251,11 +251,11 @@ const createSpacingSystem = () => {
     { name: '2xl', value: '4rem', px: '64px', class: 'p-16' },
     { name: '3xl', value: '6rem', px: '96px', class: 'p-24' },
   ];
-  
+
   spacingScale.forEach(space => {
     const spacingExample = document.createElement('div');
     spacingExample.className = 'flex items-center gap-4 py-3';
-    
+
     const visual = document.createElement('div');
     visual.className = 'bg-blue-100 border border-blue-300';
     visual.style.cssText = `
@@ -263,7 +263,7 @@ const createSpacingSystem = () => {
       height: ${space.value};
       min-width: ${space.value};
     `;
-    
+
     const info = document.createElement('div');
     info.className = 'flex-1';
     info.innerHTML = `
@@ -271,12 +271,12 @@ const createSpacingSystem = () => {
       <div class="text-sm text-gray-600">${space.value} (${space.px})</div>
       <code class="text-xs bg-gray-100 px-2 py-1 rounded font-mono">${space.class}</code>
     `;
-    
+
     spacingExample.appendChild(visual);
     spacingExample.appendChild(info);
     container.appendChild(spacingExample);
   });
-  
+
   return container;
 };
 
@@ -284,12 +284,12 @@ const createSpacingSystem = () => {
 const createComponentGuidelines = () => {
   const container = document.createElement('div');
   container.className = 'space-y-8';
-  
+
   const title = document.createElement('h2');
   title.className = 'text-2xl font-bold text-gray-900 mb-6';
   title.textContent = 'Component Guidelines';
   container.appendChild(title);
-  
+
   const guidelines = [
     {
       title: 'Accessibility First',
@@ -336,29 +336,29 @@ const createComponentGuidelines = () => {
       ]
     }
   ];
-  
+
   guidelines.forEach(guideline => {
     const section = document.createElement('div');
     section.className = 'bg-gray-50 border border-gray-200 rounded-lg p-6';
-    
+
     const header = document.createElement('div');
     header.className = 'mb-4';
-    
+
     const guidelineTitle = document.createElement('h3');
     guidelineTitle.className = 'text-lg font-semibold text-gray-900';
     guidelineTitle.textContent = guideline.title;
-    
+
     const guidelineDesc = document.createElement('p');
     guidelineDesc.className = 'text-sm text-gray-600 mt-1';
     guidelineDesc.textContent = guideline.description;
-    
+
     header.appendChild(guidelineTitle);
     header.appendChild(guidelineDesc);
     section.appendChild(header);
-    
+
     const rulesList = document.createElement('ul');
     rulesList.className = 'space-y-2';
-    
+
     guideline.rules.forEach(rule => {
       const listItem = document.createElement('li');
       listItem.className = 'flex items-start gap-2 text-sm text-gray-700';
@@ -370,11 +370,11 @@ const createComponentGuidelines = () => {
       `;
       rulesList.appendChild(listItem);
     });
-    
+
     section.appendChild(rulesList);
     container.appendChild(section);
   });
-  
+
   return container;
 };
 
@@ -427,12 +427,12 @@ export const DesignTokens = {
   render: () => {
     const container = document.createElement('div');
     container.className = 'space-y-8';
-    
+
     const title = document.createElement('h2');
     title.className = 'text-2xl font-bold text-gray-900 mb-6';
     title.textContent = 'Design Tokens';
     container.appendChild(title);
-    
+
     const description = document.createElement('div');
     description.className = 'bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8';
     description.innerHTML = `
@@ -460,7 +460,7 @@ export const DesignTokens = {
       </code>
     `;
     container.appendChild(description);
-    
+
     return container;
   },
   parameters: {

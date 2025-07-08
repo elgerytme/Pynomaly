@@ -23,26 +23,26 @@ All non-text content must have text alternatives that serve the equivalent purpo
 
 ```html
 <!-- Images with meaningful content -->
-<img src="anomaly-trend-chart.png" 
+<img src="anomaly-trend-chart.png"
      alt="Anomaly detection trend showing 15 anomalies detected over the past 24 hours, with highest activity between 2-4 PM">
 
 <!-- Decorative images -->
-<img src="decorative-pattern.svg" 
-     alt="" 
+<img src="decorative-pattern.svg"
+     alt=""
      role="presentation">
 
 <!-- Complex charts and visualizations -->
-<div class="chart-container" 
-     role="img" 
-     aria-labelledby="chart-title" 
+<div class="chart-container"
+     role="img"
+     aria-labelledby="chart-title"
      aria-describedby="chart-summary">
   <h3 id="chart-title">Monthly Anomaly Detection Results</h3>
   <div id="chart-svg">
     <!-- D3.js or Canvas chart content -->
   </div>
   <div id="chart-summary" class="sr-only">
-    This chart displays anomaly detection results for January through December 2025. 
-    January had 45 anomalies (highest), March had 38, and August had 12 (lowest). 
+    This chart displays anomaly detection results for January through December 2025.
+    January had 45 anomalies (highest), March had 38, and August had 12 (lowest).
     The overall trend shows higher anomaly rates in winter months.
   </div>
 </div>
@@ -96,7 +96,7 @@ Information, structure, and relationships must be programmatically determinable.
 <!-- Proper heading hierarchy -->
 <main>
   <h1>Anomaly Detection Dashboard</h1>
-  
+
   <section>
     <h2>Recent Detections</h2>
     <article>
@@ -108,7 +108,7 @@ Information, structure, and relationships must be programmatically determinable.
       <p>All detection algorithms running normally</p>
     </article>
   </section>
-  
+
   <section>
     <h2>Detection History</h2>
     <!-- history content -->
@@ -119,11 +119,11 @@ Information, structure, and relationships must be programmatically determinable.
 <form>
   <fieldset>
     <legend>Dataset Configuration</legend>
-    
+
     <div class="form-group">
       <label for="dataset-name">Dataset Name <span class="required">*</span></label>
-      <input type="text" 
-             id="dataset-name" 
+      <input type="text"
+             id="dataset-name"
              name="dataset-name"
              required
              aria-describedby="name-help name-error">
@@ -134,7 +134,7 @@ Information, structure, and relationships must be programmatically determinable.
         Dataset name is required
       </div>
     </div>
-    
+
     <div class="form-group">
       <fieldset>
         <legend>Detection Algorithm</legend>
@@ -184,7 +184,7 @@ Information, structure, and relationships must be programmatically determinable.
         </span>
       </td>
       <td>
-        <button type="button" class="btn btn--sm" 
+        <button type="button" class="btn btn--sm"
                 aria-label="View details for anomaly at 2025-06-26 14:30:00">
           Details
         </button>
@@ -209,12 +209,12 @@ Text must have a contrast ratio of at least 4.5:1 (3:1 for large text).
   --color-text-primary: #1e293b;     /* 15.36:1 on white */
   --color-text-secondary: #475569;   /* 8.33:1 on white */
   --color-text-muted: #64748b;       /* 4.78:1 on white */
-  
+
   /* Status colors with proper contrast */
   --color-success-text: #166534;     /* 5.85:1 on white */
   --color-warning-text: #92400e;     /* 4.56:1 on white */
   --color-danger-text: #991b1b;      /* 6.64:1 on white */
-  
+
   /* Focus indicators */
   --color-focus-ring: #2563eb;       /* High contrast focus ring */
   --shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.5);
@@ -269,26 +269,26 @@ All functionality must be available from a keyboard.
 ```html
 <!-- Custom interactive elements with keyboard support -->
 <div class="chart-controls">
-  <button type="button" 
-          class="chart-control" 
+  <button type="button"
+          class="chart-control"
           aria-label="Zoom in on chart"
           data-action="zoom-in">
     <svg aria-hidden="true"><use href="#icon-zoom-in"></use></svg>
   </button>
-  
-  <button type="button" 
-          class="chart-control" 
+
+  <button type="button"
+          class="chart-control"
           aria-label="Zoom out on chart"
           data-action="zoom-out">
     <svg aria-hidden="true"><use href="#icon-zoom-out"></use></svg>
   </button>
-  
-  <div class="chart-range-selector" 
-       role="slider" 
+
+  <div class="chart-range-selector"
+       role="slider"
        tabindex="0"
        aria-label="Select time range"
-       aria-valuemin="0" 
-       aria-valuemax="100" 
+       aria-valuemin="0"
+       aria-valuemax="100"
        aria-valuenow="50"
        data-action="range-select">
     <div class="range-track">
@@ -305,16 +305,16 @@ class ChartControls {
     this.container = container;
     this.bindEvents();
   }
-  
+
   bindEvents() {
     this.container.addEventListener('keydown', this.handleKeyDown.bind(this));
     this.container.addEventListener('click', this.handleClick.bind(this));
   }
-  
+
   handleKeyDown(event) {
     const target = event.target;
     const action = target.dataset.action;
-    
+
     switch (event.key) {
       case 'Enter':
       case ' ':
@@ -323,7 +323,7 @@ class ChartControls {
           this.handleZoom(action);
         }
         break;
-        
+
       case 'ArrowLeft':
       case 'ArrowRight':
         if (action === 'range-select') {
@@ -331,14 +331,14 @@ class ChartControls {
           this.handleRangeChange(event.key, target);
         }
         break;
-        
+
       case 'Home':
         if (action === 'range-select') {
           event.preventDefault();
           this.setRangeValue(target, 0);
         }
         break;
-        
+
       case 'End':
         if (action === 'range-select') {
           event.preventDefault();
@@ -347,36 +347,36 @@ class ChartControls {
         break;
     }
   }
-  
+
   handleRangeChange(direction, element) {
     const currentValue = parseInt(element.getAttribute('aria-valuenow'));
     const step = event.shiftKey ? 10 : 1;
-    const newValue = direction === 'ArrowLeft' 
+    const newValue = direction === 'ArrowLeft'
       ? Math.max(0, currentValue - step)
       : Math.min(100, currentValue + step);
-    
+
     this.setRangeValue(element, newValue);
   }
-  
+
   setRangeValue(element, value) {
     element.setAttribute('aria-valuenow', value);
     const fill = element.querySelector('.range-fill');
     const thumb = element.querySelector('.range-thumb');
-    
+
     fill.style.width = `${value}%`;
     thumb.style.left = `${value}%`;
-    
+
     // Announce change to screen readers
     this.announceChange(`Range value: ${value}%`);
   }
-  
+
   announceChange(message) {
     const announcement = document.createElement('div');
     announcement.setAttribute('aria-live', 'polite');
     announcement.setAttribute('aria-atomic', 'true');
     announcement.className = 'sr-only';
     announcement.textContent = message;
-    
+
     document.body.appendChild(announcement);
     setTimeout(() => document.body.removeChild(announcement), 1000);
   }
@@ -410,7 +410,7 @@ Provide mechanisms to bypass blocks of content.
       z-index: 1000;
       border-radius: 0 0 4px 4px;
     }
-    
+
     .skip-link:focus {
       top: 6px;
     }
@@ -421,7 +421,7 @@ Provide mechanisms to bypass blocks of content.
   <a href="#main-content" class="skip-link">Skip to main content</a>
   <a href="#navigation" class="skip-link">Skip to navigation</a>
   <a href="#search" class="skip-link">Skip to search</a>
-  
+
   <!-- Header with navigation -->
   <header role="banner">
     <nav id="navigation" role="navigation" aria-label="Main navigation">
@@ -432,11 +432,11 @@ Provide mechanisms to bypass blocks of content.
         <li><a href="/analysis">Analysis</a></li>
       </ul>
     </nav>
-    
+
     <div id="search" role="search">
       <label for="search-input" class="sr-only">Search datasets and models</label>
-      <input type="search" 
-             id="search-input" 
+      <input type="search"
+             id="search-input"
              placeholder="Search datasets and models..."
              aria-describedby="search-help">
       <div id="search-help" class="sr-only">
@@ -444,13 +444,13 @@ Provide mechanisms to bypass blocks of content.
       </div>
     </div>
   </header>
-  
+
   <!-- Main content -->
   <main id="main-content" role="main">
     <h1>Anomaly Detection Dashboard</h1>
     <!-- Main content here -->
   </main>
-  
+
   <!-- Footer -->
   <footer role="contentinfo">
     <!-- Footer content -->
@@ -470,31 +470,31 @@ Components receive focus in an order that preserves meaning and operability.
 <form class="dataset-form">
   <fieldset>
     <legend>Basic Information</legend>
-    
+
     <!-- Tab order: 1 -->
     <label for="name">Dataset Name</label>
     <input type="text" id="name" name="name" tabindex="1">
-    
+
     <!-- Tab order: 2 -->
     <label for="description">Description</label>
     <textarea id="description" name="description" tabindex="2"></textarea>
   </fieldset>
-  
+
   <fieldset>
     <legend>Configuration</legend>
-    
+
     <!-- Tab order: 3 -->
     <label for="algorithm">Algorithm</label>
     <select id="algorithm" name="algorithm" tabindex="3">
       <option value="isolation-forest">Isolation Forest</option>
       <option value="one-class-svm">One-Class SVM</option>
     </select>
-    
+
     <!-- Tab order: 4 -->
     <label for="threshold">Threshold</label>
     <input type="number" id="threshold" name="threshold" tabindex="4">
   </fieldset>
-  
+
   <!-- Tab order: 5, 6 -->
   <div class="form-actions">
     <button type="button" tabindex="6">Cancel</button>
@@ -503,27 +503,27 @@ Components receive focus in an order that preserves meaning and operability.
 </form>
 
 <!-- Modal with focus management -->
-<div id="settings-modal" 
-     class="modal" 
-     role="dialog" 
+<div id="settings-modal"
+     class="modal"
+     role="dialog"
      aria-modal="true"
      aria-labelledby="modal-title"
      style="display: none;">
   <div class="modal-content">
     <header class="modal-header">
       <h2 id="modal-title">Detection Settings</h2>
-      <button type="button" 
-              class="modal-close" 
+      <button type="button"
+              class="modal-close"
               aria-label="Close settings dialog"
               data-action="close-modal">
         ×
       </button>
     </header>
-    
+
     <div class="modal-body">
       <!-- Form content -->
     </div>
-    
+
     <footer class="modal-footer">
       <button type="button" data-action="save">Save</button>
       <button type="button" data-action="cancel">Cancel</button>
@@ -537,30 +537,30 @@ class ModalManager {
     this.activeModal = null;
     this.lastFocusedElement = null;
   }
-  
+
   openModal(modalId) {
     // Store the currently focused element
     this.lastFocusedElement = document.activeElement;
-    
+
     const modal = document.getElementById(modalId);
     modal.style.display = 'block';
     this.activeModal = modal;
-    
+
     // Focus first focusable element in modal
     const firstFocusable = modal.querySelector('button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
     if (firstFocusable) {
       firstFocusable.focus();
     }
-    
+
     // Trap focus within modal
     modal.addEventListener('keydown', this.trapFocus.bind(this));
   }
-  
+
   closeModal() {
     if (this.activeModal) {
       this.activeModal.style.display = 'none';
       this.activeModal = null;
-      
+
       // Return focus to triggering element
       if (this.lastFocusedElement) {
         this.lastFocusedElement.focus();
@@ -568,17 +568,17 @@ class ModalManager {
       }
     }
   }
-  
+
   trapFocus(event) {
     if (event.key !== 'Tab') return;
-    
+
     const focusableElements = this.activeModal.querySelectorAll(
       'button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
-    
+
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
-    
+
     if (event.shiftKey) {
       // Shift + Tab
       if (document.activeElement === firstElement) {
@@ -616,7 +616,7 @@ The default human language of each web page can be programmatically determined.
 </head>
 <body>
   <!-- Content in English -->
-  
+
   <!-- Mixed language content -->
   <section>
     <h2>Documentation</h2>
@@ -665,13 +665,13 @@ class FormManager {
   constructor() {
     this.bindEvents();
   }
-  
+
   bindEvents() {
     // Use explicit submit instead of onChange
     document.querySelectorAll('.auto-submit-form').forEach(form => {
       const submitBtn = form.querySelector('[type="submit"]');
       const inputs = form.querySelectorAll('input, select, textarea');
-      
+
       inputs.forEach(input => {
         input.addEventListener('change', () => {
           // Enable submit button when changes are made
@@ -699,51 +699,51 @@ If an input error is automatically detected, the item in error is identified and
     <label for="file-input" class="form-label required">
       Dataset File
     </label>
-    <input type="file" 
+    <input type="file"
            id="file-input"
            name="dataset-file"
            accept=".csv,.json,.xlsx"
            required
            aria-describedby="file-help file-error"
            aria-invalid="false">
-    
+
     <div id="file-help" class="form-help">
       Upload a CSV, JSON, or Excel file (maximum 100MB)
     </div>
-    
-    <div id="file-error" 
-         class="form-error" 
-         role="alert" 
+
+    <div id="file-error"
+         class="form-error"
+         role="alert"
          style="display: none;"
          aria-live="polite">
       <!-- Error message will be inserted here -->
     </div>
   </div>
-  
+
   <div class="form-group">
     <label for="email-input" class="form-label required">
       Email for Notifications
     </label>
-    <input type="email" 
+    <input type="email"
            id="email-input"
            name="email"
            required
            aria-describedby="email-help email-error"
            aria-invalid="false">
-    
+
     <div id="email-help" class="form-help">
       We'll send you updates when analysis is complete
     </div>
-    
-    <div id="email-error" 
-         class="form-error" 
-         role="alert" 
+
+    <div id="email-error"
+         class="form-error"
+         role="alert"
          style="display: none;"
          aria-live="polite">
       <!-- Error message will be inserted here -->
     </div>
   </div>
-  
+
   <button type="submit" class="btn btn--primary">
     Upload Dataset
   </button>
@@ -755,20 +755,20 @@ class FormValidation {
     this.form = form;
     this.bindEvents();
   }
-  
+
   bindEvents() {
     this.form.addEventListener('submit', this.handleSubmit.bind(this));
-    
+
     // Real-time validation
     this.form.querySelectorAll('input').forEach(input => {
       input.addEventListener('blur', () => this.validateField(input));
       input.addEventListener('input', () => this.clearErrors(input));
     });
   }
-  
+
   handleSubmit(event) {
     event.preventDefault();
-    
+
     const isValid = this.validateForm();
     if (isValid) {
       this.submitForm();
@@ -780,18 +780,18 @@ class FormValidation {
       }
     }
   }
-  
+
   validateField(input) {
     const fieldName = input.name;
     let isValid = true;
     let errorMessage = '';
-    
+
     // Required field validation
     if (input.required && !input.value.trim()) {
       isValid = false;
       errorMessage = `${this.getFieldLabel(input)} is required.`;
     }
-    
+
     // Type-specific validation
     if (input.type === 'email' && input.value) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -800,34 +800,34 @@ class FormValidation {
         errorMessage = 'Please enter a valid email address.';
       }
     }
-    
+
     if (input.type === 'file' && input.files.length > 0) {
       const file = input.files[0];
       const maxSize = 100 * 1024 * 1024; // 100MB
-      
+
       if (file.size > maxSize) {
         isValid = false;
         errorMessage = 'File size must be less than 100MB.';
       }
-      
+
       const allowedTypes = ['.csv', '.json', '.xlsx'];
       const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
-      
+
       if (!allowedTypes.includes(fileExtension)) {
         isValid = false;
         errorMessage = 'Please upload a CSV, JSON, or Excel file.';
       }
     }
-    
+
     this.updateFieldValidation(input, isValid, errorMessage);
     return isValid;
   }
-  
+
   updateFieldValidation(input, isValid, errorMessage) {
     const errorElement = document.getElementById(input.getAttribute('aria-describedby').split(' ').find(id => id.includes('error')));
-    
+
     input.setAttribute('aria-invalid', !isValid);
-    
+
     if (isValid) {
       input.classList.remove('form-input--error');
       errorElement.style.display = 'none';
@@ -838,29 +838,29 @@ class FormValidation {
       errorElement.textContent = errorMessage;
     }
   }
-  
+
   getFieldLabel(input) {
     const label = this.form.querySelector(`label[for="${input.id}"]`);
     return label ? label.textContent.replace('*', '').trim() : input.name;
   }
-  
+
   clearErrors(input) {
     if (input.getAttribute('aria-invalid') === 'true') {
       this.validateField(input);
     }
   }
-  
+
   validateForm() {
     const inputs = this.form.querySelectorAll('input[required]');
     let isFormValid = true;
-    
+
     inputs.forEach(input => {
       const isFieldValid = this.validateField(input);
       if (!isFieldValid) {
         isFormValid = false;
       }
     });
-    
+
     return isFormValid;
   }
 }
@@ -886,19 +886,19 @@ For all UI components, the name and role can be programmatically determined.
 
 ```html
 <!-- Custom components with proper ARIA -->
-<div class="anomaly-detector" 
-     role="region" 
+<div class="anomaly-detector"
+     role="region"
      aria-labelledby="detector-title"
      aria-describedby="detector-status">
-  
+
   <h3 id="detector-title">Real-time Anomaly Detector</h3>
-  
+
   <div id="detector-status" aria-live="polite" aria-atomic="true">
     Monitoring 1,247 data points - 3 anomalies detected
   </div>
-  
+
   <div class="detector-controls">
-    <button type="button" 
+    <button type="button"
             class="detector-control"
             aria-pressed="false"
             aria-describedby="start-help"
@@ -909,8 +909,8 @@ For all UI components, the name and role can be programmatically determined.
     <div id="start-help" class="sr-only">
       Begin real-time anomaly detection on the current dataset
     </div>
-    
-    <button type="button" 
+
+    <button type="button"
             class="detector-control"
             aria-pressed="false"
             aria-describedby="pause-help"
@@ -923,12 +923,12 @@ For all UI components, the name and role can be programmatically determined.
       Pause the current detection process
     </div>
   </div>
-  
+
   <!-- Progress indicator -->
   <div class="detection-progress">
-    <div role="progressbar" 
-         aria-valuenow="0" 
-         aria-valuemin="0" 
+    <div role="progressbar"
+         aria-valuenow="0"
+         aria-valuemin="0"
          aria-valuemax="100"
          aria-label="Detection progress">
       <div class="progress-bar" style="width: 0%;"></div>
@@ -941,20 +941,20 @@ For all UI components, the name and role can be programmatically determined.
 
 <!-- Data table with interactive features -->
 <div class="data-table-container">
-  <table class="data-table" 
+  <table class="data-table"
          role="table"
          aria-label="Anomaly detection results"
          aria-describedby="table-summary">
-    
+
     <caption id="table-summary">
       Anomaly detection results showing 150 data points with 12 anomalies detected.
       Use arrow keys to navigate, Enter to select, and Escape to exit selection mode.
     </caption>
-    
+
     <thead>
       <tr role="row">
-        <th scope="col" 
-            role="columnheader" 
+        <th scope="col"
+            role="columnheader"
             aria-sort="ascending"
             tabindex="0">
           <button type="button" class="sort-button">
@@ -968,9 +968,9 @@ For all UI components, the name and role can be programmatically determined.
         <th scope="col" role="columnheader">Actions</th>
       </tr>
     </thead>
-    
+
     <tbody>
-      <tr role="row" 
+      <tr role="row"
           tabindex="0"
           aria-selected="false"
           data-anomaly="true">
@@ -985,7 +985,7 @@ For all UI components, the name and role can be programmatically determined.
           </span>
         </td>
         <td role="gridcell">
-          <button type="button" 
+          <button type="button"
                   class="action-button"
                   aria-label="View detailed analysis for data point at 2025-06-26 14:30:00">
             Analyze
@@ -1004,93 +1004,93 @@ class AccessibleDataTable {
     this.currentRow = 0;
     this.currentCell = 0;
     this.selectedRows = new Set();
-    
+
     this.bindEvents();
   }
-  
+
   bindEvents() {
     this.table.addEventListener('keydown', this.handleKeyDown.bind(this));
     this.table.addEventListener('click', this.handleClick.bind(this));
   }
-  
+
   handleKeyDown(event) {
     const rows = this.table.querySelectorAll('tbody tr');
-    
+
     switch (event.key) {
       case 'ArrowDown':
         event.preventDefault();
         this.moveRow(1, rows);
         break;
-        
+
       case 'ArrowUp':
         event.preventDefault();
         this.moveRow(-1, rows);
         break;
-        
+
       case 'ArrowRight':
         event.preventDefault();
         this.moveCell(1);
         break;
-        
+
       case 'ArrowLeft':
         event.preventDefault();
         this.moveCell(-1);
         break;
-        
+
       case 'Space':
         event.preventDefault();
         this.toggleRowSelection(this.currentRow);
         break;
-        
+
       case 'Enter':
         event.preventDefault();
         this.activateCurrentCell();
         break;
-        
+
       case 'Home':
         event.preventDefault();
         this.goToFirstRow();
         break;
-        
+
       case 'End':
         event.preventDefault();
         this.goToLastRow();
         break;
     }
   }
-  
+
   moveRow(direction, rows) {
     const newRow = Math.max(0, Math.min(rows.length - 1, this.currentRow + direction));
     if (newRow !== this.currentRow) {
       this.focusRow(newRow);
     }
   }
-  
+
   focusRow(rowIndex) {
     const rows = this.table.querySelectorAll('tbody tr');
-    
+
     // Remove focus from current row
     if (rows[this.currentRow]) {
       rows[this.currentRow].classList.remove('table-row--focused');
     }
-    
+
     // Focus new row
     this.currentRow = rowIndex;
     const newRow = rows[this.currentRow];
-    
+
     if (newRow) {
       newRow.classList.add('table-row--focused');
       newRow.focus();
-      
+
       // Announce row content to screen readers
       this.announceRowContent(newRow);
     }
   }
-  
+
   toggleRowSelection(rowIndex) {
     const rows = this.table.querySelectorAll('tbody tr');
     const row = rows[rowIndex];
-    
+
     if (this.selectedRows.has(rowIndex)) {
       this.selectedRows.delete(rowIndex);
       row.setAttribute('aria-selected', 'false');
@@ -1100,32 +1100,32 @@ class AccessibleDataTable {
       row.setAttribute('aria-selected', 'true');
       row.classList.add('table-row--selected');
     }
-    
+
     this.announceSelection();
   }
-  
+
   announceRowContent(row) {
     const cells = row.querySelectorAll('td');
     const content = Array.from(cells).map(cell => cell.textContent.trim()).join(', ');
     this.announceToScreenReader(`Row content: ${content}`);
   }
-  
+
   announceSelection() {
     const count = this.selectedRows.size;
-    const message = count === 0 
-      ? 'No rows selected' 
+    const message = count === 0
+      ? 'No rows selected'
       : `${count} row${count > 1 ? 's' : ''} selected`;
-    
+
     this.announceToScreenReader(message);
   }
-  
+
   announceToScreenReader(message) {
     const announcement = document.createElement('div');
     announcement.setAttribute('aria-live', 'polite');
     announcement.setAttribute('aria-atomic', 'true');
     announcement.className = 'sr-only';
     announcement.textContent = message;
-    
+
     document.body.appendChild(announcement);
     setTimeout(() => document.body.removeChild(announcement), 1000);
   }
@@ -1147,7 +1147,7 @@ test.describe('Accessibility Tests', () => {
     await page.goto('/dashboard');
     await injectAxe(page);
   });
-  
+
   test('should pass WCAG 2.1 AA standards', async ({ page }) => {
     await checkA11y(page, null, {
       detailedReport: true,
@@ -1160,16 +1160,16 @@ test.describe('Accessibility Tests', () => {
       }
     });
   });
-  
+
   test('should have proper heading hierarchy', async ({ page }) => {
     const headings = await page.$$eval('h1, h2, h3, h4, h5, h6', elements =>
       elements.map(el => ({ tag: el.tagName, text: el.textContent }))
     );
-    
+
     // Verify h1 exists and is unique
     const h1Count = headings.filter(h => h.tag === 'H1').length;
     expect(h1Count).toBe(1);
-    
+
     // Verify logical heading sequence
     let currentLevel = 0;
     for (const heading of headings) {

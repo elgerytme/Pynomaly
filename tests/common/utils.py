@@ -213,7 +213,7 @@ class MockFactory:
         dataset.id = dataset_id or str(uuid4())
         dataset.name = "Test Dataset"
         dataset.description = "Test dataset for testing"
-        
+
         if data is not None:
             dataset.data = data
             dataset.features = list(data.columns)
@@ -226,7 +226,7 @@ class MockFactory:
             })
             dataset.data = default_data
             dataset.features = ["feature_1", "feature_2", "feature_3"]
-        
+
         dataset.created_at = datetime.utcnow()
         return dataset
 
@@ -340,7 +340,7 @@ class ConfigurationHelper:
             "n_estimators": 100,
         }
         default_params.update(params)
-        
+
         return {
             "algorithm": algorithm_name,
             "parameters": default_params,

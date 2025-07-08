@@ -799,15 +799,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.11'
-      
+
       - name: Install Pynomaly
         run: pip install pynomaly
-      
+
       - name: Run Detection
         env:
           PYNOMALY_API_KEY: ${{ secrets.PYNOMALY_API_KEY }}
@@ -816,7 +816,7 @@ jobs:
             --file latest_data.csv \
             --output results.json \
             --anomalies-only
-      
+
       - name: Upload Results
         uses: actions/upload-artifact@v2
         with:

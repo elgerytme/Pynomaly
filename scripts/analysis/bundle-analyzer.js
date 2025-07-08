@@ -19,7 +19,7 @@ class BundleAnalyzer {
       fonts: 100 * 1024,       // 100KB
       total: 1000 * 1024       // 1MB
     };
-    
+
     this.analysis = {
       timestamp: new Date().toISOString(),
       bundles: {},
@@ -32,31 +32,31 @@ class BundleAnalyzer {
 
   async analyze() {
     console.log('🔍 Starting bundle analysis...');
-    
+
     try {
       await fs.mkdir(this.outputDir, { recursive: true });
-      
+
       // Analyze built bundles
       await this.analyzeBundles();
-      
+
       // Analyze dependencies
       await this.analyzeDependencies();
-      
+
       // Check performance budgets
       this.checkBudgets();
-      
+
       // Generate recommendations
       this.generateRecommendations();
-      
+
       // Create summary
       this.createSummary();
-      
+
       // Save analysis results
       await this.saveResults();
-      
+
       console.log(`✅ Bundle analysis completed. Reports saved to: ${this.outputDir}`);
       return this.analysis;
-      
+
     } catch (error) {
       console.error('❌ Bundle analysis failed:', error);
       throw error;
@@ -65,7 +65,7 @@ class BundleAnalyzer {
 
   async analyzeBundles() {
     console.log('📦 Analyzing bundle files...');
-    
+
     const bundleTypes = [
       { type: 'javascript', dir: 'js/dist', extensions: ['.js'] },
       { type: 'css', dir: 'css', extensions: ['.css'] },
@@ -75,7 +75,7 @@ class BundleAnalyzer {
 
     for (const bundleType of bundleTypes) {
       const bundleDir = path.join(this.staticDir, bundleType.dir);
-      
+
       try {
         const analysis = await this.analyzeBundleDirectory(bundleDir, bundleType.extensions);
         this.analysis.bundles[bundleType.type] = {
@@ -83,9 +83,9 @@ class BundleAnalyzer {
           budget: this.budgets[bundleType.type],
           budgetUtilization: (analysis.totalSize / this.budgets[bundleType.type]) * 100
         };
-        
+
         console.log(`  ${bundleType.type}: ${this.formatBytes(analysis.totalSize)} (${analysis.fileCount} files)`);
-        
+
       } catch (error) {
         console.warn(`  Warning: Could not analyze ${bundleType.type} bundle - ${error.message}`);
         this.analysis.bundles[bundleType.type] = { error: error.message };
@@ -105,13 +105,13 @@ class BundleAnalyzer {
 
     try {
       const files = await fs.readdir(dirPath);
-      
+
       for (const file of files) {
         const fileExt = path.extname(file).toLowerCase();
         if (extensions.includes(fileExt)) {
           const filePath = path.join(dirPath, file);
           const stats = await fs.stat(filePath);
-          
+
           const fileInfo = {
             name: file,
             path: filePath,
@@ -134,12 +134,12 @@ class BundleAnalyzer {
 
       // Sort files by size descending
       analysis.files.sort((a, b) => b.size - a.size);
-      
+
       // Calculate compression ratio
       const totalGzipSize = analysis.files.reduce((sum, file) => sum + file.gzipSize, 0);
-      analysis.compressionRatio = analysis.totalSize > 0 ? 
+      analysis.compressionRatio = analysis.totalSize > 0 ?
         ((analysis.totalSize - totalGzipSize) / analysis.totalSize) * 100 : 0;
-      
+
       // Find potential duplicates (by size)
       analysis.duplicates = this.findPotentialDuplicates(analysis.files);
 
@@ -154,10 +154,10 @@ class BundleAnalyzer {
 
   async analyzeDependencies() {
     console.log('📦 Analyzing package dependencies...');
-    
+
     try {
       const packageJson = JSON.parse(await fs.readFile('./package.json', 'utf8'));
-      
+
       this.analysis.dependencies = {
         production: Object.keys(packageJson.dependencies || {}),
         development: Object.keys(packageJson.devDependencies || {}),
@@ -169,10 +169,10 @@ class BundleAnalyzer {
       // Check for heavy dependencies
       const heavyDeps = await this.identifyHeavyDependencies(packageJson.dependencies || {});
       this.analysis.dependencies.heavy = heavyDeps;
-      
+
       console.log(`  Production dependencies: ${this.analysis.dependencies.production.length}`);
       console.log(`  Development dependencies: ${this.analysis.dependencies.development.length}`);
-      
+
     } catch (error) {
       console.warn(`  Warning: Could not analyze dependencies - ${error.message}`);
       this.analysis.dependencies = { error: error.message };
@@ -181,7 +181,7 @@ class BundleAnalyzer {
 
   checkBudgets() {
     console.log('📉 Checking performance budgets...');
-    
+
     const totalSize = Object.values(this.analysis.bundles)
       .reduce((sum, bundle) => sum + (bundle.totalSize || 0), 0);
 
@@ -192,7 +192,7 @@ class BundleAnalyzer {
           budget: this.budgets[type],
           actual: totalSize,
           utilization: (totalSize / this.budgets[type]) * 100,
-          status: totalSize > this.budgets[type] ? 'exceeded' : 
+          status: totalSize > this.budgets[type] ? 'exceeded' :
                  (totalSize / this.budgets[type] > 0.8 ? 'warning' : 'good')
         };
       } else if (this.analysis.bundles[type] && !this.analysis.bundles[type].error) {
@@ -209,7 +209,7 @@ class BundleAnalyzer {
 
     // Log budget status
     Object.entries(this.analysis.budgetStatus).forEach(([type, status]) => {
-      const emoji = status.status === 'exceeded' ? '❌' : 
+      const emoji = status.status === 'exceeded' ? '❌' :
                    status.status === 'warning' ? '⚠️' : '✅';
       console.log(`  ${emoji} ${type}: ${this.formatBytes(status.actual)} / ${this.formatBytes(status.budget)} (${status.utilization.toFixed(1)}%)`);
     });
@@ -217,7 +217,7 @@ class BundleAnalyzer {
 
   generateRecommendations() {
     console.log('💡 Generating optimization recommendations...');
-    
+
     const recommendations = [];
 
     // Bundle size recommendations
@@ -300,13 +300,13 @@ class BundleAnalyzer {
   createSummary() {
     const totalSize = Object.values(this.analysis.bundles)
       .reduce((sum, bundle) => sum + (bundle.totalSize || 0), 0);
-    
+
     const totalBudget = this.budgets.total;
     const budgetUtilization = (totalSize / totalBudget) * 100;
-    
+
     const exceededBudgets = Object.values(this.analysis.budgetStatus)
       .filter(status => status.status === 'exceeded').length;
-    
+
     const highPriorityRecommendations = this.analysis.recommendations
       .filter(rec => rec.priority === 'high').length;
 
@@ -314,7 +314,7 @@ class BundleAnalyzer {
       totalSize: totalSize,
       totalSizeFormatted: this.formatBytes(totalSize),
       budgetUtilization: budgetUtilization,
-      budgetStatus: budgetUtilization > 100 ? 'exceeded' : 
+      budgetStatus: budgetUtilization > 100 ? 'exceeded' :
                    budgetUtilization > 80 ? 'warning' : 'good',
       exceededBudgets: exceededBudgets,
       totalRecommendations: this.analysis.recommendations.length,
@@ -327,7 +327,7 @@ class BundleAnalyzer {
 
   calculateHealthScore() {
     let score = 100;
-    
+
     // Deduct for budget overruns
     Object.values(this.analysis.budgetStatus).forEach(status => {
       if (status.status === 'exceeded') {
@@ -336,17 +336,17 @@ class BundleAnalyzer {
         score -= 10;
       }
     });
-    
+
     // Deduct for high-priority recommendations
     const highPriorityCount = this.analysis.recommendations
       .filter(rec => rec.priority === 'high').length;
     score -= highPriorityCount * 15;
-    
+
     // Deduct for medium-priority recommendations
     const mediumPriorityCount = this.analysis.recommendations
       .filter(rec => rec.priority === 'medium').length;
     score -= mediumPriorityCount * 5;
-    
+
     return Math.max(0, Math.min(100, score));
   }
 
@@ -354,13 +354,13 @@ class BundleAnalyzer {
     // Save main analysis file
     const analysisPath = path.join(this.outputDir, 'bundle-analysis.json');
     await fs.writeFile(analysisPath, JSON.stringify(this.analysis, null, 2));
-    
+
     // Generate HTML report
     await this.generateHTMLReport();
-    
+
     // Generate CSV summary
     await this.generateCSVSummary();
-    
+
     console.log('📄 Reports generated:');
     console.log(`  - JSON: ${analysisPath}`);
     console.log(`  - HTML: ${path.join(this.outputDir, 'bundle-report.html')}`);
@@ -404,7 +404,7 @@ class BundleAnalyzer {
             <h1>Bundle Analysis Report</h1>
             <p>Generated on ${new Date().toLocaleString()}</p>
         </div>
-        
+
         <div class="summary">
             <div class="card">
                 <h3>Total Bundle Size</h3>
@@ -426,7 +426,7 @@ class BundleAnalyzer {
                 <div class="metric">${this.formatBytes(this.analysis.summary.potentialSavings)}</div>
             </div>
         </div>
-        
+
         ${this.generateBundleTableHTML()}
         ${this.generateRecommendationsHTML()}
     </div>
@@ -455,7 +455,7 @@ class BundleAnalyzer {
                 <tbody>
                     ${Object.entries(this.analysis.bundles).map(([type, bundle]) => {
                       if (bundle.error) return '';
-                      const status = bundle.budgetUtilization > 100 ? 'exceeded' : 
+                      const status = bundle.budgetUtilization > 100 ? 'exceeded' :
                                    bundle.budgetUtilization > 80 ? 'warning' : 'good';
                       return `
                         <tr>
@@ -499,7 +499,7 @@ class BundleAnalyzer {
       'Type,Size (bytes),Size (formatted),Budget (bytes),Utilization (%),Status,File Count',
       ...Object.entries(this.analysis.bundles).map(([type, bundle]) => {
         if (bundle.error) return `${type},ERROR,ERROR,ERROR,ERROR,ERROR,ERROR`;
-        const status = bundle.budgetUtilization > 100 ? 'EXCEEDED' : 
+        const status = bundle.budgetUtilization > 100 ? 'EXCEEDED' :
                      bundle.budgetUtilization > 80 ? 'WARNING' : 'GOOD';
         return `${type},${bundle.totalSize},${this.formatBytes(bundle.totalSize)},${bundle.budget},${bundle.budgetUtilization.toFixed(1)},${status},${bundle.fileCount}`;
       })
@@ -547,7 +547,7 @@ class BundleAnalyzer {
       { name: 'd3', estimatedSize: 100 * 1024 },
       { name: 'echarts', estimatedSize: 150 * 1024 }
     ];
-    
+
     return heavyDeps.filter(dep => dependencies[dep.name]);
   }
 
@@ -579,4 +579,3 @@ if (require.main === module) {
 }
 
 module.exports = BundleAnalyzer;
-

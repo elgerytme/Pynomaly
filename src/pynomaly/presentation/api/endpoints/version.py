@@ -11,7 +11,7 @@ router = APIRouter()
 
 class VersionInfo(BaseModel):
     """API version information response model."""
-    
+
     supported_versions: List[str]
     default_version: str
     deprecated_versions: List[str]
@@ -21,12 +21,12 @@ class VersionInfo(BaseModel):
 @router.get("/version", response_model=VersionInfo)
 async def get_api_version_info() -> VersionInfo:
     """Get API version information.
-    
+
     Returns information about supported, deprecated, and current API versions.
     """
     version_manager = get_version_manager()
     version_info = version_manager.get_version_info()
-    
+
     return VersionInfo(
         supported_versions=version_info["supported_versions"],
         default_version=version_info["default_version"],
@@ -40,7 +40,7 @@ async def api_root():
     """API root endpoint with version information."""
     version_manager = get_version_manager()
     version_info = version_manager.get_version_info()
-    
+
     return {
         "message": "Pynomaly API",
         "version_info": version_info,

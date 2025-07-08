@@ -59,7 +59,7 @@ class StreamDataPointDTO(BaseModel):
         if data.get("timestamp"):
             from datetime import datetime
             timestamp = datetime.fromisoformat(data["timestamp"].replace('Z', '+00:00'))
-        
+
         return cls(
             timestamp=timestamp,
             features=data["features"],
@@ -99,10 +99,10 @@ class StreamDataBatchDTO(BaseModel):
             import pandas as pd
         except ImportError:
             raise ImportError("pandas is required for to_pandas() method")
-        
+
         if not self.data_points:
             return pd.DataFrame()
-        
+
         # Convert data points to records
         records = []
         for point in self.data_points:
@@ -119,7 +119,7 @@ class StreamDataBatchDTO(BaseModel):
                 for k, v in point.metadata.items():
                     record[f"meta_{k}"] = v
             records.append(record)
-        
+
         return pd.DataFrame(records)
 
 

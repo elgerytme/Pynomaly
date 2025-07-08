@@ -17,10 +17,10 @@ __author__ = "Pynomaly Team"
 
 __all__ = [
     "DocumentationValidator",
-    "ValidationConfig", 
+    "ValidationConfig",
     "ValidationReporter",
     "ContentChecker",
-    "StructureChecker", 
+    "StructureChecker",
     "LinkChecker",
     "ConsistencyChecker",
 ]

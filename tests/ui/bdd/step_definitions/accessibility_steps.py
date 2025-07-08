@@ -83,14 +83,14 @@ async def then_landmarks_properly_labeled(page: Page):
         () => {
             const landmarks = document.querySelectorAll('main, nav, header, footer, aside, [role="main"], [role="navigation"], [role="banner"], [role="contentinfo"]');
             let properlyLabeled = 0;
-            
+
             landmarks.forEach(landmark => {
-                const hasLabel = landmark.getAttribute('aria-label') || 
+                const hasLabel = landmark.getAttribute('aria-label') ||
                                 landmark.getAttribute('aria-labelledby') ||
                                 landmark.querySelector('h1, h2, h3, h4, h5, h6');
                 if (hasLabel) properlyLabeled++;
             });
-            
+
             return {
                 total_landmarks: landmarks.length,
                 properly_labeled: properlyLabeled,
@@ -114,18 +114,18 @@ async def then_heading_structure_logical(page: Page):
         () => {
             const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
             const levels = Array.from(headings).map(h => parseInt(h.tagName.charAt(1)));
-            
+
             let isLogical = true;
             let hasH1 = levels.includes(1);
             let previousLevel = 0;
-            
+
             levels.forEach(level => {
                 if (level > previousLevel + 1) {
                     isLogical = false;
                 }
                 previousLevel = level;
             });
-            
+
             return {
                 total_headings: levels.length,
                 has_h1: hasH1,
@@ -160,9 +160,9 @@ async def then_interactive_elements_keyboard_accessible(page: Page):
             const interactiveElements = document.querySelectorAll(
                 'a, button, input, select, textarea, [tabindex]:not([tabindex="-1"]), [role="button"], [role="link"]'
             );
-            
+
             let keyboardAccessible = 0;
-            
+
             interactiveElements.forEach(element => {
                 // Focus the element
                 element.focus();
@@ -170,7 +170,7 @@ async def then_interactive_elements_keyboard_accessible(page: Page):
                     keyboardAccessible++;
                 }
             });
-            
+
             return {
                 total_interactive: interactiveElements.length,
                 keyboard_accessible: keyboardAccessible,
@@ -236,24 +236,24 @@ async def then_focus_indicators_visible(page: Page):
             const focusableElements = document.querySelectorAll(
                 'a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
             );
-            
+
             let visibleFocusCount = 0;
-            
+
             focusableElements.forEach(element => {
                 element.focus();
                 const styles = getComputedStyle(element, ':focus');
                 const outline = styles.outline;
                 const outlineWidth = styles.outlineWidth;
                 const boxShadow = styles.boxShadow;
-                
+
                 // Check for visible focus indicators
-                if ((outline && outline !== 'none') || 
-                    (outlineWidth && outlineWidth !== '0px') || 
+                if ((outline && outline !== 'none') ||
+                    (outlineWidth && outlineWidth !== '0px') ||
                     (boxShadow && boxShadow !== 'none')) {
                     visibleFocusCount++;
                 }
             });
-            
+
             return {
                 total_focusable: focusableElements.length,
                 visible_focus: visibleFocusCount,
@@ -391,19 +391,19 @@ async def then_form_fields_have_labels(page: Page):
         () => {
             const formElements = document.querySelectorAll('input, select, textarea');
             let properlyLabeled = 0;
-            
+
             formElements.forEach(element => {
                 const id = element.id;
                 const ariaLabel = element.getAttribute('aria-label');
                 const ariaLabelledBy = element.getAttribute('aria-labelledby');
                 const label = id ? document.querySelector(`label[for="${id}"]`) : null;
                 const placeholder = element.getAttribute('placeholder');
-                
+
                 if (label || ariaLabel || ariaLabelledBy || (placeholder && placeholder.length > 3)) {
                     properlyLabeled++;
                 }
             });
-            
+
             return {
                 total_form_elements: formElements.length,
                 properly_labeled: properlyLabeled,
@@ -427,18 +427,18 @@ async def then_required_fields_indicated(page: Page):
         () => {
             const requiredElements = document.querySelectorAll('[required], [aria-required="true"]');
             let clearlyIndicated = 0;
-            
+
             requiredElements.forEach(element => {
                 const hasVisualIndicator = element.getAttribute('aria-required') === 'true' ||
                                          element.hasAttribute('required') ||
                                          element.closest('label')?.textContent.includes('*') ||
                                          element.nextElementSibling?.textContent.includes('required');
-                
+
                 if (hasVisualIndicator) {
                     clearlyIndicated++;
                 }
             });
-            
+
             return {
                 total_required: requiredElements.length,
                 clearly_indicated: clearlyIndicated,

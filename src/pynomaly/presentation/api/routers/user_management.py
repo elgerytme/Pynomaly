@@ -123,14 +123,14 @@ async def get_user_management_service() -> UserManagementService:
         SQLAlchemyUserRepository, SQLAlchemyTenantRepository, SQLAlchemySessionRepository
     )
     from sqlalchemy.orm import sessionmaker
-    
+
     # This should be injected via container
     session_factory = sessionmaker()  # Configure with actual database
-    
+
     user_repo = SQLAlchemyUserRepository(session_factory)
     tenant_repo = SQLAlchemyTenantRepository(session_factory)
     session_repo = SQLAlchemySessionRepository(session_factory)
-    
+
     return UserManagementService(user_repo, tenant_repo, session_repo)
 
 
@@ -159,7 +159,7 @@ async def require_tenant_admin(
     current_user = Depends(get_current_user)
 ):
     """Require tenant admin permissions."""
-    if not (current_user.is_super_admin() or 
+    if not (current_user.is_super_admin() or
             current_user.has_role_in_tenant(TenantId(str(tenant_id)), UserRole.TENANT_ADMIN)):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -177,7 +177,7 @@ async def login(
     """Authenticate user and return access token."""
     try:
         user, token = await user_service.authenticate_user(request.email, request.password)
-        
+
         return LoginResponse(
             user=UserResponse(
                 id=UUID(user.id),
@@ -236,7 +236,7 @@ async def get_current_user_info(current_user = Depends(get_current_user)):
         severity=AuditSeverity.LOW,
         details={"action": "view_own_profile"}
     )
-    
+
     return UserResponse(
         id=UUID(current_user.id),
         email=current_user.email,
@@ -288,7 +288,7 @@ async def create_user(
             severity=AuditSeverity.LOW,
             details={"email": user.email}
         )
-        
+
         return UserResponse(
             id=UUID(user.id),
             email=user.email,
@@ -356,7 +356,7 @@ async def list_users(
                 "result_count": len(users)
             }
         )
-        
+
         return [
             UserResponse(
                 id=UUID(user.id),
@@ -404,7 +404,7 @@ async def get_user(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="User not found"
             )
-        
+
         # Check if current user can view this user
         # (same tenant or super admin)
         if not current_user.is_super_admin():
@@ -425,7 +425,7 @@ async def get_user(
                 "target_user_id": str(user_id)
             }
         )
-        
+
         return UserResponse(
             id=UUID(user.id),
             email=user.email,
@@ -603,7 +603,7 @@ async def create_tenant(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only super admins can create tenants"
         )
-    
+
     try:
         tenant, admin_user = await user_service.create_tenant(
             name=request.name,
@@ -612,7 +612,7 @@ async def create_tenant(
             admin_email=request.admin_email or "",
             admin_password=request.admin_password or ""
         )
-        
+
         return TenantResponse(
             id=UUID(tenant.id),
             name=tenant.name,
@@ -640,13 +640,13 @@ async def get_tenant(
 ):
     """Get tenant information."""
     # Check if user has access to this tenant
-    if not (current_user.is_super_admin() or 
+    if not (current_user.is_super_admin() or
             current_user.has_role_in_tenant(TenantId(str(tenant_id)), UserRole.TENANT_ADMIN)):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Access denied"
         )
-    
+
     try:
         tenant = await user_service._tenant_repo.get_tenant_by_id(TenantId(str(tenant_id)))
         if not tenant:
@@ -654,7 +654,7 @@ async def get_tenant(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Tenant not found"
             )
-        
+
         return TenantResponse(
             id=UUID(tenant.id),
             name=tenant.name,
@@ -700,7 +700,7 @@ async def get_tenant_users(
     """Get all users in a tenant."""
     try:
         users = await user_service._user_repo.get_users_by_tenant(TenantId(str(tenant_id)))
-        
+
         return [
             UserResponse(
                 id=UUID(user.id),
@@ -748,7 +748,7 @@ async def invite_user_to_tenant(
             email=request.email,
             role=request.role
         )
-        
+
         return UserResponse(
             id=UUID(user.id),
             email=user.email,
@@ -793,7 +793,7 @@ async def update_user_role_in_tenant(
             tenant_id=TenantId(str(tenant_id)),
             role=request.role
         )
-        
+
         return {
             "message": "User role updated successfully",
             "user_id": str(user_id),
@@ -847,7 +847,7 @@ async def remove_user_from_tenant(
             user_id=UserId(str(user_id)),
             tenant_id=TenantId(str(tenant_id))
         )
-        
+
         if success:
             audit_logger.log_event(
                 AuditEventType.USER_DELETED,
@@ -861,7 +861,7 @@ async def remove_user_from_tenant(
             await user_service._tenant_repo.update_tenant_usage(
                 TenantId(str(tenant_id)), {"users_count": "-1"}
             )
-            
+
             return {"message": "User removed from tenant successfully"}
         else:
             raise HTTPException(

@@ -29,7 +29,7 @@ async def viewer_only_endpoint(
 ) -> dict:
     """
     Endpoint accessible only to users with 'viewer' role.
-    
+
     The require_viewer dependency automatically:
     1. Authenticates the user
     2. Checks if they have the 'viewer' role
@@ -49,7 +49,7 @@ async def analyst_dashboard(
 ) -> dict:
     """
     Analyst-only dashboard endpoint.
-    
+
     Only users with 'analyst' role can access this endpoint.
     """
     return {
@@ -69,7 +69,7 @@ async def create_model(
 ) -> dict:
     """
     Model creation endpoint for data scientists.
-    
+
     Only users with 'data_scientist' role can create models.
     """
     return {
@@ -85,7 +85,7 @@ async def list_users(
 ) -> dict:
     """
     User management endpoint for tenant administrators.
-    
+
     Only users with 'tenant_admin' role can access user management.
     """
     return {
@@ -101,7 +101,7 @@ async def create_tenant(
 ) -> dict:
     """
     Platform-level tenant creation for super administrators.
-    
+
     Only super admins can create new tenants.
     """
     return {
@@ -117,7 +117,7 @@ async def custom_role_example(
 ) -> dict:
     """
     Example of using a custom role with the require_role function.
-    
+
     This demonstrates how to create role checks for custom roles
     that aren't predefined in the common dependencies.
     """
@@ -136,21 +136,21 @@ async def multiple_roles_allowed(
 ) -> dict:
     """
     Example endpoint that could be extended to allow multiple roles.
-    
+
     Currently shows data scientist access, but the pattern could be extended
     to create a MultiRoleChecker that accepts multiple roles.
     """
     user_roles = [role.name for role in user.roles]
-    
+
     # Additional role validation could be done here if needed
     allowed_roles = ["data_scientist", "tenant_admin", "super_admin"]
     has_allowed_role = any(role in allowed_roles for role in user_roles)
-    
+
     if not has_allowed_role:
         # This wouldn't typically be reached due to the dependency,
         # but shows how you might extend for multiple role support
         pass
-    
+
     return {
         "message": "Multi-role endpoint access granted",
         "user_roles": user_roles,
@@ -162,7 +162,7 @@ async def multiple_roles_allowed(
 def integrate_rbac_examples(app):
     """
     Example of how to integrate RBAC-protected routes into your main application.
-    
+
     Args:
         app: FastAPI application instance
     """
@@ -219,7 +219,7 @@ The RBAC middleware automatically handles:
 ### 5. Available Predefined Roles
 
 - `require_super_admin`: Platform-wide administrator
-- `require_tenant_admin`: Tenant administrator  
+- `require_tenant_admin`: Tenant administrator
 - `require_data_scientist`: Can create/manage models
 - `require_analyst`: Can view results and run detection
 - `require_viewer`: Read-only access

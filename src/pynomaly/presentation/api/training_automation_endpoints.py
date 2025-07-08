@@ -64,7 +64,7 @@ class TrainingConfigurationRequest(BaseModel):
     )
     optimization_direction: str = Field(
         default="maximize",
-        regex="^(maximize|minimize)$",
+        pattern="^(maximize|minimize)$",
         description="Optimization direction",
     )
 

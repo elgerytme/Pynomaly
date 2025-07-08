@@ -12,7 +12,7 @@ genrule(
 # Simple test validation
 genrule(
     name = "test-validation",
-    out = "test-validation.txt", 
+    out = "test-validation.txt",
     cmd = "echo 'Buck2 test integration working!' > $OUT",
     deps = [":validation"],
     visibility = ["PUBLIC"],

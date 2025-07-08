@@ -555,7 +555,7 @@ npm run test:visual        # Visual regression testing
 #### HTML Structure
 ```html
 <!-- Semantic HTML with accessibility -->
-<button 
+<button
   class="btn btn-primary btn-md"
   type="button"
   aria-label="Save document"
@@ -593,7 +593,7 @@ function initializeComponent(element) {
       element.click();
     }
   });
-  
+
   // Announce state changes to screen readers
   element.setAttribute('aria-live', 'polite');
 }

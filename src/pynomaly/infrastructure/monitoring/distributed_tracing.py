@@ -6,11 +6,11 @@ from typing import Any, Callable, Optional
 
 def trace_operation(operation_name: str = "operation", **kwargs):
     """Stub decorator for tracing operations.
-    
+
     Args:
         operation_name: Name of the operation to trace
         **kwargs: Additional tracing metadata
-    
+
     Returns:
         Decorator function
     """
@@ -25,11 +25,11 @@ def trace_operation(operation_name: str = "operation", **kwargs):
 
 def start_span(name: str, **kwargs):
     """Stub function to start a tracing span.
-    
+
     Args:
         name: Span name
         **kwargs: Additional span attributes
-    
+
     Returns:
         None (no-op)
     """
@@ -43,7 +43,7 @@ def end_span():
 
 def add_span_attribute(key: str, value: Any):
     """Stub function to add attributes to current span.
-    
+
     Args:
         key: Attribute key
         value: Attribute value
@@ -53,7 +53,7 @@ def add_span_attribute(key: str, value: Any):
 
 def set_span_error(error: Exception):
     """Stub function to mark span as having an error.
-    
+
     Args:
         error: Exception that occurred
     """

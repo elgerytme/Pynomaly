@@ -772,7 +772,7 @@ navigator.serviceWorker.ready.then(registration => {
 // Listen for service worker messages
 navigator.serviceWorker.addEventListener('message', (event) => {
   const { type, data } = event.data;
-  
+
   switch (type) {
     case 'OFFLINE_DASHBOARD_DATA':
       updateDashboard(data);

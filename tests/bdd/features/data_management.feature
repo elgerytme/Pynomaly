@@ -13,7 +13,7 @@ Feature: Data Management and Processing
     Then the data should be loaded correctly
     And the feature matrix should have the expected shape
     And all numeric values should be preserved
-    
+
     Given I have a CSV file with Windows-1252 encoding
     When I load the data specifying the encoding
     Then the data should load without character encoding errors

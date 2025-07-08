@@ -41,7 +41,7 @@ pip install pynomaly[production] # + Production features
 
 ### Data & ML Core (4 packages)
 - **`pyod ^2.0.5`** - Primary anomaly detection library
-- **`numpy ^2.1.0`** - Numerical computing 
+- **`numpy ^2.1.0`** - Numerical computing
 - **`pandas ^2.3.0`** - Data manipulation
 - **`polars ^0.20.0`** - High-performance DataFrames
 
@@ -247,7 +247,7 @@ except ImportError:
 # Test CLI (requires pynomaly[cli])
 try:
     from pynomaly.presentation.cli import app
-    print("✓ CLI functionality available") 
+    print("✓ CLI functionality available")
 except ImportError:
     print("○ CLI not available (install with pynomaly[cli])")
 ```

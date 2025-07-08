@@ -421,7 +421,7 @@ window.CollaborationManager = {
       cursorElement.className = "live-cursor";
       cursorElement.innerHTML = `
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2L13.09 8.26L17 12L13.09 15.74L12 22L10.91 15.74L7 12L10.91 8.26L12 2Z" 
+                    <path d="M12 2L13.09 8.26L17 12L13.09 15.74L12 22L10.91 15.74L7 12L10.91 8.26L12 2Z"
                           fill="${cursorData.user.color}"/>
                 </svg>
                 <div class="absolute top-5 left-3 bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap">

@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 class BusinessDomain(str, Enum):
     """Business domains for impact assessment."""
-    
+
     REVENUE = "revenue"
     OPERATIONS = "operations"
     CUSTOMER_EXPERIENCE = "customer_experience"
@@ -35,7 +35,7 @@ class BusinessDomain(str, Enum):
 
 class ImpactSeverity(str, Enum):
     """Impact severity levels."""
-    
+
     NEGLIGIBLE = "negligible"    # < $1K impact
     LOW = "low"                 # $1K - $10K impact
     MEDIUM = "medium"           # $10K - $100K impact
@@ -45,7 +45,7 @@ class ImpactSeverity(str, Enum):
 
 class RiskCategory(str, Enum):
     """Risk categories for business impact."""
-    
+
     IMMEDIATE_LOSS = "immediate_loss"
     OPPORTUNITY_COST = "opportunity_cost"
     REMEDIATION_COST = "remediation_cost"
@@ -58,7 +58,7 @@ class RiskCategory(str, Enum):
 
 class TimeHorizon(str, Enum):
     """Time horizons for impact assessment."""
-    
+
     IMMEDIATE = "immediate"      # 0-24 hours
     SHORT_TERM = "short_term"    # 1-7 days
     MEDIUM_TERM = "medium_term"  # 1-4 weeks
@@ -69,7 +69,7 @@ class TimeHorizon(str, Enum):
 @dataclass
 class BusinessContext:
     """Business context for impact scoring."""
-    
+
     industry: str
     revenue_annual: float = 0.0
     customer_base_size: int = 0
@@ -85,7 +85,7 @@ class BusinessContext:
 @dataclass
 class ImpactMetric:
     """Individual impact metric calculation."""
-    
+
     metric_name: str
     domain: BusinessDomain
     category: RiskCategory
@@ -102,7 +102,7 @@ class ImpactMetric:
 @dataclass
 class BusinessImpactScore:
     """Complete business impact assessment."""
-    
+
     anomaly_id: str
     total_score: float  # 0.0 to 100.0
     financial_impact: float
@@ -119,7 +119,7 @@ class BusinessImpactScore:
 @dataclass
 class ROIAnalysis:
     """ROI analysis for anomaly detection system."""
-    
+
     detection_system_cost: float
     prevented_losses: float
     false_positive_cost: float
@@ -134,13 +134,13 @@ class ROIAnalysis:
 
 class BusinessImpactModel:
     """Model for calculating business impact of anomalies."""
-    
+
     def __init__(self, business_context: BusinessContext):
         self.business_context = business_context
         self.impact_history: List[BusinessImpactScore] = []
         self.domain_weights = self._initialize_domain_weights()
         self.severity_multipliers = self._initialize_severity_multipliers()
-        
+
     def _initialize_domain_weights(self) -> Dict[BusinessDomain, float]:
         """Initialize domain importance weights based on business context."""
         base_weights = {
@@ -155,7 +155,7 @@ class BusinessImpactModel:
             BusinessDomain.DATA_QUALITY: 0.02,
             BusinessDomain.FRAUD_PREVENTION: 0.02
         }
-        
+
         # Adjust weights based on industry
         if "financial" in self.business_context.industry.lower():
             base_weights[BusinessDomain.COMPLIANCE] *= 2.0
@@ -170,11 +170,11 @@ class BusinessImpactModel:
         elif "manufacturing" in self.business_context.industry.lower():
             base_weights[BusinessDomain.SUPPLY_CHAIN] *= 2.0
             base_weights[BusinessDomain.OPERATIONS] *= 1.3
-        
+
         # Normalize weights
         total_weight = sum(base_weights.values())
         return {domain: weight / total_weight for domain, weight in base_weights.items()}
-    
+
     def _initialize_severity_multipliers(self) -> Dict[ImpactSeverity, float]:
         """Initialize severity multipliers for impact calculation."""
         return {
@@ -184,7 +184,7 @@ class BusinessImpactModel:
             ImpactSeverity.HIGH: 3.0,
             ImpactSeverity.CRITICAL: 10.0
         }
-    
+
     def calculate_revenue_impact(
         self,
         anomaly_data: Dict[str, Any],
@@ -200,18 +200,18 @@ class BusinessImpactModel:
             hourly_transactions = self.business_context.transaction_volume_daily / 24
             affected_transactions = int(hourly_transactions * duration_hours * 0.1)  # 10% impact assumption
             direct_loss = affected_transactions * self.business_context.average_transaction_value
-        
+
         # Add opportunity cost
         opportunity_multiplier = 1.2  # 20% opportunity cost
         total_impact = direct_loss * opportunity_multiplier
-        
+
         # Determine severity
         severity = self._classify_financial_severity(total_impact)
-        
+
         # Calculate probability based on anomaly confidence
         anomaly_confidence = anomaly_data.get("confidence", 0.5)
         probability = min(0.9, anomaly_confidence * 0.8)
-        
+
         return ImpactMetric(
             metric_name="revenue_loss",
             domain=BusinessDomain.REVENUE,
@@ -228,7 +228,7 @@ class BusinessImpactModel:
             ],
             recovery_time_hours=duration_hours
         )
-    
+
     def calculate_operational_impact(
         self,
         anomaly_data: Dict[str, Any],
@@ -239,14 +239,14 @@ class BusinessImpactModel:
         # Base operational cost per hour (percentage of daily revenue)
         daily_revenue = self.business_context.revenue_annual / 365
         base_operational_cost = daily_revenue * 0.1 / 24  # 10% of daily revenue per day, divided by 24 hours
-        
+
         # Calculate impact based on affected systems and disruption level
         system_multiplier = len(affected_systems) * 0.3 + 0.7  # More systems = higher impact
         total_impact = base_operational_cost * disruption_level * system_multiplier
-        
+
         severity = self._classify_financial_severity(total_impact)
         probability = min(0.8, disruption_level)
-        
+
         return ImpactMetric(
             metric_name="operational_disruption",
             domain=BusinessDomain.OPERATIONS,
@@ -264,7 +264,7 @@ class BusinessImpactModel:
             mitigation_cost=total_impact * 0.2,  # 20% of impact for mitigation
             recovery_time_hours=4.0
         )
-    
+
     def calculate_customer_impact(
         self,
         anomaly_data: Dict[str, Any],
@@ -275,21 +275,21 @@ class BusinessImpactModel:
         if affected_customers == 0:
             # Estimate based on customer base
             affected_customers = int(self.business_context.customer_base_size * service_degradation * 0.1)
-        
+
         # Calculate customer lifetime value impact
         annual_revenue_per_customer = self.business_context.revenue_annual / max(1, self.business_context.customer_base_size)
         customer_lifetime_value = annual_revenue_per_customer * 3  # Assume 3-year average lifetime
-        
+
         # Calculate churn risk
         churn_risk = service_degradation * 0.05  # 5% base churn risk per degradation level
         churn_impact = affected_customers * churn_risk * customer_lifetime_value
-        
+
         # Add satisfaction impact (harder to quantify, use percentage of CLV)
         satisfaction_impact = affected_customers * customer_lifetime_value * 0.1 * service_degradation
-        
+
         total_impact = churn_impact + satisfaction_impact
         severity = self._classify_financial_severity(total_impact)
-        
+
         return ImpactMetric(
             metric_name="customer_experience_degradation",
             domain=BusinessDomain.CUSTOMER_EXPERIENCE,
@@ -307,7 +307,7 @@ class BusinessImpactModel:
             ],
             recovery_time_hours=24.0
         )
-    
+
     def calculate_compliance_impact(
         self,
         anomaly_data: Dict[str, Any],
@@ -316,7 +316,7 @@ class BusinessImpactModel:
     ) -> ImpactMetric:
         """Calculate compliance and regulatory impact."""
         base_penalty = 0.0
-        
+
         # Calculate penalties based on violated requirements
         for requirement in violated_requirements:
             if "gdpr" in requirement.lower():
@@ -329,14 +329,14 @@ class BusinessImpactModel:
                 base_penalty += 100000  # Base $100K for SOX violations
             else:
                 base_penalty += 25000  # Generic regulatory penalty
-        
+
         # Add remediation costs
         remediation_cost = base_penalty * 0.5  # 50% of penalty for remediation
         total_impact = base_penalty + remediation_cost
-        
+
         severity = self._classify_financial_severity(total_impact)
         probability = 0.7 if violated_requirements else 0.1
-        
+
         return ImpactMetric(
             metric_name="compliance_violation",
             domain=BusinessDomain.COMPLIANCE,
@@ -355,7 +355,7 @@ class BusinessImpactModel:
             mitigation_cost=remediation_cost,
             recovery_time_hours=168.0  # 1 week
         )
-    
+
     def calculate_security_impact(
         self,
         anomaly_data: Dict[str, Any],
@@ -370,21 +370,21 @@ class BusinessImpactModel:
             "high": 1000000,   # $1M for high sensitivity
             "critical": 5000000  # $5M for critical data
         }
-        
+
         base_cost = base_costs.get(data_sensitivity, 200000)
-        
+
         # Scale by company size
         company_size_multiplier = min(3.0, self.business_context.revenue_annual / 100_000_000)  # Scale with revenue
-        
+
         # Add investigation and remediation costs
         investigation_cost = base_cost * 0.3
         remediation_cost = base_cost * 0.4
         legal_cost = base_cost * 0.2
-        
+
         total_impact = (base_cost + investigation_cost + remediation_cost + legal_cost) * company_size_multiplier
-        
+
         severity = self._classify_financial_severity(total_impact)
-        
+
         return ImpactMetric(
             metric_name="security_breach_risk",
             domain=BusinessDomain.SECURITY,
@@ -403,7 +403,7 @@ class BusinessImpactModel:
             mitigation_cost=base_cost * 0.1,  # 10% for prevention
             recovery_time_hours=72.0  # 3 days
         )
-    
+
     def _classify_financial_severity(self, financial_impact: float) -> ImpactSeverity:
         """Classify financial impact into severity levels."""
         if financial_impact < 1000:
@@ -420,12 +420,12 @@ class BusinessImpactModel:
 
 class BusinessImpactAnalyzer:
     """Main service for business impact analysis and scoring."""
-    
+
     def __init__(self, business_context: BusinessContext):
         self.business_context = business_context
         self.impact_model = BusinessImpactModel(business_context)
         self.scoring_history: Dict[str, List[BusinessImpactScore]] = defaultdict(list)
-        
+
     async def analyze_anomaly_impact(
         self,
         anomaly_id: str,
@@ -435,7 +435,7 @@ class BusinessImpactAnalyzer:
         """Analyze business impact of an anomaly."""
         context = context or {}
         metrics = []
-        
+
         # Calculate impact across different domains
         try:
             # Revenue impact
@@ -445,7 +445,7 @@ class BusinessImpactAnalyzer:
                 duration_hours=context.get("duration_hours", 1.0)
             )
             metrics.append(revenue_metric)
-            
+
             # Operational impact
             if context.get("affected_systems"):
                 operational_metric = self.impact_model.calculate_operational_impact(
@@ -454,7 +454,7 @@ class BusinessImpactAnalyzer:
                     disruption_level=context.get("disruption_level", 0.5)
                 )
                 metrics.append(operational_metric)
-            
+
             # Customer impact
             if context.get("affects_customers", True):
                 customer_metric = self.impact_model.calculate_customer_impact(
@@ -463,7 +463,7 @@ class BusinessImpactAnalyzer:
                     service_degradation=context.get("service_degradation", 0.3)
                 )
                 metrics.append(customer_metric)
-            
+
             # Compliance impact
             if context.get("compliance_violations"):
                 compliance_metric = self.impact_model.calculate_compliance_impact(
@@ -472,7 +472,7 @@ class BusinessImpactAnalyzer:
                     data_records_affected=context.get("data_records_affected", 0)
                 )
                 metrics.append(compliance_metric)
-            
+
             # Security impact
             if context.get("security_relevant", False):
                 security_metric = self.impact_model.calculate_security_impact(
@@ -481,7 +481,7 @@ class BusinessImpactAnalyzer:
                     data_sensitivity=context.get("data_sensitivity", "medium")
                 )
                 metrics.append(security_metric)
-            
+
         except Exception as e:
             logger.error(f"Error calculating impact metrics: {e}")
             # Provide fallback metric
@@ -495,22 +495,22 @@ class BusinessImpactAnalyzer:
                 time_horizon=TimeHorizon.SHORT_TERM,
                 confidence=0.3
             ))
-        
+
         # Calculate overall score
         total_score = self._calculate_composite_score(metrics)
         total_financial_impact = sum(m.financial_impact * m.probability for m in metrics)
         risk_level = self._determine_overall_risk_level(metrics)
         overall_confidence = np.mean([m.confidence for m in metrics]) if metrics else 0.0
-        
+
         # Determine affected domains
         affected_domains = list(set(m.domain for m in metrics))
-        
+
         # Generate recommendations
         recommendations = self._generate_recommendations(metrics, total_financial_impact)
-        
+
         # Calculate prevention value (what we save by detecting this)
         prevention_value = total_financial_impact * 0.8  # Assume 80% preventable
-        
+
         impact_score = BusinessImpactScore(
             anomaly_id=anomaly_id,
             total_score=total_score,
@@ -523,50 +523,50 @@ class BusinessImpactAnalyzer:
             recommended_actions=recommendations,
             prevention_value=prevention_value
         )
-        
+
         # Store in history
         self.scoring_history[anomaly_id].append(impact_score)
         self.impact_model.impact_history.append(impact_score)
-        
+
         return impact_score
-    
+
     def _calculate_composite_score(self, metrics: List[ImpactMetric]) -> float:
         """Calculate composite business impact score (0-100)."""
         if not metrics:
             return 0.0
-        
+
         weighted_score = 0.0
         total_weight = 0.0
-        
+
         for metric in metrics:
             # Get domain weight
             domain_weight = self.impact_model.domain_weights.get(metric.domain, 0.1)
-            
+
             # Get severity multiplier
             severity_multiplier = self.impact_model.severity_multipliers.get(metric.severity, 1.0)
-            
+
             # Calculate metric score (0-100)
             metric_score = (
                 (metric.probability * 0.4) +  # 40% probability weight
                 (metric.confidence * 0.3) +   # 30% confidence weight
                 (severity_multiplier / 10.0 * 0.3)  # 30% severity weight
             ) * 100
-            
+
             weighted_score += metric_score * domain_weight
             total_weight += domain_weight
-        
+
         return min(100.0, weighted_score / total_weight if total_weight > 0 else 0.0)
-    
+
     def _determine_overall_risk_level(self, metrics: List[ImpactMetric]) -> ImpactSeverity:
         """Determine overall risk level from metrics."""
         if not metrics:
             return ImpactSeverity.LOW
-        
+
         # Get highest severity with significant probability
         significant_metrics = [m for m in metrics if m.probability > 0.3]
         if not significant_metrics:
             significant_metrics = metrics
-        
+
         severity_values = {
             ImpactSeverity.NEGLIGIBLE: 1,
             ImpactSeverity.LOW: 2,
@@ -574,15 +574,15 @@ class BusinessImpactAnalyzer:
             ImpactSeverity.HIGH: 4,
             ImpactSeverity.CRITICAL: 5
         }
-        
+
         max_severity_value = max(severity_values[m.severity] for m in significant_metrics)
-        
+
         for severity, value in severity_values.items():
             if value == max_severity_value:
                 return severity
-        
+
         return ImpactSeverity.MEDIUM
-    
+
     def _generate_recommendations(
         self,
         metrics: List[ImpactMetric],
@@ -590,7 +590,7 @@ class BusinessImpactAnalyzer:
     ) -> List[str]:
         """Generate action recommendations based on impact analysis."""
         recommendations = []
-        
+
         # Priority-based recommendations
         if total_impact > 1000000:  # > $1M impact
             recommendations.extend([
@@ -610,36 +610,36 @@ class BusinessImpactAnalyzer:
                 "Monitor for escalation",
                 "Document findings"
             ])
-        
+
         # Domain-specific recommendations
         affected_domains = set(m.domain for m in metrics)
-        
+
         if BusinessDomain.REVENUE in affected_domains:
             recommendations.append("Review revenue impact and recovery procedures")
-        
+
         if BusinessDomain.COMPLIANCE in affected_domains:
             recommendations.extend([
                 "Notify compliance team",
                 "Prepare regulatory reports if required",
                 "Review legal implications"
             ])
-        
+
         if BusinessDomain.SECURITY in affected_domains:
             recommendations.extend([
                 "Engage security team",
                 "Check for signs of breach",
                 "Review access logs"
             ])
-        
+
         if BusinessDomain.CUSTOMER_EXPERIENCE in affected_domains:
             recommendations.extend([
                 "Prepare customer communication",
                 "Monitor customer support channels",
                 "Consider service credits if applicable"
             ])
-        
+
         return list(set(recommendations))  # Remove duplicates
-    
+
     async def calculate_detection_roi(
         self,
         time_period_days: int = 365,
@@ -652,7 +652,7 @@ class BusinessImpactAnalyzer:
             impact for impact in self.impact_model.impact_history
             if impact.timestamp >= cutoff_date
         ]
-        
+
         if not recent_impacts:
             return ROIAnalysis(
                 detection_system_cost=detection_system_cost,
@@ -666,34 +666,34 @@ class BusinessImpactAnalyzer:
                 cost_per_detection=detection_system_cost,
                 value_per_prevented_incident=0.0
             )
-        
+
         # Calculate prevented losses
         prevented_losses = sum(impact.prevention_value for impact in recent_impacts)
-        
+
         # Estimate investigation costs (assume $1000 per anomaly investigation)
         investigation_costs = len(recent_impacts) * 1000
-        
+
         # Estimate false positive costs (assume 20% false positive rate, $500 per false positive)
         estimated_false_positives = len(recent_impacts) * 0.2
         false_positive_cost = estimated_false_positives * 500
-        
+
         # Calculate total costs and benefits
         total_cost = detection_system_cost + investigation_costs + false_positive_cost
         total_benefit = prevented_losses
-        
+
         # Calculate ROI metrics
         net_benefit = total_benefit - total_cost
         roi_percentage = (net_benefit / total_cost * 100) if total_cost > 0 else 0.0
-        
+
         # Calculate payback period
         monthly_benefit = total_benefit / 12 if time_period_days >= 365 else total_benefit * (30 / time_period_days)
         monthly_cost = total_cost / 12 if time_period_days >= 365 else total_cost * (30 / time_period_days)
         payback_period_months = (detection_system_cost / monthly_benefit) if monthly_benefit > 0 else float('inf')
-        
+
         # Calculate per-unit metrics
         cost_per_detection = total_cost / len(recent_impacts) if recent_impacts else 0.0
         value_per_prevented_incident = prevented_losses / len(recent_impacts) if recent_impacts else 0.0
-        
+
         return ROIAnalysis(
             detection_system_cost=detection_system_cost,
             prevented_losses=prevented_losses,
@@ -706,7 +706,7 @@ class BusinessImpactAnalyzer:
             cost_per_detection=cost_per_detection,
             value_per_prevented_incident=value_per_prevented_incident
         )
-    
+
     async def get_impact_trends(
         self,
         time_period_days: int = 30
@@ -717,7 +717,7 @@ class BusinessImpactAnalyzer:
             impact for impact in self.impact_model.impact_history
             if impact.timestamp >= cutoff_date
         ]
-        
+
         if not recent_impacts:
             return {
                 "total_incidents": 0,
@@ -727,30 +727,30 @@ class BusinessImpactAnalyzer:
                 "severity_breakdown": {},
                 "trends": {}
             }
-        
+
         # Calculate basic metrics
         total_incidents = len(recent_impacts)
         total_financial_impact = sum(impact.financial_impact for impact in recent_impacts)
         average_impact = total_financial_impact / total_incidents
-        
+
         # Domain breakdown
         domain_impacts = defaultdict(float)
         for impact in recent_impacts:
             for domain in impact.affected_domains:
                 domain_impacts[domain.value] += impact.financial_impact
-        
+
         # Severity breakdown
         severity_counts = defaultdict(int)
         for impact in recent_impacts:
             severity_counts[impact.risk_level.value] += 1
-        
+
         # Trend analysis (weekly breakdown)
         weekly_trends = defaultdict(lambda: {"count": 0, "impact": 0.0})
         for impact in recent_impacts:
             week_key = impact.timestamp.strftime("%Y-W%U")
             weekly_trends[week_key]["count"] += 1
             weekly_trends[week_key]["impact"] += impact.financial_impact
-        
+
         return {
             "total_incidents": total_incidents,
             "total_financial_impact": total_financial_impact,

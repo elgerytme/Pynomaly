@@ -61,7 +61,7 @@ class EnsembleRequest(BaseModel):
     """Request for ensemble creation."""
 
     name: str
-    detector_ids: list[UUID] = Field(..., min_items=2)
+    detector_ids: list[UUID] = Field(..., min_length=2)
     weights: dict[str, float] | None = None
     aggregation_method: str = "weighted_voting"
 
@@ -70,7 +70,7 @@ class FamilyEnsembleRequest(BaseModel):
     """Request for family-based ensemble."""
 
     dataset_id: UUID
-    families: list[str] = Field(..., min_items=1)
+    families: list[str] = Field(..., min_length=1)
     enable_family_ensembles: bool = True
     enable_meta_ensemble: bool = True
     optimization_time: int = Field(1800, ge=300, le=3600)

@@ -96,8 +96,7 @@ class EncryptionKey(BaseModel):
     is_active: bool = True
     metadata: dict[str, Any] = Field(default_factory=dict)
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed = True)
 
 
 class EncryptionService:

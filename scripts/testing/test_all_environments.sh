@@ -17,7 +17,7 @@ test_endpoint() {
     local url=$1
     local description=$2
     local timeout=${3:-10}
-    
+
     echo -n "  Testing $description... "
     if timeout $timeout bash -c "curl -s '$url' > /dev/null"; then
         echo "✓ SUCCESS"
@@ -33,9 +33,9 @@ test_server() {
     local port=$1
     local env_name=$2
     local pythonpath=$3
-    
+
     echo "--- Testing $env_name Environment (Port $port) ---"
-    
+
     # Start server in background
     echo "Starting server..."
     if [ -n "$pythonpath" ]; then
@@ -43,28 +43,28 @@ test_server() {
     else
         uvicorn pynomaly.presentation.api:app --host 127.0.0.1 --port $port > /tmp/test_$port.log 2>&1 &
     fi
-    
+
     local server_pid=$!
     echo "Server PID: $server_pid"
-    
+
     # Wait for server to start
     echo "Waiting for server to start..."
     sleep 5
-    
+
     # Test endpoints
     local success=0
     test_endpoint "http://127.0.0.1:$port/" "root endpoint" && ((success++))
     test_endpoint "http://127.0.0.1:$port/api/health/" "health endpoint" && ((success++))
     test_endpoint "http://127.0.0.1:$port/api/docs" "docs endpoint" && ((success++))
     test_endpoint "http://127.0.0.1:$port/api/openapi.json" "OpenAPI schema" && ((success++))
-    
+
     # Get response data
     if curl -s "http://127.0.0.1:$port/" > /dev/null 2>&1; then
         local root_response=$(curl -s "http://127.0.0.1:$port/")
         local version=$(echo "$root_response" | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
         echo "  API Version: $version"
     fi
-    
+
     if curl -s "http://127.0.0.1:$port/api/health/" > /dev/null 2>&1; then
         local health_response=$(curl -s "http://127.0.0.1:$port/api/health/")
         local status=$(echo "$health_response" | grep -o '"overall_status":"[^"]*"' | cut -d'"' -f4)
@@ -72,14 +72,14 @@ test_server() {
         echo "  Health Status: $status"
         echo "  Uptime: ${uptime}s"
     fi
-    
+
     # Stop server
     echo "Stopping server..."
     kill $server_pid 2>/dev/null || true
     wait $server_pid 2>/dev/null || true
-    
+
     echo "  Test Results: $success/4 endpoints successful"
-    
+
     if [ $success -eq 4 ]; then
         echo "  ✅ $env_name Environment: PASSED"
         return 0
@@ -96,7 +96,7 @@ echo "🧪 Test 1: Current Environment"
 export PYTHONPATH="$SRC_PATH"
 test_server 8010 "Current" "$SRC_PATH"
 
-# Test 2: Fresh Environment Simulation  
+# Test 2: Fresh Environment Simulation
 echo ""
 echo "🧪 Test 2: Fresh Environment Simulation"
 env -i HOME=$HOME USER=$USER PATH=/usr/local/bin:/usr/bin:/bin bash -c "
@@ -111,7 +111,7 @@ echo ""
 echo "🧪 Test 3: Minimal Environment (System Python)"
 env -i HOME=$HOME PATH=/usr/bin:/bin bash -c "
 export PYTHONPATH='$SRC_PATH'
-$(declare -f test_endpoint)  
+$(declare -f test_endpoint)
 $(declare -f test_server)
 test_server 8012 'Minimal' '$SRC_PATH'
 "

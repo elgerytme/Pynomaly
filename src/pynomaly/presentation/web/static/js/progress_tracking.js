@@ -317,11 +317,11 @@ class ProgressTracker {
                             <!-- Progress content will be inserted here -->
                         </div>
                         <div class="mt-6 flex justify-end space-x-3">
-                            <button onclick="progressTracker.cancelTask('${taskId}')" 
+                            <button onclick="progressTracker.cancelTask('${taskId}')"
                                     class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
                                 Cancel
                             </button>
-                            <button onclick="progressTracker.closeModal('${modalId}')" 
+                            <button onclick="progressTracker.closeModal('${modalId}')"
                                     class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
                                 Close
                             </button>

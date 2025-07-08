@@ -439,7 +439,7 @@ async def record_detection_event(
 
 @router.get("/dashboard/export")
 async def export_dashboard_data(
-    format: str = Query("json", regex="^(json|csv)$", description="Export format"),
+    format: str = Query("json", pattern="^(json|csv)$", description="Export format"),
     current_user: dict = Depends(get_current_user),
     _: bool = Depends(require_permission("data:export")) if AUTH_AVAILABLE else None,
     dashboard_service: EnterpriseDashboardService = Depends(get_dashboard_service),

@@ -7,12 +7,12 @@ from .data_isolation import DataIsolationService, TenantDataAccess
 
 __all__ = [
     "TenantManager",
-    "Tenant", 
+    "Tenant",
     "TenantStatus",
     "TenantConfiguration",
     "ResourceIsolator",
     "ResourceQuota",
-    "ResourceType", 
+    "ResourceType",
     "TenantMiddleware",
     "TenantContext",
     "get_current_tenant",

@@ -7,6 +7,7 @@ from .model_storage_info import ModelStorageInfo, SerializationFormat, StorageBa
 from .performance_metrics import PerformanceMetrics
 from .semantic_version import SemanticVersion
 from .threshold_config import ThresholdConfig
+from .anomaly_type import AnomalyType, AnomalyCategory, SeverityScore, SeverityLevel
 
 __all__ = [
     "AnomalyScore",
@@ -18,4 +19,8 @@ __all__ = [
     "StorageBackend",
     "SerializationFormat",
     "PerformanceMetrics",
+    "AnomalyType",
+    "AnomalyCategory",
+    "SeverityScore",
+    "SeverityLevel",
 ]

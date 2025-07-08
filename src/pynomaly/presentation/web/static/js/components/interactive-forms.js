@@ -749,11 +749,11 @@ export class FileUploadComponent {
             <span>or <button type="button" class="upload-browse">browse files</button></span>
           </div>
           <div class="upload-hint">
-            Supported formats: ${this.options.allowedTypes.join(", ")} 
+            Supported formats: ${this.options.allowedTypes.join(", ")}
             (max ${this.formatFileSize(this.options.maxFileSize)})
           </div>
         </div>
-        <input type="file" id="file-input" style="display: none;" 
+        <input type="file" id="file-input" style="display: none;"
                ${this.options.multiple ? "multiple" : ""}
                accept=".${this.options.allowedTypes.join(",.")}">
       </div>

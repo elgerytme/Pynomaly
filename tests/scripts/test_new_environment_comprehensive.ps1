@@ -2,7 +2,7 @@
 
 # Pynomaly New Environment Testing - PowerShell Edition
 Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host "PYNOMALY NEW ENVIRONMENT TESTING - POWERSHELL" -ForegroundColor Cyan  
+Write-Host "PYNOMALY NEW ENVIRONMENT TESTING - POWERSHELL" -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host "PowerShell Version: $($PSVersionTable.PSVersion)" -ForegroundColor Blue
 Write-Host "OS: $($PSVersionTable.OS)" -ForegroundColor Blue
@@ -24,17 +24,17 @@ function Invoke-PynomaliTest {
         [int]$ExpectedExitCode = 0,
         [switch]$AllowWarnings
     )
-    
+
     $script:totalTests++
     Write-Host "----------------------------------------" -ForegroundColor Yellow
     Write-Host "TEST: $TestName" -ForegroundColor Cyan
     Write-Host "COMMAND: $Command" -ForegroundColor Gray
     Write-Host "----------------------------------------" -ForegroundColor Yellow
-    
+
     try {
         $output = ""
         $exitCode = 0
-        
+
         # Execute command and capture output
         $psi = New-Object System.Diagnostics.ProcessStartInfo
         $psi.FileName = "powershell"
@@ -43,21 +43,21 @@ function Invoke-PynomaliTest {
         $psi.RedirectStandardError = $true
         $psi.UseShellExecute = $false
         $psi.CreateNoWindow = $true
-        
+
         $process = New-Object System.Diagnostics.Process
         $process.StartInfo = $psi
         $process.Start() | Out-Null
-        
+
         $stdout = $process.StandardOutput.ReadToEnd()
         $stderr = $process.StandardError.ReadToEnd()
         $process.WaitForExit()
         $exitCode = $process.ExitCode
-        
+
         $output = $stdout
         if ($stderr -and -not $AllowWarnings) {
             $output += "`nSTDERR: $stderr"
         }
-        
+
         # Display output (truncated)
         $outputLines = $output -split "`n"
         $displayLines = $outputLines | Select-Object -First 10
@@ -67,7 +67,7 @@ function Invoke-PynomaliTest {
         if ($outputLines.Count -gt 10) {
             Write-Host "... (output truncated)" -ForegroundColor Gray
         }
-        
+
         # Check result
         if ($exitCode -eq $ExpectedExitCode) {
             Write-Host "✅ PASSED: $TestName" -ForegroundColor Green

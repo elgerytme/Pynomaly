@@ -128,39 +128,39 @@ async def get_event_service(
     summary="Query Events",
     description="""
     Query anomaly events with comprehensive filtering options.
-    
+
     This endpoint provides powerful querying capabilities to find events based on:
-    
+
     **Event Classification:**
     - **Types**: Filter by event types (anomaly_detected, data_quality_issue, etc.)
     - **Severities**: Filter by severity levels (info, low, medium, high, critical)
     - **Statuses**: Filter by processing status (pending, processed, resolved, etc.)
-    
+
     **Source Filtering:**
     - **Detectors**: Find events from specific anomaly detectors
     - **Sessions**: Find events from specific streaming sessions
     - **Data Sources**: Filter by original data source systems
-    
+
     **Content Filtering:**
     - **Text Search**: Search in event titles and descriptions
     - **Tags**: Filter by event tags
     - **Correlation**: Find related events using correlation IDs
-    
+
     **Anomaly-Specific Filtering:**
     - **Score Range**: Filter by anomaly score thresholds
     - **Confidence**: Filter by detection confidence levels
-    
+
     **Time-Based Filtering:**
     - **Event Time**: When the original event occurred
     - **Ingestion Time**: When the event was received by the system
-    
+
     **Use Cases:**
     - Security incident investigation
     - Performance troubleshooting
     - Quality assurance monitoring
     - Compliance auditing
     - Operational dashboards
-    
+
     **Example Query:**
     ```json
     {
@@ -217,7 +217,7 @@ async def query_events(
     summary="Get Event Details",
     description="""
     Get detailed information about a specific event.
-    
+
     Returns complete event information including:
     - Event classification and metadata
     - Anomaly detection details (if applicable)
@@ -248,13 +248,13 @@ async def get_event(
     summary="Acknowledge Event",
     description="""
     Acknowledge an event to indicate it has been reviewed.
-    
+
     Acknowledging an event:
     - Changes status to `acknowledged`
     - Records who acknowledged it and when
     - Optionally includes acknowledgment notes
     - Stops further escalation alerts
-    
+
     **Use Cases:**
     - Incident response workflows
     - Manual review processes
@@ -287,13 +287,13 @@ async def acknowledge_event(
     summary="Resolve Event",
     description="""
     Resolve an event to indicate the issue has been addressed.
-    
+
     Resolving an event:
     - Changes status to `resolved`
     - Records who resolved it and when
     - Includes resolution notes explaining the action taken
     - Closes the event in monitoring systems
-    
+
     **Best Practices:**
     - Include detailed resolution notes
     - Document root cause if identified
@@ -326,13 +326,13 @@ async def resolve_event(
     summary="Ignore Event",
     description="""
     Ignore an event to indicate it should be disregarded.
-    
+
     Ignoring an event:
     - Changes status to `ignored`
     - Records who ignored it and when
     - Includes reason for ignoring
     - Prevents further processing and alerts
-    
+
     **Common Reasons:**
     - False positive detection
     - Known issue with accepted risk
@@ -363,21 +363,21 @@ async def ignore_event(
     summary="Get Event Summary",
     description="""
     Get summary statistics for events within a time range.
-    
+
     **Summary Includes:**
     - **Total Counts**: Events by type, severity, and status
     - **Quality Metrics**: Anomaly rate, average scores, resolution rate
     - **Performance**: Average resolution time, processing efficiency
     - **Top Sources**: Most active detectors and data sources
     - **Trends**: Time-based patterns and distributions
-    
+
     **Use Cases:**
     - Executive dashboards and reporting
     - System health monitoring
     - Performance trend analysis
     - Capacity planning
     - Quality assessment
-    
+
     **Time Ranges:**
     - Last 24 hours (default)
     - Custom date ranges
@@ -411,14 +411,14 @@ async def get_event_summary(
     summary="Aggregate Events",
     description="""
     Aggregate events by specified criteria for analysis.
-    
+
     **Aggregation Options:**
     - **detector_id**: Group by anomaly detector
     - **data_source**: Group by original data source
     - **severity**: Group by event severity level
     - **event_type**: Group by event type
     - **status**: Group by processing status
-    
+
     **Aggregation Statistics:**
     - Event counts and percentages
     - Severity distribution (min/max)
@@ -426,14 +426,14 @@ async def get_event_summary(
     - Unique source counts
     - Resolution and acknowledgment rates
     - Average anomaly scores
-    
+
     **Use Cases:**
     - Performance analysis by detector
     - Data quality assessment by source
     - Operational metrics by severity
     - Trend analysis over time
     - Resource allocation planning
-    
+
     **Example:**
     Group events by detector to see which detectors are most active:
     ```json
@@ -475,14 +475,14 @@ async def aggregate_events(
     summary="Create Event Pattern",
     description="""
     Create a pattern for automatic event detection and alerting.
-    
+
     Event patterns help identify recurring issues and trends by:
     - **Frequency Patterns**: Multiple events of same type in time window
     - **Sequence Patterns**: Events occurring in specific order
     - **Correlation Patterns**: Related events from different sources
-    
+
     **Pattern Types:**
-    
+
     **Frequency Pattern Example:**
     ```json
     {
@@ -496,7 +496,7 @@ async def aggregate_events(
       "time_window_seconds": 300
     }
     ```
-    
+
     **Sequence Pattern Example:**
     ```json
     {
@@ -512,7 +512,7 @@ async def aggregate_events(
       "time_window_seconds": 600
     }
     ```
-    
+
     **Benefits:**
     - Early warning systems
     - Automated incident detection
@@ -560,19 +560,19 @@ async def create_event_pattern(
     summary="Detect Event Patterns",
     description="""
     Detect patterns in recent events using configured pattern definitions.
-    
+
     This endpoint analyzes recent events to identify:
     - Matching patterns based on frequency, sequence, or correlation
     - Pattern confidence scores and match counts
     - Affected events and time ranges
     - Recommended actions and alerts
-    
+
     **Detection Process:**
     1. Retrieve recent events within analysis window
     2. Apply all active pattern definitions
     3. Calculate pattern match confidence
     4. Generate alerts for patterns exceeding thresholds
-    
+
     **Response Format:**
     ```json
     [
@@ -585,7 +585,7 @@ async def create_event_pattern(
       }
     ]
     ```
-    
+
     **Use Cases:**
     - Real-time pattern monitoring
     - Incident investigation
@@ -645,13 +645,13 @@ async def detect_event_patterns(
     summary="Get Real-time Events",
     description="""
     Get the most recent events for real-time monitoring.
-    
+
     This endpoint is optimized for:
     - Dashboard real-time displays
     - Monitoring applications
     - Alert systems
     - Live event feeds
-    
+
     **Features:**
     - Returns only recent events (last 5 minutes by default)
     - Filters for actionable events (high severity, unresolved)

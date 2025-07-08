@@ -5,6 +5,58 @@ requires = [
 ]
 build-backend = "hatchling.build"
 
+[tool.poetry]
+name = "pynomaly"
+version = "0.1.0"
+description = "State-of-the-art Python anomaly detection package with clean architecture"
+authors = ["Pynomaly Team <team@pynomaly.io>"]
+readme = "README.md"
+packages = [{include = "pynomaly", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pyod = "^2.0.5"
+numpy = "^1.26.0"
+pandas = "^2.2.3"
+polars = "^1.19.0"
+pydantic = "^2.10.4"
+structlog = "^24.4.0"
+dependency-injector = "^4.42.0"
+networkx = "^3.0"
+scikit-learn = {version = "^1.6.0", optional = true}
+scipy = {version = "^1.15.0", optional = true}
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-cov = "^6.0.0"
+pytest-asyncio = "^0.24.0"
+pytest-xdist = "^3.6.0"
+hypothesis = "^6.115.0"
+factory-boy = "^3.3.1"
+faker = "^33.1.0"
+ruff = "^0.8.0"
+black = "^24.0.0"
+isort = "^5.13.0"
+mypy = "^1.13.0"
+bandit = "^1.8.0"
+safety = "^3.0.0"
+pre-commit = "^4.0.0"
+tox = "^4.0.0"
+pip-tools = "^7.4.0"
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = "^1.6.0"
+mkdocs-material = "^9.5.0"
+mkdocstrings = {extras = ["python"], version = "^0.27.0"}
+mkdocs-gen-files = "^0.5.0"
+mkdocs-literate-nav = "^0.6.0"
+
+[tool.poetry.extras]
+ml = ["scikit-learn", "scipy"]
+
+[tool.poetry.scripts]
+pynomaly = "pynomaly.presentation.cli.app:app"
+
 [project]
 name = "pynomaly"
 dynamic = ["version"]

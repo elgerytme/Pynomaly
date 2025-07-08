@@ -51,24 +51,24 @@ class MetricsResponse(BaseModel):
     summary="System Health Check",
     description="""
     Get comprehensive system health status including all components.
-    
+
     This endpoint performs health checks on:
     - **System Resources**: CPU, memory, disk usage
     - **Application Components**: Model repository, detector service, streaming service
     - **External Dependencies**: Database, cache, file system
-    
+
     **Health Status Levels:**
     - `healthy`: All systems operational
     - `degraded`: Some components experiencing issues but system functional
     - `unhealthy`: Critical components failing, system may not function properly
     - `unknown`: Unable to determine component status
-    
+
     **Use Cases:**
     - Application monitoring and alerting
     - Load balancer health checks
     - Troubleshooting system issues
     - Capacity planning and optimization
-    
+
     **Response Includes:**
     - Overall system status and message
     - Individual component health results
@@ -133,10 +133,10 @@ async def get_system_health(
     summary="Liveness Probe",
     description="""
     Kubernetes liveness probe endpoint for basic application health.
-    
+
     This is a lightweight check that verifies the application process is running
     and responsive. It does not check external dependencies or detailed component health.
-    
+
     **Kubernetes Configuration:**
     ```yaml
     livenessProbe:
@@ -148,7 +148,7 @@ async def get_system_health(
       timeoutSeconds: 5
       failureThreshold: 3
     ```
-    
+
     **Response:**
     - `status`: Always "alive" if application is running
     - `timestamp`: Current timestamp
@@ -169,15 +169,15 @@ async def liveness_check() -> ProbeResponse:
     summary="Readiness Probe",
     description="""
     Kubernetes readiness probe endpoint for traffic readiness.
-    
+
     This endpoint checks if the application is ready to receive traffic by
     verifying critical components are healthy and operational.
-    
+
     **Critical Components Checked:**
     - Memory usage within acceptable limits
     - File system accessible and writable
     - Model repository operational
-    
+
     **Kubernetes Configuration:**
     ```yaml
     readinessProbe:
@@ -189,7 +189,7 @@ async def liveness_check() -> ProbeResponse:
       timeoutSeconds: 3
       failureThreshold: 2
     ```
-    
+
     **Response:**
     - `status`: "ready" or "not_ready"
     - `details`: Status of each critical component
@@ -230,9 +230,9 @@ async def readiness_check(response: Response) -> ProbeResponse:
     summary="Prometheus Metrics",
     description="""
     Prometheus metrics endpoint for scraping application metrics.
-    
+
     Returns metrics in Prometheus exposition format for monitoring and alerting.
-    
+
     **Metric Categories:**
     - **HTTP Metrics**: Request rates, response times, status codes
     - **Detection Metrics**: Detection rates, accuracy, processing times
@@ -244,7 +244,7 @@ async def readiness_check(response: Response) -> ProbeResponse:
     - **Error Metrics**: Error rates by type and component
     - **Quality Metrics**: Data quality scores, prediction confidence
     - **Business Metrics**: Datasets processed, API response sizes
-    
+
     **Prometheus Configuration:**
     ```yaml
     scrape_configs:
@@ -254,13 +254,13 @@ async def readiness_check(response: Response) -> ProbeResponse:
         scrape_interval: 30s
         metrics_path: '/api/monitoring/metrics'
     ```
-    
+
     **Example Metrics:**
     ```
     # HELP pynomaly_http_requests_total Total HTTP requests
     # TYPE pynomaly_http_requests_total counter
     pynomaly_http_requests_total{method="GET",endpoint="/api/detect",status="200"} 1250
-    
+
     # HELP pynomaly_detection_duration_seconds Anomaly detection duration
     # TYPE pynomaly_detection_duration_seconds histogram
     pynomaly_detection_duration_seconds_bucket{algorithm="IsolationForest",le="0.1"} 850
@@ -309,7 +309,7 @@ async def get_prometheus_metrics(
     summary="Metrics Information",
     description="""
     Get information about available metrics without returning the full data.
-    
+
     Useful for:
     - Checking metrics service availability
     - Monitoring metrics data size
@@ -358,12 +358,12 @@ async def get_metrics_info(
     summary="Telemetry Status",
     description="""
     Get status and configuration of telemetry services.
-    
+
     **Telemetry Components:**
     - **Tracing**: Distributed tracing with OpenTelemetry
     - **Metrics**: Custom metrics collection and export
     - **Logging**: Structured logging and correlation
-    
+
     **Information Provided:**
     - Service availability and configuration
     - Export endpoints and destinations
@@ -428,7 +428,7 @@ async def get_telemetry_status(
     summary="Set Application Info",
     description="""
     Set application information in metrics for tracking and identification.
-    
+
     This endpoint allows updating the application info metric with current
     deployment information, useful for:
     - Version tracking across deployments
@@ -479,12 +479,12 @@ async def set_application_info(
     summary="List Monitored Components",
     description="""
     Get list of all monitored components and their last known status.
-    
+
     **Component Categories:**
     - **System**: CPU, memory, filesystem, network
     - **Application**: Model repository, detector service, streaming service
     - **External**: Database, cache, external APIs
-    
+
     **Status Information:**
     - Current health status
     - Last check timestamp

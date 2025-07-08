@@ -20,16 +20,16 @@
 <!-- List the specific changes made in this PR -->
 
 ### Added
-- 
+-
 
 ### Changed
-- 
+-
 
 ### Fixed
-- 
+-
 
 ### Removed
-- 
+-
 
 ## Testing
 <!-- Describe the tests you ran to verify your changes -->

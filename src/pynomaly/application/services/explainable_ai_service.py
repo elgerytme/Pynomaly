@@ -174,11 +174,11 @@ class ExplainableAIService:
         # Bias detectors
         self.bias_detectors: dict[str, Any] = {}
 
-        # Initialize explanation methods
-        asyncio.create_task(self._initialize_explanation_methods())
+        # Initialize explanation methods synchronously
+        self._initialize_explanation_methods_sync()
 
-    async def _initialize_explanation_methods(self) -> None:
-        """Initialize available explanation methods."""
+    def _initialize_explanation_methods_sync(self) -> None:
+        """Initialize available explanation methods synchronously."""
         try:
             if SHAP_AVAILABLE:
                 self.explanation_generators[ExplanationMethod.SHAP_TREE] = (
@@ -213,6 +213,7 @@ class ExplainableAIService:
 
         except Exception as e:
             logger.error(f"Failed to initialize explanation methods: {e}")
+
 
     async def explain_prediction(
         self,

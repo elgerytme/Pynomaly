@@ -53,7 +53,7 @@ class Deployment:
     deployment_config: DeploymentConfig
     status: DeploymentStatus
     health_metrics: HealthMetrics
-    
+
 class DeploymentStrategy:
     """Strategy pattern for different deployment approaches."""
     strategy_type: StrategyType  # BLUE_GREEN, CANARY, ROLLING
@@ -63,20 +63,20 @@ class DeploymentStrategy:
 # Application Layer
 class DeploymentOrchestrationService:
     """Service orchestrating model deployments across environments."""
-    
+
     async def deploy_model(
         self,
         model_version_id: UUID,
         target_environment: Environment,
         strategy: DeploymentStrategy
     ) -> Deployment
-    
+
     async def promote_to_production(
         self,
         deployment_id: UUID,
         approval_metadata: Dict[str, Any]
     ) -> None
-    
+
     async def rollback_deployment(
         self,
         deployment_id: UUID,
@@ -86,10 +86,10 @@ class DeploymentOrchestrationService:
 # Infrastructure Layer
 class KubernetesDeploymentAdapter:
     """Kubernetes deployment implementation."""
-    
+
 class DockerContainerBuilder:
     """Docker container creation and management."""
-    
+
 class ModelServingGateway:
     """API gateway for model serving endpoints."""
 ```
@@ -238,12 +238,12 @@ GET /metrics
 ```python
 class ModelPerformanceMonitor:
     """Real-time model performance monitoring."""
-    
+
     def __init__(self):
         self.metrics_collector = PrometheusMetricsCollector()
         self.alert_manager = AlertManager()
         self.drift_detector = DriftDetector()
-    
+
     async def track_prediction(
         self,
         model_id: UUID,
@@ -253,14 +253,14 @@ class ModelPerformanceMonitor:
         latency_ms: float
     ) -> None:
         """Track individual prediction metrics."""
-        
+
     async def detect_performance_degradation(
         self,
         model_id: UUID,
         time_window: timedelta
     ) -> Optional[DegradationAlert]:
         """Detect model performance issues."""
-        
+
     async def trigger_auto_rollback(
         self,
         deployment_id: UUID,

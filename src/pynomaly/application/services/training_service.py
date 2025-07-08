@@ -546,7 +546,8 @@ class AutomatedTrainingService:
         self, training_results: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
         """
-        Find Pareto-optimal models considering multiple objectives.
+        Find Pareto-optimal models considering multiple objectives
+        using the ParetoOptimizer.
 
         Args:
             training_results: Results from all trained models
@@ -554,39 +555,16 @@ class AutomatedTrainingService:
         Returns:
             List of Pareto-optimal models
         """
-        objectives = ["f1_score", "precision", "recall"]
+        objectives = [
+            {'name': 'f1_score', 'direction': 'max'},
+            {'name': 'precision', 'direction': 'max'},
+            {'name': 'recall', 'direction': 'max'}
+        ]
 
-        def dominates(result1, result2):
-            """Check if result1 dominates result2."""
-            better_in_all = True
-            strictly_better_in_one = False
+        # Use epsilon-dominance for noisy metrics
+        optimizer = ParetoOptimizer(objectives=objectives, epsilon=0.01)
 
-            for objective in objectives:
-                val1 = result1["metrics"].get(objective, 0.0)
-                val2 = result2["metrics"].get(objective, 0.0)
-
-                if val1 < val2:
-                    better_in_all = False
-                    break
-                elif val1 > val2:
-                    strictly_better_in_one = True
-
-            return better_in_all and strictly_better_in_one
-
-        pareto_optimal = []
-
-        for result in training_results:
-            is_dominated = False
-
-            for other_result in training_results:
-                if dominates(other_result, result):
-                    is_dominated = True
-                    break
-
-            if not is_dominated:
-                pareto_optimal.append(result)
-
-        return pareto_optimal
+        return optimizer.find_pareto_optimal(training_results)
 
     # Helper methods
     async def _validate_training_request(self, request: TrainingRequestDTO) -> None:

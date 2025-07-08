@@ -237,7 +237,7 @@ from pynomaly.domain.entities import Anomaly
 class AnomalyValidator(BaseModel):
     score: float
     threshold: float
-    
+
     def to_domain(self) -> Anomaly:
         return Anomaly(score=self.score, threshold=self.threshold)
 """,
@@ -269,7 +269,7 @@ class StatisticalService(Protocol):
 class AnomalyScore:
     def __init__(self, stats_service: StatisticalService):
         self._stats = stats_service
-    
+
     def calculate_percentile(self, scores: List[float]) -> float:
         return self._stats.calculate_percentile(scores, 95)
 

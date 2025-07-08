@@ -67,8 +67,8 @@ Every component includes comprehensive ARIA attributes:
 
 ```html
 <!-- Status Indicator Example -->
-<div class="status-indicator status-anomaly" 
-     role="status" 
+<div class="status-indicator status-anomaly"
+     role="status"
      aria-live="polite"
      aria-label="Anomaly detected with 95% confidence">
   <span class="status-icon" aria-hidden="true">⚠️</span>
@@ -137,16 +137,16 @@ Data visualizations include multiple access methods:
 ```html
 <!-- Chart with Data Table Alternative -->
 <div class="chart-container">
-  <div class="chart" role="img" aria-labelledby="chart-title" 
+  <div class="chart" role="img" aria-labelledby="chart-title"
        aria-describedby="chart-desc">
     <!-- D3.js/ECharts visualization -->
   </div>
-  
+
   <h3 id="chart-title">Anomaly Detection Timeline</h3>
   <p id="chart-desc">
     Time series showing 127 anomalies detected over 30 days
   </p>
-  
+
   <!-- Data table alternative -->
   <details class="chart-data-table">
     <summary>View data table</summary>
@@ -166,10 +166,10 @@ const announceAnomaly = (anomaly) => {
   const announcement = document.createElement('div');
   announcement.setAttribute('aria-live', 'assertive');
   announcement.setAttribute('aria-atomic', 'true');
-  announcement.textContent = `New anomaly detected in ${anomaly.dataset} 
+  announcement.textContent = `New anomaly detected in ${anomaly.dataset}
                              with ${anomaly.confidence}% confidence`;
   document.body.appendChild(announcement);
-  
+
   // Remove after announcement
   setTimeout(() => {
     document.body.removeChild(announcement);
@@ -189,11 +189,11 @@ import AxeBuilder from '@axe-core/playwright';
 
 test('anomaly dashboard is accessible', async ({ page }) => {
   await page.goto('/dashboard');
-  
+
   const accessibilityScanResults = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
     .analyze();
-    
+
   expect(accessibilityScanResults.violations).toEqual([]);
 });
 ```
@@ -223,11 +223,11 @@ Respect user preferences for reduced motion:
   .animate-spin {
     animation: none;
   }
-  
+
   .transition-all {
     transition: none;
   }
-  
+
   .chart-animation {
     animation-duration: 0.01ms !important;
   }
@@ -244,7 +244,7 @@ Support for Windows High Contrast Mode:
     background: ButtonFace;
     color: ButtonText;
   }
-  
+
   .status-indicator {
     border: 2px solid;
     background: transparent;

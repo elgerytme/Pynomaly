@@ -21,13 +21,13 @@
       "category": "test_structure_issue"
     },
     {
-      "test_name": "test_cli_simple.py::test_typer_cli_structure", 
+      "test_name": "test_cli_simple.py::test_typer_cli_structure",
       "reason": "Expected None, but test returned False. Did you mean to use `assert` instead of `return`?",
       "category": "test_structure_issue"
     },
     {
       "test_name": "test_cli_simple.py::test_cli_help_generation",
-      "reason": "Expected None, but test returned True. Did you mean to use `assert` instead of `return`?", 
+      "reason": "Expected None, but test returned True. Did you mean to use `assert` instead of `return`?",
       "category": "test_structure_issue"
     },
     {
@@ -46,7 +46,7 @@
       "category": "exit_code_assertion"
     },
     {
-      "test_name": "test_converted_commands.py::TestConvertedCommands::test_invalid_choice_options", 
+      "test_name": "test_converted_commands.py::TestConvertedCommands::test_invalid_choice_options",
       "reason": "assert 0 != 0 (exit_code)",
       "category": "exit_code_assertion"
     },
@@ -65,7 +65,7 @@
         "backed_up": true
       },
       {
-        "name": "benchmarking.py", 
+        "name": "benchmarking.py",
         "size_bytes": 30917,
         "backed_up": true
       },
@@ -126,7 +126,7 @@
   "warnings": [
     "17 Pydantic deprecation warnings",
     "SHAP not available",
-    "LIME not available", 
+    "LIME not available",
     "TensorFlow oneDNN optimization notices"
   ],
   "test_environment": {

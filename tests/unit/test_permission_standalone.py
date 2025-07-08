@@ -73,16 +73,16 @@ has_resource_access = namespace['has_resource_access']
 # Run tests
 try:
     print("✓ Successfully loaded PermissionMatrix")
-    
+
     # Test getting permissions for each role
     for role in UserRole:
         permissions = PermissionMatrix.get_role_permissions(role)
         print(f"✓ {role.value} has {len(permissions)} permissions")
-    
+
     # Test hierarchy
     hierarchy = PermissionMatrix.get_permission_hierarchy()
     print(f"✓ Permission hierarchy: {hierarchy}")
-    
+
     # Test permission checking
     super_admin_perms = PermissionMatrix.get_role_permissions(UserRole.SUPER_ADMIN)
     test_permission = Permission(
@@ -91,20 +91,20 @@ try:
         action="manage",
         description="Full platform management"
     )
-    
+
     if has_permission(super_admin_perms, test_permission):
         print("✓ Super admin has platform management permission")
-    
+
     # Test resource access checking
     if has_resource_access(super_admin_perms, ResourceType.TENANT, ActionType.CREATE):
         print("✓ Super admin can create tenants")
-    
+
     # Test matrix summary
     summary = PermissionMatrix.get_matrix_summary()
     print(f"✓ Matrix summary generated for {len(summary)} roles")
-    
+
     print("\n🎉 All permission matrix tests passed!")
-    
+
 except Exception as e:
     print(f"❌ Error: {e}")
     import traceback

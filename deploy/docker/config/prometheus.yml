@@ -45,7 +45,7 @@ scrape_configs:
   # Pynomaly worker metrics
   - job_name: 'pynomaly-workers'
     static_configs:
-      - targets: 
+      - targets:
           - 'pynomaly-worker-training:9090'
           - 'pynomaly-worker-drift:9090'
     metrics_path: /metrics

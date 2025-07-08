@@ -12,12 +12,12 @@ echo ""
 run_windows_test() {
     local test_name="$1"
     local command="$2"
-    
+
     echo "========================================="
     echo "Testing (Windows style): $test_name"
     echo "Command: $command"
     echo "========================================="
-    
+
     # Use Windows-style path separators in output and simulate PowerShell behavior
     if eval "$command"; then
         echo "SUCCESS: $test_name completed successfully"
@@ -195,7 +195,7 @@ print('Testing file system operations...')
 with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as temp_file:
     temp_path = temp_file.name
     print(f'Created temporary file: {temp_path}')
-    
+
     # Write test data
     test_data = pd.DataFrame({
         'col1': [1, 2, 3, 4, 5],
@@ -208,7 +208,7 @@ with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as temp_
 if os.path.exists(temp_path):
     read_data = pd.read_csv(temp_path)
     print(f'✓ Data read from CSV: {read_data.shape[0]} rows, {read_data.shape[1]} columns')
-    
+
     # Cleanup
     os.unlink(temp_path)
     print('✓ Temporary file cleaned up')

@@ -17,7 +17,7 @@ from ..auth_deps import get_container_simple
 
 __all__ = [
     "get_current_user_safe",
-    "require_auth_safe", 
+    "require_auth_safe",
     "require_role_safe",
     "SimpleAuthContext",
     "get_container_safe",

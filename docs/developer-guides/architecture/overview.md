@@ -32,13 +32,13 @@ graph TB
         WEB[Web UI]
         SDK[Python SDK]
     end
-    
+
     subgraph "Application Layer"
         UC[Use Cases]
         AS[Application Services]
         DTO[DTOs]
     end
-    
+
     subgraph "Domain Layer"
         E[Entities]
         VO[Value Objects]
@@ -46,7 +46,7 @@ graph TB
         R[Repository Interfaces]
         EV[Domain Events]
     end
-    
+
     subgraph "Infrastructure Layer"
         ADP[Algorithm Adapters]
         REPO[Repository Implementations]
@@ -55,21 +55,21 @@ graph TB
         EXT[External APIs]
         MON[Monitoring]
     end
-    
+
     CLI --> UC
     API --> UC
     WEB --> UC
     SDK --> UC
-    
+
     UC --> DS
     AS --> DS
     UC --> R
-    
+
     R --> REPO
     ADP --> EXT
     REPO --> DB
     REPO --> FS
-    
+
     DS --> E
     DS --> VO
     E --> VO
@@ -206,19 +206,19 @@ from dependency_injector import containers, providers
 class Container(containers.DeclarativeContainer):
     # Configuration
     config = providers.Configuration()
-    
+
     # Repositories
     detector_repository = providers.Factory(
         SQLDetectorRepository,
         session=database.session
     )
-    
+
     # Services
     detection_service = providers.Factory(
         DetectionService,
         detector_repo=detector_repository
     )
-    
+
     # Use cases
     detect_anomalies_use_case = providers.Factory(
         DetectAnomalies,
@@ -257,7 +257,7 @@ class Settings(BaseSettings):
     database_url: str
     redis_url: str
     log_level: str = "INFO"
-    
+
     class Config:
         env_file = ".env"
 ```
@@ -266,11 +266,11 @@ class Settings(BaseSettings):
 ```python
 class AlgorithmRegistry:
     _algorithms: Dict[str, Type[DetectorProtocol]] = {}
-    
+
     @classmethod
     def register(cls, name: str, adapter_class: Type):
         cls._algorithms[name] = adapter_class
-    
+
     @classmethod
     def create(cls, name: str, **params) -> DetectorProtocol:
         adapter_class = cls._algorithms[name]
@@ -444,7 +444,7 @@ from pydantic import BaseModel, validator
 
 class DetectionRequest(BaseModel):
     data: List[Dict[str, Any]]
-    
+
     @validator('data')
     def validate_data_size(cls, v):
         if len(v) > 10000:
@@ -477,7 +477,7 @@ from cryptography.fernet import Fernet
 class EncryptedRepository:
     def __init__(self, key: bytes):
         self.cipher = Fernet(key)
-    
+
     async def save_sensitive_data(self, data: str):
         encrypted = self.cipher.encrypt(data.encode())
         await self.repository.save(encrypted)
@@ -532,7 +532,7 @@ from sklearn.base import BaseEstimator
 class DistributedDetector(BaseEstimator):
     def __init__(self, worker_urls: List[str]):
         self.workers = [DetectorClient(url) for url in worker_urls]
-    
+
     async def detect(self, data: Any) -> DetectionResult:
         # Distribute work across workers
         chunk_size = len(data) // len(self.workers)
@@ -541,7 +541,7 @@ class DistributedDetector(BaseEstimator):
             start = i * chunk_size
             end = start + chunk_size if i < len(self.workers) - 1 else len(data)
             tasks.append(worker.detect(data[start:end]))
-        
+
         results = await asyncio.gather(*tasks)
         return self._combine_results(results)
 ```

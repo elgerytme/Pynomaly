@@ -43,15 +43,15 @@ function Stop-DistributedContainers {
     docker rm -f pynomaly-haproxy 2>$null
     docker rm -f pynomaly-consul 2>$null
     docker rm -f pynomaly-vault 2>$null
-    
+
     for ($i = 1; $i -le $ApiReplicas; $i++) {
         docker rm -f "pynomaly-api-${i}" 2>$null
     }
-    
+
     for ($i = 1; $i -le $Workers; $i++) {
         docker rm -f "pynomaly-worker-${i}" 2>$null
     }
-    
+
     # Storage containers
     docker rm -f pynomaly-postgres-master 2>$null
     docker rm -f pynomaly-postgres-replica 2>$null
@@ -61,7 +61,7 @@ function Stop-DistributedContainers {
     docker rm -f pynomaly-redis-master 2>$null
     docker rm -f pynomaly-redis-replica1 2>$null
     docker rm -f pynomaly-redis-replica2 2>$null
-    
+
     Write-Host "All distributed containers stopped."
     exit 0
 }
@@ -126,7 +126,7 @@ switch ($Storage) {
             -p 5432:5432 `
             -v postgres-master-data:/var/lib/postgresql/data `
             bitnami/postgresql:15
-        
+
         # Replica
         docker run -d `
             --name pynomaly-postgres-replica `
@@ -140,7 +140,7 @@ switch ($Storage) {
             -v postgres-replica-data:/var/lib/postgresql/data `
             bitnami/postgresql:15
     }
-    
+
     "mongodb" {
         Write-Host "Starting MongoDB replica set..."
         # Primary
@@ -153,7 +153,7 @@ switch ($Storage) {
             -p 27017:27017 `
             -v mongodb-primary-data:/bitnami/mongodb `
             bitnami/mongodb:7.0
-        
+
         # Secondary nodes
         for ($i = 1; $i -le 2; $i++) {
             docker run -d `
@@ -168,7 +168,7 @@ switch ($Storage) {
                 bitnami/mongodb:7.0
         }
     }
-    
+
     "redis-cluster" {
         Write-Host "Starting Redis cluster..."
         # Master
@@ -178,7 +178,7 @@ switch ($Storage) {
             -p 6379:6379 `
             -v redis-master-data:/data `
             redis:7-alpine redis-server --appendonly yes
-        
+
         # Replicas
         for ($i = 1; $i -le 2; $i++) {
             docker run -d `
@@ -200,7 +200,7 @@ Write-Host "Starting $ApiReplicas API replicas..."
 for ($i = 1; $i -le $ApiReplicas; $i++) {
     $ApiPort = 8000 + $i - 1
     Write-Host "Starting API replica $i on port $ApiPort..."
-    
+
     docker run -d `
         --name "pynomaly-api-${i}" `
         --network $NetworkName `
@@ -233,7 +233,7 @@ for ($i = 1; $i -le $ApiReplicas; $i++) {
 Write-Host "Starting $Workers worker nodes..."
 for ($i = 1; $i -le $Workers; $i++) {
     Write-Host "Starting worker node $i..."
-    
+
     docker run -d `
         --name "pynomaly-worker-${i}" `
         --network $NetworkName `

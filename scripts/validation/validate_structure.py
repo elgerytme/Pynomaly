@@ -18,13 +18,13 @@ from validate_file_organization import validate_file_organization, print_results
 def main():
     """Main validation function for pre-commit hook."""
     print("Validating project structure against FILE_ORGANIZATION_STANDARDS...")
-    
+
     # Run the validation
     is_valid, violations, suggestions = validate_file_organization()
-    
+
     # Print results
     print_results(is_valid, violations, suggestions)
-    
+
     # Save validation report
     report = {
         "is_valid": is_valid,
@@ -33,13 +33,13 @@ def main():
         "validation_type": "pre-commit",
         "timestamp": str(Path.cwd()),
     }
-    
+
     reports_dir = Path("reports")
     reports_dir.mkdir(exist_ok=True)
-    
+
     with open(reports_dir / "structure_validation.json", "w") as f:
         json.dump(report, f, indent=2)
-    
+
     # Exit with error code if validation failed to block commit
     if not is_valid:
         print("\nCOMMIT BLOCKED: Structure validation failed")

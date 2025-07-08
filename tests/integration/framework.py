@@ -379,10 +379,10 @@ class IntegrationTestRunner:
                     <p>{suite.description}</p>
                     <p><strong>Success Rate:</strong> {success_rate:.1f}%</p>
                     <p><strong>Execution Time:</strong> {suite.total_execution_time:.2f}s</p>
-                    <p><strong>Results:</strong> 
-                        <span class="passed">{suite.passed_steps} passed</span>, 
-                        <span class="failed">{suite.failed_steps} failed</span>, 
-                        <span class="skipped">{suite.skipped_steps} skipped</span>, 
+                    <p><strong>Results:</strong>
+                        <span class="passed">{suite.passed_steps} passed</span>,
+                        <span class="failed">{suite.failed_steps} failed</span>,
+                        <span class="skipped">{suite.skipped_steps} skipped</span>,
                         <span class="error">{suite.error_steps} errors</span>
                     </p>
                 </div>

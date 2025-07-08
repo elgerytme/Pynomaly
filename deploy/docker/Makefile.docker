@@ -168,7 +168,7 @@ security-scan: ## Run security scan on containers
 	@echo "Running security scans..."
 	@which trivy >/dev/null 2>&1 || { echo "Error: trivy not installed. Install with: brew install trivy"; exit 1; }
 	trivy image $(PROJECT_NAME):development
-	trivy image $(PROJECT_NAME):testing  
+	trivy image $(PROJECT_NAME):testing
 	trivy image $(PROJECT_NAME):production
 	@echo "Security scan complete!"
 

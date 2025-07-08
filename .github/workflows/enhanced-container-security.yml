@@ -1,0 +1,62 @@
+name: Enhanced Container Security
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop, feature/* ]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  setup-environment:
+    name: Set up Environment
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install trivy
+
+  build-and-scan:
+    name: Build and Scan Container
+    needs: setup-environment
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build hardened image
+      run: make docker-build-hardened
+
+    - name: Run security scans
+      run: make docker-security-scan
+
+    - name: Upload security reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: enhanced-container-security-reports
+        path: reports/security/
+
+    - name: Upload SARIF to GitHub Security
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: reports/security/trivy-results.sarif
+

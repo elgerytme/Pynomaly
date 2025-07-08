@@ -116,7 +116,7 @@ async def get_current_user() -> User:
 
 async def require_tenant_access(tenant_id: UUID, current_user: User = Depends(get_current_user)):
     """Require access to specific tenant."""
-    if not (current_user.is_super_admin() or 
+    if not (current_user.is_super_admin() or
             current_user.has_role_in_tenant(TenantId(str(tenant_id)), ["viewer", "analyst", "data_scientist", "tenant_admin"])):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -136,7 +136,7 @@ async def generate_report(
     """Generate a new business report."""
     try:
         from pynomaly.domain.entities.reporting import ReportFilter
-        
+
         # Create filters
         filters = ReportFilter(
             start_date=request.start_date or datetime.utcnow() - timedelta(days=30),
@@ -145,7 +145,7 @@ async def generate_report(
             dataset_ids=[str(id) for id in request.dataset_ids],
             detector_ids=[str(id) for id in request.detector_ids]
         )
-        
+
         report = await reporting_service.generate_report(
             report_type=request.report_type,
             tenant_id=TenantId(str(tenant_id)),
@@ -154,7 +154,7 @@ async def generate_report(
             title=request.title,
             description=request.description
         )
-        
+
         return ReportResponse(
             id=report.id,
             title=report.title,
@@ -250,7 +250,7 @@ async def create_dashboard(
             description=request.description,
             widgets=request.widgets
         )
-        
+
         return DashboardResponse(
             id=dashboard.id,
             name=dashboard.name,
@@ -291,7 +291,7 @@ async def get_dashboard(
     """Get a specific dashboard."""
     try:
         dashboard = await reporting_service.get_dashboard(dashboard_id, UserId(current_user.id))
-        
+
         return DashboardResponse(
             id=dashboard.id,
             name=dashboard.name,
@@ -331,11 +331,11 @@ async def update_dashboard(
             user_id=UserId(current_user.id),
             widgets=request.widgets
         )
-        
+
         if request.layout:
             dashboard.layout = request.layout
             # TODO: Update dashboard layout in repository
-        
+
         return DashboardResponse(
             id=dashboard.id,
             name=dashboard.name,
@@ -367,7 +367,7 @@ async def create_standard_dashboard(
             tenant_id=TenantId(str(tenant_id)),
             user_id=UserId(current_user.id)
         )
-        
+
         return DashboardResponse(
             id=dashboard.id,
             name=dashboard.name,
@@ -401,7 +401,7 @@ async def get_realtime_metrics(
             tenant_id=TenantId(str(tenant_id)),
             metric_ids=metric_ids
         )
-        
+
         return {
             "timestamp": datetime.utcnow().isoformat(),
             "metrics": metrics
@@ -432,7 +432,7 @@ async def get_metric_history(
             end_date=end_date,
             granularity=granularity
         )
-        
+
         return {
             "metric_id": metric_id,
             "start_date": start_date.isoformat(),
@@ -466,7 +466,7 @@ async def create_alert(
             notification_channels=request.notification_channels,
             description=request.description
         )
-        
+
         return AlertResponse(
             id=alert.id,
             name=alert.name,
@@ -496,7 +496,7 @@ async def check_alerts(
     """Check all active alerts and return triggered ones."""
     try:
         triggered_alerts = await reporting_service.check_alerts(TenantId(str(tenant_id)))
-        
+
         return {
             "timestamp": datetime.utcnow().isoformat(),
             "tenant_id": str(tenant_id),
@@ -522,7 +522,7 @@ async def get_business_insights_summary(
     try:
         end_date = datetime.utcnow()
         start_date = end_date - timedelta(days=days)
-        
+
         # TODO: Implement comprehensive insights generation
         return {
             "tenant_id": str(tenant_id),

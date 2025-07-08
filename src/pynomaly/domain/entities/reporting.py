@@ -64,7 +64,7 @@ class MetricValue:
     metric_type: MetricType
     unit: str = ""
     metadata: Dict[str, Any] = field(default_factory=dict)
-    
+
     def format_value(self) -> str:
         """Format the value for display."""
         if self.metric_type == MetricType.CURRENCY:
@@ -96,27 +96,27 @@ class Metric:
     tags: Dict[str, str] = field(default_factory=dict)
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
-    
+
     @property
     def latest_value(self) -> Optional[MetricValue]:
         """Get the most recent metric value."""
         return max(self.values, key=lambda v: v.timestamp) if self.values else None
-    
+
     @property
     def current_value(self) -> Union[int, float, str, None]:
         """Get the current metric value."""
         latest = self.latest_value
         return latest.value if latest else None
-    
+
     def get_values_in_range(self, start: datetime, end: datetime) -> List[MetricValue]:
         """Get metric values within a time range."""
         return [v for v in self.values if start <= v.timestamp <= end]
-    
+
     def add_value(self, value: Union[int, float, str], timestamp: Optional[datetime] = None, **metadata):
         """Add a new metric value."""
         if timestamp is None:
             timestamp = datetime.utcnow()
-        
+
         metric_value = MetricValue(
             value=value,
             timestamp=timestamp,
@@ -140,14 +140,14 @@ class DetectionMetrics:
     precision: float = 0.0
     recall: float = 0.0
     f1_score: float = 0.0
-    
+
     @property
     def success_rate(self) -> float:
         """Calculate detection success rate."""
         if self.total_detections == 0:
             return 0.0
         return (self.successful_detections / self.total_detections) * 100
-    
+
     @property
     def anomaly_rate(self) -> float:
         """Calculate anomaly detection rate."""
@@ -167,7 +167,7 @@ class BusinessMetrics:
     revenue_impact: float = 0.0
     customer_satisfaction_score: float = 0.0
     time_to_insight: float = 0.0  # In hours
-    
+
     def calculate_roi(self, investment: float) -> float:
         """Calculate return on investment."""
         if investment == 0:
@@ -186,7 +186,7 @@ class UsageMetrics:
     bandwidth_used_gb: float = 0.0
     active_sessions: int = 0
     peak_concurrent_users: int = 0
-    
+
     def calculate_api_rate(self, time_window_hours: int = 24) -> float:
         """Calculate API calls per hour."""
         if time_window_hours == 0:
@@ -236,22 +236,22 @@ class Report:
     completed_at: Optional[datetime] = None
     expires_at: Optional[datetime] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
-    
+
     def add_section(self, section: ReportSection) -> None:
         """Add a section to the report."""
         self.sections.append(section)
         self.sections.sort(key=lambda s: s.order)
-    
+
     def get_section_by_id(self, section_id: str) -> Optional[ReportSection]:
         """Get a specific section by ID."""
         return next((s for s in self.sections if s.id == section_id), None)
-    
+
     def calculate_total_metrics(self) -> Dict[str, Any]:
         """Calculate summary metrics across all sections."""
         all_metrics = []
         for section in self.sections:
             all_metrics.extend(section.metrics)
-        
+
         return {
             "total_metrics": len(all_metrics),
             "sections_count": len(self.sections),
@@ -278,14 +278,14 @@ class Dashboard:
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
     last_accessed: Optional[datetime] = None
-    
+
     def add_widget(self, widget_config: Dict[str, Any]) -> None:
         """Add a widget to the dashboard."""
         widget_config["id"] = str(uuid.uuid4())
         widget_config["created_at"] = datetime.utcnow().isoformat()
         self.widgets.append(widget_config)
         self.updated_at = datetime.utcnow()
-    
+
     def remove_widget(self, widget_id: str) -> bool:
         """Remove a widget from the dashboard."""
         initial_count = len(self.widgets)
@@ -294,7 +294,7 @@ class Dashboard:
             self.updated_at = datetime.utcnow()
             return True
         return False
-    
+
     def update_widget(self, widget_id: str, updates: Dict[str, Any]) -> bool:
         """Update a widget configuration."""
         for widget in self.widgets:
@@ -321,12 +321,12 @@ class Alert:
     last_triggered: Optional[datetime] = None
     trigger_count: int = 0
     created_at: datetime = field(default_factory=datetime.utcnow)
-    
+
     def should_trigger(self, current_value: float, previous_value: Optional[float] = None) -> bool:
         """Check if alert should trigger based on current value."""
         if not self.is_active:
             return False
-        
+
         # Parse condition and evaluate
         if ">" in self.condition:
             return current_value > self.threshold
@@ -337,7 +337,7 @@ class Alert:
                 return False
             change_pct = abs((current_value - previous_value) / previous_value) * 100
             return change_pct > self.threshold
-        
+
         return False
 
 

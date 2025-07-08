@@ -461,16 +461,16 @@ tests/
 ```python
 class TestAnomalyDetector:
     """Test the AnomalyDetector class."""
-    
+
     def test_init_with_valid_params(self):
         """Test initialization with valid parameters."""
-        
+
     def test_init_with_invalid_params(self):
         """Test initialization with invalid parameters."""
-        
+
     def test_detect_with_clean_data(self):
         """Test detection with clean dataset."""
-        
+
     def test_detect_with_anomalous_data(self):
         """Test detection with known anomalies."""
 ```
@@ -530,7 +530,7 @@ database:
   host: ${DB_HOST}
   port: ${DB_PORT:5432}  # Default value
   name: ${DB_NAME}
-  
+
 # Environment variables in .env files
 DB_HOST=localhost
 DB_PORT=5432
@@ -660,9 +660,9 @@ def main():
     parser = argparse.ArgumentParser(description="Build Pynomaly package")
     parser.add_argument("--mode", choices=["dev", "prod"], default="dev")
     args = parser.parse_args()
-    
+
     # Implementation here
-    
+
 if __name__ == "__main__":
     main()
 ```
@@ -773,13 +773,13 @@ repos:
         entry: python scripts/validation/validate_organization.py
         language: system
         pass_filenames: false
-        
+
       - id: package-structure
         name: Package Structure Validator
         entry: python scripts/validation/validate_package.py
         language: system
         files: ^src/
-        
+
       - id: test-organization
         name: Test Organization Validator
         entry: python scripts/validation/validate_tests.py
@@ -815,32 +815,32 @@ from typing import List, Dict
 
 class OrganizationValidator:
     """Validates project organization rules."""
-    
+
     ALLOWED_ROOT_FILES = {
         'README.md', 'LICENSE', 'CHANGELOG.md', 'pyproject.toml',
         'requirements.txt', '.gitignore', '.pre-commit-config.yaml',
         'package.json', 'package-lock.json', 'Makefile',
         'Pynomaly.code-workspace', 'CONTRIBUTING.md', 'TODO.md'
     }
-    
+
     PROHIBITED_ROOT_PATTERNS = {
         'test_*.py', '*_test.py', 'conftest.py',
         'setup_*.py', 'fix_*.py', 'deploy_*.py',
         '*_GUIDE.md', '*_MANUAL.md', 'TESTING_*.md',
         '.venv', 'venv', 'env', 'build', 'dist'
     }
-    
+
     def validate_root_directory(self) -> List[str]:
         """Validate root directory compliance."""
         violations = []
         root_path = Path('.')
-        
+
         for item in root_path.iterdir():
             if item.is_file() and item.name not in self.ALLOWED_ROOT_FILES:
                 violations.append(f"Prohibited file in root: {item.name}")
             elif item.is_dir() and item.name.startswith('.') and item.name != '.git':
                 violations.append(f"Hidden directory in root: {item.name}")
-                
+
         return violations
 ```
 
@@ -856,12 +856,12 @@ def validate_documentation_structure():
         'docs/deployment',
         'docs/examples'
     ]
-    
+
     missing = []
     for directory in required_directories:
         if not Path(directory).exists():
             missing.append(directory)
-    
+
     return missing
 ```
 

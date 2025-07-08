@@ -476,8 +476,8 @@ class WCAGValidationFramework:
             has_alt = await chart.evaluate(
                 """
                 el => {
-                    return el.hasAttribute('aria-label') || 
-                           el.hasAttribute('aria-labelledby') || 
+                    return el.hasAttribute('aria-label') ||
+                           el.hasAttribute('aria-labelledby') ||
                            el.hasAttribute('aria-describedby') ||
                            el.querySelector('title, desc');
                 }
@@ -576,8 +576,8 @@ class WCAGValidationFramework:
             for element in elements:
                 has_live_region = await element.evaluate(
                     """
-                    el => el.hasAttribute('aria-live') || 
-                          el.hasAttribute('aria-atomic') || 
+                    el => el.hasAttribute('aria-live') ||
+                          el.hasAttribute('aria-atomic') ||
                           el.hasAttribute('role') && ['alert', 'status', 'log'].includes(el.getAttribute('role'))
                 """
                 )
@@ -654,8 +654,8 @@ class WCAGValidationFramework:
         return await page.evaluate(
             """
             () => ({
-                name: navigator.userAgent.includes('Chrome') ? 'Chrome' : 
-                      navigator.userAgent.includes('Firefox') ? 'Firefox' : 
+                name: navigator.userAgent.includes('Chrome') ? 'Chrome' :
+                      navigator.userAgent.includes('Firefox') ? 'Firefox' :
                       navigator.userAgent.includes('Safari') ? 'Safari' : 'Unknown',
                 user_agent: navigator.userAgent,
                 viewport: {
@@ -811,7 +811,7 @@ class WCAGValidationFramework:
                     <p>Compliance Score</p>
                     <p><small>Generated: {results['timestamp']}</small></p>
                 </div>
-                
+
                 <div class="summary">
                     <div class="metric">
                         <div style="font-size: 2em; font-weight: bold;">{results['summary']['total_pages_tested']}</div>
@@ -830,22 +830,22 @@ class WCAGValidationFramework:
                         <div>Serious</div>
                     </div>
                 </div>
-                
+
                 <div class="recommendations">
                     <h3>💡 Top Recommendations</h3>
                     <ul>
                         {''.join([f"<li><strong>{rec['criterion_name']}</strong> - {rec['recommendation']}</li>" for rec in results['recommendations'][:5]])}
                     </ul>
                 </div>
-                
+
                 <h3>📄 Page Results</h3>
                 {''.join([f'''
                 <div class="violation">
                     <h4>{page['page_url']}</h4>
-                    <p>Violations: {page['total_violations']} 
-                       (Critical: {page['critical_violations']}, 
-                        Serious: {page['serious_violations']}, 
-                        Moderate: {page['moderate_violations']}, 
+                    <p>Violations: {page['total_violations']}
+                       (Critical: {page['critical_violations']},
+                        Serious: {page['serious_violations']},
+                        Moderate: {page['moderate_violations']},
                         Minor: {page['minor_violations']})</p>
                 </div>
                 ''' for page in results['page_results']])}

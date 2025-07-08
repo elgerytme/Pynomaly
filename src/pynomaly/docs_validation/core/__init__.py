@@ -8,7 +8,7 @@ from .exceptions import ValidationError, ConfigurationError
 __all__ = [
     "DocumentationValidator",
     "ValidationConfig",
-    "ValidationReporter", 
+    "ValidationReporter",
     "ValidationError",
     "ConfigurationError",
 ]

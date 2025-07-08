@@ -2,9 +2,9 @@ openapi: 3.1.1
 info:
   title: Pynomaly API
   description: |
-    **Pynomaly** is a state-of-the-art anomaly detection platform that provides a unified interface 
+    **Pynomaly** is a state-of-the-art anomaly detection platform that provides a unified interface
     for multiple machine learning frameworks and algorithms.
-    
+
     ## Features
     - 40+ anomaly detection algorithms from PyOD, scikit-learn, PyTorch, TensorFlow, and JAX
     - AutoML capabilities with intelligent algorithm selection and hyperparameter optimization
@@ -12,16 +12,16 @@ info:
     - Model explainability with SHAP and LIME integration
     - Distributed processing for horizontal scaling
     - Production-ready monitoring, health checks, and performance metrics
-    
+
     ## Authentication
     All API endpoints except health checks require authentication using JWT tokens.
     Obtain a token via the `/api/auth/token` endpoint.
-    
+
     ## Rate Limiting
     API requests are rate-limited to prevent abuse. Current limits:
     - 100 requests per minute for authenticated users
     - 10 requests per minute for unauthenticated users
-    
+
     ## Error Handling
     The API uses standard HTTP status codes and returns detailed error information:
     - 400: Bad Request (validation errors)

@@ -43,7 +43,7 @@ class CreateSessionModel(BaseModel):
     sampling_strategy: str = Field(
         "uncertainty",
         description="Strategy for selecting samples",
-        regex="^(uncertainty|diversity|disagreement|margin|entropy|committee_disagreement|expected_model_change|random)$",
+        pattern="^(uncertainty|diversity|disagreement|margin|entropy|committee_disagreement|expected_model_change|random)$",
     )
     max_samples: int = Field(20, ge=1, le=1000, description="Maximum number of samples")
     timeout_minutes: Optional[int] = Field(
@@ -74,13 +74,13 @@ class SelectSamplesModel(BaseModel):
 
     session_id: str = Field(..., description="Active learning session ID")
     detection_results: List[DetectionResultModel] = Field(
-        ..., min_items=1, description="Available detection results"
+        ..., min_length=1, description="Available detection results"
     )
     n_samples: int = Field(..., ge=1, le=100, description="Number of samples to select")
     sampling_strategy: str = Field(
         "uncertainty",
         description="Strategy for sample selection",
-        regex="^(uncertainty|diversity|disagreement|margin|entropy|committee_disagreement|expected_model_change|random)$",
+        pattern="^(uncertainty|diversity|disagreement|margin|entropy|committee_disagreement|expected_model_change|random)$",
     )
     strategy_params: Dict = Field(
         default_factory=dict, description="Strategy parameters"
@@ -96,13 +96,13 @@ class SubmitFeedbackModel(BaseModel):
     feedback_type: str = Field(
         "binary_classification",
         description="Type of feedback",
-        regex="^(binary_classification|confidence_rating|score_correction|explanation|feature_importance)$",
+        pattern="^(binary_classification|confidence_rating|score_correction|explanation|feature_importance)$",
     )
     feedback_value: Union[bool, float, str, Dict] = Field(
         ..., description="Feedback value"
     )
     confidence: str = Field(
-        "medium", description="Confidence level", regex="^(low|medium|high|expert)$"
+        "medium", description="Confidence level", pattern="^(low|medium|high|expert)$"
     )
     original_score: Optional[float] = Field(
         None, ge=0.0, le=1.0, description="Original prediction score"
@@ -193,10 +193,10 @@ def _convert_to_feedback_confidence(confidence_str: str) -> FeedbackConfidence:
     summary="Create new active learning session",
     description="""
     Create a new active learning session for human-in-the-loop training.
-    
+
     The session will manage sample selection, feedback collection, and model updates
     based on the specified sampling strategy and configuration.
-    
+
     **Sampling Strategies:**
     - **uncertainty**: Select samples with highest prediction uncertainty
     - **diversity**: Select diverse samples to cover feature space
@@ -292,13 +292,13 @@ async def start_session(
     description="""
     Select the most informative samples for human annotation based on
     the specified sampling strategy.
-    
+
     **Returns samples with:**
     - Sample identification and metadata
     - Current model predictions
     - Annotation value score
     - Selection reasoning
-    
+
     The selection algorithm considers uncertainty, diversity, expected model
     impact, and other factors depending on the chosen strategy.
     """,
@@ -371,20 +371,20 @@ async def select_samples(
     summary="Submit human feedback",
     description="""
     Submit human feedback for a sample in an active learning session.
-    
+
     **Feedback Types:**
     - **binary_classification**: True/False anomaly classification
     - **score_correction**: Corrected anomaly score (0.0 to 1.0)
     - **explanation**: Text explanation of reasoning
     - **confidence_rating**: Confidence in original prediction
     - **feature_importance**: Important features for decision
-    
+
     **Confidence Levels:**
     - **low**: Uncertain about the annotation
     - **medium**: Moderately confident
     - **high**: Very confident in the annotation
     - **expert**: Domain expert level confidence
-    
+
     The system tracks annotation time and quality to improve future
     sample selection and model updates.
     """,
@@ -451,13 +451,13 @@ async def submit_feedback(
     summary="Get session status",
     description="""
     Get current status and progress of an active learning session.
-    
+
     **Returns:**
     - Session status and progress metrics
     - Feedback quality indicators
     - Recent session activity
     - Completion percentage and timing
-    
+
     Use this endpoint to monitor session progress and quality.
     """,
 )
@@ -515,14 +515,14 @@ async def get_session_status(
     summary="Update model with feedback",
     description="""
     Update the anomaly detection model using collected human feedback.
-    
+
     **Process:**
     1. Analyzes collected feedback patterns
     2. Calculates model update parameters
     3. Applies incremental learning updates
     4. Validates performance impact
     5. Provides recommendations for next session
-    
+
     **Returns:**
     - Update statistics and performance impact
     - Feedback pattern analysis

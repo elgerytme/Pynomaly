@@ -60,21 +60,21 @@ Every component should follow this structure:
 
 ```html
 <!-- Component wrapper with semantic meaning -->
-<div class="component-name" 
-     role="[appropriate-role]" 
+<div class="component-name"
+     role="[appropriate-role]"
      aria-label="[descriptive-label]"
      data-component="component-name">
-  
+
   <!-- Component header (if applicable) -->
   <header class="component-name__header">
     <h2 class="component-name__title">Component Title</h2>
   </header>
-  
+
   <!-- Component body/content -->
   <div class="component-name__body">
     <!-- Main component content -->
   </div>
-  
+
   <!-- Component footer (if applicable) -->
   <footer class="component-name__footer">
     <!-- Action buttons, metadata, etc. -->
@@ -275,16 +275,16 @@ class Button {
     this.element = element;
     this.init();
   }
-  
+
   init() {
     this.bindEvents();
   }
-  
+
   bindEvents() {
     this.element.addEventListener('click', this.handleClick.bind(this));
     this.element.addEventListener('keydown', this.handleKeyDown.bind(this));
   }
-  
+
   handleClick(event) {
     if (this.element.disabled) {
       event.preventDefault();
@@ -292,7 +292,7 @@ class Button {
     }
     // Handle click logic
   }
-  
+
   handleKeyDown(event) {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
@@ -314,7 +314,7 @@ describe('Button Component', () => {
     expect(button.getAttribute('type')).toBe('button');
     expect(button.textContent).toBe('Test');
   });
-  
+
   it('should handle click events', () => {
     const onClick = jest.fn();
     const button = createButton({ onClick });
@@ -332,7 +332,7 @@ describe('Button Accessibility', () => {
     const results = await axe(button);
     expect(results).toHaveNoViolations();
   });
-  
+
   it('should be keyboard accessible', () => {
     const button = createButton({ text: 'Test' });
     button.focus();
@@ -348,7 +348,7 @@ describe('Button Visual Tests', () => {
     const button = createButton({ text: 'Test' });
     await expect(button).toMatchSnapshot();
   });
-  
+
   it('should handle different states', async () => {
     const states = ['default', 'hover', 'focus', 'disabled'];
     for (const state of states) {
@@ -527,9 +527,9 @@ Use these breakpoints for responsive design:
 ```html
 <div class="form-field">
   <label for="email" class="form-label">Email</label>
-  <input 
-    type="email" 
-    id="email" 
+  <input
+    type="email"
+    id="email"
     class="form-input form-input--error"
     aria-invalid="true"
     aria-describedby="email-error"

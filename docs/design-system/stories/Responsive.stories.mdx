@@ -71,11 +71,11 @@ Use CSS Grid and Flexbox for adaptive layouts:
     flex-direction: row;
     min-height: 500px;
   }
-  
+
   .chart-sidebar {
     flex: 0 0 300px;
   }
-  
+
   .chart-main {
     flex: 1;
     min-width: 0; /* Prevent flex overflow */
@@ -113,13 +113,13 @@ $breakpoints: (
 // Usage example
 .anomaly-detector {
   padding: 1rem;
-  
+
   @include respond-to('md') {
     padding: 2rem;
     display: grid;
     grid-template-columns: 1fr 300px;
   }
-  
+
   @include respond-to('lg') {
     padding: 3rem;
     grid-template-columns: 1fr 400px;
@@ -149,7 +149,7 @@ Use container queries for component-based responsive design:
   .widget-content {
     grid-template-columns: auto 1fr auto;
   }
-  
+
   .widget-actions {
     display: flex;
     gap: 0.5rem;
@@ -166,27 +166,27 @@ Serve appropriate image sizes for each device:
 <!-- Responsive images with art direction -->
 <picture>
   <!-- Mobile: Vertical crop focusing on anomaly points -->
-  <source 
-    media="(max-width: 767px)" 
+  <source
+    media="(max-width: 767px)"
     srcset="
       anomaly-chart-mobile-320.webp 320w,
       anomaly-chart-mobile-640.webp 640w
     "
     sizes="100vw"
   >
-  
+
   <!-- Tablet: Balanced aspect ratio -->
-  <source 
-    media="(max-width: 1023px)" 
+  <source
+    media="(max-width: 1023px)"
     srcset="
       anomaly-chart-tablet-768.webp 768w,
       anomaly-chart-tablet-1024.webp 1024w
     "
     sizes="(min-width: 768px) 50vw, 100vw"
   >
-  
+
   <!-- Desktop: Full detail horizontal layout -->
-  <img 
+  <img
     src="anomaly-chart-desktop-1200.webp"
     srcset="
       anomaly-chart-desktop-1200.webp 1200w,
@@ -199,7 +199,7 @@ Serve appropriate image sizes for each device:
 </picture>
 
 <!-- Responsive video with fallback -->
-<video 
+<video
   poster="anomaly-demo-poster.jpg"
   controls
   preload="metadata"
@@ -222,7 +222,7 @@ class ResponsiveChart {
     this.resizeObserver = new ResizeObserver(this.handleResize.bind(this));
     this.init();
   }
-  
+
   init() {
     this.createChart();
     this.resizeObserver.observe(this.container);
@@ -230,22 +230,22 @@ class ResponsiveChart {
       setTimeout(() => this.handleResize(), 100);
     });
   }
-  
+
   createChart() {
     const config = this.getResponsiveConfig();
     this.chart = echarts.init(this.container);
     this.chart.setOption(config);
   }
-  
+
   getResponsiveConfig() {
     const containerWidth = this.container.clientWidth;
     const isMobile = containerWidth < 768;
     const isTablet = containerWidth >= 768 && containerWidth < 1024;
-    
+
     return {
       responsive: true,
       maintainAspectRatio: false,
-      
+
       // Mobile configuration
       ...(isMobile && {
         grid: {
@@ -272,7 +272,7 @@ class ResponsiveChart {
           lineStyle: { width: 2 }
         }]
       }),
-      
+
       // Tablet configuration
       ...(isTablet && {
         grid: {
@@ -291,7 +291,7 @@ class ResponsiveChart {
           lineStyle: { width: 3 }
         }]
       }),
-      
+
       // Desktop configuration
       ...(!isMobile && !isTablet && {
         grid: {
@@ -312,7 +312,7 @@ class ResponsiveChart {
       })
     };
   }
-  
+
   handleResize() {
     if (this.chart) {
       this.chart.resize();
@@ -340,12 +340,12 @@ Optimize interfaces for touch interaction:
   .btn-group .btn {
     margin: 0.25rem;
   }
-  
+
   .pagination .page-link {
     padding: 0.75rem 1rem;
     margin: 0 0.125rem;
   }
-  
+
   .dropdown-item {
     padding: 0.75rem 1rem;
   }
@@ -357,7 +357,7 @@ Optimize interfaces for touch interaction:
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
-  
+
   .card-interactive:hover {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   }
@@ -385,40 +385,40 @@ class GestureHandler {
     this.currentX = 0;
     this.currentY = 0;
     this.isDragging = false;
-    
+
     this.bindEvents();
   }
-  
+
   bindEvents() {
     // Touch events
     this.element.addEventListener('touchstart', this.handleTouchStart.bind(this));
     this.element.addEventListener('touchmove', this.handleTouchMove.bind(this));
     this.element.addEventListener('touchend', this.handleTouchEnd.bind(this));
-    
+
     // Mouse events for desktop compatibility
     this.element.addEventListener('mousedown', this.handleMouseDown.bind(this));
     this.element.addEventListener('mousemove', this.handleMouseMove.bind(this));
     this.element.addEventListener('mouseup', this.handleMouseUp.bind(this));
   }
-  
+
   handleTouchStart(e) {
     const touch = e.touches[0];
     this.startX = touch.clientX;
     this.startY = touch.clientY;
     this.isDragging = true;
   }
-  
+
   handleTouchMove(e) {
     if (!this.isDragging) return;
-    
+
     e.preventDefault(); // Prevent scrolling
     const touch = e.touches[0];
     this.currentX = touch.clientX;
     this.currentY = touch.clientY;
-    
+
     const deltaX = this.currentX - this.startX;
     const deltaY = this.currentY - this.startY;
-    
+
     // Handle horizontal swipe for chart navigation
     if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
       if (deltaX > 0) {
@@ -428,16 +428,16 @@ class GestureHandler {
       }
     }
   }
-  
+
   handleTouchEnd() {
     this.isDragging = false;
   }
-  
+
   handleSwipeLeft() {
     // Navigate to next chart/dataset
     this.element.dispatchEvent(new CustomEvent('swipe-left'));
   }
-  
+
   handleSwipeRight() {
     // Navigate to previous chart/dataset
     this.element.dispatchEvent(new CustomEvent('swipe-right'));
@@ -457,54 +457,54 @@ Specific optimizations for mobile devices:
   html {
     font-size: 14px; /* Smaller base font size */
   }
-  
+
   /* Stack navigation vertically */
   .nav-tabs {
     flex-direction: column;
     border-bottom: none;
   }
-  
+
   .nav-tabs .nav-link {
     border-radius: 0;
     border-left: 3px solid transparent;
     text-align: left;
   }
-  
+
   .nav-tabs .nav-link.active {
     border-left-color: #0ea5e9;
     border-bottom-color: transparent;
   }
-  
+
   /* Mobile-optimized data tables */
   .data-table {
     display: block;
     overflow-x: auto;
     white-space: nowrap;
   }
-  
+
   .data-table thead {
     display: none; /* Hide headers on mobile */
   }
-  
+
   .data-table tbody,
   .data-table tr,
   .data-table td {
     display: block;
   }
-  
+
   .data-table tr {
     border: 1px solid #e2e8f0;
     margin-bottom: 1rem;
     padding: 1rem;
     border-radius: 8px;
   }
-  
+
   .data-table td {
     border: none;
     position: relative;
     padding-left: 50%;
   }
-  
+
   .data-table td:before {
     content: attr(data-label) ": ";
     position: absolute;
@@ -526,30 +526,30 @@ Specific optimizations for tablet devices:
   .btn {
     padding: 0.75rem 1.5rem;
   }
-  
+
   /* Two-column layout for forms */
   .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
   }
-  
+
   .form-row .form-group-full {
     grid-column: 1 / -1;
   }
-  
+
   /* Sidebar navigation for tablets */
   .app-layout {
     display: grid;
     grid-template-columns: 250px 1fr;
   }
-  
+
   .sidebar {
     background: #f8fafc;
     border-right: 1px solid #e2e8f0;
     padding: 1rem;
   }
-  
+
   /* Tablet-optimized charts */
   .chart-container {
     height: 400px; /* Fixed height for tablets */
@@ -567,46 +567,46 @@ Specific optimizations for desktop devices:
   .dashboard-layout {
     display: grid;
     grid-template-columns: 300px 1fr 250px;
-    grid-template-areas: 
+    grid-template-areas:
       "sidebar main aside";
     gap: 2rem;
     min-height: 100vh;
   }
-  
+
   .sidebar {
     grid-area: sidebar;
     position: sticky;
     top: 2rem;
     height: fit-content;
   }
-  
+
   .main-content {
     grid-area: main;
   }
-  
+
   .aside-content {
     grid-area: aside;
     position: sticky;
     top: 2rem;
     height: fit-content;
   }
-  
+
   /* Enhanced hover effects for desktop */
   .metric-card {
     transition: all 0.2s ease;
   }
-  
+
   .metric-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   }
-  
+
   /* Desktop-optimized data density */
   .data-table td {
     padding: 0.75rem 1rem;
     font-size: 0.875rem;
   }
-  
+
   /* Keyboard navigation enhancements */
   .btn:focus-visible {
     outline: 2px solid #0ea5e9;
@@ -626,11 +626,11 @@ Handle device orientation changes gracefully:
   .chart-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .metric-overview {
     flex-direction: column;
   }
-  
+
   .anomaly-timeline {
     height: 300px; /* Shorter height in portrait */
   }
@@ -641,21 +641,21 @@ Handle device orientation changes gracefully:
   .chart-grid {
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   }
-  
+
   .metric-overview {
     flex-direction: row;
   }
-  
+
   .anomaly-timeline {
     height: 400px; /* Taller height in landscape */
   }
-  
+
   /* Optimize for landscape mobile */
   @media (max-height: 500px) {
     .navbar {
       padding: 0.5rem 1rem; /* Reduce navbar height */
     }
-    
+
     .modal-dialog {
       margin: 1rem; /* Reduce modal margins */
     }
@@ -673,7 +673,7 @@ class OrientationHandler {
     this.currentOrientation = this.getOrientation();
     this.bindEvents();
   }
-  
+
   bindEvents() {
     window.addEventListener('orientationchange', () => {
       // Wait for orientation change to complete
@@ -681,36 +681,36 @@ class OrientationHandler {
         this.handleOrientationChange();
       }, 100);
     });
-    
+
     // Also listen for resize events
     window.addEventListener('resize', this.debounce(() => {
       this.handleOrientationChange();
     }, 250));
   }
-  
+
   getOrientation() {
     return window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
   }
-  
+
   handleOrientationChange() {
     const newOrientation = this.getOrientation();
-    
+
     if (newOrientation !== this.currentOrientation) {
       this.currentOrientation = newOrientation;
-      
+
       // Dispatch custom event
       window.dispatchEvent(new CustomEvent('orientationChanged', {
         detail: { orientation: newOrientation }
       }));
-      
+
       // Trigger chart reflow
       this.triggerChartResize();
-      
+
       // Update layout classes
       document.body.setAttribute('data-orientation', newOrientation);
     }
   }
-  
+
   triggerChartResize() {
     // Resize all ECharts instances
     document.querySelectorAll('[data-chart]').forEach(chartElement => {
@@ -721,7 +721,7 @@ class OrientationHandler {
       }
     });
   }
-  
+
   debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -761,13 +761,13 @@ Transform tables for mobile viewing:
   .responsive-table tr {
     display: block;
   }
-  
+
   .responsive-table thead tr {
     position: absolute;
     top: -9999px;
     left: -9999px;
   }
-  
+
   .responsive-table tr {
     border: 1px solid #e2e8f0;
     padding: 1rem;
@@ -775,14 +775,14 @@ Transform tables for mobile viewing:
     border-radius: 8px;
     background: white;
   }
-  
+
   .responsive-table td {
     border: none;
     position: relative;
     padding-left: 50%;
     padding-bottom: 0.5rem;
   }
-  
+
   .responsive-table td:before {
     content: attr(data-label);
     position: absolute;
@@ -793,7 +793,7 @@ Transform tables for mobile viewing:
     font-weight: 600;
     color: #64748b;
   }
-  
+
   /* Special styling for status badges */
   .responsive-table .badge {
     margin-left: 0;
@@ -806,7 +806,7 @@ Transform tables for mobile viewing:
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
-  
+
   .responsive-table {
     min-width: 600px; /* Prevent table from becoming too narrow */
   }
@@ -824,21 +824,21 @@ class ResponsiveTable {
     this.headers = Array.from(this.table.querySelectorAll('th'));
     this.init();
   }
-  
+
   init() {
     this.addDataLabels();
     this.addScrollIndicators();
     this.handleResize();
-    
+
     window.addEventListener('resize', this.debounce(() => {
       this.handleResize();
     }, 250));
   }
-  
+
   addDataLabels() {
     // Add data labels for mobile card layout
     const rows = this.table.querySelectorAll('tbody tr');
-    
+
     rows.forEach(row => {
       const cells = row.querySelectorAll('td');
       cells.forEach((cell, index) => {
@@ -848,46 +848,46 @@ class ResponsiveTable {
       });
     });
   }
-  
+
   addScrollIndicators() {
     // Add scroll indicators for horizontal scroll
     const container = this.table.closest('.table-container');
     if (!container) return;
-    
+
     const leftIndicator = document.createElement('div');
     leftIndicator.className = 'scroll-indicator scroll-indicator-left';
     leftIndicator.innerHTML = '◀';
-    
+
     const rightIndicator = document.createElement('div');
     rightIndicator.className = 'scroll-indicator scroll-indicator-right';
     rightIndicator.innerHTML = '▶';
-    
+
     container.appendChild(leftIndicator);
     container.appendChild(rightIndicator);
-    
+
     container.addEventListener('scroll', () => {
       this.updateScrollIndicators(container, leftIndicator, rightIndicator);
     });
-    
+
     // Initial update
     this.updateScrollIndicators(container, leftIndicator, rightIndicator);
   }
-  
+
   updateScrollIndicators(container, leftIndicator, rightIndicator) {
     const scrollLeft = container.scrollLeft;
     const scrollWidth = container.scrollWidth;
     const clientWidth = container.clientWidth;
-    
+
     leftIndicator.style.opacity = scrollLeft > 0 ? '1' : '0';
-    rightIndicator.style.opacity = 
+    rightIndicator.style.opacity =
       scrollLeft < scrollWidth - clientWidth ? '1' : '0';
   }
-  
+
   handleResize() {
     const isMobile = window.innerWidth < 768;
     this.table.classList.toggle('mobile-cards', isMobile);
   }
-  
+
   debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {

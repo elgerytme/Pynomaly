@@ -106,18 +106,18 @@ const options = {
         bottom: 40,
         left: 50
     },
-    
+
     // Data accessors
     xAccessor: d => d.timestamp,   // Time accessor function
     yAccessor: d => d.value,       // Value accessor function
     anomalyAccessor: d => d.isAnomaly,      // Anomaly flag accessor
     confidenceAccessor: d => d.confidence,  // Confidence accessor
-    
+
     // Visual options
     showAnomalies: true,           // Show anomaly markers
     showConfidenceBands: false,    // Show confidence intervals
     interpolation: d3.curveMonotoneX, // Line interpolation
-    
+
     // Behavior
     animated: true,                // Enable animations
     responsive: true,              // Responsive behavior
@@ -186,16 +186,16 @@ const options = {
     colorAccessor: d => d.anomalyScore,  // Color encoding accessor
     sizeAccessor: d => d.confidence,     // Size encoding accessor
     anomalyAccessor: d => d.isAnomaly,   // Anomaly flag accessor
-    
+
     // Labels
     xLabel: 'Feature 1',           // X-axis label
     yLabel: 'Feature 2',           // Y-axis label
-    
+
     // Interactions
     enableBrushing: true,          // Enable brush selection
     enableZoom: true,              // Enable zoom/pan
     showDensity: false,            // Show density background
-    
+
     // Visual options
     animated: true,
     responsive: true,
@@ -252,12 +252,12 @@ const options = {
     xAccessor: d => d.x,           // X category accessor
     yAccessor: d => d.y,           // Y category accessor
     valueAccessor: d => d.value,   // Value accessor
-    
+
     // Visual options
     gridSize: 20,                  // Grid cell size
     colorScheme: d3.interpolateViridis, // Color scheme
     showLabels: true,              // Show value labels
-    
+
     // Behavior
     enableZoom: false,             // Zoom behavior
     animated: true,
@@ -307,7 +307,7 @@ const updateInterval = setInterval(() => {
         isAnomaly: detectAnomaly(),
         confidence: calculateConfidence()
     };
-    
+
     // Add to chart (keeps last 1000 points)
     chart.addDataPoint(newPoint, 1000);
 }, 2000);
@@ -487,7 +487,7 @@ describe('TimeSeriesChart', () => {
         const container = document.createElement('div');
         const chart = new TimeSeriesChart(container, {});
         chart.setData(mockData);
-        
+
         expect(container.querySelector('svg')).toBeTruthy();
         expect(container.querySelectorAll('.anomaly-marker')).toHaveLength(3);
     });
@@ -503,7 +503,7 @@ test('chart should be accessible', async () => {
     const container = document.createElement('div');
     const chart = new TimeSeriesChart(container, { accessibility: true });
     chart.setData(mockData);
-    
+
     const results = await axe(container);
     expect(results).toHaveNoViolations();
 });

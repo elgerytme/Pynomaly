@@ -21,7 +21,7 @@
 
 [build]
   execution_platforms = prelude//platforms:default
-  
+
 # Python-specific configuration
 [python]
   interpreter = python3
@@ -31,7 +31,7 @@
 [cache]
   mode = dir
   dir = .buck-cache
-  
+
 [project]
   ignore = .git, __pycache__, *.pyc, .pytest_cache, node_modules, .hatch, dist, build
 

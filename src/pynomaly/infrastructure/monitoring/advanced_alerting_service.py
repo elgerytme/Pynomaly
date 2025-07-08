@@ -277,13 +277,13 @@ class EmailNotificationProvider(NotificationProvider):
                 <p><strong>Severity:</strong> {{ alert.severity.value.upper() }}</p>
                 <p><strong>Triggered At:</strong> {{ alert.triggered_at.strftime('%Y-%m-%d %H:%M:%S UTC') }}</p>
                 <p><strong>Message:</strong> {{ alert.message }}</p>
-                
+
                 {% if alert.metric_name %}
                 <p><strong>Metric:</strong> {{ alert.metric_name }}</p>
                 <p><strong>Current Value:</strong> {{ alert.triggered_value }}</p>
                 <p><strong>Threshold:</strong> {{ alert.threshold_value }}</p>
                 {% endif %}
-                
+
                 {% if alert.tags %}
                 <h3>Tags:</h3>
                 <ul>
@@ -292,7 +292,7 @@ class EmailNotificationProvider(NotificationProvider):
                 {% endfor %}
                 </ul>
                 {% endif %}
-                
+
                 <p><em>Alert ID: {{ alert.alert_id }}</em></p>
             </body>
             </html>

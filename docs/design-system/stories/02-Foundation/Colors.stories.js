@@ -45,7 +45,7 @@ PrimaryColors.args = {
       contrast: '21:1 with Primary 900'
     },
     {
-      name: 'Primary 100', 
+      name: 'Primary 100',
       hex: '#e0f2fe',
       usage: 'Hover states, light accents',
       contrast: '16.8:1 with Primary 900'
@@ -58,7 +58,7 @@ PrimaryColors.args = {
     },
     {
       name: 'Primary 600',
-      hex: '#0284c7', 
+      hex: '#0284c7',
       usage: 'Hover states, pressed buttons',
       contrast: '5.9:1 with white'
     },
@@ -196,7 +196,7 @@ export const AccessibilityGuide = () => {
   return `
     <div class="p-6 max-w-4xl">
       <h3 class="text-2xl font-semibold mb-6">Color Accessibility Guidelines</h3>
-      
+
       <div class="space-y-8">
         <section>
           <h4 class="text-lg font-medium mb-4">WCAG 2.1 Contrast Requirements</h4>

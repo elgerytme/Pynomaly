@@ -146,15 +146,15 @@ class TestDataset:
         """Test creating a valid dataset."""
         data = pd.DataFrame({'feature1': [1, 2, 3], 'feature2': [4, 5, 6]})
         dataset = Dataset(name="test", data=data)
-        
+
         assert dataset.name == "test"
         assert dataset.n_samples == 3
         assert dataset.n_features == 2
-    
+
     def test_empty_dataset_raises_error(self):
         """Test that empty dataset raises ValidationError."""
         empty_data = pd.DataFrame()
-        
+
         with pytest.raises(ValidationError):
             Dataset(name="empty", data=empty_data)
 ```
@@ -169,24 +169,24 @@ from tests.integration.framework import IntegrationTestBuilder
 @pytest.mark.asyncio
 async def test_complete_anomaly_detection_workflow():
     """Test complete anomaly detection pipeline."""
-    
+
     async def load_data():
         # Load test data
         return test_data
-    
+
     async def train_model():
         # Train anomaly detector
         return trained_model
-    
+
     # Build integration test
     suite = (IntegrationTestBuilder("anomaly_detection", "Complete workflow")
              .add_step("load", "Load data", load_data)
              .add_step("train", "Train model", train_model, dependencies=["load"])
              .build())
-    
+
     runner = IntegrationTestRunner()
     result = await runner.run_suite(suite)
-    
+
     assert result.failed_steps == 0
 ```
 
@@ -213,12 +213,12 @@ import pytest
 @pytest.mark.benchmark
 def test_isolation_forest_performance(benchmark):
     """Benchmark Isolation Forest algorithm."""
-    
+
     def run_isolation_forest():
         detector = IsolationForest(n_estimators=100)
         detector.fit(X_train)
         return detector.predict(X_test)
-    
+
     result = benchmark(run_isolation_forest)
     assert len(result) == len(X_test)
 ```
@@ -235,7 +235,7 @@ from tests.fixtures.test_data_generator import TestDataManager
 def test_with_generated_data():
     """Test using generated data."""
     manager = TestDataManager()
-    
+
     # Get standardized test dataset
     df, labels = manager.get_dataset(
         'simple',
@@ -243,7 +243,7 @@ def test_with_generated_data():
         n_features=10,
         contamination=0.1
     )
-    
+
     # Create domain entities
     dataset, anomalies, result = manager.create_domain_entities('simple')
 ```
@@ -448,12 +448,12 @@ import pytest
 
 def test_with_debugging():
     result = function_under_test()
-    
+
     # Add breakpoint for debugging
     breakpoint()  # Python 3.7+
     # or
     import pdb; pdb.set_trace()
-    
+
     assert result.is_valid
 ```
 

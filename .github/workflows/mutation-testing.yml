@@ -26,33 +26,33 @@ jobs:
     name: Mutation Testing
     runs-on: ubuntu-latest
     timeout-minutes: 120
-    
+
     strategy:
       matrix:
-        component: 
+        component:
           - ${{ github.event.inputs.target_component == 'all' && 'domain' || github.event.inputs.target_component }}
           - ${{ github.event.inputs.target_component == 'all' && 'ml-adapters' || '' }}
           - ${{ github.event.inputs.target_component == 'all' && 'security' || '' }}
       fail-fast: false
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-    
+
     - name: Install Poetry
       uses: snok/install-poetry@v1
       with:
         version: ${{ env.POETRY_VERSION }}
-    
+
     - name: Install dependencies
       run: |
         poetry install --with dev,test
         poetry run pip install mutmut
-    
+
     - name: Run mutation testing
       run: |
         case "${{ matrix.component }}" in
@@ -73,14 +73,14 @@ jobs:
               --timeout 150
             ;;
         esac
-    
+
     - name: Generate mutation report
       if: always()
       run: |
         echo "📊 Generating mutation testing report..."
         poetry run mutmut junitxml > mutation-results-${{ matrix.component }}.xml
         poetry run mutmut html
-    
+
     - name: Upload mutation results
       uses: actions/upload-artifact@v3
       if: always()
@@ -95,23 +95,23 @@ jobs:
     needs: mutation-testing
     if: always()
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Download mutation results
       uses: actions/download-artifact@v3
       with:
         path: mutation-results/
-    
+
     - name: Analyze mutation testing effectiveness
       run: |
         echo "🔬 Mutation Testing Analysis"
         echo "=========================="
-        
+
         # In a real implementation, this would parse the mutation results
         # and provide detailed analysis of test quality
-        
+
         echo "📊 Mutation testing provides insights into test quality by:"
         echo "   - Creating small code changes (mutations)"
         echo "   - Running tests to see if they catch the changes"

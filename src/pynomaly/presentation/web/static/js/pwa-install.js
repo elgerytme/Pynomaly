@@ -586,7 +586,7 @@ class PWAManager {
           ${
             options.action
               ? `
-            <button class="mt-2 bg-white bg-opacity-20 hover:bg-opacity-30 px-3 py-1 rounded text-sm" 
+            <button class="mt-2 bg-white bg-opacity-20 hover:bg-opacity-30 px-3 py-1 rounded text-sm"
                     onclick="window.location.href='${options.action.url}'">
               ${options.action.label}
             </button>

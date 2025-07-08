@@ -112,29 +112,29 @@ async def get_streaming_service(
     summary="Create Streaming Session",
     description="""
     Create a new real-time streaming session for anomaly detection.
-    
+
     A streaming session continuously processes incoming data through a configured
     anomaly detector, generating real-time anomaly events and metrics.
-    
+
     **Key Features:**
     - **Real-time Processing**: Continuous data stream processing
     - **Multiple Data Sources**: Support for Kafka, Kinesis, WebSocket, files
     - **Configurable Processing**: Batch, micro-batch, windowed processing modes
     - **Output Sinks**: Send results to various destinations
     - **Monitoring & Alerts**: Real-time metrics and alerting
-    
+
     **Processing Modes:**
     - `real_time`: Process each message immediately
     - `micro_batch`: Process in small batches for efficiency
     - `sliding_window`: Process data in overlapping time windows
     - `tumbling_window`: Process data in non-overlapping time windows
-    
+
     **Supported Data Sources:**
     - **Kafka**: Distributed streaming platform
     - **Kinesis**: AWS streaming service
     - **WebSocket**: Real-time web connections
     - **File**: File-based streaming (for testing)
-    
+
     **Example Configuration:**
     ```json
     {
@@ -201,16 +201,16 @@ async def create_streaming_session(
     summary="Start Streaming Session",
     description="""
     Start a streaming session to begin processing data.
-    
+
     Once started, the session will:
     - Connect to the configured data source
     - Begin processing incoming data through the anomaly detector
     - Generate real-time metrics and events
     - Send outputs to configured sinks
-    
+
     **Status Transitions:**
     `pending` → `starting` → `active`
-    
+
     **Prerequisites:**
     - Session must be in `pending` status
     - Detector must be available and trained
@@ -242,13 +242,13 @@ async def start_streaming_session(
     summary="Stop Streaming Session",
     description="""
     Stop a streaming session and terminate data processing.
-    
+
     Stopping a session will:
     - Gracefully shut down data processing
     - Complete processing of any buffered data
     - Generate final metrics and checkpoints
     - Close connections to data sources and sinks
-    
+
     **Status Transitions:**
     `active` → `stopping` → `stopped`
     """,
@@ -279,7 +279,7 @@ async def stop_streaming_session(
     summary="Pause Streaming Session",
     description="""
     Pause a streaming session temporarily.
-    
+
     Pausing a session will:
     - Temporarily halt data processing
     - Maintain connections to data sources
@@ -312,7 +312,7 @@ async def pause_streaming_session(
     summary="Resume Streaming Session",
     description="""
     Resume a paused streaming session.
-    
+
     Resuming a session will:
     - Restart data processing from where it left off
     - Continue generating metrics and events
@@ -344,7 +344,7 @@ async def resume_streaming_session(
     summary="Get Session Metrics",
     description="""
     Get real-time metrics for a streaming session.
-    
+
     **Metrics Include:**
     - **Throughput**: Messages per second, total processed
     - **Quality**: Anomalies detected, anomaly rate, false positive rate
@@ -353,7 +353,7 @@ async def resume_streaming_session(
     - **Resources**: CPU usage, memory usage, network I/O
     - **Backpressure**: Buffer utilization, backpressure events
     - **Windows**: Active/completed windows (for windowed processing)
-    
+
     Use these metrics for:
     - Performance monitoring and optimization
     - Capacity planning and scaling decisions
@@ -384,13 +384,13 @@ async def get_session_metrics(
     summary="Get Session Summary",
     description="""
     Get a comprehensive summary of a streaming session.
-    
+
     The summary provides a high-level overview including:
     - Session status and timing information
     - Key performance indicators
     - Throughput and quality metrics
     - Error rates and system health
-    
+
     This is ideal for dashboards and monitoring displays.
     """,
 )
@@ -417,12 +417,12 @@ async def get_session_summary(
     summary="List Streaming Sessions",
     description="""
     List streaming sessions with optional filtering.
-    
+
     **Filter Options:**
     - **Status**: Filter by session status (active, stopped, etc.)
     - **Detector**: Filter by detector ID
     - **Creator**: Filter by user who created the session
-    
+
     **Use Cases:**
     - Monitor all active streaming sessions
     - Find sessions for a specific detector
@@ -463,22 +463,22 @@ async def list_streaming_sessions(
     summary="Create Session Alert",
     description="""
     Create an alert for monitoring streaming session metrics.
-    
+
     Alerts allow you to be notified when streaming metrics exceed thresholds:
-    
+
     **Common Alert Examples:**
     - **High Error Rate**: Alert when error_rate > 0.05 (5%)
     - **Low Throughput**: Alert when messages_per_second < 100
     - **High Latency**: Alert when p99_latency > 1000ms
     - **Memory Usage**: Alert when memory_usage > 80%
     - **Anomaly Surge**: Alert when anomaly_rate > 0.1 (10%)
-    
+
     **Notification Channels:**
     - Email notifications
     - Slack/Teams integration
     - Webhook endpoints
     - SMS alerts (for critical issues)
-    
+
     **Example:**
     ```json
     {
@@ -532,23 +532,23 @@ async def create_session_alert(
     summary="Process Single Data Point",
     description="""
     Process a single data point through the streaming pipeline.
-    
+
     This endpoint allows you to:
     - Test the streaming pipeline with sample data
     - Process ad-hoc data points for immediate results
     - Debug and validate processing logic
-    
+
     **Input Requirements:**
     - Data must match the expected schema for the detector
     - Session must be in active status
     - Detector must be available and trained
-    
+
     **Response Includes:**
     - Anomaly detection results (score, classification)
     - Feature contributions and explanations
     - Processing metadata and timing
     - Any generated events or alerts
-    
+
     **Example Input:**
     ```json
     {

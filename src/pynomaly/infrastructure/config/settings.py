@@ -86,10 +86,10 @@ class SecuritySettings(BaseModel):
     def get_monitoring_config(self) -> dict[str, Any]:
         """Get monitoring configuration including buffer size and flush interval."""
         import os
-        
+
         buffer_size = int(os.getenv("PYNOMALY_MONITORING_BUFFER_SIZE", "100"))
         flush_interval = int(os.getenv("PYNOMALY_MONITORING_FLUSH_INTERVAL", "60"))
-        
+
         return {
             "providers": self.get_monitoring_providers(),
             "buffer_size": buffer_size,

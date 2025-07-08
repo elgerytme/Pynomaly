@@ -126,7 +126,7 @@ Think of data quality anomaly detection like training a data quality expert:
 
 ### Machine Learning Approaches
 
-**Supervised Learning**: 
+**Supervised Learning**:
 - Uses labeled examples of both good and poor quality data
 - Requires extensive historical data quality assessments
 - Highly accurate but needs significant training data preparation

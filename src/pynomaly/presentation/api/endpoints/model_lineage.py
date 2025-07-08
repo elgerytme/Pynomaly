@@ -121,16 +121,16 @@ async def get_lineage_service(
     summary="Create Lineage Record",
     description="""
     Create a new model lineage record to track relationships between models.
-    
+
     This endpoint allows you to document how models are related through various
     transformations such as fine-tuning, ensemble creation, or distillation.
-    
+
     **Use Cases:**
     - Track parent-child relationships between models
     - Document transformation processes and parameters
     - Link models to experiments and runs
     - Maintain audit trail for model evolution
-    
+
     **Example Relationships:**
     - Fine-tuning: Model B fine-tuned from Model A
     - Ensemble: Model C is ensemble of Models A and B
@@ -177,10 +177,10 @@ async def create_lineage_record(
     summary="Track Model Derivation",
     description="""
     Track a simple parent-child model derivation with transformation details.
-    
+
     This is a simplified endpoint for the common case of tracking how one model
     was derived from another through a specific transformation process.
-    
+
     **Common Use Cases:**
     - Fine-tuning a pre-trained model
     - Transfer learning from a base model
@@ -228,10 +228,10 @@ async def track_model_derivation(
     summary="Track Ensemble Creation",
     description="""
     Track the creation of an ensemble model from multiple component models.
-    
+
     This endpoint specifically handles ensemble models where multiple models
     are combined to create a new ensemble model.
-    
+
     **Ensemble Types:**
     - Voting ensembles
     - Stacking ensembles
@@ -276,16 +276,16 @@ async def track_ensemble_creation(
     summary="Get Model Lineage Graph",
     description="""
     Get the complete lineage graph for a model, including ancestors and descendants.
-    
+
     This returns a comprehensive view of how a model relates to other models
     in your system, showing the full lineage tree with relationships and
     transformation details.
-    
+
     **Graph Structure:**
     - **Nodes**: Individual models with metadata
     - **Edges**: Relationships with transformation details
     - **Depth**: Maximum depth of the lineage tree
-    
+
     **Use Cases:**
     - Visualize model evolution
     - Understand model dependencies
@@ -327,7 +327,7 @@ async def get_model_lineage_graph(
     summary="Get Model Ancestors",
     description="""
     Get all ancestor models for a given model.
-    
+
     Returns a list of model IDs that are ancestors (parents, grandparents, etc.)
     of the specified model.
     """,
@@ -358,7 +358,7 @@ async def get_model_ancestors(
     summary="Get Model Descendants",
     description="""
     Get all descendant models for a given model.
-    
+
     Returns a list of model IDs that are descendants (children, grandchildren, etc.)
     of the specified model.
     """,
@@ -389,10 +389,10 @@ async def get_model_descendants(
     summary="Find Lineage Path",
     description="""
     Find the lineage path between two models.
-    
+
     Returns the shortest path of model IDs that connect the source model
     to the target model through lineage relationships.
-    
+
     Returns null if no path exists between the models.
     """,
 )
@@ -425,11 +425,11 @@ async def find_lineage_path(
     summary="Query Lineage Records",
     description="""
     Query lineage records with advanced filtering options.
-    
+
     This endpoint provides flexible querying capabilities to find lineage
     records based on various criteria such as model IDs, relationship types,
     transformation types, dates, creators, and tags.
-    
+
     **Filter Options:**
     - **Model-based**: Find records involving specific models
     - **Type-based**: Filter by relationship or transformation types
@@ -474,7 +474,7 @@ async def query_lineage_records(
     summary="Get Lineage Statistics",
     description="""
     Get overall statistics about model lineage in the system.
-    
+
     Provides insights into the lineage ecosystem including:
     - Total number of models and relationships
     - Maximum lineage depth
@@ -503,10 +503,10 @@ async def get_lineage_statistics(
     summary="Delete Lineage Record",
     description="""
     Delete a specific lineage record.
-    
+
     **Warning**: This operation cannot be undone. Deleting lineage records
     will break the lineage chain and may affect lineage graph completeness.
-    
+
     Use with caution and ensure you have proper authorization.
     """,
     responses={
@@ -541,12 +541,12 @@ async def delete_lineage_record(
     summary="Bulk Import Lineage Records",
     description="""
     Import multiple lineage records in a single operation.
-    
+
     This endpoint is useful for:
     - Migrating lineage data from other systems
     - Bulk loading historical lineage information
     - Batch processing of lineage creation
-    
+
     **Validation**: All referenced models must exist before import.
     """,
     responses={

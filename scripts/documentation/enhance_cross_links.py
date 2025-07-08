@@ -120,7 +120,7 @@ class CrossLinkEnhancer:
 
 ### **User Guides**
 - **[Basic Usage](../basic-usage/README.md)** - Essential functionality
-- **[Advanced Features](../advanced-features/README.md)** - Sophisticated capabilities  
+- **[Advanced Features](../advanced-features/README.md)** - Sophisticated capabilities
 - **[Troubleshooting](../troubleshooting/README.md)** - Problem solving
 
 ### **Reference**

@@ -12,7 +12,7 @@ from .stream_processor import (
 
 __all__ = [
     "StreamProcessor",
-    "StreamConfig", 
+    "StreamConfig",
     "StreamSource",
     "StreamFormat",
     "StreamRecord",

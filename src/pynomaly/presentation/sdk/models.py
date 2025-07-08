@@ -60,8 +60,7 @@ class DataFormat(str, Enum):
 class BaseSDKModel(BaseModel):
     """Base model for all SDK models."""
 
-    class Config:
-        # Allow arbitrary types for numpy arrays, etc.
+    model_config = ConfigDict(# Allow arbitrary types for numpy arrays, etc.)
         arbitrary_types_allowed = True
         # Use enum values in JSON
         use_enum_values = True

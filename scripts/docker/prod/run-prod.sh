@@ -121,7 +121,7 @@ fi
 # Start monitoring stack if requested
 if [[ "$MONITORING" == "true" ]]; then
     echo "Starting monitoring stack..."
-    
+
     # Start Prometheus
     docker run -d \
         --name "pynomaly-prometheus-prod" \
@@ -153,7 +153,7 @@ fi
 # Start logging stack if requested
 if [[ "$LOGGING" == "true" ]]; then
     echo "Starting logging stack..."
-    
+
     # Start Elasticsearch
     docker run -d \
         --name "pynomaly-elasticsearch-prod" \
@@ -210,7 +210,7 @@ echo "Starting $REPLICAS application replicas..."
 for i in $(seq 1 $REPLICAS); do
     APP_PORT=$((8000 + i - 1))
     echo "Starting replica $i on port $APP_PORT..."
-    
+
     docker run -d \
         --name "${CONTAINER_NAME}-${i}" \
         --network "$NETWORK_NAME" \

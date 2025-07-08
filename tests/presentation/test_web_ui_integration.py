@@ -36,13 +36,13 @@ class TestWebUIMainPage:
 
         assert response.status_code == 200
         assert "text/html" in response.headers.get("content-type", "")
-        
+
         # Check for main HTML structure
         html_content = response.text
         assert "<title>Pynomaly" in html_content
         assert "<html" in html_content
         assert "</html>" in html_content
-        
+
         # Check for basic HTML structure
         assert "<head>" in html_content
         assert "<body>" in html_content
@@ -53,19 +53,19 @@ class TestWebUIMainPage:
 
         assert response.status_code == 200
         html_content = response.text
-        
+
         # Check for Pynomaly branding
         assert "Pynomaly" in html_content
-        
+
         # Check for common navigation or layout elements
         common_elements = [
             "Dashboard",
-            "Detectors", 
+            "Detectors",
             "Datasets",
             "nav",
             "main",
         ]
-        
+
         # At least some of these elements should be present
         found_elements = [elem for elem in common_elements if elem in html_content]
         assert len(found_elements) > 0, f"Expected to find at least one of {common_elements} in HTML"
@@ -76,10 +76,10 @@ class TestWebUIMainPage:
 
         assert response.status_code == 200
         html_content = response.text.lower()
-        
+
         # Check for DOCTYPE declaration (optional but good practice)
         # Note: FastAPI/Starlette might not always include this depending on how templates are rendered
-        
+
         # Check for essential HTML elements
         assert "<html" in html_content
         assert "<head>" in html_content
@@ -94,10 +94,10 @@ class TestWebUIMainPage:
 
         assert response.status_code == 200
         html_content = response.text.lower()
-        
+
         # Check for charset meta tag
         assert "charset" in html_content
-        
+
         # Check for viewport meta tag (important for responsive design)
         if "viewport" in html_content:
             assert "viewport" in html_content
@@ -109,17 +109,17 @@ class TestStaticAssets:
     def test_main_css_accessible(self, web_client: TestClient):
         """Test that /static/css/main.css is reachable."""
         response = web_client.get("/static/css/main.css")
-        
+
         # main.css might not exist, but let's check for any CSS files that do exist
         if response.status_code == 404:
             # Try other common CSS files that we know exist
             css_files = [
                 "/static/css/app.css",
-                "/static/css/styles.css", 
+                "/static/css/styles.css",
                 "/static/css/advanced_ui.css",
                 "/static/css/tailwind.css"
             ]
-            
+
             css_found = False
             for css_file in css_files:
                 css_response = web_client.get(css_file)
@@ -127,7 +127,7 @@ class TestStaticAssets:
                     assert "text/css" in css_response.headers.get("content-type", "")
                     css_found = True
                     break
-            
+
             # At least one CSS file should be accessible
             assert css_found, f"Expected at least one CSS file to be accessible from {css_files}"
         else:
@@ -138,10 +138,10 @@ class TestStaticAssets:
     def test_app_css_accessible(self, web_client: TestClient):
         """Test that app.css is accessible (this file definitely exists)."""
         response = web_client.get("/static/css/app.css")
-        
+
         assert response.status_code == 200
         assert "text/css" in response.headers.get("content-type", "")
-        
+
         # Basic CSS content check
         css_content = response.text
         assert len(css_content) > 0
@@ -153,7 +153,7 @@ class TestStaticAssets:
             "/static/js/main.js",
             "/static/js/components.js"
         ]
-        
+
         js_found = False
         for js_file in js_files:
             js_response = web_client.get(js_file)
@@ -161,13 +161,13 @@ class TestStaticAssets:
                 # Check content type for JavaScript
                 content_type = js_response.headers.get("content-type", "")
                 assert any(js_type in content_type for js_type in [
-                    "application/javascript", 
+                    "application/javascript",
                     "text/javascript",
                     "application/x-javascript"
                 ])
                 js_found = True
                 break
-        
+
         # At least one JS file should be accessible
         assert js_found, f"Expected at least one JS file to be accessible from {js_files}"
 
@@ -192,7 +192,7 @@ class TestAPIEndpoints:
 
         # This should either work (200) or have auth issues (401), but not be not found (404)
         assert response.status_code in [200, 401, 503]
-        
+
         if response.status_code == 200:
             data = response.json()
             assert isinstance(data, dict)
@@ -219,7 +219,7 @@ class TestWebVsAPIRouting:
     def test_web_routes_in_web_app(self, web_client: TestClient):
         """Test that web routes work in web app."""
         web_routes = ["/", "/dashboard", "/detectors", "/datasets"]
-        
+
         for route in web_routes:
             response = web_client.get(route)
             # Should work (200) or require auth (302 redirect), not be not found (404)
@@ -228,7 +228,7 @@ class TestWebVsAPIRouting:
     def test_api_routes_in_api_app(self, api_client: TestClient):
         """Test that API routes work in API app."""
         api_routes = ["/api/health/", "/api/detectors/", "/api/datasets/"]
-        
+
         for route in api_routes:
             response = api_client.get(route)
             # Should work (200) or require auth (401), not be not found (404)

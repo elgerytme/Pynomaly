@@ -712,7 +712,7 @@ def _display_algorithm_info(algorithm: str, dl_service: DeepLearningIntegrationS
         comparison_table.add_column("Strengths", style="green")
         comparison_table.add_column("Weaknesses", style="red")
 
-        max_items = max(len(strengths), len(weaknesses))
+        max_length= max(len(strengths), len(weaknesses))
         for i in range(max_items):
             strength = strengths[i] if i < len(strengths) else ""
             weakness = weaknesses[i] if i < len(weaknesses) else ""

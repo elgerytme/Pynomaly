@@ -862,72 +862,72 @@ from datetime import datetime
 
 class AdvancedMemoryProfiler:
     """Advanced memory profiling for Pynomaly operations."""
-    
+
     def __init__(self):
         self.process = psutil.Process()
         self.snapshots = []
-        
+
     def start_profiling(self):
         """Start memory profiling."""
         tracemalloc.start()
         initial_memory = self.process.memory_info().rss / 1024 / 1024
         print(f"🔍 Memory profiling started - Initial: {initial_memory:.2f} MB")
-        
+
     def take_snapshot(self, label: str):
         """Take memory snapshot with label."""
         snapshot = tracemalloc.take_snapshot()
         memory_mb = self.process.memory_info().rss / 1024 / 1024
-        
+
         self.snapshots.append({
             'label': label,
             'snapshot': snapshot,
             'memory_mb': memory_mb,
             'timestamp': datetime.now()
         })
-        
+
         print(f"📸 Snapshot '{label}': {memory_mb:.2f} MB")
-        
+
     def analyze_top_memory_usage(self, limit=10):
         """Analyze top memory consumers."""
         if not self.snapshots:
             print("No snapshots available")
             return
-            
+
         current = self.snapshots[-1]['snapshot']
         top_stats = current.statistics('lineno')
-        
+
         print(f"\n🔝 Top {limit} Memory Consumers:")
         print("=" * 60)
-        
+
         for i, stat in enumerate(top_stats[:limit]):
             print(f"{i+1:2d}. {stat}")
-            
+
     def compare_snapshots(self, before_label: str, after_label: str):
         """Compare two memory snapshots."""
         before_snap = None
         after_snap = None
-        
+
         for snap in self.snapshots:
             if snap['label'] == before_label:
                 before_snap = snap
             elif snap['label'] == after_label:
                 after_snap = snap
-                
+
         if not before_snap or not after_snap:
             print("❌ Snapshots not found")
             return
-            
+
         print(f"\n📊 Memory Comparison: {before_label} → {after_label}")
         print("=" * 60)
-        
+
         memory_diff = after_snap['memory_mb'] - before_snap['memory_mb']
         print(f"Memory change: {memory_diff:+.2f} MB")
-        
+
         # Compare statistics
         top_stats = after_snap['snapshot'].compare_to(
             before_snap['snapshot'], 'lineno'
         )
-        
+
         print("\nTop Memory Changes:")
         for stat in top_stats[:5]:
             print(f"  {stat}")
@@ -956,18 +956,18 @@ from functools import wraps
 
 class PerformanceProfiler:
     """Comprehensive performance profiling."""
-    
+
     def __init__(self):
         self.profiler = None
         self.results = {}
-        
+
     def profile_function(self, func):
         """Decorator to profile function performance."""
         @wraps(func)
         def wrapper(*args, **kwargs):
             profiler = cProfile.Profile()
             profiler.enable()
-            
+
             start_time = time.time()
             try:
                 result = func(*args, **kwargs)
@@ -975,22 +975,22 @@ class PerformanceProfiler:
             finally:
                 end_time = time.time()
                 profiler.disable()
-                
+
                 # Store results
                 s = io.StringIO()
                 ps = pstats.Stats(profiler, stream=s)
                 ps.sort_stats('cumulative')
                 ps.print_stats(20)
-                
+
                 self.results[func.__name__] = {
                     'duration': end_time - start_time,
                     'profile': s.getvalue()
                 }
-                
+
                 print(f"⏱️  {func.__name__}: {end_time - start_time:.3f}s")
-                
+
         return wrapper
-    
+
     def print_detailed_profile(self, function_name: str):
         """Print detailed profile for function."""
         if function_name in self.results:
@@ -1022,52 +1022,52 @@ import time
 
 class DatabaseProfiler:
     """Profile database query performance."""
-    
+
     def __init__(self, engine):
         self.engine = engine
         self.queries = []
         self.setup_profiling()
-    
+
     def setup_profiling(self):
         """Set up database query profiling."""
-        
+
         @event.listens_for(self.engine, "before_cursor_execute")
         def receive_before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
             context._query_start_time = time.time()
-            
+
         @event.listens_for(self.engine, "after_cursor_execute")
         def receive_after_cursor_execute(conn, cursor, statement, parameters, context, executemany):
             total = time.time() - context._query_start_time
-            
+
             self.queries.append({
                 'statement': statement,
                 'parameters': parameters,
                 'duration': total,
                 'timestamp': time.time()
             })
-            
+
             if total > 1.0:  # Log slow queries
                 print(f"🐌 Slow query ({total:.3f}s): {statement[:100]}...")
-    
+
     def get_slow_queries(self, threshold=0.5):
         """Get queries slower than threshold."""
         return [q for q in self.queries if q['duration'] > threshold]
-    
+
     def print_query_summary(self):
         """Print query performance summary."""
         if not self.queries:
             print("No queries recorded")
             return
-            
+
         total_time = sum(q['duration'] for q in self.queries)
         avg_time = total_time / len(self.queries)
-        
+
         print(f"\n📊 Database Query Summary")
         print("=" * 40)
         print(f"Total queries: {len(self.queries)}")
         print(f"Total time: {total_time:.3f}s")
         print(f"Average time: {avg_time:.3f}s")
-        
+
         slow_queries = self.get_slow_queries(0.1)
         if slow_queries:
             print(f"Slow queries (>0.1s): {len(slow_queries)}")
@@ -1155,12 +1155,12 @@ from collections import Counter, defaultdict
 
 class LogAnalyzer:
     """Advanced log analysis for Pynomaly."""
-    
+
     def __init__(self, log_file_path: str):
         self.log_file_path = log_file_path
         self.entries = []
         self.parse_logs()
-    
+
     def parse_logs(self):
         """Parse structured JSON logs."""
         with open(self.log_file_path, 'r') as f:
@@ -1171,90 +1171,90 @@ class LogAnalyzer:
                     self.entries.append(entry)
                 except json.JSONDecodeError:
                     print(f"⚠️  Invalid JSON at line {line_num}: {line.strip()[:100]}")
-    
+
     def analyze_errors(self):
         """Analyze error patterns."""
         errors = [e for e in self.entries if e.get('level') == 'error']
-        
+
         if not errors:
             print("✅ No errors found")
             return
-        
+
         print(f"❌ Found {len(errors)} errors")
-        
+
         # Group by error type
         error_types = Counter(e.get('error_type', 'Unknown') for e in errors)
         print("\nError Types:")
         for error_type, count in error_types.most_common():
             print(f"  {error_type}: {count}")
-        
+
         # Recent errors
         print(f"\nRecent Errors (last 5):")
         for error in errors[-5:]:
             timestamp = error.get('timestamp', 'N/A')
             message = error.get('message', 'N/A')
             print(f"  {timestamp}: {message}")
-    
+
     def analyze_performance(self):
         """Analyze performance patterns."""
         perf_entries = [e for e in self.entries if 'duration_seconds' in e]
-        
+
         if not perf_entries:
             print("No performance data found")
             return
-        
+
         durations = [e['duration_seconds'] for e in perf_entries]
-        
+
         print(f"📊 Performance Analysis ({len(perf_entries)} operations)")
         print(f"Average duration: {sum(durations)/len(durations):.3f}s")
         print(f"Max duration: {max(durations):.3f}s")
         print(f"Min duration: {min(durations):.3f}s")
-        
+
         # Slow operations
         slow_ops = [e for e in perf_entries if e['duration_seconds'] > 5.0]
         if slow_ops:
             print(f"\n🐌 Slow operations (>{5.0}s): {len(slow_ops)}")
             for op in slow_ops[-3:]:  # Show last 3
                 print(f"  {op.get('operation', 'N/A')}: {op['duration_seconds']:.3f}s")
-    
+
     def analyze_security_events(self):
         """Analyze security-related events."""
         security_events = [e for e in self.entries if e.get('event_type') == 'security']
-        
+
         if not security_events:
             print("✅ No security events found")
             return
-        
+
         print(f"🔒 Found {len(security_events)} security events")
-        
+
         # Group by event type
         event_types = Counter(e.get('security_event_type', 'Unknown') for e in security_events)
-        
+
         for event_type, count in event_types.most_common():
             print(f"  {event_type}: {count}")
-    
+
     def analyze_api_usage(self):
         """Analyze API usage patterns."""
         api_entries = [e for e in self.entries if e.get('event_type') == 'api_request']
-        
+
         if not api_entries:
             print("No API request data found")
             return
-        
+
         print(f"🌐 API Usage Analysis ({len(api_entries)} requests)")
-        
+
         # Status code distribution
         status_codes = Counter(e.get('status_code') for e in api_entries)
         print("\nStatus Codes:")
         for code, count in status_codes.most_common():
             print(f"  {code}: {count}")
-        
+
         # Popular endpoints
         endpoints = Counter(e.get('path') for e in api_entries)
         print("\nTop Endpoints:")
         for endpoint, count in endpoints.most_common(5):
             print(f"  {endpoint}: {count}")
-        
+
         # Response time analysis
         response_times = [e.get('duration_seconds', 0) for e in api_entries]
         if response_times:

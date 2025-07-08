@@ -24,7 +24,7 @@
 
 [build]
   execution_platforms = prelude//platforms:default
-  
+
 # Python-specific configuration
 [python]
   interpreter = python3
@@ -46,7 +46,7 @@
   cache_builds = true
   cache_tests = true
   cache_artifacts = true
-  
+
 # Project ignore patterns
 [project]
   ignore = .git, __pycache__, *.pyc, .pytest_cache, node_modules, .hatch, dist, build, .mypy_cache, .tox, .coverage, htmlcov

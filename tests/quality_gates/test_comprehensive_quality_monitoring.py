@@ -130,8 +130,8 @@ class QualityDatabase:
         with sqlite3.connect(self.db_path) as conn:
             conn.execute(
                 """
-                INSERT INTO test_metrics 
-                (test_name, status, duration, memory_usage_mb, cpu_usage_percent, 
+                INSERT INTO test_metrics
+                (test_name, status, duration, memory_usage_mb, cpu_usage_percent,
                  timestamp, error_message, warnings_count, retry_count)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
@@ -153,7 +153,7 @@ class QualityDatabase:
         with sqlite3.connect(self.db_path) as conn:
             conn.execute(
                 """
-                INSERT INTO quality_metrics 
+                INSERT INTO quality_metrics
                 (total_tests, passed_tests, failed_tests, skipped_tests, error_tests,
                  total_duration, average_duration, success_rate, memory_usage_mb,
                  cpu_usage_percent, flaky_tests, slow_tests, timestamp)
@@ -185,7 +185,7 @@ class QualityDatabase:
                 """
                 SELECT test_name, status, duration, memory_usage_mb, cpu_usage_percent,
                        timestamp, error_message, warnings_count, retry_count
-                FROM test_metrics 
+                FROM test_metrics
                 WHERE test_name = ? AND timestamp >= ?
                 ORDER BY timestamp DESC
             """,
@@ -216,10 +216,10 @@ class QualityDatabase:
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.execute(
                 """
-                SELECT test_name, 
+                SELECT test_name,
                        COUNT(*) as total_runs,
                        SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failures
-                FROM test_metrics 
+                FROM test_metrics
                 WHERE timestamp >= ?
                 GROUP BY test_name
                 HAVING total_runs >= ?

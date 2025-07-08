@@ -376,7 +376,7 @@ class PyTorchAdapter(DetectorProtocol):
         # Handle backward compatibility
         if algorithm is not None:
             algorithm_name = algorithm
-            
+
         self.algorithm = algorithm_name
         self._name = name or f"PyTorch_{algorithm_name}"
         self._contamination_rate = contamination_rate
@@ -727,7 +727,7 @@ class PyTorchAdapter(DetectorProtocol):
                 scores = self._lstm_scores(X_tensor)
             else:
                 raise ValueError(f"Unknown algorithm: {self.algorithm}")
-        
+
         scores_np = scores.cpu().numpy()
 
         if hasattr(self.model, "config"):
@@ -752,7 +752,7 @@ class PyTorchAdapter(DetectorProtocol):
         complete_config = self.model_config.copy()
         if hasattr(self.model, 'config'):
             complete_config['input_dim'] = self.model.config.input_dim
-        
+
         save_dict = {
             "model_state_dict": self.model.state_dict(),
             "model_config": complete_config,

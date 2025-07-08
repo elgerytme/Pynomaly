@@ -1295,14 +1295,14 @@ from skopt.space import Real, Integer
 
 def objective(params):
     n_estimators, contamination, max_features = params
-    
+
     model = IsolationForest(
         n_estimators=n_estimators,
         contamination=contamination,
         max_features=max_features,
         random_state=42
     )
-    
+
     scores = cross_val_score(model, X_train, y_train, cv=5, scoring='f1')
     return -scores.mean()  # Minimize negative F1
 

@@ -604,11 +604,11 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        
+
         proxy_connect_timeout 5s;
         proxy_send_timeout 60s;
         proxy_read_timeout 60s;
-        
+
         proxy_buffer_size 4k;
         proxy_buffers 8 4k;
         proxy_busy_buffers_size 8k;
@@ -735,7 +735,7 @@ import os
 
 # Security
 SECRET_KEY = os.getenv("SECRET_KEY")
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY") 
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 DEBUG = False
 ALLOWED_HOSTS = ["api.pynomaly.com"]
 
@@ -890,9 +890,9 @@ pg_isready -h db -p 5432
 curl http://localhost:8000/status | jq '.database'
 
 # Monitor slow queries
-SELECT query, mean_time, calls 
-FROM pg_stat_statements 
-ORDER BY mean_time DESC 
+SELECT query, mean_time, calls
+FROM pg_stat_statements
+ORDER BY mean_time DESC
 LIMIT 10;
 ```
 
@@ -994,8 +994,8 @@ spec:
 CREATE PUBLICATION pynomaly_replication FOR ALL TABLES;
 
 -- Read replica setup (eu-west-1)
-CREATE SUBSCRIPTION pynomaly_replica 
-CONNECTION 'host=primary-db.us-east-1.rds.amazonaws.com user=replication dbname=pynomaly' 
+CREATE SUBSCRIPTION pynomaly_replica
+CONNECTION 'host=primary-db.us-east-1.rds.amazonaws.com user=replication dbname=pynomaly'
 PUBLICATION pynomaly_replication;
 
 -- Application configuration for read replicas
@@ -1205,44 +1205,44 @@ logger = logging.getLogger(__name__)
 
 class EdgeSyncService:
     """Service for synchronizing edge nodes with central system."""
-    
+
     def __init__(self, central_api_url: str, sync_interval: int = 300):
         self.central_api_url = central_api_url
         self.sync_interval = sync_interval
         self.local_models = {}
         self.pending_results = []
-    
+
     @api_resilient(timeout_seconds=30, max_attempts=3)
     async def sync_models(self):
         """Sync models from central system with resilience."""
         try:
             response = await self.api_client.get(f"{self.central_api_url}/api/v1/models/edge")
             models = response.json()
-            
+
             for model_info in models:
                 if model_info['version'] > self.local_models.get(model_info['id'], {}).get('version', 0):
                     await self.download_model(model_info)
-                    
+
         except Exception as e:
             logger.error(f"Model sync failed: {e}")
             # Continue with cached models
-    
+
     @api_resilient(timeout_seconds=60, max_attempts=2)
     async def upload_results(self):
         """Upload pending results to central system."""
         if not self.pending_results:
             return
-            
+
         try:
             response = await self.api_client.post(
                 f"{self.central_api_url}/api/v1/results/edge",
                 json={"results": self.pending_results}
             )
-            
+
             if response.status_code == 200:
                 self.pending_results.clear()
                 logger.info(f"Uploaded {len(self.pending_results)} results")
-                
+
         except Exception as e:
             logger.error(f"Result upload failed: {e}")
             # Keep results for next sync attempt
@@ -1265,13 +1265,13 @@ async def detect_anomalies_lambda(event, context):
         body = json.loads(event['body'])
         data = body['data']
         model_id = body.get('model_id', 'default')
-        
+
         # Load model (cached)
         detector = await load_cached_detector(model_id)
-        
+
         # Perform detection
         results = await detector.detect_async(data)
-        
+
         return {
             'statusCode': 200,
             'headers': {
@@ -1285,7 +1285,7 @@ async def detect_anomalies_lambda(event, context):
                 'processing_time': results.processing_time
             })
         }
-        
+
     except Exception as e:
         return {
             'statusCode': 500,
@@ -1311,7 +1311,7 @@ provider:
   environment:
     MODEL_CACHE_BUCKET: pynomaly-models-${self:provider.stage}
     RESULTS_TABLE: pynomaly-results-${self:provider.stage}
-  
+
 functions:
   detect:
     handler: handler.lambda_handler
@@ -1321,7 +1321,7 @@ functions:
           method: post
           cors: true
     reservedConcurrency: 100
-    
+
   batch-detect:
     handler: batch_handler.lambda_handler
     timeout: 300
@@ -1339,7 +1339,7 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: pynomaly-models-${self:provider.stage}
-        
+
     ResultsTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -1369,7 +1369,7 @@ data:
     [Interface]
     PrivateKey = <on-premises-private-key>
     Address = 10.0.1.1/24
-    
+
     [Peer]
     PublicKey = <cloud-public-key>
     Endpoint = vpn.pynomaly.com:51820
@@ -1420,12 +1420,12 @@ from pynomaly.infrastructure.resilience import database_resilient, api_resilient
 
 class HybridSyncManager:
     """Manages data synchronization between on-premises and cloud."""
-    
+
     def __init__(self, on_prem_db_url: str, cloud_api_url: str):
         self.on_prem_db = create_async_engine(on_prem_db_url)
         self.cloud_api_url = cloud_api_url
         self.sync_queue = []
-    
+
     @database_resilient(timeout_seconds=60, max_attempts=3)
     async def sync_models_to_cloud(self):
         """Sync trained models from on-premises to cloud."""
@@ -1433,23 +1433,23 @@ class HybridSyncManager:
             result = await conn.execute(
                 "SELECT * FROM models WHERE synced_to_cloud = false"
             )
-            
+
             for model in result:
                 await self.upload_model_to_cloud(model)
                 await conn.execute(
                     "UPDATE models SET synced_to_cloud = true WHERE id = ?",
                     model.id
                 )
-    
+
     @api_resilient(timeout_seconds=120, max_attempts=2)
     async def sync_results_from_cloud(self):
         """Sync detection results from cloud to on-premises."""
         response = await self.api_client.get(
             f"{self.cloud_api_url}/api/v1/results/since/{self.last_sync_time}"
         )
-        
+
         results = response.json()
-        
+
         async with self.on_prem_db.begin() as conn:
             for result in results['results']:
                 await conn.execute(
@@ -1597,7 +1597,7 @@ async def track_detection_metrics(model_type: str, dataset_type: str, region: st
         dataset_type=dataset_type,
         region=region
     ).inc()
-    
+
     DETECTION_DURATION.labels(
         model_type=model_type,
         dataset_size_bucket=get_size_bucket(len(data))
@@ -1618,7 +1618,7 @@ groups:
     annotations:
       summary: "High anomaly detection rate detected"
       description: "Anomaly detection rate is {{ $value }} per second"
-      
+
   - alert: CircuitBreakerOpen
     expr: pynomaly_circuit_breaker_state > 0
     for: 1m
@@ -1627,7 +1627,7 @@ groups:
     annotations:
       summary: "Circuit breaker is open for {{ $labels.service }}"
       description: "Circuit breaker for {{ $labels.service }}/{{ $labels.operation }} is in state {{ $value }}"
-      
+
   - alert: ModelAccuracyDegraded
     expr: pynomaly_model_accuracy < 0.8
     for: 5m
@@ -1636,7 +1636,7 @@ groups:
     annotations:
       summary: "Model accuracy has degraded"
       description: "Model {{ $labels.model_id }} accuracy is {{ $value }}"
-      
+
   - alert: DatabaseConnectionPoolExhausted
     expr: pynomaly_database_connections_active / pynomaly_database_connections_max > 0.9
     for: 2m

@@ -226,7 +226,7 @@ print(f"Detected {results.n_anomalies} anomalies with {results.confidence:.2f} c
 
 Ready to get started? Choose your path:
 
-### **Quick Start** 
+### **Quick Start**
 Jump right in with the essentials:
 - **[Install Pynomaly →](getting-started/installation.md)**
 - **[5-Minute Quickstart →](getting-started/quickstart.md)**

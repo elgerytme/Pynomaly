@@ -359,11 +359,11 @@ class MutationTester:
                 <p>Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
                 <p>Target paths: {', '.join(self.results['target_paths'])}</p>
             </div>
-            
+
             <div class="score {'good' if summary['mutation_score'] >= 80 else 'warning' if summary['mutation_score'] >= 60 else 'danger'}">
                 Mutation Score: {summary['mutation_score']:.1f}%
             </div>
-            
+
             <div class="summary">
                 <div class="metric">
                     <h3>Total Mutations</h3>
@@ -382,7 +382,7 @@ class MutationTester:
                     <div class="value">{summary['skipped']}</div>
                 </div>
             </div>
-            
+
             <h2>Mutation Details</h2>
             <table>
                 <thead>
@@ -414,7 +414,7 @@ class MutationTester:
         html_content += """
                 </tbody>
             </table>
-            
+
             <h2>Interpretation</h2>
             <div>
                 <h3>Mutation Score Interpretation:</h3>
@@ -424,7 +424,7 @@ class MutationTester:
                     <li><strong>40-59%:</strong> Fair test quality, significant improvements needed</li>
                     <li><strong>0-39%:</strong> Poor test quality, major improvements required</li>
                 </ul>
-                
+
                 <h3>Status Meanings:</h3>
                 <ul>
                     <li><strong class="status-killed">KILLED:</strong> Mutation was detected by tests (good)</li>
@@ -432,7 +432,7 @@ class MutationTester:
                     <li><strong class="status-skipped">SKIPPED:</strong> Mutation was skipped (syntax error, etc.)</li>
                 </ul>
             </div>
-            
+
             <h2>Recommendations</h2>
             <div>
         """

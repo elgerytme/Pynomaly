@@ -204,7 +204,7 @@ class IntegrationTestRunner:
 </head>
 <body>
     <h1>Pynomaly Integration Test Report</h1>
-    
+
     <div class="summary">
         <h2>Summary</h2>
         <p><strong>Total Suites:</strong> {total_suites}</p>
@@ -214,7 +214,7 @@ class IntegrationTestRunner:
         <p><strong>Total Duration:</strong> {total_duration:.1f} seconds</p>
         <p><strong>Generated:</strong> {time.strftime('%Y-%m-%d %H:%M:%S')}</p>
     </div>
-    
+
     <h2>Test Suite Results</h2>
 """
 

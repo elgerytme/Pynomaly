@@ -448,7 +448,7 @@ class MobileDashboardManager {
         <div class="dashboard-tabs" role="tablist">
           <!-- Tabs will be dynamically generated -->
         </div>
-        
+
         <div class="tab-panels">
           <!-- Panel content will be dynamically generated -->
         </div>

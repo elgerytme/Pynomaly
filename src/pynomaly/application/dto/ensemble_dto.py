@@ -400,8 +400,8 @@ class EnsembleDetectionRequestDTO(BaseModel):
     """Request DTO for ensemble detection."""
 
     detector_ids: List[str] = Field(
-        min_items=2,
-        max_items=20,
+        min_length=2,
+        max_length=20,
         description="List of detector IDs to include in ensemble (2-20 detectors)",
     )
     data: Union[List[List[float]], List[Dict[str, Any]]] = Field(
@@ -553,7 +553,7 @@ class EnsembleOptimizationRequestDTO(BaseModel):
     """Request DTO for ensemble optimization."""
 
     detector_ids: List[str] = Field(
-        min_items=2, description="Candidate detector IDs for ensemble"
+        min_length=2, description="Candidate detector IDs for ensemble"
     )
     validation_dataset_id: str = Field(
         description="Dataset ID for optimization validation"

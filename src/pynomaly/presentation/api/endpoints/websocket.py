@@ -14,6 +14,7 @@ from pynomaly.application.services.task_tracking_service import (
 from pynomaly.infrastructure.config import Container
 from pynomaly.infrastructure.auth import get_auth, create_websocket_auth_dependency
 from pynomaly.presentation.api.deps import get_container
+from pynomaly.infrastructure.streaming.websocket_gateway import gateway, websocket_dashboard_endpoint
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -102,7 +103,7 @@ connection_manager = ConnectionManager()
 
 @router.websocket("/ws")
 async def websocket_endpoint(
-    websocket: WebSocket, 
+    websocket: WebSocket,
     container: Container = Depends(get_container)
 ):
     """Main WebSocket endpoint for real-time updates."""
@@ -116,7 +117,7 @@ async def websocket_endpoint(
         logger.warning(f"WebSocket authentication failed: {e}")
         await websocket.close(code=4001, reason="Authentication required")
         return
-    
+
     await connection_manager.connect(websocket)
 
     try:
@@ -237,21 +238,21 @@ async def detections_websocket(
         return
 
     await websocket.accept()
-    
+
     try:
         # Get streaming detection service
         streaming_service = container.streaming_detection_service()
-        
+
         # Subscribe to anomaly detection results
         detection_queue = asyncio.Queue()
-        
+
         def detection_callback(result):
             """Callback for new detection results."""
             asyncio.create_task(detection_queue.put(result))
-        
+
         # Register callback with streaming service
         streaming_service.register_detection_callback(detection_callback)
-        
+
         # Send initial connection confirmation
         await websocket.send_text(json.dumps({
             "type": "connected",
@@ -259,7 +260,7 @@ async def detections_websocket(
             "timestamp": datetime.utcnow().isoformat(),
             "user": user.username
         }))
-        
+
         # Main message handling loop
         async def handle_incoming_messages():
             """Handle incoming WebSocket messages."""
@@ -267,7 +268,7 @@ async def detections_websocket(
                 try:
                     data = await websocket.receive_text()
                     message = json.loads(data)
-                    
+
                     if message.get("type") == "ping":
                         await websocket.send_text(json.dumps({
                             "type": "pong",
@@ -289,7 +290,7 @@ async def detections_websocket(
                             "message": "Real-time detection stream stopped",
                             "timestamp": datetime.utcnow().isoformat()
                         }))
-                        
+
                 except json.JSONDecodeError:
                     await websocket.send_text(json.dumps({
                         "type": "error",
@@ -299,17 +300,17 @@ async def detections_websocket(
                 except Exception as e:
                     logger.error(f"Error handling WebSocket message: {e}")
                     break
-        
+
         # Start message handler
         message_handler = asyncio.create_task(handle_incoming_messages())
-        
+
         # Main detection result forwarding loop
         while True:
             try:
                 # Wait for detection results or timeout
                 try:
                     result = await asyncio.wait_for(detection_queue.get(), timeout=1.0)
-                    
+
                     # Send detection result to client
                     await websocket.send_text(json.dumps({
                         "type": "anomaly_detection",
@@ -332,14 +333,14 @@ async def detections_websocket(
                         },
                         "timestamp": datetime.utcnow().isoformat()
                     }))
-                    
+
                 except asyncio.TimeoutError:
                     # Send keepalive ping
                     await websocket.send_text(json.dumps({
                         "type": "keepalive",
                         "timestamp": datetime.utcnow().isoformat()
                     }))
-                    
+
             except WebSocketDisconnect:
                 break
             except Exception as e:
@@ -350,14 +351,14 @@ async def detections_websocket(
                     "timestamp": datetime.utcnow().isoformat()
                 }))
                 break
-        
+
         # Cleanup
         if not message_handler.done():
             message_handler.cancel()
-        
+
         # Unregister callback
         streaming_service.unregister_detection_callback(detection_callback)
-        
+
     except WebSocketDisconnect:
         logger.info(f"WebSocket disconnected for user: {user.username if 'user' in locals() else 'unknown'}")
     except Exception as e:
@@ -422,3 +423,53 @@ async def task_sse_endpoint(
             "Connection": "keep-alive",
         },
     )
+
+
+@router.websocket("/ws/dashboards/{dashboard_id}")
+async def dashboard_websocket_endpoint(
+    websocket: WebSocket,
+    dashboard_id: str,
+    container: Container = Depends(get_container)
+):
+    """Enhanced WebSocket endpoint for dashboard real-time updates.
+    
+    This endpoint provides:
+    - Real-time metrics updates every 5-30 seconds
+    - Heartbeat and reconnection logic
+    - Back-pressure handling
+    - Channel multiplexing per dashboard ID
+    
+    Args:
+        websocket: WebSocket connection
+        dashboard_id: Dashboard ID for channel multiplexing
+        container: Dependency injection container
+    """
+    # Authenticate the WebSocket connection
+    try:
+        auth_service = get_auth()
+        ws_auth_dep = create_websocket_auth_dependency(auth_service)
+        user = await ws_auth_dep(websocket)
+        logger.info(f"Authenticated WebSocket user for dashboard {dashboard_id}: {user.username}")
+    except Exception as e:
+        logger.warning(f"WebSocket authentication failed for dashboard {dashboard_id}: {e}")
+        await websocket.close(code=4001, reason="Authentication required")
+        return
+    
+    # Start gateway if not already running
+    if not gateway.is_running:
+        await gateway.start()
+    
+    # Use the enhanced WebSocket gateway
+    await websocket_dashboard_endpoint(websocket, dashboard_id)
+
+
+@router.on_event("startup")
+async def startup_websocket_gateway():
+    """Start the WebSocket gateway on application startup."""
+    await gateway.start()
+
+
+@router.on_event("shutdown")
+async def shutdown_websocket_gateway():
+    """Stop the WebSocket gateway on application shutdown."""
+    await gateway.stop()

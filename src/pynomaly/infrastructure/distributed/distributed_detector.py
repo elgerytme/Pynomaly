@@ -129,8 +129,7 @@ class DistributedDetectionResult(BaseModel):
         default_factory=list, description="Individual chunk results"
     )
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed = True)
 
     @property
     def success_rate(self) -> float:

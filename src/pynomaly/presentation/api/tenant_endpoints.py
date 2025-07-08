@@ -20,7 +20,7 @@ from pynomaly.domain.entities.tenant import (
 class TenantCreateRequest(BaseModel):
     """Request model for creating a tenant."""
 
-    name: str = Field(..., min_length=3, max_length=50, regex=r"^[a-zA-Z0-9_-]+$")
+    name: str = Field(..., min_length=3, max_length=50, pattern=r"^[a-zA-Z0-9_-]+$")
     display_name: str = Field(..., min_length=1, max_length=100)
     contact_email: EmailStr
     subscription_tier: SubscriptionTier = SubscriptionTier.FREE
@@ -54,8 +54,7 @@ class TenantResponse(BaseModel):
     last_billing_date: datetime | None
     tags: dict[str, str]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes = True)
 
 
 class TenantConfiguration(BaseModel):

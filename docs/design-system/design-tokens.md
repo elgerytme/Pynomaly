@@ -44,7 +44,7 @@ Design tokens are the foundational elements of the Pynomaly design system, provi
   --color-success-700: #047857;
   --color-success-800: #065f46;
   --color-success-900: #064e3b;
-  
+
   /* Warning - Amber palette */
   --color-warning-50: #fffbeb;
   --color-warning-100: #fef3c7;
@@ -56,7 +56,7 @@ Design tokens are the foundational elements of the Pynomaly design system, provi
   --color-warning-700: #b45309;
   --color-warning-800: #92400e;
   --color-warning-900: #78350f;
-  
+
   /* Danger - Red palette */
   --color-danger-50: #fef2f2;
   --color-danger-100: #fee2e2;
@@ -98,20 +98,20 @@ Design tokens are the foundational elements of the Pynomaly design system, provi
   --color-text-inverse: #ffffff;
   --color-text-link: var(--color-primary-600);
   --color-text-link-hover: var(--color-primary-700);
-  
+
   /* Background colors */
   --color-bg-primary: #ffffff;
   --color-bg-secondary: var(--color-gray-50);
   --color-bg-tertiary: var(--color-gray-100);
   --color-bg-inverse: var(--color-gray-900);
   --color-bg-overlay: rgba(0, 0, 0, 0.5);
-  
+
   /* Border colors */
   --color-border-light: var(--color-gray-200);
   --color-border-medium: var(--color-gray-300);
   --color-border-dark: var(--color-gray-400);
   --color-border-focus: var(--color-primary-500);
-  
+
   /* Anomaly-specific colors */
   --color-anomaly-high: var(--color-danger-500);
   --color-anomaly-medium: var(--color-warning-500);
@@ -128,10 +128,10 @@ Design tokens are the foundational elements of the Pynomaly design system, provi
 :root {
   /* Primary font stack */
   --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  
+
   /* Monospace font for code */
   --font-family-mono: 'JetBrains Mono', 'Fira Code', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-  
+
   /* Display font for headlines */
   --font-family-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
@@ -250,16 +250,16 @@ Design tokens are the foundational elements of the Pynomaly design system, provi
   --spacing-btn-padding-y-base: var(--spacing-2);
   --spacing-btn-padding-x-lg: var(--spacing-6);
   --spacing-btn-padding-y-lg: var(--spacing-3);
-  
+
   /* Form spacing */
   --spacing-form-gap: var(--spacing-4);
   --spacing-form-label-margin: var(--spacing-1);
   --spacing-form-input-padding: var(--spacing-3);
-  
+
   /* Card spacing */
   --spacing-card-padding: var(--spacing-6);
   --spacing-card-gap: var(--spacing-4);
-  
+
   /* Container spacing */
   --spacing-container-padding-x: var(--spacing-4);
   --spacing-container-padding-y: var(--spacing-6);
@@ -296,7 +296,7 @@ Design tokens are the foundational elements of the Pynomaly design system, provi
   --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   --shadow-2xl: 0 50px 100px -20px rgba(0, 0, 0, 0.25);
   --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
-  
+
   /* Focus shadows */
   --shadow-focus: 0 0 0 3px rgba(59, 130, 246, 0.5);
   --shadow-focus-danger: 0 0 0 3px rgba(239, 68, 68, 0.5);
@@ -315,14 +315,14 @@ Design tokens are the foundational elements of the Pynomaly design system, provi
   --duration-normal: 200ms;
   --duration-slow: 300ms;
   --duration-slowest: 500ms;
-  
+
   /* Easing functions */
   --ease-linear: linear;
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  
+
   /* Component-specific animations */
   --transition-colors: color var(--duration-normal) var(--ease-out),
                        background-color var(--duration-normal) var(--ease-out),
@@ -362,17 +362,17 @@ Design tokens are the foundational elements of the Pynomaly design system, provi
   --color-text-secondary: #d1d5db;
   --color-text-muted: #9ca3af;
   --color-text-inverse: #111827;
-  
+
   --color-bg-primary: #111827;
   --color-bg-secondary: #1f2937;
   --color-bg-tertiary: #374151;
   --color-bg-inverse: #ffffff;
   --color-bg-overlay: rgba(0, 0, 0, 0.8);
-  
+
   --color-border-light: #374151;
   --color-border-medium: #4b5563;
   --color-border-dark: #6b7280;
-  
+
   /* Adjust shadows for dark theme */
   --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(0, 0, 0, 0.3);

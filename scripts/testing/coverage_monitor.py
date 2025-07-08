@@ -64,14 +64,14 @@ class CoverageMonitor:
 
             conn.execute(
                 """
-                CREATE INDEX IF NOT EXISTS idx_coverage_runs_timestamp 
+                CREATE INDEX IF NOT EXISTS idx_coverage_runs_timestamp
                 ON coverage_runs (timestamp)
             """
             )
 
             conn.execute(
                 """
-                CREATE INDEX IF NOT EXISTS idx_file_coverage_run_id 
+                CREATE INDEX IF NOT EXISTS idx_file_coverage_run_id
                 ON file_coverage (run_id)
             """
             )
@@ -244,7 +244,7 @@ class CoverageMonitor:
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.execute(
                 """
-                SELECT 
+                SELECT
                     timestamp, branch, commit_hash, total_coverage,
                     lines_covered, lines_total, files_covered, files_total
                 FROM coverage_runs
@@ -347,7 +347,7 @@ class CoverageMonitor:
                 <p>Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
                 <p>Branch: {latest['branch']} | Commit: {latest['commit_hash'][:8]}</p>
             </div>
-            
+
             <div class="metrics">
                 <div class="metric">
                     <h3>Total Coverage</h3>
@@ -370,7 +370,7 @@ class CoverageMonitor:
                     </div>
                 </div>
             </div>
-            
+
             <h2>File Coverage Details</h2>
             <table>
                 <thead>

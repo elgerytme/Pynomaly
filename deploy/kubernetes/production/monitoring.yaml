@@ -37,7 +37,7 @@ spec:
       annotations:
         summary: "Pynomaly API instance is down"
         description: "Pynomaly API has been down for more than 5 minutes."
-    
+
     - alert: High Memory Usage
       expr: container_memory_usage_bytes{pod=~"pynomaly-.*"} / container_spec_memory_limit_bytes > 0.8
       for: 10m
@@ -47,7 +47,7 @@ spec:
       annotations:
         summary: "High memory usage detected"
         description: "Container {{ $labels.container }} in pod {{ $labels.pod }} is using more than 80% of its memory limit."
-    
+
     - alert: High CPU Usage
       expr: rate(container_cpu_usage_seconds_total{pod=~"pynomaly-.*"}[5m]) > 0.8
       for: 10m
@@ -57,7 +57,7 @@ spec:
       annotations:
         summary: "High CPU usage detected"
         description: "Container {{ $labels.container }} in pod {{ $labels.pod }} is using more than 80% CPU."
-    
+
     - alert: Pod Crash Looping
       expr: rate(kube_pod_container_status_restarts_total{pod=~"pynomaly-.*"}[1h]) > 0
       for: 5m

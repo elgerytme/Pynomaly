@@ -9,7 +9,7 @@ environments/
 ├── README.md              # This documentation file
 ├── .venv/                 # Main development environment (Python 3.11+)
 ├── .venv_testing/         # Testing environment with extended dependencies
-├── .test_env/             # Minimal test environment 
+├── .test_env/             # Minimal test environment
 ├── .test_env_check/       # Environment validation testing
 ├── .test_venv/            # General testing virtual environment
 ├── .test_venv_bash/       # Bash scripting test environment
@@ -60,7 +60,7 @@ environments/
 
 ✅ **Correct Examples**:
 - `.venv`
-- `.venv_testing` 
+- `.venv_testing`
 - `.test_env`
 - `.dev_environment`
 
@@ -165,7 +165,7 @@ Configure your IDE to recognize environment locations:
 ## 📚 Related Documentation
 
 - [Installation Guide](../docs/getting-started/installation.md)
-- [Development Setup](../docs/development/README.md) 
+- [Development Setup](../docs/development/README.md)
 - [Testing Procedures](../docs/development/COMPREHENSIVE_TEST_ANALYSIS.md)
 - [Poetry Guide](../docs/development/HATCH_GUIDE.md)
 

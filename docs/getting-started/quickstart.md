@@ -223,18 +223,18 @@ print(f"Anomaly indices: {result.anomaly_indices[:10]}...")  # First 10
 ```python
 # Statistical methods
 detectors = [
-    Detector(name="IF", algorithm="IsolationForest", 
+    Detector(name="IF", algorithm="IsolationForest",
              parameters={"contamination": 0.1}),
-    Detector(name="LOF", algorithm="LOF", 
+    Detector(name="LOF", algorithm="LOF",
              parameters={"n_neighbors": 20, "contamination": 0.1}),
-    Detector(name="OCSVM", algorithm="OCSVM", 
+    Detector(name="OCSVM", algorithm="OCSVM",
              parameters={"nu": 0.1, "kernel": "rbf"}),
 ]
 
 # Train and compare
 for detector in detectors:
     detector_repo.save(detector)
-    
+
     # Train
     train_request = TrainDetectorRequest(
         detector_id=detector.id,
@@ -243,7 +243,7 @@ for detector in detectors:
         save_model=True
     )
     await train_use_case.execute(train_request)
-    
+
     # Detect
     detect_request = DetectAnomaliesRequest(
         detector_id=detector.id,
@@ -252,7 +252,7 @@ for detector in detectors:
         save_results=True
     )
     response = await detect_use_case.execute(detect_request)
-    
+
     print(f"{detector.name}: {response.result.n_anomalies} anomalies")
 ```
 
@@ -362,13 +362,13 @@ container.detector_repository().save(fraud_detector)
 if dataset.has_target:
     evaluate_use_case = container.evaluate_model_use_case()
     from pynomaly.application.use_cases import EvaluateModelRequest
-    
+
     eval_request = EvaluateModelRequest(
         detector_id=fraud_detector.id,
         test_dataset=dataset,
         metrics=["precision", "recall", "f1", "roc_auc"]
     )
-    
+
     eval_response = await evaluate_use_case.execute(eval_request)
     print(f"Performance metrics: {eval_response.metrics}")
 ```

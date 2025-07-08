@@ -180,7 +180,7 @@ async def get_current_user() -> User:
 
 async def require_compliance_access(tenant_id: UUID, current_user: User = Depends(get_current_user)):
     """Require compliance access to specific tenant."""
-    if not (current_user.is_super_admin() or 
+    if not (current_user.is_super_admin() or
             current_user.has_role_in_tenant(TenantId(str(tenant_id)), ["tenant_admin"])):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -215,7 +215,7 @@ async def get_audit_trail(
             limit=limit,
             offset=offset
         )
-        
+
         return [
             AuditEventResponse(
                 id=event.id,
@@ -254,7 +254,7 @@ async def get_high_risk_events(
             tenant_id=TenantId(str(tenant_id)),
             days=days
         )
-        
+
         return [
             AuditEventResponse(
                 id=event.id,
@@ -291,7 +291,7 @@ async def create_retention_policy(
     """Create a new data retention policy."""
     try:
         from pynomaly.domain.entities.compliance import DataRetentionPolicy
-        
+
         policy = DataRetentionPolicy(
             id="",  # Will be set by service
             name=request.name,
@@ -304,12 +304,12 @@ async def create_retention_policy(
             auto_delete=request.auto_delete,
             archive_before_delete=request.archive_before_delete
         )
-        
+
         created_policy = await compliance_service.create_retention_policy(
             policy=policy,
             user_id=UserId(current_user.id)
         )
-        
+
         return RetentionPolicyResponse(
             id=created_policy.id,
             name=created_policy.name,
@@ -340,7 +340,7 @@ async def apply_retention_policies(
     """Apply all active retention policies for a tenant."""
     try:
         results = await compliance_service.apply_retention_policies(TenantId(str(tenant_id)))
-        
+
         return {
             "message": "Retention policies applied successfully",
             "deleted_records": results["deleted_records"],
@@ -372,7 +372,7 @@ async def create_gdpr_request(
             request_details=request.request_details,
             submitted_by=UserId(current_user.id)
         )
-        
+
         return GDPRRequestResponse(
             id=gdpr_request.id,
             request_type=gdpr_request.request_type,
@@ -409,11 +409,11 @@ async def process_gdpr_request(
             processor_id=UserId(current_user.id),
             response_data=request.response_data
         )
-        
+
         # Update notes if provided
         if request.notes:
             processed_request.notes = request.notes
-        
+
         return GDPRRequestResponse(
             id=processed_request.id,
             request_type=processed_request.request_type,
@@ -444,7 +444,7 @@ async def get_overdue_gdpr_requests(
     """Get GDPR requests that are overdue."""
     try:
         overdue_requests = await compliance_service.get_overdue_gdpr_requests(TenantId(str(tenant_id)))
-        
+
         return [
             GDPRRequestResponse(
                 id=req.id,
@@ -484,7 +484,7 @@ async def run_compliance_check(
             framework=framework,
             user_id=UserId(current_user.id)
         )
-        
+
         findings = [
             ComplianceCheckResponse(
                 id=check.id,
@@ -501,7 +501,7 @@ async def run_compliance_check(
             )
             for check in report.findings
         ]
-        
+
         return ComplianceReportResponse(
             id=report.id,
             report_type=report.report_type,
@@ -545,7 +545,7 @@ async def create_encryption_key(
             purpose=request.purpose,
             user_id=UserId(current_user.id)
         )
-        
+
         return EncryptionKeyResponse(
             id=key.id,
             key_name=key.key_name,
@@ -576,7 +576,7 @@ async def rotate_encryption_keys(
             tenant_id=TenantId(str(tenant_id)),
             user_id=UserId(current_user.id)
         )
-        
+
         return {
             "message": "Encryption key rotation completed",
             "rotated_keys": rotated_count
@@ -606,7 +606,7 @@ async def create_backup_record(
             encryption_key_id=request.encryption_key_id,
             user_id=UserId(current_user.id)
         )
-        
+
         return BackupRecordResponse(
             id=backup.id,
             backup_type=backup.backup_type,
@@ -643,21 +643,21 @@ async def get_compliance_dashboard(
             start_date=datetime.utcnow() - timedelta(days=7),
             limit=100
         )
-        
+
         # Get high-risk events
         high_risk_events = await compliance_service.get_high_risk_events(
             tenant_id=TenantId(str(tenant_id)),
             days=7
         )
-        
+
         # Get overdue GDPR requests
         overdue_gdpr = await compliance_service.get_overdue_gdpr_requests(TenantId(str(tenant_id)))
-        
+
         # Calculate summary statistics
         total_events = len(recent_events)
         high_risk_count = len(high_risk_events)
         failed_events = len([e for e in recent_events if e.outcome == "failure"])
-        
+
         return {
             "summary": {
                 "total_audit_events_7_days": total_events,

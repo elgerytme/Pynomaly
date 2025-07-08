@@ -82,11 +82,11 @@ try:
     # Test basic Python functionality first
     import sys, os
     print('✓ Basic Python imports working')
-    
+
     # Test if required packages are available
     required_packages = ['fastapi', 'uvicorn', 'pydantic', 'dependency_injector', 'pandas', 'numpy', 'sklearn']
     missing_packages = []
-    
+
     for package in required_packages:
         try:
             __import__(package)
@@ -94,15 +94,15 @@ try:
         except ImportError:
             missing_packages.append(package)
             print(f'✗ {package} not available')
-    
+
     if missing_packages:
         print(f'⚠️  Missing packages: {missing_packages}')
         print('⚠️  Cannot test full functionality, but testing core imports...')
-    
+
     # Test pynomaly imports
     from pynomaly.presentation.web.app import create_web_app
     print('✓ Pynomaly import successful in fresh environment')
-    
+
 except Exception as e:
     print('✗ Import failed in fresh environment:', e)
     import traceback
@@ -127,20 +127,20 @@ try:
     app = create_web_app()
     print('✓ App creation successful in fresh environment')
     print('✓ Routes count:', len(app.routes))
-    
+
     # Test that both API and web routes are present
     api_routes = [r for r in app.routes if str(r.path).startswith('/api')]
     web_routes = [r for r in app.routes if str(r.path).startswith('/web')]
-    
+
     print(f'✓ API routes: {len(api_routes)}')
     print(f'✓ Web routes: {len(web_routes)}')
-    
+
     if len(api_routes) > 0 and len(web_routes) > 0:
         print('✓ Both API and Web UI routes present')
     else:
         print('✗ Missing API or Web UI routes')
         exit(1)
-        
+
 except Exception as e:
     print('✗ App creation failed in fresh environment:', e)
     import traceback

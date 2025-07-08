@@ -610,7 +610,7 @@ class DataValidator:
             col_data = df[col].dropna().astype(str)
 
             for pii_type, pattern in pii_patterns.items():
-                matches = col_data.str.contains(pattern, regex=True, na=False).sum()
+                matches = col_data.str.contains(pattern, pattern=True, na=False).sum()
 
                 if matches > 0:
                     issues.append(

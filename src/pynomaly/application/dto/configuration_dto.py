@@ -58,7 +58,7 @@ class ExportFormat(str, Enum):
 class AlgorithmConfigurationDTO(BaseModel):
     """DTO for algorithm configuration."""
 
-    model_config = ConfigDict(from_attributes=True)
+model_config = ConfigDict(from_attributes=True, json_schema_extra={})
 
     algorithm_name: str = Field(..., description="Name of the algorithm")
     algorithm_family: str = Field(..., description="Algorithm family")
@@ -102,7 +102,7 @@ class ConfigurationLevel(str, Enum):
 class DatasetConfigDTO(BaseModel):
     """Configuration for dataset handling."""
 
-    model_config = ConfigDict(from_attributes=True)
+model_config = ConfigDict(from_attributes=True, json_schema_extra={})
 
     # Dataset identification
     dataset_path: str | None = Field(default=None, description="Path to dataset file")
@@ -155,7 +155,7 @@ class DatasetConfigDTO(BaseModel):
 class AlgorithmConfigDTO(BaseModel):
     """Configuration for anomaly detection algorithms."""
 
-    model_config = ConfigDict(from_attributes=True)
+model_config = ConfigDict(from_attributes=True, json_schema_extra={})
 
     # Algorithm selection
     algorithm_name: str = Field(..., description="Algorithm name")
@@ -207,7 +207,7 @@ class AlgorithmConfigDTO(BaseModel):
 class PreprocessingConfigDTO(BaseModel):
     """Configuration for data preprocessing."""
 
-    model_config = ConfigDict(from_attributes=True)
+model_config = ConfigDict(from_attributes=True, json_schema_extra={})
 
     # Missing value handling
     missing_value_strategy: str | None = Field(
@@ -267,7 +267,7 @@ class PreprocessingConfigDTO(BaseModel):
 class EvaluationConfigDTO(BaseModel):
     """Configuration for model evaluation."""
 
-    model_config = ConfigDict(from_attributes=True)
+model_config = ConfigDict(from_attributes=True, json_schema_extra={})
 
     # Evaluation metrics
     primary_metric: str = Field(
@@ -319,7 +319,7 @@ class EvaluationConfigDTO(BaseModel):
 class EnvironmentConfigDTO(BaseModel):
     """Configuration for execution environment."""
 
-    model_config = ConfigDict(from_attributes=True)
+model_config = ConfigDict(from_attributes=True, json_schema_extra={})
 
     # Python environment
     python_version: str | None = Field(default=None, description="Python version")
@@ -360,7 +360,7 @@ class EnvironmentConfigDTO(BaseModel):
 class ConfigurationMetadataDTO(BaseModel):
     """Metadata for configuration tracking."""
 
-    model_config = ConfigDict(from_attributes=True)
+model_config = ConfigDict(from_attributes=True, json_schema_extra={})
 
     # Origin information
     created_by: str | None = Field(

@@ -650,7 +650,7 @@ class TestContainerIntegration:
             # Insert test data
             cursor.execute(
                 """
-                INSERT INTO test_detectors (name, algorithm) 
+                INSERT INTO test_detectors (name, algorithm)
                 VALUES (%s, %s)
             """,
                 ("Test Detector", "IsolationForest"),

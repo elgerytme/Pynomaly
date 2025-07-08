@@ -33,7 +33,7 @@ After conducting a comprehensive analysis of the Pynomaly codebase (409 Python f
 
 #### 1. Deep Learning Integrations (95% Missing)
 
-**PyTorch Integration**: 
+**PyTorch Integration**:
 - Only stub files exist (`pytorch_stub.py`)
 - No actual PyTorch model implementations
 - AutoEncoder, VAE, LSTM classes throw `ImportError`

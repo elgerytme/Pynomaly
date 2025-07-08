@@ -43,9 +43,9 @@ class TestCoverageGate:
             "covered_lines": 8550,
             "excluded_lines": 500
         }
-        
+
         result = coverage_gate.validate_coverage(coverage_report)
-        
+
         assert result["passed"] is True
         assert result["line_coverage_passed"] is True
         assert result["branch_coverage_passed"] is True
@@ -59,9 +59,9 @@ class TestCoverageGate:
             "branch_coverage": 80.0,
             "function_coverage": 90.0
         }
-        
+
         result = coverage_gate.validate_coverage(low_line_coverage)
-        
+
         assert result["passed"] is False
         assert result["line_coverage_passed"] is False
         assert "Line coverage" in result["failure_reasons"]
@@ -74,9 +74,9 @@ class TestCoverageGate:
             {"date": "2024-01-03", "line_coverage": 82.0},
             {"date": "2024-01-04", "line_coverage": 85.0}
         ]
-        
+
         trend_analysis = coverage_gate.analyze_coverage_trend(historical_coverage)
-        
+
         assert trend_analysis["trend"] == "improving"
         assert trend_analysis["improvement_rate"] > 0
         assert trend_analysis["meets_trend_target"] is True
@@ -88,15 +88,15 @@ class TestCoverageGate:
             "covered_lines": 8200,
             "total_lines": 10000
         }
-        
+
         pr_coverage = {
             "line_coverage": 83.5,
             "covered_lines": 8350,
             "total_lines": 10000
         }
-        
+
         diff_analysis = coverage_gate.analyze_coverage_diff(base_coverage, pr_coverage)
-        
+
         assert diff_analysis["coverage_improved"] is True
         assert diff_analysis["coverage_delta"] == 1.5
         assert diff_analysis["new_lines_covered"] == 150
@@ -109,9 +109,9 @@ class TestCoverageGate:
             "tests/test_entities.py",  # Should be excluded
             "src/pynomaly/migrations/001_initial.py"  # Should be excluded
         ]
-        
+
         filtered_files = coverage_gate.apply_exclusion_patterns(files_to_analyze)
-        
+
         assert "src/pynomaly/domain/entities.py" in filtered_files
         assert "src/pynomaly/application/services.py" in filtered_files
         assert "tests/test_entities.py" not in filtered_files
@@ -139,9 +139,9 @@ class TestPerformanceGate:
             "p99_response_time_ms": 495,
             "max_response_time_ms": 500
         }
-        
+
         result = performance_gate.validate_response_time(performance_metrics)
-        
+
         assert result["passed"] is True
         assert result["avg_response_time_ok"] is True
         assert result["p95_response_time_ok"] is True
@@ -154,9 +154,9 @@ class TestPerformanceGate:
             "memory_leak_detected": False,
             "gc_frequency": 10  # per minute
         }
-        
+
         result = performance_gate.validate_memory_usage(memory_metrics)
-        
+
         assert result["passed"] is True
         assert result["peak_memory_ok"] is True
         assert result["memory_leak_ok"] is True
@@ -169,9 +169,9 @@ class TestPerformanceGate:
             "max_throughput_rps": 180,
             "throughput_consistency": 0.95
         }
-        
+
         result = performance_gate.validate_throughput(throughput_metrics)
-        
+
         assert result["passed"] is True
         assert result["min_throughput_ok"] is True
         assert result["throughput_consistent"] is True
@@ -186,9 +186,9 @@ class TestPerformanceGate:
             "throughput_rps": 120,
             "memory_usage_mb": 800
         }
-        
+
         result = performance_gate.validate_load_test(load_test_results)
-        
+
         assert result["overall_passed"] is True
         assert result["response_time_passed"] is True
         assert result["error_rate_passed"] is True
@@ -201,15 +201,15 @@ class TestPerformanceGate:
             "throughput_rps": 150,
             "memory_usage_mb": 600
         }
-        
+
         current_metrics = {
             "avg_response_time_ms": 450,  # 50% increase
             "throughput_rps": 120,        # 20% decrease
             "memory_usage_mb": 800        # 33% increase
         }
-        
+
         regression_analysis = performance_gate.detect_regression(baseline_metrics, current_metrics)
-        
+
         assert regression_analysis["regression_detected"] is True
         assert "response_time" in regression_analysis["regressions"]
         assert "throughput" in regression_analysis["regressions"]
@@ -246,9 +246,9 @@ class TestSecurityGate:
                 }
             ]
         }
-        
+
         result = security_gate.validate_vulnerabilities(scan_results)
-        
+
         assert result["passed"] is True
         assert result["critical_ok"] is True
         assert result["high_ok"] is True
@@ -266,9 +266,9 @@ class TestSecurityGate:
             ],
             "license_issues": []
         }
-        
+
         result = security_gate.validate_dependencies(dependency_scan)
-        
+
         assert result["vulnerable_dependencies_count"] == 1
         assert result["high_risk_outdated"] == 1
         assert len(result["action_required"]) > 0
@@ -293,9 +293,9 @@ class TestSecurityGate:
                 }
             ]
         }
-        
+
         result = security_gate.validate_secrets(secrets_scan)
-        
+
         assert result["passed"] is False
         assert result["exposed_secrets_count"] == 1
         assert "API key found" in result["failure_reasons"]
@@ -310,9 +310,9 @@ class TestSecurityGate:
             "authentication_security": "strong",
             "encryption_usage": "adequate"
         }
-        
+
         result = security_gate.validate_code_security(security_analysis)
-        
+
         assert result["sql_injection_ok"] is True
         assert result["input_validation_ok"] is True
         assert result["authentication_ok"] is True
@@ -327,9 +327,9 @@ class TestSecurityGate:
             "access_controls": True,
             "privacy_controls": True
         }
-        
+
         result = security_gate.validate_compliance(compliance_check)
-        
+
         assert result["overall_compliant"] is True
         assert all(result[key] for key in compliance_check.keys())
 
@@ -363,9 +363,9 @@ class TestCodeQualityGate:
                 "max": 15
             }
         }
-        
+
         result = code_quality_gate.validate_complexity(complexity_metrics)
-        
+
         assert result["passed"] is False  # Max complexity 12 > threshold 10
         assert result["functions_over_threshold"] == 1
 
@@ -381,9 +381,9 @@ class TestCodeQualityGate:
             "lines_of_code": 2500,
             "comment_ratio": 0.15
         }
-        
+
         result = code_quality_gate.validate_maintainability(maintainability_metrics)
-        
+
         assert result["passed"] is True
         assert result["maintainability_index_ok"] is True
         assert result["comment_ratio_adequate"] is True
@@ -401,9 +401,9 @@ class TestCodeQualityGate:
             ],
             "clone_classes": 5
         }
-        
+
         result = code_quality_gate.validate_duplication(duplication_analysis)
-        
+
         assert result["passed"] is True  # 3.2% < 5% threshold
         assert result["duplication_percentage_ok"] is True
 
@@ -417,9 +417,9 @@ class TestCodeQualityGate:
                 {"function": "legacy_function", "file": "src/legacy.py", "line": 42}
             ]
         }
-        
+
         result = code_quality_gate.validate_type_hints(type_hints_analysis)
-        
+
         assert result["coverage_percentage"] == 90.0
         assert result["missing_hints_count"] == 1
 
@@ -433,9 +433,9 @@ class TestCodeQualityGate:
                 {"function": "helper_function", "file": "src/utils.py", "line": 123}
             ]
         }
-        
+
         result = code_quality_gate.validate_docstrings(docstring_analysis)
-        
+
         assert result["coverage_percentage"] == 87.5
         assert result["missing_docstrings_count"] == 1
 
@@ -461,7 +461,7 @@ class TestCICDIntegration:
                 }
             }
         }
-        
+
         # Verify workflow structure
         assert "quality-gates" in github_workflow["jobs"]
         assert len(github_workflow["jobs"]["quality-gates"]["steps"]) >= 4
@@ -502,7 +502,7 @@ class TestCICDIntegration:
             }
         }
         """
-        
+
         # Verify pipeline contains quality gates
         assert "Coverage Gate" in jenkins_pipeline
         assert "Security Gate" in jenkins_pipeline
@@ -517,7 +517,7 @@ class TestCICDIntegration:
             "head_branch": "feature/new-feature",
             "commit_sha": "abc123def456"
         }
-        
+
         # Mock quality gate results
         gate_results = {
             "coverage_gate": {"passed": True, "score": 85.5},
@@ -525,18 +525,18 @@ class TestCICDIntegration:
             "security_gate": {"passed": True, "vulnerabilities": 0},
             "code_quality_gate": {"passed": True, "complexity": 8.2}
         }
-        
+
         # Simulate CI/CD decision logic
         overall_passed = all(result["passed"] for result in gate_results.values())
-        
+
         assert overall_passed is False
-        
+
         # Should block merge for PR
         if ci_environment["is_pull_request"] and not overall_passed:
             merge_blocked = True
         else:
             merge_blocked = False
-        
+
         assert merge_blocked is True
 
     def test_deployment_gate_validation(self):
@@ -549,10 +549,10 @@ class TestCICDIntegration:
             "rollback_plan_ready": True,
             "monitoring_configured": True
         }
-        
+
         # Check deployment readiness
         deployment_ready = all(deployment_criteria.values())
-        
+
         assert deployment_ready is True
 
     def test_quality_metrics_reporting(self):
@@ -582,13 +582,13 @@ class TestCICDIntegration:
                 "trend": "stable"
             }
         }
-        
+
         # Verify metrics structure
         assert "coverage" in quality_metrics
         assert "performance" in quality_metrics
         assert "security" in quality_metrics
         assert "code_quality" in quality_metrics
-        
+
         # Calculate overall quality score
         scores = [
             quality_metrics["coverage"]["line_coverage"],
@@ -596,7 +596,7 @@ class TestCICDIntegration:
             max(100 - quality_metrics["security"]["vulnerabilities"] * 10, 0),
             quality_metrics["code_quality"]["maintainability_index"]
         ]
-        
+
         overall_quality_score = sum(scores) / len(scores)
         assert 0 <= overall_quality_score <= 100
 
@@ -628,7 +628,7 @@ class TestQualityGateConfiguration:
                 "enforce_type_hints": True
             }
         }
-        
+
         # Verify configuration structure
         assert "coverage" in config
         assert "performance" in config
@@ -654,11 +654,11 @@ class TestQualityGateConfiguration:
                 "security_level": "maximum"
             }
         }
-        
+
         # Test configuration selection
         current_env = "production"
         config = configurations[current_env]
-        
+
         assert config["coverage_threshold"] == 85.0
         assert config["security_level"] == "maximum"
 
@@ -671,14 +671,14 @@ class TestQualityGateConfiguration:
             "approval_required": True,
             "expiry_time": datetime.now() + timedelta(hours=24)
         }
-        
+
         # Simulate approval process
         approver = "tech_lead@company.com"
         approved = True
-        
+
         if approved and override_request["expiry_time"] > datetime.now():
             override_valid = True
         else:
             override_valid = False
-        
+
         assert override_valid is True

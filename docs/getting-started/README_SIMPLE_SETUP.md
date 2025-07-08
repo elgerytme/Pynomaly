@@ -115,7 +115,7 @@ import asyncio
 async def main():
     # Initialize container
     container = create_container()
-    
+
     # Create detector
     detector = Detector(
         name="IForest Detector",
@@ -123,7 +123,7 @@ async def main():
         parameters={"contamination": 0.1}
     )
     container.detector_repository().save(detector)
-    
+
     # Load dataset
     data = pd.DataFrame({
         'feature1': [1, 2, 3, 4, 100],  # 100 is an outlier
@@ -131,11 +131,11 @@ async def main():
     })
     dataset = Dataset(name="My Data", data=data)
     container.dataset_repository().save(dataset)
-    
+
     # Train and detect
     detection_service = container.detection_service()
     result = await detection_service.train_and_detect(detector.id, dataset)
-    
+
     print(f"Found {result.anomaly_count} anomalies")
 
 # Run the example

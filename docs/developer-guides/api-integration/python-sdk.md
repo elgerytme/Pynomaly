@@ -34,30 +34,30 @@ import pandas as pd
 async def main():
     # Initialize Pynomaly
     pynomaly = Pynomaly()
-    
+
     # Load data
     data = pd.DataFrame({
         'feature_1': [1, 2, 3, 100],  # 100 is anomaly
         'feature_2': [1, 2, 3, 200]   # 200 is anomaly
     })
-    
+
     # Create dataset
     dataset = await pynomaly.datasets.create_from_dataframe(
         data, name="sample_data"
     )
-    
+
     # Create and train detector
     detector = await pynomaly.detectors.create(
         name="fraud_detector",
         algorithm="IsolationForest",
         contamination_rate=0.25
     )
-    
+
     await detector.fit(dataset)
-    
+
     # Detect anomalies
     result = await detector.predict(dataset)
-    
+
     print(f"Found {len(result.anomalies)} anomalies")
     for anomaly in result.anomalies:
         print(f"  Index {anomaly.index}: score {anomaly.score.value:.3f}")
@@ -107,7 +107,7 @@ data = pd.DataFrame({
 })
 
 dataset = await pynomaly.datasets.create_from_dataframe(
-    data, 
+    data,
     name="transactions",
     description="Credit card transactions"
 )
@@ -250,7 +250,7 @@ for adapter, algos in algorithms.items():
 
 # Get algorithm details
 info = await pynomaly.detectors.get_algorithm_info(
-    "IsolationForest", 
+    "IsolationForest",
     adapter="pyod"
 )
 print(f"Description: {info['description']}")
@@ -314,7 +314,7 @@ for anomaly in result.anomalies:
     print(f"Index: {anomaly.index}")
     print(f"Score: {anomaly.score.value:.3f}")
     print(f"Severity: {anomaly.get_severity()}")
-    
+
     if anomaly.timestamp:
         print(f"Timestamp: {anomaly.timestamp}")
 ```
@@ -328,7 +328,7 @@ async for batch_result in detector.predict_batch(
     batch_size=1000
 ):
     print(f"Batch anomalies: {len(batch_result.anomalies)}")
-    
+
     # Process anomalies immediately
     for anomaly in batch_result.anomalies:
         await send_alert(anomaly)
@@ -565,7 +565,7 @@ from pynomaly.domain.entities import Detector
 
 class CustomDetector(Detector):
     """Custom anomaly detector implementation."""
-    
+
     def __init__(self, **kwargs):
         super().__init__(
             name="CustomDetector",
@@ -573,21 +573,21 @@ class CustomDetector(Detector):
             **kwargs
         )
         self.threshold = 0.5
-    
+
     async def fit(self, dataset):
         """Train the custom detector."""
         # Implementation here
         self._is_fitted = True
-    
+
     async def predict(self, dataset):
         """Predict anomalies."""
         if not self._is_fitted:
             raise DetectorNotFittedError("Must fit before predict")
-        
+
         # Custom prediction logic
         anomalies = []
         # ... detection implementation
-        
+
         return DetectionResult(
             detector_id=self.id,
             dataset_id=dataset.id,
@@ -618,15 +618,15 @@ async def process_kafka_stream():
         output_topic="anomalies",
         detector=detector
     )
-    
+
     # Define processing logic
     async def process_message(message):
         data = json.loads(message.value)
         result = await detector.predict_single(data)
-        
+
         if result.is_anomaly:
             await send_to_kafka("anomalies", result.to_json())
-    
+
     # Start processing
     await processor.start(process_message)
 
@@ -686,27 +686,27 @@ settings = Settings(
     storage_path="./data",
     model_storage_path="./models",
     experiment_storage_path="./experiments",
-    
+
     # Database configuration
     database_url="postgresql://user:pass@localhost/pynomaly",
-    
+
     # API configuration
     api_host="localhost",
     api_port=8000,
     api_cors_enabled=True,
-    
+
     # Caching
     redis_url="redis://localhost:6379",
     cache_ttl=300,
-    
+
     # Logging
     log_level="INFO",
     log_file="./logs/pynomaly.log",
-    
+
     # Performance
     connection_pool_size=10,
     query_cache_size=1000,
-    
+
     # Default algorithm parameters
     default_contamination_rate=0.1,
     default_random_state=42

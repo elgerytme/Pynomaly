@@ -231,7 +231,7 @@ class StreamingDetectionService:
 
         # Sample sequence counter
         self._sequence_counter = 0
-        
+
         # Detection result callbacks
         self._detection_callbacks: List[Callable[[StreamingResult], None]] = []
 
@@ -462,30 +462,30 @@ class StreamingDetectionService:
                 datetime.utcnow() - metrics.stream_start_time
             ).total_seconds(),
         }
-    
+
     def register_detection_callback(self, callback: Callable[[StreamingResult], None]) -> None:
         """Register a callback for detection results.
-        
+
         Args:
             callback: Function to call when detection results are available
         """
         if callback not in self._detection_callbacks:
             self._detection_callbacks.append(callback)
             self.logger.info(f"Registered detection callback: {callback.__name__}")
-    
+
     def unregister_detection_callback(self, callback: Callable[[StreamingResult], None]) -> None:
         """Unregister a detection result callback.
-        
+
         Args:
             callback: Function to remove from callbacks
         """
         if callback in self._detection_callbacks:
             self._detection_callbacks.remove(callback)
             self.logger.info(f"Unregistered detection callback: {callback.__name__}")
-    
+
     async def _notify_detection_callbacks(self, result: StreamingResult) -> None:
         """Notify all registered callbacks of detection results.
-        
+
         Args:
             result: Detection result to send to callbacks
         """

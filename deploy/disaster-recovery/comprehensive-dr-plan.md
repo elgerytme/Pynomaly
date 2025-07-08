@@ -172,7 +172,7 @@ aws rds describe-db-instances --db-instance-identifier pynomaly-prod
    ```bash
    # Check AWS Service Health Dashboard
    curl -s https://status.aws.amazon.com/data.json | jq '.page.status'
-   
+
    # Verify cross-region connectivity
    aws ec2 describe-regions --region us-east-1
    ```
@@ -181,7 +181,7 @@ aws rds describe-db-instances --db-instance-identifier pynomaly-prod
    ```bash
    # Switch to DR region
    export AWS_DEFAULT_REGION=us-east-1
-   
+
    # Update kubeconfig for DR cluster
    aws eks update-kubeconfig --region us-east-1 --name pynomaly-dr
    ```
@@ -198,7 +198,7 @@ aws rds describe-db-instances --db-instance-identifier pynomaly-prod
    ```bash
    # Deploy to DR environment
    kubectl apply -f deploy/kubernetes/dr-deployment.yaml
-   
+
    # Update DNS to point to DR region
    aws route53 change-resource-record-sets \
      --hosted-zone-id Z123456789 \
@@ -209,7 +209,7 @@ aws rds describe-db-instances --db-instance-identifier pynomaly-prod
    ```bash
    # Health checks
    curl -f https://api.pynomaly.io/health
-   
+
    # Functional tests
    python scripts/testing/test_dr_functionality.py
    ```
@@ -239,7 +239,7 @@ aws rds describe-db-instances --db-instance-identifier pynomaly-prod
    # Stop all write operations
    kubectl scale deployment pynomaly-api --replicas=0
    kubectl scale deployment pynomaly-worker --replicas=0
-   
+
    # Enable read-only mode
    aws rds modify-db-instance \
      --db-instance-identifier pynomaly-prod \
@@ -252,7 +252,7 @@ aws rds describe-db-instances --db-instance-identifier pynomaly-prod
    -- Check database integrity
    SELECT pg_database.datname, pg_database_size(pg_database.datname)
    FROM pg_database;
-   
+
    -- Run corruption checks
    SELECT schemaname, tablename, attname, n_distinct, correlation
    FROM pg_stats WHERE schemaname = 'public';
@@ -265,7 +265,7 @@ aws rds describe-db-instances --db-instance-identifier pynomaly-prod
      --db-instance-identifier pynomaly-prod \
      --snapshot-type automated \
      --max-items 10
-   
+
    # Restore to new instance
    aws rds restore-db-instance-from-db-snapshot \
      --db-instance-identifier pynomaly-prod-restored \
@@ -299,7 +299,7 @@ aws rds describe-db-instances --db-instance-identifier pynomaly-prod
    # Isolate affected systems
    kubectl delete networkpolicy --all -n pynomaly-production
    kubectl apply -f security/incident-isolation-policy.yaml
-   
+
    # Revoke all active sessions
    kubectl delete secret pynomaly-jwt-secret
    kubectl create secret generic pynomaly-jwt-secret --from-literal=key=$(openssl rand -base64 32)
@@ -311,7 +311,7 @@ aws rds describe-db-instances --db-instance-identifier pynomaly-prod
    aws rds create-db-snapshot \
      --db-instance-identifier pynomaly-prod \
      --db-snapshot-identifier forensic-$(date +%Y%m%d-%H%M%S)
-   
+
    # Capture system state
    kubectl get events --all-namespaces > incident-events.log
    kubectl logs -n pynomaly-production --all-containers=true > incident-logs.log
@@ -334,12 +334,12 @@ alarms:
     metric: "DatabaseConnections"
     threshold: 300  # 5 minutes
     comparison: "GreaterThanThreshold"
-    
+
   - name: "DR-Cross-Region-Replication"
     metric: "ReplicationLag"
     threshold: 600  # 10 minutes
     comparison: "GreaterThanThreshold"
-    
+
   - name: "DR-Backup-Failure"
     metric: "BackupJobFailed"
     threshold: 1

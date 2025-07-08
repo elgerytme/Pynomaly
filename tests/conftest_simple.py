@@ -31,19 +31,19 @@ def sample_data():
     np.random.seed(42)
     n_samples = 1000
     n_features = 5
-    
+
     # Normal data
     normal_data = np.random.randn(n_samples - 50, n_features)
-    
+
     # Anomalies (5% contamination)
     anomalies = np.random.randn(50, n_features) * 3 + 5
-    
+
     # Combine
     data = np.vstack([normal_data, anomalies])
     labels = np.array([0] * (n_samples - 50) + [1] * 50)
-    
+
     # Create DataFrame
     df = pd.DataFrame(data, columns=[f"feature_{i}" for i in range(n_features)])
     df["label"] = labels
-    
+
     return df

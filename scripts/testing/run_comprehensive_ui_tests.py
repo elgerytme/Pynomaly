@@ -685,7 +685,7 @@ class ComprehensiveUITestRunner:
 </head>
 <body>
     <h1>Pynomaly Comprehensive UI Test Report</h1>
-    
+
     <div class="summary">
         <h2>Executive Summary</h2>
         <p><strong>Total Test Categories:</strong> {summary['total_categories']}</p>

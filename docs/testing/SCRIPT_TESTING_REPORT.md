@@ -28,7 +28,7 @@ configuration error: `project.license` must be valid exactly by one definition
 
 **Root Cause**: License field in `pyproject.toml` was specified as simple string `"MIT"` instead of required object format per PEP 621.
 
-**Fix Applied**: 
+**Fix Applied**:
 - Changed `license = "MIT"` to `license = {text = "MIT"}` in `/pyproject.toml`
 - This conforms to PEP 621 packaging standards
 
@@ -66,7 +66,7 @@ configuration error: `project.license` must be valid exactly by one definition
 ### ✅ PASSING SCRIPTS (10/12 - 83.3%)
 
 1. `test_setup.py` ✅
-2. `scripts/cli.py` ✅ 
+2. `scripts/cli.py` ✅
 3. `scripts/run_api.py` ✅
 4. `scripts/run_app.py` ✅
 5. `scripts/run_cli.py` ✅

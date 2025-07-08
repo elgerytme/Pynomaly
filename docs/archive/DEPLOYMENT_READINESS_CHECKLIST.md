@@ -175,15 +175,15 @@ import time
 
 async def test_autonomous_endpoint():
     """Test autonomous detection endpoint performance."""
-    
+
     # Create test data
     test_data = "feature1,feature2\n1,2\n3,4\n100,200\n"
-    
+
     async with aiohttp.ClientSession() as session:
         # Test multiple concurrent requests
         tasks = []
         start_time = time.time()
-        
+
         for i in range(10):  # 10 concurrent requests
             task = session.post(
                 'http://localhost:8000/api/autonomous/detect',
@@ -191,12 +191,12 @@ async def test_autonomous_endpoint():
                 data={'file': test_data}
             )
             tasks.append(task)
-        
+
         responses = await asyncio.gather(*tasks)
         end_time = time.time()
-        
+
         success_count = sum(1 for r in responses if r.status == 200)
-        
+
         print(f"Load test results:")
         print(f"  Requests: {len(tasks)}")
         print(f"  Successful: {success_count}")
@@ -468,10 +468,10 @@ groups:
    ```bash
    # Run complete test suite
    poetry run pytest tests/ -v
-   
+
    # Validate all autonomous features
    poetry run python scripts/demo_autonomous_enhancements.py
-   
+
    # Load test the API
    # Run performance validation script
    ```
@@ -480,10 +480,10 @@ groups:
    ```bash
    # Deploy to production environment
    docker-compose up -d
-   
+
    # Verify health
    curl http://production-host/api/health/
-   
+
    # Smoke test autonomous detection
    curl -X POST -F "file=@sample.csv" http://production-host/api/autonomous/detect
    ```
@@ -492,7 +492,7 @@ groups:
    ```bash
    # Monitor logs for errors
    tail -f /var/log/pynomaly/app.log
-   
+
    # Check metrics dashboard
    # Verify alerting rules trigger correctly
    # Confirm all features work as expected

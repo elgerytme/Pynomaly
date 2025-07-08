@@ -66,13 +66,13 @@ class ImpactAnalysisResult:
 
 class Buck2ImpactAnalyzer:
     """Analyzes the impact of changes and recommends testing strategies."""
-    
+
     def __init__(self, repo_root: Path = None):
         self.repo_root = repo_root or Path.cwd()
         self.change_detector = Buck2ChangeDetector(repo_root)
         self.test_runner = Buck2IncrementalTestRunner(repo_root)
         self.git_integration = Buck2GitIntegration(repo_root)
-        
+
         # Component categorization
         self.component_categories = {
             "critical": {
@@ -99,7 +99,7 @@ class Buck2ImpactAnalyzer:
                 "tests/",
             }
         }
-        
+
         # Risk multipliers for different file types
         self.risk_multipliers = {
             ".py": 1.0,
@@ -111,35 +111,35 @@ class Buck2ImpactAnalyzer:
             ".toml": 0.4,
             ".cfg": 0.3,
         }
-    
+
     def calculate_component_metrics(self, file_path: str) -> ComponentMetrics:
         """Calculate metrics for a component based on file path."""
         try:
             # Get lines of code
             loc = 0
             complexity = 0.0
-            
+
             if Path(file_path).exists():
                 with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                     lines = f.readlines()
                     loc = len([line for line in lines if line.strip() and not line.strip().startswith('#')])
-                    
+
                     # Simple complexity estimation
                     complexity_keywords = ['if', 'elif', 'else', 'for', 'while', 'try', 'except', 'with', 'def', 'class']
                     for line in lines:
                         for keyword in complexity_keywords:
                             if keyword in line:
                                 complexity += 0.5
-            
+
             # Get change frequency from git
             change_frequency = self._get_change_frequency(file_path)
-            
+
             # Estimate test coverage (simplified)
             test_coverage = self._estimate_test_coverage(file_path)
-            
+
             # Get dependencies
             dependencies, dependents = self._analyze_dependencies(file_path)
-            
+
             return ComponentMetrics(
                 lines_of_code=loc,
                 complexity=complexity,
@@ -160,7 +160,7 @@ class Buck2ImpactAnalyzer:
                 dependencies=set(),
                 dependents=set()
             )
-    
+
     def _get_change_frequency(self, file_path: str) -> int:
         """Get the frequency of changes to a file from git history."""
         try:
@@ -170,7 +170,7 @@ class Buck2ImpactAnalyzer:
             return len(result.stdout.strip().split('\n')) if result.stdout.strip() else 0
         except subprocess.CalledProcessError:
             return 0
-    
+
     def _estimate_test_coverage(self, file_path: str) -> float:
         """Estimate test coverage for a file (simplified approach)."""
         # Look for corresponding test files
@@ -179,30 +179,30 @@ class Buck2ImpactAnalyzer:
             file_path.replace("src/", "tests/test_").replace(".py", ".py"),
             file_path.replace("src/pynomaly/", "tests/").replace(".py", "_test.py"),
         ]
-        
+
         for test_pattern in test_patterns:
             if Path(test_pattern).exists():
                 # Simple heuristic: if test file exists, assume 70% coverage
                 return 0.7
-        
+
         return 0.0  # No test file found
-    
+
     def _analyze_dependencies(self, file_path: str) -> Tuple[Set[str], Set[str]]:
         """Analyze dependencies and dependents for a file."""
         dependencies = set()
         dependents = set()
-        
+
         if not Path(file_path).exists() or not file_path.endswith('.py'):
             return dependencies, dependents
-        
+
         try:
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                 content = f.read()
-                
+
                 # Find imports
-                import_lines = [line.strip() for line in content.split('\n') 
+                import_lines = [line.strip() for line in content.split('\n')
                               if line.strip().startswith(('import ', 'from '))]
-                
+
                 for line in import_lines:
                     if 'pynomaly' in line:
                         # Extract pynomaly modules
@@ -214,15 +214,15 @@ class Buck2ImpactAnalyzer:
                             dependencies.add(f"pynomaly.{module}")
         except Exception as e:
             logger.debug(f"Failed to analyze dependencies for {file_path}: {e}")
-        
+
         return dependencies, dependents
-    
+
     def assess_risk(self, change_analysis: ChangeAnalysis) -> ImpactRisk:
         """Assess the risk level of changes."""
         risk_score = 0.0
         risk_reasons = []
         affected_components = set()
-        
+
         for file_path in change_analysis.changed_files:
             # Determine component category
             component_risk = 0.0
@@ -243,44 +243,44 @@ class Buck2ImpactAnalyzer:
                 # Unknown component - assume medium risk
                 component_risk = 0.5
                 risk_reasons.append(f"Unknown component modified: {file_path}")
-            
+
             # Apply file type multiplier
             file_ext = Path(file_path).suffix
             multiplier = self.risk_multipliers.get(file_ext, 0.5)
             component_risk *= multiplier
-            
+
             # Get component metrics
             metrics = self.calculate_component_metrics(file_path)
-            
+
             # Adjust risk based on metrics
             if metrics.complexity > 10:
                 component_risk *= 1.3
                 risk_reasons.append(f"High complexity file: {file_path}")
-            
+
             if metrics.test_coverage < 0.5:
                 component_risk *= 1.2
                 risk_reasons.append(f"Low test coverage: {file_path}")
-            
+
             if metrics.change_frequency > 10:
                 component_risk *= 1.1
                 risk_reasons.append(f"Frequently changed file: {file_path}")
-            
+
             risk_score += component_risk
             affected_components.add(file_path)
-        
+
         # Normalize risk score
         if change_analysis.changed_files:
             risk_score /= len(change_analysis.changed_files)
-        
+
         # Additional risk factors
         if len(change_analysis.affected_targets) > 10:
             risk_score *= 1.2
             risk_reasons.append("Many targets affected")
-        
+
         if len(change_analysis.changed_files) > 20:
             risk_score *= 1.1
             risk_reasons.append("Many files changed")
-        
+
         # Determine risk level
         if risk_score >= 0.8:
             risk_level = "critical"
@@ -290,21 +290,21 @@ class Buck2ImpactAnalyzer:
             risk_level = "medium"
         else:
             risk_level = "low"
-        
+
         return ImpactRisk(
             level=risk_level,
             score=min(risk_score, 1.0),
             reasons=risk_reasons,
             affected_components=affected_components
         )
-    
+
     def recommend_test_strategy(self, change_analysis: ChangeAnalysis, risk: ImpactRisk) -> TestStrategy:
         """Recommend testing strategy based on change analysis and risk."""
         test_targets = set()
         build_targets = set()
         recommendations = []
         risk_factors = []
-        
+
         # Base strategy on risk level
         if risk.level == "critical":
             priority = "full"
@@ -317,7 +317,7 @@ class Buck2ImpactAnalyzer:
                 "Review changes with team before deployment",
                 "Run performance benchmarks"
             ])
-            
+
         elif risk.level == "high":
             priority = "comprehensive"
             test_targets = change_analysis.test_targets | {"test-integration", "security-tests"}
@@ -328,7 +328,7 @@ class Buck2ImpactAnalyzer:
                 "Review security implications",
                 "Consider running benchmarks"
             ])
-            
+
         elif risk.level == "medium":
             priority = "standard"
             test_targets = change_analysis.test_targets
@@ -338,12 +338,12 @@ class Buck2ImpactAnalyzer:
                 "Run standard incremental tests",
                 "Monitor for any unexpected failures"
             ])
-            
+
         else:  # low risk
             priority = "minimal"
             # Only run tests for directly affected components
-            test_targets = {t for t in change_analysis.test_targets 
-                          if any(f.startswith(("docs/", "examples/", "scripts/")) 
+            test_targets = {t for t in change_analysis.test_targets
+                          if any(f.startswith(("docs/", "examples/", "scripts/"))
                                 for f in change_analysis.changed_files)}
             build_targets = set()
             estimated_duration = 120  # 2 minutes
@@ -351,26 +351,26 @@ class Buck2ImpactAnalyzer:
                 "Minimal testing sufficient for low-risk changes",
                 "Consider running quick smoke tests"
             ])
-        
+
         # Additional recommendations based on specific changes
         if any(f.endswith(".py") for f in change_analysis.changed_files):
             recommendations.append("Python code changes detected - ensure lint/type checks pass")
-        
+
         if any("api" in f for f in change_analysis.changed_files):
             recommendations.append("API changes detected - run API contract tests")
             test_targets.add("test-presentation")
-        
+
         if any("database" in f.lower() or "persistence" in f for f in change_analysis.changed_files):
             recommendations.append("Database changes detected - run integration tests")
             test_targets.add("test-infrastructure")
-        
+
         # Risk factors
         if risk.score > 0.7:
             risk_factors.append("High risk score - thorough testing recommended")
-        
+
         if len(change_analysis.changed_files) > 10:
             risk_factors.append("Many files changed - increased complexity")
-        
+
         return TestStrategy(
             priority=priority,
             test_targets=test_targets,
@@ -379,25 +379,25 @@ class Buck2ImpactAnalyzer:
             risk_factors=risk_factors,
             recommendations=recommendations
         )
-    
+
     def analyze_impact(self, base_commit: str = "HEAD~1", target_commit: str = "HEAD") -> ImpactAnalysisResult:
         """Perform comprehensive impact analysis."""
         logger.info(f"Analyzing impact of changes from {base_commit} to {target_commit}")
-        
+
         # Get change analysis
         change_analysis = self.change_detector.analyze_changes(base_commit, target_commit)
-        
+
         # Assess risk
         risk_assessment = self.assess_risk(change_analysis)
-        
+
         # Calculate component metrics
         component_metrics = {}
         for file_path in change_analysis.changed_files:
             component_metrics[file_path] = self.calculate_component_metrics(file_path)
-        
+
         # Recommend test strategy
         test_strategy = self.recommend_test_strategy(change_analysis, risk_assessment)
-        
+
         # Generate metadata
         analysis_metadata = {
             "analysis_timestamp": subprocess.run(["date", "-Iseconds"], capture_output=True, text=True).stdout.strip(),
@@ -408,7 +408,7 @@ class Buck2ImpactAnalyzer:
             "recommended_priority": test_strategy.priority,
             "estimated_test_duration": test_strategy.estimated_duration,
         }
-        
+
         return ImpactAnalysisResult(
             change_analysis=change_analysis,
             risk_assessment=risk_assessment,
@@ -416,16 +416,16 @@ class Buck2ImpactAnalyzer:
             component_metrics=component_metrics,
             analysis_metadata=analysis_metadata
         )
-    
+
     def save_analysis(self, result: ImpactAnalysisResult, output_file: Path = None) -> Path:
         """Save impact analysis to JSON file."""
         if output_file is None:
             timestamp = int(time.time())
             output_file = self.repo_root / f"buck2_impact_analysis_{timestamp}.json"
-        
+
         # Prepare data for JSON serialization
         result_dict = asdict(result)
-        
+
         # Convert sets to lists
         def convert_sets(obj):
             if isinstance(obj, dict):
@@ -436,42 +436,42 @@ class Buck2ImpactAnalyzer:
                 return [convert_sets(item) for item in obj]
             else:
                 return obj
-        
+
         result_dict = convert_sets(result_dict)
-        
+
         with open(output_file, 'w') as f:
             json.dump(result_dict, f, indent=2)
-        
+
         logger.info(f"Impact analysis saved to {output_file}")
         return output_file
-    
+
     def print_analysis(self, result: ImpactAnalysisResult):
         """Print human-readable impact analysis."""
         print(f"\n=== Buck2 Impact Analysis ===")
         print(f"Commit range: {result.change_analysis.commit_range}")
         print(f"Files changed: {len(result.change_analysis.changed_files)}")
         print(f"Targets affected: {len(result.change_analysis.affected_targets)}")
-        
+
         print(f"\n=== Risk Assessment ===")
         print(f"Risk level: {result.risk_assessment.level.upper()}")
         print(f"Risk score: {result.risk_assessment.score:.2f}")
-        
+
         if result.risk_assessment.reasons:
             print("Risk factors:")
             for reason in result.risk_assessment.reasons[:5]:
                 print(f"  - {reason}")
-        
+
         print(f"\n=== Test Strategy ===")
         print(f"Priority: {result.test_strategy.priority}")
         print(f"Estimated duration: {result.test_strategy.estimated_duration / 60:.1f} minutes")
         print(f"Test targets: {len(result.test_strategy.test_targets)}")
         print(f"Build targets: {len(result.test_strategy.build_targets)}")
-        
+
         if result.test_strategy.test_targets:
             print("Tests to run:")
             for target in sorted(result.test_strategy.test_targets):
                 print(f"  - {target}")
-        
+
         if result.test_strategy.recommendations:
             print("Recommendations:")
             for rec in result.test_strategy.recommendations:
@@ -486,19 +486,19 @@ def main():
     parser.add_argument("--format", choices=["json", "summary"], default="summary", help="Output format")
     parser.add_argument("--run-tests", action="store_true", help="Run recommended tests after analysis")
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose logging")
-    
+
     args = parser.parse_args()
-    
+
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
-    
+
     # Initialize analyzer
     analyzer = Buck2ImpactAnalyzer()
-    
+
     try:
         # Analyze impact
         result = analyzer.analyze_impact(args.base, args.target)
-        
+
         # Output results
         if args.format == "json":
             output_file = args.output or Path("buck2_impact_analysis.json")
@@ -506,20 +506,20 @@ def main():
             print(f"Analysis saved to: {output_file}")
         else:
             analyzer.print_analysis(result)
-        
+
         # Run tests if requested
         if args.run_tests:
             print(f"\n=== Running Recommended Tests ===")
             summary = analyzer.test_runner.run_incremental_tests(
-                args.base, 
+                args.base,
                 args.target,
                 fail_fast=result.risk_assessment.level in ["high", "critical"]
             )
             analyzer.test_runner.print_summary(summary)
-            
+
             if summary.failed_targets > 0:
                 sys.exit(1)
-    
+
     except Exception as e:
         logger.error(f"Impact analysis failed: {e}")
         sys.exit(1)

@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Pre-commit hook to check if CHANGELOG.md needs to be updated
-# 
+#
 # This hook runs the changelog update checker and reminds developers
 # to update the changelog when making significant changes.
 #

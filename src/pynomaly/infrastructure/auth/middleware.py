@@ -145,7 +145,7 @@ async def get_current_active_user(
     """
     # Get settings
     settings = Settings()
-    
+
     # Check if auth is enabled and user is required
     if settings.auth_enabled and not current_user:
         raise HTTPException(

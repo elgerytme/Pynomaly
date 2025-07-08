@@ -1,6 +1,7 @@
 """Tests for explainable AI service."""
 
 import asyncio
+import sys
 import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -396,6 +397,43 @@ class TestExplainableAIService:
         )
 
     @pytest.mark.asyncio
+    async def test_import_without_shap_or_lime(self):
+        """Test importing the service without shap or lime."""
+        # Store original modules
+        original_shap = sys.modules.get('shap')
+        original_lime = sys.modules.get('lime')
+
+        try:
+            # Mock ImportError for shap and lime
+            with patch.dict('sys.modules', {'shap': None, 'lime': None}):
+                # Re-import the module to trigger the import checks
+                import importlib
+                import pynomaly.application.services.explainable_ai_service
+                importlib.reload(pynomaly.application.services.explainable_ai_service)
+
+                from pynomaly.application.services.explainable_ai_service import (
+                    ExplainableAIService,
+                    SHAP_AVAILABLE,
+                    LIME_AVAILABLE
+                )
+
+                # Check that flags are correctly set to False
+                assert not SHAP_AVAILABLE, "SHAP_AVAILABLE should be False"
+                assert not LIME_AVAILABLE, "LIME_AVAILABLE should be False"
+
+                # Service should still be creatable
+                service = ExplainableAIService(storage_path=Path(tempfile.gettempdir()))
+
+                # Should have at least the always-available methods
+                assert len(service.explanation_generators) >= 2  # PERMUTATION_IMPORTANCE and FEATURE_ABLATION
+
+        finally:
+            # Restore original modules
+            if original_shap is not None:
+                sys.modules['shap'] = original_shap
+            if original_lime is not None:
+                sys.modules['lime'] = original_lime
+
     async def test_unsupported_explanation_method(
         self, explainable_ai_service, trained_model, sample_data
     ):

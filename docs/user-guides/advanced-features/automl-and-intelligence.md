@@ -35,19 +35,19 @@ from pynomaly import AutonomousDetector
 detector = AutonomousDetector(
     # Algorithm selection strategy
     algorithm_selection="comprehensive",  # fast, balanced, comprehensive
-    
+
     # Evaluation strategy
     evaluation_method="cross_validation",
     cv_folds=5,
-    
+
     # Optimization settings
     optimization_budget=100,  # Number of trials
     optimization_timeout=3600,  # 1 hour timeout
-    
+
     # Resource constraints
     max_memory_gb=8,
     use_gpu=True,
-    
+
     # Output preferences
     explain_results=True,
     generate_visualizations=True
@@ -251,7 +251,7 @@ for batch in data_stream:
     scores = detector.predict(batch)
     threshold = adaptive_calculator.update(scores)
     anomalies = scores > threshold
-    
+
     # Handle concept drift
     if adaptive_calculator.drift_detected:
         print("Concept drift detected - retraining recommended")
@@ -422,16 +422,16 @@ from pynomaly.application.services import CustomObjective
 class BusinessImpactObjective(CustomObjective):
     def __init__(self, cost_matrix):
         self.cost_matrix = cost_matrix
-    
+
     def evaluate(self, y_true, y_pred):
         # Calculate business impact score
         tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
-        
+
         cost = (
             fp * self.cost_matrix["false_positive"] +
             fn * self.cost_matrix["false_negative"]
         )
-        
+
         return -cost  # Minimize cost (maximize negative cost)
 
 # Use custom objective
@@ -493,7 +493,7 @@ if quality_report.critical_issues:
     print("Critical data quality issues found:")
     for issue in quality_report.critical_issues:
         print(f"- {issue}")
-    
+
     # Apply automatic fixes
     cleaned_data = quality_checker.auto_fix("dataset.csv")
     print("Data automatically cleaned")
@@ -507,7 +507,7 @@ from pynomaly.infrastructure.monitoring import ResourceMonitor
 
 with ResourceMonitor() as monitor:
     result = autonomous_detect("large_dataset.csv")
-    
+
 print(f"Peak memory usage: {monitor.peak_memory_mb} MB")
 print(f"Total CPU time: {monitor.cpu_time_seconds} seconds")
 print(f"GPU utilization: {monitor.gpu_utilization:.1%}")
@@ -556,7 +556,7 @@ mlflow_integration = MLflowIntegration(
 
 with mlflow_integration.run():
     result = autonomous_detect("dataset.csv")
-    
+
     # Automatically log metrics, parameters, and artifacts
     mlflow_integration.log_automl_results(result)
 ```

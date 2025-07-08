@@ -488,22 +488,22 @@ from pathlib import Path
 def main():
     print(f"Running tests with Python {version}")
     print(f"Python executable: {python_path}")
-    
+
     # Set up environment
     base_dir = Path.cwd()
-    
+
     # Run basic tests
     test_commands = [
         # Basic pytest
         [str(python_path), "-m", "pytest", "tests/", "-v", "--tb=short"],
-        
+
         # Type checking (if available)
         [str(python_path), "-c", "import mypy; print('mypy available')"],
-        
+
         # Import tests
         [str(python_path), "-c", "import sys; sys.path.insert(0, 'src'); import pynomaly; print('✓ pynomaly imports successfully')"],
     ]
-    
+
     for i, cmd in enumerate(test_commands, 1):
         print(f"\\n--- Test {{i}}: {{' '.join(cmd[:3])}} ---")
         try:
@@ -516,7 +516,7 @@ def main():
             print(f"✗ Test {{i}} timed out")
         except Exception as e:
             print(f"✗ Test {{i}} error: {{e}}")
-    
+
     print(f"\\n✓ Test suite completed for Python {version}")
 
 if __name__ == "__main__":

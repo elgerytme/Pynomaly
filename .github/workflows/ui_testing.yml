@@ -332,21 +332,21 @@ jobs:
         run: |
           # Create comprehensive test report
           mkdir -p final-reports
-          
+
           echo "# UI Testing Report" > final-reports/test-summary.md
           echo "Generated at: $(date)" >> final-reports/test-summary.md
           echo "" >> final-reports/test-summary.md
-          
+
           # Count test results
           echo "## Test Results Summary" >> final-reports/test-summary.md
-          
+
           if [ -d "test-artifacts" ]; then
             echo "- Cross-browser tests: $(find test-artifacts -name "*test-results*" | wc -l) runs" >> final-reports/test-summary.md
             echo "- Visual regression: $(find test-artifacts -name "*percy*" | wc -l) snapshots" >> final-reports/test-summary.md
             echo "- Mobile tests: $(find test-artifacts -name "*mobile*" | wc -l) devices" >> final-reports/test-summary.md
             echo "- Performance tests: $(find test-artifacts -name "*performance*" | wc -l) audits" >> final-reports/test-summary.md
           fi
-          
+
           echo "" >> final-reports/test-summary.md
           echo "## Test Coverage" >> final-reports/test-summary.md
           echo "- ✅ Cross-browser compatibility (Chrome, Firefox, Safari, Edge)" >> final-reports/test-summary.md

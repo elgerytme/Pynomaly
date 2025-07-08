@@ -137,18 +137,18 @@ def create_app(container: Container | None = None) -> FastAPI:
 
 ## Key Features
 
-🚀 **Multi-Algorithm Support**: Integrates PyOD, TODS, PyGOD, scikit-learn, PyTorch, TensorFlow, and JAX  
-🏗️ **Clean Architecture**: Domain-driven design with hexagonal architecture  
-🔒 **Enterprise Security**: JWT authentication, RBAC, audit logging, and encryption  
-⚡ **High Performance**: Distributed processing, caching, and performance optimization  
-📊 **Advanced Analytics**: AutoML, explainability, and comprehensive visualization  
-🌐 **Progressive Web App**: Modern UI with offline capabilities  
+🚀 **Multi-Algorithm Support**: Integrates PyOD, TODS, PyGOD, scikit-learn, PyTorch, TensorFlow, and JAX
+🏗️ **Clean Architecture**: Domain-driven design with hexagonal architecture
+🔒 **Enterprise Security**: JWT authentication, RBAC, audit logging, and encryption
+⚡ **High Performance**: Distributed processing, caching, and performance optimization
+📊 **Advanced Analytics**: AutoML, explainability, and comprehensive visualization
+🌐 **Progressive Web App**: Modern UI with offline capabilities
 📈 **Production Ready**: Monitoring, observability, and enterprise deployment features
 
 ## Quick Start
 
 1. **Authenticate**: Use `/api/v1/auth/login` to get a JWT token
-2. **Upload Data**: Use `/api/v1/datasets/upload` to upload your dataset  
+2. **Upload Data**: Use `/api/v1/datasets/upload` to upload your dataset
 3. **Create Detector**: Use `/api/v1/detectors/create` to configure an anomaly detector
 4. **Train Model**: Use `/api/v1/detection/train` to train the detector
 5. **Detect Anomalies**: Use `/api/v1/detection/predict` to find anomalies
@@ -189,7 +189,7 @@ def create_app(container: Container | None = None) -> FastAPI:
     # Apply dependency overrides to resolve circular dependency issues
     # This enables OpenAPI generation by replacing complex Annotated[Depends(...)] patterns
     apply_openapi_overrides(app)
-    
+
     # Configure OpenAPI documentation
     configure_openapi_docs(app, settings)
 

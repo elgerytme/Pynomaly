@@ -79,7 +79,7 @@ fi
 # Start monitoring stack if requested
 if [[ "$MONITORING" == "true" ]]; then
     echo "Starting monitoring stack..."
-    
+
     # Start Prometheus
     docker run -d \
         --name "pynomaly-prometheus" \

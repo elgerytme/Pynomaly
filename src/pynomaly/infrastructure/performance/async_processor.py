@@ -25,7 +25,7 @@ R = TypeVar('R')
 @dataclass
 class TaskResult:
     """Result of an async task execution."""
-    
+
     task_id: str
     success: bool
     result: Any = None
@@ -37,7 +37,7 @@ class TaskResult:
 @dataclass
 class ProcessingStats:
     """Statistics for async processing operations."""
-    
+
     total_tasks: int = 0
     completed_tasks: int = 0
     failed_tasks: int = 0
@@ -70,10 +70,10 @@ class AsyncTaskQueue:
             'priority': priority,
             'created_at': time.time()
         }
-        
+
         await self._queue.put(task_item)
         self._stats.total_tasks += 1
-        
+
         logger.debug(f"Added task {task_id} to queue (priority: {priority})")
         return task_id
 
@@ -81,41 +81,41 @@ class AsyncTaskQueue:
         """Start worker tasks to process the queue."""
         if self._running:
             return
-            
+
         self._running = True
-        
+
         for i in range(self.max_workers):
             worker = asyncio.create_task(self._worker(f"worker-{i}"))
             self._workers.append(worker)
-        
+
         logger.info(f"Started {self.max_workers} async workers")
 
     async def stop_workers(self) -> None:
         """Stop all worker tasks."""
         self._running = False
-        
+
         # Cancel all workers
         for worker in self._workers:
             worker.cancel()
-        
+
         # Wait for cancellation
         await asyncio.gather(*self._workers, return_exceptions=True)
         self._workers.clear()
-        
+
         logger.info("Stopped all async workers")
 
     async def _worker(self, worker_name: str) -> None:
         """Worker coroutine that processes tasks from the queue."""
         logger.debug(f"Started worker: {worker_name}")
-        
+
         while self._running:
             try:
                 # Wait for task with timeout
                 task_item = await asyncio.wait_for(self._queue.get(), timeout=1.0)
-                
+
                 async with self._semaphore:
                     await self._execute_task(task_item, worker_name)
-                    
+
             except asyncio.TimeoutError:
                 # No tasks in queue, continue
                 continue
@@ -131,40 +131,40 @@ class AsyncTaskQueue:
         func = task_item['func']
         args = task_item['args']
         kwargs = task_item['kwargs']
-        
+
         start_time = time.time()
-        
+
         try:
             # Execute task
             if asyncio.iscoroutinefunction(func):
                 result = await func(*args, **kwargs)
             else:
                 result = func(*args, **kwargs)
-            
+
             execution_time = time.time() - start_time
-            
+
             self._stats.completed_tasks += 1
             self._stats.total_execution_time += execution_time
             self._update_stats()
-            
+
             logger.debug(f"Task {task_id} completed by {worker_name} in {execution_time:.3f}s")
-            
+
             return TaskResult(
                 task_id=task_id,
                 success=True,
                 result=result,
                 execution_time=execution_time
             )
-            
+
         except Exception as e:
             execution_time = time.time() - start_time
-            
+
             self._stats.failed_tasks += 1
             self._stats.total_execution_time += execution_time
             self._update_stats()
-            
+
             logger.error(f"Task {task_id} failed in {worker_name}: {e}")
-            
+
             return TaskResult(
                 task_id=task_id,
                 success=False,
@@ -186,12 +186,12 @@ class AsyncTaskQueue:
     async def wait_completion(self, timeout: Optional[float] = None) -> bool:
         """Wait for queue to be empty."""
         start_time = time.time()
-        
+
         while not self._queue.empty():
             if timeout and (time.time() - start_time) > timeout:
                 return False
             await asyncio.sleep(0.1)
-        
+
         return True
 
 
@@ -206,21 +206,21 @@ class AsyncBatchProcessor:
         self.batch_timeout = batch_timeout
         self._semaphore = Semaphore(max_concurrent_batches)
 
-    async def process_items(self, items: List[T], 
+    async def process_items(self, items: List[T],
                           processor: Callable[[List[T]], Awaitable[List[R]]]) -> List[R]:
         """Process items in concurrent batches."""
         if not items:
             return []
 
         # Split items into batches
-        batches = [items[i:i + self.batch_size] 
+        batches = [items[i:i + self.batch_size]
                   for i in range(0, len(items), self.batch_size)]
 
         logger.info(f"Processing {len(items)} items in {len(batches)} batches")
 
         # Process batches concurrently
         batch_tasks = [
-            self._process_batch(batch, processor, i) 
+            self._process_batch(batch, processor, i)
             for i, batch in enumerate(batches)
         ]
 
@@ -238,24 +238,24 @@ class AsyncBatchProcessor:
         logger.info(f"Completed processing {len(results)} items")
         return results
 
-    async def _process_batch(self, batch: List[T], 
+    async def _process_batch(self, batch: List[T],
                            processor: Callable[[List[T]], Awaitable[List[R]]],
                            batch_id: int) -> List[R]:
         """Process a single batch."""
         async with self._semaphore:
             start_time = time.time()
-            
+
             try:
                 result = await asyncio.wait_for(
-                    processor(batch), 
+                    processor(batch),
                     timeout=self.batch_timeout
                 )
-                
+
                 execution_time = time.time() - start_time
                 logger.debug(f"Batch {batch_id} processed {len(batch)} items in {execution_time:.3f}s")
-                
+
                 return result
-                
+
             except asyncio.TimeoutError:
                 logger.error(f"Batch {batch_id} timed out after {self.batch_timeout}s")
                 raise
@@ -272,7 +272,7 @@ class AsyncDataFrameProcessor:
         self.chunk_size = chunk_size
         self.max_workers = max_workers
 
-    async def process_dataframe(self, df: pd.DataFrame, 
+    async def process_dataframe(self, df: pd.DataFrame,
                               processor: Callable[[pd.DataFrame], pd.DataFrame],
                               combine_func: Optional[Callable[[List[pd.DataFrame]], pd.DataFrame]] = None) -> pd.DataFrame:
         """Process DataFrame in async chunks."""
@@ -280,14 +280,14 @@ class AsyncDataFrameProcessor:
             return df
 
         # Split DataFrame into chunks
-        chunks = [df.iloc[i:i + self.chunk_size].copy() 
+        chunks = [df.iloc[i:i + self.chunk_size].copy()
                  for i in range(0, len(df), self.chunk_size)]
 
         logger.info(f"Processing DataFrame ({len(df)} rows) in {len(chunks)} chunks")
 
         # Process chunks concurrently
         semaphore = Semaphore(self.max_workers)
-        
+
         async def process_chunk(chunk, chunk_id):
             async with semaphore:
                 loop = asyncio.get_event_loop()
@@ -295,7 +295,7 @@ class AsyncDataFrameProcessor:
                 return await loop.run_in_executor(None, processor, chunk)
 
         chunk_tasks = [
-            process_chunk(chunk, i) 
+            process_chunk(chunk, i)
             for i, chunk in enumerate(chunks)
         ]
 
@@ -310,7 +310,7 @@ class AsyncDataFrameProcessor:
         logger.info(f"DataFrame processing completed: {len(result)} rows")
         return result
 
-    async def apply_async(self, df: pd.DataFrame, func: Callable, 
+    async def apply_async(self, df: pd.DataFrame, func: Callable,
                          axis: int = 0, **kwargs) -> pd.Series:
         """Async version of DataFrame.apply()."""
         if axis == 0:
@@ -321,13 +321,13 @@ class AsyncDataFrameProcessor:
                     self._apply_to_series(df[col], func, **kwargs)
                 )
                 column_tasks.append(task)
-            
+
             results = await asyncio.gather(*column_tasks)
             return pd.Series(results, index=df.columns)
         else:
             # Apply to rows - process in chunks
             return await self.process_dataframe(
-                df, 
+                df,
                 lambda chunk: chunk.apply(func, axis=1, **kwargs)
             )
 
@@ -375,7 +375,7 @@ class AsyncModelTrainer:
 
         return task_results
 
-    async def _train_single_model(self, config: Dict[str, Any], 
+    async def _train_single_model(self, config: Dict[str, Any],
                                 train_data: Union[pd.DataFrame, np.ndarray],
                                 trainer_func: Callable, model_id: int) -> TaskResult:
         """Train a single model."""
@@ -419,7 +419,7 @@ class AsyncModelTrainer:
 
 # Async decorators and utilities
 
-def async_retry(max_attempts: int = 3, delay: float = 1.0, 
+def async_retry(max_attempts: int = 3, delay: float = 1.0,
                backoff: float = 2.0, exceptions: tuple = (Exception,)):
     """Decorator for async functions with retry logic."""
     def decorator(func):
@@ -493,7 +493,7 @@ async def async_profiler(operation_name: str = "operation"):
     """Async context manager for profiling operations."""
     start_time = time.time()
     start_memory = None
-    
+
     try:
         import psutil
         process = psutil.Process()
@@ -529,7 +529,7 @@ class AsyncContextManager:
         self._resources: Dict[str, Any] = {}
         self._cleanup_funcs: Dict[str, Callable] = {}
 
-    async def add_resource(self, name: str, resource: Any, 
+    async def add_resource(self, name: str, resource: Any,
                           cleanup_func: Optional[Callable] = None) -> None:
         """Add a resource to be managed."""
         self._resources[name] = resource

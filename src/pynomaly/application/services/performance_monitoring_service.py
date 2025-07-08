@@ -448,7 +448,7 @@ class PerformanceMonitoringService:
         """Default handler for performance alerts."""
         # Use lazy import to avoid circular import
         from ...infrastructure.monitoring.performance_monitor import PerformanceAlert
-        
+
         if isinstance(alert, PerformanceAlert):
             print(f"🚨 Performance Alert: {alert.severity.upper()} - {alert.message}")
 

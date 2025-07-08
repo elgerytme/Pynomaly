@@ -7,16 +7,20 @@
 [![Type checked: mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 [![CI](https://github.com/yourusername/pynomaly/workflows/CI/badge.svg)](https://github.com/yourusername/pynomaly/actions)
 
-Python anomaly detection package targeting Python 3.11+ with clean architecture principles, integrating multiple ML libraries (PyOD, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX) through a unified interface.
+Python anomaly detection package targeting Python 3.11+ with clean architecture
+principles, integrating multiple ML libraries (PyOD, PyGOD, scikit-learn, PyTorch,
+TensorFlow, JAX) through a unified interface.
 
-**Built with**: Hatch for build system and environment management, Ruff for linting and formatting, CI/CD pipeline with automated testing and deployment.
+**Built with**: Hatch for build system and environment management, Ruff for linting
+and formatting, CI/CD pipeline with automated testing and deployment.
 
 ## Features
 
 ### Core Features (Stable)
 
 - 🏗️ **Clean Architecture**: Domain-driven design with hexagonal architecture
-- 🔌 **PyOD Integration**: Production-ready PyOD algorithms (40+ algorithms including Isolation Forest, LOF, One-Class SVM)
+- 🔌 **PyOD Integration**: Production-ready PyOD algorithms (40+ algorithms including
+  Isolation Forest, LOF, One-Class SVM)
 - 🧪 **scikit-learn Support**: Standard ML algorithms for anomaly detection
 - 📊 **Web Interface**: HTMX-based UI with Tailwind CSS styling
 - ⚡ **CLI Interface**: Command-line tools for data processing and detection
@@ -30,12 +34,15 @@ Python anomaly detection package targeting Python 3.11+ with clean architecture 
 - 📈 **Monitoring**: Prometheus metrics collection capabilities
 - 💾 **Data Export**: CSV/JSON/Excel export functionality
 - 🎯 **Ensemble Methods**: Advanced voting strategies and model combination
-- ⚡ **Performance Optimizations**: Batch cache operations, optimized data loading, memory management
-- 🧪 **Testing Infrastructure**: 85%+ coverage with property-based testing, benchmarking, and mutation testing
+- ⚡ **Performance Optimizations**: Batch cache operations, optimized data loading,
+  memory management
+- 🧪 **Testing Infrastructure**: 85%+ coverage with property-based testing,
+  benchmarking, and mutation testing
 
 ### Experimental Features (Limited Support)
 
-**NOTE:** The following features are marked as experimental and their implementations might be incomplete or not available:
+**NOTE:** The following features are marked as experimental and their implementations
+might be incomplete or not available:
 
 - **ONNX model format is not supported yet in the storage service**
 - **Certain PyTorch base models are placeholders without concrete implementations**
@@ -186,10 +193,20 @@ Pynomaly is designed to work seamlessly across different operating systems and e
 
 ```bash
 # Quick development environment setup
+
+# Linux/macOS with make:
 make dev
 
-# Or use the development script
+# Or use the development script directly:
+# Linux/macOS:
 ./scripts/dev_setup.sh
+
+# Windows PowerShell:
+.\scripts\dev_setup.ps1
+
+# Or run the commands manually:
+hatch env create dev
+hatch run dev:setup
 ```
 
 This will:
@@ -281,11 +298,11 @@ def basic_example():
     normal_data = np.random.normal(0, 1, (100, 2))
     outliers = np.random.uniform(-4, 4, (10, 2))
     data = np.vstack([normal_data, outliers])
-    
+
     # Create dataset
     df = pd.DataFrame(data, columns=['feature1', 'feature2'])
     dataset = Dataset(name="Sample Data", data=df)
-    
+
     # Create detector using Pynomaly's clean architecture
     detector = SklearnAdapter(
         algorithm_name="IsolationForest",
@@ -294,20 +311,20 @@ def basic_example():
         random_state=42,
         n_estimators=100
     )
-    
+
     # Train detector
     detector.fit(dataset)
-    
+
     # Detect anomalies
     result = detector.detect(dataset)
-    
+
     # Results
     anomaly_count = len(result.anomalies)
     scores = [score.value for score in result.scores]
     print(f"Detected {anomaly_count} anomalies out of {len(data)} samples")
     print(f"Anomaly scores range: {min(scores):.3f} to {max(scores):.3f}")
     print(f"Detection completed in {result.execution_time_ms:.2f}ms")
-    
+
     return result.labels, scores
 
 # Run example
@@ -499,7 +516,7 @@ pytest --cov=src/pynomaly       # Test coverage
 
 # Code quality
 ruff check src/                  # Linting (actively maintained, ~9K issues resolved)
-ruff format src/                 # Auto-formatting 
+ruff format src/                 # Auto-formatting
 mypy src/pynomaly               # Type checking (strict mode enabled)
 hatch run lint:all              # Run all quality checks
 

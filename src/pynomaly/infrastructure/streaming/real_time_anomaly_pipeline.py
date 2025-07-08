@@ -436,6 +436,54 @@ class StreamingAnomalyDetector:
             logger.error(f"Failed to retrain detector: {e}")
 
 
+# Metrics Publisher
+
+class MetricsPublisher:
+    """Publishes real-time metrics to a configured message queue."""
+
+    def __init__(self, queue_type: str, config: dict):
+        """Initialize metrics publisher.
+
+        Args:
+            queue_type: Type of message queue (e.g., 'redis', 'kafka')
+            config: Configuration for queue connection
+        """
+        self.queue_type = queue_type
+        self.config = config
+        self.client = self._initialize_client()
+
+    def _initialize_client(self):
+        """Initialize the message queue client based on type."""
+        if self.queue_type == 'redis':
+            import aioredis
+            return aioredis.from_url(**self.config)
+        elif self.queue_type == 'kafka':
+            from aiokafka import AIOKafkaProducer
+            return AIOKafkaProducer(**self.config)
+        else:
+            raise ValueError(f"Unsupported queue type: {self.queue_type}")
+
+    async def start(self):
+        """Start the message queue client."""
+        if self.queue_type == 'kafka':
+            await self.client.start()
+
+    async def publish(self, metrics: StreamingMetrics):
+        """Publish metrics to the message queue."""
+        message = metrics.json().encode('utf-8')
+        if self.queue_type == 'redis':
+            await self.client.xadd("metrics_stream", {"metrics": message})
+        elif self.queue_type == 'kafka':
+            await self.client.send_and_wait('metrics', message)
+        else:
+            raise RuntimeError("Invalid queue type")
+
+    async def stop(self):
+        """Stop the message queue client."""
+        if self.queue_type == 'kafka':
+            await self.client.stop()
+
+
 class RealTimeAnomalyPipeline:
     """Real-time anomaly detection pipeline."""
 
@@ -445,6 +493,7 @@ class RealTimeAnomalyPipeline:
         data_source: DataSource,
         detector: StreamingAnomalyDetector,
         alert_handler: Optional[Callable[[StreamingAlert], None]] = None,
+        metrics_publisher: Optional[MetricsPublisher] = None,
     ):
         """Initialize real-time anomaly pipeline.
 
@@ -453,11 +502,13 @@ class RealTimeAnomalyPipeline:
             data_source: Data source to consume from
             detector: Anomaly detector
             alert_handler: Optional alert handler
+            metrics_publisher: Optional metrics publisher
         """
         self.config = config
         self.data_source = data_source
         self.detector = detector
         self.alert_handler = alert_handler
+        self.metrics_publisher = metrics_publisher
 
         self.is_running = False
         self.metrics = StreamingMetrics()
@@ -692,6 +743,13 @@ class RealTimeAnomalyPipeline:
                     self.metrics.cpu_usage_percent = process.cpu_percent()
                 except ImportError:
                     pass  # psutil not available
+
+                # Publish metrics to queue
+                if self.metrics_publisher:
+                    try:
+                        await self.metrics_publisher.publish(self.metrics)
+                    except Exception as e:
+                        logger.error(f"Failed to publish metrics: {e}")
 
                 # Check alert thresholds
                 await self._check_alert_thresholds()

@@ -17,42 +17,42 @@ logger = logging.getLogger(__name__)
 
 class ScheduleRepository(ABC):
     """Abstract base class for schedule repositories."""
-    
+
     @abstractmethod
     def save_schedule(self, schedule: Schedule) -> None:
         """Save a schedule."""
         pass
-    
+
     @abstractmethod
     def get_schedule(self, schedule_id: str) -> Optional[Schedule]:
         """Get a schedule by ID."""
         pass
-    
+
     @abstractmethod
     def list_schedules(self) -> List[Schedule]:
         """List all schedules."""
         pass
-    
+
     @abstractmethod
     def delete_schedule(self, schedule_id: str) -> bool:
         """Delete a schedule."""
         pass
-    
+
     @abstractmethod
     def save_execution(self, execution: ScheduleExecution) -> None:
         """Save a schedule execution."""
         pass
-    
+
     @abstractmethod
     def get_execution(self, execution_id: str) -> Optional[ScheduleExecution]:
         """Get a schedule execution by ID."""
         pass
-    
+
     @abstractmethod
     def list_executions(self, schedule_id: Optional[str] = None) -> List[ScheduleExecution]:
         """List schedule executions, optionally filtered by schedule ID."""
         pass
-    
+
     @abstractmethod
     def delete_execution(self, execution_id: str) -> bool:
         """Delete a schedule execution."""
@@ -61,25 +61,25 @@ class ScheduleRepository(ABC):
 
 class InMemoryScheduleRepository(ScheduleRepository):
     """In-memory implementation of schedule repository."""
-    
+
     def __init__(self) -> None:
         """Initialize in-memory repository."""
         self.schedules: Dict[str, Schedule] = {}
         self.executions: Dict[str, ScheduleExecution] = {}
-    
+
     def save_schedule(self, schedule: Schedule) -> None:
         """Save a schedule."""
         self.schedules[schedule.schedule_id] = schedule
         logger.debug(f"Saved schedule {schedule.schedule_id}")
-    
+
     def get_schedule(self, schedule_id: str) -> Optional[Schedule]:
         """Get a schedule by ID."""
         return self.schedules.get(schedule_id)
-    
+
     def list_schedules(self) -> List[Schedule]:
         """List all schedules."""
         return list(self.schedules.values())
-    
+
     def delete_schedule(self, schedule_id: str) -> bool:
         """Delete a schedule."""
         if schedule_id in self.schedules:
@@ -87,23 +87,23 @@ class InMemoryScheduleRepository(ScheduleRepository):
             logger.debug(f"Deleted schedule {schedule_id}")
             return True
         return False
-    
+
     def save_execution(self, execution: ScheduleExecution) -> None:
         """Save a schedule execution."""
         self.executions[execution.execution_id] = execution
         logger.debug(f"Saved execution {execution.execution_id}")
-    
+
     def get_execution(self, execution_id: str) -> Optional[ScheduleExecution]:
         """Get a schedule execution by ID."""
         return self.executions.get(execution_id)
-    
+
     def list_executions(self, schedule_id: Optional[str] = None) -> List[ScheduleExecution]:
         """List schedule executions, optionally filtered by schedule ID."""
         executions = list(self.executions.values())
         if schedule_id:
             executions = [e for e in executions if e.schedule_id == schedule_id]
         return executions
-    
+
     def delete_execution(self, execution_id: str) -> bool:
         """Delete a schedule execution."""
         if execution_id in self.executions:
@@ -111,7 +111,7 @@ class InMemoryScheduleRepository(ScheduleRepository):
             logger.debug(f"Deleted execution {execution_id}")
             return True
         return False
-    
+
     def clear_all(self) -> None:
         """Clear all data (for testing)."""
         self.schedules.clear()
@@ -121,25 +121,25 @@ class InMemoryScheduleRepository(ScheduleRepository):
 
 class FileSystemScheduleRepository(ScheduleRepository):
     """File system implementation of schedule repository."""
-    
+
     def __init__(self, base_path: str = "data/schedules") -> None:
         """Initialize file system repository."""
         self.base_path = Path(base_path)
         self.schedules_path = self.base_path / "schedules"
         self.executions_path = self.base_path / "executions"
-        
+
         # Create directories if they don't exist
         self.schedules_path.mkdir(parents=True, exist_ok=True)
         self.executions_path.mkdir(parents=True, exist_ok=True)
-    
+
     def _schedule_file_path(self, schedule_id: str) -> Path:
         """Get file path for a schedule."""
         return self.schedules_path / f"{schedule_id}.json"
-    
+
     def _execution_file_path(self, execution_id: str) -> Path:
         """Get file path for an execution."""
         return self.executions_path / f"{execution_id}.json"
-    
+
     def save_schedule(self, schedule: Schedule) -> None:
         """Save a schedule."""
         file_path = self._schedule_file_path(schedule.schedule_id)
@@ -150,13 +150,13 @@ class FileSystemScheduleRepository(ScheduleRepository):
         except Exception as e:
             logger.error(f"Failed to save schedule {schedule.schedule_id}: {e}")
             raise
-    
+
     def get_schedule(self, schedule_id: str) -> Optional[Schedule]:
         """Get a schedule by ID."""
         file_path = self._schedule_file_path(schedule_id)
         if not file_path.exists():
             return None
-        
+
         try:
             with open(file_path, 'r') as f:
                 data = json.load(f)
@@ -164,7 +164,7 @@ class FileSystemScheduleRepository(ScheduleRepository):
         except Exception as e:
             logger.error(f"Failed to load schedule {schedule_id}: {e}")
             return None
-    
+
     def list_schedules(self) -> List[Schedule]:
         """List all schedules."""
         schedules = []
@@ -177,7 +177,7 @@ class FileSystemScheduleRepository(ScheduleRepository):
             except Exception as e:
                 logger.error(f"Failed to load schedule from {file_path}: {e}")
         return schedules
-    
+
     def delete_schedule(self, schedule_id: str) -> bool:
         """Delete a schedule."""
         file_path = self._schedule_file_path(schedule_id)
@@ -189,7 +189,7 @@ class FileSystemScheduleRepository(ScheduleRepository):
             except Exception as e:
                 logger.error(f"Failed to delete schedule {schedule_id}: {e}")
         return False
-    
+
     def save_execution(self, execution: ScheduleExecution) -> None:
         """Save a schedule execution."""
         file_path = self._execution_file_path(execution.execution_id)
@@ -200,17 +200,17 @@ class FileSystemScheduleRepository(ScheduleRepository):
         except Exception as e:
             logger.error(f"Failed to save execution {execution.execution_id}: {e}")
             raise
-    
+
     def get_execution(self, execution_id: str) -> Optional[ScheduleExecution]:
         """Get a schedule execution by ID."""
         file_path = self._execution_file_path(execution_id)
         if not file_path.exists():
             return None
-        
+
         try:
             with open(file_path, 'r') as f:
                 data = json.load(f)
-            
+
             # Reconstruct the execution
             execution = ScheduleExecution(
                 execution_id=data["execution_id"],
@@ -219,7 +219,7 @@ class FileSystemScheduleRepository(ScheduleRepository):
                 trigger_info=data.get("trigger_info", {}),
                 created_at=data["created_at"]
             )
-            
+
             # Add result if present
             if data.get("result"):
                 result_data = data["result"]
@@ -240,12 +240,12 @@ class FileSystemScheduleRepository(ScheduleRepository):
                     created_at=result_data["created_at"]
                 )
                 execution.result = result
-            
+
             return execution
         except Exception as e:
             logger.error(f"Failed to load execution {execution_id}: {e}")
             return None
-    
+
     def list_executions(self, schedule_id: Optional[str] = None) -> List[ScheduleExecution]:
         """List schedule executions, optionally filtered by schedule ID."""
         executions = []
@@ -253,11 +253,11 @@ class FileSystemScheduleRepository(ScheduleRepository):
             try:
                 with open(file_path, 'r') as f:
                     data = json.load(f)
-                
+
                 # Filter by schedule ID if provided
                 if schedule_id and data.get("schedule_id") != schedule_id:
                     continue
-                
+
                 execution = ScheduleExecution(
                     execution_id=data["execution_id"],
                     schedule_id=data["schedule_id"],
@@ -269,7 +269,7 @@ class FileSystemScheduleRepository(ScheduleRepository):
             except Exception as e:
                 logger.error(f"Failed to load execution from {file_path}: {e}")
         return executions
-    
+
     def delete_execution(self, execution_id: str) -> bool:
         """Delete a schedule execution."""
         file_path = self._execution_file_path(execution_id)
@@ -281,7 +281,7 @@ class FileSystemScheduleRepository(ScheduleRepository):
             except Exception as e:
                 logger.error(f"Failed to delete execution {execution_id}: {e}")
         return False
-    
+
     def clear_all(self) -> None:
         """Clear all data (for testing)."""
         import shutil

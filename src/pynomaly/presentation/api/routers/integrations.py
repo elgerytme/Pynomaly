@@ -142,7 +142,7 @@ async def get_current_user() -> User:
 
 async def require_tenant_access(tenant_id: UUID, current_user: User = Depends(get_current_user)):
     """Require access to specific tenant."""
-    if not (current_user.is_super_admin() or 
+    if not (current_user.is_super_admin() or
             current_user.has_role_in_tenant(TenantId(str(tenant_id)), ["data_scientist", "tenant_admin"])):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -163,7 +163,7 @@ async def create_integration(
     try:
         # Convert config dict to IntegrationConfig object
         config = IntegrationConfig(**request.config)
-        
+
         integration = await integration_service.create_integration(
             name=request.name,
             integration_type=request.integration_type,
@@ -172,7 +172,7 @@ async def create_integration(
             config=config,
             credentials=request.credentials
         )
-        
+
         return IntegrationResponse(
             id=integration.id,
             name=integration.name,
@@ -204,7 +204,7 @@ async def list_integrations(
     """List all integrations for a tenant."""
     try:
         integrations = await integration_service.get_integrations_for_tenant(TenantId(str(tenant_id)))
-        
+
         return [
             IntegrationResponse(
                 id=integration.id,
@@ -266,7 +266,7 @@ async def update_integration_credentials(
             user_id=UserId(current_user.id),
             credentials=request.credentials
         )
-        
+
         return {
             "message": "Credentials updated successfully",
             "integration_id": integration.id,
@@ -292,7 +292,7 @@ async def delete_integration(
             integration_id=integration_id,
             user_id=UserId(current_user.id)
         )
-        
+
         if success:
             return {"message": "Integration deleted successfully"}
         else:
@@ -326,16 +326,16 @@ async def send_notification(
             user_id=UserId(current_user.id),
             data=request.data
         )
-        
+
         results = await integration_service.send_notification(
             tenant_id=TenantId(str(tenant_id)),
             payload=payload,
             integration_types=request.integration_types
         )
-        
+
         successful_count = sum(1 for success in results.values() if success)
         total_count = len(results)
-        
+
         return {
             "message": "Notifications sent",
             "total_integrations": total_count,
@@ -366,7 +366,7 @@ async def get_notification_history(
             limit=limit,
             offset=offset
         )
-        
+
         return [
             NotificationHistoryResponse(
                 id=record.id,
@@ -401,13 +401,13 @@ async def get_integration_metrics(
     """Get performance metrics for an integration."""
     try:
         metrics = await integration_service.get_integration_metrics(integration_id)
-        
+
         if not metrics:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Integration metrics not found"
             )
-        
+
         return IntegrationMetricsResponse(
             integration_id=metrics.integration_id,
             total_notifications=metrics.total_notifications,
@@ -438,7 +438,7 @@ async def retry_notification(
     """Retry a failed notification."""
     try:
         success = await integration_service.retry_failed_notification(history_id)
-        
+
         if success:
             return {"message": "Notification retry successful"}
         else:
@@ -471,9 +471,9 @@ async def create_notification_template(
             created_by=UserId(current_user.id),
             variables=request.variables
         )
-        
+
         created_template = await integration_service.create_notification_template(template)
-        
+
         return TemplateResponse(
             id=created_template.id,
             name=created_template.name,
@@ -510,7 +510,7 @@ async def list_notification_templates(
         else:
             # TODO: Implement get_all_templates method
             templates = []
-        
+
         return [
             TemplateResponse(
                 id=template.id,
@@ -552,15 +552,15 @@ async def test_integration(
             user_id=UserId(current_user.id),
             data={"test": True}
         )
-        
+
         results = await integration_service.send_notification(
             tenant_id=TenantId(str(tenant_id)),
             payload=test_payload,
             integration_types=None  # Will send to all integrations
         )
-        
+
         integration_result = results.get(integration_id, False)
-        
+
         return {
             "message": "Test notification sent",
             "success": integration_result,
@@ -588,9 +588,9 @@ async def quick_setup_slack(
             notification_levels=[NotificationLevel.WARNING, NotificationLevel.ERROR, NotificationLevel.CRITICAL],
             triggers=[TriggerType.ANOMALY_DETECTED, TriggerType.SYSTEM_ERROR, TriggerType.THRESHOLD_EXCEEDED]
         )
-        
+
         credentials = {"webhook_url": str(webhook_url)}
-        
+
         integration = await integration_service.create_integration(
             name=name,
             integration_type=IntegrationType.SLACK,
@@ -599,7 +599,7 @@ async def quick_setup_slack(
             config=config,
             credentials=credentials
         )
-        
+
         return {
             "message": "Slack integration created successfully",
             "integration_id": integration.id,
@@ -626,9 +626,9 @@ async def quick_setup_pagerduty(
             notification_levels=[NotificationLevel.ERROR, NotificationLevel.CRITICAL],
             triggers=[TriggerType.ANOMALY_DETECTED, TriggerType.SYSTEM_ERROR, TriggerType.PERFORMANCE_DEGRADATION]
         )
-        
+
         credentials = {"routing_key": routing_key}
-        
+
         integration = await integration_service.create_integration(
             name=name,
             integration_type=IntegrationType.PAGERDUTY,
@@ -637,7 +637,7 @@ async def quick_setup_pagerduty(
             config=config,
             credentials=credentials
         )
-        
+
         return {
             "message": "PagerDuty integration created successfully",
             "integration_id": integration.id,

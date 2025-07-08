@@ -6,6 +6,8 @@ from .repositories import (
     InMemoryDatasetRepository,
     InMemoryDetectorRepository,
     InMemoryResultRepository,
+    ModelPerformanceRepository,
+    PerformanceBaselineRepository,
 )
 
 __all__ = [
@@ -19,4 +21,6 @@ __all__ = [
     "InMemoryDetectorRepository",
     "InMemoryDatasetRepository",
     "InMemoryResultRepository",
+    "ModelPerformanceRepository",
+    "PerformanceBaselineRepository",
 ]
