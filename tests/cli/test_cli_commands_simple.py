@@ -7,13 +7,18 @@ import pytest
 
 def run_command(cmd):
     """Run a command and return exit code and output."""
+    import os
+    # Set environment variable to suppress TensorFlow warnings
+    env = os.environ.copy()
+    env["TF_CPP_MIN_LOG_LEVEL"] = "2"
     result = subprocess.run(
         cmd, 
         shell=True, 
         capture_output=True, 
         text=True,
         cwd=".",
-        timeout=30
+        timeout=30,
+        env=env
     )
     return result.returncode, result.stdout, result.stderr
 

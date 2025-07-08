@@ -310,78 +310,101 @@ class BatchProcessor:
 
     async def _process_job(self, job: BatchJob) -> None:
         """Process a batch job."""
-with self.metrics_collector.time_operation("batch", job.config.detection_algorithm.value, job.config.engine.value):
-    job.status = BatchStatus.RUNNING
-    job.started_at = datetime.now()
-    start_time = time.time()
+        try:
+            with self.metrics_collector.time_operation("batch", job.config.detection_algorithm.value, job.config.engine.value):
+                job.status = BatchStatus.RUNNING
+                job.started_at = datetime.now()
+                start_time = time.time()
 
-    # Initialize engine if needed
-    if not self.engine_client and not self.executor:
-        await self.initialize_engine()
+                # Initialize engine if needed
+                if not self.engine_client and not self.executor:
+                    await self.initialize_engine()
 
-    # Load and chunk data
-    chunks = await self._load_and_chunk_data(job)
-    job.total_chunks = len(chunks)
+                # Load and chunk data
+                chunks = await self._load_and_chunk_data(job)
+                job.total_chunks = len(chunks)
 
-    # Process chunks
-    results = []
-    if job.config.engine == BatchEngine.SEQUENTIAL:
-        results = await self._process_sequential(job, chunks)
-    elif job.config.engine in [BatchEngine.MULTIPROCESSING, BatchEngine.THREADING]:
-        results = await self._process_executor(job, chunks)
-    elif job.config.engine == BatchEngine.DASK:
-        results = await self._process_dask(job, chunks)
-    elif job.config.engine == BatchEngine.RAY:
-        results = await self._process_ray(job, chunks)
+                # Process chunks
+                results = []
+                if job.config.engine == BatchEngine.SEQUENTIAL:
+                    results = await self._process_sequential(job, chunks)
+                elif job.config.engine in [BatchEngine.MULTIPROCESSING, BatchEngine.THREADING]:
+                    results = await self._process_executor(job, chunks)
+                elif job.config.engine == BatchEngine.DASK:
+                    results = await self._process_dask(job, chunks)
+                elif job.config.engine == BatchEngine.RAY:
+                    results = await self._process_ray(job, chunks)
 
-    # Combine results
-    combined_result = await self._combine_results(job, results)
+                # Combine results
+                combined_result = await self._combine_results(job, results)
 
-    # Save final result
-    await self._save_result(job, combined_result)
+                # Save final result
+                await self._save_result(job, combined_result)
 
-    # Update job status
-    job.status = BatchStatus.COMPLETED
-    job.completed_at = datetime.now()
-    job.execution_time = time.time() - start_time
+                # Update job status
+                job.status = BatchStatus.COMPLETED
+                job.completed_at = datetime.now()
+                job.execution_time = time.time() - start_time
 
-    logger.info(f"Batch job {job.job_id} completed successfully")
+                logger.info(f"Batch job {job.job_id} completed successfully")
 
-# Record overall job duration
-self.metrics_collector.record_job_duration(
-    job.execution_time,
-    "batch",
-    job.config.detection_algorithm.value,
-    job.config.engine.value,
-    "completed"
-)
+                # Record overall job duration
+                self.metrics_collector.record_job_duration(
+                    job.execution_time,
+                    "batch",
+                    job.config.detection_algorithm.value,
+                    job.config.engine.value,
+                    "completed"
+                )
 
-# Increment total jobs processed
-self.metrics_collector.increment_jobs_total(
-    "batch",
-    "completed",
-    job.config.detection_algorithm.value
-)
+                # Increment total jobs processed
+                self.metrics_collector.increment_jobs_total(
+                    "batch",
+                    "completed",
+                    job.config.detection_algorithm.value
+                )
 
-# Increment anomalies found
-severity = categorize_severity(combined_result.anomaly_count, combined_result.total_samples)
-self.metrics_collector.increment_anomalies_found(
-    combined_result.anomaly_count,
-    "batch",
-    job.config.detection_algorithm.value,
-    severity,
-    job.input_path
-)
+                # Increment anomalies found
+                severity = categorize_severity(combined_result.anomaly_count, combined_result.total_samples)
+                self.metrics_collector.increment_anomalies_found(
+                    combined_result.anomaly_count,
+                    "batch",
+                    job.config.detection_algorithm.value,
+                    severity,
+                    job.input_path
+                )
 
         except Exception as e:
             job.status = BatchStatus.FAILED
             job.add_error(e)
             logger.error(f"Batch job {job.job_id} failed: {e}")
 
+            # Record error metrics
+            self.metrics_collector.increment_error_count(
+                "batch",
+                type(e).__name__,
+                "batch_processor"
+            )
+            
+            # Record failed job
+            self.metrics_collector.increment_jobs_total(
+                "batch",
+                "failed",
+                job.config.detection_algorithm.value
+            )
+
             # Retry if configured
             if job.retry_count < job.config.max_retries:
                 job.retry_count += 1
                 job.status = BatchStatus.RETRYING
+                
+                # Record retry metrics
+                self.metrics_collector.increment_retry_count(
+                    "batch",
+                    type(e).__name__,
+                    job.retry_count
+                )
+                
                 await asyncio.sleep(job.config.retry_delay_seconds)
                 await self._process_job(job)  # Recursive retry
 

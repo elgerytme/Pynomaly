@@ -678,6 +678,46 @@ pip install pre-commit
 pre-commit install
 ```
 
+### Lint & Formatting Shortcuts
+
+Pynomaly provides convenient Hatch shortcuts for code quality management:
+
+```bash
+# Quick style check (ruff + black + isort)
+hatch run lint:style
+
+# Auto-format & re-check (format + style)
+hatch run lint:fmt
+
+# Strict mypy type checking
+hatch run lint:typing
+
+# All quality checks (style + typing)
+hatch run lint:all
+```
+
+**Make shortcuts** are also available:
+
+```bash
+make lint                       # Run all quality checks
+make format                     # Auto-format code
+make style                      # Check code style
+make typing                     # Run type checking
+```
+
+**Daily workflow** (recommended):
+
+```bash
+# 1. Format code before committing
+hatch run lint:fmt
+
+# 2. Run full quality check
+hatch run lint:all
+
+# 3. Or use make shortcuts
+make format && make lint
+```
+
 #### Code Quality & Testing
 ```bash
 # Run tests

@@ -7,6 +7,7 @@ from .real_time_anomaly_pipeline import (
     StreamingConfig,
     DataPoint,
     StreamingAlert,
+    StreamingDetectionResult,
     AlertSeverity,
     StreamingMode,
 )
@@ -40,6 +41,7 @@ __all__ = [
     "StreamingConfig",
     "DataPoint",
     "StreamingAlert",
+    "StreamingDetectionResult",
     "AlertSeverity",
     "StreamingMode",
     "MetricsPublisher",
