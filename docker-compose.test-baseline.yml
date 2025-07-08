@@ -1,0 +1,144 @@
+version: '3.8'
+
+services:
+  # 100% validation test environment
+  test-validation:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+      target: test-minimal
+    volumes:
+      - ./reports:/app/reports:rw
+      - ./test-results:/app/test-results:rw
+      - ./coverage-reports:/app/coverage-reports:rw
+    environment:
+      - PYNOMALY_ENVIRONMENT=test-validation
+      - PYNOMALY_DEBUG=false
+      - PYNOMALY_LOG_LEVEL=WARNING
+      - PYNOMALY_DETERMINISTIC=true
+      - PYTHONHASHSEED=42
+      - PYTHON_SEED=42
+      - COVERAGE_PROCESS_START=.coveragerc
+    command: >
+      pytest tests/validation/test_100_percent_validation.py
+      -v
+      --cov=src
+      --cov-report=json:reports/coverage.json
+      --cov-report=html:reports/coverage_html
+      --cov-report=term-missing
+      --html=reports/test_report.html
+      --self-contained-html
+      --tb=short
+    networks:
+      - test-network
+
+  # Baseline comparison runner
+  baseline-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+      target: test-minimal
+    volumes:
+      - ./reports:/app/reports:rw
+      - ./test-results:/app/test-results:rw
+      - ./scripts:/app/scripts:ro
+    environment:
+      - PYNOMALY_ENVIRONMENT=baseline
+      - PYNOMALY_DEBUG=false
+      - PYNOMALY_LOG_LEVEL=WARNING
+      - PYNOMALY_DETERMINISTIC=true
+      - PYTHONHASHSEED=42
+    command: >
+      python scripts/generate_baseline_report.py
+      --output-dir /app/reports
+      --format json
+      --include-coverage
+      --include-flaky-tests
+    depends_on:
+      - test-validation
+    networks:
+      - test-network
+
+  # Redis for caching (optional for some tests)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_APPENDONLY=yes
+      - REDIS_MAXMEMORY=128mb
+      - REDIS_MAXMEMORY_POLICY=allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - test-network
+    profiles:
+      - with-redis
+
+  # PostgreSQL for database tests (optional)
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=pynomaly_test
+      - POSTGRES_USER=pynomaly_test
+      - POSTGRES_PASSWORD=pynomaly_test_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/test-db-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - test-network
+    profiles:
+      - with-db
+
+  # Test runner with full environment
+  test-full:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+      target: test-server
+    volumes:
+      - ./reports:/app/reports:rw
+      - ./test-results:/app/test-results:rw
+      - ./coverage-reports:/app/coverage-reports:rw
+    environment:
+      - PYNOMALY_ENVIRONMENT=test-full
+      - PYNOMALY_DEBUG=false
+      - PYNOMALY_LOG_LEVEL=WARNING
+      - PYNOMALY_DETERMINISTIC=true
+      - PYNOMALY_DB_HOST=postgres
+      - PYNOMALY_DB_PORT=5432
+      - PYNOMALY_DB_NAME=pynomaly_test
+      - PYNOMALY_DB_USER=pynomaly_test
+      - PYNOMALY_DB_PASSWORD=pynomaly_test_password
+      - PYNOMALY_REDIS_HOST=redis
+      - PYNOMALY_REDIS_PORT=6379
+      - PYNOMALY_REDIS_DB=1
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - test-network
+    profiles:
+      - full-stack
+
+  # Test environment monitor
+  test-monitor:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - test-network
+    profiles:
+      - monitoring
+
+volumes:
+  redis_data:
+  postgres_data:
+
+networks:
+  test-network:
+    driver: bridge
