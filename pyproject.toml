@@ -493,6 +493,20 @@ test-accessibility = "pytest tests/ui/test_accessibility*.py {args}"
 test-performance = "pytest tests/ui/test_performance*.py {args}"
 report = "pytest tests/ui/ --html=test_reports/ui_test_report.html --self-contained-html {args}"
 
+# Security environment for unified security scanning
+[tool.hatch.envs.security]
+dependencies = [
+    "safety",
+    "bandit[toml]",
+    "pip-audit",
+    "trivy",
+    "trufflehog",
+]
+
+[tool.hatch.envs.security.scripts]
+scan = "python scripts/security/run_security_scans.py {args}"
+quick = "bandit -r src/ -q && safety check -q"
+
 # Tool configuration (existing tools)
 [tool.ruff]
 target-version = "py311"
