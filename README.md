@@ -1,6 +1,6 @@
 # Pynomaly 🔍
 
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build System: Hatch](https://img.shields.io/badge/build%20system-hatch-4051b5.svg)](https://hatch.pypa.io/)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
@@ -9,7 +9,24 @@
 
 Python anomaly detection package targeting Python 3.11+ with clean architecture principles, integrating multiple ML libraries (PyOD, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX) through a unified interface.
 
-**Built with**: Hatch for build system and environment management, Ruff for linting and formatting, CI/CD pipeline with automated testing and deployment.
+**Built with**: Hatch for build system and environment management, Ruff for linting and formatting, CI/CD pipeline with automated testing and deployment. 
+
+## VS Code Dev Container Setup
+
+To achieve consistent development environments across VS Code users, this project includes a dev container specification.
+
+### Setup Instructions
+
+1. **Install the Remote - Containers extension for VS Code.**
+2. **Clone the repository and open it in VS Code.**
+3. **When prompted, reopen in the container.**
+
+This setup ensures:
+- Identical development environments
+- Pre-installed tools, including `ruff`, `mypy`, and `pytest`
+- Live reload during development
+
+Refer to `DEVELOPMENT_SETUP.md` for more detailed information.
 
 ## Features
 
@@ -30,6 +47,8 @@ Python anomaly detection package targeting Python 3.11+ with clean architecture 
 - 🎯 **Ensemble Methods**: Advanced voting strategies and model combination
 - ⚡ **Performance Optimizations**: Batch cache operations, optimized data loading, memory management
 - 🧪 **Testing Infrastructure**: 85%+ coverage with property-based testing, benchmarking, and mutation testing
+- 🔄 **Branch Compliance**: Automated branch naming validation and CI/CD integration with protection against direct pushes to main/develop
+- 📊 **Statistical Analysis**: New endpoints for comprehensive statistical analysis and confidence intervals
 
 ### Experimental Features (Limited Support)
 
@@ -92,6 +111,43 @@ make dev                           # Uses Docker with live code reloading
 
 **📚 Complete Docker Guide**: See [Docker Development Guide](scripts/docker/README.md) for detailed options and troubleshooting.
 
+**🔧 Make Commands**:
+- `make dev` - Start Docker development environment (cross-platform)
+- `make dev-storage` - Start development with storage services
+- `make dev-test` - Run tests in Docker environment
+- `make dev-clean` - Clean Docker development environment
+
+### VS Code Development Container (Recommended for VS Code users)
+
+For VS Code users, the easiest way to get started is using the provided dev container:
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/pynomaly.git
+cd pynomaly
+
+# Open in VS Code
+code .
+
+# When prompted, click "Reopen in Container"
+# Or press F1 and select "Remote-Containers: Reopen in Container"
+```
+
+**What this provides:**
+- ✅ **Identical Environment** - Same Python version, dependencies, and tools across all developers
+- ✅ **Pre-installed Tools** - `ruff`, `mypy`, `pytest`, `black`, `hatch` ready to use
+- ✅ **Live Reload** - Code changes are immediately reflected
+- ✅ **Port Forwarding** - API available at `http://localhost:8000`
+- ✅ **Automated Setup** - Runs `make dev-setup` automatically
+
+**🔧 Dev Container Features**:
+- Python 3.11 with all project dependencies
+- Pre-configured VS Code extensions and settings
+- Persistent volume mounts for performance
+- Integrated testing and debugging support
+
+**🔄 Git Workflow**: See [Git Workflow Guide](docs/developer-guides/contributing/CI_CD_BRANCH_COMPLIANCE.md) for branch naming conventions, CI/CD integration, and development workflow best practices.
+
 ### Legacy (venv) Workflow **[DEPRECATED]**
 
 > ⚠️ **DEPRECATED**: The traditional Python virtual environment setup is deprecated in favor of Docker.
@@ -102,7 +158,7 @@ make dev                           # Uses Docker with live code reloading
 
 #### Prerequisites
 ```bash
-# Ensure Python 3.11+ is installed
+# Ensure Python 3.11+ is installed (minimum supported version)
 python --version  # Should show 3.11 or higher
 ```
 
@@ -177,12 +233,12 @@ Pynomaly is designed to work seamlessly across different operating systems and e
 
 **Python Environment Support:**
 - **Virtual Environments**: `venv`, `virtualenv`, `conda`, `pipenv`, `poetry`
-- **Python Versions**: 3.11, 3.12, 3.13+
+- **Python Versions**: 3.11 (minimum), 3.12, 3.13+
 - **Package Managers**: pip, conda, poetry, pipenv
 
 **Installation Methods:**
 - **Package Installation**: `pip install -e .` (cross-platform)
-- **Development Setup**: Poetry-based development environment
+- **Development Setup**: Hatch-based development environment
 - **Container Deployment**: Docker support for all platforms
 - **Cloud Deployment**: AWS, Azure, GCP compatible
 
@@ -192,6 +248,43 @@ Pynomaly is designed to work seamlessly across different operating systems and e
 - Environment variable handling across all platforms
 
 **NumPy Compatibility**: Uses `numpy>=1.26.0,<2.2.0` to ensure compatibility with TensorFlow and other ML libraries across all platforms.
+
+## Dependency Management
+
+### Python Dependencies
+
+Pynomaly requires **Python 3.11 or higher** and uses **Hatch** for environment management:
+
+```bash
+# Install Hatch (recommended)
+pip install hatch
+
+# Set up development environment
+hatch env create
+
+# Run tests
+hatch env run test:run
+
+# Build package
+hatch build
+```
+
+### Node.js Dependencies
+
+For web UI development, Pynomaly requires **Node.js 18+ and npm 9+**:
+
+```bash
+# Install Node.js dependencies
+npm ci
+
+# Build web assets
+npm run build
+
+# Run UI tests
+npm run test-ui
+```
+
+See [Contributing Guide](CONTRIBUTING.md) for detailed development setup instructions.
 
 ## Quick Start
 
@@ -325,11 +418,11 @@ def basic_example():
     normal_data = np.random.normal(0, 1, (100, 2))
     outliers = np.random.uniform(-4, 4, (10, 2))
     data = np.vstack([normal_data, outliers])
-    
+
     # Create dataset
     df = pd.DataFrame(data, columns=['feature1', 'feature2'])
     dataset = Dataset(name="Sample Data", data=df)
-    
+
     # Create detector using Pynomaly's clean architecture
     detector = SklearnAdapter(
         algorithm_name="IsolationForest",
@@ -338,20 +431,20 @@ def basic_example():
         random_state=42,
         n_estimators=100
     )
-    
+
     # Train detector
     detector.fit(dataset)
-    
+
     # Detect anomalies
     result = detector.detect(dataset)
-    
+
     # Results
     anomaly_count = len(result.anomalies)
     scores = [score.value for score in result.scores]
     print(f"Detected {anomaly_count} anomalies out of {len(data)} samples")
     print(f"Anomaly scores range: {min(scores):.3f} to {max(scores):.3f}")
     print(f"Detection completed in {result.execution_time_ms:.2f}ms")
-    
+
     return result.labels, scores
 
 # Run example
@@ -465,6 +558,44 @@ src/pynomaly/
 - **Decorator Pattern**: Feature engineering pipeline
 - **Chain of Responsibility**: Data preprocessing and validation
 
+## Anomaly Classification Taxonomy
+
+Pynomaly implements a comprehensive anomaly classification system that categorizes detected anomalies by both **severity** and **type** using a clean, extensible taxonomy.
+
+### Severity Classification
+- **Critical** (≥0.9): Immediate attention required, high business impact
+- **High** (≥0.7): Significant deviation, requires prompt investigation
+- **Medium** (≥0.5): Moderate anomaly, should be reviewed
+- **Low** (≥0.0): Minor deviation, informational
+
+### Type Classification
+- **Point Anomaly**: Individual data points that deviate from normal patterns
+- **Collective Anomaly**: Groups of data points that together form anomalous patterns
+- **Contextual Anomaly**: Points that are anomalous in specific contexts or time periods
+
+### Classification System Features
+- **Pluggable Classifiers**: Easily extensible with custom classification logic
+- **ML-Enhanced Classification**: Optional machine learning-based severity assessment
+- **Batch Processing**: Optimized for high-throughput anomaly classification
+- **Dashboard Integration**: Human-readable classification for UI display
+- **Configurable Thresholds**: Customizable severity boundaries per use case
+
+### Usage Examples
+```python
+from pynomaly.application.services.anomaly_classification_service import AnomalyClassificationService
+from pynomaly.domain.services.anomaly_classifiers import DefaultSeverityClassifier
+
+# Initialize classification service
+service = AnomalyClassificationService()
+
+# Classify an anomaly
+service.classify(anomaly)  # Updates anomaly.metadata with 'severity' and 'type'
+
+# Access classification results
+severity = anomaly.metadata.get('severity')  # 'critical', 'high', 'medium', 'low'
+type_category = anomaly.metadata.get('type')  # 'point', 'collective', 'contextual'
+```
+
 ## Supported Algorithm Libraries
 
 ### PyOD (Python Outlier Detection)
@@ -562,7 +693,7 @@ pytest --cov=src/pynomaly       # Test coverage
 
 # Code quality
 ruff check src/                  # Linting (actively maintained, ~9K issues resolved)
-ruff format src/                 # Auto-formatting 
+ruff format src/                 # Auto-formatting
 mypy src/pynomaly               # Type checking (strict mode enabled)
 hatch run lint:all              # Run all quality checks
 
@@ -674,7 +805,7 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed progress and [TODO.md](docs/projec
     ```python
     from pynomaly.presentation.web.app import create_web_app
     from pynomaly.infrastructure.config.security import SecurityConfig
-    
+
     # Production configuration
     app = create_web_app(
         enable_monitoring=True,

@@ -17,7 +17,7 @@ Using a static check script, we identified 6 algorithms in `ALGORITHM_MAPPING` t
 
 ### Missing Dependency Algorithms
 - **FeatureBagging**: Requires `combo` package (not installed)
-- **XGBOD**: Requires `xgboost` package (not installed) 
+- **XGBOD**: Requires `xgboost` package (not installed)
 - **SUOD**: Requires `suod` package (not installed)
 
 ## Solution Implemented
@@ -74,7 +74,7 @@ Algorithm 'SUOD' requires 'suod' package. Install with: pip install suod
 
 All tests pass, covering:
 - ✅ Missing class algorithms (FastABOD, Beta-VAE)
-- ✅ Missing module algorithms (CLF) 
+- ✅ Missing module algorithms (CLF)
 - ✅ Missing dependency algorithms (FeatureBagging, XGBOD, SUOD)
 - ✅ Working algorithms (PCA, LOF, IsolationForest, etc.)
 - ✅ Comprehensive validation of all problematic algorithms

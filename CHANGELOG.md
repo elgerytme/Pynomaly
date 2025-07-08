@@ -8,11 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Statistical Outputs**: Support for generating statistical analysis and confidence intervals via the API.
+- **Tutorial Notebook**: New tutorial explaining statistical outputs, confidence intervals, and their usage in Pynomaly.
+- **ADR Enhancements**: Detailed trade-offs for non-parametric vs. parametric methods have been added to ADR-010.
 - **Anomaly Classification Taxonomy**: Introduced comprehensive severity and type classification for anomalies, enhancing triage and response efficiency.
 - **ADR-010**: Documented architectural decisions for anomaly classification taxonomy, ensuring consistent and extensible implementation.
 - **Documentation Enhancements**: Updated README with taxonomy overview and examples, added detailed domain documentation, and created Sphinx pages.
 - **Example Notebooks**: Developed example notebooks for understanding and using anomaly classification features.
 - **Comprehensive Docstrings**: Added detailed docstrings to classification services, improving code clarity and maintainability.
+- **Workflow Documentation QA**: Updated PR template checklist to reference new workflow documentation in `/docs/developer-guides/workflow.md`, ensuring comprehensive documentation coverage for all changes.
 
 ## [v0.1.1] - 2025-07-08
 

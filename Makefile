@@ -1,3 +1,20 @@
+git-hooks-test: ## Run git hook validation tests
+	@echo "🔗 Running sample hook executions..."
+	@$(MAKE) test-pre-commit
+	@$(MAKE) test-pre-push
+	@echo "✅ All git hook tests completed!"
+
+# Internal test targets for hooks
+test-pre-commit:
+	@echo "👉 Running pre-commit hook test..."
+	@echo "Note: This will validate branch naming and check staged files"
+	bash scripts/git/hooks/pre-commit
+
+test-pre-push:
+	@echo "👉 Running pre-push hook test..."
+	@echo "Note: This will run unit tests as configured in pre-push hook"
+	bash scripts/git/hooks/pre-push
+
 # Pynomaly Makefile with Buck2 + Hatch integration
 # Production-ready build and development workflow
 #
@@ -15,19 +32,20 @@
 #   make build    - Build package
 #   make clean    - Clean up artifacts
 
-.PHONY: help setup install dev-install lint format test test-cov build clean docker pre-commit ci status release docs git-hooks branch-new branch-switch branch-validate
+.PHONY: help setup install dev-install lint format test test-cov build clean docker pre-commit ci status release docs git-hooks git-hooks-test branch-new branch-switch branch-validate dev-shell test-pre-commit test-pre-push
 
 # Default target
 help: ## Show this help message
 	@echo "🚀 Pynomaly Development Commands (Hatch-based)"
 	@echo ""
-	@echo "Setup & Installation:"
-	@echo "  make setup          - Initial project setup (install Hatch, create environments)"
+	@echo "Setup \u0026 Installation:"
+	@echo "  make setup          - Quick project setup (install dependencies) - Step 2"
 	@echo "  make install        - Install package in current environment"
 	@echo "  make dev-install    - Install package in development mode with all dependencies"
 	@echo ""
-	@echo "Development & Quality:"
+	@echo "Development \u0026 Quality:"
 	@echo "  make dev            - Start Docker development environment (recommended)"
+	@echo "  make dev-shell      - Open shell in development container"
 	@echo "  make dev-storage    - Start development with storage services (PostgreSQL, Redis, MinIO)"
 	@echo "  make dev-test       - Run tests in Docker environment"
 	@echo "  make dev-clean      - Clean Docker development environment"
@@ -41,6 +59,7 @@ help: ## Show this help message
 	@echo "  make test           - Run core tests (domain + application)"
 	@echo "  make test-all       - Run all tests including integration"
 	@echo "  make test-cov       - Run tests with coverage report"
+	@echo "  make cov            - Alias for test-cov (coverage)"
 	@echo "  make test-unit      - Run only unit tests"
 	@echo "  make test-integration - Run only integration tests"
 	@echo ""
@@ -67,12 +86,13 @@ help: ## Show this help message
 	@echo "  make env-show       - Show all Hatch environments"
 	@echo "  make env-clean      - Clean and recreate environments"
 	@echo ""
-	@echo "Branching & Git:"
+	@echo "Branching \u0026 Git:"
 	@echo "  make git-hooks            - Install Git hooks (pre-commit, pre-push, post-checkout)"
+	@echo "  make git-hooks-test       - Run git hook validation tests"
 	@echo "  make branch-new TYPE NAME - Create new branch with validation (e.g., feature my-feature)"
 	@echo "  make branch-switch NAME   - Switch branches with safety checks"
 	@echo "  make branch-validate      - Validate current branch name for CI"
-	@echo "  Note: Cross-platform scripts in scripts/git/ (bash & PowerShell)"
+	@echo "  Note: Cross-platform scripts in scripts/git/ (bash \u0026 PowerShell)"
 	@echo ""
 	@echo "For detailed help: make help-detailed"
 
@@ -87,12 +107,13 @@ help-detailed: ## Show detailed help with examples
 	@echo ""
 	@echo "=== DAILY DEVELOPMENT WORKFLOW ==="
 	@echo "1. make dev           # Start Docker development environment"
-	@echo "2. make format        # Auto-fix code style"
-	@echo "3. make dev-test      # Run tests in Docker"
-	@echo "4. make lint          # Check quality"
-	@echo "5. git add . && git commit -m 'feat: your changes'"
-	@echo "6. make ci            # Full CI check before push"
-	@echo "7. git push"
+	@echo "2. make dev-shell     # Open interactive shell in container"
+	@echo "3. make format        # Auto-fix code style"
+	@echo "4. make dev-test      # Run tests in Docker"
+	@echo "5. make lint          # Check quality"
+	@echo "6. git add . \u0026\u0026 git commit -m 'feat: your changes'"
+	@echo "7. make ci            # Full CI check before push"
+	@echo "8. git push"
 	@echo ""
 	@echo "=== HATCH COMMANDS USED ==="
 	@echo "• hatch version       → Git-based version management"
@@ -111,15 +132,10 @@ help-detailed: ## Show detailed help with examples
 
 # === SETUP & INSTALLATION ===
 
-setup: ## Initial project setup - install Hatch and create environments
+setup: ## Quick project setup - install dependencies
 	@echo "🚀 Setting up Pynomaly development environment..."
-	@command -v hatch >/dev/null 2>&1 || (echo "Installing Hatch..." && pip install hatch)
-	@echo "✅ Hatch installed: $$(hatch --version)"
-	@echo "📦 Creating Hatch environments..."
-	hatch env create
-	@echo "📋 Available environments:"
-	hatch env show
-	@echo "✅ Setup complete! Run 'make dev-install' next."
+	@hatch env run dev:setup
+	@echo "✅ Basic setup complete!"
 
 install: ## Install package in current environment
 	pip install -e .
@@ -193,9 +209,7 @@ version: ## Show current version
 clean: ## Clean build artifacts and cache
 	@echo "🧹 Cleaning build artifacts..."
 	hatch env run dev:clean
-	rm -rf dist/ build/ *.egg-info/
-	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
-	find . -type f -name "*.pyc" -delete 2>/dev/null || true
+	# Additional cleaning steps if needed
 	@echo "✅ Cleanup complete!"
 
 # === ENVIRONMENTS ===
@@ -222,19 +236,22 @@ pre-commit: ## Install and run pre-commit hooks
 
 ci: ## Run full CI pipeline locally
 	@echo "🚀 Running full CI pipeline locally..."
-	@echo "1️⃣ Version check..."
+	@echo "1️⃣ Installing Git hooks..."
+	$(MAKE) git-hooks
+	$(MAKE) git-hooks-test
+	@echo "2️⃣ Version check..."
 	hatch version
-	@echo "2️⃣ Code quality..."
+	@echo "3️⃣ Code quality..."
 	$(MAKE) lint
-	@echo "3️⃣ Core tests..."
+	@echo "4️⃣ Core tests..."
 	$(MAKE) test
-	@echo "4️⃣ Integration tests..."
+	@echo "5️⃣ Integration tests..."
 	$(MAKE) test-integration
-	@echo "5️⃣ Build package..."
+	@echo "6️⃣ Build package..."
 	$(MAKE) build
-	@echo "6️⃣ CLI test..."
+	@echo "7️⃣ CLI test..."
 	hatch env run cli:test-cli
-	@echo "7️⃣ Core imports..."
+	@echo "8️⃣ Core imports..."
 	python -c "import sys; sys.path.insert(0, 'src'); from pynomaly.domain.entities import Dataset; print('✅ Core imports successful')"
 	@echo "✅ Full CI pipeline completed successfully!"
 
@@ -459,6 +476,13 @@ else
 	@./scripts/docker/dev/run-dev.sh --build
 endif
 
+dev-shell: ## Open shell in development container
+ifeq ($(OS),Windows_NT)
+	@docker exec -it pynomaly-dev /bin/bash
+else
+	@docker-compose exec pynomaly-dev /bin/bash
+endif
+
 dev-legacy: ## Start legacy development environment with watch mode (deprecated)
 	@echo "⚠️  Starting legacy development environment..."
 	@echo "This will start web asset watch mode only"
@@ -516,6 +540,7 @@ clean: npm-clean buck-clean ## Clean all build artifacts
 l: lint     ## Alias for lint
 f: format   ## Alias for format
 t: test     ## Alias for test
+cov: test-cov  ## Alias for test-cov (coverage)
 b: build    ## Alias for build
 c: clean    ## Alias for clean
 s: status   ## Alias for status
