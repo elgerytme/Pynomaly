@@ -14,8 +14,10 @@ from pynomaly.infrastructure.auth import (
     require_viewer,
     require_analyst,
     require_data_scientist,
+    get_current_user,
 )
 from pynomaly.infrastructure.config import Container
+from pynomaly.presentation.api.deps import get_container
 
 router = APIRouter()
 
