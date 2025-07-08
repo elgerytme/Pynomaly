@@ -127,6 +127,163 @@ class AutomatedTrainingService:
         logger.info(f"Training job created: {job.id}")
         return job
 
+    async def _run_training_job(self, job: TrainingJob) -> None:
+        """
+        Enhanced training job pipeline with MetricsCalculator, StatisticalTester, 
+        ParetoOptimizer, and ModelSelector integration.
+
+        Pipeline stages:
+        1. Train algorithms (existing loop)
+        2. Collect ModelEvaluation via MetricsCalculator
+        3. Call StatisticalTester & ParetoOptimizer
+        4. Feed into ModelSelector to pick winner(s)
+        5. Persist comparison artifacts; update best_models cache
+        6. Async progress events for each stage
+
+        Args:
+            job: Training job to execute
+        """
+        try:
+            await self._update_job_status(job, TrainingStatus.RUNNING)
+
+            # Load and prepare dataset
+            dataset = await self._load_dataset(job.dataset_id)
+            X, y = await self._prepare_training_data(dataset, job.config)
+
+            # Split data for training and validation
+            X_train, X_val, y_train, y_val = train_test_split(
+                X,
+                y,
+                test_size=self.config.validation_split,
+                random_state=self.config.random_seed,
+                stratify=y if self._is_classification_task(y) else None,
+            )
+
+            job.progress = 10.0
+            await self._update_job_progress(job)
+
+            # Stage 1: Train algorithms (existing loop)
+            training_results = []
+            algorithms_count = len(job.algorithms)
+
+            for i, algorithm_name in enumerate(job.algorithms):
+                logger.info(f"Training {algorithm_name} for job {job.id}")
+
+                try:
+                    result = await self._train_algorithm(
+                        algorithm_name, X_train, y_train, X_val, y_val, job
+                    )
+                    training_results.append(result)
+
+                except Exception as e:
+                    logger.error(f"Failed to train {algorithm_name}: {e}")
+                    continue
+
+                # Update progress
+                progress = 10.0 + (60.0 * (i + 1) / algorithms_count)
+                job.progress = progress
+                await self._update_job_progress(job)
+
+            # Trigger progress event for training completion
+            await self._trigger_async_event('MODEL_TRAINING_COMPLETED', job.id)
+
+            # Stage 2: Collect ModelEvaluation via MetricsCalculator
+            model_evaluations = []
+            for result in training_results:
+                # Get predictions from stored results
+                y_pred = result['metrics']['y_pred']
+                y_proba = result['metrics']['proba']
+                
+                evaluation = MetricsCalculator.compute(
+                    y_true=y_val,
+                    y_pred=y_pred,
+                    proba=y_proba,
+                    task_type='anomaly',
+                    confidence_level=0.95
+                )
+                model_evaluations.append(evaluation)
+
+            await self._trigger_async_event('MODEL_EVALUATION_COMPLETED', job.id)
+
+            # Stage 3: Call StatisticalTester & ParetoOptimizer
+            statistical_tester = StatisticalTester()
+            significance_results = []
+            for i, result_a in enumerate(training_results):
+                for j, result_b in enumerate(training_results[i+1:], i+1):
+                    significant = statistical_tester.test_significance(
+                        result_a['metrics'],
+                        result_b['metrics']
+                    )
+                    significance_results.append({
+                        'model_a': result_a['algorithm'],
+                        'model_b': result_b['algorithm'],
+                        'significant': significant.significant,
+                        'p_value': significant.p_value,
+                        'test_name': significant.test_name
+                    })
+
+            await self._trigger_async_event('SIGNIFICANCE_TESTING_COMPLETED', job.id)
+
+            pareto_optimizer = ParetoOptimizer(objectives=[
+                {'name': 'f1_score', 'direction': 'max'}, 
+                {'name': 'roc_auc', 'direction': 'max'}
+            ])
+            pareto_optimal_models = pareto_optimizer.find_pareto_optimal(training_results)
+
+            await self._trigger_async_event('PARETO_OPTIMIZATION_COMPLETED', job.id)
+
+            # Stage 4: Feed into ModelSelector to pick winner(s)
+            from pynomaly.domain.entities.model_performance import ModelPerformanceMetrics
+            
+            # Convert training results to ModelPerformanceMetrics objects
+            performance_metrics = []
+            for result in training_results:
+                metrics_obj = ModelPerformanceMetrics(
+                    model_id=result['model_id'],
+                    metrics=result['metrics'],
+                    algorithm=result['algorithm'],
+                    dataset_id=job.dataset_id,
+                    training_job_id=job.id,
+                    training_time=result.get('training_time', 0.0)
+                )
+                performance_metrics.append(metrics_obj)
+            
+            model_selector = ModelSelector(primary_metric='f1_score', secondary_metrics=['roc_auc'])
+            best_model_info = model_selector.select_best_model(performance_metrics)
+            job.best_model_id = best_model_info.get('selected_model') if best_model_info else None
+
+            await self._trigger_async_event('MODEL_SELECTION_COMPLETED', job.id)
+
+            # Stage 5: Persist comparison artifacts; update best_models cache
+            comparison_artifacts = {
+                'best_model': best_model_info,
+                'significance_results': significance_results,
+                'pareto_optimal_models': [model['model_id'] for model in pareto_optimal_models],
+                'model_evaluations': model_evaluations,
+                'pareto_summary': pareto_optimizer.get_optimization_summary(training_results)
+            }
+            await self.training_repository.save_comparison_artifacts(job.id, comparison_artifacts)
+            self.best_models[job.id] = best_model_info
+
+            # Finalize job
+            job.results = training_results
+            job.completed_at = datetime.utcnow()
+            job.progress = 100.0
+
+            await self._update_job_status(job, TrainingStatus.COMPLETED)
+
+            logger.info(f"Enhanced training job {job.id} completed successfully")
+
+        except Exception as e:
+            logger.error(f"Training job {job.id} failed: {e}")
+            job.error_message = str(e)
+            await self._update_job_status(job, TrainingStatus.FAILED)
+
+        finally:
+            # Cleanup
+            if job.id in self.active_jobs:
+                del self.active_jobs[job.id]
+
     async def _execute_training_pipeline(self, job: TrainingJob) -> None:
         """
         Execute the complete training pipeline for a job.

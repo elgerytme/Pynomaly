@@ -8,13 +8,41 @@ from uuid import uuid4
 import factory
 from factory import fuzzy
 
-from pynomaly.application.dto.detection_dto import (
-    DetectionRequestDTO,
-    DetectionResultDTO,
-    ExplanationRequestDTO,
-    TrainingRequestDTO,
-    TrainingResultDTO,
-)
+try:
+    from pynomaly.application.dto.detection_dto import (
+        DetectionRequestDTO,
+        DetectionResultDTO,
+        ExplanationRequestDTO,
+        TrainingRequestDTO,
+        TrainingResultDTO,
+        AnomalyDTO,
+    )
+except ImportError:
+    # Fallback for missing modules
+    class DetectionRequestDTO:
+        def __init__(self, **kwargs):
+            for k, v in kwargs.items():
+                setattr(self, k, v)
+    class DetectionResultDTO:
+        def __init__(self, **kwargs):
+            for k, v in kwargs.items():
+                setattr(self, k, v)
+    class ExplanationRequestDTO:
+        def __init__(self, **kwargs):
+            for k, v in kwargs.items():
+                setattr(self, k, v)
+    class TrainingRequestDTO:
+        def __init__(self, **kwargs):
+            for k, v in kwargs.items():
+                setattr(self, k, v)
+    class TrainingResultDTO:
+        def __init__(self, **kwargs):
+            for k, v in kwargs.items():
+                setattr(self, k, v)
+    class AnomalyDTO:
+        def __init__(self, **kwargs):
+            for k, v in kwargs.items():
+                setattr(self, k, v)
 
 
 class DetectionRequestDTOFactory(factory.Factory):

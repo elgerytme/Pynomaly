@@ -262,6 +262,7 @@ class TestInferencePerformanceRegression:
         # Create single sample datasets
         single_sample_data = performance_datasets["small"].data.iloc[:1]
         single_sample_dataset = Dataset(name="Single Sample", data=single_sample_data)
+        config = load_performance_config()
 
         for model_name, model in trained_models.items():
             # Measure inference time for single sample
@@ -270,8 +271,9 @@ class TestInferencePerformanceRegression:
             inference_time = time.time() - start_time
 
             # Single sample inference should be very fast
+            single_sample_threshold = config.get('performance_thresholds', {}).get('execution_time', {}).get('single_sample_max_seconds', 1.0)
             assert (
-                inference_time < 1.0
+                inference_time < single_sample_threshold
             ), f"{model_name} single sample inference too slow: {inference_time}s"
             assert len(scores) == 1
             assert isinstance(scores[0], AnomalyScore)

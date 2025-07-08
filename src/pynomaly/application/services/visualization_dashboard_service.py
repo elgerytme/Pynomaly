@@ -1401,14 +1401,157 @@ class VisualizationDashboardService:
     async def _generate_live_alert_stream_chart(
         self, config: ChartConfig, data: dict[str, Any]
     ) -> dict[str, Any]:
-        return self._build_chart_payload(
-            chart_id=config.chart_id,
-            chart_type="time_series",
-            title="Live Alert Stream",
-            series=self._get_metrics_series(data),
-            engine=config.engine.value,
-            dataZoom=[{"type": "inside", "start": 0, "end": 100}],
-        )
+        """Generate live alert stream chart with notification overlay."""
+        try:
+            # Prepare alert stream data
+            timestamps = data.get('timestamps', [])
+            alerts = data.get('alerts', [])
+            severity_levels = data.get('severity_levels', [])
+            
+            # Create notification overlay data
+            notification_data = []
+            for i, (timestamp, alert, severity) in enumerate(zip(timestamps, alerts, severity_levels, strict=False)):
+                notification_data.append({
+                    "value": [timestamp, alert, severity],
+                    "itemStyle": {
+                        "color": self._get_severity_color(severity)
+                    }
+                })
+            
+            # Create alert stream series
+            series = [
+                {
+                    "name": "Alert Stream",
+                    "type": "scatter",
+                    "data": notification_data,
+                    "symbolSize": 8,
+                    "emphasis": {
+                        "focus": "series",
+                        "blurScope": "coordinateSystem"
+                    },
+                    "label": {
+                        "show": True,
+                        "position": "top",
+                        "formatter": "{@[2]}",
+                        "fontSize": 10
+                    },
+                    "itemStyle": {
+                        "borderWidth": 1,
+                        "borderColor": "#fff"
+                    }
+                },
+                {
+                    "name": "Alert Trend",
+                    "type": "line",
+                    "data": alerts,
+                    "smooth": True,
+                    "lineStyle": {
+                        "width": 2,
+                        "color": "#5470c6",
+                        "opacity": 0.8
+                    },
+                    "areaStyle": {
+                        "opacity": 0.1
+                    },
+                    "symbol": "none",
+                    "animation": True,
+                    "animationDuration": 500
+                }
+            ]
+            
+            # Custom configuration for live streaming
+            custom_config = {
+                "xAxis": {
+                    "type": "time",
+                    "name": "Time",
+                    "axisLabel": {
+                        "formatter": "{HH}:{mm}:{ss}"
+                    },
+                    "splitLine": {
+                        "show": True,
+                        "lineStyle": {
+                            "type": "dashed"
+                        }
+                    }
+                },
+                "yAxis": {
+                    "type": "value",
+                    "name": "Alert Count",
+                    "min": 0,
+                    "splitLine": {
+                        "show": True,
+                        "lineStyle": {
+                            "type": "dashed"
+                        }
+                    }
+                },
+                "series": series,
+                "graphic": {
+                    "type": "group",
+                    "right": 10,
+                    "top": 10,
+                    "children": [
+                        {
+                            "type": "rect",
+                            "z": 100,
+                            "left": "center",
+                            "top": "middle",
+                            "shape": {
+                                "width": 80,
+                                "height": 30
+                            },
+                            "style": {
+                                "fill": "rgba(0,0,0,0.3)",
+                                "stroke": "#fff",
+                                "lineWidth": 1
+                            }
+                        },
+                        {
+                            "type": "text",
+                            "z": 100,
+                            "left": "center",
+                            "top": "middle",
+                            "style": {
+                                "text": "LIVE",
+                                "font": "bold 12px Arial",
+                                "fill": "#fff"
+                            }
+                        }
+                    ]
+                }
+            }
+            
+            return self._build_chart_payload(
+                chart_id=config.chart_id,
+                chart_type="time_series",
+                title="Live Alert Stream",
+                engine=config.engine.value,
+                custom_options=custom_config,
+                dataZoom=[
+                    {"type": "inside", "start": 70, "end": 100},
+                    {"type": "slider", "start": 70, "end": 100}
+                ],
+                tooltip={
+                    "trigger": "axis",
+                    "axisPointer": {"type": "cross"},
+                    "formatter": "{b}<br/>{a}: {c}<br/>Severity: {d}"
+                }
+            )
+            
+        except Exception as e:
+            logger.error(f"Failed to generate live alert stream chart: {e}")
+            return {}
+    
+    def _get_severity_color(self, severity: str) -> str:
+        """Get color based on alert severity."""
+        severity_colors = {
+            'critical': '#ff4757',
+            'high': '#ff7675',
+            'medium': '#fdcb6e',
+            'low': '#6c5ce7',
+            'info': '#74b9ff'
+        }
+        return severity_colors.get(severity.lower(), '#a4a4a4')
 
     async def _notify_real_time_subscribers(self, metrics: RealTimeMetrics) -> None:
         """Notify real-time dashboard subscribers of new metrics."""
