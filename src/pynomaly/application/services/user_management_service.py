@@ -289,6 +289,77 @@ class UserManagementService:
         return await self._tenant_repo.update_tenant_usage(tenant_id, usage_updates)
     
     # Permission Management
+    async def update_user(
+        self, 
+        user_id: UserId, 
+        update_data: Dict[str, any]
+    ) -> User:
+        """Update user information."""
+        user = await self._user_repo.get_user_by_id(user_id)
+        if not user:
+            raise UserNotFoundError(f"User {user_id} not found")
+        
+        # Update fields
+        if "first_name" in update_data:
+            user.first_name = update_data["first_name"]
+        if "last_name" in update_data:
+            user.last_name = update_data["last_name"]
+        if "status" in update_data:
+            user.status = update_data["status"]
+        
+        user.updated_at = datetime.utcnow()
+        
+        return await self._user_repo.update_user(user)
+    
+    async def delete_user(self, user_id: UserId) -> bool:
+        """Delete a user."""
+        user = await self._user_repo.get_user_by_id(user_id)
+        if not user:
+            raise UserNotFoundError(f"User {user_id} not found")
+        
+        return await self._user_repo.delete_user(user_id)
+    
+    async def reset_password(self, user_id: UserId, new_password: str) -> bool:
+        """Reset user password."""
+        user = await self._user_repo.get_user_by_id(user_id)
+        if not user:
+            raise UserNotFoundError(f"User {user_id} not found")
+        
+        # Hash the new password
+        user.password_hash = self._hash_password(new_password)
+        user.updated_at = datetime.utcnow()
+        
+        updated_user = await self._user_repo.update_user(user)
+        return updated_user is not None
+    
+    async def toggle_user_status(self, user_id: UserId, new_status: UserStatus) -> User:
+        """Toggle user status (activate/deactivate)."""
+        user = await self._user_repo.get_user_by_id(user_id)
+        if not user:
+            raise UserNotFoundError(f"User {user_id} not found")
+        
+        user.status = new_status
+        user.updated_at = datetime.utcnow()
+        
+        return await self._user_repo.update_user(user)
+    
+    async def list_users(
+        self, 
+        tenant_id: Optional[TenantId] = None, 
+        status: Optional[UserStatus] = None,
+        role: Optional[UserRole] = None,
+        limit: int = 100,
+        offset: int = 0
+    ) -> List[User]:
+        """List users with optional filters."""
+        return await self._user_repo.list_users(
+            tenant_id=tenant_id,
+            status=status,
+            role=role,
+            limit=limit,
+            offset=offset
+        )
+
     async def check_user_permission(
         self, 
         user_id: UserId, 
