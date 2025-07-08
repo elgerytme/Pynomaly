@@ -1,7 +1,9 @@
 """WebSocket endpoints for real-time updates."""
 
+import asyncio
 import json
 import logging
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 
@@ -215,6 +217,156 @@ def setup_task_tracking_websockets(task_service: TaskTrackingService):
     # This would need to be called when tasks are created
     # to subscribe the WebSocket callback to task updates
     return task_update_callback
+
+
+@router.websocket("/ws/detections")
+async def detections_websocket(
+    websocket: WebSocket,
+    container: Container = Depends(get_container)
+):
+    """WebSocket endpoint for real-time anomaly detection results."""
+    # Authenticate the WebSocket connection
+    try:
+        auth_service = get_auth()
+        ws_auth_dep = create_websocket_auth_dependency(auth_service)
+        user = await ws_auth_dep(websocket)
+        logger.info(f"Authenticated WebSocket user for detections: {user.username}")
+    except Exception as e:
+        logger.warning(f"WebSocket authentication failed: {e}")
+        await websocket.close(code=4001, reason="Authentication required")
+        return
+
+    await websocket.accept()
+    
+    try:
+        # Get streaming detection service
+        streaming_service = container.streaming_detection_service()
+        
+        # Subscribe to anomaly detection results
+        detection_queue = asyncio.Queue()
+        
+        def detection_callback(result):
+            """Callback for new detection results."""
+            asyncio.create_task(detection_queue.put(result))
+        
+        # Register callback with streaming service
+        streaming_service.register_detection_callback(detection_callback)
+        
+        # Send initial connection confirmation
+        await websocket.send_text(json.dumps({
+            "type": "connected",
+            "message": "Connected to real-time detection stream",
+            "timestamp": datetime.utcnow().isoformat(),
+            "user": user.username
+        }))
+        
+        # Main message handling loop
+        async def handle_incoming_messages():
+            """Handle incoming WebSocket messages."""
+            while True:
+                try:
+                    data = await websocket.receive_text()
+                    message = json.loads(data)
+                    
+                    if message.get("type") == "ping":
+                        await websocket.send_text(json.dumps({
+                            "type": "pong",
+                            "timestamp": datetime.utcnow().isoformat()
+                        }))
+                    elif message.get("type") == "start_stream":
+                        # Start streaming detection if not already running
+                        await streaming_service.start_stream()
+                        await websocket.send_text(json.dumps({
+                            "type": "stream_started",
+                            "message": "Real-time detection stream started",
+                            "timestamp": datetime.utcnow().isoformat()
+                        }))
+                    elif message.get("type") == "stop_stream":
+                        # Stop streaming detection
+                        await streaming_service.stop_stream()
+                        await websocket.send_text(json.dumps({
+                            "type": "stream_stopped",
+                            "message": "Real-time detection stream stopped",
+                            "timestamp": datetime.utcnow().isoformat()
+                        }))
+                        
+                except json.JSONDecodeError:
+                    await websocket.send_text(json.dumps({
+                        "type": "error",
+                        "message": "Invalid JSON message",
+                        "timestamp": datetime.utcnow().isoformat()
+                    }))
+                except Exception as e:
+                    logger.error(f"Error handling WebSocket message: {e}")
+                    break
+        
+        # Start message handler
+        message_handler = asyncio.create_task(handle_incoming_messages())
+        
+        # Main detection result forwarding loop
+        while True:
+            try:
+                # Wait for detection results or timeout
+                try:
+                    result = await asyncio.wait_for(detection_queue.get(), timeout=1.0)
+                    
+                    # Send detection result to client
+                    await websocket.send_text(json.dumps({
+                        "type": "anomaly_detection",
+                        "data": {
+                            "batch_id": result.batch_id,
+                            "anomalies_detected": result.anomalies_detected,
+                            "batch_size": result.batch_size,
+                            "processing_time_ms": result.processing_time_ms,
+                            "timestamp": result.timestamp.isoformat(),
+                            "sample_results": [
+                                {
+                                    "id": str(sr.id),
+                                    "is_anomaly": sr.is_anomaly,
+                                    "scores": [s.value for s in sr.scores] if sr.scores else [],
+                                    "anomaly_threshold": sr.anomaly_threshold,
+                                    "execution_time_ms": sr.execution_time_ms,
+                                    "metadata": sr.metadata
+                                } for sr in result.sample_results[:10]  # Limit to first 10 for performance
+                            ]
+                        },
+                        "timestamp": datetime.utcnow().isoformat()
+                    }))
+                    
+                except asyncio.TimeoutError:
+                    # Send keepalive ping
+                    await websocket.send_text(json.dumps({
+                        "type": "keepalive",
+                        "timestamp": datetime.utcnow().isoformat()
+                    }))
+                    
+            except WebSocketDisconnect:
+                break
+            except Exception as e:
+                logger.error(f"Error in detection WebSocket loop: {e}")
+                await websocket.send_text(json.dumps({
+                    "type": "error",
+                    "message": f"Error in detection stream: {str(e)}",
+                    "timestamp": datetime.utcnow().isoformat()
+                }))
+                break
+        
+        # Cleanup
+        if not message_handler.done():
+            message_handler.cancel()
+        
+        # Unregister callback
+        streaming_service.unregister_detection_callback(detection_callback)
+        
+    except WebSocketDisconnect:
+        logger.info(f"WebSocket disconnected for user: {user.username if 'user' in locals() else 'unknown'}")
+    except Exception as e:
+        logger.error(f"Error in detections WebSocket: {e}")
+    finally:
+        try:
+            await websocket.close()
+        except:
+            pass
 
 
 @router.get("/tasks/{task_id}/sse")

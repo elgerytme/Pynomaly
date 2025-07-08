@@ -44,8 +44,19 @@ from ..entities.detection_result import DetectionResult
 from ..value_objects.anomaly_score import AnomalyScore
 from ..value_objects.confidence_interval import ConfidenceInterval
 from ..value_objects.contamination_rate import ContaminationRate
-from ...infrastructure.monitoring.opentelemetry_service import trace_anomaly_detection
-from ...infrastructure.monitoring.distributed_tracing import trace_operation
+# from ...infrastructure.monitoring.opentelemetry_service import trace_anomaly_detection
+# from ...infrastructure.monitoring.distributed_tracing import trace_operation
+
+# Simple stubs for monitoring functions
+def trace_anomaly_detection(func):
+    """Simple decorator stub for monitoring."""
+    return func
+
+def trace_operation(name):
+    """Simple decorator stub for monitoring."""
+    def decorator(func):
+        return func
+    return decorator
 
 
 logger = logging.getLogger(__name__)
