@@ -19,7 +19,6 @@ from enum import Enum
 from typing import Any, Callable
 from uuid import UUID, uuid4
 
-from pynomaly.application.dto.configuration_dto import OptimizationConfigDTO
 from pynomaly.application.services.automl_service import (
     AutoMLService,
     OptimizationObjective,

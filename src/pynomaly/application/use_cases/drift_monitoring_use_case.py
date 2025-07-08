@@ -16,14 +16,14 @@ import pandas as pd
 
 from pynomaly.application.services.drift_detection_service import DriftDetectionService
 from pynomaly.domain.entities.drift_detection import (
-    DriftAlert,
-    DriftDetectionMethod,
+    DriftDetectionConfig,
     DriftDetectionResult,
+    DriftType,
+)
+from pynomaly.domain.entities.continuous_learning import (
     DriftMetrics,
-    DriftMonitoringStatus,
     DriftReport,
     DriftSeverity,
-    DriftType,
     ModelMonitoringConfig,
     MonitoringStatus,
 )
