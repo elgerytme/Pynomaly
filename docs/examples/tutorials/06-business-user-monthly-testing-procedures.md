@@ -10,7 +10,7 @@
 This document provides comprehensive procedures for business users to conduct monthly data quality testing using Pynomaly. It ensures consistent data quality monitoring, anomaly detection, and reporting for business-critical data sources.
 
 ### References to C-003:
-- **Regression Thresholds**: Refer to C-003 for setting and maintaining performance regression thresholds. This ensures that performance remains within acceptable limits by comparing current data with baselines.
+- **Regression Thresholds**: Refer to C-003 for setting and maintaining performance regression thresholds. This ensures that performance remains within acceptable limits by comparing current data with baselines. See the [C-003 Regression Threshold Flow Diagram](diagrams/c003-regression-threshold-flow.md) for more information.
 - **Storage of Baseline Data**: Baseline data management aligns with C-003 guidelines, providing historical reference for calculating performance deviations. Baseline examples can be seen in `performance_baseline.json`.
 - **Notification Hooks**: Using C-003 criteria, the CI/CD pipeline alerts relevant parties through notifications if regression is detected, ensuring timely response.
 

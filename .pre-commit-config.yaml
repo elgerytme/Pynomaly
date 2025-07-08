@@ -3,7 +3,7 @@
 # Run manually: pre-commit run --all-files
 
 repos:
-  # File Organization and Project Structure
+  # File Organization and Project Structure (Custom Structure Validator)
   - repo: local
     hooks:
       - id: file-organization-check
@@ -36,14 +36,92 @@ repos:
       - id: check-added-large-files
         args: [--maxkb=5000]
 
-      # Python specific
+      # Python specific - AST checks
       - id: check-ast
       - id: check-builtin-literals
       - id: check-docstring-first
       - id: debug-statements
+      - id: check-case-conflict
+      - id: check-xml
+      - id: requirements-txt-fixer
+      - id: fix-byte-order-marker
+
+  # Python Code Upgrading
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.15.0
+    hooks:
+      - id: pyupgrade
+        args: [--py311-plus]
+
+  # Black Code Formatting
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        language_version: python3.11
+
+  # isort Import Sorting
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+
+  # Ruff Linting (replaces flake8)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.9
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+
+  # MyPy Type Checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - pydantic
+          - types-requests
+          - pandas-stubs
+        args: ["--strict", "--ignore-missing-imports"]
+        exclude: ^(tests/|docs/)
+
+  # Security Checks with Bandit
+  - repo: https://github.com/pycqa/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: ['-c', 'pyproject.toml']
+        additional_dependencies: ["bandit[toml]"]
+        exclude: ^(tests/|docs/)
+
+  # Commitizen for Commit Message Formatting
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.13.0
+    hooks:
+      - id: commitizen
+      - id: commitizen-branch
+        stages: [push]
+
+  # Poetry Configuration Validation
+  - repo: https://github.com/python-poetry/poetry
+    rev: 1.7.0
+    hooks:
+      - id: poetry-check
+      - id: poetry-lock
+        args: ["--no-update"]
 
 # Configuration
+default_language_version:
+  python: python3.11
+
 default_install_hook_types: [pre-commit]
 default_stages: [pre-commit]
 fail_fast: false
 minimum_pre_commit_version: 3.0.0
+
+# Pre-commit.ci configuration
+ci:
+  autofix_prs: true
+  autoupdate_schedule: weekly
+  autoupdate_commit_msg: 'chore: pre-commit autoupdate'

@@ -178,7 +178,14 @@ class AuditStorage:
     """Abstract audit storage interface."""
 
     async def store_event(self, event: AuditEvent) -> bool:
-        """Store audit event."""
+        """Store audit event.
+        
+        Args:
+            event: AuditEvent to store
+            
+        Returns:
+            bool: True if stored successfully, False otherwise
+        """
         raise NotImplementedError
 
     async def retrieve_events(
@@ -187,12 +194,54 @@ class AuditStorage:
         end_time: datetime,
         filters: Optional[Dict[str, Any]] = None
     ) -> List[AuditEvent]:
-        """Retrieve audit events."""
+        """Retrieve audit events within time range.
+        
+        Args:
+            start_time: Start of time range
+            end_time: End of time range
+            filters: Optional filters for events
+            
+        Returns:
+            List[AuditEvent]: Matching events
+        """
         raise NotImplementedError
 
     async def delete_expired_events(self, before_date: datetime) -> int:
-        """Delete expired events."""
+        """Delete expired events before given date.
+        
+        Args:
+            before_date: Delete events before this date
+            
+        Returns:
+            int: Number of deleted events
+        """
         raise NotImplementedError
+
+    async def get_event_count(self, filters: Optional[Dict[str, Any]] = None) -> int:
+        """Get count of events matching filters.
+        
+        Args:
+            filters: Optional filters for events
+            
+        Returns:
+            int: Number of matching events
+        """
+        # Default implementation - can be overridden for efficiency
+        events = await self.retrieve_events(
+            start_time=datetime.min,
+            end_time=datetime.max,
+            filters=filters
+        )
+        return len(events)
+
+    async def verify_integrity(self) -> bool:
+        """Verify storage integrity.
+        
+        Returns:
+            bool: True if integrity check passes
+        """
+        # Default implementation - can be overridden
+        return True
 
 
 class FileAuditStorage(AuditStorage):

@@ -3,8 +3,7 @@
 from typing import List, Optional
 from uuid import UUID
 
-from pynomaly.domain.entities.model_performance import ModelPerformanceMetrics
-from .performance_baseline_repository import PerformanceBaselineRepository
+from pynomaly.domain.entities.model_performance import ModelPerformanceMetrics, ModelPerformanceBaseline
 
 
 class ModelPerformanceRepository:
