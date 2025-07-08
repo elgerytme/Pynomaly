@@ -349,15 +349,20 @@ class PyTorchAdapter(DetectorProtocol):
 
     def __init__(
         self,
-        algorithm: str = "autoencoder",
+        algorithm_name: str = "autoencoder",
+        name: str | None = None,
+        contamination_rate: float = 0.1,
         device: str | None = None,
         model_config: dict[str, Any] | None = None,
         random_state: int | None = None,
+        algorithm: str | None = None,  # Backward compatibility
     ):
         """Initialize PyTorch adapter.
 
         Args:
-            algorithm: Deep learning algorithm ('autoencoder', 'vae', 'lstm')
+            algorithm_name: Deep learning algorithm ('autoencoder', 'vae', 'lstm')
+            name: Name for this detector instance
+            contamination_rate: Expected contamination rate
             device: PyTorch device ('cpu', 'cuda', 'auto')
             model_config: Model-specific configuration
             random_state: Random seed for reproducibility
@@ -368,7 +373,13 @@ class PyTorchAdapter(DetectorProtocol):
                 "Install with: pip install torch torchvision"
             )
 
-        self.algorithm = algorithm
+        # Handle backward compatibility
+        if algorithm is not None:
+            algorithm_name = algorithm
+            
+        self.algorithm = algorithm_name
+        self._name = name or f"PyTorch_{algorithm_name}"
+        self._contamination_rate = contamination_rate
         self.model_config = model_config or {}
         self.random_state = random_state
 
@@ -394,6 +405,35 @@ class PyTorchAdapter(DetectorProtocol):
 
         logger.info(f"Initialized PyTorchAdapter with {algorithm} on {self.device}")
 
+    def train(self, X: np.ndarray, y: np.ndarray | None = None) -> PyTorchAdapter:
+        return self.fit(X, y)
+
+    def save(self, path: str | Path):
+        self.save_model(path)
+
+    def load(self, path: str | Path):
+        self.load_model(path)
+
+    @property
+    def name(self) -> str:
+        """Get the name of the detector."""
+        return self._name
+
+    @property
+    def contamination_rate(self) -> float:
+        """Get the contamination rate."""
+        return self._contamination_rate
+
+    @property
+    def is_fitted(self) -> bool:
+        """Check if the detector has been fitted."""
+        return self.is_trained
+
+    @property
+    def parameters(self) -> dict[str, Any]:
+        """Get the current parameters of the detector."""
+        return self.algorithm_params
+
     @property
     def algorithm_name(self) -> str:
         """Get algorithm name."""
@@ -407,7 +447,20 @@ class PyTorchAdapter(DetectorProtocol):
             "device": str(self.device),
             "model_config": self.model_config,
             "random_state": self.random_state,
+            "contamination_rate": self._contamination_rate,
         }
+
+    def get_params(self) -> dict[str, Any]:
+        """Get parameters of the detector."""
+        return self.algorithm_params
+
+    def set_params(self, **params: Any) -> None:
+        """Set parameters of the detector."""
+        for key, value in params.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+            elif key in self.model_config:
+                self.model_config[key] = value
 
     def fit(self, X: np.ndarray, y: np.ndarray | None = None) -> PyTorchAdapter:
         """Train the deep learning model."""
@@ -487,8 +540,10 @@ class PyTorchAdapter(DetectorProtocol):
 
     def _fit_autoencoder(self, X_tensor: torch.Tensor):
         """Train AutoEncoder model."""
-        # Create configuration
-        config = AutoEncoderConfig(input_dim=X_tensor.shape[1], **self.model_config)
+        # Create configuration with contamination
+        model_config = self.model_config.copy()
+        model_config["contamination"] = model_config.get("contamination", self._contamination_rate)
+        config = AutoEncoderConfig(input_dim=X_tensor.shape[1], **model_config)
 
         # Initialize model
         self.model = AutoEncoder(config).to(self.device)
@@ -537,7 +592,9 @@ class PyTorchAdapter(DetectorProtocol):
 
     def _fit_vae(self, X_tensor: torch.Tensor):
         """Train VAE model."""
-        config = VAEConfig(input_dim=X_tensor.shape[1], **self.model_config)
+        model_config = self.model_config.copy()
+        model_config["contamination"] = model_config.get("contamination", self._contamination_rate)
+        config = VAEConfig(input_dim=X_tensor.shape[1], **model_config)
 
         self.model = VAE(config).to(self.device)
         optimizer = optim.Adam(self.model.parameters(), lr=config.learning_rate)
@@ -573,7 +630,9 @@ class PyTorchAdapter(DetectorProtocol):
 
     def _fit_lstm(self, X_tensor: torch.Tensor):
         """Train LSTM model for time series."""
-        config = LSTMConfig(input_dim=X_tensor.shape[1], **self.model_config)
+        model_config = self.model_config.copy()
+        model_config["contamination"] = model_config.get("contamination", self._contamination_rate)
+        config = LSTMConfig(input_dim=X_tensor.shape[1], **model_config)
 
         # Reshape for time series
         X_sequences = self._create_sequences(X_tensor, config.sequence_length)
@@ -657,15 +716,27 @@ class PyTorchAdapter(DetectorProtocol):
 
     def _calculate_threshold(self, X_tensor: torch.Tensor):
         """Calculate anomaly threshold based on training data."""
-        scores = self.decision_function(X_tensor.cpu().numpy())
+        # Calculate scores directly without using decision_function to avoid circular dependency
+        self.model.eval()
+        with torch.no_grad():
+            if self.algorithm == "autoencoder":
+                scores = self._autoencoder_scores(X_tensor)
+            elif self.algorithm == "vae":
+                scores = self._vae_scores(X_tensor)
+            elif self.algorithm == "lstm":
+                scores = self._lstm_scores(X_tensor)
+            else:
+                raise ValueError(f"Unknown algorithm: {self.algorithm}")
+        
+        scores_np = scores.cpu().numpy()
 
         if hasattr(self.model, "config"):
             contamination = self.model.config.contamination
         else:
-            contamination = 0.1
+            contamination = self._contamination_rate
 
         # Use percentile-based threshold
-        self.threshold = np.percentile(scores, (1 - contamination) * 100)
+        self.threshold = np.percentile(scores_np, (1 - contamination) * 100)
 
         logger.info(f"Calculated anomaly threshold: {self.threshold:.6f}")
 
@@ -677,9 +748,14 @@ class PyTorchAdapter(DetectorProtocol):
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
 
+        # Get complete model config including input_dim
+        complete_config = self.model_config.copy()
+        if hasattr(self.model, 'config'):
+            complete_config['input_dim'] = self.model.config.input_dim
+        
         save_dict = {
             "model_state_dict": self.model.state_dict(),
-            "model_config": self.model_config,
+            "model_config": complete_config,
             "algorithm": self.algorithm,
             "threshold": self.threshold,
             "scaler_params": (
@@ -703,7 +779,8 @@ class PyTorchAdapter(DetectorProtocol):
         if not path.exists():
             raise FileNotFoundError(f"Model file not found: {path}")
 
-        checkpoint = torch.load(path, map_location=self.device)
+        # Load with weights_only=False for compatibility with older PyTorch versions
+        checkpoint = torch.load(path, map_location=self.device, weights_only=False)
 
         # Restore configuration
         self.algorithm = checkpoint["algorithm"]

@@ -907,3 +907,12 @@ def create_container(testing: bool = False) -> Container:
     )
 
     return container
+
+
+def get_container_simple() -> Container:
+    """Get a simple container instance for CLI usage.
+    
+    This is a simple wrapper around create_container() for CLI usage.
+    It creates a new container if one doesn't exist.
+    """
+    return create_container(testing=False)

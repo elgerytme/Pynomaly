@@ -123,6 +123,21 @@ class OptimizationResult:
 
 class AutoMLService:
     """AutoML service for automated anomaly detection optimization."""
+
+    # JSON schemas for PyOD algorithms' search spaces
+    PYOD_PARAMETER_SPACES = {
+        "KNN": {
+            "type": "object",
+            "properties": {
+                "n_neighbors": {"type": "integer", "enum": [3, 5, 10, 20]},
+                "method": {"type": "string", "enum": ["largest", "median", "mean"]},
+                "contamination": {"type": "number", "enum": [0.05, 0.1, 0.15]}
+            },
+            "required": ["n_neighbors", "method", "contamination"]
+        },
+        # Add more algorithms as needed
+    }
+
     
     def __init__(self):
         """Initialize AutoML service."""

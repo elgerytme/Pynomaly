@@ -16,6 +16,14 @@ from .enhanced_pyod_adapter import EnhancedPyODAdapter
 from .enhanced_sklearn_adapter import EnhancedSklearnAdapter
 from .ensemble_meta_adapter import AggregationMethod, EnsembleMetaAdapter
 
+# Optional deep learning adapters
+try:
+    from .deep_learning.pytorch_adapter import PyTorchAdapter
+    PYTORCH_AVAILABLE = True
+except ImportError:
+    PyTorchAdapter = None
+    PYTORCH_AVAILABLE = False
+
 
 class AlgorithmLibrary(Enum):
     """Supported algorithm libraries."""
@@ -23,6 +31,7 @@ class AlgorithmLibrary(Enum):
     PYOD = "pyod"
     SKLEARN = "sklearn"
     ENSEMBLE = "ensemble"
+    PYTORCH = "pytorch"
     AUTO = "auto"
 
 
@@ -74,6 +83,10 @@ class AlgorithmFactory:
             AlgorithmLibrary.SKLEARN: EnhancedSklearnAdapter,
             AlgorithmLibrary.ENSEMBLE: EnsembleMetaAdapter,
         }
+        
+        # Register PyTorch adapter if available
+        if PYTORCH_AVAILABLE:
+            self._library_adapters[AlgorithmLibrary.PYTORCH] = PyTorchAdapter
 
         # Suppress warnings for cleaner output
         warnings.filterwarnings("ignore", category=UserWarning)
@@ -329,6 +342,10 @@ class AlgorithmFactory:
             [f"sklearn_{name}" for name in EnhancedSklearnAdapter.list_algorithms()]
         )
 
+        # PyTorch algorithms
+        if PYTORCH_AVAILABLE:
+            algorithms.extend(["autoencoder", "vae", "lstm"])
+
         # Ensemble algorithms
         algorithms.extend(["ensemble", "auto_ensemble"])
 
@@ -340,6 +357,8 @@ class AlgorithmFactory:
             return EnhancedPyODAdapter.list_algorithms()
         elif library == AlgorithmLibrary.SKLEARN:
             return EnhancedSklearnAdapter.list_algorithms()
+        elif library == AlgorithmLibrary.PYTORCH:
+            return ["autoencoder", "vae", "lstm"] if PYTORCH_AVAILABLE else []
         elif library == AlgorithmLibrary.ENSEMBLE:
             return ["ensemble", "auto_ensemble"]
         else:
@@ -388,6 +407,13 @@ class AlgorithmFactory:
 
     def _detect_library(self, algorithm_name: str) -> AlgorithmLibrary:
         """Auto-detect which library contains the algorithm."""
+        # Check PyTorch first
+        if PYTORCH_AVAILABLE and algorithm_name.lower() in [
+            "autoencoder", "pytorch_autoencoder", "vae", "pytorch_vae", 
+            "lstm", "pytorch_lstm", "pytorch"
+        ]:
+            return AlgorithmLibrary.PYTORCH
+            
         # Check PyOD first
         if algorithm_name in EnhancedPyODAdapter.list_algorithms():
             return AlgorithmLibrary.PYOD
