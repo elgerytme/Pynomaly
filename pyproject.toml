@@ -64,7 +64,7 @@ api = [
     "aiofiles>=24.1.0",
     "pydantic-settings>=2.8.0"
 ]
-cli = ["typer[all]>=0.15.1", "rich>=13.9.4"]
+cli = ["typer[all]>=0.15.1", "rich>=13.9.4", "shap>=0.46.0", "lime>=0.2.0.1"]
 server = [
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.34.0",
@@ -110,7 +110,7 @@ database = ["sqlalchemy>=2.0.36", "psycopg2-binary>=2.9.10"]
 spark = ["pyspark>=3.5.4"]
 
 # ML backend extras  
-torch = ["torch>=2.5.1"]
+torch = ["torch>=2.5.1"]  # CPU version to avoid manylinux issues with GPU builds
 tensorflow = ["tensorflow>=2.18.0,<2.20.0", "keras>=3.8.0"]
 jax = ["jax>=0.4.37", "jaxlib>=0.4.37", "optax>=0.2.4"]
 
@@ -139,7 +139,9 @@ production = [
     "pydantic-settings>=2.8.0",
     "pyjwt>=2.10.1",
     "passlib[bcrypt]>=1.7.4",
-    "prometheus-fastapi-instrumentator>=7.0.0"
+    "prometheus-fastapi-instrumentator>=7.0.0",
+    "shap>=0.46.0",
+    "lime>=0.2.0.1"
 ]
 
 # Development extras
@@ -150,7 +152,19 @@ test = [
     "pytest-xdist>=3.6.0",
     "hypothesis>=6.115.0",
     "factory-boy>=3.3.1",
-    "faker>=33.1.0"
+    "faker>=33.1.0",
+    "coverage[toml]>=7.6.9",
+    "bandit[toml]>=1.8.0",
+    "pytest-mock>=3.14.0",
+    "pytest-benchmark>=5.1.0",
+    "pytest-timeout>=2.3.1",
+    "pytest-env>=1.1.5",
+    "pytest-html>=4.1.1",
+    "pytest-bdd>=8.0.1",
+    "freezegun>=1.5.1",
+    "responses>=0.25.3",
+    "ipdb>=0.13.13",
+    "pytest-sugar>=1.0.0"
 ]
 ui-test = [
     "playwright>=1.40.0",
@@ -187,7 +201,7 @@ dev = [
 ml-all = [
     "scikit-learn>=1.6.0",
     "scipy>=1.15.0",
-    "torch>=2.5.1",
+    "torch>=2.5.1",  # CPU version to avoid manylinux issues with GPU builds
     "tensorflow>=2.18.0,<2.20.0",
     "keras>=3.8.0",
     "jax>=0.4.37",
@@ -235,7 +249,7 @@ all = [
     "tenacity>=9.0.0",
     "circuitbreaker>=2.0.0",
     "pydantic-settings>=2.8.0",
-    "torch>=2.5.1",
+    "torch>=2.5.1",  # CPU version to avoid manylinux issues with GPU builds
     "tensorflow>=2.18.0,<2.20.0",
     "keras>=3.8.0",
     "jax>=0.4.37",

@@ -505,12 +505,15 @@ class TestMemoryPerformanceRegression:
         assert all(result > 0 for result in results if result is not None)
 
         # Concurrent memory usage should not be excessive
+        config = load_performance_config()
+        concurrent_threshold = config.get('performance_thresholds', {}).get('memory_usage', {}).get('concurrent_max_memory_mb', 300)
         assert (
-            concurrent_mb < 300
+            concurrent_mb < concurrent_threshold
         ), f"Concurrent operations use too much memory: {concurrent_mb} MB"
 
         # Memory leak should be minimal
-        assert leak_mb < 50, f"Concurrent operations cause memory leak: {leak_mb} MB"
+        concurrent_leak_threshold = config.get('performance_thresholds', {}).get('memory_usage', {}).get('concurrent_leak_max_memory_mb', 50)
+        assert leak_mb < concurrent_leak_threshold, f"Concurrent operations cause memory leak: {leak_mb} MB"
 
 
 class TestConcurrencyPerformanceRegression:
@@ -561,9 +564,11 @@ class TestConcurrencyPerformanceRegression:
             avg_concurrent_time = np.mean(concurrent_times)
 
             # Concurrent inference should not be significantly slower
+            config = load_performance_config()
+            max_slowdown_ratio = config.get('performance_thresholds', {}).get('concurrency', {}).get('max_slowdown_ratio', 3.0)
             slowdown_ratio = avg_concurrent_time / avg_sequential_time
             assert (
-                slowdown_ratio < 3.0
+                slowdown_ratio < max_slowdown_ratio
             ), f"Concurrent inference too slow: {slowdown_ratio}x slower"
 
         except ImportError:
