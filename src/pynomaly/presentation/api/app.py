@@ -23,6 +23,7 @@ from pynomaly.infrastructure.config import Container
 # Temporarily disabled telemetry
 # from pynomaly.infrastructure.monitoring import init_telemetry
 from pynomaly.presentation.api.docs import api_docs, configure_openapi_docs
+from pynomaly.presentation.api.router_factory import apply_openapi_overrides
 from pynomaly.presentation.api.endpoints import (
     admin,
     auth,
@@ -184,13 +185,12 @@ def create_app(container: Container | None = None) -> FastAPI:
     # Store container in app state
     app.state.container = container
 
-    # OpenAPI documentation temporarily disabled
-    # Complex auth dependencies with pydantic forward references need resolution
-    # Issue: TypeAdapter[Annotated[UserModel | None, Depends(get_current_user)]] 
-    # TODO: Refactor auth dependencies to avoid circular type references
-    app.openapi_url = None
-    app.docs_url = None  
-    app.redoc_url = None
+    # Apply dependency overrides to resolve circular dependency issues
+    # This enables OpenAPI generation by replacing complex Annotated[Depends(...)] patterns
+    apply_openapi_overrides(app)
+    
+    # Configure OpenAPI documentation
+    configure_openapi_docs(app, settings)
 
     # Add CORS middleware
     app.add_middleware(CORSMiddleware, **settings.get_cors_config())

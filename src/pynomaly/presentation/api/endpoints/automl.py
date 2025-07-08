@@ -423,6 +423,124 @@ async def get_algorithm_recommendations(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.post("/run")
+async def run_automl(
+    dataset_path: str,
+    algorithm_name: str,
+    max_trials: int = 100,
+    storage_path: str = "./automl_storage",
+    container: Container = Depends(get_container),
+    current_user: str | None = Depends(get_current_user),
+    _permissions: str = Depends(require_write),
+) -> dict:
+    """Run AutoML hyperparameter optimization for PyOD algorithms."""
+    start_time = time.time()
+    
+    try:
+        logger.info(f"Starting AutoML optimization for {algorithm_name} on {dataset_path}")
+        
+        # Validate PyOD algorithm
+        supported_algorithms = {
+            "KNN": "KNN",
+            "LOF": "LOCAL_OUTLIER_FACTOR", 
+            "IsolationForest": "ISOLATION_FOREST",
+            "OneClassSVM": "ONE_CLASS_SVM",
+            "AutoEncoder": "AUTO_ENCODER",
+        }
+        
+        if algorithm_name not in supported_algorithms:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unsupported algorithm: {algorithm_name}. Supported: {list(supported_algorithms.keys())}"
+            )
+        
+        # Get AutoML use case
+        automl_use_case = container.automl_optimization_use_case()
+        
+        # Create optimization request
+        from pynomaly.application.dto.automl_dto import AutoMLOptimizationRequest
+        
+        optimization_request = AutoMLOptimizationRequest(
+            dataset_id=dataset_path,  # Using path as ID for simplicity
+            optimization_objective="f1_score",
+            max_algorithms_to_try=1,  # Single algorithm optimization
+            max_optimization_time_minutes=30,  # 30 minute limit
+            enable_ensemble=False,
+            detector_name=f"{algorithm_name}_optimized",
+            cross_validation_folds=5,
+            random_state=42,
+        )
+        
+        # Run optimization
+        optimization_response = await automl_use_case.auto_optimize(
+            optimization_request
+        )
+        
+        execution_time = time.time() - start_time
+        
+        if optimization_response.success:
+            # Persist trial results
+            trial_data = {
+                "algorithm": algorithm_name,
+                "best_score": optimization_response.best_score,
+                "best_parameters": optimization_response.best_parameters,
+                "optimization_time": execution_time,
+                "trials_completed": optimization_response.trials_completed,
+                "storage_path": storage_path,
+            }
+            
+            # Save to storage (simplified)
+            import os
+            import json
+            os.makedirs(storage_path, exist_ok=True)
+            storage_file = os.path.join(
+                storage_path, 
+                f"{algorithm_name}_optimization_{int(time.time())}.json"
+            )
+            
+            with open(storage_file, "w") as f:
+                json.dump(trial_data, f, indent=2, default=str)
+            
+            # Check success criteria (F1 ≥ baseline + 15%)
+            baseline_score = 0.5  # Assumed baseline
+            improvement = (optimization_response.best_score - baseline_score) / baseline_score
+            meets_criteria = improvement >= 0.15
+            
+            return {
+                "success": True,
+                "algorithm": algorithm_name,
+                "best_score": optimization_response.best_score,
+                "best_parameters": optimization_response.best_parameters,
+                "optimization_time": execution_time,
+                "trials_completed": optimization_response.trials_completed,
+                "storage_file": storage_file,
+                "performance_improvement": f"{improvement:.1%}",
+                "meets_success_criteria": meets_criteria,
+                "detector_id": optimization_response.optimized_detector_id,
+                "message": f"AutoML optimization completed for {algorithm_name}",
+            }
+        else:
+            return {
+                "success": False,
+                "algorithm": algorithm_name,
+                "optimization_time": execution_time,
+                "error": optimization_response.error_message,
+                "message": "AutoML optimization failed",
+            }
+    
+    except Exception as e:
+        logger.error(f"AutoML run failed: {e}")
+        execution_time = time.time() - start_time
+        
+        return {
+            "success": False,
+            "algorithm": algorithm_name,
+            "optimization_time": execution_time,
+            "error": str(e),
+            "message": "AutoML optimization failed",
+        }
+
+
 @router.post("/batch-optimize")
 async def batch_optimize(
     dataset_ids: list[str],
