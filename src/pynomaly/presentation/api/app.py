@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import logging
+import time
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from datetime import datetime
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
 
 # Optional prometheus dependency
 try:
@@ -55,6 +59,8 @@ except ImportError:
 # Distributed processing endpoints removed for simplification
 distributed = None
 DISTRIBUTED_API_AVAILABLE = False
+
+logger = logging.getLogger(__name__)
 
 
 # Web UI mounting - resolved circular import by using late import
@@ -213,11 +219,80 @@ def create_app(container: Container | None = None) -> FastAPI:
     # Add CORS middleware
     app.add_middleware(CORSMiddleware, **settings.get_cors_config())
 
-    # Add request tracking middleware
-    app.middleware("http")(track_request_metrics)
+    # Initialize Prometheus metrics service
+    metrics_service = None
+    if settings.monitoring.prometheus_enabled:
+        try:
+            from pynomaly.infrastructure.monitoring.prometheus_metrics import (
+                PrometheusMetricsService,
+                CONTENT_TYPE_LATEST,
+                get_metrics_service,
+                initialize_metrics,
+            )
+            
+            # Initialize global metrics service
+            metrics_service = initialize_metrics(
+                enable_default_metrics=True,
+                namespace="pynomaly",
+                port=None,  # Don't start HTTP server automatically
+            )
+            
+            # Set application info
+            metrics_service.set_application_info(
+                version=settings.app.version,
+                environment=settings.environment,
+                build_time=datetime.now().isoformat(),
+                git_commit="unknown",
+            )
+            
+            # Store metrics service in app state
+            app.state.metrics_service = metrics_service
+            
+            # Add /metrics endpoint
+            @app.get("/metrics", include_in_schema=False)
+            async def metrics_endpoint():
+                """Prometheus metrics endpoint."""
+                return Response(
+                    content=metrics_service.get_metrics_data(),
+                    media_type=CONTENT_TYPE_LATEST,
+                )
+            
+            print(f"Prometheus metrics enabled at /metrics")
+            
+        except ImportError as e:
+            print(f"Warning: Prometheus metrics requested but dependencies not available: {e}")
+    
+    # Add request tracking middleware with metrics
+    @app.middleware("http")
+    async def request_metrics_middleware(request, call_next):
+        """Middleware to record HTTP request metrics."""
+        start_time = time.time()
+        
+        # Call the next middleware/endpoint
+        response = await call_next(request)
+        
+        # Record metrics
+        duration = time.time() - start_time
+        
+        if metrics_service:
+            metrics_service.record_http_request(
+                method=request.method,
+                endpoint=request.url.path,
+                status_code=response.status_code,
+                duration=duration,
+            )
+        
+        # Also call the original tracking function if available
+        try:
+            await track_request_metrics(request, call_next)
+        except Exception as e:
+            # Log error but don't fail the request
+            logger.warning(f"Error in request tracking: {e}")
+        
+        return response
 
-    # Add Prometheus metrics if enabled and available
-    if settings.monitoring.prometheus_enabled and PROMETHEUS_AVAILABLE:
+    # Add Prometheus FastAPI instrumentator if available (secondary option)
+    if settings.monitoring.prometheus_enabled and PROMETHEUS_AVAILABLE and not metrics_service:
         instrumentator = Instrumentator()
         instrumentator.instrument(app).expose(app, endpoint="/metrics")
     elif settings.monitoring.prometheus_enabled and not PROMETHEUS_AVAILABLE:

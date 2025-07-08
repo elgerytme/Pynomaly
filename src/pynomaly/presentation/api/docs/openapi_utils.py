@@ -182,13 +182,111 @@ def custom_openapi_generator(app: FastAPI, config: Optional[Any] = None) -> Any:
             logger.debug(f"Generated {len(schemas)} model schemas")
             
             # 6. Generate base OpenAPI schema
-            openapi_schema = get_openapi(
-                title=app.title,
-                version=app.version,
-                description=app.description,
-                routes=routes,
-                servers=getattr(app, 'servers', None)
-            )
+            # Try multiple approaches to handle forward reference issues
+            openapi_schema = None
+            
+            # Approach 1: Try with only safe routes (no dependencies)
+            safe_routes = []
+            for route in routes:
+                try:
+                    # Skip routes that might have forward reference issues
+                    if hasattr(route, 'dependant') and route.dependant and route.dependant.dependencies:
+                        # Check if any dependency has forward references
+                        has_forward_ref = False
+                        for dep in route.dependant.dependencies:
+                            if hasattr(dep, 'type_') and 'ForwardRef' in str(dep.type_):
+                                has_forward_ref = True
+                                break
+                        if not has_forward_ref:
+                            safe_routes.append(route)
+                    else:
+                        safe_routes.append(route)
+                except Exception:
+                    # Skip problematic routes
+                    continue
+            
+            # Try with safe routes first
+            try:
+                openapi_schema = get_openapi(
+                    title=app.title,
+                    version=app.version,
+                    description=app.description,
+                    routes=safe_routes,
+                    servers=getattr(app, 'servers', None)
+                )
+                logger.info(f"Generated OpenAPI schema with {len(safe_routes)} safe routes")
+            except Exception as e:
+                logger.warning(f"Failed to generate schema with safe routes: {e}")
+                
+                # Approach 2: Try with minimal route information
+                try:
+                    minimal_routes = []
+                    for route in routes:
+                        try:
+                            # Create a minimal route copy
+                            minimal_route = type('MinimalRoute', (), {
+                                'path': route.path,
+                                'methods': route.methods,
+                                'name': getattr(route, 'name', 'unknown'),
+                                'tags': getattr(route, 'tags', []),
+                                'summary': getattr(route, 'summary', None),
+                                'description': getattr(route, 'description', None),
+                            })
+                            minimal_routes.append(minimal_route)
+                        except Exception:
+                            continue
+                    
+                    # Generate basic schema structure manually
+                    openapi_schema = {
+                        "openapi": "3.0.0",
+                        "info": {
+                            "title": app.title,
+                            "version": app.version,
+                            "description": app.description or "API Documentation"
+                        },
+                        "paths": {},
+                        "components": {
+                            "schemas": {}
+                        }
+                    }
+                    
+                    # Add paths manually
+                    for route in routes:
+                        try:
+                            path = route.path
+                            methods = route.methods or ['GET']
+                            
+                            if path not in openapi_schema["paths"]:
+                                openapi_schema["paths"][path] = {}
+                            
+                            for method in methods:
+                                if method.upper() not in ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']:
+                                    continue
+                                    
+                                openapi_schema["paths"][path][method.lower()] = {
+                                    "summary": getattr(route, 'summary', None) or f"{method.upper()} {path}",
+                                    "description": getattr(route, 'description', None) or f"Endpoint for {path}",
+                                    "tags": getattr(route, 'tags', []),
+                                    "responses": {
+                                        "200": {
+                                            "description": "Successful Response",
+                                            "content": {
+                                                "application/json": {
+                                                    "schema": {"type": "object"}
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                        except Exception as e:
+                            logger.warning(f"Failed to add path {route.path}: {e}")
+                            continue
+                    
+                    logger.info(f"Generated manual OpenAPI schema with {len(openapi_schema['paths'])} paths")
+                    
+                except Exception as e2:
+                    logger.error(f"Failed to generate manual schema: {e2}")
+                    raise e  # Re-raise original error
             
             # 7. Add custom schemas to components
             if "components" not in openapi_schema:

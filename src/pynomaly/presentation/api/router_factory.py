@@ -32,6 +32,9 @@ def create_api_router_with_overrides() -> APIRouter:
     """
     router = APIRouter()
     
+    # Import container override that doesn't use Request type
+    from pynomaly.presentation.api.dependencies.container_override import get_container_override
+    
     # Override complex auth dependencies with simplified versions
     router.dependency_overrides = {
         # Map complex dependencies to simple ones for OpenAPI generation
@@ -39,9 +42,10 @@ def create_api_router_with_overrides() -> APIRouter:
         require_admin: require_auth_safe,
         require_analyst: require_auth_safe,
         require_viewer: require_auth_safe,
-        # Container dependencies
-        get_container_simple: get_container_safe,
-        get_container: get_container_safe,
+        # Container dependencies - use override that doesn't use Request type
+        get_container_simple: get_container_override,
+        get_container: get_container_override,
+        get_container_safe: get_container_override,
     }
     
     return router
@@ -69,4 +73,5 @@ def apply_openapi_overrides(app: FastAPI) -> None:
         # Container dependencies - use override that doesn't use Request type
         get_container_simple: get_container_override,
         get_container: get_container_override,
+        get_container_safe: get_container_override,
     })
