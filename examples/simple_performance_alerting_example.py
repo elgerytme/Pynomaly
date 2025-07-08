@@ -4,7 +4,14 @@ This example focuses on the core functionality of the alerting integration.
 """
 
 import asyncio
+import logging
 from datetime import datetime
+
+# Configure logging to see alert creation messages
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 from pynomaly.application.services.model_performance_degradation_detector import (
     ModelPerformanceDegradationDetector,

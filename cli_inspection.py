@@ -32,6 +32,8 @@ class TyperCommandExtractor(ast.NodeVisitor):
         self.commands = []
         self.subapps = {}
         self.app_name = None
+        self.typer_app_definitions = []
+        self.imports = []
         
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
         """Visit function definitions to find Typer commands."""
@@ -39,6 +41,42 @@ class TyperCommandExtractor(ast.NodeVisitor):
         command_info = self._extract_command_info(node)
         if command_info:
             self.commands.append(command_info)
+        self.generic_visit(node)
+    
+    def visit_Import(self, node: ast.Import) -> None:
+        """Visit import statements to track imports."""
+        for alias in node.names:
+            self.imports.append({
+                'type': 'import',
+                'name': alias.name,
+                'asname': alias.asname
+            })
+        self.generic_visit(node)
+    
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+        """Visit from-import statements to track imports."""
+        for alias in node.names:
+            self.imports.append({
+                'type': 'from_import',
+                'module': node.module,
+                'name': alias.name,
+                'asname': alias.asname
+            })
+        self.generic_visit(node)
+    
+    def visit_Assign(self, node: ast.Assign) -> None:
+        """Visit assignments to find Typer app definitions."""
+        # Look for app = typer.Typer(...) assignments
+        if (isinstance(node.value, ast.Call) and
+            isinstance(node.value.func, ast.Attribute) and
+            node.value.func.attr == 'Typer'):
+            
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    app_info = self._extract_app_definition(target.id, node.value)
+                    if app_info:
+                        self.typer_app_definitions.append(app_info)
+        
         self.generic_visit(node)
     
     def visit_Call(self, node: ast.Call) -> None:
@@ -238,6 +276,33 @@ class TyperCommandExtractor(ast.NodeVisitor):
             }
         return None
     
+    def _extract_app_definition(self, app_name: str, call_node: ast.Call) -> Optional[Dict[str, Any]]:
+        """Extract Typer app definition information."""
+        app_info = {
+            "name": app_name,
+            "help": "",
+            "add_completion": False,
+            "rich_markup_mode": None,
+            "parameters": {}
+        }
+        
+        # Parse keyword arguments
+        for keyword in call_node.keywords:
+            if keyword.arg == "name" and isinstance(keyword.value, ast.Constant):
+                app_info["parameters"]["name"] = keyword.value.value
+            elif keyword.arg == "help" and isinstance(keyword.value, ast.Constant):
+                app_info["help"] = keyword.value.value
+            elif keyword.arg == "add_completion" and isinstance(keyword.value, ast.Constant):
+                app_info["add_completion"] = keyword.value.value
+            elif keyword.arg == "rich_markup_mode" and isinstance(keyword.value, ast.Constant):
+                app_info["rich_markup_mode"] = keyword.value.value
+            else:
+                # Store other parameters
+                if isinstance(keyword.value, ast.Constant):
+                    app_info["parameters"][keyword.arg] = keyword.value.value
+        
+        return app_info
+    
     def _extract_subapp_info(self, node: ast.Call) -> Optional[Dict[str, Any]]:
         """Extract subapp information from app.add_typer() call."""
         if len(node.args) < 1:
@@ -282,26 +347,32 @@ def analyze_cli_file(file_path: Path) -> Dict[str, Any]:
         return {
             "file": str(file_path.relative_to(Path.cwd())),
             "commands": extractor.commands,
-            "subapps": extractor.subapps
+            "subapps": extractor.subapps,
+            "typer_apps": extractor.typer_app_definitions,
+            "imports": extractor.imports
         }
     except Exception as e:
         return {
             "file": str(file_path),
             "error": str(e),
             "commands": [],
-            "subapps": {}
+            "subapps": {},
+            "typer_apps": [],
+            "imports": []
         }
 
 
 def find_cli_files(root_path: Path) -> List[Path]:
-    """Find all CLI-related Python files."""
+    """Find all CLI-related Python files, excluding _click_backup."""
     cli_dir = root_path / "src" / "pynomaly" / "presentation" / "cli"
     if not cli_dir.exists():
         raise FileNotFoundError(f"CLI directory not found: {cli_dir}")
     
     cli_files = []
     for file_path in cli_dir.rglob("*.py"):
-        if file_path.name != "__init__.py":
+        if (file_path.name != "__init__.py" and 
+            "_click_backup" not in str(file_path) and
+            "_compat.py" not in str(file_path)):
             cli_files.append(file_path)
     
     return sorted(cli_files)
@@ -328,13 +399,17 @@ def main():
             "summary": {
                 "total_commands": 0,
                 "total_subapps": 0,
-                "total_options": 0
+                "total_options": 0,
+                "total_typer_apps": 0,
+                "total_imports": 0
             }
         }
         
         total_commands = 0
         total_subapps = 0
         total_options = 0
+        total_typer_apps = 0
+        total_imports = 0
         
         for cli_file in cli_files:
             print(f"Analyzing: {cli_file.name}")
@@ -344,6 +419,8 @@ def main():
             # Update totals
             total_commands += len(file_analysis.get("commands", []))
             total_subapps += len(file_analysis.get("subapps", {}))
+            total_typer_apps += len(file_analysis.get("typer_apps", []))
+            total_imports += len(file_analysis.get("imports", []))
             
             for command in file_analysis.get("commands", []):
                 total_options += len(command.get("options", []))
@@ -352,7 +429,9 @@ def main():
         cli_surface["summary"].update({
             "total_commands": total_commands,
             "total_subapps": total_subapps,
-            "total_options": total_options
+            "total_options": total_options,
+            "total_typer_apps": total_typer_apps,
+            "total_imports": total_imports
         })
         
         # Write to JSON file
@@ -365,6 +444,8 @@ def main():
         print(f"   - Total commands: {total_commands}")
         print(f"   - Total subapps: {total_subapps}")
         print(f"   - Total options: {total_options}")
+        print(f"   - Total typer apps: {total_typer_apps}")
+        print(f"   - Total imports: {total_imports}")
         print(f"   - Output file: {output_file}")
         
     except Exception as e:
