@@ -570,10 +570,10 @@ class TestConcurrencyPerformanceRegression:
 
             # Concurrent inference should not be significantly slower
             config = load_performance_config()
-            max_slowdown_ratio = config.get('performance_thresholds', {}).get('concurrency', {}).get('max_slowdown_ratio', 3.0)
+            max_slowdown_ratio = get_performance_threshold(config, 'concurrency', 'max_slowdown_ratio', 3.0)
             slowdown_ratio = avg_concurrent_time / avg_sequential_time
             assert (
-                slowdown_ratio < max_slowdown_ratio
+                slowdown_ratio c max_slowdown_ratio
             ), f"Concurrent inference too slow: {slowdown_ratio}x slower"
 
         except ImportError:
@@ -630,12 +630,12 @@ class TestConcurrencyPerformanceRegression:
 
         # Parallel processing should provide some speedup
         config = load_performance_config()
-        min_speedup = config.get('performance_thresholds', {}).get('concurrency', {}).get('min_multiprocessing_speedup', 0.8)
+        min_speedup = get_performance_threshold(config, 'concurrency', 'min_multiprocessing_speedup', 0.8)
         speedup = sequential_time / parallel_time
         assert speedup > min_speedup, f"Multiprocessing provides no benefit: {speedup}x speedup"
 
         # Should not be slower than sequential (accounting for overhead)
-        max_overhead_ratio = config.get('performance_thresholds', {}).get('concurrency', {}).get('max_multiprocessing_overhead_ratio', 1.5)
+        max_overhead_ratio = get_performance_threshold(config, 'concurrency', 'max_multiprocessing_overhead_ratio', 1.5)
         assert (
             parallel_time < sequential_time * max_overhead_ratio
         ), "Multiprocessing significantly slower than sequential"

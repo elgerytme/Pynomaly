@@ -32,7 +32,8 @@ from pynomaly.application.dto.training_dto import (
     TrainingResultDTO,
 )
 from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.entities.model import ModelMetrics, ModelVersion
+from pynomaly.application.dto.training_dto import ModelMetricsDTO as ModelMetrics
+from pynomaly.domain.entities.model_version import ModelVersion
 from pynomaly.domain.entities.training_job import TrainingJob, TrainingStatus
 from pynomaly.domain.optimization.pareto_optimizer import ParetoOptimizer
 from pynomaly.domain.services.metrics_calculator import MetricsCalculator

@@ -114,7 +114,7 @@ class TestVisualizationDashboardService:
         assert len(dashboard_data.charts) >= 4  # Should have multiple charts
         assert dashboard_data.metadata["websocket_endpoint"] == websocket_endpoint
         assert dashboard_data.metadata["real_time"] is True
-        assert "real_time" in service.dashboard_cache
+        assert dashboard_data.dashboard_id in service.dashboard_cache
 
     @pytest.mark.asyncio
     async def test_update_real_time_metrics(self, service):
