@@ -211,6 +211,11 @@ class VisualizationDashboardService:
             ChartType.GAUGE: self._generate_gauge_chart,
             ChartType.TREEMAP: self._generate_treemap_chart,
             ChartType.RADAR: self._generate_radar_chart,
+            ChartType.CHOROPLETH: self._generate_choropleth_chart,
+            ChartType.CORRELATION_MATRIX: self._generate_correlation_matrix_chart,
+            ChartType.FINANCIAL_IMPACT: self._generate_financial_impact_chart,
+            ChartType.ROI_COST_SAVINGS: self._generate_roi_cost_savings_chart,
+            ChartType.LIVE_ALERT_STREAM: self._generate_live_alert_stream_chart,
         }
 
         logger.info("Visualization dashboard service initialized")

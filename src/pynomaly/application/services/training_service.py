@@ -171,9 +171,40 @@ class AutomatedTrainingService:
                 job.progress = progress
                 await self._update_job_progress(job)
 
-            # Select best model
-            best_model = await self._select_best_model(training_results, job.config)
-            job.best_model_id = best_model.id if best_model else None
+            # Collect ModelEvaluation
+            metrics_calculator = MetricsCalculator()
+            model_evaluations = []
+            for result in training_results:
+                evaluation = metrics_calculator.compute(
+                    y_true=y_val,
+                    y_pred=result['metrics']['y_pred'],
+                    proba=result['metrics'].get('proba'),
+                    task_type='classification',
+                    confidence_level=0.95
+                )
+                model_evaluations.append(evaluation)
+
+            # Call StatisticalTester & ParetoOptimizer
+            statistical_tester = StatisticalTester()
+            for i, result_a in enumerate(training_results):
+                for j, result_b in enumerate(training_results[i+1:], i+1):
+                    significant = statistical_tester.test_significance(
+                        result_a['metrics'],
+                        result_b['metrics']
+                    )
+                    # Handle significance result
+
+            pareto_optimizer = ParetoOptimizer(objectives=[{'name': 'f1_score', 'direction': 'max'}, {'name': 'roc_auc', 'direction': 'max'}])
+            pareto_optimal_models = pareto_optimizer.find_pareto_optimal(training_results)
+
+            # Feed into ModelSelector
+            model_selector = ModelSelector(primary_metric='f1_score', secondary_metrics=['roc_auc'])
+            best_model_info = model_selector.select_best_model(pareto_optimal_models)
+            job.best_model_id = best_model_info['selected_model'] if best_model_info else None
+
+            # Persist comparison artifacts
+            await self.training_repository.save_comparison_artifacts(job.id, best_model_info)
+            self.best_models[job.id] = best_model_info
 
             # Finalize job
             job.results = training_results
@@ -181,6 +212,13 @@ class AutomatedTrainingService:
             job.progress = 100.0
 
             await self._update_job_status(job, TrainingStatus.COMPLETED)
+
+            # Trigger async progress events
+            await self._trigger_async_event('MODEL_TRAINING_COMPLETED', job.id)
+            await self._trigger_async_event('MODEL_EVALUATION_COMPLETED', job.id)
+            await self._trigger_async_event('SIGNIFICANCE_TESTING_COMPLETED', job.id)
+            await self._trigger_async_event('PARETO_OPTIMIZATION_COMPLETED', job.id)
+            await self._trigger_async_event('MODEL_SELECTION_COMPLETED', job.id)
 
             logger.info(f"Training job {job.id} completed successfully")
 
