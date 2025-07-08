@@ -756,12 +756,21 @@ class AutomatedTrainingService:
             return True
 
         return False
-
-    async def get_training_metrics(self) -> Dict[str, Any]:
+    async def get_training_metrics(self) -> dict[str, Any]:
         """Get training service metrics."""
         return {
             "active_jobs": len(self.active_jobs),
             "queued_jobs": len(self.job_queue),
             "training_metrics": self.training_metrics,
             "best_models": self.best_models,
+        }
+
+    async def _trigger_async_event(self, event_type: str, job_id: str) -> None:
+        """Trigger async progress events for workflow stages."""
+        try:
+            logger.info(f"Training pipeline event: {event_type} for job {job_id}")
+            # Here you could integrate with event bus, websockets, etc.
+            # For now, just log the event
+        except Exception as e:
+            logger.error(f"Failed to trigger event {event_type} for job {job_id}: {e}")
         }

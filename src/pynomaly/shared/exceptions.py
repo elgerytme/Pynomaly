@@ -188,6 +188,12 @@ class StorageError(InfrastructureError):
     pass
 
 
+class CloudStorageError(StorageError):
+    """Raised when cloud storage operations fail."""
+
+    pass
+
+
 class ConfigurationError(InfrastructureError):
     """Raised when configuration is invalid."""
 

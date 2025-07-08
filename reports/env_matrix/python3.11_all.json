@@ -1,0 +1,23 @@
+{
+  "python_version": "3.11",
+  "extra": "all",
+  "test_timestamp": "2025-07-08T15:14:32.008076",
+  "venv_creation": {
+    "success": true
+  },
+  "installation": {
+    "command": "C:\\Users\\andre\\AppData\\Local\\Temp\\tmplc78p4qs\\venv_3.11_all\\Scripts\\pip install -e .[all] --verbose",
+    "success": false,
+    "returncode": 1,
+    "stdout": "Using pip 23.1.2 from C:\\Users\\andre\\AppData\\Local\\Temp\\tmplc78p4qs\\venv_3.11_all\\Lib\\site-packages\\pip (python 3.11)\n",
+    "stderr": "ERROR:  C:\\Users\\andre\\Pynomaly is not a valid editable requirement. It should either be a path to a local project or a VCS URL (beginning with bzr+http, bzr+https, bzr+ssh, bzr+sftp, bzr+ftp, bzr+lp, bzr+file, git+http, git+https, git+ssh, git+git, git+file, hg+file, hg+http, hg+https, hg+ssh, hg+static-http, svn+ssh, svn+http, svn+https, svn+svn, svn+file).\n\n[notice] A new release of pip is available: 23.1.2 -> 25.1.1\n[notice] To update, run: C:\\Users\\andre\\AppData\\Local\\Temp\\tmplc78p4qs\\venv_3.11_all\\Scripts\\python.exe -m pip install --upgrade pip\n",
+    "warnings": [],
+    "errors": [
+      "ERROR:  C:\\Users\\andre\\Pynomaly is not a valid editable requirement. It should either be a path to a local project or a VCS URL (beginning with bzr+http, bzr+https, bzr+ssh, bzr+sftp, bzr+ftp, bzr+lp, bzr+file, git+http, git+https, git+ssh, git+git, git+file, hg+file, hg+http, hg+https, hg+ssh, hg+static-http, svn+ssh, svn+http, svn+https, svn+svn, svn+file)."
+    ],
+    "duration": 0.47274065017700195
+  },
+  "dependency_tree": {},
+  "lockfile": {},
+  "overall_success": false
+}
