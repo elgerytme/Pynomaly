@@ -16,6 +16,18 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+# Import security hardening
+try:
+    from ...infrastructure.security.security_hardening import (
+        SecurityHardeningService,
+        SecurityHardeningConfig,
+        TLSVersion,
+        ChecksumAlgorithm
+    )
+    SECURITY_HARDENING_AVAILABLE = True
+except ImportError:
+    SECURITY_HARDENING_AVAILABLE = False
+
 from .config import SDKConfig, load_config
 from .exceptions import NetworkError, PynomaliSDKError, TimeoutError, map_http_error
 from .models import (
@@ -100,6 +112,18 @@ class PynomaliClient:
 
         # Initialize HTTP session
         self._session = self._create_session()
+        
+        # Initialize security hardening if available
+        self._security_service = None
+        if SECURITY_HARDENING_AVAILABLE and self.config.client.enforce_tls:
+            security_config = SecurityHardeningConfig(
+                enforce_tls=self.config.client.enforce_tls,
+                minimum_tls_version=TLSVersion.TLS_1_2 if self.config.client.minimum_tls_version == "TLSv1.2" else TLSVersion.TLS_1_3,
+                enable_checksum_validation=self.config.client.enable_checksum_validation,
+                enable_client_side_encryption=self.config.client.enable_client_side_encryption
+            )
+            self._security_service = SecurityHardeningService(security_config)
+            logger.info("Security hardening enabled")
 
         logger.info(f"Pynomaly client initialized for {self.config.base_url}")
 

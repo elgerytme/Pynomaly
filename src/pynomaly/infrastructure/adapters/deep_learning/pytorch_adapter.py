@@ -404,6 +404,10 @@ class PyTorchAdapter(DetectorProtocol):
         self.is_trained = False
 
         logger.info(f"Initialized PyTorchAdapter with {algorithm} on {self.device}")
+        
+        # Check feature flags
+        from pynomaly.infrastructure.config.feature_flags import feature_flags
+        self._deep_learning_enabled = feature_flags.is_enabled("deep_learning")
 
     def train(self, X: np.ndarray, y: np.ndarray | None = None) -> PyTorchAdapter:
         return self.fit(X, y)

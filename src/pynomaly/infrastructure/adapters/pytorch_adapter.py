@@ -443,6 +443,7 @@ class PyTorchAdapter(DetectorProtocol):
         Args:
             detector: Detector entity with algorithm configuration
         """
+        _check_torch_availability()
         self.detector = detector
         self._model: BaseAnomalyModel | None = None
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
