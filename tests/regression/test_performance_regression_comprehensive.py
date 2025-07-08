@@ -624,12 +624,15 @@ class TestConcurrencyPerformanceRegression:
         assert all(result["n_scores"] > 0 for result in parallel_results)
 
         # Parallel processing should provide some speedup
+        config = load_performance_config()
+        min_speedup = config.get('performance_thresholds', {}).get('concurrency', {}).get('min_multiprocessing_speedup', 0.8)
         speedup = sequential_time / parallel_time
-        assert speedup > 0.8, f"Multiprocessing provides no benefit: {speedup}x speedup"
+        assert speedup > min_speedup, f"Multiprocessing provides no benefit: {speedup}x speedup"
 
         # Should not be slower than sequential (accounting for overhead)
+        max_overhead_ratio = config.get('performance_thresholds', {}).get('concurrency', {}).get('max_multiprocessing_overhead_ratio', 1.5)
         assert (
-            parallel_time < sequential_time * 1.5
+            parallel_time < sequential_time * max_overhead_ratio
         ), "Multiprocessing significantly slower than sequential"
 
 
@@ -677,11 +680,14 @@ class TestIOPerformanceRegression:
             assert len(scores) == len(dataset.data)
 
             # Performance thresholds
+            config = load_performance_config()
+            serialize_threshold = config.get('performance_thresholds', {}).get('io', {}).get('serialization_max_seconds', 5.0)
+            deserialize_threshold = config.get('performance_thresholds', {}).get('io', {}).get('deserialization_max_seconds', 3.0)
             assert (
-                serialization_time < 5.0
+                serialization_time < serialize_threshold
             ), f"Model serialization too slow: {serialization_time}s"
             assert (
-                deserialization_time < 3.0
+                deserialization_time < deserialize_threshold
             ), f"Model deserialization too slow: {deserialization_time}s"
 
             # Clean up
@@ -702,11 +708,13 @@ class TestIOPerformanceRegression:
                 joblib_deserialize_time = time.time() - start_time
 
                 # Joblib should be reasonably fast
+                joblib_serialize_threshold = config.get('performance_thresholds', {}).get('io', {}).get('joblib_serialization_max_seconds', 5.0)
+                joblib_deserialize_threshold = config.get('performance_thresholds', {}).get('io', {}).get('joblib_deserialization_max_seconds', 3.0)
                 assert (
-                    joblib_serialize_time < 5.0
+                    joblib_serialize_time < joblib_serialize_threshold
                 ), f"Joblib serialization too slow: {joblib_serialize_time}s"
                 assert (
-                    joblib_deserialize_time < 3.0
+                    joblib_deserialize_time < joblib_deserialize_threshold
                 ), f"Joblib deserialization too slow: {joblib_deserialize_time}s"
 
                 # Clean up

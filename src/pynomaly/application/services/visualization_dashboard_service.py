@@ -616,7 +616,7 @@ class VisualizationDashboardService:
             dashboard_data.metrics = await self._calculate_analytical_metrics()
 
             # Cache dashboard
-            self.dashboard_cache["analytical"] = dashboard_data
+            self.dashboard_cache[dashboard_data.dashboard_id] = dashboard_data
 
             logger.info("Analytical dashboard generated successfully")
             return dashboard_data
@@ -685,7 +685,7 @@ class VisualizationDashboardService:
             dashboard_data.metrics = await self._calculate_performance_metrics()
 
             # Cache dashboard
-            self.dashboard_cache["performance"] = dashboard_data
+            self.dashboard_cache[dashboard_data.dashboard_id] = dashboard_data
 
             logger.info("Performance dashboard generated successfully")
             return dashboard_data
