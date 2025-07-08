@@ -6,9 +6,9 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from pynomaly.shared.types import DatasetId, DetectorId, TenantId, UserId
 
@@ -64,11 +64,11 @@ class TimeGranularity(str, Enum):
 class MetricValue:
     """A single metric value with metadata."""
 
-    value: Union[int, float, str]
+    value: int | float | str
     timestamp: datetime
     metric_type: MetricType
     unit: str = ""
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def format_value(self) -> str:
         """Format the value for display."""
@@ -98,30 +98,30 @@ class Metric:
     name: str
     description: str
     metric_type: MetricType
-    values: List[MetricValue] = field(default_factory=list)
-    tags: Dict[str, str] = field(default_factory=dict)
+    values: list[MetricValue] = field(default_factory=list)
+    tags: dict[str, str] = field(default_factory=dict)
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
 
     @property
-    def latest_value(self) -> Optional[MetricValue]:
+    def latest_value(self) -> MetricValue | None:
         """Get the most recent metric value."""
         return max(self.values, key=lambda v: v.timestamp) if self.values else None
 
     @property
-    def current_value(self) -> Union[int, float, str, None]:
+    def current_value(self) -> int | float | str | None:
         """Get the current metric value."""
         latest = self.latest_value
         return latest.value if latest else None
 
-    def get_values_in_range(self, start: datetime, end: datetime) -> List[MetricValue]:
+    def get_values_in_range(self, start: datetime, end: datetime) -> list[MetricValue]:
         """Get metric values within a time range."""
         return [v for v in self.values if start <= v.timestamp <= end]
 
     def add_value(
         self,
-        value: Union[int, float, str],
-        timestamp: Optional[datetime] = None,
+        value: int | float | str,
+        timestamp: datetime | None = None,
         **metadata,
     ):
         """Add a new metric value."""
@@ -212,13 +212,13 @@ class UsageMetrics:
 class ReportFilter:
     """Filters for report generation."""
 
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
-    tenant_ids: List[TenantId] = field(default_factory=list)
-    user_ids: List[UserId] = field(default_factory=list)
-    dataset_ids: List[DatasetId] = field(default_factory=list)
-    detector_ids: List[DetectorId] = field(default_factory=list)
-    tags: Dict[str, str] = field(default_factory=dict)
+    start_date: datetime | None = None
+    end_date: datetime | None = None
+    tenant_ids: list[TenantId] = field(default_factory=list)
+    user_ids: list[UserId] = field(default_factory=list)
+    dataset_ids: list[DatasetId] = field(default_factory=list)
+    detector_ids: list[DetectorId] = field(default_factory=list)
+    tags: dict[str, str] = field(default_factory=dict)
     granularity: TimeGranularity = TimeGranularity.DAY
 
 
@@ -229,10 +229,10 @@ class ReportSection:
     id: str
     title: str
     description: str
-    metrics: List[Metric] = field(default_factory=list)
-    charts: List[Dict[str, Any]] = field(default_factory=list)
-    tables: List[Dict[str, Any]] = field(default_factory=list)
-    insights: List[str] = field(default_factory=list)
+    metrics: list[Metric] = field(default_factory=list)
+    charts: list[dict[str, Any]] = field(default_factory=list)
+    tables: list[dict[str, Any]] = field(default_factory=list)
+    insights: list[str] = field(default_factory=list)
     order: int = 0
 
 
@@ -248,22 +248,22 @@ class Report:
     tenant_id: TenantId
     created_by: UserId
     filters: ReportFilter
-    sections: List[ReportSection] = field(default_factory=list)
+    sections: list[ReportSection] = field(default_factory=list)
     created_at: datetime = field(default_factory=datetime.utcnow)
-    completed_at: Optional[datetime] = None
-    expires_at: Optional[datetime] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    completed_at: datetime | None = None
+    expires_at: datetime | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def add_section(self, section: ReportSection) -> None:
         """Add a section to the report."""
         self.sections.append(section)
         self.sections.sort(key=lambda s: s.order)
 
-    def get_section_by_id(self, section_id: str) -> Optional[ReportSection]:
+    def get_section_by_id(self, section_id: str) -> ReportSection | None:
         """Get a specific section by ID."""
         return next((s for s in self.sections if s.id == section_id), None)
 
-    def calculate_total_metrics(self) -> Dict[str, Any]:
+    def calculate_total_metrics(self) -> dict[str, Any]:
         """Calculate summary metrics across all sections."""
         all_metrics = []
         for section in self.sections:
@@ -290,15 +290,15 @@ class Dashboard:
     description: str
     tenant_id: TenantId
     created_by: UserId
-    widgets: List[Dict[str, Any]] = field(default_factory=list)
-    layout: Dict[str, Any] = field(default_factory=dict)
+    widgets: list[dict[str, Any]] = field(default_factory=list)
+    layout: dict[str, Any] = field(default_factory=dict)
     refresh_interval: int = 300  # seconds
     is_public: bool = False
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
-    last_accessed: Optional[datetime] = None
+    last_accessed: datetime | None = None
 
-    def add_widget(self, widget_config: Dict[str, Any]) -> None:
+    def add_widget(self, widget_config: dict[str, Any]) -> None:
         """Add a widget to the dashboard."""
         widget_config["id"] = str(uuid.uuid4())
         widget_config["created_at"] = datetime.utcnow().isoformat()
@@ -314,7 +314,7 @@ class Dashboard:
             return True
         return False
 
-    def update_widget(self, widget_id: str, updates: Dict[str, Any]) -> bool:
+    def update_widget(self, widget_id: str, updates: dict[str, Any]) -> bool:
         """Update a widget configuration."""
         for widget in self.widgets:
             if widget.get("id") == widget_id:
@@ -337,13 +337,13 @@ class Alert:
     condition: str  # e.g., "value > 100" or "change_percentage > 20"
     threshold: float
     is_active: bool = True
-    notification_channels: List[str] = field(default_factory=list)
-    last_triggered: Optional[datetime] = None
+    notification_channels: list[str] = field(default_factory=list)
+    last_triggered: datetime | None = None
     trigger_count: int = 0
     created_at: datetime = field(default_factory=datetime.utcnow)
 
     def should_trigger(
-        self, current_value: float, previous_value: Optional[float] = None
+        self, current_value: float, previous_value: float | None = None
     ) -> bool:
         """Check if alert should trigger based on current value."""
         if not self.is_active:

@@ -4,9 +4,8 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 
@@ -38,7 +37,7 @@ class QuantumResult:
     num_shots: int
     quantum_cost: float = 0.0
     backend_used: str = ""
-    results: Dict[str, Any] = None
+    results: dict[str, Any] = None
 
 
 class QuantumAnomalyDetector:
@@ -92,7 +91,7 @@ def create_quantum_detector(
 
 async def assess_quantum_advantage(
     X: np.ndarray, config: QuantumConfig
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Assess quantum advantage potential"""
     return {
         "quantum_advantage_detected": True,

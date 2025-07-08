@@ -8,17 +8,17 @@ class PyTorchAdapter(Detector):
         super().__init__(algorithm_name, **kwargs)
         self.algorithm_name = algorithm_name
         self.kwargs = kwargs
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = self._initialize_model()
 
     def _initialize_model(self):
-        if self.algorithm_name == 'AutoEncoder':
+        if self.algorithm_name == "AutoEncoder":
             return self._initialize_autoencoder()
-        elif self.algorithm_name == 'VariationalAutoEncoder':
+        elif self.algorithm_name == "VariationalAutoEncoder":
             return self._initialize_variational_autoencoder()
-        elif self.algorithm_name == 'DeepSVDD':
+        elif self.algorithm_name == "DeepSVDD":
             return self._initialize_deepsvdd()
-        elif self.algorithm_name == 'DAGMM':
+        elif self.algorithm_name == "DAGMM":
             return self._initialize_dagmm()
         else:
             raise ValueError(f"Unsupported algorithm: {self.algorithm_name}")
@@ -50,4 +50,3 @@ class PyTorchAdapter(Detector):
 
     def load(self, filepath):
         self.model.load_state_dict(torch.load(filepath))
-

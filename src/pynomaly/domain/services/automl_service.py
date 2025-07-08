@@ -1,12 +1,11 @@
 """AutoML service for automated anomaly detection model selection and optimization."""
 
-import asyncio
 import itertools
 import logging
 import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -40,11 +39,9 @@ from ...infrastructure.monitoring.distributed_tracing import trace_operation
 from ..entities.dataset import Dataset
 from ..entities.detection_result import DetectionResult
 from .advanced_detection_service import (
-    AdvancedDetectionService,
     AlgorithmConfig,
     DetectionAlgorithm,
     EnsembleConfig,
-    ScalingMethod,
     get_detection_service,
 )
 
@@ -80,11 +77,11 @@ class OptimizationConfig:
     # Search strategy
     search_strategy: SearchStrategy = SearchStrategy.BAYESIAN_OPTIMIZATION
     max_trials: int = 100
-    timeout_seconds: Optional[int] = None
+    timeout_seconds: int | None = None
 
     # Optimization targets
     primary_metric: OptimizationMetric = OptimizationMetric.F1_SCORE
-    secondary_metrics: List[OptimizationMetric] = field(
+    secondary_metrics: list[OptimizationMetric] = field(
         default_factory=lambda: [OptimizationMetric.AUC]
     )
 
@@ -93,13 +90,13 @@ class OptimizationConfig:
     cv_scoring: str = "f1"
 
     # Algorithm selection
-    algorithms_to_test: Optional[List[DetectionAlgorithm]] = None
+    algorithms_to_test: list[DetectionAlgorithm] | None = None
     ensemble_methods: bool = True
     max_ensemble_size: int = 5
 
     # Resource constraints
-    max_memory_mb: Optional[int] = None
-    max_execution_time_per_trial: Optional[int] = 300  # 5 minutes
+    max_memory_mb: int | None = None
+    max_execution_time_per_trial: int | None = 300  # 5 minutes
 
     # Early stopping
     enable_pruning: bool = True
@@ -117,21 +114,21 @@ class OptimizationResult:
     best_algorithm: DetectionAlgorithm
     best_config: AlgorithmConfig
     best_score: float
-    best_metrics: Dict[str, float]
+    best_metrics: dict[str, float]
 
     # Optimization history
-    trial_history: List[Dict[str, Any]] = field(default_factory=list)
+    trial_history: list[dict[str, Any]] = field(default_factory=list)
     total_trials: int = 0
     optimization_time: float = 0.0
 
     # Alternative configurations
-    top_k_results: List[Tuple[DetectionAlgorithm, AlgorithmConfig, float]] = field(
+    top_k_results: list[tuple[DetectionAlgorithm, AlgorithmConfig, float]] = field(
         default_factory=list
     )
 
     # Ensemble recommendation
-    ensemble_config: Optional[EnsembleConfig] = None
-    ensemble_score: Optional[float] = None
+    ensemble_config: EnsembleConfig | None = None
+    ensemble_score: float | None = None
 
 
 class AutoMLService:
@@ -161,7 +158,7 @@ class AutoMLService:
 
         logger.info("AutoML service initialized")
 
-    def _initialize_parameter_spaces(self) -> Dict[DetectionAlgorithm, Dict[str, Any]]:
+    def _initialize_parameter_spaces(self) -> dict[DetectionAlgorithm, dict[str, Any]]:
         """Initialize hyperparameter search spaces for algorithms."""
         spaces = {}
 
@@ -223,8 +220,8 @@ class AutoMLService:
     async def optimize_detection(
         self,
         dataset: Dataset,
-        optimization_config: Optional[OptimizationConfig] = None,
-        ground_truth: Optional[np.ndarray] = None,
+        optimization_config: OptimizationConfig | None = None,
+        ground_truth: np.ndarray | None = None,
     ) -> OptimizationResult:
         """Automatically optimize anomaly detection for the given dataset."""
 
@@ -314,9 +311,9 @@ class AutoMLService:
     async def _grid_search_optimization(
         self,
         dataset: Dataset,
-        algorithms: List[DetectionAlgorithm],
+        algorithms: list[DetectionAlgorithm],
         config: OptimizationConfig,
-        ground_truth: Optional[np.ndarray],
+        ground_truth: np.ndarray | None,
     ) -> OptimizationResult:
         """Perform grid search optimization."""
 
@@ -405,9 +402,9 @@ class AutoMLService:
     async def _random_search_optimization(
         self,
         dataset: Dataset,
-        algorithms: List[DetectionAlgorithm],
+        algorithms: list[DetectionAlgorithm],
         config: OptimizationConfig,
-        ground_truth: Optional[np.ndarray],
+        ground_truth: np.ndarray | None,
     ) -> OptimizationResult:
         """Perform random search optimization."""
 
@@ -499,9 +496,9 @@ class AutoMLService:
     async def _bayesian_optimization(
         self,
         dataset: Dataset,
-        algorithms: List[DetectionAlgorithm],
+        algorithms: list[DetectionAlgorithm],
         config: OptimizationConfig,
-        ground_truth: Optional[np.ndarray],
+        ground_truth: np.ndarray | None,
     ) -> OptimizationResult:
         """Perform Bayesian optimization using Optuna."""
 
@@ -625,8 +622,8 @@ class AutoMLService:
         dataset: Dataset,
         config: AlgorithmConfig,
         opt_config: OptimizationConfig,
-        ground_truth: Optional[np.ndarray],
-    ) -> Tuple[float, Dict[str, float]]:
+        ground_truth: np.ndarray | None,
+    ) -> tuple[float, dict[str, float]]:
         """Evaluate a single algorithm configuration."""
 
         try:
@@ -683,11 +680,11 @@ class AutoMLService:
     async def _optimize_ensemble(
         self,
         dataset: Dataset,
-        algorithms: List[DetectionAlgorithm],
+        algorithms: list[DetectionAlgorithm],
         config: OptimizationConfig,
-        ground_truth: Optional[np.ndarray],
+        ground_truth: np.ndarray | None,
         individual_results: OptimizationResult,
-    ) -> Optional[Tuple[EnsembleConfig, float]]:
+    ) -> tuple[EnsembleConfig, float] | None:
         """Optimize ensemble configuration."""
 
         logger.info("Optimizing ensemble configuration")
@@ -775,9 +772,9 @@ class AutoMLService:
     async def auto_select_algorithm(
         self,
         dataset: Dataset,
-        ground_truth: Optional[np.ndarray] = None,
+        ground_truth: np.ndarray | None = None,
         quick_mode: bool = False,
-    ) -> Tuple[DetectionAlgorithm, AlgorithmConfig]:
+    ) -> tuple[DetectionAlgorithm, AlgorithmConfig]:
         """Automatically select the best algorithm for a dataset."""
 
         if quick_mode:
@@ -795,7 +792,7 @@ class AutoMLService:
 
     async def _quick_algorithm_selection(
         self, dataset: Dataset
-    ) -> Tuple[DetectionAlgorithm, AlgorithmConfig]:
+    ) -> tuple[DetectionAlgorithm, AlgorithmConfig]:
         """Quick algorithm selection based on dataset characteristics."""
 
         # Get data characteristics
@@ -837,8 +834,8 @@ class AutoMLService:
         return algorithm, config
 
     async def get_optimization_recommendations(
-        self, dataset: Dataset, current_results: Optional[DetectionResult] = None
-    ) -> Dict[str, Any]:
+        self, dataset: Dataset, current_results: DetectionResult | None = None
+    ) -> dict[str, Any]:
         """Get recommendations for improving detection performance."""
 
         recommendations = {
@@ -924,7 +921,7 @@ class AutoMLService:
 
 
 # Global AutoML service instance
-_automl_service: Optional[AutoMLService] = None
+_automl_service: AutoMLService | None = None
 
 
 def get_automl_service() -> AutoMLService:

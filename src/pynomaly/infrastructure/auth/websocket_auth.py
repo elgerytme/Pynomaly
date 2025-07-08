@@ -2,7 +2,6 @@
 
 import json
 import logging
-from typing import Optional
 from urllib.parse import parse_qs
 
 from fastapi import HTTPException, WebSocket, status
@@ -10,7 +9,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
-from .jwt_auth import JWTAuthService, get_auth
+from .jwt_auth import JWTAuthService
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +25,7 @@ class WebSocketAuthMiddleware:
         """
         self.auth_service = auth_service
 
-    async def authenticate_websocket(self, websocket: WebSocket) -> Optional[dict]:
+    async def authenticate_websocket(self, websocket: WebSocket) -> dict | None:
         """Authenticate WebSocket connection.
 
         WebSocket authentication can be done via:
@@ -179,7 +178,7 @@ class HTMXAuthMiddleware(BaseHTTPMiddleware):
 
         return response
 
-    async def _authenticate_request(self, request: Request) -> Optional[dict]:
+    async def _authenticate_request(self, request: Request) -> dict | None:
         """Authenticate HTTP request.
 
         Args:
@@ -248,7 +247,7 @@ def create_websocket_auth_dependency(auth_service: JWTAuthService):
     return websocket_auth_dependency
 
 
-def get_htmx_user(request: Request) -> Optional[dict]:
+def get_htmx_user(request: Request) -> dict | None:
     """Get authenticated user from HTMX request state.
 
     Args:

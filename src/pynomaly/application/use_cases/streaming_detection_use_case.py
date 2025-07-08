@@ -10,17 +10,13 @@ import asyncio
 import logging
 import time
 from collections import deque
+from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, AsyncIterator, Callable, Dict, List, Optional, Union
+from typing import Any
 from uuid import uuid4
 
 import numpy as np
-import pandas as pd
-
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.exceptions import DomainError, ValidationError
-from pynomaly.domain.value_objects import AnomalyScore
 
 logger = logging.getLogger(__name__)
 
@@ -77,9 +73,9 @@ class StreamingSample:
     """Individual sample in streaming pipeline."""
 
     id: str = field(default_factory=lambda: str(uuid4()))
-    data: Union[np.ndarray, Dict[str, Any]] = None
+    data: np.ndarray | dict[str, Any] = None
     timestamp: float = field(default_factory=time.time)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
     priority: int = 0  # Higher priority = processed first
 
 
@@ -94,7 +90,7 @@ class StreamingResult:
     processing_time: float
     detector_id: str
     timestamp: float = field(default_factory=time.time)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -137,9 +133,9 @@ class StreamingRequest:
 
     detector_id: str
     configuration: StreamingConfiguration
-    callback_handlers: Dict[str, Callable] = field(default_factory=dict)
+    callback_handlers: dict[str, Callable] = field(default_factory=dict)
     enable_ensemble: bool = False
-    ensemble_detector_ids: List[str] = field(default_factory=list)
+    ensemble_detector_ids: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -148,9 +144,9 @@ class StreamingResponse:
 
     success: bool
     stream_id: str = ""
-    configuration: Optional[StreamingConfiguration] = None
-    error_message: Optional[str] = None
-    performance_metrics: Dict[str, Any] = field(default_factory=dict)
+    configuration: StreamingConfiguration | None = None
+    error_message: str | None = None
+    performance_metrics: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -175,8 +171,8 @@ class StreamingMetrics:
     messages_failed: int = 0
     success_rate: float = 1.0
     average_processing_time_ms: float = 0.0
-    window_start: Optional[float] = None
-    window_end: Optional[float] = None
+    window_start: float | None = None
+    window_end: float | None = None
 
     def __post_init__(self):
         """Initialize computed fields."""
@@ -213,9 +209,9 @@ class StreamingDetectionUseCase:
         self.max_concurrent_streams = max_concurrent_streams
 
         # Active streams management
-        self._active_streams: Dict[str, Dict[str, Any]] = {}
-        self._stream_metrics: Dict[str, StreamingMetrics] = {}
-        self._stream_tasks: Dict[str, asyncio.Task] = {}
+        self._active_streams: dict[str, dict[str, Any]] = {}
+        self._stream_metrics: dict[str, StreamingMetrics] = {}
+        self._stream_tasks: dict[str, asyncio.Task] = {}
 
         # Global configuration
         self._global_config = {
@@ -428,7 +424,7 @@ class StreamingDetectionUseCase:
 
     async def get_results(
         self, stream_id: str, max_results: int = 100
-    ) -> List[StreamingResult]:
+    ) -> list[StreamingResult]:
         """Get results from streaming detection.
 
         Args:
@@ -456,7 +452,7 @@ class StreamingDetectionUseCase:
             logger.error(f"Error getting results from stream {stream_id}: {str(e)}")
             return []
 
-    async def get_stream_metrics(self, stream_id: str) -> Optional[StreamingMetrics]:
+    async def get_stream_metrics(self, stream_id: str) -> StreamingMetrics | None:
         """Get real-time metrics for a stream.
 
         Args:
@@ -467,7 +463,7 @@ class StreamingDetectionUseCase:
         """
         return self._stream_metrics.get(stream_id)
 
-    async def list_active_streams(self) -> List[str]:
+    async def list_active_streams(self) -> list[str]:
         """List all active stream IDs.
 
         Returns:
@@ -592,7 +588,7 @@ class StreamingDetectionUseCase:
             raise StreamProcessingError(f"Failed to process single point: {str(e)}")
 
     async def _aggregate_into_batches(
-        self, data_points: List[Any], configuration
+        self, data_points: list[Any], configuration
     ) -> AsyncIterator[Any]:
         """Aggregate data points into batches.
 
@@ -812,7 +808,7 @@ class StreamingDetectionUseCase:
             if hasattr(self, "_simulate_backpressure") and self._simulate_backpressure:
                 raise BackpressureError("Backpressure detected")
 
-    async def _handle_backpressure(self, queue: List[Any], configuration) -> List[Any]:
+    async def _handle_backpressure(self, queue: list[Any], configuration) -> list[Any]:
         """Handle backpressure by applying the configured strategy.
 
         Args:
@@ -904,7 +900,7 @@ class StreamingDetectionUseCase:
         except Exception as e:
             logger.error(f"Error saving checkpoint: {str(e)}")
 
-    async def _load_checkpoint(self, stream_id: str) -> Optional[Dict[str, Any]]:
+    async def _load_checkpoint(self, stream_id: str) -> dict[str, Any] | None:
         """Load checkpoint for a stream.
 
         Args:
@@ -941,7 +937,7 @@ class StreamingDetectionUseCase:
 
     async def _validate_streaming_request(
         self, request: StreamingRequest
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Validate streaming request."""
         try:
             # Check detector exists
@@ -1045,7 +1041,7 @@ class StreamingDetectionUseCase:
 
     async def _get_processing_batch(
         self, stream_id: str, configuration: StreamingConfiguration
-    ) -> List[StreamingSample]:
+    ) -> list[StreamingSample]:
         """Get batch of samples for processing."""
         try:
             stream_state = self._active_streams[stream_id]
@@ -1089,9 +1085,9 @@ class StreamingDetectionUseCase:
     async def _process_batch(
         self,
         stream_id: str,
-        batch: List[StreamingSample],
+        batch: list[StreamingSample],
         configuration: StreamingConfiguration,
-    ) -> List[StreamingResult]:
+    ) -> list[StreamingResult]:
         """Process a batch of samples."""
         try:
             stream_state = self._active_streams[stream_id]
@@ -1160,8 +1156,8 @@ class StreamingDetectionUseCase:
     async def _update_processing_metrics(
         self,
         stream_id: str,
-        batch: List[StreamingSample],
-        results: List[StreamingResult],
+        batch: list[StreamingSample],
+        results: list[StreamingResult],
     ) -> None:
         """Update processing metrics for stream."""
         try:
@@ -1237,7 +1233,7 @@ class StreamingDetectionUseCase:
                 f"Error performing quality check for stream {stream_id}: {str(e)}"
             )
 
-    def _get_initial_metrics(self) -> Dict[str, Any]:
+    def _get_initial_metrics(self) -> dict[str, Any]:
         """Get initial performance metrics."""
         return {
             "active_streams": len(self._active_streams),

@@ -4,23 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>P-001 Advanced Analytics Dashboard - Pynomaly</title>
-    
+
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#0ea5e9">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Pynomaly">
-    
+
     <!-- Stylesheets -->
     <link href="/static/css/tailwind.css" rel="stylesheet">
     <link href="/static/css/design-system.css" rel="stylesheet">
     <link href="/static/css/advanced-dashboard.css" rel="stylesheet">
-    
+
     <!-- Chart Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-    
+
     <style>
         .metric-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -30,7 +30,7 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .metric-card::before {
             content: '';
             position: absolute;
@@ -41,12 +41,12 @@
             background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
             animation: shimmer 3s ease-in-out infinite;
         }
-        
+
         @keyframes shimmer {
             0%, 100% { transform: rotate(0deg); }
             50% { transform: rotate(180deg); }
         }
-        
+
         .chart-container {
             position: relative;
             background: white;
@@ -55,7 +55,7 @@
             padding: 1rem;
             margin-bottom: 1rem;
         }
-        
+
         .status-indicator {
             display: inline-block;
             width: 8px;
@@ -63,11 +63,11 @@
             border-radius: 50%;
             margin-right: 8px;
         }
-        
+
         .status-healthy { background-color: #22c55e; }
         .status-warning { background-color: #f59e0b; }
         .status-error { background-color: #ef4444; }
-        
+
         .real-time-badge {
             background: #22c55e;
             color: white;
@@ -77,7 +77,7 @@
             font-weight: 500;
             margin-left: 8px;
         }
-        
+
         .algorithm-badge {
             background: #3b82f6;
             color: white;
@@ -87,7 +87,7 @@
             margin: 2px;
             display: inline-block;
         }
-        
+
         .performance-bar {
             height: 8px;
             background: #e5e7eb;
@@ -95,7 +95,7 @@
             overflow: hidden;
             margin: 8px 0;
         }
-        
+
         .performance-fill {
             height: 100%;
             background: linear-gradient(90deg, #22c55e, #3b82f6);
@@ -144,7 +144,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
                 <div class="relative z-10">
                     <div class="text-3xl font-bold" id="anomalies-detected">142</div>
@@ -155,7 +155,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
                 <div class="relative z-10">
                     <div class="text-3xl font-bold" id="model-accuracy">95.2%</div>
@@ -166,7 +166,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="metric-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
                 <div class="relative z-10">
                     <div class="text-3xl font-bold" id="processing-time">245ms</div>
@@ -280,10 +280,12 @@
                 <table class="w-full text-sm" id="results-table">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-2 text-left">Timestamp</th>
-                            <th class="px-4 py-2 text-left">Algorithm</th>
-                            <th class="px-4 py-2 text-left">Anomaly Score</th>
-                            <th class="px-4 py-2 text-left">Status</th>
+                            <th class="px-4 py-2 text-left cursor-pointer" onclick="sortTable(0)">Timestamp ▲</th>
+                            <th class="px-4 py-2 text-left cursor-pointer" onclick="sortTable(1)">Algorithm ▲</th>
+                            <th class="px-4 py-2 text-left cursor-pointer" onclick="sortTable(2)">Anomaly Score ▲</th>
+                            <th class="px-4 py-2 text-left cursor-pointer" onclick="sortTable(3)">P-Value ▲</th>
+                            <th class="px-4 py-2 text-left cursor-pointer" onclick="sortTable(4)">CI ▲</th>
+                            <th class="px-4 py-2 text-left cursor-pointer" onclick="sortTable(5)">Status ▲</th>
                             <th class="px-4 py-2 text-left">Actions</th>
                         </tr>
                     </thead>
@@ -292,6 +294,22 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+        
+        <!-- Pareto Front Scatter Plot -->
+        <div class="chart-container">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Pareto Front Analysis</h3>
+                <div class="flex items-center space-x-2">
+                    <button id="refresh-pareto" class="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600">
+                        <i class="fas fa-redo"></i> Refresh
+                    </button>
+                    <button id="promote-to-production" class="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600" disabled>
+                        <i class="fas fa-rocket"></i> Promote to Production
+                    </button>
+                </div>
+            </div>
+            <div id="pareto-front-chart" style="height: 400px;"></div>
         </div>
     </div>
 
@@ -352,7 +370,7 @@
             document.getElementById('anomalies-detected').textContent = metrics.anomalies_detected;
             document.getElementById('model-accuracy').textContent = (metrics.model_accuracy * 100).toFixed(1) + '%';
             document.getElementById('processing-time').textContent = Math.round(metrics.processing_time_ms) + 'ms';
-            
+
             // Update system health
             document.getElementById('cpu-usage').textContent = Math.round(metrics.system_cpu_usage * 100) + '%';
             document.getElementById('memory-usage').textContent = Math.round(metrics.system_memory_usage * 100) + '%';
@@ -363,7 +381,7 @@
         function initRealtimeChart() {
             const chartDom = document.getElementById('realtime-chart');
             const myChart = echarts.init(chartDom);
-            
+
             const option = {
                 title: {
                     text: 'Anomaly Detection Rate',
@@ -424,11 +442,11 @@
         function initAlgorithmChart() {
             const chartDom = document.getElementById('algorithm-chart');
             const myChart = echarts.init(chartDom);
-            
+
             const results = dashboardState.data.results || [];
             const algorithms = results.map(r => r.algorithm);
             const accuracies = results.map(r => r.accuracy);
-            
+
             const option = {
                 title: {
                     text: 'Algorithm Performance Comparison',
@@ -466,7 +484,7 @@
         function updateActiveAlgorithms() {
             const container = document.getElementById('active-algorithms');
             const results = dashboardState.data.results || [];
-            
+
             container.innerHTML = results.slice(0, 5).map(result => `
                 <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
                     <div class="algorithm-badge">${result.algorithm}</div>
@@ -483,7 +501,7 @@
                 { type: 'info', message: 'Model retrained successfully', time: '15 min ago' },
                 { type: 'success', message: 'System performance optimal', time: '1 hour ago' }
             ];
-            
+
             container.innerHTML = alerts.map(alert => `
                 <div class="flex items-center space-x-2 p-2 bg-gray-50 rounded">
                     <span class="status-indicator status-${alert.type === 'warning' ? 'warning' : alert.type === 'info' ? 'healthy' : 'healthy'}"></span>
@@ -505,43 +523,88 @@
                     <td class="px-4 py-2">${new Date().toLocaleString()}</td>
                     <td class="px-4 py-2">${result.algorithm}</td>
                     <td class="px-4 py-2">${(Math.random() * 0.3 + 0.7).toFixed(3)}</td>
+                    <td class="px-4 py-2">${(Math.random() * 0.05).toFixed(3)}</td>
+                    <td class="px-4 py-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs">[${(Math.random() * 0.1 + 0.9).toFixed(3)}, ${(Math.random() * 0.1 + 0.95).toFixed(3)}]</span>
+                            <div class="w-12 h-2 bg-gray-200 rounded">
+                                <div class="h-2 bg-blue-500 rounded" style="width: ${Math.random() * 100}%"></div>
+                            </div>
+                        </div>
+                    </td>
                     <td class="px-4 py-2">
                         <span class="px-2 py-1 text-xs rounded ${Math.random() > 0.8 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">
                             ${Math.random() > 0.8 ? 'Anomaly' : 'Normal'}
                         </span>
                     </td>
                     <td class="px-4 py-2">
-                        <button class="text-blue-600 hover:text-blue-800 text-sm">View</button>
+                        <button class="text-blue-600 hover:text-blue-800 text-sm" onclick="selectModel('${result.algorithm}')">
+                            <i class="fas fa-check"></i> Select
+                        </button>
                     </td>
                 </tr>
             `).join('');
+        }
+
+        // Sort table function
+        function sortTable(columnIndex) {
+            const table = document.getElementById('results-table');
+            const tbody = table.tBodies[0];
+            const rows = Array.from(tbody.rows);
+            const isAscending = table.dataset.sortDirection !== 'asc';
+            
+            rows.sort((a, b) => {
+                const aValue = a.cells[columnIndex].textContent.trim();
+                const bValue = b.cells[columnIndex].textContent.trim();
+                
+                if (columnIndex === 0) { // Timestamp
+                    return isAscending ? new Date(aValue) - new Date(bValue) : new Date(bValue) - new Date(aValue);
+                } else if (columnIndex === 2 || columnIndex === 3) { // Numeric values
+                    return isAscending ? parseFloat(aValue) - parseFloat(bValue) : parseFloat(bValue) - parseFloat(aValue);
+                } else { // String values
+                    return isAscending ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+                }
+            });
+            
+            rows.forEach(row => tbody.appendChild(row));
+            table.dataset.sortDirection = isAscending ? 'asc' : 'desc';
+        }
+
+        // Select model for promotion
+        function selectModel(modelId) {
+            const promoteButton = document.getElementById('promote-to-production');
+            promoteButton.disabled = false;
+            promoteButton.dataset.selectedModel = modelId;
+            
+            // Update button text to show selected model
+            promoteButton.innerHTML = `<i class="fas fa-rocket"></i> Promote ${modelId} to Production`;
         }
 
         // Update real-time chart data
         function updateRealtimeChart() {
             const chart = dashboardState.charts.realtime;
             if (!chart) return;
-            
+
             const now = new Date();
             const timeLabel = now.toLocaleTimeString();
-            
+
             const option = chart.getOption();
             const xData = option.xAxis[0].data;
             const anomalyData = option.series[0].data;
             const throughputData = option.series[1].data;
-            
+
             // Add new data point
             xData.push(timeLabel);
             anomalyData.push((Math.random() * 0.1 + 0.02).toFixed(3));
             throughputData.push(Math.random() * 500 + 800);
-            
+
             // Keep only last 20 points
             if (xData.length > 20) {
                 xData.shift();
                 anomalyData.shift();
                 throughputData.shift();
             }
-            
+
             chart.setOption({
                 xAxis: {
                     data: xData
@@ -566,7 +629,7 @@
         function togglePause() {
             const btn = document.getElementById('pause-btn');
             dashboardState.isPaused = !dashboardState.isPaused;
-            
+
             if (dashboardState.isPaused) {
                 btn.innerHTML = '<i class="fas fa-play"></i> Resume';
                 btn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
@@ -585,7 +648,7 @@
             if (dashboardState.updateInterval) {
                 clearInterval(dashboardState.updateInterval);
             }
-            
+
             dashboardState.updateInterval = setInterval(() => {
                 if (!dashboardState.isPaused) {
                     updateRealtimeChart();
@@ -598,13 +661,14 @@
         // Initialize dashboard
         async function initDashboard() {
             console.log('🚀 Initializing P-001 Advanced Analytics Dashboard...');
-            
+
             // Load demo data
             await loadDemoData();
-            
+
             // Initialize charts
             initRealtimeChart();
             initAlgorithmChart();
+            initParetoFrontChart();
             
             // Update UI components
             updateMetrics();
@@ -612,10 +676,10 @@
             updateRecentAlerts();
             updateResultsTable();
             updateLastUpdated();
-            
+
             // Start real-time updates
             startRealTimeUpdates();
-            
+
             // Setup event listeners
             document.getElementById('pause-btn').addEventListener('click', togglePause);
             document.getElementById('metric-selector').addEventListener('change', (e) => {
@@ -623,7 +687,7 @@
                 const metric = e.target.value;
                 const results = dashboardState.data.results || [];
                 const data = results.map(r => r[metric]);
-                
+
                 dashboardState.charts.algorithm.setOption({
                     series: [{
                         name: metric.charAt(0).toUpperCase() + metric.slice(1),
@@ -631,14 +695,14 @@
                     }]
                 });
             });
-            
+
             // Handle window resize
             window.addEventListener('resize', () => {
                 Object.values(dashboardState.charts).forEach(chart => {
                     chart.resize();
                 });
             });
-            
+
             console.log('✅ Dashboard initialized successfully!');
         }
 

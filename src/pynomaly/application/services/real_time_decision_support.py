@@ -3,18 +3,14 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
-from pydantic import BaseModel, Field
-
-from pynomaly.domain.entities import Dataset, Detector
 
 from .business_impact_scoring import (
     BusinessImpactAnalyzer,
@@ -75,13 +71,13 @@ class DecisionContext:
 
     anomaly_id: str
     timestamp: datetime
-    anomaly_data: Dict[str, Any]
-    business_impact: Optional[BusinessImpactScore] = None
-    historical_patterns: Dict[str, Any] = field(default_factory=dict)
-    system_state: Dict[str, Any] = field(default_factory=dict)
-    user_preferences: Dict[str, Any] = field(default_factory=dict)
-    organizational_policies: Dict[str, Any] = field(default_factory=dict)
-    resource_availability: Dict[str, Any] = field(default_factory=dict)
+    anomaly_data: dict[str, Any]
+    business_impact: BusinessImpactScore | None = None
+    historical_patterns: dict[str, Any] = field(default_factory=dict)
+    system_state: dict[str, Any] = field(default_factory=dict)
+    user_preferences: dict[str, Any] = field(default_factory=dict)
+    organizational_policies: dict[str, Any] = field(default_factory=dict)
+    resource_availability: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -90,7 +86,7 @@ class DecisionRule:
 
     rule_id: str
     name: str
-    conditions: List[Dict[str, Any]]
+    conditions: list[dict[str, Any]]
     decision: DecisionType
     confidence_threshold: float = 0.7
     automation_level: AutomationLevel = AutomationLevel.RECOMMEND_ONLY
@@ -99,7 +95,7 @@ class DecisionRule:
     cooldown_minutes: int = 0  # Minimum time between rule applications
     max_executions_per_hour: int = 100
     execution_count: int = 0
-    last_executed: Optional[datetime] = None
+    last_executed: datetime | None = None
 
 
 @dataclass
@@ -109,12 +105,12 @@ class ResponseAction:
     action_id: str
     action_type: str
     description: str
-    target_systems: List[str]
-    parameters: Dict[str, Any] = field(default_factory=dict)
+    target_systems: list[str]
+    parameters: dict[str, Any] = field(default_factory=dict)
     timeout_seconds: int = 300
     retry_count: int = 3
     requires_approval: bool = False
-    rollback_action: Optional[str] = None
+    rollback_action: str | None = None
 
 
 @dataclass
@@ -124,14 +120,14 @@ class DecisionRecommendation:
     recommendation_id: str
     decision: DecisionType
     confidence: ConfidenceLevel
-    reasoning: List[str]
-    evidence: Dict[str, Any]
-    recommended_actions: List[ResponseAction]
+    reasoning: list[str]
+    evidence: dict[str, Any]
+    recommended_actions: list[ResponseAction]
     estimated_impact: float
     time_sensitivity: str  # "immediate", "urgent", "normal", "low"
-    resource_requirements: Dict[str, Any] = field(default_factory=dict)
-    alternatives: List[Dict[str, Any]] = field(default_factory=list)
-    risk_assessment: Dict[str, Any] = field(default_factory=dict)
+    resource_requirements: dict[str, Any] = field(default_factory=dict)
+    alternatives: list[dict[str, Any]] = field(default_factory=list)
+    risk_assessment: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -141,21 +137,21 @@ class ExecutionResult:
     execution_id: str
     status: ResponseStatus
     start_time: datetime
-    end_time: Optional[datetime] = None
+    end_time: datetime | None = None
     success: bool = False
-    error_message: Optional[str] = None
-    output_data: Dict[str, Any] = field(default_factory=dict)
-    metrics: Dict[str, float] = field(default_factory=dict)
+    error_message: str | None = None
+    output_data: dict[str, Any] = field(default_factory=dict)
+    metrics: dict[str, float] = field(default_factory=dict)
 
 
 class DecisionEngine:
     """Core decision engine for evaluating anomalies and generating recommendations."""
 
     def __init__(self):
-        self.rules: Dict[str, DecisionRule] = {}
-        self.response_actions: Dict[str, ResponseAction] = {}
-        self.execution_history: List[ExecutionResult] = []
-        self.rule_performance: Dict[str, Dict[str, float]] = defaultdict(dict)
+        self.rules: dict[str, DecisionRule] = {}
+        self.response_actions: dict[str, ResponseAction] = {}
+        self.execution_history: list[ExecutionResult] = []
+        self.rule_performance: dict[str, dict[str, float]] = defaultdict(dict)
         self._initialize_default_rules()
         self._initialize_default_actions()
 
@@ -313,7 +309,7 @@ class DecisionEngine:
         )
 
     def evaluate_conditions(
-        self, conditions: List[Dict[str, Any]], context: DecisionContext
+        self, conditions: list[dict[str, Any]], context: DecisionContext
     ) -> bool:
         """Evaluate if conditions are met for a rule."""
         for condition in conditions:
@@ -379,7 +375,7 @@ class DecisionEngine:
 
     def generate_recommendation(
         self, context: DecisionContext
-    ) -> Optional[DecisionRecommendation]:
+    ) -> DecisionRecommendation | None:
         """Generate decision recommendation based on context."""
         applicable_rules = []
 
@@ -532,7 +528,7 @@ class DecisionEngine:
 
     def _generate_reasoning(
         self, rule: DecisionRule, context: DecisionContext
-    ) -> List[str]:
+    ) -> list[str]:
         """Generate human-readable reasoning for the decision."""
         reasoning = [f"Applied rule: {rule.name}"]
 
@@ -561,7 +557,7 @@ class DecisionEngine:
 
     def _get_actions_for_decision(
         self, decision: DecisionType, context: DecisionContext
-    ) -> List[ResponseAction]:
+    ) -> list[ResponseAction]:
         """Get appropriate response actions for a decision type."""
         action_mapping = {
             DecisionType.ESCALATE: ["notify_admin"],
@@ -629,8 +625,8 @@ class DecisionEngine:
             return "low"
 
     def _generate_alternatives(
-        self, other_rules: List[DecisionRule], context: DecisionContext
-    ) -> List[Dict[str, Any]]:
+        self, other_rules: list[DecisionRule], context: DecisionContext
+    ) -> list[dict[str, Any]]:
         """Generate alternative decision options."""
         alternatives = []
 
@@ -649,7 +645,7 @@ class DecisionEngine:
 
     def _assess_decision_risk(
         self, decision: DecisionType, context: DecisionContext
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Assess risks of the proposed decision."""
         risk_factors = {
             DecisionType.QUARANTINE: {
@@ -692,11 +688,11 @@ class RealTimeDecisionSupport:
     def __init__(self, business_impact_analyzer: BusinessImpactAnalyzer):
         self.business_impact_analyzer = business_impact_analyzer
         self.decision_engine = DecisionEngine()
-        self.active_decisions: Dict[str, DecisionRecommendation] = {}
+        self.active_decisions: dict[str, DecisionRecommendation] = {}
         self.execution_queue: deque = deque()
-        self.automation_policies: Dict[str, Any] = self._load_automation_policies()
+        self.automation_policies: dict[str, Any] = self._load_automation_policies()
 
-    def _load_automation_policies(self) -> Dict[str, Any]:
+    def _load_automation_policies(self) -> dict[str, Any]:
         """Load automation policies and constraints."""
         return {
             "max_concurrent_auto_actions": 5,
@@ -711,8 +707,8 @@ class RealTimeDecisionSupport:
     async def process_anomaly(
         self,
         anomaly_id: str,
-        anomaly_data: Dict[str, Any],
-        context: Optional[Dict[str, Any]] = None,
+        anomaly_data: dict[str, Any],
+        context: dict[str, Any] | None = None,
     ) -> DecisionRecommendation:
         """Process anomaly and generate real-time decision recommendation."""
         context = context or {}
@@ -840,7 +836,7 @@ class RealTimeDecisionSupport:
 
         return priority
 
-    async def _execute_next_in_queue(self) -> Optional[ExecutionResult]:
+    async def _execute_next_in_queue(self) -> ExecutionResult | None:
         """Execute the next highest priority item in the queue."""
         if not self.execution_queue:
             return None
@@ -938,7 +934,7 @@ class RealTimeDecisionSupport:
 
     async def _execute_action(
         self, action: ResponseAction, context: DecisionContext
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Execute a single response action."""
         logger.info(f"Executing action: {action.action_id} - {action.description}")
 
@@ -980,20 +976,18 @@ class RealTimeDecisionSupport:
             perf["successful_executions"] += 1
         perf["success_rate"] = perf["successful_executions"] / perf["total_executions"]
 
-    async def get_active_decisions(self) -> List[DecisionRecommendation]:
+    async def get_active_decisions(self) -> list[DecisionRecommendation]:
         """Get all active decision recommendations."""
         return list(self.active_decisions.values())
 
-    async def get_execution_status(
-        self, execution_id: str
-    ) -> Optional[ExecutionResult]:
+    async def get_execution_status(self, execution_id: str) -> ExecutionResult | None:
         """Get status of a specific execution."""
         for result in self.decision_engine.execution_history:
             if result.execution_id == execution_id:
                 return result
         return None
 
-    async def get_system_metrics(self) -> Dict[str, Any]:
+    async def get_system_metrics(self) -> dict[str, Any]:
         """Get system performance metrics."""
         recent_executions = [
             result

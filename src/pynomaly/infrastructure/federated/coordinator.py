@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Set
+from datetime import datetime
+from typing import Any
 from uuid import UUID, uuid4
 
 import numpy as np
@@ -29,7 +29,7 @@ class FederatedCoordinator:
     def __init__(
         self,
         security_service: SecurityService,
-        coordinator_id: Optional[UUID] = None,
+        coordinator_id: UUID | None = None,
     ):
         """Initialize federated coordinator."""
         self.coordinator_id = coordinator_id or uuid4()
@@ -37,10 +37,10 @@ class FederatedCoordinator:
         self.logger = logging.getLogger(__name__)
 
         # Active federations managed by this coordinator
-        self.federations: Dict[UUID, FederatedDetector] = {}
+        self.federations: dict[UUID, FederatedDetector] = {}
 
         # Network state
-        self.active_connections: Dict[UUID, Dict[str, Any]] = {}
+        self.active_connections: dict[UUID, dict[str, Any]] = {}
         self.message_queue: asyncio.Queue = asyncio.Queue()
 
         # Aggregation strategies
@@ -63,7 +63,7 @@ class FederatedCoordinator:
         privacy_mechanism: PrivacyMechanism = PrivacyMechanism.DIFFERENTIAL_PRIVACY,
         min_participants: int = 3,
         max_participants: int = 100,
-        differential_privacy_budget: Optional[PrivacyBudget] = None,
+        differential_privacy_budget: PrivacyBudget | None = None,
     ) -> FederatedDetector:
         """Create new federated learning network."""
 
@@ -127,9 +127,7 @@ class FederatedCoordinator:
             self.logger.error(f"Failed to register participant: {e}")
             return False
 
-    async def start_training_round(
-        self, federation_id: UUID
-    ) -> Optional[FederatedRound]:
+    async def start_training_round(self, federation_id: UUID) -> FederatedRound | None:
         """Start new federated training round."""
 
         if federation_id not in self.federations:
@@ -253,7 +251,6 @@ class FederatedCoordinator:
                 convergence_metric is None
                 or convergence_metric > federation.convergence_threshold
             ) and len(federation.training_rounds) < federation.max_rounds:
-
                 # Wait a bit before starting next round
                 await asyncio.sleep(5)
                 await self.start_training_round(federation.federation_id)
@@ -264,8 +261,8 @@ class FederatedCoordinator:
     async def _aggregate_model_updates(
         self,
         federation: FederatedDetector,
-        updates: Dict[UUID, ModelUpdate],
-    ) -> Dict[str, np.ndarray]:
+        updates: dict[UUID, ModelUpdate],
+    ) -> dict[str, np.ndarray]:
         """Aggregate model updates using specified strategy."""
 
         if not updates:
@@ -293,9 +290,9 @@ class FederatedCoordinator:
 
     async def _weighted_average_aggregation(
         self,
-        updates: Dict[UUID, ModelUpdate],
-        weights: Dict[UUID, float],
-    ) -> Dict[str, np.ndarray]:
+        updates: dict[UUID, ModelUpdate],
+        weights: dict[UUID, float],
+    ) -> dict[str, np.ndarray]:
         """Weighted average aggregation of model parameters."""
 
         if not updates:
@@ -329,9 +326,9 @@ class FederatedCoordinator:
 
     async def _simple_average_aggregation(
         self,
-        updates: Dict[UUID, ModelUpdate],
-        weights: Dict[UUID, float],
-    ) -> Dict[str, np.ndarray]:
+        updates: dict[UUID, ModelUpdate],
+        weights: dict[UUID, float],
+    ) -> dict[str, np.ndarray]:
         """Simple average aggregation (ignoring weights)."""
 
         if not updates:
@@ -356,9 +353,9 @@ class FederatedCoordinator:
 
     async def _median_aggregation(
         self,
-        updates: Dict[UUID, ModelUpdate],
-        weights: Dict[UUID, float],
-    ) -> Dict[str, np.ndarray]:
+        updates: dict[UUID, ModelUpdate],
+        weights: dict[UUID, float],
+    ) -> dict[str, np.ndarray]:
         """Median aggregation for Byzantine resilience."""
 
         if not updates:
@@ -383,10 +380,10 @@ class FederatedCoordinator:
 
     async def _trimmed_mean_aggregation(
         self,
-        updates: Dict[UUID, ModelUpdate],
-        weights: Dict[UUID, float],
+        updates: dict[UUID, ModelUpdate],
+        weights: dict[UUID, float],
         trim_ratio: float = 0.2,
-    ) -> Dict[str, np.ndarray]:
+    ) -> dict[str, np.ndarray]:
         """Trimmed mean aggregation for robustness."""
 
         if not updates:
@@ -421,9 +418,9 @@ class FederatedCoordinator:
 
     async def _byzantine_resilient_aggregation(
         self,
-        updates: Dict[UUID, ModelUpdate],
-        weights: Dict[UUID, float],
-    ) -> Dict[str, np.ndarray]:
+        updates: dict[UUID, ModelUpdate],
+        weights: dict[UUID, float],
+    ) -> dict[str, np.ndarray]:
         """Byzantine-resilient aggregation using coordinate-wise median."""
 
         if not updates:
@@ -435,9 +432,9 @@ class FederatedCoordinator:
 
     def _apply_differential_privacy(
         self,
-        parameters: Dict[str, np.ndarray],
-        privacy_budget: Optional[PrivacyBudget],
-    ) -> Dict[str, np.ndarray]:
+        parameters: dict[str, np.ndarray],
+        privacy_budget: PrivacyBudget | None,
+    ) -> dict[str, np.ndarray]:
         """Apply differential privacy to aggregated parameters."""
 
         if not privacy_budget:
@@ -499,18 +496,18 @@ class FederatedCoordinator:
         try:
             # Check integrity
             if not model_update.verify_integrity():
-                self.logger.warning(f"Model update integrity check failed")
+                self.logger.warning("Model update integrity check failed")
                 return False
 
             # Check if participant is in federation
             if model_update.participant_id not in federation.participants:
-                self.logger.warning(f"Update from unknown participant")
+                self.logger.warning("Update from unknown participant")
                 return False
 
             # Check if participant is active
             participant = federation.participants[model_update.participant_id]
             if not participant.is_active:
-                self.logger.warning(f"Update from inactive participant")
+                self.logger.warning("Update from inactive participant")
                 return False
 
             # Check round number
@@ -518,7 +515,7 @@ class FederatedCoordinator:
                 federation.current_round
                 and model_update.round_number != federation.current_round.round_number
             ):
-                self.logger.warning(f"Update for wrong round number")
+                self.logger.warning("Update for wrong round number")
                 return False
 
             return True
@@ -593,7 +590,6 @@ class FederatedCoordinator:
             and federation.current_round.round_id == training_round.round_id
             and not federation.current_round.is_completed
         ):
-
             self.logger.warning(
                 f"Training round {training_round.round_number} timed out "
                 f"for federation {federation_id}"
@@ -647,7 +643,7 @@ class FederatedCoordinator:
                     }
                 )
 
-    async def get_federation_status(self, federation_id: UUID) -> Dict[str, Any]:
+    async def get_federation_status(self, federation_id: UUID) -> dict[str, Any]:
         """Get comprehensive federation status."""
 
         if federation_id not in self.federations:

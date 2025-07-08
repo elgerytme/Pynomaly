@@ -100,6 +100,45 @@ class PynomalyDashboard {
     }
   }
 
+  initParetoFrontPlot() {
+    const paretoChart = document.getElementById('pareto-front-chart');
+    const myChart = echarts.init(paretoChart);
+
+    const option = {
+      xAxis: {},
+      yAxis: {},
+      series: [{
+        type: 'scatter',
+        data: []
+      }]
+    };
+
+    myChart.setOption(option);
+
+    document.getElementById('refresh-pareto').addEventListener('click', () => {
+      // Logic to refresh the plot data
+      alert('Pareto chart refreshed!');
+    });
+
+    document.getElementById('promote-to-production').addEventListener('click', async () => {
+      const modelId = 'selected_model_id'; // Change this to get the actual model ID
+
+      try {
+        const response = await fetch(`/api/models/promote/${modelId}`, {
+          method: 'POST'
+        });
+
+        if (response.ok) {
+          alert('Model promoted to production successfully.');
+        } else {
+          alert('Failed to promote model.');
+        }
+      } catch (error) {
+        console.error('Error promoting model:', error);
+      }
+    });
+  }
+
   // Enhanced metric card animations
   animateMetricCard(element, newValue) {
     const valueElement = element.querySelector(".text-2xl");
@@ -171,9 +210,12 @@ class PynomalyDashboard {
   }
 }
 
-// Initialize dashboard when DOM is loaded
+  // Initialize dashboard when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   const dashboard = new PynomalyDashboard();
+
+  // Initialize Pareto front plot
+  dashboard.initParetoFrontPlot();
 
   // Make dashboard instance globally accessible
   window.PynomalyDashboard = dashboard;

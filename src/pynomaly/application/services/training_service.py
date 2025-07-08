@@ -9,12 +9,10 @@ model selection for anomaly detection algorithms.
 import asyncio
 import logging
 import uuid
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from datetime import datetime
+from typing import Any
 
 import numpy as np
-import pandas as pd
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
@@ -27,30 +25,26 @@ from sklearn.metrics import (
 from sklearn.model_selection import train_test_split
 
 from pynomaly.application.dto.training_dto import (
+    ModelMetricsDTO,
     TrainingConfigDTO,
     TrainingRequestDTO,
-    TrainingResultDTO,
-    ModelMetricsDTO,
 )
 from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.application.dto.training_dto import ModelMetricsDTO as ModelMetrics
 from pynomaly.domain.entities.model_version import ModelVersion
 from pynomaly.domain.entities.training_job import TrainingJob, TrainingStatus
 from pynomaly.domain.optimization.pareto_optimizer import ParetoOptimizer
 from pynomaly.domain.services.metrics_calculator import MetricsCalculator
-from pynomaly.domain.services.model_service import ModelService
 from pynomaly.domain.services.model_selector import ModelSelector
+from pynomaly.domain.services.model_service import ModelService
 from pynomaly.domain.services.statistical_tester import StatisticalTester
 from pynomaly.domain.value_objects.hyperparameters import HyperparameterSet
-from pynomaly.shared.protocols import DetectorProtocol as AlgorithmAdapter
-# from pynomaly.infrastructure.config.training_config import TrainingConfig
 from pynomaly.infrastructure.persistence.model_repository import ModelRepository
 from pynomaly.infrastructure.persistence.training_repository import TrainingRepository
 from pynomaly.shared.exceptions import (
     DataValidationError,
-    ModelValidationError,
     TrainingError,
 )
+from pynomaly.shared.protocols import DetectorProtocol as AlgorithmAdapter
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +67,7 @@ class AutomatedTrainingService:
         training_repository: TrainingRepository,
         model_repository: ModelRepository,
         model_service: ModelService,
-        algorithm_adapters: Dict[str, AlgorithmAdapter],
+        algorithm_adapters: dict[str, AlgorithmAdapter],
         config: dict,
     ):
         self.training_repository = training_repository
@@ -83,8 +77,8 @@ class AutomatedTrainingService:
         self.config = config
 
         # Training state
-        self.active_jobs: Dict[str, TrainingJob] = {}
-        self.job_queue: List[TrainingJob] = []
+        self.active_jobs: dict[str, TrainingJob] = {}
+        self.job_queue: list[TrainingJob] = []
         self.resource_lock = asyncio.Lock()
 
         # Performance tracking
@@ -131,7 +125,7 @@ class AutomatedTrainingService:
 
     async def _run_training_job(self, job: TrainingJob) -> None:
         """
-        Enhanced training job pipeline with MetricsCalculator, StatisticalTester, 
+        Enhanced training job pipeline with MetricsCalculator, StatisticalTester,
         ParetoOptimizer, and ModelSelector integration.
 
         Pipeline stages:
@@ -156,8 +150,8 @@ class AutomatedTrainingService:
             X_train, X_val, y_train, y_val = train_test_split(
                 X,
                 y,
-                test_size=self.config.validation_split,
-                random_state=self.config.random_seed,
+                test_size=self.config.get("validation_split", 0.2),
+                random_state=self.config.get("random_seed", 42),
                 stratify=y if self._is_classification_task(y) else None,
             )
 
@@ -187,84 +181,101 @@ class AutomatedTrainingService:
                 await self._update_job_progress(job)
 
             # Trigger progress event for training completion
-            await self._trigger_async_event('MODEL_TRAINING_COMPLETED', job.id)
+            await self._trigger_async_event("MODEL_TRAINING_COMPLETED", job.id)
 
             # Stage 2: Collect ModelEvaluation via MetricsCalculator
             model_evaluations = []
             for result in training_results:
                 # Get predictions from stored results
-                y_pred = result['metrics']['y_pred']
-                y_proba = result['metrics']['proba']
-                
+                y_pred = result["metrics"]["y_pred"]
+                y_proba = result["metrics"]["proba"]
+
                 evaluation = MetricsCalculator.compute(
                     y_true=y_val,
                     y_pred=y_pred,
                     proba=y_proba,
-                    task_type='anomaly',
-                    confidence_level=0.95
+                    task_type="anomaly",
+                    confidence_level=0.95,
                 )
                 model_evaluations.append(evaluation)
 
-            await self._trigger_async_event('MODEL_EVALUATION_COMPLETED', job.id)
+            await self._trigger_async_event("MODEL_EVALUATION_COMPLETED", job.id)
 
             # Stage 3: Call StatisticalTester & ParetoOptimizer
             statistical_tester = StatisticalTester()
             significance_results = []
             for i, result_a in enumerate(training_results):
-                for j, result_b in enumerate(training_results[i+1:], i+1):
+                for j, result_b in enumerate(training_results[i + 1 :], i + 1):
                     significant = statistical_tester.test_significance(
-                        result_a['metrics'],
-                        result_b['metrics']
+                        result_a["metrics"], result_b["metrics"]
                     )
-                    significance_results.append({
-                        'model_a': result_a['algorithm'],
-                        'model_b': result_b['algorithm'],
-                        'significant': significant.significant,
-                        'p_value': significant.p_value,
-                        'test_name': significant.test_name
-                    })
+                    significance_results.append(
+                        {
+                            "model_a": result_a["algorithm"],
+                            "model_b": result_b["algorithm"],
+                            "significant": significant.significant,
+                            "p_value": significant.p_value,
+                            "test_name": significant.test_name,
+                        }
+                    )
 
-            await self._trigger_async_event('SIGNIFICANCE_TESTING_COMPLETED', job.id)
+            await self._trigger_async_event("SIGNIFICANCE_TESTING_COMPLETED", job.id)
 
-            pareto_optimizer = ParetoOptimizer(objectives=[
-                {'name': 'f1_score', 'direction': 'max'}, 
-                {'name': 'roc_auc', 'direction': 'max'}
-            ])
-            pareto_optimal_models = pareto_optimizer.find_pareto_optimal(training_results)
+            pareto_optimizer = ParetoOptimizer(
+                objectives=[
+                    {"name": "f1_score", "direction": "max"},
+                    {"name": "roc_auc", "direction": "max"},
+                ]
+            )
+            pareto_optimal_models = pareto_optimizer.find_pareto_optimal(
+                training_results
+            )
 
-            await self._trigger_async_event('PARETO_OPTIMIZATION_COMPLETED', job.id)
+            await self._trigger_async_event("PARETO_OPTIMIZATION_COMPLETED", job.id)
 
             # Stage 4: Feed into ModelSelector to pick winner(s)
-            from pynomaly.domain.entities.model_performance import ModelPerformanceMetrics
-            
+            from pynomaly.domain.entities.model_performance import (
+                ModelPerformanceMetrics,
+            )
+
             # Convert training results to ModelPerformanceMetrics objects
             performance_metrics = []
             for result in training_results:
                 metrics_obj = ModelPerformanceMetrics(
-                    model_id=result['model_id'],
-                    metrics=result['metrics'],
-                    algorithm=result['algorithm'],
+                    model_id=result["model_id"],
+                    metrics=result["metrics"],
+                    algorithm=result["algorithm"],
                     dataset_id=job.dataset_id,
                     training_job_id=job.id,
-                    training_time=result.get('training_time', 0.0)
+                    training_time=result.get("training_time", 0.0),
                 )
                 performance_metrics.append(metrics_obj)
-            
-            model_selector = ModelSelector(primary_metric='f1_score', secondary_metrics=['roc_auc'])
-            best_model_info = model_selector.select_best_model(performance_metrics)
-            job.best_model_id = best_model_info.get('selected_model') if best_model_info else None
 
-            await self._trigger_async_event('MODEL_SELECTION_COMPLETED', job.id)
+            model_selector = ModelSelector(
+                primary_metric="f1_score", secondary_metrics=["roc_auc"]
+            )
+            best_model_info = model_selector.select_best_model(performance_metrics)
+            job.best_model_id = (
+                best_model_info.get("selected_model") if best_model_info else None
+            )
+
+            await self._trigger_async_event("MODEL_SELECTION_COMPLETED", job.id)
 
             # Stage 5: Persist comparison artifacts; update best_models cache
             comparison_artifacts = {
-                'best_model': best_model_info,
-                'significance_results': significance_results,
-                'pareto_optimal_models': [model['model_id'] for model in pareto_optimal_models],
-                'model_evaluations': model_evaluations,
-                'pareto_summary': pareto_optimizer.get_optimization_summary(training_results)
+                "best_model": best_model_info,
+                "significance_results": significance_results,
+                "pareto_optimal_models": [
+                    model["model_id"] for model in pareto_optimal_models
+                ],
+                "model_evaluations": model_evaluations,
+                "pareto_summary": pareto_optimizer.get_optimization_summary(
+                    training_results
+                ),
             }
-            await self.training_repository.save_comparison_artifacts(job.id, comparison_artifacts)
+            await self.training_repository.save_comparison_artifacts(
+                job.id, comparison_artifacts
+            )
             self.best_models[job.id] = best_model_info
 
             # Finalize job
@@ -304,8 +315,8 @@ class AutomatedTrainingService:
             X_train, X_val, y_train, y_val = train_test_split(
                 X,
                 y,
-                test_size=self.config.validation_split,
-                random_state=self.config.random_seed,
+                test_size=self.config.get("validation_split", 0.2),
+                random_state=self.config.get("random_seed", 42),
                 stratify=y if self._is_classification_task(y) else None,
             )
 
@@ -415,7 +426,7 @@ class AutomatedTrainingService:
         X_val: np.ndarray,
         y_val: np.ndarray,
         job: TrainingJob,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Train a specific algorithm with hyperparameter optimization.
 
@@ -447,8 +458,12 @@ class AutomatedTrainingService:
 
         # Evaluate model and get predictions
         y_pred = model.predict(X_val)
-        y_proba = model.predict_proba(X_val)[:, 1] if hasattr(model, 'predict_proba') else y_pred
-        
+        y_proba = (
+            model.predict_proba(X_val)[:, 1]
+            if hasattr(model, "predict_proba")
+            else y_pred
+        )
+
         metrics = await self._evaluate_model(model, X_val, y_val, algorithm_name)
 
         # Create model version
@@ -467,8 +482,12 @@ class AutomatedTrainingService:
 
         # Store predictions and probabilities in metrics for later use
         metrics_dict = metrics.to_dict()
-        metrics_dict['y_pred'] = y_pred.tolist() if hasattr(y_pred, 'tolist') else y_pred
-        metrics_dict['proba'] = y_proba.tolist() if hasattr(y_proba, 'tolist') else y_proba
+        metrics_dict["y_pred"] = (
+            y_pred.tolist() if hasattr(y_pred, "tolist") else y_pred
+        )
+        metrics_dict["proba"] = (
+            y_proba.tolist() if hasattr(y_proba, "tolist") else y_proba
+        )
 
         return {
             "algorithm": algorithm_name,
@@ -483,13 +502,13 @@ class AutomatedTrainingService:
     async def _optimize_hyperparameters(
         self,
         adapter: AlgorithmAdapter,
-        search_space: Dict[str, Any],
+        search_space: dict[str, Any],
         X_train: np.ndarray,
         y_train: np.ndarray,
         X_val: np.ndarray,
         y_val: np.ndarray,
         config: TrainingConfigDTO,
-    ) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
         """
         Optimize hyperparameters using the configured optimization strategy.
 
@@ -527,13 +546,13 @@ class AutomatedTrainingService:
     async def _optimize_with_optuna(
         self,
         adapter: AlgorithmAdapter,
-        search_space: Dict[str, Any],
+        search_space: dict[str, Any],
         X_train: np.ndarray,
         y_train: np.ndarray,
         X_val: np.ndarray,
         y_val: np.ndarray,
         config: TrainingConfigDTO,
-    ) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
         """
         Optimize hyperparameters using Optuna.
 
@@ -594,7 +613,9 @@ class AutomatedTrainingService:
                 return 0.0
 
         # Run optimization
-        n_trials = config.optimization_trials or self.config.default_optimization_trials
+        n_trials = config.optimization_trials or self.config.get(
+            "default_optimization_trials", 100
+        )
         study.optimize(objective, n_trials=n_trials)
 
         # Extract results
@@ -663,7 +684,7 @@ class AutomatedTrainingService:
 
     def _calculate_anomaly_metrics(
         self, y_true: np.ndarray, y_scores: np.ndarray, y_pred: np.ndarray
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculate metrics for anomaly detection tasks."""
         return {
             "accuracy": accuracy_score(y_true, y_pred),
@@ -683,7 +704,7 @@ class AutomatedTrainingService:
 
     def _calculate_classification_metrics(
         self, y_true: np.ndarray, y_pred: np.ndarray, y_pred_proba: np.ndarray
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculate metrics for classification tasks."""
         return {
             "accuracy": accuracy_score(y_true, y_pred),
@@ -706,8 +727,8 @@ class AutomatedTrainingService:
         }
 
     async def _select_best_model(
-        self, training_results: List[Dict[str, Any]], config: TrainingConfigDTO
-    ) -> Optional[ModelVersion]:
+        self, training_results: list[dict[str, Any]], config: TrainingConfigDTO
+    ) -> ModelVersion | None:
         """
         Select the best model based on specified criteria.
 
@@ -764,8 +785,8 @@ class AutomatedTrainingService:
         return await self.model_repository.get_version(model_id)
 
     def _find_pareto_optimal_models(
-        self, training_results: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        self, training_results: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """
         Find Pareto-optimal models considering multiple objectives.
 
@@ -834,7 +855,7 @@ class AutomatedTrainingService:
 
     async def _prepare_training_data(
         self, dataset: Dataset, config: TrainingConfigDTO
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Prepare training data from dataset."""
         # This would typically load and preprocess the actual data
         # For now, return placeholder data
@@ -846,7 +867,7 @@ class AutomatedTrainingService:
 
         return X, y
 
-    def _get_default_algorithms(self) -> List[str]:
+    def _get_default_algorithms(self) -> list[str]:
         """Get default algorithms for training."""
         return list(self.algorithm_adapters.keys())[:3]  # Use first 3 algorithms
 
@@ -892,16 +913,16 @@ class AutomatedTrainingService:
         await self.training_repository.update_job(job)
 
     # Public API methods
-    async def get_training_job(self, job_id: str) -> Optional[TrainingJob]:
+    async def get_training_job(self, job_id: str) -> TrainingJob | None:
         """Get training job by ID."""
         return await self.training_repository.get_job(job_id)
 
     async def list_training_jobs(
         self,
-        dataset_id: Optional[str] = None,
-        status: Optional[TrainingStatus] = None,
+        dataset_id: str | None = None,
+        status: TrainingStatus | None = None,
         limit: int = 100,
-    ) -> List[TrainingJob]:
+    ) -> list[TrainingJob]:
         """List training jobs with optional filtering."""
         return await self.training_repository.list_jobs(
             dataset_id=dataset_id, status=status, limit=limit

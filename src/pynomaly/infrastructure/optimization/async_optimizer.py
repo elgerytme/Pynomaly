@@ -6,10 +6,10 @@ import asyncio
 import concurrent.futures
 import logging
 import time
+from collections.abc import Awaitable, Callable
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from typing import Any, Awaitable, Callable, Dict, List, Optional, TypeVar, Union
-from uuid import UUID
+from typing import Any, TypeVar
 
 import numpy as np
 import pandas as pd
@@ -26,13 +26,13 @@ class TaskMetrics:
 
     task_id: str
     start_time: float
-    end_time: Optional[float] = None
-    duration: Optional[float] = None
+    end_time: float | None = None
+    duration: float | None = None
     status: str = "pending"  # pending, running, completed, failed
-    error: Optional[str] = None
-    memory_usage: Optional[float] = None
+    error: str | None = None
+    memory_usage: float | None = None
 
-    def complete(self, error: Optional[Exception] = None):
+    def complete(self, error: Exception | None = None):
         """Mark task as completed."""
         self.end_time = time.time()
         self.duration = self.end_time - self.start_time
@@ -52,8 +52,8 @@ class AsyncTaskPool:
         self.max_workers = max_workers
         self._semaphore = asyncio.Semaphore(max_concurrent_tasks)
         self._executor = concurrent.futures.ThreadPoolExecutor(max_workers=max_workers)
-        self._tasks: Dict[str, TaskMetrics] = {}
-        self._results: Dict[str, Any] = {}
+        self._tasks: dict[str, TaskMetrics] = {}
+        self._results: dict[str, Any] = {}
 
     async def submit_async_task(self, task_id: str, coro: Awaitable[T]) -> T:
         """Submit async coroutine task."""
@@ -95,8 +95,8 @@ class AsyncTaskPool:
                 raise
 
     async def submit_batch_tasks(
-        self, tasks: List[tuple[str, Awaitable[T]]]
-    ) -> Dict[str, T]:
+        self, tasks: list[tuple[str, Awaitable[T]]]
+    ) -> dict[str, T]:
         """Submit multiple tasks and wait for all to complete."""
         async_tasks = [self.submit_async_task(task_id, coro) for task_id, coro in tasks]
 
@@ -108,15 +108,15 @@ class AsyncTaskPool:
             if not isinstance(result, Exception)
         }
 
-    def get_task_metrics(self, task_id: str) -> Optional[TaskMetrics]:
+    def get_task_metrics(self, task_id: str) -> TaskMetrics | None:
         """Get metrics for a specific task."""
         return self._tasks.get(task_id)
 
-    def get_all_metrics(self) -> Dict[str, TaskMetrics]:
+    def get_all_metrics(self) -> dict[str, TaskMetrics]:
         """Get metrics for all tasks."""
         return self._tasks.copy()
 
-    def get_result(self, task_id: str) -> Optional[Any]:
+    def get_result(self, task_id: str) -> Any | None:
         """Get result for a completed task."""
         return self._results.get(task_id)
 
@@ -150,7 +150,7 @@ class DataProcessor:
         processor_func: Callable[[pd.DataFrame], Any],
         chunk_size: int = 1000,
         max_parallel: int = 4,
-    ) -> List[Any]:
+    ) -> list[Any]:
         """Process DataFrame in parallel chunks."""
         # Split DataFrame into chunks
         chunks = [df.iloc[i : i + chunk_size] for i in range(0, len(df), chunk_size)]
@@ -183,9 +183,9 @@ class DataProcessor:
 
     async def process_multiple_datasets(
         self,
-        datasets: Dict[str, pd.DataFrame],
+        datasets: dict[str, pd.DataFrame],
         processor_func: Callable[[pd.DataFrame], Any],
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Process multiple datasets in parallel."""
         tasks = [
             (
@@ -201,9 +201,9 @@ class DataProcessor:
 
     async def map_reduce_async(
         self,
-        data: List[T],
+        data: list[T],
         map_func: Callable[[T], R],
-        reduce_func: Callable[[List[R]], Any],
+        reduce_func: Callable[[list[R]], Any],
         chunk_size: int = 100,
     ) -> Any:
         """Async map-reduce operation."""
@@ -239,8 +239,8 @@ class DetectionOptimizer:
         self.task_pool = task_pool
 
     async def detect_anomalies_batch(
-        self, detector_configs: List[Dict[str, Any]], dataset: pd.DataFrame
-    ) -> Dict[str, Any]:
+        self, detector_configs: list[dict[str, Any]], dataset: pd.DataFrame
+    ) -> dict[str, Any]:
         """Run multiple detectors on dataset in parallel."""
         tasks = []
 
@@ -255,10 +255,10 @@ class DetectionOptimizer:
 
     async def detect_anomalies_ensemble(
         self,
-        detectors: List[Any],
+        detectors: list[Any],
         dataset: pd.DataFrame,
         voting_strategy: str = "majority",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Run ensemble detection in parallel."""
         # Run all detectors in parallel
         detection_tasks = [
@@ -283,10 +283,10 @@ class DetectionOptimizer:
 
     async def cross_validate_async(
         self,
-        detector_configs: List[Dict[str, Any]],
+        detector_configs: list[dict[str, Any]],
         dataset: pd.DataFrame,
         cv_folds: int = 5,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Perform async cross-validation for multiple detectors."""
         from sklearn.model_selection import KFold
 
@@ -316,8 +316,8 @@ class DetectionOptimizer:
         )
 
     def _run_single_detector(
-        self, config: Dict[str, Any], dataset: pd.DataFrame
-    ) -> Dict[str, Any]:
+        self, config: dict[str, Any], dataset: pd.DataFrame
+    ) -> dict[str, Any]:
         """Run single detector (CPU-bound operation)."""
         # Placeholder implementation - replace with actual detection logic
         algorithm = config.get("algorithm", "IsolationForest")
@@ -346,8 +346,8 @@ class DetectionOptimizer:
         return np.random.random(len(dataset))
 
     def _combine_predictions(
-        self, predictions: List[np.ndarray], voting_strategy: str
-    ) -> Dict[str, Any]:
+        self, predictions: list[np.ndarray], voting_strategy: str
+    ) -> dict[str, Any]:
         """Combine predictions from multiple detectors."""
         if not predictions:
             return {}
@@ -371,8 +371,8 @@ class DetectionOptimizer:
         }
 
     def _run_cv_fold(
-        self, config: Dict[str, Any], train_data: pd.DataFrame, test_data: pd.DataFrame
-    ) -> Dict[str, Any]:
+        self, config: dict[str, Any], train_data: pd.DataFrame, test_data: pd.DataFrame
+    ) -> dict[str, Any]:
         """Run single CV fold (CPU-bound operation)."""
         # Placeholder implementation
         time.sleep(0.05)  # Simulate training time
@@ -389,8 +389,8 @@ class DetectionOptimizer:
         }
 
     def _aggregate_cv_results(
-        self, cv_results: Dict[str, Any], detector_configs: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, cv_results: dict[str, Any], detector_configs: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """Aggregate cross-validation results."""
         # Group results by algorithm
         algorithm_results = {}
@@ -495,8 +495,8 @@ class AsyncOptimizationManager:
         self.stream_processor = AsyncStreamProcessor(buffer_size)
 
     async def optimize_batch_detection(
-        self, detectors: List[Dict[str, Any]], datasets: Dict[str, pd.DataFrame]
-    ) -> Dict[str, Any]:
+        self, detectors: list[dict[str, Any]], datasets: dict[str, pd.DataFrame]
+    ) -> dict[str, Any]:
         """Optimize batch anomaly detection across multiple datasets."""
         # Process each dataset with all detectors in parallel
         dataset_tasks = []
@@ -508,7 +508,7 @@ class AsyncOptimizationManager:
         return await self.task_pool.submit_batch_tasks(dataset_tasks)
 
     async def optimize_data_pipeline(
-        self, pipeline_stages: List[Callable], data: Any
+        self, pipeline_stages: list[Callable], data: Any
     ) -> Any:
         """Optimize data processing pipeline with async stages."""
         result = data
@@ -519,7 +519,7 @@ class AsyncOptimizationManager:
 
         return result
 
-    def get_performance_metrics(self) -> Dict[str, Any]:
+    def get_performance_metrics(self) -> dict[str, Any]:
         """Get comprehensive performance metrics."""
         all_metrics = self.task_pool.get_all_metrics()
 

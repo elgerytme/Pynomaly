@@ -2,9 +2,7 @@
 SQLAlchemy implementation of user management repositories.
 """
 
-import json
 from datetime import datetime
-from typing import List, Optional
 
 from sqlalchemy import (
     Boolean,
@@ -246,7 +244,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
             session.refresh(user_model)
             return self._to_domain_user(user_model)
 
-    async def get_user_by_id(self, user_id: UserId) -> Optional[User]:
+    async def get_user_by_id(self, user_id: UserId) -> User | None:
         """Get user by ID."""
         with self._session_factory() as session:
             user_model = (
@@ -254,7 +252,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
             )
             return self._to_domain_user(user_model) if user_model else None
 
-    async def get_user_by_email(self, email: str) -> Optional[User]:
+    async def get_user_by_email(self, email: str) -> User | None:
         """Get user by email."""
         with self._session_factory() as session:
             user_model = (
@@ -262,7 +260,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
             )
             return self._to_domain_user(user_model) if user_model else None
 
-    async def get_user_by_username(self, username: str) -> Optional[User]:
+    async def get_user_by_username(self, username: str) -> User | None:
         """Get user by username."""
         with self._session_factory() as session:
             user_model = (
@@ -308,7 +306,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
             session.commit()
             return deleted > 0
 
-    async def get_users_by_tenant(self, tenant_id: TenantId) -> List[User]:
+    async def get_users_by_tenant(self, tenant_id: TenantId) -> list[User]:
         """Get all users for a tenant."""
         with self._session_factory() as session:
             result = session.execute(
@@ -493,7 +491,7 @@ class SQLAlchemyTenantRepository(TenantRepositoryProtocol):
             session.refresh(tenant_model)
             return self._to_domain_tenant(tenant_model)
 
-    async def get_tenant_by_id(self, tenant_id: TenantId) -> Optional[Tenant]:
+    async def get_tenant_by_id(self, tenant_id: TenantId) -> Tenant | None:
         """Get tenant by ID."""
         with self._session_factory() as session:
             tenant_model = (
@@ -501,7 +499,7 @@ class SQLAlchemyTenantRepository(TenantRepositoryProtocol):
             )
             return self._to_domain_tenant(tenant_model) if tenant_model else None
 
-    async def get_tenant_by_domain(self, domain: str) -> Optional[Tenant]:
+    async def get_tenant_by_domain(self, domain: str) -> Tenant | None:
         """Get tenant by domain."""
         with self._session_factory() as session:
             tenant_model = (
@@ -542,7 +540,7 @@ class SQLAlchemyTenantRepository(TenantRepositoryProtocol):
             session.commit()
             return deleted > 0
 
-    async def list_tenants(self, limit: int = 100, offset: int = 0) -> List[Tenant]:
+    async def list_tenants(self, limit: int = 100, offset: int = 0) -> list[Tenant]:
         """List all tenants with pagination."""
         with self._session_factory() as session:
             tenant_models = session.query(TenantModel).offset(offset).limit(limit).all()
@@ -619,7 +617,7 @@ class SQLAlchemySessionRepository(SessionRepositoryProtocol):
             db_session.refresh(session_model)
             return self._to_domain_session(session_model)
 
-    async def get_session_by_id(self, session_id: str) -> Optional[UserSession]:
+    async def get_session_by_id(self, session_id: str) -> UserSession | None:
         """Get session by ID."""
         with self._session_factory() as db_session:
             session_model = (
@@ -661,7 +659,7 @@ class SQLAlchemySessionRepository(SessionRepositoryProtocol):
             db_session.commit()
             return deleted > 0
 
-    async def get_active_sessions_for_user(self, user_id: UserId) -> List[UserSession]:
+    async def get_active_sessions_for_user(self, user_id: UserId) -> list[UserSession]:
         """Get all active sessions for a user."""
         with self._session_factory() as db_session:
             session_models = (

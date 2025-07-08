@@ -7,7 +7,6 @@ import json
 import sys
 import time
 from pathlib import Path
-from typing import List, Optional
 
 import numpy as np
 import typer
@@ -52,7 +51,7 @@ def train(
         "--algorithm",
         help="Deep learning algorithm (options: autoencoder, vae, lstm, gru, transformer)",
     ),
-    framework: Optional[str] = typer.Option(
+    framework: str | None = typer.Option(
         None,
         "-f",
         "--framework",
@@ -61,7 +60,7 @@ def train(
     epochs: int = typer.Option(100, "--epochs", help="Number of training epochs"),
     batch_size: int = typer.Option(32, "--batch-size", help="Batch size for training"),
     learning_rate: float = typer.Option(0.001, "--learning-rate", help="Learning rate"),
-    hidden_dims: Optional[List[int]] = typer.Option(
+    hidden_dims: list[int] | None = typer.Option(
         None, "--hidden-dims", help="Hidden layer dimensions"
     ),
     latent_dim: int = typer.Option(16, "--latent-dim", help="Latent space dimension"),
@@ -69,10 +68,10 @@ def train(
         0.1, "--contamination", help="Expected contamination rate"
     ),
     gpu: bool = typer.Option(True, "--gpu/--no-gpu", help="Enable GPU acceleration"),
-    output: Optional[Path] = typer.Option(
+    output: Path | None = typer.Option(
         None, "--output", help="Output file for results"
     ),
-    save_model: Optional[Path] = typer.Option(
+    save_model: Path | None = typer.Option(
         None, "--save-model", help="Save trained model to file"
     ),
 ):
@@ -193,14 +192,14 @@ def benchmark(
         "--algorithm",
         help="Deep learning algorithm (options: autoencoder, vae, lstm, gru, transformer)",
     ),
-    frameworks: Optional[List[str]] = typer.Option(
+    frameworks: list[str] | None = typer.Option(
         None,
         "-f",
         "--frameworks",
         help="Frameworks to benchmark (all available if not specified)",
     ),
     epochs: int = typer.Option(50, "--epochs", help="Number of training epochs"),
-    output: Optional[Path] = typer.Option(
+    output: Path | None = typer.Option(
         None, "--output", help="Output file for benchmark results"
     ),
 ):

@@ -6,7 +6,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -27,22 +27,22 @@ class OptimizationObjective(str, Enum):
 class ArchitectureComponent:
     component_id: str
     component_type: str
-    parameters: Dict[str, Any]
+    parameters: dict[str, Any]
 
 
 @dataclass
 class NeuralArchitecture:
     architecture_id: str
-    components: List[ArchitectureComponent]
+    components: list[ArchitectureComponent]
     total_parameters: int = 0
-    validation_score: Optional[float] = None
+    validation_score: float | None = None
 
 
 @dataclass
 class AutoMLPipeline:
     pipeline_id: str
     architecture: NeuralArchitecture
-    hyperparameters: Dict[str, Any]
+    hyperparameters: dict[str, Any]
     validation_score: float = 0.0
     training_time: float = 0.0
     created_at: datetime = field(default_factory=datetime.now)
@@ -51,7 +51,7 @@ class AutoMLPipeline:
 class NeuralArchitectureSearchEngine:
     """Streamlined NAS engine"""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.search_strategy = SearchStrategy(
             config.get("search_strategy", "random_search")
@@ -135,12 +135,12 @@ class NeuralArchitectureSearchEngine:
 class AutomatedFeatureEngineering:
     """Automated feature engineering"""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
 
     async def engineer_features(
-        self, X: np.ndarray, y: np.ndarray, feature_names: Optional[List[str]] = None
-    ) -> Tuple[np.ndarray, List[str]]:
+        self, X: np.ndarray, y: np.ndarray, feature_names: list[str] | None = None
+    ) -> tuple[np.ndarray, list[str]]:
         """Engineer features automatically"""
         if feature_names is None:
             feature_names = [f"feature_{i}" for i in range(X.shape[1])]
@@ -172,13 +172,13 @@ class AutomatedFeatureEngineering:
 class AutoMLV2System:
     """Complete AutoML 2.0 system"""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.nas_engine = NeuralArchitectureSearchEngine(config.get("nas_config", {}))
         self.feature_engineer = AutomatedFeatureEngineering(
             config.get("feature_config", {})
         )
-        self.best_pipeline: Optional[AutoMLPipeline] = None
+        self.best_pipeline: AutoMLPipeline | None = None
 
     async def fit(
         self,
@@ -186,7 +186,7 @@ class AutoMLV2System:
         y_train: np.ndarray,
         X_val: np.ndarray,
         y_val: np.ndarray,
-        feature_names: Optional[List[str]] = None,
+        feature_names: list[str] | None = None,
     ) -> AutoMLPipeline:
         """Fit complete AutoML pipeline"""
         logger.info("Starting AutoML 2.0 pipeline optimization")
@@ -225,7 +225,7 @@ class AutoMLV2System:
         logger.info(f"AutoML 2.0 completed in {total_time:.2f}s")
         return self.best_pipeline
 
-    async def get_pipeline_summary(self) -> Dict[str, Any]:
+    async def get_pipeline_summary(self) -> dict[str, Any]:
         """Get pipeline summary"""
         if not self.best_pipeline:
             return {"error": "No pipeline fitted"}

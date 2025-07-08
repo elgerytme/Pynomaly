@@ -10,8 +10,6 @@ from urllib.parse import urlparse
 
 from pydantic import ValidationError
 
-from pynomaly.domain.exceptions import ConfigurationError
-
 from .settings import Settings
 
 
@@ -319,7 +317,7 @@ class ConfigurationValidator:
             sock = socket.create_connection((host, port), timeout)
             sock.close()
             return True
-        except (socket.error, socket.timeout):
+        except (TimeoutError, OSError):
             return False
 
     def _is_port_in_use(self, port: int) -> bool:
@@ -330,7 +328,7 @@ class ConfigurationValidator:
             result = sock.connect_ex(("127.0.0.1", port))
             sock.close()
             return result == 0
-        except socket.error:
+        except OSError:
             return False
 
 

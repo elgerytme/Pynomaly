@@ -8,13 +8,11 @@ quantification libraries and statistical methods.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 from scipy import stats
 from sklearn.utils import resample
 
-from pynomaly.domain.exceptions import InvalidConfigurationError
 from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval
 
 
@@ -60,7 +58,7 @@ class ScipyUncertaintyAdapter(UncertaintyAdapterProtocol):
     robust statistical functions and distributions.
     """
 
-    def __init__(self, random_seed: Optional[int] = None):
+    def __init__(self, random_seed: int | None = None):
         """
         Initialize SciPy uncertainty adapter.
 

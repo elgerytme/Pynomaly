@@ -3,7 +3,7 @@ FastAPI router for compliance and audit logging.
 """
 
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -19,8 +19,6 @@ from pynomaly.domain.entities.compliance import (
 )
 from pynomaly.domain.entities.user import User
 from pynomaly.shared.exceptions import (
-    AuthorizationError,
-    ComplianceError,
     ValidationError,
 )
 from pynomaly.shared.types import TenantId, UserId
@@ -35,14 +33,14 @@ class AuditEventResponse(BaseModel):
     action: AuditAction
     severity: AuditSeverity
     timestamp: datetime
-    user_id: Optional[str]
-    resource_type: Optional[str]
-    resource_id: Optional[str]
-    details: Dict[str, Any]
-    ip_address: Optional[str]
+    user_id: str | None
+    resource_type: str | None
+    resource_id: str | None
+    details: dict[str, Any]
+    ip_address: str | None
     outcome: str
     risk_score: int
-    compliance_frameworks: List[ComplianceFramework]
+    compliance_frameworks: list[ComplianceFramework]
     is_high_risk: bool
 
 
@@ -52,7 +50,7 @@ class CreateRetentionPolicyRequest(BaseModel):
     data_type: str
     classification: DataClassification
     retention_period_days: int
-    compliance_frameworks: List[ComplianceFramework]
+    compliance_frameworks: list[ComplianceFramework]
     auto_delete: bool = True
     archive_before_delete: bool = True
 
@@ -64,7 +62,7 @@ class RetentionPolicyResponse(BaseModel):
     data_type: str
     classification: DataClassification
     retention_period_days: int
-    compliance_frameworks: List[ComplianceFramework]
+    compliance_frameworks: list[ComplianceFramework]
     auto_delete: bool
     archive_before_delete: bool
     status: RetentionPolicyStatus
@@ -87,15 +85,15 @@ class GDPRRequestResponse(BaseModel):
     request_details: str
     submitted_at: datetime
     status: str
-    assigned_to: Optional[str]
-    completion_deadline: Optional[datetime]
-    processed_at: Optional[datetime]
+    assigned_to: str | None
+    completion_deadline: datetime | None
+    processed_at: datetime | None
     is_overdue: bool
     notes: str
 
 
 class ProcessGDPRRequestRequest(BaseModel):
-    response_data: Optional[Dict[str, Any]] = None
+    response_data: dict[str, Any] | None = None
     notes: str = ""
 
 
@@ -106,9 +104,9 @@ class ComplianceCheckResponse(BaseModel):
     framework: ComplianceFramework
     status: str
     check_timestamp: datetime
-    details: Dict[str, Any]
-    recommendations: List[str]
-    next_check_due: Optional[datetime]
+    details: dict[str, Any]
+    recommendations: list[str]
+    next_check_due: datetime | None
     is_compliant: bool
     needs_attention: bool
 
@@ -126,8 +124,8 @@ class ComplianceReportResponse(BaseModel):
     warning_checks: int
     compliance_score: float
     risk_level: str
-    findings: List[ComplianceCheckResponse]
-    recommendations: List[str]
+    findings: list[ComplianceCheckResponse]
+    recommendations: list[str]
     high_risk_events: int
     total_audit_events: int
 
@@ -139,7 +137,7 @@ class EncryptionKeyResponse(BaseModel):
     key_size: int
     purpose: str
     created_at: datetime
-    expires_at: Optional[datetime]
+    expires_at: datetime | None
     status: str
     needs_rotation: bool
 
@@ -154,21 +152,21 @@ class CreateEncryptionKeyRequest(BaseModel):
 class BackupRecordResponse(BaseModel):
     id: str
     backup_type: str
-    data_types: List[str]
+    data_types: list[str]
     backup_location: str
     started_at: datetime
-    completed_at: Optional[datetime]
+    completed_at: datetime | None
     status: str
     size_bytes: int
     compressed_size_bytes: int
     compression_ratio: float
-    retention_until: Optional[datetime]
+    retention_until: datetime | None
     is_expired: bool
 
 
 class CreateBackupRequest(BaseModel):
     backup_type: str
-    data_types: List[str]
+    data_types: list[str]
     backup_location: str
     encryption_key_id: str
 
@@ -202,14 +200,14 @@ async def require_compliance_access(
 
 
 # Audit Trail Endpoints
-@router.get("/tenants/{tenant_id}/audit-trail", response_model=List[AuditEventResponse])
+@router.get("/tenants/{tenant_id}/audit-trail", response_model=list[AuditEventResponse])
 async def get_audit_trail(
     tenant_id: UUID,
-    start_date: Optional[datetime] = Query(None),
-    end_date: Optional[datetime] = Query(None),
-    actions: Optional[List[AuditAction]] = Query(None),
-    user_id: Optional[UUID] = Query(None),
-    resource_type: Optional[str] = Query(None),
+    start_date: datetime | None = Query(None),
+    end_date: datetime | None = Query(None),
+    actions: list[AuditAction] | None = Query(None),
+    user_id: UUID | None = Query(None),
+    resource_type: str | None = Query(None),
     limit: int = Query(100, ge=1, le=1000),
     offset: int = Query(0, ge=0),
     current_user: User = Depends(require_compliance_access),
@@ -255,7 +253,7 @@ async def get_audit_trail(
 
 @router.get(
     "/tenants/{tenant_id}/audit-trail/high-risk",
-    response_model=List[AuditEventResponse],
+    response_model=list[AuditEventResponse],
 )
 async def get_high_risk_events(
     tenant_id: UUID,
@@ -460,7 +458,7 @@ async def process_gdpr_request(
 
 @router.get(
     "/tenants/{tenant_id}/gdpr-requests/overdue",
-    response_model=List[GDPRRequestResponse],
+    response_model=list[GDPRRequestResponse],
 )
 async def get_overdue_gdpr_requests(
     tenant_id: UUID,

@@ -267,7 +267,9 @@ def deployment_status(
             health_color = (
                 "green"
                 if deployment.health_score > 0.8
-                else "yellow" if deployment.health_score > 0.6 else "red"
+                else "yellow"
+                if deployment.health_score > 0.6
+                else "red"
             )
 
             panel_content = f"""
@@ -485,7 +487,9 @@ def list_environments(
                 health_color = (
                     "green"
                     if health_score > 0.8
-                    else "yellow" if health_score > 0.6 else "red"
+                    else "yellow"
+                    if health_score > 0.6
+                    else "red"
                 )
                 health_display = f"[{health_color}]{health_score:.2f}[/{health_color}]"
 

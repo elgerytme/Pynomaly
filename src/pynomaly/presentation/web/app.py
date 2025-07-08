@@ -148,8 +148,16 @@ async def detectors_page(
 ):
     """Detectors management page."""
     detectors = container.detector_repository().find_all()
-    pyod_adapter = container.pyod_adapter()
-    algorithms = pyod_adapter.list_algorithms()
+    
+    # Create a default PyOD adapter instance to get available algorithms
+    try:
+        from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+        # Create a temporary adapter with a default algorithm to get the algorithm list
+        temp_adapter = PyODAdapter("IsolationForest")
+        algorithms = list(temp_adapter.ALGORITHM_MAPPING.keys())
+    except Exception as e:
+        # Fallback to a basic set of algorithms if adapter fails
+        algorithms = ["IsolationForest", "LOF", "KNN", "OCSVM", "PCA", "AutoEncoder", "HBOS", "COPOD"]
 
     return templates.TemplateResponse(
         "detectors.html",
@@ -1723,6 +1731,12 @@ async def htmx_bulk_export(
         return HTMLResponse(
             f'<div class="alert alert-error">Bulk export failed: {str(e)}</div>'
         )
+
+
+@router.get("/demo", response_class=HTMLResponse)
+async def demo_page(request: Request):
+    """Demo dashboard page with sample data."""
+    return templates.TemplateResponse("demo.html", {"request": request})
 
 
 def mount_web_ui(app):

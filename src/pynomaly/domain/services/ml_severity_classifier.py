@@ -8,12 +8,11 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from pynomaly.domain.value_objects.model_storage_info import (
     ModelStorageInfo,
     SerializationFormat,
-    StorageBackend,
 )
 from pynomaly.infrastructure.config.feature_flags import feature_flags, require_feature
 
@@ -37,10 +36,10 @@ class MLSeverityClassifier:
 
         Logs a warning if the feature flag is not enabled.
         """
-        self._model: Optional[Any] = None
-        self._model_type: Optional[str] = None
-        self._model_info: Optional[ModelStorageInfo] = None
-        self._feature_names: List[str] = ["score", "volatility", "seasonality"]
+        self._model: Any | None = None
+        self._model_type: str | None = None
+        self._model_info: ModelStorageInfo | None = None
+        self._feature_names: list[str] = ["score", "volatility", "seasonality"]
 
         if not feature_flags.is_enabled("ml_severity_classifier"):
             logger.warning(
@@ -48,7 +47,7 @@ class MLSeverityClassifier:
             )
 
     @require_feature("ml_severity_classifier")
-    def load_xgboost_model(self, model_path: Union[str, Path]) -> None:
+    def load_xgboost_model(self, model_path: str | Path) -> None:
         """
         Load a serialized XGBoost model for severity prediction.
 
@@ -74,7 +73,7 @@ class MLSeverityClassifier:
         )
 
     @require_feature("ml_severity_classifier")
-    def load_lightgbm_model(self, model_path: Union[str, Path]) -> None:
+    def load_lightgbm_model(self, model_path: str | Path) -> None:
         """
         Load a serialized LightGBM model for severity prediction.
 
@@ -99,7 +98,7 @@ class MLSeverityClassifier:
         )
 
     @require_feature("ml_severity_classifier")
-    def predict_severity(self, features: Dict[str, float]) -> float:
+    def predict_severity(self, features: dict[str, float]) -> float:
         """
         Predict severity from feature vectors.
 
@@ -145,7 +144,7 @@ class MLSeverityClassifier:
         )
 
     @require_feature("ml_severity_classifier")
-    def predict_batch(self, features_batch: List[Dict[str, float]]) -> List[float]:
+    def predict_batch(self, features_batch: list[dict[str, float]]) -> list[float]:
         """
         Predict severity for a batch of feature vectors.
 
@@ -174,7 +173,7 @@ class MLSeverityClassifier:
             "This is a placeholder for future ML integration."
         )
 
-    def _validate_features(self, features: Dict[str, float]) -> None:
+    def _validate_features(self, features: dict[str, float]) -> None:
         """
         Validate that required features are present and valid.
 
@@ -204,7 +203,7 @@ class MLSeverityClassifier:
                     )
 
     def _create_model_storage_info(
-        self, model_path: Union[str, Path], model_type: str
+        self, model_path: str | Path, model_type: str
     ) -> ModelStorageInfo:
         """
         Create ModelStorageInfo for the loaded model.
@@ -248,7 +247,7 @@ class MLSeverityClassifier:
         return self._model is not None
 
     @property
-    def model_type(self) -> Optional[str]:
+    def model_type(self) -> str | None:
         """
         Get the type of the currently loaded model.
 
@@ -258,7 +257,7 @@ class MLSeverityClassifier:
         return self._model_type
 
     @property
-    def model_info(self) -> Optional[ModelStorageInfo]:
+    def model_info(self) -> ModelStorageInfo | None:
         """
         Get storage information for the currently loaded model.
 
@@ -268,7 +267,7 @@ class MLSeverityClassifier:
         return self._model_info
 
     @property
-    def feature_names(self) -> List[str]:
+    def feature_names(self) -> list[str]:
         """
         Get the expected feature names for the model.
 
@@ -278,7 +277,7 @@ class MLSeverityClassifier:
         return self._feature_names.copy()
 
     @require_feature("ml_severity_classifier")
-    def save_model(self, output_path: Union[str, Path]) -> ModelStorageInfo:
+    def save_model(self, output_path: str | Path) -> ModelStorageInfo:
         """
         Save the currently loaded model to disk.
 

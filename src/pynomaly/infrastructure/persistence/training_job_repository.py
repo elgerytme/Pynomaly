@@ -13,13 +13,10 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
 
-import aiosqlite
 from sqlalchemy import Column, DateTime, Float, Integer, String, Text, create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 
 from pynomaly.application.services.training_automation_service import (
     TrainingJob,
@@ -78,7 +75,7 @@ class TrainingJobModel(Base):
 class SQLiteTrainingJobRepository(TrainingJobRepository):
     """SQLite implementation of training job repository."""
 
-    def __init__(self, database_path: Optional[Path] = None):
+    def __init__(self, database_path: Path | None = None):
         self.database_path = database_path or Path("./storage/training_jobs.db")
         self.database_path.parent.mkdir(parents=True, exist_ok=True)
         self.database_url = f"sqlite+aiosqlite:///{self.database_path}"
@@ -173,7 +170,7 @@ class SQLiteTrainingJobRepository(TrainingJobRepository):
             logger.error(f"Failed to save training job {job.job_id}: {e}")
             raise
 
-    async def get_job(self, job_id: str) -> Optional[TrainingJob]:
+    async def get_job(self, job_id: str) -> TrainingJob | None:
         """Get training job by ID."""
         try:
             async with self.async_session() as session:
@@ -189,8 +186,8 @@ class SQLiteTrainingJobRepository(TrainingJobRepository):
             raise
 
     async def list_jobs(
-        self, status: Optional[TrainingStatus] = None, limit: int = 100
-    ) -> List[TrainingJob]:
+        self, status: TrainingStatus | None = None, limit: int = 100
+    ) -> list[TrainingJob]:
         """List training jobs with optional filtering."""
         try:
             async with self.async_session() as session:
@@ -377,8 +374,8 @@ class PostgreSQLTrainingJobRepository(TrainingJobRepository):
 # Factory function for repository creation
 def create_training_job_repository(
     database_type: str = "sqlite",
-    database_url: Optional[str] = None,
-    database_path: Optional[Path] = None,
+    database_url: str | None = None,
+    database_path: Path | None = None,
 ) -> TrainingJobRepository:
     """Create appropriate training job repository based on configuration."""
 

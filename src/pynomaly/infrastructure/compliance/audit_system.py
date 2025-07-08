@@ -2,16 +2,14 @@
 
 import asyncio
 import hashlib
-import hmac
 import json
 import logging
-import time
 import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 try:
     import aiofiles
@@ -122,21 +120,21 @@ class AuditEvent:
     event_id: str
     event_type: EventType
     timestamp: datetime
-    user_id: Optional[str]
-    session_id: Optional[str]
-    ip_address: Optional[str]
-    user_agent: Optional[str]
-    resource: Optional[str]
+    user_id: str | None
+    session_id: str | None
+    ip_address: str | None
+    user_agent: str | None
+    resource: str | None
     action: str
     outcome: str  # "success", "failure", "partial"
     severity: Severity
-    details: Dict[str, Any] = field(default_factory=dict)
-    trace_id: Optional[str] = None
-    tenant_id: Optional[str] = None
-    compliance_tags: List[ComplianceFramework] = field(default_factory=list)
-    data_classification: Optional[str] = None
+    details: dict[str, Any] = field(default_factory=dict)
+    trace_id: str | None = None
+    tenant_id: str | None = None
+    compliance_tags: list[ComplianceFramework] = field(default_factory=list)
+    data_classification: str | None = None
     retention_period_days: int = 2555  # 7 years default
-    hash_signature: Optional[str] = None
+    hash_signature: str | None = None
 
     def __post_init__(self):
         """Generate hash signature for integrity verification."""
@@ -172,12 +170,12 @@ class ComplianceRule:
     framework: ComplianceFramework
     name: str
     description: str
-    event_types: List[EventType]
-    required_fields: List[str]
+    event_types: list[EventType]
+    required_fields: list[str]
     retention_period_days: int
     notification_required: bool = False
     alert_on_violation: bool = True
-    custom_validation: Optional[str] = None  # Python code for custom validation
+    custom_validation: str | None = None  # Python code for custom validation
 
 
 class AuditStorage:
@@ -191,8 +189,8 @@ class AuditStorage:
         self,
         start_time: datetime,
         end_time: datetime,
-        filters: Optional[Dict[str, Any]] = None,
-    ) -> List[AuditEvent]:
+        filters: dict[str, Any] | None = None,
+    ) -> list[AuditEvent]:
         """Retrieve audit events."""
         raise NotImplementedError
 
@@ -252,8 +250,8 @@ class FileAuditStorage(AuditStorage):
         self,
         start_time: datetime,
         end_time: datetime,
-        filters: Optional[Dict[str, Any]] = None,
-    ) -> List[AuditEvent]:
+        filters: dict[str, Any] | None = None,
+    ) -> list[AuditEvent]:
         """Retrieve audit events from files."""
         events = []
 
@@ -266,7 +264,7 @@ class FileAuditStorage(AuditStorage):
         for file_path in relevant_files:
             try:
                 if AIOFILES_AVAILABLE:
-                    async with aiofiles.open(file_path, "r") as f:
+                    async with aiofiles.open(file_path) as f:
                         async for line in f:
                             if line.strip():
                                 event_data = json.loads(line)
@@ -276,7 +274,7 @@ class FileAuditStorage(AuditStorage):
                                 ):
                                     events.append(event)
                 else:
-                    with open(file_path, "r") as f:
+                    with open(file_path) as f:
                         for line in f:
                             if line.strip():
                                 event_data = json.loads(line)
@@ -290,7 +288,7 @@ class FileAuditStorage(AuditStorage):
 
         return sorted(events, key=lambda e: e.timestamp)
 
-    def _dict_to_audit_event(self, data: Dict[str, Any]) -> AuditEvent:
+    def _dict_to_audit_event(self, data: dict[str, Any]) -> AuditEvent:
         """Convert dictionary to AuditEvent object."""
         # Convert string timestamp back to datetime
         data["timestamp"] = datetime.fromisoformat(
@@ -309,7 +307,7 @@ class FileAuditStorage(AuditStorage):
         event: AuditEvent,
         start_time: datetime,
         end_time: datetime,
-        filters: Optional[Dict[str, Any]],
+        filters: dict[str, Any] | None,
     ) -> bool:
         """Check if event matches retrieval criteria."""
         # Time range check
@@ -347,7 +345,7 @@ class FileAuditStorage(AuditStorage):
 class AuditSystem:
     """Enterprise audit logging and compliance system."""
 
-    def __init__(self, config: Optional[Config] = None):
+    def __init__(self, config: Config | None = None):
         """Initialize audit system."""
         self.config = config or Config()
         self.telemetry = get_telemetry_service()
@@ -365,12 +363,12 @@ class AuditSystem:
         )
 
         # Compliance rules
-        self.compliance_rules: Dict[ComplianceFramework, List[ComplianceRule]] = {}
+        self.compliance_rules: dict[ComplianceFramework, list[ComplianceRule]] = {}
         self._load_compliance_rules()
 
         # Event queue for async processing
         self.event_queue: asyncio.Queue = asyncio.Queue(maxsize=10000)
-        self._processor_task: Optional[asyncio.Task] = None
+        self._processor_task: asyncio.Task | None = None
         self._processing_active = False
 
         # Metrics
@@ -482,7 +480,7 @@ class AuditSystem:
                 await self._store_event(event)
                 self.event_queue.task_done()
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 continue
             except Exception as e:
                 logger.error(f"Error processing audit event: {e}")
@@ -491,18 +489,18 @@ class AuditSystem:
     async def log_event(
         self,
         event_type: EventType,
-        user_id: Optional[str] = None,
-        resource: Optional[str] = None,
+        user_id: str | None = None,
+        resource: str | None = None,
         action: str = "",
         outcome: str = "success",
         severity: Severity = Severity.MEDIUM,
-        details: Optional[Dict[str, Any]] = None,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
-        session_id: Optional[str] = None,
-        tenant_id: Optional[str] = None,
-        data_classification: Optional[str] = None,
-        compliance_frameworks: Optional[List[ComplianceFramework]] = None,
+        details: dict[str, Any] | None = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+        session_id: str | None = None,
+        tenant_id: str | None = None,
+        data_classification: str | None = None,
+        compliance_frameworks: list[ComplianceFramework] | None = None,
     ) -> bool:
         """Log an audit event."""
         if not self.enabled:
@@ -600,7 +598,7 @@ class AuditSystem:
                 await self._send_compliance_alert(rule, event, violations)
 
     async def _send_compliance_alert(
-        self, rule: ComplianceRule, event: AuditEvent, violations: List[str]
+        self, rule: ComplianceRule, event: AuditEvent, violations: list[str]
     ) -> None:
         """Send compliance violation alert."""
         alert_details = {
@@ -629,14 +627,14 @@ class AuditSystem:
         self,
         start_time: datetime,
         end_time: datetime,
-        event_types: Optional[List[EventType]] = None,
-        user_id: Optional[str] = None,
-        resource: Optional[str] = None,
-        severity: Optional[Severity] = None,
-        outcome: Optional[str] = None,
-        compliance_framework: Optional[ComplianceFramework] = None,
+        event_types: list[EventType] | None = None,
+        user_id: str | None = None,
+        resource: str | None = None,
+        severity: Severity | None = None,
+        outcome: str | None = None,
+        compliance_framework: ComplianceFramework | None = None,
         limit: int = 1000,
-    ) -> List[AuditEvent]:
+    ) -> list[AuditEvent]:
         """Search audit events with filters."""
         try:
             # Build filters
@@ -671,7 +669,7 @@ class AuditSystem:
 
     async def generate_compliance_report(
         self, framework: ComplianceFramework, start_time: datetime, end_time: datetime
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate compliance report for specific framework."""
         try:
             # Get events for the framework
@@ -731,7 +729,7 @@ class AuditSystem:
             return {"error": str(e)}
 
     async def _add_gdpr_analysis(
-        self, report: Dict[str, Any], events: List[AuditEvent]
+        self, report: dict[str, Any], events: list[AuditEvent]
     ) -> None:
         """Add GDPR-specific analysis to report."""
         gdpr_events = {
@@ -760,7 +758,7 @@ class AuditSystem:
             )
 
     async def _add_hipaa_analysis(
-        self, report: Dict[str, Any], events: List[AuditEvent]
+        self, report: dict[str, Any], events: list[AuditEvent]
     ) -> None:
         """Add HIPAA-specific analysis to report."""
         phi_access_events = [e for e in events if e.data_classification == "PHI"]
@@ -773,7 +771,7 @@ class AuditSystem:
         }
 
     async def _add_sox_analysis(
-        self, report: Dict[str, Any], events: List[AuditEvent]
+        self, report: dict[str, Any], events: list[AuditEvent]
     ) -> None:
         """Add SOX-specific analysis to report."""
         financial_events = [e for e in events if e.data_classification == "financial"]
@@ -812,7 +810,7 @@ class AuditSystem:
             logger.error(f"Failed to cleanup expired events: {e}")
             return 0
 
-    def get_audit_metrics(self) -> Dict[str, Any]:
+    def get_audit_metrics(self) -> dict[str, Any]:
         """Get audit system metrics."""
         return {
             "events_logged": self.events_logged,
@@ -826,10 +824,10 @@ class AuditSystem:
 
 
 # Global audit system instance
-_audit_system: Optional[AuditSystem] = None
+_audit_system: AuditSystem | None = None
 
 
-def get_audit_system(config: Optional[Config] = None) -> AuditSystem:
+def get_audit_system(config: Config | None = None) -> AuditSystem:
     """Get the global audit system instance."""
     global _audit_system
     if _audit_system is None:

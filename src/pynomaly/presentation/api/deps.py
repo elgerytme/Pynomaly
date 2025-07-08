@@ -5,12 +5,9 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from pynomaly.infrastructure.auth import UserModel
-from pynomaly.infrastructure.auth import get_current_user as auth_get_current_user
 from pynomaly.infrastructure.auth import (
+    UserModel,
     require_analyst,
-    require_data_scientist,
-    require_super_admin,
     require_tenant_admin,
     require_viewer,
 )
@@ -103,16 +100,16 @@ async def require_auth(
 
 
 # For backward compatibility, provide simplified role mapping
-def require_read() -> UserModel:
+def require_read():
     """Require user with read permissions (viewer role or higher)."""
     return require_viewer
 
 
-def require_write() -> UserModel:
+def require_write():
     """Require user with write permissions (analyst role or higher)."""
     return require_analyst
 
 
-def require_admin() -> UserModel:
+def require_admin():
     """Require user with admin permissions (tenant admin or higher)."""
     return require_tenant_admin

@@ -4,13 +4,11 @@ import asyncio
 import json
 import logging
 from datetime import datetime
-from typing import Dict, Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from ..models.websocket_models import (
-    ConnectionStatus,
     MessageType,
     SubscriptionTopic,
     WebSocketConfig,
@@ -213,7 +211,7 @@ async def send_heartbeat(
 async def handle_websocket_message(
     websocket: WebSocket,
     connection_id: str,
-    message_data: Dict,
+    message_data: dict,
     service: WebSocketService,
 ) -> None:
     """Handle incoming WebSocket message.

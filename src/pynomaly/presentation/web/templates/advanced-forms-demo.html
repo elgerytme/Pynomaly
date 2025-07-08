@@ -809,44 +809,44 @@
         container.innerHTML = `
                 <div class="form-field">
                     <label for="email-validation" class="form-label required">Email Address</label>
-                    <input type="email" 
-                           id="email-validation" 
-                           name="email" 
-                           class="form-input" 
+                    <input type="email"
+                           id="email-validation"
+                           name="email"
+                           class="form-input"
                            placeholder="Enter your email"
                            required>
                     <div class="form-help">We'll use this for notifications</div>
                 </div>
-                
+
                 <div class="form-field">
                     <label for="password-validation" class="form-label required">Strong Password</label>
-                    <input type="password" 
-                           id="password-validation" 
-                           name="password" 
-                           class="form-input" 
+                    <input type="password"
+                           id="password-validation"
+                           name="password"
+                           class="form-input"
                            placeholder="Create a strong password"
                            required>
                     <div class="form-help">Must contain uppercase, lowercase, number, and special character</div>
                 </div>
-                
+
                 <div class="form-field">
                     <label for="confirm-password" class="form-label required">Confirm Password</label>
-                    <input type="password" 
-                           id="confirm-password" 
-                           name="confirmPassword" 
-                           class="form-input" 
+                    <input type="password"
+                           id="confirm-password"
+                           name="confirmPassword"
+                           class="form-input"
                            placeholder="Confirm your password"
                            required>
                 </div>
-                
+
                 <div class="form-field">
                     <label for="age-validation" class="form-label">Age</label>
-                    <input type="number" 
-                           id="age-validation" 
-                           name="age" 
-                           class="form-input" 
-                           min="18" 
-                           max="120" 
+                    <input type="number"
+                           id="age-validation"
+                           name="age"
+                           class="form-input"
+                           min="18"
+                           max="120"
                            placeholder="Enter your age">
                     <div class="form-help">Must be between 18 and 120</div>
                 </div>
@@ -1096,10 +1096,10 @@
           formHTML += `
                     <div class="form-field">
                         <label for="field-${i}" class="form-label">Field ${i + 1}</label>
-                        <input type="text" 
-                               id="field-${i}" 
-                               name="field-${i}" 
-                               class="form-input" 
+                        <input type="text"
+                               id="field-${i}"
+                               name="field-${i}"
+                               class="form-input"
                                placeholder="Enter value ${i + 1}">
                     </div>
                 `;
@@ -1215,7 +1215,7 @@
       function showKeyboardHelp() {
         const helpText = `
                 Keyboard Navigation Help:
-                
+
                 Form Navigation:
                 • Tab: Move to next field
                 • Shift+Tab: Move to previous field
@@ -1223,17 +1223,17 @@
                 • Space: Toggle checkboxes/radio buttons
                 • Arrow Keys: Navigate radio button groups
                 • Escape: Close dropdowns/modals
-                
+
                 Multi-Step Forms:
                 • Ctrl+Right: Next step (if valid)
                 • Ctrl+Left: Previous step
                 • Ctrl+S: Save draft
-                
+
                 Special Components:
                 • File Upload: Space/Enter to open file dialog
                 • Multi-Select: Enter to open, Arrow keys to navigate
                 • Date Picker: Arrow keys to navigate dates
-                
+
                 Accessibility:
                 • Alt+T: Toggle theme
                 • Alt+C: Toggle high contrast

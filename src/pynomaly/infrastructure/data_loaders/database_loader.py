@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 import logging
-import re
+from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Dict, Iterator, List, Optional, Union
-from urllib.parse import urlparse
+from typing import Any
 
 import pandas as pd
 import sqlalchemy as sa
@@ -34,8 +33,8 @@ class DatabaseLoader(DatabaseLoaderProtocol, BatchDataLoaderProtocol):
 
     def __init__(
         self,
-        connection_string: Optional[str] = None,
-        engine_kwargs: Optional[Dict[str, Any]] = None,
+        connection_string: str | None = None,
+        engine_kwargs: dict[str, Any] | None = None,
         query_timeout: int = 300,
         batch_size: int = 10000,
         use_connection_pooling: bool = True,
@@ -57,16 +56,16 @@ class DatabaseLoader(DatabaseLoaderProtocol, BatchDataLoaderProtocol):
         self.logger = logging.getLogger(__name__)
 
         # Connection management
-        self._engine: Optional[sa.Engine] = None
-        self._connection_cache: Dict[str, sa.Engine] = {}
+        self._engine: sa.Engine | None = None
+        self._connection_cache: dict[str, sa.Engine] = {}
 
     @property
-    def supported_formats(self) -> List[str]:
+    def supported_formats(self) -> list[str]:
         """Get supported database types."""
         return list(self.SUPPORTED_DATABASES.keys())
 
     def load(
-        self, source: Union[str, Path], name: Optional[str] = None, **kwargs: Any
+        self, source: str | Path, name: str | None = None, **kwargs: Any
     ) -> Dataset:
         """Load data using connection string as source.
 
@@ -105,7 +104,7 @@ class DatabaseLoader(DatabaseLoaderProtocol, BatchDataLoaderProtocol):
         else:
             return self.load_table(table_name, connection, name=name, **kwargs)
 
-    def validate(self, source: Union[str, Path]) -> bool:
+    def validate(self, source: str | Path) -> bool:
         """Validate database connection or table.
 
         Args:
@@ -136,8 +135,8 @@ class DatabaseLoader(DatabaseLoaderProtocol, BatchDataLoaderProtocol):
     def load_query(
         self,
         query: str,
-        connection: Union[str, sa.Engine],
-        name: Optional[str] = None,
+        connection: str | sa.Engine,
+        name: str | None = None,
         **kwargs: Any,
     ) -> Dataset:
         """Load data using SQL query.
@@ -219,9 +218,9 @@ class DatabaseLoader(DatabaseLoaderProtocol, BatchDataLoaderProtocol):
     def load_table(
         self,
         table_name: str,
-        connection: Union[str, sa.Engine],
-        schema: Optional[str] = None,
-        name: Optional[str] = None,
+        connection: str | sa.Engine,
+        schema: str | None = None,
+        name: str | None = None,
         **kwargs: Any,
     ) -> Dataset:
         """Load entire table as dataset.
@@ -327,9 +326,9 @@ class DatabaseLoader(DatabaseLoaderProtocol, BatchDataLoaderProtocol):
     def get_table_info(
         self,
         table_name: str,
-        connection: Union[str, sa.Engine],
-        schema: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        connection: str | sa.Engine,
+        schema: str | None = None,
+    ) -> dict[str, Any]:
         """Get information about a database table.
 
         Args:
@@ -387,9 +386,9 @@ class DatabaseLoader(DatabaseLoaderProtocol, BatchDataLoaderProtocol):
 
     def load_batch(
         self,
-        source: Union[str, Path],
+        source: str | Path,
         batch_size: int,
-        name: Optional[str] = None,
+        name: str | None = None,
         **kwargs: Any,
     ) -> Iterator[Dataset]:
         """Load data in batches.
@@ -465,7 +464,7 @@ class DatabaseLoader(DatabaseLoaderProtocol, BatchDataLoaderProtocol):
                 f"Failed to load data in batches: {e}", query=query
             ) from e
 
-    def estimate_size(self, source: Union[str, Path]) -> Dict[str, Any]:
+    def estimate_size(self, source: str | Path) -> dict[str, Any]:
         """Estimate the size of a database query or table.
 
         Args:
@@ -525,9 +524,9 @@ class DatabaseLoader(DatabaseLoaderProtocol, BatchDataLoaderProtocol):
 
     def list_tables(
         self,
-        connection: Optional[Union[str, sa.Engine]] = None,
-        schema: Optional[str] = None,
-    ) -> List[str]:
+        connection: str | sa.Engine | None = None,
+        schema: str | None = None,
+    ) -> list[str]:
         """List all tables in the database.
 
         Args:
@@ -545,9 +544,7 @@ class DatabaseLoader(DatabaseLoaderProtocol, BatchDataLoaderProtocol):
         else:
             return inspector.get_table_names()
 
-    def list_schemas(
-        self, connection: Optional[Union[str, sa.Engine]] = None
-    ) -> List[str]:
+    def list_schemas(self, connection: str | sa.Engine | None = None) -> list[str]:
         """List all schemas in the database.
 
         Args:
@@ -576,7 +573,7 @@ class DatabaseLoader(DatabaseLoaderProtocol, BatchDataLoaderProtocol):
             self._engine = None
 
     @contextmanager
-    def connection(self, connection_string: Optional[str] = None):
+    def connection(self, connection_string: str | None = None):
         """Context manager for database connections.
 
         Args:
@@ -592,7 +589,7 @@ class DatabaseLoader(DatabaseLoaderProtocol, BatchDataLoaderProtocol):
         finally:
             conn.close()
 
-    def _get_engine(self, connection: Union[str, sa.Engine]) -> sa.Engine:
+    def _get_engine(self, connection: str | sa.Engine) -> sa.Engine:
         """Get or create SQLAlchemy engine.
 
         Args:
@@ -650,7 +647,7 @@ class DatabaseLoader(DatabaseLoaderProtocol, BatchDataLoaderProtocol):
         password: str,
         host: str,
         database: str,
-        port: Optional[int] = None,
+        port: int | None = None,
         **kwargs: Any,
     ) -> str:
         """Create a connection string for the specified database type.

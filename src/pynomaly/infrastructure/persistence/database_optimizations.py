@@ -6,13 +6,12 @@ import logging
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 from uuid import UUID
 
-from sqlalchemy import Index, and_, desc, func, or_, text
+from sqlalchemy import Index, and_, desc, func, text
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Query, Session, joinedload, selectinload
-from sqlalchemy.sql import ClauseElement
+from sqlalchemy.orm import Query, Session
 
 from .database_repositories import (
     Base,
@@ -138,7 +137,7 @@ class DatabaseOptimizer:
 
     def analyze_query_performance(
         self, query: Query, session: Session
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Analyze query performance and suggest optimizations."""
         import time
 
@@ -168,7 +167,7 @@ class DatabaseOptimizer:
 
     def _generate_optimization_suggestions(
         self, query: Query, execution_time: float, result_count: int
-    ) -> List[str]:
+    ) -> list[str]:
         """Generate optimization suggestions based on query analysis."""
         suggestions = []
 
@@ -206,7 +205,7 @@ class OptimizedRepositoryMixin:
 
     def find_with_pagination(
         self, query: Query, page: int = 1, page_size: int = 20
-    ) -> Tuple[List[Any], int]:
+    ) -> tuple[list[Any], int]:
         """Execute paginated query with total count."""
         # Get total count (optimized)
         count_query = query.statement.with_only_columns([func.count()]).order_by(None)
@@ -219,7 +218,7 @@ class OptimizedRepositoryMixin:
         return items, total_count
 
     def bulk_insert(
-        self, session: Session, model_class, items: List[Dict[str, Any]]
+        self, session: Session, model_class, items: list[dict[str, Any]]
     ) -> None:
         """Optimized bulk insert operation."""
         if not items:
@@ -238,8 +237,8 @@ class OptimizedRepositoryMixin:
         self,
         session: Session,
         model_class,
-        items: List[Dict[str, Any]],
-        update_fields: List[str],
+        items: list[dict[str, Any]],
+        update_fields: list[str],
     ) -> None:
         """Optimized bulk update operation."""
         if not items:
@@ -298,7 +297,7 @@ class OptimizedDetectorRepository(OptimizedRepositoryMixin):
         include_fitted_only: bool = False,
         page: int = 1,
         page_size: int = 20,
-    ) -> Tuple[List[Any], int]:
+    ) -> tuple[list[Any], int]:
         """Find detectors by algorithm with optimization."""
         with self.optimizer.optimized_session() as session:
             query = session.query(DetectorModel).filter(
@@ -313,7 +312,7 @@ class OptimizedDetectorRepository(OptimizedRepositoryMixin):
 
             return self.find_with_pagination(query, page, page_size)
 
-    def find_recent_fitted(self, limit: int = 10) -> List[Any]:
+    def find_recent_fitted(self, limit: int = 10) -> list[Any]:
         """Find recently fitted detectors with caching."""
         cache_key = f"recent_fitted_detectors_{limit}"
 
@@ -329,7 +328,7 @@ class OptimizedDetectorRepository(OptimizedRepositoryMixin):
 
         return self.cached_query(cache_key, query_func, timedelta(minutes=2))
 
-    def get_algorithm_stats(self) -> Dict[str, Any]:
+    def get_algorithm_stats(self) -> dict[str, Any]:
         """Get algorithm usage statistics with caching."""
         cache_key = "algorithm_statistics"
 
@@ -366,8 +365,8 @@ class OptimizedDatasetRepository(OptimizedRepositoryMixin):
     """Optimized dataset repository with performance enhancements."""
 
     def find_by_metadata_optimized(
-        self, filters: Dict[str, Any], page: int = 1, page_size: int = 20
-    ) -> Tuple[List[Any], int]:
+        self, filters: dict[str, Any], page: int = 1, page_size: int = 20
+    ) -> tuple[list[Any], int]:
         """Find datasets by metadata with JSON optimization."""
         with self.optimizer.optimized_session() as session:
             query = session.query(DatasetModel)
@@ -390,7 +389,7 @@ class OptimizedDatasetRepository(OptimizedRepositoryMixin):
 
             return self.find_with_pagination(query, page, page_size)
 
-    def find_by_features_optimized(self, required_features: List[str]) -> List[Any]:
+    def find_by_features_optimized(self, required_features: list[str]) -> list[Any]:
         """Find datasets containing all required features."""
         cache_key = f"datasets_with_features_{hash(tuple(sorted(required_features)))}"
 
@@ -414,7 +413,7 @@ class OptimizedDatasetRepository(OptimizedRepositoryMixin):
 
         return self.cached_query(cache_key, query_func)
 
-    def get_feature_usage_stats(self) -> Dict[str, int]:
+    def get_feature_usage_stats(self) -> dict[str, int]:
         """Get feature usage statistics across all datasets."""
         cache_key = "feature_usage_statistics"
 
@@ -446,7 +445,7 @@ class OptimizedDetectionResultRepository(OptimizedRepositoryMixin):
         end_date: datetime = None,
         page: int = 1,
         page_size: int = 20,
-    ) -> Tuple[List[Any], int, Dict[str, Any]]:
+    ) -> tuple[list[Any], int, dict[str, Any]]:
         """Find detection results with aggregated statistics."""
         with self.optimizer.optimized_session() as session:
             query = session.query(DetectionResultModel)
@@ -496,7 +495,7 @@ class OptimizedDetectionResultRepository(OptimizedRepositoryMixin):
 
             return results, total_count, stats
 
-    def get_detection_trends(self, days: int = 30) -> Dict[str, Any]:
+    def get_detection_trends(self, days: int = 30) -> dict[str, Any]:
         """Get detection trends over time period with caching."""
         cache_key = f"detection_trends_{days}_days"
 
@@ -659,7 +658,7 @@ class DatabaseConnectionManager:
 
         logger.info("Database initialized with performance optimizations")
 
-    def get_connection_stats(self) -> Dict[str, Any]:
+    def get_connection_stats(self) -> dict[str, Any]:
         """Get connection pool statistics."""
         pool = self.engine.pool
         return {

@@ -101,7 +101,7 @@ class AutoMLConfigWizard {
       <div class="wizard-step" data-step="0">
         <h3>Dataset Configuration</h3>
         <p>Configure your dataset and target variable for anomaly detection.</p>
-        
+
         <div class="form-group">
           <label for="dataset-source">Data Source</label>
           <select id="dataset-source" class="form-control">
@@ -220,7 +220,7 @@ class AutoMLConfigWizard {
       <div class="wizard-step" data-step="1">
         <h3>Configuration Template</h3>
         <p>Choose a pre-configured template or start with custom settings.</p>
-        
+
         <div class="template-grid">
           ${this.templates
             .map(
@@ -305,7 +305,7 @@ class AutoMLConfigWizard {
       <div class="wizard-step" data-step="2">
         <h3>Algorithm Selection</h3>
         <p>Choose which anomaly detection algorithms to include in the AutoML search.</p>
-        
+
         <div class="algorithm-categories">
           <div class="category">
             <h4>
@@ -468,11 +468,11 @@ class AutoMLConfigWizard {
       <div class="wizard-step" data-step="3">
         <h3>Optimization Settings</h3>
         <p>Configure hyperparameter optimization and resource limits.</p>
-        
+
         <div class="optimization-grid">
           <div class="optimization-section">
             <h4>Hyperparameter Optimization</h4>
-            
+
             <div class="form-group">
               <label for="optimization-algorithm">Optimization Algorithm</label>
               <select id="optimization-algorithm" class="form-control">
@@ -486,7 +486,7 @@ class AutoMLConfigWizard {
 
             <div class="form-group">
               <label for="max-evaluations">Maximum Evaluations</label>
-              <input type="range" id="max-evaluations" class="form-control-range" 
+              <input type="range" id="max-evaluations" class="form-control-range"
                      min="10" max="500" value="100" step="10">
               <div class="range-labels">
                 <span>10 (Fast)</span>
@@ -497,14 +497,14 @@ class AutoMLConfigWizard {
 
             <div class="form-group">
               <label for="optimization-timeout">Timeout (minutes)</label>
-              <input type="number" id="optimization-timeout" class="form-control" 
+              <input type="number" id="optimization-timeout" class="form-control"
                      value="60" min="5" max="480">
             </div>
           </div>
 
           <div class="optimization-section">
             <h4>Cross-Validation</h4>
-            
+
             <div class="form-group">
               <label for="cv-folds">Cross-Validation Folds</label>
               <select id="cv-folds" class="form-control">
@@ -528,16 +528,16 @@ class AutoMLConfigWizard {
 
           <div class="optimization-section">
             <h4>Resource Limits</h4>
-            
+
             <div class="form-group">
               <label for="max-training-time">Max Training Time (minutes)</label>
-              <input type="number" id="max-training-time" class="form-control" 
+              <input type="number" id="max-training-time" class="form-control"
                      value="120" min="10" max="1440">
             </div>
 
             <div class="form-group">
               <label for="memory-limit">Memory Limit (GB)</label>
-              <input type="number" id="memory-limit" class="form-control" 
+              <input type="number" id="memory-limit" class="form-control"
                      value="8" min="1" max="64" step="1">
             </div>
 
@@ -668,7 +668,7 @@ class AutoMLConfigWizard {
       <div class="wizard-step" data-step="4">
         <h3>Configuration Summary</h3>
         <p>Review your AutoML configuration before starting the training process.</p>
-        
+
         <div class="summary-grid">
           <div class="summary-section">
             <h4>Dataset</h4>

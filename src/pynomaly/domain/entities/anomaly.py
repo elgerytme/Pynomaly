@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 if TYPE_CHECKING:
-    from pynomaly.domain.value_objects import AnomalyScore
+    pass
 
 
 @dataclass
@@ -43,7 +44,35 @@ class Anomaly:
 
     @property
     def severity(self) -> str:
-        """Categorize anomaly severity based on score."""
+        """Categorize anomaly severity based on score.
+        
+        .. deprecated:: 1.2.0
+            The `severity` property is deprecated and will be removed in v2.0.0.
+            Use `AnomalyClassificationService` instead for more flexible and 
+            extensible severity classification.
+            
+            Migration example:
+            
+            .. code-block:: python
+            
+                # Old way (deprecated)
+                severity = anomaly.severity
+                
+                # New way (recommended)
+                from pynomaly.application.services.anomaly_classification_service import AnomalyClassificationService
+                
+                service = AnomalyClassificationService()
+                service.classify(anomaly)
+                severity = anomaly.metadata.get('severity')
+        """
+        warnings.warn(
+            "The 'severity' property is deprecated and will be removed in v2.0.0. "
+            "Use AnomalyClassificationService for more flexible severity classification. "
+            "See migration guide: https://github.com/yourusername/pynomaly/blob/main/docs/migration/v2.0-migration-guide.md",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        
         # Handle both AnomalyScore and float
         score_value = self.score.value if hasattr(self.score, "value") else self.score
 

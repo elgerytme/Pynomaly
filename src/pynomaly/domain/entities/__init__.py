@@ -14,7 +14,7 @@ from .dataset import Dataset
 from .detection_result import DetectionResult
 from .detector import Detector
 from .experiment import Experiment, ExperimentRun, ExperimentStatus, ExperimentType
-from .model import Model, ModelStage, ModelType, ModelMetrics
+from .model import Model, ModelMetrics, ModelStage, ModelType
 from .model_version import ModelStatus, ModelVersion
 from .pipeline import (
     Pipeline,

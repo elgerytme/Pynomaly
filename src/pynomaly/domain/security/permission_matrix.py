@@ -9,7 +9,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Set
 
 from pynomaly.domain.entities.user import Permission, UserRole
 
@@ -55,7 +54,7 @@ class PermissionRule:
     resource: ResourceType
     action: ActionType
     description: str
-    conditions: List[str] = None  # Additional conditions like "own_only", "tenant_only"
+    conditions: list[str] = None  # Additional conditions like "own_only", "tenant_only"
 
     def to_permission(self) -> Permission:
         """Convert to domain Permission object."""
@@ -228,7 +227,7 @@ class PermissionMatrix:
     ]
 
     @classmethod
-    def get_role_permissions(cls, role: UserRole) -> Set[Permission]:
+    def get_role_permissions(cls, role: UserRole) -> set[Permission]:
         """Get all permissions for a specific role."""
         permission_rules = {
             UserRole.SUPER_ADMIN: cls.SUPER_ADMIN_PERMISSIONS,
@@ -242,7 +241,7 @@ class PermissionMatrix:
         return {rule.to_permission() for rule in rules}
 
     @classmethod
-    def get_all_permissions(cls) -> Set[Permission]:
+    def get_all_permissions(cls) -> set[Permission]:
         """Get all possible permissions in the system."""
         all_permissions = set()
         for role in UserRole:
@@ -250,7 +249,7 @@ class PermissionMatrix:
         return all_permissions
 
     @classmethod
-    def get_permission_hierarchy(cls) -> Dict[UserRole, int]:
+    def get_permission_hierarchy(cls) -> dict[UserRole, int]:
         """Get role hierarchy (higher number = more permissions)."""
         return {
             UserRole.VIEWER: 1,
@@ -283,7 +282,7 @@ class PermissionMatrix:
         return False
 
     @classmethod
-    def get_matrix_summary(cls) -> Dict[str, Dict[str, List[str]]]:
+    def get_matrix_summary(cls) -> dict[str, dict[str, list[str]]]:
         """Get a summary of the permission matrix for documentation."""
         summary = {}
 
@@ -305,14 +304,14 @@ class PermissionMatrix:
 
 # Permission checking utilities
 def has_permission(
-    user_permissions: Set[Permission], required_permission: Permission
+    user_permissions: set[Permission], required_permission: Permission
 ) -> bool:
     """Check if user has a specific permission."""
     return required_permission in user_permissions
 
 
 def has_resource_access(
-    user_permissions: Set[Permission], resource: ResourceType, action: ActionType
+    user_permissions: set[Permission], resource: ResourceType, action: ActionType
 ) -> bool:
     """Check if user can perform an action on a resource."""
     required_permission = Permission(
@@ -325,8 +324,8 @@ def has_resource_access(
 
 
 def get_user_resource_permissions(
-    user_permissions: Set[Permission], resource: ResourceType
-) -> List[ActionType]:
+    user_permissions: set[Permission], resource: ResourceType
+) -> list[ActionType]:
     """Get all actions a user can perform on a specific resource."""
     actions = []
     for permission in user_permissions:

@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 from uuid import UUID, uuid4
 
 import numpy as np
@@ -278,15 +278,15 @@ class ABTestingService:
         self.prediction_records: dict[UUID, list[PredictionRecord]] = {}
 
         # Traffic router
-        self.traffic_router: "TrafficRouter" = None  # Will be initialized later
+        self.traffic_router: TrafficRouter = None  # Will be initialized later
 
         # Statistical analyzer
-        self.statistical_analyzer: "StatisticalAnalyzer" = (
+        self.statistical_analyzer: StatisticalAnalyzer = (
             None  # Will be initialized later
         )
 
         # Guardrail monitor
-        self.guardrail_monitor: "GuardrailMonitor" = None  # Will be initialized later
+        self.guardrail_monitor: GuardrailMonitor = None  # Will be initialized later
 
         # Background tasks
         self._background_tasks: list[asyncio.Task] = []

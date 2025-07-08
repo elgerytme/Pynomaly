@@ -1,11 +1,10 @@
 """Advanced anomaly detection service with multiple algorithms and ensemble methods."""
 
-import asyncio
 import logging
 import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -118,16 +117,16 @@ class AlgorithmConfig:
     random_state: int = 42
 
     # Algorithm-specific parameters
-    parameters: Dict[str, Any] = field(default_factory=dict)
+    parameters: dict[str, Any] = field(default_factory=dict)
 
     # Data preprocessing
     scaling_method: ScalingMethod = ScalingMethod.STANDARD
     apply_pca: bool = False
-    pca_components: Optional[int] = None
+    pca_components: int | None = None
 
     # Performance tuning
     enable_gpu: bool = False
-    batch_size: Optional[int] = None
+    batch_size: int | None = None
     memory_efficient: bool = True
 
 
@@ -135,10 +134,10 @@ class AlgorithmConfig:
 class EnsembleConfig:
     """Configuration for ensemble methods."""
 
-    algorithms: List[AlgorithmConfig]
+    algorithms: list[AlgorithmConfig]
     combination_method: str = "average"  # "average", "voting", "stacking"
-    weights: Optional[List[float]] = None
-    meta_learner: Optional[str] = None  # For stacking
+    weights: list[float] | None = None
+    meta_learner: str | None = None  # For stacking
     cross_validation_folds: int = 5
 
 
@@ -151,10 +150,10 @@ class DetectionMetrics:
     memory_usage: float
 
     # Performance metrics (if ground truth available)
-    precision: Optional[float] = None
-    recall: Optional[float] = None
-    f1_score: Optional[float] = None
-    auc_score: Optional[float] = None
+    precision: float | None = None
+    recall: float | None = None
+    f1_score: float | None = None
+    auc_score: float | None = None
 
     # Statistics
     total_anomalies: int = 0
@@ -177,7 +176,7 @@ class AdvancedDetectionService:
 
         logger.info("Advanced detection service initialized")
 
-    def _initialize_default_configs(self) -> Dict[DetectionAlgorithm, AlgorithmConfig]:
+    def _initialize_default_configs(self) -> dict[DetectionAlgorithm, AlgorithmConfig]:
         """Initialize default configurations for algorithms."""
         configs = {}
 
@@ -263,8 +262,8 @@ class AdvancedDetectionService:
         self,
         dataset: Dataset,
         algorithm: DetectionAlgorithm,
-        config: Optional[AlgorithmConfig] = None,
-        ground_truth: Optional[np.ndarray] = None,
+        config: AlgorithmConfig | None = None,
+        ground_truth: np.ndarray | None = None,
     ) -> DetectionResult:
         """Detect anomalies using specified algorithm."""
 
@@ -296,7 +295,9 @@ class AdvancedDetectionService:
 
             # Create anomalies
             anomalies = []
-            for i, (is_anomaly, score) in enumerate(zip(predictions, scores)):
+            for i, (is_anomaly, score) in enumerate(
+                zip(predictions, scores, strict=False)
+            ):
                 if is_anomaly:
                     anomaly = Anomaly(
                         index=i,
@@ -349,7 +350,7 @@ class AdvancedDetectionService:
 
     async def _prepare_data(
         self, dataset: Dataset, config: AlgorithmConfig
-    ) -> Union[np.ndarray, pd.DataFrame]:
+    ) -> np.ndarray | pd.DataFrame:
         """Prepare data for anomaly detection."""
 
         # Get data
@@ -502,10 +503,10 @@ class AdvancedDetectionService:
     async def _fit_and_predict(
         self,
         model,
-        X: Union[np.ndarray, pd.DataFrame],
+        X: np.ndarray | pd.DataFrame,
         algorithm: DetectionAlgorithm,
         config: AlgorithmConfig,
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Fit model and generate predictions."""
 
         # Convert to numpy if needed
@@ -583,7 +584,7 @@ class AdvancedDetectionService:
 
         return scores
 
-    def _estimate_memory_usage(self, X: Union[np.ndarray, pd.DataFrame]) -> float:
+    def _estimate_memory_usage(self, X: np.ndarray | pd.DataFrame) -> float:
         """Estimate memory usage for the dataset."""
         if isinstance(X, pd.DataFrame):
             return X.memory_usage(deep=True).sum() / (1024 * 1024)  # MB
@@ -597,7 +598,7 @@ class AdvancedDetectionService:
         memory_usage: float,
         predictions: np.ndarray,
         scores: np.ndarray,
-        ground_truth: Optional[np.ndarray] = None,
+        ground_truth: np.ndarray | None = None,
     ) -> DetectionMetrics:
         """Calculate detection performance metrics."""
 
@@ -654,7 +655,7 @@ class AdvancedDetectionService:
         self,
         dataset: Dataset,
         ensemble_config: EnsembleConfig,
-        ground_truth: Optional[np.ndarray] = None,
+        ground_truth: np.ndarray | None = None,
     ) -> DetectionResult:
         """Detect anomalies using ensemble of multiple algorithms."""
 
@@ -691,7 +692,7 @@ class AdvancedDetectionService:
             # Create anomalies from combined results
             anomalies = []
             for i, (is_anomaly, score) in enumerate(
-                zip(combined_predictions, combined_scores)
+                zip(combined_predictions, combined_scores, strict=False)
             ):
                 if is_anomaly:
                     anomaly = Anomaly(
@@ -749,10 +750,10 @@ class AdvancedDetectionService:
 
     def _combine_ensemble_results(
         self,
-        all_predictions: List[np.ndarray],
-        all_scores: List[np.ndarray],
+        all_predictions: list[np.ndarray],
+        all_scores: list[np.ndarray],
         config: EnsembleConfig,
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Combine results from multiple algorithms."""
 
         predictions_array = np.array(all_predictions)
@@ -788,7 +789,7 @@ class AdvancedDetectionService:
 
         return combined_predictions, combined_scores
 
-    async def get_available_algorithms(self) -> List[DetectionAlgorithm]:
+    async def get_available_algorithms(self) -> list[DetectionAlgorithm]:
         """Get list of available algorithms based on installed dependencies."""
         available = []
 
@@ -834,9 +835,9 @@ class AdvancedDetectionService:
     async def benchmark_algorithms(
         self,
         dataset: Dataset,
-        algorithms: Optional[List[DetectionAlgorithm]] = None,
-        ground_truth: Optional[np.ndarray] = None,
-    ) -> Dict[str, DetectionMetrics]:
+        algorithms: list[DetectionAlgorithm] | None = None,
+        ground_truth: np.ndarray | None = None,
+    ) -> dict[str, DetectionMetrics]:
         """Benchmark multiple algorithms on the same dataset."""
 
         if algorithms is None:
@@ -873,7 +874,7 @@ class AdvancedDetectionService:
 
 
 # Global service instance
-_detection_service: Optional[AdvancedDetectionService] = None
+_detection_service: AdvancedDetectionService | None = None
 
 
 def get_detection_service() -> AdvancedDetectionService:

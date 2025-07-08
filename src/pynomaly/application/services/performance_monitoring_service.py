@@ -8,22 +8,14 @@ monitoring for anomaly detection workflows.
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from ...domain.entities import Dataset, DetectionResult, Detector
-from ...domain.entities.model_performance import (
-    ModelPerformanceBaseline,
-    ModelPerformanceMetrics,
-)
 from ...infrastructure.config.feature_flags import require_feature
 from ...infrastructure.monitoring.performance_monitor import (
     PerformanceMetrics,
     PerformanceMonitor,
     PerformanceTracker,
-)
-from ...infrastructure.repositories import (
-    ModelPerformanceRepository,
-    PerformanceBaselineRepository,
 )
 
 
@@ -494,9 +486,7 @@ class PerformanceMonitoringService:
                 / len(memory_usages)
             )
             ** 0.5
-        ) / (
-            sum(memory_usages) / len(memory_usages) + 1e-8
-        )  # Avoid division by zero
+        ) / (sum(memory_usages) / len(memory_usages) + 1e-8)  # Avoid division by zero
 
         # Convert to reliability score (0-1, higher is better)
         avg_cv = (exec_time_cv + memory_cv) / 2

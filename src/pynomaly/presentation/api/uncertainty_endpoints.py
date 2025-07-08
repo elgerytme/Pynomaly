@@ -5,17 +5,11 @@ This module provides REST API endpoints for calculating confidence intervals
 and uncertainty measures for anomaly detection predictions.
 """
 
-from typing import Dict, List, Union
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
 from pynomaly.application.dto.uncertainty_dto import (
-    BayesianRequest,
-    BootstrapRequest,
     EnsembleUncertaintyRequest,
-    EnsembleUncertaintyResponse,
-    PredictionIntervalRequest,
     UncertaintyRequest,
     UncertaintyResponse,
 )
@@ -42,15 +36,15 @@ class DetectionResultModel(BaseModel):
     is_anomaly: bool = Field(
         ..., description="Whether the sample is classified as anomaly"
     )
-    timestamp: Union[str, None] = Field(None, description="Timestamp of detection")
+    timestamp: str | None = Field(None, description="Timestamp of detection")
     model_version: str = Field(..., description="Version of the model used")
-    metadata: Dict = Field(default_factory=dict, description="Additional metadata")
+    metadata: dict = Field(default_factory=dict, description="Additional metadata")
 
 
 class UncertaintyRequestModel(BaseModel):
     """Pydantic model for uncertainty quantification request."""
 
-    detection_results: List[DetectionResultModel] = Field(
+    detection_results: list[DetectionResultModel] = Field(
         ..., min_items=1, description="List of detection results to analyze"
     )
     method: str = Field(
@@ -75,7 +69,7 @@ class UncertaintyRequestModel(BaseModel):
 class EnsembleUncertaintyRequestModel(BaseModel):
     """Pydantic model for ensemble uncertainty quantification request."""
 
-    ensemble_results: List[List[DetectionResultModel]] = Field(
+    ensemble_results: list[list[DetectionResultModel]] = Field(
         ..., min_items=2, description="List of detection results from each model"
     )
     method: str = Field(
@@ -94,7 +88,7 @@ class EnsembleUncertaintyRequestModel(BaseModel):
 class BootstrapRequestModel(BaseModel):
     """Pydantic model for bootstrap confidence interval request."""
 
-    scores: List[float] = Field(..., min_items=1, description="List of anomaly scores")
+    scores: list[float] = Field(..., min_items=1, description="List of anomaly scores")
     confidence_level: float = Field(
         0.95, ge=0.0, le=1.0, description="Confidence level"
     )
@@ -109,7 +103,7 @@ class BootstrapRequestModel(BaseModel):
 class BayesianRequestModel(BaseModel):
     """Pydantic model for Bayesian confidence interval request."""
 
-    binary_scores: List[int] = Field(
+    binary_scores: list[int] = Field(
         ..., min_items=1, description="Binary anomaly indicators"
     )
     confidence_level: float = Field(
@@ -122,7 +116,7 @@ class BayesianRequestModel(BaseModel):
 class PredictionIntervalRequestModel(BaseModel):
     """Pydantic model for prediction interval request."""
 
-    training_scores: List[float] = Field(
+    training_scores: list[float] = Field(
         ..., min_items=10, description="Historical anomaly scores"
     )
     confidence_level: float = Field(
@@ -145,21 +139,19 @@ class ConfidenceIntervalModel(BaseModel):
 class UncertaintyResponseModel(BaseModel):
     """Pydantic model for uncertainty quantification response."""
 
-    confidence_intervals: Dict[str, ConfidenceIntervalModel] = Field(
+    confidence_intervals: dict[str, ConfidenceIntervalModel] = Field(
         ..., description="Confidence intervals by type"
     )
-    uncertainty_metrics: Dict[str, Union[float, ConfidenceIntervalModel]] = Field(
+    uncertainty_metrics: dict[str, float | ConfidenceIntervalModel] = Field(
         ..., description="General uncertainty metrics"
     )
-    additional_metrics: Dict[str, Union[float, ConfidenceIntervalModel]] = Field(
+    additional_metrics: dict[str, float | ConfidenceIntervalModel] = Field(
         ..., description="Additional uncertainty measures"
     )
     method: str = Field(..., description="Method used for calculation")
     confidence_level: float = Field(..., description="Confidence level used")
     n_samples: int = Field(..., description="Number of samples analyzed")
-    summary: Dict[str, Union[str, float]] = Field(
-        ..., description="Summary of key metrics"
-    )
+    summary: dict[str, str | float] = Field(..., description="Summary of key metrics")
 
 
 def _convert_to_detection_result(model: DetectionResultModel) -> DetectionResult:
@@ -240,12 +232,12 @@ def _convert_uncertainty_response_to_model(
     summary="Quantify uncertainty in anomaly detection results",
     description="""
     Calculate uncertainty metrics and confidence intervals for anomaly detection predictions.
-    
+
     Supports multiple statistical methods:
     - **Bootstrap**: Resampling-based confidence intervals
     - **Normal**: Assumes normal distribution of scores
     - **Bayesian**: Beta-binomial model for binary outcomes
-    
+
     Returns comprehensive uncertainty analysis including confidence intervals,
     prediction intervals, and entropy-based uncertainty measures.
     """,
@@ -290,24 +282,24 @@ async def quantify_uncertainty(
 
 @router.post(
     "/ensemble",
-    response_model=Dict,
+    response_model=dict,
     status_code=status.HTTP_200_OK,
     summary="Quantify uncertainty in ensemble predictions",
     description="""
     Calculate uncertainty metrics for ensemble anomaly detection models.
-    
+
     Analyzes uncertainty across multiple models including:
     - **Ensemble metrics**: Overall ensemble uncertainty
     - **Model disagreement**: How much models disagree
     - **Aleatoric vs Epistemic**: Data vs model uncertainty
-    
+
     Useful for understanding model reliability and confidence in ensemble predictions.
     """,
 )
 async def quantify_ensemble_uncertainty(
     request: EnsembleUncertaintyRequestModel,
     use_case: QuantifyUncertaintyUseCase = Depends(get_uncertainty_use_case),
-) -> Dict:
+) -> dict:
     """Quantify uncertainty in ensemble predictions."""
     try:
         # Convert API models to domain entities
@@ -350,10 +342,10 @@ async def quantify_ensemble_uncertainty(
     summary="Calculate bootstrap confidence interval",
     description="""
     Calculate confidence interval using bootstrap resampling method.
-    
+
     Bootstrap is a non-parametric method that doesn't assume any specific
     distribution. It's robust and works well for various statistics.
-    
+
     Supported statistics:
     - **mean**: Average of scores
     - **median**: Middle value of scores
@@ -399,10 +391,10 @@ async def calculate_bootstrap_interval(
     summary="Calculate Bayesian confidence interval",
     description="""
     Calculate confidence interval using Bayesian inference with Beta prior.
-    
+
     This method is particularly useful for binary classification problems
     where you want to estimate the anomaly rate with prior knowledge.
-    
+
     The Beta prior allows you to incorporate domain knowledge:
     - **prior_alpha**: Strength of belief in positive outcomes
     - **prior_beta**: Strength of belief in negative outcomes
@@ -447,12 +439,12 @@ async def calculate_bayesian_interval(
     summary="Calculate prediction interval",
     description="""
     Calculate prediction interval for individual future predictions.
-    
+
     Prediction intervals are wider than confidence intervals because they
     account for both:
     1. **Sampling uncertainty**: Uncertainty in estimating population parameters
     2. **Individual variation**: Natural variation in individual observations
-    
+
     Use this when you want to predict where a single new observation will fall,
     rather than estimating a population parameter.
     """,
@@ -488,7 +480,7 @@ async def calculate_prediction_interval(
 
 @router.get(
     "/methods",
-    response_model=Dict[str, Dict[str, str]],
+    response_model=dict[str, dict[str, str]],
     status_code=status.HTTP_200_OK,
     summary="Get available uncertainty quantification methods",
     description="""
@@ -496,7 +488,7 @@ async def calculate_prediction_interval(
     and their characteristics.
     """,
 )
-async def get_uncertainty_methods() -> Dict[str, Dict[str, str]]:
+async def get_uncertainty_methods() -> dict[str, dict[str, str]]:
     """Get available uncertainty quantification methods."""
     return {
         "bootstrap": {

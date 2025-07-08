@@ -2,17 +2,15 @@
 
 from __future__ import annotations
 
-import asyncio
 import logging
-import math
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
-from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
@@ -58,12 +56,12 @@ class ExplanationResult:
     method: ExplanationMethod
     scope: ExplanationScope
     sample_id: str
-    feature_importance: Dict[str, float]
+    feature_importance: dict[str, float]
     explanation_text: str
     confidence: float
     processing_time: float
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    visual_data: Optional[Dict[str, Any]] = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+    visual_data: dict[str, Any] | None = None
     created_at: datetime = field(default_factory=datetime.now)
 
 
@@ -72,10 +70,10 @@ class CounterfactualExplanation:
     """Counterfactual explanation result."""
 
     original_sample: np.ndarray
-    counterfactual_samples: List[np.ndarray]
-    feature_changes: List[Dict[str, Any]]
-    validity_scores: List[float]
-    plausibility_scores: List[float]
+    counterfactual_samples: list[np.ndarray]
+    feature_changes: list[dict[str, Any]]
+    validity_scores: list[float]
+    plausibility_scores: list[float]
     diversity_score: float
     explanation_text: str
     generation_method: CounterfactualType
@@ -93,28 +91,28 @@ class ConceptActivation:
     layer_name: str
     sensitivity_score: float
     statistical_significance: float
-    examples: List[np.ndarray] = field(default_factory=list)
+    examples: list[np.ndarray] = field(default_factory=list)
 
 
 @dataclass
 class PrototypeExplanation:
     """Prototype-based explanation."""
 
-    prototypes: List[np.ndarray]
-    prototype_labels: List[str]
-    similarity_scores: List[float]
-    influence_scores: List[float]
+    prototypes: list[np.ndarray]
+    prototype_labels: list[str]
+    similarity_scores: list[float]
+    influence_scores: list[float]
     explanation_text: str
-    prototype_features: List[Dict[str, float]]
+    prototype_features: list[dict[str, float]]
 
 
 class BaseExplainer(ABC):
     """Base class for explanation methods."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.model = None
-        self.feature_names: Optional[List[str]] = None
+        self.feature_names: list[str] | None = None
         self.is_fitted = False
 
     @abstractmethod
@@ -132,7 +130,7 @@ class BaseExplainer(ABC):
         X: np.ndarray,
         y: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
-        feature_names: Optional[List[str]] = None,
+        feature_names: list[str] | None = None,
     ) -> None:
         """Fit explainer on training data."""
         self.feature_names = feature_names or [
@@ -144,7 +142,7 @@ class BaseExplainer(ABC):
 class LIMEExplainer(BaseExplainer):
     """LIME (Local Interpretable Model-agnostic Explanations) implementation."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         super().__init__(config)
         self.num_features = config.get("num_features", 10)
         self.num_samples = config.get("num_samples", 1000)
@@ -216,7 +214,7 @@ class LIMEExplainer(BaseExplainer):
 
     async def _fit_interpretable_model(
         self, X: np.ndarray, y: np.ndarray, weights: np.ndarray
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Fit weighted linear regression as interpretable model."""
         try:
             from sklearn.linear_model import LinearRegression
@@ -258,7 +256,7 @@ class LIMEExplainer(BaseExplainer):
             return {}
 
     async def _generate_lime_explanation(
-        self, feature_importance: Dict[str, float]
+        self, feature_importance: dict[str, float]
     ) -> str:
         """Generate human-readable LIME explanation."""
         if not feature_importance:
@@ -284,7 +282,7 @@ class LIMEExplainer(BaseExplainer):
 class SHAPExplainer(BaseExplainer):
     """SHAP (SHapley Additive exPlanations) implementation."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         super().__init__(config)
         self.background_samples = None
         self.num_background = config.get("num_background", 100)
@@ -295,7 +293,7 @@ class SHAPExplainer(BaseExplainer):
         X: np.ndarray,
         y: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
-        feature_names: Optional[List[str]] = None,
+        feature_names: list[str] | None = None,
     ) -> None:
         """Fit SHAP explainer."""
         await super().fit(X, y, model_predict_fn, feature_names)
@@ -441,7 +439,7 @@ class SHAPExplainer(BaseExplainer):
 class CounterfactualExplainer(BaseExplainer):
     """Counterfactual explanation generator."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         super().__init__(config)
         self.counterfactual_type = CounterfactualType(config.get("type", "nearest"))
         self.num_counterfactuals = config.get("num_counterfactuals", 5)
@@ -453,7 +451,7 @@ class CounterfactualExplainer(BaseExplainer):
         self,
         sample: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
-        target_class: Optional[int] = None,
+        target_class: int | None = None,
         **kwargs,
     ) -> CounterfactualExplanation:
         """Generate counterfactual explanations."""
@@ -535,7 +533,7 @@ class CounterfactualExplainer(BaseExplainer):
         sample: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
         target_class: float,
-    ) -> List[np.ndarray]:
+    ) -> list[np.ndarray]:
         """Generate nearest counterfactuals using gradient-free optimization."""
         counterfactuals = []
 
@@ -573,7 +571,7 @@ class CounterfactualExplainer(BaseExplainer):
         sample: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
         target_class: float,
-    ) -> List[np.ndarray]:
+    ) -> list[np.ndarray]:
         """Generate diverse counterfactuals."""
         counterfactuals = []
 
@@ -615,7 +613,7 @@ class CounterfactualExplainer(BaseExplainer):
         sample: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
         target_class: float,
-    ) -> List[np.ndarray]:
+    ) -> list[np.ndarray]:
         """Generate minimal change counterfactuals."""
         counterfactuals = []
 
@@ -693,8 +691,8 @@ class CounterfactualExplainer(BaseExplainer):
         return constrained_sample
 
     async def _calculate_feature_changes(
-        self, original: np.ndarray, counterfactuals: List[np.ndarray]
-    ) -> List[Dict[str, Any]]:
+        self, original: np.ndarray, counterfactuals: list[np.ndarray]
+    ) -> list[dict[str, Any]]:
         """Calculate feature changes for each counterfactual."""
         changes = []
 
@@ -723,10 +721,10 @@ class CounterfactualExplainer(BaseExplainer):
 
     async def _calculate_validity_scores(
         self,
-        counterfactuals: List[np.ndarray],
+        counterfactuals: list[np.ndarray],
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
         target_class: float,
-    ) -> List[float]:
+    ) -> list[float]:
         """Calculate validity scores (how well counterfactuals achieve target)."""
         scores = []
 
@@ -745,8 +743,8 @@ class CounterfactualExplainer(BaseExplainer):
         return scores
 
     async def _calculate_plausibility_scores(
-        self, original: np.ndarray, counterfactuals: List[np.ndarray]
-    ) -> List[float]:
+        self, original: np.ndarray, counterfactuals: list[np.ndarray]
+    ) -> list[float]:
         """Calculate plausibility scores (how realistic counterfactuals are)."""
         scores = []
 
@@ -763,7 +761,7 @@ class CounterfactualExplainer(BaseExplainer):
         return scores
 
     async def _calculate_diversity_score(
-        self, counterfactuals: List[np.ndarray]
+        self, counterfactuals: list[np.ndarray]
     ) -> float:
         """Calculate diversity score among counterfactuals."""
         if len(counterfactuals) < 2:
@@ -783,8 +781,8 @@ class CounterfactualExplainer(BaseExplainer):
     async def _generate_counterfactual_explanation(
         self,
         original: np.ndarray,
-        counterfactuals: List[np.ndarray],
-        feature_changes: List[Dict[str, Any]],
+        counterfactuals: list[np.ndarray],
+        feature_changes: list[dict[str, Any]],
     ) -> str:
         """Generate human-readable counterfactual explanation."""
         if not counterfactuals:
@@ -815,7 +813,7 @@ class CounterfactualExplainer(BaseExplainer):
 class ConceptActivationVectorExplainer(BaseExplainer):
     """Concept Activation Vector (CAV) explainer."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         super().__init__(config)
         self.concepts = config.get("concepts", {})
         self.layer_name = config.get("layer_name", "hidden")
@@ -824,8 +822,8 @@ class ConceptActivationVectorExplainer(BaseExplainer):
     async def fit_concept(
         self,
         concept_name: str,
-        positive_examples: List[np.ndarray],
-        negative_examples: List[np.ndarray],
+        positive_examples: list[np.ndarray],
+        negative_examples: list[np.ndarray],
         model_activation_fn: Callable[[np.ndarray, str], np.ndarray],
     ) -> ConceptActivation:
         """Fit concept activation vector."""
@@ -884,7 +882,7 @@ class ConceptActivationVectorExplainer(BaseExplainer):
         sample: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
         model_activation_fn: Callable[[np.ndarray, str], np.ndarray],
-        concepts: List[ConceptActivation],
+        concepts: list[ConceptActivation],
         **kwargs,
     ) -> ExplanationResult:
         """Explain prediction using concept activation vectors."""
@@ -1007,8 +1005,8 @@ class ConceptActivationVectorExplainer(BaseExplainer):
 
     async def _calculate_statistical_significance(
         self,
-        positive_activations: List[np.ndarray],
-        negative_activations: List[np.ndarray],
+        positive_activations: list[np.ndarray],
+        negative_activations: list[np.ndarray],
         concept_vector: np.ndarray,
     ) -> float:
         """Calculate statistical significance of concept."""
@@ -1040,7 +1038,7 @@ class ConceptActivationVectorExplainer(BaseExplainer):
             return 0.5
 
     async def _generate_concept_explanation(
-        self, concept_scores: Dict[str, float]
+        self, concept_scores: dict[str, float]
     ) -> str:
         """Generate concept-based explanation."""
         if not concept_scores:
@@ -1064,10 +1062,10 @@ class ConceptActivationVectorExplainer(BaseExplainer):
 class ExplainableAIOrchestrator:
     """Main orchestrator for explainable AI methods."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
-        self.explainers: Dict[ExplanationMethod, BaseExplainer] = {}
-        self.explanation_history: List[ExplanationResult] = []
+        self.explainers: dict[ExplanationMethod, BaseExplainer] = {}
+        self.explanation_history: list[ExplanationResult] = []
 
         # Initialize explainers
         self._initialize_explainers()
@@ -1109,7 +1107,7 @@ class ExplainableAIOrchestrator:
         X: np.ndarray,
         y: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
-        feature_names: Optional[List[str]] = None,
+        feature_names: list[str] | None = None,
     ) -> None:
         """Fit all explainers."""
         try:
@@ -1127,9 +1125,9 @@ class ExplainableAIOrchestrator:
         self,
         sample: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
-        methods: Optional[List[ExplanationMethod]] = None,
+        methods: list[ExplanationMethod] | None = None,
         **kwargs,
-    ) -> Dict[ExplanationMethod, ExplanationResult]:
+    ) -> dict[ExplanationMethod, ExplanationResult]:
         """Generate explanations using specified methods."""
         try:
             if methods is None:
@@ -1163,7 +1161,7 @@ class ExplainableAIOrchestrator:
         sample: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
         **kwargs,
-    ) -> Optional[CounterfactualExplanation]:
+    ) -> CounterfactualExplanation | None:
         """Generate counterfactual explanations."""
         try:
             if ExplanationMethod.COUNTERFACTUAL in self.explainers:
@@ -1184,9 +1182,9 @@ class ExplainableAIOrchestrator:
         sample: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
         model_activation_fn: Callable[[np.ndarray, str], np.ndarray],
-        concepts: List[ConceptActivation],
+        concepts: list[ConceptActivation],
         **kwargs,
-    ) -> Optional[ExplanationResult]:
+    ) -> ExplanationResult | None:
         """Generate concept-based explanations."""
         try:
             if ExplanationMethod.CONCEPT_ACTIVATION in self.explainers:
@@ -1207,7 +1205,7 @@ class ExplainableAIOrchestrator:
         X: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
         sample_size: int = 100,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate global model explanation."""
         try:
             logger.info("Generating global explanation")
@@ -1291,7 +1289,7 @@ class ExplainableAIOrchestrator:
             processing_time=0.0,
         )
 
-    async def get_explanation_summary(self) -> Dict[str, Any]:
+    async def get_explanation_summary(self) -> dict[str, Any]:
         """Get summary of explanation history."""
         try:
             if not self.explanation_history:

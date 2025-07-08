@@ -1,11 +1,10 @@
 """Explainable AI service for anomaly detection interpretability."""
 
-import asyncio
 import logging
 import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -69,8 +68,8 @@ class FeatureImportance:
     feature_name: str
     importance_score: float
     rank: int
-    confidence_interval: Optional[Tuple[float, float]] = None
-    description: Optional[str] = None
+    confidence_interval: tuple[float, float] | None = None
+    description: str | None = None
 
 
 @dataclass
@@ -79,36 +78,36 @@ class LocalExplanation:
 
     anomaly_index: int
     anomaly_score: float
-    feature_contributions: List[FeatureImportance]
+    feature_contributions: list[FeatureImportance]
     baseline_value: float
     prediction_value: float
 
     # Additional context
-    feature_values: Dict[str, Any] = field(default_factory=dict)
-    counterfactuals: List[Dict[str, Any]] = field(default_factory=list)
-    similar_samples: List[int] = field(default_factory=list)
+    feature_values: dict[str, Any] = field(default_factory=dict)
+    counterfactuals: list[dict[str, Any]] = field(default_factory=list)
+    similar_samples: list[int] = field(default_factory=list)
 
     # Visualization data
-    visualization_data: Optional[Dict[str, Any]] = None
+    visualization_data: dict[str, Any] | None = None
 
 
 @dataclass
 class GlobalExplanation:
     """Global explanation for the model."""
 
-    global_feature_importance: List[FeatureImportance]
-    model_behavior_summary: Dict[str, Any]
-    decision_rules: List[str] = field(default_factory=list)
+    global_feature_importance: list[FeatureImportance]
+    model_behavior_summary: dict[str, Any]
+    decision_rules: list[str] = field(default_factory=list)
 
     # Feature interactions
-    feature_interactions: List[Tuple[str, str, float]] = field(default_factory=list)
+    feature_interactions: list[tuple[str, str, float]] = field(default_factory=list)
 
     # Model statistics
     average_anomaly_score: float = 0.0
-    feature_value_ranges: Dict[str, Tuple[float, float]] = field(default_factory=dict)
+    feature_value_ranges: dict[str, tuple[float, float]] = field(default_factory=dict)
 
     # Visualization data
-    visualization_data: Optional[Dict[str, Any]] = None
+    visualization_data: dict[str, Any] | None = None
 
 
 @dataclass
@@ -119,16 +118,16 @@ class ExplanationResult:
     explanation_type: ExplanationType
 
     # Explanations
-    local_explanations: List[LocalExplanation] = field(default_factory=list)
-    global_explanation: Optional[GlobalExplanation] = None
+    local_explanations: list[LocalExplanation] = field(default_factory=list)
+    global_explanation: GlobalExplanation | None = None
 
     # Metadata
     computation_time: float = 0.0
     model_type: str = ""
-    dataset_info: Dict[str, Any] = field(default_factory=dict)
+    dataset_info: dict[str, Any] = field(default_factory=dict)
 
     # Quality metrics
-    explanation_quality: Dict[str, float] = field(default_factory=dict)
+    explanation_quality: dict[str, float] = field(default_factory=dict)
 
 
 class ExplainableAIService:
@@ -217,7 +216,7 @@ class ExplainableAIService:
             logger.error(f"Error generating explanations: {e}")
             raise
 
-    async def _prepare_data(self, dataset: Dataset) -> Tuple[np.ndarray, List[str]]:
+    async def _prepare_data(self, dataset: Dataset) -> tuple[np.ndarray, list[str]]:
         """Prepare data for explanation."""
 
         if hasattr(dataset, "data"):
@@ -248,9 +247,9 @@ class ExplainableAIService:
     async def _explain_with_shap(
         self,
         X: np.ndarray,
-        feature_names: List[str],
-        anomaly_indices: List[int],
-        anomaly_scores: List[float],
+        feature_names: list[str],
+        anomaly_indices: list[int],
+        anomaly_scores: list[float],
         explanation_type: ExplanationType,
     ) -> ExplanationResult:
         """Generate explanations using SHAP."""
@@ -274,7 +273,9 @@ class ExplainableAIService:
 
             if explanation_type == ExplanationType.LOCAL:
                 # Generate local explanations for each anomaly
-                for i, (idx, score) in enumerate(zip(anomaly_indices, anomaly_scores)):
+                for i, (idx, score) in enumerate(
+                    zip(anomaly_indices, anomaly_scores, strict=False)
+                ):
                     if idx >= len(X):
                         continue
 
@@ -284,13 +285,13 @@ class ExplainableAIService:
                     # Create feature contributions
                     feature_contributions = []
                     for j, (feature_name, shap_value) in enumerate(
-                        zip(feature_names, shap_values.values[0])
+                        zip(feature_names, shap_values.values[0], strict=False)
                     ):
                         importance = FeatureImportance(
                             feature_name=feature_name,
                             importance_score=float(shap_value),
                             rank=j,
-                            description=f"SHAP contribution to anomaly score",
+                            description="SHAP contribution to anomaly score",
                         )
                         feature_contributions.append(importance)
 
@@ -332,7 +333,7 @@ class ExplainableAIService:
 
                     global_features = []
                     for i, (feature_name, importance) in enumerate(
-                        zip(feature_names, global_importance)
+                        zip(feature_names, global_importance, strict=False)
                     ):
                         feature_imp = FeatureImportance(
                             feature_name=feature_name,
@@ -377,9 +378,9 @@ class ExplainableAIService:
     async def _explain_with_lime(
         self,
         X: np.ndarray,
-        feature_names: List[str],
-        anomaly_indices: List[int],
-        anomaly_scores: List[float],
+        feature_names: list[str],
+        anomaly_indices: list[int],
+        anomaly_scores: list[float],
         explanation_type: ExplanationType,
     ) -> ExplanationResult:
         """Generate explanations using LIME."""
@@ -407,7 +408,9 @@ class ExplainableAIService:
 
             if explanation_type == ExplanationType.LOCAL:
                 # Generate local explanations
-                for i, (idx, score) in enumerate(zip(anomaly_indices, anomaly_scores)):
+                for i, (idx, score) in enumerate(
+                    zip(anomaly_indices, anomaly_scores, strict=False)
+                ):
                     if idx >= len(X):
                         continue
 
@@ -471,9 +474,9 @@ class ExplainableAIService:
     async def _explain_with_permutation_importance(
         self,
         X: np.ndarray,
-        feature_names: List[str],
-        anomaly_indices: List[int],
-        anomaly_scores: List[float],
+        feature_names: list[str],
+        anomaly_indices: list[int],
+        anomaly_scores: list[float],
         explanation_type: ExplanationType,
     ) -> ExplanationResult:
         """Generate explanations using permutation importance."""
@@ -509,6 +512,7 @@ class ExplainableAIService:
                     feature_names,
                     perm_importance.importances_mean,
                     perm_importance.importances_std,
+                    strict=False,
                 )
             ):
                 feature_imp = FeatureImportance(
@@ -547,7 +551,9 @@ class ExplainableAIService:
 
             elif explanation_type == ExplanationType.LOCAL:
                 # For local explanations, use feature values weighted by global importance
-                for i, (idx, score) in enumerate(zip(anomaly_indices, anomaly_scores)):
+                for i, (idx, score) in enumerate(
+                    zip(anomaly_indices, anomaly_scores, strict=False)
+                ):
                     if idx >= len(X):
                         continue
 
@@ -565,7 +571,7 @@ class ExplainableAIService:
                             feature_name=feature_imp.feature_name,
                             importance_score=float(local_importance),
                             rank=j + 1,
-                            description=f"Permutation importance weighted by feature value",
+                            description="Permutation importance weighted by feature value",
                         )
                         feature_contributions.append(contribution)
 
@@ -594,9 +600,9 @@ class ExplainableAIService:
     async def _explain_with_feature_ablation(
         self,
         X: np.ndarray,
-        feature_names: List[str],
-        anomaly_indices: List[int],
-        anomaly_scores: List[float],
+        feature_names: list[str],
+        anomaly_indices: list[int],
+        anomaly_scores: list[float],
         explanation_type: ExplanationType,
     ) -> ExplanationResult:
         """Generate explanations using feature ablation."""
@@ -663,9 +669,9 @@ class ExplainableAIService:
     async def _basic_feature_importance(
         self,
         X: np.ndarray,
-        feature_names: List[str],
-        anomaly_indices: List[int],
-        anomaly_scores: List[float],
+        feature_names: list[str],
+        anomaly_indices: list[int],
+        anomaly_scores: list[float],
         explanation_type: ExplanationType,
     ) -> ExplanationResult:
         """Generate basic feature importance explanations."""
@@ -724,7 +730,9 @@ class ExplainableAIService:
 
         elif explanation_type == ExplanationType.LOCAL:
             # Create local explanations using global importance
-            for i, (idx, score) in enumerate(zip(anomaly_indices, anomaly_scores)):
+            for i, (idx, score) in enumerate(
+                zip(anomaly_indices, anomaly_scores, strict=False)
+            ):
                 if idx >= len(X):
                     continue
 
@@ -746,7 +754,7 @@ class ExplainableAIService:
                         feature_name=feature_imp.feature_name,
                         importance_score=float(local_importance),
                         rank=feature_imp.rank,
-                        description=f"Statistical importance weighted by deviation from mean",
+                        description="Statistical importance weighted by deviation from mean",
                     )
                     feature_contributions.append(contribution)
 
@@ -766,7 +774,7 @@ class ExplainableAIService:
         return result
 
     def _create_surrogate_model(
-        self, X: np.ndarray, anomaly_indices: List[int], anomaly_scores: List[float]
+        self, X: np.ndarray, anomaly_indices: list[int], anomaly_scores: list[float]
     ):
         """Create a surrogate model for explanation."""
 
@@ -787,7 +795,7 @@ class ExplainableAIService:
 
     async def _calculate_explanation_quality(
         self, explanation_result: ExplanationResult, X: np.ndarray
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Calculate quality metrics for explanations."""
 
         quality_metrics = {}
@@ -856,7 +864,7 @@ class ExplainableAIService:
 
     async def generate_counterfactuals(
         self, dataset: Dataset, anomaly: Anomaly, n_counterfactuals: int = 3
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Generate counterfactual explanations for an anomaly."""
 
         X, feature_names = await self._prepare_data(dataset)
@@ -904,7 +912,7 @@ class ExplainableAIService:
 
     async def explain_model_decision_rules(
         self, detection_result: DetectionResult, dataset: Dataset, max_rules: int = 10
-    ) -> List[str]:
+    ) -> list[str]:
         """Extract decision rules from the anomaly detection model."""
 
         if not SKLEARN_AVAILABLE:
@@ -935,8 +943,8 @@ class ExplainableAIService:
             return [f"Rule extraction failed: {str(e)}"]
 
     def _extract_tree_rules(
-        self, tree_model, feature_names: List[str], max_rules: int
-    ) -> List[str]:
+        self, tree_model, feature_names: list[str], max_rules: int
+    ) -> list[str]:
         """Extract rules from decision tree."""
 
         tree = tree_model.tree_
@@ -989,7 +997,7 @@ class ExplainableAIService:
 
 
 # Global explainable AI service instance
-_explainable_ai_service: Optional[ExplainableAIService] = None
+_explainable_ai_service: ExplainableAIService | None = None
 
 
 def get_explainable_ai_service() -> ExplainableAIService:

@@ -3,7 +3,7 @@ FastAPI router for third-party integrations management.
 """
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -36,24 +36,24 @@ router = APIRouter(prefix="/api/integrations", tags=["Integrations"])
 class CreateIntegrationRequest(BaseModel):
     name: str
     integration_type: IntegrationType
-    config: Dict[str, Any]
-    credentials: Optional[Dict[str, Any]] = None
+    config: dict[str, Any]
+    credentials: dict[str, Any] | None = None
 
 
 class IntegrationConfigRequest(BaseModel):
     enabled: bool = True
-    notification_levels: List[NotificationLevel]
-    triggers: List[TriggerType]
+    notification_levels: list[NotificationLevel]
+    triggers: list[TriggerType]
     retry_count: int = 3
     retry_delay_seconds: int = 60
     timeout_seconds: int = 30
     rate_limit_per_minute: int = 60
-    template_id: Optional[str] = None
-    custom_template: Optional[Dict[str, str]] = None
+    template_id: str | None = None
+    custom_template: dict[str, str] | None = None
     include_charts: bool = False
     include_raw_data: bool = False
-    filters: Dict[str, Any] = {}
-    settings: Dict[str, Any] = {}
+    filters: dict[str, Any] = {}
+    settings: dict[str, Any] = {}
 
 
 class IntegrationResponse(BaseModel):
@@ -61,10 +61,10 @@ class IntegrationResponse(BaseModel):
     name: str
     integration_type: IntegrationType
     status: IntegrationStatus
-    config: Dict[str, Any]
+    config: dict[str, Any]
     created_at: datetime
     updated_at: datetime
-    last_triggered: Optional[datetime]
+    last_triggered: datetime | None
     trigger_count: int
     success_count: int
     error_count: int
@@ -73,7 +73,7 @@ class IntegrationResponse(BaseModel):
 
 
 class UpdateCredentialsRequest(BaseModel):
-    credentials: Dict[str, Any]
+    credentials: dict[str, Any]
 
 
 class SendNotificationRequest(BaseModel):
@@ -81,28 +81,28 @@ class SendNotificationRequest(BaseModel):
     level: NotificationLevel
     title: str
     message: str
-    data: Dict[str, Any] = {}
-    integration_types: Optional[List[IntegrationType]] = None
+    data: dict[str, Any] = {}
+    integration_types: list[IntegrationType] | None = None
 
 
 class CreateTemplateRequest(BaseModel):
     name: str
     integration_type: IntegrationType
-    trigger_types: List[TriggerType]
+    trigger_types: list[TriggerType]
     title_template: str
     message_template: str
-    variables: List[str] = []
+    variables: list[str] = []
 
 
 class TemplateResponse(BaseModel):
     id: str
     name: str
     integration_type: IntegrationType
-    trigger_types: List[TriggerType]
+    trigger_types: list[TriggerType]
     title_template: str
     message_template: str
     is_default: bool
-    variables: List[str]
+    variables: list[str]
     created_at: datetime
     updated_at: datetime
 
@@ -117,9 +117,9 @@ class NotificationHistoryResponse(BaseModel):
     response_status: int
     was_successful: bool
     sent_at: datetime
-    delivery_time_ms: Optional[int]
+    delivery_time_ms: int | None
     retry_count: int
-    error_message: Optional[str]
+    error_message: str | None
 
 
 class IntegrationMetricsResponse(BaseModel):
@@ -130,8 +130,8 @@ class IntegrationMetricsResponse(BaseModel):
     success_rate: float
     failure_rate: float
     average_delivery_time_ms: float
-    last_success: Optional[datetime]
-    last_failure: Optional[datetime]
+    last_success: datetime | None
+    last_failure: datetime | None
     uptime_percentage: float
     rate_limit_hits: int
 
@@ -211,7 +211,7 @@ async def create_integration(
 
 
 @router.get(
-    "/tenants/{tenant_id}/integrations", response_model=List[IntegrationResponse]
+    "/tenants/{tenant_id}/integrations", response_model=list[IntegrationResponse]
 )
 async def list_integrations(
     tenant_id: UUID,
@@ -362,7 +362,7 @@ async def send_notification(
 
 @router.get(
     "/tenants/{tenant_id}/integrations/{integration_id}/history",
-    response_model=List[NotificationHistoryResponse],
+    response_model=list[NotificationHistoryResponse],
 )
 async def get_notification_history(
     tenant_id: UUID,
@@ -510,10 +510,10 @@ async def create_notification_template(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.get("/tenants/{tenant_id}/templates", response_model=List[TemplateResponse])
+@router.get("/tenants/{tenant_id}/templates", response_model=list[TemplateResponse])
 async def list_notification_templates(
     tenant_id: UUID,
-    integration_type: Optional[IntegrationType] = None,
+    integration_type: IntegrationType | None = None,
     current_user: User = Depends(require_tenant_access),
     integration_service: IntegrationService = Depends(get_integration_service),
 ):

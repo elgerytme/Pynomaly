@@ -2,18 +2,14 @@
 
 from __future__ import annotations
 
-import asyncio
 import logging
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
-from pydantic import BaseModel, Field
-
-from pynomaly.domain.entities import Dataset, Detector
 
 logger = logging.getLogger(__name__)
 
@@ -75,9 +71,9 @@ class BusinessContext:
     customer_base_size: int = 0
     transaction_volume_daily: int = 0
     average_transaction_value: float = 0.0
-    compliance_requirements: List[str] = field(default_factory=list)
-    critical_business_hours: Dict[str, Tuple[int, int]] = field(default_factory=dict)
-    peak_seasons: List[str] = field(default_factory=list)
+    compliance_requirements: list[str] = field(default_factory=list)
+    critical_business_hours: dict[str, tuple[int, int]] = field(default_factory=dict)
+    peak_seasons: list[str] = field(default_factory=list)
     competitive_landscape: str = "moderate"  # "low", "moderate", "high"
     brand_value_score: float = 0.5  # 0.0 to 1.0
 
@@ -94,7 +90,7 @@ class ImpactMetric:
     probability: float  # 0.0 to 1.0
     time_horizon: TimeHorizon
     confidence: float = 0.0  # 0.0 to 1.0
-    evidence: List[str] = field(default_factory=list)
+    evidence: list[str] = field(default_factory=list)
     mitigation_cost: float = 0.0
     recovery_time_hours: float = 0.0
 
@@ -109,9 +105,9 @@ class BusinessImpactScore:
     risk_level: ImpactSeverity
     confidence: float
     timestamp: datetime
-    metrics: List[ImpactMetric] = field(default_factory=list)
-    affected_domains: List[BusinessDomain] = field(default_factory=list)
-    recommended_actions: List[str] = field(default_factory=list)
+    metrics: list[ImpactMetric] = field(default_factory=list)
+    affected_domains: list[BusinessDomain] = field(default_factory=list)
+    recommended_actions: list[str] = field(default_factory=list)
     prevention_value: float = 0.0
     roi_detection: float = 0.0
 
@@ -137,11 +133,11 @@ class BusinessImpactModel:
 
     def __init__(self, business_context: BusinessContext):
         self.business_context = business_context
-        self.impact_history: List[BusinessImpactScore] = []
+        self.impact_history: list[BusinessImpactScore] = []
         self.domain_weights = self._initialize_domain_weights()
         self.severity_multipliers = self._initialize_severity_multipliers()
 
-    def _initialize_domain_weights(self) -> Dict[BusinessDomain, float]:
+    def _initialize_domain_weights(self) -> dict[BusinessDomain, float]:
         """Initialize domain importance weights based on business context."""
         base_weights = {
             BusinessDomain.REVENUE: 0.25,
@@ -177,7 +173,7 @@ class BusinessImpactModel:
             domain: weight / total_weight for domain, weight in base_weights.items()
         }
 
-    def _initialize_severity_multipliers(self) -> Dict[ImpactSeverity, float]:
+    def _initialize_severity_multipliers(self) -> dict[ImpactSeverity, float]:
         """Initialize severity multipliers for impact calculation."""
         return {
             ImpactSeverity.NEGLIGIBLE: 0.1,
@@ -189,7 +185,7 @@ class BusinessImpactModel:
 
     def calculate_revenue_impact(
         self,
-        anomaly_data: Dict[str, Any],
+        anomaly_data: dict[str, Any],
         affected_transactions: int = 0,
         duration_hours: float = 1.0,
     ) -> ImpactMetric:
@@ -239,8 +235,8 @@ class BusinessImpactModel:
 
     def calculate_operational_impact(
         self,
-        anomaly_data: Dict[str, Any],
-        affected_systems: List[str],
+        anomaly_data: dict[str, Any],
+        affected_systems: list[str],
         disruption_level: float = 0.5,
     ) -> ImpactMetric:
         """Calculate operational impact from anomaly."""
@@ -279,7 +275,7 @@ class BusinessImpactModel:
 
     def calculate_customer_impact(
         self,
-        anomaly_data: Dict[str, Any],
+        anomaly_data: dict[str, Any],
         affected_customers: int = 0,
         service_degradation: float = 0.3,
     ) -> ImpactMetric:
@@ -332,8 +328,8 @@ class BusinessImpactModel:
 
     def calculate_compliance_impact(
         self,
-        anomaly_data: Dict[str, Any],
-        violated_requirements: List[str],
+        anomaly_data: dict[str, Any],
+        violated_requirements: list[str],
         data_records_affected: int = 0,
     ) -> ImpactMetric:
         """Calculate compliance and regulatory impact."""
@@ -382,7 +378,7 @@ class BusinessImpactModel:
 
     def calculate_security_impact(
         self,
-        anomaly_data: Dict[str, Any],
+        anomaly_data: dict[str, Any],
         breach_probability: float = 0.1,
         data_sensitivity: str = "medium",
     ) -> ImpactMetric:
@@ -452,13 +448,13 @@ class BusinessImpactAnalyzer:
     def __init__(self, business_context: BusinessContext):
         self.business_context = business_context
         self.impact_model = BusinessImpactModel(business_context)
-        self.scoring_history: Dict[str, List[BusinessImpactScore]] = defaultdict(list)
+        self.scoring_history: dict[str, list[BusinessImpactScore]] = defaultdict(list)
 
     async def analyze_anomaly_impact(
         self,
         anomaly_id: str,
-        anomaly_data: Dict[str, Any],
-        context: Optional[Dict[str, Any]] = None,
+        anomaly_data: dict[str, Any],
+        context: dict[str, Any] | None = None,
     ) -> BusinessImpactScore:
         """Analyze business impact of an anomaly."""
         context = context or {}
@@ -566,7 +562,7 @@ class BusinessImpactAnalyzer:
 
         return impact_score
 
-    def _calculate_composite_score(self, metrics: List[ImpactMetric]) -> float:
+    def _calculate_composite_score(self, metrics: list[ImpactMetric]) -> float:
         """Calculate composite business impact score (0-100)."""
         if not metrics:
             return 0.0
@@ -596,7 +592,7 @@ class BusinessImpactAnalyzer:
         return min(100.0, weighted_score / total_weight if total_weight > 0 else 0.0)
 
     def _determine_overall_risk_level(
-        self, metrics: List[ImpactMetric]
+        self, metrics: list[ImpactMetric]
     ) -> ImpactSeverity:
         """Determine overall risk level from metrics."""
         if not metrics:
@@ -626,8 +622,8 @@ class BusinessImpactAnalyzer:
         return ImpactSeverity.MEDIUM
 
     def _generate_recommendations(
-        self, metrics: List[ImpactMetric], total_impact: float
-    ) -> List[str]:
+        self, metrics: list[ImpactMetric], total_impact: float
+    ) -> list[str]:
         """Generate action recommendations based on impact analysis."""
         recommendations = []
 
@@ -772,7 +768,7 @@ class BusinessImpactAnalyzer:
             value_per_prevented_incident=value_per_prevented_incident,
         )
 
-    async def get_impact_trends(self, time_period_days: int = 30) -> Dict[str, Any]:
+    async def get_impact_trends(self, time_period_days: int = 30) -> dict[str, Any]:
         """Get impact trends and analytics."""
         cutoff_date = datetime.now() - timedelta(days=time_period_days)
         recent_impacts = [

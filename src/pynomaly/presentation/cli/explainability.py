@@ -7,7 +7,6 @@ import json
 import sys
 import time
 from pathlib import Path
-from typing import List, Optional
 
 import typer
 from rich.console import Console
@@ -57,7 +56,7 @@ def explain(
         "--explanation-type",
         help="Type of explanation to generate (options: local, global, both)",
     ),
-    methods: Optional[List[str]] = typer.Option(
+    methods: list[str] | None = typer.Option(
         None,
         "-m",
         "--methods",
@@ -71,7 +70,7 @@ def explain(
         "--audience",
         help="Target audience for explanations (technical, business, regulatory)",
     ),
-    output: Optional[Path] = typer.Option(
+    output: Path | None = typer.Option(
         None, "--output", help="Output file for explanation report"
     ),
     output_format: str = typer.Option(
@@ -167,10 +166,10 @@ def analyze_bias(
     dataset_path: Path = typer.Argument(
         ..., help="Path to dataset file with protected attributes", exists=True
     ),
-    protected_attributes: Optional[List[str]] = typer.Option(
+    protected_attributes: list[str] | None = typer.Option(
         None, "-p", "--protected-attributes", help="Protected attribute column names"
     ),
-    metrics: Optional[List[str]] = typer.Option(
+    metrics: list[str] | None = typer.Option(
         None,
         "-m",
         "--metrics",
@@ -182,7 +181,7 @@ def analyze_bias(
     min_group_size: int = typer.Option(
         30, "--min-group-size", help="Minimum group size for analysis"
     ),
-    output: Optional[Path] = typer.Option(
+    output: Path | None = typer.Option(
         None, "--output", help="Output file for bias analysis results"
     ),
 ):
@@ -274,7 +273,7 @@ def assess_trust(
     fidelity: bool = typer.Option(
         True, "--fidelity/--no-fidelity", help="Enable fidelity assessment"
     ),
-    output: Optional[Path] = typer.Option(
+    output: Path | None = typer.Option(
         None, "--output", help="Output file for trust assessment"
     ),
 ):
@@ -352,7 +351,7 @@ def feature_importance(
         "shap", "--method", help="Feature importance method (shap, lime, permutation)"
     ),
     top_k: int = typer.Option(15, "--top-k", help="Number of top features to display"),
-    output: Optional[Path] = typer.Option(
+    output: Path | None = typer.Option(
         None, "--output", help="Output file for feature importance"
     ),
 ):
@@ -688,7 +687,9 @@ def _display_bias_analysis_results(bias_results):
                 status = (
                     "✓ Pass"
                     if value >= 0.8
-                    else "⚠️ Concerning" if value >= 0.6 else "❌ Fail"
+                    else "⚠️ Concerning"
+                    if value >= 0.6
+                    else "❌ Fail"
                 )
                 color = "green" if value >= 0.8 else "yellow" if value >= 0.6 else "red"
 
@@ -756,7 +757,9 @@ def _display_trust_assessment_results(trust_result):
     risk_color = (
         "green"
         if trust_result.risk_assessment == "low"
-        else "yellow" if trust_result.risk_assessment == "medium" else "red"
+        else "yellow"
+        if trust_result.risk_assessment == "medium"
+        else "red"
     )
     console.print(
         f"\n🚨 Risk Assessment: [{risk_color}]{trust_result.risk_assessment.upper()}[/{risk_color}]"

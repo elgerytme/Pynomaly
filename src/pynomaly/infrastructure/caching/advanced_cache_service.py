@@ -10,10 +10,9 @@ import pickle
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, Generic, List, Optional, Tuple, TypeVar, Union
-from uuid import UUID
+from typing import Any, Generic, TypeVar
 
 import numpy as np
 
@@ -102,7 +101,7 @@ class CacheConfig:
 
     # Redis cache (L2)
     redis_url: str = "redis://localhost:6379"
-    redis_cluster_nodes: Optional[List[str]] = None
+    redis_cluster_nodes: list[str] | None = None
     l2_ttl_seconds: int = 3600
     redis_pool_size: int = 20
 
@@ -149,8 +148,8 @@ class CacheEntry(Generic[T]):
     last_accessed: datetime
     access_count: int
     size_bytes: int
-    ttl_seconds: Optional[int] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    ttl_seconds: int | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     @property
     def is_expired(self) -> bool:
@@ -226,14 +225,12 @@ class CacheBackend(ABC):
     """Abstract cache backend interface."""
 
     @abstractmethod
-    async def get(self, key: str) -> Optional[bytes]:
+    async def get(self, key: str) -> bytes | None:
         """Get value from cache."""
         pass
 
     @abstractmethod
-    async def set(
-        self, key: str, value: bytes, ttl_seconds: Optional[int] = None
-    ) -> bool:
+    async def set(self, key: str, value: bytes, ttl_seconds: int | None = None) -> bool:
         """Set value in cache."""
         pass
 
@@ -253,7 +250,7 @@ class CacheBackend(ABC):
         pass
 
     @abstractmethod
-    async def get_size(self) -> Tuple[int, int]:
+    async def get_size(self) -> tuple[int, int]:
         """Get cache size (bytes, entries)."""
         pass
 
@@ -264,12 +261,12 @@ class MemoryCache(CacheBackend):
     def __init__(self, max_size_mb: int = 256, max_entries: int = 10000):
         self.max_size_bytes = max_size_mb * 1024 * 1024
         self.max_entries = max_entries
-        self._cache: Dict[str, CacheEntry[bytes]] = {}
-        self._access_order: List[str] = []
+        self._cache: dict[str, CacheEntry[bytes]] = {}
+        self._access_order: list[str] = []
         self._current_size_bytes = 0
         self._lock = asyncio.Lock()
 
-    async def get(self, key: str) -> Optional[bytes]:
+    async def get(self, key: str) -> bytes | None:
         """Get value from memory cache."""
         async with self._lock:
             if key in self._cache:
@@ -285,9 +282,7 @@ class MemoryCache(CacheBackend):
 
             return None
 
-    async def set(
-        self, key: str, value: bytes, ttl_seconds: Optional[int] = None
-    ) -> bool:
+    async def set(self, key: str, value: bytes, ttl_seconds: int | None = None) -> bool:
         """Set value in memory cache."""
         async with self._lock:
             value_size = len(value)
@@ -343,7 +338,7 @@ class MemoryCache(CacheBackend):
             self._current_size_bytes = 0
             return True
 
-    async def get_size(self) -> Tuple[int, int]:
+    async def get_size(self) -> tuple[int, int]:
         """Get memory cache size."""
         async with self._lock:
             return self._current_size_bytes, len(self._cache)
@@ -385,7 +380,7 @@ class RedisCache(CacheBackend):
 
     def __init__(self, config: CacheConfig):
         self.config = config
-        self._client: Optional[aioredis.Redis] = None
+        self._client: aioredis.Redis | None = None
         self._cluster_client = None
 
     async def _get_client(self) -> aioredis.Redis:
@@ -414,15 +409,13 @@ class RedisCache(CacheBackend):
 
         return self._client
 
-    async def get(self, key: str) -> Optional[bytes]:
+    async def get(self, key: str) -> bytes | None:
         """Get value from Redis cache."""
         client = await self._get_client()
         value = await client.get(key)
         return value if value else None
 
-    async def set(
-        self, key: str, value: bytes, ttl_seconds: Optional[int] = None
-    ) -> bool:
+    async def set(self, key: str, value: bytes, ttl_seconds: int | None = None) -> bool:
         """Set value in Redis cache."""
         client = await self._get_client()
 
@@ -451,7 +444,7 @@ class RedisCache(CacheBackend):
         await client.flushdb()
         return True
 
-    async def get_size(self) -> Tuple[int, int]:
+    async def get_size(self) -> tuple[int, int]:
         """Get Redis cache size."""
         client = await self._get_client()
         info = await client.info()
@@ -599,14 +592,14 @@ class SerializationService:
 class AdvancedCacheService:
     """Advanced multi-level caching service with intelligent strategies."""
 
-    def __init__(self, config: Optional[CacheConfig] = None):
+    def __init__(self, config: CacheConfig | None = None):
         """Initialize advanced cache service."""
         self.config = config or CacheConfig()
         self.logger = logging.getLogger(__name__)
 
         # Cache backends
-        self.l1_cache: Optional[MemoryCache] = None
-        self.l2_cache: Optional[RedisCache] = None
+        self.l1_cache: MemoryCache | None = None
+        self.l2_cache: RedisCache | None = None
         self.l3_cache = None  # Disk cache implementation would go here
 
         # Services
@@ -618,7 +611,7 @@ class AdvancedCacheService:
         self._metrics_lock = asyncio.Lock()
 
         # Operation tracking
-        self._operation_times: List[float] = []
+        self._operation_times: list[float] = []
         self._last_metrics_update = time.time()
 
         # Initialize backends
@@ -638,8 +631,8 @@ class AdvancedCacheService:
     async def get(
         self,
         key: str,
-        serialization_format: Optional[SerializationFormat] = None,
-    ) -> Optional[Any]:
+        serialization_format: SerializationFormat | None = None,
+    ) -> Any | None:
         """Get value from cache using multi-level strategy."""
         start_time = time.time()
 
@@ -690,9 +683,9 @@ class AdvancedCacheService:
         self,
         key: str,
         value: Any,
-        ttl_seconds: Optional[int] = None,
-        serialization_format: Optional[SerializationFormat] = None,
-        cache_levels: Optional[List[CacheLevel]] = None,
+        ttl_seconds: int | None = None,
+        serialization_format: SerializationFormat | None = None,
+        cache_levels: list[CacheLevel] | None = None,
     ) -> bool:
         """Set value in cache using multi-level strategy."""
         start_time = time.time()
@@ -776,7 +769,7 @@ class AdvancedCacheService:
 
         return False
 
-    async def clear(self, cache_levels: Optional[List[CacheLevel]] = None) -> bool:
+    async def clear(self, cache_levels: list[CacheLevel] | None = None) -> bool:
         """Clear specified cache levels."""
         if cache_levels is None:
             cache_levels = [CacheLevel.L1_MEMORY, CacheLevel.L2_REDIS]
@@ -819,7 +812,7 @@ class AdvancedCacheService:
     async def warm_cache(
         self,
         data_provider: callable,
-        keys: List[str],
+        keys: list[str],
         batch_size: int = 100,
     ) -> int:
         """Warm cache with data from provider function."""
@@ -903,7 +896,7 @@ class AdvancedCacheService:
             current_value = getattr(self.metrics, metric_name, 0)
             setattr(self.metrics, metric_name, current_value + 1)
 
-    async def get_batch(self, keys: List[str]) -> Dict[str, Any]:
+    async def get_batch(self, keys: list[str]) -> dict[str, Any]:
         """Get multiple keys in a single operation for improved performance."""
         start_time = time.time()
         results = {}
@@ -959,8 +952,8 @@ class AdvancedCacheService:
         return results
 
     async def set_batch(
-        self, items: Dict[str, Any], ttl_seconds: Optional[int] = None
-    ) -> Dict[str, bool]:
+        self, items: dict[str, Any], ttl_seconds: int | None = None
+    ) -> dict[str, bool]:
         """Set multiple key-value pairs in a single operation for improved performance."""
         start_time = time.time()
         results = {}
@@ -1009,7 +1002,7 @@ class AdvancedCacheService:
 
         return results
 
-    async def _batch_get_l2(self, keys: List[str]) -> List[Optional[bytes]]:
+    async def _batch_get_l2(self, keys: list[str]) -> list[bytes | None]:
         """Batch get operation for L2 Redis cache."""
         if not self.l2_cache:
             return [None] * len(keys)
@@ -1026,7 +1019,7 @@ class AdvancedCacheService:
             self.logger.error(f"L2 batch get failed: {e}")
             return [None] * len(keys)
 
-    async def _batch_set_l2(self, items: Dict[str, bytes], ttl_seconds: int) -> bool:
+    async def _batch_set_l2(self, items: dict[str, bytes], ttl_seconds: int) -> bool:
         """Batch set operation for L2 Redis cache."""
         if not self.l2_cache:
             return False
@@ -1054,7 +1047,7 @@ class AdvancedCacheService:
 class ModelCache(AdvancedCacheService):
     """Specialized cache for ML models."""
 
-    def __init__(self, config: Optional[CacheConfig] = None):
+    def __init__(self, config: CacheConfig | None = None):
         if config is None:
             config = CacheConfig()
 
@@ -1078,7 +1071,7 @@ class ModelCache(AdvancedCacheService):
             serialization_format=SerializationFormat.PICKLE,
         )
 
-    async def get_model(self, model_id: str, version: str = "latest") -> Optional[Any]:
+    async def get_model(self, model_id: str, version: str = "latest") -> Any | None:
         """Get cached model."""
         cache_key = f"model:{model_id}:{version}"
         return await self.get(cache_key, SerializationFormat.PICKLE)
@@ -1087,7 +1080,7 @@ class ModelCache(AdvancedCacheService):
 class FeatureCache(AdvancedCacheService):
     """Specialized cache for feature data."""
 
-    def __init__(self, config: Optional[CacheConfig] = None):
+    def __init__(self, config: CacheConfig | None = None):
         if config is None:
             config = CacheConfig()
 
@@ -1113,7 +1106,7 @@ class FeatureCache(AdvancedCacheService):
 
     async def get_features(
         self, dataset_id: str, feature_hash: str
-    ) -> Optional[np.ndarray]:
+    ) -> np.ndarray | None:
         """Get cached features."""
         cache_key = f"features:{dataset_id}:{feature_hash}"
         return await self.get(cache_key, SerializationFormat.NUMPY)
@@ -1122,7 +1115,7 @@ class FeatureCache(AdvancedCacheService):
 class PredictionCache(AdvancedCacheService):
     """Specialized cache for prediction results."""
 
-    def __init__(self, config: Optional[CacheConfig] = None):
+    def __init__(self, config: CacheConfig | None = None):
         if config is None:
             config = CacheConfig()
 
@@ -1135,7 +1128,7 @@ class PredictionCache(AdvancedCacheService):
         super().__init__(config)
 
     async def cache_prediction(
-        self, input_hash: str, model_id: str, prediction: Dict[str, Any]
+        self, input_hash: str, model_id: str, prediction: dict[str, Any]
     ) -> bool:
         """Cache prediction result."""
         cache_key = f"prediction:{model_id}:{input_hash}"
@@ -1148,7 +1141,7 @@ class PredictionCache(AdvancedCacheService):
 
     async def get_prediction(
         self, input_hash: str, model_id: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Get cached prediction."""
         cache_key = f"prediction:{model_id}:{input_hash}"
         return await self.get(cache_key, SerializationFormat.JSON)

@@ -478,6 +478,12 @@ export class RealTimeDashboard {
     });
   }
 
+  // Show notification for real-time alerts
+  onAlert(alert) {
+    this.showNotification(`Alert: ${alert.message}`, alert.severity === 'critical' ? 'error' : 'warning');
+    // Update state and UI elements...
+  }
+
   // WebSocket event handlers
   onWebSocketConnected() {
     console.log("Real-time dashboard connected");

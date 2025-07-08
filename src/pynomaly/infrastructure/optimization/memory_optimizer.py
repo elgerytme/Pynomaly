@@ -6,15 +6,14 @@ import gc
 import logging
 import threading
 import time
+from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Dict, Generator, List, Optional, Union
-from uuid import UUID
+from typing import Any
 
 import numpy as np
 import pandas as pd
 import psutil
-from memory_profiler import profile
 
 logger = logging.getLogger(__name__)
 
@@ -39,8 +38,8 @@ class MemoryMonitor:
         self.warning_threshold = warning_threshold
         self.critical_threshold = critical_threshold
         self._monitoring = False
-        self._monitor_thread: Optional[threading.Thread] = None
-        self._memory_history: List[MemoryStats] = []
+        self._monitor_thread: threading.Thread | None = None
+        self._memory_history: list[MemoryStats] = []
 
     def start_monitoring(self, interval_seconds: int = 5):
         """Start continuous memory monitoring."""
@@ -76,7 +75,7 @@ class MemoryMonitor:
             process_percentage=process_info.rss / system_memory.total * 100,
         )
 
-    def get_memory_history(self) -> List[MemoryStats]:
+    def get_memory_history(self) -> list[MemoryStats]:
         """Get memory usage history."""
         return self._memory_history.copy()
 
@@ -190,7 +189,7 @@ class DataFrameOptimizer:
             return series
 
     @staticmethod
-    def get_memory_usage(df: pd.DataFrame) -> Dict[str, Any]:
+    def get_memory_usage(df: pd.DataFrame) -> dict[str, Any]:
         """Get detailed memory usage information for DataFrame."""
         memory_usage = df.memory_usage(deep=True)
 
@@ -321,7 +320,7 @@ class ModelMemoryOptimizer:
         return pickle.loads(model_bytes)
 
     @staticmethod
-    def get_model_memory_usage(model: Any) -> Dict[str, Any]:
+    def get_model_memory_usage(model: Any) -> dict[str, Any]:
         """Get model memory usage information."""
         import pickle
         import sys
@@ -392,7 +391,7 @@ class MemoryPool:
     def __init__(self, max_size: int = 10):
         """Initialize memory pool."""
         self.max_size = max_size
-        self._pools: Dict[str, List[Any]] = {}
+        self._pools: dict[str, list[Any]] = {}
         self._lock = threading.Lock()
 
     def get_array(self, shape: tuple, dtype: type = np.float64) -> np.ndarray:
@@ -448,7 +447,7 @@ class MemoryPool:
         with self._lock:
             self._pools.clear()
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get pool statistics."""
         with self._lock:
             return {
@@ -489,7 +488,7 @@ class MemoryOptimizationManager:
             df, processor_func, *args, **kwargs
         )
 
-    def get_optimization_report(self) -> Dict[str, Any]:
+    def get_optimization_report(self) -> dict[str, Any]:
         """Get comprehensive memory optimization report."""
         stats = self.monitor.get_current_stats()
         pool_stats = self.memory_pool.get_stats()
@@ -505,7 +504,7 @@ class MemoryOptimizationManager:
             "timestamp": time.time(),
         }
 
-    def _get_recommendations(self, stats: MemoryStats) -> List[str]:
+    def _get_recommendations(self, stats: MemoryStats) -> list[str]:
         """Get memory optimization recommendations."""
         recommendations = []
 

@@ -20,7 +20,6 @@ except ImportError:
     PANDAS_AVAILABLE = False
 
 try:
-
     NUMPY_AVAILABLE = True
 except ImportError:
     NUMPY_AVAILABLE = False
@@ -101,7 +100,10 @@ class DataFrameOptimizer:
         ]
 
     def optimize_dataframe_operation(
-        self, df: Any, operation: str, **kwargs  # pandas.DataFrame
+        self,
+        df: Any,
+        operation: str,
+        **kwargs,  # pandas.DataFrame
     ) -> tuple[Any, list[str]]:
         """Optimize DataFrame operation.
 
@@ -307,7 +309,6 @@ class QueryCache:
             len(self._cache) >= self.max_size
             or sum(self._size_estimates.values()) >= self.max_memory_bytes
         ):
-
             if not self._cache:
                 break
 

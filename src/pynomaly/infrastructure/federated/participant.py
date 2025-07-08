@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 from uuid import UUID, uuid4
 
 import numpy as np
@@ -28,8 +28,8 @@ class FederatedParticipantClient:
         participant_id: UUID,
         name: str,
         role: ParticipantRole = ParticipantRole.PARTICIPANT,
-        security_service: Optional[SecurityService] = None,
-        privacy_budget: Optional[PrivacyBudget] = None,
+        security_service: SecurityService | None = None,
+        privacy_budget: PrivacyBudget | None = None,
     ):
         """Initialize federated participant client."""
         self.participant_id = participant_id
@@ -42,14 +42,14 @@ class FederatedParticipantClient:
         # Participant state
         self.public_key = f"participant_{participant_id}"
         self.is_connected = False
-        self.current_federation_id: Optional[UUID] = None
-        self.local_model: Optional[Detector] = None
-        self.training_data: Optional[np.ndarray] = None
+        self.current_federation_id: UUID | None = None
+        self.local_model: Detector | None = None
+        self.training_data: np.ndarray | None = None
 
         # Training state
-        self.current_round: Optional[int] = None
-        self.global_model_parameters: Optional[Dict[str, np.ndarray]] = None
-        self.local_updates: Dict[int, ModelUpdate] = {}
+        self.current_round: int | None = None
+        self.global_model_parameters: dict[str, np.ndarray] | None = None
+        self.local_updates: dict[int, ModelUpdate] = {}
 
         # Performance metrics
         self.computation_capacity = 1.0
@@ -57,7 +57,7 @@ class FederatedParticipantClient:
         self.data_size = 0
 
         # Communication
-        self.coordinator_endpoint: Optional[str] = None
+        self.coordinator_endpoint: str | None = None
         self.message_queue: asyncio.Queue = asyncio.Queue()
 
         self.logger.info(f"Federated participant {participant_id} initialized")
@@ -67,7 +67,7 @@ class FederatedParticipantClient:
         federation_id: UUID,
         coordinator_endpoint: str,
         training_data: np.ndarray,
-        data_labels: Optional[np.ndarray] = None,
+        data_labels: np.ndarray | None = None,
     ) -> bool:
         """Join federated learning network."""
 
@@ -114,7 +114,7 @@ class FederatedParticipantClient:
     async def receive_global_model(
         self,
         round_number: int,
-        global_parameters: Dict[str, np.ndarray],
+        global_parameters: dict[str, np.ndarray],
         model_version: str,
     ) -> None:
         """Receive global model from coordinator."""
@@ -180,7 +180,7 @@ class FederatedParticipantClient:
         except Exception as e:
             self.logger.error(f"Error in local training: {e}")
 
-    async def _train_local_model(self) -> Dict[str, np.ndarray]:
+    async def _train_local_model(self) -> dict[str, np.ndarray]:
         """Train local model on participant's data."""
 
         if not self.local_model or not self.training_data:
@@ -221,8 +221,8 @@ class FederatedParticipantClient:
         return local_params
 
     def _calculate_gradients(
-        self, local_parameters: Dict[str, np.ndarray]
-    ) -> Dict[str, np.ndarray]:
+        self, local_parameters: dict[str, np.ndarray]
+    ) -> dict[str, np.ndarray]:
         """Calculate gradients as difference from global model."""
 
         gradients = {}
@@ -235,8 +235,8 @@ class FederatedParticipantClient:
         return gradients
 
     def _apply_local_differential_privacy(
-        self, parameters: Dict[str, np.ndarray]
-    ) -> Dict[str, np.ndarray]:
+        self, parameters: dict[str, np.ndarray]
+    ) -> dict[str, np.ndarray]:
         """Apply local differential privacy to model parameters."""
 
         if not self.privacy_budget:
@@ -320,7 +320,7 @@ class FederatedParticipantClient:
                 self.logger.error(f"Error listening for messages: {e}")
                 await asyncio.sleep(5)  # Retry after delay
 
-    async def _process_coordinator_message(self, message: Dict[str, Any]) -> None:
+    async def _process_coordinator_message(self, message: dict[str, Any]) -> None:
         """Process message from coordinator."""
 
         message_type = message.get("type")
@@ -338,7 +338,7 @@ class FederatedParticipantClient:
         else:
             self.logger.warning(f"Unknown message type: {message_type}")
 
-    def _handle_round_completion(self, message: Dict[str, Any]) -> None:
+    def _handle_round_completion(self, message: dict[str, Any]) -> None:
         """Handle round completion notification."""
 
         round_number = message.get("round_number")
@@ -390,7 +390,7 @@ class FederatedParticipantClient:
         except Exception as e:
             self.logger.error(f"Failed to notify coordinator: {e}")
 
-    def get_participant_status(self) -> Dict[str, Any]:
+    def get_participant_status(self) -> dict[str, Any]:
         """Get current participant status."""
 
         return {
@@ -418,7 +418,7 @@ class FederatedParticipantClient:
         num_samples: int = 1000,
         num_features: int = 10,
         anomaly_ratio: float = 0.1,
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Simulate local data collection for testing."""
 
         # Generate synthetic training data
@@ -452,7 +452,7 @@ class FederatedParticipantClient:
 
         return data, labels
 
-    async def benchmark_local_training(self, num_rounds: int = 5) -> Dict[str, Any]:
+    async def benchmark_local_training(self, num_rounds: int = 5) -> dict[str, Any]:
         """Benchmark local training performance."""
 
         if not self.training_data:

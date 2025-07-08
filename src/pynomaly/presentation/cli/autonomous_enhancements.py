@@ -522,7 +522,9 @@ def _display_algorithm_explanations(
         (
             "Large"
             if profile.n_samples > 10000
-            else "Medium" if profile.n_samples > 1000 else "Small"
+            else "Medium"
+            if profile.n_samples > 1000
+            else "Small"
         ),
     )
     data_summary.add_row(
@@ -558,7 +560,9 @@ def _display_algorithm_explanations(
             border_style=(
                 "green"
                 if rec.confidence > 0.8
-                else "yellow" if rec.confidence > 0.6 else "red"
+                else "yellow"
+                if rec.confidence > 0.6
+                else "red"
             ),
         )
         console.print(reasoning_panel)

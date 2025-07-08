@@ -2,13 +2,10 @@
 
 import asyncio
 import io
-from datetime import datetime
 from pathlib import Path
-from typing import Any, BinaryIO, Dict, List, Optional, Union
+from typing import BinaryIO
 
 import aiofiles
-from google.auth.credentials import Credentials
-from google.cloud import storage
 from google.cloud.storage import Client
 from google.oauth2 import service_account
 
@@ -34,7 +31,7 @@ class GCPAdapter(CloudStorageAdapter):
                 self._client = Client(credentials=credentials)
             else:
                 self._client = Client()
-            
+
             self._bucket = self._client.bucket(self.config.bucket_name)
         except Exception as e:
             raise CloudStorageError(f"Failed to connect to GCP: {e}")
@@ -46,10 +43,10 @@ class GCPAdapter(CloudStorageAdapter):
 
     async def upload_file(
         self,
-        file_path: Union[str, Path],
+        file_path: str | Path,
         key: str,
-        metadata: Optional[Dict[str, str]] = None,
-        content_type: Optional[str] = None,
+        metadata: dict[str, str] | None = None,
+        content_type: str | None = None,
         encrypt: bool = False,
     ) -> StorageMetadata:
         """Upload a file to Google Cloud Storage."""
@@ -67,9 +64,11 @@ class GCPAdapter(CloudStorageAdapter):
             if content_type:
                 blob.content_type = content_type
 
-            async with aiofiles.open(file_path, 'rb') as f:
+            async with aiofiles.open(file_path, "rb") as f:
                 data = await f.read()
-                await asyncio.get_event_loop().run_in_executor(None, blob.upload_from_string, data)
+                await asyncio.get_event_loop().run_in_executor(
+                    None, blob.upload_from_string, data
+                )
 
             return await self.get_metadata(key)
 
@@ -80,8 +79,8 @@ class GCPAdapter(CloudStorageAdapter):
         self,
         stream: BinaryIO,
         key: str,
-        metadata: Optional[Dict[str, str]] = None,
-        content_type: Optional[str] = None,
+        metadata: dict[str, str] | None = None,
+        content_type: str | None = None,
         encrypt: bool = False,
     ) -> StorageMetadata:
         """Upload a stream to Google Cloud Storage."""
@@ -96,7 +95,9 @@ class GCPAdapter(CloudStorageAdapter):
                 blob.content_type = content_type
 
             data = stream.read()
-            await asyncio.get_event_loop().run_in_executor(None, blob.upload_from_string, data)
+            await asyncio.get_event_loop().run_in_executor(
+                None, blob.upload_from_string, data
+            )
 
             return await self.get_metadata(key)
 
@@ -106,7 +107,7 @@ class GCPAdapter(CloudStorageAdapter):
     async def download_file(
         self,
         key: str,
-        file_path: Union[str, Path],
+        file_path: str | Path,
         decrypt: bool = False,
     ) -> StorageMetadata:
         """Download a file from Google Cloud Storage."""
@@ -117,7 +118,9 @@ class GCPAdapter(CloudStorageAdapter):
 
         try:
             blob = self._bucket.blob(key)
-            await asyncio.get_event_loop().run_in_executor(None, blob.download_to_filename, str(file_path))
+            await asyncio.get_event_loop().run_in_executor(
+                None, blob.download_to_filename, str(file_path)
+            )
 
             return await self.get_metadata(key)
 
@@ -135,7 +138,9 @@ class GCPAdapter(CloudStorageAdapter):
 
         try:
             blob = self._bucket.blob(key)
-            data = await asyncio.get_event_loop().run_in_executor(None, blob.download_as_bytes)
+            data = await asyncio.get_event_loop().run_in_executor(
+                None, blob.download_as_bytes
+            )
             return io.BytesIO(data)
 
         except Exception as e:
@@ -152,11 +157,11 @@ class GCPAdapter(CloudStorageAdapter):
 
             return StorageMetadata(
                 size=blob.size,
-                content_type=blob.content_type or 'application/octet-stream',
+                content_type=blob.content_type or "application/octet-stream",
                 etag=blob.etag,
                 last_modified=blob.updated,
                 custom_metadata=blob.metadata or {},
-                storage_class=blob.storage_class
+                storage_class=blob.storage_class,
             )
         except Exception as e:
             raise CloudStorageError(f"Failed to get metadata from GCP: {e}")
@@ -176,9 +181,9 @@ class GCPAdapter(CloudStorageAdapter):
 
     async def list_objects(
         self,
-        prefix: Optional[str] = None,
-        limit: Optional[int] = None,
-    ) -> List[str]:
+        prefix: str | None = None,
+        limit: int | None = None,
+    ) -> list[str]:
         """List objects in Google Cloud Storage."""
         if not self._bucket:
             raise CloudStorageError("GCP client not connected")

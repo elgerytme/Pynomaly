@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import typer
 from rich.console import Console
@@ -600,7 +600,7 @@ def _display_dataset_characteristics(characteristics: DatasetCharacteristicsDTO)
 
 
 def _display_performance_predictions(
-    configuration, predictions: Dict[str, float], format: str, output: Path | None
+    configuration, predictions: dict[str, float], format: str, output: Path | None
 ):
     """Display performance predictions."""
 
@@ -641,7 +641,7 @@ def _display_performance_predictions(
 
 
 def _display_pattern_analysis(
-    analysis: Dict[str, Any], format: str, output: Path | None
+    analysis: dict[str, Any], format: str, output: Path | None
 ):
     """Display pattern analysis results."""
 

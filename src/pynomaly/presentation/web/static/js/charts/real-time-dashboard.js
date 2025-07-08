@@ -51,7 +51,7 @@ export class RealTimeDashboard {
           <button id="export-btn" class="btn-primary btn-sm">Export</button>
         </div>
       </div>
-      
+
       <div class="dashboard-metrics">
         <div class="metric-card" id="total-points">
           <div class="metric-icon">📊</div>
@@ -82,7 +82,7 @@ export class RealTimeDashboard {
           </div>
         </div>
       </div>
-      
+
       <div class="dashboard-charts">
         <div class="chart-section">
           <div class="chart-header">
@@ -98,7 +98,7 @@ export class RealTimeDashboard {
           </div>
           <div id="timeline-chart" class="chart-container"></div>
         </div>
-        
+
         <div class="chart-section">
           <div class="chart-header">
             <h3>Feature Anomaly Heatmap</h3>
@@ -113,7 +113,7 @@ export class RealTimeDashboard {
           <div id="heatmap-chart" class="chart-container"></div>
         </div>
       </div>
-      
+
       <div class="dashboard-alerts">
         <div class="alerts-header">
           <h3>Recent Alerts</h3>
@@ -121,7 +121,7 @@ export class RealTimeDashboard {
         </div>
         <div id="alerts-container" class="alerts-list"></div>
       </div>
-      
+
       <div class="dashboard-data-sources">
         <div class="data-sources-header">
           <h3>Active Data Sources</h3>
@@ -389,8 +389,8 @@ export class RealTimeDashboard {
       <div class="alert-content">
         <div class="alert-title">High Confidence Anomaly</div>
         <div class="alert-details">
-          Feature: ${point.feature} | 
-          Confidence: ${Math.round(point.confidence * 100)}% | 
+          Feature: ${point.feature} |
+          Confidence: ${Math.round(point.confidence * 100)}% |
           ${new Date(point.timestamp).toLocaleTimeString()}
         </div>
       </div>

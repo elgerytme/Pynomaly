@@ -3,15 +3,14 @@
 from __future__ import annotations
 
 import asyncio
-import hashlib
 import logging
 import pickle
 import time
-from dataclasses import dataclass, field
+from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
-from uuid import UUID, uuid4
+from typing import Any
 
 import numpy as np
 
@@ -58,7 +57,7 @@ class CacheEntry:
     created_at: datetime
     last_accessed: datetime
     last_modified: datetime
-    expiry_time: Optional[datetime] = None
+    expiry_time: datetime | None = None
 
     # Access patterns
     access_count: int = 0
@@ -66,7 +65,7 @@ class CacheEntry:
     miss_count: int = 0
 
     # Prediction metadata
-    predicted_next_access: Optional[datetime] = None
+    predicted_next_access: datetime | None = None
     confidence_score: float = 0.0
     access_pattern: str = "unknown"
 
@@ -158,20 +157,20 @@ class PrefetchPrediction:
 class MultiTierCache:
     """Multi-tier intelligent cache system."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.strategy = CacheStrategy(config.get("strategy", "intelligent"))
 
         # Cache tiers configuration
-        self.tiers: Dict[CacheTier, Dict[str, Any]] = {}
-        self.tier_capacities: Dict[CacheTier, int] = {}
-        self.tier_latencies: Dict[CacheTier, float] = {}
+        self.tiers: dict[CacheTier, dict[str, Any]] = {}
+        self.tier_capacities: dict[CacheTier, int] = {}
+        self.tier_latencies: dict[CacheTier, float] = {}
 
         # Storage for each tier
-        self.tier_storage: Dict[CacheTier, Dict[str, CacheEntry]] = {}
+        self.tier_storage: dict[CacheTier, dict[str, CacheEntry]] = {}
 
         # Cache statistics
-        self.metrics: Dict[CacheTier, CacheMetrics] = {}
+        self.metrics: dict[CacheTier, CacheMetrics] = {}
         self.global_stats = {"total_operations": 0, "start_time": datetime.utcnow()}
 
         # Predictive components
@@ -207,9 +206,7 @@ class MultiTierCache:
                 total_capacity_bytes=self.tier_capacities[tier],
             )
 
-    async def get(
-        self, key: str, data_loader: Optional[Callable] = None
-    ) -> Optional[Any]:
+    async def get(self, key: str, data_loader: Callable | None = None) -> Any | None:
         """Get value from cache with intelligent tier selection."""
         start_time = time.time()
 
@@ -222,7 +219,6 @@ class MultiTierCache:
                 CacheTier.PERSISTENT_MEMORY,
                 CacheTier.NVME_SSD,
             ]:
-
                 if tier in self.tier_storage:
                     entry = self.tier_storage[tier].get(key)
 
@@ -265,8 +261,8 @@ class MultiTierCache:
         self,
         key: str,
         value: Any,
-        tier: Optional[CacheTier] = None,
-        ttl_seconds: Optional[int] = None,
+        tier: CacheTier | None = None,
+        ttl_seconds: int | None = None,
     ) -> bool:
         """Put value into cache with intelligent tier placement."""
         try:
@@ -398,8 +394,8 @@ class MultiTierCache:
         return bytes_evicted >= bytes_to_evict
 
     async def _intelligent_eviction_order(
-        self, entries: List[CacheEntry]
-    ) -> List[CacheEntry]:
+        self, entries: list[CacheEntry]
+    ) -> list[CacheEntry]:
         """Use intelligent algorithm to determine eviction order."""
         # Score entries based on multiple factors
         scored_entries = []
@@ -574,7 +570,7 @@ class MultiTierCache:
         # This would be implemented with more detailed eviction tracking
         pass
 
-    async def get_cache_statistics(self) -> Dict[str, Any]:
+    async def get_cache_statistics(self) -> dict[str, Any]:
         """Get comprehensive cache statistics."""
         stats = {
             "global": {
@@ -604,11 +600,11 @@ class MultiTierCache:
 class AccessPredictor:
     """Predicts future access patterns for intelligent caching."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
-        self.access_history: Dict[str, List[datetime]] = {}
-        self.write_history: Dict[str, List[Tuple[datetime, int]]] = {}
-        self.pattern_models: Dict[str, Dict[str, Any]] = {}
+        self.access_history: dict[str, list[datetime]] = {}
+        self.write_history: dict[str, list[tuple[datetime, int]]] = {}
+        self.pattern_models: dict[str, dict[str, Any]] = {}
 
     async def record_access(self, key: str, access_time: datetime) -> None:
         """Record an access event."""
@@ -675,7 +671,7 @@ class AccessPredictor:
             "updated_at": datetime.utcnow(),
         }
 
-    def _detect_periodic_pattern(self, intervals: List[float]) -> bool:
+    def _detect_periodic_pattern(self, intervals: list[float]) -> bool:
         """Detect if intervals show periodic pattern."""
         # Simple periodicity detection using autocorrelation
         if len(intervals) < 10:
@@ -690,7 +686,7 @@ class AccessPredictor:
 
         return max_correlation > 0.7  # Strong correlation indicates periodicity
 
-    async def predict_next_access(self, key: str) -> Optional[datetime]:
+    async def predict_next_access(self, key: str) -> datetime | None:
         """Predict next access time for a key."""
         if key not in self.pattern_models:
             return None
@@ -712,7 +708,7 @@ class AccessPredictor:
 
         return predicted_time
 
-    async def predict_access_pattern(self, key: str) -> Dict[str, Any]:
+    async def predict_access_pattern(self, key: str) -> dict[str, Any]:
         """Predict access pattern characteristics for a key."""
         if key not in self.pattern_models:
             return {"frequency": "unknown", "predictability": "low"}
@@ -745,7 +741,7 @@ class AccessPredictor:
 
     async def get_prefetch_predictions(
         self, accessed_key: str, max_predictions: int = 5
-    ) -> List[PrefetchPrediction]:
+    ) -> list[PrefetchPrediction]:
         """Get prefetch predictions based on access patterns."""
         predictions = []
 
@@ -794,7 +790,7 @@ class AccessPredictor:
 
         return common_prefix_length >= 3  # At least 3 characters in common
 
-    def _calculate_prediction_confidence(self, model: Dict[str, Any]) -> float:
+    def _calculate_prediction_confidence(self, model: dict[str, Any]) -> float:
         """Calculate confidence in access prediction."""
         base_confidence = 0.5
 
@@ -814,10 +810,10 @@ class AccessPredictor:
 class PrefetchManager:
     """Manages intelligent prefetching operations."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
-        self.prefetch_queue: List[PrefetchPrediction] = []
-        self.active_prefetches: Dict[str, asyncio.Task] = {}
+        self.prefetch_queue: list[PrefetchPrediction] = []
+        self.active_prefetches: dict[str, asyncio.Task] = {}
         self.prefetch_stats = {"scheduled": 0, "completed": 0, "successful": 0}
         self.max_concurrent_prefetches = config.get("max_concurrent", 5)
 
@@ -855,7 +851,6 @@ class PrefetchManager:
             len(self.active_prefetches) < self.max_concurrent_prefetches
             and self.prefetch_queue
         ):
-
             prediction = self.prefetch_queue.pop(0)
 
             # Check if still worth prefetching
@@ -894,7 +889,7 @@ class PrefetchManager:
 class AdvancedCacheOrchestrator:
     """Main orchestrator for advanced caching system 2.0."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.multi_tier_cache = MultiTierCache(config.get("cache", {}))
         self.cache_warmer = CacheWarmer(config.get("warmer", {}))
@@ -920,7 +915,7 @@ class AdvancedCacheOrchestrator:
             logger.error(f"Failed to initialize advanced caching system: {e}")
             return False
 
-    async def get_system_status(self) -> Dict[str, Any]:
+    async def get_system_status(self) -> dict[str, Any]:
         """Get comprehensive caching system status."""
         cache_stats = await self.multi_tier_cache.get_cache_statistics()
         warmer_stats = await self.cache_warmer.get_warming_stats()
@@ -937,7 +932,7 @@ class AdvancedCacheOrchestrator:
 class CacheWarmer:
     """Intelligent cache warming system."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.warming_active = False
         self.warming_stats = {"keys_warmed": 0, "warming_time": 0.0}
@@ -947,7 +942,7 @@ class CacheWarmer:
         self.warming_active = True
         # Implementation would include actual warming logic
 
-    async def get_warming_stats(self) -> Dict[str, Any]:
+    async def get_warming_stats(self) -> dict[str, Any]:
         """Get cache warming statistics."""
         return self.warming_stats
 
@@ -955,7 +950,7 @@ class CacheWarmer:
 class CachePerformanceOptimizer:
     """Optimizes cache performance in real-time."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.optimization_active = False
         self.optimization_stats = {"optimizations_applied": 0}
@@ -965,6 +960,6 @@ class CachePerformanceOptimizer:
         self.optimization_active = True
         # Implementation would include performance optimization logic
 
-    async def get_optimization_stats(self) -> Dict[str, Any]:
+    async def get_optimization_stats(self) -> dict[str, Any]:
         """Get optimization statistics."""
         return self.optimization_stats

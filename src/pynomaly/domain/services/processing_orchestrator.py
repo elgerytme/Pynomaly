@@ -6,19 +6,17 @@ import uuid
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from ...infrastructure.batch.batch_processor import (
     BatchConfig,
     BatchEngine,
     BatchProcessor,
-    DataFormat,
     create_batch_processor,
 )
 from ...infrastructure.monitoring.distributed_tracing import trace_operation
 from ...infrastructure.streaming.stream_processor import (
     StreamConfig,
-    StreamFormat,
     StreamProcessor,
     StreamSource,
     create_stream_processor,
@@ -56,11 +54,11 @@ class ProcessingSession:
     mode: ProcessingMode
     status: ProcessingStatus
     created_at: datetime
-    started_at: Optional[datetime] = None
-    stopped_at: Optional[datetime] = None
+    started_at: datetime | None = None
+    stopped_at: datetime | None = None
 
     # Configuration
-    config: Optional[Union[StreamConfig, BatchConfig]] = None
+    config: StreamConfig | BatchConfig | None = None
 
     # Metrics
     total_records: int = 0
@@ -68,23 +66,23 @@ class ProcessingSession:
     error_count: int = 0
 
     # References
-    processor_instance: Optional[Union[StreamProcessor, BatchProcessor]] = None
-    job_ids: List[str] = None
+    processor_instance: StreamProcessor | BatchProcessor | None = None
+    job_ids: list[str] = None
 
 
 class ProcessingOrchestrator:
     """Orchestrator for streaming and batch processing modes."""
 
-    def __init__(self, config: Optional[Config] = None):
+    def __init__(self, config: Config | None = None):
         """Initialize processing orchestrator."""
         self.config = config or Config()
 
         # Active sessions
-        self.sessions: Dict[str, ProcessingSession] = {}
+        self.sessions: dict[str, ProcessingSession] = {}
 
         # Processors (lazy initialized)
-        self._stream_processors: Dict[str, StreamProcessor] = {}
-        self._batch_processors: Dict[str, BatchProcessor] = {}
+        self._stream_processors: dict[str, StreamProcessor] = {}
+        self._batch_processors: dict[str, BatchProcessor] = {}
 
         # Global settings
         self.max_concurrent_sessions = self.config.get(
@@ -95,7 +93,7 @@ class ProcessingOrchestrator:
         )
 
         # Monitoring
-        self._monitoring_task: Optional[asyncio.Task] = None
+        self._monitoring_task: asyncio.Task | None = None
         self._monitoring_active = False
 
         logger.info("Processing orchestrator initialized")
@@ -104,7 +102,7 @@ class ProcessingOrchestrator:
     async def start_streaming_session(
         self,
         name: str,
-        source_config: Dict[str, Any],
+        source_config: dict[str, Any],
         source_type: StreamSource = StreamSource.KAFKA,
         detection_algorithm: DetectionAlgorithm = DetectionAlgorithm.ISOLATION_FOREST,
         **kwargs,
@@ -221,8 +219,8 @@ class ProcessingOrchestrator:
     async def start_hybrid_session(
         self,
         name: str,
-        stream_config: Dict[str, Any],
-        batch_config: Dict[str, Any],
+        stream_config: dict[str, Any],
+        batch_config: dict[str, Any],
         detection_algorithm: DetectionAlgorithm = DetectionAlgorithm.ISOLATION_FOREST,
     ) -> str:
         """Start a hybrid processing session (both streaming and batch)."""
@@ -309,7 +307,7 @@ class ProcessingOrchestrator:
             logger.error(f"Failed to stop session {session_id}: {e}")
             return False
 
-    async def get_session_status(self, session_id: str) -> Optional[Dict[str, Any]]:
+    async def get_session_status(self, session_id: str) -> dict[str, Any] | None:
         """Get status of a processing session."""
         session = self.sessions.get(session_id)
         if not session:
@@ -363,8 +361,8 @@ class ProcessingOrchestrator:
         return status_data
 
     async def list_sessions(
-        self, mode: Optional[ProcessingMode] = None
-    ) -> List[Dict[str, Any]]:
+        self, mode: ProcessingMode | None = None
+    ) -> list[dict[str, Any]]:
         """List all processing sessions."""
         sessions = list(self.sessions.values())
 
@@ -379,7 +377,7 @@ class ProcessingOrchestrator:
 
         return sorted(result, key=lambda x: x["created_at"], reverse=True)
 
-    async def add_stream_data(self, session_id: str, data: Dict[str, Any]) -> bool:
+    async def add_stream_data(self, session_id: str, data: dict[str, Any]) -> bool:
         """Add data to a streaming session (for testing)."""
         if session_id not in self._stream_processors:
             return False
@@ -396,7 +394,7 @@ class ProcessingOrchestrator:
         data_size_mb: float,
         expected_throughput: float,
         latency_requirements: str = "normal",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get recommendations for processing mode and configuration."""
 
         recommendations = {
@@ -617,7 +615,7 @@ class ProcessingOrchestrator:
             del self.sessions[session_id]
             logger.info(f"Cleaned up finished session {session_id}")
 
-    async def get_system_metrics(self) -> Dict[str, Any]:
+    async def get_system_metrics(self) -> dict[str, Any]:
         """Get orchestrator system metrics."""
         total_sessions = len(self.sessions)
         running_sessions = len(
@@ -655,11 +653,11 @@ class ProcessingOrchestrator:
 
 
 # Global orchestrator instance
-_orchestrator: Optional[ProcessingOrchestrator] = None
+_orchestrator: ProcessingOrchestrator | None = None
 
 
 def get_processing_orchestrator(
-    config: Optional[Config] = None,
+    config: Config | None = None,
 ) -> ProcessingOrchestrator:
     """Get the global processing orchestrator instance."""
     global _orchestrator

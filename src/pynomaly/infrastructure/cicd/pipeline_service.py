@@ -3,26 +3,18 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
-import subprocess
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 from uuid import UUID, uuid4
 
 from pynomaly.domain.models.cicd import (
-    Deployment,
-    DeploymentEnvironment,
-    DeploymentStrategy,
     Pipeline,
     PipelineMetrics,
     PipelineStage,
     PipelineStatus,
     PipelineTemplate,
-    TestResult,
-    TestSuite,
-    TestType,
     TriggerType,
 )
 
@@ -36,20 +28,20 @@ class PipelineService:
         self.logger = logging.getLogger(__name__)
 
         # Pipeline storage (would be replaced with persistent storage in production)
-        self.pipelines: Dict[UUID, Pipeline] = {}
-        self.pipeline_templates: Dict[UUID, PipelineTemplate] = {}
-        self.pipeline_metrics: Dict[UUID, PipelineMetrics] = {}
+        self.pipelines: dict[UUID, Pipeline] = {}
+        self.pipeline_templates: dict[UUID, PipelineTemplate] = {}
+        self.pipeline_metrics: dict[UUID, PipelineMetrics] = {}
 
         # Execution tracking
-        self.running_pipelines: Set[UUID] = set()
-        self.pipeline_queues: Dict[str, List[UUID]] = {
+        self.running_pipelines: set[UUID] = set()
+        self.pipeline_queues: dict[str, list[UUID]] = {
             "high": [],
             "normal": [],
             "low": [],
         }
 
         # Background tasks
-        self.execution_tasks: Set[asyncio.Task] = set()
+        self.execution_tasks: set[asyncio.Task] = set()
         self.is_running = False
 
         # Default templates
@@ -240,9 +232,9 @@ class PipelineService:
         repository_url: str,
         branch: str = "main",
         commit_sha: str = "",
-        triggered_by: Optional[UUID] = None,
+        triggered_by: UUID | None = None,
         trigger_type: TriggerType = TriggerType.MANUAL,
-        environment_overrides: Optional[Dict[str, str]] = None,
+        environment_overrides: dict[str, str] | None = None,
     ) -> Pipeline:
         """Create pipeline from template."""
 
@@ -373,7 +365,7 @@ class PipelineService:
         self.logger.info(f"Cancelled pipeline: {pipeline.name}")
         return True
 
-    async def get_pipeline_status(self, pipeline_id: UUID) -> Optional[Dict[str, Any]]:
+    async def get_pipeline_status(self, pipeline_id: UUID) -> dict[str, Any] | None:
         """Get pipeline execution status."""
 
         if pipeline_id not in self.pipelines:
@@ -390,8 +382,8 @@ class PipelineService:
     async def get_pipeline_logs(
         self,
         pipeline_id: UUID,
-        stage_name: Optional[str] = None,
-    ) -> Optional[Dict[str, Any]]:
+        stage_name: str | None = None,
+    ) -> dict[str, Any] | None:
         """Get pipeline execution logs."""
 
         if pipeline_id not in self.pipelines:
@@ -423,9 +415,7 @@ class PipelineService:
 
         return logs
 
-    async def get_pipeline_metrics(
-        self, pipeline_id: UUID
-    ) -> Optional[PipelineMetrics]:
+    async def get_pipeline_metrics(self, pipeline_id: UUID) -> PipelineMetrics | None:
         """Get pipeline metrics."""
 
         if pipeline_id not in self.pipeline_metrics:
@@ -436,9 +426,9 @@ class PipelineService:
 
     async def list_pipelines(
         self,
-        status_filter: Optional[PipelineStatus] = None,
+        status_filter: PipelineStatus | None = None,
         limit: int = 50,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """List pipelines with optional filtering."""
 
         pipelines = list(self.pipelines.values())
@@ -474,7 +464,7 @@ class PipelineService:
 
             await asyncio.sleep(5)  # Check every 5 seconds
 
-    async def _get_next_pipeline(self) -> Optional[UUID]:
+    async def _get_next_pipeline(self) -> UUID | None:
         """Get next pipeline from queue (priority order)."""
 
         # Check high priority first
@@ -484,7 +474,7 @@ class PipelineService:
 
         return None
 
-    def _get_queue_position(self, pipeline_id: UUID) -> Optional[int]:
+    def _get_queue_position(self, pipeline_id: UUID) -> int | None:
         """Get pipeline position in queue."""
 
         for priority, queue in self.pipeline_queues.items():
@@ -675,7 +665,7 @@ class PipelineService:
             )
             return False
 
-    def _substitute_env_vars(self, command: str, env: Dict[str, str]) -> str:
+    def _substitute_env_vars(self, command: str, env: dict[str, str]) -> str:
         """Substitute environment variables in command."""
 
         result = command

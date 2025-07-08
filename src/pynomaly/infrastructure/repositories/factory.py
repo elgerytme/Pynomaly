@@ -369,11 +369,13 @@ def get_repository_info(config: DatabaseConfig | None = None) -> dict:
 
 
 # Convenience functions for testing
-def create_testing_repositories() -> tuple[
-    DetectorRepositoryProtocol,
-    DatasetRepositoryProtocol,
-    DetectionResultRepositoryProtocol,
-]:
+def create_testing_repositories() -> (
+    tuple[
+        DetectorRepositoryProtocol,
+        DatasetRepositoryProtocol,
+        DetectionResultRepositoryProtocol,
+    ]
+):
     """Create repositories for testing (always in-memory).
 
     Returns:
@@ -389,11 +391,13 @@ def create_testing_repositories() -> tuple[
     )
 
 
-def create_development_repositories() -> tuple[
-    DetectorRepositoryProtocol,
-    DatasetRepositoryProtocol,
-    DetectionResultRepositoryProtocol,
-]:
+def create_development_repositories() -> (
+    tuple[
+        DetectorRepositoryProtocol,
+        DatasetRepositoryProtocol,
+        DetectionResultRepositoryProtocol,
+    ]
+):
     """Create repositories for development (SQLite file).
 
     Returns:

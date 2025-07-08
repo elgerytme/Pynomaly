@@ -5,8 +5,54 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any
-from uuid import UUID, uuid4
+from typing import Any, List
+from uuid import UUID, uuid4, uuid5
+
+class MLNoiseFeatures:
+    def __init__(self):
+        self.hour_of_day: int = 0
+        self.day_of_week: int = 0
+        self.is_business_hours: bool = False
+        self.is_weekend: bool = False
+        self.alerts_last_hour: int = 0
+        self.alerts_last_day: int = 0
+        self.similar_alerts_last_week: int = 0
+        self.system_load_percentile: float = 0.0
+        self.memory_pressure: float = 0.0
+        self.cpu_utilization: float = 0.0
+        self.model_confidence: float = 0.0
+        self.anomaly_score_percentile: float = 0.0
+        self.false_positive_rate_7d: float = 0.0
+        self.resolution_time_avg: float = 0.0
+        self.has_correlated_alerts: bool = False
+        self.correlation_strength_max: float = 0.0
+        self.num_related_alerts: int = 0
+
+    def to_feature_vector(self) -> list:
+        return [
+            self.hour_of_day,
+            self.day_of_week,
+            self.is_business_hours,
+            self.is_weekend,
+            self.alerts_last_hour,
+            self.alerts_last_day,
+            self.similar_alerts_last_week,
+            self.system_load_percentile,
+            self.memory_pressure,
+            self.cpu_utilization,
+            self.model_confidence,
+            self.anomaly_score_percentile,
+            self.false_positive_rate_7d,
+            self.resolution_time_avg,
+            self.has_correlated_alerts,
+            self.correlation_strength_max,
+            self.num_related_alerts,
+        ]
+
+class NoiseClassification(Enum):
+    NOISE = "noise"
+    SIGNAL = "signal"
+    UNKNOWN = "unknown"
 
 
 class AlertSeverity(Enum):
@@ -62,11 +108,22 @@ class AlertMetadata:
 
     metadata_id: str = field(default_factory=lambda: str(uuid4()))
     alert_id: str = ""
+    tenant_id: UUID = field(default_factory=uuid4)
     key: str = ""
     value: Any = None
     value_type: str = "string"
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
+    
+    # Additional attributes for ML processing
+    anomaly_score: float | None = None
+    confidence_level: float | None = None
+    system_load: float | None = None
+    memory_usage: float | None = None
+    cpu_usage: float | None = None
+    affected_resources: list[str] = field(default_factory=list)
+    related_metrics: list[str] = field(default_factory=list)
+    customer_affected: bool | None = None
 
 
 @dataclass
@@ -75,15 +132,23 @@ class AlertCorrelation:
 
     correlation_id: str = field(default_factory=lambda: str(uuid4()))
     primary_alert_id: str = ""
-    related_alert_ids: list[str] = field(default_factory=list)
-    correlation_score: float = 0.0
+    related_alerts: set[UUID] = field(default_factory=set)
     correlation_type: str = "pattern"
+    correlation_strength: float = 0.0
+    correlation_reason: str = ""
     timestamp: datetime = field(default_factory=datetime.now)
+    
+    # Optional fields for specific correlation types
+    time_window_minutes: int | None = None
+    pattern_similarity: float | None = None
+    feature_overlap: float | None = None
+    causal_chain: list[UUID] | None = None
+    root_cause_alert: UUID | None = None
 
     def __post_init__(self):
         """Validate correlation data."""
-        if not (0.0 <= self.correlation_score <= 1.0):
-            raise ValueError("Correlation score must be between 0.0 and 1.0")
+        if not (0.0 <= self.correlation_strength <= 1.0):
+            raise ValueError("Correlation strength must be between 0.0 and 1.0")
 
 
 class AlertSource(Enum):
@@ -254,9 +319,9 @@ class Alert:
     resolved_at: datetime | None = None
     acknowledged_by: str | None = None
     resolved_by: str | None = None
-    source: str = ""
+    source: AlertSource = AlertSource.USER_DEFINED
     tags: list[str] = field(default_factory=list)
-    metadata: dict[str, Any] = field(default_factory=dict)
+    metadata: AlertMetadata = field(default_factory=AlertMetadata)
     notifications: list[AlertNotification] = field(default_factory=list)
     suppression_rules: dict[str, Any] = field(default_factory=dict)
     escalation_rules: dict[str, Any] = field(default_factory=dict)
@@ -286,6 +351,26 @@ class Alert:
 
         if not self.created_by:
             raise ValueError("Created by cannot be empty")
+
+    @property
+    def alert_id(self) -> UUID:
+        """Get alert ID (alias for id)."""
+        return self.id
+
+    @property
+    def category(self) -> AlertCategory:
+        """Get alert category (mapped from alert_type)."""
+        # Map AlertType to AlertCategory
+        if self.alert_type in [AlertType.ANOMALY_DETECTION, AlertType.MODEL_PERFORMANCE, AlertType.DATA_QUALITY]:
+            return AlertCategory.TECHNICAL
+        elif self.alert_type in [AlertType.SYSTEM_HEALTH, AlertType.PIPELINE_FAILURE, AlertType.RESOURCE_USAGE]:
+            return AlertCategory.OPERATIONAL
+        elif self.alert_type == AlertType.SECURITY:
+            return AlertCategory.SECURITY
+        elif self.alert_type in [AlertType.DATA_DRIFT, AlertType.MODEL_DRIFT]:
+            return AlertCategory.PERFORMANCE
+        else:
+            return AlertCategory.OPERATIONAL
 
     @property
     def is_active(self) -> bool:

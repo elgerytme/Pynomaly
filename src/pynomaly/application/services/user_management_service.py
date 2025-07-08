@@ -6,7 +6,6 @@ import hashlib
 import secrets
 import uuid
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
 
 from pynomaly.domain.entities.user import (
     Tenant,
@@ -58,7 +57,7 @@ class UserManagementService:
         first_name: str,
         last_name: str,
         password: str,
-        tenant_id: Optional[TenantId] = None,
+        tenant_id: TenantId | None = None,
         role: UserRole = UserRole.VIEWER,
     ) -> User:
         """Create a new user."""
@@ -112,7 +111,7 @@ class UserManagementService:
 
         return created_user
 
-    async def authenticate_user(self, email: str, password: str) -> Tuple[User, str]:
+    async def authenticate_user(self, email: str, password: str) -> tuple[User, str]:
         """Authenticate user and return user with session token."""
         user = await self._user_repo.get_user_by_email(email)
         if not user:
@@ -139,7 +138,7 @@ class UserManagementService:
 
         return user, session.id
 
-    async def get_user_by_session(self, session_id: str) -> Optional[User]:
+    async def get_user_by_session(self, session_id: str) -> User | None:
         """Get user by session ID."""
         session = await self._session_repo.get_session_by_id(session_id)
         if (
@@ -204,7 +203,7 @@ class UserManagementService:
         plan: TenantPlan = TenantPlan.FREE,
         admin_email: str = "",
         admin_password: str = "",
-    ) -> Tuple[Tenant, Optional[User]]:
+    ) -> tuple[Tenant, User | None]:
         """Create a new tenant with optional admin user."""
         # Validate domain uniqueness
         existing_tenant = await self._tenant_repo.get_tenant_by_domain(domain)
@@ -249,7 +248,7 @@ class UserManagementService:
 
         return created_tenant, admin_user
 
-    async def get_tenant_usage_report(self, tenant_id: TenantId) -> Dict[str, any]:
+    async def get_tenant_usage_report(self, tenant_id: TenantId) -> dict[str, any]:
         """Get comprehensive usage report for tenant."""
         tenant = await self._tenant_repo.get_tenant_by_id(tenant_id)
         if not tenant:
@@ -314,7 +313,7 @@ class UserManagementService:
         return await self._tenant_repo.update_tenant_usage(tenant_id, usage_updates)
 
     # Permission Management
-    async def update_user(self, user_id: UserId, update_data: Dict[str, any]) -> User:
+    async def update_user(self, user_id: UserId, update_data: dict[str, any]) -> User:
         """Update user information."""
         user = await self._user_repo.get_user_by_id(user_id)
         if not user:
@@ -366,12 +365,12 @@ class UserManagementService:
 
     async def list_users(
         self,
-        tenant_id: Optional[TenantId] = None,
-        status: Optional[UserStatus] = None,
-        role: Optional[UserRole] = None,
+        tenant_id: TenantId | None = None,
+        status: UserStatus | None = None,
+        role: UserRole | None = None,
         limit: int = 100,
         offset: int = 0,
-    ) -> List[User]:
+    ) -> list[User]:
         """List users with optional filters."""
         return await self._user_repo.list_users(
             tenant_id=tenant_id, status=status, role=role, limit=limit, offset=offset

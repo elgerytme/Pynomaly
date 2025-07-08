@@ -2,19 +2,15 @@
 
 from __future__ import annotations
 
-import asyncio
-import json
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 from pynomaly.domain.models.monitoring import (
     Dashboard,
     DashboardType,
     DashboardWidget,
-    MetricType,
-    ServiceStatus,
 )
 
 
@@ -22,7 +18,7 @@ class DashboardMetrics:
     """Metrics aggregation class for dashboard widgets."""
 
     def __init__(self):
-        self.metrics_data: Dict[str, Any] = {}
+        self.metrics_data: dict[str, Any] = {}
         self.timestamp = datetime.utcnow()
 
     def add_metric(
@@ -30,7 +26,7 @@ class DashboardMetrics:
         name: str,
         value: Any,
         unit: str = "",
-        tags: Optional[Dict[str, str]] = None,
+        tags: dict[str, str] | None = None,
     ) -> None:
         """Add a metric to the dashboard metrics."""
         self.metrics_data[name] = {
@@ -40,11 +36,11 @@ class DashboardMetrics:
             "timestamp": datetime.utcnow().isoformat(),
         }
 
-    def get_metric(self, name: str) -> Optional[Dict[str, Any]]:
+    def get_metric(self, name: str) -> dict[str, Any] | None:
         """Get a specific metric."""
         return self.metrics_data.get(name)
 
-    def get_all_metrics(self) -> Dict[str, Any]:
+    def get_all_metrics(self) -> dict[str, Any]:
         """Get all metrics."""
         return self.metrics_data.copy()
 
@@ -57,10 +53,10 @@ class DashboardService:
         self.logger = logging.getLogger(__name__)
 
         # Dashboard storage
-        self.dashboards: Dict[UUID, Dashboard] = {}
+        self.dashboards: dict[UUID, Dashboard] = {}
 
         # Pre-built dashboard templates
-        self.dashboard_templates: Dict[DashboardType, Dict[str, Any]] = {}
+        self.dashboard_templates: dict[DashboardType, dict[str, Any]] = {}
 
         # Initialize built-in dashboards
         self._initialize_builtin_dashboards()
@@ -258,7 +254,7 @@ class DashboardService:
         name: str,
         description: str,
         dashboard_type: DashboardType = DashboardType.CUSTOM,
-        owner_id: Optional[UUID] = None,
+        owner_id: UUID | None = None,
         is_public: bool = False,
     ) -> Dashboard:
         """Create a new dashboard."""
@@ -310,8 +306,8 @@ class DashboardService:
         self,
         dashboard_id: UUID,
         user_id: UUID,
-        time_range_override: Optional[str] = None,
-    ) -> Optional[Dict[str, Any]]:
+        time_range_override: str | None = None,
+    ) -> dict[str, Any] | None:
         """Get dashboard data with real-time metrics."""
 
         if dashboard_id not in self.dashboards:
@@ -347,8 +343,8 @@ class DashboardService:
     async def _get_widget_data(
         self,
         widget: DashboardWidget,
-        time_range_override: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        time_range_override: str | None = None,
+    ) -> dict[str, Any]:
         """Get data for a specific widget."""
 
         time_range = time_range_override or widget.time_range
@@ -391,7 +387,7 @@ class DashboardService:
 
     async def _get_gauge_data(
         self, widget: DashboardWidget, time_delta: timedelta
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get gauge widget data."""
 
         if not widget.metrics:
@@ -441,7 +437,7 @@ class DashboardService:
 
         return time_map.get(time_range, timedelta(hours=1))
 
-    async def get_service_health_dashboard_data(self) -> Dict[str, Any]:
+    async def get_service_health_dashboard_data(self) -> dict[str, Any]:
         """Get service health dashboard data."""
 
         health_data = await self.metrics_service.get_service_health()

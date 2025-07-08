@@ -2,17 +2,14 @@
 
 from __future__ import annotations
 
-import asyncio
-import json
 import logging
-from collections import defaultdict, deque
+from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
-from pydantic import BaseModel, Field
 
 from pynomaly.domain.entities import Dataset, Detector
 
@@ -63,15 +60,15 @@ class AnomalyRecord:
     anomaly_id: str
     timestamp: datetime
     anomaly_score: float
-    feature_values: Dict[str, Any]
+    feature_values: dict[str, Any]
     detector_name: str
     confidence: float
     severity: str = "medium"
     status: str = "new"
-    investigation_notes: List[str] = field(default_factory=list)
-    tags: List[str] = field(default_factory=list)
-    related_anomalies: List[str] = field(default_factory=list)
-    business_context: Dict[str, Any] = field(default_factory=dict)
+    investigation_notes: list[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
+    related_anomalies: list[str] = field(default_factory=list)
+    business_context: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -82,13 +79,13 @@ class InvestigationSession:
     user_id: str
     start_time: datetime
     investigation_type: InvestigationType
-    anomaly_ids: List[str]
-    current_focus: Optional[str] = None
-    analysis_steps: List[Dict[str, Any]] = field(default_factory=list)
-    findings: List[str] = field(default_factory=list)
-    hypotheses: List[str] = field(default_factory=list)
-    actions_taken: List[str] = field(default_factory=list)
-    session_data: Dict[str, Any] = field(default_factory=dict)
+    anomaly_ids: list[str]
+    current_focus: str | None = None
+    analysis_steps: list[dict[str, Any]] = field(default_factory=list)
+    findings: list[str] = field(default_factory=list)
+    hypotheses: list[str] = field(default_factory=list)
+    actions_taken: list[str] = field(default_factory=list)
+    session_data: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -97,12 +94,12 @@ class ExplanationResult:
 
     method: ExplanationMethod
     anomaly_id: str
-    feature_contributions: Dict[str, float]
+    feature_contributions: dict[str, float]
     explanation_text: str
     confidence: float
-    visualizations: List[Dict[str, Any]] = field(default_factory=list)
-    counterfactuals: List[Dict[str, Any]] = field(default_factory=list)
-    similar_cases: List[str] = field(default_factory=list)
+    visualizations: list[dict[str, Any]] = field(default_factory=list)
+    counterfactuals: list[dict[str, Any]] = field(default_factory=list)
+    similar_cases: list[str] = field(default_factory=list)
 
 
 class SHAPExplainer:
@@ -116,8 +113,8 @@ class SHAPExplainer:
         self,
         detector: Detector,
         anomaly_data: np.ndarray,
-        background_data: Optional[np.ndarray] = None,
-        feature_names: Optional[List[str]] = None,
+        background_data: np.ndarray | None = None,
+        feature_names: list[str] | None = None,
     ) -> ExplanationResult:
         """Generate SHAP explanation for an anomaly."""
         try:
@@ -165,9 +162,9 @@ class SHAPExplainer:
         self,
         detector: Detector,
         anomaly_data: np.ndarray,
-        background_data: Optional[np.ndarray],
-        feature_names: Optional[List[str]],
-    ) -> Dict[str, float]:
+        background_data: np.ndarray | None,
+        feature_names: list[str] | None,
+    ) -> dict[str, float]:
         """Calculate SHAP values for the anomaly."""
         # Simplified SHAP calculation
         # In practice, you'd use actual SHAP explainer
@@ -225,8 +222,8 @@ class SHAPExplainer:
 
     def _generate_explanation_text(
         self,
-        feature_contributions: Dict[str, float],
-        feature_names: Optional[List[str]],
+        feature_contributions: dict[str, float],
+        feature_names: list[str] | None,
     ) -> str:
         """Generate human-readable explanation text."""
         if not feature_contributions:
@@ -270,9 +267,9 @@ class SHAPExplainer:
 
     async def _create_shap_visualizations(
         self,
-        feature_contributions: Dict[str, float],
-        feature_names: Optional[List[str]],
-    ) -> List[Dict[str, Any]]:
+        feature_contributions: dict[str, float],
+        feature_names: list[str] | None,
+    ) -> list[dict[str, Any]]:
         """Create SHAP visualizations."""
         visualizations = []
 
@@ -315,8 +312,8 @@ class SHAPExplainer:
         return visualizations
 
     def _calculate_cumulative_contributions(
-        self, sorted_features: List[Tuple[str, float]]
-    ) -> List[float]:
+        self, sorted_features: list[tuple[str, float]]
+    ) -> list[float]:
         """Calculate cumulative contributions for waterfall chart."""
         cumulative = []
         running_sum = 0.0
@@ -333,7 +330,7 @@ class InteractiveInvestigationDashboard:
 
     def __init__(
         self,
-        explanation_methods: List[ExplanationMethod] = None,
+        explanation_methods: list[ExplanationMethod] = None,
         max_sessions: int = 100,
         session_timeout_hours: int = 24,
     ):
@@ -352,9 +349,9 @@ class InteractiveInvestigationDashboard:
         self.session_timeout = timedelta(hours=session_timeout_hours)
 
         # Data storage
-        self.anomaly_records: Dict[str, AnomalyRecord] = {}
-        self.investigation_sessions: Dict[str, InvestigationSession] = {}
-        self.explanation_cache: Dict[str, ExplanationResult] = {}
+        self.anomaly_records: dict[str, AnomalyRecord] = {}
+        self.investigation_sessions: dict[str, InvestigationSession] = {}
+        self.explanation_cache: dict[str, ExplanationResult] = {}
 
         # Explainers
         self.shap_explainer = SHAPExplainer()
@@ -372,8 +369,8 @@ class InteractiveInvestigationDashboard:
         self,
         user_id: str,
         investigation_type: InvestigationType,
-        anomaly_ids: List[str],
-        session_config: Optional[Dict[str, Any]] = None,
+        anomaly_ids: list[str],
+        session_config: dict[str, Any] | None = None,
     ) -> str:
         """Create a new investigation session.
 
@@ -445,8 +442,8 @@ class InteractiveInvestigationDashboard:
             session.current_focus = highest_severity.anomaly_id
 
     async def _generate_session_summary(
-        self, anomalies: Dict[str, AnomalyRecord]
-    ) -> Dict[str, Any]:
+        self, anomalies: dict[str, AnomalyRecord]
+    ) -> dict[str, Any]:
         """Generate summary statistics for the session."""
         if not anomalies:
             return {}
@@ -493,7 +490,7 @@ class InteractiveInvestigationDashboard:
             ),
         }
 
-    async def get_session_overview(self, session_id: str) -> Dict[str, Any]:
+    async def get_session_overview(self, session_id: str) -> dict[str, Any]:
         """Get overview of an investigation session."""
         if session_id not in self.investigation_sessions:
             return {"error": "Session not found"}
@@ -530,7 +527,7 @@ class InteractiveInvestigationDashboard:
 
     async def _get_available_actions(
         self, session: InvestigationSession
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get available actions for the current session state."""
         actions = []
 
@@ -586,9 +583,9 @@ class InteractiveInvestigationDashboard:
         session_id: str,
         anomaly_id: str,
         explanation_method: ExplanationMethod = ExplanationMethod.SHAP,
-        detector: Optional[Detector] = None,
-        background_data: Optional[np.ndarray] = None,
-    ) -> Dict[str, Any]:
+        detector: Detector | None = None,
+        background_data: np.ndarray | None = None,
+    ) -> dict[str, Any]:
         """Generate explanation for a specific anomaly.
 
         Args:
@@ -733,9 +730,9 @@ class InteractiveInvestigationDashboard:
     async def compare_anomalies(
         self,
         session_id: str,
-        anomaly_ids: List[str],
-        comparison_metrics: List[str] = None,
-    ) -> Dict[str, Any]:
+        anomaly_ids: list[str],
+        comparison_metrics: list[str] = None,
+    ) -> dict[str, Any]:
         """Compare multiple anomalies.
 
         Args:
@@ -800,7 +797,7 @@ class InteractiveInvestigationDashboard:
         return comparison_result
 
     async def _calculate_anomaly_similarities(
-        self, anomalies: List[AnomalyRecord], result: Dict[str, Any]
+        self, anomalies: list[AnomalyRecord], result: dict[str, Any]
     ) -> None:
         """Calculate similarities between anomalies."""
         similarities = {}
@@ -837,7 +834,7 @@ class InteractiveInvestigationDashboard:
         result["similarities"] = similarities
 
     async def _identify_anomaly_patterns(
-        self, anomalies: List[AnomalyRecord], result: Dict[str, Any]
+        self, anomalies: list[AnomalyRecord], result: dict[str, Any]
     ) -> None:
         """Identify patterns in anomalies."""
         patterns = {}
@@ -875,8 +872,8 @@ class InteractiveInvestigationDashboard:
         result["patterns"] = patterns
 
     async def _create_comparison_visualizations(
-        self, anomalies: List[AnomalyRecord]
-    ) -> List[Dict[str, Any]]:
+        self, anomalies: list[AnomalyRecord]
+    ) -> list[dict[str, Any]]:
         """Create visualizations for anomaly comparison."""
         visualizations = []
 
@@ -938,7 +935,7 @@ class InteractiveInvestigationDashboard:
         session_id: str,
         time_window_hours: int = 24,
         analysis_type: str = "pattern_detection",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Perform temporal analysis of anomalies.
 
         Args:
@@ -1010,7 +1007,7 @@ class InteractiveInvestigationDashboard:
         return analysis_result
 
     async def _analyze_temporal_patterns(
-        self, anomalies: List[AnomalyRecord], result: Dict[str, Any]
+        self, anomalies: list[AnomalyRecord], result: dict[str, Any]
     ) -> None:
         """Analyze temporal patterns in anomalies."""
         if len(anomalies) < 2:
@@ -1059,7 +1056,7 @@ class InteractiveInvestigationDashboard:
         result["temporal_patterns"] = patterns
 
     async def _analyze_anomaly_frequency(
-        self, anomalies: List[AnomalyRecord], result: Dict[str, Any]
+        self, anomalies: list[AnomalyRecord], result: dict[str, Any]
     ) -> None:
         """Analyze frequency of anomalies."""
         if not anomalies:
@@ -1085,8 +1082,8 @@ class InteractiveInvestigationDashboard:
         result["frequency_analysis"] = frequency_data
 
     async def _create_temporal_visualizations(
-        self, anomalies: List[AnomalyRecord]
-    ) -> List[Dict[str, Any]]:
+        self, anomalies: list[AnomalyRecord]
+    ) -> list[dict[str, Any]]:
         """Create temporal visualizations."""
         visualizations = []
 
@@ -1145,7 +1142,7 @@ class InteractiveInvestigationDashboard:
             del self.investigation_sessions[session_id]
             logger.info(f"Cleaned up expired session: {session_id}")
 
-    async def get_dashboard_analytics(self) -> Dict[str, Any]:
+    async def get_dashboard_analytics(self) -> dict[str, Any]:
         """Get analytics about dashboard usage."""
         current_time = datetime.now()
 

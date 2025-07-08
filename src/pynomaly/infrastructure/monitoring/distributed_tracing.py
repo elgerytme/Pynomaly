@@ -1,7 +1,8 @@
 """Stub distributed tracing module."""
 
+from collections.abc import Callable
 from functools import wraps
-from typing import Any, Callable, Optional
+from typing import Any
 
 
 def trace_operation(operation_name: str = "operation", **kwargs):

@@ -722,6 +722,15 @@ class AnomalyDashboard {
       const timestamp = new Date(point.timestamp);
       const value = [timestamp, point.value];
 
+      if (point.isAnomaly) {
+        // Drill down on anomaly click
+        this.charts.timeSeries.on('click', (params) => {
+          if (params.componentType === 'series' && params.seriesName === 'Anomalies') {
+            this.openInvestigationDashboard(params.data);
+          }
+        });
+      }
+
       if (
         point.isAnomaly &&
         point.anomalyScore >= this.filters.severityThreshold
@@ -838,6 +847,11 @@ class AnomalyDashboard {
     this.filters.severityThreshold = data.value;
     this.applyFilters();
     this.announceFilterChange(`Severity threshold set to ${data.value}`);
+  }
+
+  openInvestigationDashboard(data) {
+const investigationDashboard = new InteractiveInvestigationDashboard();
+investigationDashboard.open(data);
   }
 
   applyFilters() {

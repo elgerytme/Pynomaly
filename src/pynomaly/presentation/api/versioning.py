@@ -1,7 +1,6 @@
 """API versioning utilities for Pynomaly API."""
 
 from enum import Enum
-from typing import Dict, List
 
 from fastapi import APIRouter, FastAPI
 
@@ -20,7 +19,7 @@ class VersionManager:
     def __init__(self):
         self.supported_versions = [APIVersion.V1]
         self.default_version = APIVersion.V1
-        self.deprecated_versions: List[APIVersion] = []
+        self.deprecated_versions: list[APIVersion] = []
 
     def get_version_prefix(self, version: APIVersion) -> str:
         """Get the URL prefix for a given API version."""
@@ -34,7 +33,7 @@ class VersionManager:
         """Check if an API version is deprecated."""
         return version in self.deprecated_versions
 
-    def get_version_info(self) -> Dict[str, any]:
+    def get_version_info(self) -> dict[str, any]:
         """Get information about all API versions."""
         return {
             "supported_versions": [v.value for v in self.supported_versions],
@@ -48,7 +47,7 @@ class VersionManager:
         router: APIRouter,
         version: APIVersion,
         prefix: str = "",
-        tags: List[str] = None,
+        tags: list[str] = None,
     ) -> None:
         """Add a router with version prefix."""
         if not self.is_supported(version):

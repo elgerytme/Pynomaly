@@ -7,10 +7,8 @@ with support for in-memory storage for testing and development.
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
 
 from pynomaly.domain.entities.model_version import ModelVersion
-from pynomaly.shared.exceptions import RepositoryError
 
 logger = logging.getLogger(__name__)
 
@@ -24,17 +22,14 @@ class ModelRepositoryProtocol(ABC):
         pass
 
     @abstractmethod
-    async def get_version(self, version_id: str) -> Optional[ModelVersion]:
+    async def get_version(self, version_id: str) -> ModelVersion | None:
         """Get a model version by ID."""
         pass
 
     @abstractmethod
     async def list_versions(
-        self, 
-        algorithm: Optional[str] = None,
-        limit: int = 100,
-        offset: int = 0
-    ) -> List[ModelVersion]:
+        self, algorithm: str | None = None, limit: int = 100, offset: int = 0
+    ) -> list[ModelVersion]:
         """List model versions with optional filtering."""
         pass
 
@@ -48,23 +43,20 @@ class InMemoryModelRepository(ModelRepositoryProtocol):
     """In-memory implementation of model repository for testing and development."""
 
     def __init__(self):
-        self._models: Dict[str, ModelVersion] = {}
+        self._models: dict[str, ModelVersion] = {}
 
     async def save_version(self, model_version: ModelVersion) -> None:
         """Save a model version."""
         self._models[model_version.id] = model_version
         logger.debug(f"Saved model version {model_version.id}")
 
-    async def get_version(self, version_id: str) -> Optional[ModelVersion]:
+    async def get_version(self, version_id: str) -> ModelVersion | None:
         """Get a model version by ID."""
         return self._models.get(version_id)
 
     async def list_versions(
-        self, 
-        algorithm: Optional[str] = None,
-        limit: int = 100,
-        offset: int = 0
-    ) -> List[ModelVersion]:
+        self, algorithm: str | None = None, limit: int = 100, offset: int = 0
+    ) -> list[ModelVersion]:
         """List model versions with optional filtering."""
         versions = list(self._models.values())
 

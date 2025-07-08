@@ -5,18 +5,14 @@ from __future__ import annotations
 import logging
 import time
 import warnings
-from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from enum import Enum
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
-from sklearn.decomposition import PCA
 from sklearn.feature_selection import SelectKBest, VarianceThreshold, f_classif
 from sklearn.impute import KNNImputer, SimpleImputer
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import (
     LabelEncoder,
     MinMaxScaler,
@@ -30,7 +26,6 @@ from sklearn.preprocessing import (
 
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.exceptions import DataValidationError
-from pynomaly.domain.value_objects import ContaminationRate
 
 
 class PreprocessingStep(Enum):
@@ -106,9 +101,9 @@ class ValidationRule:
 
     column: str
     rule_type: str
-    parameters: Dict[str, Any] = field(default_factory=dict)
+    parameters: dict[str, Any] = field(default_factory=dict)
     severity: str = "error"  # error, warning, info
-    message: Optional[str] = None
+    message: str | None = None
 
 
 @dataclass
@@ -135,11 +130,11 @@ class ProcessingConfig:
     remove_low_variance: bool = True
     variance_threshold: float = 0.01
     apply_feature_selection: bool = False
-    max_features: Optional[int] = None
+    max_features: int | None = None
 
     # Data validation
     validate_data: bool = True
-    validation_rules: List[ValidationRule] = field(default_factory=list)
+    validation_rules: list[ValidationRule] = field(default_factory=list)
     strict_validation: bool = False
 
     # Performance options
@@ -156,13 +151,13 @@ class ProcessingConfig:
 class ProcessingReport:
     """Report of data processing operations."""
 
-    original_shape: Tuple[int, int]
-    final_shape: Tuple[int, int]
+    original_shape: tuple[int, int]
+    final_shape: tuple[int, int]
     processing_time: float
-    steps_performed: List[str]
-    warnings: List[str] = field(default_factory=list)
-    errors: List[str] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    steps_performed: list[str]
+    warnings: list[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     @property
     def rows_removed(self) -> int:
@@ -185,8 +180,8 @@ class AdvancedDataPipeline:
 
     def __init__(
         self,
-        config: Optional[ProcessingConfig] = None,
-        logger: Optional[logging.Logger] = None,
+        config: ProcessingConfig | None = None,
+        logger: logging.Logger | None = None,
     ):
         """Initialize the data pipeline.
 
@@ -198,19 +193,19 @@ class AdvancedDataPipeline:
         self.logger = logger or self._setup_logger()
 
         # Fitted transformers for reuse
-        self._fitted_transformers: Dict[str, Any] = {}
-        self._feature_names: Optional[List[str]] = None
-        self._original_columns: Optional[List[str]] = None
+        self._fitted_transformers: dict[str, Any] = {}
+        self._feature_names: list[str] | None = None
+        self._original_columns: list[str] | None = None
 
         # Processing history
-        self._processing_history: List[ProcessingReport] = []
+        self._processing_history: list[ProcessingReport] = []
 
     def process_dataset(
         self,
         dataset: Dataset,
         fit_transformers: bool = True,
         return_report: bool = True,
-    ) -> Union[Dataset, Tuple[Dataset, ProcessingReport]]:
+    ) -> Dataset | tuple[Dataset, ProcessingReport]:
         """Process a complete dataset through the pipeline.
 
         Args:
@@ -340,7 +335,9 @@ class AdvancedDataPipeline:
                     mask = selector.get_support()
                     selected_columns = [
                         col
-                        for col, selected in zip(transformed_data.columns, mask)
+                        for col, selected in zip(
+                            transformed_data.columns, mask, strict=False
+                        )
                         if selected
                     ]
                     transformed_data = pd.DataFrame(
@@ -352,8 +349,8 @@ class AdvancedDataPipeline:
         return transformed_data
 
     def validate_data(
-        self, data: pd.DataFrame, rules: Optional[List[ValidationRule]] = None
-    ) -> Tuple[bool, List[str], List[str]]:
+        self, data: pd.DataFrame, rules: list[ValidationRule] | None = None
+    ) -> tuple[bool, list[str], list[str]]:
         """Validate data against specified rules.
 
         Args:
@@ -398,11 +395,11 @@ class AdvancedDataPipeline:
         is_valid = len(errors_list) == 0
         return is_valid, warnings_list, errors_list
 
-    def get_processing_report(self) -> Optional[ProcessingReport]:
+    def get_processing_report(self) -> ProcessingReport | None:
         """Get the latest processing report."""
         return self._processing_history[-1] if self._processing_history else None
 
-    def get_feature_info(self) -> Dict[str, Any]:
+    def get_feature_info(self) -> dict[str, Any]:
         """Get information about processed features."""
         if not self._feature_names:
             return {}
@@ -786,8 +783,8 @@ class AdvancedDataPipeline:
         self,
         data: pd.DataFrame,
         rule: ValidationRule,
-        warnings_list: List[str],
-        errors_list: List[str],
+        warnings_list: list[str],
+        errors_list: list[str],
     ) -> None:
         """Apply a single validation rule."""
         if rule.column not in data.columns:

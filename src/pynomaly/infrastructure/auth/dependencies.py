@@ -1,13 +1,11 @@
 """Authentication dependencies for FastAPI endpoints."""
 
-from functools import wraps
-from typing import Callable, List
+from collections.abc import Callable
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from .jwt_auth import JWTAuthService, get_auth
-from .middleware import get_current_user
 
 security = HTTPBearer()
 

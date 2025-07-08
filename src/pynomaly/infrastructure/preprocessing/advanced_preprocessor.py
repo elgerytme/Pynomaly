@@ -1,13 +1,10 @@
 """Advanced data preprocessing for anomaly detection."""
 
-import asyncio
-import json
 import logging
-import warnings
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -59,7 +56,6 @@ except ImportError:
     CATEGORY_ENCODERS_AVAILABLE = False
 
 from ...domain.entities.dataset import Dataset
-from ...infrastructure.config.settings import Settings
 
 # Optional monitoring import
 try:
@@ -152,11 +148,11 @@ class PreprocessingConfig:
     """Configuration for data preprocessing."""
 
     # Steps to apply (in order)
-    steps: List[PreprocessingStep] = field(default_factory=list)
+    steps: list[PreprocessingStep] = field(default_factory=list)
 
     # Missing value handling
     imputation_method: ImputationMethod = ImputationMethod.MEDIAN
-    imputation_constant: Optional[Any] = None
+    imputation_constant: Any | None = None
 
     # Outlier detection and handling
     outlier_detection_method: str = "iqr"  # "iqr", "zscore", "isolation_forest"
@@ -165,11 +161,11 @@ class PreprocessingConfig:
 
     # Feature scaling
     scaling_method: ScalingMethod = ScalingMethod.STANDARD
-    scaling_features: Optional[List[str]] = None
+    scaling_features: list[str] | None = None
 
     # Feature encoding
     encoding_method: EncodingMethod = EncodingMethod.ONE_HOT
-    encoding_features: Optional[List[str]] = None
+    encoding_features: list[str] | None = None
     max_categories: int = 20
 
     # Feature selection
@@ -177,11 +173,11 @@ class PreprocessingConfig:
         "variance"  # "variance", "correlation", "mutual_info", "rfe"
     )
     feature_selection_threshold: float = 0.01
-    max_features: Optional[int] = None
+    max_features: int | None = None
 
     # Dimensionality reduction
     reduction_method: str = "pca"  # "pca", "ica", "svd"
-    n_components: Optional[int] = None
+    n_components: int | None = None
     explained_variance_threshold: float = 0.95
 
     # Transformation
@@ -190,10 +186,10 @@ class PreprocessingConfig:
 
     # Data validation
     enable_validation: bool = True
-    validation_rules: Dict[str, Any] = field(default_factory=dict)
+    validation_rules: dict[str, Any] = field(default_factory=dict)
 
     # Performance optimization
-    chunk_size: Optional[int] = None
+    chunk_size: int | None = None
     parallel_processing: bool = True
     memory_efficient: bool = True
 
@@ -208,16 +204,16 @@ class PreprocessingResult:
 
     original_dataset: Dataset
     processed_dataset: Dataset
-    preprocessing_metadata: Dict[str, Any]
+    preprocessing_metadata: dict[str, Any]
 
     # Transformations applied
-    transformations: List[Dict[str, Any]] = field(default_factory=list)
+    transformations: list[dict[str, Any]] = field(default_factory=list)
 
     # Statistics and metrics
-    original_shape: Tuple[int, int] = (0, 0)
-    processed_shape: Tuple[int, int] = (0, 0)
-    features_removed: List[str] = field(default_factory=list)
-    features_added: List[str] = field(default_factory=list)
+    original_shape: tuple[int, int] = (0, 0)
+    processed_shape: tuple[int, int] = (0, 0)
+    features_removed: list[str] = field(default_factory=list)
+    features_added: list[str] = field(default_factory=list)
     missing_values_handled: int = 0
     outliers_detected: int = 0
 
@@ -225,7 +221,7 @@ class PreprocessingResult:
     data_quality_score: float = 0.0
     preprocessing_time: float = 0.0
 
-    def get_transformation_summary(self) -> Dict[str, Any]:
+    def get_transformation_summary(self) -> dict[str, Any]:
         """Get summary of transformations applied."""
         return {
             "total_transformations": len(self.transformations),
@@ -243,27 +239,27 @@ class PreprocessingResult:
 class AdvancedPreprocessor:
     """Advanced data preprocessing for anomaly detection."""
 
-    def __init__(self, config: Optional[PreprocessingConfig] = None):
+    def __init__(self, config: PreprocessingConfig | None = None):
         """Initialize advanced preprocessor."""
         self.config = config or PreprocessingConfig()
 
         # Fitted transformers (for consistency across datasets)
-        self.fitted_transformers: Dict[str, Any] = {}
+        self.fitted_transformers: dict[str, Any] = {}
 
         # Feature information
-        self.feature_info: Dict[str, Any] = {}
+        self.feature_info: dict[str, Any] = {}
 
         # Preprocessing pipeline
-        self.pipeline: Optional[Pipeline] = None
+        self.pipeline: Pipeline | None = None
 
         # Statistics
-        self.preprocessing_history: List[Dict[str, Any]] = []
+        self.preprocessing_history: list[dict[str, Any]] = []
 
         logger.info("Advanced preprocessor initialized")
 
     @trace_operation("advanced_preprocessing")
     async def preprocess_dataset(
-        self, dataset: Dataset, config: Optional[PreprocessingConfig] = None
+        self, dataset: Dataset, config: PreprocessingConfig | None = None
     ) -> PreprocessingResult:
         """Preprocess a dataset with advanced techniques."""
 
@@ -443,7 +439,7 @@ class AdvancedPreprocessor:
 
     async def _handle_missing_values(
         self, data: pd.DataFrame, config: PreprocessingConfig
-    ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    ) -> tuple[pd.DataFrame, dict[str, Any]]:
         """Handle missing values in the dataset."""
 
         missing_before = data.isnull().sum().sum()
@@ -521,7 +517,7 @@ class AdvancedPreprocessor:
 
     async def _handle_outliers(
         self, data: pd.DataFrame, config: PreprocessingConfig
-    ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    ) -> tuple[pd.DataFrame, dict[str, Any]]:
         """Detect and handle outliers in numerical columns."""
 
         numeric_cols = data.select_dtypes(include=[np.number]).columns
@@ -600,7 +596,7 @@ class AdvancedPreprocessor:
 
     async def _remove_duplicates(
         self, data: pd.DataFrame
-    ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    ) -> tuple[pd.DataFrame, dict[str, Any]]:
         """Remove duplicate rows from the dataset."""
 
         duplicates_before = data.duplicated().sum()
@@ -618,7 +614,7 @@ class AdvancedPreprocessor:
 
     async def _convert_data_types(
         self, data: pd.DataFrame
-    ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    ) -> tuple[pd.DataFrame, dict[str, Any]]:
         """Optimize data types for memory efficiency."""
 
         processed_data = data.copy()
@@ -674,7 +670,7 @@ class AdvancedPreprocessor:
 
     async def _scale_features(
         self, data: pd.DataFrame, config: PreprocessingConfig
-    ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    ) -> tuple[pd.DataFrame, dict[str, Any]]:
         """Scale numerical features."""
 
         if not SKLEARN_AVAILABLE:
@@ -721,7 +717,7 @@ class AdvancedPreprocessor:
 
     async def _encode_features(
         self, data: pd.DataFrame, config: PreprocessingConfig
-    ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    ) -> tuple[pd.DataFrame, dict[str, Any]]:
         """Encode categorical features."""
 
         categorical_cols = data.select_dtypes(include=["object", "category"]).columns
@@ -797,7 +793,7 @@ class AdvancedPreprocessor:
 
     async def _transform_features(
         self, data: pd.DataFrame, config: PreprocessingConfig
-    ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    ) -> tuple[pd.DataFrame, dict[str, Any]]:
         """Apply advanced transformations to features."""
 
         if not SKLEARN_AVAILABLE:
@@ -832,7 +828,7 @@ class AdvancedPreprocessor:
 
     async def _create_features(
         self, data: pd.DataFrame
-    ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    ) -> tuple[pd.DataFrame, dict[str, Any]]:
         """Create new features through feature engineering."""
 
         processed_data = data.copy()
@@ -873,7 +869,7 @@ class AdvancedPreprocessor:
 
     async def _filter_by_variance(
         self, data: pd.DataFrame, config: PreprocessingConfig
-    ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    ) -> tuple[pd.DataFrame, dict[str, Any]]:
         """Remove features with low variance."""
 
         if not SKLEARN_AVAILABLE:
@@ -904,7 +900,7 @@ class AdvancedPreprocessor:
 
     async def _filter_by_correlation(
         self, data: pd.DataFrame, config: PreprocessingConfig
-    ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    ) -> tuple[pd.DataFrame, dict[str, Any]]:
         """Remove highly correlated features."""
 
         numeric_cols = data.select_dtypes(include=[np.number]).columns
@@ -938,7 +934,7 @@ class AdvancedPreprocessor:
 
     async def _select_features_statistical(
         self, data: pd.DataFrame, config: PreprocessingConfig
-    ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    ) -> tuple[pd.DataFrame, dict[str, Any]]:
         """Select features using statistical methods."""
 
         if not SKLEARN_AVAILABLE:
@@ -985,7 +981,7 @@ class AdvancedPreprocessor:
 
     async def _select_features_model_based(
         self, data: pd.DataFrame, config: PreprocessingConfig
-    ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    ) -> tuple[pd.DataFrame, dict[str, Any]]:
         """Select features using model-based methods."""
 
         if not SKLEARN_AVAILABLE:
@@ -1032,7 +1028,7 @@ class AdvancedPreprocessor:
 
     async def _apply_pca(
         self, data: pd.DataFrame, config: PreprocessingConfig
-    ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    ) -> tuple[pd.DataFrame, dict[str, Any]]:
         """Apply Principal Component Analysis."""
 
         if not SKLEARN_AVAILABLE:
@@ -1077,7 +1073,7 @@ class AdvancedPreprocessor:
 
     async def _apply_ica(
         self, data: pd.DataFrame, config: PreprocessingConfig
-    ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    ) -> tuple[pd.DataFrame, dict[str, Any]]:
         """Apply Independent Component Analysis."""
 
         if not SKLEARN_AVAILABLE:
@@ -1113,7 +1109,7 @@ class AdvancedPreprocessor:
 
     async def _apply_svd(
         self, data: pd.DataFrame, config: PreprocessingConfig
-    ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    ) -> tuple[pd.DataFrame, dict[str, Any]]:
         """Apply Singular Value Decomposition."""
 
         if not SKLEARN_AVAILABLE:
@@ -1151,7 +1147,7 @@ class AdvancedPreprocessor:
 
     async def _validate_processed_data(
         self, data: pd.DataFrame, config: PreprocessingConfig
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Validate the processed data quality."""
 
         validation_results = {
@@ -1248,7 +1244,7 @@ class AdvancedPreprocessor:
 
     async def get_preprocessing_recommendations(
         self, dataset: Dataset
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get preprocessing recommendations for a dataset."""
 
         if not hasattr(dataset, "data") or dataset.data is None:
@@ -1285,16 +1281,16 @@ class AdvancedPreprocessor:
             )
 
             if missing_ratio > 0.3:
-                recommendations["step_configs"][
-                    "imputation_method"
-                ] = ImputationMethod.KNN
+                recommendations["step_configs"]["imputation_method"] = (
+                    ImputationMethod.KNN
+                )
                 recommendations["reasoning"].append(
                     "High missing value ratio - recommend KNN imputation"
                 )
             else:
-                recommendations["step_configs"][
-                    "imputation_method"
-                ] = ImputationMethod.MEDIAN
+                recommendations["step_configs"]["imputation_method"] = (
+                    ImputationMethod.MEDIAN
+                )
                 recommendations["reasoning"].append(
                     "Moderate missing values - recommend median imputation"
                 )
@@ -1372,11 +1368,11 @@ class AdvancedPreprocessor:
 
         return recommendations
 
-    def get_preprocessing_history(self) -> List[Dict[str, Any]]:
+    def get_preprocessing_history(self) -> list[dict[str, Any]]:
         """Get history of preprocessing operations."""
         return self.preprocessing_history.copy()
 
-    def get_fitted_transformers(self) -> Dict[str, Any]:
+    def get_fitted_transformers(self) -> dict[str, Any]:
         """Get fitted transformers for reuse."""
         return self.fitted_transformers.copy()
 
@@ -1413,7 +1409,7 @@ class AdvancedPreprocessor:
 
 # Factory function
 def create_advanced_preprocessor(
-    config: Optional[PreprocessingConfig] = None,
+    config: PreprocessingConfig | None = None,
 ) -> AdvancedPreprocessor:
     """Create an advanced preprocessor with the given configuration."""
     return AdvancedPreprocessor(config)

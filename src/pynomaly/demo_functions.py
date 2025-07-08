@@ -2,8 +2,6 @@
 Demo functions for testing the advanced testing framework.
 """
 
-from typing import List, Optional
-
 import numpy as np
 
 
@@ -33,15 +31,15 @@ def normalize_array(arr: np.ndarray) -> np.ndarray:
     return (arr - min_val) / (max_val - min_val)
 
 
-def calculate_distance(point1: List[float], point2: List[float]) -> float:
+def calculate_distance(point1: list[float], point2: list[float]) -> float:
     """Calculate Euclidean distance between two points."""
     if len(point1) != len(point2):
         raise ValueError("Points must have same dimensions")
 
-    return np.sqrt(sum((a - b) ** 2 for a, b in zip(point1, point2)))
+    return np.sqrt(sum((a - b) ** 2 for a, b in zip(point1, point2, strict=False)))
 
 
-def detect_anomaly_simple(values: List[float], threshold: float = 2.0) -> List[bool]:
+def detect_anomaly_simple(values: list[float], threshold: float = 2.0) -> list[bool]:
     """Simple anomaly detection based on standard deviation."""
     if not values:
         return []
@@ -55,7 +53,7 @@ def detect_anomaly_simple(values: List[float], threshold: float = 2.0) -> List[b
     return [abs(value - mean_val) > threshold * std_val for value in values]
 
 
-def clean_data(data: List[Optional[float]]) -> List[float]:
+def clean_data(data: list[float | None]) -> list[float]:
     """Clean data by removing None values."""
     return [x for x in data if x is not None]
 

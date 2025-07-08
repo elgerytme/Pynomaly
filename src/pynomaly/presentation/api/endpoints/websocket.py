@@ -362,7 +362,7 @@ async def detections_websocket(
                         )
                     )
 
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     # Send keepalive ping
                     await websocket.send_text(
                         json.dumps(

@@ -6,14 +6,14 @@ optimization strategies, parallel execution, and intelligent search space
 exploration for anomaly detection algorithms.
 """
 
-import asyncio
 import logging
 import time
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 
@@ -33,13 +33,13 @@ logger = logging.getLogger(__name__)
 class OptimizationResult:
     """Result of hyperparameter optimization."""
 
-    best_params: Dict[str, Any]
+    best_params: dict[str, Any]
     best_score: float
     best_trial: OptimizationTrial
-    optimization_history: List[OptimizationTrial]
+    optimization_history: list[OptimizationTrial]
     total_trials: int
     optimization_time: float
-    convergence_data: Dict[str, Any]
+    convergence_data: dict[str, Any]
 
 
 class HyperparameterOptimizer(ABC):
@@ -105,7 +105,7 @@ class OptunaOptimizer(HyperparameterOptimizer):
         objective_function: Callable,
         search_space: HyperparameterSpace,
         n_trials: int,
-        study_name: Optional[str] = None,
+        study_name: str | None = None,
         direction: str = "maximize",
         sampler_name: str = "tpe",
         pruner_name: str = "median",
@@ -256,8 +256,8 @@ class OptunaOptimizer(HyperparameterOptimizer):
         return state_mapping.get(optuna_state, TrialStatus.FAILED)
 
     def _calculate_convergence_data(
-        self, trials: List[OptimizationTrial]
-    ) -> Dict[str, Any]:
+        self, trials: list[OptimizationTrial]
+    ) -> dict[str, Any]:
         """Calculate convergence statistics."""
         scores = [
             trial.score for trial in trials if trial.status == TrialStatus.COMPLETED
@@ -290,8 +290,8 @@ class OptunaOptimizer(HyperparameterOptimizer):
         }
 
     def _detect_plateau(
-        self, best_scores: List[float], window_size: int = 20
-    ) -> Dict[str, Any]:
+        self, best_scores: list[float], window_size: int = 20
+    ) -> dict[str, Any]:
         """Detect if optimization has plateaued."""
         if len(best_scores) < window_size:
             return {"plateaued": False, "plateau_length": 0}
@@ -311,8 +311,8 @@ class OptunaOptimizer(HyperparameterOptimizer):
         }
 
     def _find_early_stopping_point(
-        self, best_scores: List[float], patience: int = 50
-    ) -> Optional[int]:
+        self, best_scores: list[float], patience: int = 50
+    ) -> int | None:
         """Find optimal early stopping point."""
         if len(best_scores) < patience:
             return None
@@ -337,7 +337,7 @@ class GridSearchOptimizer(HyperparameterOptimizer):
         self,
         objective_function: Callable,
         search_space: HyperparameterSpace,
-        n_trials: Optional[int] = None,
+        n_trials: int | None = None,
         **kwargs,
     ) -> OptimizationResult:
         """
@@ -433,7 +433,7 @@ class GridSearchOptimizer(HyperparameterOptimizer):
 
     def _generate_parameter_grid(
         self, search_space: HyperparameterSpace
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Generate all parameter combinations for grid search."""
         import itertools
 
@@ -480,14 +480,14 @@ class GridSearchOptimizer(HyperparameterOptimizer):
 
         param_combinations = []
         for combination in itertools.product(*param_values):
-            param_dict = dict(zip(param_names, combination))
+            param_dict = dict(zip(param_names, combination, strict=False))
             param_combinations.append(param_dict)
 
         return param_combinations
 
     def _calculate_convergence_data(
-        self, trials: List[OptimizationTrial]
-    ) -> Dict[str, Any]:
+        self, trials: list[OptimizationTrial]
+    ) -> dict[str, Any]:
         """Calculate convergence statistics for grid search."""
         scores = [
             trial.score for trial in trials if trial.status == TrialStatus.COMPLETED
@@ -513,8 +513,8 @@ class GridSearchOptimizer(HyperparameterOptimizer):
         }
 
     def _analyze_parameter_sensitivity(
-        self, trials: List[OptimizationTrial]
-    ) -> Dict[str, float]:
+        self, trials: list[OptimizationTrial]
+    ) -> dict[str, float]:
         """Analyze sensitivity of each parameter."""
         sensitivity = {}
 
@@ -654,7 +654,7 @@ class RandomSearchOptimizer(HyperparameterOptimizer):
 
     def _sample_random_parameters(
         self, search_space: HyperparameterSpace
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Sample random parameters from search space."""
         params = {}
 
@@ -694,8 +694,8 @@ class RandomSearchOptimizer(HyperparameterOptimizer):
         return params
 
     def _calculate_convergence_data(
-        self, trials: List[OptimizationTrial]
-    ) -> Dict[str, Any]:
+        self, trials: list[OptimizationTrial]
+    ) -> dict[str, Any]:
         """Calculate convergence statistics for random search."""
         scores = [
             trial.score for trial in trials if trial.status == TrialStatus.COMPLETED
@@ -726,7 +726,7 @@ class RandomSearchOptimizer(HyperparameterOptimizer):
         }
 
     def _calculate_exploration_efficiency(
-        self, trials: List[OptimizationTrial]
+        self, trials: list[OptimizationTrial]
     ) -> float:
         """Calculate how efficiently the search space was explored."""
         # Simple metric: fraction of successful trials
@@ -735,7 +735,7 @@ class RandomSearchOptimizer(HyperparameterOptimizer):
         )
         return successful_trials / len(trials) if trials else 0.0
 
-    def _calculate_convergence_rate(self, best_scores: List[float]) -> float:
+    def _calculate_convergence_rate(self, best_scores: list[float]) -> float:
         """Calculate the rate of convergence."""
         if len(best_scores) < 2:
             return 0.0
@@ -803,11 +803,11 @@ class HyperparameterOptimizationService:
 
         return result
 
-    def get_available_strategies(self) -> List[str]:
+    def get_available_strategies(self) -> list[str]:
         """Get list of available optimization strategies."""
         return list(self.optimizers.keys())
 
-    def get_strategy_info(self, strategy: str) -> Dict[str, Any]:
+    def get_strategy_info(self, strategy: str) -> dict[str, Any]:
         """Get information about a specific optimization strategy."""
         strategy_info = {
             "optuna": {
@@ -853,7 +853,7 @@ class HyperparameterOptimizationService:
         self,
         search_space: HyperparameterSpace,
         max_trials: int,
-        time_budget: Optional[float] = None,
+        time_budget: float | None = None,
     ) -> str:
         """
         Suggest the best optimization strategy based on problem characteristics.

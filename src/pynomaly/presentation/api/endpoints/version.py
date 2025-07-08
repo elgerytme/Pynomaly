@@ -1,7 +1,5 @@
 """Version information endpoints."""
 
-from typing import List
-
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -13,9 +11,9 @@ router = APIRouter()
 class VersionInfo(BaseModel):
     """API version information response model."""
 
-    supported_versions: List[str]
+    supported_versions: list[str]
     default_version: str
-    deprecated_versions: List[str]
+    deprecated_versions: list[str]
     current_version: str = "v1"
 
 

@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from collections.abc import Callable
 from datetime import datetime, timedelta
-from typing import Any, Callable
+from typing import Any
 from uuid import UUID
 
 from pynomaly.domain.entities.anomaly_event import (
@@ -577,7 +578,7 @@ class EventProcessingService:
                 # Mark task as done
                 self._processing_queue.task_done()
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 # No event available, continue
                 continue
             except Exception as e:

@@ -8,7 +8,7 @@ and optimization configurations in a type-safe, immutable manner.
 import json
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 
 class ParameterType(Enum):
@@ -44,23 +44,23 @@ class HyperparameterRange:
     type: ParameterType
 
     # Numeric parameter bounds
-    low: Optional[float] = None
-    high: Optional[float] = None
+    low: float | None = None
+    high: float | None = None
 
     # Categorical/discrete choices
-    choices: Optional[List[Any]] = None
+    choices: list[Any] | None = None
 
     # Distribution and sampling
     distribution: DistributionType = DistributionType.UNIFORM
     log: bool = False
-    step: Optional[float] = None
+    step: float | None = None
 
     # Grid search specific
-    grid_size: Optional[int] = None
+    grid_size: int | None = None
 
     # Constraints and metadata
-    default_value: Optional[Any] = None
-    description: Optional[str] = None
+    default_value: Any | None = None
+    description: str | None = None
 
     def __post_init__(self):
         """Validate parameter range configuration."""
@@ -111,7 +111,7 @@ class HyperparameterRange:
         except (TypeError, ValueError):
             return False
 
-    def get_grid_values(self, size: Optional[int] = None) -> List[Any]:
+    def get_grid_values(self, size: int | None = None) -> list[Any]:
         """Get grid values for this parameter."""
         grid_size = size or self.grid_size or 10
 
@@ -140,7 +140,7 @@ class HyperparameterRange:
 
         return []
 
-    def sample_value(self, random_state: Optional[int] = None) -> Any:
+    def sample_value(self, random_state: int | None = None) -> Any:
         """Sample a random value from this parameter's distribution."""
         import numpy as np
 
@@ -178,7 +178,7 @@ class HyperparameterRange:
 
         return self.default_value
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
         return {
             "name": self.name,
@@ -195,7 +195,7 @@ class HyperparameterRange:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "HyperparameterRange":
+    def from_dict(cls, data: dict[str, Any]) -> "HyperparameterRange":
         """Create from dictionary representation."""
         data = data.copy()
         if "type" in data:
@@ -214,9 +214,9 @@ class HyperparameterSpace:
     validation, and search space analysis.
     """
 
-    parameters: Dict[str, HyperparameterRange] = field(default_factory=dict)
-    name: Optional[str] = None
-    description: Optional[str] = None
+    parameters: dict[str, HyperparameterRange] = field(default_factory=dict)
+    name: str | None = None
+    description: str | None = None
 
     def __post_init__(self):
         """Validate hyperparameter space."""
@@ -247,11 +247,11 @@ class HyperparameterSpace:
             parameters=new_params, name=self.name, description=self.description
         )
 
-    def get_parameter(self, param_name: str) -> Optional[HyperparameterRange]:
+    def get_parameter(self, param_name: str) -> HyperparameterRange | None:
         """Get a parameter by name."""
         return self.parameters.get(param_name)
 
-    def validate_values(self, values: Dict[str, Any]) -> Dict[str, bool]:
+    def validate_values(self, values: dict[str, Any]) -> dict[str, bool]:
         """Validate a set of parameter values."""
         validation_results = {}
         for param_name, param_range in self.parameters.items():
@@ -263,12 +263,12 @@ class HyperparameterSpace:
                 validation_results[param_name] = False
         return validation_results
 
-    def are_valid_values(self, values: Dict[str, Any]) -> bool:
+    def are_valid_values(self, values: dict[str, Any]) -> bool:
         """Check if all parameter values are valid."""
         validation_results = self.validate_values(values)
         return all(validation_results.values())
 
-    def sample_values(self, random_state: Optional[int] = None) -> Dict[str, Any]:
+    def sample_values(self, random_state: int | None = None) -> dict[str, Any]:
         """Sample random values for all parameters."""
         import numpy as np
 
@@ -282,8 +282,8 @@ class HyperparameterSpace:
         return sampled_values
 
     def get_grid_combinations(
-        self, max_combinations: Optional[int] = None
-    ) -> List[Dict[str, Any]]:
+        self, max_combinations: int | None = None
+    ) -> list[dict[str, Any]]:
         """Get all grid combinations for the parameter space."""
         import itertools
 
@@ -298,7 +298,7 @@ class HyperparameterSpace:
 
         combinations = []
         for combination in itertools.product(*param_values):
-            param_dict = dict(zip(param_names, combination))
+            param_dict = dict(zip(param_names, combination, strict=False))
             combinations.append(param_dict)
 
             # Limit combinations if specified
@@ -326,11 +326,11 @@ class HyperparameterSpace:
         """Get the dimensionality of the search space."""
         return len(self.parameters)
 
-    def get_parameter_types(self) -> Dict[str, str]:
+    def get_parameter_types(self) -> dict[str, str]:
         """Get parameter types mapping."""
         return {name: param.type.value for name, param in self.parameters.items()}
 
-    def get_numeric_parameters(self) -> List[str]:
+    def get_numeric_parameters(self) -> list[str]:
         """Get names of numeric parameters."""
         return [
             name
@@ -338,7 +338,7 @@ class HyperparameterSpace:
             if param.type in [ParameterType.FLOAT, ParameterType.INT]
         ]
 
-    def get_categorical_parameters(self) -> List[str]:
+    def get_categorical_parameters(self) -> list[str]:
         """Get names of categorical parameters."""
         return [
             name
@@ -351,7 +351,7 @@ class HyperparameterSpace:
             ]
         ]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
         return {
             "parameters": {
@@ -365,7 +365,7 @@ class HyperparameterSpace:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "HyperparameterSpace":
+    def from_dict(cls, data: dict[str, Any]) -> "HyperparameterSpace":
         """Create from dictionary representation."""
         parameters = {}
         if "parameters" in data:
@@ -388,8 +388,8 @@ class HyperparameterSet:
     the result of optimization or manual configuration.
     """
 
-    parameters: Dict[str, Any] = field(default_factory=dict)
-    space: Optional[HyperparameterSpace] = None
+    parameters: dict[str, Any] = field(default_factory=dict)
+    space: HyperparameterSpace | None = None
 
     def __post_init__(self):
         """Validate hyperparameter set."""
@@ -414,7 +414,7 @@ class HyperparameterSet:
         new_params[param_name] = value
         return HyperparameterSet(parameters=new_params, space=self.space)
 
-    def update(self, updates: Dict[str, Any]) -> "HyperparameterSet":
+    def update(self, updates: dict[str, Any]) -> "HyperparameterSet":
         """Update multiple parameters (returns new immutable instance)."""
         new_params = self.parameters.copy()
         new_params.update(updates)
@@ -427,11 +427,11 @@ class HyperparameterSet:
             del new_params[param_name]
         return HyperparameterSet(parameters=new_params, space=self.space)
 
-    def keys(self) -> List[str]:
+    def keys(self) -> list[str]:
         """Get parameter names."""
         return list(self.parameters.keys())
 
-    def values(self) -> List[Any]:
+    def values(self) -> list[Any]:
         """Get parameter values."""
         return list(self.parameters.values())
 
@@ -445,7 +445,7 @@ class HyperparameterSet:
             param_name in self.parameters for param_name in space.parameters.keys()
         )
 
-    def get_missing_parameters(self, space: HyperparameterSpace) -> List[str]:
+    def get_missing_parameters(self, space: HyperparameterSpace) -> list[str]:
         """Get list of parameters missing for a given space."""
         return [
             param_name
@@ -453,7 +453,7 @@ class HyperparameterSet:
             if param_name not in self.parameters
         ]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
         return {
             "parameters": self.parameters.copy(),
@@ -463,7 +463,7 @@ class HyperparameterSet:
 
     @classmethod
     def from_dict(
-        cls, data: Dict[str, Any], space: Optional[HyperparameterSpace] = None
+        cls, data: dict[str, Any], space: HyperparameterSpace | None = None
     ) -> "HyperparameterSet":
         """Create from dictionary representation."""
         if isinstance(data, dict) and "parameters" in data:
@@ -479,7 +479,7 @@ class HyperparameterSet:
 
     @classmethod
     def from_json(
-        cls, json_str: str, space: Optional[HyperparameterSpace] = None
+        cls, json_str: str, space: HyperparameterSpace | None = None
     ) -> "HyperparameterSet":
         """Create from JSON string."""
         data = json.loads(json_str)
@@ -490,7 +490,7 @@ class HyperparameterSet:
 
 
 def categorical_parameter(
-    name: str, choices: List[Any], default: Any = None, description: str = None
+    name: str, choices: list[Any], default: Any = None, description: str = None
 ) -> HyperparameterRange:
     """Create a categorical parameter range."""
     return HyperparameterRange(

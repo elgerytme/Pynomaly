@@ -5,15 +5,14 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Set
-from uuid import UUID, uuid4
+from typing import Any
+from uuid import UUID
 
 from pynomaly.domain.models.multitenancy import (
     ResourceQuota,
     ResourceType,
     Tenant,
     TenantContext,
-    TenantEvent,
 )
 
 
@@ -24,12 +23,12 @@ class ResourceQuotaService:
         self.logger = logging.getLogger(__name__)
 
         # Resource tracking
-        self.tenant_quotas: Dict[UUID, Dict[ResourceType, ResourceQuota]] = {}
-        self.resource_usage_history: Dict[UUID, List[Dict[str, Any]]] = {}
+        self.tenant_quotas: dict[UUID, dict[ResourceType, ResourceQuota]] = {}
+        self.resource_usage_history: dict[UUID, list[dict[str, Any]]] = {}
 
         # Real-time usage tracking
-        self.current_usage: Dict[UUID, Dict[ResourceType, float]] = {}
-        self.usage_events: List[Dict[str, Any]] = []
+        self.current_usage: dict[UUID, dict[ResourceType, float]] = {}
+        self.usage_events: list[dict[str, Any]] = []
 
         # Quota enforcement settings
         self.enforcement_enabled = True
@@ -37,11 +36,11 @@ class ResourceQuotaService:
         self.soft_limit_threshold = 0.9  # 90% soft limit
 
         # Background tasks
-        self.monitoring_tasks: Set[asyncio.Task] = set()
+        self.monitoring_tasks: set[asyncio.Task] = set()
         self.is_running = False
 
         # Rate limiting for burst usage
-        self.burst_allowances: Dict[UUID, Dict[ResourceType, float]] = {}
+        self.burst_allowances: dict[UUID, dict[ResourceType, float]] = {}
 
         self.logger.info("Resource quota service initialized")
 
@@ -98,7 +97,7 @@ class ResourceQuotaService:
         tenant_context: TenantContext,
         resource_type: ResourceType,
         amount: float,
-        duration_seconds: Optional[int] = None,
+        duration_seconds: int | None = None,
     ) -> bool:
         """Allocate resources for a tenant operation."""
 
@@ -212,7 +211,7 @@ class ResourceQuotaService:
         self.logger.info(f"Updated {resource_type.value} quota for tenant {tenant_id}")
         return True
 
-    async def get_tenant_usage_summary(self, tenant_id: UUID) -> Dict[str, Any]:
+    async def get_tenant_usage_summary(self, tenant_id: UUID) -> dict[str, Any]:
         """Get comprehensive usage summary for tenant."""
 
         if tenant_id not in self.tenant_quotas:
@@ -250,9 +249,9 @@ class ResourceQuotaService:
     async def get_resource_usage_history(
         self,
         tenant_id: UUID,
-        resource_type: Optional[ResourceType] = None,
+        resource_type: ResourceType | None = None,
         hours: int = 24,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get historical resource usage data."""
 
         if tenant_id not in self.resource_usage_history:
@@ -278,7 +277,7 @@ class ResourceQuotaService:
         self,
         tenant_id: UUID,
         resource_type: ResourceType,
-    ) -> Optional[datetime]:
+    ) -> datetime | None:
         """Predict when a resource will be exhausted based on usage trends."""
 
         # Get recent usage history
@@ -340,7 +339,7 @@ class ResourceQuotaService:
 
         return exhaustion_time
 
-    async def suggest_quota_adjustments(self, tenant_id: UUID) -> Dict[str, Any]:
+    async def suggest_quota_adjustments(self, tenant_id: UUID) -> dict[str, Any]:
         """Suggest quota adjustments based on usage patterns."""
 
         if tenant_id not in self.tenant_quotas:
@@ -504,7 +503,7 @@ class ResourceQuotaService:
         action: str,
         amount: float,
         current_usage: float,
-        duration_seconds: Optional[int] = None,
+        duration_seconds: int | None = None,
     ) -> None:
         """Log resource usage event."""
 
@@ -534,7 +533,7 @@ class ResourceQuotaService:
 
     def _calculate_overall_utilization(
         self,
-        quotas: Dict[ResourceType, ResourceQuota],
+        quotas: dict[ResourceType, ResourceQuota],
     ) -> float:
         """Calculate overall utilization across all resources."""
 
@@ -721,7 +720,7 @@ class ResourceQuotaService:
 
             await asyncio.sleep(86400)  # Clean up daily
 
-    def get_service_metrics(self) -> Dict[str, Any]:
+    def get_service_metrics(self) -> dict[str, Any]:
         """Get service metrics and statistics."""
 
         total_tenants = len(self.tenant_quotas)

@@ -20,7 +20,7 @@
       "label": "Main Dashboard - Desktop View"
     },
     {
-      "src": "/static/screenshots/mobile-dashboard.png", 
+      "src": "/static/screenshots/mobile-dashboard.png",
       "type": "image/png",
       "sizes": "414x896",
       "form_factor": "narrow",
@@ -28,7 +28,7 @@
     },
     {
       "src": "/static/screenshots/real-time-monitoring.png",
-      "type": "image/png", 
+      "type": "image/png",
       "sizes": "1280x720",
       "form_factor": "wide",
       "label": "Real-time Anomaly Monitoring"
@@ -36,7 +36,7 @@
     {
       "src": "/static/screenshots/analytics-charts.png",
       "type": "image/png",
-      "sizes": "1280x720", 
+      "sizes": "1280x720",
       "form_factor": "wide",
       "label": "Advanced Analytics Dashboard"
     }
@@ -50,14 +50,14 @@
     },
     {
       "src": "/static/icons/icon-96x96.png",
-      "type": "image/png", 
+      "type": "image/png",
       "sizes": "96x96",
       "purpose": "any"
     },
     {
       "src": "/static/icons/icon-128x128.png",
       "type": "image/png",
-      "sizes": "128x128", 
+      "sizes": "128x128",
       "purpose": "any"
     },
     {
@@ -73,7 +73,7 @@
       "purpose": "any"
     },
     {
-      "src": "/static/icons/icon-192x192.png", 
+      "src": "/static/icons/icon-192x192.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any"
@@ -81,7 +81,7 @@
     {
       "src": "/static/icons/icon-384x384.png",
       "type": "image/png",
-      "sizes": "384x384", 
+      "sizes": "384x384",
       "purpose": "any"
     },
     {
@@ -92,7 +92,7 @@
     },
     {
       "src": "/static/icons/icon-maskable-192x192.png",
-      "type": "image/png", 
+      "type": "image/png",
       "sizes": "192x192",
       "purpose": "maskable"
     },
@@ -105,7 +105,7 @@
   ],
   "shortcuts": [
     {
-      "name": "Dashboard", 
+      "name": "Dashboard",
       "short_name": "Dashboard",
       "description": "View main anomaly detection dashboard",
       "url": "/dashboard",
@@ -119,13 +119,13 @@
     },
     {
       "name": "Real-time Monitor",
-      "short_name": "Monitor", 
+      "short_name": "Monitor",
       "description": "Real-time anomaly monitoring",
       "url": "/monitor",
       "icons": [
         {
           "src": "/static/icons/shortcut-monitor.png",
-          "type": "image/png", 
+          "type": "image/png",
           "sizes": "96x96"
         }
       ]
@@ -133,7 +133,7 @@
     {
       "name": "Upload Dataset",
       "short_name": "Upload",
-      "description": "Upload new dataset for analysis", 
+      "description": "Upload new dataset for analysis",
       "url": "/upload",
       "icons": [
         {
@@ -145,7 +145,7 @@
     },
     {
       "name": "Analytics",
-      "short_name": "Analytics", 
+      "short_name": "Analytics",
       "description": "Advanced analytics and reports",
       "url": "/analytics",
       "icons": [
@@ -163,7 +163,7 @@
     "enctype": "multipart/form-data",
     "params": {
       "title": "title",
-      "text": "text", 
+      "text": "text",
       "url": "url",
       "files": [
         {
@@ -215,7 +215,7 @@
   ],
   "display_override": [
     "window-controls-overlay",
-    "minimal-ui", 
+    "minimal-ui",
     "standalone",
     "browser"
   ]

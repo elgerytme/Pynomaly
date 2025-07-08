@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import math
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
+from typing import Any
 from uuid import UUID, uuid4
 
 import numpy as np
@@ -60,9 +60,9 @@ class DatasetMetadata:
     partition_count: int
 
     # Data characteristics
-    data_types: Dict[str, str] = field(default_factory=dict)
-    null_percentages: Dict[str, float] = field(default_factory=dict)
-    statistics: Dict[str, Any] = field(default_factory=dict)
+    data_types: dict[str, str] = field(default_factory=dict)
+    null_percentages: dict[str, float] = field(default_factory=dict)
+    statistics: dict[str, Any] = field(default_factory=dict)
 
     # Storage information
     storage_type: StorageType = StorageType.S3
@@ -70,8 +70,8 @@ class DatasetMetadata:
     compression: str = "snappy"
 
     # Processing metadata
-    last_processed: Optional[datetime] = None
-    processing_history: List[Dict[str, Any]] = field(default_factory=list)
+    last_processed: datetime | None = None
+    processing_history: list[dict[str, Any]] = field(default_factory=list)
 
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
@@ -143,8 +143,8 @@ class ProcessingJob:
     # Job status
     status: str = "pending"
     progress: float = 0.0
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
+    start_time: datetime | None = None
+    end_time: datetime | None = None
 
     # Resource usage
     allocated_workers: int = 0
@@ -161,7 +161,7 @@ class ProcessingJob:
     anomaly_count: int = 0
     anomaly_rate: float = 0.0
 
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def get_duration_seconds(self) -> float:
         """Get job duration in seconds."""
@@ -180,12 +180,12 @@ class ProcessingJob:
 class DistributedComputeCluster:
     """Manages distributed compute cluster for massive processing."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.backend = ComputeBackend(config.get("backend", "spark"))
         self.max_workers = config.get("max_workers", 100)
-        self.worker_pool: List[Dict[str, Any]] = []
-        self.active_jobs: Dict[UUID, ProcessingJob] = {}
+        self.worker_pool: list[dict[str, Any]] = []
+        self.active_jobs: dict[UUID, ProcessingJob] = {}
         self.resource_monitor = ResourceMonitor(config.get("monitoring", {}))
 
     async def initialize_cluster(self) -> bool:
@@ -210,7 +210,7 @@ class DistributedComputeCluster:
             logger.error(f"Failed to initialize cluster: {e}")
             return False
 
-    async def _create_worker(self, worker_id: str) -> Dict[str, Any]:
+    async def _create_worker(self, worker_id: str) -> dict[str, Any]:
         """Create a worker node."""
         return {
             "id": worker_id,
@@ -269,7 +269,7 @@ class DistributedComputeCluster:
 
         return True
 
-    async def _allocate_workers(self, job: ProcessingJob) -> List[Dict[str, Any]]:
+    async def _allocate_workers(self, job: ProcessingJob) -> list[dict[str, Any]]:
         """Allocate workers for a job."""
         required_workers = min(job.config.max_workers, self.max_workers)
         available_workers = [w for w in self.worker_pool if w["status"] == "available"]
@@ -288,7 +288,7 @@ class DistributedComputeCluster:
         return selected_workers
 
     async def _execute_job(
-        self, job: ProcessingJob, workers: List[Dict[str, Any]]
+        self, job: ProcessingJob, workers: list[dict[str, Any]]
     ) -> None:
         """Execute a processing job."""
         try:
@@ -331,7 +331,7 @@ class DistributedComputeCluster:
                 worker["status"] = "available"
                 worker["current_task"] = None
 
-    async def get_cluster_status(self) -> Dict[str, Any]:
+    async def get_cluster_status(self) -> dict[str, Any]:
         """Get cluster status."""
         available_workers = len(
             [w for w in self.worker_pool if w["status"] == "available"]
@@ -351,15 +351,15 @@ class DistributedComputeCluster:
 class StreamingProcessor:
     """Handles streaming data processing for massive datasets."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.stream_buffer_size = config.get("buffer_size", 10000)
         self.batch_interval_ms = config.get("batch_interval_ms", 1000)
         self.watermark_delay_ms = config.get("watermark_delay_ms", 5000)
 
-        self.stream_buffers: Dict[str, List[Dict[str, Any]]] = {}
-        self.processing_callbacks: Dict[str, Callable] = {}
-        self.metrics: Dict[str, Any] = {"processed_events": 0, "anomalies_detected": 0}
+        self.stream_buffers: dict[str, list[dict[str, Any]]] = {}
+        self.processing_callbacks: dict[str, Callable] = {}
+        self.metrics: dict[str, Any] = {"processed_events": 0, "anomalies_detected": 0}
 
     async def create_stream(
         self, stream_id: str, processing_callback: Callable
@@ -379,7 +379,7 @@ class StreamingProcessor:
             logger.error(f"Failed to create stream {stream_id}: {e}")
             return False
 
-    async def ingest_data(self, stream_id: str, data: Dict[str, Any]) -> bool:
+    async def ingest_data(self, stream_id: str, data: dict[str, Any]) -> bool:
         """Ingest data into a stream."""
         try:
             if stream_id not in self.stream_buffers:
@@ -441,7 +441,7 @@ class StreamingProcessor:
         except Exception as e:
             logger.error(f"Failed to flush buffer for stream {stream_id}: {e}")
 
-    async def get_stream_metrics(self) -> Dict[str, Any]:
+    async def get_stream_metrics(self) -> dict[str, Any]:
         """Get streaming metrics."""
         return {
             "active_streams": len(self.stream_buffers),
@@ -455,10 +455,10 @@ class StreamingProcessor:
 class ResourceMonitor:
     """Monitors resource usage across the cluster."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.monitoring_interval = config.get("interval_ms", 5000) / 1000.0
-        self.metrics_history: List[Dict[str, Any]] = []
+        self.metrics_history: list[dict[str, Any]] = []
         self.running = False
 
     async def start(self) -> None:
@@ -482,7 +482,7 @@ class ResourceMonitor:
             except Exception as e:
                 logger.error(f"Resource monitoring error: {e}")
 
-    async def _collect_metrics(self) -> Dict[str, Any]:
+    async def _collect_metrics(self) -> dict[str, Any]:
         """Collect current resource metrics."""
         # Simulate resource metrics collection
         return {
@@ -494,7 +494,7 @@ class ResourceMonitor:
             "disk_io_mbps": np.random.uniform(50, 500),
         }
 
-    async def get_utilization(self) -> Dict[str, Any]:
+    async def get_utilization(self) -> dict[str, Any]:
         """Get current resource utilization."""
         if not self.metrics_history:
             return {}
@@ -516,13 +516,13 @@ class ResourceMonitor:
 class DataPartitionManager:
     """Manages data partitioning for massive datasets."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.strategy = PartitioningStrategy(config.get("strategy", "adaptive"))
         self.target_partition_size_mb = config.get("target_partition_size_mb", 128)
         self.max_partitions = config.get("max_partitions", 10000)
 
-    async def create_partitions(self, dataset: DatasetMetadata) -> List[Dict[str, Any]]:
+    async def create_partitions(self, dataset: DatasetMetadata) -> list[dict[str, Any]]:
         """Create partitions for a dataset."""
         try:
             logger.info(f"Creating partitions for dataset {dataset.dataset_id}")
@@ -589,13 +589,13 @@ class DataPartitionManager:
 class MassiveDatasetProcessor:
     """Main processor for massive datasets."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.compute_cluster = DistributedComputeCluster(config.get("cluster", {}))
         self.streaming_processor = StreamingProcessor(config.get("streaming", {}))
         self.partition_manager = DataPartitionManager(config.get("partitioning", {}))
-        self.job_queue: List[ProcessingJob] = []
-        self.completed_jobs: List[ProcessingJob] = []
+        self.job_queue: list[ProcessingJob] = []
+        self.completed_jobs: list[ProcessingJob] = []
 
     async def initialize(self) -> bool:
         """Initialize the massive dataset processor."""
@@ -647,7 +647,7 @@ class MassiveDatasetProcessor:
             logger.error(f"Failed to process dataset {dataset.name}: {e}")
             raise
 
-    async def get_processing_status(self) -> Dict[str, Any]:
+    async def get_processing_status(self) -> dict[str, Any]:
         """Get comprehensive processing status."""
         cluster_status = await self.compute_cluster.get_cluster_status()
         streaming_metrics = await self.streaming_processor.get_stream_metrics()
@@ -695,8 +695,8 @@ async def create_sample_dataset() -> DatasetMetadata:
 
 
 async def example_streaming_callback(
-    data_batch: List[Dict[str, Any]]
-) -> Dict[str, Any]:
+    data_batch: list[dict[str, Any]],
+) -> dict[str, Any]:
     """Example callback for streaming data processing."""
     # Simulate anomaly detection on streaming data
     anomalies = []

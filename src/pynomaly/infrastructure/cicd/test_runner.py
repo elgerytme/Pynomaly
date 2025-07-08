@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
-import subprocess
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 from uuid import UUID, uuid4
 
 from pynomaly.domain.models.cicd import PipelineStatus, TestResult, TestSuite, TestType
@@ -20,10 +18,10 @@ class TestRunner:
         self.logger = logging.getLogger(__name__)
 
         # Test execution tracking
-        self.running_tests: Set[UUID] = set()
+        self.running_tests: set[UUID] = set()
 
         # Test configuration
-        self.test_configurations: Dict[TestType, Dict[str, Any]] = {
+        self.test_configurations: dict[TestType, dict[str, Any]] = {
             TestType.UNIT: {
                 "timeout": 300,  # 5 minutes
                 "parallel": True,
@@ -80,7 +78,7 @@ class TestRunner:
         self,
         test_suite: TestSuite,
         workspace_path: Path,
-        environment: Optional[Dict[str, str]] = None,
+        environment: dict[str, str] | None = None,
     ) -> bool:
         """Execute a test suite and update results."""
 
@@ -130,8 +128,8 @@ class TestRunner:
         self,
         test_type: TestType,
         workspace_path: Path,
-        test_patterns: Optional[List[str]] = None,
-    ) -> List[str]:
+        test_patterns: list[str] | None = None,
+    ) -> list[str]:
         """Discover test files based on type and patterns."""
 
         discovered_tests = []
@@ -174,8 +172,8 @@ class TestRunner:
         self,
         test_type: TestType,
         workspace_path: Path,
-        environment: Optional[Dict[str, str]] = None,
-    ) -> Dict[str, Any]:
+        environment: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
         """Validate test environment requirements."""
 
         validation_result = {
@@ -229,8 +227,8 @@ class TestRunner:
         self,
         test_suite: TestSuite,
         workspace_path: Path,
-        environment: Optional[Dict[str, str]],
-        config: Dict[str, Any],
+        environment: dict[str, str] | None,
+        config: dict[str, Any],
     ) -> bool:
         """Execute tests for a test suite."""
 
@@ -282,7 +280,7 @@ class TestRunner:
         test_suite: TestSuite,
         workspace_path: Path,
         command: str,
-        environment: Dict[str, str],
+        environment: dict[str, str],
     ) -> bool:
         """Execute unit tests with coverage analysis."""
 
@@ -321,7 +319,7 @@ class TestRunner:
         test_suite: TestSuite,
         workspace_path: Path,
         command: str,
-        environment: Dict[str, str],
+        environment: dict[str, str],
     ) -> bool:
         """Execute integration tests with setup/teardown."""
 
@@ -362,7 +360,7 @@ class TestRunner:
         test_suite: TestSuite,
         workspace_path: Path,
         command: str,
-        environment: Dict[str, str],
+        environment: dict[str, str],
     ) -> bool:
         """Execute performance tests with benchmarking."""
 
@@ -403,7 +401,7 @@ class TestRunner:
         test_suite: TestSuite,
         workspace_path: Path,
         command: str,
-        environment: Dict[str, str],
+        environment: dict[str, str],
     ) -> bool:
         """Execute security tests and scans."""
 
@@ -460,7 +458,7 @@ class TestRunner:
         test_suite: TestSuite,
         workspace_path: Path,
         command: str,
-        environment: Dict[str, str],
+        environment: dict[str, str],
     ) -> bool:
         """Execute generic tests."""
 
@@ -606,7 +604,7 @@ class TestRunner:
     async def _validate_unit_test_environment(
         self,
         workspace_path: Path,
-        validation_result: Dict[str, Any],
+        validation_result: dict[str, Any],
     ) -> None:
         """Validate unit test environment."""
 
@@ -633,7 +631,7 @@ class TestRunner:
     async def _validate_integration_test_environment(
         self,
         workspace_path: Path,
-        validation_result: Dict[str, Any],
+        validation_result: dict[str, Any],
     ) -> None:
         """Validate integration test environment."""
 
@@ -661,7 +659,7 @@ class TestRunner:
     async def _validate_performance_test_environment(
         self,
         workspace_path: Path,
-        validation_result: Dict[str, Any],
+        validation_result: dict[str, Any],
     ) -> None:
         """Validate performance test environment."""
 
@@ -688,7 +686,7 @@ class TestRunner:
     async def _validate_security_test_environment(
         self,
         workspace_path: Path,
-        validation_result: Dict[str, Any],
+        validation_result: dict[str, Any],
     ) -> None:
         """Validate security test environment."""
 
@@ -712,7 +710,7 @@ class TestRunner:
     async def _validate_e2e_test_environment(
         self,
         workspace_path: Path,
-        validation_result: Dict[str, Any],
+        validation_result: dict[str, Any],
     ) -> None:
         """Validate end-to-end test environment."""
 
@@ -730,7 +728,7 @@ class TestRunner:
     async def _check_python_dependencies(
         self,
         workspace_path: Path,
-        validation_result: Dict[str, Any],
+        validation_result: dict[str, Any],
     ) -> None:
         """Check Python dependencies."""
 
@@ -748,7 +746,7 @@ class TestRunner:
     async def _setup_integration_environment(
         self,
         workspace_path: Path,
-        environment: Dict[str, str],
+        environment: dict[str, str],
     ) -> None:
         """Setup integration test environment."""
 

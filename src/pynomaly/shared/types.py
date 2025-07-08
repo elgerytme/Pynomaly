@@ -3,7 +3,7 @@ Shared type definitions for the Pynomaly application.
 """
 
 import uuid
-from typing import NewType, Union
+from typing import NewType
 
 # Domain identifier types
 DatasetId = NewType("DatasetId", str)
@@ -21,7 +21,7 @@ Threshold = NewType("Threshold", float)
 
 # Data types
 FeatureName = NewType("FeatureName", str)
-FeatureValue = NewType("FeatureValue", Union[int, float, str, bool])
+FeatureValue = NewType("FeatureValue", int | float | str | bool)
 
 # Infrastructure types
 CacheKey = NewType("CacheKey", str)

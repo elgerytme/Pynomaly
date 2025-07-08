@@ -682,7 +682,9 @@ def _display_algorithm_compatibility(algorithms: tuple, compatibility_matrix: di
                 color = (
                     "green"
                     if compatibility < 0.6
-                    else "yellow" if compatibility < 0.8 else "red"
+                    else "yellow"
+                    if compatibility < 0.8
+                    else "red"
                 )
                 row.append(f"[{color}]{compatibility:.2f}[/{color}]")
         table.add_row(*row)

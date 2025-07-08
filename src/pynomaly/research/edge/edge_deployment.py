@@ -4,9 +4,8 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -45,17 +44,17 @@ class EdgeDeploymentResult:
     model_path: str
     model_size_mb: float
     estimated_inference_time_ms: float
-    optimization_applied: List[str]
+    optimization_applied: list[str]
     compression_ratio: float = 1.0
-    metadata: Dict[str, Any] = None
+    metadata: dict[str, Any] = None
 
 
 class EdgeDeploymentService:
     """Main service for edge deployment"""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
-        self.deployment_history: List[EdgeDeploymentResult] = []
+        self.deployment_history: list[EdgeDeploymentResult] = []
 
     async def deploy_model(
         self, model: Any, spec: EdgeModelSpec
@@ -140,8 +139,8 @@ class EdgeDeploymentService:
         )
 
     async def benchmark_deployment(
-        self, model: Any, target_devices: List[EdgeDevice]
-    ) -> Dict[EdgeDevice, EdgeDeploymentResult]:
+        self, model: Any, target_devices: list[EdgeDevice]
+    ) -> dict[EdgeDevice, EdgeDeploymentResult]:
         """Benchmark model across multiple devices"""
         results = {}
 

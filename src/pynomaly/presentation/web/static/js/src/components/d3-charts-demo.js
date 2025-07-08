@@ -112,18 +112,18 @@ class D3ChartsDemo {
             </select>
           </label>
         </div>
-        
+
         <div class="control-group">
           <h3>Theme</h3>
           <button id="theme-toggle" class="btn btn-secondary">Switch to Dark</button>
         </div>
-        
+
         <div class="control-group">
           <h3>Chart Controls</h3>
           <button id="refresh-data" class="btn btn-secondary">Refresh Data</button>
           <button id="export-charts" class="btn btn-secondary">Export Charts</button>
         </div>
-        
+
         <div class="control-group">
           <h3>Accessibility</h3>
           <button id="announce-data" class="btn btn-secondary">Announce Data</button>
@@ -132,7 +132,7 @@ class D3ChartsDemo {
           </label>
         </div>
       </div>
-      
+
       <div id="chart-announcer" aria-live="polite" class="sr-only"></div>
     `;
   }
@@ -152,7 +152,7 @@ class D3ChartsDemo {
       <div class="demo-section">
         <h2>Time Series Chart - Anomaly Detection Timeline</h2>
         <p>Interactive time series visualization showing anomaly detection results over time with real-time updates.</p>
-        
+
         <div class="chart-controls">
           <label>
             <input type="checkbox" id="show-confidence" checked /> Show Confidence Bands
@@ -162,9 +162,9 @@ class D3ChartsDemo {
           </label>
           <button id="zoom-reset-ts" class="btn btn-sm">Reset Zoom</button>
         </div>
-        
+
         <div id="timeseries-chart" class="chart-container"></div>
-        
+
         <div class="chart-info">
           <h4>Features:</h4>
           <ul>
@@ -221,7 +221,7 @@ class D3ChartsDemo {
       <div class="demo-section">
         <h2>Scatter Plot - 2D Anomaly Detection</h2>
         <p>Interactive scatter plot for detecting anomalies in two-dimensional data space with brushing and zoom.</p>
-        
+
         <div class="chart-controls">
           <label>
             <input type="checkbox" id="enable-brushing" checked /> Enable Brushing
@@ -231,14 +231,14 @@ class D3ChartsDemo {
           </label>
           <button id="clear-selection" class="btn btn-sm">Clear Selection</button>
         </div>
-        
+
         <div id="scatter-chart" class="chart-container"></div>
-        
+
         <div class="selection-info">
           <h4>Selection Info:</h4>
           <div id="selection-details">No points selected</div>
         </div>
-        
+
         <div class="chart-info">
           <h4>Features:</h4>
           <ul>
@@ -299,7 +299,7 @@ class D3ChartsDemo {
       <div class="demo-section">
         <h2>Heatmap - Feature Correlation Matrix</h2>
         <p>Interactive heatmap showing correlations between features and anomaly densities across time periods.</p>
-        
+
         <div class="chart-controls">
           <label>
             <input type="checkbox" id="show-labels" checked /> Show Value Labels
@@ -311,9 +311,9 @@ class D3ChartsDemo {
             <option value="interpolateTurbo">Turbo</option>
           </select>
         </div>
-        
+
         <div id="heatmap-chart" class="chart-container"></div>
-        
+
         <div class="chart-info">
           <h4>Features:</h4>
           <ul>
@@ -364,23 +364,23 @@ class D3ChartsDemo {
       <div class="demo-section">
         <h2>Interactive Dashboard Demo</h2>
         <p>Combined visualization dashboard showing real-time anomaly detection across multiple chart types.</p>
-        
+
         <div class="dashboard-grid">
           <div class="dashboard-item">
             <h3>Real-Time Stream</h3>
             <div id="realtime-chart" class="mini-chart"></div>
           </div>
-          
+
           <div class="dashboard-item">
             <h3>Anomaly Distribution</h3>
             <div id="distribution-chart" class="mini-chart"></div>
           </div>
-          
+
           <div class="dashboard-item">
             <h3>Feature Correlation</h3>
             <div id="correlation-chart" class="mini-chart"></div>
           </div>
-          
+
           <div class="dashboard-item stats-panel">
             <h3>Statistics</h3>
             <div id="stats-content">

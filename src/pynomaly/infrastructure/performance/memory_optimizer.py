@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import gc
 import logging
-import sys
 import tracemalloc
+from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import wraps
-from typing import Any, Dict, Generator, List, Optional, Tuple, Union
+from typing import Any
 from weakref import WeakSet
 
 import numpy as np
@@ -27,9 +27,9 @@ class MemorySnapshot:
     process_memory_mb: float
     available_memory_mb: float
     memory_percent: float
-    tracemalloc_current_mb: Optional[float] = None
-    tracemalloc_peak_mb: Optional[float] = None
-    gc_counts: Optional[Tuple[int, int, int]] = None
+    tracemalloc_current_mb: float | None = None
+    tracemalloc_peak_mb: float | None = None
+    gc_counts: tuple[int, int, int] | None = None
 
 
 class MemoryMonitor:
@@ -45,7 +45,7 @@ class MemoryMonitor:
         self.enable_tracemalloc = enable_tracemalloc
         self.warning_threshold_mb = warning_threshold_mb
         self.critical_threshold_mb = critical_threshold_mb
-        self._snapshots: List[MemorySnapshot] = []
+        self._snapshots: list[MemorySnapshot] = []
         self._tracked_objects: WeakSet = WeakSet()
 
         if enable_tracemalloc and not tracemalloc.is_tracing():
@@ -107,7 +107,7 @@ class MemoryMonitor:
                 f"exceeds warning threshold {self.warning_threshold_mb}MB"
             )
 
-    def get_memory_stats(self) -> Dict[str, Any]:
+    def get_memory_stats(self) -> dict[str, Any]:
         """Get comprehensive memory statistics."""
         if not self._snapshots:
             return {}
@@ -145,7 +145,7 @@ class MemoryMonitor:
         stats.update(trend_data)
         return stats
 
-    def get_top_memory_consumers(self, limit: int = 10) -> List[Dict[str, Any]]:
+    def get_top_memory_consumers(self, limit: int = 10) -> list[dict[str, Any]]:
         """Get top memory consuming objects using tracemalloc."""
         if not (self.enable_tracemalloc and tracemalloc.is_tracing()):
             return []
@@ -172,7 +172,7 @@ class MemoryMonitor:
             logger.error(f"Error getting memory consumers: {e}")
             return []
 
-    def emergency_cleanup(self) -> Dict[str, int]:
+    def emergency_cleanup(self) -> dict[str, int]:
         """Perform emergency memory cleanup."""
         logger.warning("Performing emergency memory cleanup")
 
@@ -190,8 +190,6 @@ class MemoryMonitor:
 
         # Clear function caches (if any)
         try:
-            import functools
-
             # Clear lru_cache decorated functions
             for obj in gc.get_objects():
                 if hasattr(obj, "cache_clear"):
@@ -301,7 +299,7 @@ class DataFrameOptimizer:
             yield df.iloc[start:end].copy()
 
     @staticmethod
-    def get_memory_usage(df: pd.DataFrame) -> Dict[str, Any]:
+    def get_memory_usage(df: pd.DataFrame) -> dict[str, Any]:
         """Get detailed memory usage information for DataFrame."""
         if df.empty:
             return {"total_mb": 0, "columns": {}}
@@ -382,7 +380,7 @@ class ArrayOptimizer:
         return arr
 
     @staticmethod
-    def get_array_memory_info(arr: np.ndarray) -> Dict[str, Any]:
+    def get_array_memory_info(arr: np.ndarray) -> dict[str, Any]:
         """Get memory information for NumPy array."""
         return {
             "shape": arr.shape,
@@ -483,7 +481,7 @@ class MemoryPool:
         """Initialize memory pool."""
         self.factory_func = factory_func
         self.max_size = max_size
-        self._pool: List[Any] = []
+        self._pool: list[Any] = []
         self._in_use: WeakSet = WeakSet()
 
     def acquire(self) -> Any:
@@ -519,7 +517,7 @@ class MemoryPool:
         finally:
             self.release(obj)
 
-    def get_stats(self) -> Dict[str, int]:
+    def get_stats(self) -> dict[str, int]:
         """Get pool statistics."""
         return {
             "pool_size": len(self._pool),
@@ -529,7 +527,7 @@ class MemoryPool:
 
 
 # Global memory monitor instance
-_global_memory_monitor: Optional[MemoryMonitor] = None
+_global_memory_monitor: MemoryMonitor | None = None
 
 
 def get_memory_monitor() -> MemoryMonitor:

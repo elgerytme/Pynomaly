@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Set, Union
-from uuid import UUID, uuid4
+from datetime import datetime
+from typing import Any
+from uuid import UUID
 
 from pynomaly.domain.models.multitenancy import (
     IsolationLevel,
-    ResourceType,
     Tenant,
     TenantContext,
 )
@@ -23,25 +22,25 @@ class DataIsolationService:
         self.logger = logging.getLogger(__name__)
 
         # Isolation strategies per tenant
-        self.isolation_strategies: Dict[UUID, IsolationLevel] = {}
+        self.isolation_strategies: dict[UUID, IsolationLevel] = {}
 
         # Schema mappings for database isolation
-        self.tenant_schemas: Dict[UUID, str] = {}
-        self.tenant_databases: Dict[UUID, str] = {}
+        self.tenant_schemas: dict[UUID, str] = {}
+        self.tenant_databases: dict[UUID, str] = {}
 
         # Storage isolation mappings
-        self.tenant_storage_buckets: Dict[UUID, str] = {}
-        self.tenant_storage_prefixes: Dict[UUID, str] = {}
+        self.tenant_storage_buckets: dict[UUID, str] = {}
+        self.tenant_storage_prefixes: dict[UUID, str] = {}
 
         # Network isolation mappings
-        self.tenant_namespaces: Dict[UUID, str] = {}
-        self.tenant_network_policies: Dict[UUID, Dict[str, Any]] = {}
+        self.tenant_namespaces: dict[UUID, str] = {}
+        self.tenant_network_policies: dict[UUID, dict[str, Any]] = {}
 
         # Encryption key management
-        self.tenant_encryption_keys: Dict[UUID, str] = {}
+        self.tenant_encryption_keys: dict[UUID, str] = {}
 
         # Background tasks
-        self.monitoring_tasks: Set[asyncio.Task] = set()
+        self.monitoring_tasks: set[asyncio.Task] = set()
         self.is_running = False
 
         self.logger.info("Data isolation service initialized")
@@ -82,7 +81,7 @@ class DataIsolationService:
     async def configure_tenant_isolation(
         self,
         tenant: Tenant,
-        isolation_level: Optional[IsolationLevel] = None,
+        isolation_level: IsolationLevel | None = None,
     ) -> None:
         """Configure isolation for a tenant based on their requirements."""
 
@@ -153,7 +152,7 @@ class DataIsolationService:
 
         return True
 
-    async def get_tenant_database_config(self, tenant_id: UUID) -> Dict[str, str]:
+    async def get_tenant_database_config(self, tenant_id: UUID) -> dict[str, str]:
         """Get database configuration for tenant data isolation."""
 
         isolation = self.isolation_strategies.get(tenant_id)
@@ -185,7 +184,7 @@ class DataIsolationService:
                 "connection_pool": "shared_pool",
             }
 
-    async def get_tenant_storage_config(self, tenant_id: UUID) -> Dict[str, str]:
+    async def get_tenant_storage_config(self, tenant_id: UUID) -> dict[str, str]:
         """Get storage configuration for tenant data isolation."""
 
         isolation = self.isolation_strategies.get(tenant_id)
@@ -218,7 +217,7 @@ class DataIsolationService:
                 "encryption_key": "shared_key",
             }
 
-    async def get_tenant_network_config(self, tenant_id: UUID) -> Dict[str, Any]:
+    async def get_tenant_network_config(self, tenant_id: UUID) -> dict[str, Any]:
         """Get network configuration for tenant isolation."""
 
         isolation = self.isolation_strategies.get(tenant_id)
@@ -268,7 +267,7 @@ class DataIsolationService:
     async def encrypt_tenant_data(
         self,
         tenant_id: UUID,
-        data: Union[str, bytes],
+        data: str | bytes,
     ) -> bytes:
         """Encrypt data using tenant-specific encryption key."""
 
@@ -282,7 +281,7 @@ class DataIsolationService:
             data = data.encode("utf-8")
 
         # Placeholder encryption (would use actual encryption in production)
-        encrypted_data = f"ENCRYPTED_{tenant_id}_{len(data)}_".encode("utf-8") + data
+        encrypted_data = f"ENCRYPTED_{tenant_id}_{len(data)}_".encode() + data
 
         return encrypted_data
 
@@ -298,7 +297,7 @@ class DataIsolationService:
             raise ValueError(f"No encryption key found for tenant {tenant_id}")
 
         # Placeholder decryption (would use actual decryption in production)
-        prefix = f"ENCRYPTED_{tenant_id}_".encode("utf-8")
+        prefix = f"ENCRYPTED_{tenant_id}_".encode()
         if not encrypted_data.startswith(prefix):
             raise ValueError("Invalid encrypted data format")
 
@@ -649,7 +648,7 @@ class DataIsolationService:
 
             await asyncio.sleep(86400)  # Clean up daily
 
-    def get_isolation_summary(self) -> Dict[str, Any]:
+    def get_isolation_summary(self) -> dict[str, Any]:
         """Get summary of isolation configuration."""
 
         isolation_counts = {}

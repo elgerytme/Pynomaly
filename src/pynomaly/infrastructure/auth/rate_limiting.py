@@ -5,10 +5,8 @@ from __future__ import annotations
 import asyncio
 import time
 from collections import defaultdict
-from datetime import datetime, timedelta
-from typing import Dict, Optional, Tuple
 
-from fastapi import HTTPException, Request, status
+from fastapi import Request, status
 from fastapi.responses import JSONResponse
 
 
@@ -28,10 +26,10 @@ class RateLimiter:
         self.window_seconds = window_seconds
 
         # Storage for token buckets {client_id: (tokens, last_refill)}
-        self.buckets: Dict[str, Tuple[float, float]] = {}
+        self.buckets: dict[str, tuple[float, float]] = {}
 
         # Request counts for different time windows
-        self.request_counts: Dict[str, Dict[int, int]] = defaultdict(
+        self.request_counts: dict[str, dict[int, int]] = defaultdict(
             lambda: defaultdict(int)
         )
 
@@ -40,7 +38,7 @@ class RateLimiter:
 
     async def is_allowed(
         self, client_id: str, tokens_requested: int = 1
-    ) -> Tuple[bool, Dict[str, any]]:
+    ) -> tuple[bool, dict[str, any]]:
         """Check if request is allowed under rate limits.
 
         Args:
@@ -294,12 +292,12 @@ class DDoSProtection:
         self.max_requests_per_minute = max_requests_per_minute
 
         # Request tracking {ip: {minute: count}}
-        self.request_counts: Dict[str, Dict[int, int]] = defaultdict(
+        self.request_counts: dict[str, dict[int, int]] = defaultdict(
             lambda: defaultdict(int)
         )
 
         # Blocked IPs {ip: until_time}
-        self.blocked_ips: Dict[str, float] = {}
+        self.blocked_ips: dict[str, float] = {}
 
         self._lock = asyncio.Lock()
 

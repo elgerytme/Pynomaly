@@ -1567,7 +1567,9 @@ class AutonomousDetectionService:
                     "category": (
                         "large"
                         if profile.n_samples > 10000
-                        else "medium" if profile.n_samples > 1000 else "small"
+                        else "medium"
+                        if profile.n_samples > 1000
+                        else "small"
                     ),
                 },
                 "feature_count": {
@@ -1575,7 +1577,9 @@ class AutonomousDetectionService:
                     "category": (
                         "high"
                         if profile.n_features > 50
-                        else "medium" if profile.n_features > 10 else "low"
+                        else "medium"
+                        if profile.n_features > 10
+                        else "low"
                     ),
                 },
                 "data_complexity": {
@@ -1583,7 +1587,9 @@ class AutonomousDetectionService:
                     "category": (
                         "high"
                         if profile.complexity_score > 0.7
-                        else "medium" if profile.complexity_score > 0.4 else "low"
+                        else "medium"
+                        if profile.complexity_score > 0.4
+                        else "low"
                     ),
                 },
             },

@@ -9,17 +9,21 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from pynomaly.presentation.cli import automl, autonomous
-from pynomaly.presentation.cli import config as config_cli
-from pynomaly.presentation.cli import datasets, deep_learning, detection, detectors
-from pynomaly.presentation.cli import enterprise_dashboard as dashboard
 from pynomaly.presentation.cli import (
+    automl,
+    autonomous,
+    datasets,
+    deep_learning,
+    detection,
+    detectors,
     explainability,
     preprocessing,
     selection,
     server,
     tdd,
 )
+from pynomaly.presentation.cli import config as config_cli
+from pynomaly.presentation.cli import enterprise_dashboard as dashboard
 from pynomaly.presentation.cli.export import export_app
 from pynomaly.presentation.cli.performance import performance_app
 

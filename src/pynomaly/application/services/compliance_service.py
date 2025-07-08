@@ -2,10 +2,9 @@
 Compliance and audit logging service.
 """
 
-import hashlib
 import uuid
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from pynomaly.domain.entities.compliance import (
     DEFAULT_COMPLIANCE_RULES,
@@ -17,15 +16,11 @@ from pynomaly.domain.entities.compliance import (
     ComplianceFramework,
     ComplianceReport,
     ComplianceRule,
-    DataClassification,
     DataRetentionPolicy,
     EncryptionKey,
     GDPRRequest,
-    get_default_retention_policies,
 )
 from pynomaly.shared.exceptions import (
-    AuthorizationError,
-    ComplianceError,
     ValidationError,
 )
 from pynomaly.shared.types import TenantId, UserId
@@ -44,14 +39,14 @@ class ComplianceService:
         self,
         action: AuditAction,
         tenant_id: TenantId,
-        user_id: Optional[UserId] = None,
-        resource_type: Optional[str] = None,
-        resource_id: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
-        session_id: Optional[str] = None,
-        severity: Optional[AuditSeverity] = None,
+        user_id: UserId | None = None,
+        resource_type: str | None = None,
+        resource_id: str | None = None,
+        details: dict[str, Any] | None = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+        session_id: str | None = None,
+        severity: AuditSeverity | None = None,
     ) -> AuditEvent:
         """Log an audit event."""
         # Determine severity if not provided
@@ -93,14 +88,14 @@ class ComplianceService:
     async def get_audit_trail(
         self,
         tenant_id: TenantId,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
-        actions: Optional[List[AuditAction]] = None,
-        user_id: Optional[UserId] = None,
-        resource_type: Optional[str] = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
+        actions: list[AuditAction] | None = None,
+        user_id: UserId | None = None,
+        resource_type: str | None = None,
         limit: int = 1000,
         offset: int = 0,
-    ) -> List[AuditEvent]:
+    ) -> list[AuditEvent]:
         """Get audit trail with filtering options."""
         return await self._audit_repo.get_audit_events(
             tenant_id=tenant_id,
@@ -115,7 +110,7 @@ class ComplianceService:
 
     async def get_high_risk_events(
         self, tenant_id: TenantId, days: int = 7
-    ) -> List[AuditEvent]:
+    ) -> list[AuditEvent]:
         """Get high-risk audit events."""
         start_date = datetime.utcnow() - timedelta(days=days)
         events = await self._audit_repo.get_audit_events(
@@ -156,7 +151,7 @@ class ComplianceService:
 
         return created_policy
 
-    async def apply_retention_policies(self, tenant_id: TenantId) -> Dict[str, int]:
+    async def apply_retention_policies(self, tenant_id: TenantId) -> dict[str, int]:
         """Apply all active retention policies for a tenant."""
         policies = await self._compliance_repo.get_active_retention_policies(tenant_id)
         results = {"deleted_records": 0, "archived_records": 0, "policies_applied": 0}
@@ -184,7 +179,7 @@ class ComplianceService:
 
     async def _apply_single_retention_policy(
         self, policy: DataRetentionPolicy
-    ) -> Dict[str, int]:
+    ) -> dict[str, int]:
         """Apply a single retention policy."""
         cutoff_date = datetime.utcnow() - timedelta(days=policy.retention_period_days)
 
@@ -260,7 +255,7 @@ class ComplianceService:
         self,
         request_id: str,
         processor_id: UserId,
-        response_data: Optional[Dict[str, Any]] = None,
+        response_data: dict[str, Any] | None = None,
     ) -> GDPRRequest:
         """Process a GDPR request."""
         gdpr_request = await self._compliance_repo.get_gdpr_request(request_id)
@@ -303,7 +298,7 @@ class ComplianceService:
 
         return updated_request
 
-    async def get_overdue_gdpr_requests(self, tenant_id: TenantId) -> List[GDPRRequest]:
+    async def get_overdue_gdpr_requests(self, tenant_id: TenantId) -> list[GDPRRequest]:
         """Get GDPR requests that are overdue."""
         requests = await self._compliance_repo.get_gdpr_requests_by_tenant(tenant_id)
         return [req for req in requests if req.is_overdue]
@@ -536,7 +531,7 @@ class ComplianceService:
         self,
         backup_type: str,
         tenant_id: TenantId,
-        data_types: List[str],
+        data_types: list[str],
         backup_location: str,
         encryption_key_id: str,
         user_id: UserId,
@@ -601,7 +596,7 @@ class ComplianceService:
             return AuditSeverity.MEDIUM
 
     def _calculate_risk_score(
-        self, action: AuditAction, details: Dict[str, Any]
+        self, action: AuditAction, details: dict[str, Any]
     ) -> int:
         """Calculate risk score (0-100) for an audit event."""
         base_scores = {
@@ -629,7 +624,7 @@ class ComplianceService:
 
     async def _get_applicable_frameworks(
         self, action: AuditAction, tenant_id: TenantId
-    ) -> List[ComplianceFramework]:
+    ) -> list[ComplianceFramework]:
         """Determine which compliance frameworks apply to an action."""
         # Get tenant's active compliance frameworks
         tenant_frameworks = await self._compliance_repo.get_tenant_frameworks(tenant_id)
@@ -695,7 +690,7 @@ class ComplianceService:
         self,
         tenant_id: TenantId,
         framework: ComplianceFramework,
-        checks: List[ComplianceCheck],
+        checks: list[ComplianceCheck],
         user_id: UserId,
     ) -> ComplianceReport:
         """Generate a comprehensive compliance report."""
@@ -773,7 +768,7 @@ class ComplianceService:
 
     async def _check_retention_compliance(
         self, tenant_id: TenantId, max_days: int
-    ) -> List[str]:
+    ) -> list[str]:
         """Check retention policy compliance."""
         # TODO: Implement retention compliance check
         return []

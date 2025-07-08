@@ -16,15 +16,13 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Protocol, Union
+from typing import Any, Protocol
 from uuid import uuid4
 
-import numpy as np
 import pandas as pd
 
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.exceptions import AutoMLError, TrainingError
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
+from pynomaly.domain.exceptions import TrainingError
 
 # Optional dependencies with graceful fallback
 try:
@@ -90,13 +88,13 @@ class TrainingConfiguration:
 
     # Basic settings
     max_trials: int = 100
-    timeout_minutes: Optional[int] = 60
+    timeout_minutes: int | None = 60
     optimization_strategy: OptimizationStrategy = OptimizationStrategy.TPE
     pruning_strategy: PruningStrategy = PruningStrategy.MEDIAN
 
     # Optimization objectives
     primary_metric: str = "roc_auc"
-    secondary_metrics: List[str] = field(
+    secondary_metrics: list[str] = field(
         default_factory=lambda: ["precision", "recall", "f1"]
     )
     optimization_direction: str = "maximize"  # or "minimize"
@@ -108,19 +106,19 @@ class TrainingConfiguration:
     min_improvement_threshold: float = 0.001
 
     # Resource constraints
-    max_memory_gb: Optional[float] = None
-    max_cpu_cores: Optional[int] = None
+    max_memory_gb: float | None = None
+    max_cpu_cores: int | None = None
     use_gpu: bool = False
 
     # Experiment tracking
-    experiment_name: Optional[str] = None
+    experiment_name: str | None = None
     track_artifacts: bool = True
     save_models: bool = True
 
     # AutoML specific
-    algorithm_whitelist: Optional[List[str]] = None
-    algorithm_blacklist: Optional[List[str]] = None
-    ensemble_methods: List[str] = field(default_factory=lambda: ["voting", "stacking"])
+    algorithm_whitelist: list[str] | None = None
+    algorithm_blacklist: list[str] | None = None
+    ensemble_methods: list[str] = field(default_factory=lambda: ["voting", "stacking"])
 
 
 @dataclass
@@ -128,10 +126,10 @@ class HyperparameterSpace:
     """Defines hyperparameter search space for algorithms."""
 
     algorithm_name: str
-    parameters: Dict[str, Any]
-    constraints: Optional[Dict[str, Any]] = None
+    parameters: dict[str, Any]
+    constraints: dict[str, Any] | None = None
 
-    def suggest_parameters(self, trial: Any) -> Dict[str, Any]:
+    def suggest_parameters(self, trial: Any) -> dict[str, Any]:
         """Suggest parameters for a trial."""
         suggested = {}
 
@@ -173,19 +171,19 @@ class TrainingJob:
     # Configuration
     configuration: TrainingConfiguration = field(default_factory=TrainingConfiguration)
     dataset_id: str = ""
-    target_algorithms: List[str] = field(default_factory=list)
+    target_algorithms: list[str] = field(default_factory=list)
 
     # Execution tracking
     created_at: datetime = field(default_factory=datetime.now)
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
-    error_message: Optional[str] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    error_message: str | None = None
 
     # Results
-    best_model: Optional[Dict[str, Any]] = None
-    best_score: Optional[float] = None
-    best_parameters: Optional[Dict[str, Any]] = None
-    trial_history: List[Dict[str, Any]] = field(default_factory=list)
+    best_model: dict[str, Any] | None = None
+    best_score: float | None = None
+    best_parameters: dict[str, Any] | None = None
+    trial_history: list[dict[str, Any]] = field(default_factory=list)
 
     # Metrics
     total_trials: int = 0
@@ -194,9 +192,9 @@ class TrainingJob:
     execution_time_seconds: float = 0.0
 
     # Artifacts
-    model_path: Optional[str] = None
-    experiment_id: Optional[str] = None
-    study_id: Optional[str] = None
+    model_path: str | None = None
+    experiment_id: str | None = None
+    study_id: str | None = None
 
 
 class TrainingJobRepository(Protocol):
@@ -206,13 +204,13 @@ class TrainingJobRepository(Protocol):
         """Save training job."""
         ...
 
-    async def get_job(self, job_id: str) -> Optional[TrainingJob]:
+    async def get_job(self, job_id: str) -> TrainingJob | None:
         """Get training job by ID."""
         ...
 
     async def list_jobs(
-        self, status: Optional[TrainingStatus] = None, limit: int = 100
-    ) -> List[TrainingJob]:
+        self, status: TrainingStatus | None = None, limit: int = 100
+    ) -> list[TrainingJob]:
         """List training jobs."""
         ...
 
@@ -225,7 +223,7 @@ class ModelTrainer(Protocol):
     """Protocol for model training implementations."""
 
     async def train(
-        self, detector: Detector, dataset: Dataset, parameters: Dict[str, Any]
+        self, detector: Detector, dataset: Dataset, parameters: dict[str, Any]
     ) -> DetectionResult:
         """Train model with given parameters."""
         ...
@@ -234,8 +232,8 @@ class ModelTrainer(Protocol):
         self,
         detector: Detector,
         dataset: Dataset,
-        validation_data: Optional[Dataset] = None,
-    ) -> Dict[str, float]:
+        validation_data: Dataset | None = None,
+    ) -> dict[str, float]:
         """Evaluate trained model."""
         ...
 
@@ -247,7 +245,7 @@ class TrainingAutomationService:
         self,
         job_repository: TrainingJobRepository,
         model_trainer: ModelTrainer,
-        storage_path: Optional[Path] = None,
+        storage_path: Path | None = None,
     ):
         self.job_repository = job_repository
         self.model_trainer = model_trainer
@@ -261,7 +259,7 @@ class TrainingAutomationService:
         self.hyperparameter_spaces = self._create_hyperparameter_spaces()
 
         # Active jobs tracking
-        self.active_jobs: Dict[str, asyncio.Task] = {}
+        self.active_jobs: dict[str, asyncio.Task] = {}
 
     def _initialize_tracking(self) -> None:
         """Initialize experiment tracking systems."""
@@ -272,7 +270,7 @@ class TrainingAutomationService:
             except Exception as e:
                 logger.warning(f"Failed to initialize MLflow: {e}")
 
-    def _create_hyperparameter_spaces(self) -> Dict[str, HyperparameterSpace]:
+    def _create_hyperparameter_spaces(self) -> dict[str, HyperparameterSpace]:
         """Create predefined hyperparameter search spaces."""
         spaces = {}
 
@@ -347,7 +345,7 @@ class TrainingAutomationService:
         name: str,
         dataset_id: str,
         configuration: TrainingConfiguration,
-        target_algorithms: Optional[List[str]] = None,
+        target_algorithms: list[str] | None = None,
     ) -> TrainingJob:
         """Create a new training job."""
 
@@ -469,7 +467,7 @@ class TrainingAutomationService:
 
     async def _optimize_algorithm(
         self, job: TrainingJob, algorithm: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Optimize hyperparameters for a specific algorithm."""
 
         if not OPTUNA_AVAILABLE:
@@ -622,7 +620,7 @@ class TrainingAutomationService:
 
     async def _train_with_defaults(
         self, job: TrainingJob, algorithm: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Train algorithm with default parameters as fallback."""
         logger.info(f"Training {algorithm} with default parameters")
 
@@ -680,7 +678,7 @@ class TrainingAutomationService:
         # For now, return a placeholder
         return Dataset(name="placeholder", data=pd.DataFrame(), id=dataset_id)
 
-    async def _save_best_model(self, job: TrainingJob, result: Dict[str, Any]) -> Path:
+    async def _save_best_model(self, job: TrainingJob, result: dict[str, Any]) -> Path:
         """Save the best trained model."""
         model_dir = self.storage_path / "models" / job.job_id
         model_dir.mkdir(parents=True, exist_ok=True)
@@ -693,7 +691,7 @@ class TrainingAutomationService:
         logger.info(f"Saved best model to {model_path}")
         return model_path
 
-    async def get_job_status(self, job_id: str) -> Optional[TrainingJob]:
+    async def get_job_status(self, job_id: str) -> TrainingJob | None:
         """Get current status of training job."""
         return await self.job_repository.get_job(job_id)
 
@@ -715,12 +713,12 @@ class TrainingAutomationService:
             logger.info(f"Cancelled training job {job_id}")
 
     async def list_training_jobs(
-        self, status: Optional[TrainingStatus] = None, limit: int = 100
-    ) -> List[TrainingJob]:
+        self, status: TrainingStatus | None = None, limit: int = 100
+    ) -> list[TrainingJob]:
         """List training jobs with optional filtering."""
         return await self.job_repository.list_jobs(status, limit)
 
-    async def get_training_metrics(self, job_id: str) -> Dict[str, Any]:
+    async def get_training_metrics(self, job_id: str) -> dict[str, Any]:
         """Get comprehensive training metrics for a job."""
         job = await self.job_repository.get_job(job_id)
         if not job:
@@ -772,7 +770,7 @@ class TrainingAutomationService:
 
 async def quick_optimize(
     dataset_id: str,
-    algorithms: Optional[List[str]] = None,
+    algorithms: list[str] | None = None,
     max_trials: int = 50,
     timeout_minutes: int = 30,
 ) -> TrainingJob:
@@ -809,7 +807,7 @@ async def quick_optimize(
 async def production_optimize(
     dataset_id: str,
     experiment_name: str,
-    algorithms: Optional[List[str]] = None,
+    algorithms: list[str] | None = None,
     max_trials: int = 200,
     timeout_hours: int = 4,
 ) -> TrainingJob:

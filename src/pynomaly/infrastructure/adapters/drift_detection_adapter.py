@@ -16,18 +16,14 @@ from __future__ import annotations
 
 import logging
 import warnings
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
-import pandas as pd
 from scipy import stats
-from scipy.spatial.distance import jensenshannon
 from scipy.stats import wasserstein_distance
-from sklearn.decomposition import PCA
 from sklearn.ensemble import IsolationForest
 from sklearn.metrics import (
     accuracy_score,
@@ -36,7 +32,6 @@ from sklearn.metrics import (
     recall_score,
     roc_auc_score,
 )
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector
@@ -77,11 +72,11 @@ class DriftDetectionResult:
     drift_severity: DriftSeverity
     drift_score: float
     p_value: float
-    features_affected: List[str]
+    features_affected: list[str]
     detection_method: str
     timestamp: datetime
-    details: Dict[str, Any]
-    recommendations: List[str]
+    details: dict[str, Any]
+    recommendations: list[str]
 
 
 class StatisticalDriftDetector:
@@ -92,7 +87,7 @@ class StatisticalDriftDetector:
         self._reference_distributions = {}
 
     def fit_reference(
-        self, X_reference: np.ndarray, feature_names: List[str] = None
+        self, X_reference: np.ndarray, feature_names: list[str] = None
     ) -> None:
         """Fit reference distributions for drift detection.
 
@@ -133,7 +128,7 @@ class StatisticalDriftDetector:
             return "unknown"
 
     def detect_drift_ks_test(
-        self, X_current: np.ndarray, feature_names: List[str] = None
+        self, X_current: np.ndarray, feature_names: list[str] = None
     ) -> DriftDetectionResult:
         """Detect drift using Kolmogorov-Smirnov test.
 
@@ -185,10 +180,10 @@ class StatisticalDriftDetector:
             timestamp=datetime.utcnow(),
             details={
                 "per_feature_scores": dict(
-                    zip(feature_names[: len(drift_scores)], drift_scores)
+                    zip(feature_names[: len(drift_scores)], drift_scores, strict=False)
                 ),
                 "per_feature_p_values": dict(
-                    zip(feature_names[: len(p_values)], p_values)
+                    zip(feature_names[: len(p_values)], p_values, strict=False)
                 ),
                 "significance_level": self.significance_level,
             },
@@ -198,7 +193,7 @@ class StatisticalDriftDetector:
         )
 
     def detect_drift_chi_square(
-        self, X_current: np.ndarray, feature_names: List[str] = None, n_bins: int = 10
+        self, X_current: np.ndarray, feature_names: list[str] = None, n_bins: int = 10
     ) -> DriftDetectionResult:
         """Detect drift using Chi-square test for categorical/binned features.
 
@@ -263,10 +258,10 @@ class StatisticalDriftDetector:
             timestamp=datetime.utcnow(),
             details={
                 "per_feature_scores": dict(
-                    zip(feature_names[: len(drift_scores)], drift_scores)
+                    zip(feature_names[: len(drift_scores)], drift_scores, strict=False)
                 ),
                 "per_feature_p_values": dict(
-                    zip(feature_names[: len(p_values)], p_values)
+                    zip(feature_names[: len(p_values)], p_values, strict=False)
                 ),
                 "n_bins": n_bins,
                 "significance_level": self.significance_level,
@@ -288,8 +283,8 @@ class StatisticalDriftDetector:
             return DriftSeverity.MEDIUM
 
     def _generate_recommendations(
-        self, drift_detected: bool, affected_features: List[str]
-    ) -> List[str]:
+        self, drift_detected: bool, affected_features: list[str]
+    ) -> list[str]:
         """Generate recommendations based on drift detection results."""
         recommendations = []
 
@@ -464,7 +459,7 @@ class DistanceBasedDriftDetector:
 
     def _generate_recommendations_mmd(
         self, drift_detected: bool, mmd_score: float
-    ) -> List[str]:
+    ) -> list[str]:
         """Generate recommendations for MMD-based drift detection."""
         recommendations = []
 
@@ -631,8 +626,8 @@ class PerformanceBasedDriftDetector:
             return DriftSeverity.MEDIUM
 
     def _generate_recommendations_performance(
-        self, drift_detected: bool, degradation: Dict[str, float]
-    ) -> List[str]:
+        self, drift_detected: bool, degradation: dict[str, float]
+    ) -> list[str]:
         """Generate recommendations based on performance degradation."""
         recommendations = []
 
@@ -666,7 +661,7 @@ class StreamingDriftDetector:
         self._current_window = []
         self._drift_history = []
 
-    def update(self, X_batch: np.ndarray) -> Optional[DriftDetectionResult]:
+    def update(self, X_batch: np.ndarray) -> DriftDetectionResult | None:
         """Update detector with new batch and check for drift.
 
         Args:
@@ -783,7 +778,7 @@ class StreamingDriftDetector:
         else:
             return DriftSeverity.MEDIUM
 
-    def _generate_recommendations_streaming(self, drift_detected: bool) -> List[str]:
+    def _generate_recommendations_streaming(self, drift_detected: bool) -> list[str]:
         """Generate recommendations for streaming drift."""
         recommendations = []
 
@@ -968,7 +963,7 @@ class DriftDetectionAdapter(DetectorProtocol):
         self,
         X_current: np.ndarray,
         y_current: np.ndarray = None,
-        feature_names: List[str] = None,
+        feature_names: list[str] = None,
     ) -> DriftDetectionResult:
         """Detect drift using the configured algorithm."""
 
@@ -1126,7 +1121,7 @@ class DriftDetectionAdapter(DetectorProtocol):
 
         return X
 
-    def _get_feature_names(self, dataset: Dataset) -> List[str]:
+    def _get_feature_names(self, dataset: Dataset) -> list[str]:
         """Get feature names from dataset."""
         df = dataset.data
         numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()

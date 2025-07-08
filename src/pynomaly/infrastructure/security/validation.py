@@ -3,11 +3,11 @@
 import html
 import re
 import urllib.parse
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import bleach
 from fastapi import HTTPException, status
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, validator
 
 
 class SecurityConfig:
@@ -65,7 +65,7 @@ class InputSanitizer:
     """Input sanitization utilities."""
 
     @staticmethod
-    def sanitize_string(value: str, max_length: Optional[int] = None) -> str:
+    def sanitize_string(value: str, max_length: int | None = None) -> str:
         """Sanitize a general string input.
 
         Args:
@@ -98,7 +98,7 @@ class InputSanitizer:
         return value
 
     @staticmethod
-    def sanitize_html(value: str, allowed_tags: Optional[List[str]] = None) -> str:
+    def sanitize_html(value: str, allowed_tags: list[str] | None = None) -> str:
         """Sanitize HTML content.
 
         Args:
@@ -283,7 +283,7 @@ class InputValidator:
         value: Any,
         field_type: str,
         allow_html: bool = False,
-        max_length: Optional[int] = None,
+        max_length: int | None = None,
     ) -> Any:
         """Validate and sanitize input value.
 

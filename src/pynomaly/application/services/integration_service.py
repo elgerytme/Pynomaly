@@ -6,13 +6,12 @@ import asyncio
 import json
 import uuid
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import aiohttp
 from cryptography.fernet import Fernet
 
 from pynomaly.domain.entities.integrations import (
-    DEFAULT_TEMPLATES,
     Integration,
     IntegrationConfig,
     IntegrationCredentials,
@@ -23,7 +22,6 @@ from pynomaly.domain.entities.integrations import (
     NotificationLevel,
     NotificationPayload,
     NotificationTemplate,
-    TriggerType,
 )
 from pynomaly.shared.exceptions import (
     AuthenticationError,
@@ -43,7 +41,7 @@ class IntegrationService:
         self._integration_repo = integration_repository
         self._notification_repo = notification_repository
         self._fernet = Fernet(encryption_key.encode())
-        self._session: Optional[aiohttp.ClientSession] = None
+        self._session: aiohttp.ClientSession | None = None
 
     async def __aenter__(self):
         """Async context manager entry."""
@@ -63,7 +61,7 @@ class IntegrationService:
         tenant_id: TenantId,
         user_id: UserId,
         config: IntegrationConfig,
-        credentials: Optional[Dict[str, Any]] = None,
+        credentials: dict[str, Any] | None = None,
     ) -> Integration:
         """Create a new integration."""
         # Validate configuration
@@ -103,7 +101,7 @@ class IntegrationService:
         return await self._integration_repo.create_integration(integration)
 
     async def update_integration_credentials(
-        self, integration_id: str, user_id: UserId, credentials: Dict[str, Any]
+        self, integration_id: str, user_id: UserId, credentials: dict[str, Any]
     ) -> Integration:
         """Update integration credentials."""
         integration = await self._integration_repo.get_integration_by_id(integration_id)
@@ -135,7 +133,7 @@ class IntegrationService:
 
     async def get_integrations_for_tenant(
         self, tenant_id: TenantId
-    ) -> List[Integration]:
+    ) -> list[Integration]:
         """Get all integrations for a tenant."""
         return await self._integration_repo.get_integrations_by_tenant(tenant_id)
 
@@ -159,8 +157,8 @@ class IntegrationService:
         self,
         tenant_id: TenantId,
         payload: NotificationPayload,
-        integration_types: Optional[List[IntegrationType]] = None,
-    ) -> Dict[str, bool]:
+        integration_types: list[IntegrationType] | None = None,
+    ) -> dict[str, bool]:
         """Send notification to all matching integrations."""
         # Get active integrations for tenant
         integrations = await self._integration_repo.get_active_integrations_by_tenant(
@@ -432,7 +430,7 @@ class IntegrationService:
 
     async def get_templates_for_integration(
         self, integration_type: IntegrationType, tenant_id: TenantId
-    ) -> List[NotificationTemplate]:
+    ) -> list[NotificationTemplate]:
         """Get all templates for an integration type and tenant."""
         return await self._notification_repo.get_templates(integration_type, tenant_id)
 
@@ -527,7 +525,7 @@ class IntegrationService:
 
     # Utility Methods
     def _encrypt_credentials(
-        self, credentials: Dict[str, Any]
+        self, credentials: dict[str, Any]
     ) -> IntegrationCredentials:
         """Encrypt credentials for secure storage."""
         credentials_json = json.dumps(credentials)
@@ -541,7 +539,7 @@ class IntegrationService:
 
     def _decrypt_credentials(
         self, credentials: IntegrationCredentials
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Decrypt credentials for use."""
         try:
             decrypted_data = self._fernet.decrypt(
@@ -552,7 +550,7 @@ class IntegrationService:
             raise AuthenticationError(f"Failed to decrypt credentials: {e}")
 
     async def _test_integration_connection(
-        self, integration: Integration, credentials: Dict[str, Any]
+        self, integration: Integration, credentials: dict[str, Any]
     ) -> bool:
         """Test integration connection."""
         if integration.integration_type == IntegrationType.SLACK:
@@ -634,13 +632,13 @@ class IntegrationService:
     # Public API Methods
     async def get_integration_metrics(
         self, integration_id: str
-    ) -> Optional[IntegrationMetrics]:
+    ) -> IntegrationMetrics | None:
         """Get performance metrics for an integration."""
         return await self._integration_repo.get_integration_metrics(integration_id)
 
     async def get_notification_history(
         self, integration_id: str, limit: int = 100, offset: int = 0
-    ) -> List[NotificationHistory]:
+    ) -> list[NotificationHistory]:
         """Get notification history for an integration."""
         return await self._notification_repo.get_notification_history(
             integration_id, limit, offset

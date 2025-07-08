@@ -5,9 +5,9 @@ import json
 import logging
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
-from typing import Any, AsyncIterator, Callable, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -35,7 +35,6 @@ from ...domain.services.advanced_detection_service import (
     DetectionAlgorithm,
     get_detection_service,
 )
-from ...shared.config import Config
 from ..monitoring.distributed_tracing import trace_operation
 
 logger = logging.getLogger(__name__)
@@ -68,7 +67,7 @@ class StreamConfig:
 
     # Source configuration
     source_type: StreamSource
-    source_config: Dict[str, Any] = field(default_factory=dict)
+    source_config: dict[str, Any] = field(default_factory=dict)
 
     # Data format
     data_format: StreamFormat = StreamFormat.JSON
@@ -80,10 +79,10 @@ class StreamConfig:
 
     # Detection configuration
     detection_algorithm: DetectionAlgorithm = DetectionAlgorithm.ISOLATION_FOREST
-    detection_config: Optional[Dict[str, Any]] = None
+    detection_config: dict[str, Any] | None = None
 
     # Output configuration
-    output_topic: Optional[str] = None
+    output_topic: str | None = None
     output_format: StreamFormat = StreamFormat.JSON
 
     # Performance tuning
@@ -95,7 +94,7 @@ class StreamConfig:
     # Error handling
     max_retries: int = 3
     retry_delay_seconds: float = 1.0
-    dead_letter_queue: Optional[str] = None
+    dead_letter_queue: str | None = None
 
 
 @dataclass
@@ -104,11 +103,11 @@ class StreamRecord:
 
     id: str
     timestamp: datetime
-    data: Dict[str, Any]
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    source: Optional[str] = None
-    partition: Optional[int] = None
-    offset: Optional[int] = None
+    data: dict[str, Any]
+    metadata: dict[str, Any] = field(default_factory=dict)
+    source: str | None = None
+    partition: int | None = None
+    offset: int | None = None
 
 
 @dataclass
@@ -116,10 +115,10 @@ class StreamBatch:
     """Batch of stream records."""
 
     batch_id: str
-    records: List[StreamRecord]
+    records: list[StreamRecord]
     batch_timestamp: datetime
     size: int
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dataset(self) -> Dataset:
         """Convert batch to Dataset for anomaly detection."""
@@ -149,7 +148,7 @@ class StreamBatch:
 
         return dataset
 
-    def _flatten_data(self, data: Dict[str, Any], prefix: str = "") -> Dict[str, Any]:
+    def _flatten_data(self, data: dict[str, Any], prefix: str = "") -> dict[str, Any]:
         """Flatten nested dictionary data."""
         flattened = {}
 
@@ -191,10 +190,10 @@ class StreamProcessor:
         self.sink_connector = None
 
         # Background tasks
-        self.ingestion_task: Optional[asyncio.Task] = None
-        self.processing_task: Optional[asyncio.Task] = None
-        self.output_task: Optional[asyncio.Task] = None
-        self.monitoring_task: Optional[asyncio.Task] = None
+        self.ingestion_task: asyncio.Task | None = None
+        self.processing_task: asyncio.Task | None = None
+        self.output_task: asyncio.Task | None = None
+        self.monitoring_task: asyncio.Task | None = None
 
         # Metrics
         self.start_time = time.time()
@@ -353,7 +352,9 @@ class StreamProcessor:
                     else:
                         # Send batch to dead letter queue
                         self._send_to_dead_letter_queue(records, error=e)
-                        logger.error("Sent to dead letter queue due to repeated ingestion failures")
+                        logger.error(
+                            "Sent to dead letter queue due to repeated ingestion failures"
+                        )
                 except Exception as de:
                     logger.error(f"Error in dead letter handling: {de}")
 
@@ -363,13 +364,15 @@ class StreamProcessor:
             logger.info("Publishing records to dead letter queue")
             for record in records:
                 # Include error details in record metadata
-                record.metadata['error'] = str(error)
-                record.metadata['error_type'] = type(error).__name__
-                record.metadata['timestamp'] = datetime.now().isoformat()
+                record.metadata["error"] = str(error)
+                record.metadata["error_type"] = type(error).__name__
+                record.metadata["timestamp"] = datetime.now().isoformat()
             # Send to dead letter queue
-            self.sink_connector.send(self.config.dead_letter_queue, [r.data for r in records])
+            self.sink_connector.send(
+                self.config.dead_letter_queue, [r.data for r in records]
+            )
 
-    async def _fetch_records(self) -> List[StreamRecord]:
+    async def _fetch_records(self) -> list[StreamRecord]:
         """Fetch records from source."""
         records = []
 
@@ -482,21 +485,20 @@ class StreamProcessor:
             except Exception as e:
                 self.error_count += 1
                 logger.error(f"Error in processing loop: {e}")
-                
+
                 # Implement retry logic with exponential backoff
                 from ...infrastructure.error_handling.recovery_strategies import (
                     RetryStrategy,
                 )
-                from ...infrastructure.resilience.retry import retry_with_backoff
-                
+
                 retry_strategy = RetryStrategy(
                     max_retries=self.config.max_retries,
                     base_delay=self.config.retry_delay_seconds,
                     max_delay=60.0,
                     exponential_base=2.0,
-                    jitter=True
+                    jitter=True,
                 )
-                
+
                 try:
                     # Check if this error is recoverable
                     if await retry_strategy.can_recover(e, {}):
@@ -505,22 +507,26 @@ class StreamProcessor:
                         result = await retry_strategy.recover(
                             lambda: self._process_batch(batch),
                             e,
-                            {"batch_id": batch.batch_id, "attempt": self.error_count}
+                            {"batch_id": batch.batch_id, "attempt": self.error_count},
                         )
                         # If successful, reset error count
                         self.error_count = 0
                         await self.output_queue.put(result)
                     else:
                         # Send to dead letter queue for irrecoverable errors
-                        logger.error(f"Irrecoverable error processing batch {batch.batch_id}: {e}")
+                        logger.error(
+                            f"Irrecoverable error processing batch {batch.batch_id}: {e}"
+                        )
                         self._send_to_dead_letter_queue(batch.records, error=e)
                         await self._save_checkpoint(batch)
                 except Exception as recovery_error:
                     # Final fallback - send to dead letter queue
-                    logger.error(f"Recovery failed for batch {batch.batch_id}: {recovery_error}")
+                    logger.error(
+                        f"Recovery failed for batch {batch.batch_id}: {recovery_error}"
+                    )
                     self._send_to_dead_letter_queue(batch.records, error=recovery_error)
                     await self._save_checkpoint(batch)
-                    
+
                 await asyncio.sleep(self.config.retry_delay_seconds)
 
     async def _collect_batch(self) -> StreamBatch:
@@ -533,14 +539,13 @@ class StreamProcessor:
             len(records) < self.config.batch_size
             and time.time() - batch_start < self.config.batch_timeout_seconds
         ):
-
             try:
                 record = await asyncio.wait_for(
                     self.input_queue.get(), timeout=self.config.batch_timeout_seconds
                 )
                 records.append(record)
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 break
 
         self.batch_count += 1
@@ -612,7 +617,7 @@ class StreamProcessor:
             except Exception as e:
                 logger.error(f"Error sending result: {e}")
 
-    def _format_result(self, result: DetectionResult) -> Dict[str, Any]:
+    def _format_result(self, result: DetectionResult) -> dict[str, Any]:
         """Format detection result for output."""
         return {
             "dataset_id": result.dataset_id,
@@ -744,7 +749,7 @@ class StreamProcessor:
             if self.config.source_type == StreamSource.KAFKA:
                 self.sink_connector.close()
 
-    async def add_test_record(self, data: Dict[str, Any]) -> None:
+    async def add_test_record(self, data: dict[str, Any]) -> None:
         """Add a test record to the stream (for testing)."""
         if self.config.source_type == StreamSource.MEMORY:
             record = StreamRecord(
@@ -755,7 +760,7 @@ class StreamProcessor:
             )
             await self.input_queue.put(record)
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """Get current processor status."""
         current_time = time.time()
         uptime = current_time - self.start_time

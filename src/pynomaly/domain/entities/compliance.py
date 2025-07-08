@@ -4,11 +4,10 @@ Compliance and audit logging domain entities.
 
 from __future__ import annotations
 
-import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from pynomaly.shared.types import TenantId, UserId
 
@@ -115,16 +114,16 @@ class AuditEvent:
     severity: AuditSeverity
     timestamp: datetime
     tenant_id: TenantId
-    user_id: Optional[UserId] = None
-    resource_type: Optional[str] = None
-    resource_id: Optional[str] = None
-    details: Dict[str, Any] = field(default_factory=dict)
-    ip_address: Optional[str] = None
-    user_agent: Optional[str] = None
-    session_id: Optional[str] = None
+    user_id: UserId | None = None
+    resource_type: str | None = None
+    resource_id: str | None = None
+    details: dict[str, Any] = field(default_factory=dict)
+    ip_address: str | None = None
+    user_agent: str | None = None
+    session_id: str | None = None
     outcome: str = "success"  # success, failure, error
     risk_score: int = 0  # 0-100 risk assessment
-    compliance_frameworks: List[ComplianceFramework] = field(default_factory=list)
+    compliance_frameworks: list[ComplianceFramework] = field(default_factory=list)
 
     @property
     def is_high_risk(self) -> bool:
@@ -142,7 +141,7 @@ class AuditEvent:
             ]
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "id": self.id,
@@ -174,13 +173,13 @@ class DataRetentionPolicy:
     data_type: str
     classification: DataClassification
     retention_period_days: int
-    compliance_frameworks: List[ComplianceFramework]
+    compliance_frameworks: list[ComplianceFramework]
     auto_delete: bool = True
     archive_before_delete: bool = True
     status: RetentionPolicyStatus = RetentionPolicyStatus.ACTIVE
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
-    created_by: Optional[UserId] = None
+    created_by: UserId | None = None
 
     @property
     def is_expired(self) -> bool:
@@ -203,8 +202,8 @@ class ComplianceRule:
     description: str
     framework: ComplianceFramework
     rule_type: str  # e.g., "data_protection", "access_control", "audit_log"
-    requirements: List[str]
-    validation_criteria: Dict[str, Any]
+    requirements: list[str]
+    validation_criteria: dict[str, Any]
     severity: AuditSeverity
     is_mandatory: bool = True
     implementation_guide: str = ""
@@ -220,10 +219,10 @@ class ComplianceCheck:
     tenant_id: TenantId
     check_timestamp: datetime
     status: str  # "compliant", "non_compliant", "warning", "not_applicable"
-    details: Dict[str, Any] = field(default_factory=dict)
-    evidence: List[str] = field(default_factory=list)
-    recommendations: List[str] = field(default_factory=list)
-    next_check_due: Optional[datetime] = None
+    details: dict[str, Any] = field(default_factory=dict)
+    evidence: list[str] = field(default_factory=list)
+    recommendations: list[str] = field(default_factory=list)
+    next_check_due: datetime | None = None
 
     @property
     def is_compliant(self) -> bool:
@@ -248,10 +247,10 @@ class GDPRRequest:
     request_details: str
     submitted_at: datetime
     status: str = "pending"  # "pending", "in_progress", "completed", "rejected"
-    assigned_to: Optional[UserId] = None
-    completion_deadline: Optional[datetime] = None
-    response_data: Optional[Dict[str, Any]] = None
-    processed_at: Optional[datetime] = None
+    assigned_to: UserId | None = None
+    completion_deadline: datetime | None = None
+    response_data: dict[str, Any] | None = None
+    processed_at: datetime | None = None
     notes: str = ""
 
     @property
@@ -276,8 +275,8 @@ class EncryptionKey:
     tenant_id: TenantId
     purpose: str  # "data_encryption", "backup_encryption", "communication"
     created_at: datetime
-    expires_at: Optional[datetime] = None
-    rotated_at: Optional[datetime] = None
+    expires_at: datetime | None = None
+    rotated_at: datetime | None = None
     status: str = "active"  # "active", "retired", "compromised"
     usage_count: int = 0
 
@@ -303,16 +302,16 @@ class BackupRecord:
     id: str
     backup_type: str  # "full", "incremental", "differential"
     tenant_id: TenantId
-    data_types: List[str]
+    data_types: list[str]
     backup_location: str
     encryption_key_id: str
     started_at: datetime
-    completed_at: Optional[datetime] = None
+    completed_at: datetime | None = None
     status: str = "in_progress"  # "in_progress", "completed", "failed"
     size_bytes: int = 0
     compressed_size_bytes: int = 0
     checksum: str = ""
-    retention_until: Optional[datetime] = None
+    retention_until: datetime | None = None
 
     @property
     def compression_ratio(self) -> float:
@@ -347,9 +346,9 @@ class ComplianceReport:
     warning_checks: int = 0
 
     # Detailed findings
-    findings: List[ComplianceCheck] = field(default_factory=list)
-    recommendations: List[str] = field(default_factory=list)
-    risk_assessment: Dict[str, Any] = field(default_factory=dict)
+    findings: list[ComplianceCheck] = field(default_factory=list)
+    recommendations: list[str] = field(default_factory=list)
+    risk_assessment: dict[str, Any] = field(default_factory=dict)
 
     # Audit trail summary
     high_risk_events: int = 0
@@ -478,7 +477,7 @@ DEFAULT_COMPLIANCE_RULES = {
 }
 
 
-def get_default_retention_policies() -> List[DataRetentionPolicy]:
+def get_default_retention_policies() -> list[DataRetentionPolicy]:
     """Get default data retention policies for common data types."""
     return [
         DataRetentionPolicy(

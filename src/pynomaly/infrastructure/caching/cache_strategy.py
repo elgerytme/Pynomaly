@@ -6,10 +6,9 @@ import hashlib
 import json
 import logging
 import pickle
-import time
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 from uuid import UUID
 
 import redis
@@ -55,12 +54,12 @@ class CacheBackend(ABC):
     """Abstract cache backend interface."""
 
     @abstractmethod
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """Get value from cache."""
         pass
 
     @abstractmethod
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> bool:
         """Set value in cache."""
         pass
 
@@ -80,7 +79,7 @@ class CacheBackend(ABC):
         pass
 
     @abstractmethod
-    async def get_stats(self) -> Dict[str, Any]:
+    async def get_stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         pass
 
@@ -92,11 +91,11 @@ class MemoryCache(CacheBackend):
         """Initialize memory cache."""
         self.max_size = max_size
         self.default_ttl = default_ttl
-        self._cache: Dict[str, Dict[str, Any]] = {}
-        self._access_order: List[str] = []
+        self._cache: dict[str, dict[str, Any]] = {}
+        self._access_order: list[str] = []
         self.metrics = CacheMetrics()
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """Get value from memory cache."""
         if key not in self._cache:
             self.metrics.misses += 1
@@ -118,7 +117,7 @@ class MemoryCache(CacheBackend):
         self.metrics.hits += 1
         return entry["value"]
 
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> bool:
         """Set value in memory cache."""
         ttl = ttl or self.default_ttl
         expires_at = datetime.utcnow() + timedelta(seconds=ttl) if ttl > 0 else None
@@ -164,7 +163,7 @@ class MemoryCache(CacheBackend):
         self.metrics.total_size = 0
         return True
 
-    async def get_stats(self) -> Dict[str, Any]:
+    async def get_stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         return {
             "backend": "memory",
@@ -196,7 +195,7 @@ class RedisCache(CacheBackend):
         # Initialize Redis connection
         self._redis = redis.from_url(redis_url, decode_responses=False)
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """Get value from Redis cache."""
         try:
             data = self._redis.get(key)
@@ -220,7 +219,7 @@ class RedisCache(CacheBackend):
             self.metrics.misses += 1
             return None
 
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> bool:
         """Set value in Redis cache."""
         try:
             ttl = ttl or self.default_ttl
@@ -280,7 +279,7 @@ class RedisCache(CacheBackend):
             logger.error(f"Redis cache clear error: {e}")
             return False
 
-    async def get_stats(self) -> Dict[str, Any]:
+    async def get_stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         try:
             info = self._redis.info()
@@ -314,7 +313,7 @@ class HybridCache(CacheBackend):
         self.l1_ttl_ratio = l1_ttl_ratio
         self.metrics = CacheMetrics()
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """Get value from hybrid cache (L1 first, then L2)."""
         # Try L1 cache first
         value = await self.l1_cache.get(key)
@@ -334,7 +333,7 @@ class HybridCache(CacheBackend):
         self.metrics.misses += 1
         return None
 
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> bool:
         """Set value in both cache layers."""
         ttl = ttl or self.l2_cache.default_ttl
         l1_ttl = int(ttl * self.l1_ttl_ratio)
@@ -368,7 +367,7 @@ class HybridCache(CacheBackend):
         l2_success = await self.l2_cache.clear()
         return l1_success and l2_success
 
-    async def get_stats(self) -> Dict[str, Any]:
+    async def get_stats(self) -> dict[str, Any]:
         """Get statistics from both cache layers."""
         l1_stats = await self.l1_cache.get_stats()
         l2_stats = await self.l2_cache.get_stats()
@@ -431,7 +430,7 @@ class CacheKeyGenerator:
 
     @staticmethod
     def search_key(
-        entity_type: str, filters: Dict[str, Any], page: int, page_size: int
+        entity_type: str, filters: dict[str, Any], page: int, page_size: int
     ) -> str:
         """Generate key for search result caching."""
         return CacheKeyGenerator.generate_key(
@@ -475,45 +474,45 @@ class CacheManager:
                 self.config.max_memory_cache_size, self.config.default_ttl
             )
 
-    async def get_detector(self, detector_id: UUID) -> Optional[Any]:
+    async def get_detector(self, detector_id: UUID) -> Any | None:
         """Get cached detector."""
         key = self.key_generator.detector_key(detector_id)
         return await self.backend.get(key)
 
     async def set_detector(
-        self, detector_id: UUID, detector: Any, ttl: Optional[int] = None
+        self, detector_id: UUID, detector: Any, ttl: int | None = None
     ) -> bool:
         """Cache detector."""
         key = self.key_generator.detector_key(detector_id)
         return await self.backend.set(key, detector, ttl)
 
-    async def get_dataset(self, dataset_id: UUID) -> Optional[Any]:
+    async def get_dataset(self, dataset_id: UUID) -> Any | None:
         """Get cached dataset."""
         key = self.key_generator.dataset_key(dataset_id)
         return await self.backend.get(key)
 
     async def set_dataset(
-        self, dataset_id: UUID, dataset: Any, ttl: Optional[int] = None
+        self, dataset_id: UUID, dataset: Any, ttl: int | None = None
     ) -> bool:
         """Cache dataset."""
         key = self.key_generator.dataset_key(dataset_id)
         return await self.backend.set(key, dataset, ttl)
 
-    async def get_detection_result(self, result_id: UUID) -> Optional[Any]:
+    async def get_detection_result(self, result_id: UUID) -> Any | None:
         """Get cached detection result."""
         key = self.key_generator.detection_result_key(result_id)
         return await self.backend.get(key)
 
     async def set_detection_result(
-        self, result_id: UUID, result: Any, ttl: Optional[int] = None
+        self, result_id: UUID, result: Any, ttl: int | None = None
     ) -> bool:
         """Cache detection result."""
         key = self.key_generator.detection_result_key(result_id)
         return await self.backend.set(key, result, ttl)
 
     async def get_search_results(
-        self, entity_type: str, filters: Dict[str, Any], page: int, page_size: int
-    ) -> Optional[Any]:
+        self, entity_type: str, filters: dict[str, Any], page: int, page_size: int
+    ) -> Any | None:
         """Get cached search results."""
         key = self.key_generator.search_key(entity_type, filters, page, page_size)
         return await self.backend.get(key)
@@ -521,11 +520,11 @@ class CacheManager:
     async def set_search_results(
         self,
         entity_type: str,
-        filters: Dict[str, Any],
+        filters: dict[str, Any],
         page: int,
         page_size: int,
         results: Any,
-        ttl: Optional[int] = None,
+        ttl: int | None = None,
     ) -> bool:
         """Cache search results."""
         key = self.key_generator.search_key(entity_type, filters, page, page_size)
@@ -553,7 +552,7 @@ class CacheManager:
         # In production, you might want to track search keys or use Redis patterns
         logger.info(f"Search invalidation requested for {entity_type}")
 
-    async def get_cache_stats(self) -> Dict[str, Any]:
+    async def get_cache_stats(self) -> dict[str, Any]:
         """Get comprehensive cache statistics."""
         return await self.backend.get_stats()
 
@@ -565,7 +564,7 @@ class CacheManager:
 # Cache decorators for easy use
 
 
-def cache_result(cache_manager: CacheManager, ttl: Optional[int] = None):
+def cache_result(cache_manager: CacheManager, ttl: int | None = None):
     """Decorator to cache function results."""
 
     def decorator(func):

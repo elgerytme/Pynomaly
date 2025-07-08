@@ -8,10 +8,9 @@ from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
-from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
@@ -72,9 +71,9 @@ class HealthMetric:
     component_type: ComponentType
     component_id: str
     unit: str = ""
-    threshold_warning: Optional[float] = None
-    threshold_critical: Optional[float] = None
-    trend: Optional[str] = None  # "increasing", "decreasing", "stable"
+    threshold_warning: float | None = None
+    threshold_critical: float | None = None
+    trend: str | None = None  # "increasing", "decreasing", "stable"
 
 
 @dataclass
@@ -86,11 +85,11 @@ class ComponentHealth:
     current_status: HealthStatus
     health_score: float  # 0.0 to 1.0
     last_updated: datetime
-    metrics: Dict[str, HealthMetric] = field(default_factory=dict)
-    alerts: List[str] = field(default_factory=list)
-    maintenance_history: List[Dict[str, Any]] = field(default_factory=list)
-    predicted_failures: List[Dict[str, Any]] = field(default_factory=list)
-    recommended_actions: List[str] = field(default_factory=list)
+    metrics: dict[str, HealthMetric] = field(default_factory=dict)
+    alerts: list[str] = field(default_factory=list)
+    maintenance_history: list[dict[str, Any]] = field(default_factory=list)
+    predicted_failures: list[dict[str, Any]] = field(default_factory=list)
+    recommended_actions: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -100,9 +99,9 @@ class CapacityForecast:
     component_type: ComponentType
     current_utilization: float
     forecast_horizon: ForecastHorizon
-    predicted_utilization: List[Tuple[datetime, float]]
-    capacity_exhaustion_date: Optional[datetime] = None
-    recommended_scaling: Optional[Dict[str, Any]] = None
+    predicted_utilization: list[tuple[datetime, float]]
+    capacity_exhaustion_date: datetime | None = None
+    recommended_scaling: dict[str, Any] | None = None
     confidence_level: float = 0.0
 
 
@@ -114,11 +113,11 @@ class MaintenanceRecommendation:
     action_type: MaintenanceAction
     priority: int  # 1 (highest) to 5 (lowest)
     estimated_downtime: timedelta
-    cost_estimate: Optional[float] = None
+    cost_estimate: float | None = None
     failure_probability: float = 0.0
     impact_assessment: str = ""
-    recommended_window: Optional[Tuple[datetime, datetime]] = None
-    dependencies: List[str] = field(default_factory=list)
+    recommended_window: tuple[datetime, datetime] | None = None
+    dependencies: list[str] = field(default_factory=list)
 
 
 class HealthPredictor:
@@ -131,7 +130,7 @@ class HealthPredictor:
 
     async def predict_health_degradation(
         self, component: ComponentHealth, forecast_hours: int = 24
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Predict health degradation for a component."""
         try:
             predictions = {}
@@ -165,7 +164,7 @@ class HealthPredictor:
 
     async def _predict_metric_trend(
         self, metric: HealthMetric, forecast_hours: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Predict trend for a specific metric."""
         # Simplified linear trend prediction
         # In practice, you'd use more sophisticated time series models
@@ -230,9 +229,9 @@ class HealthPredictor:
     async def _predict_overall_health(
         self,
         component: ComponentHealth,
-        metric_predictions: Dict[str, Any],
+        metric_predictions: dict[str, Any],
         forecast_hours: int,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Predict overall component health."""
         # Calculate health score trajectory
         health_trajectory = []
@@ -298,7 +297,7 @@ class HealthPredictor:
             "time_to_critical": self._estimate_time_to_critical(health_trajectory),
         }
 
-    def _calculate_failure_probability(self, predictions: Dict[str, Any]) -> float:
+    def _calculate_failure_probability(self, predictions: dict[str, Any]) -> float:
         """Calculate probability of component failure."""
         # Count threshold violations
         total_violations = 0
@@ -322,8 +321,8 @@ class HealthPredictor:
         return failure_prob
 
     def _generate_health_recommendations(
-        self, predictions: Dict[str, Any]
-    ) -> List[str]:
+        self, predictions: dict[str, Any]
+    ) -> list[str]:
         """Generate health-based recommendations."""
         recommendations = []
 
@@ -354,7 +353,7 @@ class HealthPredictor:
         return recommendations
 
     def _calculate_degradation_rate(
-        self, health_trajectory: List[Dict[str, Any]]
+        self, health_trajectory: list[dict[str, Any]]
     ) -> float:
         """Calculate health degradation rate per hour."""
         if len(health_trajectory) < 2:
@@ -381,8 +380,8 @@ class HealthPredictor:
         return slope  # Health score change per hour
 
     def _estimate_time_to_critical(
-        self, health_trajectory: List[Dict[str, Any]]
-    ) -> Optional[int]:
+        self, health_trajectory: list[dict[str, Any]]
+    ) -> int | None:
         """Estimate hours until component reaches critical status."""
         for i, point in enumerate(health_trajectory):
             if point["status"] in ["critical", "failed"]:
@@ -402,7 +401,7 @@ class CapacityPlanner:
         self,
         component_type: ComponentType,
         current_utilization: float,
-        historical_data: List[Tuple[datetime, float]],
+        historical_data: list[tuple[datetime, float]],
         forecast_horizon: ForecastHorizon = ForecastHorizon.MEDIUM_TERM,
     ) -> CapacityForecast:
         """Forecast capacity needs for a component type."""
@@ -459,8 +458,8 @@ class CapacityPlanner:
             )
 
     async def _analyze_utilization_trends(
-        self, historical_data: List[Tuple[datetime, float]]
-    ) -> Dict[str, Any]:
+        self, historical_data: list[tuple[datetime, float]]
+    ) -> dict[str, Any]:
         """Analyze utilization trends from historical data."""
         if not historical_data or len(historical_data) < 2:
             return {"trend": "stable", "growth_rate": 0.0, "seasonality": None}
@@ -523,9 +522,9 @@ class CapacityPlanner:
     async def _predict_utilization(
         self,
         current_utilization: float,
-        trend_analysis: Dict[str, Any],
+        trend_analysis: dict[str, Any],
         forecast_hours: int,
-    ) -> List[Tuple[datetime, float]]:
+    ) -> list[tuple[datetime, float]]:
         """Predict utilization over forecast horizon."""
         predictions = []
         base_time = datetime.now()
@@ -564,8 +563,8 @@ class CapacityPlanner:
         return predictions
 
     def _estimate_capacity_exhaustion(
-        self, predicted_utilization: List[Tuple[datetime, float]]
-    ) -> Optional[datetime]:
+        self, predicted_utilization: list[tuple[datetime, float]]
+    ) -> datetime | None:
         """Estimate when capacity will be exhausted (95% utilization)."""
         exhaustion_threshold = 0.95
 
@@ -578,9 +577,9 @@ class CapacityPlanner:
     async def _generate_scaling_recommendations(
         self,
         component_type: ComponentType,
-        predicted_utilization: List[Tuple[datetime, float]],
-        exhaustion_date: Optional[datetime],
-    ) -> Dict[str, Any]:
+        predicted_utilization: list[tuple[datetime, float]],
+        exhaustion_date: datetime | None,
+    ) -> dict[str, Any]:
         """Generate scaling recommendations."""
         recommendations = {
             "scaling_needed": False,
@@ -635,8 +634,8 @@ class CapacityPlanner:
 
     def _calculate_forecast_confidence(
         self,
-        historical_data: List[Tuple[datetime, float]],
-        trend_analysis: Dict[str, Any],
+        historical_data: list[tuple[datetime, float]],
+        trend_analysis: dict[str, Any],
     ) -> float:
         """Calculate confidence in the forecast."""
         if not historical_data:
@@ -692,9 +691,9 @@ class PredictiveMaintenanceAnalytics:
         self.max_components = max_components
 
         # Component tracking
-        self.components: Dict[str, ComponentHealth] = {}
-        self.capacity_forecasts: Dict[ComponentType, CapacityForecast] = {}
-        self.maintenance_recommendations: List[MaintenanceRecommendation] = []
+        self.components: dict[str, ComponentHealth] = {}
+        self.capacity_forecasts: dict[ComponentType, CapacityForecast] = {}
+        self.maintenance_recommendations: list[MaintenanceRecommendation] = []
 
         # Services
         self.health_predictor = HealthPredictor()
@@ -748,7 +747,7 @@ class PredictiveMaintenanceAnalytics:
         self,
         component_id: str,
         component_type: ComponentType,
-        initial_metrics: Optional[Dict[str, HealthMetric]] = None,
+        initial_metrics: dict[str, HealthMetric] | None = None,
     ) -> bool:
         """Register a component for monitoring.
 
@@ -788,7 +787,7 @@ class PredictiveMaintenanceAnalytics:
             return False
 
     async def update_component_metrics(
-        self, component_id: str, metrics: Dict[str, HealthMetric]
+        self, component_id: str, metrics: dict[str, HealthMetric]
     ) -> bool:
         """Update metrics for a component.
 
@@ -975,7 +974,7 @@ class PredictiveMaintenanceAnalytics:
         return np.mean(component_scores)
 
     async def _generate_maintenance_recommendation(
-        self, component: ComponentHealth, health_prediction: Dict[str, Any]
+        self, component: ComponentHealth, health_prediction: dict[str, Any]
     ) -> None:
         """Generate maintenance recommendation for a component."""
         failure_probability = health_prediction.get("failure_probability", 0.0)
@@ -1075,7 +1074,7 @@ class PredictiveMaintenanceAnalytics:
             except Exception as e:
                 logger.error(f"Error forecasting capacity for {component_type}: {e}")
 
-    async def get_system_status(self) -> Dict[str, Any]:
+    async def get_system_status(self) -> dict[str, Any]:
         """Get comprehensive system status."""
         # Overall system health
         system_health = await self._calculate_system_health()

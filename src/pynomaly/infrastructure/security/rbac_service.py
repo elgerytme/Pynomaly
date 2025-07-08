@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-import hashlib
 import hmac
 import logging
 import secrets
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 from uuid import UUID, uuid4
 
-import bcrypt
 import jwt
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -35,15 +33,15 @@ class RBACService:
         self.logger = logging.getLogger(__name__)
 
         # In-memory storage (would be replaced with persistent storage in production)
-        self.users: Dict[UUID, User] = {}
-        self.users_by_username: Dict[str, UUID] = {}
-        self.users_by_email: Dict[str, UUID] = {}
-        self.active_sessions: Dict[str, UUID] = {}  # session_id -> user_id
-        self.access_requests: Dict[UUID, AccessRequest] = {}
+        self.users: dict[UUID, User] = {}
+        self.users_by_username: dict[str, UUID] = {}
+        self.users_by_email: dict[str, UUID] = {}
+        self.active_sessions: dict[str, UUID] = {}  # session_id -> user_id
+        self.access_requests: dict[UUID, AccessRequest] = {}
 
         # Security monitoring
-        self.failed_login_attempts: Dict[str, List[datetime]] = {}  # IP -> timestamps
-        self.suspicious_activities: List[Dict[str, Any]] = []
+        self.failed_login_attempts: dict[str, list[datetime]] = {}  # IP -> timestamps
+        self.suspicious_activities: list[dict[str, Any]] = []
 
         self.logger.info("RBAC service initialized")
 
@@ -52,8 +50,8 @@ class RBACService:
         username: str,
         email: str,
         password: str,
-        roles: Optional[Set[UserRole]] = None,
-        created_by: Optional[UUID] = None,
+        roles: set[UserRole] | None = None,
+        created_by: UUID | None = None,
     ) -> User:
         """Create a new user with secure password hashing."""
 
@@ -105,9 +103,9 @@ class RBACService:
         self,
         username: str,
         password: str,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
-    ) -> Optional[str]:
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+    ) -> str | None:
         """Authenticate user and return JWT token if successful."""
 
         user_id = self.users_by_username.get(username)
@@ -207,7 +205,7 @@ class RBACService:
         self.logger.info(f"User authenticated successfully: {username}")
         return token
 
-    async def validate_token(self, token: str) -> Optional[User]:
+    async def validate_token(self, token: str) -> User | None:
         """Validate JWT token and return user if valid."""
 
         try:
@@ -275,8 +273,8 @@ class RBACService:
         self,
         user_id: UUID,
         permission: PermissionType,
-        resource_type: Optional[str] = None,
-        resource_id: Optional[str] = None,
+        resource_type: str | None = None,
+        resource_id: str | None = None,
     ) -> bool:
         """Check if user has specific permission."""
 
@@ -392,7 +390,7 @@ class RBACService:
         user_id: UUID,
         permission: PermissionType,
         granted_by: UUID,
-        expiry: Optional[datetime] = None,
+        expiry: datetime | None = None,
     ) -> bool:
         """Grant custom permission to user."""
 
@@ -466,9 +464,9 @@ class RBACService:
         requester_id: UUID,
         permission: PermissionType,
         resource_type: str,
-        resource_id: Optional[str],
+        resource_id: str | None,
         justification: str,
-        requested_duration: Optional[timedelta] = None,
+        requested_duration: timedelta | None = None,
     ) -> AccessRequest:
         """Create access request for elevated permissions."""
 
@@ -516,8 +514,8 @@ class RBACService:
         self,
         request_id: UUID,
         approver_id: UUID,
-        approval_comments: Optional[str] = None,
-        custom_duration: Optional[timedelta] = None,
+        approval_comments: str | None = None,
+        custom_duration: timedelta | None = None,
     ) -> bool:
         """Approve access request."""
 
@@ -635,7 +633,7 @@ class RBACService:
     async def _handle_failed_login(
         self,
         username: str,
-        ip_address: Optional[str],
+        ip_address: str | None,
         reason: str,
     ) -> None:
         """Handle failed login attempt."""
@@ -676,14 +674,14 @@ class RBACService:
         action: ActionType,
         resource_type: str,
         success: bool,
-        user_id: Optional[UUID] = None,
-        username: Optional[str] = None,
-        resource_id: Optional[str] = None,
-        resource_name: Optional[str] = None,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
-        session_id: Optional[str] = None,
-        additional_data: Optional[Dict[str, Any]] = None,
+        user_id: UUID | None = None,
+        username: str | None = None,
+        resource_id: str | None = None,
+        resource_name: str | None = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+        session_id: str | None = None,
+        additional_data: dict[str, Any] | None = None,
         security_level: str = "INFO",
     ) -> None:
         """Log audit event."""
@@ -710,7 +708,7 @@ class RBACService:
             f"Audit: {action.value} - {resource_type} - Success: {success}"
         )
 
-    def get_user_sessions(self, user_id: UUID) -> List[str]:
+    def get_user_sessions(self, user_id: UUID) -> list[str]:
         """Get active sessions for user."""
 
         return [
@@ -719,7 +717,7 @@ class RBACService:
             if uid == user_id
         ]
 
-    def get_security_metrics(self) -> Dict[str, Any]:
+    def get_security_metrics(self) -> dict[str, Any]:
         """Get security metrics for monitoring."""
 
         total_users = len(self.users)

@@ -5,7 +5,6 @@ import time
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
-from fastapi.responses import JSONResponse
 
 from pynomaly.application.dto.automl_dto import (
     AlgorithmRecommendationDTO,
@@ -18,7 +17,6 @@ from pynomaly.application.dto.automl_dto import (
     HyperparameterOptimizationRequestDTO,
     HyperparameterOptimizationResponseDTO,
 )
-from pynomaly.application.use_cases.automl_optimization import AutoMLOptimizationUseCase
 from pynomaly.infrastructure.auth import require_read, require_write
 from pynomaly.infrastructure.config import Container
 from pynomaly.presentation.api.deps import get_container, get_current_user

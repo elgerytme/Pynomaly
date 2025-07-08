@@ -8,7 +8,7 @@ from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 from pydantic import BaseModel, Field
@@ -46,7 +46,7 @@ class ThresholdFeedback:
     anomaly_score: float
     confidence: float
     timestamp: datetime = field(default_factory=datetime.now)
-    context: Dict[str, Any] = field(default_factory=dict)
+    context: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -69,11 +69,11 @@ class ThresholdCandidate(BaseModel):
     """Candidate threshold with performance tracking."""
 
     threshold: float
-    performance_history: List[PerformanceMetrics] = Field(default_factory=list)
-    feedback_count: Dict[FeedbackType, int] = Field(default_factory=dict)
+    performance_history: list[PerformanceMetrics] = Field(default_factory=list)
+    feedback_count: dict[FeedbackType, int] = Field(default_factory=dict)
     exploration_count: int = 0
     exploitation_count: int = 0
-    confidence_interval: Tuple[float, float] = (0.0, 1.0)
+    confidence_interval: tuple[float, float] = (0.0, 1.0)
     last_updated: datetime = Field(default_factory=datetime.now)
 
     def get_average_f1(self) -> float:
@@ -114,7 +114,7 @@ class AdaptiveThresholdOptimizer:
         self,
         optimization_strategy: ThresholdOptimizationStrategy = ThresholdOptimizationStrategy.BAYESIAN_OPTIMIZATION,
         initial_threshold: float = 0.5,
-        threshold_range: Tuple[float, float] = (0.1, 0.9),
+        threshold_range: tuple[float, float] = (0.1, 0.9),
         optimization_window: int = 100,
         min_feedback_for_optimization: int = 20,
         false_positive_penalty: float = 1.0,
@@ -150,7 +150,7 @@ class AdaptiveThresholdOptimizer:
         self.recent_performance: deque = deque(maxlen=50)
 
         # Threshold candidates for exploration
-        self.threshold_candidates: Dict[float, ThresholdCandidate] = {}
+        self.threshold_candidates: dict[float, ThresholdCandidate] = {}
         self._initialize_threshold_candidates()
 
         # Optimization state
@@ -159,8 +159,8 @@ class AdaptiveThresholdOptimizer:
         self.optimization_interval = timedelta(minutes=10)
 
         # Context-aware adaptation
-        self.context_thresholds: Dict[str, float] = {}
-        self.context_performance: Dict[str, List[PerformanceMetrics]] = defaultdict(
+        self.context_thresholds: dict[str, float] = {}
+        self.context_performance: dict[str, list[PerformanceMetrics]] = defaultdict(
             list
         )
 
@@ -196,8 +196,8 @@ class AdaptiveThresholdOptimizer:
             )
 
     async def get_adaptive_threshold(
-        self, anomaly_scores: np.ndarray, context: Optional[Dict[str, Any]] = None
-    ) -> Tuple[float, Dict[str, Any]]:
+        self, anomaly_scores: np.ndarray, context: dict[str, Any] | None = None
+    ) -> tuple[float, dict[str, Any]]:
         """Get adaptive threshold based on current context and history.
 
         Args:
@@ -265,7 +265,7 @@ class AdaptiveThresholdOptimizer:
 
         return threshold, adaptation_info
 
-    def _get_context_key(self, context: Dict[str, Any]) -> str:
+    def _get_context_key(self, context: dict[str, Any]) -> str:
         """Generate context key for threshold mapping."""
         # Create a simple hash of key context features
         key_features = []
@@ -413,8 +413,8 @@ class AdaptiveThresholdOptimizer:
         threshold_used: float,
         feedback_type: FeedbackType,
         confidence: float = 1.0,
-        context: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        context: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Provide feedback about threshold performance.
 
         Args:
@@ -496,7 +496,7 @@ class AdaptiveThresholdOptimizer:
         candidate.last_updated = datetime.now()
 
     def _calculate_performance_metrics(
-        self, feedback_count: Dict[FeedbackType, int]
+        self, feedback_count: dict[FeedbackType, int]
     ) -> PerformanceMetrics:
         """Calculate performance metrics from feedback counts."""
         tp = feedback_count.get(FeedbackType.TRUE_POSITIVE, 0)
@@ -588,7 +588,7 @@ class AdaptiveThresholdOptimizer:
             logger.error(f"Error checking performance degradation: {e}")
             return False
 
-    async def _optimize_threshold(self) -> Dict[str, Any]:
+    async def _optimize_threshold(self) -> dict[str, Any]:
         """Optimize threshold using the selected strategy."""
         logger.info(f"Optimizing threshold using {self.optimization_strategy}")
 
@@ -906,7 +906,7 @@ class AdaptiveThresholdOptimizer:
         metrics = self._calculate_performance_metrics(simulated_feedback)
         return metrics.f1_score
 
-    def _get_feedback_summary(self) -> Dict[str, Any]:
+    def _get_feedback_summary(self) -> dict[str, Any]:
         """Get summary of recent feedback."""
         if not self.feedback_history:
             return {"no_feedback": True}
@@ -937,7 +937,7 @@ class AdaptiveThresholdOptimizer:
             ),
         }
 
-    async def get_optimization_report(self) -> Dict[str, Any]:
+    async def get_optimization_report(self) -> dict[str, Any]:
         """Get comprehensive optimization report."""
         report = {
             "optimizer_status": {
@@ -973,7 +973,7 @@ class AdaptiveThresholdOptimizer:
 
         return report
 
-    def _generate_optimization_recommendations(self) -> List[str]:
+    def _generate_optimization_recommendations(self) -> list[str]:
         """Generate recommendations for optimization improvement."""
         recommendations = []
 

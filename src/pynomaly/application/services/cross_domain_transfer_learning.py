@@ -4,12 +4,11 @@ from __future__ import annotations
 
 import logging
 import pickle
-from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 from pydantic import BaseModel, Field
@@ -64,13 +63,13 @@ class DomainCharacteristics:
     """Characteristics of a specific domain."""
 
     domain_type: DomainType
-    feature_types: List[str] = field(default_factory=list)
-    typical_patterns: Dict[str, Any] = field(default_factory=dict)
-    anomaly_patterns: Dict[str, Any] = field(default_factory=dict)
-    data_distribution: Dict[str, float] = field(default_factory=dict)
-    temporal_patterns: Dict[str, Any] = field(default_factory=dict)
-    complexity_metrics: Dict[str, float] = field(default_factory=dict)
-    performance_baselines: Dict[str, float] = field(default_factory=dict)
+    feature_types: list[str] = field(default_factory=list)
+    typical_patterns: dict[str, Any] = field(default_factory=dict)
+    anomaly_patterns: dict[str, Any] = field(default_factory=dict)
+    data_distribution: dict[str, float] = field(default_factory=dict)
+    temporal_patterns: dict[str, Any] = field(default_factory=dict)
+    complexity_metrics: dict[str, float] = field(default_factory=dict)
+    performance_baselines: dict[str, float] = field(default_factory=dict)
 
 
 @dataclass
@@ -79,11 +78,11 @@ class TransferLearningKnowledge:
 
     source_domain: DomainType
     target_domain: DomainType
-    feature_mappings: Dict[str, str] = field(default_factory=dict)
-    learned_representations: Optional[np.ndarray] = None
-    model_weights: Optional[Dict[str, Any]] = None
-    adaptation_parameters: Dict[str, Any] = field(default_factory=dict)
-    performance_metrics: Dict[str, float] = field(default_factory=dict)
+    feature_mappings: dict[str, str] = field(default_factory=dict)
+    learned_representations: np.ndarray | None = None
+    model_weights: dict[str, Any] | None = None
+    adaptation_parameters: dict[str, Any] = field(default_factory=dict)
+    performance_metrics: dict[str, float] = field(default_factory=dict)
     transfer_success_rate: float = 0.0
     created_at: datetime = field(default_factory=datetime.now)
 
@@ -219,17 +218,17 @@ class CrossDomainTransferLearning:
         self.enable_meta_learning = enable_meta_learning
 
         # Domain knowledge storage
-        self.domain_characteristics: Dict[DomainType, DomainCharacteristics] = {}
-        self.transfer_knowledge: List[TransferLearningKnowledge] = []
-        self.domain_similarities: Dict[
-            Tuple[DomainType, DomainType], DomainSimilarity
+        self.domain_characteristics: dict[DomainType, DomainCharacteristics] = {}
+        self.transfer_knowledge: list[TransferLearningKnowledge] = []
+        self.domain_similarities: dict[
+            tuple[DomainType, DomainType], DomainSimilarity
         ] = {}
 
         # Domain adapters cache
-        self.domain_adapters: Dict[Tuple[DomainType, DomainType], DomainAdapter] = {}
+        self.domain_adapters: dict[tuple[DomainType, DomainType], DomainAdapter] = {}
 
         # Performance tracking
-        self.transfer_success_history: List[Dict[str, Any]] = []
+        self.transfer_success_history: list[dict[str, Any]] = []
 
         # Load existing knowledge
         self._load_knowledge_base()
@@ -270,7 +269,7 @@ class CrossDomainTransferLearning:
         self,
         domain_type: DomainType,
         dataset: Dataset,
-        existing_detectors: Optional[List[Detector]] = None,
+        existing_detectors: list[Detector] | None = None,
     ) -> DomainCharacteristics:
         """Analyze characteristics of a domain from data and models.
 
@@ -323,8 +322,8 @@ class CrossDomainTransferLearning:
         return characteristics
 
     def _analyze_feature_types(
-        self, data: np.ndarray, feature_names: List[str]
-    ) -> List[str]:
+        self, data: np.ndarray, feature_names: list[str]
+    ) -> list[str]:
         """Analyze types of features in the data."""
         feature_types = []
 
@@ -346,7 +345,7 @@ class CrossDomainTransferLearning:
 
         return feature_types
 
-    def _analyze_data_distribution(self, data: np.ndarray) -> Dict[str, float]:
+    def _analyze_data_distribution(self, data: np.ndarray) -> dict[str, float]:
         """Analyze statistical distribution of data."""
         return {
             "mean": float(np.mean(data)),
@@ -390,7 +389,7 @@ class CrossDomainTransferLearning:
         except Exception:
             return 0.0
 
-    def _calculate_complexity_metrics(self, data: np.ndarray) -> Dict[str, float]:
+    def _calculate_complexity_metrics(self, data: np.ndarray) -> dict[str, float]:
         """Calculate complexity metrics for the data."""
         try:
             metrics = {}
@@ -446,7 +445,7 @@ class CrossDomainTransferLearning:
 
     def _analyze_temporal_patterns(
         self, data: np.ndarray, dataset: Dataset
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Analyze temporal patterns in the data."""
         # Simplified temporal analysis
         patterns = {
@@ -471,7 +470,7 @@ class CrossDomainTransferLearning:
 
         return patterns
 
-    def _extract_typical_patterns(self, data: np.ndarray) -> Dict[str, Any]:
+    def _extract_typical_patterns(self, data: np.ndarray) -> dict[str, Any]:
         """Extract typical patterns from normal data."""
         # Simplified pattern extraction
         return {
@@ -480,7 +479,7 @@ class CrossDomainTransferLearning:
             "cluster_centers": self._find_cluster_centers(data),
         }
 
-    def _extract_anomaly_patterns(self, data: np.ndarray) -> Dict[str, Any]:
+    def _extract_anomaly_patterns(self, data: np.ndarray) -> dict[str, Any]:
         """Extract anomaly patterns (simplified - normally requires labeled data)."""
         # Identify potential anomalies using statistical methods
         z_scores = np.abs(
@@ -508,7 +507,7 @@ class CrossDomainTransferLearning:
                 "anomaly_characteristics": {},
             }
 
-    def _calculate_feature_correlations(self, data: np.ndarray) -> List[List[float]]:
+    def _calculate_feature_correlations(self, data: np.ndarray) -> list[list[float]]:
         """Calculate feature correlation matrix."""
         try:
             corr_matrix = np.corrcoef(data.T)
@@ -522,7 +521,7 @@ class CrossDomainTransferLearning:
 
     def _calculate_typical_ranges(
         self, data: np.ndarray
-    ) -> Dict[str, Tuple[float, float]]:
+    ) -> dict[str, tuple[float, float]]:
         """Calculate typical ranges for each feature."""
         ranges = {}
         for i in range(data.shape[1]):
@@ -531,7 +530,7 @@ class CrossDomainTransferLearning:
             ranges[f"feature_{i}"] = (float(q25), float(q75))
         return ranges
 
-    def _find_cluster_centers(self, data: np.ndarray) -> List[List[float]]:
+    def _find_cluster_centers(self, data: np.ndarray) -> list[list[float]]:
         """Find cluster centers in the data."""
         try:
             from sklearn.cluster import KMeans
@@ -552,8 +551,8 @@ class CrossDomainTransferLearning:
             return []
 
     async def _evaluate_detector_performance(
-        self, detectors: List[Detector], dataset: Dataset
-    ) -> Dict[str, float]:
+        self, detectors: list[Detector], dataset: Dataset
+    ) -> dict[str, float]:
         """Evaluate performance of detectors on dataset."""
         performance = {}
 
@@ -604,7 +603,7 @@ class CrossDomainTransferLearning:
 
     async def _calculate_domain_similarity(
         self, chars1: DomainCharacteristics, chars2: DomainCharacteristics
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Calculate similarity between two domain characteristics."""
         # Statistical similarity
         stat_sim = self._calculate_statistical_similarity(
@@ -639,7 +638,7 @@ class CrossDomainTransferLearning:
         }
 
     def _calculate_statistical_similarity(
-        self, dist1: Dict[str, float], dist2: Dict[str, float]
+        self, dist1: dict[str, float], dist2: dict[str, float]
     ) -> float:
         """Calculate statistical similarity between distributions."""
         common_keys = set(dist1.keys()) & set(dist2.keys())
@@ -657,7 +656,7 @@ class CrossDomainTransferLearning:
         return np.mean(similarities)
 
     def _calculate_feature_similarity(
-        self, types1: List[str], types2: List[str]
+        self, types1: list[str], types2: list[str]
     ) -> float:
         """Calculate feature type similarity."""
         if not types1 or not types2:
@@ -688,7 +687,7 @@ class CrossDomainTransferLearning:
         return domain_relations.get(pair, domain_relations.get(reverse_pair, 0.3))
 
     def _calculate_task_similarity(
-        self, metrics1: Dict[str, float], metrics2: Dict[str, float]
+        self, metrics1: dict[str, float], metrics2: dict[str, float]
     ) -> float:
         """Calculate task complexity similarity."""
         common_keys = set(metrics1.keys()) & set(metrics2.keys())
@@ -711,7 +710,7 @@ class CrossDomainTransferLearning:
         source_detector: Detector,
         target_dataset: Dataset,
         transfer_strategy: TransferStrategy = TransferStrategy.FEATURE_ADAPTATION,
-    ) -> Tuple[Detector, Dict[str, Any]]:
+    ) -> tuple[Detector, dict[str, Any]]:
         """Transfer knowledge from source domain to target domain.
 
         Args:
@@ -794,7 +793,7 @@ class CrossDomainTransferLearning:
 
     async def _feature_adaptation_transfer(
         self, source_detector: Detector, target_dataset: Dataset, adapter: DomainAdapter
-    ) -> Tuple[Detector, Dict[str, Any]]:
+    ) -> tuple[Detector, dict[str, Any]]:
         """Transfer using feature adaptation."""
         # This is a simplified implementation
         # In practice, you'd need more sophisticated feature adaptation
@@ -829,7 +828,7 @@ class CrossDomainTransferLearning:
 
     async def _fine_tuning_transfer(
         self, source_detector: Detector, target_dataset: Dataset, adapter: DomainAdapter
-    ) -> Tuple[Detector, Dict[str, Any]]:
+    ) -> tuple[Detector, dict[str, Any]]:
         """Transfer using model fine-tuning."""
         try:
             # Fine-tune the source detector on target data
@@ -865,7 +864,7 @@ class CrossDomainTransferLearning:
 
     async def _knowledge_distillation_transfer(
         self, source_detector: Detector, target_dataset: Dataset, adapter: DomainAdapter
-    ) -> Tuple[Detector, Dict[str, Any]]:
+    ) -> tuple[Detector, dict[str, Any]]:
         """Transfer using knowledge distillation."""
         try:
             # Create a smaller/simpler detector for the target domain
@@ -899,7 +898,7 @@ class CrossDomainTransferLearning:
 
     async def _meta_learning_transfer(
         self, source_detector: Detector, target_dataset: Dataset, adapter: DomainAdapter
-    ) -> Tuple[Detector, Dict[str, Any]]:
+    ) -> tuple[Detector, dict[str, Any]]:
         """Transfer using meta-learning."""
         try:
             # Use meta-learning to quickly adapt to new domain
@@ -933,7 +932,7 @@ class CrossDomainTransferLearning:
 
     async def _simple_adaptation_transfer(
         self, source_detector: Detector, target_dataset: Dataset, adapter: DomainAdapter
-    ) -> Tuple[Detector, Dict[str, Any]]:
+    ) -> tuple[Detector, dict[str, Any]]:
         """Simple adaptation transfer (baseline)."""
         try:
             # Simple retraining on target data
@@ -956,7 +955,7 @@ class CrossDomainTransferLearning:
             logger.error(f"Error in simple adaptation transfer: {e}")
             return source_detector, {"error": str(e), "transfer_success_rate": 0.0}
 
-    def get_best_source_domain(self, target_domain: DomainType) -> Optional[DomainType]:
+    def get_best_source_domain(self, target_domain: DomainType) -> DomainType | None:
         """Find the best source domain for transfer to target domain."""
         best_domain = None
         best_similarity = 0.0
@@ -1016,7 +1015,7 @@ class CrossDomainTransferLearning:
         except Exception as e:
             logger.error(f"Error loading knowledge base: {e}")
 
-    async def get_transfer_report(self) -> Dict[str, Any]:
+    async def get_transfer_report(self) -> dict[str, Any]:
         """Get comprehensive transfer learning report."""
         return {
             "system_status": {
@@ -1055,7 +1054,7 @@ class CrossDomainTransferLearning:
             "recommendations": self._generate_transfer_recommendations(),
         }
 
-    def _generate_transfer_recommendations(self) -> List[str]:
+    def _generate_transfer_recommendations(self) -> list[str]:
         """Generate recommendations for improving transfer learning."""
         recommendations = []
 

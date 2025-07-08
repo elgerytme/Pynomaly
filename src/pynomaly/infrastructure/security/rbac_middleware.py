@@ -11,7 +11,7 @@ This module provides enterprise-grade middleware that:
 from __future__ import annotations
 
 import logging
-from typing import Annotated, Any, Dict, List, Optional, Set
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import Depends, HTTPException, Request, status
@@ -19,13 +19,9 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from pynomaly.domain.entities.user import Permission, User, UserRole
 from pynomaly.domain.security.permission_matrix import (
-    ActionType,
     PermissionMatrix,
-    ResourceType,
-    has_resource_access,
 )
 from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService, get_auth
-from pynomaly.infrastructure.config import Container
 from pynomaly.infrastructure.security.rbac_service import RBACService
 
 logger = logging.getLogger(__name__)
@@ -42,13 +38,13 @@ class RBACMiddleware:
 
     async def validate_user_and_permissions(
         self,
-        credentials: Optional[HTTPAuthorizationCredentials],
-        required_permissions: Optional[List[Permission]] = None,
-        required_role: Optional[UserRole] = None,
-        resource_id: Optional[str] = None,
-        tenant_id: Optional[UUID] = None,
+        credentials: HTTPAuthorizationCredentials | None,
+        required_permissions: list[Permission] | None = None,
+        required_role: UserRole | None = None,
+        resource_id: str | None = None,
+        tenant_id: UUID | None = None,
         allow_self_access: bool = False,
-        request: Optional[Request] = None,
+        request: Request | None = None,
     ) -> User:
         """Comprehensive validation of user authentication and authorization.
 
@@ -95,8 +91,8 @@ class RBACMiddleware:
 
     async def _authenticate_user(
         self,
-        credentials: Optional[HTTPAuthorizationCredentials],
-        request: Optional[Request] = None,
+        credentials: HTTPAuthorizationCredentials | None,
+        request: Request | None = None,
     ) -> User:
         """Authenticate user from bearer token.
 
@@ -153,7 +149,7 @@ class RBACMiddleware:
             )
 
     async def _validate_role_requirement(
-        self, user: User, required_role: UserRole, tenant_id: Optional[UUID] = None
+        self, user: User, required_role: UserRole, tenant_id: UUID | None = None
     ) -> None:
         """Validate that user has required role.
 
@@ -180,7 +176,7 @@ class RBACMiddleware:
                 self.logger.warning(f"User {user.id} has no role in tenant {tenant_id}")
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
-                    detail=f"Access denied: No role in tenant",
+                    detail="Access denied: No role in tenant",
                 )
 
             user_level = role_hierarchy.get(tenant_role.role, 0)
@@ -211,9 +207,9 @@ class RBACMiddleware:
     async def _validate_permission_requirements(
         self,
         user: User,
-        required_permissions: List[Permission],
-        tenant_id: Optional[UUID] = None,
-        resource_id: Optional[str] = None,
+        required_permissions: list[Permission],
+        tenant_id: UUID | None = None,
+        resource_id: str | None = None,
         allow_self_access: bool = False,
     ) -> None:
         """Validate that user has required permissions.
@@ -292,12 +288,12 @@ class RBACMiddleware:
     async def _log_access_attempt(
         self,
         user: User,
-        required_permissions: Optional[List[Permission]],
-        required_role: Optional[UserRole],
-        resource_id: Optional[str],
-        tenant_id: Optional[UUID],
+        required_permissions: list[Permission] | None,
+        required_role: UserRole | None,
+        resource_id: str | None,
+        tenant_id: UUID | None,
         success: bool,
-        request: Optional[Request] = None,
+        request: Request | None = None,
     ) -> None:
         """Log access attempt for audit purposes.
 
@@ -347,7 +343,7 @@ class RBACMiddleware:
             )
 
     async def _log_auth_failure(
-        self, reason: str, request: Optional[Request] = None
+        self, reason: str, request: Request | None = None
     ) -> None:
         """Log authentication failure for security monitoring.
 
@@ -405,9 +401,9 @@ class RequirePermissions:
 
     def __init__(
         self,
-        permissions: List[str],
-        tenant_id: Optional[UUID] = None,
-        resource_id: Optional[str] = None,
+        permissions: list[str],
+        tenant_id: UUID | None = None,
+        resource_id: str | None = None,
         allow_self_access: bool = False,
     ):
         """Initialize permission requirement.
@@ -430,7 +426,7 @@ class RequirePermissions:
         self,
         request: Request,
         credentials: Annotated[
-            Optional[HTTPAuthorizationCredentials], Depends(bearer_scheme)
+            HTTPAuthorizationCredentials | None, Depends(bearer_scheme)
         ],
         rbac_middleware: Annotated[RBACMiddleware, Depends(get_rbac_middleware)],
     ) -> User:
@@ -448,7 +444,7 @@ class RequirePermissions:
 class RequireRole:
     """Dependency class for requiring specific role."""
 
-    def __init__(self, role: UserRole, tenant_id: Optional[UUID] = None):
+    def __init__(self, role: UserRole, tenant_id: UUID | None = None):
         """Initialize role requirement.
 
         Args:
@@ -462,7 +458,7 @@ class RequireRole:
         self,
         request: Request,
         credentials: Annotated[
-            Optional[HTTPAuthorizationCredentials], Depends(bearer_scheme)
+            HTTPAuthorizationCredentials | None, Depends(bearer_scheme)
         ],
         rbac_middleware: Annotated[RBACMiddleware, Depends(get_rbac_middleware)],
     ) -> User:
@@ -482,7 +478,7 @@ class RequireAuthentication:
         self,
         request: Request,
         credentials: Annotated[
-            Optional[HTTPAuthorizationCredentials], Depends(bearer_scheme)
+            HTTPAuthorizationCredentials | None, Depends(bearer_scheme)
         ],
         rbac_middleware: Annotated[RBACMiddleware, Depends(get_rbac_middleware)],
     ) -> User:
@@ -494,9 +490,9 @@ class RequireAuthentication:
 
 # Convenience dependency factories
 def require_permissions(
-    permissions: List[str],
-    tenant_id: Optional[UUID] = None,
-    resource_id: Optional[str] = None,
+    permissions: list[str],
+    tenant_id: UUID | None = None,
+    resource_id: str | None = None,
     allow_self_access: bool = False,
 ) -> RequirePermissions:
     """Factory function for permission requirements."""
@@ -508,7 +504,7 @@ def require_permissions(
     )
 
 
-def require_role(role: UserRole, tenant_id: Optional[UUID] = None) -> RequireRole:
+def require_role(role: UserRole, tenant_id: UUID | None = None) -> RequireRole:
     """Factory function for role requirements."""
     return RequireRole(role=role, tenant_id=tenant_id)
 

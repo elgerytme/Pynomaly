@@ -5,7 +5,7 @@ from __future__ import annotations
 import warnings
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any
 
 from pynomaly.domain.exceptions import InvalidAlgorithmError
 from pynomaly.domain.value_objects import ContaminationRate
@@ -68,8 +68,8 @@ class DatasetCharacteristics:
     n_features: int
     has_categorical: bool = False
     has_missing_values: bool = False
-    feature_correlation: Optional[float] = None
-    contamination_estimate: Optional[float] = None
+    feature_correlation: float | None = None
+    contamination_estimate: float | None = None
     data_distribution: str = "unknown"  # normal, skewed, multimodal, etc.
     computational_budget: str = "medium"  # low, medium, high
 
@@ -95,9 +95,9 @@ class AlgorithmFactory:
     def create_detector(
         self,
         algorithm_name: str,
-        library: Optional[Union[AlgorithmLibrary, str]] = None,
-        name: Optional[str] = None,
-        contamination_rate: Optional[ContaminationRate] = None,
+        library: AlgorithmLibrary | str | None = None,
+        name: str | None = None,
+        contamination_rate: ContaminationRate | None = None,
         **kwargs: Any,
     ) -> DetectorProtocol:
         """Create a detector instance.
@@ -158,12 +158,11 @@ class AlgorithmFactory:
 
     def create_ensemble(
         self,
-        detector_configs: List[Dict[str, Any]],
+        detector_configs: list[dict[str, Any]],
         name: str = "AutoEnsemble",
-        contamination_rate: Optional[ContaminationRate] = None,
-        aggregation_method: Union[
-            AggregationMethod, str
-        ] = AggregationMethod.WEIGHTED_AVERAGE,
+        contamination_rate: ContaminationRate | None = None,
+        aggregation_method: AggregationMethod
+        | str = AggregationMethod.WEIGHTED_AVERAGE,
         **kwargs: Any,
     ) -> EnsembleMetaAdapter:
         """Create an ensemble detector from multiple algorithms.
@@ -206,7 +205,7 @@ class AlgorithmFactory:
         dataset_characteristics: DatasetCharacteristics,
         top_k: int = 5,
         include_ensembles: bool = True,
-    ) -> List[AlgorithmRecommendation]:
+    ) -> list[AlgorithmRecommendation]:
         """Recommend algorithms based on dataset characteristics.
 
         Args:
@@ -243,8 +242,8 @@ class AlgorithmFactory:
         self,
         dataset_characteristics: DatasetCharacteristics,
         performance_preference: str = "balanced",  # fast, balanced, accurate
-        name: Optional[str] = None,
-        contamination_rate: Optional[ContaminationRate] = None,
+        name: str | None = None,
+        contamination_rate: ContaminationRate | None = None,
     ) -> DetectorProtocol:
         """Automatically create the best detector for given characteristics.
 
@@ -331,7 +330,7 @@ class AlgorithmFactory:
             contamination_rate=contamination_rate,
         )
 
-    def list_all_algorithms(self) -> List[str]:
+    def list_all_algorithms(self) -> list[str]:
         """List all available algorithms across all libraries."""
         algorithms = []
 
@@ -352,7 +351,7 @@ class AlgorithmFactory:
 
         return algorithms
 
-    def list_algorithms_for_library(self, library: AlgorithmLibrary) -> List[str]:
+    def list_algorithms_for_library(self, library: AlgorithmLibrary) -> list[str]:
         """List algorithms for a specific library."""
         if library == AlgorithmLibrary.PYOD:
             return EnhancedPyODAdapter.list_algorithms()
@@ -366,8 +365,8 @@ class AlgorithmFactory:
             return []
 
     def get_algorithm_info(
-        self, algorithm_name: str, library: Optional[AlgorithmLibrary] = None
-    ) -> Dict[str, Any]:
+        self, algorithm_name: str, library: AlgorithmLibrary | None = None
+    ) -> dict[str, Any]:
         """Get detailed information about an algorithm."""
         if library is None:
             library = self._detect_library(algorithm_name)
@@ -442,8 +441,8 @@ class AlgorithmFactory:
     def _create_ensemble_detector(
         self,
         algorithm_name: str,
-        name: Optional[str],
-        contamination_rate: Optional[ContaminationRate],
+        name: str | None,
+        contamination_rate: ContaminationRate | None,
         **kwargs: Any,
     ) -> EnsembleMetaAdapter:
         """Create an ensemble detector."""
@@ -483,7 +482,7 @@ class AlgorithmFactory:
 
     def _get_pyod_recommendations(
         self, characteristics: DatasetCharacteristics
-    ) -> List[AlgorithmRecommendation]:
+    ) -> list[AlgorithmRecommendation]:
         """Get PyOD algorithm recommendations."""
         recommendations = []
 
@@ -517,7 +516,7 @@ class AlgorithmFactory:
 
     def _get_sklearn_recommendations(
         self, characteristics: DatasetCharacteristics
-    ) -> List[AlgorithmRecommendation]:
+    ) -> list[AlgorithmRecommendation]:
         """Get sklearn algorithm recommendations."""
         recommendations = []
 
@@ -551,8 +550,8 @@ class AlgorithmFactory:
     def _get_ensemble_recommendations(
         self,
         characteristics: DatasetCharacteristics,
-        base_recommendations: List[AlgorithmRecommendation],
-    ) -> List[AlgorithmRecommendation]:
+        base_recommendations: list[AlgorithmRecommendation],
+    ) -> list[AlgorithmRecommendation]:
         """Get ensemble algorithm recommendations."""
         if (
             characteristics.computational_budget == "low"

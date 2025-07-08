@@ -3,12 +3,9 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
-import subprocess
 from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 from uuid import UUID, uuid4
 
 from pynomaly.domain.models.cicd import (
@@ -22,12 +19,12 @@ from pynomaly.domain.models.cicd import (
 class DeploymentManager:
     """Service for managing application deployments across different environments."""
 
-    def __init__(self, deployment_configs: Optional[Dict[str, Any]] = None):
+    def __init__(self, deployment_configs: dict[str, Any] | None = None):
         self.logger = logging.getLogger(__name__)
 
         # Deployment storage
-        self.deployments: Dict[UUID, Deployment] = {}
-        self.active_deployments: Set[UUID] = set()
+        self.deployments: dict[UUID, Deployment] = {}
+        self.active_deployments: set[UUID] = set()
 
         # Environment configurations
         self.deployment_configs = deployment_configs or self._get_default_configs()
@@ -51,12 +48,12 @@ class DeploymentManager:
         }
 
         # Background tasks
-        self.monitoring_tasks: Set[asyncio.Task] = set()
+        self.monitoring_tasks: set[asyncio.Task] = set()
         self.is_running = False
 
         self.logger.info("Deployment manager initialized")
 
-    def _get_default_configs(self) -> Dict[str, Any]:
+    def _get_default_configs(self) -> dict[str, Any]:
         """Get default deployment configurations."""
 
         return {
@@ -186,7 +183,7 @@ class DeploymentManager:
         commit_sha: str,
         branch: str,
         strategy: DeploymentStrategy = DeploymentStrategy.ROLLING,
-        deployed_by: Optional[UUID] = None,
+        deployed_by: UUID | None = None,
         deployment_notes: str = "",
         rollback_on_failure: bool = True,
     ) -> Deployment:
@@ -278,9 +275,9 @@ class DeploymentManager:
     async def rollback(
         self,
         environment: DeploymentEnvironment,
-        target_version: Optional[str] = None,
-        rolled_back_by: Optional[UUID] = None,
-    ) -> Optional[Deployment]:
+        target_version: str | None = None,
+        rolled_back_by: UUID | None = None,
+    ) -> Deployment | None:
         """Rollback to previous or specified version."""
 
         # Find target deployment
@@ -351,9 +348,9 @@ class DeploymentManager:
 
     async def get_deployment_status(
         self,
-        deployment_id: Optional[UUID] = None,
-        environment: Optional[DeploymentEnvironment] = None,
-    ) -> Dict[str, Any]:
+        deployment_id: UUID | None = None,
+        environment: DeploymentEnvironment | None = None,
+    ) -> dict[str, Any]:
         """Get deployment status."""
 
         if deployment_id:
@@ -662,7 +659,7 @@ class DeploymentManager:
 
     def _get_current_deployment(
         self, environment: DeploymentEnvironment
-    ) -> Optional[Deployment]:
+    ) -> Deployment | None:
         """Get current successful deployment for environment."""
 
         env_deployments = [
@@ -678,7 +675,7 @@ class DeploymentManager:
 
     def _find_previous_successful_deployment(
         self, environment: DeploymentEnvironment
-    ) -> Optional[Deployment]:
+    ) -> Deployment | None:
         """Find previous successful deployment for rollback."""
 
         env_deployments = [
@@ -700,7 +697,7 @@ class DeploymentManager:
         )
         return sorted_deployments[1] if len(sorted_deployments) > 1 else None
 
-    def _get_deployment_summary(self, deployment: Deployment) -> Dict[str, Any]:
+    def _get_deployment_summary(self, deployment: Deployment) -> dict[str, Any]:
         """Get deployment summary."""
 
         return {
@@ -729,7 +726,7 @@ class DeploymentManager:
         self,
         environment: DeploymentEnvironment,
         limit: int = 10,
-    ) -> List[Deployment]:
+    ) -> list[Deployment]:
         """Get deployment history for environment."""
 
         env_deployments = [
@@ -831,7 +828,7 @@ class DeploymentManager:
         # Would integrate with metrics system
         pass
 
-    def _get_current_version(self, environment: DeploymentEnvironment) -> Optional[str]:
+    def _get_current_version(self, environment: DeploymentEnvironment) -> str | None:
         """Get current deployed version for environment."""
 
         current = self._get_current_deployment(environment)
@@ -841,7 +838,7 @@ class DeploymentManager:
         self,
         environment: DeploymentEnvironment,
         version: str,
-    ) -> Optional[Deployment]:
+    ) -> Deployment | None:
         """Find deployment by version in environment."""
 
         for deployment in self.deployments.values():

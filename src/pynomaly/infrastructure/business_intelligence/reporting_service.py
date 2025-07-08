@@ -615,7 +615,9 @@ class ReportingService:
                     "recommendation": (
                         "Primary choice"
                         if i == 0
-                        else "Alternative option" if i < 3 else "Specialized use case"
+                        else "Alternative option"
+                        if i < 3
+                        else "Specialized use case"
                     ),
                 }
             )

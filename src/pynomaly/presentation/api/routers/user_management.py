@@ -2,13 +2,10 @@
 FastAPI router for user management and multi-tenancy.
 """
 
-import hashlib
-import secrets
 from datetime import datetime
-from typing import List, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, EmailStr, Field
 
@@ -41,7 +38,7 @@ class CreateUserRequest(BaseModel):
     first_name: str
     last_name: str
     password: str
-    tenant_id: Optional[UUID] = None
+    tenant_id: UUID | None = None
     role: UserRole = UserRole.VIEWER
 
 
@@ -55,9 +52,9 @@ class UserResponse(BaseModel):
     status: UserStatus
     created_at: datetime
     updated_at: datetime
-    last_login_at: Optional[datetime]
-    email_verified_at: Optional[datetime]
-    tenant_roles: List[dict]
+    last_login_at: datetime | None
+    email_verified_at: datetime | None
+    tenant_roles: list[dict]
 
 
 class LoginRequest(BaseModel):
@@ -75,8 +72,8 @@ class CreateTenantRequest(BaseModel):
     name: str
     domain: str
     plan: TenantPlan = TenantPlan.FREE
-    admin_email: Optional[EmailStr] = None
-    admin_password: Optional[str] = None
+    admin_email: EmailStr | None = None
+    admin_password: str | None = None
 
 
 class TenantResponse(BaseModel):
@@ -87,7 +84,7 @@ class TenantResponse(BaseModel):
     status: TenantStatus
     created_at: datetime
     updated_at: datetime
-    expires_at: Optional[datetime]
+    expires_at: datetime | None
     contact_email: str
     billing_email: str
 
@@ -107,10 +104,10 @@ class InviteUserRequest(BaseModel):
 
 
 class UpdateUserRequest(BaseModel):
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    role: Optional[UserRole] = None
-    status: Optional[UserStatus] = None
+    first_name: str | None = None
+    last_name: str | None = None
+    role: UserRole | None = None
+    status: UserStatus | None = None
 
 
 class PasswordResetRequest(BaseModel):
@@ -157,7 +154,7 @@ async def get_current_user(
                 detail="Invalid or expired token",
             )
         return user
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication failed"
         )
@@ -325,11 +322,11 @@ async def create_user(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.get("/", response_model=List[UserResponse])
+@router.get("/", response_model=list[UserResponse])
 async def list_users(
-    tenant_id: Optional[UUID] = None,
-    status: Optional[UserStatus] = None,
-    role: Optional[UserRole] = None,
+    tenant_id: UUID | None = None,
+    status: UserStatus | None = None,
+    role: UserRole | None = None,
     limit: int = 100,
     offset: int = 0,
     current_user=Depends(get_current_user),
@@ -699,7 +696,7 @@ async def get_tenant_usage(
         )
 
 
-@router.get("/tenants/{tenant_id}/users", response_model=List[UserResponse])
+@router.get("/tenants/{tenant_id}/users", response_model=list[UserResponse])
 async def get_tenant_users(
     tenant_id: UUID,
     current_user=Depends(require_tenant_admin),

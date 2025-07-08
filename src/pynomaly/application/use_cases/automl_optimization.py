@@ -8,7 +8,7 @@ import logging
 from dataclasses import dataclass
 
 # Use base repository types for now
-from typing import Any, Dict, List, Optional, Protocol
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -18,9 +18,8 @@ from pynomaly.application.services.automl_service import (
     AutoMLService,
     OptimizationObjective,
 )
-from pynomaly.domain.entities import Dataset, Detector
+from pynomaly.domain.entities import Dataset
 from pynomaly.domain.exceptions import AutoMLError, DomainError
-from pynomaly.domain.value_objects import ContaminationRate
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +33,7 @@ class AutoMLOptimizationRequest:
     max_algorithms_to_try: int = 3
     max_optimization_time_minutes: int = 60
     enable_ensemble: bool = True
-    detector_name: Optional[str] = None
+    detector_name: str | None = None
     cross_validation_folds: int = 3
     random_state: int = 42
 
@@ -45,17 +44,17 @@ class AutoMLOptimizationResponse:
 
     success: bool
     dataset_id: str
-    optimized_detector_id: Optional[str] = None
-    best_algorithm: Optional[str] = None
-    best_parameters: Optional[Dict[str, Any]] = None
-    best_score: Optional[float] = None
-    optimization_time_seconds: Optional[float] = None
-    trials_completed: Optional[int] = None
-    algorithm_rankings: Optional[List[tuple]] = None
-    ensemble_config: Optional[Dict[str, Any]] = None
-    optimization_summary: Optional[Dict[str, Any]] = None
-    error_message: Optional[str] = None
-    recommendations: List[str] = None
+    optimized_detector_id: str | None = None
+    best_algorithm: str | None = None
+    best_parameters: dict[str, Any] | None = None
+    best_score: float | None = None
+    optimization_time_seconds: float | None = None
+    trials_completed: int | None = None
+    algorithm_rankings: list[tuple] | None = None
+    ensemble_config: dict[str, Any] | None = None
+    optimization_summary: dict[str, Any] | None = None
+    error_message: str | None = None
+    recommendations: list[str] = None
 
 
 @dataclass
@@ -66,14 +65,14 @@ class DatasetProfileResponse:
     dataset_name: str
     n_samples: int
     n_features: int
-    feature_types: Dict[str, str]
+    feature_types: dict[str, str]
     contamination_estimate: float
     complexity_score: float
     has_missing_values: bool
     has_temporal_structure: bool
     has_categorical_features: bool
-    recommended_algorithms: List[str]
-    profile_metadata: Dict[str, Any]
+    recommended_algorithms: list[str]
+    profile_metadata: dict[str, Any]
 
 
 @dataclass
@@ -81,10 +80,10 @@ class AlgorithmRecommendationResponse:
     """Response containing algorithm recommendations."""
 
     dataset_id: str
-    recommended_algorithms: List[str]
-    algorithm_scores: Dict[str, float]
-    reasoning: Dict[str, str]
-    dataset_characteristics: Dict[str, Any]
+    recommended_algorithms: list[str]
+    algorithm_scores: dict[str, float]
+    reasoning: dict[str, str]
+    dataset_characteristics: dict[str, Any]
 
 
 class AutoMLOptimizationUseCase:
@@ -215,8 +214,8 @@ class AutoMLOptimizationUseCase:
         dataset_id: str,
         algorithm_name: str,
         optimization_objective: str = "auc",
-        max_trials: Optional[int] = None,
-        contamination_rate: Optional[float] = None,
+        max_trials: int | None = None,
+        contamination_rate: float | None = None,
     ) -> AutoMLOptimizationResponse:
         """
         Optimize a single algorithm for the given dataset.
@@ -418,7 +417,7 @@ class AutoMLOptimizationUseCase:
         else:
             return "high"
 
-    def _generate_optimization_recommendations(self, result: AutoMLResult) -> List[str]:
+    def _generate_optimization_recommendations(self, result: AutoMLResult) -> list[str]:
         """Generate actionable recommendations based on optimization results."""
         recommendations = []
 

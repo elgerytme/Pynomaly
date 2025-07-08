@@ -1,10 +1,8 @@
 """AWS S3 cloud storage adapter implementation."""
 
-import asyncio
 import io
-from datetime import datetime
 from pathlib import Path
-from typing import Any, BinaryIO, Dict, List, Optional, Union
+from typing import Any, BinaryIO
 
 import aiofiles
 
@@ -47,10 +45,10 @@ class S3Adapter(CloudStorageAdapter):
 
     async def upload_file(
         self,
-        file_path: Union[str, Path],
+        file_path: str | Path,
         key: str,
-        metadata: Optional[Dict[str, str]] = None,
-        content_type: Optional[str] = None,
+        metadata: dict[str, str] | None = None,
+        content_type: str | None = None,
         encrypt: bool = False,
     ) -> StorageMetadata:
         """Upload a file to S3."""
@@ -89,8 +87,8 @@ class S3Adapter(CloudStorageAdapter):
         self,
         stream: BinaryIO,
         key: str,
-        metadata: Optional[Dict[str, str]] = None,
-        content_type: Optional[str] = None,
+        metadata: dict[str, str] | None = None,
+        content_type: str | None = None,
         encrypt: bool = False,
     ) -> StorageMetadata:
         """Upload a stream to S3."""
@@ -115,7 +113,7 @@ class S3Adapter(CloudStorageAdapter):
     async def download_file(
         self,
         key: str,
-        file_path: Union[str, Path],
+        file_path: str | Path,
         decrypt: bool = False,
     ) -> StorageMetadata:
         """Download a file from S3."""
@@ -203,9 +201,9 @@ class S3Adapter(CloudStorageAdapter):
 
     async def list_objects(
         self,
-        prefix: Optional[str] = None,
-        limit: Optional[int] = None,
-    ) -> List[str]:
+        prefix: str | None = None,
+        limit: int | None = None,
+    ) -> list[str]:
         """List objects in S3."""
         if not self._s3_client:
             raise CloudStorageError("S3 client not connected")
@@ -256,10 +254,10 @@ class S3Adapter(CloudStorageAdapter):
 
     def _build_upload_args(
         self,
-        metadata: Optional[Dict[str, str]] = None,
-        content_type: Optional[str] = None,
+        metadata: dict[str, str] | None = None,
+        content_type: str | None = None,
         encrypt: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Build upload arguments for S3."""
         args = {}
 
@@ -277,8 +275,8 @@ class S3Adapter(CloudStorageAdapter):
         return args
 
     def _extract_encryption_info(
-        self, response: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+        self, response: dict[str, Any]
+    ) -> dict[str, Any] | None:
         """Extract encryption information from S3 response."""
         encryption_info = {}
 
@@ -294,8 +292,8 @@ class S3Adapter(CloudStorageAdapter):
         self,
         file_path: Path,
         key: str,
-        metadata: Optional[Dict[str, str]] = None,
-        content_type: Optional[str] = None,
+        metadata: dict[str, str] | None = None,
+        content_type: str | None = None,
         encrypt: bool = False,
     ) -> StorageMetadata:
         """Perform multipart upload for large files."""

@@ -2,18 +2,15 @@
 
 from __future__ import annotations
 
-import asyncio
 import logging
-import math
 import random
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
-from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
@@ -61,14 +58,14 @@ class SyntheticDataConfig:
     method: SyntheticMethod
     data_type: DataType
     num_samples: int
-    privacy_method: Optional[PrivacyMethod] = None
+    privacy_method: PrivacyMethod | None = None
     privacy_budget: float = 1.0  # Epsilon for differential privacy
     anomaly_ratio: float = 0.1  # Ratio of anomalies to generate
-    quality_metrics: List[str] = field(
+    quality_metrics: list[str] = field(
         default_factory=lambda: ["distribution", "correlation", "privacy"]
     )
-    constraints: Dict[str, Any] = field(default_factory=dict)
-    seed: Optional[int] = None
+    constraints: dict[str, Any] = field(default_factory=dict)
+    seed: int | None = None
 
 
 @dataclass
@@ -77,12 +74,12 @@ class SyntheticDataResult:
 
     synthetic_data: np.ndarray
     generation_method: SyntheticMethod
-    quality_scores: Dict[str, float]
-    privacy_metrics: Dict[str, float]
-    metadata: Dict[str, Any]
+    quality_scores: dict[str, float]
+    privacy_metrics: dict[str, float]
+    metadata: dict[str, Any]
     generation_time: float
-    anomaly_labels: Optional[np.ndarray] = None
-    feature_names: Optional[List[str]] = None
+    anomaly_labels: np.ndarray | None = None
+    feature_names: list[str] | None = None
     created_at: datetime = field(default_factory=datetime.now)
 
 
@@ -93,9 +90,9 @@ class PrivacyAnalysis:
     privacy_method: PrivacyMethod
     privacy_budget_used: float
     privacy_guarantee: str
-    risk_metrics: Dict[str, float]
+    risk_metrics: dict[str, float]
     recommended_usage: str
-    limitations: List[str]
+    limitations: list[str]
 
 
 class BaseSyntheticGenerator(ABC):
@@ -104,7 +101,7 @@ class BaseSyntheticGenerator(ABC):
     def __init__(self, config: SyntheticDataConfig):
         self.config = config
         self.is_fitted = False
-        self.model_parameters: Dict[str, Any] = {}
+        self.model_parameters: dict[str, Any] = {}
 
         # Set random seed if provided
         if config.seed is not None:
@@ -112,7 +109,7 @@ class BaseSyntheticGenerator(ABC):
             random.seed(config.seed)
 
     @abstractmethod
-    async def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
+    async def fit(self, X: np.ndarray, y: np.ndarray | None = None) -> None:
         """Fit the synthetic data generator."""
         pass
 
@@ -123,33 +120,33 @@ class BaseSyntheticGenerator(ABC):
 
     async def evaluate_quality(
         self, original_data: np.ndarray, synthetic_data: np.ndarray
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Evaluate quality of synthetic data."""
         try:
             quality_scores = {}
 
             # Distribution similarity
             if "distribution" in self.config.quality_metrics:
-                quality_scores["distribution_similarity"] = (
-                    await self._evaluate_distribution_similarity(
-                        original_data, synthetic_data
-                    )
+                quality_scores[
+                    "distribution_similarity"
+                ] = await self._evaluate_distribution_similarity(
+                    original_data, synthetic_data
                 )
 
             # Correlation preservation
             if "correlation" in self.config.quality_metrics:
-                quality_scores["correlation_preservation"] = (
-                    await self._evaluate_correlation_preservation(
-                        original_data, synthetic_data
-                    )
+                quality_scores[
+                    "correlation_preservation"
+                ] = await self._evaluate_correlation_preservation(
+                    original_data, synthetic_data
                 )
 
             # Statistical properties
             if "statistical" in self.config.quality_metrics:
-                quality_scores["statistical_fidelity"] = (
-                    await self._evaluate_statistical_fidelity(
-                        original_data, synthetic_data
-                    )
+                quality_scores[
+                    "statistical_fidelity"
+                ] = await self._evaluate_statistical_fidelity(
+                    original_data, synthetic_data
                 )
 
             # Utility preservation (simplified)
@@ -280,7 +277,7 @@ class VanillaGANGenerator(BaseSyntheticGenerator):
         self.discriminator_params = None
         self.training_history = []
 
-    async def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
+    async def fit(self, X: np.ndarray, y: np.ndarray | None = None) -> None:
         """Fit the GAN model."""
         try:
             logger.info("Fitting Vanilla GAN")
@@ -567,7 +564,7 @@ class VanillaGANGenerator(BaseSyntheticGenerator):
 
     async def _inject_anomalies(
         self, data: np.ndarray, anomaly_ratio: float
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Inject anomalies into synthetic data."""
         try:
             num_anomalies = int(len(data) * anomaly_ratio)
@@ -618,7 +615,7 @@ class VAEGenerator(BaseSyntheticGenerator):
         self.encoder_params = None
         self.decoder_params = None
 
-    async def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
+    async def fit(self, X: np.ndarray, y: np.ndarray | None = None) -> None:
         """Fit the VAE model."""
         try:
             logger.info("Fitting VAE")
@@ -738,7 +735,7 @@ class VAEGenerator(BaseSyntheticGenerator):
         except Exception as e:
             logger.error(f"VAE training failed: {e}")
 
-    async def _encode(self, x: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    async def _encode(self, x: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """Encode input to latent parameters."""
         # Hidden layer
         h = (
@@ -797,7 +794,7 @@ class VAEGenerator(BaseSyntheticGenerator):
 
     async def _inject_vae_anomalies(
         self, data: np.ndarray, anomaly_ratio: float
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Inject anomalies using VAE latent space manipulation."""
         try:
             num_anomalies = int(len(data) * anomaly_ratio)
@@ -838,7 +835,7 @@ class StatisticalGenerator(BaseSyntheticGenerator):
         self.correlation_matrix = None
         self.copula_params = None
 
-    async def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
+    async def fit(self, X: np.ndarray, y: np.ndarray | None = None) -> None:
         """Fit statistical model."""
         try:
             logger.info("Fitting statistical generator")
@@ -900,10 +897,11 @@ class StatisticalGenerator(BaseSyntheticGenerator):
             # Generate anomaly labels if requested
             anomaly_labels = None
             if self.config.anomaly_ratio > 0:
-                anomaly_labels, synthetic_data = (
-                    await self._inject_statistical_anomalies(
-                        synthetic_data, self.config.anomaly_ratio
-                    )
+                (
+                    anomaly_labels,
+                    synthetic_data,
+                ) = await self._inject_statistical_anomalies(
+                    synthetic_data, self.config.anomaly_ratio
                 )
 
             generation_time = (datetime.now() - start_time).total_seconds()
@@ -998,7 +996,7 @@ class StatisticalGenerator(BaseSyntheticGenerator):
 
     async def _inject_statistical_anomalies(
         self, data: np.ndarray, anomaly_ratio: float
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Inject anomalies using statistical methods."""
         try:
             num_anomalies = int(len(data) * anomaly_ratio)
@@ -1039,7 +1037,7 @@ class StatisticalGenerator(BaseSyntheticGenerator):
 class PrivacyPreservingGenerator:
     """Privacy-preserving synthetic data generation."""
 
-    def __init__(self, privacy_config: Dict[str, Any]):
+    def __init__(self, privacy_config: dict[str, Any]):
         self.privacy_config = privacy_config
         self.privacy_method = PrivacyMethod(
             privacy_config.get("method", "differential_privacy")
@@ -1050,8 +1048,8 @@ class PrivacyPreservingGenerator:
         self,
         generator: BaseSyntheticGenerator,
         X: np.ndarray,
-        y: Optional[np.ndarray] = None,
-    ) -> Tuple[BaseSyntheticGenerator, PrivacyAnalysis]:
+        y: np.ndarray | None = None,
+    ) -> tuple[BaseSyntheticGenerator, PrivacyAnalysis]:
         """Apply privacy protection to synthetic data generation."""
         try:
             logger.info(f"Applying {self.privacy_method} privacy protection")
@@ -1079,8 +1077,8 @@ class PrivacyPreservingGenerator:
         self,
         generator: BaseSyntheticGenerator,
         X: np.ndarray,
-        y: Optional[np.ndarray] = None,
-    ) -> Tuple[BaseSyntheticGenerator, PrivacyAnalysis]:
+        y: np.ndarray | None = None,
+    ) -> tuple[BaseSyntheticGenerator, PrivacyAnalysis]:
         """Apply differential privacy."""
         try:
             # Add noise to training data
@@ -1120,8 +1118,8 @@ class PrivacyPreservingGenerator:
         self,
         generator: BaseSyntheticGenerator,
         X: np.ndarray,
-        y: Optional[np.ndarray] = None,
-    ) -> Tuple[BaseSyntheticGenerator, PrivacyAnalysis]:
+        y: np.ndarray | None = None,
+    ) -> tuple[BaseSyntheticGenerator, PrivacyAnalysis]:
         """Apply k-anonymity."""
         try:
             k = self.privacy_config.get("k", 5)
@@ -1158,8 +1156,8 @@ class PrivacyPreservingGenerator:
         self,
         generator: BaseSyntheticGenerator,
         X: np.ndarray,
-        y: Optional[np.ndarray] = None,
-    ) -> Tuple[BaseSyntheticGenerator, PrivacyAnalysis]:
+        y: np.ndarray | None = None,
+    ) -> tuple[BaseSyntheticGenerator, PrivacyAnalysis]:
         """Apply basic privacy protection."""
         # Simple data perturbation
         noise_level = 0.1
@@ -1237,11 +1235,11 @@ class PrivacyPreservingGenerator:
 class SyntheticDataOrchestrator:
     """Main orchestrator for synthetic data generation."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
-        self.generators: Dict[SyntheticMethod, BaseSyntheticGenerator] = {}
-        self.privacy_generator: Optional[PrivacyPreservingGenerator] = None
-        self.generation_history: List[SyntheticDataResult] = []
+        self.generators: dict[SyntheticMethod, BaseSyntheticGenerator] = {}
+        self.privacy_generator: PrivacyPreservingGenerator | None = None
+        self.generation_history: list[SyntheticDataResult] = []
 
     async def create_generator(
         self, config: SyntheticDataConfig
@@ -1278,8 +1276,8 @@ class SyntheticDataOrchestrator:
         self,
         X: np.ndarray,
         config: SyntheticDataConfig,
-        y: Optional[np.ndarray] = None,
-        feature_names: Optional[List[str]] = None,
+        y: np.ndarray | None = None,
+        feature_names: list[str] | None = None,
     ) -> SyntheticDataResult:
         """Generate synthetic data with quality evaluation."""
         try:
@@ -1291,10 +1289,11 @@ class SyntheticDataOrchestrator:
             # Apply privacy protection if needed
             privacy_analysis = None
             if self.privacy_generator:
-                generator, privacy_analysis = (
-                    await self.privacy_generator.apply_privacy_protection(
-                        generator, X, y
-                    )
+                (
+                    generator,
+                    privacy_analysis,
+                ) = await self.privacy_generator.apply_privacy_protection(
+                    generator, X, y
                 )
             else:
                 # Fit generator normally
@@ -1327,10 +1326,10 @@ class SyntheticDataOrchestrator:
     async def compare_methods(
         self,
         X: np.ndarray,
-        methods: List[SyntheticMethod],
+        methods: list[SyntheticMethod],
         num_samples: int,
-        y: Optional[np.ndarray] = None,
-    ) -> Dict[SyntheticMethod, SyntheticDataResult]:
+        y: np.ndarray | None = None,
+    ) -> dict[SyntheticMethod, SyntheticDataResult]:
         """Compare different synthetic data generation methods."""
         try:
             logger.info(f"Comparing {len(methods)} synthetic data methods")
@@ -1357,7 +1356,7 @@ class SyntheticDataOrchestrator:
             logger.error(f"Method comparison failed: {e}")
             return {}
 
-    async def get_quality_summary(self) -> Dict[str, Any]:
+    async def get_quality_summary(self) -> dict[str, Any]:
         """Get quality summary across all generated datasets."""
         try:
             if not self.generation_history:

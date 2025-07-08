@@ -6,12 +6,12 @@ import asyncio
 import logging
 import time
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 from uuid import UUID, uuid4
 
 import psutil
 import requests
-from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram, Summary
+from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram
 
 from pynomaly.domain.models.monitoring import (
     Alert,
@@ -20,7 +20,6 @@ from pynomaly.domain.models.monitoring import (
     AlertStatus,
     HealthCheck,
     Metric,
-    MetricPoint,
     MetricType,
     ServiceStatus,
 )
@@ -38,10 +37,10 @@ class MetricsService:
         self.prometheus_registry = CollectorRegistry()
 
         # Internal metrics storage
-        self.metrics: Dict[str, Metric] = {}
-        self.alert_rules: Dict[UUID, AlertRule] = {}
-        self.active_alerts: Dict[UUID, Alert] = {}
-        self.health_checks: Dict[UUID, HealthCheck] = {}
+        self.metrics: dict[str, Metric] = {}
+        self.alert_rules: dict[UUID, AlertRule] = {}
+        self.active_alerts: dict[UUID, Alert] = {}
+        self.health_checks: dict[UUID, HealthCheck] = {}
 
         # Service status tracking
         self.service_status = ServiceStatus(
@@ -165,7 +164,7 @@ class MetricsService:
         metric_type: MetricType,
         description: str,
         unit: str = "",
-        labels: Optional[Dict[str, str]] = None,
+        labels: dict[str, str] | None = None,
     ) -> Metric:
         """Create a new metric."""
 
@@ -189,8 +188,8 @@ class MetricsService:
     def record_metric(
         self,
         name: str,
-        value: Union[float, int, str],
-        labels: Optional[Dict[str, str]] = None,
+        value: float | int | str,
+        labels: dict[str, str] | None = None,
     ) -> None:
         """Record a metric value."""
 
@@ -264,8 +263,8 @@ class MetricsService:
         model_name: str,
         model_version: str,
         prediction_count: int = 1,
-        accuracy: Optional[float] = None,
-        inference_time: Optional[float] = None,
+        accuracy: float | None = None,
+        inference_time: float | None = None,
     ) -> None:
         """Record ML model metrics."""
 
@@ -314,7 +313,7 @@ class MetricsService:
         detector_type: str,
         anomalies_detected: int,
         total_samples: int,
-        detection_accuracy: Optional[float] = None,
+        detection_accuracy: float | None = None,
     ) -> None:
         """Record anomaly detection specific metrics."""
 
@@ -356,7 +355,7 @@ class MetricsService:
         name: str,
         metric_name: str,
         condition: str,
-        threshold: Union[float, int, str],
+        threshold: float | int | str,
         severity: AlertSeverity = AlertSeverity.WARNING,
         evaluation_window: timedelta = timedelta(minutes=5),
     ) -> AlertRule:
@@ -408,8 +407,8 @@ class MetricsService:
         self,
         name: str,
         aggregation: str = "latest",
-        time_range: Optional[timedelta] = None,
-    ) -> Optional[Union[float, int, str]]:
+        time_range: timedelta | None = None,
+    ) -> float | int | str | None:
         """Get metric value with optional aggregation."""
 
         if name not in self.metrics:
@@ -436,7 +435,7 @@ class MetricsService:
 
         return metric.get_latest_value()
 
-    async def get_service_health(self) -> Dict[str, Any]:
+    async def get_service_health(self) -> dict[str, Any]:
         """Get comprehensive service health status."""
 
         # Update service status
@@ -446,7 +445,7 @@ class MetricsService:
 
     async def get_metrics_summary(
         self, time_range: timedelta = timedelta(hours=1)
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get metrics summary for dashboard."""
 
         start_time = datetime.utcnow() - time_range
@@ -848,8 +847,8 @@ class MetricsService:
     def _update_prometheus_metric(
         self,
         name: str,
-        value: Union[float, int, str],
-        labels: Optional[Dict[str, str]] = None,
+        value: float | int | str,
+        labels: dict[str, str] | None = None,
     ) -> None:
         """Update corresponding Prometheus metric if it exists."""
 
@@ -864,7 +863,7 @@ class MetricsService:
 
         return generate_latest(self.prometheus_registry).decode("utf-8")
 
-    def get_active_alerts(self) -> List[Alert]:
+    def get_active_alerts(self) -> list[Alert]:
         """Get list of active alerts."""
 
         return [
@@ -886,7 +885,7 @@ class MetricsService:
         return True
 
     def resolve_alert(
-        self, alert_id: UUID, resolved_by: UUID, resolution_note: Optional[str] = None
+        self, alert_id: UUID, resolved_by: UUID, resolution_note: str | None = None
     ) -> bool:
         """Resolve an alert."""
 

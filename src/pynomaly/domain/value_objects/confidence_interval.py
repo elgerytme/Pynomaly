@@ -8,7 +8,6 @@ statistical confidence bounds for anomaly detection predictions.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, Tuple, Union
 
 import numpy as np
 
@@ -88,13 +87,11 @@ class ConfidenceInterval:
         """Check if a value falls within the confidence interval."""
         return self.lower <= value <= self.upper
 
-    def overlaps(self, other: "ConfidenceInterval") -> bool:
+    def overlaps(self, other: ConfidenceInterval) -> bool:
         """Check if this interval overlaps with another confidence interval."""
         return not (self.upper < other.lower or self.lower > other.upper)
 
-    def intersection(
-        self, other: "ConfidenceInterval"
-    ) -> Optional["ConfidenceInterval"]:
+    def intersection(self, other: ConfidenceInterval) -> ConfidenceInterval | None:
         """
         Calculate the intersection of two confidence intervals.
 
@@ -116,7 +113,7 @@ class ConfidenceInterval:
             method=f"intersection({self.method}, {other.method})",
         )
 
-    def to_tuple(self) -> Tuple[float, float]:
+    def to_tuple(self) -> tuple[float, float]:
         """Convert to a tuple of (lower, upper)."""
         return (self.lower, self.upper)
 
@@ -139,7 +136,7 @@ class ConfidenceInterval:
         upper: float,
         confidence_level: float = 0.95,
         method: str = "manual",
-    ) -> "ConfidenceInterval":
+    ) -> ConfidenceInterval:
         """Create confidence interval from explicit bounds."""
         return cls(
             lower=lower, upper=upper, confidence_level=confidence_level, method=method
@@ -152,7 +149,7 @@ class ConfidenceInterval:
         margin_of_error: float,
         confidence_level: float = 0.95,
         method: str = "manual",
-    ) -> "ConfidenceInterval":
+    ) -> ConfidenceInterval:
         """Create confidence interval from center point and margin of error."""
         return cls(
             lower=center - margin_of_error,
@@ -164,10 +161,10 @@ class ConfidenceInterval:
     @classmethod
     def from_samples(
         cls,
-        samples: Union[np.ndarray, list],
+        samples: np.ndarray | list,
         confidence_level: float = 0.95,
         method: str = "percentile",
-    ) -> "ConfidenceInterval":
+    ) -> ConfidenceInterval:
         """
         Create confidence interval from samples using percentile method.
 

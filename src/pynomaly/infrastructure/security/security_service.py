@@ -3,16 +3,14 @@
 from __future__ import annotations
 
 import hashlib
-import hmac
 import json
 import logging
 import secrets
 import time
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any
 from uuid import UUID, uuid4
 
 import bcrypt
@@ -123,17 +121,17 @@ class AuditEvent:
     event_id: UUID
     event_type: AuditEventType
     timestamp: datetime
-    user_id: Optional[str]
-    session_id: Optional[str]
-    source_ip: Optional[str]
-    user_agent: Optional[str]
+    user_id: str | None
+    session_id: str | None
+    source_ip: str | None
+    user_agent: str | None
     resource: str
     action: str
     outcome: str  # success, failure, error
-    details: Dict[str, Any]
+    details: dict[str, Any]
     security_level: SecurityLevel
-    threat_level: Optional[ThreatLevel] = None
-    fingerprint: Optional[str] = None
+    threat_level: ThreatLevel | None = None
+    fingerprint: str | None = None
 
     def __post_init__(self):
         if self.fingerprint is None:
@@ -152,7 +150,7 @@ class SecurityRole:
     role_id: str
     name: str
     description: str
-    permissions: Set[str]
+    permissions: set[str]
     security_level: SecurityLevel
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
@@ -179,7 +177,7 @@ class EncryptionService:
     def __init__(self, config: SecurityConfig):
         self.config = config
         self.logger = logging.getLogger(__name__)
-        self._encryption_keys: Dict[str, bytes] = {}
+        self._encryption_keys: dict[str, bytes] = {}
         self._current_key_id = "default"
 
         if not CRYPTOGRAPHY_AVAILABLE:
@@ -201,8 +199,8 @@ class EncryptionService:
         self.logger.info(f"Generated new encryption key: {key_id}")
 
     def encrypt_data(
-        self, data: Union[str, bytes], key_id: Optional[str] = None
-    ) -> Tuple[bytes, str]:
+        self, data: str | bytes, key_id: str | None = None
+    ) -> tuple[bytes, str]:
         """Encrypt data and return ciphertext with key ID."""
         if not CRYPTOGRAPHY_AVAILABLE:
             raise RuntimeError("Encryption not available")
@@ -248,9 +246,9 @@ class AuthenticationService:
     def __init__(self, config: SecurityConfig):
         self.config = config
         self.logger = logging.getLogger(__name__)
-        self._active_sessions: Dict[str, UserSession] = {}
-        self._failed_login_attempts: Dict[str, List[datetime]] = {}
-        self._locked_accounts: Dict[str, datetime] = {}
+        self._active_sessions: dict[str, UserSession] = {}
+        self._failed_login_attempts: dict[str, list[datetime]] = {}
+        self._locked_accounts: dict[str, datetime] = {}
 
     def hash_password(self, password: str) -> str:
         """Hash password using bcrypt."""
@@ -292,8 +290,8 @@ class AuthenticationService:
         password: str,
         ip_address: str,
         user_agent: str,
-        totp_code: Optional[str] = None,
-    ) -> Optional[UserSession]:
+        totp_code: str | None = None,
+    ) -> UserSession | None:
         """Authenticate user and create session."""
 
         # Check if account is locked
@@ -359,7 +357,7 @@ class AuthenticationService:
 
         return jwt.encode(payload, self.config.jwt_secret_key, algorithm="HS256")
 
-    def verify_jwt_token(self, token: str) -> Optional[Dict[str, Any]]:
+    def verify_jwt_token(self, token: str) -> dict[str, Any] | None:
         """Verify and decode JWT token."""
         try:
             payload = jwt.decode(
@@ -412,7 +410,7 @@ class AuthenticationService:
                 f"Account locked due to failed login attempts: {username}"
             )
 
-    def _get_user_password_hash(self, username: str) -> Optional[str]:
+    def _get_user_password_hash(self, username: str) -> str | None:
         """Get stored password hash for user (placeholder)."""
         # In practice, this would query a secure user database
         test_users = {
@@ -435,7 +433,7 @@ class AuthenticationService:
         totp = pyotp.TOTP(user_secret)
         return totp.verify(totp_code, valid_window=1)
 
-    def _get_user_totp_secret(self, username: str) -> Optional[str]:
+    def _get_user_totp_secret(self, username: str) -> str | None:
         """Get user's TOTP secret (placeholder)."""
         # In practice, this would be stored securely in the database
         return "JBSWY3DPEHPK3PXP"  # Example secret
@@ -457,8 +455,8 @@ class AuthorizationService:
     def __init__(self, config: SecurityConfig):
         self.config = config
         self.logger = logging.getLogger(__name__)
-        self._roles: Dict[str, SecurityRole] = {}
-        self._user_roles: Dict[str, Set[str]] = {}
+        self._roles: dict[str, SecurityRole] = {}
+        self._user_roles: dict[str, set[str]] = {}
 
         # Initialize default roles
         self._initialize_default_roles()
@@ -580,7 +578,7 @@ class AuditService:
     def __init__(self, config: SecurityConfig):
         self.config = config
         self.logger = logging.getLogger(__name__)
-        self._audit_events: List[AuditEvent] = []
+        self._audit_events: list[AuditEvent] = []
         self._max_events_memory = 10000
 
         # Audit logger
@@ -597,16 +595,16 @@ class AuditService:
     def log_event(
         self,
         event_type: AuditEventType,
-        user_id: Optional[str],
+        user_id: str | None,
         resource: str,
         action: str,
         outcome: str,
-        details: Optional[Dict[str, Any]] = None,
-        session_id: Optional[str] = None,
-        source_ip: Optional[str] = None,
-        user_agent: Optional[str] = None,
+        details: dict[str, Any] | None = None,
+        session_id: str | None = None,
+        source_ip: str | None = None,
+        user_agent: str | None = None,
         security_level: SecurityLevel = SecurityLevel.INTERNAL,
-        threat_level: Optional[ThreatLevel] = None,
+        threat_level: ThreatLevel | None = None,
     ) -> str:
         """Log audit event."""
 
@@ -680,13 +678,13 @@ class AuditService:
 
     def search_audit_events(
         self,
-        start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None,
-        user_id: Optional[str] = None,
-        event_type: Optional[AuditEventType] = None,
-        threat_level: Optional[ThreatLevel] = None,
+        start_time: datetime | None = None,
+        end_time: datetime | None = None,
+        user_id: str | None = None,
+        event_type: AuditEventType | None = None,
+        threat_level: ThreatLevel | None = None,
         limit: int = 100,
-    ) -> List[AuditEvent]:
+    ) -> list[AuditEvent]:
         """Search audit events with filters."""
 
         filtered_events = self._audit_events
@@ -714,7 +712,7 @@ class AuditService:
 
     def generate_compliance_report(
         self, start_date: datetime, end_date: datetime
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate compliance report for specified period."""
 
         events = self.search_audit_events(start_date, end_date, limit=10000)
@@ -774,7 +772,7 @@ class AuditService:
 class SecurityService:
     """Main security service coordinating all security functions."""
 
-    def __init__(self, config: Optional[SecurityConfig] = None):
+    def __init__(self, config: SecurityConfig | None = None):
         """Initialize security service."""
         self.config = config or SecurityConfig()
         self.logger = logging.getLogger(__name__)
@@ -786,7 +784,7 @@ class SecurityService:
         self.audit_service = AuditService(self.config)
 
         # Rate limiting
-        self._rate_limit_tracking: Dict[str, List[datetime]] = {}
+        self._rate_limit_tracking: dict[str, list[datetime]] = {}
 
         self.logger.info("Security service initialized")
 
@@ -797,7 +795,7 @@ class SecurityService:
         resource_security_level: SecurityLevel,
         source_ip: str,
         user_agent: str,
-    ) -> Tuple[bool, Optional[str], Optional[str]]:
+    ) -> tuple[bool, str | None, str | None]:
         """Authenticate and authorize request."""
 
         # Rate limiting check
@@ -902,7 +900,7 @@ class SecurityService:
         self._rate_limit_tracking[identifier].append(current_time)
         return True
 
-    def sanitize_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def sanitize_data(self, data: dict[str, Any]) -> dict[str, Any]:
         """Sanitize data by removing or masking sensitive information."""
         if not self.config.enable_data_masking:
             return data
@@ -942,7 +940,7 @@ class SecurityService:
         else:
             return value[:2] + "*" * (len(value) - 4) + value[-2:]
 
-    def get_security_summary(self) -> Dict[str, Any]:
+    def get_security_summary(self) -> dict[str, Any]:
         """Get security status summary."""
         # Get recent audit events
         recent_events = self.audit_service.search_audit_events(

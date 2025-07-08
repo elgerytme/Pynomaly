@@ -3,7 +3,6 @@
 import asyncio
 import json
 import logging
-import os
 import pickle
 import shutil
 import tempfile
@@ -13,9 +12,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any, AsyncIterator, Callable, Dict, List, Optional, Union
+from typing import Any
 
-import numpy as np
 import pandas as pd
 
 try:
@@ -47,7 +45,6 @@ from ...domain.services.advanced_detection_service import (
     DetectionAlgorithm,
     get_detection_service,
 )
-from ...shared.config import Config
 from ..monitoring.distributed_tracing import trace_operation
 
 logger = logging.getLogger(__name__)
@@ -97,11 +94,11 @@ class BatchConfig:
     chunk_size: int = 10000
     max_memory_mb: int = 2048
     enable_caching: bool = True
-    temp_dir: Optional[str] = None
+    temp_dir: str | None = None
 
     # Detection configuration
     detection_algorithm: DetectionAlgorithm = DetectionAlgorithm.ISOLATION_FOREST
-    detection_config: Optional[Dict[str, Any]] = None
+    detection_config: dict[str, Any] | None = None
 
     # Performance optimization
     enable_parallel_io: bool = True
@@ -118,9 +115,9 @@ class BatchConfig:
     save_intermediate_results: bool = False
 
     # Resource limits
-    max_execution_time_seconds: Optional[int] = None
-    memory_limit_mb: Optional[int] = None
-    cpu_limit_percent: Optional[float] = None
+    max_execution_time_seconds: int | None = None
+    memory_limit_mb: int | None = None
+    cpu_limit_percent: float | None = None
 
 
 @dataclass
@@ -130,8 +127,8 @@ class BatchChunk:
     chunk_id: str
     chunk_index: int
     data: pd.DataFrame
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    source_info: Optional[Dict[str, Any]] = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+    source_info: dict[str, Any] | None = None
 
     def size_mb(self) -> float:
         """Calculate chunk size in MB."""
@@ -167,8 +164,8 @@ class BatchJob:
     # Job state
     status: BatchStatus = BatchStatus.PENDING
     created_at: datetime = field(default_factory=datetime.now)
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
 
     # Progress tracking
     total_chunks: int = 0
@@ -181,7 +178,7 @@ class BatchJob:
     execution_time: float = 0.0
 
     # Error tracking
-    errors: List[Dict[str, Any]] = field(default_factory=list)
+    errors: list[dict[str, Any]] = field(default_factory=list)
     retry_count: int = 0
 
     # Resource usage
@@ -194,7 +191,7 @@ class BatchJob:
             return 0.0
         return (self.processed_chunks / self.total_chunks) * 100.0
 
-    def add_error(self, error: Exception, chunk_id: Optional[str] = None) -> None:
+    def add_error(self, error: Exception, chunk_id: str | None = None) -> None:
         """Add error to job."""
         self.errors.append(
             {
@@ -215,15 +212,15 @@ class BatchProcessor:
         self.detection_service = get_detection_service()
 
         # Job management
-        self.jobs: Dict[str, BatchJob] = {}
-        self.running_jobs: Dict[str, asyncio.Task] = {}
+        self.jobs: dict[str, BatchJob] = {}
+        self.running_jobs: dict[str, asyncio.Task] = {}
 
         # Processing engine
         self.engine_client = None
         self.executor = None
 
         # Resource monitoring
-        self.memory_monitor_task: Optional[asyncio.Task] = None
+        self.memory_monitor_task: asyncio.Task | None = None
         self.monitoring_active = False
 
         # Temporary directory for intermediate files
@@ -296,7 +293,7 @@ class BatchProcessor:
         description: str,
         input_path: str,
         output_path: str,
-        config: Optional[BatchConfig] = None,
+        config: BatchConfig | None = None,
     ) -> str:
         """Submit a batch processing job."""
 
@@ -381,7 +378,7 @@ class BatchProcessor:
             if job.job_id in self.running_jobs:
                 del self.running_jobs[job.job_id]
 
-    async def _load_and_chunk_data(self, job: BatchJob) -> List[BatchChunk]:
+    async def _load_and_chunk_data(self, job: BatchJob) -> list[BatchChunk]:
         """Load data and split into chunks."""
         input_path = Path(job.input_path)
         chunks = []
@@ -437,7 +434,7 @@ class BatchProcessor:
 
     def _split_dataframe_to_chunks(
         self, job: BatchJob, df: pd.DataFrame
-    ) -> List[BatchChunk]:
+    ) -> list[BatchChunk]:
         """Split DataFrame into chunks."""
         chunks = []
         chunk_size = job.config.chunk_size
@@ -455,8 +452,8 @@ class BatchProcessor:
         return chunks
 
     async def _process_sequential(
-        self, job: BatchJob, chunks: List[BatchChunk]
-    ) -> List[DetectionResult]:
+        self, job: BatchJob, chunks: list[BatchChunk]
+    ) -> list[DetectionResult]:
         """Process chunks sequentially."""
         results = []
 
@@ -482,8 +479,8 @@ class BatchProcessor:
         return results
 
     async def _process_executor(
-        self, job: BatchJob, chunks: List[BatchChunk]
-    ) -> List[DetectionResult]:
+        self, job: BatchJob, chunks: list[BatchChunk]
+    ) -> list[DetectionResult]:
         """Process chunks using ThreadPoolExecutor or ProcessPoolExecutor."""
         results = []
         loop = asyncio.get_event_loop()
@@ -515,8 +512,8 @@ class BatchProcessor:
         return results
 
     async def _process_dask(
-        self, job: BatchJob, chunks: List[BatchChunk]
-    ) -> List[DetectionResult]:
+        self, job: BatchJob, chunks: list[BatchChunk]
+    ) -> list[DetectionResult]:
         """Process chunks using Dask."""
         if not DASK_AVAILABLE or not self.engine_client:
             raise RuntimeError("Dask is not available")
@@ -550,8 +547,8 @@ class BatchProcessor:
         return results
 
     async def _process_ray(
-        self, job: BatchJob, chunks: List[BatchChunk]
-    ) -> List[DetectionResult]:
+        self, job: BatchJob, chunks: list[BatchChunk]
+    ) -> list[DetectionResult]:
         """Process chunks using Ray."""
         if not RAY_AVAILABLE:
             raise RuntimeError("Ray is not available")
@@ -637,7 +634,7 @@ class BatchProcessor:
             raise
 
     async def _combine_results(
-        self, job: BatchJob, results: List[DetectionResult]
+        self, job: BatchJob, results: list[DetectionResult]
     ) -> DetectionResult:
         """Combine results from multiple chunks."""
         if not results:
@@ -741,7 +738,7 @@ class BatchProcessor:
         logger.info(f"Saved batch result to {output_path}")
 
     async def _save_checkpoint(
-        self, job: BatchJob, partial_results: List[DetectionResult]
+        self, job: BatchJob, partial_results: list[DetectionResult]
     ) -> None:
         """Save intermediate checkpoint."""
         if job.config.save_intermediate_results:
@@ -761,7 +758,7 @@ class BatchProcessor:
 
             logger.debug(f"Saved checkpoint for job {job.job_id}")
 
-    async def get_job_status(self, job_id: str) -> Optional[Dict[str, Any]]:
+    async def get_job_status(self, job_id: str) -> dict[str, Any] | None:
         """Get status of a batch job."""
         job = self.jobs.get(job_id)
         if not job:
@@ -813,8 +810,8 @@ class BatchProcessor:
         return False
 
     async def list_jobs(
-        self, status: Optional[BatchStatus] = None
-    ) -> List[Dict[str, Any]]:
+        self, status: BatchStatus | None = None
+    ) -> list[dict[str, Any]]:
         """List all batch jobs."""
         jobs = list(self.jobs.values())
 
@@ -846,14 +843,13 @@ class BatchProcessor:
                 and job.completed_at
                 and job.completed_at < cutoff_date
             ):
-
                 del self.jobs[job_id]
                 cleaned_count += 1
 
         logger.info(f"Cleaned up {cleaned_count} old batch jobs")
         return cleaned_count
 
-    async def get_system_metrics(self) -> Dict[str, Any]:
+    async def get_system_metrics(self) -> dict[str, Any]:
         """Get batch processor system metrics."""
         running_jobs = [
             job for job in self.jobs.values() if job.status == BatchStatus.RUNNING

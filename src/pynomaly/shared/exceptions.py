@@ -2,13 +2,13 @@
 Shared exception classes for the Pynomaly application.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class PynomaryError(Exception):
     """Base exception class for all Pynomaly errors."""
 
-    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+    def __init__(self, message: str, details: dict[str, Any] | None = None):
         self.message = message
         self.details = details or {}
         super().__init__(self.message)
@@ -113,6 +113,12 @@ class DataFormatError(DataError):
     pass
 
 
+class DataValidationError(DataError):
+    """Raised when data validation fails."""
+
+    pass
+
+
 # Model-related exceptions
 class ModelError(PynomaryError):
     """Base class for model-related errors."""
@@ -134,6 +140,18 @@ class ModelTrainingError(ModelError):
 
 class ModelPredictionError(ModelError):
     """Raised when model prediction fails."""
+
+    pass
+
+
+class ModelValidationError(ModelError):
+    """Raised when model validation fails."""
+
+    pass
+
+
+class TrainingError(ModelError):
+    """Raised when model training fails."""
 
     pass
 
@@ -184,6 +202,12 @@ class CacheError(InfrastructureError):
 
 class StorageError(InfrastructureError):
     """Raised when storage operations fail."""
+
+    pass
+
+
+class RepositoryError(InfrastructureError):
+    """Raised when repository operations fail."""
 
     pass
 

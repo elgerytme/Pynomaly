@@ -8,7 +8,7 @@ import math
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any
 from uuid import UUID, uuid4
 
 import numpy as np
@@ -74,7 +74,7 @@ class HardwareProfile:
     # Specialized hardware
     fpga_available: bool = False
     tpu_available: bool = False
-    custom_asics: List[str] = field(default_factory=list)
+    custom_asics: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -144,15 +144,15 @@ class OptimizationConfig:
 class GPUClusterManager:
     """Manages GPU clusters for ultra-high performance processing."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
-        self.gpu_nodes: List[Dict[str, Any]] = []
-        self.memory_pools: Dict[str, "MemoryPool"] = {}
-        self.compute_streams: List["ComputeStream"] = []
+        self.gpu_nodes: list[dict[str, Any]] = []
+        self.memory_pools: dict[str, MemoryPool] = {}
+        self.compute_streams: list[ComputeStream] = []
         self.performance_monitor = PerformanceMonitor(config.get("monitoring", {}))
 
     async def initialize_cluster(
-        self, hardware_profiles: List[HardwareProfile]
+        self, hardware_profiles: list[HardwareProfile]
     ) -> bool:
         """Initialize GPU cluster with hardware profiles."""
         try:
@@ -179,7 +179,7 @@ class GPUClusterManager:
             logger.error(f"Failed to initialize GPU cluster: {e}")
             return False
 
-    async def _create_gpu_node(self, profile: HardwareProfile) -> Dict[str, Any]:
+    async def _create_gpu_node(self, profile: HardwareProfile) -> dict[str, Any]:
         """Create a GPU node from hardware profile."""
         return {
             "node_id": f"gpu-node-{len(self.gpu_nodes)}",
@@ -238,8 +238,8 @@ class GPUClusterManager:
                     self.compute_streams.append(stream)
 
     async def allocate_compute_resources(
-        self, requirements: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+        self, requirements: dict[str, Any]
+    ) -> dict[str, Any] | None:
         """Allocate compute resources for a task."""
         try:
             required_gpus = requirements.get("gpu_count", 1)
@@ -284,7 +284,7 @@ class GPUClusterManager:
             logger.error(f"Failed to allocate compute resources: {e}")
             return None
 
-    async def get_cluster_status(self) -> Dict[str, Any]:
+    async def get_cluster_status(self) -> dict[str, Any]:
         """Get comprehensive cluster status."""
         total_gpus = sum(len(node["gpu_devices"]) for node in self.gpu_nodes)
         available_gpus = sum(
@@ -321,10 +321,10 @@ class MemoryPool:
 
         self.allocated_mb = 0
         self.free_mb = size_gb * 1024
-        self.allocations: Dict[str, Dict[str, Any]] = {}
+        self.allocations: dict[str, dict[str, Any]] = {}
         self.fragmentation_ratio = 0.0
 
-    async def allocate(self, size_mb: int, alignment: int = 64) -> Optional[str]:
+    async def allocate(self, size_mb: int, alignment: int = 64) -> str | None:
         """Allocate memory from the pool."""
         try:
             # Align size to specified boundary
@@ -377,7 +377,7 @@ class MemoryPool:
             logger.error(f"Memory deallocation failed in pool {self.pool_id}: {e}")
             return False
 
-    async def get_utilization(self) -> Dict[str, Any]:
+    async def get_utilization(self) -> dict[str, Any]:
         """Get memory pool utilization statistics."""
         total_mb = self.size_gb * 1024
 
@@ -404,11 +404,11 @@ class ComputeStream:
 
         self.is_active = False
         self.current_task = None
-        self.task_queue: List[Dict[str, Any]] = []
+        self.task_queue: list[dict[str, Any]] = []
         self.completed_tasks = 0
         self.total_execution_time = 0.0
 
-    async def submit_task(self, task: Dict[str, Any]) -> bool:
+    async def submit_task(self, task: dict[str, Any]) -> bool:
         """Submit a task to the compute stream."""
         try:
             task["submitted_at"] = datetime.utcnow()
@@ -450,7 +450,7 @@ class ComputeStream:
         finally:
             self.is_active = False
 
-    async def _execute_task(self, task: Dict[str, Any]) -> float:
+    async def _execute_task(self, task: dict[str, Any]) -> float:
         """Execute a compute task."""
         # Simulate GPU kernel execution
         complexity = task.get("complexity", 1.0)
@@ -460,7 +460,7 @@ class ComputeStream:
 
         return execution_time
 
-    async def get_status(self) -> Dict[str, Any]:
+    async def get_status(self) -> dict[str, Any]:
         """Get compute stream status."""
         avg_execution_time = self.total_execution_time / max(self.completed_tasks, 1)
 
@@ -479,11 +479,11 @@ class ComputeStream:
 class CustomKernelManager:
     """Manages custom CUDA kernels for ultra-high performance."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
-        self.compiled_kernels: Dict[str, Dict[str, Any]] = {}
-        self.kernel_cache: Dict[str, Any] = {}
-        self.optimization_profiles: Dict[str, OptimizationConfig] = {}
+        self.compiled_kernels: dict[str, dict[str, Any]] = {}
+        self.kernel_cache: dict[str, Any] = {}
+        self.optimization_profiles: dict[str, OptimizationConfig] = {}
 
     async def compile_kernel(
         self, kernel_code: str, kernel_name: str, optimization_level: OptimizationLevel
@@ -515,8 +515,8 @@ class CustomKernelManager:
             return False
 
     async def execute_kernel(
-        self, kernel_name: str, data: np.ndarray, parameters: Dict[str, Any]
-    ) -> Optional[np.ndarray]:
+        self, kernel_name: str, data: np.ndarray, parameters: dict[str, Any]
+    ) -> np.ndarray | None:
         """Execute a compiled kernel."""
         try:
             if kernel_name not in self.compiled_kernels:
@@ -554,7 +554,7 @@ class CustomKernelManager:
             return None
 
     async def _simulate_kernel_execution(
-        self, data: np.ndarray, parameters: Dict[str, Any]
+        self, data: np.ndarray, parameters: dict[str, Any]
     ) -> np.ndarray:
         """Simulate custom kernel execution."""
         # Simulate GPU computation time based on data size
@@ -568,7 +568,7 @@ class CustomKernelManager:
         return result
 
     async def optimize_kernel(
-        self, kernel_name: str, target_metrics: Dict[str, float]
+        self, kernel_name: str, target_metrics: dict[str, float]
     ) -> bool:
         """Optimize a kernel to meet target performance metrics."""
         try:
@@ -598,8 +598,8 @@ class CustomKernelManager:
             return False
 
     async def _analyze_kernel_performance(
-        self, kernel: Dict[str, Any]
-    ) -> Dict[str, float]:
+        self, kernel: dict[str, Any]
+    ) -> dict[str, float]:
         """Analyze kernel performance metrics."""
         if not kernel["performance_metrics"]:
             return {}
@@ -617,8 +617,8 @@ class CustomKernelManager:
         }
 
     async def _generate_optimizations(
-        self, current: Dict[str, float], target: Dict[str, float]
-    ) -> List[Dict[str, Any]]:
+        self, current: dict[str, float], target: dict[str, float]
+    ) -> list[dict[str, Any]]:
         """Generate optimization strategies."""
         optimizations = []
 
@@ -652,7 +652,7 @@ class CustomKernelManager:
         return optimizations
 
     async def _apply_optimization(
-        self, kernel_name: str, optimization: Dict[str, Any]
+        self, kernel_name: str, optimization: dict[str, Any]
     ) -> None:
         """Apply an optimization to a kernel."""
         # Simulate optimization application
@@ -666,10 +666,10 @@ class CustomKernelManager:
 class PerformanceMonitor:
     """Monitors ultra-high performance metrics."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.monitoring_interval = config.get("interval_ms", 1000) / 1000.0
-        self.metrics_history: List[PerformanceMetrics] = []
+        self.metrics_history: list[PerformanceMetrics] = []
         self.running = False
 
     async def start(self) -> None:
@@ -710,7 +710,7 @@ class PerformanceMonitor:
             thermal_efficiency=np.random.uniform(70, 90),
         )
 
-    async def get_performance_summary(self) -> Dict[str, Any]:
+    async def get_performance_summary(self) -> dict[str, Any]:
         """Get performance summary."""
         if not self.metrics_history:
             return {}
@@ -741,14 +741,14 @@ class PerformanceMonitor:
 class UltraHighPerformanceOrchestrator:
     """Main orchestrator for ultra-high performance optimization."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.gpu_cluster = GPUClusterManager(config.get("gpu_cluster", {}))
         self.kernel_manager = CustomKernelManager(config.get("kernels", {}))
         self.performance_monitor = PerformanceMonitor(config.get("monitoring", {}))
         self.optimization_config = OptimizationConfig(**config.get("optimization", {}))
 
-    async def initialize(self, hardware_profiles: List[HardwareProfile]) -> bool:
+    async def initialize(self, hardware_profiles: list[HardwareProfile]) -> bool:
         """Initialize ultra-high performance system."""
         try:
             logger.info("Initializing ultra-high performance system")
@@ -798,7 +798,7 @@ class UltraHighPerformanceOrchestrator:
 
     async def process_ultra_high_performance(
         self, data: np.ndarray, algorithm: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Process data with ultra-high performance optimizations."""
         try:
             start_time = datetime.utcnow()
@@ -843,7 +843,7 @@ class UltraHighPerformanceOrchestrator:
             logger.error(f"Ultra-high performance processing failed: {e}")
             raise
 
-    async def get_system_status(self) -> Dict[str, Any]:
+    async def get_system_status(self) -> dict[str, Any]:
         """Get comprehensive system status."""
         cluster_status = await self.gpu_cluster.get_cluster_status()
         performance_summary = await self.performance_monitor.get_performance_summary()

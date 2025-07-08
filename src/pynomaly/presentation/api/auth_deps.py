@@ -4,12 +4,10 @@ This module provides clean, non-circular authentication dependencies
 that work with OpenAPI generation.
 """
 
-from typing import Optional
-
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService, UserModel, get_auth
+from pynomaly.infrastructure.auth.jwt_auth import UserModel, get_auth
 from pynomaly.infrastructure.config import Container
 
 # Simple security scheme
@@ -25,8 +23,8 @@ def get_container_simple(request: Request) -> Container:
 
 
 async def get_current_user_simple(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
-) -> Optional[str]:
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
+) -> str | None:
     """Get current authenticated user - simplified version.
 
     Returns:
@@ -48,8 +46,8 @@ async def get_current_user_simple(
 
 
 async def get_current_user_model(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
-) -> Optional[UserModel]:
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
+) -> UserModel | None:
     """Get current authenticated user as UserModel.
 
     Returns:
@@ -70,7 +68,7 @@ async def get_current_user_model(
 
 
 async def require_authentication(
-    current_user: Optional[str] = Depends(get_current_user_simple),
+    current_user: str | None = Depends(get_current_user_simple),
 ) -> str:
     """Require user to be authenticated.
 
@@ -101,8 +99,8 @@ class SimplePermissionChecker:
 
     async def __call__(
         self,
-        current_user: Optional[UserModel] = Depends(get_current_user_model),
-    ) -> Optional[UserModel]:
+        current_user: UserModel | None = Depends(get_current_user_model),
+    ) -> UserModel | None:
         """Check permissions for current user.
 
         Returns None if no auth service or user lacks permissions.

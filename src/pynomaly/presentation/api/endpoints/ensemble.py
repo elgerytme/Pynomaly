@@ -1,7 +1,5 @@
 """API endpoints for ensemble-based anomaly detection."""
 
-from typing import List, Optional
-
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.security import HTTPBearer
 
@@ -24,7 +22,6 @@ from pynomaly.infrastructure.config import Container
 from pynomaly.presentation.api.deps import (
     get_container,
     get_current_user,
-    require_admin,
     require_read,
     require_write,
 )
@@ -317,7 +314,7 @@ async def get_ensemble_status(
 
 @router.get("/metrics", response_model=EnsembleMetricsResponseDTO)
 async def get_ensemble_metrics(
-    detector_ids: Optional[List[str]] = None,
+    detector_ids: list[str] | None = None,
     container: Container = Depends(get_container),
     current_user: str | None = Depends(get_current_user),
     _permissions: str = Depends(require_read),

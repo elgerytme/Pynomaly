@@ -8,7 +8,7 @@ optimization strategies, resource constraints, and optimization objectives.
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 
 class OptimizationStrategy(Enum):
@@ -57,25 +57,25 @@ class ResourceConstraints:
     """Resource constraints for optimization."""
 
     # Time constraints
-    max_time_seconds: Optional[int] = None
-    max_time_per_trial: Optional[int] = None
+    max_time_seconds: int | None = None
+    max_time_per_trial: int | None = None
     timeout_patience: int = 30  # seconds to wait for stuck trials
 
     # Resource limits
-    max_memory_mb: Optional[int] = None
-    max_cpu_cores: Optional[int] = None
-    max_gpu_memory_mb: Optional[int] = None
+    max_memory_mb: int | None = None
+    max_cpu_cores: int | None = None
+    max_gpu_memory_mb: int | None = None
 
     # Concurrency
     n_jobs: int = 1
-    max_concurrent_trials: Optional[int] = None
+    max_concurrent_trials: int | None = None
     enable_parallel_execution: bool = True
 
     # Storage limits
-    max_storage_mb: Optional[int] = None
+    max_storage_mb: int | None = None
     max_log_size_mb: int = 100
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "max_time_seconds": self.max_time_seconds,
@@ -104,15 +104,15 @@ class SamplerConfig:
     gamma: float = 0.25
 
     # CMA-ES specific settings
-    sigma0: Optional[float] = None
-    restart_strategy: Optional[str] = None
+    sigma0: float | None = None
+    restart_strategy: str | None = None
 
     # Random/Quasi-random settings
-    seed: Optional[int] = None
+    seed: int | None = None
 
     # NSGA-II specific settings
     population_size: int = 50
-    mutation_prob: Optional[float] = None
+    mutation_prob: float | None = None
     crossover_prob: float = 0.9
 
     # Advanced settings
@@ -120,7 +120,7 @@ class SamplerConfig:
     multivariate: bool = False
     group: bool = False
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "sampler_type": self.sampler_type.value,
@@ -159,13 +159,13 @@ class PrunerConfig:
     min_early_stopping_rate: int = 0
 
     # Hyperband settings
-    max_resource: Optional[int] = None
+    max_resource: int | None = None
 
     # Threshold pruner settings
-    lower: Optional[float] = None
-    upper: Optional[float] = None
+    lower: float | None = None
+    upper: float | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "pruner_type": self.pruner_type.value,
@@ -191,9 +191,9 @@ class OptimizationObjective:
     weight: float = 1.0
 
     # For multi-objective optimization
-    constraints: List[Dict[str, Any]] = field(default_factory=list)
+    constraints: list[dict[str, Any]] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "name": self.name,
@@ -207,12 +207,12 @@ class OptimizationObjective:
 class StudyConfig:
     """Configuration for optimization studies."""
 
-    study_name: Optional[str] = None
-    storage_url: Optional[str] = None  # Database URL for study persistence
+    study_name: str | None = None
+    storage_url: str | None = None  # Database URL for study persistence
     load_if_exists: bool = True
 
     # Multi-objective settings
-    directions: List[ObjectiveDirection] = field(
+    directions: list[ObjectiveDirection] = field(
         default_factory=lambda: [ObjectiveDirection.MAXIMIZE]
     )
 
@@ -220,7 +220,7 @@ class StudyConfig:
     enable_study_pruning: bool = False
     study_pruning_threshold: float = 0.1
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "study_name": self.study_name,
@@ -238,7 +238,7 @@ class LoggingConfig:
 
     enable_logging: bool = True
     log_level: str = "INFO"
-    log_file: Optional[Path] = None
+    log_file: Path | None = None
 
     # Progress reporting
     enable_progress_bar: bool = True
@@ -253,7 +253,7 @@ class LoggingConfig:
     log_memory_usage: bool = True
     log_timing: bool = True
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "enable_logging": self.enable_logging,
@@ -281,10 +281,10 @@ class OptimizationConfig:
     # Core optimization settings
     strategy: OptimizationStrategy = OptimizationStrategy.OPTUNA
     n_trials: int = 100
-    random_seed: Optional[int] = 42
+    random_seed: int | None = 42
 
     # Objective configuration
-    objectives: List[OptimizationObjective] = field(
+    objectives: list[OptimizationObjective] = field(
         default_factory=lambda: [
             OptimizationObjective("score", ObjectiveDirection.MAXIMIZE)
         ]
@@ -306,15 +306,15 @@ class OptimizationConfig:
 
     # Warm start
     enable_warm_start: bool = True
-    warm_start_trials: Optional[List[Dict[str, Any]]] = None
+    warm_start_trials: list[dict[str, Any]] | None = None
 
     # Callbacks and hooks
     enable_callbacks: bool = True
-    callback_config: Dict[str, Any] = field(default_factory=dict)
+    callback_config: dict[str, Any] = field(default_factory=dict)
 
     # Experimental features
     enable_experimental_features: bool = False
-    experimental_config: Dict[str, Any] = field(default_factory=dict)
+    experimental_config: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         """Validate configuration."""
@@ -340,7 +340,7 @@ class OptimizationConfig:
         """Get the primary optimization objective."""
         return self.objectives[0]
 
-    def get_directions(self) -> List[ObjectiveDirection]:
+    def get_directions(self) -> list[ObjectiveDirection]:
         """Get optimization directions for all objectives."""
         return [obj.direction for obj in self.objectives]
 
@@ -365,7 +365,7 @@ class OptimizationConfig:
         self.study_config.study_name = study_name
         self.study_config.load_if_exists = True
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
         return {
             "strategy": self.strategy.value,
@@ -390,7 +390,7 @@ class OptimizationConfig:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "OptimizationConfig":
+    def from_dict(cls, data: dict[str, Any]) -> "OptimizationConfig":
         """Create from dictionary representation."""
         data = data.copy()
 
@@ -460,7 +460,8 @@ def get_quick_optimization_config(n_trials: int = 50) -> OptimizationConfig:
         strategy=OptimizationStrategy.RANDOM_SEARCH,
         n_trials=n_trials,
         resource_constraints=ResourceConstraints(
-            max_time_seconds=300, n_jobs=2  # 5 minutes
+            max_time_seconds=300,
+            n_jobs=2,  # 5 minutes
         ),
         enable_early_stopping=True,
         early_stopping_patience=10,
@@ -477,7 +478,8 @@ def get_thorough_optimization_config(n_trials: int = 500) -> OptimizationConfig:
             pruner_type=PrunerType.HYPERBAND, n_startup_trials=10
         ),
         resource_constraints=ResourceConstraints(
-            max_time_seconds=7200, n_jobs=4  # 2 hours
+            max_time_seconds=7200,
+            n_jobs=4,  # 2 hours
         ),
         enable_early_stopping=True,
         early_stopping_patience=50,
@@ -494,7 +496,9 @@ def get_production_optimization_config(n_trials: int = 200) -> OptimizationConfi
         ),
         pruner_config=PrunerConfig(pruner_type=PrunerType.MEDIAN, n_startup_trials=10),
         resource_constraints=ResourceConstraints(
-            max_time_seconds=3600, max_memory_mb=8192, n_jobs=3  # 1 hour
+            max_time_seconds=3600,
+            max_memory_mb=8192,
+            n_jobs=3,  # 1 hour
         ),
         logging_config=LoggingConfig(
             enable_logging=True, log_trial_details=True, log_memory_usage=True

@@ -5,12 +5,10 @@ from __future__ import annotations
 import importlib
 import time
 import warnings
-from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
-import pandas as pd
 
 from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult
 from pynomaly.domain.exceptions import (
@@ -19,7 +17,7 @@ from pynomaly.domain.exceptions import (
     InvalidAlgorithmError,
 )
 from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.shared.protocols import DetectorProtocol, ExplainableDetectorProtocol
+from pynomaly.shared.protocols import ExplainableDetectorProtocol
 
 
 @dataclass
@@ -33,15 +31,15 @@ class AlgorithmMetadata:
     supports_multivariate: bool
     requires_gpu: bool
     description: str
-    paper_reference: Optional[str] = None
-    typical_use_cases: Optional[List[str]] = None
+    paper_reference: str | None = None
+    typical_use_cases: list[str] | None = None
 
 
 class EnhancedPyODAdapter(ExplainableDetectorProtocol):
     """Enhanced PyOD adapter with comprehensive algorithm support."""
 
     # Comprehensive algorithm mapping with metadata
-    ALGORITHM_MAPPING: Dict[str, Tuple[str, str, AlgorithmMetadata]] = {
+    ALGORITHM_MAPPING: dict[str, tuple[str, str, AlgorithmMetadata]] = {
         # Linear Models
         "PCA": (
             "pyod.models.pca",
@@ -327,8 +325,8 @@ class EnhancedPyODAdapter(ExplainableDetectorProtocol):
     def __init__(
         self,
         algorithm_name: str,
-        name: Optional[str] = None,
-        contamination_rate: Optional[ContaminationRate] = None,
+        name: str | None = None,
+        contamination_rate: ContaminationRate | None = None,
         **kwargs: Any,
     ):
         """Initialize enhanced PyOD adapter.
@@ -350,10 +348,10 @@ class EnhancedPyODAdapter(ExplainableDetectorProtocol):
         self._name = name or f"Enhanced_PyOD_{algorithm_name}"
         self._contamination_rate = contamination_rate or ContaminationRate.auto()
         self._parameters = kwargs
-        self._model: Optional[Any] = None
+        self._model: Any | None = None
         self._is_fitted = False
-        self._feature_names: Optional[List[str]] = None
-        self._training_metadata: Dict[str, Any] = {}
+        self._feature_names: list[str] | None = None
+        self._training_metadata: dict[str, Any] = {}
 
         # Load algorithm class and metadata
         module_path, class_name, metadata = self.ALGORITHM_MAPPING[algorithm_name]
@@ -391,7 +389,7 @@ class EnhancedPyODAdapter(ExplainableDetectorProtocol):
         return self._is_fitted
 
     @property
-    def parameters(self) -> Dict[str, Any]:
+    def parameters(self) -> dict[str, Any]:
         """Get the current parameters."""
         return self._parameters.copy()
 
@@ -525,7 +523,7 @@ class EnhancedPyODAdapter(ExplainableDetectorProtocol):
                 },
             )
 
-    def score(self, dataset: Dataset) -> List[AnomalyScore]:
+    def score(self, dataset: Dataset) -> list[AnomalyScore]:
         """Calculate anomaly scores for the dataset.
 
         Args:
@@ -558,7 +556,7 @@ class EnhancedPyODAdapter(ExplainableDetectorProtocol):
         self.fit(dataset)
         return self.detect(dataset)
 
-    def get_params(self) -> Dict[str, Any]:
+    def get_params(self) -> dict[str, Any]:
         """Get parameters of the detector."""
         if self._model is not None:
             return self._model.get_params()
@@ -576,8 +574,8 @@ class EnhancedPyODAdapter(ExplainableDetectorProtocol):
                 self._model.set_params(**valid_params)
 
     def explain(
-        self, dataset: Dataset, indices: Optional[List[int]] = None
-    ) -> Dict[int, Dict[str, Any]]:
+        self, dataset: Dataset, indices: list[int] | None = None
+    ) -> dict[int, dict[str, Any]]:
         """Explain why certain points are anomalous.
 
         Args:
@@ -620,7 +618,7 @@ class EnhancedPyODAdapter(ExplainableDetectorProtocol):
 
         return explanations
 
-    def feature_importances(self) -> Dict[str, float]:
+    def feature_importances(self) -> dict[str, float]:
         """Get feature importances for anomaly detection.
 
         Returns:
@@ -640,7 +638,7 @@ class EnhancedPyODAdapter(ExplainableDetectorProtocol):
 
         return importances
 
-    def _prepare_features(self, dataset: Dataset) -> Tuple[np.ndarray, List[str]]:
+    def _prepare_features(self, dataset: Dataset) -> tuple[np.ndarray, list[str]]:
         """Prepare features for algorithm.
 
         Args:
@@ -663,7 +661,7 @@ class EnhancedPyODAdapter(ExplainableDetectorProtocol):
 
         return numeric_data.values, feature_names
 
-    def _prepare_model_parameters(self) -> Dict[str, Any]:
+    def _prepare_model_parameters(self) -> dict[str, Any]:
         """Prepare parameters for model initialization."""
         params = self._parameters.copy()
 
@@ -707,9 +705,9 @@ class EnhancedPyODAdapter(ExplainableDetectorProtocol):
         self,
         dataset: Dataset,
         labels: np.ndarray,
-        anomaly_scores: List[AnomalyScore],
+        anomaly_scores: list[AnomalyScore],
         raw_scores: np.ndarray,
-    ) -> List[Anomaly]:
+    ) -> list[Anomaly]:
         """Create anomaly entities for detected anomalies."""
         anomalies = []
         anomaly_indices = np.where(labels == 1)[0]
@@ -748,8 +746,8 @@ class EnhancedPyODAdapter(ExplainableDetectorProtocol):
         return float(sorted_scores[threshold_idx])
 
     def _calculate_feature_contributions(
-        self, data_point: np.ndarray, feature_names: List[str]
-    ) -> Dict[str, float]:
+        self, data_point: np.ndarray, feature_names: list[str]
+    ) -> dict[str, float]:
         """Calculate feature contributions for explanation.
 
         This is a simplified version. In practice, use SHAP or LIME.
@@ -779,19 +777,19 @@ class EnhancedPyODAdapter(ExplainableDetectorProtocol):
             return "unknown"
 
     @classmethod
-    def list_algorithms(cls) -> List[str]:
+    def list_algorithms(cls) -> list[str]:
         """List all available algorithms."""
         return list(cls.ALGORITHM_MAPPING.keys())
 
     @classmethod
-    def get_algorithm_metadata(cls, algorithm_name: str) -> Optional[AlgorithmMetadata]:
+    def get_algorithm_metadata(cls, algorithm_name: str) -> AlgorithmMetadata | None:
         """Get metadata for a specific algorithm."""
         if algorithm_name in cls.ALGORITHM_MAPPING:
             return cls.ALGORITHM_MAPPING[algorithm_name][2]
         return None
 
     @classmethod
-    def get_algorithms_by_category(cls) -> Dict[str, List[str]]:
+    def get_algorithms_by_category(cls) -> dict[str, list[str]]:
         """Get algorithms grouped by category."""
         categories = {}
         for name, (_, _, metadata) in cls.ALGORITHM_MAPPING.items():
@@ -808,7 +806,7 @@ class EnhancedPyODAdapter(ExplainableDetectorProtocol):
         n_features: int,
         has_gpu: bool = False,
         prefer_fast: bool = False,
-    ) -> List[str]:
+    ) -> list[str]:
         """Recommend algorithms based on dataset characteristics.
 
         Args:

@@ -7,7 +7,7 @@ with FastAPI applications.
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict
+from typing import Any
 
 from fastapi import FastAPI
 
@@ -90,7 +90,6 @@ def add_configuration_endpoints(
         configuration_service: Configuration capture service
         integration_service: Web API configuration integration service
     """
-    from typing import Any
 
     from fastapi import HTTPException
 
@@ -233,7 +232,7 @@ def add_configuration_health_check(app: FastAPI) -> None:
     """
 
     @app.get("/health/configuration")
-    async def configuration_health_check() -> Dict[str, Any]:
+    async def configuration_health_check() -> dict[str, Any]:
         """Health check for configuration system."""
         try:
             # Check if configuration features are enabled

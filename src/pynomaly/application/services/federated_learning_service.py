@@ -5,17 +5,14 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import logging
-import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 from pydantic import BaseModel, Field
-
-from pynomaly.domain.entities import Dataset, Detector
 
 logger = logging.getLogger(__name__)
 
@@ -97,11 +94,11 @@ class FederatedClient(BaseModel):
 
     client_id: str
     status: ClientStatus = ClientStatus.IDLE
-    capabilities: Dict[str, Any] = Field(default_factory=dict)
+    capabilities: dict[str, Any] = Field(default_factory=dict)
     privacy_budget: PrivacyBudget = Field(default_factory=PrivacyBudget)
     metrics: ClientMetrics = Field(default_factory=lambda: ClientMetrics(client_id=""))
-    local_model_weights: Optional[Dict[str, Any]] = None
-    data_characteristics: Dict[str, Any] = Field(default_factory=dict)
+    local_model_weights: dict[str, Any] | None = None
+    data_characteristics: dict[str, Any] = Field(default_factory=dict)
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -115,12 +112,12 @@ class FederatedRound:
 
     round_number: int
     start_time: datetime
-    end_time: Optional[datetime] = None
-    participating_clients: List[str] = field(default_factory=list)
-    aggregated_weights: Optional[Dict[str, Any]] = None
-    global_performance: Dict[str, float] = field(default_factory=dict)
-    privacy_guarantees: Dict[str, float] = field(default_factory=dict)
-    convergence_metrics: Dict[str, float] = field(default_factory=dict)
+    end_time: datetime | None = None
+    participating_clients: list[str] = field(default_factory=list)
+    aggregated_weights: dict[str, Any] | None = None
+    global_performance: dict[str, float] = field(default_factory=dict)
+    privacy_guarantees: dict[str, float] = field(default_factory=dict)
+    convergence_metrics: dict[str, float] = field(default_factory=dict)
 
 
 class SecureAggregator:
@@ -140,9 +137,9 @@ class SecureAggregator:
 
     async def aggregate_weights(
         self,
-        client_weights: List[Tuple[str, Dict[str, Any], float]],
-        privacy_budgets: Dict[str, PrivacyBudget],
-    ) -> Tuple[Dict[str, Any], Dict[str, float]]:
+        client_weights: list[tuple[str, dict[str, Any], float]],
+        privacy_budgets: dict[str, PrivacyBudget],
+    ) -> tuple[dict[str, Any], dict[str, float]]:
         """Securely aggregate model weights from clients.
 
         Args:
@@ -177,8 +174,8 @@ class SecureAggregator:
         return aggregated_weights, privacy_metrics
 
     async def _filter_byzantine_clients(
-        self, client_weights: List[Tuple[str, Dict[str, Any], float]]
-    ) -> List[Tuple[str, Dict[str, Any], float]]:
+        self, client_weights: list[tuple[str, dict[str, Any], float]]
+    ) -> list[tuple[str, dict[str, Any], float]]:
         """Filter out potentially malicious clients using statistical methods."""
         if len(client_weights) <= 2:
             return client_weights
@@ -234,7 +231,7 @@ class SecureAggregator:
 
         return filtered_clients
 
-    def _flatten_weights(self, weights: Dict[str, Any]) -> np.ndarray:
+    def _flatten_weights(self, weights: dict[str, Any]) -> np.ndarray:
         """Flatten nested weight dictionary into a single vector."""
         flattened = []
         for key in sorted(weights.keys()):  # Ensure consistent ordering
@@ -270,9 +267,9 @@ class SecureAggregator:
 
     async def _apply_differential_privacy(
         self,
-        client_weights: List[Tuple[str, Dict[str, Any], float]],
-        privacy_budgets: Dict[str, PrivacyBudget],
-    ) -> List[Tuple[str, Dict[str, Any], float]]:
+        client_weights: list[tuple[str, dict[str, Any], float]],
+        privacy_budgets: dict[str, PrivacyBudget],
+    ) -> list[tuple[str, dict[str, Any], float]]:
         """Apply differential privacy to client weights."""
         noisy_weights = []
 
@@ -299,8 +296,8 @@ class SecureAggregator:
         return noisy_weights
 
     async def _clip_weights(
-        self, weights: Dict[str, Any], clip_norm: float
-    ) -> Dict[str, Any]:
+        self, weights: dict[str, Any], clip_norm: float
+    ) -> dict[str, Any]:
         """Apply gradient clipping to weights."""
         clipped_weights = {}
 
@@ -327,8 +324,8 @@ class SecureAggregator:
         return clipped_weights
 
     async def _add_gaussian_noise(
-        self, weights: Dict[str, Any], noise_multiplier: float, sensitivity: float
-    ) -> Dict[str, Any]:
+        self, weights: dict[str, Any], noise_multiplier: float, sensitivity: float
+    ) -> dict[str, Any]:
         """Add calibrated Gaussian noise for differential privacy."""
         noisy_weights = {}
 
@@ -353,8 +350,8 @@ class SecureAggregator:
         return noisy_weights
 
     async def _federated_averaging(
-        self, client_weights: List[Tuple[str, Dict[str, Any], float]]
-    ) -> Dict[str, Any]:
+        self, client_weights: list[tuple[str, dict[str, Any], float]]
+    ) -> dict[str, Any]:
         """Perform federated averaging aggregation."""
         if not client_weights:
             return {}
@@ -384,8 +381,8 @@ class SecureAggregator:
         return aggregated_weights
 
     def _initialize_aggregated_weights(
-        self, weights_structure: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, weights_structure: dict[str, Any]
+    ) -> dict[str, Any]:
         """Initialize aggregated weights with zeros matching the structure."""
         initialized = {}
 
@@ -402,8 +399,8 @@ class SecureAggregator:
         return initialized
 
     def _weighted_add(
-        self, aggregated: Dict[str, Any], client_weights: Dict[str, Any], weight: float
-    ) -> Dict[str, Any]:
+        self, aggregated: dict[str, Any], client_weights: dict[str, Any], weight: float
+    ) -> dict[str, Any]:
         """Add client weights to aggregated weights with given weight."""
         result = {}
 
@@ -441,9 +438,9 @@ class SecureAggregator:
 
     async def _calculate_privacy_metrics(
         self,
-        client_weights: List[Tuple[str, Dict[str, Any], float]],
-        privacy_budgets: Dict[str, PrivacyBudget],
-    ) -> Dict[str, float]:
+        client_weights: list[tuple[str, dict[str, Any], float]],
+        privacy_budgets: dict[str, PrivacyBudget],
+    ) -> dict[str, float]:
         """Calculate privacy metrics for the aggregation."""
         metrics = {}
 
@@ -507,13 +504,13 @@ class FederatedLearningService:
         self.convergence_threshold = convergence_threshold
 
         # Client management
-        self.clients: Dict[str, FederatedClient] = {}
-        self.client_queues: Dict[str, asyncio.Queue] = {}
+        self.clients: dict[str, FederatedClient] = {}
+        self.client_queues: dict[str, asyncio.Queue] = {}
 
         # Training state
         self.current_round = 0
-        self.global_model_weights: Optional[Dict[str, Any]] = None
-        self.round_history: List[FederatedRound] = []
+        self.global_model_weights: dict[str, Any] | None = None
+        self.round_history: list[FederatedRound] = []
 
         # Secure aggregation
         self.aggregator = SecureAggregator(
@@ -525,15 +522,15 @@ class FederatedLearningService:
 
         # Performance tracking
         self.convergence_history: deque = deque(maxlen=50)
-        self.performance_metrics: Dict[str, List[float]] = defaultdict(list)
+        self.performance_metrics: dict[str, list[float]] = defaultdict(list)
 
         logger.info(f"Initialized federated learning service with strategy: {strategy}")
 
     async def register_client(
         self,
         client_id: str,
-        capabilities: Dict[str, Any],
-        privacy_preferences: Dict[str, Any],
+        capabilities: dict[str, Any],
+        privacy_preferences: dict[str, Any],
     ) -> bool:
         """Register a new federated learning client.
 
@@ -586,7 +583,7 @@ class FederatedLearningService:
             logger.error(f"Error unregistering client {client_id}: {e}")
             return False
 
-    async def start_training_round(self) -> Dict[str, Any]:
+    async def start_training_round(self) -> dict[str, Any]:
         """Start a new federated training round.
 
         Returns:
@@ -631,7 +628,7 @@ class FederatedLearningService:
             "privacy_requirements": self._get_privacy_requirements(selected_clients),
         }
 
-    async def _select_clients_for_round(self) -> List[FederatedClient]:
+    async def _select_clients_for_round(self) -> list[FederatedClient]:
         """Select clients for the current training round."""
         # Get available clients
         available_clients = [
@@ -658,16 +655,16 @@ class FederatedLearningService:
         return selected[: self.max_clients_per_round]
 
     async def _random_client_selection(
-        self, available_clients: List[FederatedClient]
-    ) -> List[FederatedClient]:
+        self, available_clients: list[FederatedClient]
+    ) -> list[FederatedClient]:
         """Random client selection."""
         num_clients = min(len(available_clients), self.max_clients_per_round)
         indices = np.random.choice(len(available_clients), num_clients, replace=False)
         return [available_clients[i] for i in indices]
 
     async def _weighted_client_selection(
-        self, available_clients: List[FederatedClient]
-    ) -> List[FederatedClient]:
+        self, available_clients: list[FederatedClient]
+    ) -> list[FederatedClient]:
         """Weighted client selection based on reliability and contribution."""
         # Calculate selection weights
         weights = []
@@ -700,8 +697,8 @@ class FederatedLearningService:
         return [available_clients[i] for i in indices]
 
     async def _diverse_client_selection(
-        self, available_clients: List[FederatedClient]
-    ) -> List[FederatedClient]:
+        self, available_clients: list[FederatedClient]
+    ) -> list[FederatedClient]:
         """Diverse client selection to maximize data heterogeneity."""
         # This is a simplified version - in practice, you'd use more sophisticated diversity metrics
 
@@ -731,8 +728,8 @@ class FederatedLearningService:
         return selected_clients
 
     async def _create_training_tasks(
-        self, selected_clients: List[FederatedClient]
-    ) -> Dict[str, Any]:
+        self, selected_clients: list[FederatedClient]
+    ) -> dict[str, Any]:
         """Create training tasks for selected clients."""
         tasks = {}
 
@@ -759,8 +756,8 @@ class FederatedLearningService:
         return tasks
 
     def _get_privacy_requirements(
-        self, selected_clients: List[FederatedClient]
-    ) -> Dict[str, Any]:
+        self, selected_clients: list[FederatedClient]
+    ) -> dict[str, Any]:
         """Get privacy requirements for the round."""
         return {
             "privacy_level": self.privacy_level.value,
@@ -778,10 +775,10 @@ class FederatedLearningService:
     async def receive_client_update(
         self,
         client_id: str,
-        local_weights: Dict[str, Any],
-        training_metrics: Dict[str, float],
+        local_weights: dict[str, Any],
+        training_metrics: dict[str, float],
         data_size: int,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Receive and process client model update.
 
         Args:
@@ -838,8 +835,8 @@ class FederatedLearningService:
     def _validate_client_update(
         self,
         client: FederatedClient,
-        local_weights: Dict[str, Any],
-        training_metrics: Dict[str, float],
+        local_weights: dict[str, Any],
+        training_metrics: dict[str, float],
     ) -> bool:
         """Validate client model update."""
         # Check if client is expected to participate
@@ -876,7 +873,7 @@ class FederatedLearningService:
     def _calculate_contribution_score(
         self,
         client: FederatedClient,
-        training_metrics: Dict[str, float],
+        training_metrics: dict[str, float],
         data_size: int,
     ) -> float:
         """Calculate client contribution score."""
@@ -904,7 +901,7 @@ class FederatedLearningService:
 
         return contribution_score
 
-    async def aggregate_round(self) -> Dict[str, Any]:
+    async def aggregate_round(self) -> dict[str, Any]:
         """Aggregate client updates for the current round.
 
         Returns:
@@ -943,9 +940,10 @@ class FederatedLearningService:
                 privacy_budgets[client.client_id] = client.privacy_budget
 
             # Perform secure aggregation
-            aggregated_weights, privacy_metrics = (
-                await self.aggregator.aggregate_weights(client_weights, privacy_budgets)
-            )
+            (
+                aggregated_weights,
+                privacy_metrics,
+            ) = await self.aggregator.aggregate_weights(client_weights, privacy_budgets)
 
             # Update global model
             self.global_model_weights = aggregated_weights
@@ -1003,8 +1001,8 @@ class FederatedLearningService:
             return {"status": "error", "message": str(e)}
 
     def _calculate_round_performance(
-        self, participating_clients: List[FederatedClient]
-    ) -> Dict[str, float]:
+        self, participating_clients: list[FederatedClient]
+    ) -> dict[str, float]:
         """Calculate performance metrics for the round."""
         if not participating_clients:
             return {}
@@ -1048,8 +1046,8 @@ class FederatedLearningService:
         }
 
     def _check_convergence(
-        self, round_performance: Dict[str, float]
-    ) -> Dict[str, float]:
+        self, round_performance: dict[str, float]
+    ) -> dict[str, float]:
         """Check convergence of federated learning."""
         current_accuracy = round_performance.get("weighted_accuracy", 0.0)
         self.convergence_history.append(current_accuracy)
@@ -1077,7 +1075,7 @@ class FederatedLearningService:
 
         return convergence_metrics
 
-    async def get_federated_status(self) -> Dict[str, Any]:
+    async def get_federated_status(self) -> dict[str, Any]:
         """Get comprehensive federated learning system status."""
         # Client statistics
         client_stats = {
@@ -1165,7 +1163,7 @@ class FederatedLearningService:
             "recommendations": self._generate_federated_recommendations(),
         }
 
-    def _generate_federated_recommendations(self) -> List[str]:
+    def _generate_federated_recommendations(self) -> list[str]:
         """Generate recommendations for federated learning optimization."""
         recommendations = []
 

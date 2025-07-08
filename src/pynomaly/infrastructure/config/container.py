@@ -22,11 +22,11 @@ from pynomaly.application.use_cases import (
 )
 from pynomaly.domain.services import (
     AnomalyScorer,
+    DefaultSeverityClassifier,
+    DefaultTypeClassifier,
     EnsembleAggregator,
     FeatureValidator,
     ThresholdCalculator,
-    DefaultSeverityClassifier,
-    DefaultTypeClassifier,
 )
 from pynomaly.infrastructure.config.feature_flags import FeatureFlagManager
 from pynomaly.infrastructure.config.settings import Settings
@@ -439,7 +439,7 @@ class Container(containers.DeclarativeContainer):
     threshold_calculator = providers.Singleton(ThresholdCalculator)
     feature_validator = providers.Singleton(FeatureValidator)
     ensemble_aggregator = providers.Singleton(EnsembleAggregator)
-    
+
     # Classifier services
     default_severity_classifier = providers.Singleton(DefaultSeverityClassifier)
     default_type_classifier = providers.Singleton(DefaultTypeClassifier)
@@ -833,7 +833,7 @@ class Container(containers.DeclarativeContainer):
         severity_classifier=default_severity_classifier,
         type_classifier=default_type_classifier,
     )
-    
+
     detection_service = providers.Singleton(
         DetectionService,
         detector_repository=detector_repository,

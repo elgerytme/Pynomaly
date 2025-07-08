@@ -206,6 +206,27 @@ class BaseEChart {
 
     // Setup event listeners
     this.setupEventListeners();
+    this.enhanceInteractivity();
+  }
+
+  enhanceInteractivity() {
+    this.chart.setOption({
+      dataZoom: [
+        {
+          type: 'inside',
+          start: 0,
+          end: 100
+        },
+        {
+          start: 0,
+          end: 100
+        }
+      ],
+      brush: {
+        toolbox: ['rect', 'polygon', 'keep', 'clear'],
+        xAxisIndex: 'all'
+      }
+    });
   }
 
   setupAccessibility() {

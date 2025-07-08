@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Set
 from uuid import UUID
 
 from pynomaly.domain.entities.user import Permission, User, UserRole
@@ -26,15 +25,15 @@ class PrivilegeEscalationPrevention:
         self.logger = logging.getLogger(__name__)
 
         # Track suspicious activities
-        self.failed_privilege_attempts: Dict[UUID, List[datetime]] = {}
-        self.role_assignment_history: Dict[UUID, List[Dict]] = {}
+        self.failed_privilege_attempts: dict[UUID, list[datetime]] = {}
+        self.role_assignment_history: dict[UUID, list[dict]] = {}
 
     async def validate_role_assignment(
         self,
         granter_id: UUID,
         target_user_id: UUID,
         new_role: UserRole,
-        tenant_id: Optional[UUID] = None,
+        tenant_id: UUID | None = None,
     ) -> bool:
         """Validate that a role assignment is legitimate and not a privilege escalation.
 
@@ -121,7 +120,7 @@ class PrivilegeEscalationPrevention:
         granter_id: UUID,
         target_user_id: UUID,
         permission: Permission,
-        tenant_id: Optional[UUID] = None,
+        tenant_id: UUID | None = None,
     ) -> bool:
         """Validate that a permission grant is legitimate.
 
@@ -170,7 +169,7 @@ class PrivilegeEscalationPrevention:
         return False
 
     async def detect_privilege_escalation_patterns(
-        self, user_id: UUID, action: str, target_resource: Optional[str] = None
+        self, user_id: UUID, action: str, target_resource: str | None = None
     ) -> bool:
         """Detect patterns that might indicate privilege escalation attempts.
 
@@ -217,9 +216,9 @@ class PrivilegeEscalationPrevention:
     async def enforce_principle_of_least_privilege(
         self,
         user_id: UUID,
-        requested_permissions: List[Permission],
-        justification: Optional[str] = None,
-    ) -> List[Permission]:
+        requested_permissions: list[Permission],
+        justification: str | None = None,
+    ) -> list[Permission]:
         """Enforce principle of least privilege by filtering excessive permissions.
 
         Args:
@@ -281,7 +280,7 @@ class PrivilegeEscalationPrevention:
 
         return filtered_permissions
 
-    async def _get_user_safely(self, user_id: UUID) -> Optional[User]:
+    async def _get_user_safely(self, user_id: UUID) -> User | None:
         """Safely get user with error handling."""
         try:
             # This would typically go through the RBAC service
@@ -291,7 +290,7 @@ class PrivilegeEscalationPrevention:
             return None
 
     async def _can_grant_role(
-        self, granter: User, role: UserRole, tenant_id: Optional[UUID]
+        self, granter: User, role: UserRole, tenant_id: UUID | None
     ) -> bool:
         """Check if user can grant a specific role."""
         return PermissionMatrix.can_role_grant_permission(
@@ -309,7 +308,7 @@ class PrivilegeEscalationPrevention:
         )
 
     async def _has_sufficient_privileges(
-        self, granter: User, role: UserRole, tenant_id: Optional[UUID]
+        self, granter: User, role: UserRole, tenant_id: UUID | None
     ) -> bool:
         """Check if granter has sufficient privileges to grant role."""
         hierarchy = PermissionMatrix.get_permission_hierarchy()
@@ -344,7 +343,7 @@ class PrivilegeEscalationPrevention:
         granter_id: UUID,
         target_user_id: UUID,
         role: UserRole,
-        tenant_id: Optional[UUID],
+        tenant_id: UUID | None,
     ) -> None:
         """Record a role assignment for audit and rate limiting."""
         if granter_id not in self.role_assignment_history:
@@ -365,8 +364,8 @@ class PrivilegeEscalationPrevention:
         ][-50:]
 
     async def _get_user_permissions(
-        self, user: User, tenant_id: Optional[UUID]
-    ) -> Set[Permission]:
+        self, user: User, tenant_id: UUID | None
+    ) -> set[Permission]:
         """Get effective permissions for user in tenant context."""
         if user.is_super_admin():
             return PermissionMatrix.get_all_permissions()
@@ -395,9 +394,9 @@ class PrivilegeEscalationPrevention:
         self,
         event_description: str,
         user_id: UUID,
-        target_user_id: Optional[UUID],
+        target_user_id: UUID | None,
         action_details: str,
-        additional_data: Optional[Dict] = None,
+        additional_data: dict | None = None,
     ) -> None:
         """Log security events for monitoring and compliance."""
         self.logger.warning(
@@ -427,7 +426,7 @@ class SecurityResponseHandler:
     """Handles security responses and error formatting."""
 
     @staticmethod
-    def format_authentication_error(reason: str) -> Dict[str, str]:
+    def format_authentication_error(reason: str) -> dict[str, str]:
         """Format authentication error response (401)."""
         return {
             "error": "authentication_required",
@@ -438,8 +437,8 @@ class SecurityResponseHandler:
 
     @staticmethod
     def format_authorization_error(
-        required_permission: str, user_roles: List[str]
-    ) -> Dict[str, str]:
+        required_permission: str, user_roles: list[str]
+    ) -> dict[str, str]:
         """Format authorization error response (403)."""
         return {
             "error": "insufficient_permissions",
@@ -449,7 +448,7 @@ class SecurityResponseHandler:
         }
 
     @staticmethod
-    def format_privilege_escalation_error() -> Dict[str, str]:
+    def format_privilege_escalation_error() -> dict[str, str]:
         """Format privilege escalation attempt response (403)."""
         return {
             "error": "privilege_escalation_blocked",
@@ -458,7 +457,7 @@ class SecurityResponseHandler:
         }
 
     @staticmethod
-    def format_rate_limit_error(retry_after: int) -> Dict[str, str]:
+    def format_rate_limit_error(retry_after: int) -> dict[str, str]:
         """Format rate limit error response (429)."""
         return {
             "error": "rate_limit_exceeded",

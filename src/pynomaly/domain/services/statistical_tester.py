@@ -7,7 +7,7 @@ model performance metrics.
 
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 from scipy import stats
@@ -24,8 +24,8 @@ class TestResult:
     p_value: float
     significant: bool
     confidence_level: float
-    effect_size: Optional[float] = None
-    power: Optional[float] = None
+    effect_size: float | None = None
+    power: float | None = None
 
 
 class StatisticalTester:
@@ -48,8 +48,8 @@ class StatisticalTester:
 
     def test_significance(
         self,
-        metrics_a: Dict[str, Any],
-        metrics_b: Dict[str, Any],
+        metrics_a: dict[str, Any],
+        metrics_b: dict[str, Any],
         test_type: str = "ttest",
         metric_name: str = "f1_score",
     ) -> TestResult:
@@ -100,8 +100,8 @@ class StatisticalTester:
             raise ValueError(f"Unknown test type: {test_type}")
 
     def _extract_metric_value(
-        self, metrics: Dict[str, Any], metric_name: str
-    ) -> Optional[Any]:
+        self, metrics: dict[str, Any], metric_name: str
+    ) -> Any | None:
         """Extract metric value from metrics dictionary."""
         if metric_name not in metrics:
             return None
@@ -262,8 +262,8 @@ class StatisticalTester:
             return 0.0
 
     def multiple_comparisons_correction(
-        self, p_values: List[float], method: str = "bonferroni"
-    ) -> List[float]:
+        self, p_values: list[float], method: str = "bonferroni"
+    ) -> list[float]:
         """
         Apply multiple comparisons correction.
 
@@ -285,7 +285,7 @@ class StatisticalTester:
         else:
             raise ValueError(f"Unknown correction method: {method}")
 
-    def _holm_correction(self, p_values: np.ndarray) -> List[float]:
+    def _holm_correction(self, p_values: np.ndarray) -> list[float]:
         """Apply Holm-Bonferroni correction."""
         n = len(p_values)
         sorted_indices = np.argsort(p_values)
@@ -298,7 +298,7 @@ class StatisticalTester:
 
         return corrected_p_values.tolist()
 
-    def _benjamini_hochberg_correction(self, p_values: np.ndarray) -> List[float]:
+    def _benjamini_hochberg_correction(self, p_values: np.ndarray) -> list[float]:
         """Apply Benjamini-Hochberg FDR correction."""
         n = len(p_values)
         sorted_indices = np.argsort(p_values)
@@ -314,7 +314,7 @@ class StatisticalTester:
         return corrected_p_values.tolist()
 
     def power_analysis(
-        self, effect_size: float, sample_size: int, alpha: Optional[float] = None
+        self, effect_size: float, sample_size: int, alpha: float | None = None
     ) -> float:
         """
         Compute statistical power for a given effect size and sample size.
@@ -352,10 +352,10 @@ class StatisticalTester:
 
     def comprehensive_comparison(
         self,
-        models_metrics: Dict[str, Dict[str, Any]],
-        metric_names: List[str] = None,
+        models_metrics: dict[str, dict[str, Any]],
+        metric_names: list[str] = None,
         correction_method: str = "bonferroni",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Perform comprehensive statistical comparison of multiple models.
 
@@ -427,9 +427,9 @@ class StatisticalTester:
                         effect_size=original_result.effect_size,
                     )
 
-                    results["pairwise_comparisons"][comparison_key][
-                        metric_name
-                    ] = corrected_result
+                    results["pairwise_comparisons"][comparison_key][metric_name] = (
+                        corrected_result
+                    )
                     idx += 1
 
         # Create significance matrix

@@ -3,12 +3,11 @@
 import asyncio
 import logging
 import secrets
-import time
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
 from pynomaly.shared.config import Config
 
@@ -61,7 +60,7 @@ class TenantConfiguration:
     max_datasets: int = 20
 
     # Feature flags
-    features_enabled: Set[str] = field(default_factory=set)
+    features_enabled: set[str] = field(default_factory=set)
     api_access_enabled: bool = True
     ui_access_enabled: bool = True
     export_enabled: bool = True
@@ -71,14 +70,14 @@ class TenantConfiguration:
 
     # Data retention and compliance
     data_retention_days: int = 90
-    compliance_frameworks: Set[str] = field(default_factory=set)
+    compliance_frameworks: set[str] = field(default_factory=set)
     encryption_required: bool = True
     audit_logging_enabled: bool = True
 
     # Geographic and regulatory
-    allowed_regions: Set[str] = field(default_factory=lambda: {"us-east-1"})
-    data_residency_requirements: Set[str] = field(default_factory=set)
-    regulatory_compliance: Set[str] = field(default_factory=set)
+    allowed_regions: set[str] = field(default_factory=lambda: {"us-east-1"})
+    data_residency_requirements: set[str] = field(default_factory=set)
+    regulatory_compliance: set[str] = field(default_factory=set)
 
 
 @dataclass
@@ -98,21 +97,21 @@ class Tenant:
     contact_email: str
 
     # Billing and subscription
-    subscription_id: Optional[str] = None
-    billing_address: Optional[Dict[str, str]] = None
-    payment_method_id: Optional[str] = None
+    subscription_id: str | None = None
+    billing_address: dict[str, str] | None = None
+    payment_method_id: str | None = None
 
     # Security
-    api_key: Optional[str] = None
-    webhook_secret: Optional[str] = None
-    allowed_ip_ranges: Set[str] = field(default_factory=set)
+    api_key: str | None = None
+    webhook_secret: str | None = None
+    allowed_ip_ranges: set[str] = field(default_factory=set)
 
     # Metadata
-    tags: Dict[str, str] = field(default_factory=dict)
-    custom_attributes: Dict[str, Any] = field(default_factory=dict)
+    tags: dict[str, str] = field(default_factory=dict)
+    custom_attributes: dict[str, Any] = field(default_factory=dict)
 
     # Usage metrics
-    last_activity: Optional[datetime] = None
+    last_activity: datetime | None = None
     total_requests: int = 0
     total_data_processed_gb: float = 0.0
 
@@ -146,15 +145,15 @@ class Tenant:
 class TenantManager:
     """Enterprise multi-tenant management system."""
 
-    def __init__(self, config: Optional[Config] = None):
+    def __init__(self, config: Config | None = None):
         """Initialize tenant manager."""
         self.config = config or Config()
         self.telemetry = get_telemetry_service()
         self.audit_system = get_audit_system()
 
         # Storage
-        self.tenants: Dict[str, Tenant] = {}
-        self.tenant_by_api_key: Dict[str, str] = {}  # api_key -> tenant_id
+        self.tenants: dict[str, Tenant] = {}
+        self.tenant_by_api_key: dict[str, str] = {}  # api_key -> tenant_id
 
         # Default configurations by tier
         self.tier_configurations = self._initialize_tier_configurations()
@@ -168,12 +167,12 @@ class TenantManager:
         )
 
         # Background tasks
-        self._monitoring_task: Optional[asyncio.Task] = None
+        self._monitoring_task: asyncio.Task | None = None
         self._monitoring_active = False
 
         logger.info("Tenant manager initialized")
 
-    def _initialize_tier_configurations(self) -> Dict[TenantTier, TenantConfiguration]:
+    def _initialize_tier_configurations(self) -> dict[TenantTier, TenantConfiguration]:
         """Initialize default configurations for each tier."""
         return {
             TenantTier.FREE: TenantConfiguration(
@@ -268,7 +267,7 @@ class TenantManager:
         tier: TenantTier,
         owner_user_id: str,
         contact_email: str,
-        custom_config: Optional[TenantConfiguration] = None,
+        custom_config: TenantConfiguration | None = None,
     ) -> Tenant:
         """Create a new tenant."""
         try:
@@ -329,11 +328,11 @@ class TenantManager:
             logger.error(f"Failed to create tenant: {e}")
             raise
 
-    async def get_tenant(self, tenant_id: str) -> Optional[Tenant]:
+    async def get_tenant(self, tenant_id: str) -> Tenant | None:
         """Get tenant by ID."""
         return self.tenants.get(tenant_id)
 
-    async def get_tenant_by_api_key(self, api_key: str) -> Optional[Tenant]:
+    async def get_tenant_by_api_key(self, api_key: str) -> Tenant | None:
         """Get tenant by API key."""
         tenant_id = self.tenant_by_api_key.get(api_key)
         if tenant_id:
@@ -439,7 +438,7 @@ class TenantManager:
             return False
 
     async def update_tenant_configuration(
-        self, tenant_id: str, config_updates: Dict[str, Any]
+        self, tenant_id: str, config_updates: dict[str, Any]
     ) -> bool:
         """Update specific tenant configuration settings."""
         try:
@@ -480,7 +479,7 @@ class TenantManager:
         self,
         tenant_id: str,
         activity_type: str,
-        details: Optional[Dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         """Record tenant activity."""
         tenant = await self.get_tenant(tenant_id)
@@ -524,8 +523,8 @@ class TenantManager:
         return True
 
     async def list_tenants(
-        self, status: Optional[TenantStatus] = None, tier: Optional[TenantTier] = None
-    ) -> List[Tenant]:
+        self, status: TenantStatus | None = None, tier: TenantTier | None = None
+    ) -> list[Tenant]:
         """List tenants with optional filters."""
         tenants = list(self.tenants.values())
 
@@ -537,7 +536,7 @@ class TenantManager:
 
         return sorted(tenants, key=lambda t: t.created_at)
 
-    async def get_tenant_usage_summary(self, tenant_id: str) -> Dict[str, Any]:
+    async def get_tenant_usage_summary(self, tenant_id: str) -> dict[str, Any]:
         """Get tenant resource usage summary."""
         tenant = await self.get_tenant(tenant_id)
         if not tenant:
@@ -677,7 +676,7 @@ class TenantManager:
                 logger.info(f"Cleaning up inactive tenant {tenant.tenant_id}")
                 # In production, this would trigger a proper deletion workflow
 
-    def get_manager_metrics(self) -> Dict[str, Any]:
+    def get_manager_metrics(self) -> dict[str, Any]:
         """Get tenant manager metrics."""
         status_counts = {}
         tier_counts = {}
@@ -701,10 +700,10 @@ class TenantManager:
 
 
 # Global tenant manager instance
-_tenant_manager: Optional[TenantManager] = None
+_tenant_manager: TenantManager | None = None
 
 
-def get_tenant_manager(config: Optional[Config] = None) -> TenantManager:
+def get_tenant_manager(config: Config | None = None) -> TenantManager:
     """Get the global tenant manager instance."""
     global _tenant_manager
     if _tenant_manager is None:

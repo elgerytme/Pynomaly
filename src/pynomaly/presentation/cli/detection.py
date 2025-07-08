@@ -594,79 +594,86 @@ def compare_runs(
 ):
     """Compare model runs on the specified dataset."""
     console = Console()
-    
+
     with Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        task = progress.add_task(f"Comparing runs for dataset {dataset_id}...", total=None)
-        
+        task = progress.add_task(
+            f"Comparing runs for dataset {dataset_id}...", total=None
+        )
+
         try:
             # Import HTTP client components
-            import httpx
             import asyncio
-            
+
+            import httpx
+
             async def run_comparison():
                 """Run the comparison asynchronously."""
                 async with httpx.AsyncClient() as client:
                     # First, trigger comparison
                     trigger_response = await client.post(
                         f"http://localhost:8000/experiments/{dataset_id}/compare",
-                        headers={"Content-Type": "application/json"}
+                        headers={"Content-Type": "application/json"},
                     )
-                    
+
                     if trigger_response.status_code == 200:
                         # Then get results
                         results_response = await client.get(
                             f"http://localhost:8000/experiments/{dataset_id}/results",
-                            params={"include_charts": include_charts}
+                            params={"include_charts": include_charts},
                         )
-                        
+
                         if results_response.status_code == 200:
                             return results_response.json()
                         else:
-                            raise Exception(f"Failed to get results: {results_response.status_code}")
+                            raise Exception(
+                                f"Failed to get results: {results_response.status_code}"
+                            )
                     else:
-                        raise Exception(f"Failed to trigger comparison: {trigger_response.status_code}")
-            
+                        raise Exception(
+                            f"Failed to trigger comparison: {trigger_response.status_code}"
+                        )
+
             # Execute async operation
             results = asyncio.run(run_comparison())
-            
+
             progress.update(task, completed=True)
-            
+
         except Exception as e:
             console.print(f"[red]Error:[/red] Comparison failed: {str(e)}")
             console.print("[yellow]Note:[/yellow] Make sure the API server is running")
             raise typer.Exit(1)
-    
+
     # Display results
     console.print("[green]✓[/green] Comparison complete!")
     console.print(f"\nDataset: {dataset_id}")
     console.print(f"Total runs: {results['summary']['total_runs']}")
     console.print(f"Metrics analyzed: {results['summary']['metrics_analyzed']}")
     console.print(f"Detectors used: {results['summary']['detectors_used']}")
-    
+
     # Show comparison results
-    if results['comparison_results']:
+    if results["comparison_results"]:
         table = Table(title="Comparison Results")
         table.add_column("Metric", style="cyan")
         table.add_column("Best Value", style="green")
         table.add_column("Average", style="yellow")
         table.add_column("Improvement Potential", style="magenta")
-        
-        for result in results['comparison_results']:
+
+        for result in results["comparison_results"]:
             table.add_row(
-                result['metric_name'],
+                result["metric_name"],
                 f"{result['best_value']:.4f}",
                 f"{result['average_value']:.4f}",
-                f"{result['improvement_potential']:.2f}%"
+                f"{result['improvement_potential']:.2f}%",
             )
-        
+
         console.print(table)
-    
+
     # Show charts if requested
-    if include_charts and results.get('charts'):
+    if include_charts and results.get("charts"):
         console.print("\n[blue]Charts generated:[/blue]")
-        for chart_name, chart_data in results['charts'].items():
+        for chart_name, chart_data in results["charts"].items():
             console.print(f"  - {chart_name} ({chart_data['type']} chart)")

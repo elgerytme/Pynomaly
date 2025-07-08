@@ -4,10 +4,8 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Dict, List, Optional
 
 from .entities import ExecutionResult, Schedule, ScheduleExecution
 
@@ -23,12 +21,12 @@ class ScheduleRepository(ABC):
         pass
 
     @abstractmethod
-    def get_schedule(self, schedule_id: str) -> Optional[Schedule]:
+    def get_schedule(self, schedule_id: str) -> Schedule | None:
         """Get a schedule by ID."""
         pass
 
     @abstractmethod
-    def list_schedules(self) -> List[Schedule]:
+    def list_schedules(self) -> list[Schedule]:
         """List all schedules."""
         pass
 
@@ -43,14 +41,14 @@ class ScheduleRepository(ABC):
         pass
 
     @abstractmethod
-    def get_execution(self, execution_id: str) -> Optional[ScheduleExecution]:
+    def get_execution(self, execution_id: str) -> ScheduleExecution | None:
         """Get a schedule execution by ID."""
         pass
 
     @abstractmethod
     def list_executions(
-        self, schedule_id: Optional[str] = None
-    ) -> List[ScheduleExecution]:
+        self, schedule_id: str | None = None
+    ) -> list[ScheduleExecution]:
         """List schedule executions, optionally filtered by schedule ID."""
         pass
 
@@ -65,19 +63,19 @@ class InMemoryScheduleRepository(ScheduleRepository):
 
     def __init__(self) -> None:
         """Initialize in-memory repository."""
-        self.schedules: Dict[str, Schedule] = {}
-        self.executions: Dict[str, ScheduleExecution] = {}
+        self.schedules: dict[str, Schedule] = {}
+        self.executions: dict[str, ScheduleExecution] = {}
 
     def save_schedule(self, schedule: Schedule) -> None:
         """Save a schedule."""
         self.schedules[schedule.schedule_id] = schedule
         logger.debug(f"Saved schedule {schedule.schedule_id}")
 
-    def get_schedule(self, schedule_id: str) -> Optional[Schedule]:
+    def get_schedule(self, schedule_id: str) -> Schedule | None:
         """Get a schedule by ID."""
         return self.schedules.get(schedule_id)
 
-    def list_schedules(self) -> List[Schedule]:
+    def list_schedules(self) -> list[Schedule]:
         """List all schedules."""
         return list(self.schedules.values())
 
@@ -94,13 +92,13 @@ class InMemoryScheduleRepository(ScheduleRepository):
         self.executions[execution.execution_id] = execution
         logger.debug(f"Saved execution {execution.execution_id}")
 
-    def get_execution(self, execution_id: str) -> Optional[ScheduleExecution]:
+    def get_execution(self, execution_id: str) -> ScheduleExecution | None:
         """Get a schedule execution by ID."""
         return self.executions.get(execution_id)
 
     def list_executions(
-        self, schedule_id: Optional[str] = None
-    ) -> List[ScheduleExecution]:
+        self, schedule_id: str | None = None
+    ) -> list[ScheduleExecution]:
         """List schedule executions, optionally filtered by schedule ID."""
         executions = list(self.executions.values())
         if schedule_id:
@@ -154,26 +152,26 @@ class FileSystemScheduleRepository(ScheduleRepository):
             logger.error(f"Failed to save schedule {schedule.schedule_id}: {e}")
             raise
 
-    def get_schedule(self, schedule_id: str) -> Optional[Schedule]:
+    def get_schedule(self, schedule_id: str) -> Schedule | None:
         """Get a schedule by ID."""
         file_path = self._schedule_file_path(schedule_id)
         if not file_path.exists():
             return None
 
         try:
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 data = json.load(f)
             return Schedule.from_dict(data)
         except Exception as e:
             logger.error(f"Failed to load schedule {schedule_id}: {e}")
             return None
 
-    def list_schedules(self) -> List[Schedule]:
+    def list_schedules(self) -> list[Schedule]:
         """List all schedules."""
         schedules = []
         for file_path in self.schedules_path.glob("*.json"):
             try:
-                with open(file_path, "r") as f:
+                with open(file_path) as f:
                     data = json.load(f)
                 schedule = Schedule.from_dict(data)
                 schedules.append(schedule)
@@ -204,14 +202,14 @@ class FileSystemScheduleRepository(ScheduleRepository):
             logger.error(f"Failed to save execution {execution.execution_id}: {e}")
             raise
 
-    def get_execution(self, execution_id: str) -> Optional[ScheduleExecution]:
+    def get_execution(self, execution_id: str) -> ScheduleExecution | None:
         """Get a schedule execution by ID."""
         file_path = self._execution_file_path(execution_id)
         if not file_path.exists():
             return None
 
         try:
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 data = json.load(f)
 
             # Reconstruct the execution
@@ -250,13 +248,13 @@ class FileSystemScheduleRepository(ScheduleRepository):
             return None
 
     def list_executions(
-        self, schedule_id: Optional[str] = None
-    ) -> List[ScheduleExecution]:
+        self, schedule_id: str | None = None
+    ) -> list[ScheduleExecution]:
         """List schedule executions, optionally filtered by schedule ID."""
         executions = []
         for file_path in self.executions_path.glob("*.json"):
             try:
-                with open(file_path, "r") as f:
+                with open(file_path) as f:
                     data = json.load(f)
 
                 # Filter by schedule ID if provided

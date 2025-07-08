@@ -14,9 +14,9 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, validator
 
 from .base import RealTimeMetricFrame
 
@@ -50,7 +50,7 @@ class SystemResourceMetrics(BaseModel):
     )
     cpu_load_average: float = Field(ge=0.0, description="CPU load average")
     cpu_cores: int = Field(gt=0, description="Number of CPU cores")
-    cpu_frequency: Optional[float] = Field(
+    cpu_frequency: float | None = Field(
         None, ge=0.0, description="CPU frequency in GHz"
     )
 
@@ -90,14 +90,14 @@ class SystemResourceMetrics(BaseModel):
     thread_count: int = Field(ge=0, description="Number of active threads")
 
     @validator("memory_used_mb")
-    def validate_memory_used(cls, v: float, values: Dict[str, Any]) -> float:
+    def validate_memory_used(cls, v: float, values: dict[str, Any]) -> float:
         """Validate memory used doesn't exceed total."""
         if "memory_total_mb" in values and v > values["memory_total_mb"]:
             raise ValueError("Memory used cannot exceed total memory")
         return v
 
     @validator("disk_used_gb")
-    def validate_disk_used(cls, v: float, values: Dict[str, Any]) -> float:
+    def validate_disk_used(cls, v: float, values: dict[str, Any]) -> float:
         """Validate disk used doesn't exceed total."""
         if "disk_total_gb" in values and v > values["disk_total_gb"]:
             raise ValueError("Disk used cannot exceed total disk space")
@@ -149,7 +149,7 @@ class SystemPerformanceMetrics(BaseModel):
     )
 
     @validator("p95_response_time_ms")
-    def validate_p95_response_time(cls, v: float, values: Dict[str, Any]) -> float:
+    def validate_p95_response_time(cls, v: float, values: dict[str, Any]) -> float:
         """Validate P95 response time is >= average."""
         if "avg_response_time_ms" in values and v < values["avg_response_time_ms"]:
             raise ValueError(
@@ -158,7 +158,7 @@ class SystemPerformanceMetrics(BaseModel):
         return v
 
     @validator("p99_response_time_ms")
-    def validate_p99_response_time(cls, v: float, values: Dict[str, Any]) -> float:
+    def validate_p99_response_time(cls, v: float, values: dict[str, Any]) -> float:
         """Validate P99 response time is >= P95."""
         if "p95_response_time_ms" in values and v < values["p95_response_time_ms"]:
             raise ValueError("P99 response time cannot be less than P95 response time")
@@ -200,20 +200,20 @@ class SystemStatusMetrics(BaseModel):
     )
 
     # Backup status
-    last_backup_timestamp: Optional[datetime] = Field(
+    last_backup_timestamp: datetime | None = Field(
         None, description="Last backup timestamp"
     )
-    backup_status: Optional[str] = Field(None, description="Backup status")
+    backup_status: str | None = Field(None, description="Backup status")
 
     @validator("services_healthy")
-    def validate_services_healthy(cls, v: int, values: Dict[str, Any]) -> int:
+    def validate_services_healthy(cls, v: int, values: dict[str, Any]) -> int:
         """Validate healthy services don't exceed total."""
         if "services_total" in values and v > values["services_total"]:
             raise ValueError("Healthy services cannot exceed total services")
         return v
 
     @validator("critical_alerts")
-    def validate_critical_alerts(cls, v: int, values: Dict[str, Any]) -> int:
+    def validate_critical_alerts(cls, v: int, values: dict[str, Any]) -> int:
         """Validate critical alerts don't exceed active alerts."""
         if "active_alerts" in values and v > values["active_alerts"]:
             raise ValueError("Critical alerts cannot exceed active alerts")
@@ -231,7 +231,7 @@ class SystemHealthFrame(RealTimeMetricFrame):
     # System identification
     hostname: str = Field(description="System hostname")
     environment: str = Field(description="Environment (production, staging, etc.)")
-    region: Optional[str] = Field(None, description="Deployment region")
+    region: str | None = Field(None, description="Deployment region")
 
     # Health scores
     overall_health_score: float = Field(
@@ -248,29 +248,24 @@ class SystemHealthFrame(RealTimeMetricFrame):
     capacity_utilization: float = Field(
         ge=0.0, le=1.0, description="Capacity utilization (0-1)"
     )
-    estimated_capacity_exhaustion: Optional[datetime] = Field(
+    estimated_capacity_exhaustion: datetime | None = Field(
         None, description="Estimated capacity exhaustion time"
     )
 
     # Trend indicators
-    cpu_trend: Optional[str] = Field(
+    cpu_trend: str | None = Field(
         None, description="CPU usage trend (increasing, decreasing, stable)"
     )
-    memory_trend: Optional[str] = Field(None, description="Memory usage trend")
-    disk_trend: Optional[str] = Field(None, description="Disk usage trend")
+    memory_trend: str | None = Field(None, description="Memory usage trend")
+    disk_trend: str | None = Field(None, description="Disk usage trend")
 
     # Additional context
-    configuration_version: Optional[str] = Field(
-        None, description="Configuration version"
+    configuration_version: str | None = Field(None, description="Configuration version")
+    deployment_version: str | None = Field(None, description="Deployment version")
+
+    model_config = ConfigDict(
+        use_enum_values=True, validate_assignment=True, extra="forbid"
     )
-    deployment_version: Optional[str] = Field(None, description="Deployment version")
-
-    class Config:
-        """Pydantic configuration."""
-
-        use_enum_values = True
-        validate_assignment = True
-        extra = "forbid"
 
     def get_resource_health_score(self) -> float:
         """Calculate resource health score based on utilization."""
@@ -344,7 +339,7 @@ class SystemHealthFrame(RealTimeMetricFrame):
             ]
         )
 
-    def get_health_summary(self) -> Dict[str, Any]:
+    def get_health_summary(self) -> dict[str, Any]:
         """Get a summary of system health."""
         return {
             "overall_health_score": self.overall_health_score,

@@ -4,11 +4,9 @@ User management domain entities for multi-tenant anomaly detection platform.
 
 from __future__ import annotations
 
-import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional, Set
 
 from pynomaly.shared.types import RoleId, TenantId, UserId
 
@@ -66,7 +64,7 @@ class Role:
 
     id: RoleId
     name: str
-    permissions: Set[Permission] = field(default_factory=set)
+    permissions: set[Permission] = field(default_factory=set)
     description: str = ""
     is_system_role: bool = False
     created_at: datetime = field(default_factory=datetime.utcnow)
@@ -112,12 +110,12 @@ class Tenant:
     usage: TenantUsage
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
-    expires_at: Optional[datetime] = None
+    expires_at: datetime | None = None
     contact_email: str = ""
     billing_email: str = ""
-    settings: Dict[str, any] = field(default_factory=dict)
+    settings: dict[str, any] = field(default_factory=dict)
 
-    def is_within_limits(self) -> Dict[str, bool]:
+    def is_within_limits(self) -> dict[str, bool]:
         """Check if tenant is within resource limits."""
         return {
             "users": self.usage.users_count <= self.limits.max_users,
@@ -166,10 +164,10 @@ class UserTenantRole:
     user_id: UserId
     tenant_id: TenantId
     role: UserRole
-    permissions: Set[Permission] = field(default_factory=set)
+    permissions: set[Permission] = field(default_factory=set)
     granted_at: datetime = field(default_factory=datetime.utcnow)
-    granted_by: Optional[UserId] = None
-    expires_at: Optional[datetime] = None
+    granted_by: UserId | None = None
+    expires_at: datetime | None = None
 
 
 @dataclass
@@ -182,20 +180,20 @@ class User:
     first_name: str
     last_name: str
     status: UserStatus
-    tenant_roles: List[UserTenantRole] = field(default_factory=list)
+    tenant_roles: list[UserTenantRole] = field(default_factory=list)
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
-    last_login_at: Optional[datetime] = None
-    email_verified_at: Optional[datetime] = None
+    last_login_at: datetime | None = None
+    email_verified_at: datetime | None = None
     password_hash: str = ""
-    settings: Dict[str, any] = field(default_factory=dict)
+    settings: dict[str, any] = field(default_factory=dict)
 
     @property
     def full_name(self) -> str:
         """Get user's full name."""
         return f"{self.first_name} {self.last_name}".strip()
 
-    def get_tenant_role(self, tenant_id: TenantId) -> Optional[UserTenantRole]:
+    def get_tenant_role(self, tenant_id: TenantId) -> UserTenantRole | None:
         """Get user's role for a specific tenant."""
         for tenant_role in self.tenant_roles:
             if tenant_role.tenant_id == tenant_id:
@@ -216,7 +214,7 @@ class User:
             return False
         return permission in tenant_role.permissions
 
-    def get_tenant_ids(self) -> List[TenantId]:
+    def get_tenant_ids(self) -> list[TenantId]:
         """Get list of tenant IDs user has access to."""
         return [tr.tenant_id for tr in self.tenant_roles]
 
@@ -231,7 +229,7 @@ class UserSession:
 
     id: str
     user_id: UserId
-    tenant_id: Optional[TenantId]
+    tenant_id: TenantId | None
     created_at: datetime = field(default_factory=datetime.utcnow)
     expires_at: datetime = field(
         default_factory=lambda: datetime.utcnow().replace(hour=23, minute=59, second=59)
@@ -285,6 +283,6 @@ DEFAULT_PERMISSIONS = {
 }
 
 
-def get_default_permissions(role: UserRole) -> Set[Permission]:
+def get_default_permissions(role: UserRole) -> set[Permission]:
     """Get default permissions for a role."""
     return DEFAULT_PERMISSIONS.get(role, set())

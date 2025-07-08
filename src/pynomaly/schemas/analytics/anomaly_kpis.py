@@ -12,13 +12,12 @@ Schemas:
 
 from __future__ import annotations
 
-from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, validator
 
-from .base import MetricMetadata, RealTimeMetricFrame
+from .base import RealTimeMetricFrame
 
 
 class AnomalySeverity(str, Enum):
@@ -54,11 +53,11 @@ class AnomalyDetectionMetrics(BaseModel):
     false_negative_rate: float = Field(
         ge=0.0, le=1.0, description="False negative rate"
     )
-    roc_auc: Optional[float] = Field(None, ge=0.0, le=1.0, description="ROC AUC score")
-    pr_auc: Optional[float] = Field(None, ge=0.0, le=1.0, description="PR AUC score")
+    roc_auc: float | None = Field(None, ge=0.0, le=1.0, description="ROC AUC score")
+    pr_auc: float | None = Field(None, ge=0.0, le=1.0, description="PR AUC score")
 
     @validator("f1_score")
-    def validate_f1_score(cls, v: float, values: Dict[str, Any]) -> float:
+    def validate_f1_score(cls, v: float, values: dict[str, Any]) -> float:
         """Validate F1 score consistency with precision and recall."""
         if "precision" in values and "recall" in values:
             precision = values["precision"]
@@ -84,16 +83,16 @@ class AnomalyClassificationMetrics(BaseModel):
     anomalies_confirmed: int = Field(ge=0, description="Confirmed anomalies")
     anomalies_dismissed: int = Field(ge=0, description="Dismissed anomalies")
 
-    severity_distribution: Dict[AnomalySeverity, int] = Field(
+    severity_distribution: dict[AnomalySeverity, int] = Field(
         default_factory=dict, description="Distribution of anomalies by severity"
     )
 
-    category_distribution: Dict[AnomalyCategory, int] = Field(
+    category_distribution: dict[AnomalyCategory, int] = Field(
         default_factory=dict, description="Distribution of anomalies by category"
     )
 
     @validator("anomalies_confirmed")
-    def validate_confirmed_anomalies(cls, v: int, values: Dict[str, Any]) -> int:
+    def validate_confirmed_anomalies(cls, v: int, values: dict[str, Any]) -> int:
         """Validate confirmed anomalies don't exceed detected."""
         if "anomalies_detected" in values and v > values["anomalies_detected"]:
             raise ValueError("Confirmed anomalies cannot exceed detected anomalies")
@@ -115,7 +114,7 @@ class AnomalyTimeSeriesMetrics(BaseModel):
     point_anomalies: int = Field(ge=0, description="Point anomalies")
 
     drift_detected: bool = Field(default=False, description="Concept drift detected")
-    seasonality_score: Optional[float] = Field(
+    seasonality_score: float | None = Field(
         None, ge=0.0, le=1.0, description="Seasonality score"
     )
 
@@ -133,7 +132,7 @@ class AnomalyKPIFrame(RealTimeMetricFrame):
     # Core detection metrics
     detection_metrics: AnomalyDetectionMetrics
     classification_metrics: AnomalyClassificationMetrics
-    time_series_metrics: Optional[AnomalyTimeSeriesMetrics] = None
+    time_series_metrics: AnomalyTimeSeriesMetrics | None = None
 
     # Operational metrics
     model_name: str = Field(description="Name of the anomaly detection model")
@@ -148,7 +147,7 @@ class AnomalyKPIFrame(RealTimeMetricFrame):
     # Alert information
     active_alerts: int = Field(ge=0, description="Number of active alerts")
     critical_alerts: int = Field(ge=0, description="Number of critical alerts")
-    alert_resolution_time: Optional[float] = Field(
+    alert_resolution_time: float | None = Field(
         None, ge=0.0, description="Average alert resolution time"
     )
 
@@ -159,19 +158,16 @@ class AnomalyKPIFrame(RealTimeMetricFrame):
     data_quality_score: float = Field(ge=0.0, le=1.0, description="Data quality score")
 
     # Additional context
-    business_context: Optional[Dict[str, Any]] = Field(
+    business_context: dict[str, Any] | None = Field(
         None, description="Business context metadata"
     )
 
-    class Config:
-        """Pydantic configuration."""
-
-        use_enum_values = True
-        validate_assignment = True
-        extra = "forbid"
+    model_config = ConfigDict(
+        use_enum_values=True, validate_assignment=True, extra="forbid"
+    )
 
     @validator("critical_alerts")
-    def validate_critical_alerts(cls, v: int, values: Dict[str, Any]) -> int:
+    def validate_critical_alerts(cls, v: int, values: dict[str, Any]) -> int:
         """Validate critical alerts don't exceed active alerts."""
         if "active_alerts" in values and v > values["active_alerts"]:
             raise ValueError("Critical alerts cannot exceed active alerts")
@@ -203,7 +199,7 @@ class AnomalyKPIFrame(RealTimeMetricFrame):
 
         return anomalies / total_samples
 
-    def get_performance_summary(self) -> Dict[str, float]:
+    def get_performance_summary(self) -> dict[str, float]:
         """Get a summary of key performance metrics."""
         return {
             "accuracy": self.detection_metrics.accuracy,

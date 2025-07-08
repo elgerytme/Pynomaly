@@ -6,10 +6,10 @@ import asyncio
 import logging
 import time
 from collections import deque
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Callable, Deque, Dict, List, Optional, Tuple, Union
+from typing import Any
 from uuid import UUID, uuid4
 
 import numpy as np
@@ -52,7 +52,7 @@ class LatencyProfile:
     jitter_us: float = 0.0  # Latency jitter
 
     # Measurements
-    measured_latencies: Deque[float] = field(default_factory=lambda: deque(maxlen=1000))
+    measured_latencies: deque[float] = field(default_factory=lambda: deque(maxlen=1000))
 
     def add_measurement(self, latency_us: float) -> None:
         """Add a latency measurement."""
@@ -93,15 +93,15 @@ class ProcessingTask:
     deadline_us: float  # Deadline in microseconds from now
 
     created_at: float = field(default_factory=time.time)
-    started_at: Optional[float] = None
-    completed_at: Optional[float] = None
+    started_at: float | None = None
+    completed_at: float | None = None
 
     # Processing metadata
     algorithm: str = "default"
-    parameters: Dict[str, Any] = field(default_factory=dict)
+    parameters: dict[str, Any] = field(default_factory=dict)
 
     # Results
-    anomaly_scores: Optional[np.ndarray] = None
+    anomaly_scores: np.ndarray | None = None
     anomalies_detected: int = 0
     processing_time_us: float = 0.0
 
@@ -176,7 +176,7 @@ class StreamingBuffer:
 
         return True
 
-    def read(self, count: int) -> Optional[np.ndarray]:
+    def read(self, count: int) -> np.ndarray | None:
         """Read data from buffer with zero-copy semantics."""
         if count > self.size():
             return None
@@ -222,7 +222,7 @@ class StreamingBuffer:
 class UltraLowLatencyProcessor:
     """Ultra-low latency processor for sub-millisecond detection."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.processing_mode = ProcessingMode(config.get("mode", "ultra_low_latency"))
         self.latency_profile = LatencyProfile(
@@ -232,7 +232,7 @@ class UltraLowLatencyProcessor:
         )
 
         # Processing queues by priority
-        self.priority_queues: Dict[int, List[ProcessingTask]] = {
+        self.priority_queues: dict[int, list[ProcessingTask]] = {
             0: [],  # Critical (< 100us)
             1: [],  # High (< 500us)
             2: [],  # Medium (< 1ms)
@@ -242,10 +242,10 @@ class UltraLowLatencyProcessor:
         # Performance tracking
         self.processed_tasks = 0
         self.expired_tasks = 0
-        self.processing_times: Deque[float] = deque(maxlen=1000)
+        self.processing_times: deque[float] = deque(maxlen=1000)
 
         # Pre-compiled algorithms for speed
-        self.compiled_algorithms: Dict[str, Callable] = {}
+        self.compiled_algorithms: dict[str, Callable] = {}
         self._compile_algorithms()
 
     def _compile_algorithms(self) -> None:
@@ -394,7 +394,7 @@ class UltraLowLatencyProcessor:
         else:
             return "distance"  # More accurate but slower
 
-    async def get_performance_metrics(self) -> Dict[str, Any]:
+    async def get_performance_metrics(self) -> dict[str, Any]:
         """Get real-time performance metrics."""
         if not self.processing_times:
             return {}
@@ -426,7 +426,7 @@ class UltraLowLatencyProcessor:
 class StreamProcessor:
     """High-performance stream processor with backpressure handling."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.max_buffer_size = config.get("max_buffer_size", 10000)
         self.batch_size = config.get("batch_size", 100)
@@ -551,7 +551,7 @@ class StreamProcessor:
         except Exception as e:
             logger.error(f"Batch processing failed: {e}")
 
-    async def get_stream_metrics(self) -> Dict[str, Any]:
+    async def get_stream_metrics(self) -> dict[str, Any]:
         """Get comprehensive stream metrics."""
         processor_metrics = await self.ultra_processor.get_performance_metrics()
 
@@ -597,14 +597,14 @@ class StreamProcessor:
 class BackpressureHandler:
     """Handles backpressure in real-time streams."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.drop_threshold = config.get("drop_threshold", 95)
         self.throttle_threshold = config.get("throttle_threshold", 80)
         self.adaptive_mode = config.get("adaptive_mode", True)
 
         # Backpressure statistics
-        self.backpressure_history: Deque[Tuple[float, float]] = deque(
+        self.backpressure_history: deque[tuple[float, float]] = deque(
             maxlen=100
         )  # (timestamp, utilization)
 
@@ -645,7 +645,7 @@ class BackpressureHandler:
 class NetworkOptimizer:
     """Optimizes network performance for real-time processing."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.optimization_mode = NetworkOptimization(config.get("mode", "standard"))
         self.target_latency_us = config.get("target_latency_us", 100)
@@ -658,7 +658,7 @@ class NetworkOptimizer:
             "jitter_us": 0.0,
         }
 
-    async def optimize_network_path(self, destination: str) -> Dict[str, Any]:
+    async def optimize_network_path(self, destination: str) -> dict[str, Any]:
         """Optimize network path for ultra-low latency."""
         try:
             if self.optimization_mode == NetworkOptimization.KERNEL_BYPASS:
@@ -687,7 +687,7 @@ class NetworkOptimizer:
             logger.error(f"Network optimization failed: {e}")
             return {"optimization_applied": False, "error": str(e)}
 
-    async def _apply_kernel_bypass(self) -> Dict[str, Any]:
+    async def _apply_kernel_bypass(self) -> dict[str, Any]:
         """Apply kernel bypass optimizations."""
         # Simulate kernel bypass setup
         await asyncio.sleep(0.01)
@@ -697,7 +697,7 @@ class NetworkOptimizer:
             "latency_reduction": 50,  # 50 microseconds reduction
         }
 
-    async def _apply_rdma_optimization(self) -> Dict[str, Any]:
+    async def _apply_rdma_optimization(self) -> dict[str, Any]:
         """Apply RDMA optimizations."""
         # Simulate RDMA setup
         await asyncio.sleep(0.02)
@@ -707,7 +707,7 @@ class NetworkOptimizer:
             "latency_reduction": 100,  # 100 microseconds reduction
         }
 
-    async def _apply_dpdk_optimization(self) -> Dict[str, Any]:
+    async def _apply_dpdk_optimization(self) -> dict[str, Any]:
         """Apply DPDK optimizations."""
         # Simulate DPDK setup
         await asyncio.sleep(0.015)
@@ -718,7 +718,7 @@ class NetworkOptimizer:
             "latency_reduction": 75,  # 75 microseconds reduction
         }
 
-    async def _apply_standard_optimizations(self) -> Dict[str, Any]:
+    async def _apply_standard_optimizations(self) -> dict[str, Any]:
         """Apply standard TCP optimizations."""
         # Simulate standard optimizations
         await asyncio.sleep(0.005)
@@ -729,7 +729,7 @@ class NetworkOptimizer:
             "latency_reduction": 20,  # 20 microseconds reduction
         }
 
-    async def measure_network_performance(self, destination: str) -> Dict[str, Any]:
+    async def measure_network_performance(self, destination: str) -> dict[str, Any]:
         """Measure current network performance."""
         # Simulate network measurements
         rtt_us = np.random.uniform(50, 200)
@@ -753,7 +753,7 @@ class NetworkOptimizer:
 class RealTimeProcessingOrchestrator:
     """Main orchestrator for real-time processing enhancement."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.stream_processor = StreamProcessor(config.get("stream", {}))
         self.network_optimizer = NetworkOptimizer(config.get("network", {}))
@@ -788,7 +788,7 @@ class RealTimeProcessingOrchestrator:
             logger.error(f"Failed to initialize real-time processing enhancement: {e}")
             return False
 
-    async def process_real_time_data(self, data: np.ndarray) -> Dict[str, Any]:
+    async def process_real_time_data(self, data: np.ndarray) -> dict[str, Any]:
         """Process data in real-time with enhanced performance."""
         start_time = time.perf_counter()
 
@@ -828,7 +828,7 @@ class RealTimeProcessingOrchestrator:
                 "processing_time_us": 0,
             }
 
-    async def get_system_status(self) -> Dict[str, Any]:
+    async def get_system_status(self) -> dict[str, Any]:
         """Get comprehensive system status."""
         stream_metrics = await self.stream_processor.get_stream_metrics()
         network_metrics = await self.network_optimizer.measure_network_performance(
@@ -866,7 +866,7 @@ async def create_sample_real_time_data() -> np.ndarray:
     return normal_data.astype(np.float32)
 
 
-async def benchmark_real_time_performance() -> Dict[str, Any]:
+async def benchmark_real_time_performance() -> dict[str, Any]:
     """Benchmark real-time processing performance."""
     config = {
         "mode": "ultra_low_latency",

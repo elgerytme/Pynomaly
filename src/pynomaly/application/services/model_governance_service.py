@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-import asyncio
 from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID
 
 from pynomaly.domain.entities.governance_workflow import (
-    ApprovalPriority,
     ApprovalRequest,
     ApprovalStatus,
     ApprovalType,

@@ -2,29 +2,20 @@
 
 from __future__ import annotations
 
-import json
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import (
     Boolean,
-    Column,
-    DateTime,
-    Float,
-    ForeignKey,
     Index,
-    String,
-    Text,
     and_,
-    desc,
     func,
     or_,
     text,
 )
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import load_only, selectinload, sessionmaker
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import Select
 
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector
@@ -35,17 +26,9 @@ from pynomaly.shared.protocols import (
 )
 
 from .database_repositories import (
-    Base,
     DatasetModel,
     DetectionResultModel,
     DetectorModel,
-    JSONType,
-    MetricModel,
-    RoleModel,
-    TenantModel,
-    UserModel,
-    UserRoleModel,
-    UUIDType,
 )
 
 logger = logging.getLogger(__name__)
@@ -109,7 +92,7 @@ class QueryOptimizer:
     @staticmethod
     def add_pagination(
         query: Select, page: int = 1, page_size: int = 50
-    ) -> Tuple[Select, Dict[str, Any]]:
+    ) -> tuple[Select, dict[str, Any]]:
         """Add pagination to query with metadata."""
         offset = (page - 1) * page_size
         paginated_query = query.offset(offset).limit(page_size)
@@ -214,7 +197,7 @@ class OptimizedDetectorRepository(DetectorRepositoryProtocol):
         fitted_only: bool = False,
         page: int = 1,
         page_size: int = 50,
-    ) -> Tuple[List[Detector], Dict[str, Any]]:
+    ) -> tuple[list[Detector], dict[str, Any]]:
         """Find detectors by algorithm with pagination and filtering."""
         with self.session_factory() as session:
             query = session.query(OptimizedDetectorModel).filter_by(
@@ -245,8 +228,8 @@ class OptimizedDetectorRepository(DetectorRepositoryProtocol):
             return entities, pagination_info
 
     def find_fitted_by_algorithm_batch(
-        self, algorithm_names: List[str]
-    ) -> Dict[str, List[Detector]]:
+        self, algorithm_names: list[str]
+    ) -> dict[str, list[Detector]]:
         """Efficiently find fitted detectors for multiple algorithms."""
         with self.session_factory() as session:
             # Single query for all algorithms
@@ -274,8 +257,8 @@ class OptimizedDetectorRepository(DetectorRepositoryProtocol):
             return result
 
     def find_by_metadata_optimized(
-        self, filters: Dict[str, Any], page: int = 1, page_size: int = 50
-    ) -> Tuple[List[Detector], Dict[str, Any]]:
+        self, filters: dict[str, Any], page: int = 1, page_size: int = 50
+    ) -> tuple[list[Detector], dict[str, Any]]:
         """Optimized metadata search using database-specific features."""
         with self.session_factory() as session:
             query = session.query(OptimizedDetectorModel)
@@ -314,7 +297,7 @@ class OptimizedDetectorRepository(DetectorRepositoryProtocol):
             entities = [self._model_to_entity(model) for model in models]
             return entities, pagination_info
 
-    def get_algorithm_summary(self) -> Dict[str, Any]:
+    def get_algorithm_summary(self) -> dict[str, Any]:
         """Get algorithm usage summary with aggregated statistics."""
         with self.session_factory() as session:
             # Aggregate query for algorithm statistics
@@ -361,7 +344,7 @@ class OptimizedDetectorRepository(DetectorRepositoryProtocol):
             return summary
 
     def bulk_update_fitted_status(
-        self, detector_ids: List[UUID], is_fitted: bool
+        self, detector_ids: list[UUID], is_fitted: bool
     ) -> int:
         """Bulk update fitted status for multiple detectors."""
         with self.session_factory() as session:
@@ -473,7 +456,7 @@ class OptimizedDatasetRepository(DatasetRepositoryProtocol):
 
     def find_by_name_pattern(
         self, pattern: str, page: int = 1, page_size: int = 50
-    ) -> Tuple[List[Dataset], Dict[str, Any]]:
+    ) -> tuple[list[Dataset], dict[str, Any]]:
         """Find datasets by name pattern with pagination."""
         with self.session_factory() as session:
             query = (
@@ -500,8 +483,8 @@ class OptimizedDatasetRepository(DatasetRepositoryProtocol):
             return entities, pagination_info
 
     def find_by_features(
-        self, features: List[str], match_all: bool = True
-    ) -> List[Dataset]:
+        self, features: list[str], match_all: bool = True
+    ) -> list[Dataset]:
         """Find datasets that contain specific features."""
         with self.session_factory() as session:
             if match_all:
@@ -522,7 +505,7 @@ class OptimizedDatasetRepository(DatasetRepositoryProtocol):
             models = query.order_by(OptimizedDatasetModel.created_at.desc()).all()
             return [self._model_to_entity(model) for model in models]
 
-    def get_datasets_summary(self) -> Dict[str, Any]:
+    def get_datasets_summary(self) -> dict[str, Any]:
         """Get comprehensive datasets summary with statistics."""
         with self.session_factory() as session:
             # Basic counts
@@ -624,9 +607,9 @@ class OptimizedDetectionResultRepository(DetectionResultRepositoryProtocol):
         detector_id: UUID,
         page: int = 1,
         page_size: int = 50,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
-    ) -> Tuple[List[DetectionResult], Dict[str, Any]]:
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
+    ) -> tuple[list[DetectionResult], dict[str, Any]]:
         """Find detection results by detector with pagination and date filtering."""
         with self.session_factory() as session:
             query = session.query(OptimizedDetectionResultModel).filter_by(
@@ -665,10 +648,10 @@ class OptimizedDetectionResultRepository(DetectionResultRepositoryProtocol):
 
     def get_detection_statistics(
         self,
-        detector_id: Optional[UUID] = None,
-        dataset_id: Optional[UUID] = None,
+        detector_id: UUID | None = None,
+        dataset_id: UUID | None = None,
         days_back: int = 30,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get comprehensive detection statistics."""
         start_date = datetime.utcnow() - timedelta(days=days_back)
 
@@ -832,7 +815,7 @@ class QueryPerformanceMonitor:
         self.threshold = slow_query_threshold
         self.slow_queries = []
 
-    def log_query(self, query: str, duration: float, params: Optional[Dict] = None):
+    def log_query(self, query: str, duration: float, params: dict | None = None):
         """Log query execution time."""
         if duration > self.threshold:
             slow_query = {
@@ -844,7 +827,7 @@ class QueryPerformanceMonitor:
             self.slow_queries.append(slow_query)
             logger.warning(f"Slow query detected: {duration:.2f}s - {query[:100]}...")
 
-    def get_slow_queries(self) -> List[Dict[str, Any]]:
+    def get_slow_queries(self) -> list[dict[str, Any]]:
         """Get list of slow queries."""
         return self.slow_queries.copy()
 

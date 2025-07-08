@@ -5,29 +5,17 @@ This module provides REST API endpoints for managing human-in-the-loop
 active learning sessions, sample selection, and feedback collection.
 """
 
-from typing import Dict, List, Optional, Union
-
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
 from pynomaly.application.dto.active_learning_dto import (
     CreateSessionRequest,
-    CreateSessionResponse,
-    SelectSamplesRequest,
-    SelectSamplesResponse,
-    SessionStatusRequest,
-    SessionStatusResponse,
-    SubmitFeedbackRequest,
-    SubmitFeedbackResponse,
-    UpdateModelRequest,
-    UpdateModelResponse,
 )
 from pynomaly.application.use_cases.manage_active_learning import (
     ManageActiveLearningUseCase,
 )
 from pynomaly.domain.entities.active_learning_session import (
     SamplingStrategy,
-    SessionStatus,
 )
 from pynomaly.domain.entities.human_feedback import FeedbackConfidence, FeedbackType
 from pynomaly.domain.services.active_learning_service import ActiveLearningService
@@ -46,16 +34,14 @@ class CreateSessionModel(BaseModel):
         regex="^(uncertainty|diversity|disagreement|margin|entropy|committee_disagreement|expected_model_change|random)$",
     )
     max_samples: int = Field(20, ge=1, le=1000, description="Maximum number of samples")
-    timeout_minutes: Optional[int] = Field(
-        60, ge=1, le=480, description="Session timeout"
-    )
+    timeout_minutes: int | None = Field(60, ge=1, le=480, description="Session timeout")
     min_feedback_quality: float = Field(
         0.7, ge=0.0, le=1.0, description="Minimum feedback quality"
     )
-    target_corrections: Optional[int] = Field(
+    target_corrections: int | None = Field(
         None, ge=1, description="Target number of corrections"
     )
-    metadata: Dict = Field(default_factory=dict, description="Additional metadata")
+    metadata: dict = Field(default_factory=dict, description="Additional metadata")
 
 
 class DetectionResultModel(BaseModel):
@@ -64,16 +50,16 @@ class DetectionResultModel(BaseModel):
     sample_id: str = Field(..., description="Sample identifier")
     score: float = Field(..., ge=0.0, le=1.0, description="Anomaly score")
     is_anomaly: bool = Field(..., description="Anomaly classification")
-    timestamp: Optional[str] = Field(None, description="Detection timestamp")
+    timestamp: str | None = Field(None, description="Detection timestamp")
     model_version: str = Field(..., description="Model version")
-    metadata: Dict = Field(default_factory=dict, description="Additional metadata")
+    metadata: dict = Field(default_factory=dict, description="Additional metadata")
 
 
 class SelectSamplesModel(BaseModel):
     """Pydantic model for sample selection request."""
 
     session_id: str = Field(..., description="Active learning session ID")
-    detection_results: List[DetectionResultModel] = Field(
+    detection_results: list[DetectionResultModel] = Field(
         ..., min_items=1, description="Available detection results"
     )
     n_samples: int = Field(..., ge=1, le=100, description="Number of samples to select")
@@ -82,7 +68,7 @@ class SelectSamplesModel(BaseModel):
         description="Strategy for sample selection",
         regex="^(uncertainty|diversity|disagreement|margin|entropy|committee_disagreement|expected_model_change|random)$",
     )
-    strategy_params: Dict = Field(
+    strategy_params: dict = Field(
         default_factory=dict, description="Strategy parameters"
     )
 
@@ -98,19 +84,17 @@ class SubmitFeedbackModel(BaseModel):
         description="Type of feedback",
         regex="^(binary_classification|confidence_rating|score_correction|explanation|feature_importance)$",
     )
-    feedback_value: Union[bool, float, str, Dict] = Field(
-        ..., description="Feedback value"
-    )
+    feedback_value: bool | float | str | dict = Field(..., description="Feedback value")
     confidence: str = Field(
         "medium", description="Confidence level", regex="^(low|medium|high|expert)$"
     )
-    original_score: Optional[float] = Field(
+    original_score: float | None = Field(
         None, ge=0.0, le=1.0, description="Original prediction score"
     )
-    time_spent_seconds: Optional[float] = Field(
+    time_spent_seconds: float | None = Field(
         None, ge=0.0, description="Time spent on annotation"
     )
-    metadata: Dict = Field(default_factory=dict, description="Additional metadata")
+    metadata: dict = Field(default_factory=dict, description="Additional metadata")
 
 
 class SessionStatusModel(BaseModel):
@@ -188,15 +172,15 @@ def _convert_to_feedback_confidence(confidence_str: str) -> FeedbackConfidence:
 
 @router.post(
     "/sessions",
-    response_model=Dict,
+    response_model=dict,
     status_code=status.HTTP_201_CREATED,
     summary="Create new active learning session",
     description="""
     Create a new active learning session for human-in-the-loop training.
-    
+
     The session will manage sample selection, feedback collection, and model updates
     based on the specified sampling strategy and configuration.
-    
+
     **Sampling Strategies:**
     - **uncertainty**: Select samples with highest prediction uncertainty
     - **diversity**: Select diverse samples to cover feature space
@@ -209,7 +193,7 @@ def _convert_to_feedback_confidence(confidence_str: str) -> FeedbackConfidence:
 async def create_session(
     request: CreateSessionModel,
     use_case: ManageActiveLearningUseCase = Depends(get_active_learning_use_case),
-) -> Dict:
+) -> dict:
     """Create a new active learning session."""
     try:
         # Convert to domain request
@@ -249,7 +233,7 @@ async def create_session(
 
 @router.post(
     "/sessions/{session_id}/start",
-    response_model=Dict,
+    response_model=dict,
     status_code=status.HTTP_200_OK,
     summary="Start active learning session",
     description="""
@@ -260,7 +244,7 @@ async def create_session(
 async def start_session(
     session_id: str,
     use_case: ManageActiveLearningUseCase = Depends(get_active_learning_use_case),
-) -> Dict:
+) -> dict:
     """Start an active learning session."""
     try:
         response = use_case.start_session(session_id)
@@ -286,19 +270,19 @@ async def start_session(
 
 @router.post(
     "/sessions/{session_id}/select-samples",
-    response_model=Dict,
+    response_model=dict,
     status_code=status.HTTP_200_OK,
     summary="Select samples for annotation",
     description="""
     Select the most informative samples for human annotation based on
     the specified sampling strategy.
-    
+
     **Returns samples with:**
     - Sample identification and metadata
     - Current model predictions
     - Annotation value score
     - Selection reasoning
-    
+
     The selection algorithm considers uncertainty, diversity, expected model
     impact, and other factors depending on the chosen strategy.
     """,
@@ -307,7 +291,7 @@ async def select_samples(
     session_id: str,
     request: SelectSamplesModel,
     use_case: ManageActiveLearningUseCase = Depends(get_active_learning_use_case),
-) -> Dict:
+) -> dict:
     """Select samples for annotation in an active learning session."""
     try:
         # Validate session ID matches
@@ -366,25 +350,25 @@ async def select_samples(
 
 @router.post(
     "/sessions/{session_id}/feedback",
-    response_model=Dict,
+    response_model=dict,
     status_code=status.HTTP_201_CREATED,
     summary="Submit human feedback",
     description="""
     Submit human feedback for a sample in an active learning session.
-    
+
     **Feedback Types:**
     - **binary_classification**: True/False anomaly classification
     - **score_correction**: Corrected anomaly score (0.0 to 1.0)
     - **explanation**: Text explanation of reasoning
     - **confidence_rating**: Confidence in original prediction
     - **feature_importance**: Important features for decision
-    
+
     **Confidence Levels:**
     - **low**: Uncertain about the annotation
     - **medium**: Moderately confident
     - **high**: Very confident in the annotation
     - **expert**: Domain expert level confidence
-    
+
     The system tracks annotation time and quality to improve future
     sample selection and model updates.
     """,
@@ -393,7 +377,7 @@ async def submit_feedback(
     session_id: str,
     request: SubmitFeedbackModel,
     use_case: ManageActiveLearningUseCase = Depends(get_active_learning_use_case),
-) -> Dict:
+) -> dict:
     """Submit human feedback for a sample."""
     try:
         # Validate session ID matches
@@ -446,18 +430,18 @@ async def submit_feedback(
 
 @router.get(
     "/sessions/{session_id}/status",
-    response_model=Dict,
+    response_model=dict,
     status_code=status.HTTP_200_OK,
     summary="Get session status",
     description="""
     Get current status and progress of an active learning session.
-    
+
     **Returns:**
     - Session status and progress metrics
     - Feedback quality indicators
     - Recent session activity
     - Completion percentage and timing
-    
+
     Use this endpoint to monitor session progress and quality.
     """,
 )
@@ -466,7 +450,7 @@ async def get_session_status(
     include_details: bool = True,
     include_feedback: bool = False,
     use_case: ManageActiveLearningUseCase = Depends(get_active_learning_use_case),
-) -> Dict:
+) -> dict:
     """Get status of an active learning session."""
     try:
         # Create domain request
@@ -510,19 +494,19 @@ async def get_session_status(
 
 @router.post(
     "/sessions/{session_id}/update-model",
-    response_model=Dict,
+    response_model=dict,
     status_code=status.HTTP_200_OK,
     summary="Update model with feedback",
     description="""
     Update the anomaly detection model using collected human feedback.
-    
+
     **Process:**
     1. Analyzes collected feedback patterns
     2. Calculates model update parameters
     3. Applies incremental learning updates
     4. Validates performance impact
     5. Provides recommendations for next session
-    
+
     **Returns:**
     - Update statistics and performance impact
     - Feedback pattern analysis
@@ -535,7 +519,7 @@ async def update_model(
     request: UpdateModelModel,
     background_tasks: BackgroundTasks,
     use_case: ManageActiveLearningUseCase = Depends(get_active_learning_use_case),
-) -> Dict:
+) -> dict:
     """Update model with collected feedback from session."""
     try:
         # Validate session ID matches
@@ -588,7 +572,7 @@ async def update_model(
 
 @router.get(
     "/strategies",
-    response_model=Dict[str, Dict[str, str]],
+    response_model=dict[str, dict[str, str]],
     status_code=status.HTTP_200_OK,
     summary="Get available sampling strategies",
     description="""
@@ -596,7 +580,7 @@ async def update_model(
     and their characteristics.
     """,
 )
-async def get_sampling_strategies() -> Dict[str, Dict[str, str]]:
+async def get_sampling_strategies() -> dict[str, dict[str, str]]:
     """Get available sampling strategies for active learning."""
     return {
         "uncertainty": {
@@ -646,14 +630,14 @@ async def get_sampling_strategies() -> Dict[str, Dict[str, str]]:
 
 @router.get(
     "/feedback-types",
-    response_model=Dict[str, Dict[str, str]],
+    response_model=dict[str, dict[str, str]],
     status_code=status.HTTP_200_OK,
     summary="Get available feedback types",
     description="""
     Get information about available feedback types for human annotation.
     """,
 )
-async def get_feedback_types() -> Dict[str, Dict[str, str]]:
+async def get_feedback_types() -> dict[str, dict[str, str]]:
     """Get available feedback types for human annotation."""
     return {
         "binary_classification": {
@@ -689,7 +673,7 @@ async def get_feedback_types() -> Dict[str, Dict[str, str]]:
     }
 
 
-async def _schedule_model_retraining(session_id: str, update_stats: Dict):
+async def _schedule_model_retraining(session_id: str, update_stats: dict):
     """Background task for scheduling model retraining."""
     # This would typically trigger a background ML pipeline
     # For now, just log the event

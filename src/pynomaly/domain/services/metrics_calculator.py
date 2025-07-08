@@ -8,8 +8,7 @@ with support for both classification and anomaly score-based tasks.
 from __future__ import annotations
 
 import asyncio
-import statistics
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 from sklearn.metrics import (
@@ -39,13 +38,13 @@ class MetricsCalculator:
 
     @staticmethod
     def compute(
-        y_true: Union[np.ndarray, List[Union[int, float]]],
-        y_pred: Union[np.ndarray, List[Union[int, float]]],
-        proba: Optional[Union[np.ndarray, List[float]]] = None,
+        y_true: np.ndarray | list[int | float],
+        y_pred: np.ndarray | list[int | float],
+        proba: np.ndarray | list[float] | None = None,
         task_type: str = "anomaly",
         confidence_level: float = 0.95,
         **kwargs,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Compute comprehensive metrics for anomaly detection models.
 
@@ -88,13 +87,13 @@ class MetricsCalculator:
 
     @staticmethod
     async def compute_async(
-        y_true: Union[np.ndarray, List[Union[int, float]]],
-        y_pred: Union[np.ndarray, List[Union[int, float]]],
-        proba: Optional[Union[np.ndarray, List[float]]] = None,
+        y_true: np.ndarray | list[int | float],
+        y_pred: np.ndarray | list[int | float],
+        proba: np.ndarray | list[float] | None = None,
         task_type: str = "anomaly",
         confidence_level: float = 0.95,
         **kwargs,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Asynchronously compute comprehensive metrics for anomaly detection models.
 
@@ -114,7 +113,7 @@ class MetricsCalculator:
 
     @staticmethod
     def _validate_inputs(
-        y_true: np.ndarray, y_pred: np.ndarray, proba: Optional[np.ndarray] = None
+        y_true: np.ndarray, y_pred: np.ndarray, proba: np.ndarray | None = None
     ) -> None:
         """Validate input arrays for metrics computation."""
         if len(y_true) != len(y_pred):
@@ -148,10 +147,10 @@ class MetricsCalculator:
     def _compute_anomaly_metrics(
         y_true: np.ndarray,
         y_pred: np.ndarray,
-        proba: Optional[np.ndarray],
+        proba: np.ndarray | None,
         confidence_level: float,
         **kwargs,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Compute metrics specific to anomaly detection tasks."""
         results = {}
 
@@ -184,10 +183,10 @@ class MetricsCalculator:
     def _compute_classification_metrics(
         y_true: np.ndarray,
         y_pred: np.ndarray,
-        proba: Optional[np.ndarray],
+        proba: np.ndarray | None,
         confidence_level: float,
         **kwargs,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Compute metrics for general classification tasks."""
         results = {}
 
@@ -220,7 +219,7 @@ class MetricsCalculator:
     @staticmethod
     def _compute_clustering_metrics(
         y_true: np.ndarray, y_pred: np.ndarray, confidence_level: float, **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Compute metrics for clustering evaluation."""
         results = {}
 
@@ -263,7 +262,7 @@ class MetricsCalculator:
     @staticmethod
     def _compute_basic_metrics(
         y_true: np.ndarray, y_pred: np.ndarray
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Compute basic classification metrics."""
         metrics = {}
 
@@ -301,7 +300,7 @@ class MetricsCalculator:
     @staticmethod
     def _compute_anomaly_score_metrics(
         y_true: np.ndarray, proba: np.ndarray, confidence_level: float
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Compute metrics specific to anomaly scores."""
         metrics = {}
 
@@ -363,7 +362,7 @@ class MetricsCalculator:
     @staticmethod
     def _compute_probability_metrics(
         y_true: np.ndarray, proba: np.ndarray, confidence_level: float
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Compute probability-based metrics."""
         metrics = {}
 
@@ -407,7 +406,7 @@ class MetricsCalculator:
     @staticmethod
     def _compute_confusion_matrix_metrics(
         y_true: np.ndarray, y_pred: np.ndarray
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Compute detailed confusion matrix metrics."""
         metrics = {}
 
@@ -465,8 +464,8 @@ class MetricsCalculator:
 
     @staticmethod
     def _compute_statistical_analysis(
-        metrics: Dict[str, Any], confidence_level: float
-    ) -> Dict[str, Any]:
+        metrics: dict[str, Any], confidence_level: float
+    ) -> dict[str, Any]:
         """Compute statistical analysis and confidence intervals."""
         results = {}
 
@@ -505,7 +504,7 @@ class MetricsCalculator:
     @staticmethod
     def _compute_confidence_interval(
         values: np.ndarray, confidence_level: float
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """Compute confidence interval for a set of values."""
         if len(values) < 2:
             return (
@@ -530,8 +529,8 @@ class MetricsCalculator:
 
     @staticmethod
     def compute_cross_validation_metrics(
-        cv_results: List[Dict[str, Any]], confidence_level: float = 0.95
-    ) -> Dict[str, Any]:
+        cv_results: list[dict[str, Any]], confidence_level: float = 0.95
+    ) -> dict[str, Any]:
         """
         Compute aggregated metrics from cross-validation results.
 
@@ -581,8 +580,8 @@ class MetricsCalculator:
 
     @staticmethod
     def compare_models(
-        model_results: Dict[str, Dict[str, Any]], primary_metric: str = "f1_score"
-    ) -> Dict[str, Any]:
+        model_results: dict[str, dict[str, Any]], primary_metric: str = "f1_score"
+    ) -> dict[str, Any]:
         """
         Compare multiple models based on their metrics.
 

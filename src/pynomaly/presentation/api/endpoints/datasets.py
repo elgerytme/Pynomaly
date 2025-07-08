@@ -1,6 +1,7 @@
 """Dataset management endpoints."""
 
 import io
+from typing import Any
 from uuid import UUID
 
 import pandas as pd
@@ -9,10 +10,7 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Upload
 from pynomaly.application.dto import DataQualityReportDTO, DatasetDTO
 from pynomaly.domain.entities import Dataset
 from pynomaly.infrastructure.auth import (
-    UserModel,
-    require_analyst,
     require_data_scientist,
-    require_tenant_admin,
     require_viewer,
 )
 from pynomaly.infrastructure.config import Container
@@ -40,8 +38,8 @@ router = APIRouter()
 async def list_datasets(
     has_target: bool | None = Query(None, description="Filter by target presence"),
     limit: int = Query(100, ge=1, le=1000),
-    current_user: UserModel = Depends(require_viewer),
-    container: Container = Depends(lambda: Container()),
+    current_user: Any = Depends(require_viewer),
+    container: Container = Depends(get_container_simple),
 ) -> list[DatasetDTO]:
     """List all datasets."""
     dataset_repo = container.dataset_repository()
@@ -81,8 +79,8 @@ async def list_datasets(
 @router.get("/{dataset_id}", response_model=DatasetDTO)
 async def get_dataset(
     dataset_id: UUID,
-    current_user: UserModel = Depends(require_viewer),
-    container: Container = Depends(lambda: Container()),
+    current_user: Any = Depends(require_viewer),
+    container: Container = Depends(get_container_simple),
 ) -> DatasetDTO:
     """Get a specific dataset."""
     dataset_repo = container.dataset_repository()
@@ -115,8 +113,8 @@ async def upload_dataset(
     name: str | None = Form(None),
     description: str | None = Form(None),
     target_column: str | None = Form(None),
-    current_user: UserModel = Depends(require_data_scientist),
-    container: Container = Depends(lambda: Container()),
+    current_user: Any = Depends(require_data_scientist),
+    container: Container = Depends(get_container_simple),
 ) -> DatasetDTO:
     """Upload a dataset from file."""
     settings = container.config()
@@ -200,8 +198,8 @@ async def upload_dataset(
 @router.get("/{dataset_id}/quality", response_model=DataQualityReportDTO)
 async def check_dataset_quality(
     dataset_id: UUID,
-    current_user: UserModel = Depends(require_viewer),
-    container: Container = Depends(lambda: Container()),
+    current_user: Any = Depends(require_viewer),
+    container: Container = Depends(get_container_simple),
 ) -> DataQualityReportDTO:
     """Check dataset quality."""
     dataset_repo = container.dataset_repository()

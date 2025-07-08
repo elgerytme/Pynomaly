@@ -5,10 +5,9 @@ from __future__ import annotations
 import logging
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import pandas as pd
-import pyarrow as pa
 import pyarrow.parquet as pq
 
 from pynomaly.domain.entities import Dataset
@@ -23,8 +22,8 @@ class EnhancedParquetLoader(BatchDataLoaderProtocol):
         self,
         engine: str = "pyarrow",
         use_memory_map: bool = True,
-        columns: Optional[List[str]] = None,
-        filters: Optional[List[List[tuple]]] = None,
+        columns: list[str] | None = None,
+        filters: list[list[tuple]] | None = None,
         use_pandas_metadata: bool = True,
         validate_schema: bool = True,
     ):
@@ -59,12 +58,12 @@ class EnhancedParquetLoader(BatchDataLoaderProtocol):
                 raise ImportError("fastparquet is required for fastparquet engine")
 
     @property
-    def supported_formats(self) -> List[str]:
+    def supported_formats(self) -> list[str]:
         """Get supported file formats."""
         return ["parquet", "pq"]
 
     def load(
-        self, source: Union[str, Path], name: Optional[str] = None, **kwargs: Any
+        self, source: str | Path, name: str | None = None, **kwargs: Any
     ) -> Dataset:
         """Load Parquet file into a Dataset.
 
@@ -149,7 +148,7 @@ class EnhancedParquetLoader(BatchDataLoaderProtocol):
                 f"Failed to load Parquet file: {e}", file_path=str(source_path)
             ) from e
 
-    def validate(self, source: Union[str, Path]) -> bool:
+    def validate(self, source: str | Path) -> bool:
         """Validate if source is a valid Parquet file or directory.
 
         Args:
@@ -196,9 +195,9 @@ class EnhancedParquetLoader(BatchDataLoaderProtocol):
 
     def load_batch(
         self,
-        source: Union[str, Path],
+        source: str | Path,
         batch_size: int,
-        name: Optional[str] = None,
+        name: str | None = None,
         **kwargs: Any,
     ) -> Iterator[Dataset]:
         """Load Parquet in batches using row groups.
@@ -300,7 +299,7 @@ class EnhancedParquetLoader(BatchDataLoaderProtocol):
                 f"Failed to load Parquet in batches: {e}", file_path=str(source_path)
             ) from e
 
-    def estimate_size(self, source: Union[str, Path]) -> Dict[str, Any]:
+    def estimate_size(self, source: str | Path) -> dict[str, Any]:
         """Estimate the size of the Parquet file.
 
         Args:
@@ -366,7 +365,7 @@ class EnhancedParquetLoader(BatchDataLoaderProtocol):
                 "error": str(e),
             }
 
-    def get_schema_info(self, source: Union[str, Path]) -> Dict[str, Any]:
+    def get_schema_info(self, source: str | Path) -> dict[str, Any]:
         """Get detailed schema information from Parquet file.
 
         Args:
@@ -434,7 +433,7 @@ class EnhancedParquetLoader(BatchDataLoaderProtocol):
                 f"Failed to read schema: {e}", file_path=str(source_path)
             ) from e
 
-    def _extract_metadata(self, source_path: Path) -> Dict[str, Any]:
+    def _extract_metadata(self, source_path: Path) -> dict[str, Any]:
         """Extract metadata from Parquet file."""
         metadata = {}
 

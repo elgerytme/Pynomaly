@@ -10,15 +10,13 @@ import logging
 import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
-from uuid import uuid4
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.exceptions import DomainError, ValidationError
-from pynomaly.domain.value_objects import AnomalyScore, ConfidenceInterval
+from pynomaly.domain.entities import Dataset
+from pynomaly.domain.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -78,8 +76,8 @@ class DetectorPerformanceMetrics:
 class EnsembleDetectionRequest:
     """Request for ensemble-based anomaly detection."""
 
-    detector_ids: List[str]
-    data: Union[np.ndarray, pd.DataFrame, List[Dict[str, Any]]]
+    detector_ids: list[str]
+    data: np.ndarray | pd.DataFrame | list[dict[str, Any]]
     voting_strategy: VotingStrategy = VotingStrategy.DYNAMIC_SELECTION
     optimization_objective: EnsembleOptimizationObjective = (
         EnsembleOptimizationObjective.F1_SCORE
@@ -89,7 +87,7 @@ class EnsembleDetectionRequest:
     enable_explanation: bool = True
     confidence_threshold: float = 0.8
     consensus_threshold: float = 0.6
-    max_processing_time: Optional[float] = None
+    max_processing_time: float | None = None
     enable_caching: bool = True
     return_individual_results: bool = False
 
@@ -99,31 +97,31 @@ class EnsembleDetectionResponse:
     """Response from ensemble detection."""
 
     success: bool
-    predictions: Optional[List[int]] = None  # 0 = normal, 1 = anomaly
-    anomaly_scores: Optional[List[float]] = None
-    confidence_scores: Optional[List[float]] = None
-    uncertainty_scores: Optional[List[float]] = None
-    consensus_scores: Optional[List[float]] = None
-    individual_results: Optional[Dict[str, List[float]]] = None
-    detector_weights: Optional[List[float]] = None
-    voting_strategy_used: Optional[str] = None
-    ensemble_metrics: Optional[Dict[str, Any]] = None
-    explanations: Optional[List[Dict[str, Any]]] = None
+    predictions: list[int] | None = None  # 0 = normal, 1 = anomaly
+    anomaly_scores: list[float] | None = None
+    confidence_scores: list[float] | None = None
+    uncertainty_scores: list[float] | None = None
+    consensus_scores: list[float] | None = None
+    individual_results: dict[str, list[float]] | None = None
+    detector_weights: list[float] | None = None
+    voting_strategy_used: str | None = None
+    ensemble_metrics: dict[str, Any] | None = None
+    explanations: list[dict[str, Any]] | None = None
     processing_time: float = 0.0
-    error_message: Optional[str] = None
-    warnings: List[str] = field(default_factory=list)
+    error_message: str | None = None
+    warnings: list[str] = field(default_factory=list)
 
 
 @dataclass
 class EnsembleOptimizationRequest:
     """Request for ensemble optimization."""
 
-    detector_ids: List[str]
+    detector_ids: list[str]
     validation_dataset_id: str
     optimization_objective: EnsembleOptimizationObjective = (
         EnsembleOptimizationObjective.F1_SCORE
     )
-    target_voting_strategies: List[VotingStrategy] = field(
+    target_voting_strategies: list[VotingStrategy] = field(
         default_factory=lambda: [VotingStrategy.DYNAMIC_SELECTION]
     )
     max_ensemble_size: int = 5
@@ -140,15 +138,15 @@ class EnsembleOptimizationResponse:
     """Response from ensemble optimization."""
 
     success: bool
-    optimized_detector_ids: Optional[List[str]] = None
-    optimal_voting_strategy: Optional[VotingStrategy] = None
-    optimal_weights: Optional[List[float]] = None
-    ensemble_performance: Optional[Dict[str, float]] = None
-    diversity_metrics: Optional[Dict[str, float]] = None
-    optimization_history: Optional[List[Dict[str, Any]]] = None
-    recommendations: Optional[List[str]] = None
+    optimized_detector_ids: list[str] | None = None
+    optimal_voting_strategy: VotingStrategy | None = None
+    optimal_weights: list[float] | None = None
+    ensemble_performance: dict[str, float] | None = None
+    diversity_metrics: dict[str, float] | None = None
+    optimization_history: list[dict[str, Any]] | None = None
+    recommendations: list[str] | None = None
     optimization_time: float = 0.0
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
 
 class EnsembleDetectionUseCase:
@@ -184,9 +182,9 @@ class EnsembleDetectionUseCase:
         self.cache_size = cache_size
 
         # Internal state
-        self._performance_tracker: Dict[str, DetectorPerformanceMetrics] = {}
-        self._ensemble_cache: Dict[str, Any] = {}
-        self._optimization_history: List[Dict[str, Any]] = []
+        self._performance_tracker: dict[str, DetectorPerformanceMetrics] = {}
+        self._ensemble_cache: dict[str, Any] = {}
+        self._optimization_history: list[dict[str, Any]] = []
 
         logger.info("Ensemble detection use case initialized")
 
@@ -394,7 +392,7 @@ class EnsembleDetectionUseCase:
 
     async def _validate_detection_request(
         self, request: EnsembleDetectionRequest
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Validate ensemble detection request."""
         if len(request.detector_ids) < 2:
             return {
@@ -420,7 +418,7 @@ class EnsembleDetectionUseCase:
 
     async def _validate_optimization_request(
         self, request: EnsembleOptimizationRequest
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Validate ensemble optimization request."""
         if len(request.detector_ids) < 2:
             return {
@@ -434,7 +432,7 @@ class EnsembleDetectionUseCase:
         return {"valid": True}
 
     async def _prepare_data(
-        self, data: Union[np.ndarray, pd.DataFrame, List[Dict[str, Any]]]
+        self, data: np.ndarray | pd.DataFrame | list[dict[str, Any]]
     ) -> np.ndarray:
         """Prepare data for ensemble detection."""
         if isinstance(data, pd.DataFrame):
@@ -452,8 +450,8 @@ class EnsembleDetectionUseCase:
             raise ValidationError(f"Unsupported data type: {type(data)}")
 
     async def _get_individual_predictions(
-        self, detector_ids: List[str], data: np.ndarray
-    ) -> Dict[str, List[float]]:
+        self, detector_ids: list[str], data: np.ndarray
+    ) -> dict[str, list[float]]:
         """Get predictions from individual detectors."""
         results = {"predictions": {}, "scores": {}}
 
@@ -479,11 +477,11 @@ class EnsembleDetectionUseCase:
 
     async def _calculate_detector_weights(
         self,
-        detector_ids: List[str],
+        detector_ids: list[str],
         voting_strategy: VotingStrategy,
         enable_dynamic_weighting: bool,
-        individual_results: Dict[str, List[float]],
-    ) -> List[float]:
+        individual_results: dict[str, list[float]],
+    ) -> list[float]:
         """Calculate weights for detectors based on performance and strategy."""
         if not enable_dynamic_weighting:
             # Equal weights
@@ -523,10 +521,10 @@ class EnsembleDetectionUseCase:
     async def _apply_voting_strategy(
         self,
         strategy: VotingStrategy,
-        individual_results: Dict[str, List[float]],
-        weights: List[float],
+        individual_results: dict[str, list[float]],
+        weights: list[float],
         request: EnsembleDetectionRequest,
-    ) -> Dict[str, List[Any]]:
+    ) -> dict[str, list[Any]]:
         """Apply the specified voting strategy."""
         scores = individual_results["scores"]
         predictions = individual_results["predictions"]
@@ -585,15 +583,17 @@ class EnsembleDetectionUseCase:
         return {"scores": ensemble_scores, "predictions": ensemble_predictions}
 
     async def _bayesian_model_averaging(
-        self, scores: List[float], weights: List[float]
+        self, scores: list[float], weights: list[float]
     ) -> float:
         """Bayesian model averaging for ensemble scoring."""
         # Weighted average with Bayesian interpretation
-        weighted_scores = [score * weight for score, weight in zip(scores, weights)]
+        weighted_scores = [
+            score * weight for score, weight in zip(scores, weights, strict=False)
+        ]
         return sum(weighted_scores) / sum(weights)
 
     async def _rank_aggregation(
-        self, scores: List[float], weights: List[float]
+        self, scores: list[float], weights: list[float]
     ) -> float:
         """Rank aggregation voting strategy."""
         # Convert scores to ranks (higher score = lower rank number)
@@ -609,7 +609,7 @@ class EnsembleDetectionUseCase:
             return np.average(scores, weights=weights)
 
     async def _consensus_voting(
-        self, scores: List[float], predictions: List[int], threshold: float
+        self, scores: list[float], predictions: list[int], threshold: float
     ) -> float:
         """Consensus-based voting requiring agreement threshold."""
         agreement = np.mean(predictions)
@@ -623,10 +623,10 @@ class EnsembleDetectionUseCase:
 
     async def _dynamic_selection(
         self,
-        scores: List[float],
-        weights: List[float],
+        scores: list[float],
+        weights: list[float],
         sample_index: int,
-        individual_results: Dict[str, List[float]],
+        individual_results: dict[str, list[float]],
     ) -> float:
         """Dynamic selection based on local performance."""
         # Select best performing detectors for this specific sample
@@ -647,14 +647,16 @@ class EnsembleDetectionUseCase:
         return np.average(scores, weights=enhanced_weights)
 
     async def _uncertainty_weighted_voting(
-        self, scores: List[float], weights: List[float], sample_index: int
+        self, scores: list[float], weights: list[float], sample_index: int
     ) -> float:
         """Weight votes by uncertainty estimates."""
         # Calculate uncertainty for each score (distance from 0.5)
         uncertainties = [abs(score - 0.5) * 2 for score in scores]
 
         # Higher uncertainty weight for more confident predictions
-        uncertainty_weights = [u * w for u, w in zip(uncertainties, weights)]
+        uncertainty_weights = [
+            u * w for u, w in zip(uncertainties, weights, strict=False)
+        ]
 
         # Normalize
         total_weight = sum(uncertainty_weights)
@@ -665,7 +667,7 @@ class EnsembleDetectionUseCase:
             return np.average(scores, weights=weights)
 
     async def _robust_aggregation(
-        self, scores: List[float], weights: List[float]
+        self, scores: list[float], weights: list[float]
     ) -> float:
         """Robust aggregation using median and trimmed mean."""
         # Use trimmed mean to reduce impact of outliers
@@ -689,7 +691,7 @@ class EnsembleDetectionUseCase:
             return np.average(scores, weights=weights)
 
     async def _cascaded_voting(
-        self, scores: List[float], weights: List[float], confidence_threshold: float
+        self, scores: list[float], weights: list[float], confidence_threshold: float
     ) -> float:
         """Cascaded voting with confidence-based early stopping."""
         # Sort detectors by weight (performance)
@@ -714,10 +716,10 @@ class EnsembleDetectionUseCase:
 
     async def _calculate_confidence_scores(
         self,
-        individual_results: Dict[str, List[float]],
-        ensemble_predictions: Dict[str, List[Any]],
+        individual_results: dict[str, list[float]],
+        ensemble_predictions: dict[str, list[Any]],
         request: EnsembleDetectionRequest,
-    ) -> List[float]:
+    ) -> list[float]:
         """Calculate confidence scores for predictions."""
         scores = individual_results["scores"]
         ensemble_scores = ensemble_predictions["scores"]
@@ -743,10 +745,10 @@ class EnsembleDetectionUseCase:
 
     async def _calculate_uncertainty_scores(
         self,
-        individual_results: Dict[str, List[float]],
-        ensemble_predictions: Dict[str, List[Any]],
+        individual_results: dict[str, list[float]],
+        ensemble_predictions: dict[str, list[Any]],
         request: EnsembleDetectionRequest,
-    ) -> List[float]:
+    ) -> list[float]:
         """Calculate uncertainty scores for predictions."""
         scores = individual_results["scores"]
 
@@ -783,9 +785,9 @@ class EnsembleDetectionUseCase:
 
     async def _calculate_consensus_scores(
         self,
-        individual_results: Dict[str, List[float]],
+        individual_results: dict[str, list[float]],
         request: EnsembleDetectionRequest,
-    ) -> List[float]:
+    ) -> list[float]:
         """Calculate consensus scores among detectors."""
         predictions = individual_results["predictions"]
 
@@ -811,11 +813,11 @@ class EnsembleDetectionUseCase:
 
     async def _generate_ensemble_explanations(
         self,
-        individual_results: Dict[str, List[float]],
-        ensemble_predictions: Dict[str, List[Any]],
-        detector_weights: List[float],
+        individual_results: dict[str, list[float]],
+        ensemble_predictions: dict[str, list[Any]],
+        detector_weights: list[float],
         request: EnsembleDetectionRequest,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Generate explanations for ensemble predictions."""
         explanations = []
         detector_ids = list(individual_results["scores"].keys())
@@ -872,10 +874,10 @@ class EnsembleDetectionUseCase:
 
     async def _calculate_ensemble_metrics(
         self,
-        individual_results: Dict[str, List[float]],
-        ensemble_predictions: Dict[str, List[Any]],
+        individual_results: dict[str, list[float]],
+        ensemble_predictions: dict[str, list[Any]],
         request: EnsembleDetectionRequest,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculate comprehensive ensemble metrics."""
         detector_ids = list(individual_results["scores"].keys())
 
@@ -929,9 +931,9 @@ class EnsembleDetectionUseCase:
 
     async def _update_performance_tracking(
         self,
-        detector_ids: List[str],
-        individual_results: Dict[str, List[float]],
-        ensemble_predictions: Dict[str, List[Any]],
+        detector_ids: list[str],
+        individual_results: dict[str, list[float]],
+        ensemble_predictions: dict[str, list[Any]],
     ) -> None:
         """Update performance tracking for detectors."""
         # This would be implemented with actual performance calculation
@@ -974,7 +976,7 @@ class EnsembleDetectionUseCase:
 
     async def _perform_ensemble_optimization(
         self, request: EnsembleOptimizationRequest, dataset: Dataset
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Perform ensemble optimization using validation data."""
         # This is a simplified optimization - in production would use more sophisticated methods
 

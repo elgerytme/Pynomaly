@@ -6,12 +6,13 @@ import asyncio
 import logging
 import time
 from asyncio import Queue, Semaphore
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from collections.abc import Awaitable, Callable
+from concurrent.futures import ProcessPoolExecutor
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from functools import wraps
-from typing import Any, Awaitable, Callable, Dict, List, Optional, TypeVar, Union
-from uuid import UUID, uuid4
+from typing import Any, TypeVar
+from uuid import uuid4
 
 import numpy as np
 import pandas as pd
@@ -29,9 +30,9 @@ class TaskResult:
     task_id: str
     success: bool
     result: Any = None
-    error: Optional[Exception] = None
+    error: Exception | None = None
     execution_time: float = 0.0
-    metadata: Dict[str, Any] = None
+    metadata: dict[str, Any] = None
 
 
 @dataclass
@@ -55,7 +56,7 @@ class AsyncTaskQueue:
         self.max_workers = max_workers
         self._queue: Queue = Queue(maxsize=max_size)
         self._semaphore = Semaphore(max_workers)
-        self._workers: List[asyncio.Task] = []
+        self._workers: list[asyncio.Task] = []
         self._stats = ProcessingStats()
         self._running = False
 
@@ -116,7 +117,7 @@ class AsyncTaskQueue:
                 async with self._semaphore:
                     await self._execute_task(task_item, worker_name)
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 # No tasks in queue, continue
                 continue
             except asyncio.CancelledError:
@@ -126,7 +127,7 @@ class AsyncTaskQueue:
                 logger.error(f"Worker {worker_name} error: {e}")
 
     async def _execute_task(
-        self, task_item: Dict[str, Any], worker_name: str
+        self, task_item: dict[str, Any], worker_name: str
     ) -> TaskResult:
         """Execute a single task."""
         task_id = task_item["id"]
@@ -190,7 +191,7 @@ class AsyncTaskQueue:
         """Get current processing statistics."""
         return self._stats
 
-    async def wait_completion(self, timeout: Optional[float] = None) -> bool:
+    async def wait_completion(self, timeout: float | None = None) -> bool:
         """Wait for queue to be empty."""
         start_time = time.time()
 
@@ -218,8 +219,8 @@ class AsyncBatchProcessor:
         self._semaphore = Semaphore(max_concurrent_batches)
 
     async def process_items(
-        self, items: List[T], processor: Callable[[List[T]], Awaitable[List[R]]]
-    ) -> List[R]:
+        self, items: list[T], processor: Callable[[list[T]], Awaitable[list[R]]]
+    ) -> list[R]:
         """Process items in concurrent batches."""
         if not items:
             return []
@@ -253,10 +254,10 @@ class AsyncBatchProcessor:
 
     async def _process_batch(
         self,
-        batch: List[T],
-        processor: Callable[[List[T]], Awaitable[List[R]]],
+        batch: list[T],
+        processor: Callable[[list[T]], Awaitable[list[R]]],
         batch_id: int,
-    ) -> List[R]:
+    ) -> list[R]:
         """Process a single batch."""
         async with self._semaphore:
             start_time = time.time()
@@ -273,7 +274,7 @@ class AsyncBatchProcessor:
 
                 return result
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 logger.error(f"Batch {batch_id} timed out after {self.batch_timeout}s")
                 raise
             except Exception as e:
@@ -293,7 +294,7 @@ class AsyncDataFrameProcessor:
         self,
         df: pd.DataFrame,
         processor: Callable[[pd.DataFrame], pd.DataFrame],
-        combine_func: Optional[Callable[[List[pd.DataFrame]], pd.DataFrame]] = None,
+        combine_func: Callable[[list[pd.DataFrame]], pd.DataFrame] | None = None,
     ) -> pd.DataFrame:
         """Process DataFrame in async chunks."""
         if df.empty:
@@ -368,10 +369,10 @@ class AsyncModelTrainer:
 
     async def train_models_parallel(
         self,
-        model_configs: List[Dict[str, Any]],
-        train_data: Union[pd.DataFrame, np.ndarray],
+        model_configs: list[dict[str, Any]],
+        train_data: pd.DataFrame | np.ndarray,
         trainer_func: Callable,
-    ) -> List[TaskResult]:
+    ) -> list[TaskResult]:
         """Train multiple models in parallel."""
         logger.info(f"Training {len(model_configs)} models in parallel")
 
@@ -401,8 +402,8 @@ class AsyncModelTrainer:
 
     async def _train_single_model(
         self,
-        config: Dict[str, Any],
-        train_data: Union[pd.DataFrame, np.ndarray],
+        config: dict[str, Any],
+        train_data: pd.DataFrame | np.ndarray,
         trainer_func: Callable,
         model_id: int,
     ) -> TaskResult:
@@ -496,7 +497,7 @@ def async_timeout(timeout_seconds: float):
                 return await asyncio.wait_for(
                     func(*args, **kwargs), timeout=timeout_seconds
                 )
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 logger.error(
                     f"Function {func.__name__} timed out after {timeout_seconds}s"
                 )
@@ -571,11 +572,11 @@ class AsyncContextManager:
 
     def __init__(self):
         """Initialize async context manager."""
-        self._resources: Dict[str, Any] = {}
-        self._cleanup_funcs: Dict[str, Callable] = {}
+        self._resources: dict[str, Any] = {}
+        self._cleanup_funcs: dict[str, Callable] = {}
 
     async def add_resource(
-        self, name: str, resource: Any, cleanup_func: Optional[Callable] = None
+        self, name: str, resource: Any, cleanup_func: Callable | None = None
     ) -> None:
         """Add a resource to be managed."""
         self._resources[name] = resource
@@ -617,8 +618,8 @@ class AsyncContextManager:
 
 
 # Global instances
-_global_task_queue: Optional[AsyncTaskQueue] = None
-_global_batch_processor: Optional[AsyncBatchProcessor] = None
+_global_task_queue: AsyncTaskQueue | None = None
+_global_batch_processor: AsyncBatchProcessor | None = None
 
 
 def get_task_queue(max_workers: int = 10) -> AsyncTaskQueue:

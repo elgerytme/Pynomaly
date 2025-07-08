@@ -80,14 +80,14 @@ export class AnomalyDetector {
               <h4 class="text-md font-medium">1. Select Data Source</h4>
               <div class="step-status status-normal" data-status="pending">Pending</div>
             </div>
-            
+
             <div class="data-input-section">
               <div class="input-tabs">
                 <button class="tab-button active" data-tab="upload">Upload File</button>
                 <button class="tab-button" data-tab="dataset">Existing Dataset</button>
                 <button class="tab-button" data-tab="stream">Real-time Stream</button>
               </div>
-              
+
               <!-- File Upload Tab -->
               <div class="tab-content active" data-tab-content="upload">
                 <div class="file-upload-area" data-drop-zone>
@@ -100,7 +100,7 @@ export class AnomalyDetector {
                 </div>
                 <div class="file-info hidden" data-file-info></div>
               </div>
-              
+
               <!-- Existing Dataset Tab -->
               <div class="tab-content" data-tab-content="dataset">
                 <div class="dataset-selector">
@@ -113,7 +113,7 @@ export class AnomalyDetector {
                 </div>
                 <div class="dataset-info hidden" data-dataset-info></div>
               </div>
-              
+
               <!-- Real-time Stream Tab -->
               <div class="tab-content" data-tab-content="stream">
                 <div class="stream-config">
@@ -140,7 +140,7 @@ export class AnomalyDetector {
               <h4 class="text-md font-medium">2. Choose Detection Algorithm</h4>
               <div class="step-status status-normal" data-status="pending">Pending</div>
             </div>
-            
+
             <div class="algorithm-selection">
               <div class="algorithm-tabs">
                 <button class="tab-button active" data-algo-tab="recommended">Recommended</button>
@@ -148,9 +148,9 @@ export class AnomalyDetector {
                 <button class="tab-button" data-algo-tab="ensemble">Ensemble</button>
                 <button class="tab-button" data-algo-tab="custom">Custom</button>
               </div>
-              
+
               <div class="algorithm-grid" data-algorithm-grid></div>
-              
+
               <div class="algorithm-params hidden" data-algorithm-params>
                 <h5 class="text-sm font-medium mb-2">Algorithm Parameters</h5>
                 <div class="params-form" data-params-form></div>
@@ -164,13 +164,13 @@ export class AnomalyDetector {
               <h4 class="text-md font-medium">3. Run Detection</h4>
               <div class="step-status status-normal" data-status="pending">Pending</div>
             </div>
-            
+
             <div class="execution-controls">
               <button class="btn btn-primary btn-lg" data-action="start-detection" disabled>
                 <span class="btn-icon">🚀</span>
                 <span class="btn-text">Start Detection</span>
               </button>
-              
+
               <div class="execution-options">
                 <label class="checkbox-label">
                   <input type="checkbox" data-option="explain-results">
@@ -189,7 +189,7 @@ export class AnomalyDetector {
                 </label>
               </div>
             </div>
-            
+
             <div class="execution-progress hidden" data-execution-progress>
               <div class="progress-bar">
                 <div class="progress-fill" data-progress-fill></div>
@@ -205,7 +205,7 @@ export class AnomalyDetector {
               <h4 class="text-md font-medium">4. Detection Results</h4>
               <div class="step-status status-normal" data-status="pending">Pending</div>
             </div>
-            
+
             <div class="results-container hidden" data-results-container>
               <!-- Results Summary -->
               <div class="results-summary">
@@ -228,7 +228,7 @@ export class AnomalyDetector {
                   </div>
                 </div>
               </div>
-              
+
               <!-- Results Visualization -->
               <div class="results-visualization">
                 <div class="chart-tabs">
@@ -237,18 +237,18 @@ export class AnomalyDetector {
                   <button class="tab-button" data-chart-tab="distribution">Distribution</button>
                   <button class="tab-button" data-chart-tab="heatmap">Feature Heatmap</button>
                 </div>
-                
+
                 <div class="chart-container" data-chart-container>
                   <div class="chart-loading skeleton h-64"></div>
                 </div>
-                
+
                 <div class="chart-controls">
                   <div class="threshold-control">
                     <label class="form-label">Anomaly Threshold</label>
                     <input type="range" class="threshold-slider" data-threshold-slider min="0" max="1" step="0.01" value="0.5">
                     <span class="threshold-value" data-threshold-value>0.5</span>
                   </div>
-                  
+
                   <div class="filter-controls">
                     <button class="btn btn-sm btn-outline" data-filter="show-all">Show All</button>
                     <button class="btn btn-sm btn-outline" data-filter="show-anomalies">Anomalies Only</button>
@@ -256,7 +256,7 @@ export class AnomalyDetector {
                   </div>
                 </div>
               </div>
-              
+
               <!-- Results Actions -->
               <div class="results-actions">
                 <button class="btn btn-primary" data-action="export-results">
@@ -282,7 +282,7 @@ export class AnomalyDetector {
             <h4 class="text-md font-medium">Detection Settings</h4>
             <button class="btn btn-sm btn-ghost" data-action="close-settings">✕</button>
           </div>
-          
+
           <div class="settings-content">
             <div class="setting-group">
               <label class="form-label">Default Algorithm</label>
@@ -293,12 +293,12 @@ export class AnomalyDetector {
                 <option value="lof">Local Outlier Factor</option>
               </select>
             </div>
-            
+
             <div class="setting-group">
               <label class="form-label">Contamination Rate</label>
               <input type="number" class="form-input" data-setting="contamination-rate" min="0" max="1" step="0.01" value="0.1">
             </div>
-            
+
             <div class="setting-group">
               <label class="checkbox-label">
                 <input type="checkbox" data-setting="auto-preprocess">
@@ -306,7 +306,7 @@ export class AnomalyDetector {
                 Auto-preprocess data
               </label>
             </div>
-            
+
             <div class="setting-group">
               <label class="checkbox-label">
                 <input type="checkbox" data-setting="enable-notifications">

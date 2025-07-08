@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 from uuid import UUID, uuid4
 
 from pynomaly.domain.models.security import (
@@ -27,23 +26,23 @@ class AuditService:
         self.logger = logging.getLogger(__name__)
 
         # Audit storage (would be replaced with persistent storage in production)
-        self.audit_events: Dict[UUID, AuditEvent] = {}
-        self.security_incidents: Dict[UUID, SecurityIncident] = {}
-        self.compliance_reports: Dict[UUID, ComplianceReport] = {}
+        self.audit_events: dict[UUID, AuditEvent] = {}
+        self.security_incidents: dict[UUID, SecurityIncident] = {}
+        self.compliance_reports: dict[UUID, ComplianceReport] = {}
 
         # Event indexes for efficient querying
-        self.events_by_user: Dict[UUID, List[UUID]] = {}
-        self.events_by_type: Dict[ActionType, List[UUID]] = {}
-        self.events_by_timestamp: List[tuple[datetime, UUID]] = (
-            []
-        )  # (timestamp, event_id)
+        self.events_by_user: dict[UUID, list[UUID]] = {}
+        self.events_by_type: dict[ActionType, list[UUID]] = {}
+        self.events_by_timestamp: list[
+            tuple[datetime, UUID]
+        ] = []  # (timestamp, event_id)
 
         # Real-time monitoring
-        self.security_alerts: List[Dict[str, Any]] = []
-        self.compliance_violations: List[Dict[str, Any]] = []
+        self.security_alerts: list[dict[str, Any]] = []
+        self.compliance_violations: list[dict[str, Any]] = []
 
         # Background tasks
-        self.monitoring_tasks: Set[asyncio.Task] = set()
+        self.monitoring_tasks: set[asyncio.Task] = set()
 
         self.logger.info("Audit service initialized")
 
@@ -75,18 +74,18 @@ class AuditService:
 
     async def log_event(
         self,
-        user_id: Optional[UUID],
+        user_id: UUID | None,
         action: ActionType,
         resource_type: str,
         success: bool,
-        username: Optional[str] = None,
-        resource_id: Optional[str] = None,
-        resource_name: Optional[str] = None,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
-        session_id: Optional[str] = None,
-        request_id: Optional[str] = None,
-        additional_data: Optional[Dict[str, Any]] = None,
+        username: str | None = None,
+        resource_id: str | None = None,
+        resource_name: str | None = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+        session_id: str | None = None,
+        request_id: str | None = None,
+        additional_data: dict[str, Any] | None = None,
         security_level: str = "INFO",
         compliance_relevant: bool = None,
     ) -> AuditEvent:
@@ -148,9 +147,9 @@ class AuditService:
         title: str,
         description: str,
         severity: str = "medium",
-        affected_systems: Optional[List[str]] = None,
-        affected_users: Optional[List[UUID]] = None,
-        detected_by: Optional[UUID] = None,
+        affected_systems: list[str] | None = None,
+        affected_users: list[UUID] | None = None,
+        detected_by: UUID | None = None,
     ) -> SecurityIncident:
         """Create security incident record."""
 
@@ -199,15 +198,15 @@ class AuditService:
 
     async def query_events(
         self,
-        user_id: Optional[UUID] = None,
-        action_types: Optional[List[ActionType]] = None,
-        resource_type: Optional[str] = None,
-        start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None,
-        success_only: Optional[bool] = None,
-        security_levels: Optional[List[str]] = None,
+        user_id: UUID | None = None,
+        action_types: list[ActionType] | None = None,
+        resource_type: str | None = None,
+        start_time: datetime | None = None,
+        end_time: datetime | None = None,
+        success_only: bool | None = None,
+        security_levels: list[str] | None = None,
         limit: int = 1000,
-    ) -> List[AuditEvent]:
+    ) -> list[AuditEvent]:
         """Query audit events with filters."""
 
         events = []
@@ -334,9 +333,9 @@ class AuditService:
 
     async def get_security_metrics(
         self,
-        start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None,
-    ) -> Dict[str, Any]:
+        start_time: datetime | None = None,
+        end_time: datetime | None = None,
+    ) -> dict[str, Any]:
         """Get security metrics for monitoring dashboard."""
 
         if not start_time:
@@ -597,7 +596,7 @@ class AuditService:
                 )
 
     async def _assess_gdpr_compliance(
-        self, report: ComplianceReport, events: List[AuditEvent]
+        self, report: ComplianceReport, events: list[AuditEvent]
     ) -> None:
         """Assess GDPR compliance requirements."""
 
@@ -659,7 +658,7 @@ class AuditService:
         report.total_controls += 2
 
     async def _assess_soc2_compliance(
-        self, report: ComplianceReport, events: List[AuditEvent]
+        self, report: ComplianceReport, events: list[AuditEvent]
     ) -> None:
         """Assess SOC 2 compliance requirements."""
 

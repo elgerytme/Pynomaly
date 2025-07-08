@@ -4,14 +4,11 @@ Reporting service for business metrics and analytics.
 
 import uuid
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pynomaly.domain.entities.reporting import (
-    STANDARD_METRICS,
     Alert,
-    BusinessMetrics,
     Dashboard,
-    DetectionMetrics,
     Metric,
     MetricType,
     MetricValue,
@@ -21,15 +18,12 @@ from pynomaly.domain.entities.reporting import (
     ReportStatus,
     ReportType,
     TimeGranularity,
-    UsageMetrics,
 )
-from pynomaly.domain.entities.user import User
 from pynomaly.shared.exceptions import (
     AuthorizationError,
     ReportNotFoundError,
-    ValidationError,
 )
-from pynomaly.shared.types import DatasetId, DetectorId, TenantId, UserId
+from pynomaly.shared.types import TenantId, UserId
 
 
 class ReportingService:
@@ -46,9 +40,9 @@ class ReportingService:
         report_type: ReportType,
         tenant_id: TenantId,
         user_id: UserId,
-        filters: Optional[ReportFilter] = None,
-        title: Optional[str] = None,
-        description: Optional[str] = None,
+        filters: ReportFilter | None = None,
+        title: str | None = None,
+        description: str | None = None,
     ) -> Report:
         """Generate a new business report."""
         # Validate user permissions
@@ -321,7 +315,7 @@ class ReportingService:
         tenant_id: TenantId,
         user_id: UserId,
         description: str = "",
-        widgets: Optional[List[Dict[str, Any]]] = None,
+        widgets: list[dict[str, Any]] | None = None,
     ) -> Dashboard:
         """Create a new dashboard."""
         dashboard = Dashboard(
@@ -360,7 +354,7 @@ class ReportingService:
         return dashboard
 
     async def update_dashboard_widgets(
-        self, dashboard_id: str, user_id: UserId, widgets: List[Dict[str, Any]]
+        self, dashboard_id: str, user_id: UserId, widgets: list[dict[str, Any]]
     ) -> Dashboard:
         """Update dashboard widgets."""
         dashboard = await self.get_dashboard(dashboard_id, user_id)
@@ -383,8 +377,8 @@ class ReportingService:
 
     # Metrics Management
     async def get_real_time_metrics(
-        self, tenant_id: TenantId, metric_ids: List[str]
-    ) -> Dict[str, Any]:
+        self, tenant_id: TenantId, metric_ids: list[str]
+    ) -> dict[str, Any]:
         """Get real-time metrics for dashboard."""
         metrics = {}
 
@@ -411,7 +405,7 @@ class ReportingService:
         start_date: datetime,
         end_date: datetime,
         granularity: TimeGranularity = TimeGranularity.HOUR,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get metric history for charting."""
         metric = await self._metrics_repo.get_metric(tenant_id, metric_id)
         if not metric:
@@ -434,8 +428,8 @@ class ReportingService:
         ]
 
     def _aggregate_metric_values(
-        self, values: List[MetricValue], granularity: TimeGranularity
-    ) -> Dict[datetime, float]:
+        self, values: list[MetricValue], granularity: TimeGranularity
+    ) -> dict[datetime, float]:
         """Aggregate metric values by time granularity."""
         aggregated = {}
 
@@ -470,7 +464,7 @@ class ReportingService:
         tenant_id: TenantId,
         condition: str,
         threshold: float,
-        notification_channels: List[str],
+        notification_channels: list[str],
         description: str = "",
     ) -> Alert:
         """Create a new metric alert."""
@@ -487,7 +481,7 @@ class ReportingService:
 
         return await self._report_repo.create_alert(alert)
 
-    async def check_alerts(self, tenant_id: TenantId) -> List[Dict[str, Any]]:
+    async def check_alerts(self, tenant_id: TenantId) -> list[dict[str, Any]]:
         """Check all active alerts for a tenant."""
         alerts = await self._report_repo.get_active_alerts(tenant_id)
         triggered_alerts = []

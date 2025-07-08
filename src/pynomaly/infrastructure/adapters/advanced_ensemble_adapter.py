@@ -14,23 +14,16 @@ from __future__ import annotations
 
 import logging
 import warnings
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
-from scipy import stats
-from scipy.optimize import minimize
-from sklearn.base import BaseEstimator, OutlierMixin
 from sklearn.covariance import EllipticEnvelope
-from sklearn.decomposition import PCA
 from sklearn.ensemble import IsolationForest
 from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import cross_val_score
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import OneClassSVM
-from sklearn.tree import DecisionTreeClassifier
 
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector
 from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
@@ -74,7 +67,7 @@ class DynamicEnsembleSelector:
         self.competence_regions = {}
         self._fitted = False
 
-    def fit(self, X: np.ndarray, y: np.ndarray, base_detectors: List[Any]) -> None:
+    def fit(self, X: np.ndarray, y: np.ndarray, base_detectors: list[Any]) -> None:
         """Fit the dynamic selector.
 
         Args:
@@ -117,7 +110,7 @@ class DynamicEnsembleSelector:
 
         self._fitted = True
 
-    def select_detectors(self, x: np.ndarray, X_train: np.ndarray) -> List[int]:
+    def select_detectors(self, x: np.ndarray, X_train: np.ndarray) -> list[int]:
         """Select best detectors for a given point.
 
         Args:
@@ -165,7 +158,7 @@ class BayesianEnsemble:
         self.detector_uncertainties = None
         self._fitted = False
 
-    def fit(self, X: np.ndarray, y: np.ndarray, base_detectors: List[Any]) -> None:
+    def fit(self, X: np.ndarray, y: np.ndarray, base_detectors: list[Any]) -> None:
         """Fit Bayesian ensemble weights.
 
         Args:
@@ -228,7 +221,7 @@ class BayesianEnsemble:
 
     def predict_with_uncertainty(
         self, detector_scores: np.ndarray
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Predict with uncertainty quantification.
 
         Args:
@@ -302,7 +295,7 @@ class AdvancedEnsembleAdapter(EnsembleDetectorProtocol):
                 f"Failed to initialize advanced ensemble {self.detector.algorithm_name}: {e}"
             )
 
-    def _create_base_detectors(self, params: Dict[str, Any]) -> List[Any]:
+    def _create_base_detectors(self, params: dict[str, Any]) -> list[Any]:
         """Create base detectors for the ensemble."""
         base_algorithms = params.get(
             "base_algorithms", ["IsolationForest", "LOF", "OneClassSVM"]

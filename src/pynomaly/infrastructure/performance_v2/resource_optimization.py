@@ -4,11 +4,10 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import math
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any
 from uuid import UUID, uuid4
 
 import numpy as np
@@ -87,7 +86,7 @@ class ResourceInstance:
 
     # Cost information
     cost_per_hour: float
-    spot_price: Optional[float] = None
+    spot_price: float | None = None
     reserved_instance: bool = False
 
     # Performance characteristics
@@ -132,7 +131,7 @@ class OptimizationResult:
     timestamp: datetime
 
     # Resource allocation
-    allocated_instances: List[ResourceInstance]
+    allocated_instances: list[ResourceInstance]
     total_cost: float
     total_performance_score: float
     total_carbon_footprint_g: float
@@ -143,7 +142,7 @@ class OptimizationResult:
     carbon_reduction_percent: float = 0.0
 
     # Implementation details
-    scaling_actions: List[Dict[str, Any]] = field(default_factory=list)
+    scaling_actions: list[dict[str, Any]] = field(default_factory=list)
     migration_required: bool = False
     estimated_migration_time_minutes: float = 0.0
 
@@ -163,13 +162,13 @@ class OptimizationResult:
 class DynamicResourceAllocator:
     """Dynamically allocates and deallocates resources based on demand."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.scaling_policy = ScalingPolicy(config.get("scaling_policy", "intelligent"))
 
         # Resource pools
-        self.available_instances: Dict[ResourceProvider, List[ResourceInstance]] = {}
-        self.allocated_instances: Dict[str, ResourceInstance] = {}
+        self.available_instances: dict[ResourceProvider, list[ResourceInstance]] = {}
+        self.allocated_instances: dict[str, ResourceInstance] = {}
 
         # Demand forecasting
         self.demand_predictor = DemandPredictor(config.get("demand_prediction", {}))
@@ -182,7 +181,7 @@ class DynamicResourceAllocator:
         )
 
         # Statistics
-        self.allocation_history: List[Dict[str, Any]] = []
+        self.allocation_history: list[dict[str, Any]] = []
         self.optimization_metrics = {
             "total_allocations": 0,
             "successful_allocations": 0,
@@ -274,7 +273,7 @@ class DynamicResourceAllocator:
                 self.available_instances[provider].append(instance)
 
     async def allocate_resources(
-        self, requirements: List[ResourceSpec], objective: OptimizationObjective
+        self, requirements: list[ResourceSpec], objective: OptimizationObjective
     ) -> OptimizationResult:
         """Allocate resources based on requirements and optimization objective."""
         try:
@@ -335,8 +334,8 @@ class DynamicResourceAllocator:
             raise
 
     async def _optimize_for_energy_efficiency(
-        self, requirements: List[ResourceSpec]
-    ) -> Dict[str, Any]:
+        self, requirements: list[ResourceSpec]
+    ) -> dict[str, Any]:
         """Optimize allocation for energy efficiency."""
         best_allocation = {
             "instances": [],
@@ -364,8 +363,8 @@ class DynamicResourceAllocator:
         return best_allocation
 
     async def _optimize_for_carbon_footprint(
-        self, requirements: List[ResourceSpec]
-    ) -> Dict[str, Any]:
+        self, requirements: list[ResourceSpec]
+    ) -> dict[str, Any]:
         """Optimize allocation for minimal carbon footprint."""
         best_allocation = {
             "instances": [],
@@ -387,8 +386,8 @@ class DynamicResourceAllocator:
         return best_allocation
 
     async def _optimize_balanced(
-        self, requirements: List[ResourceSpec]
-    ) -> Dict[str, Any]:
+        self, requirements: list[ResourceSpec]
+    ) -> dict[str, Any]:
         """Optimize allocation with balanced objectives."""
         best_allocation = {
             "instances": [],
@@ -426,8 +425,8 @@ class DynamicResourceAllocator:
         return best_allocation
 
     async def _try_provider_allocation(
-        self, requirements: List[ResourceSpec], provider: ResourceProvider
-    ) -> Optional[Dict[str, Any]]:
+        self, requirements: list[ResourceSpec], provider: ResourceProvider
+    ) -> dict[str, Any] | None:
         """Try to allocate resources from a specific provider."""
         try:
             available = self.available_instances[provider]
@@ -510,8 +509,8 @@ class DynamicResourceAllocator:
                 await asyncio.sleep(60)
 
     async def _evaluate_scaling_decision(
-        self, current_load: Dict[str, float], predicted_demand: Dict[str, float]
-    ) -> Dict[str, Any]:
+        self, current_load: dict[str, float], predicted_demand: dict[str, float]
+    ) -> dict[str, Any]:
         """Evaluate whether scaling action is needed."""
         if self.scaling_policy == ScalingPolicy.REACTIVE:
             # React to current load
@@ -538,8 +537,8 @@ class DynamicResourceAllocator:
         return {"action": "none"}
 
     async def _intelligent_scaling_decision(
-        self, current_load: Dict[str, float], predicted_demand: Dict[str, float]
-    ) -> Dict[str, Any]:
+        self, current_load: dict[str, float], predicted_demand: dict[str, float]
+    ) -> dict[str, Any]:
         """Make intelligent scaling decision using ML."""
         # Simplified intelligent decision making
         # In practice, this would use sophisticated ML models
@@ -557,7 +556,7 @@ class DynamicResourceAllocator:
 
         return {"action": "none"}
 
-    async def _execute_scaling_action(self, scaling_decision: Dict[str, Any]) -> None:
+    async def _execute_scaling_action(self, scaling_decision: dict[str, Any]) -> None:
         """Execute a scaling action."""
         try:
             action = scaling_decision["action"]
@@ -586,7 +585,7 @@ class DynamicResourceAllocator:
         # Implementation would remove instances or decrease capacity
         logger.info(f"Scaling down {resource_type} by factor {factor}")
 
-    async def get_allocation_status(self) -> Dict[str, Any]:
+    async def get_allocation_status(self) -> dict[str, Any]:
         """Get current allocation status."""
         total_instances = sum(
             len(instances) for instances in self.available_instances.values()
@@ -624,10 +623,10 @@ class DynamicResourceAllocator:
 class DemandPredictor:
     """Predicts future resource demand."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.prediction_window_minutes = config.get("prediction_window", 60)
-        self.historical_data: List[Dict[str, Any]] = []
+        self.historical_data: list[dict[str, Any]] = []
         self.prediction_active = False
 
     async def start_prediction(self) -> None:
@@ -653,7 +652,7 @@ class DemandPredictor:
                 logger.error(f"Demand prediction loop error: {e}")
                 await asyncio.sleep(60)
 
-    async def _collect_current_metrics(self) -> Dict[str, Any]:
+    async def _collect_current_metrics(self) -> dict[str, Any]:
         """Collect current system metrics."""
         return {
             "timestamp": datetime.utcnow(),
@@ -664,7 +663,7 @@ class DemandPredictor:
             "request_rate": np.random.uniform(100, 1000),
         }
 
-    async def predict_demand(self, horizon_minutes: int = 30) -> Dict[str, float]:
+    async def predict_demand(self, horizon_minutes: int = 30) -> dict[str, float]:
         """Predict resource demand for the given horizon."""
         if len(self.historical_data) < 10:
             # Not enough data for prediction
@@ -698,7 +697,7 @@ class DemandPredictor:
 class LoadMonitor:
     """Monitors current system load."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.monitoring_active = False
         self.current_load = {}
@@ -719,7 +718,7 @@ class LoadMonitor:
                 logger.error(f"Load monitoring loop error: {e}")
                 await asyncio.sleep(5)
 
-    async def _collect_load_metrics(self) -> Dict[str, float]:
+    async def _collect_load_metrics(self) -> dict[str, float]:
         """Collect current load metrics."""
         return {
             "cpu_utilization": np.random.uniform(20, 80),
@@ -732,7 +731,7 @@ class LoadMonitor:
             "request_rate": np.random.uniform(100, 1000),
         }
 
-    async def get_current_load(self) -> Dict[str, float]:
+    async def get_current_load(self) -> dict[str, float]:
         """Get current system load."""
         return self.current_load
 
@@ -740,7 +739,7 @@ class LoadMonitor:
 class CostOptimizer:
     """Optimizes resource allocation for cost efficiency."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.spot_instance_preference = config.get("spot_instance_preference", 0.8)
         self.reserved_instance_utilization = config.get(
@@ -749,9 +748,9 @@ class CostOptimizer:
 
     async def optimize_for_cost(
         self,
-        requirements: List[ResourceSpec],
-        available_instances: Dict[ResourceProvider, List[ResourceInstance]],
-    ) -> Dict[str, Any]:
+        requirements: list[ResourceSpec],
+        available_instances: dict[ResourceProvider, list[ResourceInstance]],
+    ) -> dict[str, Any]:
         """Optimize allocation for minimum cost."""
         best_allocation = {
             "instances": [],
@@ -773,10 +772,10 @@ class CostOptimizer:
 
     async def _try_cost_optimized_allocation(
         self,
-        requirements: List[ResourceSpec],
+        requirements: list[ResourceSpec],
         provider: ResourceProvider,
-        instances: List[ResourceInstance],
-    ) -> Optional[Dict[str, Any]]:
+        instances: list[ResourceInstance],
+    ) -> dict[str, Any] | None:
         """Try cost-optimized allocation for a provider."""
         try:
             # Sort instances by cost per unit (ascending)
@@ -841,16 +840,16 @@ class CostOptimizer:
 class PerformanceOptimizer:
     """Optimizes resource allocation for maximum performance."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.performance_weight = config.get("performance_weight", 1.0)
         self.latency_weight = config.get("latency_weight", 0.5)
 
     async def optimize_for_performance(
         self,
-        requirements: List[ResourceSpec],
-        available_instances: Dict[ResourceProvider, List[ResourceInstance]],
-    ) -> Dict[str, Any]:
+        requirements: list[ResourceSpec],
+        available_instances: dict[ResourceProvider, list[ResourceInstance]],
+    ) -> dict[str, Any]:
         """Optimize allocation for maximum performance."""
         best_allocation = {
             "instances": [],
@@ -876,10 +875,10 @@ class PerformanceOptimizer:
 
     async def _try_performance_optimized_allocation(
         self,
-        requirements: List[ResourceSpec],
+        requirements: list[ResourceSpec],
         provider: ResourceProvider,
-        instances: List[ResourceInstance],
-    ) -> Optional[Dict[str, Any]]:
+        instances: list[ResourceInstance],
+    ) -> dict[str, Any] | None:
         """Try performance-optimized allocation for a provider."""
         try:
             # Sort instances by performance score (descending)
@@ -941,7 +940,7 @@ class PerformanceOptimizer:
 class ResourceOptimizationOrchestrator:
     """Main orchestrator for resource optimization."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.allocator = DynamicResourceAllocator(config.get("allocator", {}))
         self.carbon_monitor = CarbonFootprintMonitor(
@@ -967,7 +966,7 @@ class ResourceOptimizationOrchestrator:
             return False
 
     async def optimize_resources(
-        self, requirements: List[ResourceSpec], objective: OptimizationObjective
+        self, requirements: list[ResourceSpec], objective: OptimizationObjective
     ) -> OptimizationResult:
         """Optimize resource allocation."""
         try:
@@ -984,7 +983,7 @@ class ResourceOptimizationOrchestrator:
             logger.error(f"Resource optimization failed: {e}")
             raise
 
-    async def get_optimization_status(self) -> Dict[str, Any]:
+    async def get_optimization_status(self) -> dict[str, Any]:
         """Get comprehensive optimization status."""
         allocation_status = await self.allocator.get_allocation_status()
         carbon_metrics = await self.carbon_monitor.get_carbon_metrics()
@@ -1007,7 +1006,7 @@ class ResourceOptimizationOrchestrator:
 class CarbonFootprintMonitor:
     """Monitors and tracks carbon footprint."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.carbon_tracking = {}
         self.monitoring_active = False
@@ -1022,7 +1021,7 @@ class CarbonFootprintMonitor:
             allocation_result.total_carbon_footprint_g
         )
 
-    async def get_carbon_metrics(self) -> Dict[str, Any]:
+    async def get_carbon_metrics(self) -> dict[str, Any]:
         """Get carbon footprint metrics."""
         total_carbon = sum(self.carbon_tracking.values())
         return {
@@ -1035,7 +1034,7 @@ class CarbonFootprintMonitor:
 class CostTracker:
     """Tracks and analyzes costs."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.cost_tracking = {}
         self.tracking_active = False
@@ -1050,7 +1049,7 @@ class CostTracker:
             allocation_result.total_cost
         )
 
-    async def get_cost_metrics(self) -> Dict[str, Any]:
+    async def get_cost_metrics(self) -> dict[str, Any]:
         """Get cost metrics."""
         total_cost = sum(self.cost_tracking.values())
         return {
@@ -1061,7 +1060,7 @@ class CostTracker:
 
 
 # Example usage and testing
-async def create_sample_resource_requirements() -> List[ResourceSpec]:
+async def create_sample_resource_requirements() -> list[ResourceSpec]:
     """Create sample resource requirements for testing."""
     return [
         ResourceSpec(

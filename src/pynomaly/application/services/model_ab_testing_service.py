@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import random
 from datetime import datetime, timedelta
 from typing import Any
@@ -621,7 +620,6 @@ class ModelABTestingService:
             and ab_test.current_metrics.statistical_significance[metric_name]
             and ab_test.has_sufficient_sample_size()
         ):
-
             # Check effect size
             if metric_name in ab_test.current_metrics.effect_sizes:
                 effect_size = abs(ab_test.current_metrics.effect_sizes[metric_name])

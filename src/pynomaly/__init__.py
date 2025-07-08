@@ -78,9 +78,6 @@ def load_dataset(
         ...     target_column="is_fraud"
         ... )
     """
-    from pathlib import Path
-
-    import pandas as pd
 
     # Load data if path provided
     if isinstance(data, str | Path):

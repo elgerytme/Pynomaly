@@ -11,13 +11,12 @@ This module provides enterprise-grade alerting capabilities:
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set, Union
+from typing import Any
 from uuid import uuid4
 
 import aiohttp
@@ -90,7 +89,7 @@ class ThresholdCondition:
 
     metric_name: str
     operator: str  # >, <, >=, <=, ==, !=
-    value: Union[int, float]
+    value: int | float
     window_minutes: int = 5
     evaluation_frequency: int = 60  # seconds
 
@@ -113,23 +112,23 @@ class AlertRule:
     description: str = ""
 
     # Conditions
-    conditions: List[ThresholdCondition] = field(default_factory=list)
+    conditions: list[ThresholdCondition] = field(default_factory=list)
     condition_logic: str = "AND"  # AND, OR
 
     # Alert properties
     severity: AlertSeverity = AlertSeverity.MEDIUM
-    channels: List[AlertChannel] = field(default_factory=list)
-    tags: Dict[str, str] = field(default_factory=dict)
+    channels: list[AlertChannel] = field(default_factory=list)
+    tags: dict[str, str] = field(default_factory=dict)
 
     # Timing
     enabled: bool = True
     suppress_duration_minutes: int = 60  # Don't re-alert for this period
-    auto_resolve_minutes: Optional[int] = None
+    auto_resolve_minutes: int | None = None
 
     # Escalation
     escalation_enabled: bool = False
     escalation_delay_minutes: int = 30
-    escalation_levels: List[EscalationLevel] = field(default_factory=list)
+    escalation_levels: list[EscalationLevel] = field(default_factory=list)
 
     # Template customization
     title_template: str = "Alert: {{rule_name}}"
@@ -152,29 +151,29 @@ class Alert:
     title: str = ""
     message: str = ""
     severity: AlertSeverity = AlertSeverity.MEDIUM
-    tags: Dict[str, str] = field(default_factory=dict)
+    tags: dict[str, str] = field(default_factory=dict)
 
     # State
     state: AlertState = AlertState.TRIGGERED
     triggered_at: datetime = field(default_factory=datetime.now)
-    acknowledged_at: Optional[datetime] = None
-    resolved_at: Optional[datetime] = None
+    acknowledged_at: datetime | None = None
+    resolved_at: datetime | None = None
 
     # Context
-    triggered_value: Optional[Union[int, float]] = None
-    threshold_value: Optional[Union[int, float]] = None
-    metric_name: Optional[str] = None
+    triggered_value: int | float | None = None
+    threshold_value: int | float | None = None
+    metric_name: str | None = None
 
     # Escalation tracking
-    current_escalation_level: Optional[EscalationLevel] = None
-    escalation_attempts: List[Dict[str, Any]] = field(default_factory=list)
+    current_escalation_level: EscalationLevel | None = None
+    escalation_attempts: list[dict[str, Any]] = field(default_factory=list)
 
     # Notification tracking
-    notifications_sent: List[Dict[str, Any]] = field(default_factory=list)
+    notifications_sent: list[dict[str, Any]] = field(default_factory=list)
 
     # Resolution info
-    resolved_by: Optional[str] = None
-    resolution_note: Optional[str] = None
+    resolved_by: str | None = None
+    resolution_note: str | None = None
 
 
 @dataclass
@@ -186,16 +185,16 @@ class NotificationChannel:
     enabled: bool = True
 
     # Channel-specific configuration
-    config: Dict[str, Any] = field(default_factory=dict)
+    config: dict[str, Any] = field(default_factory=dict)
 
     # Filtering
-    severity_filter: List[AlertSeverity] = field(default_factory=list)
-    tag_filters: Dict[str, str] = field(default_factory=dict)
+    severity_filter: list[AlertSeverity] = field(default_factory=list)
+    tag_filters: dict[str, str] = field(default_factory=dict)
 
     # Rate limiting
-    rate_limit_per_hour: Optional[int] = None
-    quiet_hours_start: Optional[str] = None  # "22:00"
-    quiet_hours_end: Optional[str] = None  # "08:00"
+    rate_limit_per_hour: int | None = None
+    quiet_hours_start: str | None = None  # "22:00"
+    quiet_hours_end: str | None = None  # "08:00"
 
 
 @dataclass
@@ -207,7 +206,7 @@ class OnCallSchedule:
 
     # Rotation settings
     rotation_type: str = "weekly"  # daily, weekly, monthly
-    team_members: List[str] = field(default_factory=list)
+    team_members: list[str] = field(default_factory=list)
 
     # Schedule configuration
     start_date: datetime = field(default_factory=datetime.now)
@@ -215,10 +214,10 @@ class OnCallSchedule:
     handoff_time: str = "09:00"  # Daily handoff time
 
     # Escalation paths
-    escalation_mapping: Dict[EscalationLevel, List[str]] = field(default_factory=dict)
+    escalation_mapping: dict[EscalationLevel, list[str]] = field(default_factory=dict)
 
     # Override settings
-    overrides: List[Dict[str, Any]] = field(
+    overrides: list[dict[str, Any]] = field(
         default_factory=list
     )  # Vacation, holidays, etc.
 
@@ -226,12 +225,12 @@ class OnCallSchedule:
 class NotificationProvider(ABC):
     """Abstract base class for notification providers."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
 
     @abstractmethod
     async def send_notification(
-        self, alert: Alert, recipients: List[str], template_data: Dict[str, Any]
+        self, alert: Alert, recipients: list[str], template_data: dict[str, Any]
     ) -> bool:
         """Send notification for an alert."""
         pass
@@ -246,7 +245,7 @@ class EmailNotificationProvider(NotificationProvider):
     """Email notification provider."""
 
     async def send_notification(
-        self, alert: Alert, recipients: List[str], template_data: Dict[str, Any]
+        self, alert: Alert, recipients: list[str], template_data: dict[str, Any]
     ) -> bool:
         """Send email notification."""
         try:
@@ -277,13 +276,13 @@ class EmailNotificationProvider(NotificationProvider):
                 <p><strong>Severity:</strong> {{ alert.severity.value.upper() }}</p>
                 <p><strong>Triggered At:</strong> {{ alert.triggered_at.strftime('%Y-%m-%d %H:%M:%S UTC') }}</p>
                 <p><strong>Message:</strong> {{ alert.message }}</p>
-                
+
                 {% if alert.metric_name %}
                 <p><strong>Metric:</strong> {{ alert.metric_name }}</p>
                 <p><strong>Current Value:</strong> {{ alert.triggered_value }}</p>
                 <p><strong>Threshold:</strong> {{ alert.threshold_value }}</p>
                 {% endif %}
-                
+
                 {% if alert.tags %}
                 <h3>Tags:</h3>
                 <ul>
@@ -292,7 +291,7 @@ class EmailNotificationProvider(NotificationProvider):
                 {% endfor %}
                 </ul>
                 {% endif %}
-                
+
                 <p><em>Alert ID: {{ alert.alert_id }}</em></p>
             </body>
             </html>
@@ -340,7 +339,7 @@ class SMSNotificationProvider(NotificationProvider):
     """SMS notification provider using Twilio."""
 
     async def send_notification(
-        self, alert: Alert, recipients: List[str], template_data: Dict[str, Any]
+        self, alert: Alert, recipients: list[str], template_data: dict[str, Any]
     ) -> bool:
         """Send SMS notification."""
         try:
@@ -415,12 +414,12 @@ class SMSNotificationProvider(NotificationProvider):
 class SlackNotificationProvider(NotificationProvider):
     """Slack notification provider."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         super().__init__(config)
-        self.session: Optional[aiohttp.ClientSession] = None
+        self.session: aiohttp.ClientSession | None = None
 
     async def send_notification(
-        self, alert: Alert, recipients: List[str], template_data: Dict[str, Any]
+        self, alert: Alert, recipients: list[str], template_data: dict[str, Any]
     ) -> bool:
         """Send Slack notification."""
         try:
@@ -538,12 +537,12 @@ class SlackNotificationProvider(NotificationProvider):
 class WebhookNotificationProvider(NotificationProvider):
     """Generic webhook notification provider."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         super().__init__(config)
-        self.session: Optional[aiohttp.ClientSession] = None
+        self.session: aiohttp.ClientSession | None = None
 
     async def send_notification(
-        self, alert: Alert, recipients: List[str], template_data: Dict[str, Any]
+        self, alert: Alert, recipients: list[str], template_data: dict[str, Any]
     ) -> bool:
         """Send webhook notification."""
         try:
@@ -630,28 +629,28 @@ class AdvancedAlertingService:
     """Enterprise-grade alerting service with intelligent features."""
 
     def __init__(self):
-        self.alert_rules: Dict[str, AlertRule] = {}
-        self.active_alerts: Dict[str, Alert] = {}
-        self.notification_channels: Dict[str, NotificationChannel] = {}
-        self.notification_providers: Dict[AlertChannel, NotificationProvider] = {}
-        self.on_call_schedules: Dict[str, OnCallSchedule] = {}
+        self.alert_rules: dict[str, AlertRule] = {}
+        self.active_alerts: dict[str, Alert] = {}
+        self.notification_channels: dict[str, NotificationChannel] = {}
+        self.notification_providers: dict[AlertChannel, NotificationProvider] = {}
+        self.on_call_schedules: dict[str, OnCallSchedule] = {}
 
         # Alert correlation and suppression
-        self.suppressed_alerts: Set[str] = set()
-        self.alert_correlation_rules: List[Dict[str, Any]] = []
+        self.suppressed_alerts: set[str] = set()
+        self.alert_correlation_rules: list[dict[str, Any]] = []
 
         # Metrics for threshold adjustment
-        self.metric_history: Dict[str, List[tuple]] = (
-            {}
-        )  # metric_name -> [(timestamp, value)]
-        self.dynamic_thresholds: Dict[str, Dict[str, float]] = (
-            {}
-        )  # metric_name -> {mean, std, threshold}
+        self.metric_history: dict[
+            str, list[tuple]
+        ] = {}  # metric_name -> [(timestamp, value)]
+        self.dynamic_thresholds: dict[
+            str, dict[str, float]
+        ] = {}  # metric_name -> {mean, std, threshold}
 
         # Background tasks
-        self._evaluation_task: Optional[asyncio.Task] = None
-        self._escalation_task: Optional[asyncio.Task] = None
-        self._cleanup_task: Optional[asyncio.Task] = None
+        self._evaluation_task: asyncio.Task | None = None
+        self._escalation_task: asyncio.Task | None = None
+        self._cleanup_task: asyncio.Task | None = None
 
     async def initialize(self) -> None:
         """Initialize the alerting service."""
@@ -708,8 +707,8 @@ class AdvancedAlertingService:
         )
 
     def _create_notification_provider(
-        self, channel_type: AlertChannel, config: Dict[str, Any]
-    ) -> Optional[NotificationProvider]:
+        self, channel_type: AlertChannel, config: dict[str, Any]
+    ) -> NotificationProvider | None:
         """Create notification provider instance."""
         try:
             if channel_type == AlertChannel.EMAIL:
@@ -729,7 +728,7 @@ class AdvancedAlertingService:
             )
             return None
 
-    async def record_metric(self, metric_name: str, value: Union[int, float]) -> None:
+    async def record_metric(self, metric_name: str, value: int | float) -> None:
         """Record metric value for threshold evaluation."""
         timestamp = datetime.now()
 
@@ -778,7 +777,7 @@ class AdvancedAlertingService:
         }
 
     async def _evaluate_metric_alerts(
-        self, metric_name: str, value: Union[int, float]
+        self, metric_name: str, value: int | float
     ) -> None:
         """Evaluate alert rules for a specific metric."""
         for rule in self.alert_rules.values():
@@ -815,7 +814,7 @@ class AdvancedAlertingService:
         self,
         condition: ThresholdCondition,
         metric_name: str,
-        current_value: Union[int, float],
+        current_value: int | float,
     ) -> bool:
         """Evaluate a single threshold condition."""
 
@@ -847,7 +846,7 @@ class AdvancedAlertingService:
         return False
 
     async def _trigger_alert(
-        self, rule: AlertRule, metric_name: str, triggered_value: Union[int, float]
+        self, rule: AlertRule, metric_name: str, triggered_value: int | float
     ) -> None:
         """Trigger an alert for a rule."""
 
@@ -949,7 +948,7 @@ class AdvancedAlertingService:
             except Exception as e:
                 logger.error(f"Failed to send notification via {channel_type}: {e}")
 
-    def _get_recipients(self, channel: NotificationChannel, alert: Alert) -> List[str]:
+    def _get_recipients(self, channel: NotificationChannel, alert: Alert) -> list[str]:
         """Get notification recipients based on on-call schedule and escalation level."""
 
         # For now, return recipients from channel config
@@ -980,7 +979,7 @@ class AdvancedAlertingService:
 
         asyncio.create_task(remove_suppression())
 
-    def _find_existing_alert(self, rule_id: str) -> Optional[Alert]:
+    def _find_existing_alert(self, rule_id: str) -> Alert | None:
         """Find existing alert for a rule."""
         for alert in self.active_alerts.values():
             if alert.rule_id == rule_id and alert.state == AlertState.TRIGGERED:
@@ -1015,7 +1014,7 @@ class AdvancedAlertingService:
         return True
 
     async def resolve_alert(
-        self, alert_id: str, resolved_by: str, resolution_note: Optional[str] = None
+        self, alert_id: str, resolved_by: str, resolution_note: str | None = None
     ) -> bool:
         """Resolve an alert."""
         alert = self.active_alerts.get(alert_id)
@@ -1102,9 +1101,9 @@ class AdvancedAlertingService:
 
     def _get_next_escalation_level(
         self,
-        current_level: Optional[EscalationLevel],
-        available_levels: List[EscalationLevel],
-    ) -> Optional[EscalationLevel]:
+        current_level: EscalationLevel | None,
+        available_levels: list[EscalationLevel],
+    ) -> EscalationLevel | None:
         """Get the next escalation level."""
 
         if not available_levels:
@@ -1171,7 +1170,7 @@ class AdvancedAlertingService:
             except Exception as e:
                 logger.error(f"Error in cleanup task: {e}")
 
-    def get_alert_statistics(self) -> Dict[str, Any]:
+    def get_alert_statistics(self) -> dict[str, Any]:
         """Get alerting system statistics."""
         stats = {
             "total_rules": len(self.alert_rules),
@@ -1230,7 +1229,7 @@ async def create_anomaly_detection_alert_rule(
         description=f"Anomaly rate exceeds {threshold_rate*100}% for detector {detector_name}",
         conditions=[
             ThresholdCondition(
-                metric_name=f"anomaly.rate.percent",
+                metric_name="anomaly.rate.percent",
                 operator=">",
                 value=threshold_rate * 100,
                 window_minutes=5,

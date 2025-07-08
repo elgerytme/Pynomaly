@@ -7,7 +7,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 from uuid import UUID, uuid4
 
 import numpy as np
@@ -100,7 +100,7 @@ class VisualizationConfig:
     # Styling
     plot_style: PlotStyle = PlotStyle.DEFAULT
     color_palette: str = "viridis"
-    figure_size: Tuple[int, int] = (12, 8)
+    figure_size: tuple[int, int] = (12, 8)
     dpi: int = 300
 
     # Interactive features
@@ -130,14 +130,14 @@ class VisualizationConfig:
 class PlotData:
     """Container for plot data and metadata."""
 
-    x_data: Optional[np.ndarray] = None
-    y_data: Optional[np.ndarray] = None
-    z_data: Optional[np.ndarray] = None
-    colors: Optional[np.ndarray] = None
-    sizes: Optional[np.ndarray] = None
-    labels: Optional[List[str]] = None
-    hover_text: Optional[List[str]] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    x_data: np.ndarray | None = None
+    y_data: np.ndarray | None = None
+    z_data: np.ndarray | None = None
+    colors: np.ndarray | None = None
+    sizes: np.ndarray | None = None
+    labels: list[str] | None = None
+    hover_text: list[str] | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -147,19 +147,19 @@ class VisualizationResult:
     plot_id: UUID
     plot_type: VisualizationType
     title: str
-    html_content: Optional[str] = None
-    json_data: Optional[Dict[str, Any]] = None
-    file_path: Optional[str] = None
-    thumbnail_path: Optional[str] = None
+    html_content: str | None = None
+    json_data: dict[str, Any] | None = None
+    file_path: str | None = None
+    thumbnail_path: str | None = None
     interactive: bool = True
     created_at: datetime = field(default_factory=datetime.utcnow)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class VisualizationService:
     """Advanced visualization service for anomaly detection."""
 
-    def __init__(self, config: Optional[VisualizationConfig] = None):
+    def __init__(self, config: VisualizationConfig | None = None):
         """Initialize visualization service.
 
         Args:
@@ -169,7 +169,7 @@ class VisualizationService:
         self.logger = logging.getLogger(__name__)
 
         # Visualization cache
-        self._plot_cache: Dict[str, VisualizationResult] = {}
+        self._plot_cache: dict[str, VisualizationResult] = {}
 
         # Check library availability
         if not PLOTLY_AVAILABLE and not MATPLOTLIB_AVAILABLE:
@@ -201,8 +201,8 @@ class VisualizationService:
         self,
         data: np.ndarray,
         anomaly_scores: np.ndarray,
-        labels: Optional[np.ndarray] = None,
-        feature_names: Optional[List[str]] = None,
+        labels: np.ndarray | None = None,
+        feature_names: list[str] | None = None,
         title: str = "Anomaly Detection Results",
         use_3d: bool = False,
     ) -> VisualizationResult:
@@ -267,10 +267,10 @@ class VisualizationService:
 
     async def create_time_series_plot(
         self,
-        timestamps: List[datetime],
+        timestamps: list[datetime],
         values: np.ndarray,
-        anomaly_indices: Optional[List[int]] = None,
-        anomaly_scores: Optional[np.ndarray] = None,
+        anomaly_indices: list[int] | None = None,
+        anomaly_scores: np.ndarray | None = None,
         title: str = "Time Series Anomaly Detection",
     ) -> VisualizationResult:
         """Create time series plot with anomaly highlighting.
@@ -392,8 +392,8 @@ class VisualizationService:
 
     async def create_feature_importance_plot(
         self,
-        feature_names: List[str],
-        importances: List[float],
+        feature_names: list[str],
+        importances: list[float],
         title: str = "Feature Importance",
         top_k: int = 20,
     ) -> VisualizationResult:
@@ -469,7 +469,7 @@ class VisualizationService:
     async def create_correlation_heatmap(
         self,
         data: np.ndarray,
-        feature_names: Optional[List[str]] = None,
+        feature_names: list[str] | None = None,
         title: str = "Feature Correlation Heatmap",
     ) -> VisualizationResult:
         """Create correlation heatmap.
@@ -559,8 +559,8 @@ class VisualizationService:
     async def create_anomaly_score_distribution(
         self,
         scores: np.ndarray,
-        threshold: Optional[float] = None,
-        labels: Optional[np.ndarray] = None,
+        threshold: float | None = None,
+        labels: np.ndarray | None = None,
         title: str = "Anomaly Score Distribution",
     ) -> VisualizationResult:
         """Create histogram of anomaly scores.
@@ -666,8 +666,8 @@ class VisualizationService:
 
     async def create_ensemble_comparison_plot(
         self,
-        ensemble_results: Dict[str, np.ndarray],
-        ground_truth: Optional[np.ndarray] = None,
+        ensemble_results: dict[str, np.ndarray],
+        ground_truth: np.ndarray | None = None,
         title: str = "Ensemble Method Comparison",
     ) -> VisualizationResult:
         """Create comparison plot for ensemble methods.
@@ -812,9 +812,9 @@ class VisualizationService:
 
     async def create_dashboard(
         self,
-        detection_results: List[DetectionResult],
-        datasets: List[Dataset],
-        detectors: List[Detector],
+        detection_results: list[DetectionResult],
+        datasets: list[Dataset],
+        detectors: list[Detector],
         title: str = "Anomaly Detection Dashboard",
     ) -> VisualizationResult:
         """Create comprehensive dashboard.
@@ -1024,7 +1024,9 @@ class VisualizationService:
                             "color": (
                                 "green"
                                 if health_score > 80
-                                else "orange" if health_score > 60 else "red"
+                                else "orange"
+                                if health_score > 60
+                                else "red"
                             )
                         },
                         "steps": [
@@ -1061,7 +1063,7 @@ class VisualizationService:
                             align="left",
                         ),
                         cells=dict(
-                            values=list(zip(*recent_activity)),
+                            values=list(zip(*recent_activity, strict=False)),
                             fill_color="lavender",
                             align="left",
                         ),
@@ -1104,7 +1106,7 @@ class VisualizationService:
         self,
         data: np.ndarray,
         anomaly_scores: np.ndarray,
-        labels: Optional[np.ndarray] = None,
+        labels: np.ndarray | None = None,
         use_3d: bool = False,
     ) -> PlotData:
         """Prepare data for scatter plot."""
@@ -1159,6 +1161,7 @@ class VisualizationService:
             for score, label in zip(
                 anomaly_scores,
                 labels if labels is not None else [None] * len(anomaly_scores),
+                strict=False,
             )
         ]
 
@@ -1282,7 +1285,7 @@ class VisualizationService:
     async def save_visualization(
         self,
         result: VisualizationResult,
-        filename: Optional[str] = None,
+        filename: str | None = None,
     ) -> str:
         """Save visualization to file.
 
@@ -1324,7 +1327,7 @@ class VisualizationService:
 
     async def get_cached_visualization(
         self, cache_key: str
-    ) -> Optional[VisualizationResult]:
+    ) -> VisualizationResult | None:
         """Get cached visualization result.
 
         Args:

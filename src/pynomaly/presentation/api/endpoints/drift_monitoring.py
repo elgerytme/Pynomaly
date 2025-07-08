@@ -1,8 +1,6 @@
 """API endpoints for data drift detection and model degradation monitoring."""
 
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Union
-from uuid import UUID
+from typing import Any
 
 import numpy as np
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
@@ -19,12 +17,9 @@ from pynomaly.domain.entities.drift_detection import (
     DriftMonitoringStatus,
     DriftReport,
     DriftSeverity,
-    DriftType,
     ModelMonitoringConfig,
-    MonitoringStatus,
 )
 from pynomaly.presentation.api.docs.response_models import (
-    ErrorResponse,
     HTTPResponses,
     SuccessResponse,
 )
@@ -46,12 +41,12 @@ router = APIRouter(
 class DriftCheckRequest(BaseModel):
     """Request for performing drift check."""
 
-    reference_data: List[List[float]] = Field(..., description="Reference dataset")
-    current_data: List[List[float]] = Field(
+    reference_data: list[list[float]] = Field(..., description="Reference dataset")
+    current_data: list[list[float]] = Field(
         ..., description="Current dataset to compare"
     )
-    feature_names: Optional[List[str]] = Field(None, description="Feature names")
-    detection_methods: Optional[List[str]] = Field(
+    feature_names: list[str] | None = Field(None, description="Feature names")
+    detection_methods: list[str] | None = Field(
         default=["kolmogorov_smirnov", "jensen_shannon", "population_stability_index"],
         description="Detection methods to use",
     )
@@ -60,10 +55,10 @@ class DriftCheckRequest(BaseModel):
 class PerformanceDriftRequest(BaseModel):
     """Request for performance drift check."""
 
-    reference_metrics: Dict[str, float] = Field(
+    reference_metrics: dict[str, float] = Field(
         ..., description="Reference performance metrics"
     )
-    current_metrics: Dict[str, float] = Field(
+    current_metrics: dict[str, float] = Field(
         ..., description="Current performance metrics"
     )
     threshold: float = Field(
@@ -86,12 +81,12 @@ class MonitoringConfigRequest(BaseModel):
         default=100, description="Minimum sample size for checks"
     )
 
-    enabled_methods: List[str] = Field(
+    enabled_methods: list[str] = Field(
         default=["kolmogorov_smirnov", "jensen_shannon", "population_stability_index"],
         description="Drift detection methods to enable",
     )
 
-    drift_thresholds: Dict[str, float] = Field(
+    drift_thresholds: dict[str, float] = Field(
         default={
             "ks_statistic": 0.2,
             "js_divergence": 0.1,
@@ -101,18 +96,18 @@ class MonitoringConfigRequest(BaseModel):
         description="Drift detection thresholds",
     )
 
-    alert_on_severity: List[str] = Field(
+    alert_on_severity: list[str] = Field(
         default=["high", "critical"], description="Severity levels that trigger alerts"
     )
-    notification_channels: List[str] = Field(
+    notification_channels: list[str] = Field(
         default=[], description="Notification channels (email, slack, webhook)"
     )
     max_alerts_per_day: int = Field(default=10, description="Maximum alerts per day")
 
-    features_to_monitor: List[str] = Field(
+    features_to_monitor: list[str] = Field(
         default=[], description="Specific features to monitor"
     )
-    exclude_features: List[str] = Field(
+    exclude_features: list[str] = Field(
         default=[], description="Features to exclude from monitoring"
     )
 
@@ -138,25 +133,25 @@ async def get_drift_monitoring_use_case() -> DriftMonitoringUseCase:
     summary="Perform Drift Check",
     description="""
     Perform immediate data drift check for a specific detector.
-    
+
     **Drift Detection Methods:**
     - **Kolmogorov-Smirnov**: Statistical test for distribution differences
-    - **Jensen-Shannon**: Divergence measure for probability distributions  
+    - **Jensen-Shannon**: Divergence measure for probability distributions
     - **Population Stability Index**: Measure categorical feature drift
-    
+
     **Detection Process:**
     1. Compare reference and current datasets
     2. Apply selected statistical tests
     3. Calculate feature-level drift scores
     4. Determine overall drift severity
     5. Generate actionable recommendations
-    
+
     **Severity Levels:**
     - `low`: Minor drift, continue monitoring
     - `medium`: Moderate drift, investigate further
     - `high`: Significant drift, consider action
     - `critical`: Severe drift, immediate intervention required
-    
+
     **Example Request:**
     ```json
     {
@@ -215,27 +210,27 @@ async def perform_drift_check(
     summary="Check Performance Drift",
     description="""
     Check for performance drift by comparing performance metrics.
-    
+
     **Performance Metrics Monitored:**
     - **Accuracy**: Overall model accuracy
     - **Precision**: Precision for each class
     - **Recall**: Recall for each class
     - **F1-Score**: F1 score for each class
     - **AUC**: Area under ROC curve
-    
+
     **Drift Detection:**
     - Compares current metrics against reference baseline
     - Identifies statistically significant performance drops
     - Calculates relative and absolute metric changes
     - Determines if changes exceed configured thresholds
-    
+
     **Common Causes of Performance Drift:**
     - Data distribution changes (covariate shift)
     - Concept drift (relationship changes)
     - Data quality degradation
     - Seasonal patterns in data
     - Model staleness over time
-    
+
     **Example Request:**
     ```json
     {
@@ -293,28 +288,28 @@ async def check_performance_drift(
     summary="Configure Drift Monitoring",
     description="""
     Configure automated drift monitoring for a detector.
-    
+
     **Monitoring Features:**
     - **Scheduled Checks**: Automatic drift detection at configured intervals
     - **Multi-Method Detection**: Combine multiple statistical tests
     - **Threshold Management**: Configurable sensitivity for each method
     - **Alert Management**: Automated alerts based on severity levels
     - **Notification Integration**: Email, Slack, webhook notifications
-    
+
     **Configuration Options:**
     - **Check Interval**: How often to perform drift checks (hours)
     - **Data Windows**: Size of reference and comparison datasets
     - **Detection Methods**: Which statistical tests to apply
     - **Alert Thresholds**: When to trigger notifications
     - **Feature Selection**: Monitor all or specific features
-    
+
     **Monitoring Lifecycle:**
     1. **Setup**: Configure monitoring parameters
     2. **Active**: Continuously monitor for drift
     3. **Alert**: Notify when drift exceeds thresholds
     4. **Action**: Take corrective measures
     5. **Review**: Analyze drift patterns and adjust
-    
+
     **Best Practices:**
     - Start with conservative thresholds and adjust based on experience
     - Monitor critical features more frequently
@@ -377,19 +372,19 @@ async def configure_monitoring(
     summary="Get Monitoring Status",
     description="""
     Get current drift monitoring status for a detector.
-    
+
     **Status Information:**
     - **Current State**: Active, paused, stopped, error
     - **Check History**: Number of checks performed, last check time
     - **Drift Summary**: Recent drift detections, health score
     - **Error Information**: Consecutive failures, last error details
-    
+
     **Health Score Calculation:**
     - Starts at 1.0 (perfect health)
     - Decreases with drift detections (weighted by severity)
     - Gradually improves when no drift detected
     - Range: 0.0 (critical) to 1.0 (healthy)
-    
+
     **Status Monitoring:**
     - Use this endpoint to monitor system health
     - Track drift detection patterns over time
@@ -434,13 +429,13 @@ async def get_monitoring_status(
     summary="Pause Monitoring",
     description="""
     Temporarily pause drift monitoring for a detector.
-    
+
     **Pause Effects:**
     - Stops scheduled drift checks
     - Preserves monitoring configuration
     - Maintains historical data and status
     - Can be resumed without reconfiguration
-    
+
     **Use Cases:**
     - Temporary maintenance windows
     - Known data quality issues
@@ -480,7 +475,7 @@ async def pause_monitoring(
     summary="Resume Monitoring",
     description="""
     Resume paused drift monitoring for a detector.
-    
+
     **Resume Effects:**
     - Restarts scheduled drift checks
     - Uses existing monitoring configuration
@@ -520,7 +515,7 @@ async def resume_monitoring(
     summary="Stop Monitoring",
     description="""
     Stop drift monitoring for a detector completely.
-    
+
     **Stop Effects:**
     - Terminates all monitoring activities
     - Preserves historical data and alerts
@@ -556,11 +551,11 @@ async def stop_monitoring(
 
 @router.get(
     "/monitoring/active",
-    response_model=SuccessResponse[List[str]],
+    response_model=SuccessResponse[list[str]],
     summary="List Active Monitors",
     description="""
     List all detectors with active drift monitoring.
-    
+
     **Response Includes:**
     - Detector IDs with active monitoring
     - Current monitoring status summary
@@ -569,7 +564,7 @@ async def stop_monitoring(
 )
 async def list_active_monitors(
     use_case: DriftMonitoringUseCase = Depends(get_drift_monitoring_use_case),
-) -> SuccessResponse[List[str]]:
+) -> SuccessResponse[list[str]]:
     """List all actively monitored detectors."""
     try:
         active_monitors = await use_case.list_active_monitors()
@@ -587,23 +582,23 @@ async def list_active_monitors(
 
 @router.get(
     "/alerts",
-    response_model=SuccessResponse[List[DriftAlert]],
+    response_model=SuccessResponse[list[DriftAlert]],
     summary="Get Drift Alerts",
     description="""
     Retrieve drift alerts with optional filtering.
-    
+
     **Filter Options:**
     - **Detector ID**: Get alerts for specific detector
     - **Severity**: Filter by alert severity level
     - **Active Only**: Show only unresolved alerts
     - **Time Range**: Alerts within specific period
-    
+
     **Alert Lifecycle:**
     1. **Triggered**: Alert created when drift detected
     2. **Acknowledged**: Human acknowledges alert
     3. **Investigating**: Action being taken
     4. **Resolved**: Issue addressed and alert closed
-    
+
     **Alert Information:**
     - Drift type and severity
     - Affected features and metrics
@@ -612,12 +607,12 @@ async def list_active_monitors(
     """,
 )
 async def get_drift_alerts(
-    detector_id: Optional[str] = Query(None, description="Filter by detector ID"),
-    severity: Optional[str] = Query(None, description="Filter by severity"),
+    detector_id: str | None = Query(None, description="Filter by detector ID"),
+    severity: str | None = Query(None, description="Filter by severity"),
     active_only: bool = Query(True, description="Only return active alerts"),
     limit: int = Query(100, description="Maximum number of alerts"),
     use_case: DriftMonitoringUseCase = Depends(get_drift_monitoring_use_case),
-) -> SuccessResponse[List[DriftAlert]]:
+) -> SuccessResponse[list[DriftAlert]]:
     """Get drift alerts with optional filtering."""
     try:
         severity_filter = DriftSeverity(severity) if severity else None
@@ -647,7 +642,7 @@ async def get_drift_alerts(
     summary="Acknowledge Alert",
     description="""
     Acknowledge a drift alert to indicate it's being addressed.
-    
+
     **Acknowledgment Process:**
     - Records who acknowledged the alert
     - Timestamps the acknowledgment
@@ -686,13 +681,13 @@ async def acknowledge_alert(
     summary="Resolve Alert",
     description="""
     Resolve a drift alert after taking corrective action.
-    
+
     **Resolution Process:**
     - Records resolution action taken
     - Timestamps the resolution
     - Marks alert as inactive/resolved
     - Documents the solution for future reference
-    
+
     **Common Resolution Actions:**
     - Model retraining with recent data
     - Data pipeline fixes
@@ -730,21 +725,21 @@ async def resolve_alert(
     summary="Generate Drift Report",
     description="""
     Generate comprehensive drift monitoring report for a detector.
-    
+
     **Report Contents:**
     - **Executive Summary**: Overall drift status and trends
     - **Detection History**: Timeline of drift events
     - **Feature Analysis**: Most affected features and patterns
     - **Performance Impact**: Correlation with model performance
     - **Recommendations**: Actionable insights and next steps
-    
+
     **Report Metrics:**
     - Drift detection rate over time
     - Feature-level drift patterns
     - Alert frequency and resolution times
     - System health trends
     - Comparative analysis across detectors
-    
+
     **Use Cases:**
     - Monthly/quarterly model reviews
     - Regulatory compliance reporting
@@ -780,22 +775,22 @@ async def generate_drift_report(
 
 @router.get(
     "/system/health",
-    response_model=SuccessResponse[Dict[str, Any]],
+    response_model=SuccessResponse[dict[str, Any]],
     summary="Get System Health",
     description="""
     Get overall drift monitoring system health and status.
-    
+
     **Health Indicators:**
     - **Active Monitors**: Number of detectors being monitored
     - **System Status**: Overall health (healthy, degraded, error)
     - **Recent Activity**: Drift detections, alerts, resolutions
     - **Performance**: Average health scores, error rates
-    
+
     **Health Scoring:**
     - Healthy: All monitors functioning, low drift rates
     - Degraded: Some issues detected, monitoring continues
     - Error: Critical failures, immediate attention needed
-    
+
     **Monitoring Dashboard:**
     Use this endpoint to build real-time monitoring dashboards
     showing the overall health of your drift detection system.
@@ -803,7 +798,7 @@ async def generate_drift_report(
 )
 async def get_system_health(
     use_case: DriftMonitoringUseCase = Depends(get_drift_monitoring_use_case),
-) -> SuccessResponse[Dict[str, Any]]:
+) -> SuccessResponse[dict[str, Any]]:
     """Get overall drift monitoring system health."""
     try:
         health = await use_case.get_system_health()

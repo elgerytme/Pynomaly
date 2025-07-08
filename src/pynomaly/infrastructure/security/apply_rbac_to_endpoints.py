@@ -2,16 +2,14 @@
 Script to apply RBAC to all API endpoints and ensure privilege escalation prevention.
 
 This script:
-1. Identifies all API endpoints that need RBAC 
+1. Identifies all API endpoints that need RBAC
 2. Updates them to use the enhanced RBAC middleware
 3. Ensures proper error responses (401 vs 403)
 4. Removes any simplistic security checks
 """
 
-import os
 import re
 from pathlib import Path
-from typing import Dict, List
 
 # Mapping of endpoint types to required permissions/roles
 ENDPOINT_RBAC_MAPPING = {
@@ -65,7 +63,7 @@ ENDPOINT_RBAC_MAPPING = {
 }
 
 
-def find_endpoint_files() -> List[Path]:
+def find_endpoint_files() -> list[Path]:
     """Find all endpoint files."""
     endpoint_dir = Path(
         "C:/Users/andre/Pynomaly/src/pynomaly/presentation/api/endpoints"
@@ -73,7 +71,7 @@ def find_endpoint_files() -> List[Path]:
     return list(endpoint_dir.glob("*.py"))
 
 
-def analyze_endpoint_file(file_path: Path) -> Dict[str, List[str]]:
+def analyze_endpoint_file(file_path: Path) -> dict[str, list[str]]:
     """Analyze an endpoint file to identify functions and their current auth."""
     content = file_path.read_text()
 
@@ -195,7 +193,7 @@ def apply_rbac_to_file(file_path: Path) -> bool:
         old_content = content
         content = remove_simplistic_checks(content)
         if content != old_content:
-            print(f"  Removed simplistic auth checks")
+            print("  Removed simplistic auth checks")
             updated = True
 
         if updated:

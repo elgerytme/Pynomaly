@@ -99,7 +99,7 @@ class EChartsDemo {
             </select>
           </label>
         </div>
-        
+
         <div class="control-group">
           <h3>Theme</h3>
           <button id="echarts-theme-toggle" class="btn btn-secondary">Switch to Dark</button>
@@ -107,13 +107,13 @@ class EChartsDemo {
             <input type="checkbox" id="echarts-high-contrast" /> High Contrast
           </label>
         </div>
-        
+
         <div class="control-group">
           <h3>Chart Controls</h3>
           <button id="echarts-refresh-data" class="btn btn-secondary">Refresh Data</button>
           <button id="echarts-export-charts" class="btn btn-secondary">Export Charts</button>
         </div>
-        
+
         <div class="control-group">
           <h3>Performance</h3>
           <label>
@@ -126,7 +126,7 @@ class EChartsDemo {
             </select>
           </label>
         </div>
-        
+
         <div class="control-group">
           <h3>Anomaly Charts</h3>
           <label>
@@ -138,7 +138,7 @@ class EChartsDemo {
             </select>
           </label>
         </div>
-        
+
         <div class="control-group">
           <h3>Timeline</h3>
           <label>
@@ -153,7 +153,7 @@ class EChartsDemo {
           </label>
         </div>
       </div>
-      
+
       <div id="echarts-announcer" aria-live="polite" class="sr-only"></div>
     `;
   }
@@ -173,7 +173,7 @@ class EChartsDemo {
       <div class="demo-section">
         <h2>Performance Metrics Chart</h2>
         <p>Real-time system performance monitoring with CPU, memory, network, and disk utilization metrics.</p>
-        
+
         <div class="chart-controls">
           <label>
             <input type="checkbox" id="performance-animation" checked /> Enable Animations
@@ -188,9 +188,9 @@ class EChartsDemo {
           </label>
           <button id="performance-reset" class="btn btn-sm">Reset Data</button>
         </div>
-        
+
         <div id="performance-chart" class="chart-container" style="height: 400px;"></div>
-        
+
         <div class="chart-info">
           <h4>Features:</h4>
           <ul>
@@ -278,7 +278,7 @@ class EChartsDemo {
       <div class="demo-section">
         <h2>Anomaly Distribution Analysis</h2>
         <p>Statistical visualization of detected anomalies by type, confidence level, and distribution patterns.</p>
-        
+
         <div class="chart-controls">
           <label>
             Chart Type:
@@ -293,9 +293,9 @@ class EChartsDemo {
           </label>
           <button id="distribution-randomize" class="btn btn-sm">Randomize Data</button>
         </div>
-        
+
         <div id="anomaly-distribution-chart" class="chart-container" style="height: 400px;"></div>
-        
+
         <div class="stats-panel">
           <h4>Statistics:</h4>
           <div id="distribution-stats">
@@ -313,7 +313,7 @@ class EChartsDemo {
             </div>
           </div>
         </div>
-        
+
         <div class="chart-info">
           <h4>Chart Types:</h4>
           <ul>
@@ -417,7 +417,7 @@ class EChartsDemo {
       <div class="demo-section">
         <h2>Detection Timeline</h2>
         <p>Chronological visualization of anomaly detection events with severity indicators and time-based analysis.</p>
-        
+
         <div class="chart-controls">
           <label>
             Time Range:
@@ -434,9 +434,9 @@ class EChartsDemo {
           </label>
           <button id="timeline-refresh" class="btn btn-sm">Refresh Timeline</button>
         </div>
-        
+
         <div id="detection-timeline-chart" class="chart-container" style="height: 400px;"></div>
-        
+
         <div class="timeline-summary">
           <h4>Timeline Summary:</h4>
           <div id="timeline-summary-content">
@@ -458,7 +458,7 @@ class EChartsDemo {
             </div>
           </div>
         </div>
-        
+
         <div class="chart-info">
           <h4>Features:</h4>
           <ul>
@@ -562,23 +562,23 @@ class EChartsDemo {
       <div class="demo-section">
         <h2>Integrated Dashboard</h2>
         <p>Comprehensive anomaly detection dashboard combining multiple chart types for complete system overview.</p>
-        
+
         <div class="dashboard-grid">
           <div class="dashboard-widget">
             <h3>Performance Overview</h3>
             <div id="dashboard-performance" class="mini-chart" style="height: 200px;"></div>
           </div>
-          
+
           <div class="dashboard-widget">
             <h3>Anomaly Types</h3>
             <div id="dashboard-distribution" class="mini-chart" style="height: 200px;"></div>
           </div>
-          
+
           <div class="dashboard-widget">
             <h3>Detection Events</h3>
             <div id="dashboard-timeline" class="mini-chart" style="height: 200px;"></div>
           </div>
-          
+
           <div class="dashboard-widget stats-summary">
             <h3>Key Metrics</h3>
             <div class="metrics-grid">
@@ -601,7 +601,7 @@ class EChartsDemo {
             </div>
           </div>
         </div>
-        
+
         <div class="dashboard-controls">
           <button id="dashboard-refresh" class="btn btn-primary">Refresh Dashboard</button>
           <button id="dashboard-export" class="btn btn-secondary">Export Data</button>

@@ -3,22 +3,18 @@
 from __future__ import annotations
 
 import logging
-import warnings
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 from uuid import UUID, uuid4
 
 import numpy as np
 
 from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.entities.detection_result import DetectionResult
 from pynomaly.domain.entities.detector import Detector
 from pynomaly.domain.exceptions import ValidationError
-from pynomaly.domain.value_objects.algorithm_config import AlgorithmConfig
-from pynomaly.domain.value_objects.score import Score
 
 # Optional ML libraries
 try:
@@ -82,7 +78,7 @@ class EnsembleMember:
     diversity_score: float = 0.0
     confidence: float = 0.0
     enabled: bool = True
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     @property
     def effective_weight(self) -> float:
@@ -137,14 +133,14 @@ class EnsembleResult:
     ensemble_id: UUID
     final_score: float
     final_prediction: int
-    member_scores: Dict[str, float]
-    member_predictions: Dict[str, int]
-    member_weights: Dict[str, float]
+    member_scores: dict[str, float]
+    member_predictions: dict[str, int]
+    member_weights: dict[str, float]
     uncertainty: float = 0.0
     confidence: float = 0.0
     method_used: str = ""
     processing_time_ms: float = 0.0
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
 
@@ -153,11 +149,11 @@ class EnsemblePerformance:
     """Performance metrics for ensemble."""
 
     ensemble_score: float
-    individual_scores: Dict[str, float]
+    individual_scores: dict[str, float]
     diversity_score: float
     improvement_over_best: float
     member_correlations: np.ndarray
-    weight_distribution: Dict[str, float]
+    weight_distribution: dict[str, float]
     stability_score: float
     robustness_score: float
     timestamp: datetime = field(default_factory=datetime.utcnow)
@@ -169,11 +165,11 @@ class EnsembleCombiner(ABC):
     @abstractmethod
     async def combine_predictions(
         self,
-        member_scores: Dict[str, float],
-        member_predictions: Dict[str, int],
-        member_weights: Dict[str, float],
-        features: Optional[np.ndarray] = None,
-    ) -> Tuple[float, int, float]:
+        member_scores: dict[str, float],
+        member_predictions: dict[str, int],
+        member_weights: dict[str, float],
+        features: np.ndarray | None = None,
+    ) -> tuple[float, int, float]:
         """Combine member predictions into final result.
 
         Args:
@@ -193,12 +189,11 @@ class SimpleAverageCombiner(EnsembleCombiner):
 
     async def combine_predictions(
         self,
-        member_scores: Dict[str, float],
-        member_predictions: Dict[str, int],
-        member_weights: Dict[str, float],
-        features: Optional[np.ndarray] = None,
-    ) -> Tuple[float, int, float]:
-
+        member_scores: dict[str, float],
+        member_predictions: dict[str, int],
+        member_weights: dict[str, float],
+        features: np.ndarray | None = None,
+    ) -> tuple[float, int, float]:
         if not member_scores:
             return 0.0, 0, 0.0
 
@@ -222,12 +217,11 @@ class WeightedAverageCombiner(EnsembleCombiner):
 
     async def combine_predictions(
         self,
-        member_scores: Dict[str, float],
-        member_predictions: Dict[str, int],
-        member_weights: Dict[str, float],
-        features: Optional[np.ndarray] = None,
-    ) -> Tuple[float, int, float]:
-
+        member_scores: dict[str, float],
+        member_predictions: dict[str, int],
+        member_weights: dict[str, float],
+        features: np.ndarray | None = None,
+    ) -> tuple[float, int, float]:
         if not member_scores:
             return 0.0, 0, 0.0
 
@@ -285,9 +279,9 @@ class StackingCombiner(EnsembleCombiner):
 
     async def train_meta_learner(
         self,
-        training_predictions: List[Dict[str, float]],
-        training_labels: List[int],
-        training_features: Optional[List[np.ndarray]] = None,
+        training_predictions: list[dict[str, float]],
+        training_labels: list[int],
+        training_features: list[np.ndarray] | None = None,
     ) -> None:
         """Train the meta-learner on training data."""
 
@@ -321,12 +315,11 @@ class StackingCombiner(EnsembleCombiner):
 
     async def combine_predictions(
         self,
-        member_scores: Dict[str, float],
-        member_predictions: Dict[str, int],
-        member_weights: Dict[str, float],
-        features: Optional[np.ndarray] = None,
-    ) -> Tuple[float, int, float]:
-
+        member_scores: dict[str, float],
+        member_predictions: dict[str, int],
+        member_weights: dict[str, float],
+        features: np.ndarray | None = None,
+    ) -> tuple[float, int, float]:
         if not self.is_trained:
             # Fallback to weighted average if not trained
             combiner = WeightedAverageCombiner()
@@ -376,7 +369,7 @@ class DynamicSelectionCombiner(EnsembleCombiner):
 
     def __init__(self, window_size: int = 100):
         self.window_size = window_size
-        self.performance_history: Dict[str, List[float]] = {}
+        self.performance_history: dict[str, list[float]] = {}
 
     def update_performance(self, member_id: str, performance: float) -> None:
         """Update performance history for a member."""
@@ -393,12 +386,11 @@ class DynamicSelectionCombiner(EnsembleCombiner):
 
     async def combine_predictions(
         self,
-        member_scores: Dict[str, float],
-        member_predictions: Dict[str, int],
-        member_weights: Dict[str, float],
-        features: Optional[np.ndarray] = None,
-    ) -> Tuple[float, int, float]:
-
+        member_scores: dict[str, float],
+        member_predictions: dict[str, int],
+        member_weights: dict[str, float],
+        features: np.ndarray | None = None,
+    ) -> tuple[float, int, float]:
         if not member_scores:
             return 0.0, 0, 0.0
 
@@ -429,7 +421,7 @@ class DynamicSelectionCombiner(EnsembleCombiner):
 class EnsembleDetectionService:
     """Advanced ensemble detection service with multiple combination methods."""
 
-    def __init__(self, config: Optional[EnsembleConfig] = None):
+    def __init__(self, config: EnsembleConfig | None = None):
         """Initialize ensemble detection service.
 
         Args:
@@ -439,7 +431,7 @@ class EnsembleDetectionService:
         self.logger = logging.getLogger(__name__)
 
         # Ensemble members
-        self.members: List[EnsembleMember] = []
+        self.members: list[EnsembleMember] = []
         self.ensemble_id = uuid4()
 
         # Combiners
@@ -447,13 +439,13 @@ class EnsembleDetectionService:
         self._current_combiner = self._combiners[self.config.method]
 
         # Performance tracking
-        self._performance_history: List[EnsemblePerformance] = []
+        self._performance_history: list[EnsemblePerformance] = []
 
         # Calibration data
-        self._calibration_scores: List[np.ndarray] = []
-        self._calibration_labels: List[np.ndarray] = []
+        self._calibration_scores: list[np.ndarray] = []
+        self._calibration_labels: list[np.ndarray] = []
 
-    def _initialize_combiners(self) -> Dict[EnsembleMethod, EnsembleCombiner]:
+    def _initialize_combiners(self) -> dict[EnsembleMethod, EnsembleCombiner]:
         """Initialize ensemble combiners."""
         combiners = {
             EnsembleMethod.SIMPLE_AVERAGE: SimpleAverageCombiner(),
@@ -534,7 +526,7 @@ class EnsembleDetectionService:
         self,
         data: np.ndarray,
         return_individual: bool = False,
-    ) -> Union[EnsembleResult, Tuple[EnsembleResult, Dict[str, Any]]]:
+    ) -> EnsembleResult | tuple[EnsembleResult, dict[str, Any]]:
         """Make ensemble prediction.
 
         Args:
@@ -589,10 +581,12 @@ class EnsembleDetectionService:
             raise ValidationError("No successful predictions from ensemble members")
 
         # Combine predictions
-        final_score, final_prediction, confidence = (
-            await self._current_combiner.combine_predictions(
-                member_scores, member_predictions, member_weights, data
-            )
+        (
+            final_score,
+            final_prediction,
+            confidence,
+        ) = await self._current_combiner.combine_predictions(
+            member_scores, member_predictions, member_weights, data
         )
 
         # Calculate uncertainty if enabled
@@ -630,7 +624,7 @@ class EnsembleDetectionService:
     async def train_ensemble(
         self,
         training_data: Dataset,
-        validation_data: Optional[Dataset] = None,
+        validation_data: Dataset | None = None,
     ) -> EnsemblePerformance:
         """Train the ensemble on data.
 
@@ -720,8 +714,8 @@ class EnsembleDetectionService:
 
     async def _optimize_weights(
         self,
-        training_data: Optional[Dataset] = None,
-        validation_data: Optional[Dataset] = None,
+        training_data: Dataset | None = None,
+        validation_data: Dataset | None = None,
     ) -> None:
         """Optimize ensemble weights."""
 
@@ -844,8 +838,8 @@ class EnsembleDetectionService:
 
     async def _estimate_uncertainty(
         self,
-        member_scores: Dict[str, float],
-        member_predictions: Dict[str, int],
+        member_scores: dict[str, float],
+        member_predictions: dict[str, int],
     ) -> float:
         """Estimate prediction uncertainty."""
 
@@ -927,7 +921,7 @@ class EnsembleDetectionService:
             robustness_score=robustness_score,
         )
 
-    async def get_ensemble_info(self) -> Dict[str, Any]:
+    async def get_ensemble_info(self) -> dict[str, Any]:
         """Get ensemble information and statistics."""
 
         enabled_members = [m for m in self.members if m.enabled]
@@ -969,7 +963,7 @@ class EnsembleDetectionService:
             },
         }
 
-    async def prune_weak_members(self) -> List[str]:
+    async def prune_weak_members(self) -> list[str]:
         """Remove underperforming members from ensemble.
 
         Returns:
@@ -988,7 +982,6 @@ class EnsembleDetectionService:
                 and len([m for m in self.members if m.enabled])
                 > self.config.min_members
             ):
-
                 member.enabled = False
                 removed_members.append(str(member.detector.id))
                 self.logger.info(f"Pruned weak member: {member.detector.name}")
@@ -1005,7 +998,7 @@ class EnsembleFactory:
 
     @staticmethod
     def create_voting_ensemble(
-        detectors: List[Detector],
+        detectors: list[Detector],
         method: EnsembleMethod = EnsembleMethod.WEIGHTED_AVERAGE,
     ) -> EnsembleDetectionService:
         """Create a voting ensemble.
@@ -1033,7 +1026,7 @@ class EnsembleFactory:
 
     @staticmethod
     def create_stacking_ensemble(
-        detectors: List[Detector],
+        detectors: list[Detector],
         meta_learner: str = "logistic_regression",
     ) -> EnsembleDetectionService:
         """Create a stacking ensemble.
@@ -1062,7 +1055,7 @@ class EnsembleFactory:
 
     @staticmethod
     def create_dynamic_ensemble(
-        detectors: List[Detector],
+        detectors: list[Detector],
         selection_window: int = 100,
     ) -> EnsembleDetectionService:
         """Create a dynamic selection ensemble.

@@ -12,7 +12,6 @@ from __future__ import annotations
 import logging
 import secrets
 from datetime import UTC, datetime, timedelta
-from typing import Dict, Optional
 
 import jwt
 from passlib.context import CryptContext
@@ -96,13 +95,13 @@ class JWTAuthService:
         self.password_rotation = PasswordRotationStrategy()
 
         # Security tracking
-        self._failed_login_attempts: Dict[str, list] = (
-            {}
-        )  # username -> list of attempt timestamps
+        self._failed_login_attempts: dict[
+            str, list
+        ] = {}  # username -> list of attempt timestamps
         self._blacklisted_tokens: set = set()  # For token revocation
-        self._password_history: Dict[str, list] = (
-            {}
-        )  # user_id -> list of hashed passwords
+        self._password_history: dict[
+            str, list
+        ] = {}  # user_id -> list of hashed passwords
 
         # In-memory user store (replace with database in production)
         self._users: dict[str, UserModel] = {}
@@ -531,7 +530,6 @@ class JWTAuthService:
             raise ValueError("User not found")
 
         # Generate API key
-        import secrets
 
         api_key = f"pyn_{secrets.token_urlsafe(32)}"
 

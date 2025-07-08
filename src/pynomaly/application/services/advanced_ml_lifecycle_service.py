@@ -5,15 +5,14 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import joblib
 import numpy as np
 import pandas as pd
-from sklearn.metrics import classification_report
 
 from pynomaly.domain.entities import (
     Experiment,
@@ -93,8 +92,8 @@ class AdvancedMLLifecycleService:
         auto_log_parameters: bool = True,
         auto_log_metrics: bool = True,
         auto_log_artifacts: bool = True,
-        tags: Optional[List[str]] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        tags: list[str] | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> str:
         """Start a new ML experiment with advanced tracking.
 
@@ -158,10 +157,10 @@ class AdvancedMLLifecycleService:
         run_name: str,
         detector_id: UUID,
         dataset_id: UUID,
-        parameters: Dict[str, Any],
+        parameters: dict[str, Any],
         created_by: str,
-        parent_run_id: Optional[str] = None,
-        tags: Optional[List[str]] = None,
+        parent_run_id: str | None = None,
+        tags: list[str] | None = None,
         description: str = "",
     ) -> str:
         """Start a new experiment run with comprehensive tracking.
@@ -253,8 +252,8 @@ class AdvancedMLLifecycleService:
         run_id: str,
         key: str,
         value: float,
-        step: Optional[int] = None,
-        timestamp: Optional[datetime] = None,
+        step: int | None = None,
+        timestamp: datetime | None = None,
     ) -> None:
         """Log a metric for the current run.
 
@@ -290,7 +289,7 @@ class AdvancedMLLifecycleService:
         artifact_name: str,
         artifact_data: Any,
         artifact_type: str = "pickle",
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> str:
         """Log an artifact for the current run.
 
@@ -355,9 +354,9 @@ class AdvancedMLLifecycleService:
         run_id: str,
         model: Any,
         model_name: str,
-        model_signature: Optional[Dict[str, Any]] = None,
-        input_example: Optional[Any] = None,
-        registered_model_name: Optional[str] = None,
+        model_signature: dict[str, Any] | None = None,
+        input_example: Any | None = None,
+        registered_model_name: str | None = None,
         await_registration_for: int = 300,
     ) -> str:
         """Log a trained model with the run.
@@ -413,7 +412,7 @@ class AdvancedMLLifecycleService:
         self,
         run_id: str,
         status: str = "FINISHED",
-        end_time: Optional[datetime] = None,
+        end_time: datetime | None = None,
     ) -> ExperimentRun:
         """End an experiment run.
 
@@ -479,9 +478,9 @@ class AdvancedMLLifecycleService:
         model_name: str,
         run_id: str,
         model_path: str,
-        performance_metrics: Dict[str, float],
+        performance_metrics: dict[str, float],
         description: str = "",
-        tags: Optional[List[str]] = None,
+        tags: list[str] | None = None,
         auto_version: bool = True,
     ) -> str:
         """Create a new model version with intelligent versioning.
@@ -585,8 +584,8 @@ class AdvancedMLLifecycleService:
         stage: str,
         promoted_by: str,
         approval_workflow: bool = True,
-        validation_tests: Optional[List[str]] = None,
-    ) -> Dict[str, Any]:
+        validation_tests: list[str] | None = None,
+    ) -> dict[str, Any]:
         """Promote a model version to a specific stage.
 
         Args:
@@ -662,9 +661,9 @@ class AdvancedMLLifecycleService:
         self,
         query: str,
         max_results: int = 50,
-        filter_dict: Optional[Dict[str, Any]] = None,
-        order_by: Optional[List[str]] = None,
-    ) -> List[Dict[str, Any]]:
+        filter_dict: dict[str, Any] | None = None,
+        order_by: list[str] | None = None,
+    ) -> list[dict[str, Any]]:
         """Search models in the registry.
 
         Args:
@@ -719,7 +718,7 @@ class AdvancedMLLifecycleService:
 
         return results
 
-    async def get_model_registry_stats(self) -> Dict[str, Any]:
+    async def get_model_registry_stats(self) -> dict[str, Any]:
         """Get comprehensive model registry statistics.
 
         Returns:
@@ -801,7 +800,7 @@ class AdvancedMLLifecycleService:
         model: Any,
         model_name: str,
         model_path: str,
-        model_signature: Optional[Dict[str, Any]] = None,
+        model_signature: dict[str, Any] | None = None,
     ) -> str:
         """Register a model version from a run."""
         # Calculate performance metrics from the run
@@ -822,7 +821,7 @@ class AdvancedMLLifecycleService:
         )
 
     async def _determine_next_version(
-        self, model_id: UUID, performance_metrics: Dict[str, float]
+        self, model_id: UUID, performance_metrics: dict[str, float]
     ) -> SemanticVersion:
         """Determine the next semantic version based on performance changes."""
         existing_versions = await self.model_version_repository.find_by_model_id(
@@ -871,8 +870,8 @@ class AdvancedMLLifecycleService:
             )
 
     async def _run_validation_tests(
-        self, model_version: ModelVersion, validation_tests: List[str]
-    ) -> Dict[str, Dict[str, Any]]:
+        self, model_version: ModelVersion, validation_tests: list[str]
+    ) -> dict[str, dict[str, Any]]:
         """Run validation tests on a model version."""
         results = {}
 
@@ -901,7 +900,7 @@ class AdvancedMLLifecycleService:
 
     async def _validate_performance_baseline(
         self, model_version: ModelVersion
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Validate that model meets performance baseline."""
         # Define minimum performance thresholds
         thresholds = {
@@ -928,7 +927,7 @@ class AdvancedMLLifecycleService:
             "thresholds": thresholds,
         }
 
-    async def _validate_data_drift(self, model_version: ModelVersion) -> Dict[str, Any]:
+    async def _validate_data_drift(self, model_version: ModelVersion) -> dict[str, Any]:
         """Validate data drift for the model."""
         # This would implement actual drift detection
         # For now, return a placeholder
@@ -941,7 +940,7 @@ class AdvancedMLLifecycleService:
 
     async def _validate_model_signature(
         self, model_version: ModelVersion
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Validate model signature compatibility."""
         # This would check input/output schemas
         return {
@@ -953,7 +952,7 @@ class AdvancedMLLifecycleService:
 
     async def _validate_resource_usage(
         self, model_version: ModelVersion
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Validate model resource usage."""
         # Check inference time threshold
         inference_time = model_version.performance_metrics.inference_time
@@ -966,7 +965,7 @@ class AdvancedMLLifecycleService:
             "memory_usage": "within_limits",
         }
 
-    async def _capture_environment(self) -> Dict[str, Any]:
+    async def _capture_environment(self) -> dict[str, Any]:
         """Capture current environment information."""
         import platform
         import sys
@@ -979,7 +978,7 @@ class AdvancedMLLifecycleService:
             "captured_at": datetime.utcnow().isoformat(),
         }
 
-    async def _capture_system_info(self) -> Dict[str, Any]:
+    async def _capture_system_info(self) -> dict[str, Any]:
         """Capture system information."""
         import psutil
 
@@ -999,8 +998,8 @@ class AdvancedMLLifecycleService:
         return hash_md5.hexdigest()
 
     async def _calculate_performance_trends(
-        self, versions: List[ModelVersion]
-    ) -> Dict[str, Any]:
+        self, versions: list[ModelVersion]
+    ) -> dict[str, Any]:
         """Calculate performance trends across model versions."""
         if len(versions) < 2:
             return {"trend": "insufficient_data"}

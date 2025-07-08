@@ -1,23 +1,23 @@
 """Domain services."""
 
+from .anomaly_classifiers import (
+    BatchProcessingSeverityClassifier,
+    DashboardTypeClassifier,
+    DefaultSeverityClassifier,
+    DefaultTypeClassifier,
+    SeverityClassifier,
+    TypeClassifier,
+)
+from .anomaly_classifiers import MLSeverityClassifier as MLSeverityClassifierWrapper
 from .anomaly_scorer import AnomalyScorer
 from .ensemble_aggregator import EnsembleAggregator
 from .feature_validator import FeatureValidator
-from .ml_severity_classifier import MLSeverityClassifier
-from .threshold_calculator import ThresholdCalculator
-from .model_service import ModelService
-from .model_selector import ModelSelector
 from .metrics_calculator import MetricsCalculator
+from .ml_severity_classifier import MLSeverityClassifier
+from .model_selector import ModelSelector
+from .model_service import ModelService
 from .statistical_tester import StatisticalTester
-from .anomaly_classifiers import (
-    SeverityClassifier,
-    TypeClassifier,
-    DefaultSeverityClassifier,
-    DefaultTypeClassifier,
-    MLSeverityClassifier as MLSeverityClassifierWrapper,
-    BatchProcessingSeverityClassifier,
-    DashboardTypeClassifier
-)
+from .threshold_calculator import ThresholdCalculator
 
 __all__ = [
     "AnomalyScorer",

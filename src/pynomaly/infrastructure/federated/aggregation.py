@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 from uuid import UUID
 
 import numpy as np
@@ -28,10 +28,10 @@ class AggregationStrategy(ABC):
     @abstractmethod
     async def aggregate(
         self,
-        updates: Dict[UUID, ModelUpdate],
-        participants: Dict[UUID, FederatedParticipant],
+        updates: dict[UUID, ModelUpdate],
+        participants: dict[UUID, FederatedParticipant],
         **kwargs,
-    ) -> Tuple[Dict[str, np.ndarray], Dict[str, float]]:
+    ) -> tuple[dict[str, np.ndarray], dict[str, float]]:
         """
         Aggregate model updates from participants.
 
@@ -40,7 +40,7 @@ class AggregationStrategy(ABC):
         """
         pass
 
-    def _get_parameter_names(self, updates: Dict[UUID, ModelUpdate]) -> List[str]:
+    def _get_parameter_names(self, updates: dict[UUID, ModelUpdate]) -> list[str]:
         """Get parameter names from updates."""
         if not updates:
             return []
@@ -48,7 +48,7 @@ class AggregationStrategy(ABC):
         first_update = next(iter(updates.values()))
         return list(first_update.parameters.keys())
 
-    def _validate_updates(self, updates: Dict[UUID, ModelUpdate]) -> bool:
+    def _validate_updates(self, updates: dict[UUID, ModelUpdate]) -> bool:
         """Validate that all updates have consistent parameter structure."""
         if not updates:
             return False
@@ -79,10 +79,10 @@ class FederatedAveragingAggregation(AggregationStrategy):
 
     async def aggregate(
         self,
-        updates: Dict[UUID, ModelUpdate],
-        participants: Dict[UUID, FederatedParticipant],
+        updates: dict[UUID, ModelUpdate],
+        participants: dict[UUID, FederatedParticipant],
         **kwargs,
-    ) -> Tuple[Dict[str, np.ndarray], Dict[str, float]]:
+    ) -> tuple[dict[str, np.ndarray], dict[str, float]]:
         """Aggregate using weighted average based on data size."""
 
         if not self._validate_updates(updates):
@@ -135,7 +135,7 @@ class FederatedAveragingAggregation(AggregationStrategy):
 
         return aggregated_params, metrics
 
-    def _calculate_weight_entropy(self, weights: Dict[UUID, float]) -> float:
+    def _calculate_weight_entropy(self, weights: dict[UUID, float]) -> float:
         """Calculate entropy of participant weights."""
         weight_values = list(weights.values())
         if not weight_values:
@@ -162,10 +162,10 @@ class TrimmedMeanAggregation(AggregationStrategy):
 
     async def aggregate(
         self,
-        updates: Dict[UUID, ModelUpdate],
-        participants: Dict[UUID, FederatedParticipant],
+        updates: dict[UUID, ModelUpdate],
+        participants: dict[UUID, FederatedParticipant],
         **kwargs,
-    ) -> Tuple[Dict[str, np.ndarray], Dict[str, float]]:
+    ) -> tuple[dict[str, np.ndarray], dict[str, float]]:
         """Aggregate using trimmed mean to handle outliers."""
 
         if not self._validate_updates(updates):
@@ -201,8 +201,8 @@ class TrimmedMeanAggregation(AggregationStrategy):
 
     def _count_outliers(
         self,
-        updates: Dict[UUID, ModelUpdate],
-        aggregated_params: Dict[str, np.ndarray],
+        updates: dict[UUID, ModelUpdate],
+        aggregated_params: dict[str, np.ndarray],
     ) -> int:
         """Count outlier participants based on parameter deviation."""
 
@@ -251,10 +251,10 @@ class KrumAggregation(AggregationStrategy):
 
     async def aggregate(
         self,
-        updates: Dict[UUID, ModelUpdate],
-        participants: Dict[UUID, FederatedParticipant],
+        updates: dict[UUID, ModelUpdate],
+        participants: dict[UUID, FederatedParticipant],
         **kwargs,
-    ) -> Tuple[Dict[str, np.ndarray], Dict[str, float]]:
+    ) -> tuple[dict[str, np.ndarray], dict[str, float]]:
         """Aggregate using Krum algorithm."""
 
         if not self._validate_updates(updates):
@@ -324,10 +324,10 @@ class MultiKrumAggregation(KrumAggregation):
 
     async def aggregate(
         self,
-        updates: Dict[UUID, ModelUpdate],
-        participants: Dict[UUID, FederatedParticipant],
+        updates: dict[UUID, ModelUpdate],
+        participants: dict[UUID, FederatedParticipant],
         **kwargs,
-    ) -> Tuple[Dict[str, np.ndarray], Dict[str, float]]:
+    ) -> tuple[dict[str, np.ndarray], dict[str, float]]:
         """Aggregate using Multi-Krum algorithm."""
 
         if not self._validate_updates(updates):
@@ -414,10 +414,10 @@ class GeometricMedianAggregation(AggregationStrategy):
 
     async def aggregate(
         self,
-        updates: Dict[UUID, ModelUpdate],
-        participants: Dict[UUID, FederatedParticipant],
+        updates: dict[UUID, ModelUpdate],
+        participants: dict[UUID, FederatedParticipant],
         **kwargs,
-    ) -> Tuple[Dict[str, np.ndarray], Dict[str, float]]:
+    ) -> tuple[dict[str, np.ndarray], dict[str, float]]:
         """Aggregate using geometric median."""
 
         if not self._validate_updates(updates):
@@ -486,8 +486,8 @@ class GeometricMedianAggregation(AggregationStrategy):
 
     def _calculate_total_deviation(
         self,
-        updates: Dict[UUID, ModelUpdate],
-        aggregated_params: Dict[str, np.ndarray],
+        updates: dict[UUID, ModelUpdate],
+        aggregated_params: dict[str, np.ndarray],
     ) -> float:
         """Calculate total deviation from aggregated parameters."""
 
@@ -533,10 +533,10 @@ class FederatedAggregationService:
     async def aggregate(
         self,
         method: AggregationMethod,
-        updates: Dict[UUID, ModelUpdate],
-        participants: Dict[UUID, FederatedParticipant],
+        updates: dict[UUID, ModelUpdate],
+        participants: dict[UUID, FederatedParticipant],
         **kwargs,
-    ) -> Tuple[Dict[str, np.ndarray], Dict[str, float]]:
+    ) -> tuple[dict[str, np.ndarray], dict[str, float]]:
         """Aggregate model updates using specified method."""
 
         if method not in self.strategies:
@@ -563,10 +563,10 @@ class FederatedAggregationService:
     async def aggregate_advanced(
         self,
         strategy_name: str,
-        updates: Dict[UUID, ModelUpdate],
-        participants: Dict[UUID, FederatedParticipant],
+        updates: dict[UUID, ModelUpdate],
+        participants: dict[UUID, FederatedParticipant],
         **kwargs,
-    ) -> Tuple[Dict[str, np.ndarray], Dict[str, float]]:
+    ) -> tuple[dict[str, np.ndarray], dict[str, float]]:
         """Aggregate using advanced strategy by name."""
 
         if strategy_name not in self.advanced_strategies:
@@ -576,7 +576,7 @@ class FederatedAggregationService:
 
         return await strategy.aggregate(updates, participants, **kwargs)
 
-    def get_available_strategies(self) -> List[str]:
+    def get_available_strategies(self) -> list[str]:
         """Get list of available aggregation strategies."""
 
         basic_strategies = [method.value for method in self.strategies.keys()]
@@ -586,9 +586,9 @@ class FederatedAggregationService:
 
     def benchmark_strategies(
         self,
-        updates: Dict[UUID, ModelUpdate],
-        participants: Dict[UUID, FederatedParticipant],
-    ) -> Dict[str, Dict[str, Any]]:
+        updates: dict[UUID, ModelUpdate],
+        participants: dict[UUID, FederatedParticipant],
+    ) -> dict[str, dict[str, Any]]:
         """Benchmark different aggregation strategies."""
 
         results = {}

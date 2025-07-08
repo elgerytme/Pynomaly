@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import logging
-import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 from urllib.parse import urlparse
 
 from pynomaly.domain.entities import Dataset
@@ -27,7 +26,7 @@ class DataLoaderFactory:
         self.logger = logging.getLogger(__name__)
 
         # Register available loaders
-        self._loaders: Dict[str, type] = {
+        self._loaders: dict[str, type] = {
             "csv": CSVLoader,
             "tsv": CSVLoader,
             "txt": CSVLoader,
@@ -41,7 +40,7 @@ class DataLoaderFactory:
         }
 
         # Default configurations for loaders
-        self._default_configs: Dict[str, Dict[str, Any]] = {
+        self._default_configs: dict[str, dict[str, Any]] = {
             "csv": {"delimiter": ",", "encoding": "utf-8"},
             "tsv": {"delimiter": "\t", "encoding": "utf-8"},
             "txt": {"delimiter": ",", "encoding": "utf-8"},
@@ -52,8 +51,8 @@ class DataLoaderFactory:
 
     def create_loader(
         self,
-        source: Union[str, Path],
-        loader_type: Optional[str] = None,
+        source: str | Path,
+        loader_type: str | None = None,
         **kwargs: Any,
     ) -> DataLoaderProtocol:
         """Create appropriate data loader for the source.
@@ -97,9 +96,9 @@ class DataLoaderFactory:
 
     def load_data(
         self,
-        source: Union[str, Path],
-        name: Optional[str] = None,
-        loader_type: Optional[str] = None,
+        source: str | Path,
+        name: str | None = None,
+        loader_type: str | None = None,
         **kwargs: Any,
     ) -> Dataset:
         """Load data using appropriate loader.
@@ -118,8 +117,8 @@ class DataLoaderFactory:
 
     def validate_source(
         self,
-        source: Union[str, Path],
-        loader_type: Optional[str] = None,
+        source: str | Path,
+        loader_type: str | None = None,
     ) -> bool:
         """Validate if source can be loaded.
 
@@ -136,11 +135,11 @@ class DataLoaderFactory:
         except Exception:
             return False
 
-    def get_supported_formats(self) -> List[str]:
+    def get_supported_formats(self) -> list[str]:
         """Get list of supported file formats."""
         return list(self._loaders.keys())
 
-    def get_loader_info(self, loader_type: str) -> Dict[str, Any]:
+    def get_loader_info(self, loader_type: str) -> dict[str, Any]:
         """Get information about a specific loader type.
 
         Args:
@@ -169,9 +168,9 @@ class DataLoaderFactory:
 
     def register_loader(
         self,
-        extensions: List[str],
+        extensions: list[str],
         loader_class: type,
-        default_config: Optional[Dict[str, Any]] = None,
+        default_config: dict[str, Any] | None = None,
     ) -> None:
         """Register a new data loader.
 
@@ -191,7 +190,7 @@ class DataLoaderFactory:
             f"Registered {loader_class.__name__} for extensions: {extensions}"
         )
 
-    def _detect_loader_type(self, source: Union[str, Path]) -> str:
+    def _detect_loader_type(self, source: str | Path) -> str:
         """Auto-detect the appropriate loader type for a source.
 
         Args:
@@ -241,7 +240,7 @@ class SmartDataLoader:
 
     def __init__(
         self,
-        factory: Optional[DataLoaderFactory] = None,
+        factory: DataLoaderFactory | None = None,
         auto_optimize: bool = True,
         memory_threshold_mb: float = 1000.0,
     ):
@@ -259,8 +258,8 @@ class SmartDataLoader:
 
     def load(
         self,
-        source: Union[str, Path],
-        name: Optional[str] = None,
+        source: str | Path,
+        name: str | None = None,
         **kwargs: Any,
     ) -> Dataset:
         """Smart load with automatic optimization.
@@ -294,11 +293,11 @@ class SmartDataLoader:
 
     def load_multiple(
         self,
-        sources: List[Union[str, Path]],
-        names: Optional[List[str]] = None,
+        sources: list[str | Path],
+        names: list[str] | None = None,
         combine: bool = False,
         **kwargs: Any,
-    ) -> Union[List[Dataset], Dataset]:
+    ) -> list[Dataset] | Dataset:
         """Load multiple data sources.
 
         Args:
@@ -324,9 +323,9 @@ class SmartDataLoader:
 
     def estimate_load_time(
         self,
-        source: Union[str, Path],
+        source: str | Path,
         **kwargs: Any,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Estimate loading time and memory requirements.
 
         Args:
@@ -381,8 +380,8 @@ class SmartDataLoader:
     def _load_standard(
         self,
         loader: DataLoaderProtocol,
-        source: Union[str, Path],
-        name: Optional[str],
+        source: str | Path,
+        name: str | None,
         **kwargs: Any,
     ) -> Dataset:
         """Standard loading for smaller files."""
@@ -391,12 +390,12 @@ class SmartDataLoader:
     def _load_large_file(
         self,
         loader: DataLoaderProtocol,
-        source: Union[str, Path],
-        name: Optional[str],
+        source: str | Path,
+        name: str | None,
         **kwargs: Any,
     ) -> Dataset:
         """Optimized loading for large files."""
-        self.logger.info(f"Large file detected, using optimized loading strategy")
+        self.logger.info("Large file detected, using optimized loading strategy")
 
         # Check if loader supports batch loading
         if hasattr(loader, "load_batch"):
@@ -423,7 +422,7 @@ class SmartDataLoader:
         # Fallback to standard loading
         return loader.load(source, name, **kwargs)
 
-    def _combine_datasets(self, datasets: List[Dataset]) -> Dataset:
+    def _combine_datasets(self, datasets: list[Dataset]) -> Dataset:
         """Combine multiple datasets into one.
 
         Args:

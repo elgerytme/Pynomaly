@@ -504,7 +504,9 @@ class ExplainableAIService:
                 trust_level=(
                     "high"
                     if overall_trust > 0.8
-                    else "medium" if overall_trust > 0.6 else "low"
+                    else "medium"
+                    if overall_trust > 0.6
+                    else "low"
                 ),
             )
 
@@ -633,9 +635,9 @@ class ExplainableAIService:
             if model_id in self.explanation_cache:
                 cache = self.explanation_cache[model_id]
                 if cache.creation_timestamp >= cutoff_time:
-                    summary["explanation_stats"][
-                        "total_explanations"
-                    ] = cache.access_count
+                    summary["explanation_stats"]["total_explanations"] = (
+                        cache.access_count
+                    )
                     summary["explanation_stats"]["cache_hit_rate"] = min(
                         1.0, cache.access_count / 100
                     )

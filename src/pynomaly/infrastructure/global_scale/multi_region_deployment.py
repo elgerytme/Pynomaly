@@ -7,8 +7,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set, Tuple
-from uuid import UUID, uuid4
+from typing import Any
 
 import numpy as np
 
@@ -45,12 +44,12 @@ class RegionConfig:
     region_id: str
     region_name: str
     cloud_provider: str
-    availability_zones: List[str]
+    availability_zones: list[str]
 
     # Network configuration
     vpc_id: str
-    subnet_ids: List[str]
-    security_group_ids: List[str]
+    subnet_ids: list[str]
+    security_group_ids: list[str]
 
     # Capacity configuration
     compute_instances: int = 3
@@ -64,8 +63,8 @@ class RegionConfig:
     timezone: str = "UTC"
 
     # Compliance metadata
-    data_residency_requirements: List[str] = field(default_factory=list)
-    compliance_certifications: List[str] = field(default_factory=list)
+    data_residency_requirements: list[str] = field(default_factory=list)
+    compliance_certifications: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -85,7 +84,7 @@ class RegionHealth:
 
     # Availability metrics
     uptime_percentage: float = 100.0
-    last_failure: Optional[datetime] = None
+    last_failure: datetime | None = None
     failure_count_24h: int = 0
 
     # Capacity metrics
@@ -93,7 +92,7 @@ class RegionHealth:
     max_connections: int = 1000
     queue_depth: int = 0
 
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -120,16 +119,16 @@ class FailoverConfig:
 class GlobalLoadBalancer:
     """Intelligent global load balancer for multi-region deployment."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.strategy = LoadBalancingStrategy(config.get("strategy", "intelligent"))
-        self.regions: Dict[str, RegionHealth] = {}
-        self.request_history: List[Tuple[str, str, float]] = (
-            []
-        )  # (region, client_ip, latency)
-        self.geographic_routing_table: Dict[str, List[str]] = {}
+        self.regions: dict[str, RegionHealth] = {}
+        self.request_history: list[
+            tuple[str, str, float]
+        ] = []  # (region, client_ip, latency)
+        self.geographic_routing_table: dict[str, list[str]] = {}
 
-    async def route_request(self, client_ip: str, request_type: str) -> Optional[str]:
+    async def route_request(self, client_ip: str, request_type: str) -> str | None:
         """Route request to optimal region."""
         available_regions = [
             region_id
@@ -156,7 +155,7 @@ class GlobalLoadBalancer:
         else:
             return available_regions[0]  # Default fallback
 
-    async def _round_robin_routing(self, regions: List[str]) -> str:
+    async def _round_robin_routing(self, regions: list[str]) -> str:
         """Simple round-robin routing."""
         if not hasattr(self, "_round_robin_counter"):
             self._round_robin_counter = 0
@@ -165,7 +164,7 @@ class GlobalLoadBalancer:
         self._round_robin_counter += 1
         return region
 
-    async def _least_connections_routing(self, regions: List[str]) -> str:
+    async def _least_connections_routing(self, regions: list[str]) -> str:
         """Route to region with least connections."""
         min_connections = float("inf")
         best_region = regions[0]
@@ -178,7 +177,7 @@ class GlobalLoadBalancer:
 
         return best_region
 
-    async def _geographic_routing(self, client_ip: str, regions: List[str]) -> str:
+    async def _geographic_routing(self, client_ip: str, regions: list[str]) -> str:
         """Route based on geographic proximity."""
         # Simplified geographic routing - in practice would use IP geolocation
         client_region = self._get_client_region(client_ip)
@@ -191,7 +190,7 @@ class GlobalLoadBalancer:
 
         return regions[0]  # Fallback
 
-    async def _performance_based_routing(self, regions: List[str]) -> str:
+    async def _performance_based_routing(self, regions: list[str]) -> str:
         """Route based on performance metrics."""
         best_score = -1
         best_region = regions[0]
@@ -213,7 +212,7 @@ class GlobalLoadBalancer:
         return best_region
 
     async def _intelligent_routing(
-        self, client_ip: str, request_type: str, regions: List[str]
+        self, client_ip: str, request_type: str, regions: list[str]
     ) -> str:
         """AI-powered intelligent routing."""
         # Combine multiple factors for optimal routing
@@ -285,18 +284,18 @@ class GlobalLoadBalancer:
 class DataReplicationManager:
     """Manages data replication across regions."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.strategy = ReplicationStrategy(config.get("strategy", "active_active"))
-        self.regions: Set[str] = set()
-        self.replication_lag: Dict[str, float] = {}
-        self.conflict_resolution_rules: Dict[str, Any] = config.get(
+        self.regions: set[str] = set()
+        self.replication_lag: dict[str, float] = {}
+        self.conflict_resolution_rules: dict[str, Any] = config.get(
             "conflict_resolution", {}
         )
 
     async def replicate_data(
-        self, data: Dict[str, Any], source_region: str, target_regions: List[str]
-    ) -> Dict[str, bool]:
+        self, data: dict[str, Any], source_region: str, target_regions: list[str]
+    ) -> dict[str, bool]:
         """Replicate data from source to target regions."""
         results = {}
 
@@ -332,8 +331,8 @@ class DataReplicationManager:
         return results
 
     async def _detect_conflicts(
-        self, data: Dict[str, Any], source: str, target: str
-    ) -> List[Dict[str, Any]]:
+        self, data: dict[str, Any], source: str, target: str
+    ) -> list[dict[str, Any]]:
         """Detect replication conflicts."""
         # Simplified conflict detection
         conflicts = []
@@ -354,8 +353,8 @@ class DataReplicationManager:
         return conflicts
 
     async def _resolve_conflicts(
-        self, data: Dict[str, Any], conflicts: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, data: dict[str, Any], conflicts: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """Resolve data conflicts using configured rules."""
         resolved_data = data.copy()
 
@@ -372,7 +371,7 @@ class DataReplicationManager:
 
         return resolved_data
 
-    async def _write_data(self, data: Dict[str, Any], region: str) -> bool:
+    async def _write_data(self, data: dict[str, Any], region: str) -> bool:
         """Write data to target region."""
         try:
             # Simulate data write operation
@@ -385,7 +384,7 @@ class DataReplicationManager:
             logger.error(f"Data write failed for {region}: {e}")
             return False
 
-    async def get_replication_status(self) -> Dict[str, Any]:
+    async def get_replication_status(self) -> dict[str, Any]:
         """Get current replication status."""
         return {
             "strategy": self.strategy.value,
@@ -405,9 +404,9 @@ class DataReplicationManager:
 class MultiRegionDeploymentOrchestrator:
     """Main orchestrator for multi-region deployment."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
-        self.regions: Dict[str, RegionConfig] = {}
+        self.regions: dict[str, RegionConfig] = {}
         self.health_monitor = RegionHealthMonitor(config.get("health_monitor", {}))
         self.load_balancer = GlobalLoadBalancer(config.get("load_balancer", {}))
         self.replication_manager = DataReplicationManager(config.get("replication", {}))
@@ -483,7 +482,7 @@ class MultiRegionDeploymentOrchestrator:
         self.replication_manager.regions.add(config.region_id)
         logger.info(f"Set up data replication for {config.region_id}")
 
-    async def get_deployment_status(self) -> Dict[str, Any]:
+    async def get_deployment_status(self) -> dict[str, Any]:
         """Get comprehensive deployment status."""
         region_statuses = {}
 
@@ -513,7 +512,7 @@ class MultiRegionDeploymentOrchestrator:
             "replication_status": await self.replication_manager.get_replication_status(),
         }
 
-    async def _get_load_balancer_status(self) -> Dict[str, Any]:
+    async def _get_load_balancer_status(self) -> dict[str, Any]:
         """Get load balancer status."""
         return {
             "strategy": self.load_balancer.strategy.value,
@@ -525,9 +524,9 @@ class MultiRegionDeploymentOrchestrator:
 class RegionHealthMonitor:
     """Monitors health of deployed regions."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
-        self.regions: Dict[str, RegionHealth] = {}
+        self.regions: dict[str, RegionHealth] = {}
         self.check_interval = config.get("check_interval_ms", 5000) / 1000.0
         self.running = False
 
@@ -581,7 +580,7 @@ class RegionHealthMonitor:
             if region_id in self.regions:
                 self.regions[region_id].status = RegionStatus.FAILED
 
-    async def get_region_health(self, region_id: str) -> Optional[RegionHealth]:
+    async def get_region_health(self, region_id: str) -> RegionHealth | None:
         """Get health status for a specific region."""
         return self.regions.get(region_id)
 
@@ -593,9 +592,9 @@ class RegionHealthMonitor:
 class FailoverManager:
     """Manages failover operations."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = FailoverConfig(**config)
-        self.failover_history: List[Dict[str, Any]] = []
+        self.failover_history: list[dict[str, Any]] = []
 
     async def trigger_failover(self, failed_region: str, target_region: str) -> bool:
         """Trigger failover from failed region to target region."""

@@ -3,7 +3,7 @@ FastAPI router for reporting and business metrics dashboard.
 """
 
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -26,12 +26,12 @@ router = APIRouter(prefix="/api/reporting", tags=["Business Reporting"])
 # Request/Response Models
 class GenerateReportRequest(BaseModel):
     report_type: ReportType
-    title: Optional[str] = None
-    description: Optional[str] = None
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
-    dataset_ids: List[UUID] = []
-    detector_ids: List[UUID] = []
+    title: str | None = None
+    description: str | None = None
+    start_date: datetime | None = None
+    end_date: datetime | None = None
+    dataset_ids: list[UUID] = []
+    detector_ids: list[UUID] = []
 
 
 class ReportResponse(BaseModel):
@@ -41,35 +41,35 @@ class ReportResponse(BaseModel):
     report_type: ReportType
     status: str
     created_at: datetime
-    completed_at: Optional[datetime]
-    expires_at: Optional[datetime]
-    sections: List[Dict[str, Any]]
-    metadata: Dict[str, Any]
+    completed_at: datetime | None
+    expires_at: datetime | None
+    sections: list[dict[str, Any]]
+    metadata: dict[str, Any]
 
 
 class DashboardResponse(BaseModel):
     id: str
     name: str
     description: str
-    widgets: List[Dict[str, Any]]
-    layout: Dict[str, Any]
+    widgets: list[dict[str, Any]]
+    layout: dict[str, Any]
     refresh_interval: int
     is_public: bool
     created_at: datetime
     updated_at: datetime
-    last_accessed: Optional[datetime]
+    last_accessed: datetime | None
 
 
 class CreateDashboardRequest(BaseModel):
     name: str
     description: str = ""
-    widgets: List[Dict[str, Any]] = []
+    widgets: list[dict[str, Any]] = []
     is_public: bool = False
 
 
 class UpdateDashboardRequest(BaseModel):
-    widgets: List[Dict[str, Any]]
-    layout: Optional[Dict[str, Any]] = None
+    widgets: list[dict[str, Any]]
+    layout: dict[str, Any] | None = None
 
 
 class MetricResponse(BaseModel):
@@ -80,7 +80,7 @@ class MetricResponse(BaseModel):
     current_value: Any
     formatted_value: str
     last_updated: datetime
-    tags: Dict[str, str]
+    tags: dict[str, str]
 
 
 class CreateAlertRequest(BaseModel):
@@ -89,7 +89,7 @@ class CreateAlertRequest(BaseModel):
     metric_id: str
     condition: str
     threshold: float
-    notification_channels: List[str]
+    notification_channels: list[str]
 
 
 class AlertResponse(BaseModel):
@@ -100,8 +100,8 @@ class AlertResponse(BaseModel):
     condition: str
     threshold: float
     is_active: bool
-    notification_channels: List[str]
-    last_triggered: Optional[datetime]
+    notification_channels: list[str]
+    last_triggered: datetime | None
     trigger_count: int
     created_at: datetime
 
@@ -212,7 +212,7 @@ async def generate_report(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.get("/tenants/{tenant_id}/reports", response_model=List[ReportResponse])
+@router.get("/tenants/{tenant_id}/reports", response_model=list[ReportResponse])
 async def list_reports(
     tenant_id: UUID,
     limit: int = Query(10, ge=1, le=100),
@@ -283,7 +283,7 @@ async def create_dashboard(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.get("/tenants/{tenant_id}/dashboards", response_model=List[DashboardResponse])
+@router.get("/tenants/{tenant_id}/dashboards", response_model=list[DashboardResponse])
 async def list_dashboards(
     tenant_id: UUID,
     current_user: User = Depends(require_tenant_access),
@@ -413,7 +413,7 @@ async def create_standard_dashboard(
 @router.get("/tenants/{tenant_id}/metrics/realtime")
 async def get_realtime_metrics(
     tenant_id: UUID,
-    metric_ids: List[str] = Query(..., description="List of metric IDs to fetch"),
+    metric_ids: list[str] = Query(..., description="List of metric IDs to fetch"),
     current_user: User = Depends(require_tenant_access),
     reporting_service: ReportingService = Depends(get_reporting_service),
 ):
