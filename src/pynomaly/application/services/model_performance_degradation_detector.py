@@ -11,8 +11,13 @@ from dataclasses import dataclass, field
 from enum import Enum
 import numpy as np
 from scipy import stats
+from datetime import datetime
+import logging
 
 from pynomaly.domain.entities.model_performance import ModelPerformanceMetrics, ModelPerformanceBaseline
+from pynomaly.domain.entities.alert import AlertSeverity, AlertSource, AlertType, NotificationChannel
+
+logger = logging.getLogger(__name__)
 
 class DetectionAlgorithm(Enum):
     """Enumeration of supported degradation detection algorithms."""
@@ -154,9 +159,12 @@ class ModelPerformanceDegradationDetector:
         self.config = config
         self._metric_names = ['accuracy', 'precision', 'recall', 'f1']
     
-    def detect(self,
-               current_metrics: ModelPerformanceMetrics,
-               baseline: ModelPerformanceBaseline) -> DegradationResult:
+    async def detect(self,
+                      current_metrics: ModelPerformanceMetrics,
+                      baseline: ModelPerformanceBaseline,
+                      model_id: str,
+                      model_name: str,
+                      notification_channels: Optional[List[NotificationChannel]] = None) -> DegradationResult:
         """Detect performance degradation using the configured algorithm.
         
         Args:
@@ -166,6 +174,30 @@ class ModelPerformanceDegradationDetector:
         Returns:
             DegradationResult containing detection results and details
         """
+        degradation_result = self._run_detection_algorithm(current_metrics, baseline)
+
+        if degradation_result.degrade_flag:
+            # Log detected degradation
+            logger.info(f"Performance degradation detected for model {model_name}")
+
+            # Instantiate PerformanceAlertService
+            from pynomaly.application.services.performance_alert_service import PerformanceAlertService
+            from pynomaly.application.services.intelligent_alert_service import IntelligentAlertService
+            performance_alert_service = PerformanceAlertService(IntelligentAlertService())
+
+            # Create a performance alert
+            await performance_alert_service.create_performance_alert(
+                degradation_result=degradation_result,
+                model_id=model_id,
+                model_name=model_name,
+                notification_channels=notification_channels
+            )
+
+        return degradation_result
+
+    def _run_detection_algorithm(self,
+                                current_metrics: ModelPerformanceMetrics,
+                                baseline: ModelPerformanceBaseline) -> DegradationResult:
         if self.config.algorithm == DetectionAlgorithm.SIMPLE_THRESHOLD:
             return self._simple_threshold_detection(current_metrics, baseline)
         elif self.config.algorithm == DetectionAlgorithm.STATISTICAL:
