@@ -49,9 +49,9 @@ Changelog = "https://github.com/pynomaly/pynomaly/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 # Core functionality extras
-minimal = ["scikit-learn1.6.0", "scipy1.15.0"]  # Core
-ml = ["scikit-learn1.6.0", "scipy1.15.0"]  # Core ML
-standard = ["scikit-learn1.6.0", "scipy1.15.0", "pyarrow18.1.0"]  # Standard + Pandas
+minimal = ["scikit-learn>=1.6.0", "scipy>=1.15.0"]  # Core
+ml = ["scikit-learn>=1.6.0", "scipy>=1.15.0"]  # Core ML
+standard = ["scikit-learn>=1.6.0", "scipy>=1.15.0", "pyarrow>=18.1.0"]  # Standard + Pandas
 # Annotation extras
 pwa = ["service-worker", "web-pwa"]  # Progressive Web App
 streaming = ["websockets", "asyncio"]  # Streaming frameworks
