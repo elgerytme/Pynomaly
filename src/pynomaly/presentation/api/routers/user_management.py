@@ -99,6 +99,17 @@ class InviteUserRequest(BaseModel):
     role: UserRole = UserRole.VIEWER
 
 
+class UpdateUserRequest(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    role: Optional[UserRole] = None
+    status: Optional[UserStatus] = None
+
+
+class PasswordResetRequest(BaseModel):
+    new_password: str = Field(..., min_length=8)
+
+
 class UpdateUserRoleRequest(BaseModel):
     role: UserRole
 
@@ -248,6 +259,7 @@ async def create_user(
     user_service: UserManagementService = Depends(get_user_management_service)
 ):
     """Create a new user."""
+    audit_logger = get_audit_logger()
     try:
         user = await user_service.create_user(
             email=request.email,
@@ -257,6 +269,15 @@ async def create_user(
             password=request.password,
             tenant_id=TenantId(str(request.tenant_id)) if request.tenant_id else None,
             role=request.role
+        )
+
+        # Log user creation
+        audit_logger.log_event(
+            AuditEventType.USER_CREATED,
+            user_id=str(user.id),
+            outcome="success",
+            severity=AuditSeverity.LOW,
+            details={"email": user.email}
         )
         
         return UserResponse(
@@ -288,33 +309,28 @@ async def create_user(
         )
 
 
-@router.get("/{user_id}", response_model=UserResponse)
-async def get_user(
+@router.put("/{user_id}", response_model=UserResponse)
+async def update_user(
     user_id: UUID,
+    request: UpdateUserRequest,
     current_user = Depends(get_current_user),
     user_service: UserManagementService = Depends(get_user_management_service)
 ):
-    """Get user by ID."""
+    """Update user details."""
+    audit_logger = get_audit_logger()
     try:
-        user = await user_service._user_repo.get_user_by_id(UserId(str(user_id)))
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found"
-            )
-        
-        # Check if current user can view this user
-        # (same tenant or super admin)
-        if not current_user.is_super_admin():
-            common_tenants = set(current_user.get_tenant_ids()) & set(user.get_tenant_ids())
-            if not common_tenants:
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Access denied"
-                )
-        
+        user = await user_service.update_user(user_id=UserId(str(user_id)), update_data=request.dict(exclude_unset=True))
+
+        audit_logger.log_event(
+            AuditEventType.USER_UPDATED,
+            user_id=str(user.id),
+            outcome="success",
+            severity=AuditSeverity.LOW,
+            details=request.dict(exclude_unset=True)
+        )
+
         return UserResponse(
-            id=UUID(user.id),
+            id=user.id,
             email=user.email,
             username=user.username,
             first_name=user.first_name,
@@ -339,6 +355,39 @@ async def get_user(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
+        )
+
+
+@router.put("/{user_id}/reset-password", response_model=dict)
+async def reset_password(
+    user_id: UUID,
+    request: PasswordResetRequest,
+    current_user = Depends(get_current_user),
+    user_service: UserManagementService = Depends(get_user_management_service)
+):
+    """Reset user password."""
+    audit_logger = get_audit_logger()
+    try:
+        await user_service.reset_password(UserId(str(user_id)), request.new_password)
+
+        audit_logger.log_event(
+            AuditEventType.PASSWORD_CHANGED,
+            user_id=str(user_id),
+            outcome="success",
+            severity=AuditSeverity.MEDIUM,
+        )
+
+        return {"message": "Password reset successfully."}
+    except UserNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
         )
 
 
@@ -559,6 +608,32 @@ async def update_user_role_in_tenant(
         )
 
 
+@router.delete("/{user_id}", response_model=dict)
+async def delete_user(
+    user_id: UUID,
+    current_user = Depends(get_current_user),
+    user_service: UserManagementService = Depends(get_user_management_service)
+):
+    """Delete user by ID."""
+    audit_logger = get_audit_logger()
+    try:
+        await user_service.delete_user(UserId(str(user_id)))
+
+        audit_logger.log_event(
+            AuditEventType.USER_DELETED,
+            user_id=str(user_id),
+            outcome="success",
+            severity=AuditSeverity.HIGH,
+        )
+
+        return {"message": "User deleted successfully."}
+    except UserNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
+
 @router.delete("/tenants/{tenant_id}/users/{user_id}")
 async def remove_user_from_tenant(
     tenant_id: UUID,
@@ -567,6 +642,7 @@ async def remove_user_from_tenant(
     user_service: UserManagementService = Depends(get_user_management_service)
 ):
     """Remove a user from a tenant."""
+    audit_logger = get_audit_logger()
     try:
         success = await user_service._user_repo.remove_user_from_tenant(
             user_id=UserId(str(user_id)),
@@ -574,6 +650,14 @@ async def remove_user_from_tenant(
         )
         
         if success:
+            audit_logger.log_event(
+                AuditEventType.USER_DELETED,
+                user_id=str(user_id),
+                outcome="success",
+                severity=AuditSeverity.MEDIUM,
+                details={"tenant_id": str(tenant_id)}
+            )
+
             # Update tenant usage
             await user_service._tenant_repo.update_tenant_usage(
                 TenantId(str(tenant_id)), {"users_count": "-1"}

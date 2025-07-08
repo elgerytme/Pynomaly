@@ -548,7 +548,7 @@ npm run build-css
 - **Production monitoring**: Full observability stack
 - **Text anomaly detection**: NLP-based detection methods
 
-See [CHANGELOG.md](CHANGELOG.md) for detailed progress and [TODO.md](TODO.md) for planned features.
+See [CHANGELOG.md](CHANGELOG.md) for detailed progress and [TODO.md](docs/project/TODO.md) for planned features.
 
 ## Important Notes
 
