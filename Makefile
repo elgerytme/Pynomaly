@@ -15,7 +15,7 @@
 #   make build    - Build package
 #   make clean    - Clean up artifacts
 
-.PHONY: help setup install dev-install lint format test test-cov build clean docker pre-commit ci status release docs
+.PHONY: help setup install dev-install lint format test test-cov build clean docker pre-commit ci status release docs security-scan security-ci
 
 # Default target
 help: ## Show this help message
