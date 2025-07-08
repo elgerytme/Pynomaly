@@ -15,7 +15,7 @@
 #   make build    - Build package
 #   make clean    - Clean up artifacts
 
-.PHONY: help setup install dev-install lint format test test-cov build clean docker pre-commit ci status release docs branch-new branch-switch branch-validate
+.PHONY: help setup install dev-install lint format test test-cov build clean docker pre-commit ci status release docs git-hooks branch-new branch-switch branch-validate
 
 # Default target
 help: ## Show this help message
@@ -53,6 +53,10 @@ help: ## Show this help message
 	@echo "  make pre-commit     - Install and run pre-commit hooks"
 	@echo "  make ci             - Run full CI pipeline locally"
 	@echo ""
+	@echo "Security:"
+	@echo "  make security-scan  - Run security scan locally with non-zero exit on high severity issues"
+	@echo "  make aggregate-sarif - Aggregate SARIF files into combined report"
+	@echo ""
 	@echo "Documentation & Deployment:"
 	@echo "  make docs           - Build documentation"
 	@echo "  make docs-serve     - Serve documentation locally"
@@ -64,9 +68,11 @@ help: ## Show this help message
 	@echo "  make env-clean      - Clean and recreate environments"
 	@echo ""
 	@echo "Branching & Git:"
+	@echo "  make git-hooks            - Install Git hooks (pre-commit, pre-push, post-checkout)"
 	@echo "  make branch-new TYPE NAME - Create new branch with validation (e.g., feature my-feature)"
 	@echo "  make branch-switch NAME   - Switch branches with safety checks"
 	@echo "  make branch-validate      - Validate current branch name for CI"
+	@echo "  Note: Cross-platform scripts in scripts/git/ (bash & PowerShell)"
 	@echo ""
 	@echo "For detailed help: make help-detailed"
 
@@ -269,6 +275,24 @@ status: ## Show project status and environment info
 
 # === BRANCHING & GIT ===
 
+# OS Detection
+OS := $(shell uname -s 2>/dev/null || echo Windows_NT)
+
+git-hooks: ## Install Git hooks from scripts/git/hooks/
+	@echo "🔗 Installing Git hooks..."
+	@echo "Setting Git hooks path to scripts/git/hooks/"
+	git config core.hooksPath scripts/git/hooks
+	@echo "✅ Git hooks installed successfully!"
+	@echo "Hooks available:"
+	@echo "  - pre-commit  → branch naming lint + partial linting"
+	@echo "  - pre-push    → run unit tests"
+	@echo "  - post-checkout → remind to restart long-running services"
+	@echo "🎯 Cross-platform installation complete!"
+	@echo ""
+	@echo "Alternative installation methods (if make is not available):"
+	@echo "  Windows: powershell -ExecutionPolicy Bypass -File scripts/git/install-hooks.ps1"
+	@echo "  Unix:    bash scripts/git/install-hooks.sh"
+
 branch-new: ## Create new branch with validation (usage: make branch-new TYPE=feature NAME=my-feature)
 	@echo "🌿 Creating new branch..."
 	@if [ -z "$(TYPE)" ] || [ -z "$(NAME)" ]; then \
@@ -278,32 +302,11 @@ branch-new: ## Create new branch with validation (usage: make branch-new TYPE=fe
 		echo "Example: make branch-new TYPE=feature NAME=anomaly-detection"; \
 		exit 1; \
 	fi
-	@case "$(TYPE)" in \
-		feature|bugfix|hotfix|release|chore|docs) \
-			echo "✅ Branch type '$(TYPE)' is valid"; \
-			;; \
-		*) \
-			echo "❌ Error: Invalid branch type '$(TYPE)'"; \
-			echo "Valid types: feature, bugfix, hotfix, release, chore, docs"; \
-			exit 1; \
-			;; \
-	esac
-	@if echo "$(NAME)" | grep -qE '^[a-z0-9-]+$$'; then \
-		echo "✅ Branch name '$(NAME)' is valid"; \
-	else \
-		echo "❌ Error: Invalid branch name '$(NAME)'"; \
-		echo "Branch names must contain only lowercase letters, numbers, and hyphens"; \
-		exit 1; \
-	fi
-	@BRANCH_NAME="$(TYPE)/$(NAME)"; \
-	echo "🔍 Checking if branch exists..."; \
-	if git show-ref --verify --quiet refs/heads/$$BRANCH_NAME; then \
-		echo "❌ Error: Branch '$$BRANCH_NAME' already exists"; \
-		exit 1; \
-	fi; \
-	echo "🌿 Creating branch '$$BRANCH_NAME'..."; \
-	git checkout -b $$BRANCH_NAME; \
-	echo "✅ Branch '$$BRANCH_NAME' created and switched to!"
+ifeq ($(OS),Windows_NT)
+	@powershell -ExecutionPolicy Bypass -File scripts/git/git_new_branch.ps1 -Type "$(TYPE)" -Name "$(NAME)"
+else
+	@hatch env run git:git_new_branch.sh $(TYPE) $(NAME)
+endif
 
 branch-switch: ## Switch branches with safety checks (usage: make branch-switch NAME=feature/my-feature)
 	@echo "🔄 Switching branches with safety checks..."
@@ -313,38 +316,11 @@ branch-switch: ## Switch branches with safety checks (usage: make branch-switch 
 		echo "Example: make branch-switch NAME=feature/anomaly-detection"; \
 		exit 1; \
 	fi
-	@echo "🔍 Checking if branch exists..."
-	@if ! git show-ref --verify --quiet refs/heads/$(NAME) && ! git show-ref --verify --quiet refs/remotes/origin/$(NAME); then \
-		echo "❌ Error: Branch '$(NAME)' does not exist locally or remotely"; \
-		echo "Available branches:"; \
-		git branch -a --format='%(refname:short)' | grep -v HEAD | sed 's/^/  /'; \
-		exit 1; \
-	fi
-	@echo "🔍 Checking for uncommitted changes..."
-	@if ! git diff-index --quiet HEAD --; then \
-		echo "❌ Error: You have uncommitted changes"; \
-		echo "Please commit or stash your changes before switching branches:"; \
-		git status --porcelain; \
-		exit 1; \
-	fi
-	@echo "🔍 Checking for running processes that might be affected..."
-	@if pgrep -f "python.*pynomaly" > /dev/null 2>&1; then \
-		echo "⚠️  Warning: Python processes related to pynomaly are running"; \
-		echo "Consider stopping them before switching branches"; \
-		echo "Running processes:"; \
-		pgrep -f "python.*pynomaly" | head -5; \
-		echo "Continue anyway? (y/N)"; \
-		read -r response; \
-		if [ "$$response" != "y" ] && [ "$$response" != "Y" ]; then \
-			echo "❌ Branch switch cancelled"; \
-			exit 1; \
-		fi; \
-	fi
-	@echo "🔄 Switching to branch '$(NAME)'..."
-	@git switch $(NAME) || (echo "❌ Failed to switch to branch '$(NAME)'"; exit 1)
-	@echo "✅ Successfully switched to branch '$(NAME)'"
-	@echo "📊 Current branch status:"
-	@git status --short
+ifeq ($(OS),Windows_NT)
+	@powershell -ExecutionPolicy Bypass -File scripts/git/git_switch_safe.ps1 -Name "$(NAME)"
+else
+	@hatch env run git:git_switch_safe.sh $(NAME)
+endif
 
 branch-validate: ## Validate current branch name for CI compliance
 	@echo "🔍 Validating current branch name..."
@@ -369,6 +345,30 @@ branch-validate: ## Validate current branch name for CI compliance
 		echo "Name must contain only lowercase letters, numbers, and hyphens"; \
 		echo "Examples: feature/anomaly-detection, bugfix/memory-leak, docs/api-updates"; \
 		exit 1; \
+	fi
+
+# === SECURITY COMMANDS ===
+
+security-scan: ## Run security scan locally with non-zero exit on high severity issues
+	@echo "🔒 Running security scan..."
+	python test_security_scan.py
+
+aggregate-sarif: ## Aggregate SARIF files into combined report
+	@echo "📊 Aggregating SARIF files..."
+	@echo "Converting bandit JSON to SARIF..."
+	@if [ -f "bandit-report.json" ]; then \
+		python scripts/convert_to_sarif.py bandit-report.json bandit-report.sarif; \
+		echo "✅ Bandit SARIF converted"; \
+	else \
+		echo "⚠️  No bandit-report.json found"; \
+	fi
+	@echo "Aggregating all SARIF files..."
+	@SARIF_FILES=$$(find . -name "*.sarif" -type f 2>/dev/null | head -10); \
+	if [ -n "$$SARIF_FILES" ]; then \
+		python scripts/aggregate_sarif.py $$SARIF_FILES combined-security-report.sarif; \
+		echo "✅ Combined SARIF report created: combined-security-report.sarif"; \
+	else \
+		echo "⚠️  No SARIF files found to aggregate"; \
 	fi
 
 # === PRODUCTION COMMANDS ===
@@ -469,11 +469,19 @@ dev-storage: ## Start development environment with storage services
 	@echo "🚀 Starting Docker development environment with storage services..."
 	@echo "This will start PostgreSQL, Redis, and MinIO services"
 	@echo "API will be available at http://localhost:8000"
+ifeq ($(OS),Windows_NT)
+	@powershell -ExecutionPolicy Bypass -File ./scripts/docker/dev/run-dev-with-storage.ps1 -storage all
+else
 	@./scripts/docker/dev/run-dev-with-storage.sh --storage all
+endif
 
 dev-test: ## Run tests in Docker environment
 	@echo "🧪 Running tests in Docker environment..."
+ifeq ($(OS),Windows_NT)
+	@powershell -ExecutionPolicy Bypass -File ./scripts/docker/test/run-test.ps1 -type all
+else
 	@./scripts/docker/test/run-test.sh --type all
+endif
 
 dev-clean: ## Clean Docker development environment
 	@echo "🧺 Cleaning Docker development environment..."
@@ -506,7 +514,7 @@ clean: npm-clean buck-clean ## Clean all build artifacts
 # === QUICK ALIASES ===
 
 l: lint     ## Alias for lint
-f: format   ## Alias for format  
+f: format   ## Alias for format
 t: test     ## Alias for test
 b: build    ## Alias for build
 c: clean    ## Alias for clean

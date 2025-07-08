@@ -1,0 +1,17 @@
+#!/bin/bash
+# Post-checkout hook for Pynomaly project
+# - Reminds user if long-running services need a restart
+
+set -e
+
+# Colors for output
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+echo -e "${GREEN}🔍 Running post-checkout checks...${NC}"
+
+# 1. Reminder to restart long-running services
+echo -e "${YELLOW}🚀 Reminder: Please restart any long-running services if necessary.${NC}"
+echo -e "${YELLOW}Use 'make dev' or 'make dev-storage' commands to restart services.${NC}"
+
