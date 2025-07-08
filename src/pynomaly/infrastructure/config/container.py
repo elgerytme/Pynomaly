@@ -34,6 +34,12 @@ from pynomaly.infrastructure.repositories import (
     InMemoryDatasetRepository,
     InMemoryDetectorRepository,
     InMemoryResultRepository,
+    InMemoryModelPerformanceRepository,
+    InMemoryPerformanceBaselineRepository,
+    ModelPerformanceRepository,
+    PerformanceBaselineRepository,
+    SQLAlchemyModelPerformanceRepository,
+    SQLAlchemyPerformanceBaselineRepository,
 )
 from pynomaly.infrastructure.repositories.async_wrappers import (
     AsyncDatasetRepositoryWrapper,
@@ -416,6 +422,8 @@ def _create_file_repository(config, repo_type: str):
         "detector": InMemoryDetectorRepository,
         "dataset": InMemoryDatasetRepository,
         "result": InMemoryResultRepository,
+        "model_performance": InMemoryModelPerformanceRepository,
+        "performance_baseline": InMemoryPerformanceBaselineRepository,
     }
 
     return memory_mapping[repo_type]()
@@ -446,6 +454,14 @@ class Container(containers.DeclarativeContainer):
     )
     result_repository = providers.Singleton(
         lambda: _create_repository(Settings(), "result")
+    )
+    
+    # Performance repositories
+    model_performance_repository = providers.Singleton(
+        lambda: _create_repository(Settings(), "model_performance")
+    )
+    performance_baseline_repository = providers.Singleton(
+        lambda: _create_repository(Settings(), "performance_baseline")
     )
 
     # Async repository wrappers

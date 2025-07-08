@@ -34,6 +34,12 @@ class ContainerScanner:
         self.results_dir = self.project_root / "security-results"
         self.results_dir.mkdir(parents=True, exist_ok=True)
         self.scan_timestamp = datetime.now().isoformat()
+        
+        # Get severity threshold from environment variable
+        self.severity_threshold = os.environ.get('SEVERITY_THRESHOLD', 'HIGH')
+        self.threshold_map = {'LOW': 0, 'MEDIUM': 1, 'HIGH': 2, 'CRITICAL': 3}
+        self.threshold_level = self.threshold_map.get(self.severity_threshold, 2)
+        
         self.results = {
             "trivy": {},
             "clair": {},
@@ -470,12 +476,21 @@ class ContainerScanner:
                 print(f"Error: {results['error']}")
                 continue
             
-            # Check for HIGH/CRITICAL findings
+            # Check for findings that exceed severity threshold
             if not self.soft_mode:
-                trivy_high_critical = results["trivy"]["summary"]["critical"] + results["trivy"]["summary"]["high"]
-                clair_high_critical = results["clair"]["summary"]["critical"] + results["clair"]["summary"]["high"]
+                trivy_summary = results["trivy"]["summary"]
+                clair_summary = results["clair"]["summary"]
                 
-                if trivy_high_critical > 0 or clair_high_critical > 0:
+                # Check if any findings exceed the threshold
+                threshold_exceeded = False
+                if (self.threshold_level <= 3 and (trivy_summary["critical"] > 0 or clair_summary["critical"] > 0)) or \
+                   (self.threshold_level <= 2 and (trivy_summary["high"] > 0 or clair_summary["high"] > 0)) or \
+                   (self.threshold_level <= 1 and (trivy_summary["medium"] > 0 or clair_summary["medium"] > 0)) or \
+                   (self.threshold_level <= 0 and (trivy_summary["low"] > 0 or clair_summary["low"] > 0)):
+                    threshold_exceeded = True
+                
+                if threshold_exceeded:
+                    print(f"Findings exceed severity threshold ({self.severity_threshold}) for image: {image_or_dockerfile}")
                     exit_code = 1
         
         # Calculate total issues
@@ -502,6 +517,7 @@ class ContainerScanner:
             json.dump(self.results, f, indent=2)
         
         print(f"\nContainer security scan completed!")
+        print(f"Severity threshold: {self.severity_threshold}")
         print(f"Total issues found: {self.results['summary']['total_issues']}")
         print(f"Critical: {self.results['summary']['critical']}")
         print(f"High: {self.results['summary']['high']}")
@@ -510,16 +526,19 @@ class ContainerScanner:
         print(f"Results saved to: {self.results_dir}")
         
         if not self.soft_mode and exit_code == 1:
-            print("\n⚠️  HIGH/CRITICAL findings detected. Exiting with non-zero code.")
+            print(f"\n⚠️  Findings exceed severity threshold ({self.severity_threshold}). Exiting with non-zero code.")
         
         return exit_code
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Run container security scans")
+    parser = argparse.ArgumentParser(
+        description="Run container security scans with Trivy and Clair",
+        epilog="Uses SEVERITY_THRESHOLD environment variable (LOW, MEDIUM, HIGH, CRITICAL) to determine failure threshold. Defaults to HIGH."
+    )
     parser.add_argument("--images", nargs='+', help="List of images or Dockerfiles to scan")
     parser.add_argument("--manifest", type=Path, help="Manifest file containing image or Dockerfile list")
-    parser.add_argument("--soft", action="store_true", help="Don't exit with non-zero code on HIGH/CRITICAL findings")
+    parser.add_argument("--soft", action="store_true", help="Don't exit with non-zero code on findings above threshold")
 
     args = parser.parse_args()
 

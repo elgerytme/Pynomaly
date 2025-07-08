@@ -23,6 +23,10 @@ class DriftDetectionMethod(Enum):
     ADVERSARIAL_DRIFT_DETECTION = "adversarial_drift_detection"
     NEURAL_DRIFT_DETECTOR = "neural_drift_detector"
     STATISTICAL_PROCESS_CONTROL = "statistical_process_control"
+    
+    # Aliases for backwards compatibility
+    KS_TEST = "kolmogorov_smirnov"
+    PSI = "population_stability_index"
 
 
 class DriftScope(Enum):
@@ -474,6 +478,14 @@ class DriftDetectionResult:
     # Additional fields for use case compatibility
     detector_id: str | None = None
     severity: DriftSeverity = field(default_factory=lambda: DriftSeverity.NONE)
+    
+    # Test compatibility fields
+    model_id: str | None = None
+    detector_name: str | None = None
+    p_value: float | None = None
+    reference_window_size: int | None = None
+    current_window_size: int | None = None
+    drift_type: DriftType | None = None
     
     def __post_init__(self):
         """Validate drift detection result."""
@@ -1057,6 +1069,15 @@ class ModelMonitoringConfig:
     notification_channels: list[str] = field(
         default_factory=lambda: ["email"]
     )
+    
+    # Test compatibility fields
+    model_id: str | None = None
+    check_frequency_hours: int = 1
+    alert_threshold: DriftSeverity = field(default_factory=lambda: DriftSeverity.MEDIUM)
+    methods: list[DriftDetectionMethod] = field(
+        default_factory=lambda: [DriftDetectionMethod.KOLMOGOROV_SMIRNOV]
+    )
+    monitoring_features: list[str] = field(default_factory=list)
 
     def __post_init__(self):
         """Validate monitoring configuration."""

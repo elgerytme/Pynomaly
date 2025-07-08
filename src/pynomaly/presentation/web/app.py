@@ -32,9 +32,12 @@ def get_container() -> Container:
     return create_container()
 
 
-def get_current_user() -> str | None:
-    """Get current user (stub implementation)."""
-    return None  # Simplified for now to avoid circular import
+def get_current_user(request: Request) -> str | None:
+    """Get the authenticated current user from request cookies"""
+    token = request.cookies.get("access_token")
+    if token:
+        return "authenticated_user"  # In real application, decode & validate JWT
+    return None
 
 
 # Get template and static directories

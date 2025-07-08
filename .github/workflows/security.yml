@@ -70,59 +70,33 @@ jobs:
     - name: Process Security Results
       if: always()
       run: |
-        # Create combined SARIF report
-        mkdir -p security-results
-        
-        # Check for various security scan outputs and combine them
+        # Move SARIF files to sarif directory
+        mkdir -p sarif
         if [ -f "safety-report.sarif" ]; then
-          cp safety-report.sarif security-results/
+          mv safety-report.sarif sarif/
         fi
         if [ -f "pip-audit-report.sarif" ]; then
-          cp pip-audit-report.sarif security-results/
+          mv pip-audit-report.sarif sarif/
         fi
         if [ -f "bandit-report.sarif" ]; then
-          cp bandit-report.sarif security-results/
+          mv bandit-report.sarif sarif/
         fi
-        
-        # Create a combined SARIF file if multiple reports exist
-        if [ $(find security-results -name "*.sarif" | wc -l) -gt 1 ]; then
-          python -c "
-import json
-import glob
-import os
 
-combined_sarif = {
-    'version': '2.1.0',
-    'schema': 'https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json',
-    'runs': []
-}
-
-for sarif_file in glob.glob('security-results/*.sarif'):
-    with open(sarif_file, 'r') as f:
-        sarif_data = json.load(f)
-        if 'runs' in sarif_data:
-            combined_sarif['runs'].extend(sarif_data['runs'])
-
-with open('security-results/combined-security.sarif', 'w') as f:
-    json.dump(combined_sarif, f, indent=2)
-"
-        elif [ $(find security-results -name "*.sarif" | wc -l) -eq 1 ]; then
-          cp security-results/*.sarif security-results/combined-security.sarif
-        fi
+        # Aggregate SARIF files
+        python scripts/aggregate_sarif.py sarif/*.sarif -o sarif/combined.sarif
 
     - name: Check Severity Threshold
       if: always()
       run: |
-        # Check if any findings exceed the severity threshold
-        if [ -f "security-results/combined-security.sarif" ]; then
-          python -c "
+        # Custom Python check for severity threshold
+        python -c "
 import json
 import sys
 
 threshold_map = {'LOW': 0, 'MEDIUM': 1, 'HIGH': 2, 'CRITICAL': 3}
 threshold = threshold_map.get('${{ env.SEVERITY_THRESHOLD }}', 2)
 
-with open('security-results/combined-security.sarif', 'r') as f:
+with open('sarif/combined.sarif', 'r') as f:
     sarif_data = json.load(f)
 
 high_severity_found = False
@@ -146,12 +120,18 @@ else:
 "
         fi
 
+    - name: Upload Combined SARIF to Security Tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always() && !env.IS_FORK
+      with:
+        sarif_file: sarif/combined.sarif
+
     - name: Upload Security Results
       uses: actions/upload-artifact@v4
       if: always()
       with:
         name: security-results
-        path: security-results/
+        path: sarif/
 
   code-security-scan:
     name: Code Security Analysis
@@ -176,7 +156,7 @@ else:
       uses: actions/download-artifact@v4
       with:
         name: security-results
-        path: security-results/
+        path: sarif/
 
     - name: Run Code Security Analysis with Hatch
       run: |
@@ -191,52 +171,64 @@ else:
     - name: Update Combined SARIF
       if: always()
       run: |
-        # Add any new SARIF files to security-results
+        # Add any new SARIF files to sarif directory
         if [ -f "bandit-report.sarif" ]; then
-          cp bandit-report.sarif security-results/
+          mv bandit-report.sarif sarif/
         fi
         if [ -f "semgrep-report.sarif" ]; then
-          cp semgrep-report.sarif security-results/
+          mv semgrep-report.sarif sarif/
         fi
-        
+
         # Recreate combined SARIF with all results
+        python scripts/aggregate_sarif.py sarif/*.sarif -o sarif/combined.sarif
+
+    - name: Check Severity Threshold
+      if: always()
+      run: |
+        # Custom Python check for severity threshold
         python -c "
 import json
-import glob
-import os
+import sys
 
-combined_sarif = {
-    'version': '2.1.0',
-    'schema': 'https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json',
-    'runs': []
-}
+threshold_map = {'LOW': 0, 'MEDIUM': 1, 'HIGH': 2, 'CRITICAL': 3}
+threshold = threshold_map.get('${{ env.SEVERITY_THRESHOLD }}', 2)
 
-for sarif_file in glob.glob('security-results/*.sarif'):
-    if 'combined-security.sarif' not in sarif_file:
-        with open(sarif_file, 'r') as f:
-            try:
-                sarif_data = json.load(f)
-                if 'runs' in sarif_data:
-                    combined_sarif['runs'].extend(sarif_data['runs'])
-            except json.JSONDecodeError:
-                print(f'Warning: Could not parse {sarif_file}')
+with open('sarif/combined.sarif', 'r') as f:
+    sarif_data = json.load(f)
 
-with open('security-results/combined-security.sarif', 'w') as f:
-    json.dump(combined_sarif, f, indent=2)
+high_severity_found = False
+for run in sarif_data.get('runs', []):
+    for result in run.get('results', []):
+        level = result.get('level', 'note')
+        if level == 'error' and threshold <= 3:
+            high_severity_found = True
+        elif level == 'warning' and threshold <= 2:
+            high_severity_found = True
+        elif level == 'note' and threshold <= 1:
+            high_severity_found = True
+        elif level == 'info' and threshold <= 0:
+            high_severity_found = True
+
+if high_severity_found:
+    print(f'Security issues found that exceed severity threshold: ${{ env.SEVERITY_THRESHOLD }}')
+    sys.exit(1)
+else:
+    print('No security issues found that exceed the severity threshold')
 "
+        fi
 
     - name: Upload Combined SARIF to Security Tab
       uses: github/codeql-action/upload-sarif@v3
       if: always() && !env.IS_FORK
       with:
-        sarif_file: security-results/combined-security.sarif
+        sarif_file: sarif/combined.sarif
 
     - name: Upload Updated Security Results
       uses: actions/upload-artifact@v4
       if: always()
       with:
         name: security-results
-        path: security-results/
+        path: sarif/
 
   codeql-analysis:
     name: CodeQL Analysis
@@ -376,11 +368,18 @@ with open('security-results/combined-security.sarif', 'w') as f:
       env:
         SEVERITY_THRESHOLD: ${{ env.SEVERITY_THRESHOLD }}
 
+    - name: Create safe artifact name
+      id: artifact-name
+      run: |
+        # Create a safe artifact name from the image name
+        safe_name=$(echo "${{ matrix.image }}" | sed 's/[^a-zA-Z0-9._-]/_/g')
+        echo "safe_name=$safe_name" >> $GITHUB_OUTPUT
+
     - name: Upload individual SARIF artifact
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: container-sarif-${{ matrix.image }}
+        name: container-sarif-${{ steps.artifact-name.outputs.safe_name }}
         path: security-results/*_sarif.json
         retention-days: 30
 
@@ -388,7 +387,7 @@ with open('security-results/combined-security.sarif', 'w') as f:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: container-sbom-${{ matrix.image }}
+        name: container-sbom-${{ steps.artifact-name.outputs.safe_name }}
         path: security-results/*_sbom.json
         retention-days: 30
 
@@ -396,7 +395,7 @@ with open('security-results/combined-security.sarif', 'w') as f:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: container-results-${{ matrix.image }}
+        name: container-results-${{ steps.artifact-name.outputs.safe_name }}
         path: security-results/
         retention-days: 30
 

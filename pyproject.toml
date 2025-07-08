@@ -323,8 +323,8 @@ source = "vcs"
 [tool.hatch.build.hooks.vcs]
 version-file = "src/pynomaly/_version.py"
 
-[tool.hatch.build.hooks.custom]
-path = "scripts/build_hooks.py"
+# [tool.hatch.build.hooks.custom]
+# path = "scripts/build_hooks.py"
 
 # Buck2 integration (Buck2 is installed and available)
 # [tool.hatch.build.hooks.buck2]

@@ -13,6 +13,7 @@ from typing import Any, Optional
 from ...domain.entities import Dataset, DetectionResult, Detector
 from ...domain.entities.model_performance import ModelPerformanceMetrics, ModelPerformanceBaseline
 from ...infrastructure.config.feature_flags import require_feature
+from ...infrastructure.repositories import ModelPerformanceRepository, PerformanceBaselineRepository
 from ...infrastructure.monitoring.performance_monitor import (
     PerformanceAlert,
     PerformanceMetrics,
@@ -36,19 +37,34 @@ class PerformanceMonitoringService:
         self,
         performance_monitor: PerformanceMonitor | None = None,
         auto_start_monitoring: bool = True,
+        model_performance_repository: ModelPerformanceRepository | None = None,
+        performance_baseline_repository: PerformanceBaselineRepository | None = None,
     ):
         """Initialize performance monitoring service.
 
         Args:
             performance_monitor: Instance of performance monitor
             auto_start_monitoring: Whether to automatically start monitoring
+            model_performance_repository: Repository for performance metrics
+            performance_baseline_repository: Repository for performance baselines
         """
         self.monitor = performance_monitor or PerformanceMonitor()
         self.auto_start_monitoring = auto_start_monitoring
+        
+        # Repository dependencies
+        # Fall back to in-memory repositories if not provided
+        if model_performance_repository is None:
+            from ...infrastructure.repositories import InMemoryModelPerformanceRepository
+            model_performance_repository = InMemoryModelPerformanceRepository()
+        if performance_baseline_repository is None:
+            from ...infrastructure.repositories import InMemoryPerformanceBaselineRepository
+            performance_baseline_repository = InMemoryPerformanceBaselineRepository()
+            
+        self.model_performance_repository = model_performance_repository
+        self.performance_baseline_repository = performance_baseline_repository
 
         # Service-specific configuration
         self.alert_handlers = []
-        self.performance_baselines = {}
         self.monitoring_enabled = True
 
         # Initialize monitoring if auto-start is enabled
