@@ -1,0 +1,122 @@
+{
+  "baseline_date": "2024-01-XX",
+  "repository": "elgerytme/Pynomaly",
+  "issues": {
+    "total_count": 5,
+    "issues": [
+      {
+        "number": 5,
+        "title": "P1-Critical: Core Architecture & Foundation",
+        "labels": [],
+        "milestone": null
+      },
+      {
+        "number": 4,
+        "title": "P5-Backlog: DevOps & Deployment",
+        "labels": [],
+        "milestone": null
+      },
+      {
+        "number": 3,
+        "title": "P4-Low: Security & Compliance",
+        "labels": [],
+        "milestone": null
+      },
+      {
+        "number": 2,
+        "title": "P3-Medium: Data Processing & Analytics",
+        "labels": [],
+        "milestone": null
+      },
+      {
+        "number": 1,
+        "title": "P2-High: API Development & Integration",
+        "labels": [],
+        "milestone": null
+      }
+    ]
+  },
+  "milestones": {
+    "total_count": 0,
+    "milestones": []
+  },
+  "labels": {
+    "total_count": 9,
+    "labels": [
+      {
+        "name": "bug",
+        "color": "d73a4a",
+        "description": "Something isn't working"
+      },
+      {
+        "name": "documentation",
+        "color": "0075ca",
+        "description": "Improvements or additions to documentation"
+      },
+      {
+        "name": "duplicate",
+        "color": "cfd3d7",
+        "description": "This issue or pull request already exists"
+      },
+      {
+        "name": "enhancement",
+        "color": "a2eeef",
+        "description": "New feature or request"
+      },
+      {
+        "name": "good first issue",
+        "color": "7057ff",
+        "description": "Good for newcomers"
+      },
+      {
+        "name": "help wanted",
+        "color": "008672",
+        "description": "Extra attention is needed"
+      },
+      {
+        "name": "invalid",
+        "color": "e4e669",
+        "description": "This doesn't seem right"
+      },
+      {
+        "name": "question",
+        "color": "d876e3",
+        "description": "Further information is requested"
+      },
+      {
+        "name": "wontfix",
+        "color": "ffffff",
+        "description": "This will not be worked on"
+      }
+    ]
+  },
+  "project_boards": {
+    "total_count": 1,
+    "projects": [
+      {
+        "number": 1,
+        "title": "AI Agent Development Tracking Board",
+        "url": "https://github.com/users/elgerytme/projects/1",
+        "id": "PVT_kwHOCStEus4A9ZoN",
+        "owner": {
+          "login": "elgerytme",
+          "type": "User"
+        },
+        "public": false,
+        "closed": false,
+        "items_count": 5,
+        "fields_count": 13
+      }
+    ]
+  },
+  "priority_analysis": {
+    "issues_by_priority": {
+      "P1-Critical": 1,
+      "P2-High": 1,
+      "P3-Medium": 1,
+      "P4-Low": 1,
+      "P5-Backlog": 1
+    },
+    "notes": "All issues are structured with priority prefixes (P1-P5) but none have formal milestones assigned. No labels are currently applied to any issues."
+  }
+}

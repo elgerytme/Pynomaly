@@ -1,0 +1,12 @@
+/* Custom styles for coverage report */
+body {
+    font-family: Arial, sans-serif;
+}
+
+.coverage.c1 {
+    background-color: #ffcccc !important;
+}
+
+.coverage.c0 {
+    background-color: #ffeeee !important;
+}
