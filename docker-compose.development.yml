@@ -1,0 +1,387 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: pynomaly-postgres
+    environment:
+      POSTGRES_DB: pynomaly_dev
+      POSTGRES_USER: pynomaly
+      POSTGRES_PASSWORD: pynomaly_dev_password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/sql/init_dev_db.sql:/docker-entrypoint-initdb.d/01_init_dev_db.sql:ro
+      - ./scripts/sql/create_test_data.sql:/docker-entrypoint-initdb.d/02_create_test_data.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pynomaly -d pynomaly_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - pynomaly-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: pynomaly-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --appendfsync everysec --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+      - ./config/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - pynomaly-network
+
+  # Pynomaly API Server
+  pynomaly-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: pynomaly-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # Application settings
+      PYNOMALY_ENVIRONMENT: development
+      PYNOMALY_DEBUG: "true"
+      PYNOMALY_LOG_LEVEL: DEBUG
+      PYNOMALY_API_HOST: 0.0.0.0
+      PYNOMALY_API_PORT: 8000
+      
+      # Database configuration
+      PYNOMALY_DB_HOST: postgres
+      PYNOMALY_DB_PORT: 5432
+      PYNOMALY_DB_NAME: pynomaly_dev
+      PYNOMALY_DB_USER: pynomaly
+      PYNOMALY_DB_PASSWORD: pynomaly_dev_password
+      
+      # Redis configuration
+      PYNOMALY_REDIS_HOST: redis
+      PYNOMALY_REDIS_PORT: 6379
+      PYNOMALY_REDIS_DB: 0
+      
+      # Python settings
+      PYTHONPATH: /app/src
+      PYTHONDONTWRITEBYTECODE: 1
+      PYTHONUNBUFFERED: 1
+      
+      # Development settings
+      PYNOMALY_STORAGE_PATH: /app/storage
+      PYNOMALY_LOG_PATH: /app/logs
+      PYNOMALY_TEMP_PATH: /app/tmp
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app:cached
+      - ./storage:/app/storage
+      - ./logs:/app/logs
+      - ./tmp:/app/tmp
+      - ~/.cache:/root/.cache  # Share pip cache
+    working_dir: /app
+    command: >
+      sh -c "
+        echo 'Installing development dependencies...';
+        python -m pip install --upgrade pip;
+        python -m pip install -e .[server,test,cli];
+        echo 'Starting development server...';
+        python -m uvicorn pynomaly.presentation.api.app:app --host 0.0.0.0 --port 8000 --reload --reload-dir src
+      "
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - pynomaly-network
+    profiles:
+      - api
+
+  # Pynomaly Worker (for background tasks)
+  pynomaly-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: pynomaly-worker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # Application settings
+      PYNOMALY_ENVIRONMENT: development
+      PYNOMALY_DEBUG: "true"
+      PYNOMALY_LOG_LEVEL: DEBUG
+      
+      # Database configuration
+      PYNOMALY_DB_HOST: postgres
+      PYNOMALY_DB_PORT: 5432
+      PYNOMALY_DB_NAME: pynomaly_dev
+      PYNOMALY_DB_USER: pynomaly
+      PYNOMALY_DB_PASSWORD: pynomaly_dev_password
+      
+      # Redis configuration
+      PYNOMALY_REDIS_HOST: redis
+      PYNOMALY_REDIS_PORT: 6379
+      PYNOMALY_REDIS_DB: 0
+      
+      # Python settings
+      PYTHONPATH: /app/src
+      PYTHONDONTWRITEBYTECODE: 1
+      PYTHONUNBUFFERED: 1
+      
+      # Worker settings
+      PYNOMALY_WORKER_CONCURRENCY: 2
+      PYNOMALY_WORKER_QUEUE: default
+    volumes:
+      - .:/app:cached
+      - ./storage:/app/storage
+      - ./logs:/app/logs
+      - ./tmp:/app/tmp
+    working_dir: /app
+    command: >
+      sh -c "
+        echo 'Installing worker dependencies...';
+        python -m pip install --upgrade pip;
+        python -m pip install -e .[server,test];
+        echo 'Starting worker...';
+        python -m pynomaly.infrastructure.messaging.worker
+      "
+    restart: unless-stopped
+    networks:
+      - pynomaly-network
+    profiles:
+      - worker
+
+  # Jupyter Notebook for development
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: pynomaly-jupyter
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # Application settings
+      PYNOMALY_ENVIRONMENT: development
+      PYNOMALY_DEBUG: "true"
+      
+      # Database configuration
+      PYNOMALY_DB_HOST: postgres
+      PYNOMALY_DB_PORT: 5432
+      PYNOMALY_DB_NAME: pynomaly_dev
+      PYNOMALY_DB_USER: pynomaly
+      PYNOMALY_DB_PASSWORD: pynomaly_dev_password
+      
+      # Redis configuration
+      PYNOMALY_REDIS_HOST: redis
+      PYNOMALY_REDIS_PORT: 6379
+      PYNOMALY_REDIS_DB: 0
+      
+      # Python settings
+      PYTHONPATH: /app/src
+      PYTHONDONTWRITEBYTECODE: 1
+      PYTHONUNBUFFERED: 1
+      
+      # Jupyter settings
+      JUPYTER_ENABLE_LAB: "yes"
+      JUPYTER_TOKEN: "pynomaly-dev"
+    ports:
+      - "8888:8888"
+    volumes:
+      - .:/app:cached
+      - ./notebooks:/app/notebooks
+      - ./storage:/app/storage
+      - ./logs:/app/logs
+    working_dir: /app
+    command: >
+      sh -c "
+        echo 'Installing Jupyter and dependencies...';
+        python -m pip install --upgrade pip;
+        python -m pip install -e .[all];
+        python -m pip install jupyter jupyterlab ipykernel matplotlib seaborn;
+        echo 'Starting Jupyter Lab...';
+        jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token=pynomaly-dev
+      "
+    restart: unless-stopped
+    networks:
+      - pynomaly-network
+    profiles:
+      - jupyter
+
+  # Test Runner Service
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: pynomaly-test-runner
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # Application settings
+      PYNOMALY_ENVIRONMENT: testing
+      PYNOMALY_DEBUG: "true"
+      PYNOMALY_LOG_LEVEL: DEBUG
+      
+      # Test database configuration
+      PYNOMALY_DB_HOST: postgres
+      PYNOMALY_DB_PORT: 5432
+      PYNOMALY_DB_NAME: pynomaly_test
+      PYNOMALY_DB_USER: pynomaly
+      PYNOMALY_DB_PASSWORD: pynomaly_dev_password
+      
+      # Test Redis configuration
+      PYNOMALY_REDIS_HOST: redis
+      PYNOMALY_REDIS_PORT: 6379
+      PYNOMALY_REDIS_DB: 1  # Use different DB for tests
+      
+      # Python settings
+      PYTHONPATH: /app/src
+      PYTHONDONTWRITEBYTECODE: 1
+      PYTHONUNBUFFERED: 1
+      
+      # Test settings
+      PYTEST_CURRENT_TEST: "true"
+      COVERAGE_PROCESS_START: "/app/.coveragerc"
+    volumes:
+      - .:/app:cached
+      - ./test-results:/app/test-results
+      - ./coverage-reports:/app/coverage-reports
+    working_dir: /app
+    command: >
+      sh -c "
+        echo 'Installing test dependencies...';
+        python -m pip install --upgrade pip;
+        python -m pip install -e .[test,all];
+        echo 'Running tests...';
+        python -m pytest tests/ -v --tb=short --cov=pynomaly --cov-report=html --cov-report=xml --cov-report=term-missing --junit-xml=test-results/junit.xml
+      "
+    networks:
+      - pynomaly-network
+    profiles:
+      - test
+
+  # Monitoring with Prometheus and Grafana
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: pynomaly-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    networks:
+      - pynomaly-network
+    profiles:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: pynomaly-grafana
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: pynomaly-dev
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
+    restart: unless-stopped
+    networks:
+      - pynomaly-network
+    profiles:
+      - monitoring
+
+  # pgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pynomaly-pgadmin
+    depends_on:
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pynomaly.dev
+      PGADMIN_DEFAULT_PASSWORD: pynomaly-dev
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    restart: unless-stopped
+    networks:
+      - pynomaly-network
+    profiles:
+      - admin
+
+  # Redis Commander for Redis management
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: pynomaly-redis-commander
+    depends_on:
+      - redis
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    networks:
+      - pynomaly-network
+    profiles:
+      - admin
+
+# Named volumes for persistent data
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+# Custom network for service communication
+networks:
+  pynomaly-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
