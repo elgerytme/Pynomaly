@@ -29,14 +29,14 @@ class TestDetectionPerformance:
                 detector_repository=container.detector_repository(),
                 dataset_repository=container.dataset_repository(),
                 result_repository=container.detection_result_repository(),
-                pyod_adapter=container.pyod_adapter()
+                pyod_adapter=container.pyod_adapter("IsolationForest")
             )
             
             # Train detector first
             train_use_case = TrainDetectorUseCase(
                 detector_repository=container.detector_repository(),
                 dataset_repository=container.dataset_repository(),
-                pyod_adapter=container.pyod_adapter()
+                pyod_adapter=container.pyod_adapter("IsolationForest")
             )
             
             train_use_case.execute(sample_detector.id, large_dataset.id)
@@ -103,7 +103,7 @@ class TestDetectionPerformance:
                     detector_repository=container.detector_repository(),
                     dataset_repository=container.dataset_repository(),
                     result_repository=container.detection_result_repository(),
-                    pyod_adapter=container.pyod_adapter()
+                    pyod_adapter=container.pyod_adapter("IsolationForest")
                 )
                 
                 start = time.time()

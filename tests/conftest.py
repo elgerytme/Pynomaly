@@ -323,7 +323,7 @@ def trained_detector(
     """Trained detector for testing."""
     try:
         # Get adapter and train
-        adapter = container.pyod_adapter()
+        adapter = container.pyod_adapter("IsolationForest")
         model = adapter.create_model(sample_detector.algorithm_name, sample_detector.parameters)
         adapter.fit(model, sample_dataset.data)
 

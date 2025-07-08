@@ -35,7 +35,7 @@ def test_api_dependencies():
 
         # Test PyOD adapter
         try:
-            pyod_adapter = container.pyod_adapter()
+            pyod_adapter = container.pyod_adapter("IsolationForest")
             algorithms = pyod_adapter.list_algorithms()
             print(f"✓ PyOD adapter works: {len(algorithms)} algorithms available")
         except Exception as e:

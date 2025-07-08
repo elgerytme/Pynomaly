@@ -45,7 +45,7 @@ class TestEndToEndWorkflows:
             train_use_case = TrainDetectorUseCase(
                 detector_repository=detector_repo,
                 dataset_repository=dataset_repo,
-                pyod_adapter=container.pyod_adapter()
+                pyod_adapter=container.pyod_adapter("IsolationForest")
             )
             
             trained_detector = train_use_case.execute(detector.id, dataset.id)
@@ -56,7 +56,7 @@ class TestEndToEndWorkflows:
                 detector_repository=detector_repo,
                 dataset_repository=dataset_repo,
                 result_repository=container.detection_result_repository(),
-                pyod_adapter=container.pyod_adapter()
+                pyod_adapter=container.pyod_adapter("IsolationForest")
             )
             
             result = detection_use_case.execute(detector.id, dataset.id)
@@ -117,7 +117,7 @@ class TestEndToEndWorkflows:
                 train_use_case = TrainDetectorUseCase(
                     detector_repository=detector_repo,
                     dataset_repository=container.dataset_repository(),
-                    pyod_adapter=container.pyod_adapter()
+                    pyod_adapter=container.pyod_adapter("IsolationForest")
                 )
                 
                 try:
@@ -128,7 +128,7 @@ class TestEndToEndWorkflows:
                         detector_repository=detector_repo,
                         dataset_repository=container.dataset_repository(),
                         result_repository=container.detection_result_repository(),
-                        pyod_adapter=container.pyod_adapter()
+                        pyod_adapter=container.pyod_adapter("IsolationForest")
                     )
                     
                     result = detection_use_case.execute(detector.id, dataset.id)
@@ -182,7 +182,7 @@ class TestEndToEndWorkflows:
                 train_use_case = TrainDetectorUseCase(
                     detector_repository=container.detector_repository(),
                     dataset_repository=container.dataset_repository(),
-                    pyod_adapter=container.pyod_adapter()
+                    pyod_adapter=container.pyod_adapter("IsolationForest")
                 )
                 
                 train_use_case.execute(detector.id, dataset.id)
@@ -192,7 +192,7 @@ class TestEndToEndWorkflows:
                     detector_repository=container.detector_repository(),
                     dataset_repository=container.dataset_repository(),
                     result_repository=container.detection_result_repository(),
-                    pyod_adapter=container.pyod_adapter()
+                    pyod_adapter=container.pyod_adapter("IsolationForest")
                 )
                 
                 result = detection_use_case.execute(detector.id, dataset.id)

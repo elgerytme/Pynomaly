@@ -11,7 +11,7 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-import click
+import typer
 import yaml
 
 
@@ -551,19 +551,22 @@ class TestEnvironmentManager:
         return output_file
 
 
-@click.group()
-def cli():
+app = typer.Typer(name="test-env", help="Test environment management CLI")
+
+@app.callback()
+def main():
     """Test environment management CLI."""
     logging.basicConfig(level=logging.INFO)
 
 
-@cli.command()
-@click.option("--name", "-n", required=True, help="Environment name")
-@click.option("--python-version", "-p", default="3.11", help="Python version")
-@click.option("--packages", "-pkg", multiple=True, help="Packages to install")
-@click.option("--requirements", "-r", help="Requirements file")
-@click.option("--clean", is_flag=True, help="Clean existing environment")
-def create(name, python_version, packages, requirements, clean):
+@app.command("create")
+def create(
+    name: str = typer.Option(..., "--name", "-n", help="Environment name"),
+    python_version: str = typer.Option("3.11", "--python-version", "-p", help="Python version"),
+    packages: list[str] = typer.Option([], "--packages", "-pkg", help="Packages to install"),
+    requirements: str = typer.Option(None, "--requirements", "-r", help="Requirements file"),
+    clean: bool = typer.Option(False, "--clean", help="Clean existing environment"),
+):
     """Create a new test environment."""
     manager = TestEnvironmentManager()
     
@@ -571,33 +574,34 @@ def create(name, python_version, packages, requirements, clean):
         env_info = manager.create_environment(
             name=name,
             python_version=python_version,
-            packages=list(packages) if packages else None,
+            packages=packages if packages else None,
             requirements_file=requirements,
             clean=clean
         )
         
-        click.echo(f"✅ Environment created: {name}")
-        click.echo(f"   Path: {env_info['path']}")
-        click.echo(f"   Python: {env_info['python_version']}")
+        typer.echo(f"✅ Environment created: {name}")
+        typer.echo(f"   Path: {env_info['path']}")
+        typer.echo(f"   Python: {env_info['python_version']}")
         
     except Exception as e:
-        click.echo(f"❌ Failed to create environment: {e}")
+        typer.echo(f"❌ Failed to create environment: {e}")
 
 
-@cli.command()
-@click.option("--config", "-c", required=True, help="Test matrix config file")
-@click.option("--command", "-cmd", default="python -m pytest tests/", help="Test command")
-@click.option("--parallel", is_flag=True, help="Run tests in parallel")
-@click.option("--report", "-r", default="test_matrix_report.html", help="Report output file")
-def matrix(config, command, parallel, report):
+@app.command("matrix")
+def matrix(
+    config: str = typer.Option(..., "--config", "-c", help="Test matrix config file"),
+    command: str = typer.Option("python -m pytest tests/", "--command", "-cmd", help="Test command"),
+    parallel: bool = typer.Option(False, "--parallel", help="Run tests in parallel"),
+    report: str = typer.Option("test_matrix_report.html", "--report", "-r", help="Report output file"),
+):
     """Run test matrix across multiple environments."""
     manager = TestEnvironmentManager()
     
     try:
-        click.echo(f"🧪 Creating test environments from: {config}")
+        typer.echo(f"🧪 Creating test environments from: {config}")
         environments = manager.create_test_matrix(config)
         
-        click.echo(f"🚀 Running test matrix with command: {command}")
+        typer.echo(f"🚀 Running test matrix with command: {command}")
         results = manager.run_test_matrix(config, command, parallel)
         
         # Generate report
@@ -605,57 +609,58 @@ def matrix(config, command, parallel, report):
         
         # Show summary
         summary = results['summary']
-        click.echo(f"\n📊 Test Matrix Results:")
-        click.echo(f"   Total: {summary['total']}")
-        click.echo(f"   Passed: {summary['passed']}")
-        click.echo(f"   Failed: {summary['failed']}")
-        click.echo(f"   Errors: {summary['errors']}")
-        click.echo(f"   Report: {report_path}")
+        typer.echo(f"\n📊 Test Matrix Results:")
+        typer.echo(f"   Total: {summary['total']}")
+        typer.echo(f"   Passed: {summary['passed']}")
+        typer.echo(f"   Failed: {summary['failed']}")
+        typer.echo(f"   Errors: {summary['errors']}")
+        typer.echo(f"   Report: {report_path}")
         
         # Exit with error if any tests failed
         if summary['failed'] > 0 or summary['errors'] > 0:
-            click.echo("❌ Some tests failed")
+            typer.echo("❌ Some tests failed")
             exit(1)
         else:
-            click.echo("✅ All tests passed")
+            typer.echo("✅ All tests passed")
             
     except Exception as e:
-        click.echo(f"❌ Test matrix failed: {e}")
+        typer.echo(f"❌ Test matrix failed: {e}")
         exit(1)
 
 
-@cli.command()
-def list():
+@app.command("list")
+def list_environments():
     """List all test environments."""
     manager = TestEnvironmentManager()
     environments = manager.list_environments()
     
     if not environments:
-        click.echo("No test environments found")
+        typer.echo("No test environments found")
         return
     
-    click.echo("Test Environments:")
+    typer.echo("Test Environments:")
     for env in environments:
-        click.echo(f"  📦 {env['name']}")
-        click.echo(f"     Path: {env['path']}")
-        click.echo(f"     Python: {env.get('python_version', 'Unknown')}")
-        click.echo(f"     Created: {time.ctime(env.get('created_at', 0))}")
+        typer.echo(f"  📦 {env['name']}")
+        typer.echo(f"     Path: {env['path']}")
+        typer.echo(f"     Python: {env.get('python_version', 'Unknown')}")
+        typer.echo(f"     Created: {time.ctime(env.get('created_at', 0))}")
 
 
-@cli.command()
-@click.option("--name", "-n", help="Environment name to clean (all if not specified)")
-@click.option("--all", "clean_all", is_flag=True, help="Clean all environments")
-def clean(name, clean_all):
+@app.command("clean")
+def clean(
+    name: str = typer.Option(None, "--name", "-n", help="Environment name to clean (all if not specified)"),
+    clean_all: bool = typer.Option(False, "--all", help="Clean all environments"),
+):
     """Clean up test environments."""
     manager = TestEnvironmentManager()
     
     if clean_all or name is None:
         manager.cleanup_all_environments()
-        click.echo("🧹 Cleaned up all test environments")
+        typer.echo("🧹 Cleaned up all test environments")
     elif name:
         manager.cleanup_environment(name)
-        click.echo(f"🧹 Cleaned up environment: {name}")
+        typer.echo(f"🧹 Cleaned up environment: {name}")
 
 
 if __name__ == "__main__":
-    cli()
+    app()
