@@ -307,7 +307,7 @@ async def test_metrics_publisher_integration():
     )
 
     # Test JSON serialization
-    json_str = metrics.json()
+    json_str = metrics.model_dump_json()
     assert json_str is not None
 
     # Test deserialization
