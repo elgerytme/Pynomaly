@@ -20,25 +20,26 @@
 <!-- List the specific changes made in this PR -->
 
 ### Added
-- 
+-
 
 ### Changed
-- 
+-
 
 ### Fixed
-- 
+-
 
 ### Removed
-- 
+-
 
 ## Testing
 <!-- Describe the tests you ran to verify your changes -->
 
-- [ ] **Unit tests** pass
-- [ ] **Integration tests** pass  
+- [ ] **Unit tests** pass (in container environment)
+- [ ] **Integration tests** pass (in container environment)
 - [ ] **Manual testing** completed
 - [ ] **Performance testing** (if applicable)
 - [ ] **Security testing** (if applicable)
+- [ ] **Container image** builds successfully
 
 ### Test Coverage
 - [ ] **Existing tests** cover the changes
@@ -53,6 +54,7 @@
 - [ ] **User documentation** updated
 - [ ] **README.md** updated (if applicable)
 - [ ] **Examples** updated (if applicable)
+- [ ] **Workflow documentation** updated in `/docs/developer-guides/workflow.md`
 
 ## Changelog Requirements ⚠️
 <!-- This section is MANDATORY for all significant changes -->
@@ -116,6 +118,18 @@
 - [ ] **No commented-out code** or debug statements
 - [ ] **Error handling** implemented appropriately
 
+### Branch Compliance
+- [ ] **Branch name** follows naming convention (e.g., `feature/my-feature`, `bugfix/issue-fix`)
+- [ ] **Branch validation** passes locally (`make branch-validate`)
+- [ ] **No direct pushes** to `main` or `develop` branches
+- [ ] **CI branch compliance** job passes
+
+### Container Compliance
+- [ ] **Developed & tested** in branch-specific container
+- [ ] **`docker compose up --build`** succeeds locally
+- [ ] **`.devcontainer` config** unchanged or updated accordingly
+- [ ] **Make targets** (`make test`, `make lint`) pass inside container
+
 ### Clean Architecture Compliance
 - [ ] **Domain layer** remains dependency-free
 - [ ] **Application layer** orchestrates use cases properly
@@ -129,6 +143,8 @@
 - [ ] **Performance** considerations addressed
 - [ ] **Security** implications considered
 - [ ] **Monitoring** hooks added (if applicable)
+- [ ] **Container image** optimized for production
+- [ ] **Multi-stage builds** used to minimize image size
 
 ### Final Verification
 - [ ] **All tests pass** locally

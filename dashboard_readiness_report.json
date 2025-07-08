@@ -1,0 +1,60 @@
+{
+  "timestamp": "2025-07-08T16:12:32.928036",
+  "overall_status": "ready",
+  "components": {
+    "templates": {
+      "demo_dashboard.html": {
+        "exists": true,
+        "size": 28886,
+        "modified": 1752003647.692365,
+        "content_length": 28869,
+        "has_demo_data": false
+      },
+      "advanced-dashboard-demo.html": {
+        "exists": true,
+        "size": 33903,
+        "modified": 1752003647.690365
+      },
+      "dashboard-demo.html": {
+        "exists": true,
+        "size": 26094,
+        "modified": 1752003647.6913643
+      },
+      "base.html": {
+        "exists": true,
+        "size": 20207,
+        "modified": 1752000315.3559978
+      }
+    },
+    "static_files": {
+      "js/demo_data.js": {
+        "exists": true,
+        "size": 50,
+        "modified": 1752005522.7544713
+      },
+      "css/dashboard.css": {
+        "exists": true,
+        "size": 58,
+        "modified": 1752005527.6536152
+      },
+      "css/main.css": {
+        "exists": true,
+        "size": 58,
+        "modified": 1752005533.9063594
+      }
+    },
+    "demo_data": {
+      "demo_data.json": {
+        "exists": true,
+        "size": 10,
+        "modified": 1752005539.5166547
+      },
+      "demo_results.json": {
+        "exists": true,
+        "size": 10,
+        "modified": 1752005545.6457484
+      }
+    },
+    "server": {}
+  }
+}

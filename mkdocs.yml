@@ -1,0 +1,149 @@
+site_name: Pynomaly Documentation
+site_description: State-of-the-art Python anomaly detection platform
+site_author: Pynomaly Team
+site_url: https://pynomaly.readthedocs.io
+
+repo_name: pynomaly/pynomaly
+repo_url: https://github.com/pynomaly/pynomaly
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  favicon: assets/favicon.ico
+  logo: assets/logo.png
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+    - Architecture: getting-started/architecture.md
+  - User Guide:
+    - CLI Usage: guide/cli.md
+    - API Usage: guide/api.md
+    - Web Interface: guide/web.md
+    - Algorithms: guide/algorithms.md
+    - Datasets: guide/datasets.md
+    - Experiments: guide/experiments.md
+  - API Reference:
+    - Domain: api/domain.md
+    - Application: api/application.md
+    - Infrastructure: api/infrastructure.md
+    - REST API: api/rest.md
+  - Advanced:
+    - Custom Algorithms: advanced/custom-algorithms.md
+    - Performance Tuning: advanced/performance.md
+    - Deployment: advanced/deployment.md
+    - Monitoring: advanced/monitoring.md
+  - Developer Guides:
+    - Overview: developer-guides/README.md
+    - Development Setup: developer-guides/DEVELOPMENT_SETUP.md
+    - Alternative Setup: developer-guides/ALTERNATIVE_SETUP.md
+    - Workflow: developer-guides/workflow.md
+    - Contributing:
+      - Guidelines: developer-guides/contributing/CONTRIBUTING.md
+      - Development Setup: developer-guides/contributing/README.md
+      - Git Workflow: developer-guides/contributing/CI_CD_BRANCH_COMPLIANCE.md
+      - Hatch Guide: developer-guides/contributing/HATCH_GUIDE.md
+      - Implementation Guide: developer-guides/contributing/IMPLEMENTATION_GUIDE.md
+      - Environment Management: developer-guides/contributing/ENVIRONMENT_MANAGEMENT_MIGRATION.md
+      - Dependency Guide: developer-guides/contributing/DEPENDENCY_GUIDE.md
+      - File Organization: developer-guides/contributing/FILE_ORGANIZATION_STANDARDS.md
+      - Test Analysis: developer-guides/contributing/COMPREHENSIVE_TEST_ANALYSIS.md
+      - CI/CD Updates: developer-guides/contributing/CI_CD_VERSION_UPDATE_SUMMARY.md
+      - Changelog Automation: developer-guides/contributing/changelog-automation-guide.md
+      - Autonomous Development: developer-guides/contributing/autonomous-mode-developer-guide.md
+      - Troubleshooting:
+        - System Recovery: developer-guides/contributing/troubleshooting/SYSTEM_RECOVERY_SUCCESS_REPORT.md
+    - Architecture:
+      - Overview: developer-guides/architecture/overview.md
+      - Entity Relationship: developer-guides/architecture/erd.md
+      - Continuous Learning: developer-guides/architecture/continuous-learning-framework.md
+      - Deployment Pipeline: developer-guides/architecture/deployment-pipeline-framework.md
+      - Model Persistence: developer-guides/architecture/model-persistence-framework.md
+      - PWA Architecture: developer-guides/architecture/pwa-architecture.md
+      - ADRs: 
+        - Overview: developer-guides/architecture/adr/README.md
+        - ADR-010 Anomaly Classification: developer-guides/architecture/adr/ADR-010-anomaly-classification-taxonomy.md
+    - API Integration:
+      - REST API: developer-guides/api-integration/rest-api.md
+      - Python SDK: developer-guides/api-integration/python-sdk.md
+      - CLI Reference: developer-guides/api-integration/cli.md
+      - Authentication: developer-guides/api-integration/authentication.md
+      - Domain API: developer-guides/api-integration/domain.md
+      - API Reference: developer-guides/api-integration/reference.md
+      - Quick Reference: developer-guides/api-integration/API_QUICK_REFERENCE.md
+      - Web API Setup: developer-guides/api-integration/WEB_API_SETUP_GUIDE.md
+  - Legacy Contributing:
+    - Development Setup: contributing/setup.md
+    - Code Style: contributing/style.md
+    - Testing: contributing/testing.md
+    - Documentation: contributing/docs.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/pynomaly/pynomaly
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/pynomaly/
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/pynomaly
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/extra.js

@@ -1,0 +1,82 @@
+# Docker Compose configuration for devcontainer
+# This provides PostgreSQL and Redis services alongside the dev container
+
+version: '3.8'
+
+services:
+  # Dev container
+  pynomaly-dev:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/workspace
+    environment:
+      - PYNOMALY_ENVIRONMENT=development
+      - PYNOMALY_LOG_LEVEL=DEBUG
+    ports:
+      - 8000:8000
+    depends_on:
+      - postgres
+      - redis
+      - minio
+
+  # PostgreSQL database service
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: pynomaly_dev
+      POSTGRES_USER: pynomaly
+      POSTGRES_PASSWORD: pynomaly_dev_password
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pynomaly -d pynomaly_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis cache service
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MinIO object storage (optional)
+  minio:
+    image: quay.io/minio/minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: pynomaly
+      MINIO_ROOT_PASSWORD: pynomaly_dev_password
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres-data:
+  redis-data:
+  minio-data:
+
+networks:
+  default:
+    name: pynomaly-devcontainer

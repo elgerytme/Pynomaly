@@ -1,0 +1,71 @@
+{
+  "name": "Pynomaly Dev Container",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "pynomaly-dev",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "containerEnv": {
+    "PYNOMALY_ENVIRONMENT": "development",
+    "PYNOMALY_LOG_LEVEL": "DEBUG",
+    "PYTHONPATH": "/workspace/src"
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash",
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": false,
+        "python.linting.mypyEnabled": true,
+        "python.formatting.provider": "black",
+        "python.testing.pytestEnabled": true,
+        "python.testing.pytestArgs": ["tests"],
+        "python.testing.autoTestDiscoverOnSaveEnabled": true,
+        "files.autoSave": "afterDelay",
+        "ruff.enable": true,
+        "ruff.args": ["--config=pyproject.toml"],
+        "black-formatter.args": ["--config=pyproject.toml"],
+        "mypy.enabled": true,
+        "mypy.args": ["--config-file=pyproject.toml"]
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.pylint",
+        "ms-python.black-formatter",
+        "charliermarsh.ruff",
+        "ms-python.vscode-pylance",
+        "ms-python.mypy-type-checker",
+        "ms-python.pytest",
+        "ms-toolsai.jupyter",
+        "ms-vscode.makefile-tools",
+        "ms-vscode.live-server",
+        "redhat.vscode-yaml",
+        "ms-vscode.vscode-json"
+      ]
+    }
+  },
+  "forwardPorts": [8000, 8080, 5432, 6379],
+  "portsAttributes": {
+    "8000": {
+      "label": "API Server",
+      "onAutoForward": "openPreview"
+    },
+    "8080": {
+      "label": "Web UI",
+      "onAutoForward": "openPreview"
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "onAutoForward": "ignore"
+    },
+    "6379": {
+      "label": "Redis",
+      "onAutoForward": "ignore"
+    }
+  },
+  "postCreateCommand": "make dev-setup",
+  "remoteUser": "vscode",
+  "initializeCommand": "echo 'Initializing Pynomaly dev container...'",
+  "onCreateCommand": "echo 'Setting up development environment...'",
+  "postStartCommand": "echo 'Development environment ready! API available at http://localhost:8000'"
+}

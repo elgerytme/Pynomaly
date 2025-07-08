@@ -1,0 +1,28 @@
+categories:
+  src:
+    - .coveragerc
+    - .eslintrc.js
+    - .github/baselines/complexity_baseline.json
+    - .github/baselines/performance_baseline.json
+    - src/pynomaly/
+    - scripts/
+    - requirements.txt
+  docs:
+    - ALGORITHM_MAPPING_FIXES.md
+    - CONTRIBUTING.md
+    - docs/
+    - README.md
+  config:
+    - .buckconfig
+    - .buckconfig.remote
+    - .dockerignore
+    - .gitignore
+    - .pre-commit-config.yaml
+    - config/
+  tests:
+    - tests/
+  ci:
+    - .github/workflows/
+  misc:
+    - Makefile
+    - LICENSE

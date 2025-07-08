@@ -525,6 +525,12 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "security: mark test as a security test")
     config.addinivalue_line("markers", "slow: mark test as slow running")
     config.addinivalue_line("markers", "unit: mark test as a unit test")
+    
+    # Extra dependency markers
+    config.addinivalue_line("markers", "requires_deep: mark test as requiring deep learning extras")
+    config.addinivalue_line("markers", "requires_automl: mark test as requiring AutoML extras")
+    config.addinivalue_line("markers", "requires_explainability: mark test as requiring explainability extras")
+    config.addinivalue_line("markers", "requires_streaming: mark test as requiring streaming extras")
 
     # Benchmark markers (from benchmarks/conftest.py)
     config.addinivalue_line("markers", "benchmark: mark test as a benchmark")
@@ -569,6 +575,33 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "integration" in item.keywords:
                 item.add_marker(skip_integration)
+    
+    # Skip extras tests unless requested
+    if not config.getoption("--extras"):
+        # Skip specific extras unless explicitly requested
+        if not config.getoption("--deep"):
+            skip_deep = pytest.mark.skip(reason="need --deep option to run deep learning tests")
+            for item in items:
+                if "requires_deep" in item.keywords:
+                    item.add_marker(skip_deep)
+        
+        if not config.getoption("--automl"):
+            skip_automl = pytest.mark.skip(reason="need --automl option to run AutoML tests")
+            for item in items:
+                if "requires_automl" in item.keywords:
+                    item.add_marker(skip_automl)
+        
+        if not config.getoption("--explainability"):
+            skip_explainability = pytest.mark.skip(reason="need --explainability option to run explainability tests")
+            for item in items:
+                if "requires_explainability" in item.keywords:
+                    item.add_marker(skip_explainability)
+        
+        if not config.getoption("--streaming"):
+            skip_streaming = pytest.mark.skip(reason="need --streaming option to run streaming tests")
+            for item in items:
+                if "requires_streaming" in item.keywords:
+                    item.add_marker(skip_streaming)
 
 
 def pytest_addoption(parser):
@@ -593,4 +626,27 @@ def pytest_addoption(parser):
     )
     parser.addoption(
         "--benchmark", action="store_true", default=False, help="run benchmark tests"
+    )
+    
+    # Extra dependency options
+    parser.addoption(
+        "--extras",
+        action="store_true",
+        default=False,
+        help="run tests requiring optional extras",
+    )
+    parser.addoption(
+        "--deep", action="store_true", default=False, help="run deep learning tests"
+    )
+    parser.addoption(
+        "--automl", action="store_true", default=False, help="run AutoML tests"
+    )
+    parser.addoption(
+        "--explainability",
+        action="store_true",
+        default=False,
+        help="run explainability tests",
+    )
+    parser.addoption(
+        "--streaming", action="store_true", default=False, help="run streaming tests"
     )

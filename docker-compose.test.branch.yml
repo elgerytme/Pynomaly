@@ -1,0 +1,320 @@
+# Generated branch-specific docker-compose file for branch: bugfix/security-patch
+# Generated from: C:\Users\andre\pynomaly\docker-compose.test.yml
+# Branch suffix: bugfix-security-patch
+
+version: '3.8'
+services:
+  postgres-bugfix-security-patch:
+    image: postgres:16-alpine
+    container_name: pynomaly-test-postgres-bugfix-security-patch
+    environment:
+      POSTGRES_DB: pynomaly_test
+      POSTGRES_USER: pynomaly_test
+      POSTGRES_PASSWORD: pynomaly_test_password
+      POSTGRES_INITDB_ARGS: --encoding=UTF-8 --locale=C
+      POSTGRES_RANDOM_PAGE_COST: '1.0'
+      POSTGRES_EFFECTIVE_CACHE_SIZE: 128MB
+      POSTGRES_SHARED_BUFFERS: 32MB
+      POSTGRES_WORK_MEM: 4MB
+      GIT_BRANCH: bugfix/security-patch
+    ports:
+    - 5432:5432
+    command: 'postgres
+
+      -c shared_preload_libraries=''''
+
+      -c max_connections=100
+
+      -c shared_buffers=32MB
+
+      -c effective_cache_size=128MB
+
+      -c work_mem=4MB
+
+      -c maintenance_work_mem=16MB
+
+      -c random_page_cost=1.0
+
+      -c seq_page_cost=1.0
+
+      -c cpu_tuple_cost=0.01
+
+      -c cpu_index_tuple_cost=0.001
+
+      -c cpu_operator_cost=0.0025
+
+      -c effective_io_concurrency=200
+
+      -c max_worker_processes=4
+
+      -c max_parallel_workers_per_gather=2
+
+      -c max_parallel_workers=4
+
+      -c log_statement=none
+
+      -c log_min_duration_statement=-1
+
+      -c fsync=off
+
+      -c synchronous_commit=off
+
+      -c full_page_writes=off
+
+      -c checkpoint_completion_target=0.9
+
+      -c wal_buffers=16MB
+
+      -c checkpoint_segments=32
+
+      '
+    volumes:
+    - postgres_test_data-bugfix-security-patch:/var/lib/postgresql/data
+    - ./scripts/sql/init_test_db.sql:/docker-entrypoint-initdb.d/01_init_test_db.sql:ro
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U pynomaly_test -d pynomaly_test
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+    - pynomaly-test-network-bugfix-security-patch
+  redis-bugfix-security-patch:
+    image: redis:7-alpine
+    container_name: pynomaly-test-redis-bugfix-security-patch
+    ports:
+    - 6379:6379
+    command: 'redis-server
+
+      --appendonly no
+
+      --save ""
+
+      --maxmemory 64mb
+
+      --maxmemory-policy allkeys-lru
+
+      --tcp-keepalive 60
+
+      --timeout 300
+
+      --databases 16
+
+      --hash-max-ziplist-entries 512
+
+      --hash-max-ziplist-value 64
+
+      --list-max-ziplist-size -2
+
+      --set-max-intset-entries 512
+
+      --zset-max-ziplist-entries 128
+
+      --zset-max-ziplist-value 64
+
+      --hll-sparse-max-bytes 3000
+
+      --stream-node-max-bytes 4096
+
+      --stream-node-max-entries 100
+
+      --replica-read-only yes
+
+      --replica-serve-stale-data yes
+
+      '
+    volumes:
+    - redis_test_data-bugfix-security-patch:/data
+    healthcheck:
+      test:
+      - CMD
+      - redis-cli
+      - ping
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+    networks:
+    - pynomaly-test-network-bugfix-security-patch
+    environment:
+    - GIT_BRANCH=bugfix/security-patch
+  test-minimal-bugfix-security-patch:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+      target: test-minimal
+    container_name: pynomaly-test-minimal-bugfix-security-patch
+    environment:
+      PYTHON_SEED: '42'
+      PYTHONHASHSEED: '42'
+      PYNOMALY_ENVIRONMENT: test-minimal
+      PYNOMALY_DEBUG: 'false'
+      PYNOMALY_LOG_LEVEL: WARNING
+      PYNOMALY_DETERMINISTIC: 'true'
+      PYTHONPATH: /app/src
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUNBUFFERED: '1'
+      PYTEST_CURRENT_TEST: 'true'
+      COVERAGE_PROCESS_START: /app/.coveragerc
+      GIT_BRANCH: bugfix/security-patch
+    volumes:
+    - .:/app:cached
+    - ./test_env/minimal:/app/test_env/minimal
+    - ./test-results:/app/test-results
+    working_dir: /app
+    command: "sh -c \"\n  echo 'Setting up minimal test environment...';\n  python\
+      \ -m pip install --upgrade pip;\n  python -m pip install -e .[minimal,test];\n\
+      \  echo 'Running minimal core tests...';\n  hatch run test-minimal:test\n\"\n"
+    networks:
+    - pynomaly-test-network-bugfix-security-patch
+    profiles:
+    - minimal
+  test-server-bugfix-security-patch:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+      target: test-server
+    container_name: pynomaly-test-server-bugfix-security-patch
+    depends_on:
+      postgres-bugfix-security-patch:
+        condition: service_healthy
+      redis-bugfix-security-patch:
+        condition: service_healthy
+    environment:
+      PYTHON_SEED: '42'
+      PYTHONHASHSEED: '42'
+      PYNOMALY_ENVIRONMENT: test-server
+      PYNOMALY_DEBUG: 'false'
+      PYNOMALY_LOG_LEVEL: WARNING
+      PYNOMALY_DETERMINISTIC: 'true'
+      PYNOMALY_DB_HOST: postgres
+      PYNOMALY_DB_PORT: '5432'
+      PYNOMALY_DB_NAME: pynomaly_test_server
+      PYNOMALY_DB_USER: pynomaly_test
+      PYNOMALY_DB_PASSWORD: pynomaly_test_password
+      PYNOMALY_REDIS_HOST: redis
+      PYNOMALY_REDIS_PORT: '6379'
+      PYNOMALY_REDIS_DB: '1'
+      PYTHONPATH: /app/src
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUNBUFFERED: '1'
+      PYTEST_CURRENT_TEST: 'true'
+      COVERAGE_PROCESS_START: /app/.coveragerc
+      GIT_BRANCH: bugfix/security-patch
+    volumes:
+    - .:/app:cached
+    - ./test_env/server:/app/test_env/server
+    - ./test-results:/app/test-results
+    working_dir: /app
+    command: "sh -c \"\n  echo 'Setting up server test environment...';\n  python\
+      \ -m pip install --upgrade pip;\n  python -m pip install -e .[server,api,database,caching,test];\n\
+      \  echo 'Running server+API tests...';\n  hatch run test-server:test\n\"\n"
+    networks:
+    - pynomaly-test-network-bugfix-security-patch
+    profiles:
+    - server
+  test-deep-bugfix-security-patch:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+      target: test-deep
+    container_name: pynomaly-test-deep-bugfix-security-patch
+    environment:
+      PYTHON_SEED: '42'
+      PYTHONHASHSEED: '42'
+      PYNOMALY_ENVIRONMENT: test-deep
+      PYNOMALY_DEBUG: 'false'
+      PYNOMALY_LOG_LEVEL: WARNING
+      PYNOMALY_DETERMINISTIC: 'true'
+      TF_DETERMINISTIC_OPS: '1'
+      TF_CUDNN_DETERMINISTIC: '1'
+      CUDA_LAUNCH_BLOCKING: '1'
+      CUDA_VISIBLE_DEVICES: ''
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      PYTHONPATH: /app/src
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUNBUFFERED: '1'
+      PYTEST_CURRENT_TEST: 'true'
+      COVERAGE_PROCESS_START: /app/.coveragerc
+      GIT_BRANCH: bugfix/security-patch
+    volumes:
+    - .:/app:cached
+    - ./test_env/deep:/app/test_env/deep
+    - ./test-results:/app/test-results
+    working_dir: /app
+    command: "sh -c \"\n  echo 'Setting up deep learning test environment...';\n \
+      \ python -m pip install --upgrade pip;\n  python -m pip install -e .[deep,automl,explainability,test];\n\
+      \  echo 'Running deep learning tests...';\n  hatch run test-deep:test\n\"\n"
+    networks:
+    - pynomaly-test-network-bugfix-security-patch
+    profiles:
+    - deep
+  github-actions-bugfix-security-patch:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+      target: github-actions
+    container_name: pynomaly-github-actions-bugfix-security-patch
+    depends_on:
+      postgres-bugfix-security-patch:
+        condition: service_healthy
+      redis-bugfix-security-patch:
+        condition: service_healthy
+    environment:
+      GITHUB_ACTIONS: 'true'
+      GITHUB_WORKFLOW: test
+      GITHUB_SHA: ${GITHUB_SHA:-local}
+      GITHUB_REF: ${GITHUB_REF:-refs/heads/main}
+      PYTHON_SEED: '42'
+      PYTHONHASHSEED: '42'
+      PYNOMALY_ENVIRONMENT: github-actions
+      PYNOMALY_DEBUG: 'false'
+      PYNOMALY_LOG_LEVEL: WARNING
+      PYNOMALY_DETERMINISTIC: 'true'
+      PYNOMALY_DB_HOST: postgres
+      PYNOMALY_DB_PORT: '5432'
+      PYNOMALY_DB_NAME: pynomaly_test
+      PYNOMALY_DB_USER: pynomaly_test
+      PYNOMALY_DB_PASSWORD: pynomaly_test_password
+      PYNOMALY_REDIS_HOST: redis
+      PYNOMALY_REDIS_PORT: '6379'
+      PYNOMALY_REDIS_DB: '2'
+      PYTHONPATH: /app/src
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUNBUFFERED: '1'
+      PYTEST_CURRENT_TEST: 'true'
+      COVERAGE_PROCESS_START: /app/.coveragerc
+      GIT_BRANCH: bugfix/security-patch
+    volumes:
+    - .:/app:cached
+    - ./test-results:/app/test-results
+    - ./coverage-reports:/app/coverage-reports
+    working_dir: /app
+    command: "sh -c \"\n  echo 'Setting up GitHub Actions test environment...';\n\
+      \  python -m pip install --upgrade pip;\n  python -m pip install -e .[all,test];\n\
+      \  echo 'Running all tests for GitHub Actions...';\n  pytest tests/ -v --tb=short\
+      \ --cov=pynomaly --cov-report=html:coverage-reports/html --cov-report=xml:coverage-reports/coverage.xml\
+      \ --junit-xml=test-results/junit.xml\n\"\n"
+    networks:
+    - pynomaly-test-network-bugfix-security-patch
+    profiles:
+    - github-actions
+volumes:
+  postgres_test_data-bugfix-security-patch:
+    driver: local
+    name: postgres_test_data-bugfix-security-patch
+  redis_test_data-bugfix-security-patch:
+    driver: local
+    name: redis_test_data-bugfix-security-patch
+networks:
+  pynomaly-test-network-bugfix-security-patch:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.21.0.0/16
+    name: pynomaly-test-network-bugfix-security-patch
