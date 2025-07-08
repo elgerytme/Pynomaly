@@ -1,5 +1,7 @@
 # Pynomaly TODO List
 
+> **Note**: Edit tasks here; CI will sync with GitHub
+
 ## 🎯 Overview
 
 This backlog organizes tasks by Clean Architecture layers, with each task including ID, priority, estimate, owner assignment, and dependency links. All "Recently Completed" items have been moved to CHANGELOG.md to keep this document strictly forward-looking.
@@ -9,56 +11,56 @@ This backlog organizes tasks by Clean Architecture layers, with each task includ
 ## Technical Debt & Project Organization
 *Immediate priorities for code quality and project structure*
 
-### TD-001: Address Circular Import Issues
+### TD-001: Address Circular Import Issues (TBD)
 - **Priority**: Critical
 - **Estimate**: 2 days
 - **Owner**: TBD
 - **Dependencies**: None
 - **Description**: Resolve circular import dependencies that are blocking proper module loading. Debug files indicate this is an active issue affecting core functionality.
 
-### TD-002: Consolidate Test Files
+### TD-002: Consolidate Test Files (TBD)
 - **Priority**: High
 - **Estimate**: 1 day
 - **Owner**: TBD
 - **Dependencies**: None
 - **Description**: Move test files scattered in root directory to proper test organization structure. Clean up test_*.py files from project root.
 
-### TD-003: Project Structure Cleanup
+### TD-003: Project Structure Cleanup (TBD)
 - **Priority**: High
 - **Estimate**: 2 days
 - **Owner**: TBD
 - **Dependencies**: None
 - **Description**: Organize analysis files, temporary files, and development artifacts in root directory into appropriate subdirectories.
 
-### TD-004: Configuration Management Streamlining
+### TD-004: Configuration Management Streamlining (TBD)
 - **Priority**: Medium
 - **Estimate**: 1 day
 - **Owner**: TBD
 - **Dependencies**: None
 - **Description**: Streamline config files and environment setup. Consolidate redundant configuration files and standardize environment management.
 
-### TD-005: Core Features Testing & Validation
+### TD-005: Core Features Testing & Validation (TBD)
 - **Priority**: Critical
 - **Estimate**: 3 days
 - **Owner**: TBD
 - **Dependencies**: TD-001
 - **Description**: Ensure PyOD and scikit-learn integrations are fully functional and test suite passes with claimed 85%+ coverage.
 
-### TD-006: Development Roadmap Creation
+### TD-006: Development Roadmap Creation (TBD)
 - **Priority**: High
 - **Estimate**: 1 day
 - **Owner**: TBD
 - **Dependencies**: None
 - **Description**: Create clear development roadmap prioritizing Beta/Experimental features for implementation. Update README to separate working vs. needs-work features.
 
-### TD-007: Pre-commit Hooks Setup
+### TD-007: Pre-commit Hooks Setup (TBD)
 - **Priority**: Medium
 - **Estimate**: 0.5 days
 - **Owner**: TBD
 - **Dependencies**: None
 - **Description**: Ensure pre-commit hooks are properly configured and running with ruff, mypy, and other quality tools.
 
-### TD-008: Dependency Review & Updates
+### TD-008: Dependency Review & Updates (TBD)
 - **Priority**: Medium
 - **Estimate**: 1 day
 - **Owner**: TBD
@@ -70,21 +72,21 @@ This backlog organizes tasks by Clean Architecture layers, with each task includ
 ## Domain Layer
 *Business logic and core entities*
 
-### D-001: Enhanced Domain Entity Validation
+### D-001: Enhanced Domain Entity Validation (#6)
 - **Priority**: High
 - **Estimate**: 3 days  
 - **Owner**: TBD
 - **Dependencies**: None
 - **Description**: Implement advanced validation rules for AnomalyScore, ContaminationRate, and DetectionResult entities to ensure business rule compliance
 
-### D-002: Advanced Anomaly Classification
+### D-002: Advanced Anomaly Classification (#7)
 - **Priority**: Medium
 - **Estimate**: 5 days
 - **Owner**: TBD
 - **Dependencies**: None
 - **Description**: Extend anomaly types beyond binary classification to support severity levels and categorical anomalies
 
-### D-003: Model Performance Degradation Detection
+### D-003: Model Performance Degradation Detection (#8)
 - **Priority**: High
 - **Estimate**: 4 days
 - **Owner**: TBD
@@ -96,21 +98,21 @@ This backlog organizes tasks by Clean Architecture layers, with each task includ
 ## Application Layer
 *Use cases and orchestration*
 
-### A-001: Automated Model Retraining Workflows
+### A-001: Automated Model Retraining Workflows (#9)
 - **Priority**: High
 - **Estimate**: 6 days
 - **Owner**: TBD
 - **Dependencies**: D-003
 - **Description**: Create use cases for automated model retraining based on performance degradation triggers
 
-### A-002: Batch Processing Orchestration
+### A-002: Batch Processing Orchestration (#10)
 - **Priority**: Medium
 - **Estimate**: 4 days
 - **Owner**: TBD
 - **Dependencies**: None
 - **Description**: Implement use cases for processing large datasets in configurable batch sizes
 
-### A-003: Model Comparison and Selection
+### A-003: Model Comparison and Selection (#11)
 - **Priority**: Medium
 - **Estimate**: 3 days
 - **Owner**: TBD
@@ -122,35 +124,35 @@ This backlog organizes tasks by Clean Architecture layers, with each task includ
 ## Infrastructure Layer
 *External integrations and technical concerns*
 
-### I-001: Production Database Integration
+### I-001: Production Database Integration (#12)
 - **Priority**: Critical
 - **Estimate**: 8 days
 - **Owner**: TBD
 - **Dependencies**: None
 - **Description**: Replace file-based storage with PostgreSQL/MongoDB for production scalability
 
-### I-002: Deep Learning Framework Integration
+### I-002: Deep Learning Framework Integration (#13)
 - **Priority**: High
 - **Estimate**: 10 days
 - **Owner**: TBD
 - **Dependencies**: None
 - **Description**: Complete PyTorch/TensorFlow adapter implementations (currently stubs)
 
-### I-003: Message Queue Integration
+### I-003: Message Queue Integration (#14)
 - **Priority**: Medium
 - **Estimate**: 5 days
 - **Owner**: TBD
 - **Dependencies**: I-001
 - **Description**: Implement Redis/RabbitMQ for asynchronous task processing
 
-### I-004: External Monitoring System Integration
+### I-004: External Monitoring System Integration (#15)
 - **Priority**: Medium
 - **Estimate**: 4 days
 - **Owner**: TBD
 - **Dependencies**: None
 - **Description**: Complete Prometheus/Grafana integration with custom dashboards
 
-### I-005: Cloud Storage Adapters
+### I-005: Cloud Storage Adapters (#16)
 - **Priority**: Low
 - **Estimate**: 6 days
 - **Owner**: TBD
@@ -162,35 +164,35 @@ This backlog organizes tasks by Clean Architecture layers, with each task includ
 ## Presentation Layer
 *User interfaces and APIs*
 
-### P-001: Advanced Analytics Dashboard
+### P-001: Advanced Analytics Dashboard (#17)
 - **Priority**: High
 - **Estimate**: 8 days
 - **Owner**: TBD
 - **Dependencies**: A-003
 - **Description**: Build comprehensive analytics dashboard with real-time model performance visualization
 
-### P-002: Mobile-Responsive UI Enhancements
+### P-002: Mobile-Responsive UI Enhancements (#18)
 - **Priority**: Medium
 - **Estimate**: 5 days
 - **Owner**: TBD
 - **Dependencies**: None
 - **Description**: Optimize web interface for mobile devices and tablet usage
 
-### P-003: CLI Command Completion
+### P-003: CLI Command Completion (#19)
 - **Priority**: High
 - **Estimate**: 3 days
 - **Owner**: TBD
 - **Dependencies**: I-002
 - **Description**: Enable remaining disabled CLI commands (security, dashboard, governance)
 
-### P-004: GraphQL API Layer
+### P-004: GraphQL API Layer (#20)
 - **Priority**: Low
 - **Estimate**: 7 days
 - **Owner**: TBD
 - **Dependencies**: I-001
 - **Description**: Add GraphQL endpoints for flexible data querying alongside REST API
 
-### P-005: OpenAPI Schema Fixes
+### P-005: OpenAPI Schema Fixes (#21)
 - **Priority**: Medium
 - **Estimate**: 2 days
 - **Owner**: TBD
@@ -202,28 +204,28 @@ This backlog organizes tasks by Clean Architecture layers, with each task includ
 ## CI/CD Layer
 *Build, test, and deployment automation*
 
-### C-001: Automated Dependency Vulnerability Scanning
+### C-001: Automated Dependency Vulnerability Scanning (#22)
 - **Priority**: High
 - **Estimate**: 2 days
 - **Owner**: TBD
 - **Dependencies**: None
 - **Description**: Integrate automated dependency scanning with Snyk/Dependabot for security monitoring
 
-### C-002: Multi-Environment Deployment Pipeline
+### C-002: Multi-Environment Deployment Pipeline (#23)
 - **Priority**: High
 - **Estimate**: 5 days
 - **Owner**: TBD
 - **Dependencies**: I-001
 - **Description**: Create staging and production deployment pipelines with environment-specific configurations
 
-### C-003: Performance Regression Testing
+### C-003: Performance Regression Testing (#24)
 - **Priority**: Medium
 - **Estimate**: 4 days
 - **Owner**: TBD
 - **Dependencies**: None
 - **Description**: Implement automated performance benchmarking in CI pipeline
 
-### C-004: Container Security Scanning
+### C-004: Container Security Scanning (#25)
 - **Priority**: Medium
 - **Estimate**: 2 days
 - **Owner**: TBD
@@ -235,35 +237,35 @@ This backlog organizes tasks by Clean Architecture layers, with each task includ
 ## Documentation Layer
 *Documentation and knowledge management*
 
-### DOC-001: API Documentation Completion
+### DOC-001: API Documentation Completion (#26)
 - **Priority**: High
 - **Estimate**: 3 days
 - **Owner**: TBD
 - **Dependencies**: P-005
 - **Description**: Complete OpenAPI documentation with examples for all 65+ endpoints
 
-### DOC-002: User Guide Video Tutorials
+### DOC-002: User Guide Video Tutorials (#27)
 - **Priority**: Medium
 - **Estimate**: 6 days
 - **Owner**: TBD
 - **Dependencies**: P-001
 - **Description**: Create video tutorials for common workflows and dashboard usage
 
-### DOC-003: Architecture Decision Records (ADRs)
+### DOC-003: Architecture Decision Records (ADRs) (#28)
 - **Priority**: Medium
 - **Estimate**: 4 days
 - **Owner**: TBD
 - **Dependencies**: None
 - **Description**: Document architectural decisions and trade-offs for future reference
 
-### DOC-004: Performance Benchmarking Guide
+### DOC-004: Performance Benchmarking Guide (#29)
 - **Priority**: Low
 - **Estimate**: 2 days
 - **Owner**: TBD
 - **Dependencies**: C-003
 - **Description**: Create comprehensive guide for performance testing and optimization
 
-### DOC-005: Security Best Practices Guide
+### DOC-005: Security Best Practices Guide (#30)
 - **Priority**: High
 - **Estimate**: 3 days
 - **Owner**: TBD
