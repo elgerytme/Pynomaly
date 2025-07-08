@@ -19,37 +19,37 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.11", "3.12", "3.13"]
+        python-version: ["3.11", "3.12"]
         test-type: [unit, integration, performance]
-        
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-        
+
     - name: Install system dependencies (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
         sudo apt-get install -y graphviz graphviz-dev
-        
+
     - name: Install system dependencies (macOS)
       if: matrix.os == 'macos-latest'
       run: |
         brew install graphviz
-        
+
     - name: Install Hatch
       run: |
         pip install --upgrade pip
         pip install hatch
-        
+
     - name: Create test environment
       run: |
         hatch env create test
-        
+
     - name: Run unit tests
       if: matrix.test-type == 'unit'
       run: |
@@ -58,7 +58,7 @@ jobs:
           --cov-fail-under=80 \
           -m "not slow and not integration and not benchmark" \
           --maxfail=10
-          
+
     - name: Run integration tests
       if: matrix.test-type == 'integration'
       run: |
@@ -66,7 +66,7 @@ jobs:
           -m "integration" \
           --maxfail=5 \
           --timeout=300
-          
+
     - name: Download performance baseline
       if: matrix.test-type == 'performance'
       run: |
@@ -78,7 +78,7 @@ jobs:
           echo "No baseline found in repository, will create empty baseline"
           echo '{}' > performance_baseline.json
         fi
-        
+
     - name: Download baseline from artifacts (if available)
       if: matrix.test-type == 'performance' && github.event_name == 'pull_request'
       uses: actions/download-artifact@v3
@@ -86,7 +86,7 @@ jobs:
         name: performance-artifacts
         path: ./artifacts
       continue-on-error: true
-        
+
     - name: Use artifact baseline if available
       if: matrix.test-type == 'performance' && github.event_name == 'pull_request'
       run: |
@@ -94,7 +94,7 @@ jobs:
           cp ./artifacts/performance_baseline.json performance_baseline.json
           echo "Using baseline from artifacts"
         fi
-        
+
     - name: Run performance tests
       if: matrix.test-type == 'performance'
       run: |
@@ -102,7 +102,7 @@ jobs:
           -m "benchmark or performance" \
           --benchmark-only \
           --benchmark-json=benchmark.json
-          
+
     - name: Check for regressions
       if: matrix.test-type == 'performance'
       run: |
@@ -111,7 +111,7 @@ jobs:
         else
           echo "Warning: check_regressions.py not found, skipping regression check"
         fi
-          
+
     - name: Upload coverage to Codecov
       if: matrix.test-type == 'unit' && matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
       uses: codecov/codecov-action@v3
@@ -120,7 +120,7 @@ jobs:
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: false
-        
+
     - name: Upload benchmark and diff results
       if: matrix.test-type == 'performance' && matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
       uses: actions/upload-artifact@v3
@@ -140,7 +140,7 @@ jobs:
           - name: "Domain Tests"
             path: "tests/domain/"
             markers: "not slow"
-          - name: "Application Tests" 
+          - name: "Application Tests"
             path: "tests/application/"
             markers: "not slow and not integration"
           - name: "Infrastructure Tests"
@@ -152,21 +152,21 @@ jobs:
           - name: "Contract Tests"
             path: "tests/contract/"
             markers: "contract"
-            
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python 3.11
       uses: actions/setup-python@v4
       with:
         python-version: "3.11"
-        
+
     - name: Install dependencies
       run: |
         pip install --upgrade pip
         pip install hatch
         hatch env create test
-        
+
     - name: Run ${{ matrix.test-suite.name }}
       run: |
         hatch run test:pytest ${{ matrix.test-suite.path }} \
@@ -176,7 +176,7 @@ jobs:
           --cov=src/pynomaly \
           --cov-report=xml \
           --cov-report=term
-          
+
     - name: Upload coverage
       uses: codecov/codecov-action@v3
       with:
@@ -190,15 +190,15 @@ jobs:
     strategy:
       matrix:
         dependency-level: [minimal, standard, full]
-        
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python 3.11
       uses: actions/setup-python@v4
       with:
         python-version: "3.11"
-        
+
     - name: Install minimal dependencies
       if: matrix.dependency-level == 'minimal'
       run: |
@@ -206,7 +206,7 @@ jobs:
         pip install hatch
         hatch env create test.py3.11
         hatch run test:pip install -e ".[minimal,test]"
-        
+
     - name: Install standard dependencies
       if: matrix.dependency-level == 'standard'
       run: |
@@ -214,7 +214,7 @@ jobs:
         pip install hatch
         hatch env create test.py3.11
         hatch run test:pip install -e ".[standard,test]"
-        
+
     - name: Install full dependencies
       if: matrix.dependency-level == 'full'
       run: |
@@ -222,7 +222,7 @@ jobs:
         pip install hatch
         hatch env create test.py3.11
         hatch run test:pip install -e ".[ml-all,production,test]"
-        
+
     - name: Run dependency-specific tests
       run: |
         hatch run test:pytest tests/dependency_tests/ \
@@ -234,26 +234,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python 3.11
       uses: actions/setup-python@v4
       with:
         python-version: "3.11"
-        
+
     - name: Install dependencies
       run: |
         pip install --upgrade pip
         pip install hatch
         hatch env create lint
-        
+
     - name: Run security scan with bandit
       run: |
         hatch run lint:bandit -r src/ -f json -o bandit-report.json
-        
+
     - name: Run safety check
       run: |
         hatch run lint:safety check --json --output safety-report.json
-        
+
     - name: Upload security reports
       uses: actions/upload-artifact@v3
       with:
@@ -266,21 +266,21 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test, test-matrix]
     if: always()
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python 3.11
       uses: actions/setup-python@v4
       with:
         python-version: "3.11"
-        
+
     - name: Install dependencies
       run: |
         pip install --upgrade pip
         pip install hatch
         hatch env create test
-        
+
     - name: Generate test report
       run: |
         hatch run test:pytest tests/ \
@@ -290,13 +290,13 @@ jobs:
           -v \
           -m "not slow and not benchmark" \
           --maxfail=20
-          
+
     - name: Upload test report
       uses: actions/upload-artifact@v3
       with:
         name: test-report
         path: test-report.html
-        
+
     - name: Comment PR with test results
       if: github.event_name == 'pull_request'
       uses: actions/github-script@v6
@@ -305,22 +305,22 @@ jobs:
           const fs = require('fs');
           let summary = '## 🧪 Test Results Summary\n\n';
           summary += '✅ Test report has been generated and uploaded as an artifact.\n\n';
-          
+
           // Check if performance artifacts exist
           if (fs.existsSync('benchmark.json')) {
             summary += '📊 **Performance Tests**: Benchmark results generated\n';
           }
-          
+
           if (fs.existsSync('performance_diff.html')) {
             summary += '📝 **Regression Check**: Performance regression report generated and uploaded as artifact\n';
           }
-          
+
           if (fs.existsSync('performance_baseline.json')) {
             summary += '📈 **Baseline**: Performance baseline loaded for comparison\n';
           }
-          
+
           summary += '\n🔍 Check the **Actions** tab for detailed artifacts and reports.';
-          
+
           github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,

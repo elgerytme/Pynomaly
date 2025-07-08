@@ -1,3 +1,34 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - name: Set up dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install hatch
+        hatch env create docs
+    - name: Build docs
+      run: |
+        hatch run docs:build
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./site
+
 name: Production Deployment
 
 on:
@@ -29,7 +60,7 @@ jobs:
     outputs:
       image: ${{ steps.image.outputs.image }}
       digest: ${{ steps.build.outputs.digest }}
-      
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -78,7 +109,7 @@ jobs:
     name: Security Scan
     runs-on: ubuntu-latest
     needs: build-and-push
-    
+
     steps:
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
@@ -107,7 +138,7 @@ jobs:
     needs: [build-and-push, security-scan]
     if: github.event.inputs.environment == 'staging' || (github.event_name == 'release' && github.event.action == 'published')
     environment: staging
-    
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -156,14 +187,14 @@ jobs:
       run: |
         # Wait for service to be ready
         sleep 30
-        
+
         # Get service endpoint
         ENDPOINT=$(kubectl get ingress -n pynomaly-staging -o jsonpath='{.items[0].spec.rules[0].host}')
-        
+
         # Health check
         curl -f https://${ENDPOINT}/api/v1/health || exit 1
         curl -f https://${ENDPOINT}/api/v1/health/ready || exit 1
-        
+
         echo "✅ Health checks passed"
 
     - name: Run Helm tests
@@ -188,7 +219,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: deploy-staging
     if: github.event_name == 'release' || github.event.inputs.environment == 'staging'
-    
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -220,7 +251,7 @@ jobs:
     needs: [build-and-push, security-scan, performance-test]
     if: github.event_name == 'release' || github.event.inputs.environment == 'production'
     environment: production
-    
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -282,10 +313,10 @@ jobs:
       run: |
         # Check pod status
         kubectl get pods -n pynomaly -l app.kubernetes.io/name=pynomaly
-        
+
         # Check service endpoints
         kubectl get svc -n pynomaly
-        
+
         # Check ingress
         kubectl get ingress -n pynomaly
 
@@ -293,11 +324,11 @@ jobs:
       run: |
         # Wait for service to be fully ready
         sleep 60
-        
+
         # Health check
         curl -f https://api.pynomaly.ai/api/v1/health || exit 1
         curl -f https://api.pynomaly.ai/api/v1/health/ready || exit 1
-        
+
         echo "✅ Production health checks passed"
 
     - name: Run production tests
@@ -322,11 +353,11 @@ jobs:
         channel: '#deployments'
         text: |
           🚀 Successfully deployed Pynomaly ${{ github.event.release.tag_name || github.event.inputs.version }} to production!
-          
+
           Release: ${{ github.event.release.html_url }}
           API: https://api.pynomaly.ai
           Docs: https://api.pynomaly.ai/docs
-          
+
           Deployment completed at $(date -u +"%Y-%m-%d %H:%M:%S UTC")
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -339,7 +370,7 @@ jobs:
         channel: '#deployments'
         text: |
           ❌ Failed to deploy Pynomaly ${{ github.event.release.tag_name || github.event.inputs.version }} to production!
-          
+
           Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           Please check logs and consider rollback if necessary.
       env:
@@ -351,7 +382,7 @@ jobs:
     needs: deploy-production
     if: failure() && github.event_name == 'release'
     environment: production
-    
+
     steps:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -372,7 +403,7 @@ jobs:
       run: |
         echo "🔄 Rolling back production deployment..."
         helm rollback pynomaly --namespace pynomaly
-        
+
         # Wait for rollback to complete
         kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=pynomaly -n pynomaly --timeout=600s
 

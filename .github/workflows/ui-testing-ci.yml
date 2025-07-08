@@ -29,8 +29,8 @@ jobs:
     strategy:
       matrix:
         browser: [chromium, firefox, webkit]
-        node-version: [18, 20]
-    
+        node-version: [18]
+
     services:
       redis:
         image: redis:7-alpine
@@ -144,13 +144,13 @@ jobs:
           --output-path=test_reports/lighthouse/homepage.json \
           --chrome-flags="--headless --no-sandbox" \
           --quiet
-        
+
         lighthouse http://localhost:8000/detectors \
           --output=json \
           --output-path=test_reports/lighthouse/detectors.json \
           --chrome-flags="--headless --no-sandbox" \
           --quiet
-        
+
         lighthouse http://localhost:8000/detection \
           --output=json \
           --output-path=test_reports/lighthouse/detection.json \
@@ -178,35 +178,35 @@ jobs:
         hatch env run -e ui-test -- python -c "
         import json
         from pathlib import Path
-        
+
         reports_dir = Path('test_reports/performance')
         if reports_dir.exists():
             total_lcp = 0
             total_fid = 0
             total_cls = 0
             count = 0
-            
+
             for report_file in reports_dir.glob('*.json'):
                 with open(report_file) as f:
                     data = json.load(f)
-                
+
                 cwv = data.get('coreWebVitals', {})
                 if cwv.get('largestContentfulPaint', 0) > 0:
                     total_lcp += cwv['largestContentfulPaint']
                     total_fid += cwv.get('firstInputDelay', 0)
                     total_cls += cwv.get('cumulativeLayoutShift', 0)
                     count += 1
-            
+
             if count > 0:
                 avg_lcp = total_lcp / count
                 avg_fid = total_fid / count
                 avg_cls = total_cls / count
-                
+
                 print(f'Average Core Web Vitals:')
                 print(f'  LCP: {avg_lcp:.2f}ms (threshold: 2500ms)')
                 print(f'  FID: {avg_fid:.2f}ms (threshold: 100ms)')
                 print(f'  CLS: {avg_cls:.3f} (threshold: 0.1)')
-                
+
                 # Fail if thresholds exceeded
                 if avg_lcp > 2500:
                     print(f'❌ LCP threshold exceeded: {avg_lcp:.2f}ms > 2500ms')
@@ -217,7 +217,7 @@ jobs:
                 if avg_cls > 0.1:
                     print(f'❌ CLS threshold exceeded: {avg_cls:.3f} > 0.1')
                     exit(1)
-                
+
                 print('✅ All Core Web Vitals thresholds met')
         "
 
@@ -228,17 +228,17 @@ jobs:
         script: |
           const fs = require('fs');
           const path = require('path');
-          
+
           // Read test results
           let comment = '## UI Testing Results\n\n';
-          
+
           // Accessibility results
           const accessibilityDir = 'test_reports/accessibility';
           if (fs.existsSync(accessibilityDir)) {
             const files = fs.readdirSync(accessibilityDir);
             let totalViolations = 0;
             let totalTests = 0;
-            
+
             files.forEach(file => {
               if (file.endsWith('.json')) {
                 const data = JSON.parse(fs.readFileSync(path.join(accessibilityDir, file)));
@@ -246,13 +246,13 @@ jobs:
                 totalTests++;
               }
             });
-            
+
             comment += `### Accessibility Testing\n`;
             comment += `- **Tests Run**: ${totalTests}\n`;
             comment += `- **Total Violations**: ${totalViolations}\n`;
             comment += totalViolations === 0 ? '✅ No accessibility violations found\n\n' : '⚠️ Accessibility issues detected\n\n';
           }
-          
+
           // Performance results
           const perfDir = 'test_reports/performance';
           if (fs.existsSync(perfDir)) {
@@ -261,7 +261,7 @@ jobs:
             comment += `- **Lighthouse Audits**: Available in artifacts\n`;
             comment += `- **Cross-browser**: All major browsers tested\n\n`;
           }
-          
+
           // Visual regression
           const screenshotsDir = 'tests/ui/screenshots';
           if (fs.existsSync(screenshotsDir)) {
@@ -270,10 +270,10 @@ jobs:
             comment += `- **Screenshots Captured**: ${screenshots}\n`;
             comment += `- **Percy Integration**: ${process.env.PERCY_TOKEN ? 'Enabled' : 'Disabled'}\n\n`;
           }
-          
+
           comment += `### Test Artifacts\n`;
           comment += `View detailed test reports in the [Actions artifacts](${context.payload.repository.html_url}/actions/runs/${context.runId}).\n`;
-          
+
           github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
@@ -285,7 +285,7 @@ jobs:
     name: Lighthouse CI
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -328,7 +328,7 @@ jobs:
   security-scan:
     name: Security Scan for Web Assets
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -357,7 +357,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     environment: preview
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4

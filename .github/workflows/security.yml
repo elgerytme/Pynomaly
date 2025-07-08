@@ -19,7 +19,7 @@ jobs:
   dependency-scan:
     name: Dependency Vulnerability Scan
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -58,7 +58,7 @@ jobs:
   code-security-scan:
     name: Code Security Analysis
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -127,7 +127,7 @@ jobs:
   secret-scan:
     name: Secret Scanning
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -146,7 +146,7 @@ jobs:
     name: Container Security Scan
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -171,7 +171,7 @@ jobs:
   license-compliance:
     name: License Compliance Check
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -215,7 +215,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [dependency-scan, code-security-scan, secret-scan, license-compliance]
     if: always()
-    
+
     steps:
     - name: Download all artifacts
       uses: actions/download-artifact@v4
@@ -225,21 +225,21 @@ jobs:
         echo "# Security Scan Summary" > security-summary.md
         echo "## Timestamp: $(date)" >> security-summary.md
         echo "" >> security-summary.md
-        
+
         echo "## Dependency Vulnerabilities" >> security-summary.md
         if [ -f vulnerability-reports/safety-report.txt ]; then
           echo '```' >> security-summary.md
           cat vulnerability-reports/safety-report.txt >> security-summary.md
           echo '```' >> security-summary.md
         fi
-        
+
         echo "## Code Security Issues" >> security-summary.md
         if [ -f bandit-reports/bandit-report.txt ]; then
           echo '```' >> security-summary.md
           cat bandit-reports/bandit-report.txt >> security-summary.md
           echo '```' >> security-summary.md
         fi
-        
+
         echo "## License Compliance" >> security-summary.md
         if [ -f license-reports/licenses.csv ]; then
           echo "License report generated successfully" >> security-summary.md
@@ -258,7 +258,7 @@ jobs:
         script: |
           const fs = require('fs');
           const summary = fs.readFileSync('security-summary.md', 'utf8');
-          
+
           github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
