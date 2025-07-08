@@ -550,6 +550,7 @@ exclude_lines = [
     "class .*\\\\(.*Protocol\\\\):",
     "@(abc\\\\.)?abstractmethod",
 ]
+fail_under = 90
 
 # Additional tool configurations for environment exclusion
 [tool.bandit]

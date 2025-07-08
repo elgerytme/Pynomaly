@@ -220,6 +220,153 @@ class VisualizationDashboardService:
 
         logger.info("Visualization dashboard service initialized")
 
+    # Common helper methods to reduce duplication
+    def _get_metrics_series(self, metrics_data: dict[str, Any], series_config: dict[str, Any] = None) -> list[dict[str, Any]]:
+        """Get metrics series data with consistent formatting.
+        
+        Args:
+            metrics_data: Dictionary containing metrics data
+            series_config: Optional configuration for series styling
+            
+        Returns:
+            List of series configurations
+        """
+        if series_config is None:
+            series_config = {}
+            
+        series = []
+        
+        for metric_name, metric_values in metrics_data.items():
+            series_item = {
+                "name": metric_name,
+                "data": metric_values if isinstance(metric_values, list) else [metric_values],
+                "type": series_config.get("type", "line"),
+                "smooth": series_config.get("smooth", True),
+                "symbol": series_config.get("symbol", "circle"),
+                "symbolSize": series_config.get("symbolSize", 6),
+                "lineStyle": series_config.get("lineStyle", {"width": 2}),
+                "itemStyle": series_config.get("itemStyle", {"borderRadius": 4}),
+                "emphasis": series_config.get("emphasis", {"focus": "series"}),
+                "markPoint": series_config.get("markPoint", {
+                    "data": [{"type": "max", "name": "Maximum"}, {"type": "min", "name": "Minimum"}]
+                }),
+                "animationDuration": series_config.get("animationDuration", 1000),
+            }
+            
+            # Add color if specified
+            if "color" in series_config:
+                series_item["color"] = series_config["color"]
+                
+            series.append(series_item)
+            
+        return series
+    
+    def _build_chart_payload(self, chart_id: str, chart_type: str, title: str, 
+                           x_data: list = None, series: list = None, 
+                           engine: str = "echarts", **kwargs) -> dict[str, Any]:
+        """Build standardized chart payload with consistent structure.
+        
+        Args:
+            chart_id: Unique identifier for the chart
+            chart_type: Type of chart (line, bar, etc.)
+            title: Chart title
+            x_data: X-axis data
+            series: Series data
+            engine: Visualization engine to use
+            **kwargs: Additional chart options
+            
+        Returns:
+            Standardized chart payload
+        """
+        config = {
+            "type": chart_type,
+            "title": {
+                "text": title,
+                "left": kwargs.get("title_position", "center"),
+                "textStyle": kwargs.get("title_style", {"fontSize": 16, "fontWeight": "bold"})
+            },
+            "tooltip": kwargs.get("tooltip", {
+                "trigger": "axis",
+                "axisPointer": {"type": "cross"},
+                "backgroundColor": "rgba(0,0,0,0.8)",
+                "borderColor": "#777",
+                "borderWidth": 1,
+                "textStyle": {"color": "#fff"},
+                "formatter": kwargs.get("tooltip_formatter")
+            }),
+            "legend": kwargs.get("legend", {
+                "show": True,
+                "top": "bottom",
+                "orient": "horizontal",
+                "align": "center",
+                "itemGap": 20
+            }),
+            "grid": kwargs.get("grid", {
+                "left": "3%",
+                "right": "4%",
+                "bottom": "10%",
+                "containLabel": True
+            }),
+            "toolbox": kwargs.get("toolbox", {
+                "show": True,
+                "feature": {
+                    "dataZoom": {"yAxisIndex": "none"},
+                    "dataView": {"readOnly": False},
+                    "magicType": {"type": ["line", "bar"]},
+                    "restore": {},
+                    "saveAsImage": {}
+                }
+            }),
+            "dataZoom": kwargs.get("dataZoom", [
+                {"type": "inside", "start": 0, "end": 100},
+                {"type": "slider", "start": 0, "end": 100, "height": 30}
+            ]),
+            "animation": kwargs.get("animation", True),
+            "animationDuration": kwargs.get("animationDuration", 1000),
+            "animationEasing": kwargs.get("animationEasing", "cubicOut")
+        }
+        
+        # Add x-axis if provided
+        if x_data is not None:
+            config["xAxis"] = {
+                "type": "category",
+                "data": x_data,
+                "axisLabel": kwargs.get("x_axis_label_style", {"rotate": 0}),
+                "name": kwargs.get("x_axis_name", ""),
+                "nameLocation": "middle",
+                "nameGap": 30
+            }
+            
+        # Add y-axis configuration
+        config["yAxis"] = kwargs.get("yAxis", {
+            "type": "value",
+            "name": kwargs.get("y_axis_name", ""),
+            "nameLocation": "middle",
+            "nameGap": 50,
+            "axisLabel": {"formatter": kwargs.get("y_axis_formatter", "{value}")},
+            "splitLine": {"show": True, "lineStyle": {"type": "dashed"}}
+        })
+        
+        # Add series if provided
+        if series is not None:
+            config["series"] = series
+            
+        # Add custom options
+        if "custom_options" in kwargs:
+            config.update(kwargs["custom_options"])
+            
+        return {
+            "id": chart_id,
+            "config": config,
+            "engine": engine,
+            "metadata": {
+                "generated_at": datetime.utcnow().isoformat(),
+                "chart_type": chart_type,
+                "data_points": len(x_data) if x_data else 0,
+                "series_count": len(series) if series else 0
+            }
+        }
+
     async def generate_executive_dashboard(
         self, time_period: timedelta = timedelta(days=30)
     ) -> DashboardData:

@@ -1174,6 +1174,9 @@ This comprehensive troubleshooting guide provides systematic approaches to diagn
 - **[Advanced Features](../advanced-features/README.md)** - Sophisticated capabilities  
 - **[Troubleshooting](../troubleshooting/README.md)** - Problem solving
 
+### **Developer Guides**
+- **[Working While Services Are Running](../../../developer-guides/git-workflow/branching-strategy.md#working-while-services-are-running)** - Best practices for concurrent development with running services
+
 ### **Reference**
 - **[Algorithm Reference](../../reference/algorithms/README.md)** - Algorithm documentation
 - **[API Documentation](../../developer-guides/api-integration/README.md)** - Programming interfaces
