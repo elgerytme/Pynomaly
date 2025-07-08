@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import time
 from datetime import datetime, timedelta
 from typing import Any, AsyncGenerator
 from uuid import UUID
@@ -28,6 +29,7 @@ from pynomaly.domain.entities.streaming_session import (
 from pynomaly.shared.protocols.repository_protocol import (
     ModelRepositoryProtocol,
 )
+from pynomaly.infrastructure.monitoring.prometheus_metrics import get_metrics_service
 
 logger = logging.getLogger(__name__)
 
@@ -379,6 +381,7 @@ class StreamingService:
         if not session or not session.is_active():
             raise ValueError(f"Session {session_id} is not active")
 
+        start_time = time.time()
         try:
             # Preprocess data
             processed_data = await self._preprocess_data(data, session.configuration)
@@ -402,6 +405,17 @@ class StreamingService:
                 ),
                 "explanation": detection_result.get("explanation"),
             }
+
+            # Record streaming metrics
+            metrics_service = get_metrics_service()
+            if metrics_service:
+                processing_time = time.time() - start_time
+                metrics_service.record_streaming_metrics(
+                    stream_id=str(session_id),
+                    samples_processed=1,
+                    throughput=1.0 / processing_time if processing_time > 0 else 0.0,
+                    buffer_utilization=0.5,  # Could be calculated from actual buffer
+                )
 
             # Generate event if anomaly detected
             if result["is_anomaly"]:

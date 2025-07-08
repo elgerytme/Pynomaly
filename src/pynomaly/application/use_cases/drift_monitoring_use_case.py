@@ -16,14 +16,14 @@ import pandas as pd
 
 from pynomaly.application.services.drift_detection_service import DriftDetectionService
 from pynomaly.domain.entities.drift_detection import (
+    DriftAlert,
     DriftDetectionConfig,
     DriftDetectionResult,
-    DriftType,
-)
-from pynomaly.domain.entities.continuous_learning import (
     DriftMetrics,
+    DriftMonitor,
     DriftReport,
     DriftSeverity,
+    DriftType,
     ModelMonitoringConfig,
     MonitoringStatus,
 )
@@ -65,7 +65,7 @@ class DriftMonitoringUseCase:
 
     async def configure_monitoring(
         self, detector_id: str, config: ModelMonitoringConfig
-    ) -> DriftMonitoringStatus:
+    ) -> DriftMonitor:
         """Configure drift monitoring for a detector.
 
         Args:
@@ -231,7 +231,7 @@ class DriftMonitoringUseCase:
 
     async def get_monitoring_status(
         self, detector_id: str
-    ) -> Optional[DriftMonitoringStatus]:
+    ) -> Optional[DriftMonitor]:
         """Get current monitoring status for a detector.
 
         Args:

@@ -6,6 +6,7 @@ import asyncio
 import json
 import statistics
 import time
+import yaml
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -45,7 +46,7 @@ class BenchmarkConfig:
     )
     algorithms: list[str] = field(default_factory=list)
 
-    # Performance thresholds
+    # Performance thresholds - will be populated from config
     max_execution_time_seconds: float = 300.0
     max_memory_usage_mb: float = 4096.0
     min_throughput_samples_per_second: float = 10.0
@@ -62,6 +63,36 @@ class BenchmarkConfig:
     save_detailed_results: bool = True
     generate_plots: bool = True
     export_formats: list[str] = field(default_factory=lambda: ["json", "csv", "html"])
+
+    def apply_performance_config(self, performance_service: 'PerformanceBenchmarkingService') -> None:
+        """Apply performance configuration values to this benchmark config."""
+        # Update thresholds from configuration
+        self.max_execution_time_seconds = performance_service.get_threshold(
+            'performance_thresholds.execution_time.max_execution_time_seconds', 
+            self.max_execution_time_seconds
+        )
+        self.max_memory_usage_mb = performance_service.get_threshold(
+            'performance_thresholds.memory_usage.max_memory_usage_mb', 
+            self.max_memory_usage_mb
+        )
+        self.min_throughput_samples_per_second = performance_service.get_threshold(
+            'performance_thresholds.throughput.min_throughput_samples_per_second', 
+            self.min_throughput_samples_per_second
+        )
+        
+        # Update test configuration from config
+        self.timeout_seconds = performance_service.get_threshold(
+            'test_configuration.timeout_seconds', 
+            self.timeout_seconds
+        )
+        self.iterations = int(performance_service.get_config_value(
+            'test_configuration.max_iterations', 
+            self.iterations
+        ))
+        self.warmup_iterations = int(performance_service.get_config_value(
+            'test_configuration.warmup_iterations', 
+            self.warmup_iterations
+        ))
 
 
 @dataclass
@@ -160,6 +191,10 @@ class PerformanceBenchmarkingService:
         self.performance_history: list[PerformanceMetrics] = []
         self.baseline_metrics: dict[str, PerformanceMetrics] = {}
 
+        # Configuration loading
+        self.performance_config = self._load_performance_config()
+        self.migrate_v1_to_v2_thresholds()
+
         # System monitoring
         self.system_monitor = SystemMonitor()
 
@@ -167,6 +202,9 @@ class PerformanceBenchmarkingService:
         self, suite_name: str, description: str, config: BenchmarkConfig
     ) -> UUID:
         """Create new benchmark suite."""
+        # Apply performance configuration to the benchmark config
+        config.apply_performance_config(self)
+        
         suite = BenchmarkSuite(
             suite_name=suite_name,
             description=description,
@@ -450,8 +488,187 @@ class PerformanceBenchmarkingService:
         else:
             raise ValueError(f"Unsupported format: {format}")
 
-    # Private methods
+    def _load_performance_config(self) -> dict:
+        """Load performance configuration from YAML or fallback to JSON."""
+        config_path = Path("performance_config.yml")
+        fallback_json_path = Path(".github/baselines/performance_baseline.json")
 
+        if config_path.exists():
+            with open(config_path, "r") as file:
+                return yaml.safe_load(file)
+        elif fallback_json_path.exists():
+            with open(fallback_json_path, "r") as file:
+                return json.load(file)
+        else:
+            raise FileNotFoundError("No valid configuration file found.")
+
+    def get_threshold(self, metric_path: str, default_value: float = None) -> float:
+        """Get threshold value from configuration with fallback to default."""
+        try:
+            keys = metric_path.split('.')
+            value = self.performance_config
+            for key in keys:
+                value = value[key]
+            return float(value)
+        except (KeyError, TypeError, ValueError):
+            return default_value
+
+    def get_config_value(self, config_path: str, default_value: Any = None) -> Any:
+        """Get configuration value with fallback to default."""
+        try:
+            keys = config_path.split('.')
+            value = self.performance_config
+            for key in keys:
+                value = value[key]
+            return value
+        except (KeyError, TypeError):
+            return default_value
+
+    def is_v2_config(self) -> bool:
+        """Check if using v2 configuration format."""
+        return self.performance_config.get('version', 1) == 2
+
+    def migrate_v1_to_v2_thresholds(self) -> None:
+        """Migrate v1 JSON configuration to v2 structure if needed."""
+        if not self.is_v2_config():
+            # Convert v1 performance_metrics to v2 structure
+            v1_metrics = self.performance_config.get('performance_metrics', {})
+            v2_thresholds = {
+                'performance_thresholds': {
+                    'execution_time': {
+                        'cli_startup_time_ms': v1_metrics.get('cli_startup_time', 1000.0),
+                        'container_init_time_ms': v1_metrics.get('container_init_time', 500.0),
+                        'basic_workflow_time_ms': v1_metrics.get('basic_workflow_time', 600.0),
+                    },
+                    'memory_usage': {
+                        'baseline_memory_mb': v1_metrics.get('baseline_memory_mb', 100.0),
+                        'max_peak_memory_mb': v1_metrics.get('peak_memory_mb', 200.0),
+                        'end_memory_mb': v1_metrics.get('end_memory_mb', 120.0),
+                    }
+                },
+                'import_time_thresholds': {
+                    'domain_entities_import_time': v1_metrics.get('domain_entities_import_time', 150.0),
+                    'application_services_import_time': v1_metrics.get('application_services_import_time', 350.0),
+                    'infrastructure_adapters_import_time': v1_metrics.get('infrastructure_adapters_import_time', 250.0),
+                    'presentation_cli_import_time': v1_metrics.get('presentation_cli_import_time', 300.0),
+                },
+                'version': 2
+            }
+            self.performance_config.update(v2_thresholds)
+
+    def validate_performance_metrics(self, metrics: PerformanceMetrics) -> dict[str, bool]:
+        """Validate performance metrics against configured thresholds."""
+        validation_results = {}
+        
+        # Execution time validation
+        max_execution_time = self.get_threshold(
+            'performance_thresholds.execution_time.max_execution_time_seconds', 300.0
+        )
+        validation_results['execution_time_ok'] = metrics.execution_time_seconds <= max_execution_time
+        
+        # Memory usage validation
+        max_memory = self.get_threshold(
+            'performance_thresholds.memory_usage.max_peak_memory_mb', 2048.0
+        )
+        validation_results['memory_usage_ok'] = metrics.peak_memory_mb <= max_memory
+        
+        # Throughput validation
+        min_throughput = self.get_threshold(
+            'performance_thresholds.throughput.min_throughput_samples_per_second', 10.0
+        )
+        validation_results['throughput_ok'] = metrics.training_throughput >= min_throughput
+        
+        # Quality metrics validation
+        min_accuracy = self.get_threshold(
+            'performance_thresholds.quality_metrics.min_accuracy_score', 0.70
+        )
+        validation_results['accuracy_ok'] = metrics.accuracy_score >= min_accuracy
+        
+        min_f1 = self.get_threshold(
+            'performance_thresholds.quality_metrics.min_f1_score', 0.65
+        )
+        validation_results['f1_score_ok'] = metrics.f1_score >= min_f1
+        
+        # CPU usage validation
+        max_cpu = self.get_threshold(
+            'performance_thresholds.cpu_usage.max_cpu_usage_percent', 80.0
+        )
+        validation_results['cpu_usage_ok'] = metrics.cpu_usage_percent <= max_cpu
+        
+        return validation_results
+
+    def check_performance_regression(self, current_metrics: PerformanceMetrics, baseline_metrics: PerformanceMetrics) -> dict[str, Any]:
+        """Check for performance regression against baseline."""
+        regression_results = {}
+        
+        # Performance degradation threshold
+        degradation_threshold = self.get_threshold(
+            'baseline_comparison.performance_regression_threshold_percent', 15.0
+        ) / 100.0
+        
+        # Memory regression threshold
+        memory_threshold = self.get_threshold(
+            'baseline_comparison.memory_regression_threshold_percent', 20.0
+        ) / 100.0
+        
+        # Check execution time regression
+        if baseline_metrics.execution_time_seconds > 0:
+            time_change = (current_metrics.execution_time_seconds - baseline_metrics.execution_time_seconds) / baseline_metrics.execution_time_seconds
+            regression_results['execution_time_regression'] = time_change > degradation_threshold
+            regression_results['execution_time_change_percent'] = time_change * 100
+        
+        # Check memory regression
+        if baseline_metrics.peak_memory_mb > 0:
+            memory_change = (current_metrics.peak_memory_mb - baseline_metrics.peak_memory_mb) / baseline_metrics.peak_memory_mb
+            regression_results['memory_regression'] = memory_change > memory_threshold
+            regression_results['memory_change_percent'] = memory_change * 100
+        
+        # Check quality regression
+        quality_threshold = self.get_threshold(
+            'performance_thresholds.quality_metrics.quality_degradation_threshold_percent', 5.0
+        ) / 100.0
+        
+        if baseline_metrics.accuracy_score > 0:
+            accuracy_change = (baseline_metrics.accuracy_score - current_metrics.accuracy_score) / baseline_metrics.accuracy_score
+            regression_results['accuracy_regression'] = accuracy_change > quality_threshold
+            regression_results['accuracy_change_percent'] = accuracy_change * 100
+        
+        return regression_results
+
+    def get_algorithm_specific_thresholds(self, algorithm_name: str) -> dict[str, float]:
+        """Get algorithm-specific thresholds from configuration."""
+        thresholds = {}
+        
+        # Check if algorithm is in fast_algorithms list
+        fast_algorithms = self.get_config_value('algorithm_thresholds.fast_algorithms.algorithms', [])
+        heavy_algorithms = self.get_config_value('algorithm_thresholds.heavy_algorithms.algorithms', [])
+        
+        if algorithm_name in fast_algorithms:
+            thresholds['max_execution_time'] = self.get_threshold(
+                'algorithm_thresholds.fast_algorithms.execution_time.max_execution_time_seconds', 60.0
+            )
+            thresholds['max_memory_usage'] = self.get_threshold(
+                'algorithm_thresholds.fast_algorithms.memory_usage.max_memory_usage_mb', 1024.0
+            )
+        elif algorithm_name in heavy_algorithms:
+            thresholds['max_execution_time'] = self.get_threshold(
+                'algorithm_thresholds.heavy_algorithms.execution_time.max_execution_time_seconds', 600.0
+            )
+            thresholds['max_memory_usage'] = self.get_threshold(
+                'algorithm_thresholds.heavy_algorithms.memory_usage.max_memory_usage_mb', 8192.0
+            )
+        else:
+            # Default thresholds
+            thresholds['max_execution_time'] = self.get_threshold(
+                'performance_thresholds.execution_time.max_execution_time_seconds', 300.0
+            )
+            thresholds['max_memory_usage'] = self.get_threshold(
+                'performance_thresholds.memory_usage.max_memory_usage_mb', 4096.0
+            )
+        
+        return thresholds
+
+    # Private methods
     async def _benchmark_algorithm(
         self, suite: BenchmarkSuite, algorithm: str, datasets: list[pd.DataFrame]
     ) -> None:
@@ -744,16 +961,41 @@ class PerformanceBenchmarkingService:
                     f"For accuracy-critical applications, consider using {most_accurate}"
                 )
 
-        # Check for performance issues
+        # Check for performance issues using configurable thresholds
         for algorithm, stats in suite.summary_stats.items():
-            if stats["avg_execution_time"] > 60:
+            # Get algorithm-specific thresholds
+            thresholds = self.get_algorithm_specific_thresholds(algorithm)
+            
+            # Check execution time
+            max_execution_time = thresholds.get('max_execution_time', 300.0)
+            if stats["avg_execution_time"] > max_execution_time:
                 recommendations.append(
-                    f"{algorithm} shows slow execution times - consider optimization"
+                    f"{algorithm} shows slow execution times ({stats['avg_execution_time']:.2f}s > {max_execution_time:.1f}s) - consider optimization"
                 )
 
-            if stats["max_memory_usage"] > 2048:
+            # Check memory usage
+            max_memory = thresholds.get('max_memory_usage', 4096.0)
+            if stats["max_memory_usage"] > max_memory:
                 recommendations.append(
-                    f"{algorithm} uses high memory - monitor for memory leaks"
+                    f"{algorithm} uses high memory ({stats['max_memory_usage']:.1f}MB > {max_memory:.1f}MB) - monitor for memory leaks"
+                )
+            
+            # Check accuracy
+            min_accuracy = self.get_threshold(
+                'performance_thresholds.quality_metrics.min_accuracy_score', 0.70
+            )
+            if stats["avg_accuracy"] < min_accuracy:
+                recommendations.append(
+                    f"{algorithm} has low accuracy ({stats['avg_accuracy']:.3f} < {min_accuracy:.3f}) - consider model tuning"
+                )
+            
+            # Check throughput
+            min_throughput = self.get_threshold(
+                'performance_thresholds.throughput.min_throughput_samples_per_second', 10.0
+            )
+            if stats["avg_throughput"] < min_throughput:
+                recommendations.append(
+                    f"{algorithm} has low throughput ({stats['avg_throughput']:.1f} < {min_throughput:.1f} samples/s) - consider optimization"
                 )
 
         suite.recommendations = recommendations
