@@ -2,6 +2,7 @@ site_name: Pynomaly Documentation
 site_description: State-of-the-art Python anomaly detection platform
 site_author: Pynomaly Team
 site_url: https://pynomaly.readthedocs.io
+docs_dir: ../../docs
 
 repo_name: pynomaly/pynomaly
 repo_url: https://github.com/pynomaly/pynomaly
@@ -9,7 +10,6 @@ edit_uri: edit/main/docs/
 
 theme:
   name: material
-  custom_dir: docs/overrides
   favicon: assets/favicon.ico
   logo: assets/logo.png
   palette:
@@ -84,29 +84,7 @@ nav:
   - Getting Started:
     - Installation: getting-started/installation.md
     - Quick Start: getting-started/quickstart.md
-    - Architecture: getting-started/architecture.md
-  - User Guide:
-    - CLI Usage: guide/cli.md
-    - API Usage: guide/api.md
-    - Web Interface: guide/web.md
-    - Algorithms: guide/algorithms.md
-    - Datasets: guide/datasets.md
-    - Experiments: guide/experiments.md
-  - API Reference:
-    - Domain: api/domain.md
-    - Application: api/application.md
-    - Infrastructure: api/infrastructure.md
-    - REST API: api/rest.md
-  - Advanced:
-    - Custom Algorithms: advanced/custom-algorithms.md
-    - Performance Tuning: advanced/performance.md
-    - Deployment: advanced/deployment.md
-    - Monitoring: advanced/monitoring.md
-  - Contributing:
-    - Development Setup: contributing/setup.md
-    - Code Style: contributing/style.md
-    - Testing: contributing/testing.md
-    - Documentation: contributing/docs.md
+    - Feature Installation Guide: getting-started/FEATURE_INSTALLATION_GUIDE.md
 
 extra:
   social:

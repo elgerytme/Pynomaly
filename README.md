@@ -7,7 +7,7 @@
 [![Type checked: mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 [![CI](https://github.com/yourusername/pynomaly/workflows/CI/badge.svg)](https://github.com/yourusername/pynomaly/actions)
 
-Python anomaly detection package targeting Python 3.11+ with clean architecture principles, integrating multiple ML libraries (PyOD, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX) through a unified interface.
+Python anomaly detection package targeting Python 3.11+ with clean architecture principles. **Core features use PyOD and scikit-learn**. Advanced ML frameworks (PyTorch, TensorFlow, JAX, PyGOD) require additional setup and dependencies.
 
 **Built with**: Hatch for build system and environment management, Ruff for linting and formatting, CI/CD pipeline with automated testing and deployment.
 
@@ -31,16 +31,25 @@ Python anomaly detection package targeting Python 3.11+ with clean architecture 
 - ⚡ **Performance Optimizations**: Batch cache operations, optimized data loading, memory management
 - 🧪 **Testing Infrastructure**: 85%+ coverage with property-based testing, benchmarking, and mutation testing
 
-### Experimental Features (Limited Support)
+### Experimental Features (Framework Only - Requires Implementation)
 
-**NOTE:** The following features are marked as experimental and their implementations might be incomplete or not available:
-- **ONNX model format is not supported yet in the storage service**
-- **Certain PyTorch base models are placeholders without concrete implementations**
-- 🤖 **AutoML**: Hyperparameter optimization framework (requires additional setup)
-- 🔍 **Explainability**: SHAP/LIME integration (requires: `pip install shap lime`)
-- 🧠 **Deep Learning**: PyTorch/TensorFlow adapters (optional dependencies)
-- 📱 **PWA Features**: Progressive Web App capabilities (basic implementation)
-- 📊 **Graph Analysis**: PyGOD integration (experimental, requires additional setup)
+**⚠️ IMPORTANT:** The following features exist as architectural frameworks but require additional implementation work:
+
+#### 🚧 **Framework Implementation (⚠️ Requires Dependencies)**
+- 🧠 **Deep Learning Adapters**: ![Beta](https://img.shields.io/badge/Status-Beta-orange) PyTorch, TensorFlow, JAX adapters implemented but require installing frameworks (`pip install torch tensorflow jax`)
+- 📊 **Graph Analysis**: ![Beta](https://img.shields.io/badge/Status-Beta-orange) PyGOD integration implemented but requires `pip install pygod`
+- 💾 **ONNX Export**: ![Planned](https://img.shields.io/badge/Status-Planned-red) Model persistence service throws `NotImplementedError` for ONNX format
+
+#### 🔧 **Requires Dependencies & Setup**
+- 🤖 **AutoML**: ![Beta](https://img.shields.io/badge/Status-Beta-orange) Framework exists, requires `pip install optuna auto-sklearn` and configuration
+- 🔍 **Explainability**: ![Beta](https://img.shields.io/badge/Status-Beta-orange) CLI enabled, requires `pip install shap lime` for full functionality
+- 📱 **PWA Features**: ![Experimental](https://img.shields.io/badge/Status-Experimental-yellow) Basic service worker and offline capabilities implemented, installable PWA
+- 🌊 **Streaming**: ![Beta](https://img.shields.io/badge/Status-Beta-orange) Real-time anomaly detection pipeline with WebSocket support
+
+#### 🛠️ **Disabled CLI Commands**
+- 🔒 **Security**: Available in `_click_backup/` but disabled in main CLI
+- 📊 **Dashboard**: Available in `_click_backup/` but disabled in main CLI  
+- ⚖️ **Governance**: Available in `_click_backup/` but disabled in main CLI
 
 ## Installation
 
@@ -89,6 +98,59 @@ pip install -e ".[production]"   # Authentication + monitoring
 python scripts/setup/install_features.py
 ```
 
+### 🎯 Feature-Specific Installation Guide
+
+#### Core Features (Always Available)
+```bash
+# Basic anomaly detection with PyOD
+pip install -e "."  # Includes PyOD, scikit-learn, pandas
+```
+
+#### Beta Features (Require Additional Dependencies)
+```bash
+# Deep Learning Support
+pip install -e ".[deep]"          # PyTorch, TensorFlow, JAX
+pip install -e ".[deep-cpu]"      # CPU-only versions (lighter)
+pip install -e ".[deep-gpu]"      # GPU-accelerated versions
+
+# Graph Anomaly Detection
+pip install -e ".[graph]"         # PyGOD integration
+
+# Streaming & Real-time
+pip install -e ".[server]"        # Includes WebSocket support
+
+# Authentication & Security
+pip install -e ".[auth]"          # JWT authentication
+
+# Monitoring & Observability
+pip install -e ".[monitoring]"    # Prometheus metrics
+```
+
+#### Experimental Features (Beta Status)
+```bash
+# AutoML Capabilities
+pip install -e ".[automl]"        # Optuna, HyperOpt
+pip install -e ".[automl-advanced]" # + Ray Tune, Auto-sklearn2
+
+# Model Explainability
+pip install -e ".[explainability]" # SHAP, LIME
+
+# Progressive Web App
+pip install -e ".[server]"        # PWA features included in server
+```
+
+#### Data Processing Extensions
+```bash
+# Enhanced Data Formats
+pip install -e ".[data-formats]"  # Parquet, Excel, HDF5
+
+# Database Connectivity
+pip install -e ".[database]"      # SQL databases
+
+# Big Data Processing
+pip install -e ".[spark]"         # Apache Spark integration
+```
+
 **📚 Complete Guide**: See [Feature Installation Guide](docs/getting-started/FEATURE_INSTALLATION_GUIDE.md) for detailed options and troubleshooting.
 
 ### Alternative Setup (Traditional pip/venv)
@@ -116,15 +178,15 @@ pip install -e ".[all]"             # All available features
 
 #### Feature-Specific Installation
 ```bash
-# Core functionality only
+# Core functionality only (Recommended for most users)
 pip install -e .
 
-# ML frameworks
-pip install -e ".[torch]"           # PyTorch deep learning
-pip install -e ".[tensorflow]"      # TensorFlow neural networks
-pip install -e ".[jax]"             # JAX high-performance computing
-pip install -e ".[graph]"           # PyGOD graph anomaly detection
-pip install -e ".[ml-all]"          # All ML frameworks
+# ML frameworks (⚠️ WARNING: These install dependencies but adapters are stubs)
+pip install -e ".[torch]"           # PyTorch deps - adapter needs implementation
+pip install -e ".[tensorflow]"      # TensorFlow deps - adapter needs implementation  
+pip install -e ".[jax]"             # JAX deps - adapter needs implementation
+pip install -e ".[graph]"           # PyGOD deps - integration needs implementation
+pip install -e ".[ml-all]"          # All ML deps - most adapters are stubs
 
 # Data processing
 pip install -e ".[data-formats]"    # Parquet, Excel, HDF5 support
@@ -305,9 +367,26 @@ Access the API and Progressive Web App at http://localhost:8000 after starting t
 - **Experiment Tracking**: Compare models, track performance metrics, A/B testing
 - **Dataset Analysis**: Data quality reports, drift detection, feature importance
 
+## Quick Install Matrix
+
+| Feature        | Installation Command                    | Description                              |
+|----------------|-----------------------------------------|------------------------------------------|
+| **AutoML**     | `pip install pynomaly[automl]`          | Basic automated ML with Optuna and HyperOpt          |
+| **Deep Learning**       | `pip install pynomaly[deep]`           | PyTorch, TensorFlow, JAX                 |
+| **Explainability**     | `pip install pynomaly[explainability]`   | SHAP and LIME-based model explanations   |
+| **AutoML Advanced**   | `pip install pynomaly[automl-advanced]`  | AutoML with Ray Tune for distributed computing      |
+| **Deep (CPU-only)**   | `pip install pynomaly[deep-cpu]`         | Lightweight CPU-only installations                |
+
+## Code Compatibility Badges
+
+![PyTorch Compatible](https://img.shields.io/badge/PyTorch-Compatible-brightgreen)
+![TensorFlow Compatible](https://img.shields.io/badge/TensorFlow-Compatible-brightgreen)
+![JAX Compatible](https://img.shields.io/badge/JAX-Compatible-brightgreen)
+![AutoML Toolkit](https://img.shields.io/badge/AutoML-Ready-brightgreen)
+
 ## Data Export & Reporting 📊
 
-Pynomaly provides comprehensive data export capabilities for analysis and reporting:
+Pynomaly provides comprehensive data export capabilities for analysis and reporting
 
 ### Supported Export Formats
 
@@ -529,21 +608,22 @@ npm run build-css
 - **Clean architecture**: Domain-driven design implementation
 - **API foundation**: FastAPI with 65+ endpoints
 
-### ⚠️ Beta Features
+### ⚙️ Beta Features ![Beta](https://img.shields.io/badge/Status-Beta-orange)
 - **Authentication**: JWT framework (requires configuration)
 - **Monitoring**: Prometheus metrics (optional)
-- **Export functionality**: CSV/JSON export
+- **Export functionality**: CSV/JSON export  
 - **Ensemble methods**: Advanced voting strategies
+- **Streaming**: Real-time anomaly detection with WebSocket support
+- **Deep Learning**: PyTorch/TensorFlow/JAX adapters (requires framework installation)
+- **Graph Analysis**: PyGOD integration (requires `pip install pygod`)
 
-### 🚧 Experimental Features
+### 🚧 Experimental Features ![Experimental](https://img.shields.io/badge/Status-Experimental-yellow)
 - **AutoML**: Requires additional setup and dependencies
-- **Deep Learning**: PyTorch/TensorFlow adapters (optional install)
 - **Explainability**: SHAP/LIME integration (manual setup required)
-- **PWA features**: Basic Progressive Web App capabilities
-- **Real-time streaming**: Framework exists, limited functionality
+- **PWA features**: Basic Progressive Web App capabilities with offline support
 
-### ❌ Planned Features
-- **Graph anomaly detection**: PyGOD integration in development
+### ❌ Planned Features ![Planned](https://img.shields.io/badge/Status-Planned-red)
+- **ONNX Model Export**: Model persistence for ONNX format
 - **Advanced visualization**: Complex D3.js components
 - **Production monitoring**: Full observability stack
 - **Text anomaly detection**: NLP-based detection methods
