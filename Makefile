@@ -15,7 +15,7 @@
 #   make build    - Build package
 #   make clean    - Clean up artifacts
 
-.PHONY: help setup install dev-install lint format test test-cov build clean docker pre-commit ci status release docs
+.PHONY: help setup install dev-install lint format test test-cov build clean docker pre-commit ci status release docs branch-new branch-switch branch-validate
 
 # Default target
 help: ## Show this help message
@@ -57,6 +57,11 @@ help: ## Show this help message
 	@echo "  make status         - Show project status and environment info"
 	@echo "  make env-show       - Show all Hatch environments"
 	@echo "  make env-clean      - Clean and recreate environments"
+	@echo ""
+	@echo "Branching & Git:"
+	@echo "  make branch-new TYPE NAME - Create new branch with validation (e.g., feature my-feature)"
+	@echo "  make branch-switch NAME   - Switch branches with safety checks"
+	@echo "  make branch-validate      - Validate current branch name for CI"
 	@echo ""
 	@echo "For detailed help: make help-detailed"
 

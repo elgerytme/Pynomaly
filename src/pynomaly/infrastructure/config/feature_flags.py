@@ -215,6 +215,11 @@ class FeatureFlags(BaseSettings):
         default=False, description="Enable text/image anomaly detection"
     )
 
+    # Experimental ML Features
+    ml_severity_classifier: bool = Field(
+        default=False, description="Enable ML severity classifier with XGBoost/LightGBM models"
+    )
+
     # Phase 5: Production Hardening (Selective enabling)
     health_monitoring: bool = Field(
         default=True,  # Essential for production
