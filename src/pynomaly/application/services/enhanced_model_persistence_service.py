@@ -525,6 +525,10 @@ class EnhancedModelPersistenceService:
                 with open(temp_file.name, "rb") as f:
                     return f.read(), ".sklearn.pkl"
 
+        elif format == SerializationFormat.ONNX:
+            # ONNX serialization
+            return await self._serialize_onnx_model(detector)
+
         else:
             raise UnsupportedFormatError(
                 f"Serialization format {format.value} not supported"

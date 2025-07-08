@@ -9,6 +9,8 @@ from uuid import UUID, uuid4
 
 from typing import TYPE_CHECKING
 
+from pynomaly.domain.value_objects import AnomalyType, AnomalyCategory, SeverityScore, SeverityLevel
+
 if TYPE_CHECKING:
     from pynomaly.domain.value_objects import AnomalyScore, ConfidenceInterval
 

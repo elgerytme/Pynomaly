@@ -243,7 +243,6 @@ class FeatureFlags(BaseSettings):
 
     class Config:
         """Pydantic configuration."""
-
         env_prefix = "PYNOMALY_"
         case_sensitive = False
 
