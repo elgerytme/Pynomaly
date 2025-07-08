@@ -3,15 +3,9 @@ Quality Gate Automation Testing Suite
 Comprehensive tests for automated quality gates, CI/CD integration, and deployment gates.
 """
 
-import json
-import os
-import subprocess
 from datetime import datetime, timedelta
-from typing import Any, Dict, List
-from unittest.mock import MagicMock, Mock, patch
 
 import pytest
-import yaml
 
 from pynomaly.infrastructure.quality_gates.code_quality_gate import CodeQualityGate
 from pynomaly.infrastructure.quality_gates.coverage_gate import CoverageGate

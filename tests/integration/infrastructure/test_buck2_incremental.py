@@ -14,7 +14,6 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
 
 # Import our change detector
 from buck2_change_detector import Buck2ChangeDetector, ChangeAnalysis
@@ -47,9 +46,9 @@ class TestRunSummary:
     failed_targets: int
     skipped_targets: int
     total_duration: float
-    results: List[TestResult]
+    results: list[TestResult]
     change_analysis: ChangeAnalysis
-    run_metadata: Dict
+    run_metadata: dict
 
 
 class Buck2IncrementalTestRunner:
@@ -151,8 +150,8 @@ class Buck2IncrementalTestRunner:
             )
 
     def run_targets_parallel(
-        self, targets: Set[str], target_type: str = "test"
-    ) -> List[TestResult]:
+        self, targets: set[str], target_type: str = "test"
+    ) -> list[TestResult]:
         """Run multiple Buck2 targets in parallel."""
         if not targets:
             return []
@@ -308,7 +307,7 @@ class Buck2IncrementalTestRunner:
 
     def print_summary(self, summary: TestRunSummary):
         """Print a human-readable test summary."""
-        print(f"\n=== Buck2 Incremental Test Results ===")
+        print("\n=== Buck2 Incremental Test Results ===")
         print(f"Commit range: {summary.change_analysis.commit_range}")
         print(f"Total duration: {summary.total_duration:.2f}s")
         print(f"Total targets: {summary.total_targets}")
@@ -332,7 +331,7 @@ class Buck2IncrementalTestRunner:
         # Show failed targets
         failed_results = [r for r in summary.results if not r.success]
         if failed_results:
-            print(f"\nFailed targets:")
+            print("\nFailed targets:")
             for result in failed_results:
                 print(f"  ✗ {result.target} ({result.duration:.2f}s)")
                 if result.stderr:
@@ -344,7 +343,7 @@ class Buck2IncrementalTestRunner:
         # Show successful targets
         successful_results = [r for r in summary.results if r.success]
         if successful_results and len(successful_results) <= 10:
-            print(f"\nSuccessful targets:")
+            print("\nSuccessful targets:")
             for result in successful_results:
                 print(f"  ✓ {result.target} ({result.duration:.2f}s)")
         elif successful_results:

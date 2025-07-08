@@ -2,6 +2,7 @@
 
 import pytest
 from httpx import AsyncClient
+
 from tests.integration.conftest import IntegrationTestHelper
 
 
@@ -609,9 +610,8 @@ admin@company.com,Administrator,admin_secret"""
 
         for filename, content, content_type in path_traversal_filenames:
             files = {"file": (filename, content, content_type)}
-            data = {
-                "name": f"path_test_{filename.replace('/', '_').replace('\\', '_')}"
-            }
+            safe_filename = filename.replace("/", "_").replace("\\", "_")
+            data = {"name": f"path_test_{safe_filename}"}
 
             response = await async_test_client.post(
                 "/api/datasets/upload", files=files, data=data

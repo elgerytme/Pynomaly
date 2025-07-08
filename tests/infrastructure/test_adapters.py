@@ -5,6 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 import pytest
+
 from tests.conftest_dependencies import requires_dependencies, requires_dependency
 
 # Optional imports with graceful fallbacks
@@ -152,51 +153,51 @@ class TestPyODAdapter:
         """Test creating unsupported algorithm."""
         with pytest.raises(InvalidAlgorithmError):
             PyODAdapter("UnsupportedAlgorithm")
-    
+
     def test_missing_class_algorithms(self):
         """Test algorithms where the class doesn't exist in the module."""
         missing_class_algorithms = [
             "FastABOD",  # Class doesn't exist in pyod.models.abod
             "Beta-VAE",  # Class doesn't exist in pyod.models.vae
         ]
-        
+
         for algorithm in missing_class_algorithms:
             with pytest.raises(InvalidAlgorithmError) as exc_info:
                 PyODAdapter(algorithm)
             assert "not available in PyOD version" in str(exc_info.value)
             assert "not found in module" in str(exc_info.value)
-    
+
     def test_missing_module_algorithms(self):
         """Test algorithms where the entire module doesn't exist."""
         missing_module_algorithms = [
             "CLF",  # Module pyod.models.clf doesn't exist
         ]
-        
+
         for algorithm in missing_module_algorithms:
             with pytest.raises(InvalidAlgorithmError) as exc_info:
                 PyODAdapter(algorithm)
             assert "not available in PyOD version" in str(exc_info.value)
             assert "does not exist" in str(exc_info.value)
-    
+
     def test_missing_dependency_algorithms(self):
         """Test algorithms with missing optional dependencies."""
         dependency_algorithms = [
             ("FeatureBagging", "combo"),  # Requires combo package
-            ("XGBOD", "xgboost"),         # Requires xgboost package
-            ("SUOD", "suod"),             # Requires suod package
+            ("XGBOD", "xgboost"),  # Requires xgboost package
+            ("SUOD", "suod"),  # Requires suod package
         ]
-        
+
         for algorithm, dependency in dependency_algorithms:
             with pytest.raises(InvalidAlgorithmError) as exc_info:
                 PyODAdapter(algorithm)
             assert f"requires '{dependency}' package" in str(exc_info.value)
             assert f"pip install {dependency}" in str(exc_info.value)
-    
+
     def test_algorithm_validation_comprehensive(self):
         """Test comprehensive algorithm validation for all known problematic algorithms."""
         # Test working algorithms that should succeed
         working_algorithms = ["PCA", "LOF", "IsolationForest", "OCSVM", "KNN"]
-        
+
         for algorithm in working_algorithms:
             try:
                 adapter = PyODAdapter(algorithm)
@@ -204,21 +205,23 @@ class TestPyODAdapter:
                 assert adapter.name == f"PyOD_{algorithm}"
             except Exception as e:
                 pytest.fail(f"Working algorithm {algorithm} should not fail: {e}")
-        
+
         # Test all known problematic algorithms
         problematic_algorithms = {
             "FastABOD": "not found in module",
-            "Beta-VAE": "not found in module", 
+            "Beta-VAE": "not found in module",
             "CLF": "does not exist",
             "FeatureBagging": "combo",
             "XGBOD": "xgboost",
             "SUOD": "suod",
         }
-        
+
         for algorithm, expected_error_fragment in problematic_algorithms.items():
             with pytest.raises(InvalidAlgorithmError) as exc_info:
                 PyODAdapter(algorithm)
-            assert expected_error_fragment in str(exc_info.value), f"Expected '{expected_error_fragment}' in error message for {algorithm}, got: {exc_info.value}"
+            assert (
+                expected_error_fragment in str(exc_info.value)
+            ), f"Expected '{expected_error_fragment}' in error message for {algorithm}, got: {exc_info.value}"
 
 
 @requires_dependency("scikit-learn")

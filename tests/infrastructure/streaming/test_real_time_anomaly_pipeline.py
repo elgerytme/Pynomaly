@@ -1,11 +1,8 @@
 """Tests for real-time anomaly detection pipeline."""
 
 import asyncio
-import tempfile
-from datetime import datetime, timedelta
-from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
-from uuid import uuid4
+from datetime import datetime
+from unittest.mock import AsyncMock
 
 import numpy as np
 import pytest

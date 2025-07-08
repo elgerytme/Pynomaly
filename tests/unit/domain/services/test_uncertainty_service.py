@@ -5,8 +5,6 @@ Tests the UncertaintyQuantificationService domain service functionality
 including bootstrap, Bayesian, and normal confidence intervals.
 """
 
-from unittest.mock import Mock
-
 import numpy as np
 import pytest
 

@@ -5,8 +5,6 @@ Test authentication flows with the new simplified dependencies
 
 import os
 import sys
-import traceback
-from unittest.mock import AsyncMock, Mock
 
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))

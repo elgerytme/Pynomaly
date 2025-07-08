@@ -2,7 +2,6 @@
 
 import json
 import tempfile
-from pathlib import Path
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
@@ -58,7 +57,6 @@ class TestAutoMLAPI:
                 "pynomaly.presentation.api.endpoints.automl.require_write"
             ) as mock_require_write,
         ):
-
             mock_get_container.return_value = container
             mock_get_user.return_value = "test_user"
             mock_require_write.return_value = "write"
@@ -99,7 +97,6 @@ class TestAutoMLAPI:
                 "pynomaly.presentation.api.endpoints.automl.require_write"
             ) as mock_require_write,
         ):
-
             mock_get_container.return_value = container
             mock_get_user.return_value = "test_user"
             mock_require_write.return_value = "write"
@@ -138,7 +135,6 @@ class TestAutoMLAPI:
                 "pynomaly.presentation.api.endpoints.automl.require_write"
             ) as mock_require_write,
         ):
-
             mock_get_container.return_value = container
             mock_get_user.return_value = "test_user"
             mock_require_write.return_value = "write"
@@ -178,7 +174,6 @@ class TestAutoMLAPI:
                 "pynomaly.presentation.api.endpoints.automl.require_write"
             ) as mock_require_write,
         ):
-
             mock_get_container.return_value = container
             mock_get_user.return_value = "test_user"
             mock_require_write.return_value = "write"
@@ -224,7 +219,6 @@ class TestAutoMLAPI:
                 "pynomaly.presentation.api.endpoints.automl.require_write"
             ) as mock_require_write,
         ):
-
             mock_get_container.return_value = container
             mock_get_user.return_value = "test_user"
             mock_require_write.return_value = "write"
@@ -268,7 +262,6 @@ class TestAutoMLAPI:
                 "pynomaly.presentation.api.endpoints.automl.require_write"
             ) as mock_require_write,
         ):
-
             mock_get_container.return_value = container
             mock_get_user.return_value = "test_user"
             mock_require_write.return_value = "write"
@@ -309,7 +302,6 @@ class TestAutoMLAPI:
                 "pynomaly.presentation.api.endpoints.automl.require_write"
             ) as mock_require_write,
         ):
-
             mock_get_container.return_value = container
             mock_get_user.return_value = "test_user"
             mock_require_write.return_value = "write"
@@ -370,7 +362,6 @@ class TestAutoMLAPI:
                 "pynomaly.presentation.api.endpoints.automl.require_write"
             ) as mock_require_write,
         ):
-
             mock_get_container.return_value = container
             mock_get_user.return_value = "test_user"
             mock_require_write.return_value = "write"
@@ -479,7 +470,7 @@ class TestPerformanceCriteriaAPI:
         improvements = [0.15, 0.20, 0.05, -0.10]
         expected_formats = ["15.0%", "20.0%", "5.0%", "-10.0%"]
 
-        for improvement, expected in zip(improvements, expected_formats):
+        for improvement, expected in zip(improvements, expected_formats, strict=False):
             formatted = f"{improvement:.1%}"
             assert formatted == expected
 

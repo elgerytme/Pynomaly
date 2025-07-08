@@ -1,14 +1,13 @@
 """Unit tests for test runner service."""
 
 import asyncio
-import json
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, mock_open, patch
+from unittest.mock import AsyncMock, mock_open, patch
 from uuid import uuid4
 
 import pytest
 
-from pynomaly.domain.models.cicd import PipelineStatus, TestResult, TestSuite, TestType
+from pynomaly.domain.models.cicd import PipelineStatus, TestSuite, TestType
 from pynomaly.infrastructure.cicd.test_runner import TestRunner
 
 

@@ -5,7 +5,7 @@ Tests the QuantifyUncertaintyUseCase application logic including
 request validation, uncertainty calculation orchestration, and response formatting.
 """
 
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import numpy as np
 import pytest
@@ -274,9 +274,7 @@ class TestQuantifyUncertaintyUseCase:
         scores = [0.1, 0.2, 0.3, 0.4, 0.5]
         expected_ci = ConfidenceInterval.from_bounds(0.2, 0.4, method="bootstrap_mean")
 
-        mock_uncertainty_service.calculate_bootstrap_confidence_interval.return_value = (
-            expected_ci
-        )
+        mock_uncertainty_service.calculate_bootstrap_confidence_interval.return_value = expected_ci
 
         result = use_case.calculate_bootstrap_interval(
             scores=scores, confidence_level=0.90, n_bootstrap=500, statistic="mean"

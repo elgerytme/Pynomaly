@@ -677,9 +677,7 @@ class TestDetectionCLI:
     def test_detection_run(self, runner, mock_container):
         """Test running detection."""
         # Set detector as fitted for detection
-        mock_container.detector_repository.return_value.find_by_name.return_value.is_fitted = (
-            True
-        )
+        mock_container.detector_repository.return_value.find_by_name.return_value.is_fitted = True
 
         with patch(
             "pynomaly.application.use_cases.detect_anomalies.DetectAnomaliesUseCase"
@@ -707,9 +705,7 @@ class TestDetectionCLI:
 
     def test_detection_evaluate(self, runner, mock_container):
         """Test detector evaluation."""
-        mock_container.detector_repository.return_value.find_by_name.return_value.is_fitted = (
-            True
-        )
+        mock_container.detector_repository.return_value.find_by_name.return_value.is_fitted = True
 
         with patch(
             "pynomaly.application.use_cases.evaluate_detector.EvaluateDetectorUseCase"

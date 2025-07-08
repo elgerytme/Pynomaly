@@ -5,15 +5,14 @@ Comprehensive accessibility test suite with CI/CD integration
 
 import asyncio
 import json
-import os
-import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import pytest
-from playwright.async_api import Browser, BrowserContext, Page, expect
+from playwright.async_api import Browser, Page
+
 from tests.ui.accessibility.wcag_validation_framework import (
     WCAGLevel,
     WCAGValidationFramework,
@@ -64,7 +63,7 @@ class AccessibilityTestRunner:
 
     async def run_accessibility_test_suite(
         self, scenario: str = "comprehensive", base_url: str = "http://localhost:8000"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Run complete accessibility test suite"""
         print(f"🚀 Starting accessibility test suite: {scenario}")
         start_time = datetime.now()
@@ -133,8 +132,8 @@ class AccessibilityTestRunner:
         return suite_results
 
     async def _test_browser(
-        self, browser: Browser, browser_name: str, config: Dict[str, Any], base_url: str
-    ) -> Dict[str, Any]:
+        self, browser: Browser, browser_name: str, config: dict[str, Any], base_url: str
+    ) -> dict[str, Any]:
         """Test accessibility in a specific browser"""
         browser_results = {
             "browser": browser_name,
@@ -182,8 +181,8 @@ class AccessibilityTestRunner:
         return browser_results
 
     async def _test_viewport(
-        self, page: Page, pages: List[str], base_url: str
-    ) -> Dict[str, Any]:
+        self, page: Page, pages: list[str], base_url: str
+    ) -> dict[str, Any]:
         """Test accessibility at a specific viewport"""
         viewport_results = {
             "viewport": page.viewport_size,
@@ -240,7 +239,7 @@ class AccessibilityTestRunner:
 
     async def _run_pynomaly_specific_tests(
         self, page: Page, page_path: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Run Pynomaly-specific accessibility tests"""
         specific_tests = {
             "page_path": page_path,
@@ -284,7 +283,7 @@ class AccessibilityTestRunner:
 
         return specific_tests
 
-    async def _test_data_table_accessibility(self, page: Page) -> Dict[str, Any]:
+    async def _test_data_table_accessibility(self, page: Page) -> dict[str, Any]:
         """Test data table accessibility"""
         test_result = {
             "test_name": "data_table_accessibility",
@@ -318,8 +317,8 @@ class AccessibilityTestRunner:
             # Check for table caption or aria-label
             has_caption = await table.evaluate(
                 """
-                el => el.querySelector('caption') || 
-                      el.hasAttribute('aria-label') || 
+                el => el.querySelector('caption') ||
+                      el.hasAttribute('aria-label') ||
                       el.hasAttribute('aria-labelledby')
             """
             )
@@ -343,7 +342,7 @@ class AccessibilityTestRunner:
 
         return test_result
 
-    async def _test_chart_accessibility(self, page: Page) -> Dict[str, Any]:
+    async def _test_chart_accessibility(self, page: Page) -> dict[str, Any]:
         """Test chart/visualization accessibility"""
         test_result = {
             "test_name": "chart_accessibility",
@@ -362,11 +361,11 @@ class AccessibilityTestRunner:
                 """
                 el => {
                     if (el.tagName === 'SVG') {
-                        return el.querySelector('title, desc') || 
-                               el.hasAttribute('aria-label') || 
+                        return el.querySelector('title, desc') ||
+                               el.hasAttribute('aria-label') ||
                                el.hasAttribute('aria-labelledby');
                     }
-                    return el.hasAttribute('aria-label') || 
+                    return el.hasAttribute('aria-label') ||
                            el.hasAttribute('aria-labelledby') ||
                            el.hasAttribute('role');
                 }
@@ -415,7 +414,7 @@ class AccessibilityTestRunner:
 
         return test_result
 
-    async def _test_form_accessibility(self, page: Page) -> Dict[str, Any]:
+    async def _test_form_accessibility(self, page: Page) -> dict[str, Any]:
         """Test form accessibility"""
         test_result = {
             "test_name": "form_accessibility",
@@ -481,9 +480,9 @@ class AccessibilityTestRunner:
                 has_required_indication = await input_elem.evaluate(
                     """
                     el => {
-                        const label = el.closest('label') || 
+                        const label = el.closest('label') ||
                                      (el.id && document.querySelector(`label[for="${el.id}"]`));
-                        return label && (label.textContent.includes('*') || 
+                        return label && (label.textContent.includes('*') ||
                                         label.textContent.includes('required') ||
                                         el.hasAttribute('aria-required'));
                     }
@@ -502,7 +501,7 @@ class AccessibilityTestRunner:
 
         return test_result
 
-    async def _test_navigation_accessibility(self, page: Page) -> Dict[str, Any]:
+    async def _test_navigation_accessibility(self, page: Page) -> dict[str, Any]:
         """Test navigation accessibility"""
         test_result = {
             "test_name": "navigation_accessibility",
@@ -591,7 +590,7 @@ class AccessibilityTestRunner:
 
         return test_result
 
-    async def _test_pwa_accessibility(self, page: Page) -> Dict[str, Any]:
+    async def _test_pwa_accessibility(self, page: Page) -> dict[str, Any]:
         """Test PWA-specific accessibility features"""
         test_result = {"test_name": "pwa_accessibility", "violations": [], "passes": []}
 
@@ -628,8 +627,8 @@ class AccessibilityTestRunner:
         for button in install_buttons:
             has_accessible_name = await button.evaluate(
                 """
-                el => el.textContent.trim().length > 0 || 
-                      el.hasAttribute('aria-label') || 
+                el => el.textContent.trim().length > 0 ||
+                      el.hasAttribute('aria-label') ||
                       el.hasAttribute('aria-labelledby')
             """
             )
@@ -651,7 +650,7 @@ class AccessibilityTestRunner:
         for notification in notifications:
             has_live_region = await notification.evaluate(
                 """
-                el => el.hasAttribute('aria-live') || 
+                el => el.hasAttribute('aria-live') ||
                       el.hasAttribute('role') && ['alert', 'status'].includes(el.getAttribute('role'))
             """
             )
@@ -668,7 +667,7 @@ class AccessibilityTestRunner:
 
         return test_result
 
-    def _combine_test_results(self, wcag_result, pynomaly_result) -> Dict[str, Any]:
+    def _combine_test_results(self, wcag_result, pynomaly_result) -> dict[str, Any]:
         """Combine WCAG and Pynomaly-specific test results"""
         combined_violations = list(wcag_result.violations)
 
@@ -693,8 +692,8 @@ class AccessibilityTestRunner:
         }
 
     def _calculate_viewport_summary(
-        self, page_results: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, page_results: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """Calculate summary for viewport results"""
         total_pages = len(page_results)
         total_violations = sum(r.get("total_violations", 0) for r in page_results)
@@ -708,7 +707,7 @@ class AccessibilityTestRunner:
         }
 
     def _calculate_viewport_compliance(
-        self, page_results: List[Dict[str, Any]]
+        self, page_results: list[dict[str, Any]]
     ) -> float:
         """Calculate compliance score for viewport"""
         if not page_results:
@@ -718,8 +717,8 @@ class AccessibilityTestRunner:
         return total_score / len(page_results)
 
     def _aggregate_browser_results(
-        self, viewport_results: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, viewport_results: dict[str, Any]
+    ) -> dict[str, Any]:
         """Aggregate results across viewports for a browser"""
         all_violations = 0
         all_pages = 0
@@ -734,7 +733,7 @@ class AccessibilityTestRunner:
             "viewports_tested": len(viewport_results),
         }
 
-    def _calculate_browser_compliance(self, viewport_results: Dict[str, Any]) -> float:
+    def _calculate_browser_compliance(self, viewport_results: dict[str, Any]) -> float:
         """Calculate overall compliance for browser"""
         if not viewport_results:
             return 0.0
@@ -743,8 +742,8 @@ class AccessibilityTestRunner:
         return total_score / len(viewport_results)
 
     def _generate_suite_summary(
-        self, browser_results: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, browser_results: dict[str, Any]
+    ) -> dict[str, Any]:
         """Generate summary across all browsers"""
         total_violations = 0
         total_pages = 0
@@ -761,8 +760,8 @@ class AccessibilityTestRunner:
         }
 
     def _calculate_suite_compliance(
-        self, browser_results: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, browser_results: dict[str, Any]
+    ) -> dict[str, Any]:
         """Calculate compliance scores across suite"""
         browser_scores = {
             browser: data["compliance_score"]
@@ -781,8 +780,8 @@ class AccessibilityTestRunner:
         }
 
     def _extract_critical_issues(
-        self, browser_results: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, browser_results: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Extract critical accessibility issues"""
         critical_issues = []
 
@@ -808,8 +807,8 @@ class AccessibilityTestRunner:
         return critical_issues
 
     def _generate_suite_recommendations(
-        self, browser_results: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, browser_results: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Generate accessibility improvement recommendations"""
         recommendations = [
             {
@@ -840,7 +839,7 @@ class AccessibilityTestRunner:
 
         return recommendations
 
-    async def _save_suite_report(self, suite_results: Dict[str, Any]):
+    async def _save_suite_report(self, suite_results: dict[str, Any]):
         """Save comprehensive suite report"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         scenario = suite_results["scenario"]
@@ -868,18 +867,20 @@ class AccessibilityTestRunner:
         with open(summary_path, "w") as f:
             f.write(summary_content)
 
-        print(f"📊 Suite reports saved:")
+        print("📊 Suite reports saved:")
         print(f"  JSON: {json_path}")
         print(f"  HTML: {html_path}")
         print(f"  Summary: {summary_path}")
 
-    def _generate_suite_html_report(self, results: Dict[str, Any]) -> str:
+    def _generate_suite_html_report(self, results: dict[str, Any]) -> str:
         """Generate HTML report for test suite"""
         compliance_score = results["compliance_scores"]["average"]
         score_color = (
             "#27ae60"
             if compliance_score >= 80
-            else "#f39c12" if compliance_score >= 60 else "#e74c3c"
+            else "#f39c12"
+            if compliance_score >= 60
+            else "#e74c3c"
         )
 
         return f"""
@@ -914,7 +915,7 @@ class AccessibilityTestRunner:
                     <p>Average Compliance Score</p>
                     <p><small>Generated: {results['start_time']}</small></p>
                 </div>
-                
+
                 <div class="summary">
                     <div class="metric">
                         <div style="font-size: 2em; font-weight: bold;">{results['summary']['browsers_tested']}</div>
@@ -933,7 +934,7 @@ class AccessibilityTestRunner:
                         <div>Critical Issues</div>
                     </div>
                 </div>
-                
+
                 <div class="browser-results">
                     <h3>📊 Browser Results</h3>
                     {''.join([f'''
@@ -945,14 +946,14 @@ class AccessibilityTestRunner:
                     </div>
                     ''' for browser_name, browser_data in results['browser_results'].items()])}
                 </div>
-                
+
                 <div class="recommendations">
                     <h3>💡 Recommendations</h3>
                     <ul>
                         {''.join([f"<li class='{rec['priority']}'><strong>{rec['category']}</strong> - {rec['recommendation']}</li>" for rec in results['recommendations']])}
                     </ul>
                 </div>
-                
+
                 <div style="margin-top: 40px; text-align: center; color: #666;">
                     <p>Execution Time: {results['execution_time']:.1f} seconds</p>
                     <p>Generated by Pynomaly Accessibility Test Suite</p>
@@ -962,13 +963,15 @@ class AccessibilityTestRunner:
         </html>
         """
 
-    def _generate_ci_summary(self, results: Dict[str, Any]) -> str:
+    def _generate_ci_summary(self, results: dict[str, Any]) -> str:
         """Generate CI-friendly summary"""
         compliance_score = results["compliance_scores"]["average"]
         status = (
             "PASS"
             if compliance_score >= 80
-            else "WARN" if compliance_score >= 60 else "FAIL"
+            else "WARN"
+            if compliance_score >= 60
+            else "FAIL"
         )
 
         summary = f"""
@@ -981,7 +984,7 @@ Overall Compliance: {compliance_score:.1f}%
 
 Summary:
 - Browsers Tested: {results['summary']['browsers_tested']}
-- Total Pages: {results['summary']['total_pages']} 
+- Total Pages: {results['summary']['total_pages']}
 - Total Violations: {results['summary']['total_violations']}
 - Critical Issues: {len(results['critical_issues'])}
 - Execution Time: {results['execution_time']:.1f}s
@@ -1066,7 +1069,7 @@ if __name__ == "__main__":
         compliance_score = results["compliance_scores"]["average"]
         critical_issues = len(results["critical_issues"])
 
-        print(f"\n🎯 Accessibility Test Results:")
+        print("\n🎯 Accessibility Test Results:")
         print(f"Scenario: {args.scenario}")
         print(f"Compliance Score: {compliance_score:.1f}%")
         print(f"Critical Issues: {critical_issues}")

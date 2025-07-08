@@ -1,17 +1,15 @@
 """Security-focused tests for Pynomaly."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 from fastapi import HTTPException
 
-from pynomaly.domain.exceptions import AuthenticationError, AuthorizationError
-from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService
-from pynomaly.infrastructure.auth.rate_limiting import RateLimiter, RateLimitMiddleware
+from pynomaly.domain.exceptions import AuthenticationError
+from pynomaly.infrastructure.auth.rate_limiting import RateLimiter
 from pynomaly.infrastructure.security.audit_logging import (
     AuditEvent,
     AuditEventType,
-    AuditLogger,
     AuditSeverity,
 )
 from pynomaly.infrastructure.security.validation import (
@@ -19,7 +17,6 @@ from pynomaly.infrastructure.security.validation import (
     InputValidator,
     ThreatDetector,
     ValidationError,
-    validate_input,
 )
 
 

@@ -296,10 +296,11 @@ class TestFederatedLearningIntegration:
 
         for method in robust_methods:
             try:
-                aggregated_params, metrics = (
-                    await aggregation_service.aggregate_advanced(
-                        method, updates, participants
-                    )
+                (
+                    aggregated_params,
+                    metrics,
+                ) = await aggregation_service.aggregate_advanced(
+                    method, updates, participants
                 )
 
                 assert "weights" in aggregated_params
@@ -527,7 +528,7 @@ class TestFederatedLearningIntegration:
         assert benchmark_results["avg_training_time"] > 0
         assert benchmark_results["throughput_samples_per_second"] > 0
 
-        print(f"\nParticipant Performance Benchmark:")
+        print("\nParticipant Performance Benchmark:")
         print(f"  Average training time: {benchmark_results['avg_training_time']:.3f}s")
         print(
             f"  Throughput: {benchmark_results['throughput_samples_per_second']:.1f} samples/sec"
@@ -583,7 +584,7 @@ class TestFederatedLearningIntegration:
         assert training_round is not None
         assert len(training_round.target_participants) == num_participants
 
-        print(f"\nLarge Scale Federation Test:")
+        print("\nLarge Scale Federation Test:")
         print(f"  Participants: {num_participants}")
         print(f"  Federation ID: {federation.federation_id}")
         print(f"  Training round started: {training_round.round_number}")

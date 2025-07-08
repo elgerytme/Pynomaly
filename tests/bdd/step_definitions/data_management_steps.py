@@ -269,9 +269,12 @@ def verify_feature_matrix_shape():
     if hasattr(pytest, "loaded_csv"):
         expected_rows, expected_cols = pytest.expected_utf8_shape
         actual_shape = pytest.loaded_csv.features.shape
-        assert actual_shape == (
-            expected_rows,
-            expected_cols - 1,
+        assert (
+            actual_shape
+            == (
+                expected_rows,
+                expected_cols - 1,
+            )
         ), f"Expected feature matrix shape {(expected_rows, expected_cols - 1)}, got {actual_shape}"
 
 

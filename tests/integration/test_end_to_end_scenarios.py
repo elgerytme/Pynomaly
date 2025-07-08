@@ -1,10 +1,8 @@
 """End-to-end integration tests for complete user scenarios."""
 
-import asyncio
-import tempfile
-
 import pytest
 from httpx import AsyncClient
+
 from tests.integration.conftest import IntegrationTestHelper
 
 

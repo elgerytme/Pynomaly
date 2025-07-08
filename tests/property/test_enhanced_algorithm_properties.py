@@ -1,12 +1,8 @@
 """Enhanced property-based testing for anomaly detection algorithms."""
 
 import warnings
-from typing import Any, Dict, List, Tuple, Union
-from unittest.mock import Mock, patch
 
 import numpy as np
-import pandas as pd
-import pytest
 from hypothesis import HealthCheck, assume, given, settings
 from hypothesis import strategies as st
 from hypothesis.extra.numpy import arrays

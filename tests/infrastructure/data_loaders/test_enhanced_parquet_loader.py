@@ -1,11 +1,8 @@
 """Test cases for enhanced Parquet data loader."""
 
-import os
-import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -93,7 +90,6 @@ class TestEnhancedParquetLoader:
             patch.object(loader, "_extract_metadata", return_value={}),
             patch.object(loader, "_get_file_size_mb", return_value=10.5),
         ):
-
             result = loader.load(
                 "test.parquet", name="test_dataset", target_column="target"
             )
@@ -132,7 +128,6 @@ class TestEnhancedParquetLoader:
             patch.object(loader, "validate", return_value=True),
             patch.object(loader, "_extract_metadata", return_value={}),
         ):
-
             with pytest.raises(
                 DataValidationError, match="Target column 'missing' not found"
             ):
@@ -161,7 +156,6 @@ class TestEnhancedParquetLoader:
             patch.object(loader, "_extract_metadata", return_value={}),
             patch.object(loader, "_get_file_size_mb", return_value=1.0),
         ):
-
             result = loader.load("test.parquet", memory_map=False, filters=[])
 
         # Verify pandas.read_parquet was called with correct arguments
@@ -348,7 +342,6 @@ class TestEnhancedParquetLoader:
             patch.object(loader, "validate", return_value=True),
             patch.object(loader, "_get_file_size_mb", return_value=100.0),
         ):
-
             result = loader.estimate_size("test.parquet")
 
         assert result["total_rows"] == 1000
@@ -366,7 +359,6 @@ class TestEnhancedParquetLoader:
             patch.object(loader, "validate", return_value=True),
             patch.object(loader, "_get_file_size_mb", return_value=100.0),
         ):
-
             result = loader.estimate_size("test.parquet")
 
         assert result["file_size_mb"] == 100.0
@@ -506,7 +498,6 @@ class TestEnhancedParquetLoader:
             patch("pathlib.Path.is_file", return_value=True),
             patch("pathlib.Path.is_dir", return_value=False),
         ):
-
             size = loader._get_file_size_mb(Path("test.parquet"))
 
         assert size == 10.0
@@ -528,7 +519,6 @@ class TestEnhancedParquetLoader:
             patch("pathlib.Path.is_file", return_value=False),
             patch("pathlib.Path.is_dir", return_value=True),
         ):
-
             size = loader._get_file_size_mb(Path("parquet_dir/"))
 
         assert size == 8.0  # 5 + 3 MB
@@ -541,7 +531,6 @@ class TestEnhancedParquetLoader:
             patch("pathlib.Path.is_file", return_value=False),
             patch("pathlib.Path.is_dir", return_value=False),
         ):
-
             size = loader._get_file_size_mb(Path("nonexistent"))
 
         assert size == 0.0

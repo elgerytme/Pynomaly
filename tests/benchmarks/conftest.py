@@ -1,7 +1,31 @@
 """Benchmark-specific fixtures that extend the root conftest.py."""
 
-# Import all fixtures from root conftest
-from ..conftest import *
+# Import specific fixtures from root conftest
+try:
+    from ..conftest import container, sample_data, sample_dataset, large_dataset, performance_data
+except ImportError:
+    # Fallback for when running benchmarks in isolation
+    import pytest
+    
+    @pytest.fixture
+    def container():
+        return None
+    
+    @pytest.fixture
+    def sample_data():
+        return None
+    
+    @pytest.fixture
+    def sample_dataset():
+        return None
+    
+    @pytest.fixture
+    def large_dataset():
+        return None
+    
+    @pytest.fixture
+    def performance_data():
+        return None
 
 
 # Additional benchmark-specific hooks

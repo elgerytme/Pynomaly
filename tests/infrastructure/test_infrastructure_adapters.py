@@ -1,8 +1,8 @@
 """Test infrastructure adapters for Step 6: Test infrastructure adapters
 
-• Persistence: in-memory SQLite with transaction rollback per test.  
-• Caching: fake Redis client.  
-• Observability & auth: ensure middlewares register without raising.  
+• Persistence: in-memory SQLite with transaction rollback per test.
+• Caching: fake Redis client.
+• Observability & auth: ensure middlewares register without raising.
 Validate environment variable parsing in Settings.
 """
 
@@ -11,7 +11,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
-from sqlalchemy import create_engine, text
+from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker
 
 from pynomaly.infrastructure.cache.redis_cache import RedisCache
@@ -42,7 +42,9 @@ class TestPersistenceAdapter:
 
         # Create a test table
         with db_manager.engine.connect() as conn:
-            conn.execute(text("CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT)"))
+            conn.execute(
+                text("CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT)")
+            )
             conn.commit()
 
         # Test rollback functionality
@@ -53,7 +55,7 @@ class TestPersistenceAdapter:
             # Insert test data
             session.execute(text("INSERT INTO test_table (name) VALUES ('test')"))
             session.commit()
-            
+
             # Verify data exists
             result = session.execute(text("SELECT COUNT(*) FROM test_table")).scalar()
             assert result == 1
@@ -68,7 +70,7 @@ class TestPersistenceAdapter:
     def test_database_manager_session_context(self):
         """Test database manager session context manager."""
         db_manager = DatabaseManager("sqlite:///:memory:", echo=False)
-        
+
         # Test context manager
         session_gen = db_manager.get_session()
         session = next(session_gen)
@@ -81,7 +83,7 @@ class TestPersistenceAdapter:
                 next(session_gen)
             except StopIteration:
                 pass  # Expected for generator
-        
+
         db_manager.close()
 
 
@@ -184,14 +186,14 @@ class TestSettingsConfiguration:
         monkeypatch.setenv("PYNOMALY_API_HOST", "127.0.0.1")
         monkeypatch.setenv("PYNOMALY_API_PORT", "8080")
         monkeypatch.setenv("PYNOMALY_CACHE_ENABLED", "false")
-        
+
         settings = Settings()
-        
+
         # Test environment variables are parsed correctly
         assert settings.api_host == "127.0.0.1"
         assert settings.api_port == 8080
         assert settings.cache_enabled is False
-        
+
         # Test that the basic environment variable parsing works
         # Note: Nested field parsing may require different approach
 

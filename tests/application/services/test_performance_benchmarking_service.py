@@ -371,10 +371,10 @@ class TestPerformanceBenchmarkingService:
         """Test benchmark dataset generation."""
         datasets = await service._generate_benchmark_datasets(sample_config)
 
-        # Should generate datasets for each size/dimension combination
+        # Should generate datasets for each size/dimension/contamination combination
         expected_count = len(sample_config.dataset_sizes) * len(
             sample_config.feature_dimensions
-        )
+        ) * len(sample_config.contamination_rates)
         assert len(datasets) == expected_count
 
         for dataset in datasets:

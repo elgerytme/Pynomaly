@@ -1,10 +1,13 @@
 """Integration Test for S3 Adapter using Moto mock."""
 
-import pytest
-from pynomaly.infrastructure.cloud_storage import S3Adapter, CloudStorageConfig
-from moto import mock_s3
-import boto3
 import io
+
+import boto3
+import pytest
+from moto import mock_s3
+
+from pynomaly.infrastructure.cloud_storage import CloudStorageConfig, S3Adapter
+
 
 @pytest.fixture
 async def s3_config():
@@ -12,15 +15,16 @@ async def s3_config():
         provider="aws",
         bucket_name="test-bucket",
         access_key_id="testid",
-        secret_access_key="testkey"
+        secret_access_key="testkey",
     )
+
 
 @pytest.mark.asyncio
 async def test_s3_adapter(s3_config):
     with mock_s3():
         s3 = boto3.client("s3")
         s3.create_bucket(Bucket="test-bucket")
-        
+
         adapter = S3Adapter(s3_config)
         await adapter.connect()
 
@@ -38,4 +42,3 @@ async def test_s3_adapter(s3_config):
         assert metadata.size == 11
 
         await adapter.disconnect()
-

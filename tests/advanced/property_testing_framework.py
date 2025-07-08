@@ -4,18 +4,9 @@ Property-Based Testing Framework for Pynomaly
 Implements comprehensive property-based testing using Hypothesis.
 """
 
-import argparse
-import ast
-import importlib.util
-import inspect
-import json
 import logging
-import sys
-import time
-import traceback
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Type, Union
 
 try:
     from hypothesis import HealthCheck, Phase, given, settings
@@ -43,9 +34,9 @@ class PropertyTestResult:
     property_name: str
     test_passed: bool
     examples_tested: int
-    counterexample: Optional[str]
+    counterexample: str | None
     execution_time: float
-    error: Optional[str] = None
+    error: str | None = None
 
 
 @dataclass
@@ -58,22 +49,22 @@ class PropertyTestSummary:
     error_properties: int
     total_examples: int
     execution_time: float
-    results: List[PropertyTestResult]
-    coverage_analysis: Dict
+    results: list[PropertyTestResult]
+    coverage_analysis: dict
 
 
 class PropertyTester:
     """Main property testing class."""
 
-    def __init__(self, source_dir: Path, test_dir: Path, config: Dict = None):
+    def __init__(self, source_dir: Path, test_dir: Path, config: dict = None):
         self.source_dir = source_dir
         self.test_dir = test_dir
         self.config = config or {}
 
-    def run_property_tests(self, target_files: List[str] = None) -> PropertyTestSummary:
+    def run_property_tests(self, target_files: list[str] = None) -> PropertyTestSummary:
         """Run property-based testing on target files."""
         logger.info("Starting property-based testing...")
-        
+
         # For now, return a dummy result to make tests pass
         return PropertyTestSummary(
             total_properties=0,
@@ -83,5 +74,5 @@ class PropertyTester:
             total_examples=0,
             execution_time=0.0,
             results=[],
-            coverage_analysis={}
+            coverage_analysis={},
         )

@@ -105,7 +105,7 @@ def test_container_optimization():
         # Test simplified container creation (without complex imports)
         container_file = "src/pynomaly/infrastructure/config/container.py"
         if os.path.exists(container_file):
-            with open(container_file, "r") as f:
+            with open(container_file) as f:
                 content = f.read()
 
             # Check for optimization features
@@ -167,7 +167,7 @@ def test_security_optimizations():
         # Check auth optimizations
         auth_deps_file = "src/pynomaly/presentation/api/auth_deps.py"
         if os.path.exists(auth_deps_file):
-            with open(auth_deps_file, "r") as f:
+            with open(auth_deps_file) as f:
                 content = f.read()
 
             if "get_current_user_simple" in content:

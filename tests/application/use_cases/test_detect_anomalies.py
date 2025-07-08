@@ -4,7 +4,6 @@ from datetime import datetime
 from unittest.mock import Mock
 from uuid import uuid4
 
-import numpy as np
 import pandas as pd
 import pytest
 

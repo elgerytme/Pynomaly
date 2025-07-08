@@ -5,12 +5,10 @@ from __future__ import annotations
 import asyncio
 import gc
 import time
-from typing import Dict, List
 
 import numpy as np
 import psutil
 import pytest
-from tests.integration.conftest import IntegrationTestAssertions, IntegrationTestHelper
 
 
 @pytest.mark.performance
@@ -21,8 +19,8 @@ class TestPerformanceBenchmarks:
     async def test_detection_latency_benchmark(
         self,
         detection_service,
-        sample_datasets: List,
-        performance_benchmarks: Dict,
+        sample_datasets: list,
+        performance_benchmarks: dict,
     ):
         """Benchmark detection latency across different algorithms."""
         dataset = sample_datasets[1]  # Use anomalous dataset
@@ -101,8 +99,8 @@ class TestPerformanceBenchmarks:
     async def test_memory_usage_benchmark(
         self,
         detection_service,
-        sample_datasets: List,
-        performance_benchmarks: Dict,
+        sample_datasets: list,
+        performance_benchmarks: dict,
     ):
         """Benchmark memory usage during training and detection."""
         dataset = sample_datasets[1]  # Use anomalous dataset
@@ -182,8 +180,8 @@ class TestPerformanceBenchmarks:
     async def test_throughput_benchmark(
         self,
         streaming_service,
-        sample_datasets: List,
-        performance_benchmarks: Dict,
+        sample_datasets: list,
+        performance_benchmarks: dict,
     ):
         """Benchmark streaming throughput."""
         dataset = sample_datasets[1]  # Use anomalous dataset
@@ -243,7 +241,7 @@ class TestPerformanceBenchmarks:
                 p95_processing_time = np.percentile(processing_times, 95)
                 p99_processing_time = np.percentile(processing_times, 99)
 
-                print(f"\nStreaming Throughput Benchmark Results:")
+                print("\nStreaming Throughput Benchmark Results:")
                 print(f"  Throughput: {throughput:.2f} samples/sec")
                 print(f"  Average processing time: {avg_processing_time:.2f}ms")
                 print(f"  P95 processing time: {p95_processing_time:.2f}ms")
@@ -256,7 +254,7 @@ class TestPerformanceBenchmarks:
         self,
         detection_service,
         test_cache,
-        sample_datasets: List,
+        sample_datasets: list,
     ):
         """Benchmark resource cleanup and memory management."""
         dataset = sample_datasets[1]
@@ -320,7 +318,7 @@ class TestPerformanceBenchmarks:
         memory_leak = post_cleanup_memory - baseline_memory
         assert memory_leak <= 50, f"Potential memory leak detected: {memory_leak:.2f}MB"
 
-        print(f"\nResource Cleanup Benchmark Results:")
+        print("\nResource Cleanup Benchmark Results:")
         print(f"  Baseline memory: {baseline_memory:.2f}MB")
         print(f"  Peak memory: {peak_memory:.2f}MB")
         print(f"  Memory growth: {memory_growth:.2f}MB")

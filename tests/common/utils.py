@@ -6,10 +6,10 @@ that are shared across multiple test files to avoid code duplication.
 
 import asyncio
 import tempfile
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
-from unittest.mock import AsyncMock, MagicMock, Mock
+from typing import Any
+from unittest.mock import AsyncMock, Mock
 from uuid import uuid4
 
 import numpy as np
@@ -40,7 +40,7 @@ class TestDataGenerator:
 
     def generate_simple_dataset(
         self, n_samples: int = 1000, n_features: int = 10, contamination: float = 0.1
-    ) -> Tuple[pd.DataFrame, np.ndarray]:
+    ) -> tuple[pd.DataFrame, np.ndarray]:
         """Generate a simple dataset with known anomalies.
 
         Args:
@@ -85,8 +85,8 @@ class TestDataGenerator:
         self,
         n_timestamps: int = 1000,
         n_features: int = 5,
-        anomaly_periods: Optional[List[Tuple[int, int]]] = None,
-    ) -> Tuple[pd.DataFrame, np.ndarray]:
+        anomaly_periods: list[tuple[int, int]] | None = None,
+    ) -> tuple[pd.DataFrame, np.ndarray]:
         """Generate time series data with temporal anomalies.
 
         Args:
@@ -143,7 +143,7 @@ class TestDataGenerator:
 
     def generate_mixed_type_dataset(
         self, n_samples: int = 1000, contamination: float = 0.1
-    ) -> Tuple[pd.DataFrame, np.ndarray]:
+    ) -> tuple[pd.DataFrame, np.ndarray]:
         """Generate dataset with mixed data types (numeric, categorical, text).
 
         Args:
@@ -332,7 +332,7 @@ class ConfigurationHelper:
     """Helper for creating common test configurations."""
 
     @staticmethod
-    def create_test_settings(**overrides) -> Dict[str, Any]:
+    def create_test_settings(**overrides) -> dict[str, Any]:
         """Create test settings with common defaults."""
         default_settings = {
             "debug": True,
@@ -350,7 +350,7 @@ class ConfigurationHelper:
     @staticmethod
     def create_algorithm_config(
         algorithm_name: str = "IsolationForest", **params
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create algorithm configuration for testing."""
         default_params = {
             "contamination": 0.1,

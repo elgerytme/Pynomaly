@@ -7,15 +7,15 @@ scalability analysis, and performance regression detection across all system com
 
 import asyncio
 import gc
-import multiprocessing
 import os
 import statistics
 import threading
 import time
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List
+from typing import Any
 from unittest.mock import MagicMock, Mock, patch
 
 import numpy as np
@@ -41,7 +41,7 @@ class PerformanceProfiler:
 
     def __init__(self):
         self.process = psutil.Process(os.getpid())
-        self.metrics: List[PerformanceMetrics] = []
+        self.metrics: list[PerformanceMetrics] = []
 
     @contextmanager
     def profile_operation(self, operation_name: str):
@@ -82,7 +82,7 @@ class PerformanceProfiler:
 
             self.metrics.append(metric)
 
-    def get_summary(self) -> Dict[str, Any]:
+    def get_summary(self) -> dict[str, Any]:
         """Get performance summary statistics."""
         if not self.metrics:
             return {}
@@ -160,7 +160,7 @@ class TestAPIPerformance:
     def test_api_concurrent_load(self, test_client):
         """Test API performance under concurrent load."""
 
-        def make_concurrent_request(request_id: int) -> Dict[str, Any]:
+        def make_concurrent_request(request_id: int) -> dict[str, Any]:
             start_time = time.perf_counter()
 
             try:
@@ -485,7 +485,7 @@ class TestMLPerformance:
     def test_concurrent_ml_operations(self):
         """Test performance of concurrent ML operations."""
 
-        def ml_operation(operation_id: int) -> Dict[str, Any]:
+        def ml_operation(operation_id: int) -> dict[str, Any]:
             """Simulate ML operation."""
             start_time = time.perf_counter()
 
@@ -980,7 +980,6 @@ class TestSystemPerformance:
             detect_anomalies=MagicMock(return_value=Mock()),
             train_detector=MagicMock(return_value=Mock()),
         ):
-
             # Step 1: Create dataset
             dataset_data = {
                 "name": "E2E Performance Dataset",
@@ -1007,7 +1006,8 @@ class TestSystemPerformance:
 
             # Step 3: Train detector (mocked)
             training = time_step(
-                "train_detector", lambda: {"status": "completed"}  # Simulate training
+                "train_detector",
+                lambda: {"status": "completed"},  # Simulate training
             )
 
             # Step 4: Perform detection

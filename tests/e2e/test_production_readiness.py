@@ -18,7 +18,6 @@ def test_logging_infrastructure():
         print("📝 Testing logging infrastructure...")
 
         # Test basic logging imports
-        import logging
 
         test_results.append(("✅ Python logging available", "PASS"))
 
@@ -58,7 +57,7 @@ def test_health_checks():
         # Check health endpoint file
         health_file = "src/pynomaly/presentation/api/endpoints/health.py"
         if os.path.exists(health_file):
-            with open(health_file, "r") as f:
+            with open(health_file) as f:
                 content = f.read()
 
             # Check for essential health check endpoints
@@ -109,7 +108,7 @@ def test_monitoring_integration():
         # Check app.py for monitoring configuration
         app_file = "src/pynomaly/presentation/api/app.py"
         if os.path.exists(app_file):
-            with open(app_file, "r") as f:
+            with open(app_file) as f:
                 content = f.read()
 
             if "prometheus" in content.lower():
@@ -146,7 +145,7 @@ def test_security_features():
         # Check app.py for security middleware
         app_file = "src/pynomaly/presentation/api/app.py"
         if os.path.exists(app_file):
-            with open(app_file, "r") as f:
+            with open(app_file) as f:
                 content = f.read()
 
             security_features = [
@@ -194,7 +193,7 @@ def test_error_handling():
         error_handling_found = 0
         for file_path in endpoint_files:
             if os.path.exists(file_path):
-                with open(file_path, "r") as f:
+                with open(file_path) as f:
                     content = f.read()
 
                 if (
@@ -209,12 +208,12 @@ def test_error_handling():
                 (f"✅ Error handling in {error_handling_found} endpoint files", "PASS")
             )
         else:
-            test_results.append((f"❌ Limited error handling found", "FAIL"))
+            test_results.append(("❌ Limited error handling found", "FAIL"))
 
         # Check for circuit breaker or resilience patterns
         container_file = "src/pynomaly/infrastructure/config/container.py"
         if os.path.exists(container_file):
-            with open(container_file, "r") as f:
+            with open(container_file) as f:
                 content = f.read()
 
             if "circuit" in content.lower() or "retry" in content.lower():
@@ -239,7 +238,7 @@ def test_configuration_management():
         # Check for settings configuration
         settings_file = "src/pynomaly/infrastructure/config/settings.py"
         if os.path.exists(settings_file):
-            with open(settings_file, "r") as f:
+            with open(settings_file) as f:
                 content = f.read()
 
             config_features = [
@@ -333,7 +332,7 @@ def main():
         print("✅ Health checks and error handling available")
         return 0
     else:
-        print(f"\n⚠️  Production readiness needs improvement.")
+        print("\n⚠️  Production readiness needs improvement.")
         return 1
 
 

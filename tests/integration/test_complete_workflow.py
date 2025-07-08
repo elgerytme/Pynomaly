@@ -1,6 +1,5 @@
 """Complete end-to-end integration test for all 4 major features."""
 
-import asyncio
 from unittest.mock import Mock, patch
 
 import numpy as np
@@ -187,9 +186,7 @@ class TestCompleteWorkflowIntegration:
                 ),
                 parameters=created_detector["parameters"],
             )
-            mock_container_with_real_services.detector_repository().find_by_id.return_value = (
-                detector
-            )
+            mock_container_with_real_services.detector_repository().find_by_id.return_value = detector
 
             # Test training via API
             train_request = {
@@ -300,9 +297,7 @@ class TestCompleteWorkflowIntegration:
             )
 
             # Mock repository to return our detector
-            mock_container_with_real_services.detector_repository().find_by_id.return_value = (
-                detector
-            )
+            mock_container_with_real_services.detector_repository().find_by_id.return_value = detector
 
             # 2. Train detector via HTMX endpoint (PWA functionality)
             train_form_data = {
@@ -497,7 +492,6 @@ class TestCompleteWorkflowIntegration:
                 return_value=mock_container_with_real_services,
             ),
         ):
-
             # ✅ Feature 1: Real Algorithm Integration
             registry = AlgorithmAdapterRegistry()
             supported_algorithms = registry.get_supported_algorithms()

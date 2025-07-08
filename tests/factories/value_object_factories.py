@@ -19,16 +19,20 @@ except ImportError:
     class AnomalyScore:
         def __init__(self, value):
             self.value = value
+
     class ContaminationRate:
         def __init__(self, value):
             self.value = value
+
         @classmethod
         def auto(cls):
             return cls(0.1)
+
     class PerformanceMetrics:
         def __init__(self, **kwargs):
             for k, v in kwargs.items():
                 setattr(self, k, v)
+
     class ThresholdConfig:
         def __init__(self, value=0.5, method="fixed", parameters=None):
             self.value = value

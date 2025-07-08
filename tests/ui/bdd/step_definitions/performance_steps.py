@@ -1,12 +1,11 @@
 """Step definitions for performance optimization BDD scenarios."""
 
-import asyncio
-import json
 import time
 
 import pytest
-from playwright.async_api import Page, expect
-from pytest_bdd import given, parsers, then, when
+from playwright.async_api import Page
+from pytest_bdd import given, then, when
+
 from tests.ui.conftest import TEST_CONFIG, UITestHelper
 
 
@@ -55,7 +54,7 @@ async def given_performance_monitoring_enabled(
             coreWebVitals: {},
             resourceTiming: []
         };
-        
+
         // Track Core Web Vitals
         new PerformanceObserver((entryList) => {
             for (const entry of entryList.getEntries()) {
@@ -70,13 +69,13 @@ async def given_performance_monitoring_enabled(
                 }
             }
         }).observe({type: 'largest-contentful-paint', buffered: true});
-        
+
         new PerformanceObserver((entryList) => {
             for (const entry of entryList.getEntries()) {
                 window.performanceMetrics.coreWebVitals.fid = entry.processingStart - entry.startTime;
             }
         }).observe({type: 'first-input', buffered: true});
-        
+
         new PerformanceObserver((entryList) => {
             let clsValue = 0;
             for (const entry of entryList.getEntries()) {
@@ -86,7 +85,7 @@ async def given_performance_monitoring_enabled(
             }
             window.performanceMetrics.coreWebVitals.cls = clsValue;
         }).observe({type: 'layout-shift', buffered: true});
-        
+
         // Track resource timing
         new PerformanceObserver((entryList) => {
             for (const entry of entryList.getEntries()) {
@@ -513,7 +512,7 @@ async def then_rendering_smooth_responsive(page: Page):
         new Promise((resolve) => {
             let frames = 0;
             let start = performance.now();
-            
+
             function countFrames() {
                 frames++;
                 if (performance.now() - start < 1000) {
@@ -570,10 +569,10 @@ async def then_battery_usage_minimized(page: Page):
         () => {
             // Check for reduced animations
             const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            
+
             // Check for efficient event listeners
             const hasPassiveListeners = document.addEventListener.toString().includes('passive');
-            
+
             return {
                 respectsReducedMotion: prefersReducedMotion,
                 hasPassiveListeners: hasPassiveListeners
@@ -703,7 +702,7 @@ async def then_can_cancel_operations(page: Page):
         () => {
             const cancelButtons = document.querySelectorAll('[data-cancel], .cancel, .abort');
             const hasEscapeHandler = document.addEventListener.toString().includes('keydown');
-            
+
             return {
                 cancelButtons: cancelButtons.length,
                 hasEscapeHandler: hasEscapeHandler
@@ -727,11 +726,11 @@ async def then_cpu_usage_optimized(page: Page):
         () => {
             // Check for requestAnimationFrame usage
             const hasRAF = window.requestAnimationFrame.toString().includes('native');
-            
+
             // Check for debounced/throttled operations
             const scripts = Array.from(document.scripts).map(s => s.textContent).join('');
             const hasThrottling = scripts.includes('throttle') || scripts.includes('debounce');
-            
+
             return {
                 usesRAF: hasRAF,
                 hasThrottling: hasThrottling

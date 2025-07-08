@@ -100,6 +100,18 @@ class TestVisualizationDashboardService:
         assert dashboard_data.title == "Performance Analytics Dashboard"
         assert len(dashboard_data.charts) >= 6  # Should have multiple charts
         assert dashboard_data.dashboard_id in service.dashboard_cache
+        
+        # Check that metrics contain performance data
+        assert "avg_accuracy" in dashboard_data.metrics
+        assert "avg_f1_score" in dashboard_data.metrics
+        assert "avg_latency_seconds" in dashboard_data.metrics
+        assert "avg_memory_mb" in dashboard_data.metrics
+        assert "total_algorithms" in dashboard_data.metrics
+        assert "performance_score" in dashboard_data.metrics
+        assert "regression_detected" in dashboard_data.metrics
+        
+        # Check that alerts are present
+        assert dashboard_data.alerts is not None
 
     @pytest.mark.asyncio
     async def test_generate_real_time_dashboard(self, service):
@@ -189,6 +201,194 @@ class TestVisualizationDashboardService:
         """Test export of non-existent dashboard."""
         with pytest.raises(ValueError, match="Dashboard nonexistent not found"):
             await service.export_dashboard("nonexistent", format="html")
+
+    @pytest.mark.asyncio
+    async def test_collect_algorithm_metrics_with_mock_data(self, service):
+        """Test algorithm metrics collection with mock result data."""
+        from uuid import uuid4
+        from pynomaly.domain.entities.detection_result import DetectionResult
+        from pynomaly.domain.entities.anomaly import Anomaly
+        from pynomaly.domain.value_objects import AnomalyScore
+        import numpy as np
+        
+        # Create mock detection results
+        mock_results = []
+        for i in range(5):
+            result = DetectionResult(
+                detector_id=uuid4(),
+                dataset_id=uuid4(),
+                anomalies=[],
+                scores=[AnomalyScore(value=0.5)],
+                labels=np.array([0]),
+                threshold=0.6,
+                execution_time_ms=100 + i * 50,
+                metadata={
+                    "algorithm": "IsolationForest" if i % 2 == 0 else "OneClassSVM",
+                    "precision": 0.85 + i * 0.02,
+                    "recall": 0.80 + i * 0.03,
+                    "performance_metrics": {
+                        "memory_usage_mb": 128 + i * 32
+                    }
+                }
+            )
+            mock_results.append(result)
+        
+        # Mock the result repository
+        service.result_repository.find_recent.return_value = mock_results
+        
+        # Test metrics collection
+        metrics = await service._collect_algorithm_metrics()
+        
+        assert "algorithms" in metrics
+        assert "timestamps" in metrics
+        assert "overall_stats" in metrics
+        assert "IsolationForest" in metrics["algorithms"]
+        assert "OneClassSVM" in metrics["algorithms"]
+        
+        # Check that algorithm metrics contain expected keys
+        for algo in metrics["algorithms"].values():
+            assert "accuracy" in algo
+            assert "f1_score" in algo
+            assert "latency" in algo
+            assert "memory" in algo
+            assert "timestamps" in algo
+        
+        # Check overall stats
+        assert "avg_accuracy" in metrics["overall_stats"]
+        assert "avg_f1_score" in metrics["overall_stats"]
+        assert "avg_latency" in metrics["overall_stats"]
+        assert "avg_memory" in metrics["overall_stats"]
+        assert "total_algorithms" in metrics["overall_stats"]
+        assert "total_measurements" in metrics["overall_stats"]
+
+    @pytest.mark.asyncio
+    async def test_collect_algorithm_metrics_no_repository(self, service):
+        """Test algorithm metrics collection when no repository is available."""
+        # Set result repository to None
+        service.result_repository = None
+        
+        # Test metrics collection with fallback to sample data
+        metrics = await service._collect_algorithm_metrics()
+        
+        assert "algorithms" in metrics
+        assert len(metrics["algorithms"]) > 0  # Should have sample data
+        
+        # Check that sample algorithms are present
+        expected_algorithms = ["IsolationForest", "OneClassSVM", "LocalOutlierFactor", "DBSCAN"]
+        for algo in expected_algorithms:
+            assert algo in metrics["algorithms"]
+        
+        # Check that each algorithm has metrics
+        for algo_data in metrics["algorithms"].values():
+            assert len(algo_data["accuracy"]) > 0
+            assert len(algo_data["f1_score"]) > 0
+            assert len(algo_data["latency"]) > 0
+            assert len(algo_data["memory"]) > 0
+
+    @pytest.mark.asyncio
+    async def test_calculate_performance_metrics_with_data(self, service):
+        """Test performance metrics calculation with algorithm data."""
+        # Create sample algorithm metrics
+        algorithm_metrics = {
+            "overall_stats": {
+                "avg_accuracy": 0.91,
+                "avg_f1_score": 0.88,
+                "avg_latency": 0.45,
+                "avg_memory": 256.0,
+                "total_algorithms": 4,
+                "total_measurements": 80,
+            },
+            "algorithms": {
+                "IsolationForest": {
+                    "accuracy": [0.90, 0.92, 0.89],
+                    "f1_score": [0.87, 0.89, 0.86],
+                    "latency": [0.3, 0.4, 0.5],
+                    "memory": [200, 250, 300]
+                }
+            }
+        }
+        
+        # Mock helper methods
+        service._calculate_overall_performance_score = lambda stats: 0.85
+        service._detect_performance_regression = lambda metrics: False
+        
+        # Test metrics calculation
+        metrics = await service._calculate_performance_metrics_with_data(algorithm_metrics)
+        
+        assert metrics["avg_accuracy"] == 0.91
+        assert metrics["avg_f1_score"] == 0.88
+        assert metrics["avg_latency_seconds"] == 0.45
+        assert metrics["avg_memory_mb"] == 256.0
+        assert metrics["total_algorithms"] == 4
+        assert metrics["total_measurements"] == 80
+        assert metrics["performance_score"] == 0.85
+        assert metrics["regression_detected"] is False
+
+    @pytest.mark.asyncio
+    async def test_performance_dashboard_with_custom_metrics(self, service):
+        """Test performance dashboard generation with custom metrics."""
+        from uuid import uuid4
+        from pynomaly.domain.entities.detection_result import DetectionResult
+        from pynomaly.domain.entities.anomaly import Anomaly
+        from pynomaly.domain.value_objects import AnomalyScore
+        import numpy as np
+        
+        # Create mock detection results with performance metrics
+        mock_results = []
+        algorithms = ["IsolationForest", "OneClassSVM", "LocalOutlierFactor"]
+        
+        for i, algo in enumerate(algorithms):
+            for j in range(3):  # 3 results per algorithm
+                result = DetectionResult(
+                    detector_id=uuid4(),
+                    dataset_id=uuid4(),
+                    anomalies=[],
+                    scores=[AnomalyScore(value=0.7 + j * 0.1)],
+                    labels=np.array([0]),
+                    threshold=0.6,
+                    execution_time_ms=150 + i * 100 + j * 50,
+                    metadata={
+                        "algorithm": algo,
+                        "precision": 0.85 + i * 0.05,
+                        "recall": 0.80 + i * 0.04,
+                        "performance_metrics": {
+                            "memory_usage_mb": 128 + i * 64 + j * 32
+                        }
+                    }
+                )
+                mock_results.append(result)
+        
+        # Mock the result repository
+        service.result_repository.find_recent.return_value = mock_results
+        
+        # Mock missing helper methods
+        service._calculate_overall_performance_score = lambda stats: 0.82
+        service._detect_performance_regression = lambda metrics: True
+        service._generate_performance_alerts = lambda metrics: [
+            {"level": "warning", "message": "Performance regression detected"}
+        ]
+        
+        # Generate performance dashboard
+        dashboard_data = await service.generate_performance_dashboard(benchmark_comparison=True)
+        
+        # Verify dashboard structure
+        assert dashboard_data.dashboard_type == DashboardType.PERFORMANCE
+        assert len(dashboard_data.charts) >= 6
+        
+        # Verify metrics contain expected performance data
+        assert dashboard_data.metrics["avg_accuracy"] > 0
+        assert dashboard_data.metrics["avg_f1_score"] > 0
+        assert dashboard_data.metrics["avg_latency_seconds"] > 0
+        assert dashboard_data.metrics["avg_memory_mb"] > 0
+        assert dashboard_data.metrics["total_algorithms"] == 3
+        assert dashboard_data.metrics["total_measurements"] == 9
+        assert dashboard_data.metrics["performance_score"] == 0.82
+        assert dashboard_data.metrics["regression_detected"] is True
+        
+        # Verify alerts are present
+        assert len(dashboard_data.alerts) > 0
+        assert dashboard_data.alerts[0]["level"] == "warning"
+        assert "regression" in dashboard_data.alerts[0]["message"]
 
     @pytest.mark.asyncio
     async def test_export_unsupported_format(self, service):

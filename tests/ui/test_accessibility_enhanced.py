@@ -2,11 +2,10 @@
 
 import asyncio
 import json
-from pathlib import Path
-from typing import Any, Dict, List
 
 import pytest
-from playwright.async_api import Page, expect
+from playwright.async_api import Page
+
 from tests.ui.conftest import ACCESSIBILITY_REPORTS_DIR, TEST_CONFIG, UITestHelper
 
 
@@ -89,7 +88,7 @@ class AccessibilityTester:
                         const results = await axe.run(config);
                         return results;
                     } catch (error) {
-                        return { 
+                        return {
                             error: error.message,
                             violations: [],
                             passes: [],
@@ -170,22 +169,22 @@ class AccessibilityTester:
                     const interactiveElements = document.querySelectorAll(
                         'a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
                     );
-                    
+
                     let visibleFocusCount = 0;
                     let totalCount = interactiveElements.length;
-                    
+
                     interactiveElements.forEach((element, index) => {
                         element.focus();
                         const styles = getComputedStyle(element, ':focus');
                         const outline = styles.outline || styles.outlineWidth || styles.outlineStyle;
                         const boxShadow = styles.boxShadow;
                         const border = styles.border || styles.borderWidth;
-                        
+
                         if (outline !== 'none' || boxShadow !== 'none' || border !== 'none') {
                             visibleFocusCount++;
                         }
                     });
-                    
+
                     return {
                         total_elements: totalCount,
                         visible_focus_count: visibleFocusCount,
@@ -208,12 +207,12 @@ class AccessibilityTester:
                     const textElements = document.querySelectorAll('p, span, div, h1, h2, h3, h4, h5, h6, li, td, th');
                     let smallTextCount = 0;
                     let totalTextCount = 0;
-                    
+
                     textElements.forEach(element => {
                         const styles = getComputedStyle(element);
                         const fontSize = parseFloat(styles.fontSize);
                         const hasText = element.textContent.trim().length > 0;
-                        
+
                         if (hasText) {
                             totalTextCount++;
                             if (fontSize < 14) {
@@ -221,7 +220,7 @@ class AccessibilityTester:
                             }
                         }
                     });
-                    
+
                     return {
                         total_text_elements: totalTextCount,
                         small_text_count: smallTextCount,
@@ -280,7 +279,7 @@ class AccessibilityTester:
                 () => {
                     const animatedElements = document.querySelectorAll('[class*="animate"], [class*="transition"], [style*="animation"], [style*="transition"]');
                     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-                    
+
                     return {
                         animated_elements_count: animatedElements.length,
                         prefers_reduced_motion: mediaQuery.matches,
@@ -302,17 +301,17 @@ class AccessibilityTester:
                 () => {
                     const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
                     const headingLevels = Array.from(headings).map(h => parseInt(h.tagName.charAt(1)));
-                    
+
                     let logicalOrder = true;
                     let previousLevel = 0;
-                    
+
                     headingLevels.forEach(level => {
                         if (level > previousLevel + 1) {
                             logicalOrder = false;
                         }
                         previousLevel = level;
                     });
-                    
+
                     return {
                         total_headings: headingLevels.length,
                         heading_levels: headingLevels,
@@ -461,7 +460,7 @@ class TestAccessibilityEnhanced:
                     accessibility_ratio >= 0.8
                 ), f"At least 80% of interactive elements should be keyboard accessible. Got {accessibility_ratio:.2%}"
 
-        print(f"Homepage accessibility summary:")
+        print("Homepage accessibility summary:")
         print(f"  - Total violations: {violation_analysis['total']}")
         print(f"  - By severity: {violation_analysis['by_severity']}")
         print(
@@ -512,7 +511,7 @@ class TestAccessibilityEnhanced:
                 focused_element = await page.evaluate("document.activeElement")
                 assert (
                     focused_element is not None
-                ), f"Focus should be maintained during form navigation"
+                ), "Focus should be maintained during form navigation"
 
         accessibility_tester.assert_no_violations(results, "serious")
 
@@ -760,12 +759,12 @@ class TestAccessibilityEnhanced:
                     const interactiveElements = document.querySelectorAll('a, button, input, select, textarea');
                     let focusableCount = 0;
                     let visibleFocusCount = 0;
-                    
+
                     interactiveElements.forEach(element => {
                         element.focus();
                         if (document.activeElement === element) {
                             focusableCount++;
-                            
+
                             // Check if focus is visible
                             const styles = getComputedStyle(element, ':focus');
                             if (styles.outline !== 'none' || styles.outlineWidth !== '0px') {
@@ -773,7 +772,7 @@ class TestAccessibilityEnhanced:
                             }
                         }
                     });
-                    
+
                     return {
                         total_interactive: interactiveElements.length,
                         focusable: focusableCount,

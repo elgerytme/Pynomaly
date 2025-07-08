@@ -3,7 +3,6 @@
 Test script to verify URL routing changes from /web to /
 """
 
-import os
 import sys
 from pathlib import Path
 

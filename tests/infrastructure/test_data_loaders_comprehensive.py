@@ -570,9 +570,7 @@ class TestSparkLoaderComprehensive:
                     {"feature1": range(1000), "feature2": range(1000, 2000)}
                 )
                 mock_session.read.csv.return_value = mock_df
-                mock_spark_session.builder.appName.return_value.master.return_value.getOrCreate.return_value = (
-                    mock_session
-                )
+                mock_spark_session.builder.appName.return_value.master.return_value.getOrCreate.return_value = mock_session
 
                 loader = SparkLoader()
                 dataset = loader.load(temp_path, name="spark_distributed")
@@ -631,9 +629,7 @@ class TestSparkLoaderComprehensive:
                 mock_df.toPandas.return_value = pd.DataFrame({"col1": range(1000)})
 
                 mock_session.read.csv.return_value = mock_df
-                mock_spark_session.builder.appName.return_value.master.return_value.getOrCreate.return_value = (
-                    mock_session
-                )
+                mock_spark_session.builder.appName.return_value.master.return_value.getOrCreate.return_value = mock_session
 
                 loader = SparkLoader()
 

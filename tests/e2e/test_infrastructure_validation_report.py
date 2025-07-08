@@ -96,7 +96,6 @@ def test_api_infrastructure():
 def test_database_infrastructure():
     """Test database configuration and fixtures."""
     try:
-
         # Test fixture is importable (won't actually run without fixture context)
         return True, "Database fixtures available"
     except Exception as e:
@@ -106,7 +105,6 @@ def test_database_infrastructure():
 def test_dto_compatibility():
     """Test DTO backward compatibility."""
     try:
-
         return True, "DTO aliases functional"
     except Exception as e:
         return False, str(e)

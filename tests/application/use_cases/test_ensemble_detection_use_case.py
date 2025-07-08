@@ -1,7 +1,6 @@
 """Comprehensive test suite for ensemble detection use case."""
 
-from unittest.mock import AsyncMock, Mock, patch
-from uuid import uuid4
+from unittest.mock import AsyncMock, Mock
 
 import numpy as np
 import pandas as pd
@@ -14,11 +13,9 @@ from pynomaly.application.use_cases.ensemble_detection_use_case import (
     EnsembleDetectionUseCase,
     EnsembleOptimizationObjective,
     EnsembleOptimizationRequest,
-    EnsembleOptimizationResponse,
     VotingStrategy,
 )
 from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.domain.exceptions import ValidationError
 
 
 class TestEnsembleDetectionUseCase:
@@ -359,7 +356,8 @@ class TestEnsembleDetectionUseCase:
         """Test validation errors in ensemble detection."""
         # Test with too few detectors
         request = EnsembleDetectionRequest(
-            detector_ids=["detector_1"], data=sample_data  # Only one detector
+            detector_ids=["detector_1"],
+            data=sample_data,  # Only one detector
         )
 
         response = await ensemble_use_case.detect_anomalies_ensemble(request)

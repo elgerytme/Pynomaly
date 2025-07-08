@@ -7,9 +7,8 @@ import json
 import os
 import sys
 import tempfile
-from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional, Union
-from unittest.mock import MagicMock, Mock, patch
+from datetime import UTC, datetime
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -34,7 +33,6 @@ class TestDomainEntityBranches:
 
     def test_dataset_validation_branches(self):
         """Test Dataset validation conditional branches."""
-        from pynomaly.domain.entities import Dataset
 
         # Test valid dataset creation
         valid_data = pd.DataFrame(
@@ -138,7 +136,6 @@ class TestDomainEntityBranches:
 
     def test_anomaly_score_validation_branches(self):
         """Test AnomalyScore validation branches."""
-        from pynomaly.domain.value_objects import AnomalyScore
 
         # Test valid scores
         valid_scores = [0.0, 0.5, 1.0, 0.123, 0.999]
@@ -181,7 +178,6 @@ class TestDomainEntityBranches:
 
     def test_detector_state_branches(self):
         """Test Detector state management branches."""
-        from pynomaly.domain.entities import Detector
 
         # Test detector creation with minimal parameters
         detector = Detector(name="test_detector", algorithm_name="test_algorithm")
@@ -220,14 +216,13 @@ class TestDomainEntityBranches:
 
         # Simulate fitting
         full_detector.is_fitted = True
-        full_detector.trained_at = datetime.now(timezone.utc)
+        full_detector.trained_at = datetime.now(UTC)
 
         assert full_detector.is_fitted
         assert full_detector.trained_at is not None
 
     def test_detection_result_branches(self):
         """Test DetectionResult conditional branches."""
-        from pynomaly.domain.entities import Anomaly, DetectionResult
         from pynomaly.domain.value_objects import AnomalyScore
 
         # Create test data
@@ -287,7 +282,6 @@ class TestExceptionHandlingBranches:
 
     def test_detector_not_fitted_branches(self):
         """Test DetectorNotFittedError branches."""
-        from pynomaly.domain.exceptions import DetectorNotFittedError
 
         # Test with operation specified
         error_with_operation = DetectorNotFittedError(
@@ -306,7 +300,6 @@ class TestExceptionHandlingBranches:
 
     def test_fitting_error_branches(self):
         """Test FittingError branches."""
-        from pynomaly.domain.exceptions import FittingError
 
         # Test with all parameters
         full_error = FittingError(
@@ -339,7 +332,6 @@ class TestExceptionHandlingBranches:
 
     def test_invalid_algorithm_error_branches(self):
         """Test InvalidAlgorithmError branches."""
-        from pynomaly.domain.exceptions import InvalidAlgorithmError
 
         # Test with available algorithms list
         available_algorithms = ["algo1", "algo2", "algo3"]
@@ -373,7 +365,6 @@ class TestExceptionHandlingBranches:
 
     def test_configuration_error_branches(self):
         """Test ConfigurationError branches."""
-        from pynomaly.domain.exceptions import ConfigurationError
 
         # Test configuration error with context
         config_error = ConfigurationError(

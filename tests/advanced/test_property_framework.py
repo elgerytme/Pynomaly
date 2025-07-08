@@ -5,17 +5,16 @@ Implements comprehensive property-based testing using Hypothesis.
 """
 
 import argparse
-import ast
 import importlib.util
 import inspect
 import json
 import logging
 import sys
 import time
-import traceback
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Type, Union
+from typing import Union
 
 try:
     from hypothesis import HealthCheck, Phase, given, settings
@@ -46,9 +45,9 @@ class PropertyTestResult:
     property_name: str
     test_passed: bool
     examples_tested: int
-    counterexample: Optional[str]
+    counterexample: str | None
     execution_time: float
-    error: Optional[str] = None
+    error: str | None = None
 
 
 @dataclass
@@ -61,8 +60,8 @@ class PropertyTestSummary:
     error_properties: int
     total_examples: int
     execution_time: float
-    results: List[PropertyTestResult]
-    coverage_analysis: Dict
+    results: list[PropertyTestResult]
+    coverage_analysis: dict
 
 
 class PropertyTestGenerator:
@@ -77,7 +76,7 @@ class PropertyTestGenerator:
         self.property_tests = []
         self.strategies = self._build_strategy_map()
 
-    def _build_strategy_map(self) -> Dict[Type, Callable]:
+    def _build_strategy_map(self) -> dict[type, Callable]:
         """Build mapping of types to Hypothesis strategies."""
         return {
             int: lambda: st.integers(min_value=-1000, max_value=1000),
@@ -131,7 +130,7 @@ class PropertyTestGenerator:
             ),
         }
 
-    def _get_strategy(self, type_hint: Type) -> SearchStrategy:
+    def _get_strategy(self, type_hint: type) -> SearchStrategy:
         """Get Hypothesis strategy for a given type."""
         if type_hint in self.strategies:
             return self.strategies[type_hint]()
@@ -171,7 +170,7 @@ class PropertyTestGenerator:
         logger.warning(f"No strategy found for type {type_hint}, using integers")
         return st.integers(min_value=-100, max_value=100)
 
-    def discover_functions(self, module_path: Path) -> List[Callable]:
+    def discover_functions(self, module_path: Path) -> list[Callable]:
         """Discover testable functions in a module."""
         try:
             spec = importlib.util.spec_from_file_location("target_module", module_path)
@@ -218,7 +217,7 @@ class PropertyTestGenerator:
         except Exception:
             return False
 
-    def _can_generate_strategy(self, type_hint: Type) -> bool:
+    def _can_generate_strategy(self, type_hint: type) -> bool:
         """Check if we can generate a strategy for the given type."""
         if type_hint in self.strategies:
             return True
@@ -234,7 +233,7 @@ class PropertyTestGenerator:
 
         return False
 
-    def generate_property_tests(self, functions: List[Callable]) -> List[Dict]:
+    def generate_property_tests(self, functions: list[Callable]) -> list[dict]:
         """Generate property-based tests for the given functions."""
         property_tests = []
 
@@ -244,7 +243,7 @@ class PropertyTestGenerator:
 
         return property_tests
 
-    def _generate_function_properties(self, func: Callable) -> List[Dict]:
+    def _generate_function_properties(self, func: Callable) -> list[dict]:
         """Generate property tests for a single function."""
         properties = []
 
@@ -261,7 +260,7 @@ class PropertyTestGenerator:
 
     def _generate_basic_properties(
         self, func: Callable, sig: inspect.Signature
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Generate basic mathematical properties."""
         properties = []
         func_name = func.__name__
@@ -316,7 +315,7 @@ class PropertyTestGenerator:
 
     def _generate_domain_properties(
         self, func: Callable, sig: inspect.Signature
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Generate domain-specific properties based on function behavior."""
         properties = []
         func_name = func.__name__.lower()
@@ -343,7 +342,7 @@ class PropertyTestGenerator:
 
     def _generate_anomaly_detection_properties(
         self, func: Callable, sig: inspect.Signature
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Generate properties specific to anomaly detection functions."""
         properties = []
 
@@ -373,7 +372,7 @@ class PropertyTestGenerator:
 
     def _generate_data_processing_properties(
         self, func: Callable, sig: inspect.Signature
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Generate properties for data processing functions."""
         properties = []
 
@@ -404,7 +403,7 @@ class PropertyTestGenerator:
 
     def _generate_mathematical_properties(
         self, func: Callable, sig: inspect.Signature
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Generate properties for mathematical functions."""
         properties = []
 
@@ -436,7 +435,7 @@ class PropertyTestGenerator:
 
     def _generate_model_properties(
         self, func: Callable, sig: inspect.Signature
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Generate properties for ML model functions."""
         properties = []
 
@@ -483,7 +482,7 @@ class PropertyTester:
         self.generator = PropertyTestGenerator()
 
     def run_property_testing(
-        self, target_files: List[str] = None, output_file: Path = None
+        self, target_files: list[str] = None, output_file: Path = None
     ) -> PropertyTestSummary:
         """Run comprehensive property-based testing."""
         logger.info("Starting property-based testing...")
@@ -546,7 +545,7 @@ class PropertyTester:
 
         return summary
 
-    def _discover_target_files(self) -> List[str]:
+    def _discover_target_files(self) -> list[str]:
         """Discover Python files to test."""
         source_dir = Path("src/pynomaly")
         target_files = []
@@ -561,7 +560,7 @@ class PropertyTester:
 
         return target_files
 
-    def _test_property(self, property_def: Dict) -> PropertyTestResult:
+    def _test_property(self, property_def: dict) -> PropertyTestResult:
         """Test a single property."""
         start_time = time.time()
         examples_tested = 0
@@ -626,7 +625,7 @@ class PropertyTester:
                 error=str(e),
             )
 
-    def _test_non_null_property(self, func: Callable, strategies: Dict) -> Dict:
+    def _test_non_null_property(self, func: Callable, strategies: dict) -> dict:
         """Test that function doesn't crash on valid inputs."""
         examples_tested = 0
 
@@ -652,7 +651,7 @@ class PropertyTester:
         except Exception as e:
             return {"passed": False, "examples": examples_tested, "error": str(e)}
 
-    def _test_determinism_property(self, func: Callable, strategies: Dict) -> Dict:
+    def _test_determinism_property(self, func: Callable, strategies: dict) -> dict:
         """Test that function is deterministic."""
         examples_tested = 0
 
@@ -696,7 +695,7 @@ class PropertyTester:
                 "counterexample": str(e),
             }
 
-    def _test_idempotency_property(self, func: Callable, strategies: Dict) -> Dict:
+    def _test_idempotency_property(self, func: Callable, strategies: dict) -> dict:
         """Test that function is idempotent."""
         examples_tested = 0
 
@@ -736,8 +735,8 @@ class PropertyTester:
             }
 
     def _test_type_preservation_property(
-        self, func: Callable, strategies: Dict
-    ) -> Dict:
+        self, func: Callable, strategies: dict
+    ) -> dict:
         """Test that function preserves input types appropriately."""
         examples_tested = 0
 
@@ -777,7 +776,7 @@ class PropertyTester:
                 "counterexample": str(e),
             }
 
-    def _test_score_range_property(self, func: Callable, strategies: Dict) -> Dict:
+    def _test_score_range_property(self, func: Callable, strategies: dict) -> dict:
         """Test that scores are in valid range."""
         examples_tested = 0
 
@@ -814,7 +813,7 @@ class PropertyTester:
                 "counterexample": str(e),
             }
 
-    def _test_monotonicity_property(self, func: Callable, strategies: Dict) -> Dict:
+    def _test_monotonicity_property(self, func: Callable, strategies: dict) -> dict:
         """Test monotonicity properties (simplified)."""
         examples_tested = 0
 
@@ -843,8 +842,8 @@ class PropertyTester:
             }
 
     def _test_shape_preservation_property(
-        self, func: Callable, strategies: Dict
-    ) -> Dict:
+        self, func: Callable, strategies: dict
+    ) -> dict:
         """Test that data shapes are preserved appropriately."""
         examples_tested = 0
 
@@ -887,7 +886,7 @@ class PropertyTester:
                 "counterexample": str(e),
             }
 
-    def _test_symmetry_property(self, func: Callable, strategies: Dict) -> Dict:
+    def _test_symmetry_property(self, func: Callable, strategies: dict) -> dict:
         """Test symmetry property for distance functions."""
         examples_tested = 0
 
@@ -930,7 +929,7 @@ class PropertyTester:
                 "counterexample": str(e),
             }
 
-    def _analyze_coverage(self, results: List[PropertyTestResult]) -> Dict:
+    def _analyze_coverage(self, results: list[PropertyTestResult]) -> dict:
         """Analyze property test coverage."""
         coverage = {
             "functions_tested": len(set(r.function_name for r in results)),
@@ -972,7 +971,7 @@ class PropertyTester:
 
     def print_summary(self, summary: PropertyTestSummary):
         """Print human-readable property testing summary."""
-        print(f"\n=== Property-Based Testing Summary ===")
+        print("\n=== Property-Based Testing Summary ===")
         print(f"Total properties tested: {summary.total_properties}")
         print(f"Passed: {summary.passed_properties}")
         print(f"Failed: {summary.failed_properties}")
@@ -981,7 +980,7 @@ class PropertyTester:
         print(f"Execution time: {summary.execution_time:.2f}s")
 
         if summary.coverage_analysis:
-            print(f"\nCoverage Analysis:")
+            print("\nCoverage Analysis:")
             print(f"Functions tested: {summary.coverage_analysis['functions_tested']}")
             print(f"Property types: {summary.coverage_analysis['property_types']}")
             print(
@@ -991,7 +990,7 @@ class PropertyTester:
         # Show failed properties
         failed_results = [r for r in summary.results if not r.test_passed or r.error]
         if failed_results:
-            print(f"\n=== Failed Properties ===")
+            print("\n=== Failed Properties ===")
             for result in failed_results[:10]:  # Show first 10
                 print(f"  {result.property_name} ({result.function_name})")
                 if result.error:

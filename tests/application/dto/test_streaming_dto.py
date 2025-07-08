@@ -5,12 +5,9 @@ This module provides comprehensive tests for all streaming data transfer objects
 ensuring proper validation, serialization, and type safety for real-time anomaly detection.
 """
 
-from datetime import datetime, timezone
-from typing import List, Optional
-from unittest.mock import Mock, patch
+from datetime import UTC, datetime
+from unittest.mock import Mock
 
-import numpy as np
-import pandas as pd
 import pytest
 
 from src.pynomaly.application.dto.streaming_dto import (
@@ -33,7 +30,7 @@ class TestStreamDataPointDTO:
 
     def test_create_valid_data_point(self):
         """Test creating a valid stream data point."""
-        timestamp = datetime.now(timezone.utc)
+        timestamp = datetime.now(UTC)
         features = {"feature1": 1.5, "feature2": 2.0}
 
         dto = StreamDataPointDTO(
@@ -48,7 +45,7 @@ class TestStreamDataPointDTO:
 
     def test_data_point_with_prediction(self):
         """Test data point with anomaly prediction."""
-        timestamp = datetime.now(timezone.utc)
+        timestamp = datetime.now(UTC)
         features = {"feature1": 1.5}
 
         dto = StreamDataPointDTO(
@@ -61,20 +58,20 @@ class TestStreamDataPointDTO:
     def test_invalid_features_type(self):
         """Test validation for invalid features type."""
         with pytest.raises(ValueError, match="Features must be a dictionary"):
-            StreamDataPointDTO(timestamp=datetime.now(timezone.utc), features="invalid")
+            StreamDataPointDTO(timestamp=datetime.now(UTC), features="invalid")
 
     def test_invalid_anomaly_score_range(self):
         """Test validation for anomaly score range."""
         with pytest.raises(ValueError, match="Anomaly score must be between 0 and 1"):
             StreamDataPointDTO(
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
                 features={"feature1": 1.0},
                 anomaly_score=1.5,
             )
 
     def test_to_dict_conversion(self):
         """Test conversion to dictionary."""
-        timestamp = datetime.now(timezone.utc)
+        timestamp = datetime.now(UTC)
         dto = StreamDataPointDTO(
             timestamp=timestamp, features={"feature1": 1.5}, anomaly_score=0.7
         )
@@ -87,7 +84,7 @@ class TestStreamDataPointDTO:
 
     def test_from_dict_creation(self):
         """Test creation from dictionary."""
-        timestamp = datetime.now(timezone.utc)
+        timestamp = datetime.now(UTC)
         data = {
             "timestamp": timestamp.isoformat(),
             "features": {"feature1": 1.5},
@@ -107,19 +104,15 @@ class TestStreamDataBatchDTO:
     def test_create_valid_batch(self):
         """Test creating a valid data batch."""
         data_points = [
-            StreamDataPointDTO(
-                timestamp=datetime.now(timezone.utc), features={"feature1": 1.0}
-            ),
-            StreamDataPointDTO(
-                timestamp=datetime.now(timezone.utc), features={"feature1": 2.0}
-            ),
+            StreamDataPointDTO(timestamp=datetime.now(UTC), features={"feature1": 1.0}),
+            StreamDataPointDTO(timestamp=datetime.now(UTC), features={"feature1": 2.0}),
         ]
 
         dto = StreamDataBatchDTO(
             batch_id="batch_123",
             data_points=data_points,
-            window_start=datetime.now(timezone.utc),
-            window_end=datetime.now(timezone.utc),
+            window_start=datetime.now(UTC),
+            window_end=datetime.now(UTC),
         )
 
         assert dto.batch_id == "batch_123"
@@ -134,8 +127,8 @@ class TestStreamDataBatchDTO:
             StreamDataBatchDTO(
                 batch_id="batch_123",
                 data_points=[],
-                window_start=datetime.now(timezone.utc),
-                window_end=datetime.now(timezone.utc),
+                window_start=datetime.now(UTC),
+                window_end=datetime.now(UTC),
             )
 
     def test_batch_size_property(self):
@@ -144,16 +137,16 @@ class TestStreamDataBatchDTO:
         dto = StreamDataBatchDTO(
             batch_id="batch_123",
             data_points=data_points,
-            window_start=datetime.now(timezone.utc),
-            window_end=datetime.now(timezone.utc),
+            window_start=datetime.now(UTC),
+            window_end=datetime.now(UTC),
         )
 
         assert dto.batch_size == 5
 
     def test_to_pandas_conversion(self):
         """Test conversion to pandas DataFrame."""
-        timestamp1 = datetime.now(timezone.utc)
-        timestamp2 = datetime.now(timezone.utc)
+        timestamp1 = datetime.now(UTC)
+        timestamp2 = datetime.now(UTC)
 
         data_points = [
             StreamDataPointDTO(
@@ -321,8 +314,8 @@ class TestStreamMetricsDTO:
             average_processing_time_ms=50.5,
             throughput_per_second=200.0,
             backpressure_events=2,
-            window_start=datetime.now(timezone.utc),
-            window_end=datetime.now(timezone.utc),
+            window_start=datetime.now(UTC),
+            window_end=datetime.now(UTC),
         )
 
         assert dto.stream_id == "stream_123"
@@ -341,8 +334,8 @@ class TestStreamMetricsDTO:
             average_processing_time_ms=50.0,
             throughput_per_second=100.0,
             backpressure_events=0,
-            window_start=datetime.now(timezone.utc),
-            window_end=datetime.now(timezone.utc),
+            window_start=datetime.now(UTC),
+            window_end=datetime.now(UTC),
         )
 
         assert dto.success_rate == 0.9  # (100-10)/100
@@ -356,8 +349,8 @@ class TestStreamMetricsDTO:
             average_processing_time_ms=0.0,
             throughput_per_second=0.0,
             backpressure_events=0,
-            window_start=datetime.now(timezone.utc),
-            window_end=datetime.now(timezone.utc),
+            window_start=datetime.now(UTC),
+            window_end=datetime.now(UTC),
         )
 
         assert dto.success_rate == 1.0  # No failures when no messages processed
@@ -372,7 +365,7 @@ class TestStreamStatusDTO:
             stream_id="stream_123",
             status="running",
             uptime_seconds=3600,
-            last_processed_timestamp=datetime.now(timezone.utc),
+            last_processed_timestamp=datetime.now(UTC),
             current_lag_ms=100,
             health_check_status="healthy",
         )
@@ -390,7 +383,7 @@ class TestStreamStatusDTO:
             stream_id="stream_123",
             status="error",
             uptime_seconds=3600,
-            last_processed_timestamp=datetime.now(timezone.utc),
+            last_processed_timestamp=datetime.now(UTC),
             current_lag_ms=5000,
             health_check_status="unhealthy",
         )
@@ -406,7 +399,7 @@ class TestStreamStatusDTO:
                 stream_id="stream_123",
                 status=status,
                 uptime_seconds=0,
-                last_processed_timestamp=datetime.now(timezone.utc),
+                last_processed_timestamp=datetime.now(UTC),
                 current_lag_ms=0,
                 health_check_status="healthy",
             )
@@ -417,7 +410,7 @@ class TestStreamStatusDTO:
                 stream_id="stream_123",
                 status="invalid_status",
                 uptime_seconds=0,
-                last_processed_timestamp=datetime.now(timezone.utc),
+                last_processed_timestamp=datetime.now(UTC),
                 current_lag_ms=0,
                 health_check_status="healthy",
             )
@@ -432,7 +425,7 @@ class TestStreamErrorDTO:
             stream_id="stream_123",
             error_type="processing_error",
             error_message="Failed to process batch",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             severity="high",
             context={"batch_id": "batch_456", "detector_id": "detector_789"},
         )
@@ -453,7 +446,7 @@ class TestStreamErrorDTO:
                 stream_id="stream_123",
                 error_type="test_error",
                 error_message="Test message",
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
                 severity=severity,
             )
             assert dto.severity == severity
@@ -463,7 +456,7 @@ class TestStreamErrorDTO:
                 stream_id="stream_123",
                 error_type="test_error",
                 error_message="Test message",
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
                 severity="invalid_severity",
             )
 
@@ -580,7 +573,7 @@ class TestDTOSerialization:
     def test_stream_data_point_json_roundtrip(self):
         """Test JSON serialization roundtrip for StreamDataPointDTO."""
         original = StreamDataPointDTO(
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             features={"feature1": 1.5, "feature2": 2.0},
             anomaly_score=0.75,
             is_anomaly=True,

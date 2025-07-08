@@ -3,7 +3,6 @@
 Simple test script to verify banking anomaly detection functionality.
 """
 
-import os
 import sys
 
 import numpy as np

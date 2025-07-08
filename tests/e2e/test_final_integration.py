@@ -178,7 +178,6 @@ uvicorn.run(app, host="127.0.0.1", port=8006, log_level="error")
     def _test_domain_imports(self):
         """Test domain layer imports"""
         try:
-
             return {
                 "success": True,
                 "entities_imported": 4,
@@ -190,7 +189,6 @@ uvicorn.run(app, host="127.0.0.1", port=8006, log_level="error")
     def _test_application_imports(self):
         """Test application layer imports"""
         try:
-
             return {
                 "success": True,
                 "services_imported": True,
@@ -202,7 +200,6 @@ uvicorn.run(app, host="127.0.0.1", port=8006, log_level="error")
     def _test_infrastructure_imports(self):
         """Test infrastructure layer imports"""
         try:
-
             return {"success": True, "config_imported": True, "adapters_imported": True}
         except Exception as e:
             return {"success": False, "error": str(e)}

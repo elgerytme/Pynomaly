@@ -3,7 +3,7 @@
 import json
 import tempfile
 from pathlib import Path
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pandas as pd
 import pytest
@@ -181,7 +181,6 @@ class TestAutoMLCLI:
             ) as mock_get_service,
             patch("pynomaly.presentation.cli.automl.asyncio.run") as mock_asyncio_run,
         ):
-
             # Setup mocks for high performance
             mock_dataset = Mock()
             mock_load_dataset.return_value = mock_dataset
@@ -218,7 +217,6 @@ class TestAutoMLCLI:
             ) as mock_get_service,
             patch("pynomaly.presentation.cli.automl.asyncio.run") as mock_asyncio_run,
         ):
-
             # Setup mocks for low performance
             mock_dataset = Mock()
             mock_load_dataset.return_value = mock_dataset
@@ -333,7 +331,7 @@ class TestTrialPersistence:
             # Verify saved data
             assert storage_path.exists()
 
-            with open(storage_path, "r") as f:
+            with open(storage_path) as f:
                 loaded_data = json.load(f)
 
             assert loaded_data["algorithm"] == "KNN"

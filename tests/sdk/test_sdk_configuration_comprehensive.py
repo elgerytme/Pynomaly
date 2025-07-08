@@ -216,9 +216,9 @@ class TestSDKConfigurationManagement:
                         return False
 
                     self.configurations[config_id]["config"] = updated_config
-                    self.configurations[config_id][
-                        "updated_at"
-                    ] = "2023-10-01T11:00:00Z"
+                    self.configurations[config_id]["updated_at"] = (
+                        "2023-10-01T11:00:00Z"
+                    )
 
                     return True
 

@@ -2,15 +2,13 @@
 
 import asyncio
 import json
-import os
 import time
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import pytest
-from playwright.sync_api import Browser, Page
-from pytest_bdd import given, scenarios, then, when
-from tests.ui.enhanced_page_objects.base_page import BasePage
+from playwright.sync_api import Page
+from pytest_bdd import scenarios
 
 # Import all feature files
 FEATURES_DIR = Path(__file__).parent / "features"
@@ -52,7 +50,7 @@ test_results = {
 class BDDTestRunner:
     """Comprehensive BDD test runner with advanced reporting."""
 
-    def __init__(self, config: Dict[str, Any] = None):
+    def __init__(self, config: dict[str, Any] = None):
         self.config = config or BDD_CONFIG
         self.results = test_results.copy()
         self.start_time = None
@@ -172,7 +170,7 @@ class BDDTestRunner:
         # Generate HTML report
         html_report_path = self._generate_html_report(report)
 
-        print(f"\n🎯 BDD Test Execution Summary")
+        print("\n🎯 BDD Test Execution Summary")
         print(f"{'='*50}")
         print(f"Total Scenarios: {total_scenarios}")
         print(f"Passed: {self.results['scenarios_passed']} ✅")
@@ -180,7 +178,7 @@ class BDDTestRunner:
         print(f"Skipped: {self.results['scenarios_skipped']} ⏭️")
         print(f"Success Rate: {success_rate:.1f}%")
         print(f"Execution Time: {self.results['execution_time']:.1f}s")
-        print(f"\n📊 Reports Generated:")
+        print("\n📊 Reports Generated:")
         print(f"  JSON: {json_report_path}")
         print(f"  HTML: {html_report_path}")
 
@@ -283,7 +281,7 @@ class BDDTestRunner:
 
         return recommendations
 
-    def _generate_html_report(self, report_data: Dict[str, Any]) -> Path:
+    def _generate_html_report(self, report_data: dict[str, Any]) -> Path:
         """Generate HTML report from test data."""
         html_template = """
         <!DOCTYPE html>
@@ -329,7 +327,7 @@ class BDDTestRunner:
                     <div class="subtitle">Comprehensive Behavior-Driven Development Test Results</div>
                     <div class="timestamp">Generated: {timestamp}</div>
                 </div>
-                
+
                 <div class="summary">
                     <div class="metric">
                         <div class="number">{total_scenarios}</div>
@@ -352,7 +350,7 @@ class BDDTestRunner:
                         <div class="label">Execution Time</div>
                     </div>
                 </div>
-                
+
                 <div class="section">
                     <h2>📊 Performance Metrics</h2>
                     <div class="chart">
@@ -361,11 +359,11 @@ class BDDTestRunner:
                         <p><strong>Failure Rate:</strong> {failure_rate:.1f}%</p>
                     </div>
                 </div>
-                
+
                 {recommendations_section}
-                
+
                 {errors_section}
-                
+
                 <div class="section">
                     <h2>📋 Feature Coverage</h2>
                     <p>BDD scenarios cover the following user workflows:</p>
@@ -392,7 +390,7 @@ class BDDTestRunner:
             for rec in report_data["recommendations"]:
                 recommendations_html += f"""
                     <div class="recommendation">
-                        <span class="priority {rec['priority']}">{rec['priority']}</span> - 
+                        <span class="priority {rec['priority']}">{rec['priority']}</span> -
                         <strong>{rec['category']}:</strong> {rec['recommendation']}
                         <br><small>{rec['details']}</small>
                     </div>
@@ -558,12 +556,12 @@ if __name__ == "__main__":
             "--html=test_reports/bdd/bdd_test_report.html",
             "--self-contained-html",
             "--tb=short",
-            f"--maxfail=10",
+            "--maxfail=10",
         ]
     )
 
-    print(f"\n🎯 BDD Test Execution Complete")
+    print("\n🎯 BDD Test Execution Complete")
     print(f"Exit Code: {exit_code}")
-    print(f"Reports available in: test_reports/bdd/")
+    print("Reports available in: test_reports/bdd/")
 
     exit(exit_code)

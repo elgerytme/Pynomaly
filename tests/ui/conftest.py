@@ -1,15 +1,12 @@
 """UI Test Configuration - Playwright-specific fixtures that extend the root conftest.py."""
 
-# Import all fixtures from root conftest
-import asyncio
-import json
-import os
+# Import specific fixtures from root conftest
+from ..conftest import container, sample_data, sample_dataset, client, app
 import tempfile
-import time
 from collections.abc import Generator
 from datetime import datetime
 from pathlib import Path
-from typing import Any, AsyncGenerator
+from typing import Any
 
 import pytest
 from playwright.async_api import (
@@ -17,7 +14,6 @@ from playwright.async_api import (
     BrowserContext,
     Page,
     Playwright,
-    async_playwright,
 )
 
 from ..conftest import *

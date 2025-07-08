@@ -585,9 +585,7 @@ class TestDetectionEndpointsIntegration:
             with patch(
                 "pynomaly.presentation.api.deps.get_container"
             ) as mock_container:
-                mock_container.return_value.train_detector_use_case.return_value.execute = (
-                    AsyncMock()
-                )
+                mock_container.return_value.train_detector_use_case.return_value.execute = AsyncMock()
                 train_response = client.post(
                     "/api/v1/detection/train", json=train_request
                 )
@@ -598,9 +596,7 @@ class TestDetectionEndpointsIntegration:
                     "dataset_id": "87654321-4321-8765-2109-876543210987",
                 }
 
-                mock_container.return_value.detect_anomalies_use_case.return_value.execute = (
-                    AsyncMock()
-                )
+                mock_container.return_value.detect_anomalies_use_case.return_value.execute = AsyncMock()
                 detect_response = client.post(
                     "/api/v1/detection/detect", json=detect_request
                 )

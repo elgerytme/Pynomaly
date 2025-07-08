@@ -57,28 +57,28 @@ test_powershell_readme() {
     local test_name="$1"
     local command="$2"
     local expected_exit_code="${3:-0}"
-    
+
     ((total_tests++))
-    
+
     echo "----------------------------------------"
     print_powershell_status "TEST" "Test-ReadmeInstruction: $test_name"
     echo "COMMAND (PS Style): $command"
     echo "----------------------------------------"
-    
+
     # Execute command and capture output/errors
     local output
     local exit_code
-    
+
     output=$(eval "$command" 2>&1)
     exit_code=$?
-    
+
     # Display PowerShell-style output
     echo "$output" | head -10
     local line_count=$(echo "$output" | wc -l)
     if [ $line_count -gt 10 ]; then
         echo "... (PowerShell output truncated)"
     fi
-    
+
     # PowerShell-style result checking
     if [ $exit_code -eq $expected_exit_code ]; then
         print_powershell_status "SUCCESS" "✅ PASSED: $test_name"
@@ -107,9 +107,9 @@ import sys
 print('Testing Windows-style virtual environment creation...')
 try:
     # Simulate Windows venv creation
-    result = subprocess.run([sys.executable, '-m', 'venv', 'test_venv_ps_sim'], 
+    result = subprocess.run([sys.executable, '-m', 'venv', 'test_venv_ps_sim'],
                           capture_output=True, text=True, timeout=30)
-    
+
     if result.returncode == 0 and os.path.exists('test_venv_ps_sim'):
         print('✓ Virtual environment created successfully (Windows style)')
         # Check for Windows-style Scripts directory
@@ -118,7 +118,7 @@ try:
             print('✓ Windows Scripts directory found')
         else:
             print('⚠ Using Unix-style bin directory (simulated Windows)')
-        
+
         # Cleanup
         import shutil
         shutil.rmtree('test_venv_ps_sim', ignore_errors=True)
@@ -129,7 +129,7 @@ try:
             print(f'Error: {result.stderr[:100]}')
 except Exception as e:
     print(f'Virtual environment test error: {str(e)}')
-    
+
 print('✓ Windows virtual environment test completed')
 \"" 0
 
@@ -177,7 +177,7 @@ if all_exist:
     print('✓ All requirements files exist (PowerShell verification)')
 else:
     print('⚠ Some requirements files missing')
-    
+
 print('✓ PowerShell file validation completed')
 \"" 0
 
@@ -194,12 +194,12 @@ try:
     import pynomaly
     print('✓ Pynomaly package can be imported in Windows environment')
     print(f'Package location: {pynomaly.__file__ if hasattr(pynomaly, '__file__') else 'Built-in module'}')
-    
+
     # Test Windows-style import paths
     from pynomaly.infrastructure.config.settings import get_settings
     settings = get_settings()
     print(f'✓ Settings loaded for Windows: {settings.app.environment}')
-    
+
 except ImportError as e:
     print(f'✗ Package import failed in Windows: {e}')
     raise
@@ -218,9 +218,9 @@ import sys
 print('Testing Windows-style CLI execution...')
 try:
     # Simulate PowerShell CLI execution
-    result = subprocess.run([sys.executable, '-m', 'pynomaly', '--help'], 
+    result = subprocess.run([sys.executable, '-m', 'pynomaly', '--help'],
                           capture_output=True, text=True, timeout=30)
-    
+
     if result.returncode == 0:
         output_lines = result.stdout.split('\\n')
         print('PowerShell CLI Output (first 5 lines):')
@@ -229,7 +229,7 @@ try:
         print('✓ CLI accessible via PowerShell simulation')
     else:
         print(f'⚠ CLI returned non-zero exit code: {result.returncode}')
-        
+
 except Exception as e:
     print(f'Windows CLI test error: {e}')
 
@@ -274,19 +274,19 @@ sys.path.insert(0, os.path.join(os.getcwd(), 'src'))
 try:
     from pynomaly.presentation.api.app import create_app
     from pynomaly.infrastructure.config import create_container
-    
+
     # Create Windows-compatible server
     container = create_container()
     app = create_app(container)
-    
+
     print('✓ Server can be created successfully in Windows environment')
     print(f'App type: {type(app).__name__}')
-    
+
     # Test Windows-style configuration
     from pynomaly.infrastructure.config.settings import get_settings
     settings = get_settings()
     print(f'✓ Configuration loaded: {settings.api_host}:{settings.api_port}')
-    
+
 except Exception as e:
     print(f'✗ Windows server creation failed: {e}')
     raise
@@ -310,19 +310,19 @@ try:
     from pynomaly.infrastructure.config import create_container
     container = create_container()
     print(f'✓ DI Container created in Windows: {type(container).__name__}')
-    
+
     # Test domain entities
     from pynomaly.domain.entities import Dataset
     import pandas as pd
-    
+
     data = pd.DataFrame({'x': [1, 2, 3], 'y': [4, 5, 6]})
     dataset = Dataset(name='Windows Test Dataset', data=data)
     print(f'✓ Dataset created in Windows: {dataset.name}')
-    
+
     # Test use cases availability
     import pynomaly.application
     print(f'✓ Application module available in Windows')
-    
+
 except Exception as e:
     print(f'✗ Windows Python API error: {e}')
     raise
@@ -350,14 +350,14 @@ for path_str in windows_paths:
         # Convert Windows path to cross-platform
         normalized_path = path_str.replace('\\\\', '/')
         path = pathlib.Path(normalized_path)
-        
+
         print(f'Windows path: {path_str}')
         print(f'  Normalized: {normalized_path}')
         print(f'  Cross-platform: {path}')
         print(f'  Is absolute: {path.is_absolute()}')
         print(f'  Parent: {path.parent}')
         print(f'  Name: {path.name}')
-        
+
     except Exception as e:
         print(f'Path error for {path_str}: {e}')
 
@@ -377,24 +377,24 @@ try:
     current_dir = os.getcwd()
     windows_pythonpath = f'{current_dir}\\\\src'
     normalized_pythonpath = windows_pythonpath.replace('\\\\', '/')
-    
+
     print(f'Windows PYTHONPATH: {windows_pythonpath}')
     print(f'Normalized PYTHONPATH: {normalized_pythonpath}')
-    
+
     # Test Windows temp directory handling
     temp_dir = tempfile.gettempdir()
     print(f'Temp directory (Windows compatible): {temp_dir}')
-    
+
     # Test Windows file operations
     test_file = os.path.join(temp_dir, 'pynomaly_windows_test.tmp')
     with open(test_file, 'w') as f:
         f.write('Windows test file content')
-    
+
     if os.path.exists(test_file):
         print('✓ Windows file operations successful')
         os.unlink(test_file)
         print('✓ Windows file cleanup successful')
-    
+
 except Exception as e:
     print(f'Windows environment error: {e}')
 

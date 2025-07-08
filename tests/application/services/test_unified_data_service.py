@@ -1,8 +1,6 @@
 """Test cases for unified data service."""
 
-import asyncio
-from pathlib import Path
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
@@ -200,7 +198,6 @@ class TestUnifiedDataService:
                 service.data_pipeline, "process_dataset", return_value=mock_dataset
             ),
         ):
-
             result = await service.load_and_process("test.csv")
 
         assert isinstance(result, Dataset)
@@ -225,7 +222,6 @@ class TestUnifiedDataService:
                 service.data_pipeline, "process_dataset", return_value=mock_dataset
             ),
         ):
-
             result = await service.load_and_process(
                 "postgresql://user:pass@host/db", query="SELECT * FROM test_table"
             )
@@ -250,7 +246,6 @@ class TestUnifiedDataService:
                 service.data_pipeline, "process_dataset", return_value=mock_dataset
             ),
         ):
-
             result = await service.load_and_process("https://example.com/data.csv")
 
         assert isinstance(result, Dataset)

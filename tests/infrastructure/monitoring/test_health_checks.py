@@ -1,8 +1,6 @@
 """Tests for health check system."""
 
-import asyncio
-from datetime import datetime
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -380,7 +378,6 @@ class TestPredefinedHealthChecks:
             patch("psutil.cpu_percent") as mock_cpu,
             patch("psutil.disk_usage") as mock_disk,
         ):
-
             # Mock normal resource usage
             mock_memory.return_value = Mock(
                 total=8 * 1024**3, available=4 * 1024**3, percent=50.0, used=4 * 1024**3
@@ -408,7 +405,6 @@ class TestPredefinedHealthChecks:
             patch("psutil.cpu_percent") as mock_cpu,
             patch("psutil.disk_usage") as mock_disk,
         ):
-
             # Mock high resource usage
             mock_memory.return_value = Mock(
                 total=8 * 1024**3, available=1 * 1024**3, percent=95.0, used=7 * 1024**3
@@ -430,7 +426,6 @@ class TestPredefinedHealthChecks:
             patch("psutil.virtual_memory") as mock_virtual,
             patch("psutil.swap_memory") as mock_swap,
         ):
-
             mock_virtual.return_value = Mock(
                 total=8 * 1024**3, available=4 * 1024**3, used=4 * 1024**3, percent=50.0
             )
@@ -455,7 +450,6 @@ class TestPredefinedHealthChecks:
             patch("tempfile.NamedTemporaryFile") as mock_temp,
             patch("builtins.open") as mock_open,
         ):
-
             mock_disk.return_value = Mock(
                 total=100 * 1024**3, used=50 * 1024**3, free=50 * 1024**3
             )
@@ -467,7 +461,6 @@ class TestPredefinedHealthChecks:
             )
 
             with patch("os.path.exists", return_value=True), patch("os.unlink"):
-
                 result = await check_filesystem_health()
 
                 assert result.component == "filesystem"

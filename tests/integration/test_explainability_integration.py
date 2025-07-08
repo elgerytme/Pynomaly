@@ -100,9 +100,6 @@ async def test_basic_explainability():
         feature_names = ["feature_1", "feature_2", "feature_3", "feature_4"]
 
         # Create basic feature importance explainer
-        from pynomaly.infrastructure.explainers.feature_importance_explainer import (
-            FeatureImportanceExplainer,
-        )
 
         # If the explainer doesn't exist, create a simple mock
         class MockFeatureImportanceExplainer:
@@ -192,7 +189,7 @@ async def test_basic_explainability():
         print(f"   Anomaly Score: {explanation.anomaly_score}")
         print(f"   Prediction: {explanation.prediction}")
         print(f"   Confidence: {explanation.confidence}")
-        print(f"   Top contributing features:")
+        print("   Top contributing features:")
         for contrib in explanation.feature_contributions[:3]:
             print(
                 f"     - {contrib.feature_name}: {contrib.contribution:.3f} (importance: {contrib.importance:.3f})"

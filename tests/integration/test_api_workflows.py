@@ -1,9 +1,8 @@
 """Integration tests for complete API workflows."""
 
-import os
-
 import pytest
 from httpx import AsyncClient
+
 from tests.integration.conftest import IntegrationTestHelper
 
 

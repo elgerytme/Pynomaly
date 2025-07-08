@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Test the Python API example from README.md"""
 
-import os
 import sys
 
 sys.path.insert(0, "/mnt/c/Users/andre/Pynomaly/src")

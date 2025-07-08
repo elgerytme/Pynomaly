@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Simple test of explainability infrastructure."""
 
-import os
 import sys
 from unittest.mock import Mock
 
@@ -32,9 +31,7 @@ def test_explainability_infrastructure():
 
         # Test application service
         from pynomaly.application.services.explainability_service import (
-            ApplicationExplainabilityService,
             ExplanationRequest,
-            ExplanationResponse,
         )
 
         print("✅ Application explainability service imported successfully")
@@ -71,11 +68,6 @@ def test_explainability_infrastructure():
 
         # Test DTOs
         try:
-            from pynomaly.application.dto.explainability_dto import (
-                ExplainabilityResponseDTO,
-                ExplainPredictionRequestDTO,
-            )
-
             print("✅ Explainability DTOs imported successfully")
 
         except Exception as e:

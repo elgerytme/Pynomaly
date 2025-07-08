@@ -2,6 +2,7 @@
 
 import pytest
 from httpx import AsyncClient
+
 from tests.integration.conftest import IntegrationTestHelper
 
 
@@ -644,7 +645,7 @@ class TestRegressionSuite:
             throughput > 10
         ), f"Throughput too low: {throughput:.2f} predictions/second"
 
-        print(f"Performance baseline metrics:")
+        print("Performance baseline metrics:")
         print(f"  Training time: {training_time:.2f}s")
         print(f"  Single prediction: {prediction_time:.3f}s")
         print(f"  Batch prediction (100 items): {batch_time:.2f}s")

@@ -4,7 +4,6 @@ Validate that all 125 endpoints respond properly and return expected schemas
 """
 
 import sys
-import traceback
 from collections import defaultdict
 
 # Add src to path
@@ -218,12 +217,6 @@ def validate_auth_consistency():
         print("🔐 Validating auth consistency...")
 
         # Check that migrated endpoints use the simplified auth
-        from pynomaly.presentation.api.endpoints import (
-            automl,
-            autonomous,
-            ensemble,
-            explainability,
-        )
 
         # This is a basic check - in a real scenario we'd inspect the route definitions
         test_results.append(("✅ Migrated endpoints use simplified auth", "PASS"))

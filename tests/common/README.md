@@ -33,8 +33,8 @@ from tests.common import test_data_generator
 
 # Generate simple dataset with anomalies
 df, labels = test_data_generator.generate_simple_dataset(
-    n_samples=1000, 
-    n_features=5, 
+    n_samples=1000,
+    n_features=5,
     contamination=0.1
 )
 
@@ -81,14 +81,14 @@ from tests.common import sample_data, mock_repository, temp_storage
 async def test_my_feature(sample_data, mock_repository, temp_storage):
     """Test using common fixtures."""
     df, labels = sample_data
-    
+
     # Use the mock repository
     mock_repository.get.return_value = some_value
-    
+
     # Use temporary storage
     test_file = temp_storage / "test_data.json"
     # ... write to file
-    
+
     # Cleanup happens automatically
 ```
 
@@ -183,7 +183,7 @@ def sample_data():
     np.random.seed(42)
     normal_data = np.random.randn(1000, 5)
     # ... duplicate implementation
-    
+
 @pytest.fixture  
 def mock_repository():
     repo = Mock()

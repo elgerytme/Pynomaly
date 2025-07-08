@@ -6,10 +6,9 @@ Comprehensive test to verify URL refactoring from /web to /
 import re
 import sys
 from pathlib import Path
-from typing import List, Tuple
 
 
-def scan_file_for_web_refs(file_path: Path) -> List[Tuple[int, str]]:
+def scan_file_for_web_refs(file_path: Path) -> list[tuple[int, str]]:
     """Scan a file for /web references and return line numbers and content."""
     if not file_path.exists():
         return []

@@ -5,18 +5,14 @@ This module provides comprehensive tests for the model lineage tracking service,
 ensuring proper lineage tracking, dependency management, and impact analysis.
 """
 
-from datetime import datetime, timezone
-from typing import Dict, List, Optional
-from unittest.mock import AsyncMock, Mock, patch
+from datetime import UTC, datetime
+from unittest.mock import AsyncMock, Mock
 
-import networkx as nx
 import pytest
 
 from src.pynomaly.application.services.model_lineage_service import (
     CircularDependencyError,
-    LineageEdge,
     LineageGraph,
-    LineageNode,
     LineageTrackingError,
     ModelLineageService,
 )
@@ -60,8 +56,8 @@ class TestModelLineageService:
             id="model_123",
             name="Test Model",
             algorithm="IsolationForest",
-            created_at=datetime.now(timezone.utc),
-            updated_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
+            updated_at=datetime.now(UTC),
         )
 
     @pytest.fixture
@@ -71,7 +67,7 @@ class TestModelLineageService:
             id="dataset_456",
             name="Test Dataset",
             description="Test dataset for lineage tracking",
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
 

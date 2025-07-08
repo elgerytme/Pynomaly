@@ -132,7 +132,7 @@ def test_url_routing():
     total_api = len(api_endpoints)
     total_old = len(old_endpoints)
 
-    print(f"\nResults:")
+    print("\nResults:")
     print(f"Web UI endpoints: {web_passed}/{total_web} passed")
     print(f"API endpoints: {api_passed}/{total_api} passed")
     print(f"Old endpoints disabled: {old_failed}/{total_old} correctly return 404")

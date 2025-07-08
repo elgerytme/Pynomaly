@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Test script for permission matrix functionality."""
 
-import os
 import sys
 from pathlib import Path
 
@@ -11,7 +10,6 @@ sys.path.insert(0, str(src_path))
 
 try:
     # Test direct import without triggering package imports
-    import importlib.util
 
     # Define mock user entities here
     from enum import Enum

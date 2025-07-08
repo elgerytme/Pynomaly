@@ -2,7 +2,6 @@
 
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pandas as pd
@@ -156,7 +155,7 @@ class TestDetectionPerformance:
             else 0
         )
 
-        print(f"Concurrent test results:")
+        print("Concurrent test results:")
         print(f"  Total time: {total_time:.2f}s")
         print(f"  Success rate: {success_rate:.2%}")
         print(f"  Average duration: {avg_duration:.2f}s")
@@ -287,7 +286,7 @@ class TestAPIPerformance:
         avg_response_time = np.mean(response_times)
         max_observed_time = max(response_times)
 
-        print(f"Health endpoint performance:")
+        print("Health endpoint performance:")
         print(f"  Average response time: {avg_response_time*1000:.2f}ms")
         print(f"  Max response time: {max_observed_time*1000:.2f}ms")
 
@@ -506,7 +505,7 @@ class TestPerformanceBenchmarks:
             size_ratio = results[-1]["size"] / results[0]["size"]
             efficiency_ratio = time_ratio / size_ratio
 
-            print(f"\nScalability metrics:")
+            print("\nScalability metrics:")
             print(f"Time ratio: {time_ratio:.2f}x")
             print(f"Size ratio: {size_ratio:.2f}x")
             print(f"Efficiency ratio: {efficiency_ratio:.2f}")

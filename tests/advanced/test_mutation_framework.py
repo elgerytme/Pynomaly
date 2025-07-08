@@ -6,7 +6,6 @@ Implements comprehensive mutation testing to validate test quality.
 
 import argparse
 import ast
-import importlib.util
 import json
 import logging
 import os
@@ -17,7 +16,6 @@ import tempfile
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
 
 # Configure logging
 logging.basicConfig(
@@ -37,7 +35,7 @@ class MutationResult:
     mutated_code: str
     test_passed: bool
     execution_time: float
-    error: Optional[str] = None
+    error: str | None = None
 
 
 @dataclass
@@ -50,8 +48,8 @@ class MutationTestSummary:
     failed_mutations: int
     mutation_score: float
     execution_time: float
-    results: List[MutationResult]
-    coverage_report: Dict
+    results: list[MutationResult]
+    coverage_report: dict
 
 
 class MutationOperator:
@@ -60,7 +58,7 @@ class MutationOperator:
     def __init__(self, name: str):
         self.name = name
 
-    def apply(self, node: ast.AST) -> List[ast.AST]:
+    def apply(self, node: ast.AST) -> list[ast.AST]:
         """Apply mutation to AST node. Returns list of mutated nodes."""
         raise NotImplementedError
 
@@ -87,7 +85,7 @@ class ArithmeticOperatorMutation(MutationOperator):
     def can_mutate(self, node: ast.AST) -> bool:
         return isinstance(node, ast.BinOp) and type(node.op) in self.mutations
 
-    def apply(self, node: ast.BinOp) -> List[ast.BinOp]:
+    def apply(self, node: ast.BinOp) -> list[ast.BinOp]:
         """Apply arithmetic operator mutations."""
         mutants = []
         original_op = type(node.op)
@@ -126,7 +124,7 @@ class ComparisonOperatorMutation(MutationOperator):
             and type(node.ops[0]) in self.mutations
         )
 
-    def apply(self, node: ast.Compare) -> List[ast.Compare]:
+    def apply(self, node: ast.Compare) -> list[ast.Compare]:
         """Apply comparison operator mutations."""
         mutants = []
         original_op = type(node.ops[0])
@@ -156,7 +154,7 @@ class LogicalOperatorMutation(MutationOperator):
     def can_mutate(self, node: ast.AST) -> bool:
         return isinstance(node, ast.BoolOp) and type(node.op) in self.mutations
 
-    def apply(self, node: ast.BoolOp) -> List[ast.BoolOp]:
+    def apply(self, node: ast.BoolOp) -> list[ast.BoolOp]:
         """Apply logical operator mutations."""
         mutants = []
         original_op = type(node.op)
@@ -184,7 +182,7 @@ class UnaryOperatorMutation(MutationOperator):
     def can_mutate(self, node: ast.AST) -> bool:
         return isinstance(node, ast.UnaryOp) and type(node.op) in self.mutations
 
-    def apply(self, node: ast.UnaryOp) -> List[ast.AST]:
+    def apply(self, node: ast.UnaryOp) -> list[ast.AST]:
         """Apply unary operator mutations."""
         mutants = []
         original_op = type(node.op)
@@ -211,7 +209,7 @@ class ConstantMutation(MutationOperator):
     def can_mutate(self, node: ast.AST) -> bool:
         return isinstance(node, (ast.Constant, ast.Num, ast.Str, ast.NameConstant))
 
-    def apply(self, node: ast.AST) -> List[ast.AST]:
+    def apply(self, node: ast.AST) -> list[ast.AST]:
         """Apply constant mutations."""
         mutants = []
 
@@ -271,7 +269,7 @@ class ConditionalBoundaryMutation(MutationOperator):
             and type(node.ops[0]) in self.mutations
         )
 
-    def apply(self, node: ast.Compare) -> List[ast.Compare]:
+    def apply(self, node: ast.Compare) -> list[ast.Compare]:
         """Apply conditional boundary mutations."""
         mutants = []
         original_op = type(node.ops[0])
@@ -303,7 +301,7 @@ class MutationGenerator:
 
     def generate_mutations(
         self, source_code: str, target_file: str
-    ) -> List[Tuple[str, str, str]]:
+    ) -> list[tuple[str, str, str]]:
         """Generate all possible mutations for the given source code."""
         try:
             tree = ast.parse(source_code)
@@ -358,7 +356,7 @@ class MutationGenerator:
 
     def _apply_mutation(
         self, tree: ast.AST, original_node: ast.AST, mutant_node: ast.AST
-    ) -> Optional[ast.AST]:
+    ) -> ast.AST | None:
         """Apply a mutation to the AST tree."""
 
         class MutationApplier(ast.NodeTransformer):
@@ -398,7 +396,7 @@ class MutationTester:
         self.temp_dir = None
 
     def run_mutation_testing(
-        self, target_files: List[str] = None, max_mutations: int = None
+        self, target_files: list[str] = None, max_mutations: int = None
     ) -> MutationTestSummary:
         """Run comprehensive mutation testing."""
         logger.info("Starting mutation testing...")
@@ -413,7 +411,7 @@ class MutationTester:
         for file_path in target_files:
             logger.info(f"Generating mutations for {file_path}")
 
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 source_code = f.read()
 
             mutations = self.generator.generate_mutations(source_code, str(file_path))
@@ -489,7 +487,7 @@ class MutationTester:
 
         return summary
 
-    def _discover_target_files(self) -> List[str]:
+    def _discover_target_files(self) -> list[str]:
         """Discover Python files to mutate."""
         target_files = []
 
@@ -535,7 +533,7 @@ class MutationTester:
             logger.error(f"✗ Failed to run baseline tests: {e}")
             return False
 
-    def _test_mutation(self, mutation: Dict) -> MutationResult:
+    def _test_mutation(self, mutation: dict) -> MutationResult:
         """Test a single mutation."""
         start_time = time.time()
 
@@ -598,7 +596,7 @@ class MutationTester:
             error=error,
         )
 
-    def _generate_coverage_report(self) -> Dict:
+    def _generate_coverage_report(self) -> dict:
         """Generate code coverage report."""
         try:
             # Run tests with coverage
@@ -621,7 +619,7 @@ class MutationTester:
                 # Try to read coverage report
                 coverage_file = self.source_dir.parent / "coverage.json"
                 if coverage_file.exists():
-                    with open(coverage_file, "r") as f:
+                    with open(coverage_file) as f:
                         coverage_data = json.load(f)
                     return coverage_data.get("totals", {})
 
@@ -639,7 +637,7 @@ class MutationTester:
 
     def print_summary(self, summary: MutationTestSummary):
         """Print human-readable mutation testing summary."""
-        print(f"\n=== Mutation Testing Summary ===")
+        print("\n=== Mutation Testing Summary ===")
         print(f"Total mutations: {summary.total_mutations}")
         print(f"Killed mutations: {summary.killed_mutations}")
         print(f"Survived mutations: {summary.survived_mutations}")
@@ -654,7 +652,7 @@ class MutationTester:
         # Show survived mutations (potential test gaps)
         survived = [r for r in summary.results if r.test_passed and r.error is None]
         if survived:
-            print(f"\n=== Survived Mutations (Test Gaps) ===")
+            print("\n=== Survived Mutations (Test Gaps) ===")
             for result in survived[:10]:  # Show first 10
                 print(f"  {result.mutation_id}: {result.location}")
                 print(f"    Operator: {result.operator}")
@@ -665,7 +663,7 @@ class MutationTester:
         # Show failed mutations (potential issues)
         failed = [r for r in summary.results if r.error is not None]
         if failed:
-            print(f"\n=== Failed Mutations ===")
+            print("\n=== Failed Mutations ===")
             for result in failed[:5]:  # Show first 5
                 print(f"  {result.mutation_id}: {result.error}")
 

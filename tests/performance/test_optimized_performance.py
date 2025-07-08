@@ -2,18 +2,15 @@
 
 import gc
 import multiprocessing as mp
-import resource
 import threading
 import time
 import warnings
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
-from unittest.mock import Mock, patch
+from typing import Any
 
 import numpy as np
-import pandas as pd
 import psutil
 import pytest
 
@@ -29,7 +26,7 @@ class PerformanceMetrics:
     peak_memory_mb: float
     gc_collections: int
 
-    def to_dict(self) -> Dict[str, float]:
+    def to_dict(self) -> dict[str, float]:
         """Convert to dictionary for easy serialization."""
         return {
             "execution_time": self.execution_time,
@@ -173,7 +170,7 @@ class OptimizedDataGenerator:
 
         return data
 
-    def get_cache_stats(self) -> Dict[str, int]:
+    def get_cache_stats(self) -> dict[str, int]:
         """Get cache performance statistics."""
         return {
             "hits": self._cache_hits,
@@ -190,8 +187,8 @@ class OptimizedAlgorithmRunner:
         self.data_generator = OptimizedDataGenerator()
 
     def run_single_algorithm(
-        self, algorithm_name: str, data: np.ndarray, parameters: Dict[str, Any] = None
-    ) -> Tuple[np.ndarray, np.ndarray, PerformanceMetrics]:
+        self, algorithm_name: str, data: np.ndarray, parameters: dict[str, Any] = None
+    ) -> tuple[np.ndarray, np.ndarray, PerformanceMetrics]:
         """Run single algorithm with performance monitoring."""
         parameters = parameters or {}
 
@@ -233,8 +230,8 @@ class OptimizedAlgorithmRunner:
         return predictions, scores, metrics
 
     def run_algorithm_scaling_test(
-        self, algorithm_name: str, data_sizes: List[int], n_features: int = 10
-    ) -> Dict[int, PerformanceMetrics]:
+        self, algorithm_name: str, data_sizes: list[int], n_features: int = 10
+    ) -> dict[int, PerformanceMetrics]:
         """Run scaling test for algorithm with different data sizes."""
         results = {}
 
@@ -249,8 +246,8 @@ class OptimizedAlgorithmRunner:
         return results
 
     def run_parallel_algorithms(
-        self, algorithms: List[str], data: np.ndarray
-    ) -> Dict[str, Tuple[np.ndarray, np.ndarray, PerformanceMetrics]]:
+        self, algorithms: list[str], data: np.ndarray
+    ) -> dict[str, tuple[np.ndarray, np.ndarray, PerformanceMetrics]]:
         """Run multiple algorithms in parallel."""
         # For now, run sequentially (parallel execution would require more complex setup)
         results = {}
@@ -261,7 +258,7 @@ class OptimizedAlgorithmRunner:
                     algorithm, data
                 )
                 results[algorithm] = (predictions, scores, metrics)
-            except Exception as e:
+            except Exception:
                 # Store error information
                 results[algorithm] = (
                     None,
@@ -593,16 +590,16 @@ class TestPerformanceRegression:
         """File to store baseline performance results."""
         return Path("tests/performance/baseline_results.json")
 
-    def load_baseline(self, baseline_file: Path) -> Dict[str, Any]:
+    def load_baseline(self, baseline_file: Path) -> dict[str, Any]:
         """Load baseline performance results."""
         if baseline_file.exists():
             import json
 
-            with open(baseline_file, "r") as f:
+            with open(baseline_file) as f:
                 return json.load(f)
         return {}
 
-    def save_baseline(self, baseline_file: Path, results: Dict[str, Any]):
+    def save_baseline(self, baseline_file: Path, results: dict[str, Any]):
         """Save baseline performance results."""
         import json
 

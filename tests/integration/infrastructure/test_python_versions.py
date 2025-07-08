@@ -14,7 +14,6 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 # Configure logging
 logging.basicConfig(
@@ -46,9 +45,9 @@ class MultiVersionTestSummary:
     successful_versions: int
     failed_versions: int
     total_duration: float
-    results: List[TestResult]
-    compatibility_matrix: Dict
-    recommendations: List[str]
+    results: list[TestResult]
+    compatibility_matrix: dict
+    recommendations: list[str]
 
 
 class MultiVersionTester:
@@ -194,7 +193,7 @@ except ImportError:
 print('✓ Performance benchmarks completed')
 """
 
-    def find_python_environments(self) -> Dict[str, Path]:
+    def find_python_environments(self) -> dict[str, Path]:
         """Find available Python environments."""
         environments = {}
 
@@ -423,7 +422,7 @@ print('✓ Performance benchmarks completed')
 
         return summary
 
-    def _generate_compatibility_matrix(self, results: List[TestResult]) -> Dict:
+    def _generate_compatibility_matrix(self, results: list[TestResult]) -> dict:
         """Generate compatibility matrix from test results."""
         matrix = {}
 
@@ -439,7 +438,7 @@ print('✓ Performance benchmarks completed')
 
         return matrix
 
-    def _generate_recommendations(self, results: List[TestResult]) -> List[str]:
+    def _generate_recommendations(self, results: list[TestResult]) -> list[str]:
         """Generate recommendations based on test results."""
         recommendations = []
 
@@ -483,13 +482,13 @@ print('✓ Performance benchmarks completed')
 
     def print_summary(self, summary: MultiVersionTestSummary):
         """Print human-readable test summary."""
-        print(f"\n=== Multi-Version Python Test Summary ===")
+        print("\n=== Multi-Version Python Test Summary ===")
         print(f"Total versions tested: {summary.total_versions}")
         print(f"Successful: {summary.successful_versions}")
         print(f"Failed: {summary.failed_versions}")
         print(f"Total duration: {summary.total_duration:.1f}s")
 
-        print(f"\n=== Individual Results ===")
+        print("\n=== Individual Results ===")
         for result in summary.results:
             status = "✓ PASS" if result.success else "✗ FAIL"
             print(
@@ -501,7 +500,7 @@ print('✓ Performance benchmarks completed')
                 f"Coverage: {result.coverage:>5.1f}%"
             )
 
-        print(f"\n=== Compatibility Matrix ===")
+        print("\n=== Compatibility Matrix ===")
         for version, info in summary.compatibility_matrix.items():
             version_display = version.replace("python_", "").replace("_", ".")
             status = info["status"]
@@ -512,7 +511,7 @@ print('✓ Performance benchmarks completed')
             )
 
         if summary.recommendations:
-            print(f"\n=== Recommendations ===")
+            print("\n=== Recommendations ===")
             for i, rec in enumerate(summary.recommendations, 1):
                 print(f"{i}. {rec}")
 

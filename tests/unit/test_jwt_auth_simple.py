@@ -1,14 +1,10 @@
 """Simple unit tests for JWT authentication without complex dependencies."""
 
-from datetime import UTC, datetime
-from unittest.mock import MagicMock
-
 import pytest
 
 from pynomaly.infrastructure.auth.jwt_auth import (
     JWTAuthService,
     PasswordRotationStrategy,
-    UserModel,
 )
 from pynomaly.infrastructure.config.settings import Settings
 

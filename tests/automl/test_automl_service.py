@@ -1,9 +1,8 @@
 """Test AutoML service functionality for PyOD algorithms."""
 
 import asyncio
-import json
 from pathlib import Path
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, Mock
 
 import numpy as np
 import pandas as pd

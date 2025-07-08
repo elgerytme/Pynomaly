@@ -152,7 +152,7 @@ normal_dataset = Dataset(
 
 # Anomalous dataset (10% anomalies)
 anomalous_dataset = Dataset(
-    name="anomalous_test_data", 
+    name="anomalous_test_data",
     data=combined_data,
     metadata=DatasetMetadata(anomaly_labels=labels)
 )
@@ -182,12 +182,12 @@ async def test_my_workflow(
     dataset = await integration_helper.upload_dataset(
         sample_dataset_csv, "my_test_dataset"
     )
-    
+
     # 2. Execute workflow
     detector = await integration_helper.create_detector(
         dataset["id"], "isolation_forest"
     )
-    
+
     # 3. Validate results
     integration_assertions.assert_api_response_structure(
         {"status": "success", "data": detector},
@@ -205,12 +205,12 @@ async def test_performance_benchmark(
 ):
     \"\"\"Test performance benchmark.\"\"\"
     start_time = time.perf_counter()
-    
+
     # Execute operation
     result = await detection_service.detect(detector, data)
-    
+
     execution_time = time.perf_counter() - start_time
-    
+
     # Validate against benchmark
     assert execution_time <= performance_benchmarks["detection_latency_ms"] / 1000
 ```
@@ -231,14 +231,14 @@ async def test_security_workflow(
         ip_address="127.0.0.1",
         user_agent="test-client",
     )
-    
+
     assert session is not None
-    
+
     # Test authorization
     has_permission = test_security_service.authz_service.check_permission(
         "test_user", "data:read", SecurityLevel.INTERNAL
     )
-    
+
     assert has_permission == True
 ```
 
@@ -344,24 +344,24 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-    
+
     - name: Install dependencies
       run: |
         pip install poetry
         poetry install --with dev,test
-    
+
     - name: Run integration tests
       run: |
         poetry run pytest tests/integration/ \
           --cov=pynomaly \
           --cov-report=xml \
           -m "not slow"
-    
+
     - name: Upload coverage
       uses: codecov/codecov-action@v3
       with:
@@ -389,7 +389,7 @@ jobs:
    ```bash
    # Start Redis for testing
    docker run -d -p 6379:6379 redis:7-alpine
-   
+
    # Or skip Redis tests
    pytest -m "not requires_redis"
    ```
@@ -398,7 +398,7 @@ jobs:
    ```bash
    # Use SQLite for testing (default)
    export PYNOMALY_TEST_DATABASE_URL="sqlite:///test.db"
-   
+
    # Or skip database tests
    pytest -m "not requires_database"
    ```
@@ -407,7 +407,7 @@ jobs:
    ```bash
    # Run with relaxed benchmarks
    export PYNOMALY_TEST_MAX_LATENCY_MS="200"
-   
+
    # Or skip performance tests
    pytest -m "not performance"
    ```
@@ -416,7 +416,7 @@ jobs:
    ```bash
    # Run tests with memory monitoring
    pytest --tb=short --maxfail=1 -v
-   
+
    # Run single test at a time
    pytest tests/integration/test_performance_benchmarks.py::test_memory_usage_benchmark
    ```

@@ -5,21 +5,16 @@ import gc
 import hashlib
 import json
 import multiprocessing as mp
-import os
 import pickle
-import shutil
-import subprocess
-import sys
-import tempfile
-import threading
 import time
 import warnings
 from collections import defaultdict
+from collections.abc import Callable
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
 
 import psutil
 import pytest
@@ -38,7 +33,7 @@ class OptimizationMetrics:
     optimization_ratio: float
     timestamp: datetime
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         result = asdict(self)
         result["timestamp"] = self.timestamp.isoformat()
@@ -67,7 +62,7 @@ class TestCacheManager:
         cache_input = f"{func_name}:{args_str}:{kwargs_str}"
         return hashlib.md5(cache_input.encode()).hexdigest()
 
-    def get_cached_result(self, cache_key: str) -> Optional[Any]:
+    def get_cached_result(self, cache_key: str) -> Any | None:
         """Get cached test result."""
         # Check memory cache first
         if cache_key in self.memory_cache:
@@ -123,7 +118,7 @@ class TestCacheManager:
         # Clear memory cache
         self.memory_cache.clear()
 
-    def get_cache_stats(self) -> Dict[str, Any]:
+    def get_cache_stats(self) -> dict[str, Any]:
         """Get cache performance statistics."""
         total_requests = self.cache_stats["hits"] + self.cache_stats["misses"]
         hit_rate = (
@@ -149,8 +144,8 @@ class ParallelTestExecutor:
         self.process_pool = ProcessPoolExecutor(max_workers=self.max_workers // 2)
 
     def execute_tests_parallel(
-        self, test_functions: List[Callable], execution_mode: str = "thread"
-    ) -> Dict[str, Any]:
+        self, test_functions: list[Callable], execution_mode: str = "thread"
+    ) -> dict[str, Any]:
         """Execute tests in parallel."""
         start_time = time.time()
         results = {}
@@ -236,7 +231,7 @@ class TestDataOptimizer:
 
         return dataset
 
-    def _generate_anomaly_dataset(self, size: int, features: int) -> Dict[str, Any]:
+    def _generate_anomaly_dataset(self, size: int, features: int) -> dict[str, Any]:
         """Generate optimized anomaly detection dataset."""
         import numpy as np
 
@@ -267,7 +262,7 @@ class TestDataOptimizer:
             "metadata": {"size": size, "features": features, "type": "anomaly"},
         }
 
-    def _generate_normal_dataset(self, size: int, features: int) -> Dict[str, Any]:
+    def _generate_normal_dataset(self, size: int, features: int) -> dict[str, Any]:
         """Generate normal dataset for testing."""
         import numpy as np
 
@@ -279,7 +274,7 @@ class TestDataOptimizer:
             "metadata": {"size": size, "features": features, "type": "normal"},
         }
 
-    def _generate_time_series_dataset(self, size: int, features: int) -> Dict[str, Any]:
+    def _generate_time_series_dataset(self, size: int, features: int) -> dict[str, Any]:
         """Generate time series dataset."""
         import numpy as np
 
@@ -299,7 +294,7 @@ class TestDataOptimizer:
             "metadata": {"size": size, "features": features, "type": "time_series"},
         }
 
-    def get_generation_stats(self) -> Dict[str, int]:
+    def get_generation_stats(self) -> dict[str, int]:
         """Get data generation statistics."""
         return dict(self.generation_stats)
 
@@ -315,7 +310,7 @@ class MemoryOptimizer:
         }
         self.gc_stats = {"collections": 0, "freed_objects": 0}
 
-    def monitor_memory_usage(self) -> Dict[str, float]:
+    def monitor_memory_usage(self) -> dict[str, float]:
         """Monitor current memory usage."""
         process = psutil.Process()
         memory_info = process.memory_info()
@@ -327,7 +322,7 @@ class MemoryOptimizer:
             "available_mb": psutil.virtual_memory().available / 1024 / 1024,
         }
 
-    def optimize_memory(self, force_gc: bool = False) -> Dict[str, Any]:
+    def optimize_memory(self, force_gc: bool = False) -> dict[str, Any]:
         """Optimize memory usage."""
         before_memory = self.monitor_memory_usage()
 
@@ -438,7 +433,7 @@ class TestExecutionOptimizer:
         return decorator
 
     def run_optimized_test_suite(
-        self, test_categories: Dict[str, List[Callable]]
+        self, test_categories: dict[str, list[Callable]]
     ) -> OptimizationMetrics:
         """Run optimized test suite with comprehensive optimization."""
         start_time = time.time()
@@ -493,7 +488,7 @@ class TestExecutionOptimizer:
             timestamp=datetime.now(),
         )
 
-    def _run_sequential_tests(self, tests: List[Callable]) -> Dict[str, Any]:
+    def _run_sequential_tests(self, tests: list[Callable]) -> dict[str, Any]:
         """Run tests sequentially for categories that require it."""
         start_time = time.time()
         results = {}
@@ -513,7 +508,7 @@ class TestExecutionOptimizer:
             "success_rate": len(results) / len(tests),
         }
 
-    def generate_optimization_report(self) -> Dict[str, Any]:
+    def generate_optimization_report(self) -> dict[str, Any]:
         """Generate comprehensive optimization report."""
         cache_stats = self.cache_manager.get_cache_stats()
         memory_stats = self.memory_optimizer.monitor_memory_usage()
@@ -536,8 +531,8 @@ class TestExecutionOptimizer:
         }
 
     def _generate_optimization_recommendations(
-        self, cache_stats: Dict, memory_stats: Dict, data_stats: Dict
-    ) -> List[str]:
+        self, cache_stats: dict, memory_stats: dict, data_stats: dict
+    ) -> list[str]:
         """Generate optimization recommendations."""
         recommendations = []
 
@@ -708,7 +703,6 @@ class TestExecutionOptimization:
 
         def performance_test_1():
             # Simulate performance test
-            import numpy as np
 
             data = execution_optimizer.data_optimizer.get_optimized_dataset(500, 8)
             return {"performance": "measured", "data_size": len(data["data"])}

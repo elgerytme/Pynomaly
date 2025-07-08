@@ -118,7 +118,7 @@ class DatasetFactory(factory.Factory):
         """Create dataset with specific dimensions."""
         data = pd.DataFrame({
             f"feature_{i}": [
-                factory.Faker("pyfloat", min_value=0, max_value=100).generate({}) 
+                factory.Faker("pyfloat", min_value=0, max_value=100).generate({})
                 for _ in range(n_samples)
             ]
             for i in range(n_features)
@@ -130,23 +130,23 @@ class DatasetFactory(factory.Factory):
         """Create dataset with known anomalies."""
         n_samples = 1000
         n_anomalies = int(n_samples * contamination_rate)
-        
+
         # Normal data
         normal_data = pd.DataFrame({
             "feature_1": factory.Faker("pyfloat", min_value=0, max_value=10).generate({}) for _ in range(n_samples - n_anomalies),
             "feature_2": factory.Faker("pyfloat", min_value=0, max_value=10).generate({}) for _ in range(n_samples - n_anomalies),
         })
-        
+
         # Anomalous data (outliers)
         anomaly_data = pd.DataFrame({
             "feature_1": factory.Faker("pyfloat", min_value=50, max_value=100).generate({}) for _ in range(n_anomalies),
             "feature_2": factory.Faker("pyfloat", min_value=50, max_value=100).generate({}) for _ in range(n_anomalies),
         })
-        
+
         # Combine and shuffle
         combined_data = pd.concat([normal_data, anomaly_data], ignore_index=True)
         combined_data = combined_data.sample(frac=1).reset_index(drop=True)
-        
+
         return cls(data=combined_data, name="anomaly_test_dataset")
 
 
@@ -159,7 +159,7 @@ class DetectorFactory(factory.Factory):
     id = factory.LazyFunction(uuid4)
     name = factory.Faker("word")
     algorithm_name = fuzzy.FuzzyChoice([
-        "IsolationForest", "LocalOutlierFactor", "OneClassSVM", 
+        "IsolationForest", "LocalOutlierFactor", "OneClassSVM",
         "EllipticEnvelope", "DBSCAN", "AutoEncoder"
     ])
     contamination_rate = factory.SubFactory(ContaminationRateFactory)
@@ -260,7 +260,7 @@ class TrainingResultFactory(factory.Factory):
     training_duration = factory.Faker("pyfloat", min_value=1.0, max_value=300.0)
     is_successful = True
     error_message = None
-    
+
     @factory.lazy_attribute
     def metrics(self) -> dict[str, Any]:
         """Generate training metrics."""

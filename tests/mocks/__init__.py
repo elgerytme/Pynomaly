@@ -12,7 +12,7 @@ from .external_services import (
 __all__ = [
     "MockDatabaseClient",
     "MockHttpClient",
-    "MockMessageQueue", 
+    "MockMessageQueue",
     "MockPrometheusClient",
     "MockRedisClient",
     "MockS3Client",

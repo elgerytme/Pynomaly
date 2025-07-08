@@ -103,7 +103,7 @@ def analyze_endpoints(openapi_schema):
             prefix = path.split("/")[3] if len(path.split("/")) > 3 else "root"
             router_groups[prefix] = router_groups.get(prefix, 0) + 1
 
-    analysis.append(f"📊 Endpoint Analysis:")
+    analysis.append("📊 Endpoint Analysis:")
     for router, count in sorted(router_groups.items()):
         analysis.append(f"  • {router}: {count} endpoints")
 

@@ -3,22 +3,18 @@
 import json
 import os
 import re
-import shutil
 import subprocess
 import sys
 import tempfile
-import threading
 import time
 import traceback
-import warnings
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
-import psutil
 import pytest
 
 
@@ -30,12 +26,12 @@ class ValidationResult:
     test_name: str
     status: str  # passed, failed, skipped, error
     execution_time: float
-    error_message: Optional[str]
-    stack_trace: Optional[str]
+    error_message: str | None
+    stack_trace: str | None
     retry_count: int
     timestamp: datetime
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         result = asdict(self)
         result["timestamp"] = self.timestamp.isoformat()
@@ -53,12 +49,12 @@ class ValidationSummary:
     error_tests: int
     success_rate: float
     execution_time: float
-    categories_tested: List[str]
-    critical_failures: List[str]
-    recommendations: List[str]
+    categories_tested: list[str]
+    critical_failures: list[str]
+    recommendations: list[str]
     timestamp: datetime
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         result = asdict(self)
         result["timestamp"] = self.timestamp.isoformat()
@@ -73,7 +69,7 @@ class TestDiscovery:
         self.test_patterns = ["test_*.py", "*_test.py"]
         self.exclude_patterns = ["__pycache__", "*.pyc", ".pytest_cache", "conftest.py"]
 
-    def discover_all_tests(self) -> Dict[str, List[str]]:
+    def discover_all_tests(self) -> dict[str, list[str]]:
         """Discover all tests organized by category."""
         test_categories = defaultdict(list)
 
@@ -123,7 +119,7 @@ class TestDiscovery:
         else:
             return "misc"
 
-    def get_test_count_by_category(self) -> Dict[str, int]:
+    def get_test_count_by_category(self) -> dict[str, int]:
         """Get count of test files by category."""
         test_categories = self.discover_all_tests()
         return {category: len(files) for category, files in test_categories.items()}
@@ -250,7 +246,7 @@ class TestValidator:
 
     def _parse_pytest_output(
         self, result: subprocess.CompletedProcess
-    ) -> Tuple[str, Optional[str], Optional[str]]:
+    ) -> tuple[str, str | None, str | None]:
         """Parse pytest output to determine status and extract error information."""
         stdout = result.stdout
         stderr = result.stderr
@@ -304,7 +300,7 @@ class TestValidator:
 
         return "Unknown error"
 
-    def _extract_stack_trace(self, stdout: str, stderr: str) -> Optional[str]:
+    def _extract_stack_trace(self, stdout: str, stderr: str) -> str | None:
         """Extract stack trace from pytest output."""
         combined_output = stdout + "\n" + stderr
 
@@ -359,7 +355,7 @@ class ComprehensiveValidator:
         # Generate summary
         return self._generate_summary(test_categories)
 
-    def _validate_parallel(self, test_categories: Dict[str, List[str]]):
+    def _validate_parallel(self, test_categories: dict[str, list[str]]):
         """Validate tests in parallel."""
         max_workers = min(
             8, len([f for files in test_categories.values() for f in files])
@@ -404,7 +400,7 @@ class ComprehensiveValidator:
                     self.validation_results.append(error_result)
                     print(f"✗ {category}/{Path(test_file).name} (validation error)")
 
-    def _validate_sequential(self, test_categories: Dict[str, List[str]]):
+    def _validate_sequential(self, test_categories: dict[str, list[str]]):
         """Validate tests sequentially."""
         for category, test_files in test_categories.items():
             print(f"\nValidating {category} tests ({len(test_files)} files)...")
@@ -417,7 +413,7 @@ class ComprehensiveValidator:
                 print(f"  {status_symbol} {Path(test_file).name} ({result.status})")
 
     def _generate_summary(
-        self, test_categories: Dict[str, List[str]]
+        self, test_categories: dict[str, list[str]]
     ) -> ValidationSummary:
         """Generate validation summary."""
         total_tests = len(self.validation_results)
@@ -455,7 +451,7 @@ class ComprehensiveValidator:
             timestamp=datetime.now(),
         )
 
-    def _generate_recommendations(self) -> List[str]:
+    def _generate_recommendations(self) -> list[str]:
         """Generate recommendations based on validation results."""
         recommendations = []
 
@@ -545,7 +541,7 @@ class ComprehensiveValidator:
 
         return report_path
 
-    def _get_category_breakdown(self) -> Dict[str, Dict[str, int]]:
+    def _get_category_breakdown(self) -> dict[str, dict[str, int]]:
         """Get breakdown of results by category."""
         breakdown = defaultdict(
             lambda: {"passed": 0, "failed": 0, "skipped": 0, "error": 0, "timeout": 0}
@@ -556,7 +552,7 @@ class ComprehensiveValidator:
 
         return dict(breakdown)
 
-    def _get_failure_analysis(self) -> Dict[str, Any]:
+    def _get_failure_analysis(self) -> dict[str, Any]:
         """Get detailed failure analysis."""
         failed_results = [
             r
@@ -591,7 +587,7 @@ class ComprehensiveValidator:
             )[:5],
         }
 
-    def _get_performance_metrics(self) -> Dict[str, float]:
+    def _get_performance_metrics(self) -> dict[str, float]:
         """Get performance metrics for validation."""
         if not self.validation_results:
             return {}
@@ -606,7 +602,7 @@ class ComprehensiveValidator:
             "min_test_time": min(execution_times),
         }
 
-    def _get_detailed_recommendations(self) -> Dict[str, List[str]]:
+    def _get_detailed_recommendations(self) -> dict[str, list[str]]:
         """Get detailed recommendations by category."""
         category_results = defaultdict(list)
         for result in self.validation_results:
@@ -856,7 +852,7 @@ def test_error_test():
             assert saved_path.exists()
 
             # Load and verify report content
-            with open(saved_path, "r") as f:
+            with open(saved_path) as f:
                 report = json.load(f)
 
             assert "validation_summary" in report

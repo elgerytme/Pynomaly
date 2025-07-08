@@ -143,7 +143,6 @@ def test_data_loaders():
 def test_autonomous_service():
     """Test autonomous service import."""
     try:
-
         print("✅ Autonomous service import successful")
 
         # Test configuration class

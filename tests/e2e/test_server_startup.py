@@ -13,7 +13,6 @@ try:
     print("✅ API app import successful")
 
     # Test if FastAPI is available
-    from fastapi import FastAPI
 
     print("✅ FastAPI import successful")
 

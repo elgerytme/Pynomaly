@@ -6,7 +6,6 @@ Tests all Phase 8 components and their integration
 import os
 import sys
 from datetime import datetime
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -205,10 +204,8 @@ class TestPhase8Integration:
 
         try:
             from pynomaly.infrastructure.performance_v2.ultra_high_performance import (
-                OptimizationConfig,
                 OptimizationLevel,
                 UltraHighPerformanceOrchestrator,
-                create_sample_hardware_profile,
             )
 
             config = {
@@ -266,7 +263,6 @@ class TestPhase8Integration:
             from pynomaly.infrastructure.performance_v2.real_time_processing_enhancement import (
                 ProcessingMode,
                 RealTimeProcessingOrchestrator,
-                create_sample_real_time_data,
             )
 
             config = {
@@ -297,9 +293,7 @@ class TestPhase8Integration:
 
         try:
             from pynomaly.infrastructure.performance_v2.resource_optimization import (
-                OptimizationObjective,
                 ResourceOptimizationOrchestrator,
-                create_sample_resource_requirements,
             )
 
             config = {
@@ -335,7 +329,7 @@ class TestPhase8Integration:
         available_count = sum(results.values())
         total_count = len(results)
 
-        print(f"\\n📊 Phase 8 Implementation Status:")
+        print("\\n📊 Phase 8 Implementation Status:")
         print(f"Available: {available_count}/{total_count} components")
         print(f"Completion: {available_count/total_count*100:.1f}%")
 
@@ -358,7 +352,7 @@ def run_phase8_tests():
     results = test_instance.test_phase8_integration_readiness()
 
     # Run functionality tests for available components
-    print(f"\\n🔧 Testing Available Component Functionality:")
+    print("\\n🔧 Testing Available Component Functionality:")
     print("-" * 40)
 
     functionality_results = {}
@@ -397,7 +391,7 @@ def run_phase8_tests():
     missing_components = [k for k, v in results.items() if not v]
 
     if missing_components:
-        print(f"\\n⚠️  Missing Components:")
+        print("\\n⚠️  Missing Components:")
         for component in missing_components:
             print(f"   - {component}")
 
@@ -405,7 +399,7 @@ def run_phase8_tests():
     working_functionality = sum(functionality_results.values())
     total_functionality_tests = len(functionality_results)
 
-    print(f"\\n📋 Phase 8 Test Summary:")
+    print("\\n📋 Phase 8 Test Summary:")
     print(f"   - Tests completed: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"   - Available components: {sum(results.values())}/{len(results)}")
     print(
@@ -419,13 +413,13 @@ def run_phase8_tests():
     )
 
     # Performance characteristics summary
-    print(f"\\n🚀 Phase 8 Performance Characteristics:")
-    print(f"   - Multi-region deployment: Global load balancing, failover")
-    print(f"   - Massive dataset processing: Petabyte-scale, distributed compute")
-    print(f"   - Ultra-high performance: GPU clusters, custom kernels")
-    print(f"   - Advanced caching v2: Multi-tier, intelligent prefetching")
-    print(f"   - Real-time processing: Sub-millisecond latency")
-    print(f"   - Resource optimization: Dynamic allocation, cost optimization")
+    print("\\n🚀 Phase 8 Performance Characteristics:")
+    print("   - Multi-region deployment: Global load balancing, failover")
+    print("   - Massive dataset processing: Petabyte-scale, distributed compute")
+    print("   - Ultra-high performance: GPU clusters, custom kernels")
+    print("   - Advanced caching v2: Multi-tier, intelligent prefetching")
+    print("   - Real-time processing: Sub-millisecond latency")
+    print("   - Resource optimization: Dynamic allocation, cost optimization")
 
     return results
 

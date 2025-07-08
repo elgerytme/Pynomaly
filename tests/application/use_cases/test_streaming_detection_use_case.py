@@ -6,12 +6,10 @@ ensuring proper real-time processing, error handling, and performance characteri
 """
 
 import asyncio
-from datetime import datetime, timedelta, timezone
-from typing import AsyncGenerator, List, Optional
-from unittest.mock import AsyncMock, MagicMock, Mock, patch
+from datetime import UTC, datetime, timedelta
+from unittest.mock import AsyncMock, Mock
 
 import numpy as np
-import pandas as pd
 import pytest
 
 from pynomaly.application.dto.streaming_dto import (
@@ -21,9 +19,6 @@ from pynomaly.application.dto.streaming_dto import (
     StreamDataBatchDTO,
     StreamDataPointDTO,
     StreamDetectionRequestDTO,
-    StreamDetectionResponseDTO,
-    StreamMetricsDTO,
-    StreamStatusDTO,
     WindowConfigDTO,
 )
 from pynomaly.application.use_cases.streaming_detection_use_case import (
@@ -106,7 +101,7 @@ class TestStreamingDetectionUseCase:
     @pytest.fixture
     def sample_data_points(self):
         """Sample data points for testing."""
-        base_time = datetime.now(timezone.utc)
+        base_time = datetime.now(UTC)
         return [
             StreamDataPointDTO(
                 timestamp=base_time + timedelta(seconds=i),
@@ -525,7 +520,7 @@ class TestCheckpointManagement:
         # Setup
         checkpoint_data = {
             "stream_id": sample_configuration.stream_id,
-            "last_processed_timestamp": datetime.now(timezone.utc).isoformat(),
+            "last_processed_timestamp": datetime.now(UTC).isoformat(),
             "metrics": {"messages_processed": 100},
         }
         mock_checkpoint_manager.load_checkpoint.return_value = checkpoint_data
@@ -697,7 +692,7 @@ class TestPerformanceCharacteristics:
 
         # Create large batch for throughput testing
         large_data_points = []
-        base_time = datetime.now(timezone.utc)
+        base_time = datetime.now(UTC)
         for i in range(1000):  # 1000 data points
             point = StreamDataPointDTO(
                 timestamp=base_time + timedelta(milliseconds=i),
@@ -741,7 +736,7 @@ class TestPerformanceCharacteristics:
 
         # Create very large dataset
         large_data_points = []
-        base_time = datetime.now(timezone.utc)
+        base_time = datetime.now(UTC)
         for i in range(10000):  # 10,000 data points
             point = StreamDataPointDTO(
                 timestamp=base_time + timedelta(milliseconds=i),

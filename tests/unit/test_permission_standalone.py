@@ -4,12 +4,10 @@ Standalone test for permission matrix functionality.
 This loads the permission matrix module directly without importing the full package.
 """
 
-import os
 import sys
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Set
 
 
 # Define the UserRole and Permission classes needed by the permission matrix
@@ -37,7 +35,7 @@ permission_matrix_path = (
 )
 
 # Read and execute the permission matrix code
-with open(permission_matrix_path, "r") as f:
+with open(permission_matrix_path) as f:
     code = f.read()
 
 # Replace the import line to use our local definitions
@@ -46,7 +44,6 @@ code = code.replace(
 )
 
 # Create a proper module namespace
-import sys
 import types
 
 permission_module = types.ModuleType("permission_matrix")
@@ -61,9 +58,9 @@ namespace = {
     "Permission": Permission,
     "dataclass": dataclass,
     "Enum": Enum,
-    "Dict": Dict,
-    "Set": Set,
-    "List": List,
+    "Dict": dict,
+    "Set": set,
+    "List": list,
     "__builtins__": __builtins__,
 }
 

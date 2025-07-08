@@ -5,9 +5,6 @@ This module provides comprehensive tests for the A/B testing service,
 ensuring proper experiment design, statistical analysis, and result interpretation.
 """
 
-from unittest.mock import AsyncMock, Mock
-
-import pytest
 
 # TODO: Import actual service when implementation is complete
 # from src.pynomaly.application.services.model_ab_testing_service import ModelABTestingService

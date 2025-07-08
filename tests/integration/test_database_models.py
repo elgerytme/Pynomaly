@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """Test that database models can be created without import errors."""
 
-import sqlite3
 import sys
 from pathlib import Path
 
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 # Add the src directory to the path
@@ -20,7 +19,6 @@ try:
         RoleModel,
         TenantModel,
         UserModel,
-        UserRoleModel,
     )
 
     print("✓ Successfully imported all database models")

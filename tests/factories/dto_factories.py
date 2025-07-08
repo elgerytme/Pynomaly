@@ -10,12 +10,12 @@ from factory import fuzzy
 
 try:
     from pynomaly.application.dto.detection_dto import (
+        AnomalyDTO,
         DetectionRequestDTO,
         DetectionResultDTO,
         ExplanationRequestDTO,
         TrainingRequestDTO,
         TrainingResultDTO,
-        AnomalyDTO,
     )
 except ImportError:
     # Fallback for missing modules

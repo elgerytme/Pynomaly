@@ -1,9 +1,5 @@
 """Integration tests for CI/CD pipeline system."""
 
-import asyncio
-import json
-from datetime import datetime, timedelta
-from pathlib import Path
 from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
@@ -627,7 +623,7 @@ class TestCICDErrorScenarios:
         ) as mock_subprocess:
             mock_process = AsyncMock()
             mock_process.returncode = 1
-            mock_process.communicate.side_effect = asyncio.TimeoutError("Test timeout")
+            mock_process.communicate.side_effect = TimeoutError("Test timeout")
             mock_subprocess.return_value = mock_process
 
             success = await test_runner.execute_test_suite(

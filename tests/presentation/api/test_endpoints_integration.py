@@ -1,6 +1,5 @@
 """Integration tests for API endpoints with real algorithms."""
 
-import json
 from unittest.mock import Mock
 
 import numpy as np

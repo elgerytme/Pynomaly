@@ -8,7 +8,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID, uuid4
 
 import numpy as np
-import pandas as pd
 import pytest
 from sklearn.ensemble import IsolationForest
 
@@ -17,11 +16,9 @@ from pynomaly.application.services.advanced_ml_lifecycle_service import (
 )
 from pynomaly.domain.entities import (
     Experiment,
-    ExperimentRun,
     ExperimentStatus,
     ExperimentType,
     Model,
-    ModelStatus,
     ModelVersion,
 )
 from pynomaly.domain.value_objects import (
@@ -570,7 +567,6 @@ class TestUtilities:
             patch("psutil.virtual_memory") as mock_memory,
             patch("psutil.disk_usage") as mock_disk,
         ):
-
             mock_memory.return_value.total = 8 * 1024**3  # 8GB
             mock_disk.return_value.total = 500 * 1024**3  # 500GB
 

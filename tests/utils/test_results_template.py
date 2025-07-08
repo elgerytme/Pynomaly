@@ -132,15 +132,13 @@ class TestResult:
     test_name: str
     test_type: TestType
     status: TestStatus
+    configuration: TestConfiguration
+    environment: TestEnvironment
 
     # Timestamps
     start_time: datetime
     end_time: datetime | None = None
     duration_seconds: float | None = None
-
-    # Test configuration
-    configuration: TestConfiguration
-    environment: TestEnvironment
 
     # Results
     quality_metrics: QualityMetrics | None = None

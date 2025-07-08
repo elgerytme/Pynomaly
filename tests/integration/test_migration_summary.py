@@ -16,7 +16,7 @@ def test_migration_files():
 
     # Test 1: auth_deps.py exists and has required functions
     try:
-        with open("src/pynomaly/presentation/api/auth_deps.py", "r") as f:
+        with open("src/pynomaly/presentation/api/auth_deps.py") as f:
             content = f.read()
 
         required_functions = [
@@ -53,7 +53,7 @@ def test_endpoint_migrations():
 
     for file_path in migrated_files:
         try:
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 content = f.read()
 
             # Check if file uses simplified auth
@@ -81,7 +81,7 @@ def test_app_router_inclusion():
     test_results = []
 
     try:
-        with open("src/pynomaly/presentation/api/app.py", "r") as f:
+        with open("src/pynomaly/presentation/api/app.py") as f:
             content = f.read()
 
         # Check for active router inclusions (not commented out)
@@ -124,7 +124,7 @@ def test_app_router_inclusion():
 def count_endpoints_from_app():
     """Count endpoints by checking app.py routers"""
     try:
-        with open("src/pynomaly/presentation/api/app.py", "r") as f:
+        with open("src/pynomaly/presentation/api/app.py") as f:
             content = f.read()
 
         # Count include_router lines that are not commented
@@ -178,7 +178,7 @@ def main():
 
     # Additional info
     router_count = count_endpoints_from_app()
-    print(f"\n📈 Migration Statistics:")
+    print("\n📈 Migration Statistics:")
     print(f"  • Active routers in app.py: {router_count}")
     print(f"  • Migration tests passed: {passed}")
     print(f"  • Migration tests failed: {failed}")

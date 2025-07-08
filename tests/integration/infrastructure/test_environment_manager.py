@@ -467,7 +467,7 @@ class TestEnvironmentManager:
                 <p>Command: {matrix_results['test_command']}</p>
                 <p>Generated on {time.strftime('%Y-%m-%d %H:%M:%S')}</p>
             </div>
-            
+
             <div class="summary">
                 <div class="metric">
                     <h3>Total Environments</h3>
@@ -486,7 +486,7 @@ class TestEnvironmentManager:
                     <div style="font-size: 24px; font-weight: bold; color: #fd7e14;">{matrix_results['summary']['errors']}</div>
                 </div>
             </div>
-            
+
             <h2>Environment Results</h2>
             <table>
                 <thead>

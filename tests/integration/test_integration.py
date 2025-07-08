@@ -1,11 +1,8 @@
 """Integration tests for Pynomaly major workflows."""
 
-from unittest.mock import MagicMock, patch
-
 import numpy as np
 import pandas as pd
 import pytest
-from fastapi.testclient import TestClient
 
 from pynomaly.application.use_cases.detect_anomalies import DetectAnomaliesUseCase
 from pynomaly.application.use_cases.train_detector import TrainDetectorUseCase

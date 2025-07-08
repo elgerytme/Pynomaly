@@ -1,7 +1,6 @@
 """Tests for drift detection service."""
 
 from datetime import datetime, timedelta
-from unittest.mock import AsyncMock, Mock
 
 import numpy as np
 import pytest

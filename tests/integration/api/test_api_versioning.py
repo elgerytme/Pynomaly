@@ -19,7 +19,7 @@ def test_api_versioning():
         print("❌ app.py file not found!")
         return False
 
-    with open(app_file_path, "r") as f:
+    with open(app_file_path) as f:
         content = f.read()
 
     # Test 1: Check for versioned FastAPI configuration

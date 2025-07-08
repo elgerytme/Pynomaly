@@ -6,13 +6,10 @@ to ensure robust deployment across various environments.
 """
 
 import importlib
-import json
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
-from unittest.mock import MagicMock, Mock, patch
 
 import numpy as np
 import pandas as pd
@@ -594,7 +591,6 @@ class TestPythonDistributionCompatibility:
 
             # Test global interpreter lock behavior
             import threading
-            import time
 
             def cpu_bound_task():
                 total = 0

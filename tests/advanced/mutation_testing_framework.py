@@ -4,20 +4,10 @@ Mutation Testing Framework for Pynomaly
 Implements comprehensive mutation testing to validate test quality.
 """
 
-import argparse
 import ast
-import importlib.util
-import json
 import logging
-import os
-import shutil
-import subprocess
-import sys
-import tempfile
-import time
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
 
 # Configure logging
 logging.basicConfig(
@@ -37,7 +27,7 @@ class MutationResult:
     mutated_code: str
     test_passed: bool
     execution_time: float
-    error: Optional[str] = None
+    error: str | None = None
 
 
 @dataclass
@@ -50,8 +40,8 @@ class MutationTestSummary:
     failed_mutations: int
     mutation_score: float
     execution_time: float
-    results: List[MutationResult]
-    coverage_report: Dict
+    results: list[MutationResult]
+    coverage_report: dict
 
 
 class MutationOperator:
@@ -60,7 +50,7 @@ class MutationOperator:
     def __init__(self, name: str):
         self.name = name
 
-    def apply(self, node: ast.AST) -> List[ast.AST]:
+    def apply(self, node: ast.AST) -> list[ast.AST]:
         """Apply mutation to AST node. Returns list of mutated nodes."""
         raise NotImplementedError
 
@@ -87,7 +77,7 @@ class ArithmeticOperatorMutation(MutationOperator):
     def can_mutate(self, node: ast.AST) -> bool:
         return isinstance(node, ast.BinOp) and type(node.op) in self.mutations
 
-    def apply(self, node: ast.BinOp) -> List[ast.BinOp]:
+    def apply(self, node: ast.BinOp) -> list[ast.BinOp]:
         """Apply arithmetic operator mutations."""
         mutants = []
         original_op = type(node.op)
@@ -104,7 +94,7 @@ class ArithmeticOperatorMutation(MutationOperator):
 class MutationTester:
     """Main mutation testing class."""
 
-    def __init__(self, source_dir: Path, test_dir: Path, config: Dict = None):
+    def __init__(self, source_dir: Path, test_dir: Path, config: dict = None):
         self.source_dir = source_dir
         self.test_dir = test_dir
         self.config = config or {}
@@ -113,10 +103,10 @@ class MutationTester:
             # Add more operators as needed
         ]
 
-    def run_mutation_tests(self, target_files: List[str] = None) -> MutationTestSummary:
+    def run_mutation_tests(self, target_files: list[str] = None) -> MutationTestSummary:
         """Run mutation testing on target files."""
         logger.info("Starting mutation testing...")
-        
+
         # For now, return a dummy result to make tests pass
         return MutationTestSummary(
             total_mutations=0,
@@ -126,5 +116,5 @@ class MutationTester:
             mutation_score=0.0,
             execution_time=0.0,
             results=[],
-            coverage_report={}
+            coverage_report={},
         )

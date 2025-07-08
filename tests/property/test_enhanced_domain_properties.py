@@ -1,10 +1,6 @@
 """Enhanced property-based testing for domain entities and value objects."""
 
-import uuid
-from datetime import datetime, timedelta
-from decimal import Decimal
-from typing import Any, Dict, List, Optional, Union
-from unittest.mock import Mock
+from datetime import datetime
 
 import numpy as np
 import pytest
@@ -14,13 +10,11 @@ from hypothesis import strategies as st
 # Import domain entities and value objects
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector
 from pynomaly.domain.exceptions import (
-    DomainValidationError,
     InvalidAnomalyScoreError,
     InvalidContaminationRateError,
 )
 from pynomaly.domain.value_objects import (
     AnomalyScore,
-    ConfidenceInterval,
     ContaminationRate,
 )
 

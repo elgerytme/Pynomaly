@@ -1,12 +1,6 @@
 #!/usr/bin/env python3
 """Simple test to verify authentication refactoring works."""
 
-import hashlib
-import uuid
-from datetime import datetime
-
-import pytest
-
 
 # Test the user models independently
 def test_user_models_import():
@@ -44,7 +38,6 @@ def test_auth_jwt_service():
 
 def test_create_require_role_dependency():
     """Test creating role-based dependency functions."""
-    from fastapi import HTTPException
 
     from src.pynomaly.infrastructure.auth.middleware import PermissionChecker
 

@@ -9,13 +9,13 @@ import json
 import multiprocessing as mp
 import tempfile
 import time
-import yaml
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pytest
+import yaml
 
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.value_objects import AnomalyScore
@@ -25,20 +25,27 @@ from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 def load_performance_config():
     """Load performance configuration from YAML file."""
     try:
-        with open('scripts/performance/performance_config.yml', 'r') as file:
+        with open("scripts/performance/performance_config.yml") as file:
             return yaml.safe_load(file)
     except FileNotFoundError:
         return {}
 
 
-def get_threshold(config, category, metric, default, algorithm='IsolationForest'):
+def get_threshold(config, category, metric, default, algorithm="IsolationForest"):
     """Get threshold value from config or return default."""
-    return config.get('algorithm_thresholds', {}).get(algorithm, {}).get(category, {}).get(metric, default)
+    return (
+        config.get("algorithm_thresholds", {})
+        .get(algorithm, {})
+        .get(category, {})
+        .get(metric, default)
+    )
 
 
 def get_performance_threshold(config, category, metric, default):
     """Get performance threshold value from config or return default."""
-    return config.get('performance_thresholds', {}).get(category, {}).get(metric, default)
+    return (
+        config.get("performance_thresholds", {}).get(category, {}).get(metric, default)
+    )
 
 
 class TestTrainingPerformanceRegression:
@@ -110,14 +117,26 @@ class TestTrainingPerformanceRegression:
                 }
 
                 # Performance thresholds based on dataset size
-                default_time_threshold = {'small': 5.0, 'medium': 30.0, 'large': 120.0, 'wide': 60.0}
-                time_threshold = get_threshold(config, 'execution_time', 'max_execution_time_seconds', default_time_threshold[dataset_name])
+                default_time_threshold = {
+                    "small": 5.0,
+                    "medium": 30.0,
+                    "large": 120.0,
+                    "wide": 60.0,
+                }
+                time_threshold = get_threshold(
+                    config,
+                    "execution_time",
+                    "max_execution_time_seconds",
+                    default_time_threshold[dataset_name],
+                )
                 assert (
                     training_time < time_threshold
                 ), f"{dataset_name.capitalize()} dataset training too slow: {training_time}s"
 
                 # Throughput should be reasonable
-                min_throughput = get_performance_threshold(config, 'throughput', 'min_throughput_samples_per_second', 100)
+                min_throughput = get_performance_threshold(
+                    config, "throughput", "min_throughput_samples_per_second", 100
+                )
                 samples_per_second = dataset.n_samples / training_time
                 assert (
                     samples_per_second > min_throughput
@@ -156,8 +175,14 @@ class TestTrainingPerformanceRegression:
                 training_time = time.time() - start_time
 
                 # LOF performance thresholds (more lenient)
-                default_time_threshold = {'small': 10.0, 'medium': 60.0}
-                time_threshold = get_threshold(config, 'execution_time', 'max_execution_time_seconds', default_time_threshold[dataset_name], 'LocalOutlierFactor')
+                default_time_threshold = {"small": 10.0, "medium": 60.0}
+                time_threshold = get_threshold(
+                    config,
+                    "execution_time",
+                    "max_execution_time_seconds",
+                    default_time_threshold[dataset_name],
+                    "LocalOutlierFactor",
+                )
                 assert (
                     training_time < time_threshold
                 ), f"LOF {dataset_name} dataset training too slow: {training_time}s"
@@ -276,7 +301,9 @@ class TestInferencePerformanceRegression:
             inference_time = time.time() - start_time
 
             # Single sample inference should be very fast
-            single_sample_threshold = get_performance_threshold(config, 'execution_time', 'single_sample_max_seconds', 1.0)
+            single_sample_threshold = get_performance_threshold(
+                config, "execution_time", "single_sample_max_seconds", 1.0
+            )
             assert (
                 inference_time < single_sample_threshold
             ), f"{model_name} single sample inference too slow: {inference_time}s"
@@ -305,13 +332,20 @@ class TestInferencePerformanceRegression:
 
                     # Performance thresholds
                     default_thresholds = {100: 2.0, 1000: 10.0, 5000: 30.0}
-                    time_threshold = get_performance_threshold(config, 'execution_time', f'batch_{batch_size}_max_seconds', default_thresholds[batch_size])
+                    time_threshold = get_performance_threshold(
+                        config,
+                        "execution_time",
+                        f"batch_{batch_size}_max_seconds",
+                        default_thresholds[batch_size],
+                    )
                     assert (
                         inference_time < time_threshold
                     ), f"{model_name} batch {batch_size} inference too slow: {inference_time}s"
 
                     # Throughput should be reasonable
-                    min_throughput = get_performance_threshold(config, 'throughput', 'min_throughput_samples_per_second', 50)
+                    min_throughput = get_performance_threshold(
+                        config, "throughput", "min_throughput_samples_per_second", 50
+                    )
                     assert (
                         throughput > min_throughput
                     ), f"{model_name} throughput too low: {throughput} samples/s"
@@ -427,20 +461,35 @@ class TestMemoryPerformanceRegression:
 
                 # Memory usage should be reasonable
                 config = load_performance_config()
-                default_memory_thresholds = {'small': 100, 'medium': 500, 'wide': 200}
-                memory_threshold = config.get('performance_thresholds', {}).get('memory_usage', {}).get(f'{dataset_name}_max_memory_mb', default_memory_thresholds[dataset_name])
+                default_memory_thresholds = {"small": 100, "medium": 500, "wide": 200}
+                memory_threshold = (
+                    config.get("performance_thresholds", {})
+                    .get("memory_usage", {})
+                    .get(
+                        f"{dataset_name}_max_memory_mb",
+                        default_memory_thresholds[dataset_name],
+                    )
+                )
                 assert (
                     training_mb < memory_threshold
                 ), f"{dataset_name.capitalize()} dataset training uses too much memory: {training_mb} MB"
 
                 # Scoring should not significantly increase memory
-                scoring_threshold = config.get('performance_thresholds', {}).get('memory_usage', {}).get('scoring_max_memory_mb', 50)
+                scoring_threshold = (
+                    config.get("performance_thresholds", {})
+                    .get("memory_usage", {})
+                    .get("scoring_max_memory_mb", 50)
+                )
                 assert (
                     scoring_mb < scoring_threshold
                 ), f"Scoring increases memory too much: {scoring_mb} MB"
 
                 # Memory leak should be minimal
-                leak_threshold = config.get('performance_thresholds', {}).get('memory_usage', {}).get('leak_max_memory_mb', 20)
+                leak_threshold = (
+                    config.get("performance_thresholds", {})
+                    .get("memory_usage", {})
+                    .get("leak_max_memory_mb", 20)
+                )
                 assert leak_mb < leak_threshold, f"Memory leak detected: {leak_mb} MB"
 
             except ImportError:
@@ -511,14 +560,24 @@ class TestMemoryPerformanceRegression:
 
         # Concurrent memory usage should not be excessive
         config = load_performance_config()
-        concurrent_threshold = config.get('performance_thresholds', {}).get('memory_usage', {}).get('concurrent_max_memory_mb', 300)
+        concurrent_threshold = (
+            config.get("performance_thresholds", {})
+            .get("memory_usage", {})
+            .get("concurrent_max_memory_mb", 300)
+        )
         assert (
             concurrent_mb < concurrent_threshold
         ), f"Concurrent operations use too much memory: {concurrent_mb} MB"
 
         # Memory leak should be minimal
-        concurrent_leak_threshold = config.get('performance_thresholds', {}).get('memory_usage', {}).get('concurrent_leak_max_memory_mb', 50)
-        assert leak_mb < concurrent_leak_threshold, f"Concurrent operations cause memory leak: {leak_mb} MB"
+        concurrent_leak_threshold = (
+            config.get("performance_thresholds", {})
+            .get("memory_usage", {})
+            .get("concurrent_leak_max_memory_mb", 50)
+        )
+        assert (
+            leak_mb < concurrent_leak_threshold
+        ), f"Concurrent operations cause memory leak: {leak_mb} MB"
 
 
 class TestConcurrencyPerformanceRegression:
@@ -570,7 +629,9 @@ class TestConcurrencyPerformanceRegression:
 
             # Concurrent inference should not be significantly slower
             config = load_performance_config()
-            max_slowdown_ratio = get_performance_threshold(config, 'concurrency', 'max_slowdown_ratio', 3.0)
+            max_slowdown_ratio = get_performance_threshold(
+                config, "concurrency", "max_slowdown_ratio", 3.0
+            )
             slowdown_ratio = avg_concurrent_time / avg_sequential_time
             assert (
                 slowdown_ratio < max_slowdown_ratio
@@ -630,15 +691,70 @@ class TestConcurrencyPerformanceRegression:
 
         # Parallel processing should provide some speedup
         config = load_performance_config()
-        min_speedup = get_performance_threshold(config, 'concurrency', 'min_multiprocessing_speedup', 0.8)
+        min_speedup = get_performance_threshold(
+            config, "concurrency", "min_multiprocessing_speedup", 0.8
+        )
         speedup = sequential_time / parallel_time
-        assert speedup > min_speedup, f"Multiprocessing provides no benefit: {speedup}x speedup"
+        assert (
+            speedup > min_speedup
+        ), f"Multiprocessing provides no benefit: {speedup}x speedup"
 
         # Should not be slower than sequential (accounting for overhead)
-        max_overhead_ratio = get_performance_threshold(config, 'concurrency', 'max_multiprocessing_overhead_ratio', 1.5)
+        max_overhead_ratio = get_performance_threshold(
+            config, "concurrency", "max_multiprocessing_overhead_ratio", 1.5
+        )
         assert (
             parallel_time < sequential_time * max_overhead_ratio
         ), "Multiprocessing significantly slower than sequential"
+
+
+class TestC003PerformanceRegression:
+    """Test C-003 performance regression for model selection."""
+
+    def test_model_selection_performance_regression(self):
+        """Test model selection performance regression (C-003)."""
+        from pynomaly.domain.services.model_selector import ModelSelector, ModelCandidate
+        from pynomaly.domain.services.statistical_tester import StatisticalTester
+        
+        # Create test candidates
+        candidates = [
+            ModelCandidate(f"model_{i}", f"alg_{i}", {"f1_score": 0.8 + i * 0.01}, {}, {})
+            for i in range(100)  # Test with 100 candidates
+        ]
+        
+        # Measure selection time
+        selector = ModelSelector()
+        start_time = time.time()
+        best_model = selector.select_best_model(candidates)
+        selection_time = time.time() - start_time
+        
+        # Test statistical comparison performance
+        tester = StatisticalTester()
+        models_metrics = {
+            f"model_{i}": {"f1_score": 0.8 + i * 0.01}
+            for i in range(10)  # Test with 10 models for statistical comparison
+        }
+        
+        start_time = time.time()
+        comparison_results = tester.comprehensive_comparison(models_metrics)
+        comparison_time = time.time() - start_time
+        
+        # Performance thresholds
+        config = load_performance_config()
+        selection_threshold = get_performance_threshold(
+            config, "model_selection", "selection_max_seconds", 1.0
+        )
+        comparison_threshold = get_performance_threshold(
+            config, "model_selection", "comparison_max_seconds", 5.0
+        )
+        
+        assert selection_time < selection_threshold, f"Model selection too slow: {selection_time}s"
+        assert comparison_time < comparison_threshold, f"Statistical comparison too slow: {comparison_time}s"
+        
+        # Verify results
+        assert best_model is not None
+        assert "pairwise_comparisons" in comparison_results
+        assert "summary" in comparison_results
 
 
 class TestIOPerformanceRegression:
@@ -686,8 +802,16 @@ class TestIOPerformanceRegression:
 
             # Performance thresholds
             config = load_performance_config()
-            serialize_threshold = config.get('performance_thresholds', {}).get('io', {}).get('serialization_max_seconds', 5.0)
-            deserialize_threshold = config.get('performance_thresholds', {}).get('io', {}).get('deserialization_max_seconds', 3.0)
+            serialize_threshold = (
+                config.get("performance_thresholds", {})
+                .get("io", {})
+                .get("serialization_max_seconds", 5.0)
+            )
+            deserialize_threshold = (
+                config.get("performance_thresholds", {})
+                .get("io", {})
+                .get("deserialization_max_seconds", 3.0)
+            )
             assert (
                 serialization_time < serialize_threshold
             ), f"Model serialization too slow: {serialization_time}s"
@@ -713,8 +837,16 @@ class TestIOPerformanceRegression:
                 joblib_deserialize_time = time.time() - start_time
 
                 # Joblib should be reasonably fast
-                joblib_serialize_threshold = config.get('performance_thresholds', {}).get('io', {}).get('joblib_serialization_max_seconds', 5.0)
-                joblib_deserialize_threshold = config.get('performance_thresholds', {}).get('io', {}).get('joblib_deserialization_max_seconds', 3.0)
+                joblib_serialize_threshold = (
+                    config.get("performance_thresholds", {})
+                    .get("io", {})
+                    .get("joblib_serialization_max_seconds", 5.0)
+                )
+                joblib_deserialize_threshold = (
+                    config.get("performance_thresholds", {})
+                    .get("io", {})
+                    .get("joblib_deserialization_max_seconds", 3.0)
+                )
                 assert (
                     joblib_serialize_time < joblib_serialize_threshold
                 ), f"Joblib serialization too slow: {joblib_serialize_time}s"
@@ -770,11 +902,25 @@ class TestIOPerformanceRegression:
             config = load_performance_config()
             default_write_thresholds = {1000: 2.0, 10000: 5.0, 50000: 15.0}
             default_read_thresholds = {1000: 1.0, 10000: 3.0, 50000: 10.0}
-            
+
             size_key = min(default_write_thresholds.keys(), key=lambda x: abs(x - size))
-            write_threshold = config.get('performance_thresholds', {}).get('io', {}).get(f'csv_write_{size_key}_max_seconds', default_write_thresholds[size_key])
-            read_threshold = config.get('performance_thresholds', {}).get('io', {}).get(f'csv_read_{size_key}_max_seconds', default_read_thresholds[size_key])
-            
+            write_threshold = (
+                config.get("performance_thresholds", {})
+                .get("io", {})
+                .get(
+                    f"csv_write_{size_key}_max_seconds",
+                    default_write_thresholds[size_key],
+                )
+            )
+            read_threshold = (
+                config.get("performance_thresholds", {})
+                .get("io", {})
+                .get(
+                    f"csv_read_{size_key}_max_seconds",
+                    default_read_thresholds[size_key],
+                )
+            )
+
             assert (
                 csv_write_time < write_threshold
             ), f"CSV write too slow for {size} rows: {csv_write_time}s"

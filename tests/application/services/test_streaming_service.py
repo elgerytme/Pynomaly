@@ -5,14 +5,14 @@ This module provides comprehensive tests for the streaming service,
 ensuring proper real-time data processing and anomaly detection capabilities.
 """
 
-from unittest.mock import AsyncMock, Mock
+from tests.utils.extras_testing import requires_streaming
 
-import pytest
 
 # TODO: Import actual service when implementation is complete
 # from src.pynomaly.application.services.streaming_service import StreamingService
 
 
+@pytest.mark.requires_streaming
 class TestStreamingService:
     """Test cases for StreamingService."""
 

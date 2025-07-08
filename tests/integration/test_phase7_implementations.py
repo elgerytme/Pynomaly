@@ -6,7 +6,6 @@ Tests all Phase 7 components and their integration
 import os
 import sys
 from datetime import datetime
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -199,7 +198,7 @@ class TestPhase7Integration:
         available_count = sum(results.values())
         total_count = len(results)
 
-        print(f"\n📊 Phase 7 Implementation Status:")
+        print("\n📊 Phase 7 Implementation Status:")
         print(f"Available: {available_count}/{total_count} components")
         print(f"Completion: {available_count/total_count*100:.1f}%")
 
@@ -222,7 +221,7 @@ def run_phase7_tests():
     results = test_instance.test_phase7_integration_readiness()
 
     # Run functionality tests for available components
-    print(f"\n🔧 Testing Available Component Functionality:")
+    print("\n🔧 Testing Available Component Functionality:")
     print("-" * 40)
 
     if results["explainable_ai"]:
@@ -235,11 +234,11 @@ def run_phase7_tests():
     missing_components = [k for k, v in results.items() if not v]
 
     if missing_components:
-        print(f"\n⚠️  Missing Components Need Recreation:")
+        print("\n⚠️  Missing Components Need Recreation:")
         for component in missing_components:
             print(f"   - {component}")
 
-    print(f"\n📋 Phase 7 Test Summary:")
+    print("\n📋 Phase 7 Test Summary:")
     print(f"   - Tests completed: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"   - Available components: {sum(results.values())}/{len(results)}")
     print(f"   - Ready for Phase 8: {'Yes' if sum(results.values()) >= 5 else 'No'}")
