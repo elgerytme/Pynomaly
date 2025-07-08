@@ -273,6 +273,22 @@ class VisualizationDashboardService:
 
         return series
 
+    def _get_heatmap_color(self, value: float, max_value: float) -> str:
+        """Get color for heatmap based on value intensity."""
+        intensity = value / max_value if max_value > 0 else 0
+        
+        # Blue gradient for heatmap
+        if intensity < 0.2:
+            return "#e0f3f8"
+        elif intensity < 0.4:
+            return "#abd9e9"
+        elif intensity < 0.6:
+            return "#74add1"
+        elif intensity < 0.8:
+            return "#4575b4"
+        else:
+            return "#313695"
+
     def _build_chart_payload(
         self,
         chart_id: str,

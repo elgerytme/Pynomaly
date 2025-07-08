@@ -72,6 +72,11 @@ class TrainingRepositoryProtocol(ABC):
         """Get all training jobs for a specific detector."""
         pass
 
+    @abstractmethod
+    async def save_comparison_artifacts(self, job_id: str, artifacts: Dict[str, Any]) -> None:
+        """Save comparison artifacts for a training job."""
+        pass
+
 
 class OptimizationTrialRepositoryProtocol(ABC):
     """Protocol for optimization trial repositories."""
@@ -107,6 +112,7 @@ class InMemoryTrainingRepository(TrainingRepositoryProtocol):
 
     def __init__(self):
         self._jobs: Dict[str, TrainingJob] = {}
+        self._comparison_artifacts: Dict[str, Dict[str, Any]] = {}
         self._lock = asyncio.Lock()
 
     async def save_job(self, job: TrainingJob) -> None:
@@ -183,6 +189,12 @@ class InMemoryTrainingRepository(TrainingRepositoryProtocol):
 
         jobs.sort(key=lambda j: j.created_at, reverse=True)
         return jobs
+
+    async def save_comparison_artifacts(self, job_id: str, artifacts: Dict[str, Any]) -> None:
+        """Save comparison artifacts for a training job."""
+        async with self._lock:
+            self._comparison_artifacts[job_id] = artifacts
+            logger.debug(f"Saved comparison artifacts for job {job_id}")
 
 
 class InMemoryOptimizationTrialRepository(OptimizationTrialRepositoryProtocol):
