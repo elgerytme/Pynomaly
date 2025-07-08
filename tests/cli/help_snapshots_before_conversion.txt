@@ -1,0 +1,54 @@
+=== SECURITY CLI HELP OUTPUT ===
+Usage: python -m pynomaly.presentation.cli.security 
+           [OPTIONS] COMMAND [ARGS]...
+
+  Security and compliance management commands.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  anonymize-data         Anonymize data for privacy compliance.
+  assess-compliance      Assess compliance with regulatory...
+  cleanup                Clean up expired data per retention...
+  detect-breach          Detect potential data breaches from...
+  encrypt-data           Encrypt sensitive data with compliance...
+  gdpr-request           Handle GDPR data subject rights requests.
+  register-data-subject  Register data subject for GDPR...
+  status                 Get overall security and compliance...
+
+=== DASHBOARD CLI HELP OUTPUT ===
+Usage: python -m pynomaly.presentation.cli.dashboard 
+           [OPTIONS] COMMAND [ARGS]...
+
+  Visualization dashboard management commands.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  cleanup   Clean up dashboard service resources.
+  compare   Compare dashboard metrics across different time...
+  export    Export dashboard to various formats.
+  generate  Generate comprehensive visualization dashboard.
+  monitor   Start real-time dashboard monitoring.
+  status    Show dashboard service status and active dashboards.
+
+=== GOVERNANCE CLI HELP OUTPUT ===
+Usage: python -m pynomaly.presentation.cli.governance 
+           [OPTIONS] COMMAND [ARGS]...
+
+  Governance framework and audit management commands.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  approve-change    Approve or reject change request.
+  assess-risk       Conduct comprehensive risk assessment.
+  audit-report      Generate comprehensive audit trail report.
+  create-policy     Create new governance policy.
+  dashboard         Display comprehensive governance dashboard.
+  log-event         Log governance audit event.
+  submit-change     Submit change management request.
+  track-compliance  Track compliance metric and performance.

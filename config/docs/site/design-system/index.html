@@ -1,0 +1,1934 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="State-of-the-art Python anomaly detection platform">
+      
+      
+        <meta name="author" content="Pynomaly Team">
+      
+      
+        <link rel="canonical" href="https://pynomaly.readthedocs.io/design-system/">
+      
+      
+      
+      
+      <link rel="icon" href="../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>Pynomaly Design System Documentation - Pynomaly Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pynomaly-design-system-documentation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Pynomaly Documentation" class="md-header__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pynomaly Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Pynomaly Design System Documentation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Pynomaly Documentation" class="md-nav__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    Pynomaly Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Start
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/FEATURE_INSTALLATION_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Feature Installation Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎨 Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      📋 Table of Contents
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#design-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 Design Principles
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎯 Design Principles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#accessibility-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      Accessibility First
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-optimized" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Optimized
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#developer-experience" class="md-nav__link">
+    <span class="md-ellipsis">
+      Developer Experience
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#consistency-and-cohesion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Consistency and Cohesion
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#foundation" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎨 Foundation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎨 Foundation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#colors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Colors
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Colors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#primary-palette" class="md-nav__link">
+    <span class="md-ellipsis">
+      Primary Palette
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#semantic-colors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Semantic Colors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#neutral-palette" class="md-nav__link">
+    <span class="md-ellipsis">
+      Neutral Palette
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#color-usage-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      Color Usage Guidelines
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#typography" class="md-nav__link">
+    <span class="md-ellipsis">
+      Typography
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Typography">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#font-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      Font Stack
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      Type Scale
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#typography-accessibility-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      Typography Accessibility Guidelines
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spacing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Spacing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Spacing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#8pt-grid-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      8pt Grid System
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spacing-usage-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      Spacing Usage Guidelines
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      Layout
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Layout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#grid-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      Grid System
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#responsive-breakpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Responsive Breakpoints
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#components" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧩 Components
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧩 Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#component-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      Component Categories
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Component Categories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Core Components
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Components
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#layout-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Layout Components
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#component-design-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      Component Design Tokens
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Component Design Tokens">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shadows" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shadows
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#border-radius" class="md-nav__link">
+    <span class="md-ellipsis">
+      Border Radius
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transitions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#accessibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      ♿ Accessibility
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="♿ Accessibility">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#wcag-21-aa-compliance" class="md-nav__link">
+    <span class="md-ellipsis">
+      WCAG 2.1 AA Compliance
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="WCAG 2.1 AA Compliance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#color-contrast-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Color Contrast Requirements
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#touch-target-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Touch Target Requirements
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keyboard-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Keyboard Navigation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#screen-reader-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      Screen Reader Support
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accessibility-testing-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      Accessibility Testing Tools
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Accessibility Testing Tools">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automated-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automated Testing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manual-testing-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manual Testing Checklist
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#responsive-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      📱 Responsive Design
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📱 Responsive Design">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mobile-first-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mobile-First Approach
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#responsive-typography" class="md-nav__link">
+    <span class="md-ellipsis">
+      Responsive Typography
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#touch-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Touch Optimization
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 Performance
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚀 Performance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-web-vitals-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Core Web Vitals Optimization
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core Web Vitals Optimization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#largest-contentful-paint-lcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Largest Contentful Paint (LCP)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#first-input-delay-fid" class="md-nav__link">
+    <span class="md-ellipsis">
+      First Input Delay (FID)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cumulative-layout-shift-cls" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cumulative Layout Shift (CLS)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Best Practices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#css-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      CSS Optimization
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#javascript-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      JavaScript Optimization
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#asset-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Asset Optimization
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      🛠️ Implementation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🛠️ Implementation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting Started
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting Started">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Installation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tailwind-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tailwind Configuration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#development-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Development Workflow
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Development Workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#component-development" class="md-nav__link">
+    <span class="md-ellipsis">
+      Component Development
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quality-assurance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quality Assurance
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integration Guidelines
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Integration Guidelines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#html-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      HTML Structure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#css-utilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      CSS Utilities
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#javascript-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      JavaScript Integration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resources-and-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 Resources and References
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📚 Resources and References">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#design-system-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      Design System Tools
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accessibility-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Accessibility Resources
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Resources
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#development-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Development Resources
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎉 Get Started
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔗 Related Documentation
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="pynomaly-design-system-documentation">Pynomaly Design System Documentation<a class="headerlink" href="#pynomaly-design-system-documentation" title="Permanent link">&para;</a></h1>
+<p>🍞 <strong>Breadcrumb:</strong> 🏠 <a href="../">Home</a> &gt; 📁 Design-System</p>
+<hr />
+<h2 id="overview">🎨 <strong>Overview</strong><a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>The Pynomaly Design System is a comprehensive, accessibility-first component library and design framework for building production-ready anomaly detection interfaces. Built with WCAG 2.1 AA compliance, performance optimization, and developer experience at its core.</p>
+<h2 id="table-of-contents">📋 <strong>Table of Contents</strong><a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="#-design-principles">🎯 Design Principles</a></li>
+<li><a href="#-foundation">🎨 Foundation</a></li>
+<li><a href="#colors">Colors</a></li>
+<li><a href="#typography">Typography</a></li>
+<li><a href="#spacing">Spacing</a></li>
+<li><a href="#layout">Layout</a></li>
+<li><a href="#-components">🧩 Components</a></li>
+<li><a href="#-accessibility">♿ Accessibility</a></li>
+<li><a href="#-responsive-design">📱 Responsive Design</a></li>
+<li><a href="#-performance">🚀 Performance</a></li>
+<li><a href="#️-implementation">🛠️ Implementation</a></li>
+</ul>
+<h2 id="design-principles">🎯 <strong>Design Principles</strong><a class="headerlink" href="#design-principles" title="Permanent link">&para;</a></h2>
+<h3 id="accessibility-first">Accessibility First<a class="headerlink" href="#accessibility-first" title="Permanent link">&para;</a></h3>
+<p>Every component and pattern is designed and tested for <strong>WCAG 2.1 AA compliance</strong>:
+- Minimum 4.5:1 color contrast for normal text
+- 3:1 contrast for large text and UI components
+- Keyboard navigation support for all interactive elements
+- Screen reader compatibility with semantic HTML and ARIA
+- Touch targets meet 44x44px minimum with adequate spacing</p>
+<h3 id="performance-optimized">Performance Optimized<a class="headerlink" href="#performance-optimized" title="Permanent link">&para;</a></h3>
+<p>Built for <strong>production performance</strong> with Core Web Vitals optimization:
+- Minimal CSS and JavaScript footprint (&lt; 50KB gzipped)
+- Progressive enhancement approach
+- Efficient rendering and re-rendering patterns
+- Mobile-first responsive design
+- Optimized asset loading and caching strategies</p>
+<h3 id="developer-experience">Developer Experience<a class="headerlink" href="#developer-experience" title="Permanent link">&para;</a></h3>
+<p>Designed for <strong>efficient development</strong> workflows:
+- Clear, consistent API patterns
+- Comprehensive documentation with examples
+- Interactive Storybook component explorer
+- Copy-paste ready code snippets
+- TypeScript support and IntelliSense</p>
+<h3 id="consistency-and-cohesion">Consistency and Cohesion<a class="headerlink" href="#consistency-and-cohesion" title="Permanent link">&para;</a></h3>
+<p>Unified design language across the platform:
+- Systematic approach to color, typography, and spacing
+- Reusable components and patterns
+- Semantic naming conventions
+- Predictable interaction patterns</p>
+<h2 id="foundation">🎨 <strong>Foundation</strong><a class="headerlink" href="#foundation" title="Permanent link">&para;</a></h2>
+<h3 id="colors">Colors<a class="headerlink" href="#colors" title="Permanent link">&para;</a></h3>
+<h4 id="primary-palette">Primary Palette<a class="headerlink" href="#primary-palette" title="Permanent link">&para;</a></h4>
+<p>The primary color palette uses sky blue tones for brand identity and interactive elements:</p>
+<div class="language-css highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c">/* Primary Colors */</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">--primary-50</span><span class="o">:</span><span class="w"> </span><span class="p">#</span><span class="nn">f0f9ff</span><span class="o">;</span><span class="w">   </span><span class="c">/* Light backgrounds, subtle highlights */</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nt">--primary-100</span><span class="o">:</span><span class="w"> </span><span class="p">#</span><span class="nn">e0f2fe</span><span class="o">;</span><span class="w">  </span><span class="c">/* Hover states, light accents */</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nt">--primary-500</span><span class="o">:</span><span class="w"> </span><span class="p">#</span><span class="nn">0ea5e9</span><span class="o">;</span><span class="w">  </span><span class="c">/* Primary buttons, links, active states */</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nt">--primary-600</span><span class="o">:</span><span class="w"> </span><span class="p">#</span><span class="nn">0284c7</span><span class="o">;</span><span class="w">  </span><span class="c">/* Hover states, pressed buttons */</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="nt">--primary-700</span><span class="o">:</span><span class="w"> </span><span class="p">#</span><span class="nn">0369a1</span><span class="o">;</span><span class="w">  </span><span class="c">/* Active states, dark accents */</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="nt">--primary-900</span><span class="o">:</span><span class="w"> </span><span class="p">#</span><span class="nn">0c4a6e</span><span class="o">;</span><span class="w">  </span><span class="c">/* High contrast text, dark themes */</span>
+</span></code></pre></div>
+<p><strong>Accessibility Notes:</strong>
+- Primary 500 has 4.5:1 contrast with white
+- Primary 600 has 5.9:1 contrast with white
+- Primary 700 has 7.8:1 contrast with white (AAA compliant)</p>
+<h4 id="semantic-colors">Semantic Colors<a class="headerlink" href="#semantic-colors" title="Permanent link">&para;</a></h4>
+<p>Status and feedback colors that communicate meaning:</p>
+<div class="language-css highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c">/* Success Colors */</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nt">--success-500</span><span class="o">:</span><span class="w"> </span><span class="p">#</span><span class="nn">22c55e</span><span class="o">;</span><span class="w">  </span><span class="c">/* Success messages, positive states (4.5:1 contrast) */</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nt">--success-100</span><span class="o">:</span><span class="w"> </span><span class="p">#</span><span class="nn">dcfce7</span><span class="o">;</span><span class="w">  </span><span class="c">/* Success backgrounds, subtle indicators */</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c">/* Warning Colors */</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="nt">--warning-500</span><span class="o">:</span><span class="w"> </span><span class="p">#</span><span class="nn">f59e0b</span><span class="o">;</span><span class="w">  </span><span class="c">/* Warning messages, cautionary states (4.7:1 contrast) */</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="nt">--warning-100</span><span class="o">:</span><span class="w"> </span><span class="p">#</span><span class="nn">fef3c7</span><span class="o">;</span><span class="w">  </span><span class="c">/* Warning backgrounds, attention areas */</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="c">/* Error Colors */</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="nt">--error-500</span><span class="o">:</span><span class="w"> </span><span class="p">#</span><span class="nn">ef4444</span><span class="o">;</span><span class="w">    </span><span class="c">/* Error messages, destructive actions (4.5:1 contrast) */</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="nt">--error-100</span><span class="o">:</span><span class="w"> </span><span class="p">#</span><span class="nn">fee2e2</span><span class="o">;</span><span class="w">    </span><span class="c">/* Error backgrounds, danger zones */</span>
+</span></code></pre></div>
+<h4 id="neutral-palette">Neutral Palette<a class="headerlink" href="#neutral-palette" title="Permanent link">&para;</a></h4>
+<p>Text, backgrounds, and interface colors:</p>
+<div class="language-css highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c">/* Neutral Colors */</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nt">--neutral-50</span><span class="o">:</span><span class="w"> </span><span class="p">#</span><span class="nn">fafafa</span><span class="o">;</span><span class="w">   </span><span class="c">/* Page backgrounds, light surfaces */</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nt">--neutral-100</span><span class="o">:</span><span class="w"> </span><span class="p">#</span><span class="nn">f5f5f5</span><span class="o">;</span><span class="w">  </span><span class="c">/* Card backgrounds, secondary surfaces */</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="nt">--neutral-200</span><span class="o">:</span><span class="w"> </span><span class="p">#</span><span class="nn">e5e5e5</span><span class="o">;</span><span class="w">  </span><span class="c">/* Borders, dividers, subtle separators */</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nt">--neutral-400</span><span class="o">:</span><span class="w"> </span><span class="p">#</span><span class="nn">a3a3a3</span><span class="o">;</span><span class="w">  </span><span class="c">/* Muted text, placeholders (7.0:1 with white) */</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="nt">--neutral-600</span><span class="o">:</span><span class="w"> </span><span class="p">#</span><span class="nn">525252</span><span class="o">;</span><span class="w">  </span><span class="c">/* Secondary text, captions (7.23:1 with white) */</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="nt">--neutral-900</span><span class="o">:</span><span class="w"> </span><span class="p">#</span><span class="nn">171717</span><span class="o">;</span><span class="w">  </span><span class="c">/* Primary text, headings (18.82:1 with white) */</span>
+</span></code></pre></div>
+<h4 id="color-usage-guidelines">Color Usage Guidelines<a class="headerlink" href="#color-usage-guidelines" title="Permanent link">&para;</a></h4>
+<p><strong>✅ Do:</strong>
+- Use color plus another indicator (icons, text, patterns)
+- Test with color blindness simulators
+- Provide sufficient contrast for all text
+- Use semantic colors consistently across the platform
+- Consider cultural color associations</p>
+<p><strong>❌ Don't:</strong>
+- Rely solely on color to convey information
+- Use red and green together without additional cues
+- Create custom colors without testing contrast ratios
+- Use color alone for form validation feedback</p>
+<h3 id="typography">Typography<a class="headerlink" href="#typography" title="Permanent link">&para;</a></h3>
+<h4 id="font-stack">Font Stack<a class="headerlink" href="#font-stack" title="Permanent link">&para;</a></h4>
+<div class="language-css highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c">/* Primary Font Family */</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nt">font-family</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Inter&#39;</span><span class="o">,</span><span class="w"> </span><span class="nt">system-ui</span><span class="o">,</span><span class="w"> </span><span class="nt">-apple-system</span><span class="o">,</span><span class="w"> </span><span class="nt">BlinkMacSystemFont</span><span class="o">,</span><span class="w"> </span><span class="s1">&#39;Segoe UI&#39;</span><span class="o">,</span><span class="w"> </span><span class="nt">sans-serif</span><span class="o">;</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c">/* Monospace Font Family */</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="nt">font-family</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;JetBrains Mono&#39;</span><span class="o">,</span><span class="w"> </span><span class="s1">&#39;Fira Code&#39;</span><span class="o">,</span><span class="w"> </span><span class="nt">Consolas</span><span class="o">,</span><span class="w"> </span><span class="s1">&#39;Courier New&#39;</span><span class="o">,</span><span class="w"> </span><span class="nt">monospace</span><span class="o">;</span>
+</span></code></pre></div>
+<h4 id="type-scale">Type Scale<a class="headerlink" href="#type-scale" title="Permanent link">&para;</a></h4>
+<p>Based on a modular scale with accessibility considerations:</p>
+<div class="language-css highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c">/* Display Typography - For hero sections and major headings */</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="p">.</span><span class="nc">text-display-large</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">3.75</span><span class="kt">rem</span><span class="p">;</span><span class="w"> </span><span class="k">font-weight</span><span class="p">:</span><span class="w"> </span><span class="mi">700</span><span class="p">;</span><span class="w"> </span><span class="k">line-height</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w"> </span><span class="k">letter-spacing</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.025</span><span class="kt">em</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c">/* 60px */</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="p">.</span><span class="nc">text-display-medium</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="kt">rem</span><span class="p">;</span><span class="w"> </span><span class="k">font-weight</span><span class="p">:</span><span class="w"> </span><span class="mi">700</span><span class="p">;</span><span class="w"> </span><span class="k">line-height</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w"> </span><span class="k">letter-spacing</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.025</span><span class="kt">em</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c">/* 48px */</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="p">.</span><span class="nc">text-display-small</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">2.25</span><span class="kt">rem</span><span class="p">;</span><span class="w"> </span><span class="k">font-weight</span><span class="p">:</span><span class="w"> </span><span class="mi">700</span><span class="p">;</span><span class="w"> </span><span class="k">line-height</span><span class="p">:</span><span class="w"> </span><span class="mf">1.25</span><span class="p">;</span><span class="w"> </span><span class="k">letter-spacing</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.025</span><span class="kt">em</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c">/* 36px */</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="c">/* Headline Typography - Semantic heading hierarchy */</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">.</span><span class="nc">text-headline-large</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">1.875</span><span class="kt">rem</span><span class="p">;</span><span class="w"> </span><span class="k">font-weight</span><span class="p">:</span><span class="w"> </span><span class="mi">600</span><span class="p">;</span><span class="w"> </span><span class="k">line-height</span><span class="p">:</span><span class="w"> </span><span class="mf">1.25</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c">/* 30px - H1 */</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="p">.</span><span class="nc">text-headline-medium</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">1.5</span><span class="kt">rem</span><span class="p">;</span><span class="w"> </span><span class="k">font-weight</span><span class="p">:</span><span class="w"> </span><span class="mi">600</span><span class="p">;</span><span class="w"> </span><span class="k">line-height</span><span class="p">:</span><span class="w"> </span><span class="mf">1.25</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c">/* 24px - H2 */</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="p">.</span><span class="nc">text-headline-small</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">1.25</span><span class="kt">rem</span><span class="p">;</span><span class="w"> </span><span class="k">font-weight</span><span class="p">:</span><span class="w"> </span><span class="mi">600</span><span class="p">;</span><span class="w"> </span><span class="k">line-height</span><span class="p">:</span><span class="w"> </span><span class="mf">1.25</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c">/* 20px - H3 */</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="c">/* Title Typography - Component headers and labels */</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="p">.</span><span class="nc">text-title-large</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">1.125</span><span class="kt">rem</span><span class="p">;</span><span class="w"> </span><span class="k">font-weight</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">;</span><span class="w"> </span><span class="k">line-height</span><span class="p">:</span><span class="w"> </span><span class="mf">1.5</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c">/* 18px */</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="p">.</span><span class="nc">text-title-medium</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">rem</span><span class="p">;</span><span class="w"> </span><span class="k">font-weight</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">;</span><span class="w"> </span><span class="k">line-height</span><span class="p">:</span><span class="w"> </span><span class="mf">1.5</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c">/* 16px */</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="p">.</span><span class="nc">text-title-small</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">0.875</span><span class="kt">rem</span><span class="p">;</span><span class="w"> </span><span class="k">font-weight</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">;</span><span class="w"> </span><span class="k">line-height</span><span class="p">:</span><span class="w"> </span><span class="mf">1.5</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c">/* 14px */</span>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="c">/* Body Typography - Content and interface text */</span>
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="p">.</span><span class="nc">text-body-large</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">rem</span><span class="p">;</span><span class="w"> </span><span class="k">font-weight</span><span class="p">:</span><span class="w"> </span><span class="mi">400</span><span class="p">;</span><span class="w"> </span><span class="k">line-height</span><span class="p">:</span><span class="w"> </span><span class="mf">1.625</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c">/* 16px */</span>
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="p">.</span><span class="nc">text-body-medium</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">0.875</span><span class="kt">rem</span><span class="p">;</span><span class="w"> </span><span class="k">font-weight</span><span class="p">:</span><span class="w"> </span><span class="mi">400</span><span class="p">;</span><span class="w"> </span><span class="k">line-height</span><span class="p">:</span><span class="w"> </span><span class="mf">1.625</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c">/* 14px */</span>
+</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="p">.</span><span class="nc">text-body-small</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">0.75</span><span class="kt">rem</span><span class="p">;</span><span class="w"> </span><span class="k">font-weight</span><span class="p">:</span><span class="w"> </span><span class="mi">400</span><span class="p">;</span><span class="w"> </span><span class="k">line-height</span><span class="p">:</span><span class="w"> </span><span class="mf">1.625</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c">/* 12px */</span>
+</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>
+</span><span id="__span-4-21"><a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="c">/* Label Typography - Compact interface elements */</span>
+</span><span id="__span-4-22"><a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="p">.</span><span class="nc">text-label-large</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">0.875</span><span class="kt">rem</span><span class="p">;</span><span class="w"> </span><span class="k">font-weight</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">;</span><span class="w"> </span><span class="k">line-height</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c">/* 14px */</span>
+</span><span id="__span-4-23"><a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="p">.</span><span class="nc">text-label-medium</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">0.75</span><span class="kt">rem</span><span class="p">;</span><span class="w"> </span><span class="k">font-weight</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">;</span><span class="w"> </span><span class="k">line-height</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c">/* 12px */</span>
+</span><span id="__span-4-24"><a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="p">.</span><span class="nc">text-label-small</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">0.75</span><span class="kt">rem</span><span class="p">;</span><span class="w"> </span><span class="k">font-weight</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">;</span><span class="w"> </span><span class="k">line-height</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w"> </span><span class="k">text-transform</span><span class="p">:</span><span class="w"> </span><span class="kc">uppercase</span><span class="p">;</span><span class="w"> </span><span class="k">letter-spacing</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05</span><span class="kt">em</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c">/* 12px */</span>
+</span></code></pre></div>
+<h4 id="typography-accessibility-guidelines">Typography Accessibility Guidelines<a class="headerlink" href="#typography-accessibility-guidelines" title="Permanent link">&para;</a></h4>
+<p><strong>Semantic Heading Structure:</strong>
+<div class="language-html highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>Page Title (only one per page)<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  <span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span>Major Section<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="p">&lt;</span><span class="nt">h3</span><span class="p">&gt;</span>Subsection<span class="p">&lt;/</span><span class="nt">h3</span><span class="p">&gt;</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>      <span class="p">&lt;</span><span class="nt">h4</span><span class="p">&gt;</span>Sub-subsection<span class="p">&lt;/</span><span class="nt">h4</span><span class="p">&gt;</span>
+</span></code></pre></div></p>
+<p><strong>Readability Requirements:</strong>
+- Minimum 16px for body text on desktop
+- Line height 1.5 or greater for readability
+- Maximum 80 characters per line for optimal reading
+- Adequate color contrast (4.5:1 minimum)</p>
+<h3 id="spacing">Spacing<a class="headerlink" href="#spacing" title="Permanent link">&para;</a></h3>
+<h4 id="8pt-grid-system">8pt Grid System<a class="headerlink" href="#8pt-grid-system" title="Permanent link">&para;</a></h4>
+<p>Consistent spacing based on 8px increments:</p>
+<div class="language-css highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c">/* Spacing Scale */</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nt">--space-0</span><span class="o">:</span><span class="w"> </span><span class="nt">0</span><span class="o">;</span><span class="w">           </span><span class="c">/* 0px */</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="nt">--space-1</span><span class="o">:</span><span class="w"> </span><span class="nt">0</span><span class="p">.</span><span class="nc">125rem</span><span class="o">;</span><span class="w">    </span><span class="c">/* 2px */</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="nt">--space-2</span><span class="o">:</span><span class="w"> </span><span class="nt">0</span><span class="p">.</span><span class="nc">25rem</span><span class="o">;</span><span class="w">     </span><span class="c">/* 4px */</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="nt">--space-3</span><span class="o">:</span><span class="w"> </span><span class="nt">0</span><span class="p">.</span><span class="nc">5rem</span><span class="o">;</span><span class="w">      </span><span class="c">/* 8px */</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="nt">--space-4</span><span class="o">:</span><span class="w"> </span><span class="nt">1rem</span><span class="o">;</span><span class="w">        </span><span class="c">/* 16px */</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="nt">--space-5</span><span class="o">:</span><span class="w"> </span><span class="nt">1</span><span class="p">.</span><span class="nc">25rem</span><span class="o">;</span><span class="w">     </span><span class="c">/* 20px */</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="nt">--space-6</span><span class="o">:</span><span class="w"> </span><span class="nt">1</span><span class="p">.</span><span class="nc">5rem</span><span class="o">;</span><span class="w">      </span><span class="c">/* 24px */</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="nt">--space-8</span><span class="o">:</span><span class="w"> </span><span class="nt">2rem</span><span class="o">;</span><span class="w">        </span><span class="c">/* 32px */</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="nt">--space-10</span><span class="o">:</span><span class="w"> </span><span class="nt">2</span><span class="p">.</span><span class="nc">5rem</span><span class="o">;</span><span class="w">     </span><span class="c">/* 40px */</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="nt">--space-12</span><span class="o">:</span><span class="w"> </span><span class="nt">3rem</span><span class="o">;</span><span class="w">       </span><span class="c">/* 48px */</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="nt">--space-16</span><span class="o">:</span><span class="w"> </span><span class="nt">4rem</span><span class="o">;</span><span class="w">       </span><span class="c">/* 64px */</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="nt">--space-20</span><span class="o">:</span><span class="w"> </span><span class="nt">5rem</span><span class="o">;</span><span class="w">       </span><span class="c">/* 80px */</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="nt">--space-24</span><span class="o">:</span><span class="w"> </span><span class="nt">6rem</span><span class="o">;</span><span class="w">       </span><span class="c">/* 96px */</span>
+</span></code></pre></div>
+<h4 id="spacing-usage-guidelines">Spacing Usage Guidelines<a class="headerlink" href="#spacing-usage-guidelines" title="Permanent link">&para;</a></h4>
+<p><strong>Component Spacing:</strong>
+- Use <code>--space-3</code> (8px) for tight spacing within components
+- Use <code>--space-4</code> (16px) for standard component padding
+- Use <code>--space-6</code> (24px) for loose spacing between related elements
+- Use <code>--space-8</code> (32px) for section separation</p>
+<p><strong>Layout Spacing:</strong>
+- Use <code>--space-12</code> (48px) for major section separation
+- Use <code>--space-16</code> (64px) for page-level spacing
+- Use <code>--space-20</code> (80px) for hero section spacing</p>
+<h3 id="layout">Layout<a class="headerlink" href="#layout" title="Permanent link">&para;</a></h3>
+<h4 id="grid-system">Grid System<a class="headerlink" href="#grid-system" title="Permanent link">&para;</a></h4>
+<p>Responsive grid based on CSS Grid and Flexbox:</p>
+<div class="language-css highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c">/* Container Sizes */</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="p">.</span><span class="nc">container-sm</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">max-width</span><span class="p">:</span><span class="w"> </span><span class="mi">640</span><span class="kt">px</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c">/* Small screens */</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="p">.</span><span class="nc">container-md</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">max-width</span><span class="p">:</span><span class="w"> </span><span class="mi">768</span><span class="kt">px</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c">/* Medium screens */</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="p">.</span><span class="nc">container-lg</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">max-width</span><span class="p">:</span><span class="w"> </span><span class="mi">1024</span><span class="kt">px</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">  </span><span class="c">/* Large screens */</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="p">.</span><span class="nc">container-xl</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">max-width</span><span class="p">:</span><span class="w"> </span><span class="mi">1280</span><span class="kt">px</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">  </span><span class="c">/* Extra large screens */</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="p">.</span><span class="nc">container-2xl</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">max-width</span><span class="p">:</span><span class="w"> </span><span class="mi">1536</span><span class="kt">px</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c">/* 2X large screens */</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="c">/* Grid Columns */</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="p">.</span><span class="nc">grid</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">display</span><span class="p">:</span><span class="w"> </span><span class="k">grid</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="p">.</span><span class="nc">grid-cols-1</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">grid-template-columns</span><span class="p">:</span><span class="w"> </span><span class="nf">repeat</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nf">minmax</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="n">fr</span><span class="p">));</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="p">.</span><span class="nc">grid-cols-2</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">grid-template-columns</span><span class="p">:</span><span class="w"> </span><span class="nf">repeat</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nf">minmax</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="n">fr</span><span class="p">));</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="p">.</span><span class="nc">grid-cols-3</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">grid-template-columns</span><span class="p">:</span><span class="w"> </span><span class="nf">repeat</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nf">minmax</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="n">fr</span><span class="p">));</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="p">.</span><span class="nc">grid-cols-4</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">grid-template-columns</span><span class="p">:</span><span class="w"> </span><span class="nf">repeat</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="nf">minmax</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="n">fr</span><span class="p">));</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="p">.</span><span class="nc">grid-cols-12</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">grid-template-columns</span><span class="p">:</span><span class="w"> </span><span class="nf">repeat</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="nf">minmax</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="n">fr</span><span class="p">));</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="c">/* Flexbox Utilities */</span>
+</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="p">.</span><span class="nc">flex</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">display</span><span class="p">:</span><span class="w"> </span><span class="kc">flex</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="p">.</span><span class="nc">flex-col</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">flex-direction</span><span class="p">:</span><span class="w"> </span><span class="kc">column</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-7-19"><a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="p">.</span><span class="nc">flex-wrap</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">flex-wrap</span><span class="p">:</span><span class="w"> </span><span class="kc">wrap</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-7-20"><a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="p">.</span><span class="nc">items-center</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">align-items</span><span class="p">:</span><span class="w"> </span><span class="kc">center</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-7-21"><a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a><span class="p">.</span><span class="nc">justify-center</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">justify-content</span><span class="p">:</span><span class="w"> </span><span class="kc">center</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-7-22"><a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a><span class="p">.</span><span class="nc">justify-between</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">justify-content</span><span class="p">:</span><span class="w"> </span><span class="kc">space-between</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span></code></pre></div>
+<h4 id="responsive-breakpoints">Responsive Breakpoints<a class="headerlink" href="#responsive-breakpoints" title="Permanent link">&para;</a></h4>
+<p>Mobile-first responsive design:</p>
+<div class="language-css highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c">/* Breakpoints */</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="p">@</span><span class="k">media</span><span class="w"> </span><span class="o">(</span><span class="nt">min-width</span><span class="o">:</span><span class="w"> </span><span class="nt">640px</span><span class="o">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c">/* sm */</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="p">@</span><span class="k">media</span><span class="w"> </span><span class="o">(</span><span class="nt">min-width</span><span class="o">:</span><span class="w"> </span><span class="nt">768px</span><span class="o">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c">/* md */</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="p">@</span><span class="k">media</span><span class="w"> </span><span class="o">(</span><span class="nt">min-width</span><span class="o">:</span><span class="w"> </span><span class="nt">1024px</span><span class="o">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c">/* lg */</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="p">@</span><span class="k">media</span><span class="w"> </span><span class="o">(</span><span class="nt">min-width</span><span class="o">:</span><span class="w"> </span><span class="nt">1280px</span><span class="o">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c">/* xl */</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="p">@</span><span class="k">media</span><span class="w"> </span><span class="o">(</span><span class="nt">min-width</span><span class="o">:</span><span class="w"> </span><span class="nt">1536px</span><span class="o">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c">/* 2xl */</span><span class="w"> </span><span class="p">}</span>
+</span></code></pre></div>
+<h2 id="components">🧩 <strong>Components</strong><a class="headerlink" href="#components" title="Permanent link">&para;</a></h2>
+<h3 id="component-categories">Component Categories<a class="headerlink" href="#component-categories" title="Permanent link">&para;</a></h3>
+<h4 id="core-components">Core Components<a class="headerlink" href="#core-components" title="Permanent link">&para;</a></h4>
+<p>Essential interface elements used throughout the platform:</p>
+<ol>
+<li><strong>Buttons</strong> - Primary, secondary, outline, ghost, and danger variants</li>
+<li><strong>Form Controls</strong> - Inputs, textareas, selects, checkboxes, radios</li>
+<li><strong>Navigation</strong> - Main nav, breadcrumbs, pagination, tabs</li>
+<li><strong>Feedback</strong> - Alerts, notifications, toasts, loading states</li>
+</ol>
+<h4 id="data-components">Data Components<a class="headerlink" href="#data-components" title="Permanent link">&para;</a></h4>
+<p>Specialized components for data visualization and interaction:</p>
+<ol>
+<li><strong>Charts</strong> - Line charts, scatter plots, heatmaps for anomaly visualization</li>
+<li><strong>Tables</strong> - Data grids, sortable columns, filtering, pagination</li>
+<li><strong>Dashboards</strong> - Metric cards, KPI displays, summary widgets</li>
+<li><strong>Filters</strong> - Search inputs, filter dropdowns, date pickers</li>
+</ol>
+<h4 id="layout-components">Layout Components<a class="headerlink" href="#layout-components" title="Permanent link">&para;</a></h4>
+<p>Structural components for page organization:</p>
+<ol>
+<li><strong>Cards</strong> - Content containers, information displays</li>
+<li><strong>Modals</strong> - Dialogs, overlays, confirmations</li>
+<li><strong>Panels</strong> - Sidebars, collapsible sections, accordions</li>
+<li><strong>Headers</strong> - Page headers, section headers, toolbars</li>
+</ol>
+<h3 id="component-design-tokens">Component Design Tokens<a class="headerlink" href="#component-design-tokens" title="Permanent link">&para;</a></h3>
+<h4 id="shadows">Shadows<a class="headerlink" href="#shadows" title="Permanent link">&para;</a></h4>
+<p>Consistent elevation system:</p>
+<div class="language-css highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nt">--shadow-sm</span><span class="o">:</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="nt">1px</span><span class="w"> </span><span class="nt">2px</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="nt">rgb</span><span class="o">(</span><span class="nt">0</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nt">0</span><span class="p">.</span><span class="nc">05</span><span class="o">);</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="nt">--shadow-md</span><span class="o">:</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="nt">4px</span><span class="w"> </span><span class="nt">6px</span><span class="w"> </span><span class="nt">-1px</span><span class="w"> </span><span class="nt">rgb</span><span class="o">(</span><span class="nt">0</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nt">0</span><span class="p">.</span><span class="nc">1</span><span class="o">),</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="nt">2px</span><span class="w"> </span><span class="nt">4px</span><span class="w"> </span><span class="nt">-2px</span><span class="w"> </span><span class="nt">rgb</span><span class="o">(</span><span class="nt">0</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nt">0</span><span class="p">.</span><span class="nc">1</span><span class="o">);</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="nt">--shadow-lg</span><span class="o">:</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="nt">10px</span><span class="w"> </span><span class="nt">15px</span><span class="w"> </span><span class="nt">-3px</span><span class="w"> </span><span class="nt">rgb</span><span class="o">(</span><span class="nt">0</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nt">0</span><span class="p">.</span><span class="nc">1</span><span class="o">),</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="nt">4px</span><span class="w"> </span><span class="nt">6px</span><span class="w"> </span><span class="nt">-4px</span><span class="w"> </span><span class="nt">rgb</span><span class="o">(</span><span class="nt">0</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nt">0</span><span class="p">.</span><span class="nc">1</span><span class="o">);</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="nt">--shadow-xl</span><span class="o">:</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="nt">20px</span><span class="w"> </span><span class="nt">25px</span><span class="w"> </span><span class="nt">-5px</span><span class="w"> </span><span class="nt">rgb</span><span class="o">(</span><span class="nt">0</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nt">0</span><span class="p">.</span><span class="nc">1</span><span class="o">),</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="nt">8px</span><span class="w"> </span><span class="nt">10px</span><span class="w"> </span><span class="nt">-6px</span><span class="w"> </span><span class="nt">rgb</span><span class="o">(</span><span class="nt">0</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="nt">0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nt">0</span><span class="p">.</span><span class="nc">1</span><span class="o">);</span>
+</span></code></pre></div>
+<h4 id="border-radius">Border Radius<a class="headerlink" href="#border-radius" title="Permanent link">&para;</a></h4>
+<p>Consistent corner rounding:</p>
+<div class="language-css highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nt">--radius-none</span><span class="o">:</span><span class="w"> </span><span class="nt">0</span><span class="o">;</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nt">--radius-sm</span><span class="o">:</span><span class="w"> </span><span class="nt">0</span><span class="p">.</span><span class="nc">125rem</span><span class="o">;</span><span class="w">  </span><span class="c">/* 2px */</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="nt">--radius-md</span><span class="o">:</span><span class="w"> </span><span class="nt">0</span><span class="p">.</span><span class="nc">375rem</span><span class="o">;</span><span class="w">  </span><span class="c">/* 6px */</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="nt">--radius-lg</span><span class="o">:</span><span class="w"> </span><span class="nt">0</span><span class="p">.</span><span class="nc">5rem</span><span class="o">;</span><span class="w">    </span><span class="c">/* 8px */</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="nt">--radius-xl</span><span class="o">:</span><span class="w"> </span><span class="nt">0</span><span class="p">.</span><span class="nc">75rem</span><span class="o">;</span><span class="w">   </span><span class="c">/* 12px */</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="nt">--radius-full</span><span class="o">:</span><span class="w"> </span><span class="nt">9999px</span><span class="o">;</span><span class="w">  </span><span class="c">/* Fully rounded */</span>
+</span></code></pre></div>
+<h4 id="transitions">Transitions<a class="headerlink" href="#transitions" title="Permanent link">&para;</a></h4>
+<p>Smooth, performant animations:</p>
+<div class="language-css highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nt">--transition-fast</span><span class="o">:</span><span class="w"> </span><span class="nt">150ms</span><span class="w"> </span><span class="nt">cubic-bezier</span><span class="o">(</span><span class="nt">0</span><span class="p">.</span><span class="nc">4</span><span class="o">,</span><span class="w"> </span><span class="nt">0</span><span class="o">,</span><span class="w"> </span><span class="nt">0</span><span class="p">.</span><span class="nc">2</span><span class="o">,</span><span class="w"> </span><span class="nt">1</span><span class="o">);</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="nt">--transition-normal</span><span class="o">:</span><span class="w"> </span><span class="nt">300ms</span><span class="w"> </span><span class="nt">cubic-bezier</span><span class="o">(</span><span class="nt">0</span><span class="p">.</span><span class="nc">4</span><span class="o">,</span><span class="w"> </span><span class="nt">0</span><span class="o">,</span><span class="w"> </span><span class="nt">0</span><span class="p">.</span><span class="nc">2</span><span class="o">,</span><span class="w"> </span><span class="nt">1</span><span class="o">);</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="nt">--transition-slow</span><span class="o">:</span><span class="w"> </span><span class="nt">500ms</span><span class="w"> </span><span class="nt">cubic-bezier</span><span class="o">(</span><span class="nt">0</span><span class="p">.</span><span class="nc">4</span><span class="o">,</span><span class="w"> </span><span class="nt">0</span><span class="o">,</span><span class="w"> </span><span class="nt">0</span><span class="p">.</span><span class="nc">2</span><span class="o">,</span><span class="w"> </span><span class="nt">1</span><span class="o">);</span>
+</span></code></pre></div>
+<h2 id="accessibility">♿ <strong>Accessibility</strong><a class="headerlink" href="#accessibility" title="Permanent link">&para;</a></h2>
+<h3 id="wcag-21-aa-compliance">WCAG 2.1 AA Compliance<a class="headerlink" href="#wcag-21-aa-compliance" title="Permanent link">&para;</a></h3>
+<h4 id="color-contrast-requirements">Color Contrast Requirements<a class="headerlink" href="#color-contrast-requirements" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Normal text</strong>: 4.5:1 minimum contrast ratio</li>
+<li><strong>Large text</strong> (18pt+ or 14pt+ bold): 3:1 minimum contrast ratio</li>
+<li><strong>UI components</strong>: 3:1 minimum contrast ratio for interactive elements</li>
+<li><strong>Enhanced (AAA)</strong>: 7:1 contrast ratio for better visibility</li>
+</ul>
+<h4 id="touch-target-requirements">Touch Target Requirements<a class="headerlink" href="#touch-target-requirements" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Minimum size</strong>: 44x44px for touch targets</li>
+<li><strong>Recommended size</strong>: 48x48px for better usability</li>
+<li><strong>Spacing</strong>: 8px minimum between adjacent touch targets</li>
+</ul>
+<h4 id="keyboard-navigation">Keyboard Navigation<a class="headerlink" href="#keyboard-navigation" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Tab order</strong>: Logical sequence following visual layout</li>
+<li><strong>Focus indicators</strong>: 2px solid outline with high contrast</li>
+<li><strong>Skip links</strong>: "Skip to main content" for screen reader users</li>
+<li><strong>Escape key</strong>: Closes modals and overlays</li>
+</ul>
+<h4 id="screen-reader-support">Screen Reader Support<a class="headerlink" href="#screen-reader-support" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Semantic HTML</strong>: Use appropriate HTML elements (button, nav, main, etc.)</li>
+<li><strong>ARIA labels</strong>: Descriptive labels for all interactive elements</li>
+<li><strong>Live regions</strong>: Announce dynamic content changes</li>
+<li><strong>Landmarks</strong>: Clear page structure with semantic landmarks</li>
+</ul>
+<h3 id="accessibility-testing-tools">Accessibility Testing Tools<a class="headerlink" href="#accessibility-testing-tools" title="Permanent link">&para;</a></h3>
+<h4 id="automated-testing">Automated Testing<a class="headerlink" href="#automated-testing" title="Permanent link">&para;</a></h4>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Run accessibility audit on Storybook</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>npm<span class="w"> </span>run<span class="w"> </span>accessibility-audit
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># Test specific components</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>npx<span class="w"> </span>axe-crawler<span class="w"> </span>http://localhost:6006/iframe.html?id<span class="o">=</span>components-button--default
+</span></code></pre></div>
+<h4 id="manual-testing-checklist">Manual Testing Checklist<a class="headerlink" href="#manual-testing-checklist" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] Tab through all interactive elements</li>
+<li>[ ] Test with screen reader (NVDA, JAWS, VoiceOver)</li>
+<li>[ ] Verify color contrast ratios</li>
+<li>[ ] Test with keyboard only</li>
+<li>[ ] Check focus indicators</li>
+<li>[ ] Validate ARIA attributes</li>
+</ul>
+<h2 id="responsive-design">📱 <strong>Responsive Design</strong><a class="headerlink" href="#responsive-design" title="Permanent link">&para;</a></h2>
+<h3 id="mobile-first-approach">Mobile-First Approach<a class="headerlink" href="#mobile-first-approach" title="Permanent link">&para;</a></h3>
+<p>Design and develop for mobile devices first, then enhance for larger screens:</p>
+<div class="language-css highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c">/* Mobile First (320px+) */</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="p">.</span><span class="nc">button</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">  </span><span class="k">padding</span><span class="p">:</span><span class="w"> </span><span class="mf">0.75</span><span class="kt">rem</span><span class="w"> </span><span class="mi">1</span><span class="kt">rem</span><span class="p">;</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">  </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">0.875</span><span class="kt">rem</span><span class="p">;</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="p">}</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="c">/* Tablet (768px+) */</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="p">@</span><span class="k">media</span><span class="w"> </span><span class="o">(</span><span class="nt">min-width</span><span class="o">:</span><span class="w"> </span><span class="nt">768px</span><span class="o">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">  </span><span class="p">.</span><span class="nc">button</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="w">    </span><span class="k">padding</span><span class="p">:</span><span class="w"> </span><span class="mf">0.875</span><span class="kt">rem</span><span class="w"> </span><span class="mf">1.25</span><span class="kt">rem</span><span class="p">;</span>
+</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="w">    </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">rem</span><span class="p">;</span>
+</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-13-13"><a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="p">}</span>
+</span><span id="__span-13-14"><a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>
+</span><span id="__span-13-15"><a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a><span class="c">/* Desktop (1024px+) */</span>
+</span><span id="__span-13-16"><a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a><span class="p">@</span><span class="k">media</span><span class="w"> </span><span class="o">(</span><span class="nt">min-width</span><span class="o">:</span><span class="w"> </span><span class="nt">1024px</span><span class="o">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-13-17"><a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a><span class="w">  </span><span class="p">.</span><span class="nc">button</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-13-18"><a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a><span class="w">    </span><span class="k">padding</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">rem</span><span class="w"> </span><span class="mf">1.5</span><span class="kt">rem</span><span class="p">;</span>
+</span><span id="__span-13-19"><a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-13-20"><a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="responsive-typography">Responsive Typography<a class="headerlink" href="#responsive-typography" title="Permanent link">&para;</a></h3>
+<p>Scale typography appropriately across devices:</p>
+<div class="language-css highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c">/* Mobile Typography */</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="p">.</span><span class="nc">heading-1</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">1.5</span><span class="kt">rem</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">  </span><span class="c">/* 24px */</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="p">.</span><span class="nc">body-text</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">rem</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">    </span><span class="c">/* 16px */</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="c">/* Tablet Typography */</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="p">@</span><span class="k">media</span><span class="w"> </span><span class="o">(</span><span class="nt">min-width</span><span class="o">:</span><span class="w"> </span><span class="nt">768px</span><span class="o">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">  </span><span class="p">.</span><span class="nc">heading-1</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">1.875</span><span class="kt">rem</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c">/* 30px */</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="p">}</span>
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>
+</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="c">/* Desktop Typography */</span>
+</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="p">@</span><span class="k">media</span><span class="w"> </span><span class="o">(</span><span class="nt">min-width</span><span class="o">:</span><span class="w"> </span><span class="nt">1024px</span><span class="o">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-14-12"><a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="w">  </span><span class="p">.</span><span class="nc">heading-1</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">2.25</span><span class="kt">rem</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">  </span><span class="c">/* 36px */</span>
+</span><span id="__span-14-13"><a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="touch-optimization">Touch Optimization<a class="headerlink" href="#touch-optimization" title="Permanent link">&para;</a></h3>
+<p>Optimize for touch interactions on mobile devices:</p>
+<ul>
+<li><strong>Touch targets</strong>: Minimum 44x44px with adequate spacing</li>
+<li><strong>Gestures</strong>: Support swipe, pinch, and tap interactions</li>
+<li><strong>Hover states</strong>: Use <code>:hover</code> only on devices that support it</li>
+<li><strong>Focus states</strong>: Clear focus indicators for keyboard navigation</li>
+</ul>
+<h2 id="performance">🚀 <strong>Performance</strong><a class="headerlink" href="#performance" title="Permanent link">&para;</a></h2>
+<h3 id="core-web-vitals-optimization">Core Web Vitals Optimization<a class="headerlink" href="#core-web-vitals-optimization" title="Permanent link">&para;</a></h3>
+<h4 id="largest-contentful-paint-lcp">Largest Contentful Paint (LCP)<a class="headerlink" href="#largest-contentful-paint-lcp" title="Permanent link">&para;</a></h4>
+<p>Target: &lt; 2.5 seconds</p>
+<ul>
+<li><strong>Optimize images</strong>: Use WebP format with appropriate sizing</li>
+<li><strong>Preload critical resources</strong>: Fonts, above-the-fold images</li>
+<li><strong>Minimize render-blocking</strong>: Inline critical CSS, defer non-critical JavaScript</li>
+</ul>
+<h4 id="first-input-delay-fid">First Input Delay (FID)<a class="headerlink" href="#first-input-delay-fid" title="Permanent link">&para;</a></h4>
+<p>Target: &lt; 100 milliseconds</p>
+<ul>
+<li><strong>Minimize JavaScript</strong>: Use code splitting and lazy loading</li>
+<li><strong>Optimize event handlers</strong>: Use passive event listeners where possible</li>
+<li><strong>Web Workers</strong>: Move heavy computations off the main thread</li>
+</ul>
+<h4 id="cumulative-layout-shift-cls">Cumulative Layout Shift (CLS)<a class="headerlink" href="#cumulative-layout-shift-cls" title="Permanent link">&para;</a></h4>
+<p>Target: &lt; 0.1</p>
+<ul>
+<li><strong>Reserve space</strong>: Set dimensions for images and embeds</li>
+<li><strong>Font loading</strong>: Use <code>font-display: swap</code> and preload fonts</li>
+<li><strong>Avoid layout shifts</strong>: Don't insert content above existing content</li>
+</ul>
+<h3 id="performance-best-practices">Performance Best Practices<a class="headerlink" href="#performance-best-practices" title="Permanent link">&para;</a></h3>
+<h4 id="css-optimization">CSS Optimization<a class="headerlink" href="#css-optimization" title="Permanent link">&para;</a></h4>
+<div class="language-css highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c">/* Use efficient selectors */</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="p">.</span><span class="nc">button</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c">/* Good: simple class selector */</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="p">.</span><span class="nc">sidebar</span><span class="w"> </span><span class="p">.</span><span class="nc">navigation</span><span class="w"> </span><span class="p">.</span><span class="nc">item</span><span class="w"> </span><span class="p">.</span><span class="nc">link</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c">/* Avoid: deeply nested selectors */</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="c">/* Minimize repaints and reflows */</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="p">.</span><span class="nc">animate-transform</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">  </span><span class="k">transform</span><span class="p">:</span><span class="w"> </span><span class="nb">translateX</span><span class="p">(</span><span class="mi">100</span><span class="kt">px</span><span class="p">);</span><span class="w"> </span><span class="c">/* Good: composite layer */</span>
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="p">}</span>
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="p">.</span><span class="nc">animate-layout</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="w">  </span><span class="k">left</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="kt">px</span><span class="p">;</span><span class="w"> </span><span class="c">/* Avoid: triggers layout */</span>
+</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="p">}</span>
+</span></code></pre></div>
+<h4 id="javascript-optimization">JavaScript Optimization<a class="headerlink" href="#javascript-optimization" title="Permanent link">&para;</a></h4>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1">// Use efficient DOM queries</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">elements</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelectorAll</span><span class="p">(</span><span class="s1">&#39;.item&#39;</span><span class="p">);</span><span class="w"> </span><span class="c1">// Good: batch query</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="c1">// Avoid repeated DOM queries in loops</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="c1">// Debounce expensive operations</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="kd">const</span><span class="w"> </span><span class="nx">debouncedSearch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">debounce</span><span class="p">(</span><span class="nx">searchFunction</span><span class="p">,</span><span class="w"> </span><span class="mf">300</span><span class="p">);</span>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="c1">// Use requestAnimationFrame for animations</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="kd">function</span><span class="w"> </span><span class="nx">animate</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="w">  </span><span class="c1">// Animation logic</span>
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="w">  </span><span class="nx">requestAnimationFrame</span><span class="p">(</span><span class="nx">animate</span><span class="p">);</span>
+</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="p">}</span>
+</span></code></pre></div>
+<h4 id="asset-optimization">Asset Optimization<a class="headerlink" href="#asset-optimization" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Images</strong>: Use modern formats (WebP, AVIF) with fallbacks</li>
+<li><strong>Fonts</strong>: Subset fonts to include only needed characters</li>
+<li><strong>JavaScript</strong>: Use tree shaking to eliminate unused code</li>
+<li><strong>CSS</strong>: Purge unused styles in production builds</li>
+</ul>
+<h2 id="implementation">🛠️ <strong>Implementation</strong><a class="headerlink" href="#implementation" title="Permanent link">&para;</a></h2>
+<h3 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h3>
+<h4 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h4>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Install Tailwind CSS and dependencies</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>npm<span class="w"> </span>install<span class="w"> </span>tailwindcss<span class="w"> </span>@tailwindcss/forms<span class="w"> </span>@tailwindcss/typography<span class="w"> </span>@tailwindcss/aspect-ratio
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="c1"># Install optional enhancements</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>npm<span class="w"> </span>install<span class="w"> </span>alpinejs<span class="w"> </span>htmx.org<span class="w"> </span>d3<span class="w"> </span>echarts
+</span></code></pre></div>
+<h4 id="tailwind-configuration">Tailwind Configuration<a class="headerlink" href="#tailwind-configuration" title="Permanent link">&para;</a></h4>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1">// tailwind.config.js</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">  </span><span class="nx">content</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">    </span><span class="s1">&#39;./src/pynomaly/presentation/web/**/*.{html,js,py}&#39;</span><span class="p">,</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w">    </span><span class="s1">&#39;./tests/ui/**/*.{html,js,py}&#39;</span>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">  </span><span class="nx">theme</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="w">    </span><span class="nx">extend</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="w">      </span><span class="nx">colors</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-18-10"><a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="w">        </span><span class="nx">primary</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-18-11"><a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a><span class="w">          </span><span class="mf">50</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#f0f9ff&#39;</span><span class="p">,</span>
+</span><span id="__span-18-12"><a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a><span class="w">          </span><span class="mf">100</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#e0f2fe&#39;</span><span class="p">,</span>
+</span><span id="__span-18-13"><a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a><span class="w">          </span><span class="mf">500</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#0ea5e9&#39;</span><span class="p">,</span>
+</span><span id="__span-18-14"><a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a><span class="w">          </span><span class="mf">600</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#0284c7&#39;</span><span class="p">,</span>
+</span><span id="__span-18-15"><a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a><span class="w">          </span><span class="mf">700</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#0369a1&#39;</span><span class="p">,</span>
+</span><span id="__span-18-16"><a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a><span class="w">          </span><span class="mf">900</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#0c4a6e&#39;</span><span class="p">,</span>
+</span><span id="__span-18-17"><a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a><span class="w">        </span><span class="p">},</span>
+</span><span id="__span-18-18"><a id="__codelineno-18-18" name="__codelineno-18-18" href="#__codelineno-18-18"></a><span class="w">        </span><span class="c1">// Additional colors...</span>
+</span><span id="__span-18-19"><a id="__codelineno-18-19" name="__codelineno-18-19" href="#__codelineno-18-19"></a><span class="w">      </span><span class="p">},</span>
+</span><span id="__span-18-20"><a id="__codelineno-18-20" name="__codelineno-18-20" href="#__codelineno-18-20"></a><span class="w">      </span><span class="nx">fontFamily</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-18-21"><a id="__codelineno-18-21" name="__codelineno-18-21" href="#__codelineno-18-21"></a><span class="w">        </span><span class="nx">sans</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;Inter&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;system-ui&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;sans-serif&#39;</span><span class="p">],</span>
+</span><span id="__span-18-22"><a id="__codelineno-18-22" name="__codelineno-18-22" href="#__codelineno-18-22"></a><span class="w">        </span><span class="nx">mono</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;JetBrains Mono&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Menlo&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;monospace&#39;</span><span class="p">],</span>
+</span><span id="__span-18-23"><a id="__codelineno-18-23" name="__codelineno-18-23" href="#__codelineno-18-23"></a><span class="w">      </span><span class="p">},</span>
+</span><span id="__span-18-24"><a id="__codelineno-18-24" name="__codelineno-18-24" href="#__codelineno-18-24"></a><span class="w">      </span><span class="c1">// Additional theme extensions...</span>
+</span><span id="__span-18-25"><a id="__codelineno-18-25" name="__codelineno-18-25" href="#__codelineno-18-25"></a><span class="w">    </span><span class="p">},</span>
+</span><span id="__span-18-26"><a id="__codelineno-18-26" name="__codelineno-18-26" href="#__codelineno-18-26"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-18-27"><a id="__codelineno-18-27" name="__codelineno-18-27" href="#__codelineno-18-27"></a><span class="w">  </span><span class="nx">plugins</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-18-28"><a id="__codelineno-18-28" name="__codelineno-18-28" href="#__codelineno-18-28"></a><span class="w">    </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;@tailwindcss/forms&#39;</span><span class="p">),</span>
+</span><span id="__span-18-29"><a id="__codelineno-18-29" name="__codelineno-18-29" href="#__codelineno-18-29"></a><span class="w">    </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;@tailwindcss/typography&#39;</span><span class="p">),</span>
+</span><span id="__span-18-30"><a id="__codelineno-18-30" name="__codelineno-18-30" href="#__codelineno-18-30"></a><span class="w">    </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;@tailwindcss/aspect-ratio&#39;</span><span class="p">),</span>
+</span><span id="__span-18-31"><a id="__codelineno-18-31" name="__codelineno-18-31" href="#__codelineno-18-31"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-18-32"><a id="__codelineno-18-32" name="__codelineno-18-32" href="#__codelineno-18-32"></a><span class="p">};</span>
+</span></code></pre></div>
+<h3 id="development-workflow">Development Workflow<a class="headerlink" href="#development-workflow" title="Permanent link">&para;</a></h3>
+<h4 id="component-development">Component Development<a class="headerlink" href="#component-development" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Design Review</strong>: Validate designs against accessibility guidelines</li>
+<li><strong>Component Creation</strong>: Build with semantic HTML and ARIA attributes</li>
+<li><strong>Styling</strong>: Apply design system tokens and utilities</li>
+<li><strong>Testing</strong>: Automated accessibility and cross-browser testing</li>
+<li><strong>Documentation</strong>: Add to Storybook with usage examples</li>
+</ol>
+<h4 id="quality-assurance">Quality Assurance<a class="headerlink" href="#quality-assurance" title="Permanent link">&para;</a></h4>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># Run comprehensive testing suite</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>npm<span class="w"> </span>run<span class="w"> </span>test:accessibility<span class="w">  </span><span class="c1"># Accessibility compliance</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>npm<span class="w"> </span>run<span class="w"> </span>test:cross-browser<span class="w">  </span><span class="c1"># Cross-browser compatibility</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>npm<span class="w"> </span>run<span class="w"> </span>test:performance<span class="w">   </span><span class="c1"># Performance benchmarks</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>npm<span class="w"> </span>run<span class="w"> </span>test:visual<span class="w">        </span><span class="c1"># Visual regression testing</span>
+</span></code></pre></div>
+<h3 id="integration-guidelines">Integration Guidelines<a class="headerlink" href="#integration-guidelines" title="Permanent link">&para;</a></h3>
+<h4 id="html-structure">HTML Structure<a class="headerlink" href="#html-structure" title="Permanent link">&para;</a></h4>
+<div class="language-html highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="cm">&lt;!-- Semantic HTML with accessibility --&gt;</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="p">&lt;</span><span class="nt">button</span> 
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>  <span class="na">class</span><span class="o">=</span><span class="s">&quot;btn btn-primary btn-md&quot;</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>  <span class="na">type</span><span class="o">=</span><span class="s">&quot;button&quot;</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>  <span class="na">aria-label</span><span class="o">=</span><span class="s">&quot;Save document&quot;</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>  <span class="na">aria-describedby</span><span class="o">=</span><span class="s">&quot;save-help&quot;</span>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="p">&gt;</span>
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>  <span class="p">&lt;</span><span class="nt">span</span> <span class="na">aria-hidden</span><span class="o">=</span><span class="s">&quot;true&quot;</span><span class="p">&gt;</span>💾<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>  Save Document
+</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a><span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a><span class="p">&lt;</span><span class="nt">div</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;save-help&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;sr-only&quot;</span><span class="p">&gt;</span>
+</span><span id="__span-20-12"><a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a>  Saves the current document to your computer
+</span><span id="__span-20-13"><a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></code></pre></div>
+<h4 id="css-utilities">CSS Utilities<a class="headerlink" href="#css-utilities" title="Permanent link">&para;</a></h4>
+<div class="language-html highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="cm">&lt;!-- Design system utilities --&gt;</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;bg-neutral-50 p-6 rounded-lg shadow-md&quot;</span><span class="p">&gt;</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>  <span class="p">&lt;</span><span class="nt">h2</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;text-headline-medium text-neutral-900 mb-4&quot;</span><span class="p">&gt;</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>    Component Title
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>  <span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>  <span class="p">&lt;</span><span class="nt">p</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;text-body-large text-neutral-600 leading-relaxed&quot;</span><span class="p">&gt;</span>
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>    Component description with optimal readability.
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>  <span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></code></pre></div>
+<h4 id="javascript-integration">JavaScript Integration<a class="headerlink" href="#javascript-integration" title="Permanent link">&para;</a></h4>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1">// Progressive enhancement with accessibility</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="kd">function</span><span class="w"> </span><span class="nx">initializeComponent</span><span class="p">(</span><span class="nx">element</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">  </span><span class="c1">// Ensure keyboard accessibility</span>
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="w">  </span><span class="nx">element</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;keydown&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">key</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;Enter&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">event</span><span class="p">.</span><span class="nx">key</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a><span class="w">      </span><span class="nx">event</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span>
+</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="w">      </span><span class="nx">element</span><span class="p">.</span><span class="nx">click</span><span class="p">();</span>
+</span><span id="__span-22-8"><a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-22-9"><a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a><span class="w">  </span><span class="p">});</span>
+</span><span id="__span-22-10"><a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a>
+</span><span id="__span-22-11"><a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a><span class="w">  </span><span class="c1">// Announce state changes to screen readers</span>
+</span><span id="__span-22-12"><a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a><span class="w">  </span><span class="nx">element</span><span class="p">.</span><span class="nx">setAttribute</span><span class="p">(</span><span class="s1">&#39;aria-live&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;polite&#39;</span><span class="p">);</span>
+</span><span id="__span-22-13"><a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr />
+<h2 id="resources-and-references">📚 <strong>Resources and References</strong><a class="headerlink" href="#resources-and-references" title="Permanent link">&para;</a></h2>
+<h3 id="design-system-tools">Design System Tools<a class="headerlink" href="#design-system-tools" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Storybook</strong>: Interactive component explorer at http://localhost:6006</li>
+<li><strong>Figma Library</strong>: Design tokens and component specifications</li>
+<li><strong>Design System Checklist</strong>: Comprehensive implementation guide</li>
+</ul>
+<h3 id="accessibility-resources">Accessibility Resources<a class="headerlink" href="#accessibility-resources" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://www.w3.org/WAI/WCAG21/quickref/">WCAG 2.1 Guidelines</a></li>
+<li><a href="https://webaim.org/">WebAIM Accessibility Guidelines</a></li>
+<li><a href="https://www.a11yproject.com/checklist/">A11y Project Checklist</a></li>
+</ul>
+<h3 id="performance-resources">Performance Resources<a class="headerlink" href="#performance-resources" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://web.dev/performance/">Web.dev Performance</a></li>
+<li><a href="https://web.dev/vitals/">Core Web Vitals</a></li>
+<li><a href="https://www.performancebudget.io/">Performance Budget Calculator</a></li>
+</ul>
+<h3 id="development-resources">Development Resources<a class="headerlink" href="#development-resources" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://tailwindcss.com/docs">Tailwind CSS Documentation</a></li>
+<li><a href="https://developer.mozilla.org/">MDN Web Docs</a></li>
+<li><a href="https://caniuse.com/">Can I Use</a> - Browser compatibility tables</li>
+</ul>
+<hr />
+<h2 id="get-started">🎉 <strong>Get Started</strong><a class="headerlink" href="#get-started" title="Permanent link">&para;</a></h2>
+<p>Ready to build with the Pynomaly Design System?</p>
+<ol>
+<li><strong>Explore Storybook</strong>: <code>npm run storybook</code> and visit http://localhost:6006</li>
+<li><strong>Review Components</strong>: Browse the interactive component library</li>
+<li><strong>Check Accessibility</strong>: Use built-in accessibility testing tools</li>
+<li><strong>Start Building</strong>: Copy component code and integrate into your application</li>
+</ol>
+<p>For questions or contributions, see our <a href="https://github.com/pynomaly/pynomaly">GitHub repository</a> or join our design system discussions! 🚀</p>
+<hr />
+<h2 id="related-documentation">🔗 <strong>Related Documentation</strong><a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong><a href="../accessibility/accessibility-guidelines/">Accessibility</a></strong> - Accessibility guidelines</li>
+<li><strong><a href="../storybook/">Storybook</a></strong> - Component documentation</li>
+<li><strong><a href="../testing/cross-browser-testing/">UI Testing</a></strong> - UI testing guides</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/pynomaly/pynomaly" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/pynomaly/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/pynomaly" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+        <script src="../javascripts/extra.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2571 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="State-of-the-art Python anomaly detection platform">
+      
+      
+        <meta name="author" content="Pynomaly Team">
+      
+      
+        <link rel="canonical" href="https://pynomaly.readthedocs.io/reference/algorithms/algorithm-comparison/">
+      
+      
+      
+      
+      <link rel="icon" href="../../../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>Algorithm Comparison - Pynomaly Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#algorithm-comparison" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Pynomaly Documentation" class="md-header__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../../../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pynomaly Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Algorithm Comparison
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Pynomaly Documentation" class="md-nav__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../../../assets/logo.png" alt="logo">
+
+    </a>
+    Pynomaly Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Start
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/FEATURE_INSTALLATION_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Feature Installation Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-selection-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Selection Guide
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Selection Guide">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#by-primary-concern" class="md-nav__link">
+    <span class="md-ellipsis">
+      By Primary Concern
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#by-data-characteristics" class="md-nav__link">
+    <span class="md-ellipsis">
+      By Data Characteristics
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comprehensive-performance-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comprehensive Performance Matrix
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Comprehensive Performance Matrix">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#computational-complexity" class="md-nav__link">
+    <span class="md-ellipsis">
+      Computational Complexity
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accuracy-by-dataset-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      Accuracy by Dataset Type
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Accuracy by Dataset Type">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tabular-data-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tabular Data Performance
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#time-series-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Time Series Performance
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graph-data-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Graph Data Performance
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resource-requirements-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resource Requirements Comparison
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resource Requirements Comparison">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#memory-usage-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory Usage Analysis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gpu-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      GPU Requirements
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#processing-time-benchmarks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Processing Time Benchmarks
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#feature-support-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      Feature Support Matrix
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Feature Support Matrix">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-type-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Type Support
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advanced-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Features
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-case-recommendations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use Case Recommendations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Use Case Recommendations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#by-industrydomain" class="md-nav__link">
+    <span class="md-ellipsis">
+      By Industry/Domain
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="By Industry/Domain">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#financial-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Financial Services
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cybersecurity" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cybersecurity
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manufacturing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manufacturing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#healthcare" class="md-nav__link">
+    <span class="md-ellipsis">
+      Healthcare
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e-commerce" class="md-nav__link">
+    <span class="md-ellipsis">
+      E-commerce
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      Decision Framework
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Decision Framework">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-by-step-selection-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step-by-Step Selection Process
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step-by-Step Selection Process">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-data-assessment" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Data Assessment
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-requirement-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Requirement Analysis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-algorithm-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Algorithm Filtering
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-final-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Final Selection
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#decision-tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      Decision Tree
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-tuning-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Tuning Guidelines
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Tuning Guidelines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#general-hyperparameter-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      General Hyperparameter Optimization
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="General Hyperparameter Optimization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#grid-search-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Grid Search Strategy
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bayesian-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bayesian Optimization
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#algorithm-specific-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Algorithm-Specific Tuning
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Algorithm-Specific Tuning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#isolationforest-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      IsolationForest Optimization
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deep-learning-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deep Learning Tuning
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ensemble-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ensemble Strategies
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ensemble Strategies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#smart-ensemble-construction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Smart Ensemble Construction
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Smart Ensemble Construction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diversity-based-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Diversity-Based Selection
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-based-weighting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance-Based Weighting
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation-and-evaluation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Validation and Evaluation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Validation and Evaluation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#comprehensive-evaluation-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comprehensive Evaluation Framework
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Comprehensive Evaluation Framework">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#multi-metric-evaluation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multi-Metric Evaluation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-validation-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cross-Validation Strategies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#production-deployment-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Production Deployment Considerations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Production Deployment Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#model-selection-for-production" class="md-nav__link">
+    <span class="md-ellipsis">
+      Model Selection for Production
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Model Selection for Production">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#latency-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Latency Requirements
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#throughput-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Throughput Requirements
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resource Constraints
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related Documentation
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="algorithm-comparison">Algorithm Comparison<a class="headerlink" href="#algorithm-comparison" title="Permanent link">&para;</a></h1>
+<p>🍞 <strong>Breadcrumb:</strong> 🏠 <a href="../../../">Home</a> &gt; 📖 <a href="../README.md">Reference</a> &gt; 🧮 <a href="../">Algorithms</a> &gt; ⚖️ Algorithm Comparison</p>
+<hr />
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This comprehensive comparison guide helps you select the optimal anomaly detection algorithm based on your specific requirements. It provides detailed performance metrics, use case recommendations, and decision frameworks.</p>
+<h2 id="quick-selection-guide">Quick Selection Guide<a class="headerlink" href="#quick-selection-guide" title="Permanent link">&para;</a></h2>
+<h3 id="by-primary-concern">By Primary Concern<a class="headerlink" href="#by-primary-concern" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th><strong>Priority</strong></th>
+<th><strong>Recommended Algorithms</strong></th>
+<th><strong>Rationale</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Speed</strong></td>
+<td>HBOS, ECOD, EllipticEnvelope</td>
+<td>O(n) or O(n log n) complexity</td>
+</tr>
+<tr>
+<td><strong>Accuracy</strong></td>
+<td>Ensemble, AutoEncoder, IsolationForest</td>
+<td>State-of-the-art performance</td>
+</tr>
+<tr>
+<td><strong>Scalability</strong></td>
+<td>IsolationForest, HBOS, ECOD</td>
+<td>Handle millions of samples</td>
+</tr>
+<tr>
+<td><strong>Interpretability</strong></td>
+<td>LOF, Statistical methods, Causal AD</td>
+<td>Clear explanation of anomalies</td>
+</tr>
+<tr>
+<td><strong>Memory Efficiency</strong></td>
+<td>Statistical methods, HBOS</td>
+<td>Low memory footprint</td>
+</tr>
+</tbody>
+</table>
+<h3 id="by-data-characteristics">By Data Characteristics<a class="headerlink" href="#by-data-characteristics" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th><strong>Data Type</strong></th>
+<th><strong>Size</strong></th>
+<th><strong>First Choice</strong></th>
+<th><strong>Alternatives</strong></th>
+<th><strong>Avoid</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Tabular</strong></td>
+<td>Small</td>
+<td>LOF</td>
+<td>EllipticEnvelope, ABOD</td>
+<td>Deep Learning</td>
+</tr>
+<tr>
+<td><strong>Tabular</strong></td>
+<td>Large</td>
+<td>IsolationForest</td>
+<td>HBOS, ECOD</td>
+<td>LOF, OneClassSVM</td>
+</tr>
+<tr>
+<td><strong>Time Series</strong></td>
+<td>Any</td>
+<td>LSTM AutoEncoder</td>
+<td>Matrix Profile, Prophet</td>
+<td>Statistical methods</td>
+</tr>
+<tr>
+<td><strong>High-Dimensional</strong></td>
+<td>Any</td>
+<td>AutoEncoder</td>
+<td>COPOD, IsolationForest</td>
+<td>LOF, KNN</td>
+</tr>
+<tr>
+<td><strong>Text</strong></td>
+<td>Any</td>
+<td>TF-IDF+Clustering</td>
+<td>Word Embeddings</td>
+<td>Traditional ML</td>
+</tr>
+<tr>
+<td><strong>Images</strong></td>
+<td>Any</td>
+<td>CNN AutoEncoder</td>
+<td>VAE</td>
+<td>Statistical methods</td>
+</tr>
+<tr>
+<td><strong>Graphs</strong></td>
+<td>Any</td>
+<td>DOMINANT</td>
+<td>GCNAE</td>
+<td>Traditional methods</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="comprehensive-performance-matrix">Comprehensive Performance Matrix<a class="headerlink" href="#comprehensive-performance-matrix" title="Permanent link">&para;</a></h2>
+<h3 id="computational-complexity">Computational Complexity<a class="headerlink" href="#computational-complexity" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Training Time</th>
+<th>Prediction Time</th>
+<th>Memory Usage</th>
+<th>Scalability Rating</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Statistical Methods</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Z-Score</td>
+<td>O(n)</td>
+<td>O(1)</td>
+<td>Very Low</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>IQR</td>
+<td>O(n)</td>
+<td>O(1)</td>
+<td>Very Low</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>EllipticEnvelope</td>
+<td>O(n×d²)</td>
+<td>O(d²)</td>
+<td>Low</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>PyOD Algorithms</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>HBOS</td>
+<td>O(n)</td>
+<td>O(1)</td>
+<td>Low</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>ECOD</td>
+<td>O(n log n)</td>
+<td>O(log n)</td>
+<td>Low</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>COPOD</td>
+<td>O(n log n)</td>
+<td>O(log n)</td>
+<td>Medium</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>Scikit-learn</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>IsolationForest</td>
+<td>O(n log n)</td>
+<td>O(log n)</td>
+<td>Medium</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>LOF</td>
+<td>O(n²)</td>
+<td>O(k×n)</td>
+<td>High</td>
+<td>⭐⭐</td>
+</tr>
+<tr>
+<td>OneClassSVM</td>
+<td>O(n²-n³)</td>
+<td>O(sv×d)</td>
+<td>High</td>
+<td>⭐</td>
+</tr>
+<tr>
+<td><strong>Distance-based</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>KNN</td>
+<td>O(1)</td>
+<td>O(n)</td>
+<td>High</td>
+<td>⭐⭐</td>
+</tr>
+<tr>
+<td>ABOD</td>
+<td>O(n³)</td>
+<td>O(n²)</td>
+<td>Very High</td>
+<td>⭐</td>
+</tr>
+<tr>
+<td><strong>Deep Learning</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>AutoEncoder</td>
+<td>O(epochs×n)</td>
+<td>O(1)</td>
+<td>High</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td>VAE</td>
+<td>O(epochs×n)</td>
+<td>O(1)</td>
+<td>High</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td>LSTM</td>
+<td>O(epochs×seq×n)</td>
+<td>O(seq)</td>
+<td>Very High</td>
+<td>⭐⭐</td>
+</tr>
+<tr>
+<td><strong>Ensemble</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Voting</td>
+<td>Sum(base algorithms)</td>
+<td>Sum(base algorithms)</td>
+<td>High</td>
+<td>⭐⭐⭐</td>
+</tr>
+</tbody>
+</table>
+<h3 id="accuracy-by-dataset-type">Accuracy by Dataset Type<a class="headerlink" href="#accuracy-by-dataset-type" title="Permanent link">&para;</a></h3>
+<h4 id="tabular-data-performance">Tabular Data Performance<a class="headerlink" href="#tabular-data-performance" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Small Data (&lt;1K)</th>
+<th>Medium Data (1K-100K)</th>
+<th>Large Data (&gt;100K)</th>
+<th>High-Dim (&gt;100 features)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IsolationForest</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>LOF</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐</td>
+<td>⭐⭐</td>
+</tr>
+<tr>
+<td>OneClassSVM</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td>AutoEncoder</td>
+<td>⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>COPOD</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>HBOS</td>
+<td>⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐</td>
+</tr>
+<tr>
+<td>Ensemble</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+</tbody>
+</table>
+<h4 id="time-series-performance">Time Series Performance<a class="headerlink" href="#time-series-performance" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Trend Anomalies</th>
+<th>Seasonal Anomalies</th>
+<th>Point Anomalies</th>
+<th>Pattern Anomalies</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LSTM AutoEncoder</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>Matrix Profile</td>
+<td>⭐⭐</td>
+<td>⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>Prophet</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐</td>
+</tr>
+<tr>
+<td>ARIMA</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐</td>
+</tr>
+<tr>
+<td>IsolationForest</td>
+<td>⭐⭐</td>
+<td>⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐</td>
+</tr>
+</tbody>
+</table>
+<h4 id="graph-data-performance">Graph Data Performance<a class="headerlink" href="#graph-data-performance" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Node Anomalies</th>
+<th>Edge Anomalies</th>
+<th>Community Anomalies</th>
+<th>Attribute Anomalies</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DOMINANT</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>GCNAE</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td>Graph Isolation</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐</td>
+<td>⭐⭐</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="resource-requirements-comparison">Resource Requirements Comparison<a class="headerlink" href="#resource-requirements-comparison" title="Permanent link">&para;</a></h2>
+<h3 id="memory-usage-analysis">Memory Usage Analysis<a class="headerlink" href="#memory-usage-analysis" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th><strong>Memory Tier</strong></th>
+<th><strong>Algorithms</strong></th>
+<th><strong>Typical Usage</strong></th>
+<th><strong>Max Dataset Size</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Very Low</strong></td>
+<td>Z-Score, IQR, HBOS</td>
+<td>&lt;100 MB</td>
+<td>Unlimited</td>
+</tr>
+<tr>
+<td><strong>Low</strong></td>
+<td>EllipticEnvelope, ECOD</td>
+<td>100-500 MB</td>
+<td>1M+ samples</td>
+</tr>
+<tr>
+<td><strong>Medium</strong></td>
+<td>IsolationForest, COPOD</td>
+<td>500 MB - 2 GB</td>
+<td>500K samples</td>
+</tr>
+<tr>
+<td><strong>High</strong></td>
+<td>LOF, KNN, AutoEncoder</td>
+<td>2-8 GB</td>
+<td>100K samples</td>
+</tr>
+<tr>
+<td><strong>Very High</strong></td>
+<td>OneClassSVM, ABOD, LSTM</td>
+<td>8+ GB</td>
+<td>10K samples</td>
+</tr>
+</tbody>
+</table>
+<h3 id="gpu-requirements">GPU Requirements<a class="headerlink" href="#gpu-requirements" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th><strong>GPU Tier</strong></th>
+<th><strong>Algorithms</strong></th>
+<th><strong>Minimum VRAM</strong></th>
+<th><strong>Recommended VRAM</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Not Required</strong></td>
+<td>All statistical, LOF, KNN</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><strong>Optional</strong></td>
+<td>AutoEncoder (small)</td>
+<td>-</td>
+<td>4 GB</td>
+</tr>
+<tr>
+<td><strong>Recommended</strong></td>
+<td>AutoEncoder (large), VAE</td>
+<td>4 GB</td>
+<td>8 GB</td>
+</tr>
+<tr>
+<td><strong>Required</strong></td>
+<td>Transformer, CNN, Large LSTM</td>
+<td>8 GB</td>
+<td>16+ GB</td>
+</tr>
+</tbody>
+</table>
+<h3 id="processing-time-benchmarks">Processing Time Benchmarks<a class="headerlink" href="#processing-time-benchmarks" title="Permanent link">&para;</a></h3>
+<p><em>Based on 100K samples, 50 features, Intel i7-10700K, 32GB RAM</em></p>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Training Time</th>
+<th>Prediction Time (1K samples)</th>
+<th>Total Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HBOS</td>
+<td>0.1s</td>
+<td>0.001s</td>
+<td>0.101s</td>
+</tr>
+<tr>
+<td>ECOD</td>
+<td>0.3s</td>
+<td>0.002s</td>
+<td>0.302s</td>
+</tr>
+<tr>
+<td>IsolationForest</td>
+<td>2.1s</td>
+<td>0.005s</td>
+<td>2.105s</td>
+</tr>
+<tr>
+<td>COPOD</td>
+<td>1.8s</td>
+<td>0.003s</td>
+<td>1.803s</td>
+</tr>
+<tr>
+<td>LOF</td>
+<td>45.2s</td>
+<td>12.3s</td>
+<td>57.5s</td>
+</tr>
+<tr>
+<td>OneClassSVM</td>
+<td>128.4s</td>
+<td>8.7s</td>
+<td>137.1s</td>
+</tr>
+<tr>
+<td>AutoEncoder</td>
+<td>120.0s</td>
+<td>0.1s</td>
+<td>120.1s</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="feature-support-matrix">Feature Support Matrix<a class="headerlink" href="#feature-support-matrix" title="Permanent link">&para;</a></h2>
+<h3 id="data-type-support">Data Type Support<a class="headerlink" href="#data-type-support" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Numerical</th>
+<th>Categorical</th>
+<th>Mixed</th>
+<th>Text</th>
+<th>Images</th>
+<th>Graphs</th>
+<th>Time Series</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IsolationForest</td>
+<td>✅</td>
+<td>⚠️</td>
+<td>⚠️</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td>LOF</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td>HBOS</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td>AutoEncoder</td>
+<td>✅</td>
+<td>⚠️</td>
+<td>⚠️</td>
+<td>⚠️</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>CNN AutoEncoder</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td>LSTM</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>⚠️</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>DOMINANT</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>TF-IDF</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Legend</strong>: ✅ Native support, ⚠️ Requires preprocessing, ❌ Not supported</p>
+<h3 id="advanced-features">Advanced Features<a class="headerlink" href="#advanced-features" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Streaming</th>
+<th>Online Learning</th>
+<th>Incremental</th>
+<th>GPU Acceleration</th>
+<th>Distributed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IsolationForest</td>
+<td>⚠️</td>
+<td>❌</td>
+<td>⚠️</td>
+<td>❌</td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td>LOF</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>AutoEncoder</td>
+<td>⚠️</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>HBOS</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td>LSTM</td>
+<td>⚠️</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Ensemble</td>
+<td>Depends on base</td>
+<td>Depends on base</td>
+<td>Depends on base</td>
+<td>Depends on base</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="use-case-recommendations">Use Case Recommendations<a class="headerlink" href="#use-case-recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="by-industrydomain">By Industry/Domain<a class="headerlink" href="#by-industrydomain" title="Permanent link">&para;</a></h3>
+<h4 id="financial-services"><strong>Financial Services</strong><a class="headerlink" href="#financial-services" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Use Case</th>
+<th>Primary Algorithm</th>
+<th>Backup Algorithm</th>
+<th>Special Considerations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Credit Card Fraud</td>
+<td>IsolationForest</td>
+<td>Ensemble</td>
+<td>Real-time requirements</td>
+</tr>
+<tr>
+<td>Market Manipulation</td>
+<td>LSTM AutoEncoder</td>
+<td>Time Series Ensemble</td>
+<td>Sequential patterns</td>
+</tr>
+<tr>
+<td>Anti-Money Laundering</td>
+<td>Graph Neural Networks</td>
+<td>Network Analysis</td>
+<td>Graph structure critical</td>
+</tr>
+<tr>
+<td>Risk Assessment</td>
+<td>Ensemble</td>
+<td>AutoEncoder</td>
+<td>High accuracy needed</td>
+</tr>
+</tbody>
+</table>
+<h4 id="cybersecurity"><strong>Cybersecurity</strong><a class="headerlink" href="#cybersecurity" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Use Case</th>
+<th>Primary Algorithm</th>
+<th>Backup Algorithm</th>
+<th>Special Considerations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Network Intrusion</td>
+<td>LSTM</td>
+<td>IsolationForest</td>
+<td>Sequential patterns</td>
+</tr>
+<tr>
+<td>Log Analysis</td>
+<td>TF-IDF + Clustering</td>
+<td>Ensemble</td>
+<td>Text processing</td>
+</tr>
+<tr>
+<td>User Behavior</td>
+<td>LOF</td>
+<td>OneClassSVM</td>
+<td>Local anomalies</td>
+</tr>
+<tr>
+<td>Malware Detection</td>
+<td>CNN AutoEncoder</td>
+<td>Deep Learning</td>
+<td>Binary/executable analysis</td>
+</tr>
+</tbody>
+</table>
+<h4 id="manufacturing"><strong>Manufacturing</strong><a class="headerlink" href="#manufacturing" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Use Case</th>
+<th>Primary Algorithm</th>
+<th>Backup Algorithm</th>
+<th>Special Considerations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Quality Control</td>
+<td>Statistical + ML Ensemble</td>
+<td>IsolationForest</td>
+<td>Fast decisions needed</td>
+</tr>
+<tr>
+<td>Predictive Maintenance</td>
+<td>Time Series LSTM</td>
+<td>Prophet</td>
+<td>Temporal dependencies</td>
+</tr>
+<tr>
+<td>Supply Chain</td>
+<td>Graph Analysis</td>
+<td>Network Anomalies</td>
+<td>Relationship modeling</td>
+</tr>
+<tr>
+<td>Process Monitoring</td>
+<td>Real-time Statistical</td>
+<td>Streaming Algorithms</td>
+<td>Continuous operation</td>
+</tr>
+</tbody>
+</table>
+<h4 id="healthcare"><strong>Healthcare</strong><a class="headerlink" href="#healthcare" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Use Case</th>
+<th>Primary Algorithm</th>
+<th>Backup Algorithm</th>
+<th>Special Considerations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Medical Imaging</td>
+<td>CNN AutoEncoder</td>
+<td>Vision Transformer</td>
+<td>Image data</td>
+</tr>
+<tr>
+<td>Patient Monitoring</td>
+<td>Time Series Analysis</td>
+<td>LSTM</td>
+<td>Continuous signals</td>
+</tr>
+<tr>
+<td>Drug Discovery</td>
+<td>Graph Neural Networks</td>
+<td>Molecular Analysis</td>
+<td>Chemical structures</td>
+</tr>
+<tr>
+<td>Electronic Health Records</td>
+<td>Mixed Data Ensemble</td>
+<td>Multiple Data Types</td>
+<td>Privacy requirements</td>
+</tr>
+</tbody>
+</table>
+<h4 id="e-commerce"><strong>E-commerce</strong><a class="headerlink" href="#e-commerce" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Use Case</th>
+<th>Primary Algorithm</th>
+<th>Backup Algorithm</th>
+<th>Special Considerations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Recommendation Systems</td>
+<td>Collaborative Filtering + AD</td>
+<td>Matrix Factorization</td>
+<td>User-item interactions</td>
+</tr>
+<tr>
+<td>Price Monitoring</td>
+<td>Time Series</td>
+<td>Prophet + LSTM</td>
+<td>Market dynamics</td>
+</tr>
+<tr>
+<td>Review Analysis</td>
+<td>Text Analytics</td>
+<td>NLP + Anomaly Detection</td>
+<td>Sentiment analysis</td>
+</tr>
+<tr>
+<td>Inventory Management</td>
+<td>Forecasting + AD</td>
+<td>Multi-variate Time Series</td>
+<td>Demand patterns</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="decision-framework">Decision Framework<a class="headerlink" href="#decision-framework" title="Permanent link">&para;</a></h2>
+<h3 id="step-by-step-selection-process">Step-by-Step Selection Process<a class="headerlink" href="#step-by-step-selection-process" title="Permanent link">&para;</a></h3>
+<h4 id="1-data-assessment">1. <strong>Data Assessment</strong><a class="headerlink" href="#1-data-assessment" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">assess_data_characteristics</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">characteristics</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        <span class="s2">&quot;data_types&quot;</span><span class="p">:</span> <span class="n">analyze_data_types</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="s2">&quot;missing_values&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="s2">&quot;temporal&quot;</span><span class="p">:</span> <span class="n">is_temporal_data</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="s2">&quot;sparsity&quot;</span><span class="p">:</span> <span class="n">calculate_sparsity</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="p">}</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="k">return</span> <span class="n">characteristics</span>
+</span></code></pre></div>
+<h4 id="2-requirement-analysis">2. <strong>Requirement Analysis</strong><a class="headerlink" href="#2-requirement-analysis" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">analyze_requirements</span><span class="p">():</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">requirements</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>        <span class="s2">&quot;performance&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>            <span class="s2">&quot;speed_priority&quot;</span><span class="p">:</span> <span class="s2">&quot;high/medium/low&quot;</span><span class="p">,</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>            <span class="s2">&quot;accuracy_priority&quot;</span><span class="p">:</span> <span class="s2">&quot;high/medium/low&quot;</span><span class="p">,</span> 
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>            <span class="s2">&quot;memory_constraints&quot;</span><span class="p">:</span> <span class="s2">&quot;strict/moderate/flexible&quot;</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="p">},</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="s2">&quot;operational&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>            <span class="s2">&quot;real_time&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="o">/</span><span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>            <span class="s2">&quot;batch_processing&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="o">/</span><span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>            <span class="s2">&quot;interpretability&quot;</span><span class="p">:</span> <span class="s2">&quot;required/preferred/optional&quot;</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>        <span class="p">},</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="s2">&quot;infrastructure&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>            <span class="s2">&quot;gpu_available&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="o">/</span><span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>            <span class="s2">&quot;distributed_compute&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="o">/</span><span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>            <span class="s2">&quot;cloud_deployment&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="o">/</span><span class="kc">False</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>        <span class="p">}</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>    <span class="p">}</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    <span class="k">return</span> <span class="n">requirements</span>
+</span></code></pre></div>
+<h4 id="3-algorithm-filtering">3. <strong>Algorithm Filtering</strong><a class="headerlink" href="#3-algorithm-filtering" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">filter_algorithms</span><span class="p">(</span><span class="n">data_characteristics</span><span class="p">,</span> <span class="n">requirements</span><span class="p">):</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">candidate_algorithms</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="c1"># Filter by data size</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="k">if</span> <span class="n">data_characteristics</span><span class="p">[</span><span class="s2">&quot;size&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">100000</span><span class="p">:</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="n">candidate_algorithms</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;IsolationForest&quot;</span><span class="p">,</span> <span class="s2">&quot;HBOS&quot;</span><span class="p">,</span> <span class="s2">&quot;ECOD&quot;</span><span class="p">]</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="k">elif</span> <span class="n">data_characteristics</span><span class="p">[</span><span class="s2">&quot;size&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="p">:</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        <span class="n">candidate_algorithms</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;LOF&quot;</span><span class="p">,</span> <span class="s2">&quot;EllipticEnvelope&quot;</span><span class="p">,</span> <span class="s2">&quot;ABOD&quot;</span><span class="p">]</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        <span class="n">candidate_algorithms</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;IsolationForest&quot;</span><span class="p">,</span> <span class="s2">&quot;LOF&quot;</span><span class="p">,</span> <span class="s2">&quot;OneClassSVM&quot;</span><span class="p">]</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="c1"># Filter by speed requirements</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    <span class="k">if</span> <span class="n">requirements</span><span class="p">[</span><span class="s2">&quot;performance&quot;</span><span class="p">][</span><span class="s2">&quot;speed_priority&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;high&quot;</span><span class="p">:</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>        <span class="n">candidate_algorithms</span> <span class="o">=</span> <span class="p">[</span><span class="n">alg</span> <span class="k">for</span> <span class="n">alg</span> <span class="ow">in</span> <span class="n">candidate_algorithms</span> 
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>                              <span class="k">if</span> <span class="n">alg</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;HBOS&quot;</span><span class="p">,</span> <span class="s2">&quot;ECOD&quot;</span><span class="p">,</span> <span class="s2">&quot;EllipticEnvelope&quot;</span><span class="p">]]</span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>    <span class="c1"># Filter by interpretability requirements</span>
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>    <span class="k">if</span> <span class="n">requirements</span><span class="p">[</span><span class="s2">&quot;operational&quot;</span><span class="p">][</span><span class="s2">&quot;interpretability&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;required&quot;</span><span class="p">:</span>
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>        <span class="n">candidate_algorithms</span> <span class="o">=</span> <span class="p">[</span><span class="n">alg</span> <span class="k">for</span> <span class="n">alg</span> <span class="ow">in</span> <span class="n">candidate_algorithms</span> 
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>                              <span class="k">if</span> <span class="n">alg</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;LOF&quot;</span><span class="p">,</span> <span class="s2">&quot;EllipticEnvelope&quot;</span><span class="p">,</span> <span class="s2">&quot;Statistical&quot;</span><span class="p">]]</span>
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>
+</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>    <span class="k">return</span> <span class="n">candidate_algorithms</span>
+</span></code></pre></div>
+<h4 id="4-final-selection">4. <strong>Final Selection</strong><a class="headerlink" href="#4-final-selection" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">select_final_algorithm</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span> <span class="n">data_characteristics</span><span class="p">,</span> <span class="n">requirements</span><span class="p">):</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">scores</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="k">for</span> <span class="n">algorithm</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>        <span class="c1"># Score based on data fit</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        <span class="k">if</span> <span class="n">is_good_fit</span><span class="p">(</span><span class="n">algorithm</span><span class="p">,</span> <span class="n">data_characteristics</span><span class="p">):</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>            <span class="n">score</span> <span class="o">+=</span> <span class="mi">40</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        <span class="c1"># Score based on requirements match</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>        <span class="k">if</span> <span class="n">meets_requirements</span><span class="p">(</span><span class="n">algorithm</span><span class="p">,</span> <span class="n">requirements</span><span class="p">):</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>            <span class="n">score</span> <span class="o">+=</span> <span class="mi">40</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>        <span class="c1"># Score based on proven performance</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>        <span class="n">score</span> <span class="o">+=</span> <span class="n">get_benchmark_score</span><span class="p">(</span><span class="n">algorithm</span><span class="p">,</span> <span class="n">data_characteristics</span><span class="p">)</span> <span class="o">*</span> <span class="mi">20</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>        <span class="n">scores</span><span class="p">[</span><span class="n">algorithm</span><span class="p">]</span> <span class="o">=</span> <span class="n">score</span>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>
+</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">scores</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="decision-tree">Decision Tree<a class="headerlink" href="#decision-tree" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Data Size?
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>├── Small (&lt;1K)
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>│   ├── Need Interpretability? → LOF, Statistical Methods
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>│   ├── High Accuracy? → OneClassSVM, Ensemble
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>│   └── Fast? → EllipticEnvelope, Z-Score
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>├── Medium (1K-100K) 
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>│   ├── High Dimensional? → AutoEncoder, COPOD
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>│   ├── Mixed Data Types? → HBOS, Ensemble
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>│   └── General Purpose? → IsolationForest
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>└── Large (&gt;100K)
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    ├── Real-time? → HBOS, ECOD
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>    ├── Complex Patterns? → AutoEncoder, Deep Learning
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>    └── Memory Constrained? → Streaming Algorithms
+</span></code></pre></div>
+<hr />
+<h2 id="performance-tuning-guidelines">Performance Tuning Guidelines<a class="headerlink" href="#performance-tuning-guidelines" title="Permanent link">&para;</a></h2>
+<h3 id="general-hyperparameter-optimization">General Hyperparameter Optimization<a class="headerlink" href="#general-hyperparameter-optimization" title="Permanent link">&para;</a></h3>
+<h4 id="grid-search-strategy">Grid Search Strategy<a class="headerlink" href="#grid-search-strategy" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Conservative grid search for production</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">conservative_grids</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="s2">&quot;IsolationForest&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>        <span class="s2">&quot;n_estimators&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">],</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="s2">&quot;max_features&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="p">},</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="s2">&quot;LOF&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>        <span class="s2">&quot;n_neighbors&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>        <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">]</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="p">},</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>    <span class="s2">&quot;AutoEncoder&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>        <span class="s2">&quot;hidden_neurons&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span> <span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">]],</span>
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>        <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span>
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>        <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.0005</span><span class="p">]</span>
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>    <span class="p">}</span>
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="p">}</span>
+</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>
+</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="c1"># Aggressive grid search for research</span>
+</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="n">aggressive_grids</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>    <span class="s2">&quot;IsolationForest&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-5-22"><a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>        <span class="s2">&quot;n_estimators&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">500</span><span class="p">],</span>
+</span><span id="__span-5-23"><a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>        <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span>
+</span><span id="__span-5-24"><a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>        <span class="s2">&quot;max_features&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+</span><span id="__span-5-25"><a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>        <span class="s2">&quot;max_samples&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">]</span>
+</span><span id="__span-5-26"><a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a>    <span class="p">}</span>
+</span><span id="__span-5-27"><a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a><span class="p">}</span>
+</span></code></pre></div>
+<h4 id="bayesian-optimization">Bayesian Optimization<a class="headerlink" href="#bayesian-optimization" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">skopt</span><span class="w"> </span><span class="kn">import</span> <span class="n">gp_minimize</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">skopt.space</span><span class="w"> </span><span class="kn">import</span> <span class="n">Real</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">Categorical</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">bayesian_optimization_example</span><span class="p">():</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">space</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        <span class="n">Integer</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;n_estimators&#39;</span><span class="p">),</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>        <span class="n">Real</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;contamination&#39;</span><span class="p">),</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>        <span class="n">Real</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;max_features&#39;</span><span class="p">),</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>        <span class="n">Categorical</span><span class="p">([</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;max_samples&#39;</span><span class="p">)</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    <span class="p">]</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">objective</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>        <span class="n">model</span> <span class="o">=</span> <span class="n">IsolationForest</span><span class="p">(</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>            <span class="n">n_estimators</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>            <span class="n">contamination</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> 
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>            <span class="n">max_features</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>            <span class="n">max_samples</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>        <span class="p">)</span>
+</span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>        <span class="k">return</span> <span class="o">-</span><span class="n">cross_val_score</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>
+</span><span id="__span-6-21"><a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">gp_minimize</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">n_calls</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+</span><span id="__span-6-22"><a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">x</span>
+</span></code></pre></div>
+<h3 id="algorithm-specific-tuning">Algorithm-Specific Tuning<a class="headerlink" href="#algorithm-specific-tuning" title="Permanent link">&para;</a></h3>
+<h4 id="isolationforest-optimization">IsolationForest Optimization<a class="headerlink" href="#isolationforest-optimization" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">tune_isolation_forest</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="c1"># Start with contamination rate</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">contamination_scores</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="k">for</span> <span class="n">contamination</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]:</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>        <span class="n">model</span> <span class="o">=</span> <span class="n">IsolationForest</span><span class="p">(</span><span class="n">contamination</span><span class="o">=</span><span class="n">contamination</span><span class="p">)</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>        <span class="n">score</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>        <span class="n">contamination_scores</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">contamination</span><span class="p">,</span> <span class="n">score</span><span class="p">))</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    <span class="n">best_contamination</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">contamination_scores</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>    <span class="c1"># Then tune n_estimators</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>    <span class="n">n_estimators_scores</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>    <span class="k">for</span> <span class="n">n_est</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">500</span><span class="p">]:</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>        <span class="n">model</span> <span class="o">=</span> <span class="n">IsolationForest</span><span class="p">(</span>
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>            <span class="n">contamination</span><span class="o">=</span><span class="n">best_contamination</span><span class="p">,</span>
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>            <span class="n">n_estimators</span><span class="o">=</span><span class="n">n_est</span>
+</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>        <span class="p">)</span>
+</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>        <span class="n">score</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</span><span id="__span-7-19"><a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>        <span class="n">n_estimators_scores</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">n_est</span><span class="p">,</span> <span class="n">score</span><span class="p">))</span>
+</span><span id="__span-7-20"><a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>
+</span><span id="__span-7-21"><a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>    <span class="n">best_n_estimators</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">n_estimators_scores</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="__span-7-22"><a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>
+</span><span id="__span-7-23"><a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>    <span class="k">return</span> <span class="p">{</span>
+</span><span id="__span-7-24"><a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a>        <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="n">best_contamination</span><span class="p">,</span>
+</span><span id="__span-7-25"><a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a>        <span class="s2">&quot;n_estimators&quot;</span><span class="p">:</span> <span class="n">best_n_estimators</span>
+</span><span id="__span-7-26"><a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a>    <span class="p">}</span>
+</span></code></pre></div>
+<h4 id="deep-learning-tuning">Deep Learning Tuning<a class="headerlink" href="#deep-learning-tuning" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">tune_autoencoder</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="kn">import</span><span class="w"> </span><span class="nn">optuna</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">objective</span><span class="p">(</span><span class="n">trial</span><span class="p">):</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>        <span class="c1"># Architecture</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>        <span class="n">n_layers</span> <span class="o">=</span> <span class="n">trial</span><span class="o">.</span><span class="n">suggest_int</span><span class="p">(</span><span class="s1">&#39;n_layers&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>        <span class="n">layer_sizes</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>        <span class="n">current_size</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_layers</span><span class="p">):</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>            <span class="n">layer_size</span> <span class="o">=</span> <span class="n">trial</span><span class="o">.</span><span class="n">suggest_int</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;layer_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">256</span><span class="p">)</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>            <span class="n">layer_sizes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer_size</span><span class="p">)</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>            <span class="n">current_size</span> <span class="o">=</span> <span class="n">layer_size</span>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>        <span class="c1"># Symmetric decoder</span>
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>        <span class="n">decoder_sizes</span> <span class="o">=</span> <span class="n">layer_sizes</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>
+</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>        <span class="c1"># Training parameters</span>
+</span><span id="__span-8-19"><a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>        <span class="n">learning_rate</span> <span class="o">=</span> <span class="n">trial</span><span class="o">.</span><span class="n">suggest_float</span><span class="p">(</span><span class="s1">&#39;lr&#39;</span><span class="p">,</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="mf">1e-2</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-8-20"><a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">trial</span><span class="o">.</span><span class="n">suggest_categorical</span><span class="p">(</span><span class="s1">&#39;batch_size&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">])</span>
+</span><span id="__span-8-21"><a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>        <span class="n">dropout</span> <span class="o">=</span> <span class="n">trial</span><span class="o">.</span><span class="n">suggest_float</span><span class="p">(</span><span class="s1">&#39;dropout&#39;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+</span><span id="__span-8-22"><a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a>
+</span><span id="__span-8-23"><a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a>        <span class="n">model</span> <span class="o">=</span> <span class="n">AutoEncoder</span><span class="p">(</span>
+</span><span id="__span-8-24"><a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a>            <span class="n">encoder_layers</span><span class="o">=</span><span class="n">layer_sizes</span><span class="p">,</span>
+</span><span id="__span-8-25"><a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a>            <span class="n">decoder_layers</span><span class="o">=</span><span class="n">decoder_sizes</span><span class="p">,</span>
+</span><span id="__span-8-26"><a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a>            <span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">,</span>
+</span><span id="__span-8-27"><a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a>            <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+</span><span id="__span-8-28"><a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a>            <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span>
+</span><span id="__span-8-29"><a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a>        <span class="p">)</span>
+</span><span id="__span-8-30"><a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a>
+</span><span id="__span-8-31"><a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a>        <span class="n">score</span> <span class="o">=</span> <span class="n">evaluate_autoencoder</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</span><span id="__span-8-32"><a id="__codelineno-8-32" name="__codelineno-8-32" href="#__codelineno-8-32"></a>        <span class="k">return</span> <span class="n">score</span>
+</span><span id="__span-8-33"><a id="__codelineno-8-33" name="__codelineno-8-33" href="#__codelineno-8-33"></a>
+</span><span id="__span-8-34"><a id="__codelineno-8-34" name="__codelineno-8-34" href="#__codelineno-8-34"></a>    <span class="n">study</span> <span class="o">=</span> <span class="n">optuna</span><span class="o">.</span><span class="n">create_study</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s1">&#39;maximize&#39;</span><span class="p">)</span>
+</span><span id="__span-8-35"><a id="__codelineno-8-35" name="__codelineno-8-35" href="#__codelineno-8-35"></a>    <span class="n">study</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">n_trials</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</span><span id="__span-8-36"><a id="__codelineno-8-36" name="__codelineno-8-36" href="#__codelineno-8-36"></a>
+</span><span id="__span-8-37"><a id="__codelineno-8-37" name="__codelineno-8-37" href="#__codelineno-8-37"></a>    <span class="k">return</span> <span class="n">study</span><span class="o">.</span><span class="n">best_params</span>
+</span></code></pre></div>
+<hr />
+<h2 id="ensemble-strategies">Ensemble Strategies<a class="headerlink" href="#ensemble-strategies" title="Permanent link">&para;</a></h2>
+<h3 id="smart-ensemble-construction">Smart Ensemble Construction<a class="headerlink" href="#smart-ensemble-construction" title="Permanent link">&para;</a></h3>
+<h4 id="diversity-based-selection">Diversity-Based Selection<a class="headerlink" href="#diversity-based-selection" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_diverse_ensemble</span><span class="p">(</span><span class="n">algorithms</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">max_algorithms</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Build ensemble focusing on algorithm diversity&quot;&quot;&quot;</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="c1"># Calculate prediction diversity matrix</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="n">predictions</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="k">for</span> <span class="n">alg</span> <span class="ow">in</span> <span class="n">algorithms</span><span class="p">:</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>        <span class="n">model</span> <span class="o">=</span> <span class="n">create_model</span><span class="p">(</span><span class="n">alg</span><span class="p">)</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>        <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>        <span class="n">predictions</span><span class="p">[</span><span class="n">alg</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    <span class="c1"># Calculate pairwise disagreement</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>    <span class="n">disagreement_matrix</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>    <span class="k">for</span> <span class="n">alg1</span> <span class="ow">in</span> <span class="n">algorithms</span><span class="p">:</span>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>        <span class="k">for</span> <span class="n">alg2</span> <span class="ow">in</span> <span class="n">algorithms</span><span class="p">:</span>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>            <span class="k">if</span> <span class="n">alg1</span> <span class="o">!=</span> <span class="n">alg2</span><span class="p">:</span>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>                <span class="n">disagreement</span> <span class="o">=</span> <span class="n">calculate_disagreement</span><span class="p">(</span>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>                    <span class="n">predictions</span><span class="p">[</span><span class="n">alg1</span><span class="p">],</span> 
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>                    <span class="n">predictions</span><span class="p">[</span><span class="n">alg2</span><span class="p">]</span>
+</span><span id="__span-9-19"><a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>                <span class="p">)</span>
+</span><span id="__span-9-20"><a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>                <span class="n">disagreement_matrix</span><span class="p">[(</span><span class="n">alg1</span><span class="p">,</span> <span class="n">alg2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">disagreement</span>
+</span><span id="__span-9-21"><a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>
+</span><span id="__span-9-22"><a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>    <span class="c1"># Select diverse subset</span>
+</span><span id="__span-9-23"><a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>    <span class="n">selected</span> <span class="o">=</span> <span class="p">[</span><span class="n">algorithms</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>  <span class="c1"># Start with first algorithm</span>
+</span><span id="__span-9-24"><a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>
+</span><span id="__span-9-25"><a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">selected</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">max_algorithms</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">selected</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">algorithms</span><span class="p">):</span>
+</span><span id="__span-9-26"><a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a>        <span class="n">best_candidate</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-9-27"><a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a>        <span class="n">best_avg_disagreement</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="__span-9-28"><a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>
+</span><span id="__span-9-29"><a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a>        <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">algorithms</span><span class="p">:</span>
+</span><span id="__span-9-30"><a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a>            <span class="k">if</span> <span class="n">candidate</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">selected</span><span class="p">:</span>
+</span><span id="__span-9-31"><a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a>                <span class="n">avg_disagreement</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span>
+</span><span id="__span-9-32"><a id="__codelineno-9-32" name="__codelineno-9-32" href="#__codelineno-9-32"></a>                    <span class="n">disagreement_matrix</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">candidate</span><span class="p">,</span> <span class="n">selected_alg</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+</span><span id="__span-9-33"><a id="__codelineno-9-33" name="__codelineno-9-33" href="#__codelineno-9-33"></a>                    <span class="k">for</span> <span class="n">selected_alg</span> <span class="ow">in</span> <span class="n">selected</span>
+</span><span id="__span-9-34"><a id="__codelineno-9-34" name="__codelineno-9-34" href="#__codelineno-9-34"></a>                <span class="p">])</span>
+</span><span id="__span-9-35"><a id="__codelineno-9-35" name="__codelineno-9-35" href="#__codelineno-9-35"></a>
+</span><span id="__span-9-36"><a id="__codelineno-9-36" name="__codelineno-9-36" href="#__codelineno-9-36"></a>                <span class="k">if</span> <span class="n">avg_disagreement</span> <span class="o">&gt;</span> <span class="n">best_avg_disagreement</span><span class="p">:</span>
+</span><span id="__span-9-37"><a id="__codelineno-9-37" name="__codelineno-9-37" href="#__codelineno-9-37"></a>                    <span class="n">best_avg_disagreement</span> <span class="o">=</span> <span class="n">avg_disagreement</span>
+</span><span id="__span-9-38"><a id="__codelineno-9-38" name="__codelineno-9-38" href="#__codelineno-9-38"></a>                    <span class="n">best_candidate</span> <span class="o">=</span> <span class="n">candidate</span>
+</span><span id="__span-9-39"><a id="__codelineno-9-39" name="__codelineno-9-39" href="#__codelineno-9-39"></a>
+</span><span id="__span-9-40"><a id="__codelineno-9-40" name="__codelineno-9-40" href="#__codelineno-9-40"></a>        <span class="k">if</span> <span class="n">best_candidate</span><span class="p">:</span>
+</span><span id="__span-9-41"><a id="__codelineno-9-41" name="__codelineno-9-41" href="#__codelineno-9-41"></a>            <span class="n">selected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best_candidate</span><span class="p">)</span>
+</span><span id="__span-9-42"><a id="__codelineno-9-42" name="__codelineno-9-42" href="#__codelineno-9-42"></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-9-43"><a id="__codelineno-9-43" name="__codelineno-9-43" href="#__codelineno-9-43"></a>            <span class="k">break</span>
+</span><span id="__span-9-44"><a id="__codelineno-9-44" name="__codelineno-9-44" href="#__codelineno-9-44"></a>
+</span><span id="__span-9-45"><a id="__codelineno-9-45" name="__codelineno-9-45" href="#__codelineno-9-45"></a>    <span class="k">return</span> <span class="n">selected</span>
+</span></code></pre></div>
+<h4 id="performance-based-weighting">Performance-Based Weighting<a class="headerlink" href="#performance-based-weighting" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">calculate_performance_weights</span><span class="p">(</span><span class="n">algorithms</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate weights based on cross-validation performance&quot;&quot;&quot;</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="n">performances</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    <span class="k">for</span> <span class="n">alg</span> <span class="ow">in</span> <span class="n">algorithms</span><span class="p">:</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>        <span class="n">model</span> <span class="o">=</span> <span class="n">create_model</span><span class="p">(</span><span class="n">alg</span><span class="p">)</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>        <span class="n">scores</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">cv</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s1">&#39;f1&#39;</span><span class="p">)</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>        <span class="n">performances</span><span class="p">[</span><span class="n">alg</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>            <span class="s1">&#39;mean&#39;</span><span class="p">:</span> <span class="n">scores</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>            <span class="s1">&#39;std&#39;</span><span class="p">:</span> <span class="n">scores</span><span class="o">.</span><span class="n">std</span><span class="p">(),</span>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>            <span class="s1">&#39;scores&#39;</span><span class="p">:</span> <span class="n">scores</span>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>        <span class="p">}</span>
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>
+</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>    <span class="c1"># Calculate weights using softmax of mean scores</span>
+</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>    <span class="n">mean_scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">performances</span><span class="p">[</span><span class="n">alg</span><span class="p">][</span><span class="s1">&#39;mean&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">alg</span> <span class="ow">in</span> <span class="n">algorithms</span><span class="p">])</span>
+</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>    <span class="n">weights</span> <span class="o">=</span> <span class="n">softmax</span><span class="p">(</span><span class="n">mean_scores</span><span class="p">)</span>
+</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>
+</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">algorithms</span><span class="p">,</span> <span class="n">weights</span><span class="p">))</span>
+</span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>
+</span><span id="__span-10-21"><a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a><span class="k">def</span><span class="w"> </span><span class="nf">softmax</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+</span><span id="__span-10-22"><a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute softmax values with temperature&quot;&quot;&quot;</span>
+</span><span id="__span-10-23"><a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a>    <span class="n">exp_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">/</span> <span class="n">temperature</span><span class="p">)</span>
+</span><span id="__span-10-24"><a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a>    <span class="k">return</span> <span class="n">exp_x</span> <span class="o">/</span> <span class="n">exp_x</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</span></code></pre></div>
+<hr />
+<h2 id="validation-and-evaluation">Validation and Evaluation<a class="headerlink" href="#validation-and-evaluation" title="Permanent link">&para;</a></h2>
+<h3 id="comprehensive-evaluation-framework">Comprehensive Evaluation Framework<a class="headerlink" href="#comprehensive-evaluation-framework" title="Permanent link">&para;</a></h3>
+<h4 id="multi-metric-evaluation">Multi-Metric Evaluation<a class="headerlink" href="#multi-metric-evaluation" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">comprehensive_evaluation</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_true</span><span class="p">):</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Comprehensive anomaly detection evaluation&quot;&quot;&quot;</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="c1"># Get predictions and scores</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    <span class="n">y_scores</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">decision_function</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>    <span class="n">metrics</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>    <span class="c1"># Classification metrics</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>    <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;precision&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">precision_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>    <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;recall&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">recall_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>    <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;f1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>    <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;accuracy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>
+</span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>    <span class="c1"># Ranking metrics</span>
+</span><span id="__span-11-17"><a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>    <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;roc_auc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_scores</span><span class="p">)</span>
+</span><span id="__span-11-18"><a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>    <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;pr_auc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">average_precision_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_scores</span><span class="p">)</span>
+</span><span id="__span-11-19"><a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>
+</span><span id="__span-11-20"><a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a>    <span class="c1"># At-k metrics</span>
+</span><span id="__span-11-21"><a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a>    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">]:</span>
+</span><span id="__span-11-22"><a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a>        <span class="n">metrics</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;precision_at_</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">precision_at_k</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_scores</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+</span><span id="__span-11-23"><a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a>        <span class="n">metrics</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;recall_at_</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">recall_at_k</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_scores</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+</span><span id="__span-11-24"><a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a>
+</span><span id="__span-11-25"><a id="__codelineno-11-25" name="__codelineno-11-25" href="#__codelineno-11-25"></a>    <span class="k">return</span> <span class="n">metrics</span>
+</span><span id="__span-11-26"><a id="__codelineno-11-26" name="__codelineno-11-26" href="#__codelineno-11-26"></a>
+</span><span id="__span-11-27"><a id="__codelineno-11-27" name="__codelineno-11-27" href="#__codelineno-11-27"></a><span class="k">def</span><span class="w"> </span><span class="nf">precision_at_k</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_scores</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+</span><span id="__span-11-28"><a id="__codelineno-11-28" name="__codelineno-11-28" href="#__codelineno-11-28"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Precision at k highest scores&quot;&quot;&quot;</span>
+</span><span id="__span-11-29"><a id="__codelineno-11-29" name="__codelineno-11-29" href="#__codelineno-11-29"></a>    <span class="n">top_k_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">y_scores</span><span class="p">)[</span><span class="o">-</span><span class="n">k</span><span class="p">:]</span>
+</span><span id="__span-11-30"><a id="__codelineno-11-30" name="__codelineno-11-30" href="#__codelineno-11-30"></a>    <span class="n">top_k_true</span> <span class="o">=</span> <span class="n">y_true</span><span class="p">[</span><span class="n">top_k_indices</span><span class="p">]</span>
+</span><span id="__span-11-31"><a id="__codelineno-11-31" name="__codelineno-11-31" href="#__codelineno-11-31"></a>    <span class="k">return</span> <span class="n">top_k_true</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">k</span>
+</span><span id="__span-11-32"><a id="__codelineno-11-32" name="__codelineno-11-32" href="#__codelineno-11-32"></a>
+</span><span id="__span-11-33"><a id="__codelineno-11-33" name="__codelineno-11-33" href="#__codelineno-11-33"></a><span class="k">def</span><span class="w"> </span><span class="nf">recall_at_k</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_scores</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+</span><span id="__span-11-34"><a id="__codelineno-11-34" name="__codelineno-11-34" href="#__codelineno-11-34"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Recall at k highest scores&quot;&quot;&quot;</span>
+</span><span id="__span-11-35"><a id="__codelineno-11-35" name="__codelineno-11-35" href="#__codelineno-11-35"></a>    <span class="n">top_k_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">y_scores</span><span class="p">)[</span><span class="o">-</span><span class="n">k</span><span class="p">:]</span>
+</span><span id="__span-11-36"><a id="__codelineno-11-36" name="__codelineno-11-36" href="#__codelineno-11-36"></a>    <span class="n">top_k_true</span> <span class="o">=</span> <span class="n">y_true</span><span class="p">[</span><span class="n">top_k_indices</span><span class="p">]</span>
+</span><span id="__span-11-37"><a id="__codelineno-11-37" name="__codelineno-11-37" href="#__codelineno-11-37"></a>    <span class="n">total_anomalies</span> <span class="o">=</span> <span class="n">y_true</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</span><span id="__span-11-38"><a id="__codelineno-11-38" name="__codelineno-11-38" href="#__codelineno-11-38"></a>    <span class="k">return</span> <span class="n">top_k_true</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">total_anomalies</span> <span class="k">if</span> <span class="n">total_anomalies</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+</span></code></pre></div>
+<h4 id="cross-validation-strategies">Cross-Validation Strategies<a class="headerlink" href="#cross-validation-strategies" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">time_series_cv_evaluation</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Time series specific cross-validation&quot;&quot;&quot;</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesSplit</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    <span class="n">tscv</span> <span class="o">=</span> <span class="n">TimeSeriesSplit</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="n">n_splits</span><span class="p">)</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>    <span class="k">for</span> <span class="n">train_idx</span><span class="p">,</span> <span class="n">test_idx</span> <span class="ow">in</span> <span class="n">tscv</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>        <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">train_idx</span><span class="p">],</span> <span class="n">X</span><span class="p">[</span><span class="n">test_idx</span><span class="p">]</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>        <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">train_idx</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">test_idx</span><span class="p">]</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>        <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>        <span class="n">score</span> <span class="o">=</span> <span class="n">comprehensive_evaluation</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>        <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>
+</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>    <span class="c1"># Aggregate scores</span>
+</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>    <span class="n">aggregated</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="__span-12-18"><a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>    <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">scores</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+</span><span id="__span-12-19"><a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">score</span><span class="p">[</span><span class="n">metric</span><span class="p">]</span> <span class="k">for</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">scores</span><span class="p">]</span>
+</span><span id="__span-12-20"><a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a>        <span class="n">aggregated</span><span class="p">[</span><span class="n">metric</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-12-21"><a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a>            <span class="s1">&#39;mean&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">values</span><span class="p">),</span>
+</span><span id="__span-12-22"><a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a>            <span class="s1">&#39;std&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">values</span><span class="p">),</span>
+</span><span id="__span-12-23"><a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a>            <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">values</span><span class="p">),</span>
+</span><span id="__span-12-24"><a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a>            <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+</span><span id="__span-12-25"><a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a>        <span class="p">}</span>
+</span><span id="__span-12-26"><a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a>
+</span><span id="__span-12-27"><a id="__codelineno-12-27" name="__codelineno-12-27" href="#__codelineno-12-27"></a>    <span class="k">return</span> <span class="n">aggregated</span>
+</span><span id="__span-12-28"><a id="__codelineno-12-28" name="__codelineno-12-28" href="#__codelineno-12-28"></a>
+</span><span id="__span-12-29"><a id="__codelineno-12-29" name="__codelineno-12-29" href="#__codelineno-12-29"></a><span class="k">def</span><span class="w"> </span><span class="nf">stratified_cv_evaluation</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">contamination_ratio</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+</span><span id="__span-12-30"><a id="__codelineno-12-30" name="__codelineno-12-30" href="#__codelineno-12-30"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Stratified cross-validation maintaining contamination ratio&quot;&quot;&quot;</span>
+</span><span id="__span-12-31"><a id="__codelineno-12-31" name="__codelineno-12-31" href="#__codelineno-12-31"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">StratifiedKFold</span>
+</span><span id="__span-12-32"><a id="__codelineno-12-32" name="__codelineno-12-32" href="#__codelineno-12-32"></a>
+</span><span id="__span-12-33"><a id="__codelineno-12-33" name="__codelineno-12-33" href="#__codelineno-12-33"></a>    <span class="n">skf</span> <span class="o">=</span> <span class="n">StratifiedKFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="n">n_splits</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+</span><span id="__span-12-34"><a id="__codelineno-12-34" name="__codelineno-12-34" href="#__codelineno-12-34"></a>    <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-12-35"><a id="__codelineno-12-35" name="__codelineno-12-35" href="#__codelineno-12-35"></a>
+</span><span id="__span-12-36"><a id="__codelineno-12-36" name="__codelineno-12-36" href="#__codelineno-12-36"></a>    <span class="k">for</span> <span class="n">train_idx</span><span class="p">,</span> <span class="n">test_idx</span> <span class="ow">in</span> <span class="n">skf</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+</span><span id="__span-12-37"><a id="__codelineno-12-37" name="__codelineno-12-37" href="#__codelineno-12-37"></a>        <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">train_idx</span><span class="p">],</span> <span class="n">X</span><span class="p">[</span><span class="n">test_idx</span><span class="p">]</span>
+</span><span id="__span-12-38"><a id="__codelineno-12-38" name="__codelineno-12-38" href="#__codelineno-12-38"></a>        <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">train_idx</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">test_idx</span><span class="p">]</span>
+</span><span id="__span-12-39"><a id="__codelineno-12-39" name="__codelineno-12-39" href="#__codelineno-12-39"></a>
+</span><span id="__span-12-40"><a id="__codelineno-12-40" name="__codelineno-12-40" href="#__codelineno-12-40"></a>        <span class="c1"># Ensure contamination ratio in training set</span>
+</span><span id="__span-12-41"><a id="__codelineno-12-41" name="__codelineno-12-41" href="#__codelineno-12-41"></a>        <span class="n">train_contamination</span> <span class="o">=</span> <span class="n">y_train</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_train</span><span class="p">)</span>
+</span><span id="__span-12-42"><a id="__codelineno-12-42" name="__codelineno-12-42" href="#__codelineno-12-42"></a>        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">train_contamination</span> <span class="o">-</span> <span class="n">contamination_ratio</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.02</span><span class="p">:</span>
+</span><span id="__span-12-43"><a id="__codelineno-12-43" name="__codelineno-12-43" href="#__codelineno-12-43"></a>            <span class="c1"># Adjust training set to match expected contamination</span>
+</span><span id="__span-12-44"><a id="__codelineno-12-44" name="__codelineno-12-44" href="#__codelineno-12-44"></a>            <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span> <span class="o">=</span> <span class="n">adjust_contamination_ratio</span><span class="p">(</span>
+</span><span id="__span-12-45"><a id="__codelineno-12-45" name="__codelineno-12-45" href="#__codelineno-12-45"></a>                <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">contamination_ratio</span>
+</span><span id="__span-12-46"><a id="__codelineno-12-46" name="__codelineno-12-46" href="#__codelineno-12-46"></a>            <span class="p">)</span>
+</span><span id="__span-12-47"><a id="__codelineno-12-47" name="__codelineno-12-47" href="#__codelineno-12-47"></a>
+</span><span id="__span-12-48"><a id="__codelineno-12-48" name="__codelineno-12-48" href="#__codelineno-12-48"></a>        <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+</span><span id="__span-12-49"><a id="__codelineno-12-49" name="__codelineno-12-49" href="#__codelineno-12-49"></a>        <span class="n">score</span> <span class="o">=</span> <span class="n">comprehensive_evaluation</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+</span><span id="__span-12-50"><a id="__codelineno-12-50" name="__codelineno-12-50" href="#__codelineno-12-50"></a>        <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+</span><span id="__span-12-51"><a id="__codelineno-12-51" name="__codelineno-12-51" href="#__codelineno-12-51"></a>
+</span><span id="__span-12-52"><a id="__codelineno-12-52" name="__codelineno-12-52" href="#__codelineno-12-52"></a>    <span class="k">return</span> <span class="n">aggregate_cv_scores</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+</span></code></pre></div>
+<hr />
+<h2 id="production-deployment-considerations">Production Deployment Considerations<a class="headerlink" href="#production-deployment-considerations" title="Permanent link">&para;</a></h2>
+<h3 id="model-selection-for-production">Model Selection for Production<a class="headerlink" href="#model-selection-for-production" title="Permanent link">&para;</a></h3>
+<h4 id="latency-requirements">Latency Requirements<a class="headerlink" href="#latency-requirements" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">select_for_latency</span><span class="p">(</span><span class="n">algorithms</span><span class="p">,</span> <span class="n">max_latency_ms</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Select algorithms meeting latency requirements&quot;&quot;&quot;</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    <span class="n">latency_benchmarks</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>        <span class="s2">&quot;HBOS&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>           <span class="c1"># Very fast</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>        <span class="s2">&quot;ECOD&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>           <span class="c1"># Very fast  </span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>        <span class="s2">&quot;EllipticEnvelope&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="c1"># Fast</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>        <span class="s2">&quot;IsolationForest&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="c1"># Medium</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>        <span class="s2">&quot;COPOD&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>         <span class="c1"># Medium</span>
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>        <span class="s2">&quot;KNN&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>           <span class="c1"># Slow</span>
+</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>        <span class="s2">&quot;LOF&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>          <span class="c1"># Very slow</span>
+</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>        <span class="s2">&quot;OneClassSVM&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>  <span class="c1"># Very slow</span>
+</span><span id="__span-13-13"><a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>        <span class="s2">&quot;AutoEncoder&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>   <span class="c1"># Medium (post-training)</span>
+</span><span id="__span-13-14"><a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>    <span class="p">}</span>
+</span><span id="__span-13-15"><a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a>
+</span><span id="__span-13-16"><a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>    <span class="n">suitable_algorithms</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-13-17"><a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a>        <span class="n">alg</span> <span class="k">for</span> <span class="n">alg</span> <span class="ow">in</span> <span class="n">algorithms</span> 
+</span><span id="__span-13-18"><a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>        <span class="k">if</span> <span class="n">latency_benchmarks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">alg</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="n">max_latency_ms</span>
+</span><span id="__span-13-19"><a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a>    <span class="p">]</span>
+</span><span id="__span-13-20"><a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a>
+</span><span id="__span-13-21"><a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a>    <span class="k">return</span> <span class="n">suitable_algorithms</span>
+</span></code></pre></div>
+<h4 id="throughput-requirements">Throughput Requirements<a class="headerlink" href="#throughput-requirements" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">select_for_throughput</span><span class="p">(</span><span class="n">algorithms</span><span class="p">,</span> <span class="n">min_throughput_rps</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Select algorithms meeting throughput requirements&quot;&quot;&quot;</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="n">throughput_benchmarks</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>        <span class="s2">&quot;HBOS&quot;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span>        <span class="c1"># Very high</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>        <span class="s2">&quot;ECOD&quot;</span><span class="p">:</span> <span class="mi">8000</span><span class="p">,</span>         <span class="c1"># Very high</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>        <span class="s2">&quot;EllipticEnvelope&quot;</span><span class="p">:</span> <span class="mi">5000</span><span class="p">,</span> <span class="c1"># High</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>        <span class="s2">&quot;IsolationForest&quot;</span><span class="p">:</span> <span class="mi">2000</span><span class="p">,</span>  <span class="c1"># Medium-high</span>
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>        <span class="s2">&quot;COPOD&quot;</span><span class="p">:</span> <span class="mi">1500</span><span class="p">,</span>        <span class="c1"># Medium</span>
+</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>        <span class="s2">&quot;AutoEncoder&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>  <span class="c1"># Medium</span>
+</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>        <span class="s2">&quot;LOF&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>           <span class="c1"># Low</span>
+</span><span id="__span-14-12"><a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>        <span class="s2">&quot;OneClassSVM&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>    <span class="c1"># Very low</span>
+</span><span id="__span-14-13"><a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>    <span class="p">}</span>
+</span><span id="__span-14-14"><a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>
+</span><span id="__span-14-15"><a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>    <span class="n">suitable_algorithms</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-14-16"><a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>        <span class="n">alg</span> <span class="k">for</span> <span class="n">alg</span> <span class="ow">in</span> <span class="n">algorithms</span>
+</span><span id="__span-14-17"><a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>        <span class="k">if</span> <span class="n">throughput_benchmarks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">alg</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_throughput_rps</span>
+</span><span id="__span-14-18"><a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>    <span class="p">]</span>
+</span><span id="__span-14-19"><a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a>
+</span><span id="__span-14-20"><a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a>    <span class="k">return</span> <span class="n">suitable_algorithms</span>
+</span></code></pre></div>
+<h4 id="resource-constraints">Resource Constraints<a class="headerlink" href="#resource-constraints" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">select_for_resources</span><span class="p">(</span><span class="n">algorithms</span><span class="p">,</span> <span class="n">max_memory_mb</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">gpu_available</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Select algorithms fitting resource constraints&quot;&quot;&quot;</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="n">memory_requirements</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>        <span class="s2">&quot;Z-Score&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>        <span class="s2">&quot;HBOS&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>        <span class="s2">&quot;ECOD&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>        <span class="s2">&quot;EllipticEnvelope&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>        <span class="s2">&quot;IsolationForest&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>        <span class="s2">&quot;COPOD&quot;</span><span class="p">:</span> <span class="mi">800</span><span class="p">,</span>
+</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>        <span class="s2">&quot;LOF&quot;</span><span class="p">:</span> <span class="mi">2000</span><span class="p">,</span>
+</span><span id="__span-15-12"><a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>        <span class="s2">&quot;OneClassSVM&quot;</span><span class="p">:</span> <span class="mi">1500</span><span class="p">,</span>
+</span><span id="__span-15-13"><a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>        <span class="s2">&quot;AutoEncoder&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>  <span class="c1"># Without GPU</span>
+</span><span id="__span-15-14"><a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>        <span class="s2">&quot;LSTM&quot;</span><span class="p">:</span> <span class="mi">3000</span><span class="p">,</span>         <span class="c1"># Without GPU</span>
+</span><span id="__span-15-15"><a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>    <span class="p">}</span>
+</span><span id="__span-15-16"><a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>
+</span><span id="__span-15-17"><a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>    <span class="n">gpu_algorithms</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AutoEncoder&quot;</span><span class="p">,</span> <span class="s2">&quot;VAE&quot;</span><span class="p">,</span> <span class="s2">&quot;LSTM&quot;</span><span class="p">,</span> <span class="s2">&quot;CNN&quot;</span><span class="p">,</span> <span class="s2">&quot;Transformer&quot;</span><span class="p">]</span>
+</span><span id="__span-15-18"><a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>
+</span><span id="__span-15-19"><a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>    <span class="n">suitable_algorithms</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-15-20"><a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>
+</span><span id="__span-15-21"><a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>    <span class="k">for</span> <span class="n">alg</span> <span class="ow">in</span> <span class="n">algorithms</span><span class="p">:</span>
+</span><span id="__span-15-22"><a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a>        <span class="c1"># Check memory constraint</span>
+</span><span id="__span-15-23"><a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a>        <span class="k">if</span> <span class="n">memory_requirements</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">alg</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="n">max_memory_mb</span><span class="p">:</span>
+</span><span id="__span-15-24"><a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a>            <span class="c1"># Check GPU requirement</span>
+</span><span id="__span-15-25"><a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a>            <span class="k">if</span> <span class="n">alg</span> <span class="ow">in</span> <span class="n">gpu_algorithms</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">gpu_available</span><span class="p">:</span>
+</span><span id="__span-15-26"><a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a>                <span class="k">continue</span>
+</span><span id="__span-15-27"><a id="__codelineno-15-27" name="__codelineno-15-27" href="#__codelineno-15-27"></a>            <span class="n">suitable_algorithms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alg</span><span class="p">)</span>
+</span><span id="__span-15-28"><a id="__codelineno-15-28" name="__codelineno-15-28" href="#__codelineno-15-28"></a>
+</span><span id="__span-15-29"><a id="__codelineno-15-29" name="__codelineno-15-29" href="#__codelineno-15-29"></a>    <span class="k">return</span> <span class="n">suitable_algorithms</span>
+</span></code></pre></div>
+<hr />
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong><a href="../core-algorithms/">Core Algorithms</a></strong> - Essential algorithms for most use cases</li>
+<li><strong><a href="../specialized-algorithms/">Specialized Algorithms</a></strong> - Domain-specific algorithms  </li>
+<li><strong><a href="../experimental-algorithms/">Experimental Algorithms</a></strong> - Advanced research methods</li>
+<li><strong><a href="../../../user-guides/basic-usage/autonomous-mode/">Autonomous Mode Guide</a></strong> - Automated selection</li>
+<li><strong><a href="../../../user-guides/advanced-features/performance/">Performance Analysis</a></strong> - Performance monitoring and optimization</li>
+<li><strong><a href="../../../user-guides/advanced-features/automl-and-intelligence/">AutoML Guide</a></strong> - Automated hyperparameter tuning</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/pynomaly/pynomaly" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/pynomaly/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/pynomaly" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+        <script src="../../../javascripts/extra.js"></script>
+      
+    
+  </body>
+</html>

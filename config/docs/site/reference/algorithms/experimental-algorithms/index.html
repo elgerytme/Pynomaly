@@ -1,0 +1,2631 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="State-of-the-art Python anomaly detection platform">
+      
+      
+        <meta name="author" content="Pynomaly Team">
+      
+      
+        <link rel="canonical" href="https://pynomaly.readthedocs.io/reference/algorithms/experimental-algorithms/">
+      
+      
+      
+      
+      <link rel="icon" href="../../../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>Experimental Algorithms - Pynomaly Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#experimental-algorithms" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Pynomaly Documentation" class="md-header__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../../../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pynomaly Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Experimental Algorithms
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Pynomaly Documentation" class="md-nav__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../../../assets/logo.png" alt="logo">
+
+    </a>
+    Pynomaly Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Start
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/FEATURE_INSTALLATION_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Feature Installation Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#algorithm-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      Algorithm Categories
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Algorithm Categories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#advanced-deep-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Deep Learning
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ensemble-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ensemble Methods
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#research-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Research Methods
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-deep-learning_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Deep Learning
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced Deep Learning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-variational-autoencoder-vae" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Variational AutoEncoder (VAE)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Variational AutoEncoder (VAE)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#algorithm-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      Algorithm Details
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advanced-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strengths" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strengths
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limitations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      When to Use
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-adversarial-autoencoder-aae" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Adversarial AutoEncoder (AAE)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Adversarial AutoEncoder (AAE)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-transformer-based-anomaly-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Transformer-Based Anomaly Detection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Transformer-Based Anomaly Detection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advanced-variants" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Variants
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-deep-svdd-support-vector-data-description" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Deep SVDD (Support Vector Data Description)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Deep SVDD (Support Vector Data Description)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-self-supervised-contrastive-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Self-Supervised Contrastive Learning
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Self-Supervised Contrastive Learning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-ensemble-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Ensemble Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced Ensemble Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-adaptive-ensemble" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Adaptive Ensemble
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Adaptive Ensemble">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advanced-adaptation-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Adaptation Strategies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-meta-learning-ensemble" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Meta-Learning Ensemble
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Meta-Learning Ensemble">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-hierarchical-ensemble" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Hierarchical Ensemble
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Hierarchical Ensemble">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#research-methods_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Research Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Research Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-quantum-inspired-anomaly-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Quantum-Inspired Anomaly Detection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Quantum-Inspired Anomaly Detection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strengths_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strengths
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limitations_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limitations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-neuromorphic-anomaly-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Neuromorphic Anomaly Detection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Neuromorphic Anomaly Detection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-causal-anomaly-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Causal Anomaly Detection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Causal Anomaly Detection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Comparison
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Comparison">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#computational-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Computational Requirements
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accuracy-potential" class="md-nav__link">
+    <span class="md-ellipsis">
+      Accuracy Potential
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-model-selection-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Model Selection Strategy
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-hyperparameter-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Hyperparameter Optimization
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-resource-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Resource Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-validation-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Validation Strategies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-interpretability-for-complex-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Interpretability for Complex Models
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment Considerations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deployment Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-model-serving" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Model Serving
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-edge-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Edge Deployment
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related Documentation
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="experimental-algorithms">Experimental Algorithms<a class="headerlink" href="#experimental-algorithms" title="Permanent link">&para;</a></h1>
+<p>🍞 <strong>Breadcrumb:</strong> 🏠 <a href="../../../">Home</a> &gt; 📖 <a href="../README.md">Reference</a> &gt; 🧮 <a href="../">Algorithms</a> &gt; 📄 Experimental Algorithms</p>
+<hr />
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This guide covers advanced and research-oriented anomaly detection algorithms that represent the cutting edge of the field. These methods typically require more computational resources but can achieve superior performance on complex datasets.</p>
+<h2 id="algorithm-categories">Algorithm Categories<a class="headerlink" href="#algorithm-categories" title="Permanent link">&para;</a></h2>
+<h3 id="advanced-deep-learning">Advanced Deep Learning<a class="headerlink" href="#advanced-deep-learning" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Generative Models</strong> - VAE, GAN-based methods</li>
+<li><strong>Self-Supervised</strong> - Contrastive learning, masked modeling</li>
+<li><strong>Attention-Based</strong> - Transformers, attention mechanisms</li>
+</ul>
+<h3 id="ensemble-methods">Ensemble Methods<a class="headerlink" href="#ensemble-methods" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Adaptive Ensembles</strong> - Dynamic weighting, online learning</li>
+<li><strong>Hierarchical</strong> - Multi-level combinations</li>
+<li><strong>Meta-Learning</strong> - Learning to ensemble</li>
+</ul>
+<h3 id="research-methods">Research Methods<a class="headerlink" href="#research-methods" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Quantum-Inspired</strong> - Quantum algorithms for classical computers</li>
+<li><strong>Neuromorphic</strong> - Brain-inspired computing</li>
+<li><strong>Causal</strong> - Causal inference for anomaly detection</li>
+</ul>
+<hr />
+<h2 id="advanced-deep-learning_1">Advanced Deep Learning<a class="headerlink" href="#advanced-deep-learning_1" title="Permanent link">&para;</a></h2>
+<h3 id="1-variational-autoencoder-vae">1. Variational AutoEncoder (VAE)<a class="headerlink" href="#1-variational-autoencoder-vae" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Probabilistic generative model<br />
+<strong>Library</strong>: PyTorch/TensorFlow<br />
+<strong>Complexity</strong>: O(epochs×n)<br />
+<strong>Best for</strong>: Probabilistic anomaly scoring, generative modeling, uncertainty quantification</p>
+<h4 id="description">Description<a class="headerlink" href="#description" title="Permanent link">&para;</a></h4>
+<p>Probabilistic extension of autoencoders that learns a probabilistic encoding of the input data. Provides uncertainty estimates and enables generation of synthetic data.</p>
+<h4 id="algorithm-details">Algorithm Details<a class="headerlink" href="#algorithm-details" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Encoder outputs mean and variance parameters</li>
+<li>Sampling from learned latent distribution</li>
+<li>KL divergence regularization</li>
+<li>Reconstruction + regularization loss</li>
+</ul>
+<h4 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>encoder_neurons</code></td>
+<td>list</td>
+<td>[32, 16]</td>
+<td>Various</td>
+<td>Encoder architecture</td>
+</tr>
+<tr>
+<td><code>decoder_neurons</code></td>
+<td>list</td>
+<td>[16, 32]</td>
+<td>Various</td>
+<td>Decoder architecture</td>
+</tr>
+<tr>
+<td><code>latent_dim</code></td>
+<td>int</td>
+<td>8</td>
+<td>2-100</td>
+<td>Latent space dimension</td>
+</tr>
+<tr>
+<td><code>beta</code></td>
+<td>float</td>
+<td>1.0</td>
+<td>0.1-10.0</td>
+<td>KL divergence weight</td>
+</tr>
+<tr>
+<td><code>capacity</code></td>
+<td>float</td>
+<td>0.0</td>
+<td>0.0-25.0</td>
+<td>Capacity constraint</td>
+</tr>
+<tr>
+<td><code>gamma</code></td>
+<td>float</td>
+<td>1000.0</td>
+<td>100-10000</td>
+<td>Capacity weight</td>
+</tr>
+<tr>
+<td><code>learning_rate</code></td>
+<td>float</td>
+<td>0.001</td>
+<td>0.0001-0.01</td>
+<td>Learning rate</td>
+</tr>
+<tr>
+<td><code>epochs</code></td>
+<td>int</td>
+<td>100</td>
+<td>50-500</td>
+<td>Training epochs</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage-example">Usage Example<a class="headerlink" href="#usage-example" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Probabilistic VAE Detector&quot;</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;VAE&quot;</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">library</span><span class="o">=</span><span class="s2">&quot;pytorch&quot;</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="s2">&quot;encoder_neurons&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">],</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="s2">&quot;decoder_neurons&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">],</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="s2">&quot;latent_dim&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="s2">&quot;beta&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.0005</span><span class="p">,</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="mi">200</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="p">}</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="p">)</span>
+</span></code></pre></div>
+<h4 id="advanced-configuration">Advanced Configuration<a class="headerlink" href="#advanced-configuration" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># β-VAE for disentangled representations</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">beta_vae_params</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="s2">&quot;beta&quot;</span><span class="p">:</span> <span class="mf">4.0</span><span class="p">,</span>  <span class="c1"># Higher β for more disentanglement</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mf">25.0</span><span class="p">,</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="mf">30.0</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">}</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="c1"># WAE (Wasserstein AutoEncoder)</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="n">wae_params</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="s2">&quot;regularizer&quot;</span><span class="p">:</span> <span class="s2">&quot;mmd&quot;</span><span class="p">,</span>  <span class="c1"># Maximum Mean Discrepancy</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    <span class="s2">&quot;reg_weight&quot;</span><span class="p">:</span> <span class="mf">100.0</span><span class="p">,</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="s2">&quot;kernel&quot;</span><span class="p">:</span> <span class="s2">&quot;imq&quot;</span>  <span class="c1"># Inverse Multi-Quadratic</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="p">}</span>
+</span></code></pre></div>
+<h4 id="strengths">Strengths<a class="headerlink" href="#strengths" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ Provides uncertainty estimates</li>
+<li>✅ Enables data generation</li>
+<li>✅ Learns disentangled representations</li>
+<li>✅ Principled probabilistic framework</li>
+</ul>
+<h4 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h4>
+<ul>
+<li>❌ Complex hyperparameter tuning</li>
+<li>❌ Training instability</li>
+<li>❌ Posterior collapse issues</li>
+<li>❌ Computational overhead</li>
+</ul>
+<h4 id="when-to-use">When to Use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Need uncertainty quantification</li>
+<li>Generating synthetic anomalies</li>
+<li>Interpretable latent representations</li>
+<li>Small to medium datasets with complex patterns</li>
+</ul>
+<hr />
+<h3 id="2-adversarial-autoencoder-aae">2. Adversarial AutoEncoder (AAE)<a class="headerlink" href="#2-adversarial-autoencoder-aae" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Adversarial training<br />
+<strong>Library</strong>: PyTorch/TensorFlow<br />
+<strong>Complexity</strong>: O(epochs×n)<br />
+<strong>Best for</strong>: Robust feature learning, adversarial examples</p>
+<h4 id="description_1">Description<a class="headerlink" href="#description_1" title="Permanent link">&para;</a></h4>
+<p>Combines autoencoder architecture with adversarial training to learn robust representations that are invariant to small perturbations.</p>
+<h4 id="parameters_1">Parameters<a class="headerlink" href="#parameters_1" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>encoder_layers</code></td>
+<td>list</td>
+<td>[256, 128, 64]</td>
+<td>Various</td>
+<td>Encoder architecture</td>
+</tr>
+<tr>
+<td><code>decoder_layers</code></td>
+<td>list</td>
+<td>[64, 128, 256]</td>
+<td>Various</td>
+<td>Decoder architecture</td>
+</tr>
+<tr>
+<td><code>discriminator_layers</code></td>
+<td>list</td>
+<td>[64, 32]</td>
+<td>Various</td>
+<td>Discriminator architecture</td>
+</tr>
+<tr>
+<td><code>latent_dim</code></td>
+<td>int</td>
+<td>32</td>
+<td>8-128</td>
+<td>Latent dimension</td>
+</tr>
+<tr>
+<td><code>adversarial_weight</code></td>
+<td>float</td>
+<td>1.0</td>
+<td>0.1-10.0</td>
+<td>Adversarial loss weight</td>
+</tr>
+<tr>
+<td><code>generator_lr</code></td>
+<td>float</td>
+<td>0.0002</td>
+<td>0.0001-0.001</td>
+<td>Generator learning rate</td>
+</tr>
+<tr>
+<td><code>discriminator_lr</code></td>
+<td>float</td>
+<td>0.0002</td>
+<td>0.0001-0.001</td>
+<td>Discriminator learning rate</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage-example_1">Usage Example<a class="headerlink" href="#usage-example_1" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Adversarial AutoEncoder&quot;</span><span class="p">,</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;AAE&quot;</span><span class="p">,</span> 
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">library</span><span class="o">=</span><span class="s2">&quot;pytorch&quot;</span><span class="p">,</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="s2">&quot;encoder_layers&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">512</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="s2">&quot;decoder_layers&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">512</span><span class="p">],</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        <span class="s2">&quot;latent_dim&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        <span class="s2">&quot;adversarial_weight&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        <span class="s2">&quot;generator_lr&quot;</span><span class="p">:</span> <span class="mf">0.0001</span><span class="p">,</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>        <span class="s2">&quot;discriminator_lr&quot;</span><span class="p">:</span> <span class="mf">0.0004</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="p">}</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="p">)</span>
+</span></code></pre></div>
+<hr />
+<h3 id="3-transformer-based-anomaly-detection">3. Transformer-Based Anomaly Detection<a class="headerlink" href="#3-transformer-based-anomaly-detection" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Attention mechanism<br />
+<strong>Library</strong>: PyTorch (Transformers)<br />
+<strong>Complexity</strong>: O(n²) attention<br />
+<strong>Best for</strong>: Sequential data, long-range dependencies, NLP</p>
+<h4 id="description_2">Description<a class="headerlink" href="#description_2" title="Permanent link">&para;</a></h4>
+<p>Uses transformer architecture with self-attention mechanisms to model complex dependencies in sequential data for anomaly detection.</p>
+<h4 id="parameters_2">Parameters<a class="headerlink" href="#parameters_2" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>d_model</code></td>
+<td>int</td>
+<td>128</td>
+<td>64-512</td>
+<td>Model dimension</td>
+</tr>
+<tr>
+<td><code>nhead</code></td>
+<td>int</td>
+<td>8</td>
+<td>4-16</td>
+<td>Number of attention heads</td>
+</tr>
+<tr>
+<td><code>num_encoder_layers</code></td>
+<td>int</td>
+<td>6</td>
+<td>2-12</td>
+<td>Number of encoder layers</td>
+</tr>
+<tr>
+<td><code>dim_feedforward</code></td>
+<td>int</td>
+<td>512</td>
+<td>256-2048</td>
+<td>Feedforward dimension</td>
+</tr>
+<tr>
+<td><code>dropout</code></td>
+<td>float</td>
+<td>0.1</td>
+<td>0.0-0.3</td>
+<td>Dropout rate</td>
+</tr>
+<tr>
+<td><code>sequence_length</code></td>
+<td>int</td>
+<td>100</td>
+<td>50-500</td>
+<td>Input sequence length</td>
+</tr>
+<tr>
+<td><code>learning_rate</code></td>
+<td>float</td>
+<td>0.0001</td>
+<td>0.00001-0.001</td>
+<td>Learning rate</td>
+</tr>
+<tr>
+<td><code>warmup_steps</code></td>
+<td>int</td>
+<td>4000</td>
+<td>1000-10000</td>
+<td>Learning rate warmup</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage-example_2">Usage Example<a class="headerlink" href="#usage-example_2" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Transformer Anomaly Detector&quot;</span><span class="p">,</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;TransformerAD&quot;</span><span class="p">,</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">library</span><span class="o">=</span><span class="s2">&quot;pytorch&quot;</span><span class="p">,</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        <span class="s2">&quot;d_model&quot;</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>        <span class="s2">&quot;nhead&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        <span class="s2">&quot;num_encoder_layers&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>        <span class="s2">&quot;dim_feedforward&quot;</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        <span class="s2">&quot;dropout&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        <span class="s2">&quot;sequence_length&quot;</span><span class="p">:</span> <span class="mi">200</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    <span class="p">}</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="p">)</span>
+</span></code></pre></div>
+<h4 id="advanced-variants">Advanced Variants<a class="headerlink" href="#advanced-variants" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># GPT-style causal transformer</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">gpt_params</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="s2">&quot;architecture&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt&quot;</span><span class="p">,</span> 
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="s2">&quot;causal_mask&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="s2">&quot;position_encoding&quot;</span><span class="p">:</span> <span class="s2">&quot;learned&quot;</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">}</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="c1"># BERT-style bidirectional transformer  </span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="n">bert_params</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    <span class="s2">&quot;architecture&quot;</span><span class="p">:</span> <span class="s2">&quot;bert&quot;</span><span class="p">,</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    <span class="s2">&quot;masked_lm&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>    <span class="s2">&quot;next_sentence_prediction&quot;</span><span class="p">:</span> <span class="kc">False</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr />
+<h3 id="4-deep-svdd-support-vector-data-description">4. Deep SVDD (Support Vector Data Description)<a class="headerlink" href="#4-deep-svdd-support-vector-data-description" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Deep one-class classification<br />
+<strong>Library</strong>: PyTorch<br />
+<strong>Complexity</strong>: O(epochs×n)<br />
+<strong>Best for</strong>: One-class classification, deep feature learning</p>
+<h4 id="description_3">Description<a class="headerlink" href="#description_3" title="Permanent link">&para;</a></h4>
+<p>Combines deep learning with one-class classification by training a neural network to map normal data to a hypersphere of minimum volume.</p>
+<h4 id="parameters_3">Parameters<a class="headerlink" href="#parameters_3" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>c</code></td>
+<td>tensor</td>
+<td>None</td>
+<td>-</td>
+<td>Hypersphere center (learned if None)</td>
+</tr>
+<tr>
+<td><code>nu</code></td>
+<td>float</td>
+<td>0.1</td>
+<td>0.01-0.5</td>
+<td>Outlier fraction upper bound</td>
+</tr>
+<tr>
+<td><code>rep_dim</code></td>
+<td>int</td>
+<td>32</td>
+<td>16-128</td>
+<td>Representation dimension</td>
+</tr>
+<tr>
+<td><code>hidden_layers</code></td>
+<td>list</td>
+<td>[128, 64]</td>
+<td>Various</td>
+<td>Hidden layer sizes</td>
+</tr>
+<tr>
+<td><code>dropout</code></td>
+<td>float</td>
+<td>0.2</td>
+<td>0.0-0.5</td>
+<td>Dropout rate</td>
+</tr>
+<tr>
+<td><code>weight_decay</code></td>
+<td>float</td>
+<td>1e-6</td>
+<td>1e-8-1e-4</td>
+<td>Weight decay</td>
+</tr>
+<tr>
+<td><code>lr</code></td>
+<td>float</td>
+<td>0.001</td>
+<td>0.0001-0.01</td>
+<td>Learning rate</td>
+</tr>
+<tr>
+<td><code>lr_milestones</code></td>
+<td>list</td>
+<td>[50]</td>
+<td>Various</td>
+<td>Learning rate decay milestones</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage-example_3">Usage Example<a class="headerlink" href="#usage-example_3" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Deep SVDD Detector&quot;</span><span class="p">,</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;DeepSVDD&quot;</span><span class="p">,</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">library</span><span class="o">=</span><span class="s2">&quot;pytorch&quot;</span><span class="p">,</span> 
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="s2">&quot;nu&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="s2">&quot;rep_dim&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        <span class="s2">&quot;hidden_layers&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">256</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>        <span class="s2">&quot;dropout&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>        <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="mf">0.0005</span><span class="p">,</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>        <span class="s2">&quot;weight_decay&quot;</span><span class="p">:</span> <span class="mf">1e-5</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>    <span class="p">}</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="p">)</span>
+</span></code></pre></div>
+<hr />
+<h3 id="5-self-supervised-contrastive-learning">5. Self-Supervised Contrastive Learning<a class="headerlink" href="#5-self-supervised-contrastive-learning" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Contrastive learning<br />
+<strong>Library</strong>: PyTorch<br />
+<strong>Complexity</strong>: O(epochs×n)<br />
+<strong>Best for</strong>: Representation learning, few-shot anomaly detection</p>
+<h4 id="description_4">Description<a class="headerlink" href="#description_4" title="Permanent link">&para;</a></h4>
+<p>Learns representations by contrasting positive and negative pairs, enabling effective anomaly detection with minimal labeled data.</p>
+<h4 id="parameters_4">Parameters<a class="headerlink" href="#parameters_4" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>encoder_arch</code></td>
+<td>str</td>
+<td>"resnet18"</td>
+<td>"resnet18", "resnet50", "vit"</td>
+<td>Encoder architecture</td>
+</tr>
+<tr>
+<td><code>projection_dim</code></td>
+<td>int</td>
+<td>128</td>
+<td>64-512</td>
+<td>Projection head dimension</td>
+</tr>
+<tr>
+<td><code>temperature</code></td>
+<td>float</td>
+<td>0.07</td>
+<td>0.01-0.1</td>
+<td>Contrastive temperature</td>
+</tr>
+<tr>
+<td><code>augmentation_strength</code></td>
+<td>float</td>
+<td>1.0</td>
+<td>0.5-2.0</td>
+<td>Data augmentation strength</td>
+</tr>
+<tr>
+<td><code>memory_bank_size</code></td>
+<td>int</td>
+<td>65536</td>
+<td>4096-262144</td>
+<td>Memory bank size</td>
+</tr>
+<tr>
+<td><code>momentum</code></td>
+<td>float</td>
+<td>0.999</td>
+<td>0.99-0.9999</td>
+<td>Momentum for moving averages</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage-example_4">Usage Example<a class="headerlink" href="#usage-example_4" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Contrastive Anomaly Detector&quot;</span><span class="p">,</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;ContrastiveAD&quot;</span><span class="p">,</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">library</span><span class="o">=</span><span class="s2">&quot;pytorch&quot;</span><span class="p">,</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        <span class="s2">&quot;encoder_arch&quot;</span><span class="p">:</span> <span class="s2">&quot;resnet50&quot;</span><span class="p">,</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>        <span class="s2">&quot;projection_dim&quot;</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>        <span class="s2">&quot;memory_bank_size&quot;</span><span class="p">:</span> <span class="mi">131072</span><span class="p">,</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>        <span class="s2">&quot;momentum&quot;</span><span class="p">:</span> <span class="mf">0.9995</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    <span class="p">}</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="p">)</span>
+</span></code></pre></div>
+<hr />
+<h2 id="advanced-ensemble-methods">Advanced Ensemble Methods<a class="headerlink" href="#advanced-ensemble-methods" title="Permanent link">&para;</a></h2>
+<h3 id="1-adaptive-ensemble">1. Adaptive Ensemble<a class="headerlink" href="#1-adaptive-ensemble" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Dynamic weighting ensemble<br />
+<strong>Complexity</strong>: O(n×k) where k = number of base models<br />
+<strong>Best for</strong>: Non-stationary data, concept drift</p>
+<h4 id="description_5">Description<a class="headerlink" href="#description_5" title="Permanent link">&para;</a></h4>
+<p>Dynamically adjusts weights of base algorithms based on their recent performance, adapting to changing data patterns.</p>
+<h4 id="parameters_5">Parameters<a class="headerlink" href="#parameters_5" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>base_algorithms</code></td>
+<td>list</td>
+<td>["IsolationForest", "LOF"]</td>
+<td>Various</td>
+<td>Base algorithm names</td>
+</tr>
+<tr>
+<td><code>adaptation_method</code></td>
+<td>str</td>
+<td>"performance"</td>
+<td>"performance", "diversity", "confidence"</td>
+<td>Weight adaptation method</td>
+</tr>
+<tr>
+<td><code>window_size</code></td>
+<td>int</td>
+<td>100</td>
+<td>50-1000</td>
+<td>Adaptation window size</td>
+</tr>
+<tr>
+<td><code>learning_rate</code></td>
+<td>float</td>
+<td>0.1</td>
+<td>0.01-0.5</td>
+<td>Weight update learning rate</td>
+</tr>
+<tr>
+<td><code>min_weight</code></td>
+<td>float</td>
+<td>0.0</td>
+<td>0.0-0.1</td>
+<td>Minimum algorithm weight</td>
+</tr>
+<tr>
+<td><code>max_weight</code></td>
+<td>float</td>
+<td>1.0</td>
+<td>0.5-1.0</td>
+<td>Maximum algorithm weight</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage-example_5">Usage Example<a class="headerlink" href="#usage-example_5" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">adaptive_config</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="s2">&quot;base_algorithms&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>        <span class="s2">&quot;IsolationForest&quot;</span><span class="p">,</span> 
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>        <span class="s2">&quot;LOF&quot;</span><span class="p">,</span> 
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>        <span class="s2">&quot;AutoEncoder&quot;</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="p">],</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="s2">&quot;adaptation_method&quot;</span><span class="p">:</span> <span class="s2">&quot;performance&quot;</span><span class="p">,</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    <span class="s2">&quot;window_size&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.05</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="p">}</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_adaptive_ensemble</span><span class="p">(</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Adaptive Ensemble Detector&quot;</span><span class="p">,</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>    <span class="n">config</span><span class="o">=</span><span class="n">adaptive_config</span>
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="p">)</span>
+</span></code></pre></div>
+<h4 id="advanced-adaptation-strategies">Advanced Adaptation Strategies<a class="headerlink" href="#advanced-adaptation-strategies" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Performance-based adaptation</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">performance_config</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="s2">&quot;metric&quot;</span><span class="p">:</span> <span class="s2">&quot;f1_score&quot;</span><span class="p">,</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="s2">&quot;decay_factor&quot;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">,</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="s2">&quot;min_samples&quot;</span><span class="p">:</span> <span class="mi">50</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="p">}</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="c1"># Diversity-based adaptation  </span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="n">diversity_config</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>    <span class="s2">&quot;diversity_measure&quot;</span><span class="p">:</span> <span class="s2">&quot;disagreement&quot;</span><span class="p">,</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>    <span class="s2">&quot;diversity_weight&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    <span class="s2">&quot;performance_weight&quot;</span><span class="p">:</span> <span class="mf">0.7</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="p">}</span>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="c1"># Confidence-based adaptation</span>
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="n">confidence_config</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>    <span class="s2">&quot;confidence_threshold&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>    <span class="s2">&quot;uncertainty_penalty&quot;</span><span class="p">:</span> <span class="mf">0.1</span>
+</span><span id="__span-8-19"><a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr />
+<h3 id="2-meta-learning-ensemble">2. Meta-Learning Ensemble<a class="headerlink" href="#2-meta-learning-ensemble" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Learning to ensemble<br />
+<strong>Complexity</strong>: O(epochs×n×k)<br />
+<strong>Best for</strong>: Multi-domain anomaly detection, transfer learning</p>
+<h4 id="description_6">Description<a class="headerlink" href="#description_6" title="Permanent link">&para;</a></h4>
+<p>Uses meta-learning to automatically learn how to combine base algorithms based on data characteristics and past performance.</p>
+<h4 id="parameters_6">Parameters<a class="headerlink" href="#parameters_6" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>meta_learner</code></td>
+<td>str</td>
+<td>"neural"</td>
+<td>"neural", "xgboost", "rf"</td>
+<td>Meta-learner type</td>
+</tr>
+<tr>
+<td><code>meta_features</code></td>
+<td>list</td>
+<td>["statistical", "complexity"]</td>
+<td>Various</td>
+<td>Meta-feature types</td>
+</tr>
+<tr>
+<td><code>base_algorithms</code></td>
+<td>list</td>
+<td>Various</td>
+<td>Various</td>
+<td>Base algorithm pool</td>
+</tr>
+<tr>
+<td><code>k_fold</code></td>
+<td>int</td>
+<td>5</td>
+<td>3-10</td>
+<td>Cross-validation folds</td>
+</tr>
+<tr>
+<td><code>meta_epochs</code></td>
+<td>int</td>
+<td>100</td>
+<td>50-500</td>
+<td>Meta-learner training epochs</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage-example_6">Usage Example<a class="headerlink" href="#usage-example_6" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">meta_config</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="s2">&quot;meta_learner&quot;</span><span class="p">:</span> <span class="s2">&quot;neural&quot;</span><span class="p">,</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="s2">&quot;meta_features&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>        <span class="s2">&quot;statistical&quot;</span><span class="p">,</span>  <span class="c1"># Mean, std, skewness, kurtosis</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>        <span class="s2">&quot;complexity&quot;</span><span class="p">,</span>   <span class="c1"># Dataset complexity measures</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>        <span class="s2">&quot;distributional&quot;</span> <span class="c1"># Distribution characteristics</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="p">],</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>    <span class="s2">&quot;base_algorithms&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>        <span class="s2">&quot;IsolationForest&quot;</span><span class="p">,</span> <span class="s2">&quot;LOF&quot;</span><span class="p">,</span> <span class="s2">&quot;OneClassSVM&quot;</span><span class="p">,</span> 
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>        <span class="s2">&quot;AutoEncoder&quot;</span><span class="p">,</span> <span class="s2">&quot;COPOD&quot;</span><span class="p">,</span> <span class="s2">&quot;ECOD&quot;</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    <span class="p">],</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>    <span class="s2">&quot;k_fold&quot;</span><span class="p">:</span> <span class="mi">5</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="p">}</span>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_meta_ensemble</span><span class="p">(</span>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Meta-Learning Ensemble&quot;</span><span class="p">,</span>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>    <span class="n">config</span><span class="o">=</span><span class="n">meta_config</span>
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="p">)</span>
+</span></code></pre></div>
+<hr />
+<h3 id="3-hierarchical-ensemble">3. Hierarchical Ensemble<a class="headerlink" href="#3-hierarchical-ensemble" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Multi-level ensemble<br />
+<strong>Complexity</strong>: O(n×k×l) where l = number of levels<br />
+<strong>Best for</strong>: Complex data with multiple anomaly types</p>
+<h4 id="description_7">Description<a class="headerlink" href="#description_7" title="Permanent link">&para;</a></h4>
+<p>Organizes algorithms in multiple levels, where each level specializes in detecting different types of anomalies.</p>
+<h4 id="parameters_7">Parameters<a class="headerlink" href="#parameters_7" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>level_configs</code></td>
+<td>list</td>
+<td>Various</td>
+<td>Various</td>
+<td>Configuration for each level</td>
+</tr>
+<tr>
+<td><code>combination_method</code></td>
+<td>str</td>
+<td>"weighted_avg"</td>
+<td>"weighted_avg", "stacking", "voting"</td>
+<td>Level combination method</td>
+</tr>
+<tr>
+<td><code>level_weights</code></td>
+<td>list</td>
+<td>None</td>
+<td>Various</td>
+<td>Weights for each level</td>
+</tr>
+<tr>
+<td><code>specialization</code></td>
+<td>str</td>
+<td>"anomaly_type"</td>
+<td>"anomaly_type", "data_region", "difficulty"</td>
+<td>Specialization strategy</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage-example_7">Usage Example<a class="headerlink" href="#usage-example_7" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">hierarchical_config</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    <span class="s2">&quot;levels&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>        <span class="p">{</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;statistical_level&quot;</span><span class="p">,</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>            <span class="s2">&quot;algorithms&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ECOD&quot;</span><span class="p">,</span> <span class="s2">&quot;COPOD&quot;</span><span class="p">,</span> <span class="s2">&quot;HBOS&quot;</span><span class="p">],</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>            <span class="s2">&quot;specialization&quot;</span><span class="p">:</span> <span class="s2">&quot;global_anomalies&quot;</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>        <span class="p">},</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>        <span class="p">{</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ml_level&quot;</span><span class="p">,</span> 
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>            <span class="s2">&quot;algorithms&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;IsolationForest&quot;</span><span class="p">,</span> <span class="s2">&quot;OneClassSVM&quot;</span><span class="p">],</span>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>            <span class="s2">&quot;specialization&quot;</span><span class="p">:</span> <span class="s2">&quot;pattern_anomalies&quot;</span>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>        <span class="p">},</span>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>        <span class="p">{</span>
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;deep_level&quot;</span><span class="p">,</span>
+</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>            <span class="s2">&quot;algorithms&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;AutoEncoder&quot;</span><span class="p">,</span> <span class="s2">&quot;VAE&quot;</span><span class="p">],</span>
+</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>            <span class="s2">&quot;specialization&quot;</span><span class="p">:</span> <span class="s2">&quot;complex_anomalies&quot;</span>
+</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>        <span class="p">}</span>
+</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>    <span class="p">],</span>
+</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>    <span class="s2">&quot;combination_method&quot;</span><span class="p">:</span> <span class="s2">&quot;stacking&quot;</span><span class="p">,</span>
+</span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>    <span class="s2">&quot;meta_learner&quot;</span><span class="p">:</span> <span class="s2">&quot;xgboost&quot;</span>
+</span><span id="__span-10-21"><a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a><span class="p">}</span>
+</span><span id="__span-10-22"><a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a>
+</span><span id="__span-10-23"><a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_hierarchical_ensemble</span><span class="p">(</span>
+</span><span id="__span-10-24"><a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Hierarchical Ensemble&quot;</span><span class="p">,</span>
+</span><span id="__span-10-25"><a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a>    <span class="n">config</span><span class="o">=</span><span class="n">hierarchical_config</span>
+</span><span id="__span-10-26"><a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a><span class="p">)</span>
+</span></code></pre></div>
+<hr />
+<h2 id="research-methods_1">Research Methods<a class="headerlink" href="#research-methods_1" title="Permanent link">&para;</a></h2>
+<h3 id="1-quantum-inspired-anomaly-detection">1. Quantum-Inspired Anomaly Detection<a class="headerlink" href="#1-quantum-inspired-anomaly-detection" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Quantum-inspired classical algorithm<br />
+<strong>Library</strong>: Custom/Qiskit<br />
+<strong>Complexity</strong>: O(n log n)<br />
+<strong>Best for</strong>: High-dimensional data, research applications</p>
+<h4 id="description_8">Description<a class="headerlink" href="#description_8" title="Permanent link">&para;</a></h4>
+<p>Uses quantum-inspired algorithms on classical computers to potentially achieve quantum advantage for certain anomaly detection tasks.</p>
+<h4 id="parameters_8">Parameters<a class="headerlink" href="#parameters_8" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>num_qubits</code></td>
+<td>int</td>
+<td>10</td>
+<td>5-20</td>
+<td>Number of simulated qubits</td>
+</tr>
+<tr>
+<td><code>circuit_depth</code></td>
+<td>int</td>
+<td>5</td>
+<td>2-10</td>
+<td>Quantum circuit depth</td>
+</tr>
+<tr>
+<td><code>measurement_shots</code></td>
+<td>int</td>
+<td>1000</td>
+<td>100-10000</td>
+<td>Number of measurements</td>
+</tr>
+<tr>
+<td><code>entanglement_structure</code></td>
+<td>str</td>
+<td>"linear"</td>
+<td>"linear", "circular", "all_to_all"</td>
+<td>Qubit entanglement</td>
+</tr>
+<tr>
+<td><code>variational_form</code></td>
+<td>str</td>
+<td>"ry_rz"</td>
+<td>"ry_rz", "efficient_su2"</td>
+<td>Parameterized quantum circuit</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage-example_8">Usage Example<a class="headerlink" href="#usage-example_8" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Quantum-Inspired Detector&quot;</span><span class="p">,</span> 
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;QuantumAD&quot;</span><span class="p">,</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="n">library</span><span class="o">=</span><span class="s2">&quot;qiskit&quot;</span><span class="p">,</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>        <span class="s2">&quot;num_qubits&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>        <span class="s2">&quot;circuit_depth&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> 
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>        <span class="s2">&quot;measurement_shots&quot;</span><span class="p">:</span> <span class="mi">5000</span><span class="p">,</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>        <span class="s2">&quot;entanglement_structure&quot;</span><span class="p">:</span> <span class="s2">&quot;circular&quot;</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>    <span class="p">}</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="p">)</span>
+</span></code></pre></div>
+<h4 id="strengths_1">Strengths<a class="headerlink" href="#strengths_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ Potential quantum advantage</li>
+<li>✅ Novel approach to feature space</li>
+<li>✅ Good for high-dimensional data</li>
+<li>✅ Research cutting-edge</li>
+</ul>
+<h4 id="limitations_1">Limitations<a class="headerlink" href="#limitations_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li>❌ Experimental/unproven</li>
+<li>❌ Complex implementation</li>
+<li>❌ Limited classical speedup</li>
+<li>❌ Requires quantum computing knowledge</li>
+</ul>
+<hr />
+<h3 id="2-neuromorphic-anomaly-detection">2. Neuromorphic Anomaly Detection<a class="headerlink" href="#2-neuromorphic-anomaly-detection" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Brain-inspired computing<br />
+<strong>Library</strong>: Custom/Nengo<br />
+<strong>Complexity</strong>: O(n)<br />
+<strong>Best for</strong>: Real-time processing, edge computing</p>
+<h4 id="description_9">Description<a class="headerlink" href="#description_9" title="Permanent link">&para;</a></h4>
+<p>Implements spiking neural networks that mimic brain computation for efficient, low-power anomaly detection.</p>
+<h4 id="parameters_9">Parameters<a class="headerlink" href="#parameters_9" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>neuron_type</code></td>
+<td>str</td>
+<td>"lif"</td>
+<td>"lif", "adaptive_lif", "izhikevich"</td>
+<td>Neuron model</td>
+</tr>
+<tr>
+<td><code>network_topology</code></td>
+<td>str</td>
+<td>"feedforward"</td>
+<td>"feedforward", "recurrent", "reservoir"</td>
+<td>Network structure</td>
+</tr>
+<tr>
+<td><code>spike_threshold</code></td>
+<td>float</td>
+<td>1.0</td>
+<td>0.5-2.0</td>
+<td>Spike generation threshold</td>
+</tr>
+<tr>
+<td><code>refractory_period</code></td>
+<td>float</td>
+<td>0.002</td>
+<td>0.001-0.01</td>
+<td>Neuron refractory period</td>
+</tr>
+<tr>
+<td><code>synaptic_delay</code></td>
+<td>float</td>
+<td>0.001</td>
+<td>0.0-0.005</td>
+<td>Synaptic transmission delay</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage-example_9">Usage Example<a class="headerlink" href="#usage-example_9" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Neuromorphic Detector&quot;</span><span class="p">,</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;NeuromorphicAD&quot;</span><span class="p">,</span> 
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    <span class="n">library</span><span class="o">=</span><span class="s2">&quot;nengo&quot;</span><span class="p">,</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>        <span class="s2">&quot;neuron_type&quot;</span><span class="p">:</span> <span class="s2">&quot;adaptive_lif&quot;</span><span class="p">,</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>        <span class="s2">&quot;network_topology&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir&quot;</span><span class="p">,</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>        <span class="s2">&quot;spike_threshold&quot;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>        <span class="s2">&quot;refractory_period&quot;</span><span class="p">:</span> <span class="mf">0.003</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>    <span class="p">}</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="p">)</span>
+</span></code></pre></div>
+<hr />
+<h3 id="3-causal-anomaly-detection">3. Causal Anomaly Detection<a class="headerlink" href="#3-causal-anomaly-detection" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Causal inference<br />
+<strong>Library</strong>: DoWhy/CausalML<br />
+<strong>Complexity</strong>: O(n²)<br />
+<strong>Best for</strong>: Understanding anomaly causation, interventional analysis</p>
+<h4 id="description_10">Description<a class="headerlink" href="#description_10" title="Permanent link">&para;</a></h4>
+<p>Identifies anomalies based on violations of learned causal relationships, providing interpretable insights into anomaly causes.</p>
+<h4 id="parameters_10">Parameters<a class="headerlink" href="#parameters_10" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>causal_discovery</code></td>
+<td>str</td>
+<td>"pc"</td>
+<td>"pc", "ges", "lingam"</td>
+<td>Causal structure learning</td>
+</tr>
+<tr>
+<td><code>independence_test</code></td>
+<td>str</td>
+<td>"fisher_z"</td>
+<td>"fisher_z", "chi_square", "kci"</td>
+<td>Conditional independence test</td>
+</tr>
+<tr>
+<td><code>significance_level</code></td>
+<td>float</td>
+<td>0.05</td>
+<td>0.01-0.1</td>
+<td>Statistical significance level</td>
+</tr>
+<tr>
+<td><code>interventional_vars</code></td>
+<td>list</td>
+<td>None</td>
+<td>Various</td>
+<td>Variables for intervention</td>
+</tr>
+<tr>
+<td><code>backdoor_adjustment</code></td>
+<td>bool</td>
+<td>True</td>
+<td>-</td>
+<td>Apply backdoor adjustment</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage-example_10">Usage Example<a class="headerlink" href="#usage-example_10" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Causal Anomaly Detector&quot;</span><span class="p">,</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;CausalAD&quot;</span><span class="p">,</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    <span class="n">library</span><span class="o">=</span><span class="s2">&quot;dowhy&quot;</span><span class="p">,</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>        <span class="s2">&quot;causal_discovery&quot;</span><span class="p">:</span> <span class="s2">&quot;pc&quot;</span><span class="p">,</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>        <span class="s2">&quot;independence_test&quot;</span><span class="p">:</span> <span class="s2">&quot;fisher_z&quot;</span><span class="p">,</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>        <span class="s2">&quot;significance_level&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>        <span class="s2">&quot;backdoor_adjustment&quot;</span><span class="p">:</span> <span class="kc">True</span>
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>    <span class="p">}</span>
+</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="p">)</span>
+</span></code></pre></div>
+<hr />
+<h2 id="performance-comparison">Performance Comparison<a class="headerlink" href="#performance-comparison" title="Permanent link">&para;</a></h2>
+<h3 id="computational-requirements">Computational Requirements<a class="headerlink" href="#computational-requirements" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>GPU Required</th>
+<th>Memory Usage</th>
+<th>Training Time</th>
+<th>Scalability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VAE</td>
+<td>Recommended</td>
+<td>High</td>
+<td>Slow</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>Transformer</td>
+<td>Required</td>
+<td>Very High</td>
+<td>Very Slow</td>
+<td>Poor</td>
+</tr>
+<tr>
+<td>Deep SVDD</td>
+<td>Recommended</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Good</td>
+</tr>
+<tr>
+<td>Adaptive Ensemble</td>
+<td>No</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Good</td>
+</tr>
+<tr>
+<td>Quantum-Inspired</td>
+<td>No</td>
+<td>Low</td>
+<td>Fast</td>
+<td>Excellent</td>
+</tr>
+<tr>
+<td>Neuromorphic</td>
+<td>No</td>
+<td>Very Low</td>
+<td>Fast</td>
+<td>Excellent</td>
+</tr>
+</tbody>
+</table>
+<h3 id="accuracy-potential">Accuracy Potential<a class="headerlink" href="#accuracy-potential" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Small Data</th>
+<th>Large Data</th>
+<th>Complex Patterns</th>
+<th>Interpretability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VAE</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐</td>
+</tr>
+<tr>
+<td>Transformer</td>
+<td>⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐</td>
+</tr>
+<tr>
+<td>Deep SVDD</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐</td>
+</tr>
+<tr>
+<td>Adaptive Ensemble</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td>Causal AD</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+</tbody>
+</table>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-model-selection-strategy">1. Model Selection Strategy<a class="headerlink" href="#1-model-selection-strategy" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Start with simpler experimental methods</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="n">experimental_progression</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="s2">&quot;DeepSVDD&quot;</span><span class="p">,</span>        <span class="c1"># Deep learning baseline</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="s2">&quot;VAE&quot;</span><span class="p">,</span>             <span class="c1"># Probabilistic modeling</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="s2">&quot;AdaptiveEnsemble&quot;</span><span class="p">,</span> <span class="c1"># Ensemble methods</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>    <span class="s2">&quot;Transformer&quot;</span><span class="p">,</span>     <span class="c1"># Attention-based (if sequential data)</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    <span class="s2">&quot;CausalAD&quot;</span>         <span class="c1"># Interpretability focus</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="p">]</span>
+</span></code></pre></div>
+<h3 id="2-hyperparameter-optimization">2. Hyperparameter Optimization<a class="headerlink" href="#2-hyperparameter-optimization" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># Use advanced optimization for experimental methods</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">optuna</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_study</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">objective</span><span class="p">(</span><span class="n">trial</span><span class="p">):</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    <span class="c1"># VAE hyperparameter optimization</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>        <span class="s2">&quot;latent_dim&quot;</span><span class="p">:</span> <span class="n">trial</span><span class="o">.</span><span class="n">suggest_int</span><span class="p">(</span><span class="s2">&quot;latent_dim&quot;</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">64</span><span class="p">),</span>
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>        <span class="s2">&quot;beta&quot;</span><span class="p">:</span> <span class="n">trial</span><span class="o">.</span><span class="n">suggest_float</span><span class="p">(</span><span class="s2">&quot;beta&quot;</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>        <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="n">trial</span><span class="o">.</span><span class="n">suggest_float</span><span class="p">(</span><span class="s2">&quot;lr&quot;</span><span class="p">,</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="mf">1e-2</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>    <span class="p">}</span>
+</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>
+</span><span id="__span-15-12"><a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>    <span class="n">model</span> <span class="o">=</span> <span class="n">create_vae_detector</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span id="__span-15-13"><a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>    <span class="n">score</span> <span class="o">=</span> <span class="n">evaluate_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">validation_data</span><span class="p">)</span>
+</span><span id="__span-15-14"><a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>    <span class="k">return</span> <span class="n">score</span>
+</span><span id="__span-15-15"><a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>
+</span><span id="__span-15-16"><a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a><span class="n">study</span> <span class="o">=</span> <span class="n">create_study</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s2">&quot;maximize&quot;</span><span class="p">)</span>
+</span><span id="__span-15-17"><a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="n">study</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">n_trials</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="3-resource-management">3. Resource Management<a class="headerlink" href="#3-resource-management" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># GPU memory management for deep learning methods</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">optimize_gpu_usage</span><span class="p">():</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>    <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>        <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">empty_cache</span><span class="p">()</span>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>        <span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cudnn</span><span class="o">.</span><span class="n">benchmark</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>        <span class="c1"># Use mixed precision training</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">torch.cuda.amp</span><span class="w"> </span><span class="kn">import</span> <span class="n">autocast</span><span class="p">,</span> <span class="n">GradScaler</span>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>        <span class="k">return</span> <span class="kc">True</span>
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>    <span class="k">return</span> <span class="kc">False</span>
+</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>
+</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="c1"># Distributed training for large ensembles</span>
+</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a><span class="kn">from</span><span class="w"> </span><span class="nn">torch.nn.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">DistributedDataParallel</span>
+</span></code></pre></div>
+<h3 id="4-validation-strategies">4. Validation Strategies<a class="headerlink" href="#4-validation-strategies" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Advanced validation for experimental methods</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="c1"># Time series: Expanding window validation</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">expanding_window_validation</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">initial_window</span><span class="o">=</span><span class="mf">0.3</span><span class="p">):</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">*</span> <span class="n">initial_window</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">step</span><span class="p">):</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>        <span class="n">train_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>        <span class="n">test_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">step</span><span class="p">]</span>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>        <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span>
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>        <span class="n">score</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
+</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>
+</span><span id="__span-17-14"><a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</span><span id="__span-17-15"><a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a>
+</span><span id="__span-17-16"><a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a><span class="c1"># Ensemble: Out-of-bag validation</span>
+</span><span id="__span-17-17"><a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a><span class="k">def</span><span class="w"> </span><span class="nf">ensemble_oob_validation</span><span class="p">(</span><span class="n">ensemble</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+</span><span id="__span-17-18"><a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a>    <span class="n">oob_scores</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-17-19"><a id="__codelineno-17-19" name="__codelineno-17-19" href="#__codelineno-17-19"></a>    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">base_model</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ensemble</span><span class="o">.</span><span class="n">models</span><span class="p">):</span>
+</span><span id="__span-17-20"><a id="__codelineno-17-20" name="__codelineno-17-20" href="#__codelineno-17-20"></a>        <span class="c1"># Use data not seen by this base model</span>
+</span><span id="__span-17-21"><a id="__codelineno-17-21" name="__codelineno-17-21" href="#__codelineno-17-21"></a>        <span class="n">oob_data</span> <span class="o">=</span> <span class="n">get_oob_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+</span><span id="__span-17-22"><a id="__codelineno-17-22" name="__codelineno-17-22" href="#__codelineno-17-22"></a>        <span class="n">score</span> <span class="o">=</span> <span class="n">base_model</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">oob_data</span><span class="p">)</span>
+</span><span id="__span-17-23"><a id="__codelineno-17-23" name="__codelineno-17-23" href="#__codelineno-17-23"></a>        <span class="n">oob_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+</span><span id="__span-17-24"><a id="__codelineno-17-24" name="__codelineno-17-24" href="#__codelineno-17-24"></a>
+</span><span id="__span-17-25"><a id="__codelineno-17-25" name="__codelineno-17-25" href="#__codelineno-17-25"></a>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">oob_scores</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="5-interpretability-for-complex-models">5. Interpretability for Complex Models<a class="headerlink" href="#5-interpretability-for-complex-models" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># SHAP values for deep learning models</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">shap</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">explain_deep_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X_test</span><span class="p">):</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>    <span class="n">explainer</span> <span class="o">=</span> <span class="n">shap</span><span class="o">.</span><span class="n">DeepExplainer</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X_train</span><span class="p">[:</span><span class="mi">100</span><span class="p">])</span>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>    <span class="n">shap_values</span> <span class="o">=</span> <span class="n">explainer</span><span class="o">.</span><span class="n">shap_values</span><span class="p">(</span><span class="n">X_test</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>    <span class="k">return</span> <span class="n">shap_values</span>
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>
+</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="c1"># Attention visualization for transformers</span>
+</span><span id="__span-18-10"><a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="k">def</span><span class="w"> </span><span class="nf">visualize_attention</span><span class="p">(</span><span class="n">transformer_model</span><span class="p">,</span> <span class="n">sequence</span><span class="p">):</span>
+</span><span id="__span-18-11"><a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>    <span class="n">attention_weights</span> <span class="o">=</span> <span class="n">transformer_model</span><span class="o">.</span><span class="n">get_attention_weights</span><span class="p">(</span><span class="n">sequence</span><span class="p">)</span>
+</span><span id="__span-18-12"><a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>    <span class="c1"># Plot attention heatmap</span>
+</span><span id="__span-18-13"><a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a>    <span class="k">return</span> <span class="n">attention_weights</span>
+</span><span id="__span-18-14"><a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a>
+</span><span id="__span-18-15"><a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a><span class="c1"># Causal explanations</span>
+</span><span id="__span-18-16"><a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_causal_explanation</span><span class="p">(</span><span class="n">causal_model</span><span class="p">,</span> <span class="n">anomaly_instance</span><span class="p">):</span>
+</span><span id="__span-18-17"><a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a>    <span class="c1"># Identify causal factors for the anomaly</span>
+</span><span id="__span-18-18"><a id="__codelineno-18-18" name="__codelineno-18-18" href="#__codelineno-18-18"></a>    <span class="n">causes</span> <span class="o">=</span> <span class="n">causal_model</span><span class="o">.</span><span class="n">identify_causes</span><span class="p">(</span><span class="n">anomaly_instance</span><span class="p">)</span>
+</span><span id="__span-18-19"><a id="__codelineno-18-19" name="__codelineno-18-19" href="#__codelineno-18-19"></a>    <span class="k">return</span> <span class="n">causes</span>
+</span></code></pre></div>
+<h2 id="deployment-considerations">Deployment Considerations<a class="headerlink" href="#deployment-considerations" title="Permanent link">&para;</a></h2>
+<h3 id="1-model-serving">1. Model Serving<a class="headerlink" href="#1-model-serving" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># Efficient serving for deep learning models</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torchserve</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">onnx</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="c1"># Convert to ONNX for cross-platform deployment</span>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">convert_to_onnx</span><span class="p">(</span><span class="n">pytorch_model</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>    <span class="n">dummy_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>    <span class="n">torch</span><span class="o">.</span><span class="n">onnx</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">pytorch_model</span><span class="p">,</span> <span class="n">dummy_input</span><span class="p">,</span> <span class="s2">&quot;model.onnx&quot;</span><span class="p">)</span>
+</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>
+</span><span id="__span-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a><span class="c1"># TensorRT optimization for GPU inference</span>
+</span><span id="__span-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a><span class="kn">import</span><span class="w"> </span><span class="nn">tensorrt</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">trt</span>
+</span><span id="__span-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>
+</span><span id="__span-19-13"><a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a><span class="k">def</span><span class="w"> </span><span class="nf">optimize_with_tensorrt</span><span class="p">(</span><span class="n">onnx_model_path</span><span class="p">):</span>
+</span><span id="__span-19-14"><a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a>    <span class="c1"># TensorRT optimization for faster inference</span>
+</span><span id="__span-19-15"><a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a>    <span class="k">pass</span>
+</span></code></pre></div>
+<h3 id="2-edge-deployment">2. Edge Deployment<a class="headerlink" href="#2-edge-deployment" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1"># Quantization for mobile/edge deployment</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">quantize_model</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>    <span class="n">quantized_model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">quantize_dynamic</span><span class="p">(</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>        <span class="n">model</span><span class="p">,</span> <span class="p">{</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">},</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">qint8</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>    <span class="p">)</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>    <span class="k">return</span> <span class="n">quantized_model</span>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="c1"># Pruning for model compression</span>
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="k">def</span><span class="w"> </span><span class="nf">prune_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">pruning_ratio</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
+</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>    <span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn.utils.prune</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">prune</span>
+</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a>
+</span><span id="__span-20-12"><a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a>    <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">modules</span><span class="p">():</span>
+</span><span id="__span-20-13"><a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">):</span>
+</span><span id="__span-20-14"><a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a>            <span class="n">prune</span><span class="o">.</span><span class="n">l1_unstructured</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;weight&#39;</span><span class="p">,</span> <span class="n">amount</span><span class="o">=</span><span class="n">pruning_ratio</span><span class="p">)</span>
+</span><span id="__span-20-15"><a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a>
+</span><span id="__span-20-16"><a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a>    <span class="k">return</span> <span class="n">model</span>
+</span></code></pre></div>
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong><a href="../core-algorithms/">Core Algorithms</a></strong> - Foundation algorithms</li>
+<li><strong><a href="../specialized-algorithms/">Specialized Algorithms</a></strong> - Domain-specific methods</li>
+<li><strong><a href="../algorithm-comparison/">Algorithm Comparison</a></strong> - Performance analysis</li>
+<li><strong><a href="../../guides/automl-guide.md">AutoML Guide</a></strong> - Automated algorithm selection</li>
+<li><strong><a href="../../guides/deep-learning-anomaly-detection.md">Deep Learning Guide</a></strong> - Deep learning specifics</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/pynomaly/pynomaly" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/pynomaly/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/pynomaly" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+        <script src="../../../javascripts/extra.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1130 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="State-of-the-art Python anomaly detection platform">
+      
+      
+        <meta name="author" content="Pynomaly Team">
+      
+      
+        <link rel="canonical" href="https://pynomaly.readthedocs.io/DOCUMENTATION_CROSS_LINKING_EXECUTIVE_SUMMARY/">
+      
+      
+      
+      
+      <link rel="icon" href="../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>Documentation Cross-Linking Analysis: Executive Summary - Pynomaly Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#documentation-cross-linking-analysis-executive-summary" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Pynomaly Documentation" class="md-header__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pynomaly Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Documentation Cross-Linking Analysis: Executive Summary
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Pynomaly Documentation" class="md-nav__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    Pynomaly Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Start
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/FEATURE_INSTALLATION_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Feature Installation Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#analysis-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Analysis Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-findings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Findings
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Findings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#current-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current State
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#critical-issues-identified" class="md-nav__link">
+    <span class="md-ellipsis">
+      Critical Issues Identified
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Critical Issues Identified">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-high-broken-link-rate-62-broken-links-25-of-total" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. High Broken Link Rate (62 broken links - 25% of total)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-massive-content-isolation-84-orphaned-documents-60-of-total" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Massive Content Isolation (84 orphaned documents - 60% of total)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-hub-documents-with-poor-outgoing-links-10-high-traffic-documents" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Hub Documents with Poor Outgoing Links (10 high-traffic documents)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#high-value-opportunities" class="md-nav__link">
+    <span class="md-ellipsis">
+      High-Value Opportunities
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="High-Value Opportunities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-user-journey-enhancement" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. User Journey Enhancement
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-content-type-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Content Type Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-section-connectivity" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Section Connectivity
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#linking-standards-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Linking Standards Analysis
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Linking Standards Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#current-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Patterns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recommended Standards
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-recommendations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Recommendations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Recommendations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-critical-fixes-week-1-high-priority" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1: Critical Fixes (Week 1) - HIGH PRIORITY
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-navigation-enhancement-week-2-medium-priority" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 2: Navigation Enhancement (Week 2) - MEDIUM PRIORITY
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-advanced-optimization-week-3-low-priority" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 3: Advanced Optimization (Week 3) - LOW PRIORITY
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#expected-impact" class="md-nav__link">
+    <span class="md-ellipsis">
+      Expected Impact
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Expected Impact">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#immediate-benefits-phase-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Immediate Benefits (Phase 1)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#medium-term-benefits-phase-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Medium-term Benefits (Phase 2)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#long-term-benefits-phase-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Long-term Benefits (Phase 3)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#files-delivered" class="md-nav__link">
+    <span class="md-ellipsis">
+      Files Delivered
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Files Delivered">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#analysis-documents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Analysis Documents
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#analysis-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      Analysis Script
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next Steps
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Next Steps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#immediate-actions-this-week" class="md-nav__link">
+    <span class="md-ellipsis">
+      Immediate Actions (This Week)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#planning-actions-next-week" class="md-nav__link">
+    <span class="md-ellipsis">
+      Planning Actions (Next Week)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validation-actions-ongoing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Validation Actions (Ongoing)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="documentation-cross-linking-analysis-executive-summary">Documentation Cross-Linking Analysis: Executive Summary<a class="headerlink" href="#documentation-cross-linking-analysis-executive-summary" title="Permanent link">&para;</a></h1>
+<h2 id="analysis-overview">Analysis Overview<a class="headerlink" href="#analysis-overview" title="Permanent link">&para;</a></h2>
+<p>I have completed a comprehensive analysis of the Pynomaly documentation structure in the <code>/docs/</code> directory to understand current cross-linking patterns and identify opportunities for improvement. The analysis covered <strong>139 documentation files</strong> across 8 main sections with <strong>247 existing cross-links</strong>.</p>
+<h2 id="key-findings">Key Findings<a class="headerlink" href="#key-findings" title="Permanent link">&para;</a></h2>
+<h3 id="current-state">Current State<a class="headerlink" href="#current-state" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ <strong>Strong foundation</strong>: 139 comprehensive documentation files well-organized by user journey</li>
+<li>✅ <strong>Good section coverage</strong>: Main user paths (getting-started, user-guides, developer-guides) have solid content</li>
+<li>⚠️ <strong>Navigation challenges</strong>: 25% of links are broken, 60% of documents are orphaned</li>
+<li>❌ <strong>Poor connectivity</strong>: Many high-value documents lack effective cross-referencing</li>
+</ul>
+<h3 id="critical-issues-identified">Critical Issues Identified<a class="headerlink" href="#critical-issues-identified" title="Permanent link">&para;</a></h3>
+<h4 id="1-high-broken-link-rate-62-broken-links-25-of-total">1. <strong>High Broken Link Rate</strong> (62 broken links - 25% of total)<a class="headerlink" href="#1-high-broken-link-rate-62-broken-links-25-of-total" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Security documentation</strong> referenced but missing (<code>deployment/SECURITY.md</code>)</li>
+<li><strong>Outdated path references</strong> due to documentation reorganization  </li>
+<li><strong>Missing workflow documentation</strong> frequently referenced but not created</li>
+<li><strong>API documentation path mismatches</strong> after structural changes</li>
+</ul>
+<h4 id="2-massive-content-isolation-84-orphaned-documents-60-of-total">2. <strong>Massive Content Isolation</strong> (84 orphaned documents - 60% of total)<a class="headerlink" href="#2-massive-content-isolation-84-orphaned-documents-60-of-total" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Examples section</strong> severely under-connected (11 docs, only 5 outgoing links)</li>
+<li><strong>Reference materials</strong> isolated from practical usage context</li>
+<li><strong>Archive content</strong> properly isolated but some valuable content missed</li>
+<li><strong>Technical guides</strong> discoverable only through directory browsing</li>
+</ul>
+<h4 id="3-hub-documents-with-poor-outgoing-links-10-high-traffic-documents">3. <strong>Hub Documents with Poor Outgoing Links</strong> (10 high-traffic documents)<a class="headerlink" href="#3-hub-documents-with-poor-outgoing-links-10-high-traffic-documents" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>user-guides/basic-usage/monitoring.md</code> (12 incoming, 0 outgoing links)</li>
+<li><code>developer-guides/architecture/overview.md</code> (11 incoming, 0 outgoing links)  </li>
+<li><code>developer-guides/contributing/COMPREHENSIVE_TEST_ANALYSIS.md</code> (7 incoming, 0 outgoing links)</li>
+</ul>
+<h2 id="high-value-opportunities">High-Value Opportunities<a class="headerlink" href="#high-value-opportunities" title="Permanent link">&para;</a></h2>
+<h3 id="1-user-journey-enhancement">1. <strong>User Journey Enhancement</strong><a class="headerlink" href="#1-user-journey-enhancement" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Getting Started → User Guides</strong>: Clear progression paths for new users</li>
+<li><strong>User Guides → Developer Guides</strong>: Integration paths for technical users</li>
+<li><strong>Examples → Documentation</strong>: Bidirectional links between practical and theoretical content</li>
+</ul>
+<h3 id="2-content-type-integration">2. <strong>Content Type Integration</strong><a class="headerlink" href="#2-content-type-integration" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Examples ↔ Explanatory Docs</strong>: Connect banking examples to dataset analysis guides</li>
+<li><strong>Reference ↔ Practical Content</strong>: Link algorithm references to usage tutorials</li>
+<li><strong>Troubleshooting ↔ Implementation</strong>: Connect problem-solving to technical guides</li>
+</ul>
+<h3 id="3-section-connectivity">3. <strong>Section Connectivity</strong><a class="headerlink" href="#3-section-connectivity" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Cross-section navigation</strong>: Improve discovery between major documentation areas</li>
+<li><strong>Progressive disclosure</strong>: Guide users from simple to complex topics</li>
+<li><strong>Use case workflows</strong>: Create clear paths for specific user scenarios</li>
+</ul>
+<h2 id="linking-standards-analysis">Linking Standards Analysis<a class="headerlink" href="#linking-standards-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="current-patterns">Current Patterns<a class="headerlink" href="#current-patterns" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Pattern Type</th>
+<th>Usage</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Directory paths (<code>section/file.md</code>)</td>
+<td>48%</td>
+<td>✅ Clear and maintainable</td>
+</tr>
+<tr>
+<td>Relative parent (<code>../file.md</code>)</td>
+<td>28%</td>
+<td>⚠️ Fragile to restructuring</td>
+</tr>
+<tr>
+<td>Simple filenames (<code>file.md</code>)</td>
+<td>21%</td>
+<td>⚠️ Context-dependent</td>
+</tr>
+<tr>
+<td>Relative current (<code>./file.md</code>)</td>
+<td>4%</td>
+<td>✅ Robust and clear</td>
+</tr>
+</tbody>
+</table>
+<h3 id="recommended-standards">Recommended Standards<a class="headerlink" href="#recommended-standards" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Prefer full paths</strong>: <code>user-guides/basic-usage/monitoring.md</code></li>
+<li><strong>Use descriptive link text</strong>: <code>[Performance Tuning Guide](user-guides/advanced-features/performance-tuning.md)</code></li>
+<li><strong>Implement consistent navigation sections</strong>: "Related Documentation", "Next Steps", "Prerequisites"</li>
+</ul>
+<h2 id="implementation-recommendations">Implementation Recommendations<a class="headerlink" href="#implementation-recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-critical-fixes-week-1-high-priority"><strong>Phase 1: Critical Fixes</strong> (Week 1) - HIGH PRIORITY<a class="headerlink" href="#phase-1-critical-fixes-week-1-high-priority" title="Permanent link">&para;</a></h3>
+<p><strong>Goal</strong>: Restore basic navigation functionality</p>
+<ol>
+<li><strong>Fix all 62 broken links</strong></li>
+<li>Create missing <code>deployment/security.md</code> documentation</li>
+<li>Update outdated path references in getting-started guides</li>
+<li>
+<p>Correct API documentation paths</p>
+</li>
+<li>
+<p><strong>Enhance hub documents</strong></p>
+</li>
+<li>Add outgoing links to top 10 high-traffic documents</li>
+<li>Create "Related Documentation" sections</li>
+<li>
+<p>Implement "Next Steps" navigation</p>
+</li>
+<li>
+<p><strong>Establish linking standards</strong></p>
+</li>
+<li>Document conventions and best practices</li>
+<li>Create link validation tools</li>
+</ol>
+<h3 id="phase-2-navigation-enhancement-week-2-medium-priority"><strong>Phase 2: Navigation Enhancement</strong> (Week 2) - MEDIUM PRIORITY<a class="headerlink" href="#phase-2-navigation-enhancement-week-2-medium-priority" title="Permanent link">&para;</a></h3>
+<p><strong>Goal</strong>: Improve content discoverability and user journeys</p>
+<ol>
+<li><strong>Connect orphaned high-value content</strong></li>
+<li>Link 20 priority orphaned documents to main navigation</li>
+<li>Integrate examples with explanatory documentation</li>
+<li>
+<p>Connect reference materials to practical guides</p>
+</li>
+<li>
+<p><strong>Improve section integration</strong></p>
+</li>
+<li>Create clear user journey progressions</li>
+<li>Add cross-section navigation</li>
+<li>Establish topic-based link clusters</li>
+</ol>
+<h3 id="phase-3-advanced-optimization-week-3-low-priority"><strong>Phase 3: Advanced Optimization</strong> (Week 3) - LOW PRIORITY<a class="headerlink" href="#phase-3-advanced-optimization-week-3-low-priority" title="Permanent link">&para;</a></h3>
+<p><strong>Goal</strong>: Optimize navigation and establish maintenance</p>
+<ol>
+<li><strong>Implement contextual cross-references</strong></li>
+<li>Add "See Also" sections for related content</li>
+<li>Create skill-level progressions</li>
+<li>
+<p>Optimize for common user workflows</p>
+</li>
+<li>
+<p><strong>Establish maintenance automation</strong></p>
+</li>
+<li>Link validation in CI/CD pipeline</li>
+<li>Regular documentation review processes</li>
+<li>Automated broken link detection</li>
+</ol>
+<h2 id="expected-impact">Expected Impact<a class="headerlink" href="#expected-impact" title="Permanent link">&para;</a></h2>
+<h3 id="immediate-benefits-phase-1"><strong>Immediate Benefits</strong> (Phase 1)<a class="headerlink" href="#immediate-benefits-phase-1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>100% functional navigation</strong> - All links work correctly</li>
+<li><strong>Reduced user frustration</strong> - Elimination of broken link dead-ends</li>
+<li><strong>Improved onboarding</strong> - Clear getting-started progression</li>
+</ul>
+<h3 id="medium-term-benefits-phase-2"><strong>Medium-term Benefits</strong> (Phase 2)<a class="headerlink" href="#medium-term-benefits-phase-2" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Enhanced content discovery</strong> - 70% reduction in orphaned documents</li>
+<li><strong>Better user retention</strong> - Clear progression paths through documentation</li>
+<li><strong>Increased feature adoption</strong> - Better connection between features and examples</li>
+</ul>
+<h3 id="long-term-benefits-phase-3"><strong>Long-term Benefits</strong> (Phase 3)<a class="headerlink" href="#long-term-benefits-phase-3" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Sustainable maintenance</strong> - Automated validation and quality assurance</li>
+<li><strong>Improved user experience</strong> - Intuitive navigation and content discovery</li>
+<li><strong>Reduced support burden</strong> - Users can self-serve through better documentation navigation</li>
+</ul>
+<h2 id="files-delivered">Files Delivered<a class="headerlink" href="#files-delivered" title="Permanent link">&para;</a></h2>
+<h3 id="analysis-documents"><strong>Analysis Documents</strong><a class="headerlink" href="#analysis-documents" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong><code>DOCUMENTATION_CROSS_LINKING_ANALYSIS_REPORT.md</code></strong> - Comprehensive analysis with detailed findings</li>
+<li><strong><code>BROKEN_LINKS_DETAILED_ANALYSIS.md</code></strong> - Specific broken link issues and fix recommendations</li>
+<li><strong><code>CROSS_LINKING_IMPLEMENTATION_STRATEGY.md</code></strong> - Detailed implementation plan with examples</li>
+<li><strong><code>docs_cross_linking_analysis.json</code></strong> - Raw analysis data for further processing</li>
+</ol>
+<h3 id="analysis-script"><strong>Analysis Script</strong><a class="headerlink" href="#analysis-script" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong><code>analyze_docs_links.py</code></strong> - Automated analysis tool for ongoing maintenance</li>
+</ol>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<h3 id="immediate-actions-this-week"><strong>Immediate Actions</strong> (This Week)<a class="headerlink" href="#immediate-actions-this-week" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Review and approve</strong> the implementation strategy</li>
+<li><strong>Prioritize Phase 1 fixes</strong> based on user impact</li>
+<li><strong>Create missing security documentation</strong> as highest priority</li>
+<li><strong>Begin fixing critical broken links</strong> in getting-started section</li>
+</ol>
+<h3 id="planning-actions-next-week"><strong>Planning Actions</strong> (Next Week)<a class="headerlink" href="#planning-actions-next-week" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Assign resources</strong> for Phase 2 implementation</li>
+<li><strong>Set up link validation tools</strong> for ongoing maintenance</li>
+<li><strong>Create content creation guidelines</strong> incorporating linking standards</li>
+<li><strong>Plan user feedback collection</strong> to validate improvements</li>
+</ol>
+<h3 id="validation-actions-ongoing"><strong>Validation Actions</strong> (Ongoing)<a class="headerlink" href="#validation-actions-ongoing" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Monitor user behavior</strong> through documentation analytics</li>
+<li><strong>Track success metrics</strong> (broken links, orphaned docs, user progression)</li>
+<li><strong>Collect user feedback</strong> on navigation improvements</li>
+<li><strong>Iterate and optimize</strong> based on usage patterns</li>
+</ol>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>The Pynomaly documentation has excellent content depth and organization, but suffers from significant connectivity issues that impact user experience. With <strong>62 broken links</strong> and <strong>84 orphaned documents</strong>, users face substantial navigation challenges.</p>
+<p>The analysis reveals clear, actionable opportunities for improvement through strategic cross-linking. By implementing the phased approach outlined above, the documentation can evolve from a collection of isolated documents into a cohesive, navigable knowledge system.</p>
+<p><strong>Priority 1</strong>: Fix broken links to restore basic functionality<br />
+<strong>Priority 2</strong>: Connect orphaned content to improve discoverability<br />
+<strong>Priority 3</strong>: Optimize navigation for long-term sustainability</p>
+<p>This investment in documentation navigation will significantly improve user onboarding, feature adoption, and overall developer experience with the Pynomaly platform.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/pynomaly/pynomaly" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/pynomaly/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/pynomaly" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+        <script src="../javascripts/extra.js"></script>
+      
+    
+  </body>
+</html>

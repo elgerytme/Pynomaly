@@ -1,0 +1,56 @@
+=== SECURITY CLI HELP OUTPUT (TYPER) ===
+Usage: python -m pynomaly.presentation.cli.security                  
+        [OPTIONS] COMMAND [ARGS]...                               
+
+Security and compliance management commands.                         
+
+╭─ Options ──────────────────────────────────────────────────────────╮
+│ --install-completion          Install completion for the current   │
+│                               shell.                               │
+│ --show-completion             Show completion for the current      │
+│                               shell, to copy it or customize the   │
+│                               installation.                        │
+│ --help                        Show this message and exit.          │
+╰────────────────────────────────────────────────────────────────────╯
+╭─ Commands ─────────────────────────────────────────────────────────╮
+│ assess-compliance       Assess compliance with regulatory          │
+│                         frameworks.                                │
+│ encrypt-data            Encrypt sensitive data with compliance     │
+│                         controls.                                  │
+│ register-data-subject   Register data subject for GDPR compliance. │
+│ gdpr-request            Handle GDPR data subject rights requests.  │
+│ detect-breach           Detect potential data breaches from access │
+│                         logs.                                      │
+│ anonymize-data          Anonymize data for privacy compliance.     │
+│ status                  Get overall security and compliance        │
+│                         status.                                    │
+│ cleanup                 Clean up expired data per retention        │
+│                         policies.                                  │
+╰────────────────────────────────────────────────────────────────────╯
+
+=== DASHBOARD CLI HELP OUTPUT (TYPER) ===
+Usage: python -m pynomaly.presentation.cli.dashboard                 
+        [OPTIONS] COMMAND [ARGS]...                               
+
+Visualization dashboard management commands.                         
+
+╭─ Options ──────────────────────────────────────────────────────────╮
+│ --install-completion          Install completion for the current   │
+│                               shell.                               │
+│ --show-completion             Show completion for the current      │
+│                               shell, to copy it or customize the   │
+│                               installation.                        │
+│ --help                        Show this message and exit.          │
+╰────────────────────────────────────────────────────────────────────╯
+╭─ Commands ─────────────────────────────────────────────────────────╮
+│ generate   Generate comprehensive visualization dashboard.         │
+│ status     Show dashboard service status and active dashboards.    │
+│ monitor    Start real-time dashboard monitoring.                   │
+│ compare    Compare dashboard metrics across different time         │
+│            periods.                                                │
+│ export     Export dashboard to various formats.                    │
+│ cleanup    Clean up dashboard service resources.                   │
+╰────────────────────────────────────────────────────────────────────╯
+
+=== GOVERNANCE CLI ===
+Status: Partially converted (needs completion due to extensive click decorators)

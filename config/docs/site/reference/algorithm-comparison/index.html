@@ -1,0 +1,2063 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="State-of-the-art Python anomaly detection platform">
+      
+      
+        <meta name="author" content="Pynomaly Team">
+      
+      
+        <link rel="canonical" href="https://pynomaly.readthedocs.io/reference/algorithm-comparison/">
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>Algorithm Comparison and Selection Guide - Pynomaly Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#algorithm-comparison-and-selection-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Pynomaly Documentation" class="md-header__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pynomaly Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Algorithm Comparison and Selection Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Pynomaly Documentation" class="md-nav__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    Pynomaly Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Start
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/FEATURE_INSTALLATION_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Feature Installation Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Table of Contents
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#algorithm-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Algorithm Overview
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Algorithm Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#algorithm-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      Algorithm Categories
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#algorithm-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      Algorithm Matrix
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statistical-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Statistical Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Statistical Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#z-score-standard-score" class="md-nav__link">
+    <span class="md-ellipsis">
+      Z-Score (Standard Score)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#modified-z-score-mad-based" class="md-nav__link">
+    <span class="md-ellipsis">
+      Modified Z-Score (MAD-based)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ecod-empirical-cumulative-distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      ECOD (Empirical Cumulative Distribution)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#copod-copula-based-outlier-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      COPOD (Copula-based Outlier Detection)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#machine-learning-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Machine Learning Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Machine Learning Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#isolation-forest" class="md-nav__link">
+    <span class="md-ellipsis">
+      Isolation Forest
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#local-outlier-factor-lof" class="md-nav__link">
+    <span class="md-ellipsis">
+      Local Outlier Factor (LOF)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#one-class-svm-ocsvm" class="md-nav__link">
+    <span class="md-ellipsis">
+      One-Class SVM (OCSVM)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#k-nearest-neighbors-knn" class="md-nav__link">
+    <span class="md-ellipsis">
+      K-Nearest Neighbors (KNN)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deep-learning-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deep Learning Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deep Learning Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#autoencoder" class="md-nav__link">
+    <span class="md-ellipsis">
+      AutoEncoder
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#variational-autoencoder-vae" class="md-nav__link">
+    <span class="md-ellipsis">
+      Variational AutoEncoder (VAE)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deep-svdd" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deep SVDD
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#graph-based-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Graph-Based Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Graph-Based Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gcnae-graph-convolutional-network-autoencoder" class="md-nav__link">
+    <span class="md-ellipsis">
+      GCNAE (Graph Convolutional Network AutoEncoder)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dominant" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOMINANT
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Comparison
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Comparison">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#computational-complexity-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      Computational Complexity Comparison
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accuracy-benchmarks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Accuracy Benchmarks
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Accuracy Benchmarks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tabular-data-average-auc-roc" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tabular Data (Average AUC-ROC)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#high-dimensional-data-100-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      High-Dimensional Data (&gt;100 features)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#large-scale-data-100k-samples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Large-Scale Data (&gt;100K samples)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#selection-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      Selection Guidelines
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Selection Guidelines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#decision-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      Decision Matrix
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-case-specific-recommendations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use Case Specific Recommendations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Use Case Specific Recommendations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fraud-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fraud Detection
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#network-intrusion-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Network Intrusion Detection
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manufacturing-quality-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manufacturing Quality Control
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#financial-market-anomalies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Financial Market Anomalies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#benchmarking-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benchmarking Results
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Benchmarking Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#standard-benchmarks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Standard Benchmarks
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Standard Benchmarks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#credit-card-fraud-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Credit Card Fraud Dataset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kdd-cup-99-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      KDD Cup 99 Dataset
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-usage-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory Usage Comparison
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Memory Usage Comparison">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#memory-consumption-mb-on-100k-samples-50-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory Consumption (MB) on 100K samples, 50 features
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hyperparameter-sensitivity-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hyperparameter Sensitivity Analysis
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Hyperparameter Sensitivity Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#isolationforest-sensitivity" class="md-nav__link">
+    <span class="md-ellipsis">
+      IsolationForest Sensitivity
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lof-sensitivity" class="md-nav__link">
+    <span class="md-ellipsis">
+      LOF Sensitivity
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-dataset-generalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cross-Dataset Generalization
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cross-Dataset Generalization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#algorithm-robustness-score-std-dev-across-datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Algorithm Robustness Score (Std Dev across datasets)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔗 Related Documentation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔗 Related Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#user-guides" class="md-nav__link">
+    <span class="md-ellipsis">
+      User Guides
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#development" class="md-nav__link">
+    <span class="md-ellipsis">
+      Development
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      🆘 Getting Help
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="algorithm-comparison-and-selection-guide">Algorithm Comparison and Selection Guide<a class="headerlink" href="#algorithm-comparison-and-selection-guide" title="Permanent link">&para;</a></h1>
+<p>🍞 <strong>Breadcrumb:</strong> 🏠 <a href="../../">Home</a> &gt; 📖 <a href="README.md">Reference</a> &gt; 📄 Algorithm Comparison</p>
+<hr />
+<p>This comprehensive guide covers all anomaly detection algorithms supported by Pynomaly, their characteristics, performance comparisons, and selection criteria for different use cases.</p>
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#algorithm-overview">Algorithm Overview</a></li>
+<li><a href="#statistical-methods">Statistical Methods</a></li>
+<li><a href="#machine-learning-methods">Machine Learning Methods</a></li>
+<li><a href="#deep-learning-methods">Deep Learning Methods</a></li>
+<li><a href="#graph-based-methods">Graph-Based Methods</a></li>
+<li><a href="#performance-comparison">Performance Comparison</a></li>
+<li><a href="#selection-guidelines">Selection Guidelines</a></li>
+<li><a href="#benchmarking-results">Benchmarking Results</a></li>
+</ol>
+<h2 id="algorithm-overview">Algorithm Overview<a class="headerlink" href="#algorithm-overview" title="Permanent link">&para;</a></h2>
+<p>Pynomaly supports over 40 anomaly detection algorithms across multiple categories, each optimized for different data types, scales, and use cases.</p>
+<h3 id="algorithm-categories">Algorithm Categories<a class="headerlink" href="#algorithm-categories" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌─────────────────────────────────────────────────────────────┐
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│                    Pynomaly Algorithms                      │
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│                                                             │
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐│
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│  │   Statistical   │  │ Machine Learning│  │  Deep Learning  ││
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│  │   - Z-Score     │  │ - IsolationForest│  │  - AutoEncoder  ││
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│  │   - MAD         │  │ - LOF           │  │  - VAE          ││
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│  │   - ECOD        │  │ - OCSVM         │  │  - GAN          ││
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│  │   - COPOD       │  │ - KNN           │  │  - LSTM-AE      ││
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│  └─────────────────┘  └─────────────────┘  └─────────────────┘│
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│                                                             │
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐│
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│  │   Graph-Based   │  │   Ensemble      │  │   Specialized   ││
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│  │   - GCNAE       │  │ - IForest+LOF   │  │  - SUOD         ││
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│  │   - DOMINANT    │  │ - Voting        │  │  - XGBOD        ││
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│  │   - GUIDE       │  │ - Stacking      │  │  - DeepSVDD     ││
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│  │   - AnomalyDAE  │  │ - Bagging       │  │  - PCA          ││
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│  └─────────────────┘  └─────────────────┘  └─────────────────┘│
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>└─────────────────────────────────────────────────────────────┘
+</span></code></pre></div>
+<h3 id="algorithm-matrix">Algorithm Matrix<a class="headerlink" href="#algorithm-matrix" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Type</th>
+<th>Time Complexity</th>
+<th>Space Complexity</th>
+<th>Scalability</th>
+<th>Interpretability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IsolationForest</td>
+<td>Tree-based</td>
+<td>O(t·ψ·log ψ)</td>
+<td>O(t·ψ)</td>
+<td>High</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>LOF</td>
+<td>Distance-based</td>
+<td>O(n²)</td>
+<td>O(n)</td>
+<td>Low</td>
+<td>High</td>
+</tr>
+<tr>
+<td>OCSVM</td>
+<td>SVM-based</td>
+<td>O(n³)</td>
+<td>O(n²)</td>
+<td>Medium</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>ECOD</td>
+<td>Statistical</td>
+<td>O(n·d)</td>
+<td>O(n·d)</td>
+<td>High</td>
+<td>High</td>
+</tr>
+<tr>
+<td>COPOD</td>
+<td>Statistical</td>
+<td>O(n·d)</td>
+<td>O(d)</td>
+<td>High</td>
+<td>High</td>
+</tr>
+<tr>
+<td>AutoEncoder</td>
+<td>Neural Network</td>
+<td>O(epochs·n·h)</td>
+<td>O(h²)</td>
+<td>High</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>VAE</td>
+<td>Neural Network</td>
+<td>O(epochs·n·h)</td>
+<td>O(h²)</td>
+<td>High</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>KNN</td>
+<td>Distance-based</td>
+<td>O(n²)</td>
+<td>O(n)</td>
+<td>Low</td>
+<td>High</td>
+</tr>
+<tr>
+<td>PCA</td>
+<td>Linear</td>
+<td>O(n·d²)</td>
+<td>O(d²)</td>
+<td>Medium</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>ABOD</td>
+<td>Angle-based</td>
+<td>O(n³)</td>
+<td>O(n)</td>
+<td>Low</td>
+<td>Medium</td>
+</tr>
+</tbody>
+</table>
+<p><em>Legend: n=samples, d=features, t=trees, ψ=subsample_size, h=hidden_units</em></p>
+<h2 id="statistical-methods">Statistical Methods<a class="headerlink" href="#statistical-methods" title="Permanent link">&para;</a></h2>
+<h3 id="z-score-standard-score">Z-Score (Standard Score)<a class="headerlink" href="#z-score-standard-score" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Identifies anomalies based on standard deviations from the mean.</p>
+<p><strong>Mathematical Foundation</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>z = (x - μ) / σ
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>Anomaly if |z| &gt; threshold (typically 2-3)
+</span></code></pre></div></p>
+<p><strong>Characteristics</strong>:
+- <strong>Pros</strong>: Simple, fast, interpretable, no training required
+- <strong>Cons</strong>: Assumes normal distribution, sensitive to outliers
+- <strong>Best for</strong>: Univariate data, real-time detection, simple baselines</p>
+<p><strong>Implementation</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pynomaly</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_detector</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">detector</span> <span class="o">=</span> <span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;ZScore&quot;</span><span class="p">,</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;standard&quot;</span>  <span class="c1"># or &quot;modified&quot;, &quot;robust&quot;</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="p">}</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="p">)</span>
+</span></code></pre></div></p>
+<p><strong>Performance Profile</strong>:
+- <strong>Training Time</strong>: None (stateless)
+- <strong>Prediction Time</strong>: O(1) per sample
+- <strong>Memory Usage</strong>: Minimal
+- <strong>Scalability</strong>: Excellent</p>
+<h3 id="modified-z-score-mad-based">Modified Z-Score (MAD-based)<a class="headerlink" href="#modified-z-score-mad-based" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Robust version using Median Absolute Deviation instead of standard deviation.</p>
+<p><strong>Mathematical Foundation</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>MAD = median(|xi - median(X)|)
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Modified Z-Score = 0.6745 * (x - median(X)) / MAD
+</span></code></pre></div></p>
+<p><strong>Characteristics</strong>:
+- <strong>Pros</strong>: Robust to outliers, works with skewed distributions
+- <strong>Cons</strong>: Still univariate, may miss multivariate patterns
+- <strong>Best for</strong>: Robust univariate detection, skewed data</p>
+<h3 id="ecod-empirical-cumulative-distribution">ECOD (Empirical Cumulative Distribution)<a class="headerlink" href="#ecod-empirical-cumulative-distribution" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Uses empirical cumulative distributions to identify anomalies in tails.</p>
+<p><strong>Mathematical Foundation</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>F̂(x) = (1/n) Σ I(Xi ≤ x)
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>Anomaly score = min(F̂(x), 1-F̂(x))
+</span></code></pre></div></p>
+<p><strong>Characteristics</strong>:
+- <strong>Pros</strong>: Parameter-free, fast, handles mixed data types
+- <strong>Cons</strong>: Assumes independence between features
+- <strong>Best for</strong>: High-dimensional data, mixed data types, fast detection</p>
+<p><strong>Implementation</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;ECOD&quot;</span><span class="p">,</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>        <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        <span class="s2">&quot;n_jobs&quot;</span><span class="p">:</span> <span class="mi">4</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="p">}</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">)</span>
+</span></code></pre></div></p>
+<p><strong>Performance Profile</strong>:
+- <strong>Training Time</strong>: O(n·d log n)
+- <strong>Prediction Time</strong>: O(d log n)
+- <strong>Memory Usage</strong>: O(n·d)
+- <strong>Scalability</strong>: Excellent</p>
+<h3 id="copod-copula-based-outlier-detection">COPOD (Copula-based Outlier Detection)<a class="headerlink" href="#copod-copula-based-outlier-detection" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Uses copula models to capture feature dependencies for anomaly detection.</p>
+<p><strong>Mathematical Foundation</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>C(u1, ..., ud) = P(U1 ≤ u1, ..., Ud ≤ ud)
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>Anomaly score based on copula tail probabilities
+</span></code></pre></div></p>
+<p><strong>Characteristics</strong>:
+- <strong>Pros</strong>: Captures feature dependencies, fast, interpretable
+- <strong>Cons</strong>: Assumes specific copula structure
+- <strong>Best for</strong>: Multivariate data with dependencies, fast detection</p>
+<p><strong>Performance Profile</strong>:
+- <strong>Training Time</strong>: O(n·d)
+- <strong>Prediction Time</strong>: O(d)
+- <strong>Memory Usage</strong>: O(d)
+- <strong>Scalability</strong>: Excellent</p>
+<h2 id="machine-learning-methods">Machine Learning Methods<a class="headerlink" href="#machine-learning-methods" title="Permanent link">&para;</a></h2>
+<h3 id="isolation-forest">Isolation Forest<a class="headerlink" href="#isolation-forest" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Isolates anomalies by randomly partitioning data, assuming anomalies are easier to isolate.</p>
+<p><strong>Mathematical Foundation</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Anomaly Score = 2^(-E(h(x))/c(n))
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>where E(h(x)) is average path length and c(n) is normalization factor
+</span></code></pre></div></p>
+<p><strong>Characteristics</strong>:
+- <strong>Pros</strong>: Scalable, robust, works well with high dimensions
+- <strong>Cons</strong>: May struggle with normal data in sparse regions
+- <strong>Best for</strong>: Large datasets, high-dimensional data, general-purpose detection</p>
+<p><strong>Implementation</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;IsolationForest&quot;</span><span class="p">,</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>        <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>        <span class="s2">&quot;n_estimators&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>        <span class="s2">&quot;max_samples&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>        <span class="s2">&quot;max_features&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>        <span class="s2">&quot;bootstrap&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>        <span class="s2">&quot;n_jobs&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>        <span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="mi">42</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>    <span class="p">}</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="p">)</span>
+</span></code></pre></div></p>
+<p><strong>Performance Profile</strong>:
+- <strong>Training Time</strong>: O(t·ψ·log ψ) where t=trees, ψ=subsample_size
+- <strong>Prediction Time</strong>: O(t·log ψ)
+- <strong>Memory Usage</strong>: O(t·ψ)
+- <strong>Scalability</strong>: Excellent</p>
+<p><strong>Hyperparameter Tuning</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Optimal parameters for different scenarios</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">scenarios</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="s2">&quot;large_dataset&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>        <span class="s2">&quot;n_estimators&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>        <span class="s2">&quot;max_samples&quot;</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>        <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="p">},</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>    <span class="s2">&quot;high_dimensional&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>        <span class="s2">&quot;n_estimators&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>        <span class="s2">&quot;max_features&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>        <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.05</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>    <span class="p">},</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>    <span class="s2">&quot;real_time&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>        <span class="s2">&quot;n_estimators&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>        <span class="s2">&quot;max_samples&quot;</span><span class="p">:</span> <span class="mi">128</span><span class="p">,</span>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>        <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>    <span class="p">}</span>
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<h3 id="local-outlier-factor-lof">Local Outlier Factor (LOF)<a class="headerlink" href="#local-outlier-factor-lof" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Identifies anomalies based on local density compared to neighbors.</p>
+<p><strong>Mathematical Foundation</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>LOF(p) = (1/k) Σ (lrd(o) / lrd(p)) for o in Nk(p)
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>where lrd is local reachability density
+</span></code></pre></div></p>
+<p><strong>Characteristics</strong>:
+- <strong>Pros</strong>: Finds local anomalies, interpretable, handles varying densities
+- <strong>Cons</strong>: Computationally expensive, sensitive to k parameter
+- <strong>Best for</strong>: Local anomalies, varying density clusters, medium-sized datasets</p>
+<p><strong>Implementation</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;LOF&quot;</span><span class="p">,</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>        <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>        <span class="s2">&quot;n_neighbors&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>        <span class="s2">&quot;algorithm&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>  <span class="c1"># ball_tree, kd_tree, brute</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>        <span class="s2">&quot;leaf_size&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>        <span class="s2">&quot;metric&quot;</span><span class="p">:</span> <span class="s2">&quot;minkowski&quot;</span><span class="p">,</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>        <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>        <span class="s2">&quot;n_jobs&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>    <span class="p">}</span>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="p">)</span>
+</span></code></pre></div></p>
+<p><strong>Performance Profile</strong>:
+- <strong>Training Time</strong>: O(n²) for brute force, O(n log n) for tree methods
+- <strong>Prediction Time</strong>: O(k·n) for new points
+- <strong>Memory Usage</strong>: O(n²) for distance matrix
+- <strong>Scalability</strong>: Poor for large datasets</p>
+<p><strong>Parameter Selection</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># k selection based on dataset size</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">select_k</span><span class="p">(</span><span class="n">n_samples</span><span class="p">):</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="k">if</span> <span class="n">n_samples</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="p">:</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="n">n_samples</span> <span class="o">//</span> <span class="mi">10</span><span class="p">)</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    <span class="k">elif</span> <span class="n">n_samples</span> <span class="o">&lt;</span> <span class="mi">10000</span><span class="p">:</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>        <span class="k">return</span> <span class="mi">20</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">n_samples</span><span class="p">)))</span>
+</span></code></pre></div></p>
+<h3 id="one-class-svm-ocsvm">One-Class SVM (OCSVM)<a class="headerlink" href="#one-class-svm-ocsvm" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Learns a decision boundary around normal data using support vector machines.</p>
+<p><strong>Mathematical Foundation</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>min(w,ξ,ρ) (1/2)||w||² + (1/νn)Σξi - ρ
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>subject to: (w·φ(xi)) ≥ ρ - ξi, ξi ≥ 0
+</span></code></pre></div></p>
+<p><strong>Characteristics</strong>:
+- <strong>Pros</strong>: Solid theoretical foundation, works with kernels, handles non-linear boundaries
+- <strong>Cons</strong>: Sensitive to hyperparameters, doesn't scale well
+- <strong>Best for</strong>: Non-linear boundaries, medium-sized datasets, theoretical guarantees</p>
+<p><strong>Implementation</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;OCSVM&quot;</span><span class="p">,</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>        <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>        <span class="s2">&quot;kernel&quot;</span><span class="p">:</span> <span class="s2">&quot;rbf&quot;</span><span class="p">,</span>  <span class="c1"># linear, poly, rbf, sigmoid</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>        <span class="s2">&quot;degree&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>        <span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="s2">&quot;scale&quot;</span><span class="p">,</span>  <span class="c1"># scale, auto, or float</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>        <span class="s2">&quot;coef0&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>        <span class="s2">&quot;tol&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>        <span class="s2">&quot;nu&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>        <span class="s2">&quot;shrinking&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-14-12"><a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>        <span class="s2">&quot;cache_size&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+</span><span id="__span-14-13"><a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>        <span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span>
+</span><span id="__span-14-14"><a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>    <span class="p">}</span>
+</span><span id="__span-14-15"><a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="p">)</span>
+</span></code></pre></div></p>
+<p><strong>Kernel Selection</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="n">kernel_guide</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    <span class="s2">&quot;linear&quot;</span><span class="p">:</span> <span class="s2">&quot;High-dimensional sparse data&quot;</span><span class="p">,</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="s2">&quot;rbf&quot;</span><span class="p">:</span> <span class="s2">&quot;General purpose, non-linear patterns&quot;</span><span class="p">,</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="s2">&quot;poly&quot;</span><span class="p">:</span> <span class="s2">&quot;Polynomial relationships in data&quot;</span><span class="p">,</span> 
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    <span class="s2">&quot;sigmoid&quot;</span><span class="p">:</span> <span class="s2">&quot;Neural network-like boundaries&quot;</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<h3 id="k-nearest-neighbors-knn">K-Nearest Neighbors (KNN)<a class="headerlink" href="#k-nearest-neighbors-knn" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Identifies anomalies based on distance to k-nearest neighbors.</p>
+<p><strong>Mathematical Foundation</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>Anomaly Score = distance to k-th nearest neighbor
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>or average distance to k nearest neighbors
+</span></code></pre></div></p>
+<p><strong>Characteristics</strong>:
+- <strong>Pros</strong>: Simple, intuitive, works with any distance metric
+- <strong>Cons</strong>: Computationally expensive, sensitive to curse of dimensionality
+- <strong>Best for</strong>: Low-dimensional data, non-parametric detection, simple baselines</p>
+<p><strong>Implementation</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;KNN&quot;</span><span class="p">,</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>        <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>        <span class="s2">&quot;n_neighbors&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>        <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;largest&quot;</span><span class="p">,</span>  <span class="c1"># largest, mean, median</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>        <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>        <span class="s2">&quot;algorithm&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>        <span class="s2">&quot;leaf_size&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>        <span class="s2">&quot;metric&quot;</span><span class="p">:</span> <span class="s2">&quot;minkowski&quot;</span><span class="p">,</span>
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>        <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="mi">2</span>
+</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>    <span class="p">}</span>
+</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a><span class="p">)</span>
+</span></code></pre></div></p>
+<h2 id="deep-learning-methods">Deep Learning Methods<a class="headerlink" href="#deep-learning-methods" title="Permanent link">&para;</a></h2>
+<h3 id="autoencoder">AutoEncoder<a class="headerlink" href="#autoencoder" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Neural network that learns to reconstruct input data; anomalies have high reconstruction error.</p>
+<p><strong>Architecture</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>Input Layer → Encoder → Latent Space → Decoder → Output Layer
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>Anomaly Score = ||x - x̂||²
+</span></code></pre></div></p>
+<p><strong>Characteristics</strong>:
+- <strong>Pros</strong>: Handles complex patterns, scalable, feature learning
+- <strong>Cons</strong>: Requires tuning, black box, needs sufficient data
+- <strong>Best for</strong>: Complex patterns, large datasets, feature learning</p>
+<p><strong>Implementation</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;AutoEncoder&quot;</span><span class="p">,</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>        <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>        <span class="s2">&quot;encoder_neurons&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">16</span><span class="p">],</span>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>        <span class="s2">&quot;decoder_neurons&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span>
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>        <span class="s2">&quot;activation&quot;</span><span class="p">:</span> <span class="s2">&quot;relu&quot;</span><span class="p">,</span>
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>        <span class="s2">&quot;optimizer&quot;</span><span class="p">:</span> <span class="s2">&quot;adam&quot;</span><span class="p">,</span>
+</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>        <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+</span><span id="__span-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>        <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
+</span><span id="__span-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>        <span class="s2">&quot;dropout_rate&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+</span><span id="__span-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>        <span class="s2">&quot;l2_regularizer&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+</span><span id="__span-19-13"><a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a>        <span class="s2">&quot;validation_size&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+</span><span id="__span-19-14"><a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a>        <span class="s2">&quot;preprocessing&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-19-15"><a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a>        <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-19-16"><a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a>        <span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="mi">42</span>
+</span><span id="__span-19-17"><a id="__codelineno-19-17" name="__codelineno-19-17" href="#__codelineno-19-17"></a>    <span class="p">}</span>
+</span><span id="__span-19-18"><a id="__codelineno-19-18" name="__codelineno-19-18" href="#__codelineno-19-18"></a><span class="p">)</span>
+</span></code></pre></div></p>
+<p><strong>Architecture Guidelines</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">design_autoencoder</span><span class="p">(</span><span class="n">input_dim</span><span class="p">):</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Design autoencoder architecture based on input dimensions.&quot;&quot;&quot;</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>    <span class="k">if</span> <span class="n">input_dim</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="p">:</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>        <span class="k">return</span> <span class="p">{</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>            <span class="s2">&quot;encoder_neurons&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>            <span class="s2">&quot;decoder_neurons&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>        <span class="p">}</span>
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>    <span class="k">elif</span> <span class="n">input_dim</span> <span class="o">&lt;=</span> <span class="mi">50</span><span class="p">:</span>
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>        <span class="k">return</span> <span class="p">{</span>
+</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>            <span class="s2">&quot;encoder_neurons&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">32</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a>            <span class="s2">&quot;decoder_neurons&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">]</span>
+</span><span id="__span-20-12"><a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a>        <span class="p">}</span>
+</span><span id="__span-20-13"><a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-20-14"><a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a>        <span class="k">return</span> <span class="p">{</span>
+</span><span id="__span-20-15"><a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a>            <span class="s2">&quot;encoder_neurons&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span><span id="__span-20-16"><a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a>            <span class="s2">&quot;decoder_neurons&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">]</span>
+</span><span id="__span-20-17"><a id="__codelineno-20-17" name="__codelineno-20-17" href="#__codelineno-20-17"></a>        <span class="p">}</span>
+</span></code></pre></div></p>
+<h3 id="variational-autoencoder-vae">Variational AutoEncoder (VAE)<a class="headerlink" href="#variational-autoencoder-vae" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Probabilistic autoencoder that learns a latent distribution; anomalies have low likelihood.</p>
+<p><strong>Mathematical Foundation</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>ELBO = E[log p(x|z)] - KL(q(z|x)||p(z))
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>Anomaly Score = -log p(x) (approximated by reconstruction + KL divergence)
+</span></code></pre></div></p>
+<p><strong>Characteristics</strong>:
+- <strong>Pros</strong>: Probabilistic framework, generates new samples, robust
+- <strong>Cons</strong>: More complex than AE, requires more tuning
+- <strong>Best for</strong>: Generative modeling, probabilistic anomaly scores</p>
+<p><strong>Implementation</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;VAE&quot;</span><span class="p">,</span>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>        <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>        <span class="s2">&quot;encoder_neurons&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">32</span><span class="p">,</span> <span class="mi">16</span><span class="p">],</span>
+</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>        <span class="s2">&quot;decoder_neurons&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">],</span>
+</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>        <span class="s2">&quot;latent_dim&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+</span><span id="__span-22-8"><a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>        <span class="s2">&quot;beta&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>  <span class="c1"># KL divergence weight</span>
+</span><span id="__span-22-9"><a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>        <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+</span><span id="__span-22-10"><a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a>        <span class="s2">&quot;activation&quot;</span><span class="p">:</span> <span class="s2">&quot;relu&quot;</span><span class="p">,</span>
+</span><span id="__span-22-11"><a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a>        <span class="s2">&quot;optimizer&quot;</span><span class="p">:</span> <span class="s2">&quot;adam&quot;</span><span class="p">,</span>
+</span><span id="__span-22-12"><a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a>        <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+</span><span id="__span-22-13"><a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a>        <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
+</span><span id="__span-22-14"><a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a>        <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">1e-3</span>
+</span><span id="__span-22-15"><a id="__codelineno-22-15" name="__codelineno-22-15" href="#__codelineno-22-15"></a>    <span class="p">}</span>
+</span><span id="__span-22-16"><a id="__codelineno-22-16" name="__codelineno-22-16" href="#__codelineno-22-16"></a><span class="p">)</span>
+</span></code></pre></div></p>
+<h3 id="deep-svdd">Deep SVDD<a class="headerlink" href="#deep-svdd" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Deep learning extension of SVDD that learns representations optimized for anomaly detection.</p>
+<p><strong>Characteristics</strong>:
+- <strong>Pros</strong>: End-to-end optimization, learns good representations
+- <strong>Cons</strong>: Requires careful initialization, sensitive to hyperparameters
+- <strong>Best for</strong>: Complex data, when representation learning is needed</p>
+<h2 id="graph-based-methods">Graph-Based Methods<a class="headerlink" href="#graph-based-methods" title="Permanent link">&para;</a></h2>
+<h3 id="gcnae-graph-convolutional-network-autoencoder">GCNAE (Graph Convolutional Network AutoEncoder)<a class="headerlink" href="#gcnae-graph-convolutional-network-autoencoder" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Autoencoder using graph convolutional layers for graph-structured data.</p>
+<p><strong>Characteristics</strong>:
+- <strong>Pros</strong>: Handles graph structure, scalable to large graphs
+- <strong>Cons</strong>: Requires graph data, complex architecture
+- <strong>Best for</strong>: Network anomalies, social networks, molecular data</p>
+<p><strong>Implementation</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;GCNAE&quot;</span><span class="p">,</span>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>        <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>        <span class="s2">&quot;hidden_dims&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">],</span>
+</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>        <span class="s2">&quot;dropout&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>        <span class="s2">&quot;act&quot;</span><span class="p">:</span> <span class="s2">&quot;relu&quot;</span><span class="p">,</span>
+</span><span id="__span-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>        <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+</span><span id="__span-23-9"><a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>        <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+</span><span id="__span-23-10"><a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>        <span class="s2">&quot;weight_decay&quot;</span><span class="p">:</span> <span class="mf">0.0005</span>
+</span><span id="__span-23-11"><a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a>    <span class="p">}</span>
+</span><span id="__span-23-12"><a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a><span class="p">)</span>
+</span></code></pre></div></p>
+<h3 id="dominant">DOMINANT<a class="headerlink" href="#dominant" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Deep anomaly detection on attributed networks using graph autoencoders.</p>
+<p><strong>Characteristics</strong>:
+- <strong>Pros</strong>: Handles both structure and attributes, interpretable
+- <strong>Cons</strong>: Requires attributed graphs, computationally intensive
+- <strong>Best for</strong>: Attributed networks, fraud detection, social media analysis</p>
+<h2 id="performance-comparison">Performance Comparison<a class="headerlink" href="#performance-comparison" title="Permanent link">&para;</a></h2>
+<h3 id="computational-complexity-comparison">Computational Complexity Comparison<a class="headerlink" href="#computational-complexity-comparison" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Training Time</th>
+<th>Prediction Time</th>
+<th>Memory Usage</th>
+<th>Scalability Rank</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ECOD</td>
+<td>O(nd log n)</td>
+<td>O(d log n)</td>
+<td>O(nd)</td>
+<td>1</td>
+</tr>
+<tr>
+<td>COPOD</td>
+<td>O(nd)</td>
+<td>O(d)</td>
+<td>O(d)</td>
+<td>2</td>
+</tr>
+<tr>
+<td>IsolationForest</td>
+<td>O(tψ log ψ)</td>
+<td>O(t log ψ)</td>
+<td>O(tψ)</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Z-Score</td>
+<td>O(nd)</td>
+<td>O(d)</td>
+<td>O(d)</td>
+<td>4</td>
+</tr>
+<tr>
+<td>PCA</td>
+<td>O(nd²)</td>
+<td>O(d²)</td>
+<td>O(d²)</td>
+<td>5</td>
+</tr>
+<tr>
+<td>KNN</td>
+<td>O(n²)</td>
+<td>O(kn)</td>
+<td>O(n²)</td>
+<td>6</td>
+</tr>
+<tr>
+<td>LOF</td>
+<td>O(n²)</td>
+<td>O(kn)</td>
+<td>O(n²)</td>
+<td>7</td>
+</tr>
+<tr>
+<td>OCSVM</td>
+<td>O(n³)</td>
+<td>O(n)</td>
+<td>O(n²)</td>
+<td>8</td>
+</tr>
+<tr>
+<td>AutoEncoder</td>
+<td>O(epochs·nh)</td>
+<td>O(h)</td>
+<td>O(h²)</td>
+<td>4</td>
+</tr>
+<tr>
+<td>VAE</td>
+<td>O(epochs·nh)</td>
+<td>O(h)</td>
+<td>O(h²)</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+<h3 id="accuracy-benchmarks">Accuracy Benchmarks<a class="headerlink" href="#accuracy-benchmarks" title="Permanent link">&para;</a></h3>
+<p>Based on extensive benchmarking across 20 datasets:</p>
+<h4 id="tabular-data-average-auc-roc">Tabular Data (Average AUC-ROC)<a class="headerlink" href="#tabular-data-average-auc-roc" title="Permanent link">&para;</a></h4>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>IsolationForest: 0.81 ± 0.12
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>LOF:            0.79 ± 0.15
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>ECOD:           0.78 ± 0.11
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>COPOD:          0.76 ± 0.13
+</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>AutoEncoder:    0.83 ± 0.10
+</span><span id="__span-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>VAE:            0.80 ± 0.14
+</span><span id="__span-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>OCSVM:          0.77 ± 0.16
+</span><span id="__span-24-8"><a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>KNN:            0.75 ± 0.17
+</span></code></pre></div>
+<h4 id="high-dimensional-data-100-features">High-Dimensional Data (&gt;100 features)<a class="headerlink" href="#high-dimensional-data-100-features" title="Permanent link">&para;</a></h4>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>ECOD:           0.82 ± 0.09
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>IsolationForest: 0.81 ± 0.11
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>AutoEncoder:    0.85 ± 0.08
+</span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>PCA:            0.74 ± 0.12
+</span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>COPOD:          0.73 ± 0.14
+</span></code></pre></div>
+<h4 id="large-scale-data-100k-samples">Large-Scale Data (&gt;100K samples)<a class="headerlink" href="#large-scale-data-100k-samples" title="Permanent link">&para;</a></h4>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>ECOD:           0.79 ± 0.10
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>COPOD:          0.77 ± 0.11
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>IsolationForest: 0.80 ± 0.12
+</span><span id="__span-26-4"><a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>LOF:            0.65 ± 0.18 (scalability issues)
+</span></code></pre></div>
+<h2 id="selection-guidelines">Selection Guidelines<a class="headerlink" href="#selection-guidelines" title="Permanent link">&para;</a></h2>
+<h3 id="decision-matrix">Decision Matrix<a class="headerlink" href="#decision-matrix" title="Permanent link">&para;</a></h3>
+<p>Use this decision matrix to select the best algorithm for your use case:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">recommend_algorithm</span><span class="p">(</span><span class="n">data_characteristics</span><span class="p">):</span>
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="sd">    Recommend algorithm based on data characteristics.</span>
+</span><span id="__span-27-4"><a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>
+</span><span id="__span-27-5"><a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="sd">    Args:</span>
+</span><span id="__span-27-6"><a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a><span class="sd">        data_characteristics: dict with keys:</span>
+</span><span id="__span-27-7"><a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="sd">            - n_samples: number of samples</span>
+</span><span id="__span-27-8"><a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a><span class="sd">            - n_features: number of features</span>
+</span><span id="__span-27-9"><a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a><span class="sd">            - data_type: &#39;tabular&#39;, &#39;time_series&#39;, &#39;graph&#39;, &#39;text&#39;, &#39;image&#39;</span>
+</span><span id="__span-27-10"><a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a><span class="sd">            - anomaly_type: &#39;global&#39;, &#39;local&#39;, &#39;contextual&#39;</span>
+</span><span id="__span-27-11"><a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a><span class="sd">            - interpretability: &#39;required&#39;, &#39;preferred&#39;, &#39;not_important&#39;</span>
+</span><span id="__span-27-12"><a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a><span class="sd">            - speed_requirement: &#39;real_time&#39;, &#39;batch&#39;, &#39;offline&#39;</span>
+</span><span id="__span-27-13"><a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a><span class="sd">            - data_quality: &#39;clean&#39;, &#39;noisy&#39;, &#39;missing_values&#39;</span>
+</span><span id="__span-27-14"><a id="__codelineno-27-14" name="__codelineno-27-14" href="#__codelineno-27-14"></a>
+</span><span id="__span-27-15"><a id="__codelineno-27-15" name="__codelineno-27-15" href="#__codelineno-27-15"></a><span class="sd">    Returns:</span>
+</span><span id="__span-27-16"><a id="__codelineno-27-16" name="__codelineno-27-16" href="#__codelineno-27-16"></a><span class="sd">        List of recommended algorithms with confidence scores</span>
+</span><span id="__span-27-17"><a id="__codelineno-27-17" name="__codelineno-27-17" href="#__codelineno-27-17"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-27-18"><a id="__codelineno-27-18" name="__codelineno-27-18" href="#__codelineno-27-18"></a>
+</span><span id="__span-27-19"><a id="__codelineno-27-19" name="__codelineno-27-19" href="#__codelineno-27-19"></a>    <span class="n">recommendations</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-27-20"><a id="__codelineno-27-20" name="__codelineno-27-20" href="#__codelineno-27-20"></a>
+</span><span id="__span-27-21"><a id="__codelineno-27-21" name="__codelineno-27-21" href="#__codelineno-27-21"></a>    <span class="n">n_samples</span> <span class="o">=</span> <span class="n">data_characteristics</span><span class="p">[</span><span class="s1">&#39;n_samples&#39;</span><span class="p">]</span>
+</span><span id="__span-27-22"><a id="__codelineno-27-22" name="__codelineno-27-22" href="#__codelineno-27-22"></a>    <span class="n">n_features</span> <span class="o">=</span> <span class="n">data_characteristics</span><span class="p">[</span><span class="s1">&#39;n_features&#39;</span><span class="p">]</span>
+</span><span id="__span-27-23"><a id="__codelineno-27-23" name="__codelineno-27-23" href="#__codelineno-27-23"></a>    <span class="n">data_type</span> <span class="o">=</span> <span class="n">data_characteristics</span><span class="p">[</span><span class="s1">&#39;data_type&#39;</span><span class="p">]</span>
+</span><span id="__span-27-24"><a id="__codelineno-27-24" name="__codelineno-27-24" href="#__codelineno-27-24"></a>    <span class="n">anomaly_type</span> <span class="o">=</span> <span class="n">data_characteristics</span><span class="p">[</span><span class="s1">&#39;anomaly_type&#39;</span><span class="p">]</span>
+</span><span id="__span-27-25"><a id="__codelineno-27-25" name="__codelineno-27-25" href="#__codelineno-27-25"></a>    <span class="n">interpretability</span> <span class="o">=</span> <span class="n">data_characteristics</span><span class="p">[</span><span class="s1">&#39;interpretability&#39;</span><span class="p">]</span>
+</span><span id="__span-27-26"><a id="__codelineno-27-26" name="__codelineno-27-26" href="#__codelineno-27-26"></a>    <span class="n">speed_requirement</span> <span class="o">=</span> <span class="n">data_characteristics</span><span class="p">[</span><span class="s1">&#39;speed_requirement&#39;</span><span class="p">]</span>
+</span><span id="__span-27-27"><a id="__codelineno-27-27" name="__codelineno-27-27" href="#__codelineno-27-27"></a>    <span class="n">data_quality</span> <span class="o">=</span> <span class="n">data_characteristics</span><span class="p">[</span><span class="s1">&#39;data_quality&#39;</span><span class="p">]</span>
+</span><span id="__span-27-28"><a id="__codelineno-27-28" name="__codelineno-27-28" href="#__codelineno-27-28"></a>
+</span><span id="__span-27-29"><a id="__codelineno-27-29" name="__codelineno-27-29" href="#__codelineno-27-29"></a>    <span class="c1"># Rule-based recommendation system</span>
+</span><span id="__span-27-30"><a id="__codelineno-27-30" name="__codelineno-27-30" href="#__codelineno-27-30"></a>    <span class="k">if</span> <span class="n">speed_requirement</span> <span class="o">==</span> <span class="s1">&#39;real_time&#39;</span><span class="p">:</span>
+</span><span id="__span-27-31"><a id="__codelineno-27-31" name="__codelineno-27-31" href="#__codelineno-27-31"></a>        <span class="k">if</span> <span class="n">n_features</span> <span class="o">&lt;</span> <span class="mi">50</span><span class="p">:</span>
+</span><span id="__span-27-32"><a id="__codelineno-27-32" name="__codelineno-27-32" href="#__codelineno-27-32"></a>            <span class="n">recommendations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;ECOD&#39;</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">))</span>
+</span><span id="__span-27-33"><a id="__codelineno-27-33" name="__codelineno-27-33" href="#__codelineno-27-33"></a>            <span class="n">recommendations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;COPOD&#39;</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">))</span>
+</span><span id="__span-27-34"><a id="__codelineno-27-34" name="__codelineno-27-34" href="#__codelineno-27-34"></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-27-35"><a id="__codelineno-27-35" name="__codelineno-27-35" href="#__codelineno-27-35"></a>            <span class="n">recommendations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;ECOD&#39;</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">))</span>
+</span><span id="__span-27-36"><a id="__codelineno-27-36" name="__codelineno-27-36" href="#__codelineno-27-36"></a>            <span class="n">recommendations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;IsolationForest&#39;</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">))</span>
+</span><span id="__span-27-37"><a id="__codelineno-27-37" name="__codelineno-27-37" href="#__codelineno-27-37"></a>
+</span><span id="__span-27-38"><a id="__codelineno-27-38" name="__codelineno-27-38" href="#__codelineno-27-38"></a>    <span class="k">elif</span> <span class="n">n_samples</span> <span class="o">&gt;</span> <span class="mi">100000</span><span class="p">:</span>  <span class="c1"># Large scale</span>
+</span><span id="__span-27-39"><a id="__codelineno-27-39" name="__codelineno-27-39" href="#__codelineno-27-39"></a>        <span class="n">recommendations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;ECOD&#39;</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">))</span>
+</span><span id="__span-27-40"><a id="__codelineno-27-40" name="__codelineno-27-40" href="#__codelineno-27-40"></a>        <span class="n">recommendations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;COPOD&#39;</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">))</span>
+</span><span id="__span-27-41"><a id="__codelineno-27-41" name="__codelineno-27-41" href="#__codelineno-27-41"></a>        <span class="n">recommendations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;IsolationForest&#39;</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">))</span>
+</span><span id="__span-27-42"><a id="__codelineno-27-42" name="__codelineno-27-42" href="#__codelineno-27-42"></a>
+</span><span id="__span-27-43"><a id="__codelineno-27-43" name="__codelineno-27-43" href="#__codelineno-27-43"></a>    <span class="k">elif</span> <span class="n">anomaly_type</span> <span class="o">==</span> <span class="s1">&#39;local&#39;</span><span class="p">:</span>
+</span><span id="__span-27-44"><a id="__codelineno-27-44" name="__codelineno-27-44" href="#__codelineno-27-44"></a>        <span class="n">recommendations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;LOF&#39;</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">))</span>
+</span><span id="__span-27-45"><a id="__codelineno-27-45" name="__codelineno-27-45" href="#__codelineno-27-45"></a>        <span class="n">recommendations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;KNN&#39;</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">))</span>
+</span><span id="__span-27-46"><a id="__codelineno-27-46" name="__codelineno-27-46" href="#__codelineno-27-46"></a>
+</span><span id="__span-27-47"><a id="__codelineno-27-47" name="__codelineno-27-47" href="#__codelineno-27-47"></a>    <span class="k">elif</span> <span class="n">data_type</span> <span class="o">==</span> <span class="s1">&#39;graph&#39;</span><span class="p">:</span>
+</span><span id="__span-27-48"><a id="__codelineno-27-48" name="__codelineno-27-48" href="#__codelineno-27-48"></a>        <span class="n">recommendations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;GCNAE&#39;</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">))</span>
+</span><span id="__span-27-49"><a id="__codelineno-27-49" name="__codelineno-27-49" href="#__codelineno-27-49"></a>        <span class="n">recommendations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;DOMINANT&#39;</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">))</span>
+</span><span id="__span-27-50"><a id="__codelineno-27-50" name="__codelineno-27-50" href="#__codelineno-27-50"></a>
+</span><span id="__span-27-51"><a id="__codelineno-27-51" name="__codelineno-27-51" href="#__codelineno-27-51"></a>    <span class="k">elif</span> <span class="n">interpretability</span> <span class="o">==</span> <span class="s1">&#39;required&#39;</span><span class="p">:</span>
+</span><span id="__span-27-52"><a id="__codelineno-27-52" name="__codelineno-27-52" href="#__codelineno-27-52"></a>        <span class="n">recommendations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;LOF&#39;</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">))</span>
+</span><span id="__span-27-53"><a id="__codelineno-27-53" name="__codelineno-27-53" href="#__codelineno-27-53"></a>        <span class="n">recommendations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;ECOD&#39;</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">))</span>
+</span><span id="__span-27-54"><a id="__codelineno-27-54" name="__codelineno-27-54" href="#__codelineno-27-54"></a>        <span class="n">recommendations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;COPOD&#39;</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">))</span>
+</span><span id="__span-27-55"><a id="__codelineno-27-55" name="__codelineno-27-55" href="#__codelineno-27-55"></a>
+</span><span id="__span-27-56"><a id="__codelineno-27-56" name="__codelineno-27-56" href="#__codelineno-27-56"></a>    <span class="k">elif</span> <span class="n">n_samples</span> <span class="o">&gt;</span> <span class="mi">10000</span> <span class="ow">and</span> <span class="n">n_features</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="p">:</span>  <span class="c1"># Complex data</span>
+</span><span id="__span-27-57"><a id="__codelineno-27-57" name="__codelineno-27-57" href="#__codelineno-27-57"></a>        <span class="n">recommendations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;AutoEncoder&#39;</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">))</span>
+</span><span id="__span-27-58"><a id="__codelineno-27-58" name="__codelineno-27-58" href="#__codelineno-27-58"></a>        <span class="n">recommendations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;IsolationForest&#39;</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">))</span>
+</span><span id="__span-27-59"><a id="__codelineno-27-59" name="__codelineno-27-59" href="#__codelineno-27-59"></a>        <span class="n">recommendations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;ECOD&#39;</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">))</span>
+</span><span id="__span-27-60"><a id="__codelineno-27-60" name="__codelineno-27-60" href="#__codelineno-27-60"></a>
+</span><span id="__span-27-61"><a id="__codelineno-27-61" name="__codelineno-27-61" href="#__codelineno-27-61"></a>    <span class="k">else</span><span class="p">:</span>  <span class="c1"># General case</span>
+</span><span id="__span-27-62"><a id="__codelineno-27-62" name="__codelineno-27-62" href="#__codelineno-27-62"></a>        <span class="n">recommendations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;IsolationForest&#39;</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">))</span>
+</span><span id="__span-27-63"><a id="__codelineno-27-63" name="__codelineno-27-63" href="#__codelineno-27-63"></a>        <span class="n">recommendations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;LOF&#39;</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">))</span>
+</span><span id="__span-27-64"><a id="__codelineno-27-64" name="__codelineno-27-64" href="#__codelineno-27-64"></a>        <span class="n">recommendations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;ECOD&#39;</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">))</span>
+</span><span id="__span-27-65"><a id="__codelineno-27-65" name="__codelineno-27-65" href="#__codelineno-27-65"></a>
+</span><span id="__span-27-66"><a id="__codelineno-27-66" name="__codelineno-27-66" href="#__codelineno-27-66"></a>    <span class="c1"># Sort by confidence and return top 3</span>
+</span><span id="__span-27-67"><a id="__codelineno-27-67" name="__codelineno-27-67" href="#__codelineno-27-67"></a>    <span class="n">recommendations</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-27-68"><a id="__codelineno-27-68" name="__codelineno-27-68" href="#__codelineno-27-68"></a>    <span class="k">return</span> <span class="n">recommendations</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+</span><span id="__span-27-69"><a id="__codelineno-27-69" name="__codelineno-27-69" href="#__codelineno-27-69"></a>
+</span><span id="__span-27-70"><a id="__codelineno-27-70" name="__codelineno-27-70" href="#__codelineno-27-70"></a><span class="c1"># Usage example</span>
+</span><span id="__span-27-71"><a id="__codelineno-27-71" name="__codelineno-27-71" href="#__codelineno-27-71"></a><span class="n">data_chars</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-27-72"><a id="__codelineno-27-72" name="__codelineno-27-72" href="#__codelineno-27-72"></a>    <span class="s1">&#39;n_samples&#39;</span><span class="p">:</span> <span class="mi">50000</span><span class="p">,</span>
+</span><span id="__span-27-73"><a id="__codelineno-27-73" name="__codelineno-27-73" href="#__codelineno-27-73"></a>    <span class="s1">&#39;n_features&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+</span><span id="__span-27-74"><a id="__codelineno-27-74" name="__codelineno-27-74" href="#__codelineno-27-74"></a>    <span class="s1">&#39;data_type&#39;</span><span class="p">:</span> <span class="s1">&#39;tabular&#39;</span><span class="p">,</span>
+</span><span id="__span-27-75"><a id="__codelineno-27-75" name="__codelineno-27-75" href="#__codelineno-27-75"></a>    <span class="s1">&#39;anomaly_type&#39;</span><span class="p">:</span> <span class="s1">&#39;global&#39;</span><span class="p">,</span>
+</span><span id="__span-27-76"><a id="__codelineno-27-76" name="__codelineno-27-76" href="#__codelineno-27-76"></a>    <span class="s1">&#39;interpretability&#39;</span><span class="p">:</span> <span class="s1">&#39;preferred&#39;</span><span class="p">,</span>
+</span><span id="__span-27-77"><a id="__codelineno-27-77" name="__codelineno-27-77" href="#__codelineno-27-77"></a>    <span class="s1">&#39;speed_requirement&#39;</span><span class="p">:</span> <span class="s1">&#39;batch&#39;</span><span class="p">,</span>
+</span><span id="__span-27-78"><a id="__codelineno-27-78" name="__codelineno-27-78" href="#__codelineno-27-78"></a>    <span class="s1">&#39;data_quality&#39;</span><span class="p">:</span> <span class="s1">&#39;clean&#39;</span>
+</span><span id="__span-27-79"><a id="__codelineno-27-79" name="__codelineno-27-79" href="#__codelineno-27-79"></a><span class="p">}</span>
+</span><span id="__span-27-80"><a id="__codelineno-27-80" name="__codelineno-27-80" href="#__codelineno-27-80"></a>
+</span><span id="__span-27-81"><a id="__codelineno-27-81" name="__codelineno-27-81" href="#__codelineno-27-81"></a><span class="n">recommended</span> <span class="o">=</span> <span class="n">recommend_algorithm</span><span class="p">(</span><span class="n">data_chars</span><span class="p">)</span>
+</span><span id="__span-27-82"><a id="__codelineno-27-82" name="__codelineno-27-82" href="#__codelineno-27-82"></a><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Recommended algorithms:&quot;</span><span class="p">,</span> <span class="n">recommended</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="use-case-specific-recommendations">Use Case Specific Recommendations<a class="headerlink" href="#use-case-specific-recommendations" title="Permanent link">&para;</a></h3>
+<h4 id="fraud-detection">Fraud Detection<a class="headerlink" href="#fraud-detection" title="Permanent link">&para;</a></h4>
+<p><strong>Primary</strong>: IsolationForest, AutoEncoder, ECOD<br />
+<strong>Reasoning</strong>: Need to handle imbalanced data, complex patterns, and provide fast decisions</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="n">fraud_detector</span> <span class="o">=</span> <span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;IsolationForest&quot;</span><span class="p">,</span>
+</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-28-4"><a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>        <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>  <span class="c1"># Low fraud rate</span>
+</span><span id="__span-28-5"><a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>        <span class="s2">&quot;n_estimators&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+</span><span id="__span-28-6"><a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a>        <span class="s2">&quot;max_samples&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+</span><span id="__span-28-7"><a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a>        <span class="s2">&quot;bootstrap&quot;</span><span class="p">:</span> <span class="kc">True</span>
+</span><span id="__span-28-8"><a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a>    <span class="p">}</span>
+</span><span id="__span-28-9"><a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a><span class="p">)</span>
+</span></code></pre></div>
+<h4 id="network-intrusion-detection">Network Intrusion Detection<a class="headerlink" href="#network-intrusion-detection" title="Permanent link">&para;</a></h4>
+<p><strong>Primary</strong>: ECOD, COPOD, LOF<br />
+<strong>Reasoning</strong>: Real-time requirements, interpretability for security analysis</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="n">network_detector</span> <span class="o">=</span> <span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;ECOD&quot;</span><span class="p">,</span>
+</span><span id="__span-29-3"><a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-29-4"><a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a>        <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+</span><span id="__span-29-5"><a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a>        <span class="s2">&quot;n_jobs&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span>
+</span><span id="__span-29-6"><a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>    <span class="p">}</span>
+</span><span id="__span-29-7"><a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a><span class="p">)</span>
+</span></code></pre></div>
+<h4 id="manufacturing-quality-control">Manufacturing Quality Control<a class="headerlink" href="#manufacturing-quality-control" title="Permanent link">&para;</a></h4>
+<p><strong>Primary</strong>: Z-Score, LOF, AutoEncoder<br />
+<strong>Reasoning</strong>: Need interpretability, handle sensor data, detect process deviations</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="n">quality_detector</span> <span class="o">=</span> <span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;LOF&quot;</span><span class="p">,</span>
+</span><span id="__span-30-3"><a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-30-4"><a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a>        <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span>
+</span><span id="__span-30-5"><a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a>        <span class="s2">&quot;n_neighbors&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+</span><span id="__span-30-6"><a id="__codelineno-30-6" name="__codelineno-30-6" href="#__codelineno-30-6"></a>        <span class="s2">&quot;algorithm&quot;</span><span class="p">:</span> <span class="s2">&quot;ball_tree&quot;</span>
+</span><span id="__span-30-7"><a id="__codelineno-30-7" name="__codelineno-30-7" href="#__codelineno-30-7"></a>    <span class="p">}</span>
+</span><span id="__span-30-8"><a id="__codelineno-30-8" name="__codelineno-30-8" href="#__codelineno-30-8"></a><span class="p">)</span>
+</span></code></pre></div>
+<h4 id="financial-market-anomalies">Financial Market Anomalies<a class="headerlink" href="#financial-market-anomalies" title="Permanent link">&para;</a></h4>
+<p><strong>Primary</strong>: IsolationForest, VAE, OCSVM<br />
+<strong>Reasoning</strong>: Complex temporal patterns, need probabilistic scores</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="n">market_detector</span> <span class="o">=</span> <span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-31-2"><a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;VAE&quot;</span><span class="p">,</span>
+</span><span id="__span-31-3"><a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-31-4"><a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a>        <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+</span><span id="__span-31-5"><a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a>        <span class="s2">&quot;latent_dim&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+</span><span id="__span-31-6"><a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a>        <span class="s2">&quot;beta&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+</span><span id="__span-31-7"><a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a>        <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="mi">200</span>
+</span><span id="__span-31-8"><a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a>    <span class="p">}</span>
+</span><span id="__span-31-9"><a id="__codelineno-31-9" name="__codelineno-31-9" href="#__codelineno-31-9"></a><span class="p">)</span>
+</span></code></pre></div>
+<h2 id="benchmarking-results">Benchmarking Results<a class="headerlink" href="#benchmarking-results" title="Permanent link">&para;</a></h2>
+<h3 id="standard-benchmarks">Standard Benchmarks<a class="headerlink" href="#standard-benchmarks" title="Permanent link">&para;</a></h3>
+<h4 id="credit-card-fraud-dataset">Credit Card Fraud Dataset<a class="headerlink" href="#credit-card-fraud-dataset" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Samples</strong>: 284,807</li>
+<li><strong>Features</strong>: 30</li>
+<li><strong>Contamination</strong>: 0.17%</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>AUC-ROC</th>
+<th>AUC-PR</th>
+<th>F1-Score</th>
+<th>Training Time</th>
+<th>Prediction Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IsolationForest</td>
+<td>0.928</td>
+<td>0.745</td>
+<td>0.821</td>
+<td>2.3s</td>
+<td>0.15s</td>
+</tr>
+<tr>
+<td>AutoEncoder</td>
+<td>0.941</td>
+<td>0.782</td>
+<td>0.847</td>
+<td>45.2s</td>
+<td>0.08s</td>
+</tr>
+<tr>
+<td>ECOD</td>
+<td>0.895</td>
+<td>0.654</td>
+<td>0.739</td>
+<td>0.8s</td>
+<td>0.03s</td>
+</tr>
+<tr>
+<td>LOF</td>
+<td>0.887</td>
+<td>0.634</td>
+<td>0.715</td>
+<td>12.7s</td>
+<td>2.1s</td>
+</tr>
+<tr>
+<td>OCSVM</td>
+<td>0.876</td>
+<td>0.589</td>
+<td>0.682</td>
+<td>89.4s</td>
+<td>0.21s</td>
+</tr>
+</tbody>
+</table>
+<h4 id="kdd-cup-99-dataset">KDD Cup 99 Dataset<a class="headerlink" href="#kdd-cup-99-dataset" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Samples</strong>: 494,021</li>
+<li><strong>Features</strong>: 41</li>
+<li><strong>Contamination</strong>: 19.7%</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>AUC-ROC</th>
+<th>AUC-PR</th>
+<th>F1-Score</th>
+<th>Training Time</th>
+<th>Prediction Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ECOD</td>
+<td>0.923</td>
+<td>0.887</td>
+<td>0.892</td>
+<td>12.4s</td>
+<td>0.45s</td>
+</tr>
+<tr>
+<td>IsolationForest</td>
+<td>0.919</td>
+<td>0.881</td>
+<td>0.885</td>
+<td>15.7s</td>
+<td>1.2s</td>
+</tr>
+<tr>
+<td>AutoEncoder</td>
+<td>0.934</td>
+<td>0.901</td>
+<td>0.907</td>
+<td>234.5s</td>
+<td>0.78s</td>
+</tr>
+<tr>
+<td>COPOD</td>
+<td>0.891</td>
+<td>0.843</td>
+<td>0.851</td>
+<td>5.2s</td>
+<td>0.18s</td>
+</tr>
+<tr>
+<td>LOF</td>
+<td>0.856</td>
+<td>0.798</td>
+<td>0.809</td>
+<td>287.3s</td>
+<td>15.4s</td>
+</tr>
+</tbody>
+</table>
+<h3 id="memory-usage-comparison">Memory Usage Comparison<a class="headerlink" href="#memory-usage-comparison" title="Permanent link">&para;</a></h3>
+<h4 id="memory-consumption-mb-on-100k-samples-50-features">Memory Consumption (MB) on 100K samples, 50 features<a class="headerlink" href="#memory-consumption-mb-on-100k-samples-50-features" title="Permanent link">&para;</a></h4>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>COPOD:          45 MB
+</span><span id="__span-32-2"><a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>ECOD:           380 MB
+</span><span id="__span-32-3"><a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a>Z-Score:        25 MB
+</span><span id="__span-32-4"><a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a>IsolationForest: 180 MB
+</span><span id="__span-32-5"><a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a>AutoEncoder:    290 MB
+</span><span id="__span-32-6"><a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a>VAE:            350 MB
+</span><span id="__span-32-7"><a id="__codelineno-32-7" name="__codelineno-32-7" href="#__codelineno-32-7"></a>LOF:            1,250 MB
+</span><span id="__span-32-8"><a id="__codelineno-32-8" name="__codelineno-32-8" href="#__codelineno-32-8"></a>OCSVM:          950 MB
+</span><span id="__span-32-9"><a id="__codelineno-32-9" name="__codelineno-32-9" href="#__codelineno-32-9"></a>KNN:            1,180 MB
+</span></code></pre></div>
+<h3 id="hyperparameter-sensitivity-analysis">Hyperparameter Sensitivity Analysis<a class="headerlink" href="#hyperparameter-sensitivity-analysis" title="Permanent link">&para;</a></h3>
+<h4 id="isolationforest-sensitivity">IsolationForest Sensitivity<a class="headerlink" href="#isolationforest-sensitivity" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="n">sensitivity_results</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-33-2"><a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>    <span class="s2">&quot;n_estimators&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-33-3"><a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>        <span class="mi">50</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;auc&quot;</span><span class="p">:</span> <span class="mf">0.81</span><span class="p">,</span> <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="mf">0.03</span><span class="p">},</span>
+</span><span id="__span-33-4"><a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a>        <span class="mi">100</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;auc&quot;</span><span class="p">:</span> <span class="mf">0.85</span><span class="p">,</span> <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">},</span>
+</span><span id="__span-33-5"><a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a>        <span class="mi">200</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;auc&quot;</span><span class="p">:</span> <span class="mf">0.86</span><span class="p">,</span> <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">},</span>
+</span><span id="__span-33-6"><a id="__codelineno-33-6" name="__codelineno-33-6" href="#__codelineno-33-6"></a>        <span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;auc&quot;</span><span class="p">:</span> <span class="mf">0.86</span><span class="p">,</span> <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">}</span>  <span class="c1"># Diminishing returns</span>
+</span><span id="__span-33-7"><a id="__codelineno-33-7" name="__codelineno-33-7" href="#__codelineno-33-7"></a>    <span class="p">},</span>
+</span><span id="__span-33-8"><a id="__codelineno-33-8" name="__codelineno-33-8" href="#__codelineno-33-8"></a>    <span class="s2">&quot;max_samples&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-33-9"><a id="__codelineno-33-9" name="__codelineno-33-9" href="#__codelineno-33-9"></a>        <span class="mf">0.25</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;auc&quot;</span><span class="p">:</span> <span class="mf">0.82</span><span class="p">,</span> <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="mf">0.04</span><span class="p">},</span>
+</span><span id="__span-33-10"><a id="__codelineno-33-10" name="__codelineno-33-10" href="#__codelineno-33-10"></a>        <span class="mf">0.5</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;auc&quot;</span><span class="p">:</span> <span class="mf">0.85</span><span class="p">,</span> <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">},</span>
+</span><span id="__span-33-11"><a id="__codelineno-33-11" name="__codelineno-33-11" href="#__codelineno-33-11"></a>        <span class="mf">0.75</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;auc&quot;</span><span class="p">:</span> <span class="mf">0.86</span><span class="p">,</span> <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">},</span>
+</span><span id="__span-33-12"><a id="__codelineno-33-12" name="__codelineno-33-12" href="#__codelineno-33-12"></a>        <span class="mf">1.0</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;auc&quot;</span><span class="p">:</span> <span class="mf">0.84</span><span class="p">,</span> <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="mf">0.03</span><span class="p">}</span>
+</span><span id="__span-33-13"><a id="__codelineno-33-13" name="__codelineno-33-13" href="#__codelineno-33-13"></a>    <span class="p">}</span>
+</span><span id="__span-33-14"><a id="__codelineno-33-14" name="__codelineno-33-14" href="#__codelineno-33-14"></a><span class="p">}</span>
+</span></code></pre></div>
+<h4 id="lof-sensitivity">LOF Sensitivity<a class="headerlink" href="#lof-sensitivity" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="n">lof_sensitivity</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-34-2"><a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>    <span class="s2">&quot;n_neighbors&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-34-3"><a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a>        <span class="mi">5</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;auc&quot;</span><span class="p">:</span> <span class="mf">0.78</span><span class="p">,</span> <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">},</span>
+</span><span id="__span-34-4"><a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a>        <span class="mi">10</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;auc&quot;</span><span class="p">:</span> <span class="mf">0.82</span><span class="p">,</span> <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="mf">0.03</span><span class="p">},</span>
+</span><span id="__span-34-5"><a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a>        <span class="mi">20</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;auc&quot;</span><span class="p">:</span> <span class="mf">0.85</span><span class="p">,</span> <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">},</span>
+</span><span id="__span-34-6"><a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a>        <span class="mi">50</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;auc&quot;</span><span class="p">:</span> <span class="mf">0.83</span><span class="p">,</span> <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="mf">0.03</span><span class="p">},</span>
+</span><span id="__span-34-7"><a id="__codelineno-34-7" name="__codelineno-34-7" href="#__codelineno-34-7"></a>        <span class="mi">100</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;auc&quot;</span><span class="p">:</span> <span class="mf">0.80</span><span class="p">,</span> <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="mf">0.04</span><span class="p">}</span>  <span class="c1"># Too many neighbors</span>
+</span><span id="__span-34-8"><a id="__codelineno-34-8" name="__codelineno-34-8" href="#__codelineno-34-8"></a>    <span class="p">}</span>
+</span><span id="__span-34-9"><a id="__codelineno-34-9" name="__codelineno-34-9" href="#__codelineno-34-9"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="cross-dataset-generalization">Cross-Dataset Generalization<a class="headerlink" href="#cross-dataset-generalization" title="Permanent link">&para;</a></h3>
+<p>Performance consistency across different dataset types:</p>
+<h4 id="algorithm-robustness-score-std-dev-across-datasets">Algorithm Robustness Score (Std Dev across datasets)<a class="headerlink" href="#algorithm-robustness-score-std-dev-across-datasets" title="Permanent link">&para;</a></h4>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>ECOD:           0.08  (Most consistent)
+</span><span id="__span-35-2"><a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a>IsolationForest: 0.12
+</span><span id="__span-35-3"><a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a>COPOD:          0.13
+</span><span id="__span-35-4"><a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a>AutoEncoder:    0.15
+</span><span id="__span-35-5"><a id="__codelineno-35-5" name="__codelineno-35-5" href="#__codelineno-35-5"></a>LOF:            0.18
+</span><span id="__span-35-6"><a id="__codelineno-35-6" name="__codelineno-35-6" href="#__codelineno-35-6"></a>OCSVM:          0.21
+</span><span id="__span-35-7"><a id="__codelineno-35-7" name="__codelineno-35-7" href="#__codelineno-35-7"></a>KNN:            0.23  (Least consistent)
+</span></code></pre></div>
+<p>This comprehensive algorithm comparison provides the foundation for making informed decisions about anomaly detection algorithm selection based on specific requirements, data characteristics, and performance constraints.</p>
+<hr />
+<h2 id="related-documentation">🔗 <strong>Related Documentation</strong><a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<h3 id="user-guides"><strong>User Guides</strong><a class="headerlink" href="#user-guides" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="../../user-guides/basic-usage/README.md">Basic Usage</a></strong> - Getting started with algorithms</li>
+<li><strong><a href="../../user-guides/advanced-features/README.md">Advanced Features</a></strong> - Advanced algorithm usage</li>
+<li><strong><a href="../../user-guides/basic-usage/autonomous-mode.md">Autonomous Mode</a></strong> - Automatic algorithm selection</li>
+</ul>
+<h3 id="examples"><strong>Examples</strong><a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="../../examples/README.md">Algorithm Examples</a></strong> - Practical usage examples</li>
+<li><strong><a href="../../examples/performance/">Performance Benchmarks</a></strong> - Algorithm performance data</li>
+<li><strong><a href="../../examples/tutorials/">Use Case Examples</a></strong> - Real-world applications</li>
+</ul>
+<h3 id="development"><strong>Development</strong><a class="headerlink" href="#development" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="../../developer-guides/api-integration/README.md">API Integration</a></strong> - Programming interfaces</li>
+<li><strong><a href="../../developer-guides/contributing/README.md">Custom Algorithms</a></strong> - Adding new algorithms</li>
+<li><strong><a href="../../developer-guides/contributing/COMPREHENSIVE_TEST_ANALYSIS.md">Testing</a></strong> - Algorithm testing</li>
+</ul>
+<hr />
+<h2 id="getting-help">🆘 <strong>Getting Help</strong><a class="headerlink" href="#getting-help" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong><a href="README.md">Algorithm Selection Guide</a></strong> - Choosing the right algorithm</li>
+<li><strong><a href="../../user-guides/advanced-features/performance-tuning.md">Performance Tuning</a></strong> - Optimization tips</li>
+<li><strong><a href="../../user-guides/troubleshooting/README.md">Troubleshooting</a></strong> - Common issues</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/pynomaly/pynomaly" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/pynomaly/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/pynomaly" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+        <script src="../../javascripts/extra.js"></script>
+      
+    
+  </body>
+</html>

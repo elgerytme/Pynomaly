@@ -1,0 +1,1868 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="State-of-the-art Python anomaly detection platform">
+      
+      
+        <meta name="author" content="Pynomaly Team">
+      
+      
+        <link rel="canonical" href="https://pynomaly.readthedocs.io/developer-guides/api-integration/cli/">
+      
+      
+      
+      
+      <link rel="icon" href="../../../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>CLI Command Reference - Pynomaly Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cli-command-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Pynomaly Documentation" class="md-header__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../../../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pynomaly Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CLI Command Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Pynomaly Documentation" class="md-nav__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../../../assets/logo.png" alt="logo">
+
+    </a>
+    Pynomaly Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Start
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/FEATURE_INSTALLATION_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Feature Installation Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation-and-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Installation and Setup
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#global-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Global Options
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Commands
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pynomaly-detectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      pynomaly detectors
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pynomaly detectors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#detectors-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      detectors list
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#detectors-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      detectors create
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#detectors-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      detectors show
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#detectors-train" class="md-nav__link">
+    <span class="md-ellipsis">
+      detectors train
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#detectors-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      detectors delete
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#detectors-algorithms" class="md-nav__link">
+    <span class="md-ellipsis">
+      detectors algorithms
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pynomaly-datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      pynomaly datasets
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pynomaly datasets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#datasets-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      datasets list
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#datasets-upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      datasets upload
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#datasets-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      datasets create
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#datasets-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      datasets show
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#datasets-validate" class="md-nav__link">
+    <span class="md-ellipsis">
+      datasets validate
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#datasets-sample" class="md-nav__link">
+    <span class="md-ellipsis">
+      datasets sample
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#datasets-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      datasets delete
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pynomaly-detect" class="md-nav__link">
+    <span class="md-ellipsis">
+      pynomaly detect
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pynomaly detect">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#detect-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      detect run
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#detect-batch" class="md-nav__link">
+    <span class="md-ellipsis">
+      detect batch
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#detect-stream" class="md-nav__link">
+    <span class="md-ellipsis">
+      detect stream
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pynomaly-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      pynomaly server
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pynomaly server">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#server-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      server start
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#server-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      server status
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pynomaly-experiments" class="md-nav__link">
+    <span class="md-ellipsis">
+      pynomaly experiments
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pynomaly experiments">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#experiments-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      experiments create
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#experiments-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      experiments list
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#experiments-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      experiments show
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#experiments-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      experiments run
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pynomaly-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      pynomaly export
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pynomaly export">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#export-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      export model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#export-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      export results
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#export-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      export config
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration File
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment Variables
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Workflows
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Workflows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-quick-start-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Quick Start Workflow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-experiment-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Experiment Workflow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-production-deployment-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Production Deployment Workflow
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Handling
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error Handling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-error-messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Error Messages
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Debugging
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Debugging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable-debug-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enable Debug Logging
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verbose-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verbose Output
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check Configuration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integration Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Integration Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shell-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shell Scripts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cicd-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      CI/CD Integration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔗 Related Documentation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔗 Related Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#development" class="md-nav__link">
+    <span class="md-ellipsis">
+      Development
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      API Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#user-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      User Documentation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      🆘 Getting Help
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="cli-command-reference">CLI Command Reference<a class="headerlink" href="#cli-command-reference" title="Permanent link">&para;</a></h1>
+<p>🍞 <strong>Breadcrumb:</strong> 🏠 <a href="../../../">Home</a> &gt; 👨‍💻 <a href="../../">Developer Guides</a> &gt; 🔌 <a href="README.md">API Integration</a> &gt; ⌨️ CLI</p>
+<hr />
+<p>The Pynomaly CLI provides a comprehensive command-line interface for all anomaly detection operations, from data management to model training and deployment.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>The CLI is built with Click and provides intuitive commands organized into logical groups:</p>
+<ul>
+<li><strong>Detectors</strong>: Create, train, and manage anomaly detectors</li>
+<li><strong>Datasets</strong>: Upload, analyze, and manage datasets</li>
+<li><strong>Detection</strong>: Run anomaly detection on data</li>
+<li><strong>Server</strong>: Start the API server and web interface</li>
+<li><strong>Experiments</strong>: Manage and run experiments</li>
+<li><strong>Export</strong>: Export models and results</li>
+</ul>
+<h2 id="installation-and-setup">Installation and Setup<a class="headerlink" href="#installation-and-setup" title="Permanent link">&para;</a></h2>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Install Pynomaly CLI</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pip<span class="w"> </span>install<span class="w"> </span>pynomaly
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Verify installation</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>pynomaly<span class="w"> </span>--version
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># Get help</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>pynomaly<span class="w"> </span>--help
+</span></code></pre></div>
+<h2 id="global-options">Global Options<a class="headerlink" href="#global-options" title="Permanent link">&para;</a></h2>
+<p>All commands support these global options:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>--config<span class="w"> </span>PATH<span class="w">     </span>Configuration<span class="w"> </span>file<span class="w"> </span>path<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>~/.pynomaly/config.yml<span class="o">)</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>--log-level<span class="w"> </span>TEXT<span class="w">  </span>Logging<span class="w"> </span>level<span class="w"> </span><span class="o">(</span>DEBUG,<span class="w"> </span>INFO,<span class="w"> </span>WARNING,<span class="w"> </span>ERROR<span class="o">)</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>--output<span class="w"> </span>FORMAT<span class="w">   </span>Output<span class="w"> </span>format:<span class="w"> </span>json,<span class="w"> </span>yaml,<span class="w"> </span>table<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>table<span class="o">)</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>--quiet<span class="w">          </span>Suppress<span class="w"> </span>non-essential<span class="w"> </span>output
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>--verbose<span class="w">        </span>Enable<span class="w"> </span>verbose<span class="w"> </span>output
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>--help<span class="w">           </span>Show<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message
+</span></code></pre></div>
+<h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
+<h3 id="pynomaly-detectors">pynomaly detectors<a class="headerlink" href="#pynomaly-detectors" title="Permanent link">&para;</a></h3>
+<p>Manage anomaly detectors.</p>
+<h4 id="detectors-list">detectors list<a class="headerlink" href="#detectors-list" title="Permanent link">&para;</a></h4>
+<p>List all available detectors.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Options:
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span>--algorithm<span class="w"> </span>TEXT<span class="w">    </span>Filter<span class="w"> </span>by<span class="w"> </span>algorithm<span class="w"> </span>name
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span>--trained<span class="w">          </span>Show<span class="w"> </span>only<span class="w"> </span>trained<span class="w"> </span>detectors
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span>--limit<span class="w"> </span>INTEGER<span class="w">    </span>Maximum<span class="w"> </span>number<span class="w"> </span>of<span class="w"> </span>results<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span><span class="m">50</span><span class="o">)</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span>--format<span class="w"> </span>TEXT<span class="w">      </span>Output<span class="w"> </span>format:<span class="w"> </span>table,<span class="w"> </span>json,<span class="w"> </span>yaml
+</span></code></pre></div>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># List all detectors</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>list
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># List only trained detectors</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>list<span class="w"> </span>--trained
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># List IsolationForest detectors in JSON format</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>list<span class="w"> </span>--algorithm<span class="w"> </span>IsolationForest<span class="w"> </span>--format<span class="w"> </span>json
+</span></code></pre></div></p>
+<h4 id="detectors-create">detectors create<a class="headerlink" href="#detectors-create" title="Permanent link">&para;</a></h4>
+<p>Create a new anomaly detector.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>create<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>NAME<span class="w"> </span>ALGORITHM
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>Arguments:
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span>NAME<span class="w">        </span>Detector<span class="w"> </span>name
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span>ALGORITHM<span class="w">   </span>Algorithm<span class="w"> </span>name<span class="w"> </span><span class="o">(</span>IsolationForest,<span class="w"> </span>LOF,<span class="w"> </span>OCSVM,<span class="w"> </span>etc.<span class="o">)</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>Options:
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span>--description<span class="w"> </span>TEXT<span class="w">       </span>Detector<span class="w"> </span>description
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span>--contamination<span class="w"> </span>FLOAT<span class="w">    </span>Expected<span class="w"> </span>contamination<span class="w"> </span>rate<span class="w"> </span><span class="o">(</span><span class="m">0</span>.0-0.5,<span class="w"> </span>default:<span class="w"> </span><span class="m">0</span>.1<span class="o">)</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">  </span>--parameter<span class="w"> </span><span class="nv">KEY</span><span class="o">=</span>VALUE<span class="w">    </span>Algorithm-specific<span class="w"> </span>parameters
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span>--save-config<span class="w"> </span>PATH<span class="w">       </span>Save<span class="w"> </span>configuration<span class="w"> </span>to<span class="w"> </span>file
+</span></code></pre></div>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Create basic IsolationForest detector</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>create<span class="w"> </span><span class="s2">&quot;Fraud Detector&quot;</span><span class="w"> </span>IsolationForest
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Create detector with custom parameters</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>create<span class="w"> </span><span class="s2">&quot;Advanced Fraud&quot;</span><span class="w"> </span>IsolationForest<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span>--contamination<span class="w"> </span><span class="m">0</span>.05<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span>--parameter<span class="w"> </span><span class="nv">n_estimators</span><span class="o">=</span><span class="m">200</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span>--parameter<span class="w"> </span><span class="nv">random_state</span><span class="o">=</span><span class="m">42</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="c1"># Create LOF detector with description</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>create<span class="w"> </span><span class="s2">&quot;Local Outlier Detector&quot;</span><span class="w"> </span>LOF<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">  </span>--description<span class="w"> </span><span class="s2">&quot;Detects local anomalies in customer behavior&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">  </span>--parameter<span class="w"> </span><span class="nv">n_neighbors</span><span class="o">=</span><span class="m">20</span>
+</span></code></pre></div></p>
+<h4 id="detectors-show">detectors show<a class="headerlink" href="#detectors-show" title="Permanent link">&para;</a></h4>
+<p>Show detailed information about a detector.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>show<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>DETECTOR_ID
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>Options:
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span>--include-metrics<span class="w">    </span>Show<span class="w"> </span>performance<span class="w"> </span>metrics
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span>--include-config<span class="w">     </span>Show<span class="w"> </span>full<span class="w"> </span>configuration
+</span></code></pre></div>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Show basic detector info</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>show<span class="w"> </span>detector_123
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># Show with metrics and configuration</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>show<span class="w"> </span>detector_123<span class="w"> </span>--include-metrics<span class="w"> </span>--include-config
+</span></code></pre></div></p>
+<h4 id="detectors-train">detectors train<a class="headerlink" href="#detectors-train" title="Permanent link">&para;</a></h4>
+<p>Train a detector with a dataset.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>train<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>DETECTOR_ID<span class="w"> </span>DATASET_ID
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>Options:
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span>--validation-split<span class="w"> </span>FLOAT<span class="w">    </span>Validation<span class="w"> </span>split<span class="w"> </span>ratio<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span><span class="m">0</span>.2<span class="o">)</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span>--cross-validation<span class="w">          </span>Use<span class="w"> </span>cross-validation
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span>--save-model<span class="w"> </span>PATH<span class="w">          </span>Save<span class="w"> </span>trained<span class="w"> </span>model<span class="w"> </span>to<span class="w"> </span>file
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span>--force<span class="w">                    </span>Force<span class="w"> </span>retaining<span class="w"> </span><span class="k">if</span><span class="w"> </span>already<span class="w"> </span>trained
+</span></code></pre></div>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Train detector with default settings</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>train<span class="w"> </span>detector_123<span class="w"> </span>dataset_456
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1"># Train with custom validation split</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>train<span class="w"> </span>detector_123<span class="w"> </span>dataset_456<span class="w"> </span>--validation-split<span class="w"> </span><span class="m">0</span>.3
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="c1"># Train with cross-validation and save model</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>train<span class="w"> </span>detector_123<span class="w"> </span>dataset_456<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">  </span>--cross-validation<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">  </span>--save-model<span class="w"> </span>/path/to/model.pkl
+</span></code></pre></div></p>
+<h4 id="detectors-delete">detectors delete<a class="headerlink" href="#detectors-delete" title="Permanent link">&para;</a></h4>
+<p>Delete a detector.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>delete<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>DETECTOR_ID
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>Options:
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span>--force<span class="w">    </span>Skip<span class="w"> </span>confirmation<span class="w"> </span>prompt
+</span></code></pre></div>
+<h4 id="detectors-algorithms">detectors algorithms<a class="headerlink" href="#detectors-algorithms" title="Permanent link">&para;</a></h4>
+<p>List available algorithms and their parameters.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>algorithms<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>Options:
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span>--category<span class="w"> </span>TEXT<span class="w">    </span>Filter<span class="w"> </span>by<span class="w"> </span>algorithm<span class="w"> </span>category
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span>--detailed<span class="w">         </span>Show<span class="w"> </span>parameter<span class="w"> </span>details
+</span></code></pre></div>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># List all algorithms</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>algorithms
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># Show detailed parameter information</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>algorithms<span class="w"> </span>--detailed
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="c1"># Filter by category</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>algorithms<span class="w"> </span>--category<span class="w"> </span>tree_based
+</span></code></pre></div></p>
+<h3 id="pynomaly-datasets">pynomaly datasets<a class="headerlink" href="#pynomaly-datasets" title="Permanent link">&para;</a></h3>
+<p>Manage datasets for anomaly detection.</p>
+<h4 id="datasets-list">datasets list<a class="headerlink" href="#datasets-list" title="Permanent link">&para;</a></h4>
+<p>List all datasets.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>pynomaly<span class="w"> </span>datasets<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>Options:
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">  </span>--format<span class="w"> </span>TEXT<span class="w">      </span>Filter<span class="w"> </span>by<span class="w"> </span>data<span class="w"> </span>format<span class="w"> </span><span class="o">(</span>csv,<span class="w"> </span>parquet,<span class="w"> </span>json<span class="o">)</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">  </span>--limit<span class="w"> </span>INTEGER<span class="w">    </span>Maximum<span class="w"> </span>number<span class="w"> </span>of<span class="w"> </span>results
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">  </span>--sort<span class="w"> </span>TEXT<span class="w">        </span>Sort<span class="w"> </span>by:<span class="w"> </span>name,<span class="w"> </span>created_at,<span class="w"> </span>size
+</span></code></pre></div>
+<h4 id="datasets-upload">datasets upload<a class="headerlink" href="#datasets-upload" title="Permanent link">&para;</a></h4>
+<p>Upload a dataset from file.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>pynomaly<span class="w"> </span>datasets<span class="w"> </span>upload<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>FILE_PATH
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>Options:
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">  </span>--name<span class="w"> </span>TEXT<span class="w">           </span>Dataset<span class="w"> </span>name<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>filename<span class="o">)</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">  </span>--description<span class="w"> </span>TEXT<span class="w">    </span>Dataset<span class="w"> </span>description
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">  </span>--format<span class="w"> </span>TEXT<span class="w">         </span>Force<span class="w"> </span>format<span class="w"> </span><span class="o">(</span>csv,<span class="w"> </span>parquet,<span class="w"> </span>json,<span class="w"> </span>excel<span class="o">)</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">  </span>--separator<span class="w"> </span>TEXT<span class="w">      </span>CSV<span class="w"> </span>separator<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span><span class="s1">&#39;,&#39;</span><span class="o">)</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="w">  </span>--encoding<span class="w"> </span>TEXT<span class="w">       </span>File<span class="w"> </span>encoding<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>utf-8<span class="o">)</span>
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="w">  </span>--has-header<span class="w">         </span>CSV<span class="w"> </span>has<span class="w"> </span>header<span class="w"> </span>row
+</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="w">  </span>--target-column<span class="w"> </span>TEXT<span class="w">  </span>Target<span class="w"> </span>column<span class="w"> </span>name<span class="w"> </span><span class="o">(</span><span class="k">for</span><span class="w"> </span>labeled<span class="w"> </span>data<span class="o">)</span>
+</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="w">  </span>--sample-size<span class="w"> </span>INT<span class="w">     </span>Upload<span class="w"> </span>only<span class="w"> </span>a<span class="w"> </span>sample<span class="w"> </span><span class="o">(</span><span class="k">for</span><span class="w"> </span>large<span class="w"> </span>files<span class="o">)</span>
+</span></code></pre></div>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># Upload CSV file</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>pynomaly<span class="w"> </span>datasets<span class="w"> </span>upload<span class="w"> </span>transactions.csv<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">  </span>--name<span class="w"> </span><span class="s2">&quot;Credit Card Transactions&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">  </span>--description<span class="w"> </span><span class="s2">&quot;Historical transaction data for fraud detection&quot;</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="c1"># Upload with custom settings</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>pynomaly<span class="w"> </span>datasets<span class="w"> </span>upload<span class="w"> </span>data.csv<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="w">  </span>--separator<span class="w"> </span><span class="s2">&quot;;&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="w">  </span>--encoding<span class="w"> </span><span class="s2">&quot;latin1&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="w">  </span>--target-column<span class="w"> </span><span class="s2">&quot;is_fraud&quot;</span>
+</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>
+</span><span id="__span-15-12"><a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="c1"># Upload sample of large file</span>
+</span><span id="__span-15-13"><a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>pynomaly<span class="w"> </span>datasets<span class="w"> </span>upload<span class="w"> </span>large_dataset.csv<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-15-14"><a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="w">  </span>--sample-size<span class="w"> </span><span class="m">10000</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-15-15"><a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="w">  </span>--name<span class="w"> </span><span class="s2">&quot;Sample Dataset&quot;</span>
+</span></code></pre></div></p>
+<h4 id="datasets-create">datasets create<a class="headerlink" href="#datasets-create" title="Permanent link">&para;</a></h4>
+<p>Create a dataset from JSON data.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>pynomaly<span class="w"> </span>datasets<span class="w"> </span>create<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>NAME
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>Options:
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">  </span>--data<span class="w"> </span>TEXT<span class="w">           </span>JSON<span class="w"> </span>data<span class="w"> </span>string
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">  </span>--file<span class="w"> </span>PATH<span class="w">          </span>Read<span class="w"> </span>JSON<span class="w"> </span>data<span class="w"> </span>from<span class="w"> </span>file
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">  </span>--description<span class="w"> </span>TEXT<span class="w">    </span>Dataset<span class="w"> </span>description
+</span></code></pre></div>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Create from JSON string</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>pynomaly<span class="w"> </span>datasets<span class="w"> </span>create<span class="w"> </span><span class="s2">&quot;Test Data&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">  </span>--data<span class="w"> </span><span class="s1">&#39;[{&quot;feature1&quot;: 1.0, &quot;feature2&quot;: 2.0}, {&quot;feature1&quot;: 3.0, &quot;feature2&quot;: 4.0}]&#39;</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="c1"># Create from JSON file</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>pynomaly<span class="w"> </span>datasets<span class="w"> </span>create<span class="w"> </span><span class="s2">&quot;API Data&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="w">  </span>--file<span class="w"> </span>api_data.json<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w">  </span>--description<span class="w"> </span><span class="s2">&quot;Data from API endpoint&quot;</span>
+</span></code></pre></div></p>
+<h4 id="datasets-show">datasets show<a class="headerlink" href="#datasets-show" title="Permanent link">&para;</a></h4>
+<p>Show dataset information and statistics.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>pynomaly<span class="w"> </span>datasets<span class="w"> </span>show<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>DATASET_ID
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>Options:
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">  </span>--sample-size<span class="w"> </span>INT<span class="w">    </span>Number<span class="w"> </span>of<span class="w"> </span>sample<span class="w"> </span>rows<span class="w"> </span>to<span class="w"> </span>show<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span><span class="m">10</span><span class="o">)</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w">  </span>--statistics<span class="w">        </span>Show<span class="w"> </span>detailed<span class="w"> </span>statistics
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w">  </span>--missing-values<span class="w">    </span>Show<span class="w"> </span>missing<span class="w"> </span>value<span class="w"> </span>analysis
+</span></code></pre></div>
+<h4 id="datasets-validate">datasets validate<a class="headerlink" href="#datasets-validate" title="Permanent link">&para;</a></h4>
+<p>Validate dataset quality and detect issues.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>pynomaly<span class="w"> </span>datasets<span class="w"> </span>validate<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>DATASET_ID
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>Options:
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">  </span>--check-duplicates<span class="w">     </span>Check<span class="w"> </span><span class="k">for</span><span class="w"> </span>duplicate<span class="w"> </span>rows
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">  </span>--check-outliers<span class="w">       </span>Check<span class="w"> </span><span class="k">for</span><span class="w"> </span>statistical<span class="w"> </span>outliers
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">  </span>--check-missing<span class="w">        </span>Check<span class="w"> </span>missing<span class="w"> </span>value<span class="w"> </span>patterns
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="w">  </span>--report-file<span class="w"> </span>PATH<span class="w">     </span>Save<span class="w"> </span>validation<span class="w"> </span>report<span class="w"> </span>to<span class="w"> </span>file
+</span></code></pre></div>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1"># Basic validation</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>pynomaly<span class="w"> </span>datasets<span class="w"> </span>validate<span class="w"> </span>dataset_123
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="c1"># Comprehensive validation with report</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>pynomaly<span class="w"> </span>datasets<span class="w"> </span>validate<span class="w"> </span>dataset_123<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="w">  </span>--check-duplicates<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="w">  </span>--check-outliers<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="w">  </span>--check-missing<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="w">  </span>--report-file<span class="w"> </span>validation_report.json
+</span></code></pre></div></p>
+<h4 id="datasets-sample">datasets sample<a class="headerlink" href="#datasets-sample" title="Permanent link">&para;</a></h4>
+<p>Extract a sample from a dataset.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>pynomaly<span class="w"> </span>datasets<span class="w"> </span>sample<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>DATASET_ID
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>Options:
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="w">  </span>--size<span class="w"> </span>INTEGER<span class="w">       </span>Sample<span class="w"> </span>size<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span><span class="m">100</span><span class="o">)</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="w">  </span>--method<span class="w"> </span>TEXT<span class="w">        </span>Sampling<span class="w"> </span>method:<span class="w"> </span>random,<span class="w"> </span>stratified,<span class="w"> </span>systematic
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="w">  </span>--output<span class="w"> </span>PATH<span class="w">        </span>Save<span class="w"> </span>sample<span class="w"> </span>to<span class="w"> </span>file
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="w">  </span>--seed<span class="w"> </span>INTEGER<span class="w">       </span>Random<span class="w"> </span>seed<span class="w"> </span><span class="k">for</span><span class="w"> </span>reproducibility
+</span></code></pre></div>
+<h4 id="datasets-delete">datasets delete<a class="headerlink" href="#datasets-delete" title="Permanent link">&para;</a></h4>
+<p>Delete a dataset.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>pynomaly<span class="w"> </span>datasets<span class="w"> </span>delete<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>DATASET_ID
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>Options:
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="w">  </span>--force<span class="w">    </span>Skip<span class="w"> </span>confirmation<span class="w"> </span>prompt
+</span></code></pre></div>
+<h3 id="pynomaly-detect">pynomaly detect<a class="headerlink" href="#pynomaly-detect" title="Permanent link">&para;</a></h3>
+<p>Run anomaly detection operations.</p>
+<h4 id="detect-run">detect run<a class="headerlink" href="#detect-run" title="Permanent link">&para;</a></h4>
+<p>Run detection on data.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>pynomaly<span class="w"> </span>detect<span class="w"> </span>run<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>DETECTOR_ID
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>Options:
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="w">  </span>--data<span class="w"> </span>TEXT<span class="w">          </span>JSON<span class="w"> </span>data<span class="w"> </span>string
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="w">  </span>--file<span class="w"> </span>PATH<span class="w">          </span>Read<span class="w"> </span>data<span class="w"> </span>from<span class="w"> </span>file
+</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="w">  </span>--dataset<span class="w"> </span>ID<span class="w">         </span>Use<span class="w"> </span>existing<span class="w"> </span>dataset
+</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a><span class="w">  </span>--output<span class="w"> </span>PATH<span class="w">        </span>Save<span class="w"> </span>results<span class="w"> </span>to<span class="w"> </span>file
+</span><span id="__span-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a><span class="w">  </span>--threshold<span class="w"> </span>FLOAT<span class="w">    </span>Anomaly<span class="w"> </span>threshold<span class="w"> </span><span class="o">(</span><span class="m">0</span>.0-1.0<span class="o">)</span>
+</span><span id="__span-23-9"><a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a><span class="w">  </span>--explain<span class="w">           </span>Include<span class="w"> </span>explanations<span class="w"> </span><span class="k">for</span><span class="w"> </span>anomalies
+</span><span id="__span-23-10"><a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a><span class="w">  </span>--batch-size<span class="w"> </span>INT<span class="w">     </span>Batch<span class="w"> </span>size<span class="w"> </span><span class="k">for</span><span class="w"> </span>large<span class="w"> </span>datasets
+</span></code></pre></div>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="c1"># Detect on JSON data</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>pynomaly<span class="w"> </span>detect<span class="w"> </span>run<span class="w"> </span>detector_123<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="w">  </span>--data<span class="w"> </span><span class="s1">&#39;[{&quot;amount&quot;: 100.0, &quot;merchant&quot;: &quot;grocery&quot;}]&#39;</span>
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>
+</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="c1"># Detect on file</span>
+</span><span id="__span-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>pynomaly<span class="w"> </span>detect<span class="w"> </span>run<span class="w"> </span>detector_123<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="w">  </span>--file<span class="w"> </span>new_transactions.csv<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-24-8"><a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a><span class="w">  </span>--output<span class="w"> </span>results.json<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-24-9"><a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a><span class="w">  </span>--explain
+</span><span id="__span-24-10"><a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>
+</span><span id="__span-24-11"><a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a><span class="c1"># Detect on existing dataset</span>
+</span><span id="__span-24-12"><a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a>pynomaly<span class="w"> </span>detect<span class="w"> </span>run<span class="w"> </span>detector_123<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-24-13"><a id="__codelineno-24-13" name="__codelineno-24-13" href="#__codelineno-24-13"></a><span class="w">  </span>--dataset<span class="w"> </span>dataset_456<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-24-14"><a id="__codelineno-24-14" name="__codelineno-24-14" href="#__codelineno-24-14"></a><span class="w">  </span>--threshold<span class="w"> </span><span class="m">0</span>.8<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-24-15"><a id="__codelineno-24-15" name="__codelineno-24-15" href="#__codelineno-24-15"></a><span class="w">  </span>--batch-size<span class="w"> </span><span class="m">1000</span>
+</span></code></pre></div></p>
+<h4 id="detect-batch">detect batch<a class="headerlink" href="#detect-batch" title="Permanent link">&para;</a></h4>
+<p>Run batch detection on large datasets.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>pynomaly<span class="w"> </span>detect<span class="w"> </span>batch<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>DETECTOR_ID<span class="w"> </span>DATASET_ID
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>Options:
+</span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="w">  </span>--output-format<span class="w"> </span>TEXT<span class="w">    </span>Output<span class="w"> </span>format:<span class="w"> </span>json,<span class="w"> </span>csv,<span class="w"> </span>parquet
+</span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="w">  </span>--output-path<span class="w"> </span>PATH<span class="w">      </span>Output<span class="w"> </span>file<span class="w"> </span>path
+</span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="w">  </span>--chunk-size<span class="w"> </span>INTEGER<span class="w">    </span>Processing<span class="w"> </span>chunk<span class="w"> </span>size
+</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a><span class="w">  </span>--parallel<span class="w">             </span>Use<span class="w"> </span>parallel<span class="w"> </span>processing
+</span><span id="__span-25-8"><a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a><span class="w">  </span>--anomalies-only<span class="w">       </span>Output<span class="w"> </span>only<span class="w"> </span>anomalies
+</span></code></pre></div>
+<h4 id="detect-stream">detect stream<a class="headerlink" href="#detect-stream" title="Permanent link">&para;</a></h4>
+<p>Run real-time detection on streaming data.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>pynomaly<span class="w"> </span>detect<span class="w"> </span>stream<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>DETECTOR_ID
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>Options:
+</span><span id="__span-26-4"><a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="w">  </span>--input-format<span class="w"> </span>TEXT<span class="w">     </span>Input<span class="w"> </span>format:<span class="w"> </span>json,<span class="w"> </span>csv
+</span><span id="__span-26-5"><a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="w">  </span>--buffer-size<span class="w"> </span>INTEGER<span class="w">   </span>Buffer<span class="w"> </span>size<span class="w"> </span><span class="k">for</span><span class="w"> </span>batching
+</span><span id="__span-26-6"><a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a><span class="w">  </span>--output-file<span class="w"> </span>PATH<span class="w">      </span>Log<span class="w"> </span>results<span class="w"> </span>to<span class="w"> </span>file
+</span><span id="__span-26-7"><a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a><span class="w">  </span>--webhook-url<span class="w"> </span>URL<span class="w">       </span>Send<span class="w"> </span>results<span class="w"> </span>to<span class="w"> </span>webhook
+</span><span id="__span-26-8"><a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a><span class="w">  </span>--kafka-topic<span class="w"> </span>TEXT<span class="w">      </span>Kafka<span class="w"> </span>topic<span class="w"> </span><span class="k">for</span><span class="w"> </span>input<span class="w"> </span>data
+</span></code></pre></div>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="c1"># Stream detection from stdin</span>
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;{&quot;amount&quot;: 5000}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>pynomaly<span class="w"> </span>detect<span class="w"> </span>stream<span class="w"> </span>detector_123
+</span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>
+</span><span id="__span-27-4"><a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="c1"># Stream with webhook notifications</span>
+</span><span id="__span-27-5"><a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>pynomaly<span class="w"> </span>detect<span class="w"> </span>stream<span class="w"> </span>detector_123<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-27-6"><a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a><span class="w">  </span>--webhook-url<span class="w"> </span>https://api.example.com/alerts<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-27-7"><a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="w">  </span>--buffer-size<span class="w"> </span><span class="m">100</span>
+</span></code></pre></div></p>
+<h3 id="pynomaly-server">pynomaly server<a class="headerlink" href="#pynomaly-server" title="Permanent link">&para;</a></h3>
+<p>Manage the API server and web interface.</p>
+<h4 id="server-start">server start<a class="headerlink" href="#server-start" title="Permanent link">&para;</a></h4>
+<p>Start the API server.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>pynomaly<span class="w"> </span>server<span class="w"> </span>start<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>
+</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>Options:
+</span><span id="__span-28-4"><a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="w">  </span>--host<span class="w"> </span>TEXT<span class="w">        </span>Host<span class="w"> </span>address<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span><span class="m">127</span>.0.0.1<span class="o">)</span>
+</span><span id="__span-28-5"><a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a><span class="w">  </span>--port<span class="w"> </span>INTEGER<span class="w">     </span>Port<span class="w"> </span>number<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span><span class="m">8000</span><span class="o">)</span>
+</span><span id="__span-28-6"><a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a><span class="w">  </span>--workers<span class="w"> </span>INTEGER<span class="w">  </span>Number<span class="w"> </span>of<span class="w"> </span>worker<span class="w"> </span>processes
+</span><span id="__span-28-7"><a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a><span class="w">  </span>--reload<span class="w">          </span>Enable<span class="w"> </span>auto-reload<span class="w"> </span><span class="k">for</span><span class="w"> </span>development
+</span><span id="__span-28-8"><a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a><span class="w">  </span>--access-log<span class="w">      </span>Enable<span class="w"> </span>access<span class="w"> </span>logging
+</span><span id="__span-28-9"><a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a><span class="w">  </span>--ssl-cert<span class="w"> </span>PATH<span class="w">   </span>SSL<span class="w"> </span>certificate<span class="w"> </span>file
+</span><span id="__span-28-10"><a id="__codelineno-28-10" name="__codelineno-28-10" href="#__codelineno-28-10"></a><span class="w">  </span>--ssl-key<span class="w"> </span>PATH<span class="w">    </span>SSL<span class="w"> </span>private<span class="w"> </span>key<span class="w"> </span>file
+</span></code></pre></div>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="c1"># Start development server</span>
+</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>pynomaly<span class="w"> </span>server<span class="w"> </span>start<span class="w"> </span>--reload
+</span><span id="__span-29-3"><a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>
+</span><span id="__span-29-4"><a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="c1"># Start production server</span>
+</span><span id="__span-29-5"><a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a>pynomaly<span class="w"> </span>server<span class="w"> </span>start<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-29-6"><a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a><span class="w">  </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-29-7"><a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a><span class="w">  </span>--port<span class="w"> </span><span class="m">8000</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-29-8"><a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a><span class="w">  </span>--workers<span class="w"> </span><span class="m">4</span>
+</span><span id="__span-29-9"><a id="__codelineno-29-9" name="__codelineno-29-9" href="#__codelineno-29-9"></a>
+</span><span id="__span-29-10"><a id="__codelineno-29-10" name="__codelineno-29-10" href="#__codelineno-29-10"></a><span class="c1"># Start with SSL</span>
+</span><span id="__span-29-11"><a id="__codelineno-29-11" name="__codelineno-29-11" href="#__codelineno-29-11"></a>pynomaly<span class="w"> </span>server<span class="w"> </span>start<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-29-12"><a id="__codelineno-29-12" name="__codelineno-29-12" href="#__codelineno-29-12"></a><span class="w">  </span>--ssl-cert<span class="w"> </span>cert.pem<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-29-13"><a id="__codelineno-29-13" name="__codelineno-29-13" href="#__codelineno-29-13"></a><span class="w">  </span>--ssl-key<span class="w"> </span>key.pem<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-29-14"><a id="__codelineno-29-14" name="__codelineno-29-14" href="#__codelineno-29-14"></a><span class="w">  </span>--port<span class="w"> </span><span class="m">8443</span>
+</span></code></pre></div></p>
+<h4 id="server-status">server status<a class="headerlink" href="#server-status" title="Permanent link">&para;</a></h4>
+<p>Check server status.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>pynomaly<span class="w"> </span>server<span class="w"> </span>status<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>
+</span><span id="__span-30-3"><a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>Options:
+</span><span id="__span-30-4"><a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a><span class="w">  </span>--url<span class="w"> </span>TEXT<span class="w">    </span>Server<span class="w"> </span>URL<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>http://localhost:8000<span class="o">)</span>
+</span><span id="__span-30-5"><a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a><span class="w">  </span>--timeout<span class="w"> </span>INT<span class="w"> </span>Timeout<span class="w"> </span><span class="k">in</span><span class="w"> </span>seconds
+</span></code></pre></div>
+<h3 id="pynomaly-experiments">pynomaly experiments<a class="headerlink" href="#pynomaly-experiments" title="Permanent link">&para;</a></h3>
+<p>Manage experiments and model comparisons.</p>
+<h4 id="experiments-create">experiments create<a class="headerlink" href="#experiments-create" title="Permanent link">&para;</a></h4>
+<p>Create a new experiment.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>pynomaly<span class="w"> </span>experiments<span class="w"> </span>create<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>NAME<span class="w"> </span>DATASET_ID
+</span><span id="__span-31-2"><a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>
+</span><span id="__span-31-3"><a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>Options:
+</span><span id="__span-31-4"><a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a><span class="w">  </span>--description<span class="w"> </span>TEXT<span class="w">          </span>Experiment<span class="w"> </span>description
+</span><span id="__span-31-5"><a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a><span class="w">  </span>--algorithm<span class="w"> </span>TEXT<span class="w">            </span>Algorithm<span class="w"> </span>to<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="o">(</span>can<span class="w"> </span>be<span class="w"> </span>used<span class="w"> </span>multiple<span class="w"> </span><span class="nb">times</span><span class="o">)</span>
+</span><span id="__span-31-6"><a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a><span class="w">  </span>--parameter<span class="w"> </span><span class="nv">KEY</span><span class="o">=</span>VALUE<span class="w">       </span>Parameters<span class="w"> </span><span class="k">for</span><span class="w"> </span>algorithms
+</span><span id="__span-31-7"><a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a><span class="w">  </span>--metric<span class="w"> </span>TEXT<span class="w">              </span>Evaluation<span class="w"> </span>metrics
+</span><span id="__span-31-8"><a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a><span class="w">  </span>--cross-validation<span class="w"> </span>INTEGER<span class="w">  </span>Number<span class="w"> </span>of<span class="w"> </span>CV<span class="w"> </span>folds
+</span><span id="__span-31-9"><a id="__codelineno-31-9" name="__codelineno-31-9" href="#__codelineno-31-9"></a><span class="w">  </span>--test-split<span class="w"> </span>FLOAT<span class="w">         </span>Test<span class="w"> </span><span class="nb">set</span><span class="w"> </span>split<span class="w"> </span>ratio
+</span></code></pre></div>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="c1"># Compare multiple algorithms</span>
+</span><span id="__span-32-2"><a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>pynomaly<span class="w"> </span>experiments<span class="w"> </span>create<span class="w"> </span><span class="s2">&quot;Algorithm Comparison&quot;</span><span class="w"> </span>dataset_123<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-32-3"><a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a><span class="w">  </span>--algorithm<span class="w"> </span>IsolationForest<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-32-4"><a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a><span class="w">  </span>--algorithm<span class="w"> </span>LOF<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-32-5"><a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a><span class="w">  </span>--algorithm<span class="w"> </span>OCSVM<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-32-6"><a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a><span class="w">  </span>--metric<span class="w"> </span>precision<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-32-7"><a id="__codelineno-32-7" name="__codelineno-32-7" href="#__codelineno-32-7"></a><span class="w">  </span>--metric<span class="w"> </span>recall<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-32-8"><a id="__codelineno-32-8" name="__codelineno-32-8" href="#__codelineno-32-8"></a><span class="w">  </span>--metric<span class="w"> </span>f1_score
+</span><span id="__span-32-9"><a id="__codelineno-32-9" name="__codelineno-32-9" href="#__codelineno-32-9"></a>
+</span><span id="__span-32-10"><a id="__codelineno-32-10" name="__codelineno-32-10" href="#__codelineno-32-10"></a><span class="c1"># Custom parameters experiment</span>
+</span><span id="__span-32-11"><a id="__codelineno-32-11" name="__codelineno-32-11" href="#__codelineno-32-11"></a>pynomaly<span class="w"> </span>experiments<span class="w"> </span>create<span class="w"> </span><span class="s2">&quot;Parameter Tuning&quot;</span><span class="w"> </span>dataset_123<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-32-12"><a id="__codelineno-32-12" name="__codelineno-32-12" href="#__codelineno-32-12"></a><span class="w">  </span>--algorithm<span class="w"> </span>IsolationForest<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-32-13"><a id="__codelineno-32-13" name="__codelineno-32-13" href="#__codelineno-32-13"></a><span class="w">  </span>--parameter<span class="w"> </span><span class="nv">contamination</span><span class="o">=</span><span class="m">0</span>.05<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-32-14"><a id="__codelineno-32-14" name="__codelineno-32-14" href="#__codelineno-32-14"></a><span class="w">  </span>--parameter<span class="w"> </span><span class="nv">contamination</span><span class="o">=</span><span class="m">0</span>.1<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-32-15"><a id="__codelineno-32-15" name="__codelineno-32-15" href="#__codelineno-32-15"></a><span class="w">  </span>--parameter<span class="w"> </span><span class="nv">contamination</span><span class="o">=</span><span class="m">0</span>.15
+</span></code></pre></div></p>
+<h4 id="experiments-list">experiments list<a class="headerlink" href="#experiments-list" title="Permanent link">&para;</a></h4>
+<p>List experiments.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>pynomaly<span class="w"> </span>experiments<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span><span id="__span-33-2"><a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>
+</span><span id="__span-33-3"><a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>Options:
+</span><span id="__span-33-4"><a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a><span class="w">  </span>--status<span class="w"> </span>TEXT<span class="w">     </span>Filter<span class="w"> </span>by<span class="w"> </span>status:<span class="w"> </span>running,<span class="w"> </span>completed,<span class="w"> </span>failed
+</span><span id="__span-33-5"><a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a><span class="w">  </span>--limit<span class="w"> </span>INTEGER<span class="w">   </span>Maximum<span class="w"> </span>number<span class="w"> </span>of<span class="w"> </span>results
+</span></code></pre></div>
+<h4 id="experiments-show">experiments show<a class="headerlink" href="#experiments-show" title="Permanent link">&para;</a></h4>
+<p>Show experiment results.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>pynomaly<span class="w"> </span>experiments<span class="w"> </span>show<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>EXPERIMENT_ID
+</span><span id="__span-34-2"><a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>
+</span><span id="__span-34-3"><a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a>Options:
+</span><span id="__span-34-4"><a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a><span class="w">  </span>--detailed<span class="w">        </span>Show<span class="w"> </span>detailed<span class="w"> </span>results
+</span><span id="__span-34-5"><a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a><span class="w">  </span>--export<span class="w"> </span>PATH<span class="w">     </span>Export<span class="w"> </span>results<span class="w"> </span>to<span class="w"> </span>file
+</span></code></pre></div>
+<h4 id="experiments-run">experiments run<a class="headerlink" href="#experiments-run" title="Permanent link">&para;</a></h4>
+<p>Run an experiment.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>pynomaly<span class="w"> </span>experiments<span class="w"> </span>run<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>EXPERIMENT_ID
+</span><span id="__span-35-2"><a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a>
+</span><span id="__span-35-3"><a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a>Options:
+</span><span id="__span-35-4"><a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a><span class="w">  </span>--async<span class="w">          </span>Run<span class="w"> </span>asynchronously
+</span><span id="__span-35-5"><a id="__codelineno-35-5" name="__codelineno-35-5" href="#__codelineno-35-5"></a><span class="w">  </span>--timeout<span class="w"> </span>INT<span class="w">    </span>Timeout<span class="w"> </span><span class="k">in</span><span class="w"> </span>seconds
+</span></code></pre></div>
+<h3 id="pynomaly-export">pynomaly export<a class="headerlink" href="#pynomaly-export" title="Permanent link">&para;</a></h3>
+<p>Export models, results, and configurations.</p>
+<h4 id="export-model">export model<a class="headerlink" href="#export-model" title="Permanent link">&para;</a></h4>
+<p>Export a trained model.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>pynomaly<span class="w"> </span><span class="nb">export</span><span class="w"> </span>model<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>DETECTOR_ID<span class="w"> </span>OUTPUT_PATH
+</span><span id="__span-36-2"><a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a>
+</span><span id="__span-36-3"><a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a>Options:
+</span><span id="__span-36-4"><a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a><span class="w">  </span>--format<span class="w"> </span>TEXT<span class="w">     </span>Export<span class="w"> </span>format:<span class="w"> </span>pickle,<span class="w"> </span>joblib,<span class="w"> </span>onnx
+</span><span id="__span-36-5"><a id="__codelineno-36-5" name="__codelineno-36-5" href="#__codelineno-36-5"></a><span class="w">  </span>--include-config<span class="w">  </span>Include<span class="w"> </span>detector<span class="w"> </span>configuration
+</span><span id="__span-36-6"><a id="__codelineno-36-6" name="__codelineno-36-6" href="#__codelineno-36-6"></a><span class="w">  </span>--compress<span class="w">       </span>Compress<span class="w"> </span>output<span class="w"> </span>file
+</span></code></pre></div>
+<p><strong>Examples:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="c1"># Export model as pickle</span>
+</span><span id="__span-37-2"><a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a>pynomaly<span class="w"> </span><span class="nb">export</span><span class="w"> </span>model<span class="w"> </span>detector_123<span class="w"> </span>fraud_model.pkl
+</span><span id="__span-37-3"><a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a>
+</span><span id="__span-37-4"><a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a><span class="c1"># Export with configuration</span>
+</span><span id="__span-37-5"><a id="__codelineno-37-5" name="__codelineno-37-5" href="#__codelineno-37-5"></a>pynomaly<span class="w"> </span><span class="nb">export</span><span class="w"> </span>model<span class="w"> </span>detector_123<span class="w"> </span>model.pkl<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-37-6"><a id="__codelineno-37-6" name="__codelineno-37-6" href="#__codelineno-37-6"></a><span class="w">  </span>--include-config<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-37-7"><a id="__codelineno-37-7" name="__codelineno-37-7" href="#__codelineno-37-7"></a><span class="w">  </span>--compress
+</span></code></pre></div></p>
+<h4 id="export-results">export results<a class="headerlink" href="#export-results" title="Permanent link">&para;</a></h4>
+<p>Export detection results.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-38-1"><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>pynomaly<span class="w"> </span><span class="nb">export</span><span class="w"> </span>results<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>DETECTOR_ID<span class="w"> </span>OUTPUT_PATH
+</span><span id="__span-38-2"><a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a>
+</span><span id="__span-38-3"><a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a>Options:
+</span><span id="__span-38-4"><a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a><span class="w">  </span>--format<span class="w"> </span>TEXT<span class="w">        </span>Export<span class="w"> </span>format:<span class="w"> </span>csv,<span class="w"> </span>json,<span class="w"> </span>parquet
+</span><span id="__span-38-5"><a id="__codelineno-38-5" name="__codelineno-38-5" href="#__codelineno-38-5"></a><span class="w">  </span>--start-date<span class="w"> </span>TEXT<span class="w">    </span>Filter<span class="w"> </span>from<span class="w"> </span>date<span class="w"> </span><span class="o">(</span>YYYY-MM-DD<span class="o">)</span>
+</span><span id="__span-38-6"><a id="__codelineno-38-6" name="__codelineno-38-6" href="#__codelineno-38-6"></a><span class="w">  </span>--end-date<span class="w"> </span>TEXT<span class="w">      </span>Filter<span class="w"> </span>to<span class="w"> </span>date<span class="w"> </span><span class="o">(</span>YYYY-MM-DD<span class="o">)</span>
+</span><span id="__span-38-7"><a id="__codelineno-38-7" name="__codelineno-38-7" href="#__codelineno-38-7"></a><span class="w">  </span>--anomalies-only<span class="w">    </span>Export<span class="w"> </span>only<span class="w"> </span>anomalies
+</span></code></pre></div>
+<h4 id="export-config">export config<a class="headerlink" href="#export-config" title="Permanent link">&para;</a></h4>
+<p>Export detector or dataset configuration.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-39-1"><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>pynomaly<span class="w"> </span><span class="nb">export</span><span class="w"> </span>config<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>RESOURCE_ID<span class="w"> </span>OUTPUT_PATH
+</span><span id="__span-39-2"><a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>
+</span><span id="__span-39-3"><a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a>Options:
+</span><span id="__span-39-4"><a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a><span class="w">  </span>--type<span class="w"> </span>TEXT<span class="w">    </span>Resource<span class="w"> </span>type:<span class="w"> </span>detector,<span class="w"> </span>dataset,<span class="w"> </span>experiment
+</span><span id="__span-39-5"><a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a><span class="w">  </span>--format<span class="w"> </span>TEXT<span class="w">  </span>Config<span class="w"> </span>format:<span class="w"> </span>yaml,<span class="w"> </span>json
+</span></code></pre></div>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<h3 id="configuration-file">Configuration File<a class="headerlink" href="#configuration-file" title="Permanent link">&para;</a></h3>
+<p>Create a configuration file at <code>~/.pynomaly/config.yml</code>:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-40-1"><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="c1"># API Configuration</span>
+</span><span id="__span-40-2"><a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a><span class="nt">api</span><span class="p">:</span>
+</span><span id="__span-40-3"><a id="__codelineno-40-3" name="__codelineno-40-3" href="#__codelineno-40-3"></a><span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;http://localhost:8000&quot;</span>
+</span><span id="__span-40-4"><a id="__codelineno-40-4" name="__codelineno-40-4" href="#__codelineno-40-4"></a><span class="w">  </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+</span><span id="__span-40-5"><a id="__codelineno-40-5" name="__codelineno-40-5" href="#__codelineno-40-5"></a><span class="w">  </span><span class="nt">api_key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-api-key&quot;</span>
+</span><span id="__span-40-6"><a id="__codelineno-40-6" name="__codelineno-40-6" href="#__codelineno-40-6"></a>
+</span><span id="__span-40-7"><a id="__codelineno-40-7" name="__codelineno-40-7" href="#__codelineno-40-7"></a><span class="c1"># Default Settings</span>
+</span><span id="__span-40-8"><a id="__codelineno-40-8" name="__codelineno-40-8" href="#__codelineno-40-8"></a><span class="nt">defaults</span><span class="p">:</span>
+</span><span id="__span-40-9"><a id="__codelineno-40-9" name="__codelineno-40-9" href="#__codelineno-40-9"></a><span class="w">  </span><span class="nt">output_format</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;table&quot;</span>
+</span><span id="__span-40-10"><a id="__codelineno-40-10" name="__codelineno-40-10" href="#__codelineno-40-10"></a><span class="w">  </span><span class="nt">log_level</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;INFO&quot;</span>
+</span><span id="__span-40-11"><a id="__codelineno-40-11" name="__codelineno-40-11" href="#__codelineno-40-11"></a><span class="w">  </span><span class="nt">contamination</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span>
+</span><span id="__span-40-12"><a id="__codelineno-40-12" name="__codelineno-40-12" href="#__codelineno-40-12"></a>
+</span><span id="__span-40-13"><a id="__codelineno-40-13" name="__codelineno-40-13" href="#__codelineno-40-13"></a><span class="c1"># Database Configuration</span>
+</span><span id="__span-40-14"><a id="__codelineno-40-14" name="__codelineno-40-14" href="#__codelineno-40-14"></a><span class="nt">database</span><span class="p">:</span>
+</span><span id="__span-40-15"><a id="__codelineno-40-15" name="__codelineno-40-15" href="#__codelineno-40-15"></a><span class="w">  </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;postgresql://user:pass@localhost/pynomaly&quot;</span>
+</span><span id="__span-40-16"><a id="__codelineno-40-16" name="__codelineno-40-16" href="#__codelineno-40-16"></a>
+</span><span id="__span-40-17"><a id="__codelineno-40-17" name="__codelineno-40-17" href="#__codelineno-40-17"></a><span class="c1"># Cache Configuration</span>
+</span><span id="__span-40-18"><a id="__codelineno-40-18" name="__codelineno-40-18" href="#__codelineno-40-18"></a><span class="nt">cache</span><span class="p">:</span>
+</span><span id="__span-40-19"><a id="__codelineno-40-19" name="__codelineno-40-19" href="#__codelineno-40-19"></a><span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</span><span id="__span-40-20"><a id="__codelineno-40-20" name="__codelineno-40-20" href="#__codelineno-40-20"></a><span class="w">  </span><span class="nt">ttl</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span>
+</span><span id="__span-40-21"><a id="__codelineno-40-21" name="__codelineno-40-21" href="#__codelineno-40-21"></a><span class="w">  </span><span class="nt">backend</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;memory&quot;</span><span class="w">  </span><span class="c1"># or &quot;redis&quot;</span>
+</span></code></pre></div>
+<h3 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-41-1"><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a><span class="c1"># API Configuration</span>
+</span><span id="__span-41-2"><a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PYNOMALY_API_URL</span><span class="o">=</span><span class="s2">&quot;http://localhost:8000&quot;</span>
+</span><span id="__span-41-3"><a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PYNOMALY_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span>
+</span><span id="__span-41-4"><a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a>
+</span><span id="__span-41-5"><a id="__codelineno-41-5" name="__codelineno-41-5" href="#__codelineno-41-5"></a><span class="c1"># Database</span>
+</span><span id="__span-41-6"><a id="__codelineno-41-6" name="__codelineno-41-6" href="#__codelineno-41-6"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PYNOMALY_DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;postgresql://user:pass@localhost/pynomaly&quot;</span>
+</span><span id="__span-41-7"><a id="__codelineno-41-7" name="__codelineno-41-7" href="#__codelineno-41-7"></a>
+</span><span id="__span-41-8"><a id="__codelineno-41-8" name="__codelineno-41-8" href="#__codelineno-41-8"></a><span class="c1"># Logging</span>
+</span><span id="__span-41-9"><a id="__codelineno-41-9" name="__codelineno-41-9" href="#__codelineno-41-9"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PYNOMALY_LOG_LEVEL</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span>
+</span><span id="__span-41-10"><a id="__codelineno-41-10" name="__codelineno-41-10" href="#__codelineno-41-10"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PYNOMALY_LOG_FILE</span><span class="o">=</span><span class="s2">&quot;/var/log/pynomaly.log&quot;</span>
+</span><span id="__span-41-11"><a id="__codelineno-41-11" name="__codelineno-41-11" href="#__codelineno-41-11"></a>
+</span><span id="__span-41-12"><a id="__codelineno-41-12" name="__codelineno-41-12" href="#__codelineno-41-12"></a><span class="c1"># Cache</span>
+</span><span id="__span-41-13"><a id="__codelineno-41-13" name="__codelineno-41-13" href="#__codelineno-41-13"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PYNOMALY_CACHE_BACKEND</span><span class="o">=</span><span class="s2">&quot;redis&quot;</span>
+</span><span id="__span-41-14"><a id="__codelineno-41-14" name="__codelineno-41-14" href="#__codelineno-41-14"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PYNOMALY_REDIS_URL</span><span class="o">=</span><span class="s2">&quot;redis://localhost:6379&quot;</span>
+</span></code></pre></div>
+<h2 id="common-workflows">Common Workflows<a class="headerlink" href="#common-workflows" title="Permanent link">&para;</a></h2>
+<h3 id="1-quick-start-workflow">1. Quick Start Workflow<a class="headerlink" href="#1-quick-start-workflow" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-42-1"><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a><span class="c1"># 1. Upload dataset</span>
+</span><span id="__span-42-2"><a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>pynomaly<span class="w"> </span>datasets<span class="w"> </span>upload<span class="w"> </span>transactions.csv<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Transactions&quot;</span>
+</span><span id="__span-42-3"><a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a>
+</span><span id="__span-42-4"><a id="__codelineno-42-4" name="__codelineno-42-4" href="#__codelineno-42-4"></a><span class="c1"># 2. Create detector</span>
+</span><span id="__span-42-5"><a id="__codelineno-42-5" name="__codelineno-42-5" href="#__codelineno-42-5"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>create<span class="w"> </span><span class="s2">&quot;Fraud Detector&quot;</span><span class="w"> </span>IsolationForest
+</span><span id="__span-42-6"><a id="__codelineno-42-6" name="__codelineno-42-6" href="#__codelineno-42-6"></a>
+</span><span id="__span-42-7"><a id="__codelineno-42-7" name="__codelineno-42-7" href="#__codelineno-42-7"></a><span class="c1"># 3. Train detector</span>
+</span><span id="__span-42-8"><a id="__codelineno-42-8" name="__codelineno-42-8" href="#__codelineno-42-8"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>train<span class="w"> </span>detector_123<span class="w"> </span>dataset_456
+</span><span id="__span-42-9"><a id="__codelineno-42-9" name="__codelineno-42-9" href="#__codelineno-42-9"></a>
+</span><span id="__span-42-10"><a id="__codelineno-42-10" name="__codelineno-42-10" href="#__codelineno-42-10"></a><span class="c1"># 4. Run detection</span>
+</span><span id="__span-42-11"><a id="__codelineno-42-11" name="__codelineno-42-11" href="#__codelineno-42-11"></a>pynomaly<span class="w"> </span>detect<span class="w"> </span>run<span class="w"> </span>detector_123<span class="w"> </span>--file<span class="w"> </span>new_data.csv<span class="w"> </span>--output<span class="w"> </span>results.json
+</span></code></pre></div>
+<h3 id="2-experiment-workflow">2. Experiment Workflow<a class="headerlink" href="#2-experiment-workflow" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-43-1"><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="c1"># 1. Create experiment</span>
+</span><span id="__span-43-2"><a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a>pynomaly<span class="w"> </span>experiments<span class="w"> </span>create<span class="w"> </span><span class="s2">&quot;Algorithm Comparison&quot;</span><span class="w"> </span>dataset_123<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-43-3"><a id="__codelineno-43-3" name="__codelineno-43-3" href="#__codelineno-43-3"></a><span class="w">  </span>--algorithm<span class="w"> </span>IsolationForest<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-43-4"><a id="__codelineno-43-4" name="__codelineno-43-4" href="#__codelineno-43-4"></a><span class="w">  </span>--algorithm<span class="w"> </span>LOF<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-43-5"><a id="__codelineno-43-5" name="__codelineno-43-5" href="#__codelineno-43-5"></a><span class="w">  </span>--algorithm<span class="w"> </span>OCSVM
+</span><span id="__span-43-6"><a id="__codelineno-43-6" name="__codelineno-43-6" href="#__codelineno-43-6"></a>
+</span><span id="__span-43-7"><a id="__codelineno-43-7" name="__codelineno-43-7" href="#__codelineno-43-7"></a><span class="c1"># 2. Run experiment</span>
+</span><span id="__span-43-8"><a id="__codelineno-43-8" name="__codelineno-43-8" href="#__codelineno-43-8"></a>pynomaly<span class="w"> </span>experiments<span class="w"> </span>run<span class="w"> </span>experiment_789
+</span><span id="__span-43-9"><a id="__codelineno-43-9" name="__codelineno-43-9" href="#__codelineno-43-9"></a>
+</span><span id="__span-43-10"><a id="__codelineno-43-10" name="__codelineno-43-10" href="#__codelineno-43-10"></a><span class="c1"># 3. View results</span>
+</span><span id="__span-43-11"><a id="__codelineno-43-11" name="__codelineno-43-11" href="#__codelineno-43-11"></a>pynomaly<span class="w"> </span>experiments<span class="w"> </span>show<span class="w"> </span>experiment_789<span class="w"> </span>--detailed
+</span><span id="__span-43-12"><a id="__codelineno-43-12" name="__codelineno-43-12" href="#__codelineno-43-12"></a>
+</span><span id="__span-43-13"><a id="__codelineno-43-13" name="__codelineno-43-13" href="#__codelineno-43-13"></a><span class="c1"># 4. Export best model</span>
+</span><span id="__span-43-14"><a id="__codelineno-43-14" name="__codelineno-43-14" href="#__codelineno-43-14"></a>pynomaly<span class="w"> </span><span class="nb">export</span><span class="w"> </span>model<span class="w"> </span>best_detector_id<span class="w"> </span>fraud_model.pkl
+</span></code></pre></div>
+<h3 id="3-production-deployment-workflow">3. Production Deployment Workflow<a class="headerlink" href="#3-production-deployment-workflow" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-44-1"><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a><span class="c1"># 1. Start server in production mode</span>
+</span><span id="__span-44-2"><a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a>pynomaly<span class="w"> </span>server<span class="w"> </span>start<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-44-3"><a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a><span class="w">  </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-44-4"><a id="__codelineno-44-4" name="__codelineno-44-4" href="#__codelineno-44-4"></a><span class="w">  </span>--port<span class="w"> </span><span class="m">8000</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-44-5"><a id="__codelineno-44-5" name="__codelineno-44-5" href="#__codelineno-44-5"></a><span class="w">  </span>--workers<span class="w"> </span><span class="m">4</span>
+</span><span id="__span-44-6"><a id="__codelineno-44-6" name="__codelineno-44-6" href="#__codelineno-44-6"></a>
+</span><span id="__span-44-7"><a id="__codelineno-44-7" name="__codelineno-44-7" href="#__codelineno-44-7"></a><span class="c1"># 2. Check server status</span>
+</span><span id="__span-44-8"><a id="__codelineno-44-8" name="__codelineno-44-8" href="#__codelineno-44-8"></a>pynomaly<span class="w"> </span>server<span class="w"> </span>status
+</span><span id="__span-44-9"><a id="__codelineno-44-9" name="__codelineno-44-9" href="#__codelineno-44-9"></a>
+</span><span id="__span-44-10"><a id="__codelineno-44-10" name="__codelineno-44-10" href="#__codelineno-44-10"></a><span class="c1"># 3. Set up monitoring (separate terminal)</span>
+</span><span id="__span-44-11"><a id="__codelineno-44-11" name="__codelineno-44-11" href="#__codelineno-44-11"></a>pynomaly<span class="w"> </span>detect<span class="w"> </span>stream<span class="w"> </span>detector_123<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-44-12"><a id="__codelineno-44-12" name="__codelineno-44-12" href="#__codelineno-44-12"></a><span class="w">  </span>--webhook-url<span class="w"> </span>https://monitoring.example.com/alerts
+</span></code></pre></div>
+<h2 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
+<p>The CLI provides detailed error messages and exit codes:</p>
+<ul>
+<li><strong>0</strong>: Success</li>
+<li><strong>1</strong>: General error</li>
+<li><strong>2</strong>: Invalid arguments</li>
+<li><strong>3</strong>: Configuration error</li>
+<li><strong>4</strong>: Network/API error</li>
+<li><strong>5</strong>: Authentication error</li>
+</ul>
+<h3 id="common-error-messages">Common Error Messages<a class="headerlink" href="#common-error-messages" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-45-1"><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a><span class="c1"># Invalid detector ID</span>
+</span><span id="__span-45-2"><a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a>Error:<span class="w"> </span>Detector<span class="w"> </span><span class="s1">&#39;invalid_id&#39;</span><span class="w"> </span>not<span class="w"> </span>found
+</span><span id="__span-45-3"><a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a>Exit<span class="w"> </span>code:<span class="w"> </span><span class="m">4</span>
+</span><span id="__span-45-4"><a id="__codelineno-45-4" name="__codelineno-45-4" href="#__codelineno-45-4"></a>
+</span><span id="__span-45-5"><a id="__codelineno-45-5" name="__codelineno-45-5" href="#__codelineno-45-5"></a><span class="c1"># Missing required argument</span>
+</span><span id="__span-45-6"><a id="__codelineno-45-6" name="__codelineno-45-6" href="#__codelineno-45-6"></a>Error:<span class="w"> </span>Missing<span class="w"> </span>argument<span class="w"> </span><span class="s1">&#39;DETECTOR_ID&#39;</span>
+</span><span id="__span-45-7"><a id="__codelineno-45-7" name="__codelineno-45-7" href="#__codelineno-45-7"></a>Exit<span class="w"> </span>code:<span class="w"> </span><span class="m">2</span>
+</span><span id="__span-45-8"><a id="__codelineno-45-8" name="__codelineno-45-8" href="#__codelineno-45-8"></a>
+</span><span id="__span-45-9"><a id="__codelineno-45-9" name="__codelineno-45-9" href="#__codelineno-45-9"></a><span class="c1"># Configuration file not found</span>
+</span><span id="__span-45-10"><a id="__codelineno-45-10" name="__codelineno-45-10" href="#__codelineno-45-10"></a>Error:<span class="w"> </span>Configuration<span class="w"> </span>file<span class="w"> </span><span class="s1">&#39;~/.pynomaly/config.yml&#39;</span><span class="w"> </span>not<span class="w"> </span>found
+</span><span id="__span-45-11"><a id="__codelineno-45-11" name="__codelineno-45-11" href="#__codelineno-45-11"></a>Exit<span class="w"> </span>code:<span class="w"> </span><span class="m">3</span>
+</span><span id="__span-45-12"><a id="__codelineno-45-12" name="__codelineno-45-12" href="#__codelineno-45-12"></a>
+</span><span id="__span-45-13"><a id="__codelineno-45-13" name="__codelineno-45-13" href="#__codelineno-45-13"></a><span class="c1"># API server unreachable</span>
+</span><span id="__span-45-14"><a id="__codelineno-45-14" name="__codelineno-45-14" href="#__codelineno-45-14"></a>Error:<span class="w"> </span>Could<span class="w"> </span>not<span class="w"> </span>connect<span class="w"> </span>to<span class="w"> </span>API<span class="w"> </span>server<span class="w"> </span>at<span class="w"> </span>http://localhost:8000
+</span><span id="__span-45-15"><a id="__codelineno-45-15" name="__codelineno-45-15" href="#__codelineno-45-15"></a>Exit<span class="w"> </span>code:<span class="w"> </span><span class="m">4</span>
+</span></code></pre></div>
+<h2 id="debugging">Debugging<a class="headerlink" href="#debugging" title="Permanent link">&para;</a></h2>
+<h3 id="enable-debug-logging">Enable Debug Logging<a class="headerlink" href="#enable-debug-logging" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-46-1"><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a><span class="c1"># Set debug level</span>
+</span><span id="__span-46-2"><a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a>pynomaly<span class="w"> </span>--log-level<span class="w"> </span>DEBUG<span class="w"> </span>detectors<span class="w"> </span>list
+</span><span id="__span-46-3"><a id="__codelineno-46-3" name="__codelineno-46-3" href="#__codelineno-46-3"></a>
+</span><span id="__span-46-4"><a id="__codelineno-46-4" name="__codelineno-46-4" href="#__codelineno-46-4"></a><span class="c1"># Or via environment variable</span>
+</span><span id="__span-46-5"><a id="__codelineno-46-5" name="__codelineno-46-5" href="#__codelineno-46-5"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PYNOMALY_LOG_LEVEL</span><span class="o">=</span>DEBUG
+</span><span id="__span-46-6"><a id="__codelineno-46-6" name="__codelineno-46-6" href="#__codelineno-46-6"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>list
+</span></code></pre></div>
+<h3 id="verbose-output">Verbose Output<a class="headerlink" href="#verbose-output" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-47-1"><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a><span class="c1"># Enable verbose output</span>
+</span><span id="__span-47-2"><a id="__codelineno-47-2" name="__codelineno-47-2" href="#__codelineno-47-2"></a>pynomaly<span class="w"> </span>--verbose<span class="w"> </span>detectors<span class="w"> </span>create<span class="w"> </span><span class="s2">&quot;Test&quot;</span><span class="w"> </span>IsolationForest
+</span><span id="__span-47-3"><a id="__codelineno-47-3" name="__codelineno-47-3" href="#__codelineno-47-3"></a>
+</span><span id="__span-47-4"><a id="__codelineno-47-4" name="__codelineno-47-4" href="#__codelineno-47-4"></a><span class="c1"># Quiet mode (minimal output)</span>
+</span><span id="__span-47-5"><a id="__codelineno-47-5" name="__codelineno-47-5" href="#__codelineno-47-5"></a>pynomaly<span class="w"> </span>--quiet<span class="w"> </span>detectors<span class="w"> </span>list
+</span></code></pre></div>
+<h3 id="check-configuration">Check Configuration<a class="headerlink" href="#check-configuration" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-48-1"><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a><span class="c1"># Show current configuration</span>
+</span><span id="__span-48-2"><a id="__codelineno-48-2" name="__codelineno-48-2" href="#__codelineno-48-2"></a>pynomaly<span class="w"> </span>config<span class="w"> </span>show
+</span><span id="__span-48-3"><a id="__codelineno-48-3" name="__codelineno-48-3" href="#__codelineno-48-3"></a>
+</span><span id="__span-48-4"><a id="__codelineno-48-4" name="__codelineno-48-4" href="#__codelineno-48-4"></a><span class="c1"># Validate configuration</span>
+</span><span id="__span-48-5"><a id="__codelineno-48-5" name="__codelineno-48-5" href="#__codelineno-48-5"></a>pynomaly<span class="w"> </span>config<span class="w"> </span>validate
+</span></code></pre></div>
+<h2 id="integration-examples">Integration Examples<a class="headerlink" href="#integration-examples" title="Permanent link">&para;</a></h2>
+<h3 id="shell-scripts">Shell Scripts<a class="headerlink" href="#shell-scripts" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-49-1"><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a><span class="ch">#!/bin/bash</span>
+</span><span id="__span-49-2"><a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a><span class="c1"># Automated detection pipeline</span>
+</span><span id="__span-49-3"><a id="__codelineno-49-3" name="__codelineno-49-3" href="#__codelineno-49-3"></a>
+</span><span id="__span-49-4"><a id="__codelineno-49-4" name="__codelineno-49-4" href="#__codelineno-49-4"></a><span class="nv">DATASET_ID</span><span class="o">=</span><span class="k">$(</span>pynomaly<span class="w"> </span>datasets<span class="w"> </span>upload<span class="w"> </span>data.csv<span class="w"> </span>--format<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.id&#39;</span><span class="k">)</span>
+</span><span id="__span-49-5"><a id="__codelineno-49-5" name="__codelineno-49-5" href="#__codelineno-49-5"></a><span class="nv">DETECTOR_ID</span><span class="o">=</span><span class="k">$(</span>pynomaly<span class="w"> </span>detectors<span class="w"> </span>create<span class="w"> </span><span class="s2">&quot;Auto Detector&quot;</span><span class="w"> </span>IsolationForest<span class="w"> </span>--format<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.id&#39;</span><span class="k">)</span>
+</span><span id="__span-49-6"><a id="__codelineno-49-6" name="__codelineno-49-6" href="#__codelineno-49-6"></a>
+</span><span id="__span-49-7"><a id="__codelineno-49-7" name="__codelineno-49-7" href="#__codelineno-49-7"></a>pynomaly<span class="w"> </span>detectors<span class="w"> </span>train<span class="w"> </span><span class="nv">$DETECTOR_ID</span><span class="w"> </span><span class="nv">$DATASET_ID</span>
+</span><span id="__span-49-8"><a id="__codelineno-49-8" name="__codelineno-49-8" href="#__codelineno-49-8"></a>pynomaly<span class="w"> </span>detect<span class="w"> </span>run<span class="w"> </span><span class="nv">$DETECTOR_ID</span><span class="w"> </span>--dataset<span class="w"> </span><span class="nv">$DATASET_ID</span><span class="w"> </span>--output<span class="w"> </span>results.json
+</span><span id="__span-49-9"><a id="__codelineno-49-9" name="__codelineno-49-9" href="#__codelineno-49-9"></a>
+</span><span id="__span-49-10"><a id="__codelineno-49-10" name="__codelineno-49-10" href="#__codelineno-49-10"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Detection completed. Results saved to results.json&quot;</span>
+</span></code></pre></div>
+<h3 id="cicd-integration">CI/CD Integration<a class="headerlink" href="#cicd-integration" title="Permanent link">&para;</a></h3>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-50-1"><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a><span class="c1"># .github/workflows/anomaly-detection.yml</span>
+</span><span id="__span-50-2"><a id="__codelineno-50-2" name="__codelineno-50-2" href="#__codelineno-50-2"></a><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Anomaly Detection Pipeline</span>
+</span><span id="__span-50-3"><a id="__codelineno-50-3" name="__codelineno-50-3" href="#__codelineno-50-3"></a>
+</span><span id="__span-50-4"><a id="__codelineno-50-4" name="__codelineno-50-4" href="#__codelineno-50-4"></a><span class="nt">on</span><span class="p">:</span>
+</span><span id="__span-50-5"><a id="__codelineno-50-5" name="__codelineno-50-5" href="#__codelineno-50-5"></a><span class="w">  </span><span class="nt">schedule</span><span class="p">:</span>
+</span><span id="__span-50-6"><a id="__codelineno-50-6" name="__codelineno-50-6" href="#__codelineno-50-6"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">cron</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;0</span><span class="nv"> </span><span class="s">*/6</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*&#39;</span><span class="w">  </span><span class="c1"># Every 6 hours</span>
+</span><span id="__span-50-7"><a id="__codelineno-50-7" name="__codelineno-50-7" href="#__codelineno-50-7"></a>
+</span><span id="__span-50-8"><a id="__codelineno-50-8" name="__codelineno-50-8" href="#__codelineno-50-8"></a><span class="nt">jobs</span><span class="p">:</span>
+</span><span id="__span-50-9"><a id="__codelineno-50-9" name="__codelineno-50-9" href="#__codelineno-50-9"></a><span class="w">  </span><span class="nt">detect</span><span class="p">:</span>
+</span><span id="__span-50-10"><a id="__codelineno-50-10" name="__codelineno-50-10" href="#__codelineno-50-10"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+</span><span id="__span-50-11"><a id="__codelineno-50-11" name="__codelineno-50-11" href="#__codelineno-50-11"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+</span><span id="__span-50-12"><a id="__codelineno-50-12" name="__codelineno-50-12" href="#__codelineno-50-12"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v2</span>
+</span><span id="__span-50-13"><a id="__codelineno-50-13" name="__codelineno-50-13" href="#__codelineno-50-13"></a>
+</span><span id="__span-50-14"><a id="__codelineno-50-14" name="__codelineno-50-14" href="#__codelineno-50-14"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Setup Python</span>
+</span><span id="__span-50-15"><a id="__codelineno-50-15" name="__codelineno-50-15" href="#__codelineno-50-15"></a><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-python@v2</span>
+</span><span id="__span-50-16"><a id="__codelineno-50-16" name="__codelineno-50-16" href="#__codelineno-50-16"></a><span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+</span><span id="__span-50-17"><a id="__codelineno-50-17" name="__codelineno-50-17" href="#__codelineno-50-17"></a><span class="w">          </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.11&#39;</span>
+</span><span id="__span-50-18"><a id="__codelineno-50-18" name="__codelineno-50-18" href="#__codelineno-50-18"></a>
+</span><span id="__span-50-19"><a id="__codelineno-50-19" name="__codelineno-50-19" href="#__codelineno-50-19"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install Pynomaly</span>
+</span><span id="__span-50-20"><a id="__codelineno-50-20" name="__codelineno-50-20" href="#__codelineno-50-20"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pip install pynomaly</span>
+</span><span id="__span-50-21"><a id="__codelineno-50-21" name="__codelineno-50-21" href="#__codelineno-50-21"></a>
+</span><span id="__span-50-22"><a id="__codelineno-50-22" name="__codelineno-50-22" href="#__codelineno-50-22"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run Detection</span>
+</span><span id="__span-50-23"><a id="__codelineno-50-23" name="__codelineno-50-23" href="#__codelineno-50-23"></a><span class="w">        </span><span class="nt">env</span><span class="p">:</span>
+</span><span id="__span-50-24"><a id="__codelineno-50-24" name="__codelineno-50-24" href="#__codelineno-50-24"></a><span class="w">          </span><span class="nt">PYNOMALY_API_KEY</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.PYNOMALY_API_KEY }}</span>
+</span><span id="__span-50-25"><a id="__codelineno-50-25" name="__codelineno-50-25" href="#__codelineno-50-25"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+</span><span id="__span-50-26"><a id="__codelineno-50-26" name="__codelineno-50-26" href="#__codelineno-50-26"></a><span class="w">          </span><span class="no">pynomaly detect run $DETECTOR_ID \</span>
+</span><span id="__span-50-27"><a id="__codelineno-50-27" name="__codelineno-50-27" href="#__codelineno-50-27"></a><span class="w">            </span><span class="no">--file latest_data.csv \</span>
+</span><span id="__span-50-28"><a id="__codelineno-50-28" name="__codelineno-50-28" href="#__codelineno-50-28"></a><span class="w">            </span><span class="no">--output results.json \</span>
+</span><span id="__span-50-29"><a id="__codelineno-50-29" name="__codelineno-50-29" href="#__codelineno-50-29"></a><span class="w">            </span><span class="no">--anomalies-only</span>
+</span><span id="__span-50-30"><a id="__codelineno-50-30" name="__codelineno-50-30" href="#__codelineno-50-30"></a>
+</span><span id="__span-50-31"><a id="__codelineno-50-31" name="__codelineno-50-31" href="#__codelineno-50-31"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Upload Results</span>
+</span><span id="__span-50-32"><a id="__codelineno-50-32" name="__codelineno-50-32" href="#__codelineno-50-32"></a><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/upload-artifact@v2</span>
+</span><span id="__span-50-33"><a id="__codelineno-50-33" name="__codelineno-50-33" href="#__codelineno-50-33"></a><span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+</span><span id="__span-50-34"><a id="__codelineno-50-34" name="__codelineno-50-34" href="#__codelineno-50-34"></a><span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">detection-results</span>
+</span><span id="__span-50-35"><a id="__codelineno-50-35" name="__codelineno-50-35" href="#__codelineno-50-35"></a><span class="w">          </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">results.json</span>
+</span></code></pre></div>
+<p>This CLI reference provides comprehensive documentation for all Pynomaly command-line operations, making it easy for users to integrate anomaly detection into their workflows and automation pipelines.</p>
+<hr />
+<h2 id="related-documentation">🔗 <strong>Related Documentation</strong><a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<h3 id="development"><strong>Development</strong><a class="headerlink" href="#development" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="../../contributing/CONTRIBUTING/">Contributing Guidelines</a></strong> - How to contribute</li>
+<li><strong><a href="../../contributing/">Development Setup</a></strong> - Local development environment</li>
+<li><strong><a href="../../architecture/overview/">Architecture Overview</a></strong> - System design</li>
+<li><strong><a href="../../contributing/IMPLEMENTATION_GUIDE/">Implementation Guide</a></strong> - Coding standards</li>
+</ul>
+<h3 id="api-integration"><strong>API Integration</strong><a class="headerlink" href="#api-integration" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="../rest-api/">REST API</a></strong> - HTTP API reference</li>
+<li><strong><a href="../python-sdk/">Python SDK</a></strong> - Python client library</li>
+<li><strong><a href="./">CLI Reference</a></strong> - Command-line interface</li>
+<li><strong><a href="../authentication/">Authentication</a></strong> - Security and auth</li>
+</ul>
+<h3 id="user-documentation"><strong>User Documentation</strong><a class="headerlink" href="#user-documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="../../../user-guides/">User Guides</a></strong> - Feature usage guides</li>
+<li><strong><a href="../../../getting-started/">Getting Started</a></strong> - Installation and setup</li>
+<li><strong><a href="../../../examples/">Examples</a></strong> - Real-world use cases</li>
+</ul>
+<h3 id="deployment"><strong>Deployment</strong><a class="headerlink" href="#deployment" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="../../../deployment/">Production Deployment</a></strong> - Production deployment</li>
+<li><strong><a href="../../../deployment/SECURITY/">Security Setup</a></strong> - Security configuration</li>
+<li><strong><a href="../../../user-guides/basic-usage/monitoring/">Monitoring</a></strong> - System observability</li>
+</ul>
+<hr />
+<h2 id="getting-help">🆘 <strong>Getting Help</strong><a class="headerlink" href="#getting-help" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong><a href="../contributing/troubleshooting/">Development Troubleshooting</a></strong> - Development issues</li>
+<li><strong><a href="https://github.com/your-org/pynomaly/issues">GitHub Issues</a></strong> - Report bugs</li>
+<li><strong><a href="../../contributing/CONTRIBUTING/">Contributing Guidelines</a></strong> - Contribution process</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/pynomaly/pynomaly" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/pynomaly/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/pynomaly" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+        <script src="../../../javascripts/extra.js"></script>
+      
+    
+  </body>
+</html>

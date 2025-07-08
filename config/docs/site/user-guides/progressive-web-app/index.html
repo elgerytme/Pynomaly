@@ -1,0 +1,2274 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="State-of-the-art Python anomaly detection platform">
+      
+      
+        <meta name="author" content="Pynomaly Team">
+      
+      
+        <link rel="canonical" href="https://pynomaly.readthedocs.io/user-guides/progressive-web-app/">
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>Progressive Web App (PWA) User Guide - Pynomaly Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#progressive-web-app-pwa-user-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Pynomaly Documentation" class="md-header__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pynomaly Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Progressive Web App (PWA) User Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Pynomaly Documentation" class="md-nav__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    Pynomaly Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Start
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/FEATURE_INSTALLATION_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Feature Installation Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      🌟 Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 Getting Started
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚀 Getting Started">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#accessing-the-pwa" class="md-nav__link">
+    <span class="md-ellipsis">
+      Accessing the PWA
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#browser-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      Browser Support
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      📱 Installation Guide
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📱 Installation Guide">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#desktop-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Desktop Installation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Desktop Installation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#windows" class="md-nav__link">
+    <span class="md-ellipsis">
+      Windows
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#macos" class="md-nav__link">
+    <span class="md-ellipsis">
+      macOS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linux" class="md-nav__link">
+    <span class="md-ellipsis">
+      Linux
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mobile-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mobile Installation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Mobile Installation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ios-iphoneipad" class="md-nav__link">
+    <span class="md-ellipsis">
+      iOS (iPhone/iPad)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#android" class="md-nav__link">
+    <span class="md-ellipsis">
+      Android
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#offline-capabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔄 Offline Capabilities
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔄 Offline Capabilities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-works-offline" class="md-nav__link">
+    <span class="md-ellipsis">
+      What Works Offline
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#offline-algorithms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Offline Algorithms
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Offline Algorithms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#z-score-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Z-Score Detection
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interquartile-range-iqr" class="md-nav__link">
+    <span class="md-ellipsis">
+      Interquartile Range (IQR)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#simple-isolation-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Simple Isolation Detection
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#median-absolute-deviation-mad" class="md-nav__link">
+    <span class="md-ellipsis">
+      Median Absolute Deviation (MAD)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dashboard-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Dashboard Features
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 Dashboard Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview-cards" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview Cards
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interactive-charts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Interactive Charts
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Interactive Charts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dataset-distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dataset Distribution
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#algorithm-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Algorithm Performance
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#detection-timeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Detection Timeline
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#real-time-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Real-time Analysis
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-synchronization" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔄 Data Synchronization
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔄 Data Synchronization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sync-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sync Strategies
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sync Strategies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#immediate-sync" class="md-nav__link">
+    <span class="md-ellipsis">
+      Immediate Sync
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#smart-sync-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      Smart Sync (Default)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manual-sync" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manual Sync
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conflict-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conflict Resolution
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Conflict Resolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#server-wins" class="md-nav__link">
+    <span class="md-ellipsis">
+      Server Wins
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#client-wins" class="md-nav__link">
+    <span class="md-ellipsis">
+      Client Wins
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manual-merge" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manual Merge
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sync-status-indicators" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sync Status Indicators
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-visualization" class="md-nav__link">
+    <span class="md-ellipsis">
+      📈 Data Visualization
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📈 Data Visualization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chart-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      Chart Types
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Chart Types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#distribution-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Distribution Analysis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#correlation-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Correlation Analysis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#anomaly-visualization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Anomaly Visualization
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interactive-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Interactive Features
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Customization
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Customization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chart-appearance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Chart Appearance
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Filtering
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#offline-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      💾 Offline Storage
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="💾 Offline Storage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#storage-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Storage Management
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Storage Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-types-cached" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Types Cached
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#storage-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Storage Limits
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manual-storage-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manual Storage Control
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Manual Storage Control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#clear-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      Clear Cache
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#storage-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Storage Status
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚡ Performance Optimization
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="⚡ Performance Optimization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#visualization-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Visualization Performance
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#browser-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Browser Optimization
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory Management
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Memory Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#monitoring-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Monitoring Usage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optimization-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      Optimization Tips
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installation-problems" class="md-nav__link">
+    <span class="md-ellipsis">
+      Installation Problems
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sync-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sync Issues
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Issues
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Messages
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error Messages">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#storage-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Storage Errors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#network-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Network Errors
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recovery-procedures" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recovery Procedures
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Recovery Procedures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reset-application-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reset Application State
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backup-important-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backup Important Data
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-privacy" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔒 Security &amp; Privacy
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔒 Security &amp; Privacy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-protection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Protection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Protection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#local-storage-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      Local Storage Security
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#privacy-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      Privacy Controls
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#best-practices_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#secure-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Secure Usage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#corporate-environments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Corporate Environments
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 Advanced Features
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚀 Advanced Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#custom-algorithms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom Algorithms
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-apis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integration APIs
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Integration APIs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#external-tool-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      External Tool Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-visualizations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom Visualizations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#automation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Automation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scheduled-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scheduled Analysis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alert-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Alert Integration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 API Reference
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📚 API Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pwa-manager-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      PWA Manager API
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PWA Manager API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installation-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Installation Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sync-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sync Management
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#offline-detector-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      Offline Detector API
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Offline Detector API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#algorithm-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Algorithm Management
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#visualization-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      Visualization API
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Visualization API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chart-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Chart Management
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 Best Practices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎯 Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#user-experience" class="md-nav__link">
+    <span class="md-ellipsis">
+      User Experience
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-management_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔗 Related Documentation
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="progressive-web-app-pwa-user-guide">Progressive Web App (PWA) User Guide<a class="headerlink" href="#progressive-web-app-pwa-user-guide" title="Permanent link">&para;</a></h1>
+<p>🍞 <strong>Breadcrumb:</strong> 🏠 <a href="../../">Home</a> &gt; 👤 <a href="../">User Guides</a> &gt; 📄 Progressive Web App</p>
+<hr />
+<p>Welcome to Pynomaly's Progressive Web App - a modern, offline-capable web application that brings enterprise-grade anomaly detection to your fingertips with native app-like experiences.</p>
+<h2 id="overview">🌟 Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Pynomaly's PWA provides:
+- <strong>Offline Functionality</strong> - Continue working without internet connectivity
+- <strong>Native App Experience</strong> - Install on desktop and mobile devices
+- <strong>Real-time Synchronization</strong> - Seamless data sync when online
+- <strong>Advanced Visualizations</strong> - Interactive charts and dashboards
+- <strong>Local Analysis</strong> - Run anomaly detection algorithms in your browser</p>
+<hr />
+<h2 id="getting-started">🚀 Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h2>
+<h3 id="accessing-the-pwa">Accessing the PWA<a class="headerlink" href="#accessing-the-pwa" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Open your browser</strong> and navigate to your Pynomaly instance</li>
+<li><strong>Look for the install prompt</strong> - Most browsers will show an install button in the address bar</li>
+<li><strong>Click "Install"</strong> or use the install button in the app interface</li>
+<li><strong>Launch from your device</strong> - Find Pynomaly in your apps menu or desktop</li>
+</ol>
+<h3 id="browser-support">Browser Support<a class="headerlink" href="#browser-support" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Recommended Browsers:</strong>
+- Chrome 90+ (Desktop &amp; Mobile)
+- Edge 90+ (Desktop &amp; Mobile)
+- Safari 14+ (Desktop &amp; Mobile)
+- Firefox 88+ (Desktop &amp; Mobile)</p>
+<hr />
+<h2 id="installation-guide">📱 Installation Guide<a class="headerlink" href="#installation-guide" title="Permanent link">&para;</a></h2>
+<h3 id="desktop-installation">Desktop Installation<a class="headerlink" href="#desktop-installation" title="Permanent link">&para;</a></h3>
+<h4 id="windows"><strong>Windows</strong><a class="headerlink" href="#windows" title="Permanent link">&para;</a></h4>
+<ol>
+<li>Open Chrome/Edge and navigate to Pynomaly</li>
+<li>Click the <strong>install icon</strong> (⊞) in the address bar</li>
+<li>Click "Install" in the confirmation dialog</li>
+<li>Find Pynomaly in your Start Menu or Desktop</li>
+</ol>
+<h4 id="macos"><strong>macOS</strong><a class="headerlink" href="#macos" title="Permanent link">&para;</a></h4>
+<ol>
+<li>Open Safari/Chrome and navigate to Pynomaly</li>
+<li>Click <strong>Share</strong> → <strong>Add to Dock</strong> (Safari) or the install icon (Chrome)</li>
+<li>Confirm installation</li>
+<li>Launch from Launchpad or Applications folder</li>
+</ol>
+<h4 id="linux"><strong>Linux</strong><a class="headerlink" href="#linux" title="Permanent link">&para;</a></h4>
+<ol>
+<li>Open your supported browser and navigate to Pynomaly</li>
+<li>Click the <strong>install icon</strong> in the address bar</li>
+<li>Confirm installation</li>
+<li>Find Pynomaly in your applications menu</li>
+</ol>
+<h3 id="mobile-installation">Mobile Installation<a class="headerlink" href="#mobile-installation" title="Permanent link">&para;</a></h3>
+<h4 id="ios-iphoneipad"><strong>iOS (iPhone/iPad)</strong><a class="headerlink" href="#ios-iphoneipad" title="Permanent link">&para;</a></h4>
+<ol>
+<li>Open <strong>Safari</strong> and navigate to Pynomaly</li>
+<li>Tap the <strong>Share button</strong> (□↗)</li>
+<li>Scroll down and tap <strong>"Add to Home Screen"</strong></li>
+<li>Customize the name and tap <strong>"Add"</strong></li>
+<li>Find Pynomaly on your home screen</li>
+</ol>
+<h4 id="android"><strong>Android</strong><a class="headerlink" href="#android" title="Permanent link">&para;</a></h4>
+<ol>
+<li>Open <strong>Chrome</strong> and navigate to Pynomaly</li>
+<li>Tap the <strong>three dots menu</strong> (⋮)</li>
+<li>Select <strong>"Add to Home screen"</strong></li>
+<li>Customize the name and tap <strong>"Add"</strong></li>
+<li>Find Pynomaly in your app drawer or home screen</li>
+</ol>
+<hr />
+<h2 id="offline-capabilities">🔄 Offline Capabilities<a class="headerlink" href="#offline-capabilities" title="Permanent link">&para;</a></h2>
+<h3 id="what-works-offline">What Works Offline<a class="headerlink" href="#what-works-offline" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Available Offline:</strong>
+- View cached datasets and analysis results
+- Run local anomaly detection algorithms
+- Interactive data visualizations
+- Dashboard with statistical overviews
+- Export analysis results
+- User preferences and settings</p>
+<p>❌ <strong>Requires Internet:</strong>
+- Upload new datasets
+- Advanced ML algorithms (server-side)
+- User authentication
+- Real-time collaboration
+- External data sources</p>
+<h3 id="offline-algorithms">Offline Algorithms<a class="headerlink" href="#offline-algorithms" title="Permanent link">&para;</a></h3>
+<p>Pynomaly includes browser-based algorithms for offline analysis:</p>
+<h4 id="z-score-detection"><strong>Z-Score Detection</strong><a class="headerlink" href="#z-score-detection" title="Permanent link">&para;</a></h4>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// Statistical outlier detection using Z-scores</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nx">Parameters</span><span class="o">:</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="o">-</span><span class="w"> </span><span class="nx">threshold</span><span class="o">:</span><span class="w"> </span><span class="mf">3.0</span><span class="w"> </span><span class="p">(</span><span class="nx">standard</span><span class="w"> </span><span class="nx">deviations</span><span class="p">)</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="o">-</span><span class="w"> </span><span class="nx">Best</span><span class="w"> </span><span class="k">for</span><span class="o">:</span><span class="w"> </span><span class="nx">Normally</span><span class="w"> </span><span class="nx">distributed</span><span class="w"> </span><span class="nx">data</span>
+</span></code></pre></div>
+<h4 id="interquartile-range-iqr"><strong>Interquartile Range (IQR)</strong><a class="headerlink" href="#interquartile-range-iqr" title="Permanent link">&para;</a></h4>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// Outlier detection using IQR method</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nx">Parameters</span><span class="o">:</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="o">-</span><span class="w"> </span><span class="nx">factor</span><span class="o">:</span><span class="w"> </span><span class="mf">1.5</span><span class="w"> </span><span class="p">(</span><span class="nx">IQR</span><span class="w"> </span><span class="nx">multiplier</span><span class="p">)</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="o">-</span><span class="w"> </span><span class="nx">Best</span><span class="w"> </span><span class="k">for</span><span class="o">:</span><span class="w"> </span><span class="nx">Skewed</span><span class="w"> </span><span class="nx">distributions</span>
+</span></code></pre></div>
+<h4 id="simple-isolation-detection"><strong>Simple Isolation Detection</strong><a class="headerlink" href="#simple-isolation-detection" title="Permanent link">&para;</a></h4>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">// Basic isolation-based anomaly detection</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nx">Parameters</span><span class="o">:</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="o">-</span><span class="w"> </span><span class="nx">contamination</span><span class="o">:</span><span class="w"> </span><span class="mf">0.1</span><span class="w"> </span><span class="p">(</span><span class="nx">expected</span><span class="w"> </span><span class="nx">anomaly</span><span class="w"> </span><span class="nx">rate</span><span class="p">)</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="o">-</span><span class="w"> </span><span class="nx">Best</span><span class="w"> </span><span class="k">for</span><span class="o">:</span><span class="w"> </span><span class="nx">High</span><span class="o">-</span><span class="nx">dimensional</span><span class="w"> </span><span class="nx">data</span>
+</span></code></pre></div>
+<h4 id="median-absolute-deviation-mad"><strong>Median Absolute Deviation (MAD)</strong><a class="headerlink" href="#median-absolute-deviation-mad" title="Permanent link">&para;</a></h4>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">// Robust outlier detection using MAD</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nx">Parameters</span><span class="o">:</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="o">-</span><span class="w"> </span><span class="nx">threshold</span><span class="o">:</span><span class="w"> </span><span class="mf">3.5</span><span class="w"> </span><span class="p">(</span><span class="nx">modified</span><span class="w"> </span><span class="nx">Z</span><span class="o">-</span><span class="nx">score</span><span class="w"> </span><span class="nx">threshold</span><span class="p">)</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="o">-</span><span class="w"> </span><span class="nx">Best</span><span class="w"> </span><span class="k">for</span><span class="o">:</span><span class="w"> </span><span class="nx">Data</span><span class="w"> </span><span class="kd">with</span><span class="w"> </span><span class="nx">outliers</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">distribution</span>
+</span></code></pre></div>
+<hr />
+<h2 id="dashboard-features">📊 Dashboard Features<a class="headerlink" href="#dashboard-features" title="Permanent link">&para;</a></h2>
+<h3 id="overview-cards">Overview Cards<a class="headerlink" href="#overview-cards" title="Permanent link">&para;</a></h3>
+<p>The dashboard displays real-time statistics:</p>
+<ul>
+<li><strong>Total Datasets</strong> - Number of cached datasets available offline</li>
+<li><strong>Detections Run</strong> - Count of completed anomaly detections</li>
+<li><strong>Anomalies Found</strong> - Total anomalies detected across all analyses</li>
+<li><strong>Cached Data Size</strong> - Amount of data available offline</li>
+</ul>
+<h3 id="interactive-charts">Interactive Charts<a class="headerlink" href="#interactive-charts" title="Permanent link">&para;</a></h3>
+<h4 id="dataset-distribution"><strong>Dataset Distribution</strong><a class="headerlink" href="#dataset-distribution" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Pie chart showing dataset types and categories</li>
+<li>Click segments for detailed breakdowns</li>
+<li>Export as PNG or PDF</li>
+</ul>
+<h4 id="algorithm-performance"><strong>Algorithm Performance</strong><a class="headerlink" href="#algorithm-performance" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Bar chart comparing algorithm processing times</li>
+<li>Line overlay showing anomaly detection rates</li>
+<li>Performance trends over time</li>
+</ul>
+<h4 id="detection-timeline"><strong>Detection Timeline</strong><a class="headerlink" href="#detection-timeline" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Activity timeline showing detection frequency</li>
+<li>Anomaly discovery patterns</li>
+<li>Time-based analysis trends</li>
+</ul>
+<h3 id="real-time-analysis">Real-time Analysis<a class="headerlink" href="#real-time-analysis" title="Permanent link">&para;</a></h3>
+<p>Run anomaly detection directly in your browser:</p>
+<ol>
+<li><strong>Select Dataset</strong> - Choose from cached datasets</li>
+<li><strong>Choose Algorithm</strong> - Select appropriate detection method</li>
+<li><strong>Configure Parameters</strong> - Adjust algorithm settings</li>
+<li><strong>Run Analysis</strong> - Execute detection locally</li>
+<li><strong>View Results</strong> - Interactive visualization of findings</li>
+</ol>
+<hr />
+<h2 id="data-synchronization">🔄 Data Synchronization<a class="headerlink" href="#data-synchronization" title="Permanent link">&para;</a></h2>
+<h3 id="sync-strategies">Sync Strategies<a class="headerlink" href="#sync-strategies" title="Permanent link">&para;</a></h3>
+<p>Pynomaly offers three synchronization modes:</p>
+<h4 id="immediate-sync"><strong>Immediate Sync</strong><a class="headerlink" href="#immediate-sync" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Changes sync automatically when online</li>
+<li>Real-time data consistency</li>
+<li>Best for: Always-connected environments</li>
+</ul>
+<h4 id="smart-sync-default"><strong>Smart Sync</strong> (Default)<a class="headerlink" href="#smart-sync-default" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Intelligent batching of changes</li>
+<li>Optimized for mobile networks</li>
+<li>Background sync when idle</li>
+</ul>
+<h4 id="manual-sync"><strong>Manual Sync</strong><a class="headerlink" href="#manual-sync" title="Permanent link">&para;</a></h4>
+<ul>
+<li>User-controlled synchronization</li>
+<li>Perfect for bandwidth-limited scenarios</li>
+<li>Sync only when needed</li>
+</ul>
+<h3 id="conflict-resolution">Conflict Resolution<a class="headerlink" href="#conflict-resolution" title="Permanent link">&para;</a></h3>
+<p>When data conflicts occur, choose your resolution strategy:</p>
+<h4 id="server-wins"><strong>Server Wins</strong><a class="headerlink" href="#server-wins" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Accept server version</li>
+<li>Overwrite local changes</li>
+<li>Use when: Server data is authoritative</li>
+</ul>
+<h4 id="client-wins"><strong>Client Wins</strong><a class="headerlink" href="#client-wins" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Keep local version</li>
+<li>Overwrite server data</li>
+<li>Use when: Local changes are critical</li>
+</ul>
+<h4 id="manual-merge"><strong>Manual Merge</strong><a class="headerlink" href="#manual-merge" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Review both versions</li>
+<li>Create custom resolution</li>
+<li>Use when: Both versions have value</li>
+</ul>
+<h3 id="sync-status-indicators">Sync Status Indicators<a class="headerlink" href="#sync-status-indicators" title="Permanent link">&para;</a></h3>
+<p>Monitor synchronization status:</p>
+<ul>
+<li>🟢 <strong>Online</strong> - Connected and synced</li>
+<li>🟡 <strong>Pending</strong> - Changes waiting to sync</li>
+<li>🔴 <strong>Offline</strong> - No internet connection</li>
+<li>⚠️ <strong>Conflict</strong> - Requires resolution</li>
+</ul>
+<hr />
+<h2 id="data-visualization">📈 Data Visualization<a class="headerlink" href="#data-visualization" title="Permanent link">&para;</a></h2>
+<h3 id="chart-types">Chart Types<a class="headerlink" href="#chart-types" title="Permanent link">&para;</a></h3>
+<h4 id="distribution-analysis"><strong>Distribution Analysis</strong><a class="headerlink" href="#distribution-analysis" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Histograms</strong> - Data distribution patterns</li>
+<li><strong>Box Plots</strong> - Quartile and outlier visualization</li>
+<li><strong>Violin Plots</strong> - Distribution density curves</li>
+</ul>
+<h4 id="correlation-analysis"><strong>Correlation Analysis</strong><a class="headerlink" href="#correlation-analysis" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Heatmaps</strong> - Feature correlation matrices</li>
+<li><strong>Scatter Plots</strong> - Relationship exploration</li>
+<li><strong>Pair Plots</strong> - Multi-dimensional analysis</li>
+</ul>
+<h4 id="anomaly-visualization"><strong>Anomaly Visualization</strong><a class="headerlink" href="#anomaly-visualization" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Anomaly Scatter</strong> - Normal vs. anomalous points</li>
+<li><strong>Score Distribution</strong> - Anomaly score histograms</li>
+<li><strong>Time Series</strong> - Temporal anomaly patterns</li>
+</ul>
+<h3 id="interactive-features">Interactive Features<a class="headerlink" href="#interactive-features" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Zoom and Pan</strong> - Explore data in detail</li>
+<li><strong>Hover Tooltips</strong> - Detailed point information</li>
+<li><strong>Selection Tools</strong> - Highlight specific regions</li>
+<li><strong>Export Options</strong> - Save charts as images</li>
+</ul>
+<h3 id="customization">Customization<a class="headerlink" href="#customization" title="Permanent link">&para;</a></h3>
+<h4 id="chart-appearance"><strong>Chart Appearance</strong><a class="headerlink" href="#chart-appearance" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Color schemes and themes</li>
+<li>Axis labels and titles</li>
+<li>Legend positioning</li>
+<li>Grid and background options</li>
+</ul>
+<h4 id="data-filtering"><strong>Data Filtering</strong><a class="headerlink" href="#data-filtering" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Date range selection</li>
+<li>Value range filtering</li>
+<li>Category exclusion</li>
+<li>Sample size limits</li>
+</ul>
+<hr />
+<h2 id="offline-storage">💾 Offline Storage<a class="headerlink" href="#offline-storage" title="Permanent link">&para;</a></h2>
+<h3 id="storage-management">Storage Management<a class="headerlink" href="#storage-management" title="Permanent link">&para;</a></h3>
+<p>Pynomaly automatically manages offline storage:</p>
+<h4 id="data-types-cached"><strong>Data Types Cached</strong><a class="headerlink" href="#data-types-cached" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Datasets</strong> - Raw data and metadata</li>
+<li><strong>Analysis Results</strong> - Detection outcomes and scores</li>
+<li><strong>User Preferences</strong> - Settings and configurations</li>
+<li><strong>Visualization State</strong> - Chart configurations and views</li>
+</ul>
+<h4 id="storage-limits"><strong>Storage Limits</strong><a class="headerlink" href="#storage-limits" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Mobile Browsers</strong> - ~5-50 MB (varies by device)</li>
+<li><strong>Desktop Browsers</strong> - ~100-500 MB (varies by browser)</li>
+<li><strong>Automatic Cleanup</strong> - Removes old data when space is low</li>
+</ul>
+<h3 id="manual-storage-control">Manual Storage Control<a class="headerlink" href="#manual-storage-control" title="Permanent link">&para;</a></h3>
+<h4 id="clear-cache"><strong>Clear Cache</strong><a class="headerlink" href="#clear-cache" title="Permanent link">&para;</a></h4>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">// Clear specific data types</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nx">PWA</span><span class="p">.</span><span class="nx">clearCache</span><span class="p">(</span><span class="s1">&#39;datasets&#39;</span><span class="p">);</span><span class="w">  </span><span class="c1">// Clear dataset cache</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nx">PWA</span><span class="p">.</span><span class="nx">clearCache</span><span class="p">(</span><span class="s1">&#39;results&#39;</span><span class="p">);</span><span class="w">   </span><span class="c1">// Clear analysis results</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="nx">PWA</span><span class="p">.</span><span class="nx">clearCache</span><span class="p">();</span><span class="w">           </span><span class="c1">// Clear all cached data</span>
+</span></code></pre></div>
+<h4 id="storage-status"><strong>Storage Status</strong><a class="headerlink" href="#storage-status" title="Permanent link">&para;</a></h4>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1">// Check storage usage</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">PWA</span><span class="p">.</span><span class="nx">getStatus</span><span class="p">();</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Cache size: </span><span class="si">${</span><span class="nx">status</span><span class="p">.</span><span class="nx">cacheInfo</span><span class="p">.</span><span class="nx">totalSize</span><span class="si">}</span><span class="sb"> bytes`</span><span class="p">);</span>
+</span></code></pre></div>
+<hr />
+<h2 id="performance-optimization">⚡ Performance Optimization<a class="headerlink" href="#performance-optimization" title="Permanent link">&para;</a></h2>
+<h3 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h3>
+<h4 id="data-management"><strong>Data Management</strong><a class="headerlink" href="#data-management" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Limit Dataset Size</strong> - Keep datasets under 10MB for optimal performance</li>
+<li><strong>Regular Cleanup</strong> - Remove old analysis results periodically</li>
+<li><strong>Selective Caching</strong> - Only cache frequently used datasets</li>
+</ul>
+<h4 id="visualization-performance"><strong>Visualization Performance</strong><a class="headerlink" href="#visualization-performance" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Sample Large Datasets</strong> - Use data sampling for &gt;10,000 points</li>
+<li><strong>Optimize Chart Types</strong> - Choose appropriate visualizations</li>
+<li><strong>Debounce Interactions</strong> - Smooth user experience</li>
+</ul>
+<h4 id="browser-optimization"><strong>Browser Optimization</strong><a class="headerlink" href="#browser-optimization" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Close Unused Tabs</strong> - Free up memory for analysis</li>
+<li><strong>Regular Updates</strong> - Keep browser updated for performance</li>
+<li><strong>Hardware Acceleration</strong> - Enable GPU acceleration if available</li>
+</ul>
+<h3 id="memory-management">Memory Management<a class="headerlink" href="#memory-management" title="Permanent link">&para;</a></h3>
+<h4 id="monitoring-usage"><strong>Monitoring Usage</strong><a class="headerlink" href="#monitoring-usage" title="Permanent link">&para;</a></h4>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1">// Check memory usage</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">performance</span><span class="p">.</span><span class="nx">memory</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">used</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">performance</span><span class="p">.</span><span class="nx">memory</span><span class="p">.</span><span class="nx">usedJSHeapSize</span><span class="p">;</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">performance</span><span class="p">.</span><span class="nx">memory</span><span class="p">.</span><span class="nx">jsHeapSizeLimit</span><span class="p">;</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Memory: </span><span class="si">${</span><span class="nx">used</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">limit</span><span class="si">}</span><span class="sb"> bytes`</span><span class="p">);</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="p">}</span>
+</span></code></pre></div>
+<h4 id="optimization-tips"><strong>Optimization Tips</strong><a class="headerlink" href="#optimization-tips" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Close inactive visualizations</li>
+<li>Clear completed analysis results</li>
+<li>Restart app if memory usage is high</li>
+<li>Use simpler algorithms for large datasets</li>
+</ul>
+<hr />
+<h2 id="troubleshooting">🔧 Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h3>
+<h4 id="installation-problems"><strong>Installation Problems</strong><a class="headerlink" href="#installation-problems" title="Permanent link">&para;</a></h4>
+<p><strong>Problem</strong>: Install button not appearing
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Solution:
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>1. Ensure HTTPS connection
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>2. Check browser PWA support
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>3. Clear browser cache
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>4. Try incognito/private mode
+</span></code></pre></div></p>
+<p><strong>Problem</strong>: App won't install on iOS
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Solution:
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>1. Use Safari browser (not Chrome)
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>2. Ensure iOS 11.3+ version
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>3. Add to Home Screen manually
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>4. Check storage space availability
+</span></code></pre></div></p>
+<h4 id="sync-issues"><strong>Sync Issues</strong><a class="headerlink" href="#sync-issues" title="Permanent link">&para;</a></h4>
+<p><strong>Problem</strong>: Data not syncing
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>Solution:
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>1. Check internet connection
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>2. Verify authentication status
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>3. Clear sync queue manually
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>4. Restart application
+</span></code></pre></div></p>
+<p><strong>Problem</strong>: Sync conflicts not resolving
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>Solution:
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>1. Choose manual resolution
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>2. Review conflict details
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>3. Select appropriate strategy
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>4. Force sync if needed
+</span></code></pre></div></p>
+<h4 id="performance-issues"><strong>Performance Issues</strong><a class="headerlink" href="#performance-issues" title="Permanent link">&para;</a></h4>
+<p><strong>Problem</strong>: Slow analysis performance
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>Solution:
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>1. Reduce dataset size
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>2. Use simpler algorithms
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>3. Close other applications
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>4. Clear browser cache
+</span></code></pre></div></p>
+<p><strong>Problem</strong>: Charts not rendering
+<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>Solution:
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>1. Check browser compatibility
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>2. Enable hardware acceleration
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>3. Reduce chart complexity
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>4. Try different chart type
+</span></code></pre></div></p>
+<h3 id="error-messages">Error Messages<a class="headerlink" href="#error-messages" title="Permanent link">&para;</a></h3>
+<h4 id="storage-errors"><strong>Storage Errors</strong><a class="headerlink" href="#storage-errors" title="Permanent link">&para;</a></h4>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>&quot;Insufficient storage space&quot;
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>→ Clear cached data or free device storage
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>&quot;Storage quota exceeded&quot;
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>→ Reduce dataset sizes or clear old results
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>&quot;Unable to save data&quot;
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>→ Check browser permissions and storage
+</span></code></pre></div>
+<h4 id="network-errors"><strong>Network Errors</strong><a class="headerlink" href="#network-errors" title="Permanent link">&para;</a></h4>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>&quot;Sync failed&quot;
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>→ Check internet connection and retry
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>&quot;Authentication expired&quot;
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>→ Re-login and restart sync
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>&quot;Server unavailable&quot;
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>→ Try again later or contact admin
+</span></code></pre></div>
+<h3 id="recovery-procedures">Recovery Procedures<a class="headerlink" href="#recovery-procedures" title="Permanent link">&para;</a></h3>
+<h4 id="reset-application-state"><strong>Reset Application State</strong><a class="headerlink" href="#reset-application-state" title="Permanent link">&para;</a></h4>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1">// Complete reset (use with caution)</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="nx">PWA</span><span class="p">.</span><span class="nx">clearCache</span><span class="p">();</span><span class="w">           </span><span class="c1">// Clear all data</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="nx">localStorage</span><span class="p">.</span><span class="nx">clear</span><span class="p">();</span><span class="w">       </span><span class="c1">// Clear preferences</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="nx">location</span><span class="p">.</span><span class="nx">reload</span><span class="p">();</span><span class="w">          </span><span class="c1">// Restart app</span>
+</span></code></pre></div>
+<h4 id="backup-important-data"><strong>Backup Important Data</strong><a class="headerlink" href="#backup-important-data" title="Permanent link">&para;</a></h4>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1">// Export critical analysis results</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">OfflineDetector</span><span class="p">.</span><span class="nx">getDetectionHistory</span><span class="p">();</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">backup</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">results</span><span class="p">);</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1">// Save backup externally</span>
+</span></code></pre></div>
+<hr />
+<h2 id="security-privacy">🔒 Security &amp; Privacy<a class="headerlink" href="#security-privacy" title="Permanent link">&para;</a></h2>
+<h3 id="data-protection">Data Protection<a class="headerlink" href="#data-protection" title="Permanent link">&para;</a></h3>
+<h4 id="local-storage-security"><strong>Local Storage Security</strong><a class="headerlink" href="#local-storage-security" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Encrypted Storage</strong> - Sensitive data encrypted at rest</li>
+<li><strong>Session Management</strong> - Automatic logout on inactivity</li>
+<li><strong>Secure Transmission</strong> - HTTPS for all network communication</li>
+</ul>
+<h4 id="privacy-controls"><strong>Privacy Controls</strong><a class="headerlink" href="#privacy-controls" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Local Processing</strong> - Analysis runs in your browser</li>
+<li><strong>Data Retention</strong> - Configurable data expiration</li>
+<li><strong>User Control</strong> - Full control over cached data</li>
+</ul>
+<h3 id="best-practices_1">Best Practices<a class="headerlink" href="#best-practices_1" title="Permanent link">&para;</a></h3>
+<h4 id="secure-usage"><strong>Secure Usage</strong><a class="headerlink" href="#secure-usage" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Always log out on shared devices</li>
+<li>Regular cache cleanup on public computers</li>
+<li>Use device screen locks for mobile installations</li>
+<li>Keep browsers updated for security patches</li>
+</ul>
+<h4 id="corporate-environments"><strong>Corporate Environments</strong><a class="headerlink" href="#corporate-environments" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Verify PWA policies with IT department</li>
+<li>Use managed browser deployments</li>
+<li>Configure appropriate data retention policies</li>
+<li>Monitor storage usage and compliance</li>
+</ul>
+<hr />
+<h2 id="advanced-features">🚀 Advanced Features<a class="headerlink" href="#advanced-features" title="Permanent link">&para;</a></h2>
+<h3 id="custom-algorithms">Custom Algorithms<a class="headerlink" href="#custom-algorithms" title="Permanent link">&para;</a></h3>
+<p>Extend offline capabilities with custom algorithms:</p>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1">// Register custom algorithm</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="nx">OfflineDetector</span><span class="p">.</span><span class="nx">registerAlgorithm</span><span class="p">(</span><span class="s1">&#39;custom_zscore&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Custom Z-Score&#39;</span><span class="p">,</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">  </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Modified Z-score with custom parameters&#39;</span><span class="p">,</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">  </span><span class="nx">parameters</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">threshold</span><span class="o">:</span><span class="w"> </span><span class="mf">2.5</span><span class="p">,</span><span class="w"> </span><span class="nb">window</span><span class="o">:</span><span class="w"> </span><span class="mf">100</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w">  </span><span class="nx">detect</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">config</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="w">    </span><span class="c1">// Custom algorithm implementation</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">anomalies</span><span class="p">,</span><span class="w"> </span><span class="nx">scores</span><span class="p">,</span><span class="w"> </span><span class="nx">statistics</span><span class="w"> </span><span class="p">};</span>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="integration-apis">Integration APIs<a class="headerlink" href="#integration-apis" title="Permanent link">&para;</a></h3>
+<h4 id="external-tool-integration"><strong>External Tool Integration</strong><a class="headerlink" href="#external-tool-integration" title="Permanent link">&para;</a></h4>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1">// Export data for external tools</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">OfflineDetector</span><span class="p">.</span><span class="nx">getDetectionHistory</span><span class="p">();</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">csv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">convertToCSV</span><span class="p">(</span><span class="nx">results</span><span class="p">);</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="nx">downloadFile</span><span class="p">(</span><span class="nx">csv</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;anomaly_results.csv&#39;</span><span class="p">);</span>
+</span></code></pre></div>
+<h4 id="custom-visualizations"><strong>Custom Visualizations</strong><a class="headerlink" href="#custom-visualizations" title="Permanent link">&para;</a></h4>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1">// Create custom chart types</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">customChart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">echarts</span><span class="p">.</span><span class="nx">init</span><span class="p">(</span><span class="nx">container</span><span class="p">);</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="nx">customChart</span><span class="p">.</span><span class="nx">setOption</span><span class="p">({</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">  </span><span class="c1">// Custom ECharts configuration</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">  </span><span class="nx">series</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;custom&#39;</span><span class="p">,</span>
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="w">    </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="nx">anomalyData</span><span class="p">,</span>
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="w">    </span><span class="nx">renderItem</span><span class="o">:</span><span class="w"> </span><span class="nx">customRenderFunction</span>
+</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a><span class="w">  </span><span class="p">}]</span>
+</span><span id="__span-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="automation">Automation<a class="headerlink" href="#automation" title="Permanent link">&para;</a></h3>
+<h4 id="scheduled-analysis"><strong>Scheduled Analysis</strong><a class="headerlink" href="#scheduled-analysis" title="Permanent link">&para;</a></h4>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1">// Set up recurring analysis</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">scheduler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">AnalysisScheduler</span><span class="p">();</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="nx">scheduler</span><span class="p">.</span><span class="nx">schedule</span><span class="p">(</span><span class="s1">&#39;daily&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">  </span><span class="nx">dataset</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;production_data&#39;</span><span class="p">,</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="w">  </span><span class="nx">algorithm</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;isolation&#39;</span><span class="p">,</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="w">  </span><span class="nx">notify</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="p">});</span>
+</span></code></pre></div>
+<h4 id="alert-integration"><strong>Alert Integration</strong><a class="headerlink" href="#alert-integration" title="Permanent link">&para;</a></h4>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1">// Configure alert thresholds</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="nx">PWAManager</span><span class="p">.</span><span class="nx">setAlertThreshold</span><span class="p">({</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">  </span><span class="nx">anomalyRate</span><span class="o">:</span><span class="w"> </span><span class="mf">0.15</span><span class="p">,</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="w">  </span><span class="nx">scoreThreshold</span><span class="o">:</span><span class="w"> </span><span class="mf">0.8</span><span class="p">,</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="w">  </span><span class="nx">notification</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="p">});</span>
+</span></code></pre></div>
+<hr />
+<h2 id="api-reference">📚 API Reference<a class="headerlink" href="#api-reference" title="Permanent link">&para;</a></h2>
+<h3 id="pwa-manager-api">PWA Manager API<a class="headerlink" href="#pwa-manager-api" title="Permanent link">&para;</a></h3>
+<h4 id="installation-management"><strong>Installation Management</strong><a class="headerlink" href="#installation-management" title="Permanent link">&para;</a></h4>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1">// Check installation status</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">isInstalled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">PWAManager</span><span class="p">.</span><span class="nx">isAppInstalled</span><span class="p">();</span>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="c1">// Trigger install prompt</span>
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="k">await</span><span class="w"> </span><span class="nx">PWAManager</span><span class="p">.</span><span class="nx">installPWA</span><span class="p">();</span>
+</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>
+</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="c1">// Get app status</span>
+</span><span id="__span-22-8"><a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a><span class="kd">const</span><span class="w"> </span><span class="nx">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">PWAManager</span><span class="p">.</span><span class="nx">getAppStatus</span><span class="p">();</span>
+</span></code></pre></div>
+<h4 id="sync-management"><strong>Sync Management</strong><a class="headerlink" href="#sync-management" title="Permanent link">&para;</a></h4>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="c1">// Manual sync trigger</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="k">await</span><span class="w"> </span><span class="nx">SyncManager</span><span class="p">.</span><span class="nx">forceSyncAll</span><span class="p">();</span>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="c1">// Configure sync strategy</span>
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="nx">SyncManager</span><span class="p">.</span><span class="nx">setSyncStrategy</span><span class="p">(</span><span class="s1">&#39;smart&#39;</span><span class="p">);</span>
+</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>
+</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a><span class="c1">// Get sync status</span>
+</span><span id="__span-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a><span class="kd">const</span><span class="w"> </span><span class="nx">syncStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">SyncManager</span><span class="p">.</span><span class="nx">getSyncStatus</span><span class="p">();</span>
+</span></code></pre></div>
+<h3 id="offline-detector-api">Offline Detector API<a class="headerlink" href="#offline-detector-api" title="Permanent link">&para;</a></h3>
+<h4 id="algorithm-management"><strong>Algorithm Management</strong><a class="headerlink" href="#algorithm-management" title="Permanent link">&para;</a></h4>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="c1">// Get available algorithms</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">algorithms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">OfflineDetector</span><span class="p">.</span><span class="nx">getAlgorithms</span><span class="p">();</span>
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="c1">// Run detection</span>
+</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">OfflineDetector</span><span class="p">.</span><span class="nx">detectAnomalies</span><span class="p">(</span>
+</span><span id="__span-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a><span class="w">  </span><span class="nx">datasetId</span><span class="p">,</span>
+</span><span id="__span-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="w">  </span><span class="nx">algorithmId</span><span class="p">,</span>
+</span><span id="__span-24-8"><a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a><span class="w">  </span><span class="nx">parameters</span>
+</span><span id="__span-24-9"><a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a><span class="p">);</span>
+</span><span id="__span-24-10"><a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>
+</span><span id="__span-24-11"><a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a><span class="c1">// Get detection history</span>
+</span><span id="__span-24-12"><a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a><span class="kd">const</span><span class="w"> </span><span class="nx">history</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">OfflineDetector</span><span class="p">.</span><span class="nx">getDetectionHistory</span><span class="p">();</span>
+</span></code></pre></div>
+<h3 id="visualization-api">Visualization API<a class="headerlink" href="#visualization-api" title="Permanent link">&para;</a></h3>
+<h4 id="chart-management"><strong>Chart Management</strong><a class="headerlink" href="#chart-management" title="Permanent link">&para;</a></h4>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="c1">// Create visualization</span>
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">visualizer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">OfflineVisualizer</span><span class="p">();</span>
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="k">await</span><span class="w"> </span><span class="nx">visualizer</span><span class="p">.</span><span class="nx">selectDataset</span><span class="p">(</span><span class="nx">datasetId</span><span class="p">);</span>
+</span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="k">await</span><span class="w"> </span><span class="nx">visualizer</span><span class="p">.</span><span class="nx">renderDatasetVisualization</span><span class="p">();</span>
+</span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>
+</span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="c1">// Export visualization</span>
+</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a><span class="nx">visualizer</span><span class="p">.</span><span class="nx">exportVisualization</span><span class="p">(</span><span class="s1">&#39;png&#39;</span><span class="p">);</span>
+</span></code></pre></div>
+<hr />
+<h2 id="best-practices_2">🎯 Best Practices<a class="headerlink" href="#best-practices_2" title="Permanent link">&para;</a></h2>
+<h3 id="performance">Performance<a class="headerlink" href="#performance" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Keep datasets under 10MB for optimal performance</li>
+<li>Use data sampling for large visualizations</li>
+<li>Clear old analysis results regularly</li>
+<li>Monitor memory usage during long sessions</li>
+</ul>
+<h3 id="user-experience">User Experience<a class="headerlink" href="#user-experience" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Provide clear offline/online status indicators</li>
+<li>Use progressive enhancement for optional features</li>
+<li>Implement graceful degradation for unsupported browsers</li>
+<li>Optimize for both desktop and mobile usage</li>
+</ul>
+<h3 id="data-management_1">Data Management<a class="headerlink" href="#data-management_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Implement data retention policies</li>
+<li>Regular cache cleanup and optimization</li>
+<li>Backup critical analysis results</li>
+<li>Monitor storage quota usage</li>
+</ul>
+<h3 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Encrypt sensitive cached data</li>
+<li>Implement session timeout policies</li>
+<li>Regular security updates and patches</li>
+<li>Audit data access and usage patterns</li>
+</ul>
+<hr />
+<h2 id="related-documentation">🔗 Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong><a href="../../getting-started/installation/">Installation Guide</a></strong> - Basic setup and installation</li>
+<li><strong><a href="./basic-usage/dashboard.md">User Interface Guide</a></strong> - Dashboard and interface usage</li>
+<li><strong><a href="../developer-guides/api-integration/">API Integration</a></strong> - Development and integration</li>
+<li><strong><a href="../deployment/">Deployment Guide</a></strong> - Production deployment and configuration</li>
+</ul>
+<hr />
+<p><em>Need help? Check our <a href="./troubleshooting/">troubleshooting guide</a> or <a href="https://github.com/your-org/pynomaly/discussions">contact support</a>.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/pynomaly/pynomaly" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/pynomaly/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/pynomaly" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+        <script src="../../javascripts/extra.js"></script>
+      
+    
+  </body>
+</html>

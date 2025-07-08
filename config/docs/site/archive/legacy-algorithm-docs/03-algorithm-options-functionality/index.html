@@ -1,0 +1,2440 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="State-of-the-art Python anomaly detection platform">
+      
+      
+        <meta name="author" content="Pynomaly Team">
+      
+      
+        <link rel="canonical" href="https://pynomaly.readthedocs.io/archive/legacy-algorithm-docs/03-algorithm-options-functionality/">
+      
+      
+      
+      
+      <link rel="icon" href="../../../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>Pynomaly Algorithm Options and Functionality Guide - Pynomaly Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pynomaly-algorithm-options-and-functionality-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Pynomaly Documentation" class="md-header__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../../../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pynomaly Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Pynomaly Algorithm Options and Functionality Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Pynomaly Documentation" class="md-nav__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../../../assets/logo.png" alt="logo">
+
+    </a>
+    Pynomaly Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Start
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/FEATURE_INSTALLATION_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Feature Installation Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Table of Contents
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#algorithm-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      Algorithm Categories
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Algorithm Categories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview-by-category" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview by Category
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statistical-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Statistical Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Statistical Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-isolation-forest" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Isolation Forest
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-local-outlier-factor-lof" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Local Outlier Factor (LOF)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-one-class-svm" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. One-Class SVM
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-elliptic-envelope" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Elliptic Envelope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-z-score-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Z-Score Detection
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-interquartile-range-iqr" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Interquartile Range (IQR)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-modified-z-score" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Modified Z-Score
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-grubbs-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Grubbs' Test
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#machine-learning-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Machine Learning Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Machine Learning Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-random-forest-anomaly-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Random Forest Anomaly Detection
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-gradient-boosting-anomaly-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Gradient Boosting Anomaly Detection
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-k-nearest-neighbors-k-nn" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. k-Nearest Neighbors (k-NN)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-support-vector-regression-svr" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Support Vector Regression (SVR)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-principal-component-analysis-pca" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Principal Component Analysis (PCA)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-independent-component-analysis-ica" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Independent Component Analysis (ICA)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-factor-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Factor Analysis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-minimum-covariance-determinant-mcd" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Minimum Covariance Determinant (MCD)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deep-learning-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deep Learning Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deep Learning Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-autoencoder" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. AutoEncoder
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-variational-autoencoder-vae" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Variational AutoEncoder (VAE)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-long-short-term-memory-lstm" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Long Short-Term Memory (LSTM)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-convolutional-neural-network-cnn" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Convolutional Neural Network (CNN)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-transformer" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Transformer
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#specialized-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Specialized Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Specialized Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-graph-neural-networks-gnn" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Graph Neural Networks (GNN)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-time-series-specific-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Time Series Specific Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Time Series Specific Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arima-autoregressive-integrated-moving-average" class="md-nav__link">
+    <span class="md-ellipsis">
+      ARIMA (AutoRegressive Integrated Moving Average)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prophet" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prophet
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#seasonal-decomposition" class="md-nav__link">
+    <span class="md-ellipsis">
+      Seasonal Decomposition
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-text-anomaly-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Text Anomaly Detection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Text Anomaly Detection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tf-idf-with-clustering" class="md-nav__link">
+    <span class="md-ellipsis">
+      TF-IDF with Clustering
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#word-embeddings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Word Embeddings
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ensemble-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ensemble Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ensemble Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-voting-ensemble" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Voting Ensemble
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-stacking-ensemble" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Stacking Ensemble
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-bagging-ensemble" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Bagging Ensemble
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-adaptive-ensemble" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Adaptive Ensemble
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-hierarchical-ensemble" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Hierarchical Ensemble
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Comparison
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Comparison">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#computational-complexity" class="md-nav__link">
+    <span class="md-ellipsis">
+      Computational Complexity
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accuracy-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      Accuracy Comparison
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resource Requirements
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parameter-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameter Tuning
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameter Tuning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#general-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      General Guidelines
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#algorithm-specific-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      Algorithm-Specific Tips
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Algorithm-Specific Tips">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#isolation-forest" class="md-nav__link">
+    <span class="md-ellipsis">
+      Isolation Forest
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lof" class="md-nav__link">
+    <span class="md-ellipsis">
+      LOF
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deep-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deep Learning
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ensemble-methods_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ensemble Methods
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hyperparameter-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hyperparameter Optimization
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="pynomaly-algorithm-options-and-functionality-guide">Pynomaly Algorithm Options and Functionality Guide<a class="headerlink" href="#pynomaly-algorithm-options-and-functionality-guide" title="Permanent link">&para;</a></h1>
+<p>🍞 <strong>Breadcrumb:</strong> 🏠 <a href="../index.md">Home</a> &gt; 📁 Archive</p>
+<hr />
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Pynomaly provides a comprehensive suite of anomaly detection algorithms across multiple categories. This guide details all available algorithms, their functionality, parameters, use cases, and performance characteristics.</p>
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#algorithm-categories">Algorithm Categories</a></li>
+<li><a href="#statistical-methods">Statistical Methods</a></li>
+<li><a href="#machine-learning-methods">Machine Learning Methods</a></li>
+<li><a href="#deep-learning-methods">Deep Learning Methods</a></li>
+<li><a href="#specialized-methods">Specialized Methods</a></li>
+<li><a href="#ensemble-methods">Ensemble Methods</a></li>
+<li><a href="#performance-comparison">Performance Comparison</a></li>
+<li><a href="#parameter-tuning">Parameter Tuning</a></li>
+</ol>
+<h2 id="algorithm-categories">Algorithm Categories<a class="headerlink" href="#algorithm-categories" title="Permanent link">&para;</a></h2>
+<h3 id="overview-by-category">Overview by Category<a class="headerlink" href="#overview-by-category" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Count</th>
+<th>Best For</th>
+<th>Typical Use Cases</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Statistical</td>
+<td>8</td>
+<td>Well-understood data patterns</td>
+<td>Baseline detection, interpretable results</td>
+</tr>
+<tr>
+<td>Machine Learning</td>
+<td>12</td>
+<td>General-purpose detection</td>
+<td>Production systems, balanced performance</td>
+</tr>
+<tr>
+<td>Deep Learning</td>
+<td>10</td>
+<td>Complex patterns</td>
+<td>High-dimensional data, feature learning</td>
+</tr>
+<tr>
+<td>Specialized</td>
+<td>15</td>
+<td>Domain-specific</td>
+<td>Time series, graphs, text, images</td>
+</tr>
+<tr>
+<td>Ensemble</td>
+<td>5</td>
+<td>Maximum accuracy</td>
+<td>Critical applications, robust detection</td>
+</tr>
+</tbody>
+</table>
+<h2 id="statistical-methods">Statistical Methods<a class="headerlink" href="#statistical-methods" title="Permanent link">&para;</a></h2>
+<h3 id="1-isolation-forest">1. Isolation Forest<a class="headerlink" href="#1-isolation-forest" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Tree-based algorithm that isolates anomalies using random feature splits.</p>
+<p><strong>Algorithm Details</strong>:
+- Creates isolation trees by randomly selecting features and split values
+- Anomalies require fewer splits to isolate (shorter path lengths)
+- Efficient for high-dimensional data
+- No assumptions about data distribution</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="s2">&quot;n_estimators&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>        <span class="c1"># Number of trees (50-500)</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="s2">&quot;max_samples&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>      <span class="c1"># Samples per tree (&quot;auto&quot;, int, float)</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>       <span class="c1"># Expected anomaly proportion (0.0-0.5)</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="s2">&quot;max_features&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>        <span class="c1"># Features per tree (0.0-1.0)</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="s2">&quot;bootstrap&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>         <span class="c1"># Bootstrap sampling</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>         <span class="c1"># Reproducibility</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="s2">&quot;warm_start&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>        <span class="c1"># Incremental training</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="s2">&quot;n_jobs&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span>               <span class="c1"># Parallel processing</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- General-purpose anomaly detection
+- High-dimensional datasets
+- Real-time detection systems
+- Baseline comparisons</p>
+<p><strong>Strengths</strong>:
+- Fast training and prediction
+- Handles high dimensions well
+- No need for labeled data
+- Memory efficient</p>
+<p><strong>Limitations</strong>:
+- May struggle with normal data in high dimensions
+- Sensitive to feature scaling in some cases
+- Less interpretable than some methods</p>
+<p><strong>Performance Characteristics</strong>:
+- Training time: O(n log n)
+- Prediction time: O(log n)
+- Memory usage: Low to moderate
+- Scalability: Excellent</p>
+<h3 id="2-local-outlier-factor-lof">2. Local Outlier Factor (LOF)<a class="headerlink" href="#2-local-outlier-factor-lof" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Density-based algorithm that identifies outliers based on local density deviation.</p>
+<p><strong>Algorithm Details</strong>:
+- Calculates local density for each point
+- Compares point density to its neighbors
+- High LOF score indicates anomaly
+- Based on k-nearest neighbors</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="s2">&quot;n_neighbors&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>          <span class="c1"># Number of neighbors (5-50)</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="s2">&quot;algorithm&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>        <span class="c1"># KNN algorithm (&quot;auto&quot;, &quot;ball_tree&quot;, &quot;kd_tree&quot;, &quot;brute&quot;)</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="s2">&quot;leaf_size&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>           <span class="c1"># Leaf size for tree algorithms</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="s2">&quot;metric&quot;</span><span class="p">:</span> <span class="s2">&quot;minkowski&quot;</span><span class="p">,</span>      <span class="c1"># Distance metric</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>                    <span class="c1"># Power parameter for Minkowski</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="s2">&quot;metric_params&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>      <span class="c1"># Additional metric parameters</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>       <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="s2">&quot;novelty&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>          <span class="c1"># Novelty detection mode</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="s2">&quot;n_jobs&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span>               <span class="c1"># Parallel processing</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- Datasets with varying density
+- Cluster-based anomalies
+- Local pattern analysis
+- Spatial data analysis</p>
+<p><strong>Strengths</strong>:
+- Adapts to local data density
+- Good for clusters of different densities
+- Intuitive interpretation
+- No assumptions about data distribution</p>
+<p><strong>Limitations</strong>:
+- Sensitive to parameter choices
+- Computationally expensive for large datasets
+- Curse of dimensionality
+- Memory intensive</p>
+<p><strong>Performance Characteristics</strong>:
+- Training time: O(n²)
+- Prediction time: O(kn)
+- Memory usage: High
+- Scalability: Poor for large datasets</p>
+<h3 id="3-one-class-svm">3. One-Class SVM<a class="headerlink" href="#3-one-class-svm" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Support Vector Machine adapted for anomaly detection using a single class.</p>
+<p><strong>Algorithm Details</strong>:
+- Maps data to high-dimensional space
+- Finds hyperplane separating normal data from origin
+- Uses kernel trick for non-linear boundaries
+- Robust to outliers during training</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="s2">&quot;kernel&quot;</span><span class="p">:</span> <span class="s2">&quot;rbf&quot;</span><span class="p">,</span>           <span class="c1"># Kernel type (&quot;linear&quot;, &quot;poly&quot;, &quot;rbf&quot;, &quot;sigmoid&quot;)</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="s2">&quot;degree&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>               <span class="c1"># Polynomial kernel degree</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="s2">&quot;scale&quot;</span><span class="p">,</span>          <span class="c1"># Kernel coefficient (&quot;scale&quot;, &quot;auto&quot;, float)</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="s2">&quot;coef0&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>             <span class="c1"># Independent term for poly/sigmoid</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="s2">&quot;tol&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>              <span class="c1"># Tolerance for stopping</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="s2">&quot;nu&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>                <span class="c1"># Upper bound on training errors (0.0-1.0)</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="s2">&quot;shrinking&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>         <span class="c1"># Use shrinking heuristic</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="s2">&quot;cache_size&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>         <span class="c1"># Kernel cache size (MB)</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>          <span class="c1"># Verbose output</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    <span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>           <span class="c1"># Max iterations (-1 for no limit)</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="mi">42</span>         <span class="c1"># Reproducibility</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- Non-linear decision boundaries
+- Robust anomaly detection
+- Small to medium datasets
+- Quality control applications</p>
+<p><strong>Strengths</strong>:
+- Handles non-linear patterns well
+- Robust to outliers
+- Strong theoretical foundation
+- Effective in high dimensions</p>
+<p><strong>Limitations</strong>:
+- Sensitive to parameter tuning
+- Computationally expensive
+- Memory intensive
+- Difficult to interpret</p>
+<p><strong>Performance Characteristics</strong>:
+- Training time: O(n²) to O(n³)
+- Prediction time: O(sv × d)
+- Memory usage: High
+- Scalability: Poor for large datasets</p>
+<h3 id="4-elliptic-envelope">4. Elliptic Envelope<a class="headerlink" href="#4-elliptic-envelope" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Assumes data follows multivariate Gaussian distribution and detects outliers.</p>
+<p><strong>Algorithm Details</strong>:
+- Fits robust covariance estimate
+- Uses Mahalanobis distance for outlier detection
+- Assumes elliptical data distribution
+- Robust to outliers in covariance estimation</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="s2">&quot;store_precision&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>    <span class="c1"># Store precision matrix</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="s2">&quot;assume_centered&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>   <span class="c1"># Assume data is centered</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="s2">&quot;support_fraction&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>   <span class="c1"># Proportion of points for covariance (0.0-1.0)</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>       <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="mi">42</span>         <span class="c1"># Reproducibility</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- Gaussian-distributed data
+- Multivariate outlier detection
+- Statistical quality control
+- Financial fraud detection</p>
+<p><strong>Strengths</strong>:
+- Fast computation
+- Strong statistical foundation
+- Interpretable results
+- Good for Gaussian data</p>
+<p><strong>Limitations</strong>:
+- Assumes Gaussian distribution
+- Poor performance on non-Gaussian data
+- Sensitive to high dimensions
+- Limited to elliptical boundaries</p>
+<p><strong>Performance Characteristics</strong>:
+- Training time: O(n × d²)
+- Prediction time: O(d²)
+- Memory usage: Low
+- Scalability: Good</p>
+<h3 id="5-z-score-detection">5. Z-Score Detection<a class="headerlink" href="#5-z-score-detection" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Statistical method based on standard deviations from the mean.</p>
+<p><strong>Algorithm Details</strong>:
+- Calculates z-score for each feature
+- Flags points beyond threshold (typically 2-3 standard deviations)
+- Assumes normal distribution
+- Simple and interpretable</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>          <span class="c1"># Z-score threshold (1.0-5.0)</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;univariate&quot;</span><span class="p">,</span>    <span class="c1"># Detection method (&quot;univariate&quot;, &quot;multivariate&quot;)</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>      <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="s2">&quot;normalize&quot;</span><span class="p">:</span> <span class="kc">True</span>          <span class="c1"># Normalize features</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- Simple anomaly detection
+- Normally distributed features
+- Quick screening
+- Baseline comparisons</p>
+<p><strong>Strengths</strong>:
+- Extremely fast
+- Highly interpretable
+- Simple implementation
+- No training required</p>
+<p><strong>Limitations</strong>:
+- Assumes normal distribution
+- Poor for multivariate anomalies
+- Sensitive to outliers in training
+- Limited to simple patterns</p>
+<h3 id="6-interquartile-range-iqr">6. Interquartile Range (IQR)<a class="headerlink" href="#6-interquartile-range-iqr" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Non-parametric method based on quartile ranges.</p>
+<p><strong>Algorithm Details</strong>:
+- Calculates Q1 (25th percentile) and Q3 (75th percentile)
+- Defines outliers as points beyond Q1 - 1.5×IQR or Q3 + 1.5×IQR
+- Robust to distribution assumptions
+- Standard box-plot approach</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="s2">&quot;factor&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>             <span class="c1"># IQR multiplication factor (1.0-3.0)</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;tukey&quot;</span><span class="p">,</span>         <span class="c1"># IQR method (&quot;tukey&quot;, &quot;modified&quot;)</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>      <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="s2">&quot;feature_wise&quot;</span><span class="p">:</span> <span class="kc">True</span>       <span class="c1"># Apply per feature vs. globally</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- Exploratory data analysis
+- Robust outlier detection
+- Non-parametric scenarios
+- Quick data screening</p>
+<p><strong>Strengths</strong>:
+- Distribution-free
+- Robust to outliers
+- Simple interpretation
+- Fast computation</p>
+<p><strong>Limitations</strong>:
+- Only considers marginal distributions
+- May miss multivariate patterns
+- Fixed threshold approach
+- Limited sophistication</p>
+<h3 id="7-modified-z-score">7. Modified Z-Score<a class="headerlink" href="#7-modified-z-score" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Robust version of Z-score using median absolute deviation.</p>
+<p><strong>Algorithm Details</strong>:
+- Uses median instead of mean
+- Uses MAD (Median Absolute Deviation) instead of standard deviation
+- More robust to outliers than standard Z-score
+- Better for skewed distributions</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">3.5</span><span class="p">,</span>          <span class="c1"># Modified Z-score threshold</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>      <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="s2">&quot;consistency_correction&quot;</span><span class="p">:</span> <span class="kc">True</span>  <span class="c1"># Apply consistency correction</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- Skewed distributions
+- Robust outlier detection
+- Noisy data
+- Univariate screening</p>
+<p><strong>Strengths</strong>:
+- Robust to outliers
+- Works with skewed data
+- Simple interpretation
+- Fast computation</p>
+<p><strong>Limitations</strong>:
+- Univariate approach
+- Limited pattern detection
+- May miss subtle anomalies
+- Fixed threshold</p>
+<h3 id="8-grubbs-test">8. Grubbs' Test<a class="headerlink" href="#8-grubbs-test" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Statistical test for outliers in univariate normally distributed data.</p>
+<p><strong>Algorithm Details</strong>:
+- Tests if extreme values are outliers
+- Uses t-distribution for hypothesis testing
+- Iteratively removes outliers
+- Assumes normal distribution</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>             <span class="c1"># Significance level (0.01-0.1)</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="s2">&quot;two_sided&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>         <span class="c1"># Two-sided test</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="s2">&quot;max_iterations&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>      <span class="c1"># Maximum iterations</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span>       <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- Normally distributed data
+- Statistical quality control
+- Single feature analysis
+- Hypothesis testing</p>
+<p><strong>Strengths</strong>:
+- Strong statistical foundation
+- Controlled false positive rate
+- Interpretable p-values
+- Suitable for small samples</p>
+<p><strong>Limitations</strong>:
+- Assumes normal distribution
+- Univariate only
+- Limited to extreme outliers
+- May miss multiple outliers</p>
+<h2 id="machine-learning-methods">Machine Learning Methods<a class="headerlink" href="#machine-learning-methods" title="Permanent link">&para;</a></h2>
+<h3 id="1-random-forest-anomaly-detection">1. Random Forest Anomaly Detection<a class="headerlink" href="#1-random-forest-anomaly-detection" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Ensemble of decision trees adapted for anomaly detection.</p>
+<p><strong>Algorithm Details</strong>:
+- Builds multiple decision trees
+- Calculates anomaly scores based on path lengths
+- Combines predictions from all trees
+- Handles mixed data types</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="s2">&quot;n_estimators&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>        <span class="c1"># Number of trees (50-500)</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="s2">&quot;max_depth&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>          <span class="c1"># Maximum tree depth</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="s2">&quot;min_samples_split&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>     <span class="c1"># Minimum samples to split</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="s2">&quot;min_samples_leaf&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>      <span class="c1"># Minimum samples per leaf</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    <span class="s2">&quot;max_features&quot;</span><span class="p">:</span> <span class="s2">&quot;sqrt&quot;</span><span class="p">,</span>     <span class="c1"># Features per tree</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    <span class="s2">&quot;bootstrap&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>          <span class="c1"># Bootstrap sampling</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>    <span class="s2">&quot;n_jobs&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>              <span class="c1"># Parallel processing</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>    <span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>         <span class="c1"># Reproducibility</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span>        <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- Mixed data types
+- Large datasets
+- Feature importance analysis
+- Ensemble approaches</p>
+<p><strong>Strengths</strong>:
+- Handles mixed data types
+- Provides feature importance
+- Robust to outliers
+- Parallelizable</p>
+<p><strong>Limitations</strong>:
+- Can overfit with many trees
+- Memory intensive
+- Less interpretable
+- Sensitive to irrelevant features</p>
+<h3 id="2-gradient-boosting-anomaly-detection">2. Gradient Boosting Anomaly Detection<a class="headerlink" href="#2-gradient-boosting-anomaly-detection" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Sequential ensemble that builds models to correct previous errors.</p>
+<p><strong>Algorithm Details</strong>:
+- Builds models sequentially
+- Each model corrects previous errors
+- Uses gradient descent optimization
+- Adaptive learning</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="s2">&quot;n_estimators&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>        <span class="c1"># Number of boosting stages</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>       <span class="c1"># Learning rate (0.01-0.3)</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="s2">&quot;max_depth&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>            <span class="c1"># Maximum tree depth</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="s2">&quot;min_samples_split&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>     <span class="c1"># Minimum samples to split</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="s2">&quot;min_samples_leaf&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>      <span class="c1"># Minimum samples per leaf</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="s2">&quot;subsample&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>          <span class="c1"># Fraction of samples per tree</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>    <span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>         <span class="c1"># Reproducibility</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span>        <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- Complex pattern detection
+- High-accuracy requirements
+- Structured data
+- Competition settings</p>
+<p><strong>Strengths</strong>:
+- High accuracy potential
+- Handles complex patterns
+- Feature importance
+- Good generalization</p>
+<p><strong>Limitations</strong>:
+- Prone to overfitting
+- Sensitive to hyperparameters
+- Computationally expensive
+- Sequential training</p>
+<h3 id="3-k-nearest-neighbors-k-nn">3. k-Nearest Neighbors (k-NN)<a class="headerlink" href="#3-k-nearest-neighbors-k-nn" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Instance-based method using distance to k nearest neighbors.</p>
+<p><strong>Algorithm Details</strong>:
+- Calculates distance to k nearest neighbors
+- Anomaly score based on average distance
+- Lazy learning approach
+- No explicit training phase</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p">{</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    <span class="s2">&quot;n_neighbors&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>           <span class="c1"># Number of neighbors (3-20)</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="s2">&quot;algorithm&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>        <span class="c1"># Algorithm choice</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="s2">&quot;leaf_size&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>           <span class="c1"># Leaf size for tree algorithms</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="s2">&quot;metric&quot;</span><span class="p">:</span> <span class="s2">&quot;minkowski&quot;</span><span class="p">,</span>      <span class="c1"># Distance metric</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>                    <span class="c1"># Power parameter</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    <span class="s2">&quot;metric_params&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>      <span class="c1"># Additional metric parameters</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>       <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>    <span class="s2">&quot;n_jobs&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span>               <span class="c1"># Parallel processing</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- Instance-based detection
+- Non-parametric scenarios
+- Small to medium datasets
+- Pattern matching</p>
+<p><strong>Strengths</strong>:
+- Simple and intuitive
+- Non-parametric
+- Adapts to local patterns
+- No training required</p>
+<p><strong>Limitations</strong>:
+- Computationally expensive
+- Sensitive to dimensionality
+- Memory intensive
+- Sensitive to irrelevant features</p>
+<h3 id="4-support-vector-regression-svr">4. Support Vector Regression (SVR)<a class="headerlink" href="#4-support-vector-regression-svr" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Regression-based approach for anomaly detection.</p>
+<p><strong>Algorithm Details</strong>:
+- Learns normal data patterns using regression
+- Calculates residuals as anomaly scores
+- Uses support vector machines framework
+- Kernel methods for non-linearity</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p">{</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    <span class="s2">&quot;kernel&quot;</span><span class="p">:</span> <span class="s2">&quot;rbf&quot;</span><span class="p">,</span>           <span class="c1"># Kernel type</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="s2">&quot;degree&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>               <span class="c1"># Polynomial degree</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="s2">&quot;scale&quot;</span><span class="p">,</span>          <span class="c1"># Kernel coefficient</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="s2">&quot;coef0&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>             <span class="c1"># Independent term</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    <span class="s2">&quot;tol&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>              <span class="c1"># Tolerance</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>    <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>                 <span class="c1"># Regularization parameter</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>    <span class="s2">&quot;epsilon&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>           <span class="c1"># Epsilon-tube width</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>    <span class="s2">&quot;shrinking&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>         <span class="c1"># Shrinking heuristic</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>    <span class="s2">&quot;cache_size&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>         <span class="c1"># Cache size (MB)</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>    <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>          <span class="c1"># Verbose output</span>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>    <span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span>            <span class="c1"># Maximum iterations</span>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- Regression-based detection
+- Non-linear patterns
+- Robust to outliers
+- Medium-sized datasets</p>
+<p><strong>Strengths</strong>:
+- Handles non-linear patterns
+- Robust formulation
+- Kernel flexibility
+- Strong theoretical basis</p>
+<p><strong>Limitations</strong>:
+- Sensitive to parameters
+- Computationally expensive
+- Memory intensive
+- Difficult interpretation</p>
+<h3 id="5-principal-component-analysis-pca">5. Principal Component Analysis (PCA)<a class="headerlink" href="#5-principal-component-analysis-pca" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Dimensionality reduction technique adapted for anomaly detection.</p>
+<p><strong>Algorithm Details</strong>:
+- Projects data to lower dimensions
+- Reconstructs data from principal components
+- Anomaly score based on reconstruction error
+- Linear transformation</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="p">{</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    <span class="s2">&quot;n_components&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>       <span class="c1"># Number of components (None for all)</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="s2">&quot;whiten&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>           <span class="c1"># Whitening transformation</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    <span class="s2">&quot;svd_solver&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>      <span class="c1"># SVD solver algorithm</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    <span class="s2">&quot;tol&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>               <span class="c1"># Tolerance for singular values</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    <span class="s2">&quot;iterated_power&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>  <span class="c1"># Number of iterations</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    <span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>        <span class="c1"># Reproducibility</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span>       <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- High-dimensional data
+- Linear anomalies
+- Dimensionality reduction
+- Preprocessing step</p>
+<p><strong>Strengths</strong>:
+- Reduces dimensionality
+- Fast computation
+- Linear interpretability
+- Good for high dimensions</p>
+<p><strong>Limitations</strong>:
+- Linear assumptions
+- May miss non-linear patterns
+- Sensitive to scaling
+- Information loss</p>
+<h3 id="6-independent-component-analysis-ica">6. Independent Component Analysis (ICA)<a class="headerlink" href="#6-independent-component-analysis-ica" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Statistical method that separates multivariate signal into independent components.</p>
+<p><strong>Algorithm Details</strong>:
+- Assumes independent source signals
+- Separates mixed signals
+- Non-Gaussian assumption
+- Blind source separation</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="p">{</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="s2">&quot;n_components&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>       <span class="c1"># Number of components</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="s2">&quot;algorithm&quot;</span><span class="p">:</span> <span class="s2">&quot;parallel&quot;</span><span class="p">,</span>    <span class="c1"># Algorithm (&quot;parallel&quot;, &quot;deflation&quot;)</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    <span class="s2">&quot;whiten&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>            <span class="c1"># Whitening preprocessing</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    <span class="s2">&quot;fun&quot;</span><span class="p">:</span> <span class="s2">&quot;logcosh&quot;</span><span class="p">,</span>          <span class="c1"># Contrast function</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>    <span class="s2">&quot;fun_args&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>          <span class="c1"># Function arguments</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>    <span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>           <span class="c1"># Maximum iterations</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>    <span class="s2">&quot;tol&quot;</span><span class="p">:</span> <span class="mf">1e-4</span><span class="p">,</span>              <span class="c1"># Tolerance</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>    <span class="s2">&quot;w_init&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>           <span class="c1"># Initial mixing matrix</span>
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>    <span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>        <span class="c1"># Reproducibility</span>
+</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span>       <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- Signal processing
+- Mixed signal separation
+- Non-Gaussian data
+- Feature extraction</p>
+<p><strong>Strengths</strong>:
+- Separates independent sources
+- Non-Gaussian assumptions
+- Good for mixed signals
+- Interpretable components</p>
+<p><strong>Limitations</strong>:
+- Assumes independence
+- Sensitive to parameters
+- May not converge
+- Limited to linear mixing</p>
+<h3 id="7-factor-analysis">7. Factor Analysis<a class="headerlink" href="#7-factor-analysis" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Statistical method modeling observed variables as linear combinations of latent factors.</p>
+<p><strong>Algorithm Details</strong>:
+- Models data as latent factors plus noise
+- Assumes Gaussian noise
+- Maximum likelihood estimation
+- Dimensionality reduction</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="p">{</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    <span class="s2">&quot;n_components&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>       <span class="c1"># Number of factors</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="s2">&quot;tol&quot;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">,</span>              <span class="c1"># Tolerance</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="s2">&quot;copy&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>             <span class="c1"># Copy input data</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>         <span class="c1"># Maximum iterations</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>    <span class="s2">&quot;noise_variance_init&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="c1"># Initial noise variance</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    <span class="s2">&quot;svd_method&quot;</span><span class="p">:</span> <span class="s2">&quot;randomized&quot;</span><span class="p">,</span> <span class="c1"># SVD method</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>    <span class="s2">&quot;iterated_power&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>       <span class="c1"># SVD iterations</span>
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>    <span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>        <span class="c1"># Reproducibility</span>
+</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span>       <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- Latent factor modeling
+- Dimensionality reduction
+- Psychological testing
+- Social sciences</p>
+<p><strong>Strengths</strong>:
+- Models latent structure
+- Handles noise explicitly
+- Interpretable factors
+- Statistical foundation</p>
+<p><strong>Limitations</strong>:
+- Assumes linear relationships
+- Gaussian assumptions
+- May not converge
+- Sensitive to initialization</p>
+<h3 id="8-minimum-covariance-determinant-mcd">8. Minimum Covariance Determinant (MCD)<a class="headerlink" href="#8-minimum-covariance-determinant-mcd" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Robust estimator of multivariate location and scatter.</p>
+<p><strong>Algorithm Details</strong>:
+- Finds subset with minimum covariance determinant
+- Robust to outliers
+- Uses Mahalanobis distance
+- Iterative algorithm</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="p">{</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    <span class="s2">&quot;store_precision&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>    <span class="c1"># Store precision matrix</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="s2">&quot;assume_centered&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>   <span class="c1"># Assume data centered</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="s2">&quot;support_fraction&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>   <span class="c1"># Support fraction</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    <span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>        <span class="c1"># Reproducibility</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span>       <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- Robust covariance estimation
+- Multivariate outliers
+- Financial applications
+- Quality control</p>
+<p><strong>Strengths</strong>:
+- Robust to outliers
+- Strong statistical foundation
+- Fast computation
+- Interpretable</p>
+<p><strong>Limitations</strong>:
+- Assumes elliptical distribution
+- Limited to moderate dimensions
+- May break down with many outliers
+- Sensitive to sample size</p>
+<h2 id="deep-learning-methods">Deep Learning Methods<a class="headerlink" href="#deep-learning-methods" title="Permanent link">&para;</a></h2>
+<h3 id="1-autoencoder">1. AutoEncoder<a class="headerlink" href="#1-autoencoder" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Neural network that learns to compress and reconstruct data.</p>
+<p><strong>Algorithm Details</strong>:
+- Encoder compresses input to latent representation
+- Decoder reconstructs from latent space
+- Anomaly score based on reconstruction error
+- Unsupervised learning</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="p">{</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>    <span class="s2">&quot;hidden_neurons&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span>  <span class="c1"># Hidden layer sizes</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>    <span class="s2">&quot;hidden_activation&quot;</span><span class="p">:</span> <span class="s2">&quot;relu&quot;</span><span class="p">,</span>              <span class="c1"># Activation function</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>    <span class="s2">&quot;output_activation&quot;</span><span class="p">:</span> <span class="s2">&quot;sigmoid&quot;</span><span class="p">,</span>           <span class="c1"># Output activation</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>    <span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="s2">&quot;mse&quot;</span><span class="p">,</span>                           <span class="c1"># Loss function</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>    <span class="s2">&quot;optimizer&quot;</span><span class="p">:</span> <span class="s2">&quot;adam&quot;</span><span class="p">,</span>                     <span class="c1"># Optimizer</span>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>    <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>                           <span class="c1"># Training epochs</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>    <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>                        <span class="c1"># Batch size</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>    <span class="s2">&quot;dropout_rate&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>                     <span class="c1"># Dropout rate</span>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>    <span class="s2">&quot;l2_regularizer&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>                   <span class="c1"># L2 regularization</span>
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>    <span class="s2">&quot;validation_size&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>                  <span class="c1"># Validation split</span>
+</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>    <span class="s2">&quot;preprocessing&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>                    <span class="c1"># Data preprocessing</span>
+</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>    <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>                           <span class="c1"># Verbosity</span>
+</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>                    <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-16-15"><a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>    <span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="mi">42</span>                       <span class="c1"># Reproducibility</span>
+</span><span id="__span-16-16"><a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- High-dimensional data
+- Feature learning
+- Image anomaly detection
+- Time series anomalies</p>
+<p><strong>Strengths</strong>:
+- Learns complex patterns
+- Handles high dimensions
+- Feature learning
+- Flexible architecture</p>
+<p><strong>Limitations</strong>:
+- Requires large datasets
+- Computationally expensive
+- Many hyperparameters
+- Black box nature</p>
+<h3 id="2-variational-autoencoder-vae">2. Variational AutoEncoder (VAE)<a class="headerlink" href="#2-variational-autoencoder-vae" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Probabilistic version of autoencoder with regularized latent space.</p>
+<p><strong>Algorithm Details</strong>:
+- Encoder outputs mean and variance
+- Samples from latent distribution
+- Regularized latent space
+- Probabilistic reconstruction</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="p">{</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>    <span class="s2">&quot;encoder_neurons&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">32</span><span class="p">,</span> <span class="mi">16</span><span class="p">],</span>             <span class="c1"># Encoder architecture</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    <span class="s2">&quot;decoder_neurons&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">],</span>             <span class="c1"># Decoder architecture</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>    <span class="s2">&quot;latent_dim&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>                        <span class="c1"># Latent dimension</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>    <span class="s2">&quot;hidden_activation&quot;</span><span class="p">:</span> <span class="s2">&quot;relu&quot;</span><span class="p">,</span>             <span class="c1"># Hidden activation</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>    <span class="s2">&quot;output_activation&quot;</span><span class="p">:</span> <span class="s2">&quot;sigmoid&quot;</span><span class="p">,</span>          <span class="c1"># Output activation</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>    <span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="s2">&quot;mse&quot;</span><span class="p">,</span>                          <span class="c1"># Reconstruction loss</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>    <span class="s2">&quot;beta&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>                           <span class="c1"># KL divergence weight</span>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>    <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>                       <span class="c1"># Capacity constraint</span>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>    <span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="mf">1000.0</span><span class="p">,</span>                       <span class="c1"># Capacity weight</span>
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>    <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>                         <span class="c1"># Training epochs</span>
+</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>    <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>                      <span class="c1"># Batch size</span>
+</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>    <span class="s2">&quot;optimizer&quot;</span><span class="p">:</span> <span class="s2">&quot;adam&quot;</span><span class="p">,</span>                   <span class="c1"># Optimizer</span>
+</span><span id="__span-17-14"><a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>    <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>                <span class="c1"># Learning rate</span>
+</span><span id="__span-17-15"><a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a>    <span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>                    <span class="c1"># Reproducibility</span>
+</span><span id="__span-17-16"><a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span>                   <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-17-17"><a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- Generative modeling
+- Probabilistic anomalies
+- Latent space analysis
+- Image generation</p>
+<p><strong>Strengths</strong>:
+- Probabilistic framework
+- Regularized latent space
+- Generative capabilities
+- Interpretable latent variables</p>
+<p><strong>Limitations</strong>:
+- Complex implementation
+- Sensitive to hyperparameters
+- Computational requirements
+- Training instability</p>
+<h3 id="3-long-short-term-memory-lstm">3. Long Short-Term Memory (LSTM)<a class="headerlink" href="#3-long-short-term-memory-lstm" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Recurrent neural network for sequential anomaly detection.</p>
+<p><strong>Algorithm Details</strong>:
+- Processes sequential data
+- Memory cells for long-term dependencies
+- Prediction-based anomaly scoring
+- Handles variable-length sequences</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="p">{</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    <span class="s2">&quot;hidden_neurons&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">],</span>             <span class="c1"># LSTM layer sizes</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>    <span class="s2">&quot;sequence_length&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>                  <span class="c1"># Input sequence length</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    <span class="s2">&quot;dropout_rate&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>                   <span class="c1"># Dropout rate</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>    <span class="s2">&quot;recurrent_dropout&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>              <span class="c1"># Recurrent dropout</span>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>    <span class="s2">&quot;activation&quot;</span><span class="p">:</span> <span class="s2">&quot;tanh&quot;</span><span class="p">,</span>                   <span class="c1"># LSTM activation</span>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>    <span class="s2">&quot;recurrent_activation&quot;</span><span class="p">:</span> <span class="s2">&quot;sigmoid&quot;</span><span class="p">,</span>      <span class="c1"># Recurrent activation</span>
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>    <span class="s2">&quot;use_bias&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>                      <span class="c1"># Use bias</span>
+</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>    <span class="s2">&quot;return_sequences&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>               <span class="c1"># Return sequences</span>
+</span><span id="__span-18-10"><a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>    <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>                         <span class="c1"># Training epochs</span>
+</span><span id="__span-18-11"><a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>    <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>                      <span class="c1"># Batch size</span>
+</span><span id="__span-18-12"><a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>    <span class="s2">&quot;optimizer&quot;</span><span class="p">:</span> <span class="s2">&quot;adam&quot;</span><span class="p">,</span>                   <span class="c1"># Optimizer</span>
+</span><span id="__span-18-13"><a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a>    <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>                <span class="c1"># Learning rate</span>
+</span><span id="__span-18-14"><a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a>    <span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="s2">&quot;mse&quot;</span><span class="p">,</span>                         <span class="c1"># Loss function</span>
+</span><span id="__span-18-15"><a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>                  <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-18-16"><a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a>    <span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="mi">42</span>                     <span class="c1"># Reproducibility</span>
+</span><span id="__span-18-17"><a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- Time series anomalies
+- Sequential pattern detection
+- Sensor data analysis
+- Log file analysis</p>
+<p><strong>Strengths</strong>:
+- Handles sequences naturally
+- Long-term dependencies
+- Flexible input length
+- State-of-the-art for sequences</p>
+<p><strong>Limitations</strong>:
+- Computationally expensive
+- Requires large datasets
+- Training complexity
+- Vanishing gradient issues</p>
+<h3 id="4-convolutional-neural-network-cnn">4. Convolutional Neural Network (CNN)<a class="headerlink" href="#4-convolutional-neural-network-cnn" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Neural network with convolutional layers for spatial pattern detection.</p>
+<p><strong>Algorithm Details</strong>:
+- Convolutional layers extract features
+- Pooling layers reduce dimensionality
+- Fully connected layers for classification
+- Translation invariant</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="p">{</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>    <span class="s2">&quot;conv_layers&quot;</span><span class="p">:</span> <span class="p">[</span>                        <span class="c1"># Convolutional layers</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>        <span class="p">{</span><span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span> <span class="s2">&quot;kernel_size&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;activation&quot;</span><span class="p">:</span> <span class="s2">&quot;relu&quot;</span><span class="p">},</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>        <span class="p">{</span><span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span> <span class="s2">&quot;kernel_size&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;activation&quot;</span><span class="p">:</span> <span class="s2">&quot;relu&quot;</span><span class="p">}</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>    <span class="p">],</span>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>    <span class="s2">&quot;pool_layers&quot;</span><span class="p">:</span> <span class="p">[</span>                        <span class="c1"># Pooling layers</span>
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>        <span class="p">{</span><span class="s2">&quot;pool_size&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>        <span class="p">{</span><span class="s2">&quot;pool_size&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>    <span class="p">],</span>
+</span><span id="__span-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>    <span class="s2">&quot;dense_layers&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span>              <span class="c1"># Dense layer sizes</span>
+</span><span id="__span-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>    <span class="s2">&quot;dropout_rate&quot;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>                   <span class="c1"># Dropout rate</span>
+</span><span id="__span-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>    <span class="s2">&quot;batch_normalization&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>            <span class="c1"># Batch normalization</span>
+</span><span id="__span-19-13"><a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a>    <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>                         <span class="c1"># Training epochs</span>
+</span><span id="__span-19-14"><a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a>    <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>                      <span class="c1"># Batch size</span>
+</span><span id="__span-19-15"><a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a>    <span class="s2">&quot;optimizer&quot;</span><span class="p">:</span> <span class="s2">&quot;adam&quot;</span><span class="p">,</span>                   <span class="c1"># Optimizer</span>
+</span><span id="__span-19-16"><a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a>    <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>                <span class="c1"># Learning rate</span>
+</span><span id="__span-19-17"><a id="__codelineno-19-17" name="__codelineno-19-17" href="#__codelineno-19-17"></a>    <span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="s2">&quot;binary_crossentropy&quot;</span><span class="p">,</span>         <span class="c1"># Loss function</span>
+</span><span id="__span-19-18"><a id="__codelineno-19-18" name="__codelineno-19-18" href="#__codelineno-19-18"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>                  <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-19-19"><a id="__codelineno-19-19" name="__codelineno-19-19" href="#__codelineno-19-19"></a>    <span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="mi">42</span>                     <span class="c1"># Reproducibility</span>
+</span><span id="__span-19-20"><a id="__codelineno-19-20" name="__codelineno-19-20" href="#__codelineno-19-20"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- Image anomaly detection
+- Spatial pattern analysis
+- Computer vision
+- Medical imaging</p>
+<p><strong>Strengths</strong>:
+- Excellent for images
+- Translation invariant
+- Hierarchical features
+- State-of-the-art performance</p>
+<p><strong>Limitations</strong>:
+- Requires large datasets
+- Computationally intensive
+- Many hyperparameters
+- GPU dependency</p>
+<h3 id="5-transformer">5. Transformer<a class="headerlink" href="#5-transformer" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Attention-based model for sequence anomaly detection.</p>
+<p><strong>Algorithm Details</strong>:
+- Self-attention mechanism
+- Parallel processing
+- Position encoding
+- Multi-head attention</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="p">{</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>    <span class="s2">&quot;d_model&quot;</span><span class="p">:</span> <span class="mi">128</span><span class="p">,</span>                        <span class="c1"># Model dimension</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>    <span class="s2">&quot;nhead&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>                           <span class="c1"># Number of attention heads</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>    <span class="s2">&quot;num_encoder_layers&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>               <span class="c1"># Number of encoder layers</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>    <span class="s2">&quot;dim_feedforward&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>                <span class="c1"># Feedforward dimension</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>    <span class="s2">&quot;dropout&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>                       <span class="c1"># Dropout rate</span>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>    <span class="s2">&quot;activation&quot;</span><span class="p">:</span> <span class="s2">&quot;relu&quot;</span><span class="p">,</span>                  <span class="c1"># Activation function</span>
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>    <span class="s2">&quot;sequence_length&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>                 <span class="c1"># Input sequence length</span>
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>    <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>                        <span class="c1"># Training epochs</span>
+</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>    <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>                     <span class="c1"># Batch size</span>
+</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a>    <span class="s2">&quot;optimizer&quot;</span><span class="p">:</span> <span class="s2">&quot;adam&quot;</span><span class="p">,</span>                  <span class="c1"># Optimizer</span>
+</span><span id="__span-20-12"><a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a>    <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.0001</span><span class="p">,</span>              <span class="c1"># Learning rate</span>
+</span><span id="__span-20-13"><a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a>    <span class="s2">&quot;warmup_steps&quot;</span><span class="p">:</span> <span class="mi">4000</span><span class="p">,</span>                 <span class="c1"># Learning rate warmup</span>
+</span><span id="__span-20-14"><a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>                 <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-20-15"><a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a>    <span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="mi">42</span>                    <span class="c1"># Reproducibility</span>
+</span><span id="__span-20-16"><a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- Sequential anomaly detection
+- Natural language processing
+- Time series analysis
+- Attention visualization</p>
+<p><strong>Strengths</strong>:
+- Handles long sequences
+- Parallel processing
+- Attention mechanism
+- State-of-the-art results</p>
+<p><strong>Limitations</strong>:
+- Very large models
+- High computational cost
+- Complex implementation
+- Requires extensive data</p>
+<h2 id="specialized-methods">Specialized Methods<a class="headerlink" href="#specialized-methods" title="Permanent link">&para;</a></h2>
+<h3 id="1-graph-neural-networks-gnn">1. Graph Neural Networks (GNN)<a class="headerlink" href="#1-graph-neural-networks-gnn" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Neural networks designed for graph-structured data.</p>
+<p><strong>Algorithm Details</strong>:
+- Node and edge representations
+- Message passing between nodes
+- Graph convolutions
+- Handles irregular structures</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="p">{</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>    <span class="s2">&quot;hidden_channels&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>                  <span class="c1"># Hidden dimension</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>    <span class="s2">&quot;num_layers&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>                       <span class="c1"># Number of GNN layers</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>    <span class="s2">&quot;dropout&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>                       <span class="c1"># Dropout rate</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>    <span class="s2">&quot;activation&quot;</span><span class="p">:</span> <span class="s2">&quot;relu&quot;</span><span class="p">,</span>                  <span class="c1"># Activation function</span>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>    <span class="s2">&quot;normalization&quot;</span><span class="p">:</span> <span class="s2">&quot;batch&quot;</span><span class="p">,</span>              <span class="c1"># Normalization type</span>
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>    <span class="s2">&quot;aggregation&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>                 <span class="c1"># Aggregation function</span>
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>    <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>                        <span class="c1"># Training epochs</span>
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>    <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>                     <span class="c1"># Batch size</span>
+</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>    <span class="s2">&quot;optimizer&quot;</span><span class="p">:</span> <span class="s2">&quot;adam&quot;</span><span class="p">,</span>                  <span class="c1"># Optimizer</span>
+</span><span id="__span-21-11"><a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a>    <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>                <span class="c1"># Learning rate</span>
+</span><span id="__span-21-12"><a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a>    <span class="s2">&quot;weight_decay&quot;</span><span class="p">:</span> <span class="mf">5e-4</span><span class="p">,</span>                 <span class="c1"># Weight decay</span>
+</span><span id="__span-21-13"><a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>                 <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-21-14"><a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a>    <span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="mi">42</span>                    <span class="c1"># Reproducibility</span>
+</span><span id="__span-21-15"><a id="__codelineno-21-15" name="__codelineno-21-15" href="#__codelineno-21-15"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><strong>Use Cases</strong>:
+- Social network analysis
+- Fraud detection in networks
+- Knowledge graphs
+- Molecular analysis</p>
+<p><strong>Strengths</strong>:
+- Handles graph structures
+- Considers relationships
+- Flexible architecture
+- State-of-the-art for graphs</p>
+<p><strong>Limitations</strong>:
+- Requires graph data
+- Complex implementation
+- Scalability issues
+- Limited interpretability</p>
+<h3 id="2-time-series-specific-methods">2. Time Series Specific Methods<a class="headerlink" href="#2-time-series-specific-methods" title="Permanent link">&para;</a></h3>
+<h4 id="arima-autoregressive-integrated-moving-average">ARIMA (AutoRegressive Integrated Moving Average)<a class="headerlink" href="#arima-autoregressive-integrated-moving-average" title="Permanent link">&para;</a></h4>
+<p><strong>Description</strong>: Statistical model for time series forecasting and anomaly detection.</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="p">{</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>    <span class="s2">&quot;order&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>                   <span class="c1"># (p, d, q) parameters</span>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>    <span class="s2">&quot;seasonal_order&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>       <span class="c1"># Seasonal parameters</span>
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>    <span class="s2">&quot;trend&quot;</span><span class="p">:</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span>                         <span class="c1"># Trend component</span>
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>    <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;lbfgs&quot;</span><span class="p">,</span>                    <span class="c1"># Optimization method</span>
+</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>    <span class="s2">&quot;maxiter&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>                       <span class="c1"># Maximum iterations</span>
+</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>    <span class="s2">&quot;suppress_warnings&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>            <span class="c1"># Suppress warnings</span>
+</span><span id="__span-22-8"><a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span>                  <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-22-9"><a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<h4 id="prophet">Prophet<a class="headerlink" href="#prophet" title="Permanent link">&para;</a></h4>
+<p><strong>Description</strong>: Facebook's time series forecasting tool.</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="p">{</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>    <span class="s2">&quot;growth&quot;</span><span class="p">:</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>                   <span class="c1"># Growth type (&quot;linear&quot;, &quot;logistic&quot;)</span>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>    <span class="s2">&quot;changepoints&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>                 <span class="c1"># Changepoint locations</span>
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>    <span class="s2">&quot;n_changepoints&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>                 <span class="c1"># Number of changepoints</span>
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>    <span class="s2">&quot;changepoint_range&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>             <span class="c1"># Changepoint range</span>
+</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>    <span class="s2">&quot;yearly_seasonality&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>         <span class="c1"># Yearly seasonality</span>
+</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>    <span class="s2">&quot;weekly_seasonality&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>         <span class="c1"># Weekly seasonality</span>
+</span><span id="__span-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>    <span class="s2">&quot;daily_seasonality&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>          <span class="c1"># Daily seasonality</span>
+</span><span id="__span-23-9"><a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>    <span class="s2">&quot;holidays&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>                     <span class="c1"># Holiday dataframe</span>
+</span><span id="__span-23-10"><a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>    <span class="s2">&quot;seasonality_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;additive&quot;</span><span class="p">,</span>       <span class="c1"># Seasonality mode</span>
+</span><span id="__span-23-11"><a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a>    <span class="s2">&quot;seasonality_prior_scale&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>      <span class="c1"># Seasonality prior scale</span>
+</span><span id="__span-23-12"><a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a>    <span class="s2">&quot;holidays_prior_scale&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>         <span class="c1"># Holidays prior scale</span>
+</span><span id="__span-23-13"><a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a>    <span class="s2">&quot;changepoint_prior_scale&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>      <span class="c1"># Changepoint prior scale</span>
+</span><span id="__span-23-14"><a id="__codelineno-23-14" name="__codelineno-23-14" href="#__codelineno-23-14"></a>    <span class="s2">&quot;mcmc_samples&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>                    <span class="c1"># MCMC samples</span>
+</span><span id="__span-23-15"><a id="__codelineno-23-15" name="__codelineno-23-15" href="#__codelineno-23-15"></a>    <span class="s2">&quot;interval_width&quot;</span><span class="p">:</span> <span class="mf">0.80</span><span class="p">,</span>               <span class="c1"># Prediction interval</span>
+</span><span id="__span-23-16"><a id="__codelineno-23-16" name="__codelineno-23-16" href="#__codelineno-23-16"></a>    <span class="s2">&quot;uncertainty_samples&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>          <span class="c1"># Uncertainty samples</span>
+</span><span id="__span-23-17"><a id="__codelineno-23-17" name="__codelineno-23-17" href="#__codelineno-23-17"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span>                  <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-23-18"><a id="__codelineno-23-18" name="__codelineno-23-18" href="#__codelineno-23-18"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<h4 id="seasonal-decomposition">Seasonal Decomposition<a class="headerlink" href="#seasonal-decomposition" title="Permanent link">&para;</a></h4>
+<p><strong>Description</strong>: Decomposes time series into trend, seasonal, and residual components.</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="p">{</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>    <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;additive&quot;</span><span class="p">,</span>                  <span class="c1"># Model type (&quot;additive&quot;, &quot;multiplicative&quot;)</span>
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>    <span class="s2">&quot;period&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>                       <span class="c1"># Seasonal period</span>
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>    <span class="s2">&quot;two_sided&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>                    <span class="c1"># Two-sided filter</span>
+</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>    <span class="s2">&quot;extrapolate_trend&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>               <span class="c1"># Trend extrapolation</span>
+</span><span id="__span-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span>                  <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<h3 id="3-text-anomaly-detection">3. Text Anomaly Detection<a class="headerlink" href="#3-text-anomaly-detection" title="Permanent link">&para;</a></h3>
+<h4 id="tf-idf-with-clustering">TF-IDF with Clustering<a class="headerlink" href="#tf-idf-with-clustering" title="Permanent link">&para;</a></h4>
+<p><strong>Description</strong>: Text vectorization with clustering for anomaly detection.</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="p">{</span>
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>    <span class="s2">&quot;max_features&quot;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span>                <span class="c1"># Maximum features</span>
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>    <span class="s2">&quot;ngram_range&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>               <span class="c1"># N-gram range</span>
+</span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>    <span class="s2">&quot;stop_words&quot;</span><span class="p">:</span> <span class="s2">&quot;english&quot;</span><span class="p">,</span>             <span class="c1"># Stop words</span>
+</span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>    <span class="s2">&quot;min_df&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>                         <span class="c1"># Minimum document frequency</span>
+</span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>    <span class="s2">&quot;max_df&quot;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">,</span>                      <span class="c1"># Maximum document frequency</span>
+</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>    <span class="s2">&quot;clustering_algorithm&quot;</span><span class="p">:</span> <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>     <span class="c1"># Clustering algorithm</span>
+</span><span id="__span-25-8"><a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>    <span class="s2">&quot;n_clusters&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>                    <span class="c1"># Number of clusters</span>
+</span><span id="__span-25-9"><a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span>                 <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-25-10"><a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<h4 id="word-embeddings">Word Embeddings<a class="headerlink" href="#word-embeddings" title="Permanent link">&para;</a></h4>
+<p><strong>Description</strong>: Uses pre-trained word embeddings for text anomaly detection.</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="p">{</span>
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>    <span class="s2">&quot;embedding_model&quot;</span><span class="p">:</span> <span class="s2">&quot;word2vec&quot;</span><span class="p">,</span>        <span class="c1"># Embedding model</span>
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>    <span class="s2">&quot;vector_size&quot;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>                   <span class="c1"># Vector dimension</span>
+</span><span id="__span-26-4"><a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>    <span class="s2">&quot;window&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>                         <span class="c1"># Context window</span>
+</span><span id="__span-26-5"><a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>    <span class="s2">&quot;min_count&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>                      <span class="c1"># Minimum word count</span>
+</span><span id="__span-26-6"><a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>    <span class="s2">&quot;workers&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>                        <span class="c1"># Parallel workers</span>
+</span><span id="__span-26-7"><a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>    <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>                       <span class="c1"># Training epochs</span>
+</span><span id="__span-26-8"><a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a>    <span class="s2">&quot;aggregation&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>               <span class="c1"># Document aggregation</span>
+</span><span id="__span-26-9"><a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span>                 <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-26-10"><a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<h2 id="ensemble-methods">Ensemble Methods<a class="headerlink" href="#ensemble-methods" title="Permanent link">&para;</a></h2>
+<h3 id="1-voting-ensemble">1. Voting Ensemble<a class="headerlink" href="#1-voting-ensemble" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Combines predictions from multiple algorithms using voting.</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="p">{</span>
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>    <span class="s2">&quot;estimators&quot;</span><span class="p">:</span> <span class="p">[</span>                       <span class="c1"># Base estimators</span>
+</span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>        <span class="p">(</span><span class="s2">&quot;isolation_forest&quot;</span><span class="p">,</span> <span class="n">IsolationForest</span><span class="p">()),</span>
+</span><span id="__span-27-4"><a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>        <span class="p">(</span><span class="s2">&quot;lof&quot;</span><span class="p">,</span> <span class="n">LocalOutlierFactor</span><span class="p">()),</span>
+</span><span id="__span-27-5"><a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>        <span class="p">(</span><span class="s2">&quot;svm&quot;</span><span class="p">,</span> <span class="n">OneClassSVM</span><span class="p">())</span>
+</span><span id="__span-27-6"><a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>    <span class="p">],</span>
+</span><span id="__span-27-7"><a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a>    <span class="s2">&quot;voting&quot;</span><span class="p">:</span> <span class="s2">&quot;soft&quot;</span><span class="p">,</span>                     <span class="c1"># Voting type (&quot;hard&quot;, &quot;soft&quot;)</span>
+</span><span id="__span-27-8"><a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a>    <span class="s2">&quot;weights&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>                      <span class="c1"># Estimator weights</span>
+</span><span id="__span-27-9"><a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a>    <span class="s2">&quot;n_jobs&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>                        <span class="c1"># Parallel processing</span>
+</span><span id="__span-27-10"><a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span>                  <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-27-11"><a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<h3 id="2-stacking-ensemble">2. Stacking Ensemble<a class="headerlink" href="#2-stacking-ensemble" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Uses meta-learner to combine base model predictions.</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="p">{</span>
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>    <span class="s2">&quot;base_estimators&quot;</span><span class="p">:</span> <span class="p">[</span>                  <span class="c1"># Base estimators</span>
+</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>        <span class="n">IsolationForest</span><span class="p">(),</span>
+</span><span id="__span-28-4"><a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>        <span class="n">LocalOutlierFactor</span><span class="p">(),</span>
+</span><span id="__span-28-5"><a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>        <span class="n">OneClassSVM</span><span class="p">()</span>
+</span><span id="__span-28-6"><a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a>    <span class="p">],</span>
+</span><span id="__span-28-7"><a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a>    <span class="s2">&quot;meta_learner&quot;</span><span class="p">:</span> <span class="n">LogisticRegression</span><span class="p">(),</span> <span class="c1"># Meta-learner</span>
+</span><span id="__span-28-8"><a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a>    <span class="s2">&quot;cv&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>                             <span class="c1"># Cross-validation folds</span>
+</span><span id="__span-28-9"><a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a>    <span class="s2">&quot;use_features_in_secondary&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>   <span class="c1"># Use original features</span>
+</span><span id="__span-28-10"><a id="__codelineno-28-10" name="__codelineno-28-10" href="#__codelineno-28-10"></a>    <span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>                  <span class="c1"># Reproducibility</span>
+</span><span id="__span-28-11"><a id="__codelineno-28-11" name="__codelineno-28-11" href="#__codelineno-28-11"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span>                 <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-28-12"><a id="__codelineno-28-12" name="__codelineno-28-12" href="#__codelineno-28-12"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<h3 id="3-bagging-ensemble">3. Bagging Ensemble<a class="headerlink" href="#3-bagging-ensemble" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Bootstrap aggregating for anomaly detection.</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="p">{</span>
+</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>    <span class="s2">&quot;base_estimator&quot;</span><span class="p">:</span> <span class="n">IsolationForest</span><span class="p">(),</span>  <span class="c1"># Base estimator</span>
+</span><span id="__span-29-3"><a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>    <span class="s2">&quot;n_estimators&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>                  <span class="c1"># Number of estimators</span>
+</span><span id="__span-29-4"><a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a>    <span class="s2">&quot;max_samples&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>                  <span class="c1"># Maximum samples</span>
+</span><span id="__span-29-5"><a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a>    <span class="s2">&quot;max_features&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>                 <span class="c1"># Maximum features</span>
+</span><span id="__span-29-6"><a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>    <span class="s2">&quot;bootstrap&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>                   <span class="c1"># Bootstrap sampling</span>
+</span><span id="__span-29-7"><a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a>    <span class="s2">&quot;bootstrap_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>         <span class="c1"># Bootstrap features</span>
+</span><span id="__span-29-8"><a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a>    <span class="s2">&quot;n_jobs&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>                       <span class="c1"># Parallel processing</span>
+</span><span id="__span-29-9"><a id="__codelineno-29-9" name="__codelineno-29-9" href="#__codelineno-29-9"></a>    <span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>                 <span class="c1"># Reproducibility</span>
+</span><span id="__span-29-10"><a id="__codelineno-29-10" name="__codelineno-29-10" href="#__codelineno-29-10"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span>                <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-29-11"><a id="__codelineno-29-11" name="__codelineno-29-11" href="#__codelineno-29-11"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<h3 id="4-adaptive-ensemble">4. Adaptive Ensemble<a class="headerlink" href="#4-adaptive-ensemble" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Dynamically weights ensemble members based on performance.</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="p">{</span>
+</span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>    <span class="s2">&quot;base_estimators&quot;</span><span class="p">:</span> <span class="p">[</span>                 <span class="c1"># Base estimators</span>
+</span><span id="__span-30-3"><a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>        <span class="n">IsolationForest</span><span class="p">(),</span>
+</span><span id="__span-30-4"><a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a>        <span class="n">LocalOutlierFactor</span><span class="p">(),</span>
+</span><span id="__span-30-5"><a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a>        <span class="n">OneClassSVM</span><span class="p">()</span>
+</span><span id="__span-30-6"><a id="__codelineno-30-6" name="__codelineno-30-6" href="#__codelineno-30-6"></a>    <span class="p">],</span>
+</span><span id="__span-30-7"><a id="__codelineno-30-7" name="__codelineno-30-7" href="#__codelineno-30-7"></a>    <span class="s2">&quot;adaptation_method&quot;</span><span class="p">:</span> <span class="s2">&quot;performance&quot;</span><span class="p">,</span>   <span class="c1"># Adaptation method</span>
+</span><span id="__span-30-8"><a id="__codelineno-30-8" name="__codelineno-30-8" href="#__codelineno-30-8"></a>    <span class="s2">&quot;window_size&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>                  <span class="c1"># Adaptation window</span>
+</span><span id="__span-30-9"><a id="__codelineno-30-9" name="__codelineno-30-9" href="#__codelineno-30-9"></a>    <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>                <span class="c1"># Weight learning rate</span>
+</span><span id="__span-30-10"><a id="__codelineno-30-10" name="__codelineno-30-10" href="#__codelineno-30-10"></a>    <span class="s2">&quot;min_weight&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>                   <span class="c1"># Minimum weight</span>
+</span><span id="__span-30-11"><a id="__codelineno-30-11" name="__codelineno-30-11" href="#__codelineno-30-11"></a>    <span class="s2">&quot;max_weight&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>                   <span class="c1"># Maximum weight</span>
+</span><span id="__span-30-12"><a id="__codelineno-30-12" name="__codelineno-30-12" href="#__codelineno-30-12"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span>                 <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-30-13"><a id="__codelineno-30-13" name="__codelineno-30-13" href="#__codelineno-30-13"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<h3 id="5-hierarchical-ensemble">5. Hierarchical Ensemble<a class="headerlink" href="#5-hierarchical-ensemble" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: Multi-level ensemble with hierarchical combination.</p>
+<p><strong>Parameters</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="p">{</span>
+</span><span id="__span-31-2"><a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>    <span class="s2">&quot;level1_estimators&quot;</span><span class="p">:</span> <span class="p">[</span>               <span class="c1"># Level 1 estimators</span>
+</span><span id="__span-31-3"><a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>        <span class="n">IsolationForest</span><span class="p">(),</span>
+</span><span id="__span-31-4"><a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a>        <span class="n">LocalOutlierFactor</span><span class="p">()</span>
+</span><span id="__span-31-5"><a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a>    <span class="p">],</span>
+</span><span id="__span-31-6"><a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a>    <span class="s2">&quot;level2_estimators&quot;</span><span class="p">:</span> <span class="p">[</span>               <span class="c1"># Level 2 estimators</span>
+</span><span id="__span-31-7"><a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a>        <span class="n">OneClassSVM</span><span class="p">(),</span>
+</span><span id="__span-31-8"><a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a>        <span class="n">EllipticEnvelope</span><span class="p">()</span>
+</span><span id="__span-31-9"><a id="__codelineno-31-9" name="__codelineno-31-9" href="#__codelineno-31-9"></a>    <span class="p">],</span>
+</span><span id="__span-31-10"><a id="__codelineno-31-10" name="__codelineno-31-10" href="#__codelineno-31-10"></a>    <span class="s2">&quot;combination_method&quot;</span><span class="p">:</span> <span class="s2">&quot;weighted_avg&quot;</span><span class="p">,</span> <span class="c1"># Combination method</span>
+</span><span id="__span-31-11"><a id="__codelineno-31-11" name="__codelineno-31-11" href="#__codelineno-31-11"></a>    <span class="s2">&quot;level_weights&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],</span>        <span class="c1"># Level weights</span>
+</span><span id="__span-31-12"><a id="__codelineno-31-12" name="__codelineno-31-12" href="#__codelineno-31-12"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span>                 <span class="c1"># Expected anomaly proportion</span>
+</span><span id="__span-31-13"><a id="__codelineno-31-13" name="__codelineno-31-13" href="#__codelineno-31-13"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<h2 id="performance-comparison">Performance Comparison<a class="headerlink" href="#performance-comparison" title="Permanent link">&para;</a></h2>
+<h3 id="computational-complexity">Computational Complexity<a class="headerlink" href="#computational-complexity" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Training Time</th>
+<th>Prediction Time</th>
+<th>Memory Usage</th>
+<th>Scalability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Isolation Forest</td>
+<td>O(n log n)</td>
+<td>O(log n)</td>
+<td>Low</td>
+<td>Excellent</td>
+</tr>
+<tr>
+<td>LOF</td>
+<td>O(n²)</td>
+<td>O(kn)</td>
+<td>High</td>
+<td>Poor</td>
+</tr>
+<tr>
+<td>One-Class SVM</td>
+<td>O(n²-n³)</td>
+<td>O(sv×d)</td>
+<td>High</td>
+<td>Poor</td>
+</tr>
+<tr>
+<td>AutoEncoder</td>
+<td>O(epochs×n)</td>
+<td>O(1)</td>
+<td>Moderate</td>
+<td>Good</td>
+</tr>
+<tr>
+<td>LSTM</td>
+<td>O(epochs×seq×n)</td>
+<td>O(seq)</td>
+<td>High</td>
+<td>Moderate</td>
+</tr>
+<tr>
+<td>Random Forest</td>
+<td>O(n log n)</td>
+<td>O(log n)</td>
+<td>Moderate</td>
+<td>Good</td>
+</tr>
+<tr>
+<td>k-NN</td>
+<td>O(1)</td>
+<td>O(n)</td>
+<td>High</td>
+<td>Poor</td>
+</tr>
+<tr>
+<td>Z-Score</td>
+<td>O(n)</td>
+<td>O(1)</td>
+<td>Low</td>
+<td>Excellent</td>
+</tr>
+</tbody>
+</table>
+<h3 id="accuracy-comparison">Accuracy Comparison<a class="headerlink" href="#accuracy-comparison" title="Permanent link">&para;</a></h3>
+<p>Performance on standard datasets (average F1-score):</p>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Credit Card</th>
+<th>Network Traffic</th>
+<th>Sensor Data</th>
+<th>Image Data</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Isolation Forest</td>
+<td>0.82</td>
+<td>0.78</td>
+<td>0.85</td>
+<td>0.73</td>
+</tr>
+<tr>
+<td>LOF</td>
+<td>0.79</td>
+<td>0.81</td>
+<td>0.77</td>
+<td>0.69</td>
+</tr>
+<tr>
+<td>One-Class SVM</td>
+<td>0.84</td>
+<td>0.76</td>
+<td>0.82</td>
+<td>0.75</td>
+</tr>
+<tr>
+<td>AutoEncoder</td>
+<td>0.86</td>
+<td>0.83</td>
+<td>0.88</td>
+<td>0.89</td>
+</tr>
+<tr>
+<td>LSTM</td>
+<td>0.75</td>
+<td>0.87</td>
+<td>0.91</td>
+<td>0.71</td>
+</tr>
+<tr>
+<td>Ensemble</td>
+<td>0.89</td>
+<td>0.85</td>
+<td>0.92</td>
+<td>0.91</td>
+</tr>
+</tbody>
+</table>
+<h3 id="resource-requirements">Resource Requirements<a class="headerlink" href="#resource-requirements" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>CPU Usage</th>
+<th>Memory Usage</th>
+<th>GPU Benefit</th>
+<th>Disk Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Isolation Forest</td>
+<td>Low</td>
+<td>Low</td>
+<td>None</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>Deep Learning</td>
+<td>High</td>
+<td>High</td>
+<td>High</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Statistical</td>
+<td>Very Low</td>
+<td>Very Low</td>
+<td>None</td>
+<td>Very Low</td>
+</tr>
+<tr>
+<td>Ensemble</td>
+<td>High</td>
+<td>High</td>
+<td>Moderate</td>
+<td>Moderate</td>
+</tr>
+</tbody>
+</table>
+<h2 id="parameter-tuning">Parameter Tuning<a class="headerlink" href="#parameter-tuning" title="Permanent link">&para;</a></h2>
+<h3 id="general-guidelines">General Guidelines<a class="headerlink" href="#general-guidelines" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Start with default parameters</strong> for baseline performance</li>
+<li><strong>Use grid search</strong> for systematic optimization</li>
+<li><strong>Apply cross-validation</strong> for robust evaluation</li>
+<li><strong>Consider Bayesian optimization</strong> for efficiency</li>
+<li><strong>Monitor overfitting</strong> with validation sets</li>
+</ol>
+<h3 id="algorithm-specific-tips">Algorithm-Specific Tips<a class="headerlink" href="#algorithm-specific-tips" title="Permanent link">&para;</a></h3>
+<h4 id="isolation-forest">Isolation Forest<a class="headerlink" href="#isolation-forest" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Increase <code>n_estimators</code> for stability (100-500)</li>
+<li>Adjust <code>contamination</code> based on expected anomaly rate</li>
+<li>Use <code>max_samples</code> &lt; 1.0 for large datasets</li>
+</ul>
+<h4 id="lof">LOF<a class="headerlink" href="#lof" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Start with <code>n_neighbors</code> = 20</li>
+<li>Increase for smoother decision boundaries</li>
+<li>Decrease for more local patterns</li>
+</ul>
+<h4 id="deep-learning">Deep Learning<a class="headerlink" href="#deep-learning" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Use learning rate scheduling</li>
+<li>Apply early stopping</li>
+<li>Regularize with dropout and L2</li>
+<li>Normalize input data</li>
+</ul>
+<h4 id="ensemble-methods_1">Ensemble Methods<a class="headerlink" href="#ensemble-methods_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Diversify base algorithms</li>
+<li>Balance computational cost</li>
+<li>Weight by individual performance</li>
+<li>Consider correlation between models</li>
+</ul>
+<h3 id="hyperparameter-optimization">Hyperparameter Optimization<a class="headerlink" href="#hyperparameter-optimization" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="c1"># Example: Bayesian optimization for Isolation Forest</span>
+</span><span id="__span-32-2"><a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">skopt</span><span class="w"> </span><span class="kn">import</span> <span class="n">gp_minimize</span>
+</span><span id="__span-32-3"><a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">skopt.space</span><span class="w"> </span><span class="kn">import</span> <span class="n">Real</span><span class="p">,</span> <span class="n">Integer</span>
+</span><span id="__span-32-4"><a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a>
+</span><span id="__span-32-5"><a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">objective</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+</span><span id="__span-32-6"><a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a>    <span class="n">n_estimators</span><span class="p">,</span> <span class="n">contamination</span><span class="p">,</span> <span class="n">max_features</span> <span class="o">=</span> <span class="n">params</span>
+</span><span id="__span-32-7"><a id="__codelineno-32-7" name="__codelineno-32-7" href="#__codelineno-32-7"></a>
+</span><span id="__span-32-8"><a id="__codelineno-32-8" name="__codelineno-32-8" href="#__codelineno-32-8"></a>    <span class="n">model</span> <span class="o">=</span> <span class="n">IsolationForest</span><span class="p">(</span>
+</span><span id="__span-32-9"><a id="__codelineno-32-9" name="__codelineno-32-9" href="#__codelineno-32-9"></a>        <span class="n">n_estimators</span><span class="o">=</span><span class="n">n_estimators</span><span class="p">,</span>
+</span><span id="__span-32-10"><a id="__codelineno-32-10" name="__codelineno-32-10" href="#__codelineno-32-10"></a>        <span class="n">contamination</span><span class="o">=</span><span class="n">contamination</span><span class="p">,</span>
+</span><span id="__span-32-11"><a id="__codelineno-32-11" name="__codelineno-32-11" href="#__codelineno-32-11"></a>        <span class="n">max_features</span><span class="o">=</span><span class="n">max_features</span><span class="p">,</span>
+</span><span id="__span-32-12"><a id="__codelineno-32-12" name="__codelineno-32-12" href="#__codelineno-32-12"></a>        <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span>
+</span><span id="__span-32-13"><a id="__codelineno-32-13" name="__codelineno-32-13" href="#__codelineno-32-13"></a>    <span class="p">)</span>
+</span><span id="__span-32-14"><a id="__codelineno-32-14" name="__codelineno-32-14" href="#__codelineno-32-14"></a>
+</span><span id="__span-32-15"><a id="__codelineno-32-15" name="__codelineno-32-15" href="#__codelineno-32-15"></a>    <span class="n">scores</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s1">&#39;f1&#39;</span><span class="p">)</span>
+</span><span id="__span-32-16"><a id="__codelineno-32-16" name="__codelineno-32-16" href="#__codelineno-32-16"></a>    <span class="k">return</span> <span class="o">-</span><span class="n">scores</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>  <span class="c1"># Minimize negative F1</span>
+</span><span id="__span-32-17"><a id="__codelineno-32-17" name="__codelineno-32-17" href="#__codelineno-32-17"></a>
+</span><span id="__span-32-18"><a id="__codelineno-32-18" name="__codelineno-32-18" href="#__codelineno-32-18"></a><span class="n">space</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-32-19"><a id="__codelineno-32-19" name="__codelineno-32-19" href="#__codelineno-32-19"></a>    <span class="n">Integer</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;n_estimators&#39;</span><span class="p">),</span>
+</span><span id="__span-32-20"><a id="__codelineno-32-20" name="__codelineno-32-20" href="#__codelineno-32-20"></a>    <span class="n">Real</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;contamination&#39;</span><span class="p">),</span>
+</span><span id="__span-32-21"><a id="__codelineno-32-21" name="__codelineno-32-21" href="#__codelineno-32-21"></a>    <span class="n">Real</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;max_features&#39;</span><span class="p">)</span>
+</span><span id="__span-32-22"><a id="__codelineno-32-22" name="__codelineno-32-22" href="#__codelineno-32-22"></a><span class="p">]</span>
+</span><span id="__span-32-23"><a id="__codelineno-32-23" name="__codelineno-32-23" href="#__codelineno-32-23"></a>
+</span><span id="__span-32-24"><a id="__codelineno-32-24" name="__codelineno-32-24" href="#__codelineno-32-24"></a><span class="n">result</span> <span class="o">=</span> <span class="n">gp_minimize</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">n_calls</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+</span></code></pre></div>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>This comprehensive guide covers all available algorithms in Pynomaly, their parameters, use cases, and performance characteristics. The choice of algorithm depends on:</p>
+<ol>
+<li><strong>Data characteristics</strong> (size, dimensionality, type)</li>
+<li><strong>Performance requirements</strong> (accuracy vs. speed)</li>
+<li><strong>Interpretability needs</strong></li>
+<li><strong>Computational resources</strong></li>
+<li><strong>Domain-specific requirements</strong></li>
+</ol>
+<p>For optimal results, consider:
+- Starting with simple methods for baselines
+- Using ensemble methods for critical applications
+- Applying proper parameter tuning
+- Validating performance thoroughly
+- Monitoring model performance in production</p>
+<p>The autonomous mode can help automatically select and tune the best algorithm for your specific use case.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/pynomaly/pynomaly" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/pynomaly/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/pynomaly" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+        <script src="../../../javascripts/extra.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1461 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="State-of-the-art Python anomaly detection platform">
+      
+      
+        <meta name="author" content="Pynomaly Team">
+      
+      
+        <link rel="canonical" href="https://pynomaly.readthedocs.io/CROSS_LINKING_IMPLEMENTATION_STRATEGY/">
+      
+      
+      
+      
+      <link rel="icon" href="../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>Cross-Linking Implementation Strategy for Pynomaly Documentation - Pynomaly Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cross-linking-implementation-strategy-for-pynomaly-documentation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Pynomaly Documentation" class="md-header__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pynomaly Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Cross-Linking Implementation Strategy for Pynomaly Documentation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Pynomaly Documentation" class="md-nav__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    Pynomaly Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Start
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/FEATURE_INSTALLATION_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Feature Installation Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Executive Summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#current-state-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current State Overview
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Current State Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#documentation-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentation Metrics
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#critical-issues-requiring-immediate-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      Critical Issues Requiring Immediate Action
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#strategic-linking-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strategic Linking Framework
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Strategic Linking Framework">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-user-journey-based-cross-linking" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. User Journey-Based Cross-Linking
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. User Journey-Based Cross-Linking">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#journey-1-new-user-onboarding" class="md-nav__link">
+    <span class="md-ellipsis">
+      Journey 1: New User Onboarding
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#journey-2-developer-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Journey 2: Developer Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#journey-3-production-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Journey 3: Production Deployment
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-content-type-integration-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Content Type Integration Strategy
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Content Type Integration Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#examples-documentation-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples ↔ Documentation Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reference-practical-content-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reference ↔ Practical Content Integration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#section-specific-implementation-plans" class="md-nav__link">
+    <span class="md-ellipsis">
+      Section-Specific Implementation Plans
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Section-Specific Implementation Plans">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-getting-started-section-enhancement" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Getting Started Section Enhancement
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Getting Started Section Enhancement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#priority-links-to-add" class="md-nav__link">
+    <span class="md-ellipsis">
+      Priority Links to Add:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-user-guides-section-enhancement" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. User Guides Section Enhancement
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. User Guides Section Enhancement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hub-document-enhancement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hub Document Enhancement:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-developer-guides-section-enhancement" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Developer Guides Section Enhancement
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Developer Guides Section Enhancement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#architecture-overview-enhancement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Architecture Overview Enhancement:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-integration-enhancement" class="md-nav__link">
+    <span class="md-ellipsis">
+      API Integration Enhancement:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-examples-section-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Examples Section Integration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Examples Section Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#examples-readme-enhancement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples README Enhancement:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#banking-example-enhancement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Banking Example Enhancement:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-reference-section-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Reference Section Integration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Reference Section Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#algorithm-reference-enhancement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Algorithm Reference Enhancement:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#linking-standards-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Linking Standards Implementation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Linking Standards Implementation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-standardized-link-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Standardized Link Conventions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Standardized Link Conventions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#path-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      Path Standards:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#link-text-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      Link Text Standards:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-navigation-section-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Navigation Section Templates
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Navigation Section Templates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#related-documentation-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      "Related Documentation" Template:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#learning-pathway-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      "Learning Pathway" Template:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-schedule" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Schedule
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Schedule">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-critical-fixes-week-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1: Critical Fixes (Week 1)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-navigation-enhancement-week-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 2: Navigation Enhancement (Week 2)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-advanced-cross-linking-week-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 3: Advanced Cross-Linking (Week 3)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#success-metrics-and-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Success Metrics and Validation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Success Metrics and Validation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#immediate-metrics-phase-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Immediate Metrics (Phase 1)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#progressive-metrics-phase-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Progressive Metrics (Phase 2)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#long-term-metrics-phase-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Long-term Metrics (Phase 3)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#maintenance-and-sustainability" class="md-nav__link">
+    <span class="md-ellipsis">
+      Maintenance and Sustainability
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Maintenance and Sustainability">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-automated-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Automated Validation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-content-creation-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Content Creation Guidelines
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-regular-review-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Regular Review Process
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="cross-linking-implementation-strategy-for-pynomaly-documentation">Cross-Linking Implementation Strategy for Pynomaly Documentation<a class="headerlink" href="#cross-linking-implementation-strategy-for-pynomaly-documentation" title="Permanent link">&para;</a></h1>
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>This document outlines a comprehensive strategy for implementing effective cross-linking throughout the Pynomaly documentation ecosystem. Based on the analysis of 139 documentation files with 247 existing links, this strategy addresses critical navigation issues while establishing sustainable linking practices.</p>
+<h2 id="current-state-overview">Current State Overview<a class="headerlink" href="#current-state-overview" title="Permanent link">&para;</a></h2>
+<h3 id="documentation-metrics">Documentation Metrics<a class="headerlink" href="#documentation-metrics" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>139 total documents</strong> across 8 main sections</li>
+<li><strong>247 existing cross-links</strong> with 25% broken rate</li>
+<li><strong>84 orphaned documents</strong> (60% of total) with no incoming links</li>
+<li><strong>54 cross-referenced documents</strong> (39% of total) with incoming links</li>
+</ul>
+<h3 id="critical-issues-requiring-immediate-action">Critical Issues Requiring Immediate Action<a class="headerlink" href="#critical-issues-requiring-immediate-action" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>62 broken links</strong> preventing successful user navigation</li>
+<li><strong>Hub documents with poor outgoing connectivity</strong> (10 high-traffic pages)</li>
+<li><strong>Isolated content sections</strong> with minimal cross-referencing</li>
+<li><strong>Inconsistent linking conventions</strong> across documentation</li>
+</ol>
+<h2 id="strategic-linking-framework">Strategic Linking Framework<a class="headerlink" href="#strategic-linking-framework" title="Permanent link">&para;</a></h2>
+<h3 id="1-user-journey-based-cross-linking">1. User Journey-Based Cross-Linking<a class="headerlink" href="#1-user-journey-based-cross-linking" title="Permanent link">&para;</a></h3>
+<h4 id="journey-1-new-user-onboarding"><strong>Journey 1: New User Onboarding</strong><a class="headerlink" href="#journey-1-new-user-onboarding" title="Permanent link">&para;</a></h4>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Getting Started → Basic Usage → Advanced Features → Examples
+</span></code></pre></div>
+<p><strong>Implementation:</strong>
+- <code>getting-started/installation.md</code> → <code>user-guides/basic-usage/</code>
+- <code>getting-started/quickstart.md</code> → <code>user-guides/basic-usage/autonomous-mode.md</code>
+- <code>getting-started/README.md</code> → <code>examples/tutorials/README.md</code></p>
+<h4 id="journey-2-developer-integration"><strong>Journey 2: Developer Integration</strong><a class="headerlink" href="#journey-2-developer-integration" title="Permanent link">&para;</a></h4>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>API Integration → Architecture → Contributing → Advanced Development
+</span></code></pre></div>
+<p><strong>Implementation:</strong>
+- <code>developer-guides/api-integration/</code> → <code>developer-guides/architecture/overview.md</code>
+- <code>developer-guides/architecture/</code> → <code>developer-guides/contributing/README.md</code>
+- <code>developer-guides/contributing/</code> → Advanced testing and deployment guides</p>
+<h4 id="journey-3-production-deployment"><strong>Journey 3: Production Deployment</strong><a class="headerlink" href="#journey-3-production-deployment" title="Permanent link">&para;</a></h4>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Development → Security → Deployment → Monitoring → Troubleshooting
+</span></code></pre></div>
+<p><strong>Implementation:</strong>
+- <code>developer-guides/contributing/</code> → <code>deployment/security.md</code>
+- <code>deployment/</code> → <code>user-guides/basic-usage/monitoring.md</code>
+- <code>user-guides/basic-usage/monitoring.md</code> → <code>user-guides/troubleshooting/</code></p>
+<h3 id="2-content-type-integration-strategy">2. Content Type Integration Strategy<a class="headerlink" href="#2-content-type-integration-strategy" title="Permanent link">&para;</a></h3>
+<h4 id="examples-documentation-integration"><strong>Examples ↔ Documentation Integration</strong><a class="headerlink" href="#examples-documentation-integration" title="Permanent link">&para;</a></h4>
+<p><strong>Current Issue</strong>: Examples are isolated from explanatory content<br />
+<strong>Strategy</strong>: Bidirectional linking between practical examples and theoretical guides</p>
+<p><strong>Key Integrations:</strong>
+<div class="language-markdown highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="gh"># In examples/banking/Banking_Anomaly_Detection_Guide.md</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>See also: [<span class="nt">Dataset Analysis Guide</span>](<span class="na">../../user-guides/advanced-features/dataset-analysis-guide.md</span>)
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>Related: [<span class="nt">Algorithm Selection</span>](<span class="na">../../reference/algorithms/README.md</span>)
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="gh"># In user-guides/advanced-features/dataset-analysis-guide.md  </span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>Practical Example: [<span class="nt">Banking Fraud Detection</span>](<span class="na">../../examples/banking/Banking_Anomaly_Detection_Guide.md</span>)
+</span></code></pre></div></p>
+<h4 id="reference-practical-content-integration"><strong>Reference ↔ Practical Content Integration</strong><a class="headerlink" href="#reference-practical-content-integration" title="Permanent link">&para;</a></h4>
+<p><strong>Current Issue</strong>: Algorithm and API references lack practical context<br />
+<strong>Strategy</strong>: Connect technical references to usage examples</p>
+<p><strong>Key Integrations:</strong>
+<div class="language-markdown highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="gh"># In reference/algorithms/core-algorithms.md</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>Usage Examples: [<span class="nt">Autonomous Mode</span>](<span class="na">../../user-guides/basic-usage/autonomous-mode.md</span>)
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>Practical Guide: [<span class="nt">Algorithm Selection Tutorial</span>](<span class="na">../../examples/tutorials/05-algorithm-rationale-selection-guide.md</span>)
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="gh"># In user-guides/basic-usage/autonomous-mode.md</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>Algorithm Details: [<span class="nt">Core Algorithms Reference</span>](<span class="na">../../reference/algorithms/core-algorithms.md</span>)
+</span></code></pre></div></p>
+<h2 id="section-specific-implementation-plans">Section-Specific Implementation Plans<a class="headerlink" href="#section-specific-implementation-plans" title="Permanent link">&para;</a></h2>
+<h3 id="1-getting-started-section-enhancement">1. Getting Started Section Enhancement<a class="headerlink" href="#1-getting-started-section-enhancement" title="Permanent link">&para;</a></h3>
+<p><strong>Current State</strong>: 6 documents, 45 outgoing links<br />
+<strong>Goal</strong>: Clear progression paths to user guides</p>
+<h4 id="priority-links-to-add"><strong>Priority Links to Add:</strong><a class="headerlink" href="#priority-links-to-add" title="Permanent link">&para;</a></h4>
+<p><strong>getting-started/README.md:</strong>
+<div class="language-markdown highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="gu">## Next Steps After Installation</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[First Detection](quickstart.md)**</span> - Run your first anomaly detection
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Basic Usage Guide](../user-guides/basic-usage/)**</span> - Learn core concepts
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Example Walkthrough](../examples/tutorials/README.md)**</span> - Hands-on tutorials
+</span></code></pre></div></p>
+<p><strong>getting-started/quickstart.md:</strong>
+<div class="language-markdown highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="gu">## Continue Your Journey</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Autonomous Mode](../user-guides/basic-usage/autonomous-mode.md)**</span> - Automatic algorithm selection
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Dataset Management](../user-guides/basic-usage/datasets.md)**</span> - Working with your data  
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Banking Example](../examples/banking/Banking_Anomaly_Detection_Guide.md)**</span> - Real-world use case
+</span></code></pre></div></p>
+<p><strong>getting-started/installation.md:</strong>
+<div class="language-markdown highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="gu">## After Installation</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Quick Start Guide](quickstart.md)**</span> - Your first detection in 5 minutes
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[CLI Reference](../cli/command-reference.md)**</span> - Command-line interface
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Troubleshooting](../user-guides/troubleshooting/troubleshooting.md)**</span> - Common issues
+</span></code></pre></div></p>
+<h3 id="2-user-guides-section-enhancement">2. User Guides Section Enhancement<a class="headerlink" href="#2-user-guides-section-enhancement" title="Permanent link">&para;</a></h3>
+<p><strong>Current State</strong>: 12 documents, 23 outgoing links<br />
+<strong>Goal</strong>: Strong internal connectivity and external integration</p>
+<h4 id="hub-document-enhancement"><strong>Hub Document Enhancement:</strong><a class="headerlink" href="#hub-document-enhancement" title="Permanent link">&para;</a></h4>
+<p><strong>user-guides/basic-usage/monitoring.md</strong> (12 incoming, 0 outgoing):
+<div class="language-markdown highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="gu">## Related Documentation</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Performance Tuning](../advanced-features/performance-tuning.md)**</span> - Optimize your monitoring setup
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Deployment Guide](../../deployment/production-deployment.md)**</span> - Production monitoring
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[API Integration](../../developer-guides/api-integration/rest-api.md)**</span> - Monitoring endpoints
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Troubleshooting](../troubleshooting/troubleshooting.md)**</span> - Monitoring issues
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="gu">## Advanced Topics</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Real-time Dashboards](../progressive-web-app.md)**</span> - Interactive monitoring
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Alert Configuration](../advanced-features/performance.md)**</span> - Automated alerting
+</span></code></pre></div></p>
+<p><strong>user-guides/README.md:</strong>
+<div class="language-markdown highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="gu">## Integration Paths</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[From Getting Started](../getting-started/README.md)**</span> - Continue your learning journey
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[To Developer Guides](../developer-guides/README.md)**</span> - Technical implementation
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[To Examples](../examples/README.md)**</span> - Practical applications
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[To Deployment](../deployment/README.md)**</span> - Production readiness
+</span></code></pre></div></p>
+<h3 id="3-developer-guides-section-enhancement">3. Developer Guides Section Enhancement<a class="headerlink" href="#3-developer-guides-section-enhancement" title="Permanent link">&para;</a></h3>
+<p><strong>Current State</strong>: 21 documents, 35 outgoing links<br />
+<strong>Goal</strong>: Technical progression and integration clarity</p>
+<h4 id="architecture-overview-enhancement"><strong>Architecture Overview Enhancement:</strong><a class="headerlink" href="#architecture-overview-enhancement" title="Permanent link">&para;</a></h4>
+<p><strong>developer-guides/architecture/overview.md</strong> (11 incoming, 0 outgoing):
+<div class="language-markdown highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="gu">## Deep Dive Topics</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Model Persistence](model-persistence-framework.md)**</span> - Data layer architecture
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Continuous Learning](continuous-learning-framework.md)**</span> - Online learning systems
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Deployment Pipeline](deployment-pipeline-framework.md)**</span> - CI/CD architecture
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[PWA Architecture](pwa-architecture.md)**</span> - Web application design
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="gu">## Implementation Guides</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Contributing Guide](../contributing/CONTRIBUTING.md)**</span> - Development workflow
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[API Integration](../api-integration/rest-api.md)**</span> - Building with APIs
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Testing Strategy](../contributing/COMPREHENSIVE_TEST_ANALYSIS.md)**</span> - Quality assurance
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="gu">## Related User Documentation</span>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Basic Usage](../../user-guides/basic-usage/)**</span> - Understanding user perspective
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Advanced Features](../../user-guides/advanced-features/)**</span> - Feature implementation context
+</span></code></pre></div></p>
+<h4 id="api-integration-enhancement"><strong>API Integration Enhancement:</strong><a class="headerlink" href="#api-integration-enhancement" title="Permanent link">&para;</a></h4>
+<p><strong>developer-guides/api-integration/authentication.md</strong> (5 incoming, 0 outgoing):
+<div class="language-markdown highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="gu">## Implementation Examples</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Web API Setup](WEB_API_SETUP_GUIDE.md)**</span> - Complete setup walkthrough
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Python SDK Usage](python-sdk.md)**</span> - Programmatic access
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[REST API Reference](rest-api.md)**</span> - HTTP endpoint details
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="gu">## Security Context</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Production Security](../../deployment/security.md)**</span> - Security best practices
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[User Management Example](../../examples/tutorials/README.md)**</span> - Practical implementation
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="gu">## Related Architecture</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Architecture Overview](../architecture/overview.md)**</span> - System design context
+</span></code></pre></div></p>
+<h3 id="4-examples-section-integration">4. Examples Section Integration<a class="headerlink" href="#4-examples-section-integration" title="Permanent link">&para;</a></h3>
+<p><strong>Current State</strong>: 11 documents, 5 outgoing links (severely under-linked)<br />
+<strong>Goal</strong>: Connect examples to explanatory documentation</p>
+<h4 id="examples-readme-enhancement"><strong>Examples README Enhancement:</strong><a class="headerlink" href="#examples-readme-enhancement" title="Permanent link">&para;</a></h4>
+<p><strong>examples/README.md:</strong>
+<div class="language-markdown highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="gu">## Learning Pathways</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="gu">### By User Type</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Business Analysts](banking/Banking_Anomaly_Detection_Guide.md)**</span> → [<span class="nt">Dataset Analysis</span>](<span class="na">../user-guides/advanced-features/dataset-analysis-guide.md</span>)
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Data Scientists](tutorials/README.md)**</span> → [<span class="nt">Algorithm Reference</span>](<span class="na">../reference/algorithms/README.md</span>)  
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Developers](Data_Quality_Anomaly_Detection_Guide.md)**</span> → [<span class="nt">API Integration</span>](<span class="na">../developer-guides/api-integration/README.md</span>)
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="gu">### By Use Case  </span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Financial Fraud](banking/)**</span> → [<span class="nt">Performance Tuning</span>](<span class="na">../user-guides/advanced-features/performance-tuning.md</span>)
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Data Quality](Data_Quality_Anomaly_Detection_Guide.md)**</span> → [<span class="nt">Explainability</span>](<span class="na">../user-guides/advanced-features/explainability.md</span>)
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="gu">## Foundation Knowledge</span>
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Getting Started](../getting-started/README.md)**</span> - Prerequisites for examples
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Basic Usage](../user-guides/basic-usage/)**</span> - Core concepts
+</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Troubleshooting](../user-guides/troubleshooting/)**</span> - When examples don&#39;t work
+</span></code></pre></div></p>
+<h4 id="banking-example-enhancement"><strong>Banking Example Enhancement:</strong><a class="headerlink" href="#banking-example-enhancement" title="Permanent link">&para;</a></h4>
+<p><strong>examples/banking/Banking_Anomaly_Detection_Guide.md:</strong>
+<div class="language-markdown highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="gu">## Related Documentation</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Dataset Analysis Guide](../../user-guides/advanced-features/dataset-analysis-guide.md)**</span> - Understanding your banking data
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Algorithm Selection](../../reference/CLASSIFIER_SELECTION_GUIDE.md)**</span> - Choosing the right algorithms
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Performance Optimization](../../user-guides/advanced-features/performance-tuning.md)**</span> - Scaling for production
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="gu">## Next Steps</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Advanced Features](../../user-guides/advanced-features/)**</span> - Enhance your fraud detection
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Deployment Guide](../../deployment/production-deployment.md)**</span> - Deploy to production
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Monitoring Setup](../../user-guides/basic-usage/monitoring.md)**</span> - Track system performance
+</span></code></pre></div></p>
+<h3 id="5-reference-section-integration">5. Reference Section Integration<a class="headerlink" href="#5-reference-section-integration" title="Permanent link">&para;</a></h3>
+<p><strong>Current State</strong>: 7 documents, 8 outgoing links<br />
+<strong>Goal</strong>: Connect technical references to practical usage</p>
+<h4 id="algorithm-reference-enhancement"><strong>Algorithm Reference Enhancement:</strong><a class="headerlink" href="#algorithm-reference-enhancement" title="Permanent link">&para;</a></h4>
+<p><strong>reference/algorithms/README.md:</strong>
+<div class="language-markdown highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="gu">## Practical Application</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Autonomous Mode](../../user-guides/basic-usage/autonomous-mode.md)**</span> - Automatic algorithm selection
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Algorithm Selection Tutorial](../../examples/tutorials/05-algorithm-rationale-selection-guide.md)**</span> - Step-by-step selection
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Performance Comparison](algorithm-comparison.md)**</span> - Detailed algorithm analysis
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="gu">## Implementation Guides</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Getting Started](../../getting-started/quickstart.md)**</span> - First algorithm usage
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Advanced Usage](../../user-guides/advanced-features/)**</span> - Complex scenarios
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Developer Integration](../../developer-guides/api-integration/)**</span> - Programmatic access
+</span></code></pre></div></p>
+<p><strong>reference/CLASSIFIER_SELECTION_GUIDE.md:</strong>
+<div class="language-markdown highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="gu">## Practical Examples</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Banking Fraud Detection](../../examples/banking/Banking_Anomaly_Detection_Guide.md)**</span> - Financial use case
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Autonomous Selection](../../examples/tutorials/09-autonomous-classifier-selection-guide.md)**</span> - Automated approach
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="gu">## Related Guides  </span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Performance Tuning](../../user-guides/advanced-features/performance-tuning.md)**</span> - Optimize your selection
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Dataset Analysis](../../user-guides/advanced-features/dataset-analysis-guide.md)**</span> - Understand your data first
+</span></code></pre></div></p>
+<h2 id="linking-standards-implementation">Linking Standards Implementation<a class="headerlink" href="#linking-standards-implementation" title="Permanent link">&para;</a></h2>
+<h3 id="1-standardized-link-conventions">1. Standardized Link Conventions<a class="headerlink" href="#1-standardized-link-conventions" title="Permanent link">&para;</a></h3>
+<h4 id="path-standards"><strong>Path Standards:</strong><a class="headerlink" href="#path-standards" title="Permanent link">&para;</a></h4>
+<div class="language-markdown highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="gh"># Cross-section links (preferred)</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>[<span class="nt">User Guides</span>](<span class="na">user-guides/README.md</span>)
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>[<span class="nt">API Reference</span>](<span class="na">developer-guides/api-integration/rest-api.md</span>)
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="gh"># Same-section links  </span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>[<span class="nt">Basic Usage</span>](<span class="na">./basic-usage/autonomous-mode.md</span>)
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>[<span class="nt">Architecture</span>](<span class="na">./architecture/overview.md</span>)
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="gh"># Avoid fragile relative paths</span>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>[<span class="nt">Bad Example</span>](<span class="na">../../../other-section/file.md</span>)
+</span></code></pre></div>
+<h4 id="link-text-standards"><strong>Link Text Standards:</strong><a class="headerlink" href="#link-text-standards" title="Permanent link">&para;</a></h4>
+<div class="language-markdown highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="gh"># Descriptive and contextual</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>[<span class="nt">Performance Tuning Guide</span>](<span class="na">user-guides/advanced-features/performance-tuning.md</span>)
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>[<span class="nt">Banking Fraud Detection Example</span>](<span class="na">examples/banking/Banking_Anomaly_Detection_Guide.md</span>)
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="gh"># Avoid generic text</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>[<span class="nt">Click here</span>](<span class="na">some-file.md</span>)
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>[<span class="nt">Documentation</span>](<span class="na">other-file.md</span>)
+</span></code></pre></div>
+<h3 id="2-navigation-section-templates">2. Navigation Section Templates<a class="headerlink" href="#2-navigation-section-templates" title="Permanent link">&para;</a></h3>
+<h4 id="related-documentation-template"><strong>"Related Documentation" Template:</strong><a class="headerlink" href="#related-documentation-template" title="Permanent link">&para;</a></h4>
+<div class="language-markdown highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="gu">## Related Documentation</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="gu">### Prerequisites</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Installation Guide](../getting-started/installation.md)**</span> - Setup requirements
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Basic Concepts](../user-guides/basic-usage/)**</span> - Foundation knowledge
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="gu">### Next Steps  </span>
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Advanced Features](../user-guides/advanced-features/)**</span> - Extended capabilities
+</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Examples](../examples/)**</span> - Practical applications
+</span><span id="__span-18-10"><a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>
+</span><span id="__span-18-11"><a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a><span class="gu">### Reference Materials</span>
+</span><span id="__span-18-12"><a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[API Documentation](../developer-guides/api-integration/)**</span> - Technical reference
+</span><span id="__span-18-13"><a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a><span class="k">-</span><span class="w"> </span><span class="gs">**[Algorithm Guide](../reference/algorithms/)**</span> - Algorithm details
+</span></code></pre></div>
+<h4 id="learning-pathway-template"><strong>"Learning Pathway" Template:</strong><a class="headerlink" href="#learning-pathway-template" title="Permanent link">&para;</a></h4>
+<div class="language-markdown highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="gu">## Learning Pathway</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="gu">### 1. Foundation</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>Start with [<span class="nt">Getting Started</span>](<span class="na">../getting-started/README.md</span>) if you&#39;re new to Pynomaly.
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="gu">### 2. Core Usage</span>
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>Learn [<span class="nt">Basic Usage</span>](<span class="na">../user-guides/basic-usage/</span>) concepts and workflows.
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>
+</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a><span class="gu">### 3. Advanced Topics  </span>
+</span><span id="__span-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>Explore [<span class="nt">Advanced Features</span>](<span class="na">../user-guides/advanced-features/</span>) for complex scenarios.
+</span><span id="__span-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>
+</span><span id="__span-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a><span class="gu">### 4. Practical Application</span>
+</span><span id="__span-19-13"><a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a>Try [<span class="nt">Examples</span>](<span class="na">../examples/</span>) to see real-world implementations.
+</span></code></pre></div>
+<h2 id="implementation-schedule">Implementation Schedule<a class="headerlink" href="#implementation-schedule" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-critical-fixes-week-1">Phase 1: Critical Fixes (Week 1)<a class="headerlink" href="#phase-1-critical-fixes-week-1" title="Permanent link">&para;</a></h3>
+<p><strong>Goal</strong>: Fix all broken links and establish basic connectivity</p>
+<ol>
+<li><strong>Day 1-2</strong>: Fix 62 broken links</li>
+<li>Create missing security documentation</li>
+<li>Update outdated path references</li>
+<li>
+<p>Fix API documentation paths</p>
+</li>
+<li>
+<p><strong>Day 3-4</strong>: Enhance top 5 hub documents</p>
+</li>
+<li>Add outgoing links to heavily-referenced pages</li>
+<li>
+<p>Create "Related Documentation" sections</p>
+</li>
+<li>
+<p><strong>Day 5</strong>: Implement linking standards</p>
+</li>
+<li>Document conventions in style guide</li>
+<li>Create link validation tools</li>
+</ol>
+<h3 id="phase-2-navigation-enhancement-week-2">Phase 2: Navigation Enhancement (Week 2)<a class="headerlink" href="#phase-2-navigation-enhancement-week-2" title="Permanent link">&para;</a></h3>
+<p><strong>Goal</strong>: Connect orphaned content and improve discoverability</p>
+<ol>
+<li><strong>Days 1-3</strong>: Section integration</li>
+<li>Connect examples to explanatory docs</li>
+<li>Link reference materials to practical guides</li>
+<li>
+<p>Enhance user journey progressions</p>
+</li>
+<li>
+<p><strong>Days 4-5</strong>: Orphaned content integration</p>
+</li>
+<li>Add incoming links to 20 highest-value orphaned docs</li>
+<li>Create topic-based clusters</li>
+<li>Establish clear content hierarchies</li>
+</ol>
+<h3 id="phase-3-advanced-cross-linking-week-3">Phase 3: Advanced Cross-Linking (Week 3)<a class="headerlink" href="#phase-3-advanced-cross-linking-week-3" title="Permanent link">&para;</a></h3>
+<p><strong>Goal</strong>: Optimize navigation and establish maintenance processes</p>
+<ol>
+<li><strong>Days 1-2</strong>: Contextual enhancements</li>
+<li>Add "See Also" sections</li>
+<li>Create topical link networks</li>
+<li>
+<p>Implement progressive disclosure</p>
+</li>
+<li>
+<p><strong>Days 3-4</strong>: User journey optimization</p>
+</li>
+<li>Create skill-level progressions  </li>
+<li>Add use case-specific paths</li>
+<li>
+<p>Optimize for common workflows</p>
+</li>
+<li>
+<p><strong>Day 5</strong>: Maintenance automation</p>
+</li>
+<li>Implement link validation in CI/CD</li>
+<li>Create documentation update tools</li>
+<li>Establish regular review processes</li>
+</ol>
+<h2 id="success-metrics-and-validation">Success Metrics and Validation<a class="headerlink" href="#success-metrics-and-validation" title="Permanent link">&para;</a></h2>
+<h3 id="immediate-metrics-phase-1">Immediate Metrics (Phase 1)<a class="headerlink" href="#immediate-metrics-phase-1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Broken links</strong>: 0 (from 62)</li>
+<li><strong>Hub document outgoing links</strong>: Average 5+ per hub</li>
+<li><strong>Critical path completion</strong>: 100% working navigation</li>
+</ul>
+<h3 id="progressive-metrics-phase-2">Progressive Metrics (Phase 2)<a class="headerlink" href="#progressive-metrics-phase-2" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Orphaned documents</strong>: &lt;20 (from 84)</li>
+<li><strong>Cross-reference coverage</strong>: 70% of documents (from 39%)</li>
+<li><strong>Section connectivity</strong>: 3+ cross-section links per document</li>
+</ul>
+<h3 id="long-term-metrics-phase-3">Long-term Metrics (Phase 3)<a class="headerlink" href="#long-term-metrics-phase-3" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>User journey completion</strong>: Track documentation workflow completion</li>
+<li><strong>Search vs. browse ratio</strong>: Increase browsing through navigation</li>
+<li><strong>Time to information</strong>: Reduce user time to find relevant content</li>
+<li><strong>Link maintenance</strong>: &lt;5% broken link rate sustainably</li>
+</ul>
+<h2 id="maintenance-and-sustainability">Maintenance and Sustainability<a class="headerlink" href="#maintenance-and-sustainability" title="Permanent link">&para;</a></h2>
+<h3 id="1-automated-validation">1. Automated Validation<a class="headerlink" href="#1-automated-validation" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1"># Pre-commit hook for link validation</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>pre-commit:<span class="w"> </span>validate-docs-links
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="c1"># CI/CD integration</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>github-actions:<span class="w"> </span>docs-link-check
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="c1"># Periodic full validation</span>
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>cron:<span class="w"> </span>weekly-link-audit
+</span></code></pre></div>
+<h3 id="2-content-creation-guidelines">2. Content Creation Guidelines<a class="headerlink" href="#2-content-creation-guidelines" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Link-first approach</strong>: Plan cross-references during content creation</li>
+<li><strong>Bidirectional linking</strong>: Ensure related content links to each other</li>
+<li><strong>Progressive disclosure</strong>: Link from simple to complex topics</li>
+<li><strong>User journey awareness</strong>: Consider user progression paths</li>
+</ul>
+<h3 id="3-regular-review-process">3. Regular Review Process<a class="headerlink" href="#3-regular-review-process" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Monthly</strong>: Link validation and broken link fixes</li>
+<li><strong>Quarterly</strong>: Navigation pattern analysis and optimization</li>
+<li><strong>Bi-annually</strong>: Full documentation structure review</li>
+<li><strong>Annually</strong>: User journey mapping and optimization</li>
+</ul>
+<p>This comprehensive implementation strategy transforms the Pynomaly documentation from a collection of isolated documents into a cohesive, navigable knowledge system that guides users through their entire journey from initial installation to advanced development and deployment.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/pynomaly/pynomaly" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/pynomaly/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/pynomaly" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+        <script src="../javascripts/extra.js"></script>
+      
+    
+  </body>
+</html>

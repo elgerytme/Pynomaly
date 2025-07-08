@@ -1,0 +1,2510 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="State-of-the-art Python anomaly detection platform">
+      
+      
+        <meta name="author" content="Pynomaly Team">
+      
+      
+        <link rel="canonical" href="https://pynomaly.readthedocs.io/reference/algorithms/specialized-algorithms/">
+      
+      
+      
+      
+      <link rel="icon" href="../../../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>Specialized Algorithms - Pynomaly Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#specialized-algorithms" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Pynomaly Documentation" class="md-header__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../../../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pynomaly Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Specialized Algorithms
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Pynomaly Documentation" class="md-nav__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../../../assets/logo.png" alt="logo">
+
+    </a>
+    Pynomaly Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Start
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/FEATURE_INSTALLATION_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Feature Installation Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Navigation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Navigation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#by-data-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      By Data Type
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#by-use-case" class="md-nav__link">
+    <span class="md-ellipsis">
+      By Use Case
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#time-series-algorithms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Time Series Algorithms
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Time Series Algorithms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-matrix-profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Matrix Profile
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Matrix Profile">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#algorithm-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      Algorithm Details
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strengths" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strengths
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limitations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      When to Use
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-lstm-autoencoder" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. LSTM AutoEncoder
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. LSTM AutoEncoder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strengths_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strengths
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limitations_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limitations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-prophet" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Prophet
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Prophet">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strengths_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strengths
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limitations_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limitations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-arima-based-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. ARIMA-based Detection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. ARIMA-based Detection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#graph-neural-networks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Graph Neural Networks
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Graph Neural Networks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-dominant" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. DOMINANT
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. DOMINANT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strengths_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strengths
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limitations_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limitations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-use_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      When to Use
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-graph-convolutional-autoencoder-gcnae" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Graph Convolutional AutoEncoder (GCNAE)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Graph Convolutional AutoEncoder (GCNAE)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#text-anomaly-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Text Anomaly Detection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Text Anomaly Detection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-tf-idf-with-clustering" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. TF-IDF with Clustering
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. TF-IDF with Clustering">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strengths_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strengths
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limitations_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limitations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-word-embeddings-anomaly-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Word Embeddings Anomaly Detection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Word Embeddings Anomaly Detection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#image-anomaly-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Image Anomaly Detection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Image Anomaly Detection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-cnn-autoencoder" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. CNN AutoEncoder
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. CNN AutoEncoder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strengths_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strengths
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limitations_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limitations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#streaming-algorithms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Streaming Algorithms
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Streaming Algorithms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-incremental-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Incremental Statistics
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Incremental Statistics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strengths_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Strengths
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limitations_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limitations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ensemble-specialized-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ensemble Specialized Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ensemble Specialized Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-time-series-ensemble" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Time Series Ensemble
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Time Series Ensemble">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-multi-modal-ensemble" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Multi-Modal Ensemble
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Multi-Modal Ensemble">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Guidelines
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Guidelines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#time-series-algorithms_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Time Series Algorithms
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graph-algorithms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Graph Algorithms
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#text-algorithms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Text Algorithms
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-data-preprocessing" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Data Preprocessing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-domain-specific-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Domain-Specific Validation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-hyperparameter-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Hyperparameter Tuning
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related Documentation
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="specialized-algorithms">Specialized Algorithms<a class="headerlink" href="#specialized-algorithms" title="Permanent link">&para;</a></h1>
+<p>🍞 <strong>Breadcrumb:</strong> 🏠 <a href="../../../">Home</a> &gt; 📖 <a href="../README.md">Reference</a> &gt; 🧮 <a href="../">Algorithms</a> &gt; 🎯 Specialized Algorithms</p>
+<hr />
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This guide covers domain-specific anomaly detection algorithms designed for specialized data types and use cases. These algorithms are optimized for specific domains such as time series, graphs, text, and images.</p>
+<h2 id="quick-navigation">Quick Navigation<a class="headerlink" href="#quick-navigation" title="Permanent link">&para;</a></h2>
+<h3 id="by-data-type">By Data Type<a class="headerlink" href="#by-data-type" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="#time-series-algorithms">Time Series</a></strong> - Temporal data, seasonal patterns</li>
+<li><strong><a href="#graph-neural-networks">Graph Data</a></strong> - Networks, relationships, social data</li>
+<li><strong><a href="#text-anomaly-detection">Text Data</a></strong> - Documents, logs, natural language</li>
+<li><strong><a href="#image-anomaly-detection">Image Data</a></strong> - Computer vision, medical imaging</li>
+</ul>
+<h3 id="by-use-case">By Use Case<a class="headerlink" href="#by-use-case" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="#streaming-algorithms">Real-Time Monitoring</a></strong> - Live data streams</li>
+<li><strong><a href="#sequence-algorithms">Sequential Patterns</a></strong> - Ordered data, logs</li>
+<li><strong><a href="#spatial-algorithms">Spatial Data</a></strong> - Geographic, location-based</li>
+</ul>
+<hr />
+<h2 id="time-series-algorithms">Time Series Algorithms<a class="headerlink" href="#time-series-algorithms" title="Permanent link">&para;</a></h2>
+<h3 id="1-matrix-profile">1. Matrix Profile<a class="headerlink" href="#1-matrix-profile" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Pattern matching<br />
+<strong>Library</strong>: TODS/Custom<br />
+<strong>Complexity</strong>: O(n²)<br />
+<strong>Best for</strong>: Motif discovery, pattern anomalies, univariate time series</p>
+<h4 id="description">Description<a class="headerlink" href="#description" title="Permanent link">&para;</a></h4>
+<p>Matrix Profile computes the distance profile between all subsequences in a time series, enabling fast discovery of anomalous patterns and motifs.</p>
+<h4 id="algorithm-details">Algorithm Details<a class="headerlink" href="#algorithm-details" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Sliding window approach over time series</li>
+<li>Computes z-normalized Euclidean distance</li>
+<li>Identifies discord (anomalous subsequences)</li>
+<li>Efficient for pattern-based anomalies</li>
+</ul>
+<h4 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>window_size</code></td>
+<td>int</td>
+<td>50</td>
+<td>10-500</td>
+<td>Subsequence length</td>
+</tr>
+<tr>
+<td><code>normalize</code></td>
+<td>bool</td>
+<td>True</td>
+<td>-</td>
+<td>Z-normalize subsequences</td>
+</tr>
+<tr>
+<td><code>distance_profile</code></td>
+<td>str</td>
+<td>"euclidean"</td>
+<td>"euclidean", "manhattan"</td>
+<td>Distance metric</td>
+</tr>
+<tr>
+<td><code>contamination</code></td>
+<td>float</td>
+<td>0.1</td>
+<td>0.0-0.5</td>
+<td>Expected anomaly proportion</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage-example">Usage Example<a class="headerlink" href="#usage-example" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Time Series Pattern Detector&quot;</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;MatrixProfile&quot;</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">library</span><span class="o">=</span><span class="s2">&quot;tods&quot;</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="s2">&quot;window_size&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="s2">&quot;normalize&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.05</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="p">}</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">)</span>
+</span></code></pre></div>
+<h4 id="strengths">Strengths<a class="headerlink" href="#strengths" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ Excellent for pattern-based anomalies</li>
+<li>✅ Parameter-light (mainly window size)</li>
+<li>✅ Fast motif and discord discovery</li>
+<li>✅ Robust to noise</li>
+</ul>
+<h4 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h4>
+<ul>
+<li>❌ Limited to univariate time series</li>
+<li>❌ Requires selecting appropriate window size</li>
+<li>❌ Memory intensive for long series</li>
+<li>❌ Not suitable for point anomalies</li>
+</ul>
+<h4 id="when-to-use">When to Use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Recurring pattern detection</li>
+<li>Time series motif analysis</li>
+<li>Sensor data monitoring</li>
+<li>Manufacturing quality control</li>
+</ul>
+<hr />
+<h3 id="2-lstm-autoencoder">2. LSTM AutoEncoder<a class="headerlink" href="#2-lstm-autoencoder" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Deep learning/RNN<br />
+<strong>Library</strong>: TensorFlow/PyTorch<br />
+<strong>Complexity</strong>: O(n×T)<br />
+<strong>Best for</strong>: Sequential patterns, multivariate time series, long-term dependencies</p>
+<h4 id="description_1">Description<a class="headerlink" href="#description_1" title="Permanent link">&para;</a></h4>
+<p>Recurrent neural network autoencoder that learns to encode and decode time series sequences. Anomalies are detected based on reconstruction error.</p>
+<h4 id="parameters_1">Parameters<a class="headerlink" href="#parameters_1" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sequence_length</code></td>
+<td>int</td>
+<td>50</td>
+<td>10-200</td>
+<td>Input sequence length</td>
+</tr>
+<tr>
+<td><code>hidden_neurons</code></td>
+<td>list</td>
+<td>[64, 32]</td>
+<td>Various</td>
+<td>LSTM layer sizes</td>
+</tr>
+<tr>
+<td><code>dropout_rate</code></td>
+<td>float</td>
+<td>0.2</td>
+<td>0.0-0.5</td>
+<td>Dropout regularization</td>
+</tr>
+<tr>
+<td><code>epochs</code></td>
+<td>int</td>
+<td>100</td>
+<td>50-500</td>
+<td>Training epochs</td>
+</tr>
+<tr>
+<td><code>batch_size</code></td>
+<td>int</td>
+<td>32</td>
+<td>16-128</td>
+<td>Training batch size</td>
+</tr>
+<tr>
+<td><code>learning_rate</code></td>
+<td>float</td>
+<td>0.001</td>
+<td>0.0001-0.01</td>
+<td>Learning rate</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage-example_1">Usage Example<a class="headerlink" href="#usage-example_1" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LSTM Time Series Detector&quot;</span><span class="p">,</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;LSTMAutoEncoder&quot;</span><span class="p">,</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">library</span><span class="o">=</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">,</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="s2">&quot;sequence_length&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="s2">&quot;hidden_neurons&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">],</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>        <span class="s2">&quot;dropout_rate&quot;</span><span class="p">:</span> <span class="mf">0.3</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="p">}</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="p">)</span>
+</span></code></pre></div>
+<h4 id="strengths_1">Strengths<a class="headerlink" href="#strengths_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ Handles multivariate time series</li>
+<li>✅ Captures long-term dependencies</li>
+<li>✅ Learns complex temporal patterns</li>
+<li>✅ State-of-the-art for sequence data</li>
+</ul>
+<h4 id="limitations_1">Limitations<a class="headerlink" href="#limitations_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li>❌ Requires large datasets</li>
+<li>❌ Computationally expensive</li>
+<li>❌ Many hyperparameters</li>
+<li>❌ Black box nature</li>
+</ul>
+<hr />
+<h3 id="3-prophet">3. Prophet<a class="headerlink" href="#3-prophet" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Statistical forecasting<br />
+<strong>Library</strong>: Facebook Prophet<br />
+<strong>Complexity</strong>: O(n)<br />
+<strong>Best for</strong>: Business time series, seasonal patterns, trend analysis</p>
+<h4 id="description_2">Description<a class="headerlink" href="#description_2" title="Permanent link">&para;</a></h4>
+<p>Facebook's time series forecasting tool adapted for anomaly detection by identifying points that deviate significantly from predicted values.</p>
+<h4 id="parameters_2">Parameters<a class="headerlink" href="#parameters_2" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>growth</code></td>
+<td>str</td>
+<td>"linear"</td>
+<td>"linear", "logistic"</td>
+<td>Growth model</td>
+</tr>
+<tr>
+<td><code>yearly_seasonality</code></td>
+<td>bool/str</td>
+<td>"auto"</td>
+<td>True, False, "auto"</td>
+<td>Yearly seasonal component</td>
+</tr>
+<tr>
+<td><code>weekly_seasonality</code></td>
+<td>bool/str</td>
+<td>"auto"</td>
+<td>True, False, "auto"</td>
+<td>Weekly seasonal component</td>
+</tr>
+<tr>
+<td><code>daily_seasonality</code></td>
+<td>bool/str</td>
+<td>"auto"</td>
+<td>True, False, "auto"</td>
+<td>Daily seasonal component</td>
+</tr>
+<tr>
+<td><code>changepoint_prior_scale</code></td>
+<td>float</td>
+<td>0.05</td>
+<td>0.001-0.5</td>
+<td>Trend flexibility</td>
+</tr>
+<tr>
+<td><code>interval_width</code></td>
+<td>float</td>
+<td>0.80</td>
+<td>0.5-0.99</td>
+<td>Prediction interval</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage-example_2">Usage Example<a class="headerlink" href="#usage-example_2" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Business Metrics Detector&quot;</span><span class="p">,</span> 
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;Prophet&quot;</span><span class="p">,</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">library</span><span class="o">=</span><span class="s2">&quot;prophet&quot;</span><span class="p">,</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="s2">&quot;growth&quot;</span><span class="p">:</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="s2">&quot;yearly_seasonality&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        <span class="s2">&quot;weekly_seasonality&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        <span class="s2">&quot;changepoint_prior_scale&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        <span class="s2">&quot;interval_width&quot;</span><span class="p">:</span> <span class="mf">0.95</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    <span class="p">}</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="p">)</span>
+</span></code></pre></div>
+<h4 id="strengths_2">Strengths<a class="headerlink" href="#strengths_2" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ Handles seasonality automatically</li>
+<li>✅ Robust to missing data</li>
+<li>✅ Interpretable components</li>
+<li>✅ Works well with business metrics</li>
+</ul>
+<h4 id="limitations_2">Limitations<a class="headerlink" href="#limitations_2" title="Permanent link">&para;</a></h4>
+<ul>
+<li>❌ Primarily for univariate series</li>
+<li>❌ Assumes additive or multiplicative seasonality</li>
+<li>❌ Not suitable for high-frequency data</li>
+<li>❌ Limited to trend-seasonal anomalies</li>
+</ul>
+<hr />
+<h3 id="4-arima-based-detection">4. ARIMA-based Detection<a class="headerlink" href="#4-arima-based-detection" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Statistical modeling<br />
+<strong>Library</strong>: statsmodels<br />
+<strong>Complexity</strong>: O(n log n)<br />
+<strong>Best for</strong>: Stationary time series, short-term dependencies</p>
+<h4 id="description_3">Description<a class="headerlink" href="#description_3" title="Permanent link">&para;</a></h4>
+<p>Uses ARIMA models to forecast time series values and identifies anomalies as points with high residuals.</p>
+<h4 id="parameters_3">Parameters<a class="headerlink" href="#parameters_3" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>order</code></td>
+<td>tuple</td>
+<td>(1,1,1)</td>
+<td>(0-5, 0-2, 0-5)</td>
+<td>(p,d,q) ARIMA parameters</td>
+</tr>
+<tr>
+<td><code>seasonal_order</code></td>
+<td>tuple</td>
+<td>(0,0,0,0)</td>
+<td>Various</td>
+<td>Seasonal ARIMA parameters</td>
+</tr>
+<tr>
+<td><code>trend</code></td>
+<td>str</td>
+<td>"c"</td>
+<td>"n", "c", "t", "ct"</td>
+<td>Trend component</td>
+</tr>
+<tr>
+<td><code>method</code></td>
+<td>str</td>
+<td>"lbfgs"</td>
+<td>"newton", "nm", "bfgs", "lbfgs"</td>
+<td>Optimization method</td>
+</tr>
+<tr>
+<td><code>contamination</code></td>
+<td>float</td>
+<td>0.1</td>
+<td>0.0-0.5</td>
+<td>Expected anomaly proportion</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage-example_3">Usage Example<a class="headerlink" href="#usage-example_3" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ARIMA Anomaly Detector&quot;</span><span class="p">,</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;ARIMA&quot;</span><span class="p">,</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">library</span><span class="o">=</span><span class="s2">&quot;statsmodels&quot;</span><span class="p">,</span> 
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        <span class="s2">&quot;order&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>        <span class="s2">&quot;seasonal_order&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        <span class="s2">&quot;trend&quot;</span><span class="p">:</span> <span class="s2">&quot;c&quot;</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="p">}</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="p">)</span>
+</span></code></pre></div>
+<hr />
+<h2 id="graph-neural-networks">Graph Neural Networks<a class="headerlink" href="#graph-neural-networks" title="Permanent link">&para;</a></h2>
+<h3 id="1-dominant">1. DOMINANT<a class="headerlink" href="#1-dominant" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Graph autoencoder<br />
+<strong>Library</strong>: PyGOD<br />
+<strong>Complexity</strong>: O(|E|)<br />
+<strong>Best for</strong>: Attributed graphs, node anomalies, social networks</p>
+<h4 id="description_4">Description<a class="headerlink" href="#description_4" title="Permanent link">&para;</a></h4>
+<p>Deep anomaly detection on attributed networks using graph neural network autoencoder to reconstruct both structure and attributes.</p>
+<h4 id="parameters_4">Parameters<a class="headerlink" href="#parameters_4" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hid_dim</code></td>
+<td>int</td>
+<td>64</td>
+<td>32-256</td>
+<td>Hidden dimension</td>
+</tr>
+<tr>
+<td><code>num_layers</code></td>
+<td>int</td>
+<td>4</td>
+<td>2-8</td>
+<td>Number of GCN layers</td>
+</tr>
+<tr>
+<td><code>dropout</code></td>
+<td>float</td>
+<td>0.3</td>
+<td>0.0-0.5</td>
+<td>Dropout rate</td>
+</tr>
+<tr>
+<td><code>weight_decay</code></td>
+<td>float</td>
+<td>0.0</td>
+<td>0.0-0.01</td>
+<td>L2 regularization</td>
+</tr>
+<tr>
+<td><code>lr</code></td>
+<td>float</td>
+<td>0.004</td>
+<td>0.001-0.01</td>
+<td>Learning rate</td>
+</tr>
+<tr>
+<td><code>epoch</code></td>
+<td>int</td>
+<td>5</td>
+<td>5-100</td>
+<td>Training epochs</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage-example_4">Usage Example<a class="headerlink" href="#usage-example_4" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Graph Anomaly Detector&quot;</span><span class="p">,</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;DOMINANT&quot;</span><span class="p">,</span> 
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">library</span><span class="o">=</span><span class="s2">&quot;pygod&quot;</span><span class="p">,</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>        <span class="s2">&quot;hid_dim&quot;</span><span class="p">:</span> <span class="mi">128</span><span class="p">,</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>        <span class="s2">&quot;num_layers&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>        <span class="s2">&quot;dropout&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>        <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">,</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>        <span class="s2">&quot;epoch&quot;</span><span class="p">:</span> <span class="mi">50</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    <span class="p">}</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="p">)</span>
+</span></code></pre></div>
+<h4 id="strengths_3">Strengths<a class="headerlink" href="#strengths_3" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ Handles both structure and attributes</li>
+<li>✅ State-of-the-art for graph anomalies</li>
+<li>✅ Scalable to large graphs</li>
+<li>✅ Unsupervised learning</li>
+</ul>
+<h4 id="limitations_3">Limitations<a class="headerlink" href="#limitations_3" title="Permanent link">&para;</a></h4>
+<ul>
+<li>❌ Requires graph structure data</li>
+<li>❌ Complex implementation</li>
+<li>❌ GPU recommended for large graphs</li>
+<li>❌ Limited interpretability</li>
+</ul>
+<h4 id="when-to-use_1">When to Use<a class="headerlink" href="#when-to-use_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Social network anomaly detection</li>
+<li>Fraud detection in transaction networks</li>
+<li>Citation network analysis</li>
+<li>Knowledge graph validation</li>
+</ul>
+<hr />
+<h3 id="2-graph-convolutional-autoencoder-gcnae">2. Graph Convolutional AutoEncoder (GCNAE)<a class="headerlink" href="#2-graph-convolutional-autoencoder-gcnae" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Convolutional autoencoder<br />
+<strong>Library</strong>: PyGOD<br />
+<strong>Complexity</strong>: O(|E|)<br />
+<strong>Best for</strong>: Node reconstruction, community detection</p>
+<h4 id="parameters_5">Parameters<a class="headerlink" href="#parameters_5" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hid_dim</code></td>
+<td>int</td>
+<td>64</td>
+<td>32-256</td>
+<td>Hidden dimension</td>
+</tr>
+<tr>
+<td><code>num_layers</code></td>
+<td>int</td>
+<td>2</td>
+<td>2-6</td>
+<td>Number of layers</td>
+</tr>
+<tr>
+<td><code>dropout</code></td>
+<td>float</td>
+<td>0.2</td>
+<td>0.0-0.5</td>
+<td>Dropout rate</td>
+</tr>
+<tr>
+<td><code>act</code></td>
+<td>str</td>
+<td>"relu"</td>
+<td>"relu", "tanh", "sigmoid"</td>
+<td>Activation function</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage-example_5">Usage Example<a class="headerlink" href="#usage-example_5" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Graph Convolution Detector&quot;</span><span class="p">,</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;GCNAE&quot;</span><span class="p">,</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">library</span><span class="o">=</span><span class="s2">&quot;pygod&quot;</span><span class="p">,</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="s2">&quot;hid_dim&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="s2">&quot;num_layers&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        <span class="s2">&quot;dropout&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>        <span class="s2">&quot;act&quot;</span><span class="p">:</span> <span class="s2">&quot;relu&quot;</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    <span class="p">}</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="p">)</span>
+</span></code></pre></div>
+<hr />
+<h2 id="text-anomaly-detection">Text Anomaly Detection<a class="headerlink" href="#text-anomaly-detection" title="Permanent link">&para;</a></h2>
+<h3 id="1-tf-idf-with-clustering">1. TF-IDF with Clustering<a class="headerlink" href="#1-tf-idf-with-clustering" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Text vectorization + clustering<br />
+<strong>Complexity</strong>: O(n log n)<br />
+<strong>Best for</strong>: Document anomalies, topic drift, spam detection</p>
+<h4 id="description_5">Description<a class="headerlink" href="#description_5" title="Permanent link">&para;</a></h4>
+<p>Converts text to TF-IDF vectors and uses clustering algorithms to identify documents that don't fit well into any cluster.</p>
+<h4 id="parameters_6">Parameters<a class="headerlink" href="#parameters_6" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>max_features</code></td>
+<td>int</td>
+<td>10000</td>
+<td>1000-50000</td>
+<td>Maximum features in vocabulary</td>
+</tr>
+<tr>
+<td><code>ngram_range</code></td>
+<td>tuple</td>
+<td>(1,2)</td>
+<td>(1,1) to (1,3)</td>
+<td>N-gram range</td>
+</tr>
+<tr>
+<td><code>stop_words</code></td>
+<td>str</td>
+<td>"english"</td>
+<td>"english", None, list</td>
+<td>Stop words to remove</td>
+</tr>
+<tr>
+<td><code>min_df</code></td>
+<td>int/float</td>
+<td>1</td>
+<td>1 to 0.1</td>
+<td>Minimum document frequency</td>
+</tr>
+<tr>
+<td><code>max_df</code></td>
+<td>float</td>
+<td>0.95</td>
+<td>0.5-1.0</td>
+<td>Maximum document frequency</td>
+</tr>
+<tr>
+<td><code>clustering_algorithm</code></td>
+<td>str</td>
+<td>"kmeans"</td>
+<td>"kmeans", "dbscan"</td>
+<td>Clustering method</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage-example_6">Usage Example<a class="headerlink" href="#usage-example_6" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Document Anomaly Detector&quot;</span><span class="p">,</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;TFIDFClustering&quot;</span><span class="p">,</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">library</span><span class="o">=</span><span class="s2">&quot;sklearn&quot;</span><span class="p">,</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        <span class="s2">&quot;max_features&quot;</span><span class="p">:</span> <span class="mi">5000</span><span class="p">,</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>        <span class="s2">&quot;ngram_range&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>        <span class="s2">&quot;stop_words&quot;</span><span class="p">:</span> <span class="s2">&quot;english&quot;</span><span class="p">,</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>        <span class="s2">&quot;clustering_algorithm&quot;</span><span class="p">:</span> <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>        <span class="s2">&quot;n_clusters&quot;</span><span class="p">:</span> <span class="mi">20</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    <span class="p">}</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="p">)</span>
+</span></code></pre></div>
+<h4 id="strengths_4">Strengths<a class="headerlink" href="#strengths_4" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ Handles large text corpora</li>
+<li>✅ Interpretable features</li>
+<li>✅ Fast computation</li>
+<li>✅ Language agnostic</li>
+</ul>
+<h4 id="limitations_4">Limitations<a class="headerlink" href="#limitations_4" title="Permanent link">&para;</a></h4>
+<ul>
+<li>❌ Bag-of-words limitations</li>
+<li>❌ Loses word order information</li>
+<li>❌ Requires preprocessing</li>
+<li>❌ Sensitive to vocabulary size</li>
+</ul>
+<hr />
+<h3 id="2-word-embeddings-anomaly-detection">2. Word Embeddings Anomaly Detection<a class="headerlink" href="#2-word-embeddings-anomaly-detection" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Dense vector representation<br />
+<strong>Complexity</strong>: O(n)<br />
+<strong>Best for</strong>: Semantic anomalies, context-aware detection</p>
+<h4 id="description_6">Description<a class="headerlink" href="#description_6" title="Permanent link">&para;</a></h4>
+<p>Uses pre-trained word embeddings (Word2Vec, GloVe, FastText) to represent text as dense vectors and detects semantic anomalies.</p>
+<h4 id="parameters_7">Parameters<a class="headerlink" href="#parameters_7" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>embedding_model</code></td>
+<td>str</td>
+<td>"word2vec"</td>
+<td>"word2vec", "glove", "fasttext"</td>
+<td>Embedding type</td>
+</tr>
+<tr>
+<td><code>vector_size</code></td>
+<td>int</td>
+<td>300</td>
+<td>100-500</td>
+<td>Vector dimension</td>
+</tr>
+<tr>
+<td><code>window</code></td>
+<td>int</td>
+<td>5</td>
+<td>3-10</td>
+<td>Context window</td>
+</tr>
+<tr>
+<td><code>min_count</code></td>
+<td>int</td>
+<td>1</td>
+<td>1-10</td>
+<td>Minimum word count</td>
+</tr>
+<tr>
+<td><code>aggregation</code></td>
+<td>str</td>
+<td>"mean"</td>
+<td>"mean", "max", "tfidf_weighted"</td>
+<td>Document aggregation</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage-example_7">Usage Example<a class="headerlink" href="#usage-example_7" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Semantic Anomaly Detector&quot;</span><span class="p">,</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;WordEmbeddings&quot;</span><span class="p">,</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="n">library</span><span class="o">=</span><span class="s2">&quot;gensim&quot;</span><span class="p">,</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>        <span class="s2">&quot;embedding_model&quot;</span><span class="p">:</span> <span class="s2">&quot;fasttext&quot;</span><span class="p">,</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>        <span class="s2">&quot;vector_size&quot;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>        <span class="s2">&quot;window&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>        <span class="s2">&quot;aggregation&quot;</span><span class="p">:</span> <span class="s2">&quot;tfidf_weighted&quot;</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>    <span class="p">}</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="p">)</span>
+</span></code></pre></div>
+<hr />
+<h2 id="image-anomaly-detection">Image Anomaly Detection<a class="headerlink" href="#image-anomaly-detection" title="Permanent link">&para;</a></h2>
+<h3 id="1-cnn-autoencoder">1. CNN AutoEncoder<a class="headerlink" href="#1-cnn-autoencoder" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Convolutional neural network<br />
+<strong>Complexity</strong>: O(n)<br />
+<strong>Best for</strong>: Image anomalies, visual inspection, medical imaging</p>
+<h4 id="description_7">Description<a class="headerlink" href="#description_7" title="Permanent link">&para;</a></h4>
+<p>Convolutional autoencoder that learns to compress and reconstruct images. Anomalies are detected based on reconstruction error.</p>
+<h4 id="parameters_8">Parameters<a class="headerlink" href="#parameters_8" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>input_shape</code></td>
+<td>tuple</td>
+<td>(224,224,3)</td>
+<td>Various</td>
+<td>Input image dimensions</td>
+</tr>
+<tr>
+<td><code>conv_layers</code></td>
+<td>list</td>
+<td>[(32,3), (64,3)]</td>
+<td>Various</td>
+<td>(filters, kernel_size) pairs</td>
+</tr>
+<tr>
+<td><code>pooling</code></td>
+<td>str</td>
+<td>"max"</td>
+<td>"max", "avg"</td>
+<td>Pooling type</td>
+</tr>
+<tr>
+<td><code>dropout_rate</code></td>
+<td>float</td>
+<td>0.25</td>
+<td>0.0-0.5</td>
+<td>Dropout rate</td>
+</tr>
+<tr>
+<td><code>epochs</code></td>
+<td>int</td>
+<td>100</td>
+<td>50-500</td>
+<td>Training epochs</td>
+</tr>
+<tr>
+<td><code>batch_size</code></td>
+<td>int</td>
+<td>32</td>
+<td>16-128</td>
+<td>Batch size</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage-example_8">Usage Example<a class="headerlink" href="#usage-example_8" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Image Anomaly Detector&quot;</span><span class="p">,</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;CNNAutoEncoder&quot;</span><span class="p">,</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">library</span><span class="o">=</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">,</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>        <span class="s2">&quot;input_shape&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>        <span class="s2">&quot;conv_layers&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>            <span class="p">{</span><span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span> <span class="s2">&quot;kernel_size&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>            <span class="p">{</span><span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span> <span class="s2">&quot;kernel_size&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>            <span class="p">{</span><span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="mi">128</span><span class="p">,</span> <span class="s2">&quot;kernel_size&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>        <span class="p">],</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>        <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>        <span class="s2">&quot;dropout_rate&quot;</span><span class="p">:</span> <span class="mf">0.3</span>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>    <span class="p">}</span>
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="p">)</span>
+</span></code></pre></div>
+<h4 id="strengths_5">Strengths<a class="headerlink" href="#strengths_5" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ Excellent for image data</li>
+<li>✅ Preserves spatial structure</li>
+<li>✅ Hierarchical feature learning</li>
+<li>✅ Transfer learning capable</li>
+</ul>
+<h4 id="limitations_5">Limitations<a class="headerlink" href="#limitations_5" title="Permanent link">&para;</a></h4>
+<ul>
+<li>❌ Requires large image datasets</li>
+<li>❌ GPU intensive</li>
+<li>❌ Many hyperparameters</li>
+<li>❌ Black box nature</li>
+</ul>
+<hr />
+<h2 id="streaming-algorithms">Streaming Algorithms<a class="headerlink" href="#streaming-algorithms" title="Permanent link">&para;</a></h2>
+<h3 id="1-incremental-statistics">1. Incremental Statistics<a class="headerlink" href="#1-incremental-statistics" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Online statistical monitoring<br />
+<strong>Complexity</strong>: O(1) per sample<br />
+<strong>Best for</strong>: Real-time monitoring, concept drift detection</p>
+<h4 id="description_8">Description<a class="headerlink" href="#description_8" title="Permanent link">&para;</a></h4>
+<p>Maintains running statistics and detects anomalies in streaming data using adaptive thresholds.</p>
+<h4 id="parameters_9">Parameters<a class="headerlink" href="#parameters_9" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>window_size</code></td>
+<td>int</td>
+<td>1000</td>
+<td>100-10000</td>
+<td>Sliding window size</td>
+</tr>
+<tr>
+<td><code>threshold_factor</code></td>
+<td>float</td>
+<td>3.0</td>
+<td>2.0-5.0</td>
+<td>Standard deviation threshold</td>
+</tr>
+<tr>
+<td><code>adaptation_rate</code></td>
+<td>float</td>
+<td>0.01</td>
+<td>0.001-0.1</td>
+<td>Adaptation speed</td>
+</tr>
+<tr>
+<td><code>min_samples</code></td>
+<td>int</td>
+<td>30</td>
+<td>10-100</td>
+<td>Minimum samples for statistics</td>
+</tr>
+</tbody>
+</table>
+<h4 id="usage-example_9">Usage Example<a class="headerlink" href="#usage-example_9" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_detector</span><span class="p">(</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Real-time Monitor&quot;</span><span class="p">,</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;IncrementalStats&quot;</span><span class="p">,</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="n">library</span><span class="o">=</span><span class="s2">&quot;custom&quot;</span><span class="p">,</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>        <span class="s2">&quot;window_size&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>        <span class="s2">&quot;threshold_factor&quot;</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">,</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>        <span class="s2">&quot;adaptation_rate&quot;</span><span class="p">:</span> <span class="mf">0.05</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>    <span class="p">}</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="p">)</span>
+</span></code></pre></div>
+<h4 id="strengths_6">Strengths<a class="headerlink" href="#strengths_6" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ Real-time processing</li>
+<li>✅ Constant memory usage</li>
+<li>✅ Adaptive to concept drift</li>
+<li>✅ Low computational overhead</li>
+</ul>
+<h4 id="limitations_6">Limitations<a class="headerlink" href="#limitations_6" title="Permanent link">&para;</a></h4>
+<ul>
+<li>❌ Limited to simple patterns</li>
+<li>❌ Assumes stationarity within windows</li>
+<li>❌ May miss complex anomalies</li>
+<li>❌ Parameter sensitive</li>
+</ul>
+<hr />
+<h2 id="ensemble-specialized-methods">Ensemble Specialized Methods<a class="headerlink" href="#ensemble-specialized-methods" title="Permanent link">&para;</a></h2>
+<h3 id="1-time-series-ensemble">1. Time Series Ensemble<a class="headerlink" href="#1-time-series-ensemble" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Multi-algorithm ensemble<br />
+<strong>Best for</strong>: Maximum accuracy on temporal data</p>
+<h4 id="description_9">Description<a class="headerlink" href="#description_9" title="Permanent link">&para;</a></h4>
+<p>Combines multiple time series algorithms (LSTM, Prophet, ARIMA) for robust temporal anomaly detection.</p>
+<h4 id="usage-example_10">Usage Example<a class="headerlink" href="#usage-example_10" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">ts_ensemble_config</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    <span class="s2">&quot;algorithms&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;LSTM&quot;</span><span class="p">,</span> <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">},</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Prophet&quot;</span><span class="p">,</span> <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">},</span> 
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;MatrixProfile&quot;</span><span class="p">,</span> <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">}</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    <span class="p">],</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    <span class="s2">&quot;voting_strategy&quot;</span><span class="p">:</span> <span class="s2">&quot;weighted&quot;</span><span class="p">,</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    <span class="s2">&quot;contamination&quot;</span><span class="p">:</span> <span class="mf">0.1</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="p">}</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="n">detector</span> <span class="o">=</span> <span class="k">await</span> <span class="n">detection_service</span><span class="o">.</span><span class="n">create_ensemble_detector</span><span class="p">(</span>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Time Series Ensemble&quot;</span><span class="p">,</span>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>    <span class="n">config</span><span class="o">=</span><span class="n">ts_ensemble_config</span>
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="2-multi-modal-ensemble">2. Multi-Modal Ensemble<a class="headerlink" href="#2-multi-modal-ensemble" title="Permanent link">&para;</a></h3>
+<p><strong>Type</strong>: Cross-domain ensemble<br />
+<strong>Best for</strong>: Mixed data types</p>
+<h4 id="description_10">Description<a class="headerlink" href="#description_10" title="Permanent link">&para;</a></h4>
+<p>Combines algorithms from different domains (text, images, tabular) for comprehensive anomaly detection.</p>
+<h4 id="usage-example_11">Usage Example<a class="headerlink" href="#usage-example_11" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">multimodal_config</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    <span class="s2">&quot;tabular_algorithm&quot;</span><span class="p">:</span> <span class="s2">&quot;IsolationForest&quot;</span><span class="p">,</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="s2">&quot;text_algorithm&quot;</span><span class="p">:</span> <span class="s2">&quot;TFIDFClustering&quot;</span><span class="p">,</span> 
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="s2">&quot;image_algorithm&quot;</span><span class="p">:</span> <span class="s2">&quot;CNNAutoEncoder&quot;</span><span class="p">,</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="s2">&quot;fusion_strategy&quot;</span><span class="p">:</span> <span class="s2">&quot;late_fusion&quot;</span><span class="p">,</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    <span class="s2">&quot;weights&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">]</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr />
+<h2 id="performance-guidelines">Performance Guidelines<a class="headerlink" href="#performance-guidelines" title="Permanent link">&para;</a></h2>
+<h3 id="time-series-algorithms_1">Time Series Algorithms<a class="headerlink" href="#time-series-algorithms_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Data Size</th>
+<th>Seasonality</th>
+<th>Real-time</th>
+<th>Multivariate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Matrix Profile</td>
+<td>Small-Medium</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>LSTM</td>
+<td>Medium-Large</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Prophet</td>
+<td>Small-Medium</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>ARIMA</td>
+<td>Small</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+<h3 id="graph-algorithms">Graph Algorithms<a class="headerlink" href="#graph-algorithms" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Graph Size</th>
+<th>Attributes</th>
+<th>Directed</th>
+<th>Performance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DOMINANT</td>
+<td>Medium-Large</td>
+<td>✅</td>
+<td>✅</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>GCNAE</td>
+<td>Small-Medium</td>
+<td>✅</td>
+<td>❌</td>
+<td>⭐⭐⭐</td>
+</tr>
+</tbody>
+</table>
+<h3 id="text-algorithms">Text Algorithms<a class="headerlink" href="#text-algorithms" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Corpus Size</th>
+<th>Semantic</th>
+<th>Real-time</th>
+<th>Languages</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TF-IDF</td>
+<td>Large</td>
+<td>❌</td>
+<td>✅</td>
+<td>Multiple</td>
+</tr>
+<tr>
+<td>Word Embeddings</td>
+<td>Medium</td>
+<td>✅</td>
+<td>❌</td>
+<td>Multiple</td>
+</tr>
+</tbody>
+</table>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-data-preprocessing">1. Data Preprocessing<a class="headerlink" href="#1-data-preprocessing" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Time series</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">preprocess_timeseries</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="c1"># Handle missing values</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">)</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    <span class="c1"># Remove seasonality if needed</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    <span class="n">data</span> <span class="o">=</span> <span class="n">seasonal_decompose</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">resid</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    <span class="k">return</span> <span class="n">data</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="c1"># Text</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="k">def</span><span class="w"> </span><span class="nf">preprocess_text</span><span class="p">(</span><span class="n">documents</span><span class="p">):</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>    <span class="c1"># Clean and tokenize</span>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>    <span class="n">cleaned</span> <span class="o">=</span> <span class="p">[</span><span class="n">clean_text</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span> <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">documents</span><span class="p">]</span>
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>    <span class="k">return</span> <span class="n">cleaned</span>
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>
+</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="c1"># Graphs</span>
+</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="k">def</span><span class="w"> </span><span class="nf">preprocess_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
+</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>    <span class="c1"># Normalize node features</span>
+</span><span id="__span-12-18"><a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>    <span class="n">features</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">node_features</span><span class="p">)</span>
+</span><span id="__span-12-19"><a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>    <span class="k">return</span> <span class="n">graph</span>
+</span></code></pre></div>
+<h3 id="2-domain-specific-validation">2. Domain-Specific Validation<a class="headerlink" href="#2-domain-specific-validation" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Time series: Use temporal splits</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesSplit</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="n">tscv</span> <span class="o">=</span> <span class="n">TimeSeriesSplit</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="c1"># Text: Stratified by topic/class if available</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">StratifiedKFold</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="n">skf</span> <span class="o">=</span> <span class="n">StratifiedKFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="c1"># Graphs: Use graph-specific cross-validation</span>
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="c1"># Avoid data leakage through graph connections</span>
+</span></code></pre></div>
+<h3 id="3-hyperparameter-tuning">3. Hyperparameter Tuning<a class="headerlink" href="#3-hyperparameter-tuning" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Time series specific</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="n">time_series_params</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="s2">&quot;sequence_length&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="s2">&quot;window_size&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="s2">&quot;seasonality&quot;</span><span class="p">:</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="p">}</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="c1"># Graph specific  </span>
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="n">graph_params</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>    <span class="s2">&quot;hidden_dim&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">],</span>
+</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>    <span class="s2">&quot;num_layers&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+</span><span id="__span-14-12"><a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>    <span class="s2">&quot;dropout&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
+</span><span id="__span-14-13"><a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr />
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong><a href="../core-algorithms/">Core Algorithms</a></strong> - General-purpose algorithms</li>
+<li><strong><a href="../experimental-algorithms/">Experimental Algorithms</a></strong> - Advanced research methods  </li>
+<li><strong><a href="../algorithm-comparison/">Algorithm Comparison</a></strong> - Performance comparisons</li>
+<li><strong><a href="../../guides/time-series-anomaly-detection.md">Time Series Guide</a></strong> - Time series specific guidance</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/pynomaly/pynomaly" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/pynomaly/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/pynomaly" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+        <script src="../../../javascripts/extra.js"></script>
+      
+    
+  </body>
+</html>

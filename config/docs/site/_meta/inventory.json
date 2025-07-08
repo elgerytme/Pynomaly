@@ -1,0 +1,44 @@
+{
+  "documentation": [
+    "/mnt/c/Users/andre/Pynomaly/CHANGELOG.md",
+    "/mnt/c/Users/andre/Pynomaly/LICENSE",
+    "/mnt/c/Users/andre/Pynomaly/README.md",
+    "/mnt/c/Users/andre/Pynomaly/ROADMAP.md",
+    "... more documentation paths ..."
+  ],
+  "docs": [
+    "/mnt/c/Users/andre/Pynomaly/docs/accessibility/Accessibility_Testing_Checklist.md",
+    "/mnt/c/Users/andre/Pynomaly/docs/accessibility/WCAG_2.1_AA_Compliance_Guide.md",
+    "/mnt/c/Users/andre/Pynomaly/docs/accessibility/accessibility-guidelines.md",
+    "... more doc paths ..."
+  ],
+  "code_modules": [
+    "/mnt/c/Users/andre/Pynomaly/src/pynomaly/domain/services/processing_orchestrator.py",
+    "/mnt/c/Users/andre/Pynomaly/src/pynomaly/__init__.py",
+    "/mnt/c/Users/andre/Pynomaly/src/pynomaly/__main__.py",
+    "... more code module paths ..."
+  ],
+  "extras": [
+    "/mnt/c/Users/andre/Pynomaly/tests/e2e/test_fresh_powershell.py",
+    "/mnt/c/Users/andre/Pynomaly/tests/e2e/test_health_check.py",
+    "... more extra file paths ..."
+  ],
+  "system_audit": {
+    "system_dependencies": {
+      "python_packages": {
+        "pyjwt": "Successfully installed for JWT handling",
+        "passlib": "Successfully installed for password hashing",
+        "typer": "Successfully installed for CLI framework",
+        "rich": "Successfully installed for terminal output",
+        "sqlalchemy": "Successfully installed for database ORM",
+        "psutil": "Successfully installed for system monitoring",
+        "fastapi": "Successfully installed for web API framework",
+        "pyarrow": "Successfully installed for Apache Arrow data format",
+        "pyyaml": "Successfully installed for YAML configuration",
+        "pydantic-settings": "Successfully installed for settings management"
+      },
+      "environment_status": "Virtual environment configured and activated",
+      "repository_status": "Repository on main branch with all dependencies installed"
+    }
+  }
+}

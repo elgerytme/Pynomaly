@@ -1,0 +1,1751 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="State-of-the-art Python anomaly detection platform">
+      
+      
+        <meta name="author" content="Pynomaly Team">
+      
+      
+        <link rel="canonical" href="https://pynomaly.readthedocs.io/examples/Data_Quality_Anomaly_Detection_Guide/">
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>Anomaly and Outlier Detection for Data Quality Management - Pynomaly Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#anomaly-and-outlier-detection-for-data-quality-management" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Pynomaly Documentation" class="md-header__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pynomaly Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Anomaly and Outlier Detection for Data Quality Management
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Pynomaly Documentation" class="md-nav__button md-logo" aria-label="Pynomaly Documentation" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    Pynomaly Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pynomaly/pynomaly" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pynomaly/pynomaly
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Start
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/FEATURE_INSTALLATION_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Feature Installation Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#an-enterprise-guide-to-automated-data-quality-assurance" class="md-nav__link">
+    <span class="md-ellipsis">
+      An Enterprise Guide to Automated Data Quality Assurance
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Executive Summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Table of Contents
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-anomaly-detection-for-data-quality" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is Anomaly Detection for Data Quality?
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What is Anomaly Detection for Data Quality?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#simple-definition" class="md-nav__link">
+    <span class="md-ellipsis">
+      Simple Definition
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Concepts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#types-of-data-quality-anomalies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Types of Data Quality Anomalies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-organizations-need-data-quality-anomaly-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why Organizations Need Data Quality Anomaly Detection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Why Organizations Need Data Quality Anomaly Detection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-data-quality-challenge" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Data Quality Challenge
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#business-impact-of-poor-data-quality" class="md-nav__link">
+    <span class="md-ellipsis">
+      Business Impact of Poor Data Quality
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regulatory-and-compliance-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Regulatory and Compliance Requirements
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-anomaly-detection-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      How Anomaly Detection Works
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How Anomaly Detection Works">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-learning-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Learning Process
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#machine-learning-approaches" class="md-nav__link">
+    <span class="md-ellipsis">
+      Machine Learning Approaches
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#real-time-vs-batch-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Real-Time vs. Batch Processing
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#understanding-pynomaly" class="md-nav__link">
+    <span class="md-ellipsis">
+      Understanding Pynomaly
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Understanding Pynomaly">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-is-pynomaly" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is Pynomaly?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-features-for-data-quality-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Features for Data Quality Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pynomaly-architecture-benefits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pynomaly Architecture Benefits
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pyod-the-detection-engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      PyOD: The Detection Engine
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PyOD: The Detection Engine">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-is-pyod" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is PyOD?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-pyod-algorithms-for-data-quality" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key PyOD Algorithms for Data Quality
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#algorithm-selection-in-pyod" class="md-nav__link">
+    <span class="md-ellipsis">
+      Algorithm Selection in PyOD
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#autonomous-detection-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Autonomous Detection Mode
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Autonomous Detection Mode">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-is-autonomous-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is Autonomous Mode?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-autonomous-mode-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      How Autonomous Mode Works
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#benefits-of-autonomous-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benefits of Autonomous Mode
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#autonomous-mode-safeguards" class="md-nav__link">
+    <span class="md-ellipsis">
+      Autonomous Mode Safeguards
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ranking-scoring-prioritization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ranking, Scoring &amp; Prioritization
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ranking, Scoring &amp; Prioritization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-challenge-of-data-quality-issue-overload" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Challenge of Data Quality Issue Overload
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-quality-scoring-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Quality Scoring Framework
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scoring-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scoring Components
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prioritization-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prioritization Matrix
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filtering-and-organization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filtering and Organization
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#machine-learning-enhancement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Machine Learning Enhancement
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-management-applications" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Management Applications
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Management Applications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-stewards-and-data-governance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Stewards and Data Governance
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-custodians-and-data-owners" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Custodians and Data Owners
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database-administrators" class="md-nav__link">
+    <span class="md-ellipsis">
+      Database Administrators
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-engineers-and-etl-developers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Engineers and ETL Developers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#it-administrators-and-system-operators" class="md-nav__link">
+    <span class="md-ellipsis">
+      IT Administrators and System Operators
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-analysts-and-business-intelligence-teams" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Analysts and Business Intelligence Teams
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#technical-capabilities-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Technical Capabilities &amp; Performance
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Technical Capabilities &amp; Performance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scalability-and-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scalability and Performance
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-capabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integration Capabilities
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-format-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Format Support
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#algorithm-performance-characteristics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Algorithm Performance Characteristics
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quality-metrics-and-reporting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quality Metrics and Reporting
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔗 Related Documentation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔗 Related Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting Started
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#user-guides" class="md-nav__link">
+    <span class="md-ellipsis">
+      User Guides
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reference
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      🆘 Getting Help
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="anomaly-and-outlier-detection-for-data-quality-management">Anomaly and Outlier Detection for Data Quality Management<a class="headerlink" href="#anomaly-and-outlier-detection-for-data-quality-management" title="Permanent link">&para;</a></h1>
+<p>🍞 <strong>Breadcrumb:</strong> 🏠 <a href="../../">Home</a> &gt; 💡 <a href="../">Examples</a> &gt; 📄 Data_Quality_Anomaly_Detection_Guide</p>
+<hr />
+<h2 id="an-enterprise-guide-to-automated-data-quality-assurance">An Enterprise Guide to Automated Data Quality Assurance<a class="headerlink" href="#an-enterprise-guide-to-automated-data-quality-assurance" title="Permanent link">&para;</a></h2>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>In today's data-driven enterprise environment, organizations face unprecedented challenges in maintaining data quality across diverse datasets, systems, and domains. <strong>Anomaly and outlier detection</strong> represents a critical technological capability that helps data professionals automatically identify data quality issues, inconsistencies, and potential problems before they impact business operations or decision-making processes.</p>
+<p>This document provides a comprehensive overview of how modern anomaly detection systems work, with specific focus on <strong>Pynomaly</strong> and <strong>PyOD</strong> technologies, and how they can be applied across various data management functions to enhance data quality, governance, and operational reliability.</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#what-is-anomaly-detection-for-data-quality">What is Anomaly Detection for Data Quality?</a></li>
+<li><a href="#why-organizations-need-data-quality-anomaly-detection">Why Organizations Need Data Quality Anomaly Detection</a></li>
+<li><a href="#how-anomaly-detection-works">How Anomaly Detection Works</a></li>
+<li><a href="#understanding-pynomaly">Understanding Pynomaly</a></li>
+<li><a href="#pyod-the-detection-engine">PyOD: The Detection Engine</a></li>
+<li><a href="#autonomous-detection-mode">Autonomous Detection Mode</a></li>
+<li><a href="#ranking-scoring--prioritization">Ranking, Scoring &amp; Prioritization</a></li>
+<li><a href="#data-management-applications">Data Management Applications</a></li>
+<li><a href="#technical-capabilities--performance">Technical Capabilities &amp; Performance</a></li>
+</ol>
+<hr />
+<h2 id="what-is-anomaly-detection-for-data-quality">What is Anomaly Detection for Data Quality?<a class="headerlink" href="#what-is-anomaly-detection-for-data-quality" title="Permanent link">&para;</a></h2>
+<h3 id="simple-definition">Simple Definition<a class="headerlink" href="#simple-definition" title="Permanent link">&para;</a></h3>
+<p><strong>Anomaly detection for data quality</strong> is like having a highly trained data auditor who continuously monitors your datasets and can instantly identify when data values, patterns, or structures deviate from expected norms. This technology automatically examines data across multiple dimensions to identify quality issues, inconsistencies, and potential problems that could impact data reliability and business decisions.</p>
+<h3 id="key-concepts">Key Concepts<a class="headerlink" href="#key-concepts" title="Permanent link">&para;</a></h3>
+<p><strong>Normal Data Patterns</strong>: What constitutes expected data behavior
+- Consistent data formats and structures
+- Expected value ranges and distributions
+- Standard data relationships and dependencies
+- Typical data volume and velocity patterns</p>
+<p><strong>Data Quality Anomalies</strong>: Deviations from expected data patterns
+- Unexpected null values or missing data
+- Values outside expected ranges or formats
+- Inconsistent data relationships
+- Unusual data distribution patterns
+- Data structure or schema changes</p>
+<h3 id="types-of-data-quality-anomalies">Types of Data Quality Anomalies<a class="headerlink" href="#types-of-data-quality-anomalies" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Point Anomalies</strong>: Individual data points that are unusual</li>
+<li>A customer age of 150 years in a demographics dataset</li>
+<li>A negative value in a field that should only contain positive numbers</li>
+<li>
+<p>An invalid email format in a contact database</p>
+</li>
+<li>
+<p><strong>Contextual Anomalies</strong>: Values that are unusual in specific contexts</p>
+</li>
+<li>A summer temperature reading of -10°C in weather data</li>
+<li>A weekend timestamp in a weekday-only business process dataset</li>
+<li>
+<p>An employee salary that's unusually high for their job level</p>
+</li>
+<li>
+<p><strong>Collective Anomalies</strong>: Groups of data points that together indicate problems</p>
+</li>
+<li>Multiple records with identical timestamps suggesting batch processing errors</li>
+<li>A sudden spike in null values across multiple fields</li>
+<li>
+<p>Coordinated changes across related tables indicating data migration issues</p>
+</li>
+<li>
+<p><strong>Structural Anomalies</strong>: Changes in data schema or format</p>
+</li>
+<li>New fields appearing unexpectedly in datasets</li>
+<li>Changes in data types or formats</li>
+<li>Alterations in table relationships or constraints</li>
+</ol>
+<hr />
+<h2 id="why-organizations-need-data-quality-anomaly-detection">Why Organizations Need Data Quality Anomaly Detection<a class="headerlink" href="#why-organizations-need-data-quality-anomaly-detection" title="Permanent link">&para;</a></h2>
+<h3 id="the-data-quality-challenge">The Data Quality Challenge<a class="headerlink" href="#the-data-quality-challenge" title="Permanent link">&para;</a></h3>
+<p>Modern enterprises manage <strong>vast amounts of data</strong> from multiple sources:
+- Transactional systems and databases
+- Data warehouses and data lakes
+- External data feeds and APIs
+- IoT sensors and streaming data
+- Cloud applications and services
+- Legacy systems and flat files</p>
+<p><strong>Traditional rule-based data quality approaches</strong> struggle with:
+- <strong>Volume</strong>: Cannot manually validate millions of records
+- <strong>Variety</strong>: Different data types require different validation approaches
+- <strong>Velocity</strong>: Real-time data streams need immediate quality assessment
+- <strong>Complexity</strong>: Modern data relationships are too complex for simple rules
+- <strong>Evolution</strong>: Data patterns change over time, making static rules obsolete</p>
+<h3 id="business-impact-of-poor-data-quality">Business Impact of Poor Data Quality<a class="headerlink" href="#business-impact-of-poor-data-quality" title="Permanent link">&para;</a></h3>
+<p><strong>Operational Costs</strong>: Poor data quality can cost organizations 15-25% of revenue annually
+<strong>Decision Making</strong>: Inaccurate data leads to poor business decisions and missed opportunities
+<strong>Compliance Risk</strong>: Data quality issues can result in regulatory violations and audit failures
+<strong>Customer Experience</strong>: Data errors impact customer service and satisfaction
+<strong>System Performance</strong>: Data quality problems can cause system failures and downtime</p>
+<h3 id="regulatory-and-compliance-requirements">Regulatory and Compliance Requirements<a class="headerlink" href="#regulatory-and-compliance-requirements" title="Permanent link">&para;</a></h3>
+<p>Organizations must comply with various data governance regulations:
+- <strong>GDPR</strong>: Requires data accuracy and completeness
+- <strong>SOX</strong>: Mandates data integrity in financial reporting
+- <strong>HIPAA</strong>: Requires healthcare data quality and protection
+- <strong>Data Governance Frameworks</strong>: Industry-specific quality standards
+- <strong>Internal Policies</strong>: Corporate data quality and management policies</p>
+<hr />
+<h2 id="how-anomaly-detection-works">How Anomaly Detection Works<a class="headerlink" href="#how-anomaly-detection-works" title="Permanent link">&para;</a></h2>
+<h3 id="the-learning-process">The Learning Process<a class="headerlink" href="#the-learning-process" title="Permanent link">&para;</a></h3>
+<p>Think of data quality anomaly detection like training a data quality expert:</p>
+<ol>
+<li><strong>Training Phase</strong>: Analyze historical data to understand normal patterns and distributions</li>
+<li><strong>Pattern Recognition</strong>: Learn what constitutes "normal" data across different dimensions</li>
+<li><strong>Detection Phase</strong>: Compare new data against learned patterns to identify deviations</li>
+<li><strong>Scoring</strong>: Assign quality scores based on how much data deviates from normal patterns</li>
+<li><strong>Action</strong>: Flag high-risk data quality issues for review or automated correction</li>
+</ol>
+<h3 id="machine-learning-approaches">Machine Learning Approaches<a class="headerlink" href="#machine-learning-approaches" title="Permanent link">&para;</a></h3>
+<p><strong>Supervised Learning</strong>: 
+- Uses labeled examples of both good and poor quality data
+- Requires extensive historical data quality assessments
+- Highly accurate but needs significant training data preparation</p>
+<p><strong>Unsupervised Learning</strong>:
+- Learns patterns from data without quality labels
+- Identifies deviations based on statistical and pattern analysis
+- Can detect new types of data quality issues not seen before</p>
+<p><strong>Semi-Supervised Learning</strong>:
+- Combines both approaches using mostly unlabeled data with some quality examples
+- Balances accuracy with ability to find new data quality patterns
+- Most practical approach for enterprise data quality scenarios</p>
+<h3 id="real-time-vs-batch-processing">Real-Time vs. Batch Processing<a class="headerlink" href="#real-time-vs-batch-processing" title="Permanent link">&para;</a></h3>
+<p><strong>Real-Time Detection</strong>:
+- Analyzes data as it's ingested or processed
+- Enables immediate quality issue identification and correction
+- Critical for streaming data and real-time decision systems</p>
+<p><strong>Batch Processing</strong>:
+- Reviews data periodically (hourly, daily, weekly)
+- Allows for comprehensive analysis and complex quality assessments
+- Suitable for data warehouse loads and periodic quality audits</p>
+<hr />
+<h2 id="understanding-pynomaly">Understanding Pynomaly<a class="headerlink" href="#understanding-pynomaly" title="Permanent link">&para;</a></h2>
+<h3 id="what-is-pynomaly">What is Pynomaly?<a class="headerlink" href="#what-is-pynomaly" title="Permanent link">&para;</a></h3>
+<p><strong>Pynomaly</strong> is a state-of-the-art anomaly detection platform specifically designed for enterprise data quality management. It serves as a unified interface that integrates multiple detection technologies while providing production-ready capabilities for mission-critical data operations.</p>
+<h3 id="key-features-for-data-quality-management">Key Features for Data Quality Management<a class="headerlink" href="#key-features-for-data-quality-management" title="Permanent link">&para;</a></h3>
+<p><strong>1. Multi-Algorithm Integration</strong>
+- Combines the best detection methods from PyOD, TODS, PyGOD, and other libraries
+- Automatically selects optimal algorithms for different types of data and quality issues
+- Provides ensemble methods that combine multiple approaches for higher accuracy</p>
+<p><strong>2. Clean Architecture Design</strong>
+- Modular components that can be easily customized for specific data domains
+- Scalable to handle enterprise-scale datasets and processing volumes
+- Maintainable code that data engineering teams can understand and extend</p>
+<p><strong>3. Production-Ready Features</strong>
+- <strong>High Availability</strong>: 99.9% uptime guarantee with failover capabilities
+- <strong>Real-Time Processing</strong>: Sub-second response times for data quality assessment
+- <strong>Audit Trail</strong>: Complete logging for data governance and compliance
+- <strong>Security</strong>: Enterprise-grade encryption and access controls</p>
+<p><strong>4. Data Management-Specific Capabilities</strong>
+- <strong>Quality Scoring</strong>: Quantifies the likelihood and severity of data quality issues
+- <strong>Data Profiling</strong>: Automated analysis of data patterns and characteristics
+- <strong>Multi-Format Support</strong>: Works with structured, semi-structured, and unstructured data
+- <strong>Domain Adaptation</strong>: Adjusts detection based on data domain and business context</p>
+<h3 id="pynomaly-architecture-benefits">Pynomaly Architecture Benefits<a class="headerlink" href="#pynomaly-architecture-benefits" title="Permanent link">&para;</a></h3>
+<p><strong>Domain Layer</strong>: Pure data quality logic and business rules
+- Data validation algorithms
+- Quality metric calculations
+- Domain-specific quality patterns</p>
+<p><strong>Application Layer</strong>: Data quality use cases and workflows
+- Data profiling processes
+- Quality assessment workflows
+- Data cleansing procedures</p>
+<p><strong>Infrastructure Layer</strong>: Integration with data systems
+- Database connectors and adapters
+- Data pipeline interfaces
+- ETL/ELT tool integration</p>
+<p><strong>Presentation Layer</strong>: User interfaces for data professionals
+- Data quality dashboards
+- Data steward workbenches
+- Executive reporting interfaces</p>
+<hr />
+<h2 id="pyod-the-detection-engine">PyOD: The Detection Engine<a class="headerlink" href="#pyod-the-detection-engine" title="Permanent link">&para;</a></h2>
+<h3 id="what-is-pyod">What is PyOD?<a class="headerlink" href="#what-is-pyod" title="Permanent link">&para;</a></h3>
+<p><strong>PyOD (Python Outlier Detection)</strong> is the core detection engine that powers many of Pynomaly's capabilities. It provides over <strong>40 different algorithms</strong> for identifying anomalies, each optimized for different types of data and quality assessment scenarios.</p>
+<h3 id="key-pyod-algorithms-for-data-quality">Key PyOD Algorithms for Data Quality<a class="headerlink" href="#key-pyod-algorithms-for-data-quality" title="Permanent link">&para;</a></h3>
+<p><strong>1. Isolation Forest</strong>
+- <strong>Best For</strong>: Large-scale dataset quality monitoring
+- <strong>How It Works</strong>: Isolates anomalies by randomly partitioning data points
+- <strong>Data Quality Use Case</strong>: Detecting unusual records in large datasets
+- <strong>Why It's Effective</strong>: Fast processing of millions of records with minimal memory usage</p>
+<p><strong>2. Local Outlier Factor (LOF)</strong>
+- <strong>Best For</strong>: Contextual data quality assessment
+- <strong>How It Works</strong>: Compares local density of data points to identify outliers
+- <strong>Data Quality Use Case</strong>: Finding records that don't fit local data patterns
+- <strong>Why It's Effective</strong>: Adapts to different data densities and local patterns</p>
+<p><strong>3. One-Class SVM</strong>
+- <strong>Best For</strong>: New data pattern detection
+- <strong>How It Works</strong>: Creates boundary around normal data behavior
+- <strong>Data Quality Use Case</strong>: Detecting new types of data quality issues
+- <strong>Why It's Effective</strong>: Works well with limited examples of data quality problems</p>
+<p><strong>4. DBSCAN Clustering</strong>
+- <strong>Best For</strong>: Structural data quality assessment
+- <strong>How It Works</strong>: Groups similar data points and identifies outliers
+- <strong>Data Quality Use Case</strong>: Finding structural inconsistencies in datasets
+- <strong>Why It's Effective</strong>: Identifies both clustered patterns and isolated anomalies</p>
+<p><strong>5. Statistical Methods</strong>
+- <strong>Best For</strong>: Numerical data quality validation
+- <strong>How It Works</strong>: Uses statistical models to identify deviations from expected distributions
+- <strong>Data Quality Use Case</strong>: Validating numerical data ranges and distributions
+- <strong>Why It's Effective</strong>: Well-understood and explainable to data governance teams</p>
+<p><strong>6. PCA-based Detection</strong>
+- <strong>Best For</strong>: High-dimensional data quality assessment
+- <strong>How It Works</strong>: Uses principal component analysis to identify unusual patterns
+- <strong>Data Quality Use Case</strong>: Quality assessment in datasets with many variables
+- <strong>Why It's Effective</strong>: Reduces dimensionality while preserving anomaly detection capability</p>
+<h3 id="algorithm-selection-in-pyod">Algorithm Selection in PyOD<a class="headerlink" href="#algorithm-selection-in-pyod" title="Permanent link">&para;</a></h3>
+<p>PyOD automatically selects the best algorithm based on:
+- <strong>Data Type</strong>: Numerical, categorical, text, or mixed data types
+- <strong>Data Volume</strong>: Small datasets vs. big data scenarios requiring scalable algorithms
+- <strong>Detection Requirements</strong>: Speed vs. accuracy trade-offs for different use cases
+- <strong>Interpretability Needs</strong>: Explainable vs. black-box algorithms for governance requirements</p>
+<hr />
+<h2 id="autonomous-detection-mode">Autonomous Detection Mode<a class="headerlink" href="#autonomous-detection-mode" title="Permanent link">&para;</a></h2>
+<h3 id="what-is-autonomous-mode">What is Autonomous Mode?<a class="headerlink" href="#what-is-autonomous-mode" title="Permanent link">&para;</a></h3>
+<p><strong>Autonomous Detection Mode</strong> represents advanced data quality management where the system operates with minimal human intervention while maintaining high accuracy and data governance compliance. This mode is particularly valuable for organizations that need to monitor large volumes of data across multiple systems 24/7.</p>
+<h3 id="how-autonomous-mode-works">How Autonomous Mode Works<a class="headerlink" href="#how-autonomous-mode-works" title="Permanent link">&para;</a></h3>
+<p><strong>1. Continuous Learning</strong>
+- System constantly updates its understanding of normal data patterns
+- Adapts to seasonal variations, business changes, and evolving data structures
+- Learns from data steward feedback to improve accuracy over time</p>
+<p><strong>2. Self-Tuning Parameters</strong>
+- Automatically adjusts detection sensitivity based on data quality metrics
+- Optimizes for balance between catching quality issues and minimizing false positives
+- Responds to changes in data patterns without manual configuration</p>
+<p><strong>3. Intelligent Issue Prioritization</strong>
+- Ranks data quality issues based on severity, business impact, and confidence levels
+- Routes high-priority issues to senior data stewards
+- Handles routine quality checks through automated workflows</p>
+<p><strong>4. Automated Response Actions</strong>
+- Quarantines data with critical quality issues
+- Initiates data cleansing procedures for known issue types
+- Triggers data governance reporting processes
+- Updates data quality models based on outcomes</p>
+<h3 id="benefits-of-autonomous-mode">Benefits of Autonomous Mode<a class="headerlink" href="#benefits-of-autonomous-mode" title="Permanent link">&para;</a></h3>
+<p><strong>For Data Operations Teams:</strong>
+- <strong>Reduced Alert Fatigue</strong>: Only high-quality alerts reach human analysts
+- <strong>24/7 Monitoring</strong>: Continuous data quality protection
+- <strong>Faster Response</strong>: Immediate action on critical data quality issues
+- <strong>Consistent Performance</strong>: No degradation due to human oversight gaps</p>
+<p><strong>For Data Governance Teams:</strong>
+- <strong>Audit Trail</strong>: Complete documentation of all data quality decisions and actions
+- <strong>Policy Alignment</strong>: Automated compliance with data governance policies
+- <strong>Risk Reduction</strong>: Consistent application of data quality standards
+- <strong>Reporting Automation</strong>: Automatic generation of data quality reports</p>
+<p><strong>For IT Teams:</strong>
+- <strong>Reduced Maintenance</strong>: Self-tuning reduces need for manual adjustments
+- <strong>Scalability</strong>: Handles growing data volumes automatically
+- <strong>Integration</strong>: Seamless connection with existing data infrastructure
+- <strong>Monitoring</strong>: Built-in performance monitoring and alerting</p>
+<h3 id="autonomous-mode-safeguards">Autonomous Mode Safeguards<a class="headerlink" href="#autonomous-mode-safeguards" title="Permanent link">&para;</a></h3>
+<p><strong>Human Oversight</strong>:
+- Critical data quality decisions require human approval
+- Regular review of autonomous actions and their outcomes
+- Ability to override or modify autonomous decisions</p>
+<p><strong>Quality Controls</strong>:
+- Conservative default settings for new data types or sources
+- Escalation procedures for unusual data patterns
+- Regular validation against known data quality standards</p>
+<p><strong>Governance Assurance</strong>:
+- Automated documentation of all actions and decisions
+- Regular audit of autonomous quality assessments
+- Alignment with organizational data governance requirements</p>
+<hr />
+<h2 id="ranking-scoring-prioritization">Ranking, Scoring &amp; Prioritization<a class="headerlink" href="#ranking-scoring-prioritization" title="Permanent link">&para;</a></h2>
+<h3 id="the-challenge-of-data-quality-issue-overload">The Challenge of Data Quality Issue Overload<a class="headerlink" href="#the-challenge-of-data-quality-issue-overload" title="Permanent link">&para;</a></h3>
+<p>Enterprise organizations generate thousands of potential data quality alerts daily across multiple systems and datasets. Without proper ranking and prioritization, data teams would be overwhelmed, leading to:
+- <strong>Alert Fatigue</strong>: Important data quality issues missed due to volume
+- <strong>Resource Waste</strong>: Time spent investigating low-impact quality issues
+- <strong>Delayed Response</strong>: Critical data problems not addressed quickly
+- <strong>Inconsistent Review</strong>: Different data stewards applying different standards</p>
+<h3 id="data-quality-scoring-framework">Data Quality Scoring Framework<a class="headerlink" href="#data-quality-scoring-framework" title="Permanent link">&para;</a></h3>
+<p><strong>Quality Score (0-100)</strong>
+- <strong>0-30</strong>: Low impact - routine monitoring and automated handling
+- <strong>31-60</strong>: Medium impact - scheduled review by data analysts
+- <strong>61-80</strong>: High impact - priority investigation by data stewards
+- <strong>81-100</strong>: Critical impact - immediate action required</p>
+<h3 id="scoring-components">Scoring Components<a class="headerlink" href="#scoring-components" title="Permanent link">&para;</a></h3>
+<p><strong>1. Statistical Deviation Score</strong>
+- How far data values deviate from expected patterns
+- Based on multiple algorithms' assessments
+- Weighted by algorithm confidence levels and historical performance</p>
+<p><strong>2. Business Context Score</strong>
+- Importance of the affected data to business operations
+- Downstream system dependencies and usage patterns
+- Historical impact of similar data quality issues
+- Data freshness and recency requirements</p>
+<p><strong>3. Data Lineage Score</strong>
+- Position in data pipeline and transformation chain
+- Number of downstream systems or processes affected
+- Quality propagation potential through data workflows
+- Master data relationship importance</p>
+<p><strong>4. Compliance Impact Score</strong>
+- Regulatory reporting requirements affected
+- Data governance policy violations
+- Audit trail and documentation requirements
+- Privacy and security implications</p>
+<p><strong>5. Pattern Analysis Score</strong>
+- Frequency and persistence of similar issues
+- Trend analysis showing improving or deteriorating quality
+- Seasonal or cyclical pattern considerations
+- Cross-system correlation and impact analysis</p>
+<h3 id="prioritization-matrix">Prioritization Matrix<a class="headerlink" href="#prioritization-matrix" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Quality Level</th>
+<th>Response Time</th>
+<th>Analyst Level</th>
+<th>Action Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Critical (81-100)</td>
+<td>Immediate</td>
+<td>Senior Data Steward</td>
+<td>Quarantine &amp; Investigate</td>
+</tr>
+<tr>
+<td>High (61-80)</td>
+<td>2 Hours</td>
+<td>Experienced Data Analyst</td>
+<td>Priority Review</td>
+</tr>
+<tr>
+<td>Medium (31-60)</td>
+<td>8 Hours</td>
+<td>Standard Data Analyst</td>
+<td>Routine Investigation</td>
+</tr>
+<tr>
+<td>Low (0-30)</td>
+<td>24 Hours</td>
+<td>Automated/Junior</td>
+<td>Monitor Only</td>
+</tr>
+</tbody>
+</table>
+<h3 id="filtering-and-organization">Filtering and Organization<a class="headerlink" href="#filtering-and-organization" title="Permanent link">&para;</a></h3>
+<p><strong>Team-Specific Views</strong>
+- <strong>Data Stewards</strong>: Focus on governance and policy compliance issues
+- <strong>Data Engineers</strong>: Emphasize pipeline and system integration problems
+- <strong>Database Administrators</strong>: Highlight schema and structural anomalies
+- <strong>Data Analysts</strong>: Show analytical and business logic inconsistencies</p>
+<p><strong>Dynamic Filtering Options</strong>
+- <strong>System Filters</strong>: Focus on specific databases, applications, or data sources
+- <strong>Domain Filters</strong>: Customer data, financial data, operational data, etc.
+- <strong>Temporal Filters</strong>: Recent issues, trending problems, historical patterns
+- <strong>Severity Filters</strong>: Critical, high, medium, low impact issues</p>
+<p><strong>Issue Clustering</strong>
+- <strong>Related Data Elements</strong>: Group connected data quality issues
+- <strong>System Grouping</strong>: Multiple issues from same data source
+- <strong>Pattern Grouping</strong>: Similar quality issue types or root causes
+- <strong>Timeline Clustering</strong>: Issues occurring in temporal proximity</p>
+<h3 id="machine-learning-enhancement">Machine Learning Enhancement<a class="headerlink" href="#machine-learning-enhancement" title="Permanent link">&para;</a></h3>
+<p><strong>Feedback Loop Integration</strong>
+- Data steward decisions feed back into scoring models
+- System learns from false positives and negatives
+- Continuous improvement of scoring accuracy and relevance</p>
+<p><strong>Predictive Analytics</strong>
+- Anticipate data quality trends before they become critical
+- Seasonal adjustment of scoring parameters
+- Early warning systems for emerging data quality problems</p>
+<p><strong>Root Cause Analysis</strong>
+- Automated correlation analysis to identify common causes
+- Pattern recognition across systems and data sources
+- Recommendation engine for quality improvement actions</p>
+<hr />
+<h2 id="data-management-applications">Data Management Applications<a class="headerlink" href="#data-management-applications" title="Permanent link">&para;</a></h2>
+<h3 id="data-stewards-and-data-governance">Data Stewards and Data Governance<a class="headerlink" href="#data-stewards-and-data-governance" title="Permanent link">&para;</a></h3>
+<p><strong>Primary Use Cases:</strong>
+- <strong>Data Quality Monitoring</strong>: Continuous assessment of data quality across all enterprise datasets
+- <strong>Policy Compliance</strong>: Automated monitoring of adherence to data governance policies
+- <strong>Data Lineage Validation</strong>: Ensuring data quality through transformation pipelines
+- <strong>Master Data Quality</strong>: Maintaining quality of critical business entities</p>
+<p><strong>Key Benefits:</strong>
+- <strong>Proactive Quality Management</strong>: Identify issues before they impact business operations
+- <strong>Automated Compliance</strong>: Ensure adherence to data governance standards
+- <strong>Quality Metrics</strong>: Comprehensive data quality scorecards and KPIs
+- <strong>Issue Tracking</strong>: Complete audit trail of data quality problems and resolutions</p>
+<p><strong>Specific Anomaly Types:</strong>
+- Unexpected null values in critical business fields
+- Data format inconsistencies across systems
+- Referential integrity violations
+- Data completeness degradation over time</p>
+<h3 id="data-custodians-and-data-owners">Data Custodians and Data Owners<a class="headerlink" href="#data-custodians-and-data-owners" title="Permanent link">&para;</a></h3>
+<p><strong>Primary Use Cases:</strong>
+- <strong>Domain-Specific Quality</strong>: Deep quality assessment for specific business domains
+- <strong>Data Usage Monitoring</strong>: Understanding how data quality impacts business processes
+- <strong>Quality Impact Assessment</strong>: Measuring business impact of data quality issues
+- <strong>Stakeholder Communication</strong>: Reporting quality status to business users</p>
+<p><strong>Key Benefits:</strong>
+- <strong>Business Context</strong>: Quality assessment aligned with business requirements
+- <strong>Impact Analysis</strong>: Understanding of how quality issues affect business outcomes
+- <strong>Stakeholder Engagement</strong>: Clear communication of data quality status
+- <strong>Continuous Improvement</strong>: Data quality trend analysis and improvement tracking</p>
+<p><strong>Specific Anomaly Types:</strong>
+- Business rule violations in domain-specific data
+- Unusual patterns in business metrics and KPIs
+- Inconsistencies between related business entities
+- Data freshness issues affecting business decisions</p>
+<h3 id="database-administrators">Database Administrators<a class="headerlink" href="#database-administrators" title="Permanent link">&para;</a></h3>
+<p><strong>Primary Use Cases:</strong>
+- <strong>Schema Monitoring</strong>: Detection of unexpected schema changes or structural issues
+- <strong>Performance Impact</strong>: Identifying data quality issues that affect database performance
+- <strong>Data Integration</strong>: Quality assessment during data migration and integration projects
+- <strong>System Health</strong>: Monitoring overall database and system data quality health</p>
+<p><strong>Key Benefits:</strong>
+- <strong>System Stability</strong>: Early detection of data issues that could impact system performance
+- <strong>Migration Support</strong>: Quality validation during data migration and integration
+- <strong>Performance Optimization</strong>: Identifying data patterns that affect query performance
+- <strong>Preventive Maintenance</strong>: Proactive identification of potential system issues</p>
+<p><strong>Specific Anomaly Types:</strong>
+- Unexpected data type changes or schema modifications
+- Unusual data volume patterns that could impact performance
+- Index effectiveness degradation due to data distribution changes
+- Constraint violations and referential integrity issues</p>
+<h3 id="data-engineers-and-etl-developers">Data Engineers and ETL Developers<a class="headerlink" href="#data-engineers-and-etl-developers" title="Permanent link">&para;</a></h3>
+<p><strong>Primary Use Cases:</strong>
+- <strong>Pipeline Monitoring</strong>: Quality assessment throughout data processing pipelines
+- <strong>Transformation Validation</strong>: Ensuring data quality through ETL/ELT processes
+- <strong>Data Source Quality</strong>: Monitoring quality of incoming data from external sources
+- <strong>Load Validation</strong>: Verifying successful data loads and transformations</p>
+<p><strong>Key Benefits:</strong>
+- <strong>Pipeline Reliability</strong>: Early detection of issues in data processing workflows
+- <strong>Transformation Quality</strong>: Validation that data transformations preserve quality
+- <strong>Source Monitoring</strong>: Quality assessment of external data feeds and sources
+- <strong>Automated Testing</strong>: Quality validation as part of data pipeline testing</p>
+<p><strong>Specific Anomaly Types:</strong>
+- Data transformation errors and unexpected results
+- Source data quality degradation affecting pipeline outputs
+- Volume anomalies in data processing batches
+- Timing and scheduling anomalies in data pipeline execution</p>
+<h3 id="it-administrators-and-system-operators">IT Administrators and System Operators<a class="headerlink" href="#it-administrators-and-system-operators" title="Permanent link">&para;</a></h3>
+<p><strong>Primary Use Cases:</strong>
+- <strong>System Integration</strong>: Data quality monitoring across integrated systems
+- <strong>Infrastructure Health</strong>: Understanding how data quality relates to system health
+- <strong>Capacity Planning</strong>: Data quality trends that inform infrastructure planning
+- <strong>Incident Response</strong>: Data quality issues as part of system incident management</p>
+<p><strong>Key Benefits:</strong>
+- <strong>Operational Visibility</strong>: Understanding data quality impact on system operations
+- <strong>Preventive Maintenance</strong>: Early warning of data-related system issues
+- <strong>Resource Optimization</strong>: Data quality insights for infrastructure planning
+- <strong>Incident Management</strong>: Data quality context for system troubleshooting</p>
+<p><strong>Specific Anomaly Types:</strong>
+- System performance anomalies related to data quality issues
+- Integration failures due to data format or quality problems
+- Resource utilization patterns affected by data quality
+- Service availability issues related to data problems</p>
+<h3 id="data-analysts-and-business-intelligence-teams">Data Analysts and Business Intelligence Teams<a class="headerlink" href="#data-analysts-and-business-intelligence-teams" title="Permanent link">&para;</a></h3>
+<p><strong>Primary Use Cases:</strong>
+- <strong>Analytical Quality</strong>: Ensuring data quality for analytical and reporting purposes
+- <strong>Report Validation</strong>: Quality assessment of data used in business reports
+- <strong>Data Discovery</strong>: Quality profiling during data exploration and analysis
+- <strong>Model Input Quality</strong>: Ensuring high-quality data for machine learning and analytics</p>
+<p><strong>Key Benefits:</strong>
+- <strong>Analytical Reliability</strong>: Confidence in analytical results and business insights
+- <strong>Report Accuracy</strong>: Validated data quality for business reporting
+- <strong>Data Exploration</strong>: Quality insights during data discovery processes
+- <strong>Model Performance</strong>: High-quality input data for analytical models</p>
+<p><strong>Specific Anomaly Types:</strong>
+- Statistical anomalies in analytical datasets
+- Data distribution changes affecting analytical models
+- Missing or incomplete data impacting analysis results
+- Outliers and extreme values requiring analytical attention</p>
+<hr />
+<h2 id="technical-capabilities-performance">Technical Capabilities &amp; Performance<a class="headerlink" href="#technical-capabilities-performance" title="Permanent link">&para;</a></h2>
+<h3 id="scalability-and-performance">Scalability and Performance<a class="headerlink" href="#scalability-and-performance" title="Permanent link">&para;</a></h3>
+<p><strong>Processing Capacity</strong>
+- <strong>Real-time Processing</strong>: Sub-second latency for streaming data quality assessment
+- <strong>Batch Processing</strong>: Capable of processing terabytes of data in scheduled quality checks
+- <strong>Concurrent Operations</strong>: Support for multiple simultaneous quality assessment workflows
+- <strong>Elastic Scaling</strong>: Automatic scaling based on data volume and processing requirements</p>
+<p><strong>Data Volume Support</strong>
+- <strong>Small Datasets</strong>: Optimized algorithms for datasets with thousands of records
+- <strong>Enterprise Datasets</strong>: Efficient processing of millions to billions of records
+- <strong>Streaming Data</strong>: Continuous quality assessment of high-velocity data streams
+- <strong>Multi-Source Integration</strong>: Simultaneous quality assessment across multiple data sources</p>
+<h3 id="integration-capabilities">Integration Capabilities<a class="headerlink" href="#integration-capabilities" title="Permanent link">&para;</a></h3>
+<p><strong>Database Integration</strong>
+- <strong>SQL Databases</strong>: Native support for MySQL, PostgreSQL, SQL Server, Oracle
+- <strong>NoSQL Databases</strong>: Integration with MongoDB, Cassandra, DynamoDB
+- <strong>Data Warehouses</strong>: Support for Snowflake, Redshift, BigQuery, Teradata
+- <strong>Cloud Platforms</strong>: Native integration with AWS, Azure, GCP data services</p>
+<p><strong>Data Pipeline Integration</strong>
+- <strong>ETL Tools</strong>: Integration with Informatica, Talend, DataStage, SSIS
+- <strong>Big Data Platforms</strong>: Support for Hadoop, Spark, Kafka, Flink
+- <strong>Cloud Pipelines</strong>: Integration with cloud-native data pipeline services
+- <strong>Custom APIs</strong>: RESTful APIs for custom integration scenarios</p>
+<p><strong>Monitoring and Alerting</strong>
+- <strong>Dashboard Integration</strong>: Real-time quality dashboards and visualization
+- <strong>Alert Systems</strong>: Integration with enterprise alerting and notification systems
+- <strong>Workflow Integration</strong>: Automated quality workflows and approval processes
+- <strong>Audit Integration</strong>: Complete integration with data governance audit systems</p>
+<h3 id="data-format-support">Data Format Support<a class="headerlink" href="#data-format-support" title="Permanent link">&para;</a></h3>
+<p><strong>Structured Data</strong>
+- <strong>Relational Data</strong>: Full support for normalized and denormalized table structures
+- <strong>CSV/TSV Files</strong>: Comprehensive quality assessment for delimited text files
+- <strong>Excel Files</strong>: Quality validation for spreadsheet-based data sources
+- <strong>Database Exports</strong>: Quality assessment for database dump and export files</p>
+<p><strong>Semi-Structured Data</strong>
+- <strong>JSON Data</strong>: Quality assessment for JSON documents and API responses
+- <strong>XML Data</strong>: Validation and quality assessment for XML documents
+- <strong>Parquet Files</strong>: Efficient quality assessment for columnar data formats
+- <strong>Avro Data</strong>: Quality validation for schema-evolving data formats</p>
+<p><strong>Time-Series Data</strong>
+- <strong>Temporal Patterns</strong>: Specialized algorithms for time-series quality assessment
+- <strong>Sensor Data</strong>: Quality validation for IoT and sensor data streams
+- <strong>Log Files</strong>: Quality assessment for application and system log data
+- <strong>Event Streams</strong>: Real-time quality assessment for event-driven data</p>
+<h3 id="algorithm-performance-characteristics">Algorithm Performance Characteristics<a class="headerlink" href="#algorithm-performance-characteristics" title="Permanent link">&para;</a></h3>
+<p><strong>Speed and Efficiency</strong>
+- <strong>Linear Algorithms</strong>: O(n) complexity algorithms for large dataset processing
+- <strong>Approximate Algorithms</strong>: Fast approximate quality assessment for very large datasets
+- <strong>Parallel Processing</strong>: Multi-threaded and distributed algorithm implementations
+- <strong>Memory Optimization</strong>: Efficient memory usage for resource-constrained environments</p>
+<p><strong>Accuracy and Precision</strong>
+- <strong>False Positive Rate</strong>: Typically less than 5% for well-tuned quality assessments
+- <strong>Detection Sensitivity</strong>: Configurable sensitivity levels for different quality requirements
+- <strong>Algorithm Ensemble</strong>: Improved accuracy through combination of multiple algorithms
+- <strong>Domain Adaptation</strong>: Algorithm tuning for specific data domains and use cases</p>
+<h3 id="quality-metrics-and-reporting">Quality Metrics and Reporting<a class="headerlink" href="#quality-metrics-and-reporting" title="Permanent link">&para;</a></h3>
+<p><strong>Comprehensive Quality Metrics</strong>
+- <strong>Completeness</strong>: Measurement of missing data and null value patterns
+- <strong>Accuracy</strong>: Assessment of data correctness against reference standards
+- <strong>Consistency</strong>: Validation of data consistency across systems and time
+- <strong>Validity</strong>: Verification that data conforms to expected formats and ranges
+- <strong>Uniqueness</strong>: Detection of duplicate records and data redundancy
+- <strong>Timeliness</strong>: Assessment of data freshness and temporal relevance</p>
+<p><strong>Advanced Analytics</strong>
+- <strong>Trend Analysis</strong>: Historical quality trends and pattern identification
+- <strong>Root Cause Analysis</strong>: Automated identification of quality issue causes
+- <strong>Impact Assessment</strong>: Business impact analysis of data quality problems
+- <strong>Predictive Quality</strong>: Forecasting of potential future quality issues</p>
+<p><strong>Reporting and Visualization</strong>
+- <strong>Executive Dashboards</strong>: High-level quality summaries for management
+- <strong>Technical Reports</strong>: Detailed technical quality assessment reports
+- <strong>Trend Visualization</strong>: Graphical representation of quality trends over time
+- <strong>Custom Reports</strong>: Configurable reporting for specific organizational needs</p>
+<hr />
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>Anomaly and outlier detection represents a transformational opportunity for organizations to enhance data quality, improve data governance, and optimize data operations while delivering more reliable information for business decision-making. <strong>Pynomaly's</strong> enterprise-ready platform combined with <strong>PyOD's</strong> advanced detection algorithms provides a comprehensive solution that addresses the complex data quality challenges facing modern organizations.</p>
+<p><strong>Key Advantages:</strong>
+- <strong>Objective Assessment</strong>: Data-driven quality evaluation without bias
+- <strong>Scalable Solution</strong>: Handles enterprise-scale data volumes and complexity
+- <strong>Technical Excellence</strong>: Production-ready platform with proven algorithms
+- <strong>Domain Agnostic</strong>: Works across various data types and business domains</p>
+<p><strong>Expected Outcomes:</strong>
+- <strong>Improved Data Quality</strong>: Significant reduction in data quality issues
+- <strong>Operational Efficiency</strong>: Reduced manual data quality assessment effort
+- <strong>Risk Mitigation</strong>: Proactive identification of data quality problems
+- <strong>Governance Compliance</strong>: Automated adherence to data quality standards</p>
+<p>Organizations that invest in advanced anomaly detection capabilities for data quality management will be better positioned to maintain high-quality data assets, make reliable data-driven decisions, and meet evolving data governance requirements in an increasingly data-centric business environment.</p>
+<p>For organizations ready to enhance their data quality capabilities, Pynomaly provides a proven, scalable, and technically robust solution that addresses both current data quality challenges and future data management needs.</p>
+<hr />
+<p><em>For technical documentation, implementation guides, and additional information about Pynomaly's data quality capabilities, please refer to the comprehensive technical documentation and API reference materials.</em></p>
+<hr />
+<h2 id="related-documentation">🔗 <strong>Related Documentation</strong><a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<h3 id="getting-started"><strong>Getting Started</strong><a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="../../getting-started/installation.md">Installation Guide</a></strong> - Setup and installation</li>
+<li><strong><a href="../../getting-started/quickstart.md">Quick Start</a></strong> - Your first detection</li>
+<li><strong><a href="../../getting-started/platform-specific/">Platform Setup</a></strong> - Platform-specific guides</li>
+</ul>
+<h3 id="user-guides"><strong>User Guides</strong><a class="headerlink" href="#user-guides" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="../basic-usage/README.md">Basic Usage</a></strong> - Essential functionality</li>
+<li><strong><a href="../advanced-features/README.md">Advanced Features</a></strong> - Sophisticated capabilities  </li>
+<li><strong><a href="../troubleshooting/README.md">Troubleshooting</a></strong> - Problem solving</li>
+</ul>
+<h3 id="reference"><strong>Reference</strong><a class="headerlink" href="#reference" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="../../reference/algorithms/README.md">Algorithm Reference</a></strong> - Algorithm documentation</li>
+<li><strong><a href="../../developer-guides/api-integration/README.md">API Documentation</a></strong> - Programming interfaces</li>
+<li><strong><a href="../../reference/configuration/">Configuration</a></strong> - System configuration</li>
+</ul>
+<h3 id="examples"><strong>Examples</strong><a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="../../examples/README.md">Examples &amp; Tutorials</a></strong> - Real-world use cases</li>
+<li><strong><a href="../../examples/banking/">Banking Examples</a></strong> - Financial fraud detection</li>
+<li><strong><a href="../../examples/notebooks/">Notebooks</a></strong> - Interactive examples</li>
+</ul>
+<hr />
+<h2 id="getting-help">🆘 <strong>Getting Help</strong><a class="headerlink" href="#getting-help" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong><a href="../troubleshooting/troubleshooting.md">Troubleshooting Guide</a></strong> - Common issues and solutions</li>
+<li><strong><a href="https://github.com/your-org/pynomaly/issues">GitHub Issues</a></strong> - Report bugs and request features</li>
+<li><strong><a href="https://github.com/your-org/pynomaly/discussions">GitHub Discussions</a></strong> - Ask questions and share ideas</li>
+<li><strong><a href="mailto:security@pynomaly.org">Security Issues</a></strong> - Report security vulnerabilities</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/pynomaly/pynomaly" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/pynomaly/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/pynomaly" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+        <script src="../../javascripts/extra.js"></script>
+      
+    
+  </body>
+</html>
