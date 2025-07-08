@@ -17,29 +17,29 @@ const preview = {
         brandUrl: 'https://pynomaly.io',
         brandImage: '/static/images/pynomaly-logo.svg',
         brandTarget: '_self',
-        
+
         colorPrimary: '#0ea5e9',
         colorSecondary: '#22c55e',
-        
+
         // UI
         appBg: '#f8fafc',
         appContentBg: '#ffffff',
         appBorderColor: '#e2e8f0',
         appBorderRadius: 8,
-        
+
         // Typography
         fontBase: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
         fontCode: '"JetBrains Mono", Consolas, "Liberation Mono", Menlo, Courier, monospace',
-        
+
         // Text colors
         textColor: '#1e293b',
         textInverseColor: '#ffffff',
-        
+
         // Toolbar default and active colors
         barTextColor: '#64748b',
         barSelectedColor: '#0ea5e9',
         barBg: '#ffffff',
-        
+
         // Form colors
         inputBg: '#ffffff',
         inputBorder: '#d1d5db',
@@ -141,7 +141,7 @@ const preview = {
       width: '2px',
     },
   },
-  
+
   argTypes: {
     // Global argTypes for consistent component props
     size: {
@@ -168,7 +168,7 @@ const preview = {
       description: 'Theme variant'
     }
   },
-  
+
   globalTypes: {
     theme: {
       description: 'Global theme for components',
@@ -211,12 +211,12 @@ const preview = {
       },
     },
   },
-  
+
   decorators: [
     (story, context) => {
       const theme = context.globals.theme || 'light';
       const density = context.globals.density || 'normal';
-      
+
       // Apply theme class to the story wrapper
       const wrapper = document.createElement('div');
       wrapper.className = `storybook-wrapper theme-${theme} density-${density}`;
@@ -228,7 +228,7 @@ const preview = {
         font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         transition: background-color 0.2s ease, color 0.2s ease;
       `;
-      
+
       // Apply density styles
       if (density === 'compact') {
         wrapper.style.fontSize = '0.875rem';
@@ -237,12 +237,12 @@ const preview = {
         wrapper.style.fontSize = '1.125rem';
         wrapper.style.lineHeight = '1.75rem';
       }
-      
+
       wrapper.appendChild(story());
       return wrapper;
     },
   ],
-  
+
   tags: ['autodocs'],
 };
 
