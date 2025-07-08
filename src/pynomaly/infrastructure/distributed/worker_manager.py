@@ -17,6 +17,8 @@ from typing import Any
 import psutil
 from pydantic import BaseModel, Field
 
+from prometheus_client import start_http_server
+from pynomaly.infrastructure.monitoring.prometheus_metrics import get_metrics_service
 from .distributed_config import WorkerConfig, get_distributed_config_manager
 from .task_distributor import DistributedTask, TaskResult, TaskStatus
 
@@ -192,20 +194,39 @@ class WorkerNode(BaseModel):
 class WorkerTaskExecutor:
     """Executes tasks on a worker node."""
 
-    def __init__(self, worker_id: str, max_workers: int = 4):
+    def __init__(self, worker_id: str, max_workers: int = 4, metrics_port: int = 9090):
         """Initialize task executor.
 
         Args:
             worker_id: Worker identifier
             max_workers: Maximum concurrent threads
+            metrics_port: Port for Prometheus metrics server
         """
         self.worker_id = worker_id
         self.executor = ThreadPoolExecutor(max_workers=max_workers)
         self.active_futures: dict[str, Future] = {}
         self.task_functions: dict[str, Callable] = {}
+        self.metrics_port = metrics_port
+        self.metrics_server_started = False
+
+        # Start Prometheus metrics server
+        self._start_metrics_server()
 
         # Register built-in task functions
         self._register_builtin_functions()
+
+    def _start_metrics_server(self) -> None:
+        """Start Prometheus metrics HTTP server."""
+        if self.metrics_server_started:
+            return
+            
+        try:
+            # Start HTTP server for metrics
+            start_http_server(self.metrics_port)
+            self.metrics_server_started = True
+            logger.info(f"Worker {self.worker_id} metrics server started on port {self.metrics_port}")
+        except Exception as e:
+            logger.error(f"Failed to start metrics server on port {self.metrics_port}: {e}")
 
     def _register_builtin_functions(self) -> None:
         """Register built-in task functions."""

@@ -31,7 +31,8 @@ from ...domain.entities.detection_result import DetectionResult
 from ...domain.services.advanced_detection_service import get_detection_service, DetectionAlgorithm
 from ...shared.config import Config
 from ..monitoring.distributed_tracing import trace_operation
-
+from ..messaging.factory import MessageQueueFactory
+from ..messaging.core import Message
 
 logger = logging.getLogger(__name__)
 

@@ -40,7 +40,8 @@ except ImportError:
 from ...domain.entities.dataset import Dataset
 from ...domain.entities.detection_result import DetectionResult
 from ...domain.services.advanced_detection_service import get_detection_service, DetectionAlgorithm
-from ...shared.config import Config
+# Using Dict instead of Config class for simplicity
+# from ...shared.config import Config
 from ..monitoring.distributed_tracing import trace_operation
 
 
