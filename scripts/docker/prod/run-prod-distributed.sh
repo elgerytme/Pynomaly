@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Distributed Production Environment
 # Multi-node deployment with load balancing and service discovery

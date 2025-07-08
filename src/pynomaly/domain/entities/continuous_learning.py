@@ -174,6 +174,119 @@ class ConvergenceCriteria:
 
 
 @dataclass
+class ContinuousLearning:
+    """Continuous learning entity for model adaptation."""
+    
+    name: str
+    model_id: UUID
+    learning_strategy: str = "incremental"
+    retrain_threshold: float = 0.1
+    validation_strategy: str = "holdout"
+    is_active: bool = False
+    id: UUID = field(default_factory=uuid4)
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    trigger_conditions: list[dict[str, Any]] = field(default_factory=list)
+    learning_sessions: dict[str, dict[str, Any]] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
+    
+    def __post_init__(self):
+        """Validate continuous learning configuration."""
+        if not self.name:
+            raise ValueError("Name cannot be empty")
+        if not 0.0 <= self.retrain_threshold <= 1.0:
+            raise ValueError("Retrain threshold must be between 0.0 and 1.0")
+    
+    def activate(self) -> None:
+        """Activate continuous learning."""
+        self.is_active = True
+    
+    def deactivate(self) -> None:
+        """Deactivate continuous learning."""
+        self.is_active = False
+    
+    def add_trigger_condition(self, condition_type: str, **kwargs) -> None:
+        """Add a trigger condition for learning."""
+        condition = {"condition_type": condition_type, **kwargs}
+        self.trigger_conditions.append(condition)
+    
+    def get_trigger_conditions(self) -> list[dict[str, Any]]:
+        """Get all trigger conditions."""
+        return self.trigger_conditions.copy()
+    
+    def trigger_learning(self, trigger_context: dict[str, Any]) -> dict[str, Any]:
+        """Trigger a learning session."""
+        session_id = str(uuid4())
+        learning_session = {
+            "session_id": session_id,
+            "status": "initiated",
+            "trigger_reason": trigger_context.get("trigger_type", "unknown"),
+            "context": trigger_context,
+            "started_at": datetime.utcnow(),
+        }
+        self.learning_sessions[session_id] = learning_session
+        return learning_session
+    
+    def complete_learning_session(self, session_id: str, result: dict[str, Any]) -> None:
+        """Complete a learning session."""
+        if session_id in self.learning_sessions:
+            self.learning_sessions[session_id]["status"] = "completed"
+            self.learning_sessions[session_id]["result"] = result
+            self.learning_sessions[session_id]["completed_at"] = datetime.utcnow()
+    
+    def configure_incremental_learning(self, batch_size: int, learning_rate_decay: float, memory_budget: int) -> dict[str, Any]:
+        """Configure incremental learning parameters."""
+        config = {
+            "batch_size": batch_size,
+            "learning_rate_decay": learning_rate_decay,
+            "memory_budget": memory_budget,
+        }
+        self.metadata["incremental_config"] = config
+        return config
+    
+    def configure_periodic_retraining(self, retrain_frequency: str, full_dataset_retrain: bool, validation_holdout: float) -> dict[str, Any]:
+        """Configure periodic retraining parameters."""
+        config = {
+            "retrain_frequency": retrain_frequency,
+            "full_dataset_retrain": full_dataset_retrain,
+            "validation_holdout": validation_holdout,
+        }
+        self.metadata["periodic_retrain_config"] = config
+        return config
+    
+    def configure_model_selection(self, strategy: str, challenger_ratio: float, performance_window: str, statistical_significance: float) -> None:
+        """Configure model selection strategy."""
+        self.metadata["model_selection_config"] = {
+            "strategy": strategy,
+            "challenger_ratio": challenger_ratio,
+            "performance_window": performance_window,
+            "statistical_significance": statistical_significance,
+        }
+    
+    def compare_models(self, champion_metrics: dict[str, float], challenger_metrics: dict[str, float]) -> dict[str, Any]:
+        """Compare champion and challenger models."""
+        # Simple comparison - in real implementation would use statistical tests
+        champion_score = sum(champion_metrics.values()) / len(champion_metrics)
+        challenger_score = sum(challenger_metrics.values()) / len(challenger_metrics)
+        
+        improvement = challenger_score - champion_score
+        
+        if improvement > 0.01:  # Threshold for promotion
+            recommendation = "promote_challenger"
+            confidence = min(0.95, 0.5 + improvement * 5)  # Simple confidence calculation
+        else:
+            recommendation = "keep_champion"
+            confidence = min(0.95, 0.5 + abs(improvement) * 5)
+        
+        return {
+            "recommendation": recommendation,
+            "confidence": confidence,
+            "champion_score": champion_score,
+            "challenger_score": challenger_score,
+            "improvement": improvement,
+        }
+
+
+@dataclass
 class ModelAdaptation:
     """Represents a single model adaptation event."""
 

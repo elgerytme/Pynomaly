@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Redis High Availability Cluster
 # Master-replica setup with Sentinel for automatic failover

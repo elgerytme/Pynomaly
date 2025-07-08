@@ -290,7 +290,7 @@ PyOD automatically selects the best algorithm based on:
 - **Reporting Automation**: Automatic generation of regulatory reports
 
 **For IT Teams:**
-- **Reduced Maintenance**: Self-tuning reduces need for manual adjustments  
+- **Reduced Maintenance**: Self-tuning reduces need for manual adjustments
 - **Scalability**: Handles growing transaction volumes automatically
 - **Integration**: Seamless connection with existing banking systems
 - **Monitoring**: Built-in performance monitoring and alerting

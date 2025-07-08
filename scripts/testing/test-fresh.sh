@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Test script for fresh bash environment
 
 echo "=== Testing Pynomaly Web App in Fresh Bash Environment ==="

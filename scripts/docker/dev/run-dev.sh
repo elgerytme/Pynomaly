@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Development Environment - Docker Run Scripts
 # Basic development setup with hot-reload and dev tools

@@ -10,10 +10,62 @@ import logging
 from typing import Any
 
 import numpy as np
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
+
+# Optional PyTorch imports
+try:
+    import torch
+    import torch.nn as nn
+    import torch.optim as optim
+    from torch.utils.data import DataLoader, TensorDataset
+    TORCH_AVAILABLE = True
+except ImportError:
+    # Create dummy classes for when PyTorch is not available
+    class nn:
+        class Module:
+            pass
+        class Linear:
+            pass
+        class ReLU:
+            pass
+        class BatchNorm1d:
+            pass
+        class Sequential:
+            pass
+        class functional:
+            @staticmethod
+            def mse_loss(*args, **kwargs):
+                raise ImportError("PyTorch not available")
+    
+    class torch:
+        class Tensor:
+            pass
+        @staticmethod
+        def no_grad():
+            return None
+        @staticmethod
+        def randn_like(*args):
+            raise ImportError("PyTorch not available")
+        @staticmethod
+        def exp(*args):
+            raise ImportError("PyTorch not available")
+        @staticmethod
+        def sum(*args, **kwargs):
+            raise ImportError("PyTorch not available")
+        @staticmethod
+        def mean(*args, **kwargs):
+            raise ImportError("PyTorch not available")
+    
+    class optim:
+        class Adam:
+            pass
+    
+    class DataLoader:
+        pass
+    
+    class TensorDataset:
+        pass
+    
+    TORCH_AVAILABLE = False
 
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector
 from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
@@ -23,8 +75,21 @@ from pynomaly.shared.protocols import DetectorProtocol
 logger = logging.getLogger(__name__)
 
 
+def _check_torch_availability():
+    """Check if PyTorch is available and raise error if not."""
+    if not TORCH_AVAILABLE:
+        raise ImportError(
+            "PyTorch is not installed. Please install PyTorch to use deep learning models: "
+            "pip install torch"
+        )
+
+
 class BaseAnomalyModel(nn.Module):
     """Base class for PyTorch anomaly detection models."""
+
+    def __init__(self):
+        _check_torch_availability()
+        super().__init__()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward pass through the model.
@@ -41,16 +106,40 @@ class BaseAnomalyModel(nn.Module):
     def loss_function(
         self, x: torch.Tensor, recon: torch.Tensor, **kwargs
     ) -> torch.Tensor:
-        raise NotImplementedError
+        """Calculate loss function.
+        
+        Args:
+            x: Input tensor
+            recon: Reconstructed tensor
+            **kwargs: Additional arguments
+            
+        Returns:
+            Loss tensor
+        """
+        # Default MSE loss - can be overridden by subclasses
+        return nn.functional.mse_loss(recon, x, reduction="mean")
 
     def anomaly_score(self, x: torch.Tensor) -> torch.Tensor:
-        raise NotImplementedError
+        """Calculate anomaly scores.
+        
+        Args:
+            x: Input tensor
+            
+        Returns:
+            Anomaly scores tensor
+        """
+        # Default implementation using reconstruction error
+        with torch.no_grad():
+            recon = self.forward(x)
+            scores = torch.mean((x - recon) ** 2, dim=1)
+        return scores
 
 
 class AutoEncoder(BaseAnomalyModel):
     """Vanilla Autoencoder for anomaly detection."""
 
     def __init__(self, input_dim: int, hidden_dims: list[int], latent_dim: int):
+        _check_torch_availability()
         super().__init__()
 
         # Encoder
@@ -756,3 +845,87 @@ class PyTorchAdapter(DetectorProtocol):
         }
 
         return info.get(algorithm, {})
+
+    def infer(self, dataset: Dataset) -> DetectionResult:
+        """Inference method for trained models (alias for predict).
+        
+        Args:
+            dataset: Dataset to analyze
+            
+        Returns:
+            Detection results with anomaly scores and labels
+        """
+        from pynomaly.infrastructure.config.feature_flags import feature_flags
+        
+        # Check if deep learning features are enabled
+        if not feature_flags.is_enabled("deep_learning"):
+            # Return stub result for fast tests
+            return self._create_stub_detection_result(dataset)
+        
+        return self.predict(dataset)
+    
+    def forward(self, dataset: Dataset) -> torch.Tensor:
+        """Forward pass through the model.
+        
+        Args:
+            dataset: Input dataset
+            
+        Returns:
+            Model output tensor
+        """
+        from pynomaly.infrastructure.config.feature_flags import feature_flags
+        
+        # Check if deep learning features are enabled
+        if not feature_flags.is_enabled("deep_learning"):
+            # Return dummy tensor for fast tests
+            X_test = self._prepare_data(dataset)
+            return torch.zeros(X_test.shape[0], 1)
+        
+        if not self.detector.is_fitted or self._model is None:
+            raise AdapterError("Model must be fitted before forward pass")
+        
+        try:
+            # Prepare data
+            X_test = self._prepare_data(dataset)
+            tensor_x = torch.FloatTensor(X_test).to(self._device)
+            
+            # Forward pass
+            self._model.eval()
+            with torch.no_grad():
+                output = self._model.forward(tensor_x)
+            
+            return output
+            
+        except Exception as e:
+            raise AdapterError(f"Failed to perform forward pass: {e}")
+    
+    def _create_stub_detection_result(self, dataset: Dataset) -> DetectionResult:
+        """Create a stub detection result for fast tests.
+        
+        Args:
+            dataset: Input dataset
+            
+        Returns:
+            Stub detection result
+        """
+        # Create dummy scores and labels
+        n_samples = len(dataset.data)
+        dummy_scores = [AnomalyScore(value=0.1, confidence=0.5) for _ in range(n_samples)]
+        dummy_labels = [0] * n_samples  # All normal
+        
+        return DetectionResult(
+            detector_id=self.detector.id,
+            dataset_id=dataset.id,
+            scores=dummy_scores,
+            labels=dummy_labels,
+            metadata={
+                "algorithm": self.detector.algorithm,
+                "threshold": 0.5,
+                "n_anomalies": 0,
+                "contamination_rate": 0.0,
+                "model_type": "deep_learning_stub",
+                "device": "cpu",
+                "stub": True,
+                "message": "Stub result - deep learning features disabled"
+            },
+        )

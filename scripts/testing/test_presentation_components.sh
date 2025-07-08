@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Pynomaly Presentation Components Test Suite
 # Tests CLI, API, and Web UI components in fresh environments

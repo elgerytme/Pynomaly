@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Fresh Environment Setup Script for Pynomaly API
 # This script sets up Pynomaly API in a fresh environment
 

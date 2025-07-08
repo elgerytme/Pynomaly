@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # MinIO High Availability Cluster
 # Distributed object storage with erasure coding

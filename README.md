@@ -30,6 +30,7 @@ Python anomaly detection package targeting Python 3.11+ with clean architecture 
 - 🎯 **Ensemble Methods**: Advanced voting strategies and model combination
 - ⚡ **Performance Optimizations**: Batch cache operations, optimized data loading, memory management
 - 🧪 **Testing Infrastructure**: 85%+ coverage with property-based testing, benchmarking, and mutation testing
+- 🔻 **Performance Degradation Detection**: Real-time monitoring and alerting for model performance regression with automatic retraining triggers
 
 ### Experimental Features (Limited Support)
 

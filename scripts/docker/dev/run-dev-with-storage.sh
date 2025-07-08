@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Development Environment with Storage Infrastructure
 # Includes PostgreSQL, Redis, and MinIO for complete development setup

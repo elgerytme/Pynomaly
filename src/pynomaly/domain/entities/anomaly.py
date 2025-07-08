@@ -4,15 +4,18 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any
+from typing import Any, TYPE_CHECKING
 from uuid import UUID, uuid4
+
+if TYPE_CHECKING:
+    from pynomaly.domain.value_objects import AnomalyScore
 
 
 @dataclass
 class Anomaly:
     """Simple anomaly entity."""
 
-    score: float
+    score: Any  # Can be AnomalyScore or float
     data_point: dict[str, Any]
     detector_name: str
     id: UUID = field(default_factory=uuid4)
@@ -22,8 +25,11 @@ class Anomaly:
 
     def __post_init__(self) -> None:
         """Validate anomaly after initialization."""
-        if not isinstance(self.score, (int, float)):
-            raise TypeError(f"Score must be a number, got {type(self.score)}")
+        from pynomaly.domain.value_objects import AnomalyScore
+
+        # Only accept AnomalyScore objects
+        if not isinstance(self.score, AnomalyScore):
+            raise TypeError(f"Score must be AnomalyScore instance, got {type(self.score)}")
 
         if not self.detector_name:
             raise ValueError("Detector name cannot be empty")
@@ -34,11 +40,14 @@ class Anomaly:
     @property
     def severity(self) -> str:
         """Categorize anomaly severity based on score."""
-        if self.score > 0.9:
+        # Handle both AnomalyScore and float
+        score_value = self.score.value if hasattr(self.score, 'value') else self.score
+
+        if score_value > 0.9:
             return "critical"
-        elif self.score > 0.7:
+        elif score_value > 0.7:
             return "high"
-        elif self.score > 0.5:
+        elif score_value > 0.5:
             return "medium"
         else:
             return "low"

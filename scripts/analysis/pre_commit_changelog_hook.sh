@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Pre-commit hook to check if CHANGELOG.md needs to be updated
 #

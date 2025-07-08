@@ -452,14 +452,14 @@ class TestIntegrationErrorPaths:
         from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
 
         # Test adapter with missing dependencies
-        with patch("importlib.import_module") as mock_import:
+        with patch("pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module") as mock_import:
             mock_import.side_effect = ImportError("PyOD not installed")
 
             with pytest.raises(InvalidAlgorithmError, match="PyOD not installed"):
                 adapter = PyODAdapter(algorithm_name="IsolationForest")
 
         # Test adapter with incompatible version
-        with patch("importlib.import_module") as mock_import:
+        with patch("pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module") as mock_import:
             mock_module = Mock()
             mock_module.__version__ = "0.5.0"  # Old version
             mock_import.return_value = mock_module

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # PostgreSQL High Availability Cluster
 # Master-replica setup with automatic failover

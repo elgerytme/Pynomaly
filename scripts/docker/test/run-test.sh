@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Test Environment - Docker Run Scripts
 # Isolated test environment with test database and services

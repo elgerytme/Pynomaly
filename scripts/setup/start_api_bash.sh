@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Bash script to start Pynomaly API
 # Usage: ./start_api_bash.sh [PORT] [HOST]
 

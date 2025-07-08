@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # MongoDB High Availability Cluster
 # Replica set with automatic failover

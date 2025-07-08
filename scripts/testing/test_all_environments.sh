@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Comprehensive test script for Pynomaly API in different environments
 # Tests: Current environment, Fresh environment, Different shells
 

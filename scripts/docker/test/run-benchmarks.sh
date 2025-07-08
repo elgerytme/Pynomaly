@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Benchmark Testing Environment
 # Performance and load testing with monitoring

@@ -758,3 +758,83 @@ class RealTimeAnomalyPipeline:
             "samples_processed": self.detector.samples_processed,
             "metrics": self.metrics.dict(),
         }
+
+
+class MetricsPublisher:
+    """Publisher for streaming metrics to message queues."""
+
+    def __init__(self, queue_type: str, config: dict[str, Any]):
+        """Initialize metrics publisher.
+
+        Args:
+            queue_type: Type of message queue ("redis" or "kafka")
+            config: Queue configuration
+        """
+        self.queue_type = queue_type
+        self.config = config
+        self.client = None
+        self.producer = None
+
+        if queue_type not in ["redis", "kafka"]:
+            raise ValueError(f"Unsupported queue type: {queue_type}")
+
+    async def publish(self, metrics: StreamingMetrics) -> None:
+        """Publish metrics to the message queue.
+
+        Args:
+            metrics: Streaming metrics to publish
+        """
+        if self.queue_type == "redis":
+            await self._publish_to_redis(metrics)
+        elif self.queue_type == "kafka":
+            await self._publish_to_kafka(metrics)
+
+    async def _publish_to_redis(self, metrics: StreamingMetrics) -> None:
+        """Publish metrics to Redis Streams."""
+        try:
+            import aioredis
+
+            if self.client is None:
+                self.client = aioredis.from_url(self.config["url"])
+
+            # Serialize metrics
+            metrics_data = {
+                "metrics": metrics.json(),
+                "timestamp": datetime.utcnow().isoformat(),
+            }
+
+            # Add to Redis stream
+            await self.client.xadd("metrics_stream", metrics_data)
+
+        except Exception as e:
+            logger.error(f"Failed to publish metrics to Redis: {e}")
+            raise
+
+    async def _publish_to_kafka(self, metrics: StreamingMetrics) -> None:
+        """Publish metrics to Kafka."""
+        try:
+            from aiokafka import AIOKafkaProducer
+
+            if self.producer is None:
+                self.producer = AIOKafkaProducer(
+                    bootstrap_servers=self.config["bootstrap_servers"]
+                )
+                await self.producer.start()
+
+            # Serialize metrics
+            metrics_json = metrics.json()
+            metrics_bytes = metrics_json.encode("utf-8")
+
+            # Send to Kafka topic
+            await self.producer.send_and_wait("metrics", metrics_bytes)
+
+        except Exception as e:
+            logger.error(f"Failed to publish metrics to Kafka: {e}")
+            raise
+
+    async def close(self) -> None:
+        """Close the metrics publisher."""
+        if self.client:
+            await self.client.close()
+        if self.producer:
+            await self.producer.stop()
