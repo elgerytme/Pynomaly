@@ -29,6 +29,16 @@ from .repository_service import (
     create_filesystem_repository_service,
     create_memory_repository_service,
 )
+from .model_performance_repository import (
+    ModelPerformanceRepository,
+    InMemoryModelPerformanceRepository,
+    SQLAlchemyModelPerformanceRepository,
+)
+from .performance_baseline_repository import (
+    PerformanceBaselineRepository,
+    InMemoryPerformanceBaselineRepository,
+    SQLAlchemyPerformanceBaselineRepository,
+)
 
 __all__ = [
     # Legacy implementations
@@ -54,4 +64,11 @@ __all__ = [
     # Convenience functions
     "create_memory_repository_service",
     "create_filesystem_repository_service",
+    # Performance repositories
+    "ModelPerformanceRepository",
+    "InMemoryModelPerformanceRepository",
+    "SQLAlchemyModelPerformanceRepository",
+    "PerformanceBaselineRepository",
+    "InMemoryPerformanceBaselineRepository",
+    "SQLAlchemyPerformanceBaselineRepository",
 ]

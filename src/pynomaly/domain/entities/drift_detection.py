@@ -520,6 +520,10 @@ class MonitoringStatus(Enum):
     ERROR = "error"
 
 
+# Alias for backwards compatibility
+DriftMonitoringStatus = MonitoringStatus
+
+
 @dataclass
 class DriftDetectionConfig:
     """Configuration for drift detection."""
@@ -1327,6 +1331,7 @@ __all__ = [
     "DriftType",
     "DriftSeverity",
     "MonitoringStatus",
+    "DriftMonitoringStatus",
     
     # Configuration classes
     "DriftDetectionConfig",

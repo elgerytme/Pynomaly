@@ -24,7 +24,7 @@ from pynomaly.application.services.automated_training_service import (
 from pynomaly.application.use_cases.drift_monitoring_use_case import DriftMonitoringUseCase
 from pynomaly.application.use_cases.train_detector import TrainDetectorUseCase
 from pynomaly.domain.entities import Detector, Dataset
-from pynomaly.domain.exceptions import ModelPerformanceError, RetrainingError
+from pynomaly.domain.exceptions import DomainError, ValidationError
 from pynomaly.shared.protocols import DetectorRepositoryProtocol
 
 logger = logging.getLogger(__name__)
