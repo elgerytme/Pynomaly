@@ -7,7 +7,10 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID, uuid4
 
-from pynomaly.domain.value_objects import AnomalyScore, ConfidenceInterval
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pynomaly.domain.value_objects import AnomalyScore, ConfidenceInterval
 
 
 @dataclass
@@ -25,7 +28,7 @@ class Anomaly:
         confidence_interval: Optional confidence interval for the anomaly
     """
 
-    score: AnomalyScore
+    score: AnomalyScore  # Deprecated, use severity_score instead
     data_point: dict[str, Any]
     detector_name: str
     id: UUID = field(default_factory=uuid4)
@@ -33,10 +36,13 @@ class Anomaly:
     metadata: dict[str, Any] = field(default_factory=dict)
     explanation: str | None = None
     confidence_interval: ConfidenceInterval | None = None
+    anomaly_type: AnomalyType = field(default_factory=AnomalyType.get_default)
+    anomaly_category: AnomalyCategory = field(default_factory=AnomalyCategory.get_default)
+    severity_score: SeverityScore = field(default_factory=SeverityScore.create_minimal)
 
     def __post_init__(self) -> None:
         """Validate anomaly after initialization."""
-        if not isinstance(self.score, AnomalyScore):
+        if self.score is not None and not isinstance(self.score, AnomalyScore):
             raise TypeError(
                 f"Score must be AnomalyScore instance, got {type(self.score)}"
             )
@@ -47,6 +53,11 @@ class Anomaly:
         if not isinstance(self.data_point, dict):
             raise TypeError(
                 f"Data point must be a dictionary, got {type(self.data_point)}"
+            )
+
+        if not isinstance(self.severity_score, SeverityScore):
+            raise TypeError(
+                f"SeverityScore must be an instance of SeverityScore, got {type(self.severity_score)}"
             )
 
     @property
@@ -71,6 +82,11 @@ class Anomaly:
             return "medium"
         else:
             return "low"
+
+    @property
+    def severity_level(self) -> SeverityLevel:
+        """Get the severity level from severity score."""
+        return self.severity_score.severity_level
 
     def add_metadata(self, key: str, value: Any) -> None:
         """Add metadata to the anomaly."""

@@ -329,9 +329,23 @@ def configure_openapi_docs(app: FastAPI, settings: Settings) -> None:
     """
     config = OpenAPIConfig(settings)
 
-    # Set custom OpenAPI schema generator
+    # Set custom OpenAPI schema generator with error handling
     def custom_openapi():
-        return config.get_openapi_schema(app)
+        try:
+            return config.get_openapi_schema(app)
+        except Exception as e:
+            print(f"Warning: OpenAPI schema generation failed: {e}")
+            # Return basic schema as fallback
+            return {
+                "openapi": "3.0.2",
+                "info": {
+                    "title": app.title,
+                    "version": app.version,
+                    "description": "Pynomaly API - Schema generation failed"
+                },
+                "paths": {},
+                "components": {"schemas": {}}
+            }
 
     app.openapi = custom_openapi
 
