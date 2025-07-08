@@ -219,10 +219,15 @@ aggregate-sarif: ## Aggregate SARIF files into combined.sarif
 	@echo "📊 Aggregating SARIF files..."
 	@if [ -z "$(SARIF_FILES)" ]; then \
 		echo "Usage: make aggregate-sarif SARIF_FILES='file1.sarif file2.sarif'"; \
+		echo "   or: make aggregate-sarif SARIF_FILES='*.sarif' OUTPUT='my-combined.sarif'"; \
 		exit 1; \
 	fi
-	python scripts/aggregate_sarif.py $(SARIF_FILES)
-	@echo "✅ SARIF files aggregated into combined.sarif"
+	@if [ -n "$(OUTPUT)" ]; then \
+		python scripts/aggregate_sarif.py --output $(OUTPUT) $(SARIF_FILES); \
+	else \
+		python scripts/aggregate_sarif.py $(SARIF_FILES); \
+	fi
+	@echo "✅ SARIF aggregation completed"
 
 # === PRE-COMMIT & CI ===
 

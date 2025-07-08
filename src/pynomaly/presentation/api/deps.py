@@ -28,12 +28,11 @@ def get_container(request: Request) -> Container:
 async def get_current_user(
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)],
     container: Container = Depends(get_container),
-    request: Request = Depends(),
 ) -> str | None:
     """Get current authenticated user.
 
     Returns None if auth is disabled, otherwise validates token.
-    Supports both Bearer token and cookie-based authentication.
+    Supports Bearer token authentication only.
     """
     settings = container.config()
 
@@ -43,37 +42,24 @@ async def get_current_user(
     # Get auth service
     from pynomaly.domain.exceptions import AuthenticationError
     from pynomaly.infrastructure.auth import get_auth
-    from fastapi import Request
 
     auth_service = get_auth()
     if not auth_service:
-        # If auth is enabled but service unavailable, raise error
-        # Return None (handled gracefully for web endpoints)
-        raise HTTPException(
-            status_code=503, detail="Authentication service not available"
-        )
+        # If auth is enabled but service unavailable, return None
+        return None
 
-    # Try to get token from Authorization header first
-    request = Request()
-    token = credentials.credentials if credentials else request.cookies.get("access_token")[7:] if request.cookies.get("access_token").startswith("Bearer ") else None
-
-    if not token:
-        # Require authentication
-        raise HTTPException(
-            status_code=401,
-            detail="Authentication required",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    # Get token from Authorization header only (simplified)
+    if not credentials:
+        return None
 
     try:
         # Validate JWT token and get user
-        user = auth_service.get_current_user(token)
+        user = auth_service.get_current_user(credentials.credentials)
         return user.username
 
-    except AuthenticationError as e:
-        # Raise HTTP exception if authentication fails
-        raise HTTPException(
-            status_code=401, detail=str(e), headers={"WWW-Authenticate": "Bearer"}
+    except AuthenticationError:
+        # Return None if authentication fails
+        return None
         )
 
 

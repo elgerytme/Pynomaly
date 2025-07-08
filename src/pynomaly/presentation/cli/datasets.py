@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Optional
 
 import typer
 from rich.console import Console
@@ -10,6 +11,9 @@ from rich.table import Table
 
 from pynomaly.domain.entities import Dataset
 from pynomaly.presentation.cli.container import get_cli_container
+
+import pandas as pd
+import numpy as np
 
 app = typer.Typer()
 console = Console()
@@ -138,6 +142,79 @@ def load_dataset(
     console.print(f"  Memory: {dataset.memory_usage / 1024 / 1024:.1f} MB")
     if dataset.has_target:
         console.print(f"  Target: {dataset.target_column}")
+
+
+@app.command("generate")
+def generate_dataset(
+    size: int = typer.Option(1000, help="Number of samples in the dataset"),
+    feature_count: int = typer.Option(10, help="Number of features"),
+    anomaly_rate: float = typer.Option(0.01, help="Rate of anomalies"),
+    name: str = typer.Option("generated_dataset", help="Name of the dataset"),
+    output: Optional[str] = typer.Option(None, help="Output file name"),
+    format: str = typer.Option("csv", help="Output file format"),
+):
+    """Generate a synthetic dataset for testing and benchmarking."""
+    
+    # Generate normal data
+    data = pd.DataFrame(
+        np.random.normal(0, 1, size=(size, feature_count)),
+        columns=[f"feature_{i}" for i in range(feature_count)]
+    )
+    
+    # Add anomalies
+    n_anomalies = int(size * anomaly_rate)
+    data.iloc[-n_anomalies:] = np.random.normal(10, 1, size=(n_anomalies, feature_count))
+    
+    # Save dataset
+    file_name = output or f"{name}.{format}"
+    if format == "csv":
+        data.to_csv(file_name, index=False)
+    elif format == "json":
+        data.to_json(file_name, orient="records")
+    elif format == "parquet":
+        data.to_parquet(file_name, index=False)
+    else:
+        console.print(f"[red]Error:[/red] Unsupported format: {format}")
+        raise typer.Exit(1)
+    
+    console.print(f"[green]✓[/green] Generated dataset '{name}' with {size} samples and {feature_count} features")
+    console.print(f"Anomalies: {n_anomalies} ({anomaly_rate*100:.2f}%)")
+    console.print(f"Saved to: {file_name}")
+
+
+@app.command("list-samples")
+def list_sample_datasets():
+    """List available sample datasets for testing and benchmarking."""
+    
+    console.print("[bold blue]Available Sample Datasets:[/bold blue]\n")
+    
+    # Check if examples directory exists
+    examples_dir = Path("examples/sample_datasets")
+    if not examples_dir.exists():
+        console.print(f"[yellow]Sample datasets directory not found: {examples_dir}[/yellow]")
+        console.print("\nTo create sample datasets, use: pynomaly dataset generate")
+        return
+    
+    # List synthetic datasets
+    synthetic_dir = examples_dir / "synthetic"
+    if synthetic_dir.exists():
+        console.print("[green]Synthetic Datasets:[/green]")
+        for csv_file in synthetic_dir.glob("*.csv"):
+            file_size = csv_file.stat().st_size / 1024 / 1024  # MB
+            console.print(f"  • {csv_file.name} ({file_size:.2f} MB)")
+    
+    # List real-world datasets
+    real_world_dir = examples_dir / "real_world"
+    if real_world_dir.exists():
+        console.print("\n[green]Real-world Datasets:[/green]")
+        for csv_file in real_world_dir.glob("*.csv"):
+            file_size = csv_file.stat().st_size / 1024 / 1024  # MB
+            console.print(f"  • {csv_file.name} ({file_size:.2f} MB)")
+    
+    console.print("\nTo load a sample dataset:")
+    console.print("  pynomaly dataset load examples/sample_datasets/synthetic/financial_fraud.csv --name \"Sample Dataset\"")
+    console.print("\nTo create a custom test dataset:")
+    console.print("  pynomaly dataset generate --size 10000 --feature-count 15 --anomaly-rate 0.02 --name test_1mb")
 
 
 @app.command("show")
