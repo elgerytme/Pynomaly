@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Referenced TODO item C-004 for detailed security implementation
   - Implemented multi-stage hardened builds with non-root execution and limited capabilities
   - Integrated container vulnerability scans with Trivy and enhanced CI pipelines
-- **Comprehensive Monitoring Documentation** (2025-01-12): Complete monitoring setup guide with architecture diagrams, deployment instructions, and troubleshooting procedures
+|- **Comprehensive Monitoring Documentation** (2025-01-12): Complete monitoring setup guide with architecture diagrams, deployment instructions, and troubleshooting procedures
   - **Architecture Overview**: Detailed diagram showing Prometheus ↔ Grafana ↔ Pynomaly integration with OpenTelemetry Collector, Alertmanager, and Workers
   - **Docker Setup Guide**: Step-by-step Docker Compose deployment with required environment variables, networking configuration, and service health checks
   - **Kubernetes Deployment**: Complete Kubernetes setup with namespace creation, secrets management, ConfigMaps, and service discovery configuration
@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Security Considerations**: Authentication, authorization, HTTPS setup, RBAC implementation, and network security best practices
   - **Performance Optimization**: Prometheus retention tuning, Grafana caching, metric collection optimization, and scaling strategies
   - **FAQ Section**: Common questions about configuration management, backup procedures, alert setup, and debugging techniques
+- **Banking Anomaly Detection Guide** (2025-07-08): Comprehensive guide for banking industry focused on fraud detection, AML compliance, and risk management including integration options with Pynomaly and PyOD technologies.
 - **Progressive Web App Implementation with Complete Offline Capabilities** (2025-06-26): Enterprise-grade PWA with advanced offline functionality, data synchronization, and mobile optimization
   - **Service Worker Architecture**: Intelligent caching strategies (cache-first, network-first, stale-while-revalidate), background synchronization with conflict resolution, push notification system, and IndexedDB integration for offline storage
   - **Offline Anomaly Detection**: Browser-based algorithms (Z-Score, IQR, Isolation Forest, MAD) running entirely offline, cached dataset management, offline visualization capabilities, and local analysis results storage

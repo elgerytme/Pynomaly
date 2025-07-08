@@ -871,3 +871,38 @@ class PyTorchAdapter(DetectorProtocol):
             )
 
         return info
+    
+    def _create_stub_model(self, X: np.ndarray) -> None:
+        """Create a stub model when deep learning is disabled."""
+        logger.info("Creating stub model for fast tests")
+        
+        # Create minimal scaler for consistency
+        from sklearn.preprocessing import StandardScaler
+        self.scaler = StandardScaler()
+        self.scaler.fit(X)
+        
+        # Set a default threshold
+        self.threshold = 0.5
+        
+        # Create a simple stub model
+        self.model = type('StubModel', (), {
+            'eval': lambda: None,
+            'config': type('Config', (), {'contamination': self._contamination_rate})()
+        })()
+    
+    def _stub_predict(self, X: np.ndarray) -> np.ndarray:
+        """Stub prediction when deep learning is disabled."""
+        # Return all normal predictions (no anomalies)
+        return np.zeros(len(X), dtype=int)
+    
+    def forward(self, X: np.ndarray) -> np.ndarray:
+        """Forward pass through the model."""
+        if not self._deep_learning_enabled:
+            # Return dummy outputs for fast tests
+            return np.zeros((len(X), 1))
+            
+        return self.decision_function(X)
+    
+    def infer(self, X: np.ndarray) -> np.ndarray:
+        """Inference method (alias for predict)."""
+        return self.predict(X)

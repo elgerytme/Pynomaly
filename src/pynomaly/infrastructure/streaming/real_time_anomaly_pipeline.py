@@ -14,7 +14,7 @@ import numpy as np
 from pydantic import BaseModel, Field
 
 from pynomaly.domain.entities import Anomaly, DetectionResult
-from pynomaly.domain.value_objects import ContaminationRate
+from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
 
 logger = logging.getLogger(__name__)
 
@@ -383,29 +383,38 @@ class StreamingAnomalyDetector:
                 is_anomaly = pred == -1
                 anomaly_score = float(score)
 
-                # Create anomaly point
-                anomaly_point = AnomalyPoint(
-                    index=i,
-                    score=anomaly_score,
-                    values=list(point.data.values()),
-                    timestamp=point.timestamp,
-                )
+                # Create anomaly if detected
+                anomaly = None
+                if is_anomaly:
+                    anomaly = Anomaly(
+                        score=AnomalyScore(anomaly_score),
+                        data_point=point.data,
+                        detector_name=self.detector_algorithm,
+                        timestamp=point.timestamp,
+                        metadata={
+                            "source_id": point.source_id,
+                            "is_streaming": True,
+                            "samples_processed": self.samples_processed,
+                        },
+                    )
 
                 # Create detection result
                 result = DetectionResult(
-                    id=uuid4(),
-                    dataset_name="streaming_data",
-                    algorithm_name=self.detector_algorithm,
-                    contamination_rate=ContaminationRate(self.contamination),
-                    anomalies=[anomaly_point] if is_anomaly else [],
-                    scores=[anomaly_score],
+                    detector_id=uuid4(),
+                    dataset_id=uuid4(),
+                    anomalies=[anomaly] if is_anomaly else [],
+                    scores=[AnomalyScore(anomaly_score)],
+                    labels=np.array([1 if is_anomaly else 0]),
+                    threshold=0.0,  # Will be determined by the detector
+                    execution_time_ms=0.0,  # Will be updated by pipeline
                     timestamp=point.timestamp,
-                    processing_time=0.0,  # Will be updated by pipeline
                     metadata={
                         "data_point_id": str(uuid4()),
                         "source_id": point.source_id,
                         "is_streaming": True,
                         "samples_processed": self.samples_processed,
+                        "contamination_rate": self.contamination,
+                        "algorithm_name": self.detector_algorithm,
                     },
                 )
 
