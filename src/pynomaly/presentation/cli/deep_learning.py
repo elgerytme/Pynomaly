@@ -173,10 +173,10 @@ def train(
 @require_feature("deep_learning")
 def benchmark(
     dataset_path: Path = typer.Argument(..., help="Path to the dataset file", exists=True),
-    algorithm: str = typer.Option(
+    algorithm: Literal["autoencoder", "vae", "lstm", "gru", "transformer"] = typer.Option(
         "autoencoder",
         "-a", "--algorithm",
-        help="Deep learning algorithm",
+        help="Deep learning algorithm"
     ),
     frameworks: Optional[List[str]] = typer.Option(
         None,
@@ -238,7 +238,7 @@ def benchmark(
 @require_feature("deep_learning")
 def recommend(
     dataset_path: Path = typer.Argument(..., help="Path to the dataset file", exists=True),
-    priority: str = typer.Option(
+    priority: Literal["speed", "accuracy", "memory", "balanced"] = typer.Option(
         "balanced",
         "--priority",
         help="Performance priority"

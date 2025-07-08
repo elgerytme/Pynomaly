@@ -280,6 +280,43 @@ async def create_user(
             role=request.role
         )
 
+        # Log user creation
+        audit_logger.log_event(
+            AuditEventType.USER_CREATED,
+            user_id=str(user.id),
+            outcome="success",
+            severity=AuditSeverity.LOW,
+            details={"email": user.email}
+        )
+        
+        return UserResponse(
+            id=UUID(user.id),
+            email=user.email,
+            username=user.username,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            full_name=user.full_name,
+            status=user.status,
+            created_at=user.created_at,
+            updated_at=user.updated_at,
+            last_login_at=user.last_login_at,
+            email_verified_at=user.email_verified_at,
+            tenant_roles=[
+                {
+                    "tenant_id": str(tr.tenant_id),
+                    "role": tr.role.value,
+                    "granted_at": tr.granted_at.isoformat(),
+                    "expires_at": tr.expires_at.isoformat() if tr.expires_at else None
+                }
+                for tr in user.tenant_roles
+            ]
+        )
+    except (ValidationError, ResourceLimitError) as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+
 
 @router.get("/", response_model=List[UserResponse])
 async def list_users(
@@ -469,39 +506,6 @@ async def toggle_user_status(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
-
-        # Log user creation
-        audit_logger.log_event(
-            AuditEventType.USER_CREATED,
-            user_id=str(user.id),
-            outcome="success",
-            severity=AuditSeverity.LOW,
-            details={"email": user.email}
-        )
-        
-        return UserResponse(
-            id=UUID(user.id),
-            email=user.email,
-            username=user.username,
-            first_name=user.first_name,
-            last_name=user.last_name,
-            full_name=user.full_name,
-            status=user.status,
-            created_at=user.created_at,
-            updated_at=user.updated_at,
-            last_login_at=user.last_login_at,
-            email_verified_at=user.email_verified_at,
-            tenant_roles=[
-                {
-                    "tenant_id": str(tr.tenant_id),
-                    "role": tr.role.value,
-                    "granted_at": tr.granted_at.isoformat(),
-                    "expires_at": tr.expires_at.isoformat() if tr.expires_at else None
-                }
-                for tr in user.tenant_roles
-            ]
-        )
-    except (ValidationError, ResourceLimitError) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
