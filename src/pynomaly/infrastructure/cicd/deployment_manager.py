@@ -204,7 +204,7 @@ class DeploymentManager:
         )
         
         # Apply environment-specific configuration
-        env_config = self.deployment_configs["environments"].get(environment.value, {})\n        
+        env_config = self.deployment_configs["environments"].get(environment.value, {})
         if env_config:
             deployment.replicas = env_config.get("replicas", 1)
             resources = env_config.get("resources", {})

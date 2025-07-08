@@ -16,6 +16,11 @@ from pynomaly.infrastructure.monitoring.prometheus_metrics import (
     PrometheusMetricsService,
     get_metrics_service,
 )
+from pynomaly.infrastructure.auth import (
+    UserModel,
+    require_tenant_admin,
+    require_super_admin,
+)
 from pynomaly.infrastructure.monitoring.telemetry import get_telemetry
 from pynomaly.presentation.api.docs.response_models import (
     ErrorResponse,
@@ -91,7 +96,9 @@ class MetricsResponse(BaseModel):
         },
     },
 )
-async def get_system_health() -> SuccessResponse[SystemHealth]:
+async def get_system_health(
+    current_user: UserModel = Depends(require_tenant_admin),
+) -> SuccessResponse[SystemHealth]:
     """Get comprehensive system health status."""
     try:
         checker = get_health_checker()
@@ -270,7 +277,9 @@ async def readiness_check(response: Response) -> ProbeResponse:
         }
     },
 )
-async def get_prometheus_metrics() -> Response:
+async def get_prometheus_metrics(
+    current_user: UserModel = Depends(require_super_admin),
+) -> Response:
     """Get Prometheus metrics in exposition format."""
     try:
         metrics_service = get_metrics_service()
@@ -311,7 +320,9 @@ async def get_prometheus_metrics() -> Response:
         200: HTTPResponses.ok_200("Metrics information retrieved"),
     },
 )
-async def get_metrics_info() -> SuccessResponse[MetricsResponse]:
+async def get_metrics_info(
+    current_user: UserModel = Depends(require_tenant_admin),
+) -> SuccessResponse[MetricsResponse]:
     """Get information about available metrics."""
     try:
         metrics_service = get_metrics_service()
@@ -363,7 +374,9 @@ async def get_metrics_info() -> SuccessResponse[MetricsResponse]:
         200: HTTPResponses.ok_200("Telemetry status retrieved"),
     },
 )
-async def get_telemetry_status() -> SuccessResponse[Dict[str, Any]]:
+async def get_telemetry_status(
+    current_user: UserModel = Depends(require_tenant_admin),
+) -> SuccessResponse[Dict[str, Any]]:
     """Get telemetry service status and configuration."""
     try:
         telemetry = get_telemetry()
