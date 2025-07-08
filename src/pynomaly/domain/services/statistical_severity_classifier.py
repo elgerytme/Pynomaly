@@ -69,8 +69,11 @@ class StatisticalSeverityClassifier:
         if z_score is None:
             z_score = self._calculate_z_scores([score])[0]
 
+        # Use absolute z-score for classification
+        abs_z_score = abs(z_score)
+        
         for severity, threshold in self.severity_thresholds.items():
-            if z_score <= threshold:
+            if abs_z_score <= threshold:
                 return severity
         
         return self.default_severity

@@ -468,6 +468,13 @@ class PyTorchAdapter(DetectorProtocol):
 
     def fit(self, X: np.ndarray, y: np.ndarray | None = None) -> PyTorchAdapter:
         """Train the deep learning model."""
+        # Check if deep learning is enabled
+        if not self._deep_learning_enabled:
+            logger.warning("Deep learning features disabled - creating stub model")
+            self._create_stub_model(X)
+            self.is_trained = True
+            return self
+            
         try:
             # Data preprocessing
             X_tensor = self._preprocess_data(X)
@@ -498,6 +505,10 @@ class PyTorchAdapter(DetectorProtocol):
         """Predict anomalies (1 for anomaly, 0 for normal)."""
         if not self.is_trained:
             raise RuntimeError("Model must be trained before prediction")
+            
+        # Check if deep learning is enabled
+        if not self._deep_learning_enabled:
+            return self._stub_predict(X)
 
         scores = self.decision_function(X)
         return (scores > self.threshold).astype(int)
