@@ -92,6 +92,8 @@ python scripts/setup/install_features.py
 
 **📚 Complete Guide**: See [Feature Installation Guide](docs/getting-started/FEATURE_INSTALLATION_GUIDE.md) for detailed options and troubleshooting.
 
+**🪟 Windows Users**: See [Windows Setup Guide](docs/windows_setup.md) for Windows-specific instructions.
+
 ### Alternative Setup (Traditional pip/venv)
 
 If you prefer traditional Python environment management, Pynomaly uses a centralized environment structure:

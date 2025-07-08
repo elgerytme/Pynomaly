@@ -10,7 +10,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 # Import domain entities
 from pynomaly.domain.entities.anomaly import Anomaly
@@ -129,8 +129,7 @@ class DistributedDetectionResult(BaseModel):
         default_factory=list, description="Individual chunk results"
     )
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     @property
     def success_rate(self) -> float:

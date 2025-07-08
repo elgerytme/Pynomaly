@@ -157,7 +157,7 @@ class AutoEncoder(BaseAnomalyModel):
 
     def __init__(self, input_dim: int, hidden_dims: list[int], latent_dim: int):
         _check_torch_availability()
-        super().__init__()
+        nn.Module.__init__(self)
 
         # Encoder
         encoder_layers = []
@@ -331,7 +331,8 @@ class DAGMM(BaseAnomalyModel):
     def __init__(
         self, input_dim: int, hidden_dims: list[int], latent_dim: int, n_gmm: int = 4
     ):
-        super().__init__()
+        _check_torch_availability()
+        nn.Module.__init__(self)
 
         # Compression network (autoencoder)
         encoder_layers = []
