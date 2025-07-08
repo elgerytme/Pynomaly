@@ -5,13 +5,18 @@ FastAPI router for user management and multi-tenancy.
 from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
+import secrets
+import hashlib
 
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 from pynomaly.application.services.user_management_service import UserManagementService
 from pynomaly.domain.entities.user import UserRole, TenantPlan, UserStatus, TenantStatus
+from pynomaly.infrastructure.security.audit_logging import (
+    get_audit_logger, AuditEventType, AuditSeverity
+)
 from pynomaly.shared.exceptions import (
     UserNotFoundError, TenantNotFoundError, ValidationError,
     AuthenticationError, AuthorizationError, ResourceLimitError

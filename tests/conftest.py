@@ -488,6 +488,7 @@ def cleanup_environment():
 # Pytest configuration and custom markers
 def pytest_configure(config):
     """Configure pytest with custom markers."""
+    # Core testing markers
     config.addinivalue_line(
         "markers", "integration: mark test as an integration test"
     )
@@ -503,6 +504,31 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "unit: mark test as a unit test"
     )
+    
+    # Benchmark markers (from benchmarks/conftest.py)
+    config.addinivalue_line("markers", "benchmark: mark test as a benchmark")
+    
+    # Data testing markers (from fixtures/conftest.py)
+    config.addinivalue_line(
+        "markers", "requires_data: mark test as requiring test data"
+    )
+    config.addinivalue_line("markers", "small_data: mark test as using small datasets")
+    config.addinivalue_line(
+        "markers", "medium_data: mark test as using medium datasets"
+    )
+    config.addinivalue_line("markers", "large_data: mark test as using large datasets")
+    config.addinivalue_line(
+        "markers", "synthetic_data: mark test as using synthetic data"
+    )
+    
+    # UI/BDD testing markers (from ui/bdd/conftest.py)
+    config.addinivalue_line("markers", "accessibility: Accessibility compliance tests")
+    config.addinivalue_line("markers", "workflow: Complete user workflow tests")
+    config.addinivalue_line("markers", "cross_browser: Cross-browser compatibility tests")
+    config.addinivalue_line("markers", "ml_engineer: ML engineer workflow tests")
+    config.addinivalue_line("markers", "data_scientist: Data scientist workflow tests")
+    config.addinivalue_line("markers", "critical: Critical path tests that must pass")
+    config.addinivalue_line("markers", "smoke: Quick smoke test scenarios")
 
 
 def pytest_collection_modifyitems(config, items):
@@ -535,4 +561,7 @@ def pytest_addoption(parser):
     )
     parser.addoption(
         "--security", action="store_true", default=False, help="run security tests"
+    )
+    parser.addoption(
+        "--benchmark", action="store_true", default=False, help="run benchmark tests"
     )
