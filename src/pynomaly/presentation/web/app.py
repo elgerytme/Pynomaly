@@ -14,9 +14,18 @@ from fastapi.templating import Jinja2Templates
 from pynomaly.infrastructure.config import Container
 
 
+# Global container instance for dependency injection
+_container_instance: Container | None = None
+
+
 # Local dependency functions to avoid circular import
 def get_container() -> Container:
     """Get dependency injection container."""
+    global _container_instance
+    
+    if _container_instance is not None:
+        return _container_instance
+    
     # Import locally to avoid circular import
     from pynomaly.infrastructure.config import create_container
 
@@ -148,7 +157,7 @@ async def detectors_page(
 ):
     """Detectors management page."""
     detectors = container.detector_repository().find_all()
-    pyod_adapter = container.pyod_adapter()
+    pyod_adapter = container.pyod_adapter("IsolationForest")
     algorithms = pyod_adapter.list_algorithms()
 
     return templates.TemplateResponse(
@@ -1731,8 +1740,13 @@ def mount_web_ui(app):
     app.include_router(router, tags=["Web UI"])
 
 
-def create_web_app():
+def create_web_app(container: Container | None = None):
     """Create complete web application with API and UI."""
+    global _container_instance
+    
+    if container is not None:
+        _container_instance = container
+
     # Import locally to avoid circular import
     import importlib
 
@@ -1740,7 +1754,7 @@ def create_web_app():
     create_app = api_module.create_app
 
     # Create API app
-    app = create_app()
+    app = create_app(container=_container_instance)
 
     # Mount web UI
     mount_web_ui(app)

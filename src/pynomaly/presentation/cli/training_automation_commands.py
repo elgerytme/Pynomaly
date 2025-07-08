@@ -16,7 +16,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 
-import click
 import typer
 from rich import print as rprint
 from rich.console import Console
