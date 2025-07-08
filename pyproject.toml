@@ -139,7 +139,7 @@ deep = [
 
 # CPU-only deep learning (lighter installations)
 deep-cpu = [
-    "torch>=2.5.1+cpu; platform_system == 'Linux'",
+    "torch==2.5.1+cpu; platform_system == 'Linux'",
     "torch>=2.5.1; platform_system != 'Linux'",  # CPU-only not available on all platforms
     "tensorflow-cpu>=2.18.0,<2.20.0; platform_system == 'Linux'",
     "tensorflow>=2.18.0,<2.20.0; platform_system != 'Linux'",
@@ -148,7 +148,7 @@ deep-cpu = [
 
 # GPU-enabled deep learning (CUDA support)
 deep-gpu = [
-    "torch>=2.5.1+cu121; platform_system == 'Linux'",
+    "torch==2.5.1+cu121; platform_system == 'Linux'",
     "torch>=2.5.1; platform_system != 'Linux'",
     "tensorflow[and-cuda]>=2.18.0,<2.20.0; platform_system == 'Linux'",
     "tensorflow>=2.18.0,<2.20.0; platform_system != 'Linux'",

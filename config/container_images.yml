@@ -1,0 +1,357 @@
+---
+# Container Images Manifest for Vulnerability Scanning
+# This manifest defines all Docker images that must be scanned for security vulnerabilities
+# Both internal (built from Dockerfiles) and external (pulled from registries) images
+
+version: "1.0"
+description: "Comprehensive container images inventory for Pynomaly project"
+last_updated: "2025-01-08"
+
+images:
+  # =============================================================================
+  # Internal Images - Built from Dockerfiles
+  # =============================================================================
+  
+  # Main application image
+  - name: "pynomaly/app"
+    dockerfile: "deploy/docker/Dockerfile"
+    context: "."
+    remote: false
+    description: "Main Pynomaly application image"
+    tags: ["latest", "dev"]
+    scan_priority: "high"
+    
+  # API-specific image
+  - name: "pynomaly/api"
+    dockerfile: "deploy/docker/Dockerfile.api"
+    context: "."
+    remote: false
+    description: "API server image"
+    tags: ["latest"]
+    scan_priority: "high"
+    
+  # Production image with optimizations
+  - name: "pynomaly/production"
+    dockerfile: "deploy/docker/Dockerfile.production"
+    context: "."
+    remote: false
+    description: "Production-ready image with enhanced security"
+    tags: ["latest", "stable"]
+    scan_priority: "critical"
+    
+  # Web UI image
+  - name: "pynomaly/web"
+    dockerfile: "deploy/docker/Dockerfile.web"
+    context: "."
+    remote: false
+    description: "Web UI frontend image"
+    tags: ["latest"]
+    scan_priority: "high"
+    
+  # Worker images
+  - name: "pynomaly/worker"
+    dockerfile: "deploy/docker/Dockerfile.worker"
+    context: "."
+    remote: false
+    description: "Base worker image for background tasks"
+    tags: ["latest"]
+    scan_priority: "high"
+    
+  - name: "pynomaly/worker-training"
+    dockerfile: "deploy/docker/Dockerfile.worker"
+    context: "."
+    remote: false
+    description: "Training worker for model training tasks"
+    tags: ["latest"]
+    scan_priority: "high"
+    target: "training-worker"
+    
+  - name: "pynomaly/worker-drift"
+    dockerfile: "deploy/docker/Dockerfile.worker"
+    context: "."
+    remote: false
+    description: "Drift monitoring worker"
+    tags: ["latest"]
+    scan_priority: "high"
+    target: "drift-worker"
+    
+  - name: "pynomaly/scheduler"
+    dockerfile: "deploy/docker/Dockerfile.worker"
+    context: "."
+    remote: false
+    description: "Celery scheduler worker"
+    tags: ["latest"]
+    scan_priority: "medium"
+    target: "scheduler-worker"
+    
+  - name: "pynomaly/flower"
+    dockerfile: "deploy/docker/Dockerfile.worker"
+    context: "."
+    remote: false
+    description: "Flower monitoring for Celery"
+    tags: ["latest"]
+    scan_priority: "medium"
+    target: "flower-monitor"
+    
+  # Testing images
+  - name: "pynomaly/testing"
+    dockerfile: "deploy/docker/Dockerfile.testing"
+    context: "."
+    remote: false
+    description: "Testing environment image"
+    tags: ["latest"]
+    scan_priority: "medium"
+    
+  - name: "pynomaly/ui-testing"
+    dockerfile: "deploy/docker/Dockerfile.ui-testing"
+    context: "."
+    remote: false
+    description: "UI testing with Playwright"
+    tags: ["latest"]
+    scan_priority: "medium"
+    
+  # Monitoring images
+  - name: "pynomaly/prometheus"
+    dockerfile: "deploy/docker/Dockerfile.monitoring"
+    context: "."
+    remote: false
+    description: "Prometheus monitoring"
+    tags: ["latest"]
+    scan_priority: "high"
+    target: "prometheus"
+    
+  - name: "pynomaly/grafana"
+    dockerfile: "deploy/docker/Dockerfile.monitoring"
+    context: "."
+    remote: false
+    description: "Grafana dashboards"
+    tags: ["latest"]
+    scan_priority: "high"
+    target: "grafana"
+    
+  - name: "pynomaly/otel-collector"
+    dockerfile: "deploy/docker/Dockerfile.monitoring"
+    context: "."
+    remote: false
+    description: "OpenTelemetry collector"
+    tags: ["latest"]
+    scan_priority: "high"
+    target: "otel-collector"
+    
+  # Advanced/Specialized images
+  - name: "pynomaly/automl-advanced"
+    dockerfile: "deploy/docker/Dockerfile.automl-advanced"
+    context: "."
+    remote: false
+    description: "Advanced AutoML capabilities"
+    tags: ["latest"]
+    scan_priority: "medium"
+    
+  - name: "pynomaly/deep-cpu"
+    dockerfile: "deploy/docker/Dockerfile.deep-cpu"
+    context: "."
+    remote: false
+    description: "Deep learning optimized for CPU"
+    tags: ["latest"]
+    scan_priority: "medium"
+    
+  - name: "pynomaly/hardened"
+    dockerfile: "deploy/docker/Dockerfile.hardened"
+    context: "."
+    remote: false
+    description: "Hardened security image"
+    tags: ["latest"]
+    scan_priority: "critical"
+    
+  - name: "pynomaly/monitoring-services"
+    dockerfile: "deploy/docker/Dockerfile.monitoring"
+    context: "."
+    remote: false
+    description: "Python monitoring services"
+    tags: ["latest"]
+    scan_priority: "high"
+    target: "monitoring-services"
+    
+  - name: "pynomaly/multi-python"
+    dockerfile: "deploy/docker/Dockerfile.multi-python"
+    context: "."
+    remote: false
+    description: "Multi-Python version support"
+    tags: ["latest"]
+    scan_priority: "low"
+    
+  # =============================================================================
+  # External Images - From Docker Hub/Registries
+  # =============================================================================
+  
+  # Database images
+  - name: "postgres"
+    dockerfile: null
+    context: null
+    remote: true
+    description: "PostgreSQL database"
+    tags: ["16-alpine", "15-alpine"]
+    scan_priority: "critical"
+    registry: "docker.io"
+    
+  # Cache/Message broker images
+  - name: "redis"
+    dockerfile: null
+    context: null
+    remote: true
+    description: "Redis cache and message broker"
+    tags: ["7-alpine", "7.2-alpine"]
+    scan_priority: "high"
+    registry: "docker.io"
+    
+  # Web server images
+  - name: "nginx"
+    dockerfile: null
+    context: null
+    remote: true
+    description: "Nginx reverse proxy"
+    tags: ["alpine", "1.25-alpine"]
+    scan_priority: "high"
+    registry: "docker.io"
+    
+  # Base images used in Dockerfiles
+  - name: "python"
+    dockerfile: null
+    context: null
+    remote: true
+    description: "Python runtime base image"
+    tags: ["3.11-slim"]
+    scan_priority: "critical"
+    registry: "docker.io"
+    
+  - name: "node"
+    dockerfile: null
+    context: null
+    remote: true
+    description: "Node.js for frontend builds"
+    tags: ["18-alpine"]
+    scan_priority: "medium"
+    registry: "docker.io"
+    
+  # GPU support images
+  - name: "nvidia/cuda"
+    dockerfile: null
+    context: null
+    remote: true
+    description: "NVIDIA CUDA runtime"
+    tags: ["12.1-runtime-ubuntu22.04"]
+    scan_priority: "high"
+    registry: "nvcr.io"
+    
+  # Monitoring stack images
+  - name: "prom/prometheus"
+    dockerfile: null
+    context: null
+    remote: true
+    description: "Prometheus monitoring"
+    tags: ["v2.48.0"]
+    scan_priority: "high"
+    registry: "docker.io"
+    
+  - name: "grafana/grafana"
+    dockerfile: null
+    context: null
+    remote: true
+    description: "Grafana dashboards"
+    tags: ["10.2.0"]
+    scan_priority: "high"
+    registry: "docker.io"
+    
+  - name: "otel/opentelemetry-collector-contrib"
+    dockerfile: null
+    context: null
+    remote: true
+    description: "OpenTelemetry collector"
+    tags: ["0.91.0"]
+    scan_priority: "high"
+    registry: "docker.io"
+
+# =============================================================================
+# Scanning Configuration
+# =============================================================================
+
+scanning:
+  # Priority levels determine scan frequency and alert thresholds
+  priority_levels:
+    critical: 
+      frequency: "daily"
+      fail_threshold: "medium"
+      alert_channels: ["slack", "email"]
+    high:
+      frequency: "weekly"
+      fail_threshold: "high"
+      alert_channels: ["slack"]
+    medium:
+      frequency: "monthly"
+      fail_threshold: "critical"
+      alert_channels: ["email"]
+    low:
+      frequency: "quarterly"
+      fail_threshold: "critical"
+      alert_channels: ["email"]
+  
+  # Vulnerability scanners to use
+  scanners:
+    - name: "trivy"
+      enabled: true
+      config:
+        severity: ["UNKNOWN", "LOW", "MEDIUM", "HIGH", "CRITICAL"]
+        format: "sarif"
+    - name: "grype"
+      enabled: true
+      config:
+        fail_on_severity: "medium"
+        output: "json"
+    - name: "docker-scout"
+      enabled: false
+      config:
+        platform: "linux/amd64"
+  
+  # Exclusions and overrides
+  exclusions:
+    # CVEs to temporarily ignore (with expiration)
+    cves: []
+    # Packages to exclude from scanning
+    packages: []
+    # Image patterns to skip
+    image_patterns: []
+    
+  # GitHub Actions matrix configuration
+  github_actions:
+    max_parallel_jobs: 5
+    timeout_minutes: 30
+    matrix_strategy: "fail-fast"
+    artifact_retention_days: 30
+
+# =============================================================================
+# Metadata
+# =============================================================================
+
+metadata:
+  total_images: 29
+  internal_images: 19
+  external_images: 10
+  critical_priority: 4
+  high_priority: 15
+  medium_priority: 8
+  low_priority: 2
+  
+  # Docker compose file references
+  compose_files:
+    - "deploy/docker/docker-compose.yml"
+    - "deploy/docker/docker-compose.production.yml"
+    - "deploy/docker/docker-compose.testing.yml"
+    - "deploy/docker/docker-compose.ui-testing.yml"
+    - "deploy/docker/docker-compose.hardened.yml"
+    
+  # Dockerfile locations
+  dockerfile_directory: "deploy/docker"
+  
+  # Last inventory update
+  inventory_date: "2025-01-08"
+  inventory_version: "1.0"
