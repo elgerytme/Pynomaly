@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Anomaly Classification Taxonomy**: Introduced comprehensive severity and type classification for anomalies, enhancing triage and response efficiency.
+- **ADR-010**: Documented architectural decisions for anomaly classification taxonomy, ensuring consistent and extensible implementation.
+- **Documentation Enhancements**: Updated README with taxonomy overview and examples, added detailed domain documentation, and created Sphinx pages.
+- **Example Notebooks**: Developed example notebooks for understanding and using anomaly classification features.
+- **Comprehensive Docstrings**: Added detailed docstrings to classification services, improving code clarity and maintainability.
+
+## [v0.1.1] - 2025-07-08
+
+### Changed
+- **Major Dependency Refresh**: Comprehensive update to latest stable versions of all major dependencies
+  - **NumPy**: Updated to `>=1.26.0,<2.2.0` for improved performance and compatibility
+  - **Pandas**: Updated to `>=2.2.3` for enhanced data processing capabilities
+  - **Pydantic**: Updated to `>=2.10.4` for improved validation and serialization
+  - **FastAPI**: Updated to `>=0.115.0` for better async support and performance
+  - **Scikit-learn**: Updated to `>=1.6.0` for latest ML algorithms and optimizations
+  - **PyTorch**: Updated to `>=2.5.1` (CPU version) for improved deep learning capabilities
+  - **TensorFlow**: Updated to `>=2.18.0,<2.20.0` for enhanced neural network support
+  - **Polars**: Updated to `>=1.19.0` for faster DataFrame operations
+  - **Typer**: Updated to `>=0.15.1` for improved CLI experience
+  - **Uvicorn**: Updated to `>=0.34.0` for better ASGI server performance
+  - **Redis**: Updated to `>=5.2.1` for improved caching performance
+  - **OpenTelemetry**: Updated to `>=1.29.0` for enhanced observability
+  - **Prometheus**: Updated to `>=0.21.1` for improved metrics collection
+  - **Auto-sklearn2**: Updated to `>=1.0.0` for latest AutoML capabilities
+  - **Optuna**: Updated to `>=4.1.0` for improved hyperparameter optimization
+  - **SHAP**: Updated to `>=0.46.0` for enhanced explainability features
+  - **NetworkX**: Updated to `>=3.0` for improved graph processing
+  - **Structlog**: Updated to `>=24.4.0` for better structured logging
+  - **Dependency Injector**: Updated to `>=4.42.0` for improved container management
+
+### Enhanced
+- **Dependency Architecture**: Maintained minimal core + optional extras structure for flexible installation
+- **Version Compatibility**: Ensured backward compatibility while leveraging new features
+- **Performance Optimizations**: Inherited performance improvements from updated dependencies
+- **Security Updates**: Incorporated latest security patches from dependency updates
+- **Build System**: Enhanced Hatch configuration for better dependency management
+- **Testing Infrastructure**: Updated test dependencies for improved reliability
+- **Documentation**: Updated installation and setup guides for new dependency versions
+
+### Fixed
+- **Import Compatibility**: Resolved import issues with updated Pydantic v2.10.4+
+- **Type Hints**: Fixed type annotations for compatibility with latest mypy and dependencies
+- **Deprecation Warnings**: Addressed deprecation warnings from dependency updates
+- **Container Security**: Updated security scanning for new dependency versions
+- **Performance Regressions**: Validated no performance degradation with dependency updates
+
 ## [v1.0.0-c004] - 2025-01-08
 
 ### Added
@@ -1894,18 +1941,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Entities: Anomaly, Detector, Dataset, DetectionResult
   - Value Objects: AnomalyScore, ContaminationRate, ConfidenceInterval
   - Domain Services: AnomalyScorer, ThresholdCalculator, FeatureValidator
-  
+
 - **Application Layer**
   - Use Cases: DetectAnomalies, TrainDetector, EvaluateModel, ExplainAnomaly
   - Services: DetectionService, EnsembleService, ModelPersistenceService
   - DTOs for data transfer
-  
+
 - **Infrastructure Layer**
   - PyOD adapter supporting 40+ algorithms
   - Scikit-learn adapter for additional algorithms
   - Data loaders for CSV and Parquet files
   - In-memory repositories with planned database support
-  
+
 - **Presentation Layer**
   - REST API with comprehensive endpoints
   - CLI with intuitive commands
