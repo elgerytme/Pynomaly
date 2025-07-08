@@ -7,7 +7,7 @@ import json
 import sys
 import time
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Literal
 
 import typer
 from rich.console import Console
@@ -47,31 +47,27 @@ app = typer.Typer(
 def explain(
     detector_path: Path = typer.Argument(..., help="Path to saved detector model", exists=True),
     dataset_path: Path = typer.Argument(..., help="Path to dataset file (CSV or Parquet)", exists=True),
-    explanation_type: str = typer.Option(
+    explanation_type: Literal["local", "global", "both"] = typer.Option(
         "both",
         "-t", "--explanation-type",
-        help="Type of explanation to generate",
-        case_insensitive=True
+        help="Type of explanation to generate"
     ),
     methods: Optional[List[str]] = typer.Option(
         None,
         "-m", "--methods",
-        help="Explanation methods to use",
-        case_insensitive=True
+        help="Explanation methods to use (options: shap, lime, permutation, gradient)"
     ),
     n_samples: int = typer.Option(10, "--n-samples", help="Number of samples for local explanations"),
-    audience: str = typer.Option(
+    audience: Literal["technical", "business", "regulatory"] = typer.Option(
         "technical",
         "--audience",
-        help="Target audience for explanations",
-        case_insensitive=True
+        help="Target audience for explanations"
     ),
     output: Optional[Path] = typer.Option(None, "--output", help="Output file for explanation report"),
-    output_format: str = typer.Option(
+    output_format: Literal["json", "html", "pdf"] = typer.Option(
         "json",
         "--format",
-        help="Output format",
-        case_insensitive=True
+        help="Output format"
     ),
     visualizations: bool = typer.Option(True, "--visualizations/--no-visualizations", help="Generate visualization plots"),
 ):
@@ -163,8 +159,7 @@ def analyze_bias(
     metrics: Optional[List[str]] = typer.Option(
         None,
         "-m", "--metrics",
-        help="Fairness metrics to compute",
-        case_insensitive=True
+        help="Fairness metrics to compute (options: demographic_parity, equalized_odds, statistical_parity)"
     ),
     threshold: float = typer.Option(0.5, "--threshold", help="Decision threshold for binary classification"),
     min_group_size: int = typer.Option(30, "--min-group-size", help="Minimum group size for analysis"),
@@ -316,11 +311,10 @@ def assess_trust(
 def feature_importance(
     detector_path: Path = typer.Argument(..., help="Path to saved detector model", exists=True),
     dataset_path: Path = typer.Argument(..., help="Path to dataset file", exists=True),
-    method: str = typer.Option(
+    method: Literal["shap", "lime", "permutation"] = typer.Option(
         "shap",
         "--method",
-        help="Feature importance method",
-        case_insensitive=True
+        help="Feature importance method"
     ),
     top_k: int = typer.Option(15, "--top-k", help="Number of top features to display"),
     output: Optional[Path] = typer.Option(None, "--output", help="Output file for feature importance"),
@@ -500,10 +494,9 @@ def status(
 
 @app.command()
 def info(
-    explanation_type: str = typer.Argument(
+    explanation_type: Literal["local", "global", "bias", "trust"] = typer.Argument(
         ...,
-        help="Type of explanation to get information about",
-        case_insensitive=True
+        help="Type of explanation to get information about"
     ),
 ):
     """Get detailed information about explanation types and methods.

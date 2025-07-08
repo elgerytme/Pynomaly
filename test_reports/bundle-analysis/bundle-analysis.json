@@ -1,0 +1,302 @@
+{
+  "timestamp": "2025-07-08T00:04:50.786Z",
+  "bundles": {
+    "javascript": {
+      "files": [],
+      "totalSize": 0,
+      "fileCount": 0,
+      "largestFile": null,
+      "duplicates": [],
+      "compressionRatio": 0,
+      "budget": 204800,
+      "budgetUtilization": 0
+    },
+    "css": {
+      "files": [
+        {
+          "name": "styles.css",
+          "path": "src\\pynomaly\\presentation\\web\\static\\css\\styles.css",
+          "size": 55795,
+          "sizeFormatted": "54.5 KB",
+          "extension": ".css",
+          "lastModified": "2025-07-07T23:51:35.776Z",
+          "gzipSize": 8889
+        },
+        {
+          "name": "tailwind.css",
+          "path": "src\\pynomaly\\presentation\\web\\static\\css\\tailwind.css",
+          "size": 47996,
+          "sizeFormatted": "46.9 KB",
+          "extension": ".css",
+          "lastModified": "2025-07-07T23:51:35.830Z",
+          "gzipSize": 7475
+        },
+        {
+          "name": "design-system.css",
+          "path": "src\\pynomaly\\presentation\\web\\static\\css\\design-system.css",
+          "size": 17858,
+          "sizeFormatted": "17.4 KB",
+          "extension": ".css",
+          "lastModified": "2025-07-07T23:51:35.683Z",
+          "gzipSize": 4020
+        },
+        {
+          "name": "dashboard-layout.css",
+          "path": "src\\pynomaly\\presentation\\web\\static\\css\\dashboard-layout.css",
+          "size": 15754,
+          "sizeFormatted": "15.4 KB",
+          "extension": ".css",
+          "lastModified": "2025-07-07T23:51:35.663Z",
+          "gzipSize": 2842
+        },
+        {
+          "name": "advanced-components.css",
+          "path": "src\\pynomaly\\presentation\\web\\static\\css\\advanced-components.css",
+          "size": 15687,
+          "sizeFormatted": "15.3 KB",
+          "extension": ".css",
+          "lastModified": "2025-07-07T23:51:35.593Z",
+          "gzipSize": 3043
+        },
+        {
+          "name": "d3-charts.css",
+          "path": "src\\pynomaly\\presentation\\web\\static\\css\\d3-charts.css",
+          "size": 14995,
+          "sizeFormatted": "14.6 KB",
+          "extension": ".css",
+          "lastModified": "2025-07-07T23:51:35.644Z",
+          "gzipSize": 3160
+        },
+        {
+          "name": "advanced_ui.css",
+          "path": "src\\pynomaly\\presentation\\web\\static\\css\\advanced_ui.css",
+          "size": 14881,
+          "sizeFormatted": "14.5 KB",
+          "extension": ".css",
+          "lastModified": "2025-07-07T23:51:35.569Z",
+          "gzipSize": 3305
+        },
+        {
+          "name": "mobile-ui.css",
+          "path": "src\\pynomaly\\presentation\\web\\static\\css\\mobile-ui.css",
+          "size": 14878,
+          "sizeFormatted": "14.5 KB",
+          "extension": ".css",
+          "lastModified": "2025-07-07T23:51:35.705Z",
+          "gzipSize": 3349
+        },
+        {
+          "name": "advanced-dashboard.css",
+          "path": "src\\pynomaly\\presentation\\web\\static\\css\\advanced-dashboard.css",
+          "size": 13924,
+          "sizeFormatted": "13.6 KB",
+          "extension": ".css",
+          "lastModified": "2025-07-07T23:51:35.615Z",
+          "gzipSize": 2913
+        },
+        {
+          "name": "app.css",
+          "path": "src\\pynomaly\\presentation\\web\\static\\css\\app.css",
+          "size": 4441,
+          "sizeFormatted": "4.3 KB",
+          "extension": ".css",
+          "lastModified": "2025-07-07T23:51:35.623Z",
+          "gzipSize": 1532
+        },
+        {
+          "name": "input.css",
+          "path": "src\\pynomaly\\presentation\\web\\static\\css\\input.css",
+          "size": 2818,
+          "sizeFormatted": "2.8 KB",
+          "extension": ".css",
+          "lastModified": "2025-07-07T23:51:35.688Z",
+          "gzipSize": 1112
+        }
+      ],
+      "totalSize": 219027,
+      "fileCount": 11,
+      "largestFile": {
+        "name": "styles.css",
+        "path": "src\\pynomaly\\presentation\\web\\static\\css\\styles.css",
+        "size": 55795,
+        "sizeFormatted": "54.5 KB",
+        "extension": ".css",
+        "lastModified": "2025-07-07T23:51:35.776Z",
+        "gzipSize": 8889
+      },
+      "duplicates": [],
+      "compressionRatio": 80.9886452355189,
+      "budget": 51200,
+      "budgetUtilization": 427.787109375
+    },
+    "images": {
+      "files": [],
+      "totalSize": 0,
+      "fileCount": 0,
+      "largestFile": null,
+      "duplicates": [],
+      "compressionRatio": 0,
+      "budget": 512000,
+      "budgetUtilization": 0
+    },
+    "fonts": {
+      "files": [],
+      "totalSize": 0,
+      "fileCount": 0,
+      "largestFile": null,
+      "duplicates": [],
+      "compressionRatio": 0,
+      "budget": 102400,
+      "budgetUtilization": 0
+    }
+  },
+  "dependencies": {
+    "production": [
+      "alpinejs",
+      "d3",
+      "echarts",
+      "fuse.js",
+      "htmx.org",
+      "sortablejs"
+    ],
+    "development": [
+      "@lhci/cli",
+      "@playwright/test",
+      "@storybook/addon-a11y",
+      "@storybook/addon-backgrounds",
+      "@storybook/addon-controls",
+      "@storybook/addon-docs",
+      "@storybook/addon-essentials",
+      "@storybook/addon-interactions",
+      "@storybook/addon-measure",
+      "@storybook/addon-outline",
+      "@storybook/addon-toolbars",
+      "@storybook/addon-viewport",
+      "@storybook/html",
+      "@storybook/html-vite",
+      "@storybook/testing-library",
+      "@tailwindcss/aspect-ratio",
+      "@tailwindcss/forms",
+      "@tailwindcss/typography",
+      "autoprefixer",
+      "axe-core",
+      "axe-crawler",
+      "chrome-launcher",
+      "concurrently",
+      "esbuild",
+      "eslint",
+      "http-server",
+      "lighthouse",
+      "postcss",
+      "prettier",
+      "puppeteer",
+      "storybook",
+      "stylelint",
+      "tailwindcss",
+      "vite",
+      "web-vitals",
+      "workbox-cli"
+    ],
+    "total": 42,
+    "bundledSize": 307200,
+    "recommendations": [],
+    "heavy": [
+      {
+        "name": "d3",
+        "estimatedSize": 102400
+      },
+      {
+        "name": "echarts",
+        "estimatedSize": 153600
+      }
+    ]
+  },
+  "recommendations": [
+    {
+      "type": "budget",
+      "priority": "high",
+      "category": "css",
+      "issue": "css bundle exceeds budget",
+      "description": "css bundle is 213.9 KB (427.8% of budget). Consider code splitting, tree shaking, or removing unused code.",
+      "savings": 167827
+    },
+    {
+      "type": "dependency",
+      "priority": "medium",
+      "category": "javascript",
+      "issue": "Heavy dependency: echarts",
+      "description": "echarts contributes significantly to bundle size. Consider alternatives or lazy loading.",
+      "dependency": "echarts",
+      "savings": 76800
+    },
+    {
+      "type": "dependency",
+      "priority": "medium",
+      "category": "javascript",
+      "issue": "Heavy dependency: d3",
+      "description": "d3 contributes significantly to bundle size. Consider alternatives or lazy loading.",
+      "dependency": "d3",
+      "savings": 51200
+    },
+    {
+      "type": "optimization",
+      "priority": "medium",
+      "category": "css",
+      "issue": "Large css file detected",
+      "description": "styles.css is 54.5 KB. Consider splitting or optimizing this file.",
+      "file": "styles.css",
+      "savings": 16738.5
+    },
+    {
+      "type": "compression",
+      "priority": "low",
+      "category": "javascript",
+      "issue": "Poor compression ratio",
+      "description": "javascript files have 0.0% compression ratio. Enable gzip/brotli compression on the server.",
+      "savings": 0
+    }
+  ],
+  "budgetStatus": {
+    "javascript": {
+      "budget": 204800,
+      "actual": 0,
+      "utilization": 0,
+      "status": "good"
+    },
+    "css": {
+      "budget": 51200,
+      "actual": 219027,
+      "utilization": 427.787109375,
+      "status": "exceeded"
+    },
+    "images": {
+      "budget": 512000,
+      "actual": 0,
+      "utilization": 0,
+      "status": "good"
+    },
+    "fonts": {
+      "budget": 102400,
+      "actual": 0,
+      "utilization": 0,
+      "status": "good"
+    },
+    "total": {
+      "budget": 1024000,
+      "actual": 219027,
+      "utilization": 21.389355468749997,
+      "status": "good"
+    }
+  },
+  "summary": {
+    "totalSize": 219027,
+    "totalSizeFormatted": "213.9 KB",
+    "budgetUtilization": 21.389355468749997,
+    "budgetStatus": "good",
+    "exceededBudgets": 1,
+    "totalRecommendations": 5,
+    "highPriorityRecommendations": 1,
+    "potentialSavings": 312565.5,
+    "healthScore": 50
+  }
+}

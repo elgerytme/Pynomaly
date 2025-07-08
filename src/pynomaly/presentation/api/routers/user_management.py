@@ -228,6 +228,15 @@ async def logout(
 @router.get("/auth/me", response_model=UserResponse)
 async def get_current_user_info(current_user = Depends(get_current_user)):
     """Get current user information."""
+    audit_logger = get_audit_logger()
+    audit_logger.log_event(
+        AuditEventType.DATA_ACCESSED,
+        user_id=str(current_user.id),
+        outcome="success",
+        severity=AuditSeverity.LOW,
+        details={"action": "view_own_profile"}
+    )
+    
     return UserResponse(
         id=UUID(current_user.id),
         email=current_user.email,
@@ -269,6 +278,196 @@ async def create_user(
             password=request.password,
             tenant_id=TenantId(str(request.tenant_id)) if request.tenant_id else None,
             role=request.role
+        )
+
+
+@router.get("/", response_model=List[UserResponse])
+async def list_users(
+    tenant_id: Optional[UUID] = None,
+    status: Optional[UserStatus] = None,
+    role: Optional[UserRole] = None,
+    limit: int = 100,
+    offset: int = 0,
+    current_user = Depends(get_current_user),
+    user_service: UserManagementService = Depends(get_user_management_service)
+):
+    """List users with optional filters."""
+    audit_logger = get_audit_logger()
+    try:
+        users = await user_service.list_users(
+            tenant_id=TenantId(str(tenant_id)) if tenant_id else None,
+            status=status,
+            role=role,
+            limit=limit,
+            offset=offset
+        )
+
+        audit_logger.log_event(
+            AuditEventType.DATA_ACCESSED,
+            user_id=str(current_user.id),
+            outcome="success",
+            severity=AuditSeverity.LOW,
+            details={
+                "action": "list_users",
+                "filters": {
+                    "tenant_id": str(tenant_id) if tenant_id else None,
+                    "status": status,
+                    "role": role,
+                    "limit": limit,
+                    "offset": offset
+                },
+                "result_count": len(users)
+            }
+        )
+        
+        return [
+            UserResponse(
+                id=UUID(user.id),
+                email=user.email,
+                username=user.username,
+                first_name=user.first_name,
+                last_name=user.last_name,
+                full_name=user.full_name,
+                status=user.status,
+                created_at=user.created_at,
+                updated_at=user.updated_at,
+                last_login_at=user.last_login_at,
+                email_verified_at=user.email_verified_at,
+                tenant_roles=[
+                    {
+                        "tenant_id": str(tr.tenant_id),
+                        "role": tr.role.value,
+                        "granted_at": tr.granted_at.isoformat(),
+                        "expires_at": tr.expires_at.isoformat() if tr.expires_at else None
+                    }
+                    for tr in user.tenant_roles
+                ]
+            )
+            for user in users
+        ]
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to list users: {str(e)}"
+        )
+
+
+@router.get("/{user_id}", response_model=UserResponse)
+async def get_user(
+    user_id: UUID,
+    current_user = Depends(get_current_user),
+    user_service: UserManagementService = Depends(get_user_management_service)
+):
+    """Get user by ID."""
+    audit_logger = get_audit_logger()
+    try:
+        user = await user_service._user_repo.get_user_by_id(UserId(str(user_id)))
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        
+        # Check if current user can view this user
+        # (same tenant or super admin)
+        if not current_user.is_super_admin():
+            common_tenants = set(current_user.get_tenant_ids()) & set(user.get_tenant_ids())
+            if not common_tenants:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Access denied"
+                )
+
+        audit_logger.log_event(
+            AuditEventType.DATA_ACCESSED,
+            user_id=str(current_user.id),
+            outcome="success",
+            severity=AuditSeverity.LOW,
+            details={
+                "action": "view_user",
+                "target_user_id": str(user_id)
+            }
+        )
+        
+        return UserResponse(
+            id=UUID(user.id),
+            email=user.email,
+            username=user.username,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            full_name=user.full_name,
+            status=user.status,
+            created_at=user.created_at,
+            updated_at=user.updated_at,
+            last_login_at=user.last_login_at,
+            email_verified_at=user.email_verified_at,
+            tenant_roles=[
+                {
+                    "tenant_id": str(tr.tenant_id),
+                    "role": tr.role.value,
+                    "granted_at": tr.granted_at.isoformat(),
+                    "expires_at": tr.expires_at.isoformat() if tr.expires_at else None
+                }
+                for tr in user.tenant_roles
+            ]
+        )
+    except UserNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
+
+@router.put("/{user_id}/status", response_model=UserResponse)
+async def toggle_user_status(
+    user_id: UUID,
+    new_status: UserStatus,
+    current_user = Depends(get_current_user),
+    user_service: UserManagementService = Depends(get_user_management_service)
+):
+    """Toggle user status (activate/deactivate)."""
+    audit_logger = get_audit_logger()
+    try:
+        user = await user_service.toggle_user_status(UserId(str(user_id)), new_status)
+
+        audit_logger.log_event(
+            AuditEventType.USER_ACTIVATED if new_status == UserStatus.ACTIVE else AuditEventType.USER_DEACTIVATED,
+            user_id=str(current_user.id),
+            outcome="success",
+            severity=AuditSeverity.MEDIUM,
+            details={
+                "target_user_id": str(user_id),
+                "new_status": new_status.value,
+                "previous_status": "unknown"  # Could be enhanced to track previous status
+            }
+        )
+
+        return UserResponse(
+            id=UUID(user.id),
+            email=user.email,
+            username=user.username,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            full_name=user.full_name,
+            status=user.status,
+            created_at=user.created_at,
+            updated_at=user.updated_at,
+            last_login_at=user.last_login_at,
+            email_verified_at=user.email_verified_at,
+            tenant_roles=[
+                {
+                    "tenant_id": str(tr.tenant_id),
+                    "role": tr.role.value,
+                    "granted_at": tr.granted_at.isoformat(),
+                    "expires_at": tr.expires_at.isoformat() if tr.expires_at else None
+                }
+                for tr in user.tenant_roles
+            ]
+        )
+    except UserNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
         )
 
         # Log user creation

@@ -7,7 +7,7 @@ import json
 import sys
 import time
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Literal
 
 import numpy as np
 import typer
@@ -44,12 +44,12 @@ app = typer.Typer(
 @require_feature("deep_learning")
 def train(
     dataset_path: Path = typer.Argument(..., help="Path to the dataset file (CSV or Parquet)", exists=True),
-    algorithm: str = typer.Option(
+    algorithm: Literal["autoencoder", "vae", "lstm", "gru", "transformer"] = typer.Option(
         "autoencoder",
         "-a", "--algorithm",
         help="Deep learning algorithm"
     ),
-    framework: Optional[str] = typer.Option(
+    framework: Optional[Literal["pytorch", "tensorflow", "jax"]] = typer.Option(
         None,
         "-f", "--framework",
         help="Deep learning framework (auto-select if not specified)"
