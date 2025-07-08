@@ -1,11 +1,13 @@
 {
   "is_valid": false,
   "violations": [
-    "Stray file in root: test_config.json",
+    "Stray file in root: env_matrix_test.log",
+    "Stray file in root: test_implementations.py",
     "Stray directory in root: venv/"
   ],
   "suggestions": [
-    "Move test_config.json to config/",
+    "Move env_matrix_test.log to REVIEW (manual classification needed)",
+    "Move test_implementations.py to tests/",
     "DELETE venv/ (temporary/environment directory)"
   ],
   "validation_type": "pre-commit",

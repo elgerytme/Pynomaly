@@ -79,26 +79,27 @@ pytest -v
 
 ### Code Style
 
-We use several tools to maintain code quality:
+We use several tools to maintain code quality. Use the Hatch shortcuts for the most convenient workflow:
 
 ```bash
-# Format code with black
-black src tests
+# Hatch shortcuts (recommended)
+hatch run lint:style            # Quick style check (ruff + black + isort)
+hatch run lint:fmt              # Auto-format & re-check (format + style)
+hatch run lint:typing           # Strict mypy type checking
+hatch run lint:all              # All quality checks (style + typing)
 
-# Sort imports with isort
-isort src tests
+# Direct tool usage
+black src tests                 # Format code with black
+isort src tests                 # Sort imports with isort
+mypy src                        # Type checking with mypy
+ruff check src tests            # Linting with ruff
+bandit -r src                   # Security checks with bandit
 
-# Type checking with mypy
-mypy src
-
-# Linting with ruff
-ruff src tests
-
-# Security checks with bandit
-bandit -r src
-
-# All checks
-make lint
+# Make shortcuts
+make lint                       # Run all quality checks
+make format                     # Auto-format code
+make style                      # Check code style
+make typing                     # Run type checking
 ```
 
 ### Documentation

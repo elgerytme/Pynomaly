@@ -47,6 +47,15 @@ except ImportError:
         class Tensor:
             pass
         
+        class cuda:
+            @staticmethod
+            def is_available():
+                return False
+        
+        @staticmethod
+        def device(device_name):
+            return device_name
+        
         @staticmethod
         def no_grad():
             class DummyContext:

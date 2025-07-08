@@ -686,11 +686,16 @@ pytest tests/unit/               # Unit tests only
 pytest tests/integration/        # Integration tests only
 pytest --cov=src/pynomaly       # Test coverage
 
-# Code quality
+# Code quality - Hatch shortcuts
+hatch run lint:style            # Quick style check (ruff + black + isort)
+hatch run lint:fmt              # Auto-format & re-check (format + style)
+hatch run lint:typing           # Strict mypy type checking
+hatch run lint:all              # All quality checks (style + typing)
+
+# Code quality - Direct tools
 ruff check src/                  # Linting (actively maintained, ~9K issues resolved)
 ruff format src/                 # Auto-formatting
 mypy src/pynomaly               # Type checking (strict mode enabled)
-hatch run lint:all              # Run all quality checks
 
 # Build package
 python -m build                  # Build distribution

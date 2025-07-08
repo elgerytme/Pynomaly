@@ -16,6 +16,8 @@ from typing import Any
 
 import pandas as pd
 
+from ..monitoring.prometheus_metrics_enhanced import get_metrics_collector, categorize_chunk_size, categorize_severity
+
 try:
     import dask
     import dask.dataframe as dd
@@ -199,31 +201,32 @@ class BatchProcessor:
     """Large-scale batch processing for anomaly detection."""
 
     def __init__(self, config: BatchConfig):
-        """Initialize batch processor."""
-        self.config = config
-        self.detection_service = get_detection_service()
+    """Initialize batch processor."""
+    self.config = config
+    self.detection_service = get_detection_service()
+    self.metrics_collector = get_metrics_collector()
 
-        # Job management
-        self.jobs: dict[str, BatchJob] = {}
-        self.running_jobs: dict[str, asyncio.Task] = {}
+    # Job management
+    self.jobs: dict[str, BatchJob] = {}
+    self.running_jobs: dict[str, asyncio.Task] = {}
 
-        # Processing engine
-        self.engine_client = None
-        self.executor = None
+    # Processing engine
+    self.engine_client = None
+    self.executor = None
 
-        # Resource monitoring
-        self.memory_monitor_task: asyncio.Task | None = None
-        self.monitoring_active = False
+    # Resource monitoring
+    self.memory_monitor_task: asyncio.Task | None = None
+    self.monitoring_active = False
 
-        # Temporary directory for intermediate files
-        if config.temp_dir:
-            self.temp_dir = Path(config.temp_dir)
-        else:
-            self.temp_dir = Path(tempfile.gettempdir()) / "pynomaly_batch"
+    # Temporary directory for intermediate files
+    if config.temp_dir:
+        self.temp_dir = Path(config.temp_dir)
+    else:
+        self.temp_dir = Path(tempfile.gettempdir()) / "pynomaly_batch"
 
-        self.temp_dir.mkdir(parents=True, exist_ok=True)
+    self.temp_dir.mkdir(parents=True, exist_ok=True)
 
-        logger.info(f"Batch processor initialized with engine: {config.engine.value}")
+    logger.info(f"Batch processor initialized with engine: {config.engine.value}")
 
     async def initialize_engine(self) -> None:
         """Initialize the processing engine."""
@@ -307,42 +310,68 @@ class BatchProcessor:
 
     async def _process_job(self, job: BatchJob) -> None:
         """Process a batch job."""
-        try:
-            job.status = BatchStatus.RUNNING
-            job.started_at = datetime.now()
-            start_time = time.time()
+with self.metrics_collector.time_operation("batch", job.config.detection_algorithm.value, job.config.engine.value):
+    job.status = BatchStatus.RUNNING
+    job.started_at = datetime.now()
+    start_time = time.time()
 
-            # Initialize engine if needed
-            if not self.engine_client and not self.executor:
-                await self.initialize_engine()
+    # Initialize engine if needed
+    if not self.engine_client and not self.executor:
+        await self.initialize_engine()
 
-            # Load and chunk data
-            chunks = await self._load_and_chunk_data(job)
-            job.total_chunks = len(chunks)
+    # Load and chunk data
+    chunks = await self._load_and_chunk_data(job)
+    job.total_chunks = len(chunks)
 
-            # Process chunks
-            results = []
-            if job.config.engine == BatchEngine.SEQUENTIAL:
-                results = await self._process_sequential(job, chunks)
-            elif job.config.engine in [BatchEngine.MULTIPROCESSING, BatchEngine.THREADING]:
-                results = await self._process_executor(job, chunks)
-            elif job.config.engine == BatchEngine.DASK:
-                results = await self._process_dask(job, chunks)
-            elif job.config.engine == BatchEngine.RAY:
-                results = await self._process_ray(job, chunks)
+    # Process chunks
+    results = []
+    if job.config.engine == BatchEngine.SEQUENTIAL:
+        results = await self._process_sequential(job, chunks)
+    elif job.config.engine in [BatchEngine.MULTIPROCESSING, BatchEngine.THREADING]:
+        results = await self._process_executor(job, chunks)
+    elif job.config.engine == BatchEngine.DASK:
+        results = await self._process_dask(job, chunks)
+    elif job.config.engine == BatchEngine.RAY:
+        results = await self._process_ray(job, chunks)
 
-            # Combine results
-            combined_result = await self._combine_results(job, results)
+    # Combine results
+    combined_result = await self._combine_results(job, results)
 
-            # Save final result
-            await self._save_result(job, combined_result)
+    # Save final result
+    await self._save_result(job, combined_result)
 
-            # Update job status
-            job.status = BatchStatus.COMPLETED
-            job.completed_at = datetime.now()
-            job.execution_time = time.time() - start_time
+    # Update job status
+    job.status = BatchStatus.COMPLETED
+    job.completed_at = datetime.now()
+    job.execution_time = time.time() - start_time
 
-            logger.info(f"Batch job {job.job_id} completed successfully")
+    logger.info(f"Batch job {job.job_id} completed successfully")
+
+# Record overall job duration
+self.metrics_collector.record_job_duration(
+    job.execution_time,
+    "batch",
+    job.config.detection_algorithm.value,
+    job.config.engine.value,
+    "completed"
+)
+
+# Increment total jobs processed
+self.metrics_collector.increment_jobs_total(
+    "batch",
+    "completed",
+    job.config.detection_algorithm.value
+)
+
+# Increment anomalies found
+severity = categorize_severity(combined_result.anomaly_count, combined_result.total_samples)
+self.metrics_collector.increment_anomalies_found(
+    combined_result.anomaly_count,
+    "batch",
+    job.config.detection_algorithm.value,
+    severity,
+    job.input_path
+)
 
         except Exception as e:
             job.status = BatchStatus.FAILED
