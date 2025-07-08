@@ -40,7 +40,8 @@ help: ## Show this help message
 	@echo "  make test-integration - Run only integration tests"
 	@echo ""
 	@echo "Security:"
-	@echo "  make security-scan  - Run comprehensive security scan (bandit, safety, pip-audit)"
+	@echo "  make security-scan  - Run full security scan locally"
+	@echo "  make security-ci    - Run scan & fail on high severity"
 	@echo ""
 	@echo "Build & Package:"
 	@echo "  make build          - Build wheel and source distribution"
@@ -165,17 +166,6 @@ test-parallel: ## Run tests in parallel
 	@echo "🧪 Running tests in parallel..."
 	hatch env run test:run-parallel
 
-# === SECURITY SCANNING ===
-
-security-scan: ## Run comprehensive security scan (bandit, safety, pip-audit)
-	@echo "🔒 Running comprehensive security scan..."
-	tox -e security
-	@echo "📄 Security scan reports generated in:"
-	@echo "  - JSON reports: $(shell find .tox/security/tmp -name '*.json' 2>/dev/null | head -3 || echo 'None found')"
-	@echo "  - TXT reports: $(shell find .tox/security/tmp -name '*.txt' 2>/dev/null | head -3 || echo 'None found')"
-	@echo "  - SARIF reports: $(shell find .tox/security/tmp -name '*.sarif' 2>/dev/null | head -3 || echo 'None found')"
-	@echo "  - Full artifacts: artifacts/security/"
-	@echo "✅ Security scan completed!"
 
 # === BUILD & PACKAGE ===
 
@@ -208,12 +198,8 @@ env-clean: ## Clean and recreate environments
 	hatch env create
 	@echo "✅ Environments recreated!"
 
-# === SECURITY ===
-
-security-scan: ## Run full security scan locally
-	hatch env run security:scan
-
 security-ci: ## Run scan & fail on high severity
+	@echo "🔒 Running security scan (CI mode)..."
 	hatch env run security:scan --severity HIGH
 
 # === PRE-COMMIT & CI ===
