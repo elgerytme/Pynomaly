@@ -250,7 +250,7 @@ class TestDatasetEndpoints:
             mock_use_case.return_value = mock_instance
 
             response = client.put(
-                "/datasets/dataset123", json=update_data, headers=auth_headers
+                "/api/datasets/dataset123", json=update_data, headers=auth_headers
             )
 
             assert response.status_code == 200
@@ -266,7 +266,7 @@ class TestDatasetEndpoints:
             mock_instance.execute.return_value = True
             mock_use_case.return_value = mock_instance
 
-            response = client.delete("/datasets/dataset123", headers=auth_headers)
+            response = client.delete("/api/datasets/dataset123", headers=auth_headers)
 
             assert response.status_code == 204
 
@@ -279,7 +279,7 @@ class TestDatasetEndpoints:
             mock_instance.execute.side_effect = ValueError("Dataset not found")
             mock_use_case.return_value = mock_instance
 
-            response = client.delete("/datasets/nonexistent", headers=auth_headers)
+            response = client.delete("/api/datasets/nonexistent", headers=auth_headers)
 
             assert response.status_code == 404
 
@@ -308,7 +308,7 @@ class TestDatasetEndpoints:
             mock_use_case.return_value = mock_instance
 
             response = client.post(
-                "/datasets/upload", files=files, data=data, headers=auth_headers
+                "/api/datasets/upload", files=files, data=data, headers=auth_headers
             )
 
             assert response.status_code == 202
@@ -320,7 +320,7 @@ class TestDatasetEndpoints:
         """Test uploading dataset with invalid format."""
         files = {"file": ("test_data.txt", io.StringIO("invalid data"), "text/plain")}
 
-        response = client.post("/datasets/upload", files=files, headers=auth_headers)
+        response = client.post("/api/datasets/upload", files=files, headers=auth_headers)
 
         assert response.status_code == 400
         data = response.json()
@@ -331,7 +331,7 @@ class TestDatasetEndpoints:
         large_data = "x" * (100 * 1024 * 1024)  # 100MB
         files = {"file": ("large_data.csv", io.StringIO(large_data), "text/csv")}
 
-        response = client.post("/datasets/upload", files=files, headers=auth_headers)
+        response = client.post("/api/datasets/upload", files=files, headers=auth_headers)
 
         assert response.status_code == 413
         data = response.json()
@@ -353,7 +353,7 @@ class TestDatasetEndpoints:
             mock_use_case.return_value = mock_instance
 
             response = client.get(
-                "/datasets/upload/upload123/status", headers=auth_headers
+                "/api/datasets/upload/upload123/status", headers=auth_headers
             )
 
             assert response.status_code == 200
@@ -391,7 +391,7 @@ class TestDatasetEndpoints:
             mock_use_case.return_value = mock_instance
 
             response = client.post(
-                "/datasets/dataset123/validate", headers=auth_headers
+                "/api/datasets/dataset123/validate", headers=auth_headers
             )
 
             assert response.status_code == 200

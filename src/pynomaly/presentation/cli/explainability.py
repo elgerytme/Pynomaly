@@ -8,10 +8,6 @@ import sys
 import time
 from pathlib import Path
 from typing import List, Optional
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 import typer
 from rich.console import Console
@@ -54,7 +50,7 @@ def explain(
     explanation_type: str = typer.Option(
         "both",
         "-t", "--explanation-type",
-        help="Type of explanation to generate (local, global, both)"
+        help="Type of explanation to generate (options: local, global, both)"
     ),
     methods: Optional[List[str]] = typer.Option(
         None,
@@ -315,10 +311,10 @@ def assess_trust(
 def feature_importance(
     detector_path: Path = typer.Argument(..., help="Path to saved detector model", exists=True),
     dataset_path: Path = typer.Argument(..., help="Path to dataset file", exists=True),
-    method: Literal["shap", "lime", "permutation"] = typer.Option(
+    method: str = typer.Option(
         "shap",
         "--method",
-        help="Feature importance method"
+        help="Feature importance method (shap, lime, permutation)"
     ),
     top_k: int = typer.Option(15, "--top-k", help="Number of top features to display"),
     output: Optional[Path] = typer.Option(None, "--output", help="Output file for feature importance"),
@@ -498,7 +494,7 @@ def status(
 
 @app.command()
 def info(
-    explanation_type: Literal["local", "global", "bias", "trust"] = typer.Argument(
+    explanation_type: str = typer.Option(
         ...,
         help="Type of explanation to get information about"
     ),
