@@ -4,12 +4,13 @@ import asyncio
 import logging
 import time
 import traceback
+from collections.abc import Callable
 from contextlib import asynccontextmanager, contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Optional
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -36,7 +37,7 @@ class IntegrationTestStep:
     retry_count: int = 0
     retry_delay: float = 1.0
     cleanup_action: Optional[Callable] = None
-    dependencies: List[str] = field(default_factory=list)
+    dependencies: list[str] = field(default_factory=list)
 
     # Execution results
     result: Optional[TestResult] = None
@@ -52,7 +53,7 @@ class IntegrationTestSuite:
 
     name: str
     description: str
-    steps: List[IntegrationTestStep] = field(default_factory=list)
+    steps: list[IntegrationTestStep] = field(default_factory=list)
     setup_action: Optional[Callable] = None
     teardown_action: Optional[Callable] = None
 
@@ -77,7 +78,7 @@ class IntegrationTestRunner:
             logger: Logger instance for test execution
         """
         self.logger = logger or logging.getLogger(__name__)
-        self.test_results: Dict[str, IntegrationTestSuite] = {}
+        self.test_results: dict[str, IntegrationTestSuite] = {}
 
     async def run_suite(
         self,
@@ -281,7 +282,7 @@ class IntegrationTestRunner:
             )
 
     def _check_dependencies(
-        self, step: IntegrationTestStep, all_steps: List[IntegrationTestStep]
+        self, step: IntegrationTestStep, all_steps: list[IntegrationTestStep]
     ) -> bool:
         """Check if step dependencies are satisfied."""
         if not step.dependencies:
@@ -379,10 +380,10 @@ class IntegrationTestRunner:
                     <p>{suite.description}</p>
                     <p><strong>Success Rate:</strong> {success_rate:.1f}%</p>
                     <p><strong>Execution Time:</strong> {suite.total_execution_time:.2f}s</p>
-                    <p><strong>Results:</strong> 
-                        <span class="passed">{suite.passed_steps} passed</span>, 
-                        <span class="failed">{suite.failed_steps} failed</span>, 
-                        <span class="skipped">{suite.skipped_steps} skipped</span>, 
+                    <p><strong>Results:</strong>
+                        <span class="passed">{suite.passed_steps} passed</span>,
+                        <span class="failed">{suite.failed_steps} failed</span>,
+                        <span class="skipped">{suite.skipped_steps} skipped</span>,
                         <span class="error">{suite.error_steps} errors</span>
                     </p>
                 </div>
@@ -455,7 +456,7 @@ class IntegrationTestBuilder:
         retry_count: int = 0,
         retry_delay: float = 1.0,
         cleanup_action: Optional[Callable] = None,
-        dependencies: Optional[List[str]] = None,
+        dependencies: Optional[list[str]] = None,
     ) -> "IntegrationTestBuilder":
         """Add a step to the test suite."""
         step = IntegrationTestStep(

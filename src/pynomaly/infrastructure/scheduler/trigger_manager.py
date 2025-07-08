@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import Optional
+
 import croniter
 
 
@@ -11,7 +11,7 @@ class TriggerManager:
     """Manages cron/interval triggers for schedules."""
 
     @staticmethod
-    def compute_next_execution(cron_expression: Optional[str] = None, interval_seconds: Optional[int] = None, current_time: Optional[datetime] = None) -> Optional[datetime]:
+    def compute_next_execution(cron_expression: str | None = None, interval_seconds: int | None = None, current_time: datetime | None = None) -> datetime | None:
         """Compute the next execution time based on triggers."""
         current_time = current_time or datetime.now()
 

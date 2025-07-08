@@ -113,7 +113,7 @@ class ConfigurationManager:
 
     def _load_file_data(self, file_path: Path) -> dict[str, Any]:
         """Load data from configuration file."""
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             if file_path.suffix.lower() in [".yaml", ".yml"]:
                 return yaml.safe_load(f) or {}
             elif file_path.suffix.lower() == ".json":

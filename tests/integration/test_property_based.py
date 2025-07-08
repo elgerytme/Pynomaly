@@ -12,7 +12,6 @@ from hypothesis import assume, given, note, settings
 from hypothesis import strategies as st
 from hypothesis.extra.numpy import arrays
 from hypothesis.extra.pandas import columns, data_frames
-
 from pynomaly.application.use_cases import DetectAnomalies, TrainDetector
 from pynomaly.domain.entities import Dataset, Detector
 from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate

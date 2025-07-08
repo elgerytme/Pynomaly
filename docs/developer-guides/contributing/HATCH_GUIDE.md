@@ -157,7 +157,7 @@ The build system is configured for optimal packaging:
 [tool.hatch.build]
 include = [
     "src/pynomaly/**/*.py",
-    "src/pynomaly/**/*.pyi", 
+    "src/pynomaly/**/*.pyi",
     "src/pynomaly/py.typed",
 ]
 exclude = [

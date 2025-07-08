@@ -4,15 +4,11 @@ import asyncio
 import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 from uuid import uuid4
 
 import numpy as np
 import pytest
-from sklearn.ensemble import IsolationForest
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
-
 from pynomaly.application.services.explainable_ai_service import (
     ExplainabilityError,
     ExplainableAIService,
@@ -20,24 +16,22 @@ from pynomaly.application.services.explainable_ai_service import (
     ExplanationConfiguration,
     ExplanationNotSupportedError,
     FeatureAblationExplainer,
-    InsufficientDataError,
     LIMEExplainer,
     PermutationImportanceExplainer,
     SHAPExplainer,
 )
 from pynomaly.domain.entities.explainable_ai import (
     BiasAnalysis,
-    ExplanationAudience,
     ExplanationMethod,
-    ExplanationRequest,
     ExplanationResult,
-    ExplanationScope,
-    ExplanationType,
     FeatureImportance,
     GlobalExplanation,
     InstanceExplanation,
     TrustScore,
 )
+from sklearn.ensemble import IsolationForest
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
 
 
 @pytest.fixture
@@ -774,7 +768,7 @@ async def test_concurrent_explanations(explainable_ai_service, sample_data):
 
     # Generate explanations concurrently
     tasks = []
-    for i, (model, instance) in enumerate(zip(models, instances)):
+    for i, (model, instance) in enumerate(zip(models, instances, strict=False)):
         task = explainable_ai_service.explain_prediction(
             model=model,
             instance=instance,

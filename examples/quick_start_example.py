@@ -19,10 +19,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 import numpy as np
 import pandas as pd
-
 from pynomaly.domain.entities import Dataset
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.infrastructure.adapters import SklearnAdapter
 
 
 def create_sample_data(n_samples=1000, contamination=0.1):
@@ -154,14 +151,14 @@ def run_basic_detection():
         else 0
     )
 
-    print(f"\n🎯 Performance Metrics:")
+    print("\n🎯 Performance Metrics:")
     print(f"Accuracy: {accuracy:.3f}")
     print(f"Precision: {precision:.3f}")
     print(f"Recall: {recall:.3f}")
     print(f"F1-Score: {f1_score:.3f}")
 
     # Show score statistics
-    print(f"\n📊 Anomaly Scores:")
+    print("\n📊 Anomaly Scores:")
     print(f"Min score: {scores.min():.3f}")
     print(f"Max score: {scores.max():.3f}")
     print(f"Mean score: {scores.mean():.3f}")

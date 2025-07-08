@@ -212,7 +212,7 @@ export const CodeText = () => {
     <div class="p-6">
       <h3 class="text-2xl font-semibold mb-2">Code Typography</h3>
       <p class="text-gray-600 mb-6">Monospace typography for code, data, and technical content.</p>
-      
+
       <div class="space-y-6">
         <div class="border-b border-gray-200 pb-4">
           <code class="text-sm font-mono bg-gray-100 px-2 py-1 rounded">inline code example</code>
@@ -221,7 +221,7 @@ export const CodeText = () => {
             <span class="ml-4">14px / JetBrains Mono</span>
           </div>
         </div>
-        
+
         <div class="border-b border-gray-200 pb-4">
           <pre class="bg-gray-900 text-green-400 p-4 rounded-lg text-sm font-mono overflow-x-auto"><code>// Code block example
 function detectAnomalies(data) {
@@ -232,7 +232,7 @@ function detectAnomalies(data) {
             <span class="ml-4">14px / JetBrains Mono / Code blocks</span>
           </div>
         </div>
-        
+
         <div class="border-b border-gray-200 pb-4">
           <div class="font-mono text-xs text-gray-600">2024-06-26 10:30:15 UTC</div>
           <div class="mt-2 text-sm text-gray-500">
@@ -258,7 +258,7 @@ export const AccessibilityGuide = () => {
   return `
     <div class="p-6 max-w-4xl">
       <h3 class="text-2xl font-semibold mb-6">Typography Accessibility Guidelines</h3>
-      
+
       <div class="space-y-8">
         <section>
           <h4 class="text-lg font-medium mb-4">Readability Requirements</h4>

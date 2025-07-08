@@ -9,11 +9,9 @@ and maintains consistent module organization as defined in the project plan.
 import argparse
 import ast
 import json
-import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
 
 
 @dataclass
@@ -21,9 +19,9 @@ class ValidationResult:
     """Results of source code structure validation."""
 
     passed: bool
-    violations: List[str]
-    warnings: List[str]
-    metrics: Dict[str, any]
+    violations: list[str]
+    warnings: list[str]
+    metrics: dict[str, any]
 
 
 @dataclass
@@ -150,7 +148,7 @@ class SourceStructureValidator:
         # Determine overall result
         passed = len(self.violations) == 0
 
-        print(f"✅ Structure validation completed")
+        print("✅ Structure validation completed")
         print(f"   Violations: {len(self.violations)}")
         print(f"   Warnings: {len(self.warnings)}")
 
@@ -243,7 +241,7 @@ class SourceStructureValidator:
                 continue
 
             try:
-                with open(py_file, "r", encoding="utf-8") as f:
+                with open(py_file, encoding="utf-8") as f:
                     tree = ast.parse(f.read())
 
                 for node in ast.walk(tree):
@@ -289,7 +287,7 @@ class SourceStructureValidator:
                     continue
 
                 try:
-                    with open(py_file, "r", encoding="utf-8") as f:
+                    with open(py_file, encoding="utf-8") as f:
                         content = f.read()
                         tree = ast.parse(content)
 
@@ -328,7 +326,7 @@ class SourceStructureValidator:
                 )
 
             try:
-                with open(py_file, "r", encoding="utf-8") as f:
+                with open(py_file, encoding="utf-8") as f:
                     tree = ast.parse(f.read())
 
                 for node in ast.walk(tree):
@@ -401,7 +399,7 @@ class SourceStructureValidator:
             imports = set()
 
             try:
-                with open(py_file, "r", encoding="utf-8") as f:
+                with open(py_file, encoding="utf-8") as f:
                     tree = ast.parse(f.read())
 
                 for node in ast.walk(tree):
@@ -430,7 +428,7 @@ class SourceStructureValidator:
 
         for py_file in self.pynomaly_root.rglob("*.py"):
             try:
-                with open(py_file, "r", encoding="utf-8") as f:
+                with open(py_file, encoding="utf-8") as f:
                     content = f.read()
                     tree = ast.parse(content)
 
@@ -542,7 +540,7 @@ def main():
             )
 
     # Print summary
-    print(f"\n📊 Source Structure Validation Summary:")
+    print("\n📊 Source Structure Validation Summary:")
     print(f"  • Total Python files: {result.metrics.get('total_python_files', 0)}")
     print(f"  • Total directories: {result.metrics.get('total_directories', 0)}")
     print(f"  • Max directory depth: {result.metrics.get('max_directory_depth', 0)}")
@@ -550,14 +548,14 @@ def main():
     print(f"  • Warnings: {len(result.warnings)}")
 
     if result.violations:
-        print(f"\n❌ Violations found:")
+        print("\n❌ Violations found:")
         for violation in result.violations[:10]:  # Show first 10
             print(f"  • {violation}")
         if len(result.violations) > 10:
             print(f"  ... and {len(result.violations) - 10} more")
 
     if result.warnings:
-        print(f"\n⚠️  Warnings:")
+        print("\n⚠️  Warnings:")
         for warning in result.warnings[:5]:  # Show first 5
             print(f"  • {warning}")
         if len(result.warnings) > 5:
@@ -565,7 +563,7 @@ def main():
 
     # Print layer-specific metrics
     if "layer_metrics" in result.metrics:
-        print(f"\n📁 Layer Metrics:")
+        print("\n📁 Layer Metrics:")
         for layer, metrics in result.metrics["layer_metrics"].items():
             print(
                 f"  • {layer}: {metrics['files']} files, {metrics['dirs']} directories"

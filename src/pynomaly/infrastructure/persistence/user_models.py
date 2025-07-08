@@ -1,12 +1,12 @@
-from sqlalchemy import Boolean, Column, DateTime, String, Text, ForeignKey, Table
-from sqlalchemy.orm import relationship, declarative_base
+import json
+from datetime import datetime
+from uuid import UUID
+
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String, Table, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
+from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.types import VARCHAR, TypeDecorator
-from uuid import UUID
-from datetime import datetime
-import json
-
 
 # Create a separate base for user models to avoid circular imports
 Base = declarative_base()
@@ -75,9 +75,9 @@ role_permissions_association = Table(
 
 class APIKeyModel(Base):
     """SQLAlchemy model for API Keys."""
-    
+
     __tablename__ = 'api_keys'
-    
+
     id = Column(UUIDType, primary_key=True)
     key_hash = Column(String(255), nullable=False, unique=True)
     name = Column(String(255), nullable=False)
@@ -86,7 +86,7 @@ class APIKeyModel(Base):
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_used_at = Column(DateTime, nullable=True)
     expires_at = Column(DateTime, nullable=True)
-    
+
     user = relationship('UserModel', back_populates='api_keys')
 
 
@@ -108,7 +108,7 @@ class UserModel(Base):
     email_verified_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    
+
     roles = relationship('RoleModel', secondary=user_roles_association, back_populates='users')
     api_keys = relationship('APIKeyModel', back_populates='user', cascade='all, delete-orphan')
 
@@ -123,7 +123,7 @@ class RoleModel(Base):
     description = Column(Text)
     is_system_role = Column(Boolean, default=False)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    
+
     users = relationship('UserModel', secondary=user_roles_association, back_populates='roles')
     permissions = relationship('PermissionModel', secondary=role_permissions_association, back_populates='roles')
 
@@ -138,7 +138,7 @@ class PermissionModel(Base):
     resource = Column(String(255), nullable=False)
     action = Column(String(255), nullable=False)
     description = Column(Text)
-    
+
     roles = relationship('RoleModel', secondary=role_permissions_association, back_populates='permissions')
 
 

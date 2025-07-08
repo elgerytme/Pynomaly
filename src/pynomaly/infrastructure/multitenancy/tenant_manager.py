@@ -2,23 +2,22 @@
 
 import asyncio
 import logging
-import time
+import secrets
+import uuid
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set
-from dataclasses import dataclass, field
-import uuid
-import secrets
+from typing import Any, Optional
 
 from pynomaly.shared.config import Config
+
 # from ..monitoring.opentelemetry_service import get_telemetry_service
 
 # Simple stub for monitoring
 def get_telemetry_service():
     """Simple stub for monitoring."""
     return None
-from ..compliance.audit_system import get_audit_system, EventType, Severity
-
+from ..compliance.audit_system import EventType, Severity, get_audit_system
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +43,7 @@ class TenantTier(Enum):
 @dataclass
 class TenantConfiguration:
     """Tenant configuration settings."""
-    
+
     # Resource limits
     max_cpu_cores: int = 2
     max_memory_gb: int = 4
@@ -54,32 +53,32 @@ class TenantConfiguration:
     max_users: int = 10
     max_models: int = 5
     max_datasets: int = 20
-    
+
     # Feature flags
-    features_enabled: Set[str] = field(default_factory=set)
+    features_enabled: set[str] = field(default_factory=set)
     api_access_enabled: bool = True
     ui_access_enabled: bool = True
     export_enabled: bool = True
     advanced_analytics: bool = False
     custom_algorithms: bool = False
     priority_support: bool = False
-    
+
     # Data retention and compliance
     data_retention_days: int = 90
-    compliance_frameworks: Set[str] = field(default_factory=set)
+    compliance_frameworks: set[str] = field(default_factory=set)
     encryption_required: bool = True
     audit_logging_enabled: bool = True
-    
+
     # Geographic and regulatory
-    allowed_regions: Set[str] = field(default_factory=lambda: {"us-east-1"})
-    data_residency_requirements: Set[str] = field(default_factory=set)
-    regulatory_compliance: Set[str] = field(default_factory=set)
+    allowed_regions: set[str] = field(default_factory=lambda: {"us-east-1"})
+    data_residency_requirements: set[str] = field(default_factory=set)
+    regulatory_compliance: set[str] = field(default_factory=set)
 
 
 @dataclass
 class Tenant:
     """Tenant entity."""
-    
+
     tenant_id: str
     name: str
     display_name: str
@@ -91,47 +90,47 @@ class Tenant:
     updated_at: datetime
     owner_user_id: str
     contact_email: str
-    
+
     # Billing and subscription
     subscription_id: Optional[str] = None
-    billing_address: Optional[Dict[str, str]] = None
+    billing_address: Optional[dict[str, str]] = None
     payment_method_id: Optional[str] = None
-    
+
     # Security
     api_key: Optional[str] = None
     webhook_secret: Optional[str] = None
-    allowed_ip_ranges: Set[str] = field(default_factory=set)
-    
+    allowed_ip_ranges: set[str] = field(default_factory=set)
+
     # Metadata
-    tags: Dict[str, str] = field(default_factory=dict)
-    custom_attributes: Dict[str, Any] = field(default_factory=dict)
-    
+    tags: dict[str, str] = field(default_factory=dict)
+    custom_attributes: dict[str, Any] = field(default_factory=dict)
+
     # Usage metrics
     last_activity: Optional[datetime] = None
     total_requests: int = 0
     total_data_processed_gb: float = 0.0
-    
+
     def __post_init__(self):
         """Generate API key if not provided."""
         if not self.api_key:
             self.api_key = self._generate_api_key()
         if not self.webhook_secret:
             self.webhook_secret = secrets.token_urlsafe(32)
-    
+
     def _generate_api_key(self) -> str:
         """Generate secure API key for tenant."""
         prefix = f"pyn_{self.tenant_id[:8]}"
         suffix = secrets.token_urlsafe(32)
         return f"{prefix}_{suffix}"
-    
+
     def is_active(self) -> bool:
         """Check if tenant is active."""
         return self.status == TenantStatus.ACTIVE
-    
+
     def has_feature(self, feature: str) -> bool:
         """Check if tenant has specific feature enabled."""
         return feature in self.configuration.features_enabled
-    
+
     def update_last_activity(self) -> None:
         """Update last activity timestamp."""
         self.last_activity = datetime.now()
@@ -140,31 +139,31 @@ class Tenant:
 
 class TenantManager:
     """Enterprise multi-tenant management system."""
-    
+
     def __init__(self, config: Optional[Config] = None):
         """Initialize tenant manager."""
         self.config = config or Config()
         self.telemetry = get_telemetry_service()
         self.audit_system = get_audit_system()
-        
+
         # Storage
-        self.tenants: Dict[str, Tenant] = {}
-        self.tenant_by_api_key: Dict[str, str] = {}  # api_key -> tenant_id
-        
+        self.tenants: dict[str, Tenant] = {}
+        self.tenant_by_api_key: dict[str, str] = {}  # api_key -> tenant_id
+
         # Default configurations by tier
         self.tier_configurations = self._initialize_tier_configurations()
-        
+
         # Tenant isolation settings
         self.enable_strict_isolation = self.config.get("multitenancy.strict_isolation", True)
         self.enable_resource_monitoring = self.config.get("multitenancy.resource_monitoring", True)
-        
+
         # Background tasks
         self._monitoring_task: Optional[asyncio.Task] = None
         self._monitoring_active = False
-        
+
         logger.info("Tenant manager initialized")
-    
-    def _initialize_tier_configurations(self) -> Dict[TenantTier, TenantConfiguration]:
+
+    def _initialize_tier_configurations(self) -> dict[TenantTier, TenantConfiguration]:
         """Initialize default configurations for each tier."""
         return {
             TenantTier.FREE: TenantConfiguration(
@@ -207,7 +206,7 @@ class TenantManager:
                 max_models=10,
                 max_datasets=50,
                 features_enabled={
-                    "basic_detection", "advanced_detection", "data_export", 
+                    "basic_detection", "advanced_detection", "data_export",
                     "basic_analytics", "advanced_analytics", "model_training"
                 },
                 advanced_analytics=True,
@@ -226,7 +225,7 @@ class TenantManager:
                 max_datasets=200,
                 features_enabled={
                     "basic_detection", "advanced_detection", "ensemble_methods",
-                    "data_export", "basic_analytics", "advanced_analytics", 
+                    "data_export", "basic_analytics", "advanced_analytics",
                     "model_training", "automl", "explainable_ai", "drift_detection",
                     "real_time_processing", "custom_integrations"
                 },
@@ -238,7 +237,7 @@ class TenantManager:
                 allowed_regions={"us-east-1", "us-west-2", "eu-west-1"}
             )
         }
-    
+
     async def create_tenant(
         self,
         name: str,
@@ -252,13 +251,13 @@ class TenantManager:
         """Create a new tenant."""
         try:
             tenant_id = str(uuid.uuid4())
-            
+
             # Get configuration for tier
             if custom_config:
                 configuration = custom_config
             else:
                 configuration = self.tier_configurations[tier]
-            
+
             # Create tenant
             tenant = Tenant(
                 tenant_id=tenant_id,
@@ -273,11 +272,11 @@ class TenantManager:
                 owner_user_id=owner_user_id,
                 contact_email=contact_email
             )
-            
+
             # Store tenant
             self.tenants[tenant_id] = tenant
             self.tenant_by_api_key[tenant.api_key] = tenant_id
-            
+
             # Audit log
             await self.audit_system.log_event(
                 event_type=EventType.SYSTEM_CONFIG_CHANGE,
@@ -292,7 +291,7 @@ class TenantManager:
                 },
                 tenant_id=tenant_id
             )
-            
+
             # Record metrics
             self.telemetry.record_detection_metrics(
                 duration=0,
@@ -300,36 +299,36 @@ class TenantManager:
                 algorithm="tenant_management",
                 tenant_id=tenant_id
             )
-            
+
             logger.info(f"Created tenant {tenant_id} ({name}) with tier {tier.value}")
             return tenant
-            
+
         except Exception as e:
             logger.error(f"Failed to create tenant: {e}")
             raise
-    
+
     async def get_tenant(self, tenant_id: str) -> Optional[Tenant]:
         """Get tenant by ID."""
         return self.tenants.get(tenant_id)
-    
+
     async def get_tenant_by_api_key(self, api_key: str) -> Optional[Tenant]:
         """Get tenant by API key."""
         tenant_id = self.tenant_by_api_key.get(api_key)
         if tenant_id:
             return await self.get_tenant(tenant_id)
         return None
-    
+
     async def update_tenant_status(self, tenant_id: str, status: TenantStatus, reason: str = "") -> bool:
         """Update tenant status."""
         try:
             tenant = await self.get_tenant(tenant_id)
             if not tenant:
                 return False
-            
+
             old_status = tenant.status
             tenant.status = status
             tenant.updated_at = datetime.now()
-            
+
             # Audit log
             await self.audit_system.log_event(
                 event_type=EventType.SYSTEM_CONFIG_CHANGE,
@@ -344,41 +343,41 @@ class TenantManager:
                 },
                 tenant_id=tenant_id
             )
-            
+
             logger.info(f"Updated tenant {tenant_id} status from {old_status.value} to {status.value}")
             return True
-            
+
         except Exception as e:
             logger.error(f"Failed to update tenant status: {e}")
             return False
-    
+
     async def activate_tenant(self, tenant_id: str) -> bool:
         """Activate a tenant."""
         return await self.update_tenant_status(tenant_id, TenantStatus.ACTIVE, "Manual activation")
-    
+
     async def suspend_tenant(self, tenant_id: str, reason: str = "") -> bool:
         """Suspend a tenant."""
         return await self.update_tenant_status(tenant_id, TenantStatus.SUSPENDED, reason)
-    
+
     async def deactivate_tenant(self, tenant_id: str, reason: str = "") -> bool:
         """Deactivate a tenant."""
         return await self.update_tenant_status(tenant_id, TenantStatus.DEACTIVATED, reason)
-    
+
     async def update_tenant_tier(self, tenant_id: str, new_tier: TenantTier) -> bool:
         """Update tenant tier and configuration."""
         try:
             tenant = await self.get_tenant(tenant_id)
             if not tenant:
                 return False
-            
+
             old_tier = tenant.tier
             old_config = tenant.configuration
-            
+
             # Update tier and configuration
             tenant.tier = new_tier
             tenant.configuration = self.tier_configurations[new_tier]
             tenant.updated_at = datetime.now()
-            
+
             # Audit log
             await self.audit_system.log_event(
                 event_type=EventType.SYSTEM_CONFIG_CHANGE,
@@ -397,32 +396,32 @@ class TenantManager:
                 },
                 tenant_id=tenant_id
             )
-            
+
             logger.info(f"Updated tenant {tenant_id} tier from {old_tier.value} to {new_tier.value}")
             return True
-            
+
         except Exception as e:
             logger.error(f"Failed to update tenant tier: {e}")
             return False
-    
+
     async def update_tenant_configuration(
-        self, 
-        tenant_id: str, 
-        config_updates: Dict[str, Any]
+        self,
+        tenant_id: str,
+        config_updates: dict[str, Any]
     ) -> bool:
         """Update specific tenant configuration settings."""
         try:
             tenant = await self.get_tenant(tenant_id)
             if not tenant:
                 return False
-            
+
             # Update configuration
             for key, value in config_updates.items():
                 if hasattr(tenant.configuration, key):
                     setattr(tenant.configuration, key, value)
-            
+
             tenant.updated_at = datetime.now()
-            
+
             # Audit log
             await self.audit_system.log_event(
                 event_type=EventType.SYSTEM_CONFIG_CHANGE,
@@ -435,26 +434,26 @@ class TenantManager:
                 },
                 tenant_id=tenant_id
             )
-            
+
             logger.info(f"Updated configuration for tenant {tenant_id}: {config_updates}")
             return True
-            
+
         except Exception as e:
             logger.error(f"Failed to update tenant configuration: {e}")
             return False
-    
+
     async def record_tenant_activity(
-        self, 
-        tenant_id: str, 
+        self,
+        tenant_id: str,
         activity_type: str,
-        details: Optional[Dict[str, Any]] = None
+        details: Optional[dict[str, Any]] = None
     ) -> None:
         """Record tenant activity."""
         tenant = await self.get_tenant(tenant_id)
         if tenant:
             tenant.update_last_activity()
             tenant.total_requests += 1
-            
+
             # Record in telemetry
             self.telemetry.record_detection_metrics(
                 duration=0,
@@ -462,15 +461,15 @@ class TenantManager:
                 algorithm=f"tenant_activity_{activity_type}",
                 tenant_id=tenant_id
             )
-    
+
     async def check_resource_limits(self, tenant_id: str, resource_type: str, amount: float) -> bool:
         """Check if tenant can use requested resources."""
         tenant = await self.get_tenant(tenant_id)
         if not tenant or not tenant.is_active():
             return False
-        
+
         config = tenant.configuration
-        
+
         # Check specific resource limits
         if resource_type == "cpu_cores" and amount > config.max_cpu_cores:
             return False
@@ -482,31 +481,31 @@ class TenantManager:
             return False
         elif resource_type == "requests_per_minute" and amount > config.max_requests_per_minute:
             return False
-        
+
         return True
-    
+
     async def list_tenants(
-        self, 
+        self,
         status: Optional[TenantStatus] = None,
         tier: Optional[TenantTier] = None
-    ) -> List[Tenant]:
+    ) -> list[Tenant]:
         """List tenants with optional filters."""
         tenants = list(self.tenants.values())
-        
+
         if status:
             tenants = [t for t in tenants if t.status == status]
-        
+
         if tier:
             tenants = [t for t in tenants if t.tier == tier]
-        
+
         return sorted(tenants, key=lambda t: t.created_at)
-    
-    async def get_tenant_usage_summary(self, tenant_id: str) -> Dict[str, Any]:
+
+    async def get_tenant_usage_summary(self, tenant_id: str) -> dict[str, Any]:
         """Get tenant resource usage summary."""
         tenant = await self.get_tenant(tenant_id)
         if not tenant:
             return {}
-        
+
         # This would integrate with actual resource monitoring
         return {
             "tenant_id": tenant_id,
@@ -525,24 +524,24 @@ class TenantManager:
             "created_at": tenant.created_at.isoformat(),
             "updated_at": tenant.updated_at.isoformat()
         }
-    
+
     async def delete_tenant(self, tenant_id: str, reason: str = "") -> bool:
         """Delete a tenant (with proper cleanup)."""
         try:
             tenant = await self.get_tenant(tenant_id)
             if not tenant:
                 return False
-            
+
             # Deactivate first
             await self.deactivate_tenant(tenant_id, f"Deletion requested: {reason}")
-            
+
             # Remove from mappings
             if tenant.api_key in self.tenant_by_api_key:
                 del self.tenant_by_api_key[tenant.api_key]
-            
+
             # Remove tenant
             del self.tenants[tenant_id]
-            
+
             # Audit log
             await self.audit_system.log_event(
                 event_type=EventType.SYSTEM_CONFIG_CHANGE,
@@ -556,28 +555,28 @@ class TenantManager:
                 },
                 tenant_id=tenant_id
             )
-            
+
             logger.info(f"Deleted tenant {tenant_id} ({tenant.name})")
             return True
-            
+
         except Exception as e:
             logger.error(f"Failed to delete tenant: {e}")
             return False
-    
+
     async def start_monitoring(self) -> None:
         """Start tenant monitoring background task."""
         if self._monitoring_active:
             return
-        
+
         self._monitoring_active = True
         self._monitoring_task = asyncio.create_task(self._monitoring_loop())
         logger.info("Started tenant monitoring")
-    
+
     async def stop_monitoring(self) -> None:
         """Stop tenant monitoring background task."""
         if not self._monitoring_active:
             return
-        
+
         self._monitoring_active = False
         if self._monitoring_task:
             self._monitoring_task.cancel()
@@ -585,9 +584,9 @@ class TenantManager:
                 await self._monitoring_task
             except asyncio.CancelledError:
                 pass
-        
+
         logger.info("Stopped tenant monitoring")
-    
+
     async def _monitoring_loop(self) -> None:
         """Background monitoring loop for tenant health and usage."""
         while self._monitoring_active:
@@ -595,13 +594,13 @@ class TenantManager:
                 await self._check_tenant_health()
                 await self._check_resource_usage()
                 await self._cleanup_inactive_tenants()
-                
+
                 await asyncio.sleep(300)  # Check every 5 minutes
-                
+
             except Exception as e:
                 logger.error(f"Error in tenant monitoring loop: {e}")
                 await asyncio.sleep(60)  # Back off on error
-    
+
     async def _check_tenant_health(self) -> None:
         """Check health of all tenants."""
         for tenant in self.tenants.values():
@@ -611,7 +610,7 @@ class TenantManager:
                     inactive_days = (datetime.now() - tenant.last_activity).days
                     if inactive_days > 30:  # Configurable threshold
                         logger.warning(f"Tenant {tenant.tenant_id} inactive for {inactive_days} days")
-    
+
     async def _check_resource_usage(self) -> None:
         """Monitor resource usage across tenants."""
         # This would integrate with actual resource monitoring systems
@@ -622,31 +621,31 @@ class TenantManager:
                     "tenant_requests": tenant.total_requests,
                     "tenant_data_processed": tenant.total_data_processed_gb
                 })
-    
+
     async def _cleanup_inactive_tenants(self) -> None:
         """Clean up inactive or expired tenants."""
         cleanup_threshold = datetime.now() - timedelta(days=365)  # 1 year
-        
+
         for tenant in list(self.tenants.values()):
-            if (tenant.status == TenantStatus.DEACTIVATED and 
+            if (tenant.status == TenantStatus.DEACTIVATED and
                 tenant.updated_at < cleanup_threshold):
                 logger.info(f"Cleaning up inactive tenant {tenant.tenant_id}")
                 # In production, this would trigger a proper deletion workflow
-    
-    def get_manager_metrics(self) -> Dict[str, Any]:
+
+    def get_manager_metrics(self) -> dict[str, Any]:
         """Get tenant manager metrics."""
         status_counts = {}
         tier_counts = {}
-        
+
         for tenant in self.tenants.values():
             # Count by status
             status = tenant.status.value
             status_counts[status] = status_counts.get(status, 0) + 1
-            
+
             # Count by tier
             tier = tenant.tier.value
             tier_counts[tier] = tier_counts.get(tier, 0) + 1
-        
+
         return {
             "total_tenants": len(self.tenants),
             "status_distribution": status_counts,

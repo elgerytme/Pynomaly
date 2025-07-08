@@ -602,9 +602,9 @@ def _save_result_to_file(result, filename):
     if hasattr(result, "convergence_stability"):
         result_dict["convergence_stability"] = result.convergence_stability
     if hasattr(result, "optimization_recommendations"):
-        result_dict["optimization_recommendations"] = (
-            result.optimization_recommendations
-        )
+        result_dict[
+            "optimization_recommendations"
+        ] = result.optimization_recommendations
     if hasattr(result, "next_steps"):
         result_dict["next_steps"] = result.next_steps
     if hasattr(result, "pareto_front"):

@@ -123,7 +123,7 @@ sleep 30
 for i in $(seq 1 $REPLICAS); do
     REPLICA_PORT=$((5432 + i))
     echo "Starting PostgreSQL Replica $i on port $REPLICA_PORT..."
-    
+
     docker run -d \
         --name "${REPLICA_NAME}-${i}" \
         --network "$NETWORK_NAME" \
@@ -142,7 +142,7 @@ done
 # Start PgPool-II for load balancing if requested
 if [[ "$WITH_PGPOOL" == "true" ]]; then
     echo "Starting PgPool-II load balancer..."
-    
+
     # Create PgPool configuration
     cat > /tmp/pgpool.conf << EOF
 listen_addresses = '*'

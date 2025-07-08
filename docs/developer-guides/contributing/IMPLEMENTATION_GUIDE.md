@@ -81,13 +81,13 @@ with open('data.csv', 'rb') as f:
         'auto_tune': True,
         'enable_preprocessing': True
     }
-    
+
     response = requests.post(
         'http://localhost:8000/api/autonomous/detect',
         files=files,
         data=data
     )
-    
+
     results = response.json()
     print(f"Detection successful: {results['success']}")
     print(f"Best algorithm: {results['results']['autonomous_detection_results']['best_algorithm']}")
@@ -149,15 +149,15 @@ with open('data.csv', 'rb') as f:
         'include_alternatives': True,
         'include_data_analysis': True
     }
-    
+
     response = requests.post(
         'http://localhost:8000/api/autonomous/explain/choices',
         files=files,
         data=data
     )
-    
+
     explanations = response.json()['explanations']
-    
+
     # Display top recommendation
     top_rec = explanations['algorithm_recommendations'][0]
     print(f"Top Recommendation: {top_rec['algorithm']}")
@@ -171,7 +171,7 @@ with open('data.csv', 'rb') as f:
 
 ```python
 from pynomaly.application.services.autonomous_service import (
-    AutonomousDetectionService, 
+    AutonomousDetectionService,
     AutonomousConfig
 )
 from pynomaly.infrastructure.data_loaders.csv_loader import CSVLoader
@@ -310,7 +310,7 @@ comprehensive_config = AutonomousConfig(
 def analyze_algorithm_performance(results):
     """Analyze performance across algorithms."""
     detection_results = results["autonomous_detection_results"]["detection_results"]
-    
+
     performance_metrics = {}
     for algo, result in detection_results.items():
         performance_metrics[algo] = {
@@ -319,18 +319,18 @@ def analyze_algorithm_performance(results):
             'anomalies_found': result['anomalies_found'],
             'efficiency_score': result['anomalies_found'] / (result['execution_time_ms'] / 1000)
         }
-    
+
     # Sort by efficiency
     sorted_algos = sorted(
-        performance_metrics.items(), 
-        key=lambda x: x[1]['efficiency_score'], 
+        performance_metrics.items(),
+        key=lambda x: x[1]['efficiency_score'],
         reverse=True
     )
-    
+
     print("Algorithm Performance Ranking:")
     for i, (algo, metrics) in enumerate(sorted_algos, 1):
         print(f"{i}. {algo}: {metrics['anomalies_found']} anomalies in {metrics['execution_time']}ms")
-    
+
     return performance_metrics
 
 # Usage
@@ -343,17 +343,17 @@ performance = analyze_algorithm_performance(results)
 ```python
 def compare_ensemble_vs_individual(ensemble_result, individual_results):
     """Compare ensemble performance to individual algorithms."""
-    
+
     ensemble_anomalies = ensemble_result['n_anomalies']
     ensemble_rate = ensemble_result['anomaly_rate']
-    
+
     individual_rates = [r['anomaly_rate'] for r in individual_results.values()]
     avg_individual_rate = sum(individual_rates) / len(individual_rates)
-    
+
     print(f"Ensemble anomaly rate: {ensemble_rate:.1%}")
     print(f"Average individual rate: {avg_individual_rate:.1%}")
     print(f"Ensemble improvement: {((ensemble_rate - avg_individual_rate) / avg_individual_rate * 100):+.1f}%")
-    
+
     return {
         'ensemble_rate': ensemble_rate,
         'individual_avg': avg_individual_rate,
@@ -369,25 +369,25 @@ def compare_ensemble_vs_individual(ensemble_result, individual_results):
 # Debug algorithm selection
 def debug_algorithm_selection(profile, recommendations):
     """Debug why certain algorithms were/weren't selected."""
-    
+
     print(f"Dataset characteristics:")
     print(f"  Samples: {profile.n_samples:,}")
     print(f"  Features: {profile.n_features}")
     print(f"  Complexity: {profile.complexity_score:.2f}")
     print(f"  Missing data: {profile.missing_values_ratio:.1%}")
-    
+
     print(f"\nAlgorithm recommendations:")
     for i, rec in enumerate(recommendations, 1):
         print(f"  {i}. {rec.algorithm} (confidence: {rec.confidence:.1%})")
         print(f"     Reasoning: {rec.reasoning}")
-        
+
     # Check for common issues
     if profile.n_samples < 1000:
         print("\n⚠️  Small dataset - consider neural networks may be excluded")
-    
+
     if profile.missing_values_ratio > 0.2:
         print("\n⚠️  High missing data - preprocessing recommended")
-    
+
     if profile.complexity_score > 0.8:
         print("\n⚠️  Complex dataset - consider neural networks or ensembles")
 ```
@@ -422,17 +422,17 @@ from pathlib import Path
 
 def batch_autonomous_detection(data_directory, output_directory):
     """Process multiple files with autonomous detection."""
-    
+
     data_files = glob.glob(f"{data_directory}/*.csv")
     results_summary = {}
-    
+
     for file_path in data_files:
         file_name = Path(file_path).stem
         print(f"Processing {file_name}...")
-        
+
         try:
             results = asyncio.run(service.detect_autonomous(file_path, config))
-            
+
             # Extract key metrics
             auto_results = results["autonomous_detection_results"]
             results_summary[file_name] = {
@@ -441,16 +441,16 @@ def batch_autonomous_detection(data_directory, output_directory):
                 'total_anomalies': auto_results.get('best_result', {}).get('summary', {}).get('total_anomalies', 0),
                 'processing_time': auto_results.get('processing_time', 0)
             }
-            
+
             # Save individual results
             output_file = f"{output_directory}/{file_name}_results.json"
             with open(output_file, 'w') as f:
                 json.dump(results, f, indent=2)
-                
+
         except Exception as e:
             print(f"Error processing {file_name}: {e}")
             results_summary[file_name] = {'success': False, 'error': str(e)}
-    
+
     return results_summary
 ```
 
@@ -462,28 +462,28 @@ from datetime import datetime
 
 def continuous_monitoring(data_source, check_interval=3600):
     """Continuously monitor data source for anomalies."""
-    
+
     while True:
         timestamp = datetime.now().isoformat()
         print(f"[{timestamp}] Running anomaly detection...")
-        
+
         try:
             results = asyncio.run(service.detect_autonomous(data_source, config))
-            
+
             auto_results = results["autonomous_detection_results"]
             if auto_results.get('success'):
                 best_result = auto_results.get('best_result', {})
                 anomaly_count = best_result.get('summary', {}).get('total_anomalies', 0)
-                
+
                 if anomaly_count > 0:
                     print(f"⚠️  {anomaly_count} anomalies detected!")
                     # Implement alerting logic here
                 else:
                     print("✅ No anomalies detected")
-            
+
         except Exception as e:
             print(f"❌ Detection failed: {e}")
-        
+
         time.sleep(check_interval)
 ```
 

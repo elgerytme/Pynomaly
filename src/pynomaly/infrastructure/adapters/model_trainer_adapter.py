@@ -6,12 +6,10 @@ Pynomaly training and evaluation systems.
 
 from __future__ import annotations
 
-import asyncio
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
 import numpy as np
-import pandas as pd
 
 from pynomaly.application.services.training_automation_service import ModelTrainer
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector
@@ -50,9 +48,9 @@ class ModelTrainerAdapter(ModelTrainer):
 
     def __init__(
         self,
-        train_detector_use_case: Optional[TrainDetectorUseCase] = None,
-        detect_anomalies_use_case: Optional[DetectAnomaliesUseCase] = None,
-        evaluate_model_use_case: Optional[EvaluateModelUseCase] = None,
+        train_detector_use_case: TrainDetectorUseCase | None = None,
+        detect_anomalies_use_case: DetectAnomaliesUseCase | None = None,
+        evaluate_model_use_case: EvaluateModelUseCase | None = None,
     ):
         self.train_detector_use_case = train_detector_use_case
         self.detect_anomalies_use_case = detect_anomalies_use_case
@@ -63,7 +61,7 @@ class ModelTrainerAdapter(ModelTrainer):
             logger.warning("Use cases not available, using fallback implementations")
 
     async def train(
-        self, detector: Detector, dataset: Dataset, parameters: Dict[str, Any]
+        self, detector: Detector, dataset: Dataset, parameters: dict[str, Any]
     ) -> DetectionResult:
         """Train model with given parameters."""
         try:
@@ -98,8 +96,8 @@ class ModelTrainerAdapter(ModelTrainer):
         self,
         detector: Detector,
         dataset: Dataset,
-        validation_data: Optional[Dataset] = None,
-    ) -> Dict[str, float]:
+        validation_data: Dataset | None = None,
+    ) -> dict[str, float]:
         """Evaluate trained model."""
         try:
             if self.evaluate_model_use_case:
@@ -133,7 +131,7 @@ class ModelTrainerAdapter(ModelTrainer):
             }
 
     async def _fallback_train(
-        self, detector: Detector, dataset: Dataset, parameters: Dict[str, Any]
+        self, detector: Detector, dataset: Dataset, parameters: dict[str, Any]
     ) -> DetectionResult:
         """Fallback training implementation."""
         logger.info(f"Using fallback training for {detector.algorithm_name}")
@@ -180,8 +178,8 @@ class ModelTrainerAdapter(ModelTrainer):
         self,
         detector: Detector,
         dataset: Dataset,
-        validation_data: Optional[Dataset] = None,
-    ) -> Dict[str, float]:
+        validation_data: Dataset | None = None,
+    ) -> dict[str, float]:
         """Fallback evaluation implementation."""
         logger.info(f"Using fallback evaluation for {detector.algorithm_name}")
 
@@ -273,7 +271,7 @@ class ModelTrainerAdapter(ModelTrainer):
 
     async def validate_model(
         self, detector: Detector, dataset: Dataset, validation_split: float = 0.2
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Perform model validation with train/validation split."""
 
         if not SKLEARN_AVAILABLE:
@@ -315,7 +313,7 @@ class ModelTrainerAdapter(ModelTrainer):
 
     async def cross_validate(
         self, detector: Detector, dataset: Dataset, cv_folds: int = 5
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Perform cross-validation evaluation."""
 
         if not SKLEARN_AVAILABLE:
@@ -396,7 +394,7 @@ class ModelTrainerAdapter(ModelTrainer):
             "CBLOF",
         ]
 
-    def get_algorithm_info(self, algorithm_name: str) -> Dict[str, Any]:
+    def get_algorithm_info(self, algorithm_name: str) -> dict[str, Any]:
         """Get information about a specific algorithm."""
         # This would query the algorithm registry for detailed info
         algorithm_info = {

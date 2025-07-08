@@ -363,29 +363,29 @@ if __name__ == "__main__":
 
     async def _save_onnx_model(self, detector: DetectorProtocol, model_path: Path) -> None:
         """Save model in ONNX format.
-        
+
         Args:
             detector: Detector to save
             model_path: Path to save ONNX model
         """
         from pynomaly.infrastructure.config.feature_flags import feature_flags
-        
+
         # Check if deep learning is enabled
         if not feature_flags.is_enabled("deep_learning"):
             raise RuntimeError("Deep learning features are disabled. Enable with PYNOMALY_DEEP_LEARNING=true")
-        
+
         try:
             # Try to get PyTorch model from detector
             if hasattr(detector, '_model') and detector._model is not None:
                 import torch
                 import torch.onnx
-                
+
                 # Get model and create dummy input
                 model = detector._model
-                
+
                 # Create dummy input based on model's expected input shape
                 dummy_input = self._create_dummy_input(detector)
-                
+
                 # Export to ONNX
                 torch.onnx.export(
                     model,
@@ -401,30 +401,30 @@ if __name__ == "__main__":
             else:
                 # For non-PyTorch models, create a stub ONNX model
                 await self._create_stub_onnx_model(detector, model_path)
-                
+
         except ImportError as e:
             raise RuntimeError(f"ONNX export requires PyTorch and ONNX libraries: {e}")
         except Exception as e:
             raise RuntimeError(f"Failed to export model to ONNX: {e}")
-    
+
     def _create_dummy_input(self, detector: DetectorProtocol) -> torch.Tensor:
         """Create dummy input for ONNX export.
-        
+
         Args:
             detector: Detector to create input for
-            
+
         Returns:
             Dummy input tensor
         """
         import torch
-        
+
         # Default input shape - can be overridden by detector
         input_shape = getattr(detector, '_input_shape', (1, 10))
         return torch.randn(input_shape)
-    
+
     async def _create_stub_onnx_model(self, detector: DetectorProtocol, model_path: Path) -> None:
         """Create a stub ONNX model for non-PyTorch detectors.
-        
+
         Args:
             detector: Detector to create stub for
             model_path: Path to save stub model
@@ -432,7 +432,7 @@ if __name__ == "__main__":
         # Create a simple stub ONNX model that can be loaded later
         # This is a minimal implementation for fast tests
         import json
-        
+
         stub_data = {
             "model_type": "stub",
             "detector_name": detector.name,
@@ -440,7 +440,7 @@ if __name__ == "__main__":
             "parameters": detector.parameters,
             "message": "This is a stub ONNX model. Full ONNX export requires PyTorch-based models."
         }
-        
+
         # Save as JSON stub with .onnx extension
         with open(model_path, 'w') as f:
             json.dump(stub_data, f, indent=2)

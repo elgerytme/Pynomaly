@@ -1,25 +1,22 @@
 """Test cases for advanced data processing pipeline."""
 
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
 import pytest
-from sklearn.impute import KNNImputer, SimpleImputer
-from sklearn.preprocessing import RobustScaler, StandardScaler
-
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.exceptions import DataValidationError
 from pynomaly.infrastructure.data_processing.advanced_data_pipeline import (
     AdvancedDataPipeline,
     EncodingMethod,
     ImputationStrategy,
-    PreprocessingStep,
     ProcessingConfig,
     ProcessingReport,
     ScalingMethod,
     ValidationRule,
 )
+from sklearn.impute import KNNImputer
 
 
 class TestProcessingConfig:

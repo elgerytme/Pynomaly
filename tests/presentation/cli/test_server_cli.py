@@ -10,9 +10,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 import requests
-from typer.testing import CliRunner
-
 from pynomaly.presentation.cli.server import app
+from typer.testing import CliRunner
 
 
 class TestServerCLI:

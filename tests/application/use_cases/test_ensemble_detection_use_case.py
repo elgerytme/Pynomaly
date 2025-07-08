@@ -1,12 +1,10 @@
 """Comprehensive test suite for ensemble detection use case."""
 
-from unittest.mock import AsyncMock, Mock, patch
-from uuid import uuid4
+from unittest.mock import AsyncMock, Mock
 
 import numpy as np
 import pandas as pd
 import pytest
-
 from pynomaly.application.use_cases.ensemble_detection_use_case import (
     DetectorPerformanceMetrics,
     EnsembleDetectionRequest,
@@ -14,11 +12,9 @@ from pynomaly.application.use_cases.ensemble_detection_use_case import (
     EnsembleDetectionUseCase,
     EnsembleOptimizationObjective,
     EnsembleOptimizationRequest,
-    EnsembleOptimizationResponse,
     VotingStrategy,
 )
 from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.domain.exceptions import ValidationError
 
 
 class TestEnsembleDetectionUseCase:

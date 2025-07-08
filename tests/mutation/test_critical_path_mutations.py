@@ -1,16 +1,12 @@
 """Enhanced mutation testing for critical code paths in Pynomaly."""
 
-import ast
 import inspect
 import json
-import sys
 import tempfile
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
-from unittest.mock import Mock, patch
+from collections.abc import Callable
+from typing import Any
 
 import numpy as np
-import pandas as pd
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
@@ -23,7 +19,7 @@ class MutationOperator:
         self.name = name
         self.description = description
 
-    def apply(self, code: str) -> List[str]:
+    def apply(self, code: str) -> list[str]:
         """Apply mutation operator to code and return list of mutants."""
         raise NotImplementedError
 
@@ -45,7 +41,7 @@ class ArithmeticMutator(MutationOperator):
             "**": ["*", "/"],
         }
 
-    def apply(self, code: str) -> List[str]:
+    def apply(self, code: str) -> list[str]:
         """Generate mutants by changing arithmetic operators."""
         mutants = []
 
@@ -75,7 +71,7 @@ class ComparisonMutator(MutationOperator):
             "!=": ["==", "<", ">", "<=", ">="],
         }
 
-    def apply(self, code: str) -> List[str]:
+    def apply(self, code: str) -> list[str]:
         """Generate mutants by changing comparison operators."""
         mutants = []
 
@@ -96,7 +92,7 @@ class LogicalMutator(MutationOperator):
         super().__init__("logical", "Mutates logical operators (and, or, not)")
         self.mutations = {" and ": [" or "], " or ": [" and "], "not ": [""]}
 
-    def apply(self, code: str) -> List[str]:
+    def apply(self, code: str) -> list[str]:
         """Generate mutants by changing logical operators."""
         mutants = []
 
@@ -116,7 +112,7 @@ class ConstantMutator(MutationOperator):
     def __init__(self):
         super().__init__("constant", "Mutates constants (numbers and strings)")
 
-    def apply(self, code: str) -> List[str]:
+    def apply(self, code: str) -> list[str]:
         """Generate mutants by changing constants."""
         mutants = []
 
@@ -164,7 +160,7 @@ class MutationTester:
         except OSError:
             return ""
 
-    def generate_mutants(self, code: str) -> Dict[str, List[str]]:
+    def generate_mutants(self, code: str) -> dict[str, list[str]]:
         """Generate all possible mutants for given code."""
         mutants_by_operator = {}
 
@@ -176,7 +172,7 @@ class MutationTester:
         return mutants_by_operator
 
     def test_mutant_with_original_tests(
-        self, original_func: Callable, mutant_code: str, test_cases: List[Dict]
+        self, original_func: Callable, mutant_code: str, test_cases: list[dict]
     ) -> bool:
         """Test if mutant is killed by existing test cases."""
         try:
@@ -331,7 +327,7 @@ class TestCriticalPathMutations:
         """Test mutations in algorithm selection logic."""
 
         def select_best_algorithm(
-            algorithms: List[str], performance_scores: Dict[str, float]
+            algorithms: list[str], performance_scores: dict[str, float]
         ) -> str:
             if not algorithms:
                 return "IsolationForest"  # Default
@@ -441,7 +437,7 @@ class TestCriticalPathMutations:
     def test_error_handling_mutations(self, mutation_tester):
         """Test mutations in error handling logic."""
 
-        def safe_division(a: float, b: float) -> Optional[float]:
+        def safe_division(a: float, b: float) -> float | None:
             try:
                 if b == 0:
                     return None
@@ -501,7 +497,7 @@ class TestCriticalPathMutations:
         """Property-based mutation testing for algorithm behavior."""
 
         def calculate_outlier_score(
-            data_point: List[float], dataset: List[List[float]]
+            data_point: list[float], dataset: list[list[float]]
         ) -> float:
             """Calculate simple outlier score based on distance from mean."""
             if not dataset or not data_point:
@@ -542,7 +538,7 @@ class TestCriticalPathMutations:
     def test_configuration_validation_mutations(self, mutation_tester):
         """Test mutations in configuration validation."""
 
-        def validate_config(config: Dict[str, Any]) -> bool:
+        def validate_config(config: dict[str, Any]) -> bool:
             """Validate algorithm configuration."""
             if not isinstance(config, dict):
                 return False

@@ -41,7 +41,7 @@ const createInput = ({
 }) => {
   const container = document.createElement('div');
   container.className = `form-field ${fullWidth ? 'w-full' : ''}`;
-  
+
   // Create label
   const labelElement = document.createElement('label');
   labelElement.htmlFor = id;
@@ -54,7 +54,7 @@ const createInput = ({
     requiredSpan.setAttribute('aria-label', 'required');
     labelElement.appendChild(requiredSpan);
   }
-  
+
   // Create input
   const input = document.createElement('input');
   input.type = type;
@@ -64,14 +64,14 @@ const createInput = ({
   input.placeholder = placeholder;
   input.disabled = disabled;
   input.required = required;
-  
+
   // Size classes
   const sizeClasses = {
     sm: 'px-3 py-1.5 text-sm',
     base: 'px-3 py-2 text-base',
     lg: 'px-4 py-3 text-lg',
   };
-  
+
   // Base input classes
   const inputClasses = [
     'block',
@@ -90,7 +90,7 @@ const createInput = ({
     'duration-200',
     sizeClasses[size],
   ];
-  
+
   // Error state classes
   if (error) {
     inputClasses.push(
@@ -103,9 +103,9 @@ const createInput = ({
   } else {
     inputClasses.push('border-gray-300');
   }
-  
+
   input.className = inputClasses.join(' ');
-  
+
   // Accessibility attributes
   const describedBy = [];
   if (helpText) describedBy.push(`${id}-help`);
@@ -116,11 +116,11 @@ const createInput = ({
   if (error) {
     input.setAttribute('aria-invalid', 'true');
   }
-  
+
   // Assemble the component
   container.appendChild(labelElement);
   container.appendChild(input);
-  
+
   // Add help text
   if (helpText) {
     const helpElement = document.createElement('p');
@@ -129,7 +129,7 @@ const createInput = ({
     helpElement.textContent = helpText;
     container.appendChild(helpElement);
   }
-  
+
   // Add error message
   if (error) {
     const errorElement = document.createElement('p');
@@ -139,7 +139,7 @@ const createInput = ({
     errorElement.textContent = error;
     container.appendChild(errorElement);
   }
-  
+
   return container;
 };
 
@@ -159,7 +159,7 @@ const createSelect = ({
 }) => {
   const container = document.createElement('div');
   container.className = `form-field ${fullWidth ? 'w-full' : ''}`;
-  
+
   // Create label
   const labelElement = document.createElement('label');
   labelElement.htmlFor = id;
@@ -172,7 +172,7 @@ const createSelect = ({
     requiredSpan.setAttribute('aria-label', 'required');
     labelElement.appendChild(requiredSpan);
   }
-  
+
   // Create select
   const select = document.createElement('select');
   select.id = id;
@@ -180,7 +180,7 @@ const createSelect = ({
   select.value = value;
   select.disabled = disabled;
   select.required = required;
-  
+
   // Base select classes
   const selectClasses = [
     'block',
@@ -200,7 +200,7 @@ const createSelect = ({
     'bg-white',
     'text-base',
   ];
-  
+
   // Error state classes
   if (error) {
     selectClasses.push(
@@ -212,9 +212,9 @@ const createSelect = ({
   } else {
     selectClasses.push('border-gray-300');
   }
-  
+
   select.className = selectClasses.join(' ');
-  
+
   // Add placeholder option
   if (placeholder) {
     const placeholderOption = document.createElement('option');
@@ -224,7 +224,7 @@ const createSelect = ({
     placeholderOption.selected = !value;
     select.appendChild(placeholderOption);
   }
-  
+
   // Add options
   options.forEach(option => {
     const optionElement = document.createElement('option');
@@ -233,7 +233,7 @@ const createSelect = ({
     optionElement.selected = optionElement.value === value;
     select.appendChild(optionElement);
   });
-  
+
   // Accessibility attributes
   const describedBy = [];
   if (helpText) describedBy.push(`${id}-help`);
@@ -244,11 +244,11 @@ const createSelect = ({
   if (error) {
     select.setAttribute('aria-invalid', 'true');
   }
-  
+
   // Assemble the component
   container.appendChild(labelElement);
   container.appendChild(select);
-  
+
   // Add help text
   if (helpText) {
     const helpElement = document.createElement('p');
@@ -257,7 +257,7 @@ const createSelect = ({
     helpElement.textContent = helpText;
     container.appendChild(helpElement);
   }
-  
+
   // Add error message
   if (error) {
     const errorElement = document.createElement('p');
@@ -267,7 +267,7 @@ const createSelect = ({
     errorElement.textContent = error;
     container.appendChild(errorElement);
   }
-  
+
   return container;
 };
 
@@ -287,7 +287,7 @@ const createTextarea = ({
 }) => {
   const container = document.createElement('div');
   container.className = `form-field ${fullWidth ? 'w-full' : ''}`;
-  
+
   // Create label
   const labelElement = document.createElement('label');
   labelElement.htmlFor = id;
@@ -300,7 +300,7 @@ const createTextarea = ({
     requiredSpan.setAttribute('aria-label', 'required');
     labelElement.appendChild(requiredSpan);
   }
-  
+
   // Create textarea
   const textarea = document.createElement('textarea');
   textarea.id = id;
@@ -310,7 +310,7 @@ const createTextarea = ({
   textarea.disabled = disabled;
   textarea.required = required;
   textarea.rows = rows;
-  
+
   // Base textarea classes
   const textareaClasses = [
     'block',
@@ -330,7 +330,7 @@ const createTextarea = ({
     'resize-vertical',
     'text-base',
   ];
-  
+
   // Error state classes
   if (error) {
     textareaClasses.push(
@@ -343,9 +343,9 @@ const createTextarea = ({
   } else {
     textareaClasses.push('border-gray-300');
   }
-  
+
   textarea.className = textareaClasses.join(' ');
-  
+
   // Accessibility attributes
   const describedBy = [];
   if (helpText) describedBy.push(`${id}-help`);
@@ -356,11 +356,11 @@ const createTextarea = ({
   if (error) {
     textarea.setAttribute('aria-invalid', 'true');
   }
-  
+
   // Assemble the component
   container.appendChild(labelElement);
   container.appendChild(textarea);
-  
+
   // Add help text
   if (helpText) {
     const helpElement = document.createElement('p');
@@ -369,7 +369,7 @@ const createTextarea = ({
     helpElement.textContent = helpText;
     container.appendChild(helpElement);
   }
-  
+
   // Add error message
   if (error) {
     const errorElement = document.createElement('p');
@@ -379,7 +379,7 @@ const createTextarea = ({
     errorElement.textContent = error;
     container.appendChild(errorElement);
   }
-  
+
   return container;
 };
 
@@ -388,13 +388,13 @@ const createCompleteForm = () => {
   const form = document.createElement('form');
   form.className = 'max-w-md mx-auto space-y-6 p-6 bg-white rounded-lg shadow-lg';
   form.setAttribute('novalidate', '');
-  
+
   // Form title
   const title = document.createElement('h2');
   title.className = 'text-2xl font-bold text-gray-900 mb-6';
   title.textContent = 'Dataset Configuration';
   form.appendChild(title);
-  
+
   // Dataset name input
   const nameField = createInput({
     id: 'dataset-name',
@@ -404,7 +404,7 @@ const createCompleteForm = () => {
     helpText: 'A descriptive name for your dataset',
   });
   form.appendChild(nameField);
-  
+
   // Algorithm selection
   const algorithmField = createSelect({
     id: 'algorithm',
@@ -419,7 +419,7 @@ const createCompleteForm = () => {
     helpText: 'Choose the anomaly detection algorithm',
   });
   form.appendChild(algorithmField);
-  
+
   // Contamination rate
   const contaminationField = createInput({
     id: 'contamination',
@@ -429,7 +429,7 @@ const createCompleteForm = () => {
     helpText: 'Expected proportion of anomalies (0.0 to 0.5)',
   });
   form.appendChild(contaminationField);
-  
+
   // Description
   const descriptionField = createTextarea({
     id: 'description',
@@ -439,35 +439,35 @@ const createCompleteForm = () => {
     helpText: 'Optional description of the dataset and analysis objectives',
   });
   form.appendChild(descriptionField);
-  
+
   // Buttons
   const buttonGroup = document.createElement('div');
   buttonGroup.className = 'flex gap-3 pt-4';
-  
+
   const submitButton = document.createElement('button');
   submitButton.type = 'submit';
   submitButton.className = 'flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors';
   submitButton.textContent = 'Create Dataset';
-  
+
   const cancelButton = document.createElement('button');
   cancelButton.type = 'button';
   cancelButton.className = 'px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors';
   cancelButton.textContent = 'Cancel';
-  
+
   buttonGroup.appendChild(submitButton);
   buttonGroup.appendChild(cancelButton);
   form.appendChild(buttonGroup);
-  
+
   // Form validation
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    
+
     // Simple validation example
     const nameInput = form.querySelector('#dataset-name');
     const algorithmSelect = form.querySelector('#algorithm');
-    
+
     let hasErrors = false;
-    
+
     // Remove existing errors
     form.querySelectorAll('[role="alert"]').forEach(el => el.remove());
     form.querySelectorAll('[aria-invalid="true"]').forEach(el => {
@@ -475,38 +475,38 @@ const createCompleteForm = () => {
       el.className = el.className.replace(/border-red-\d+|text-red-\d+|focus:ring-red-\d+|focus:border-red-\d+/g, '');
       el.className += ' border-gray-300';
     });
-    
+
     // Validate name
     if (!nameInput.value.trim()) {
       hasErrors = true;
       nameInput.setAttribute('aria-invalid', 'true');
       nameInput.className = nameInput.className.replace('border-gray-300', 'border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500');
-      
+
       const errorElement = document.createElement('p');
       errorElement.className = 'mt-1 text-sm text-red-600';
       errorElement.setAttribute('role', 'alert');
       errorElement.textContent = 'Dataset name is required';
       nameInput.parentNode.appendChild(errorElement);
     }
-    
+
     // Validate algorithm
     if (!algorithmSelect.value) {
       hasErrors = true;
       algorithmSelect.setAttribute('aria-invalid', 'true');
       algorithmSelect.className = algorithmSelect.className.replace('border-gray-300', 'border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500');
-      
+
       const errorElement = document.createElement('p');
       errorElement.className = 'mt-1 text-sm text-red-600';
       errorElement.setAttribute('role', 'alert');
       errorElement.textContent = 'Please select an algorithm';
       algorithmSelect.parentNode.appendChild(errorElement);
     }
-    
+
     if (!hasErrors) {
       alert('Form submitted successfully!');
     }
   });
-  
+
   return form;
 };
 
@@ -616,7 +616,7 @@ export const FormInputSizes = {
   render: () => {
     const container = document.createElement('div');
     container.className = 'space-y-4';
-    
+
     const sizes = ['sm', 'base', 'lg'];
     sizes.forEach(size => {
       const input = createInput({
@@ -626,7 +626,7 @@ export const FormInputSizes = {
       });
       container.appendChild(input);
     });
-    
+
     return container;
   },
   parameters: {

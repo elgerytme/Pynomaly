@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 from uuid import uuid4
 
 import pytest
-
 from pynomaly.domain.entities.alert import Alert
 from pynomaly.domain.entities.cost_optimization import CostOptimization
 from pynomaly.domain.entities.dashboard import Dashboard

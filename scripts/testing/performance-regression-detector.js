@@ -21,7 +21,7 @@ class PerformanceRegressionDetector {
       bundleSize: 0.1,    // 10% bundle size increase
       ...options.thresholds
     };
-    
+
     this.analysis = {
       timestamp: new Date().toISOString(),
       regressions: [],
@@ -33,11 +33,12 @@ class PerformanceRegressionDetector {
   }
 
   async detect() {
-    console.log('= Starting performance regression detection...');
-    
+    console.log('=
+ Starting performance regression detection...');
+
     try {
       await fs.mkdir(this.outputDir, { recursive: true });
-      
+
       // Load baseline data
       const baseline = await this.loadBaseline();
       if (!baseline) {
@@ -45,32 +46,32 @@ class PerformanceRegressionDetector {
         await this.saveAsBaseline();
         return this.analysis;
       }
-      
+
       // Load current results
       const current = await this.loadCurrentResults();
       if (!current) {
         throw new Error('No current performance results found');
       }
-      
+
       // Compare metrics
       await this.comparePerformanceScores(baseline, current);
       await this.compareCoreWebVitals(baseline, current);
       await this.compareBundleSizes(baseline, current);
-      
+
       // Generate analysis summary
       this.generateSummary();
-      
+
       // Save results
       await this.saveResults();
-      
+
       // Update baseline if no significant regressions
       if (this.shouldUpdateBaseline()) {
         await this.updateBaseline(current);
       }
-      
+
       console.log(` Regression detection completed. ${this.analysis.regressions.length} regressions found.`);
       return this.analysis;
-      
+
     } catch (error) {
       console.error('L Regression detection failed:', error);
       throw error;
@@ -99,14 +100,14 @@ class PerformanceRegressionDetector {
 
   async comparePerformanceScores(baseline, current) {
     console.log('=Ê Comparing Lighthouse performance scores...');
-    
+
     // Compare overall performance scores
     for (const currentPage of current.testPages) {
       const baselinePage = baseline.testPages?.find(p => p.name === currentPage.name);
       if (!baselinePage) continue;
 
       const categories = ['performance', 'accessibility', 'bestPractices', 'seo', 'pwa'];
-      
+
       for (const category of categories) {
         const baselineScore = baselinePage.scores[category];
         const currentScore = currentPage.scores[category];
@@ -144,9 +145,9 @@ class PerformanceRegressionDetector {
 
   async compareCoreWebVitals(baseline, current) {
     console.log('¡ Comparing Core Web Vitals...');
-    
+
     const metrics = ['lcp', 'fid', 'cls'];
-    
+
     for (const currentPage of current.testPages) {
       const baselinePage = baseline.testPages?.find(p => p.name === currentPage.name);
       if (!baselinePage) continue;
@@ -188,18 +189,18 @@ class PerformanceRegressionDetector {
 
   async compareBundleSizes(baseline, current) {
     console.log('=æ Comparing bundle sizes...');
-    
+
     if (!baseline.bundleAnalysis || !current.bundleAnalysis) {
       console.warn('Bundle analysis data not available for comparison');
       return;
     }
 
     const bundleTypes = ['javascript', 'css', 'images', 'fonts'];
-    
+
     for (const bundleType of bundleTypes) {
       const baselineBundle = baseline.bundleAnalysis[bundleType];
       const currentBundle = current.bundleAnalysis[bundleType];
-      
+
       if (!baselineBundle || !currentBundle || baselineBundle.error || currentBundle.error) {
         continue;
       }
@@ -239,7 +240,7 @@ class PerformanceRegressionDetector {
     const totalChanges = this.analysis.regressions.length + this.analysis.improvements.length;
     const regressionCount = this.analysis.regressions.length;
     const improvementCount = this.analysis.improvements.length;
-    
+
     // Calculate severity distribution
     const severityDistribution = {
       critical: 0,
@@ -290,13 +291,13 @@ class PerformanceRegressionDetector {
     // Save detailed analysis
     const analysisPath = path.join(this.outputDir, 'regression-analysis.json');
     await fs.writeFile(analysisPath, JSON.stringify(this.analysis, null, 2));
-    
+
     // Generate HTML report
     await this.generateHTMLReport();
-    
+
     // Generate CI-friendly summary
     await this.generateCISummary();
-    
+
     console.log('=Ä Regression analysis reports generated:');
     console.log(`  - JSON: ${analysisPath}`);
     console.log(`  - HTML: ${path.join(this.outputDir, 'regression-report.html')}`);
@@ -342,11 +343,11 @@ class PerformanceRegressionDetector {
             <h1>Performance Regression Analysis</h1>
             <p>Generated on ${new Date().toLocaleString()}</p>
         </div>
-        
+
         <div class="status-banner status-${this.analysis.summary.overallStatus}">
             ${this.analysis.recommendation}
         </div>
-        
+
         <div class="summary">
             <div class="card">
                 <h3>Regressions</h3>
@@ -369,7 +370,7 @@ class PerformanceRegressionDetector {
                 <p>Require immediate attention</p>
             </div>
         </div>
-        
+
         ${this.generateRegressionsTableHTML()}
         ${this.generateImprovementsTableHTML()}
     </div>
@@ -476,7 +477,7 @@ SEVERITY BREAKDOWN:
 - Major: ${this.analysis.summary.severityDistribution.major}
 - Minor: ${this.analysis.summary.severityDistribution.minor}
 
-${this.analysis.regressions.length > 0 ? 
+${this.analysis.regressions.length > 0 ?
   `\nCRITICAL REGRESSIONS:\n${this.analysis.regressions
     .filter(r => r.severity === 'critical')
     .map(r => `- ${r.type}: ${r.page || r.bundleType} ${r.category || r.metric} (${this.formatChange(r)})`)
@@ -508,7 +509,7 @@ Generated: ${new Date().toISOString()}
 
   shouldUpdateBaseline() {
     // Don't update baseline if there are critical or major regressions
-    return this.analysis.summary.severityDistribution.critical === 0 && 
+    return this.analysis.summary.severityDistribution.critical === 0 &&
            this.analysis.summary.severityDistribution.major <= 1;
   }
 
@@ -519,7 +520,7 @@ Generated: ${new Date().toISOString()}
       if (percentChange >= 10) return 'major';
       return 'minor';
     }
-    
+
     if (percentChange >= 20) return 'critical';
     if (percentChange >= 10) return 'major';
     return 'minor';
@@ -531,7 +532,7 @@ Generated: ${new Date().toISOString()}
       fid: { critical: 100, major: 50 },
       cls: { critical: 0.1, major: 0.05 }
     };
-    
+
     const thresholds = severityThresholds[metric];
     if (difference >= thresholds.critical) return 'critical';
     if (difference >= thresholds.major) return 'major';

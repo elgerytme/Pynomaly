@@ -4,7 +4,7 @@ import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 import typer
 from rich.console import Console
@@ -31,13 +31,13 @@ performance_app = typer.Typer(
 @performance_app.command()
 def benchmark(
     suite: str = typer.Option("quick", help="Benchmark suite to run"),
-    algorithms: Optional[List[str]] = typer.Option(
+    algorithms: Optional[list[str]] = typer.Option(
         None, help="Specific algorithms to benchmark"
     ),
     output_dir: Optional[str] = typer.Option(None, help="Output directory for results"),
     iterations: int = typer.Option(3, help="Number of benchmark iterations"),
     timeout: int = typer.Option(300, help="Timeout per test in seconds"),
-    export_format: List[str] = typer.Option(
+    export_format: list[str] = typer.Option(
         ["json"], help="Export formats for results"
     ),
 ):
@@ -322,11 +322,11 @@ def stress_test(
 
 @performance_app.command()
 def compare(
-    algorithms: Optional[List[str]] = typer.Option(None, help="Algorithms to compare"),
-    datasets: Optional[List[str]] = typer.Option(
+    algorithms: Optional[list[str]] = typer.Option(None, help="Algorithms to compare"),
+    datasets: Optional[list[str]] = typer.Option(
         None, help="Datasets to use for comparison"
     ),
-    metrics: Optional[List[str]] = typer.Option(None, help="Metrics to compare"),
+    metrics: Optional[list[str]] = typer.Option(None, help="Metrics to compare"),
     output_file: Optional[str] = typer.Option(
         None, help="Output file for comparison results"
     ),

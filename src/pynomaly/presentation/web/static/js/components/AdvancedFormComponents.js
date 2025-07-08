@@ -651,12 +651,12 @@ class MultiStepForm {
     this.container.innerHTML = `
       <div class="advanced-form" role="form" aria-labelledby="form-title">
         ${title ? `<h2 id="form-title" class="form-title">${title}</h2>` : ""}
-        
+
         <div class="form-progress" role="progressbar" aria-valuenow="${this.currentStep + 1}" aria-valuemin="1" aria-valuemax="${steps.length}">
           ${steps
             .map(
               (step, index) => `
-            <div class="progress-step ${index === this.currentStep ? "active" : ""} ${index < this.currentStep ? "completed" : ""}" 
+            <div class="progress-step ${index === this.currentStep ? "active" : ""} ${index < this.currentStep ? "completed" : ""}"
                  data-step="${index}">
               <div class="progress-indicator" aria-label="Step ${index + 1}">
                 ${index < this.currentStep ? "✓" : index + 1}
@@ -672,7 +672,7 @@ class MultiStepForm {
           ${steps
             .map(
               (step, index) => `
-            <div class="form-step ${index === this.currentStep ? "active" : ""}" 
+            <div class="form-step ${index === this.currentStep ? "active" : ""}"
                  data-step="${index}"
                  role="tabpanel"
                  aria-labelledby="step-${index}-title">
@@ -739,7 +739,7 @@ class MultiStepForm {
       case "url":
       case "tel":
         inputHTML = `
-          <input type="${field.type}" 
+          <input type="${field.type}"
                  ${commonAttributes}
                  value="${value}"
                  placeholder="${field.placeholder || ""}"
@@ -751,7 +751,7 @@ class MultiStepForm {
 
       case "number":
         inputHTML = `
-          <input type="number" 
+          <input type="number"
                  ${commonAttributes}
                  value="${value}"
                  placeholder="${field.placeholder || ""}"
@@ -793,7 +793,7 @@ class MultiStepForm {
               .map(
                 (option, index) => `
               <div class="checkbox-item">
-                <input type="checkbox" 
+                <input type="checkbox"
                        id="${field.name}-${index}"
                        name="${field.name}"
                        value="${option.value}"
@@ -815,7 +815,7 @@ class MultiStepForm {
               .map(
                 (option, index) => `
               <div class="radio-item">
-                <input type="radio" 
+                <input type="radio"
                        id="${field.name}-${index}"
                        name="${field.name}"
                        value="${option.value}"
@@ -832,7 +832,7 @@ class MultiStepForm {
 
       case "date":
         inputHTML = `
-          <input type="date" 
+          <input type="date"
                  ${commonAttributes}
                  value="${value}">
         `;
@@ -852,7 +852,7 @@ class MultiStepForm {
 
       default:
         inputHTML = `
-          <input type="text" 
+          <input type="text"
                  ${commonAttributes}
                  value="${value}"
                  placeholder="${field.placeholder || ""}">

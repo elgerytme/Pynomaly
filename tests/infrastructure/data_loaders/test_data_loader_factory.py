@@ -1,11 +1,9 @@
 """Test cases for data loader factory."""
 
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pandas as pd
 import pytest
-
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.exceptions import DataValidationError
 from pynomaly.infrastructure.data_loaders.data_loader_factory import (

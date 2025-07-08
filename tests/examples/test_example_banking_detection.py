@@ -3,7 +3,6 @@
 Simple test script to verify banking anomaly detection functionality.
 """
 
-import os
 import sys
 
 import numpy as np
@@ -30,7 +29,9 @@ def test_basic_anomaly_detection():
         deposits = pd.read_csv("examples/banking/datasets/deposits.csv")
         print(f"✓ Loaded {len(deposits)} deposit records")
     except FileNotFoundError:
-        print("✗ Deposit data not found. Run examples/banking/scripts/generate_sample_data.py first.")
+        print(
+            "✗ Deposit data not found. Run examples/banking/scripts/generate_sample_data.py first."
+        )
         return False
 
     # Simple feature engineering

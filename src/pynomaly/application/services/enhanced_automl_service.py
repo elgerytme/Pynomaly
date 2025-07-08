@@ -19,12 +19,7 @@ from pynomaly.domain.entities import Dataset, Detector
 from pynomaly.domain.exceptions import AutoMLError
 
 # Import base AutoML service
-from .automl_service import (
-    AlgorithmConfig,
-    AutoMLResult,
-    AutoMLService,
-    DatasetProfile,
-)
+from .automl_service import AlgorithmConfig, AutoMLResult, AutoMLService, DatasetProfile
 
 # Import advanced optimization components
 try:
@@ -36,13 +31,11 @@ try:
         MetaLearningConfig,
         MetaLearningStrategy,
         OptimizationConstraint,
+        OptimizationResult,
+        OptimizationStrategy,
     )
     from pynomaly.infrastructure.automl import (
         OptimizationObjective as AdvancedObjective,
-    )
-    from pynomaly.infrastructure.automl import (
-        OptimizationResult,
-        OptimizationStrategy,
     )
 
     ADVANCED_OPTIMIZER_AVAILABLE = True

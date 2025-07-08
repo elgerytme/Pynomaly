@@ -7,19 +7,16 @@ from pathlib import Path
 import click
 import numpy as np
 import pandas as pd
-from rich.console import Console
-from rich.panel import Panel
-from rich.progress import Progress, SpinnerColumn, TextColumn
-from rich.table import Table
-
 from pynomaly.application.services.explainable_ai_service import (
     ExplainableAIService,
     ExplanationConfiguration,
 )
-from pynomaly.domain.entities.explainable_ai import (
-    ExplanationMethod,
-)
+from pynomaly.domain.entities.explainable_ai import ExplanationMethod
 from pynomaly.infrastructure.config.container import Container
+from rich.console import Console
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
 
 console = Console()
 
@@ -586,7 +583,9 @@ def _display_instance_explanation(result, instance_index: int, audience: str):
         direction = (
             "↑"
             if importance.contribution_direction == "positive"
-            else "↓" if importance.contribution_direction == "negative" else "→"
+            else "↓"
+            if importance.contribution_direction == "negative"
+            else "→"
         )
         table.add_row(
             str(importance.rank),

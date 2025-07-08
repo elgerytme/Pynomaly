@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.exceptions import DomainError, ExplainabilityError
+from pynomaly.domain.entities import Dataset, Detector
 from pynomaly.domain.services.explainability_service import (
     CohortExplanation,
     ExplainabilityService,
@@ -27,10 +26,10 @@ class ExplainPredictionRequest:
     """Request for explaining a single prediction."""
 
     detector_id: str
-    instance_data: Union[Dict[str, Any], np.ndarray, pd.Series]
+    instance_data: dict[str, Any] | np.ndarray | pd.Series
     explanation_method: ExplanationMethod = ExplanationMethod.SHAP
-    background_dataset_id: Optional[str] = None
-    instance_id: Optional[str] = None
+    background_dataset_id: str | None = None
+    instance_id: str | None = None
     include_counterfactuals: bool = False
     max_features: int = 10
 
@@ -44,7 +43,7 @@ class ExplainModelRequest:
     explanation_method: ExplanationMethod = ExplanationMethod.SHAP
     sample_size: int = 1000
     include_interactions: bool = False
-    feature_groups: Optional[Dict[str, List[str]]] = None
+    feature_groups: dict[str, list[str]] | None = None
 
 
 @dataclass
@@ -53,9 +52,9 @@ class ExplainCohortRequest:
 
     detector_id: str
     dataset_id: str
-    instance_indices: List[int]
+    instance_indices: list[int]
     explanation_method: ExplanationMethod = ExplanationMethod.SHAP
-    cohort_name: Optional[str] = None
+    cohort_name: str | None = None
     similarity_threshold: float = 0.8
 
 
@@ -64,9 +63,9 @@ class CompareExplanationsRequest:
     """Request for comparing explanations across different methods."""
 
     detector_id: str
-    instance_data: Union[Dict[str, Any], np.ndarray, pd.Series]
-    explanation_methods: List[ExplanationMethod]
-    background_dataset_id: Optional[str] = None
+    instance_data: dict[str, Any] | np.ndarray | pd.Series
+    explanation_methods: list[ExplanationMethod]
+    background_dataset_id: str | None = None
     consistency_analysis: bool = True
 
 
@@ -75,12 +74,12 @@ class ExplainabilityResponse:
     """Response for explainability operations."""
 
     success: bool
-    explanation: Optional[
-        Union[LocalExplanation, GlobalExplanation, CohortExplanation]
-    ] = None
-    explanations: Optional[Dict[str, Any]] = None  # For multiple explanations
-    metadata: Optional[Dict[str, Any]] = None
-    error_message: Optional[str] = None
+    explanation: None | (
+        LocalExplanation | GlobalExplanation | CohortExplanation
+    ) = None
+    explanations: dict[str, Any] | None = None  # For multiple explanations
+    metadata: dict[str, Any] | None = None
+    error_message: str | None = None
     execution_time_seconds: float = 0.0
 
 
@@ -109,7 +108,7 @@ class ExplainabilityUseCase:
         self.dataset_repository = dataset_repository
         self.enable_caching = enable_caching
         self.cache_ttl_hours = cache_ttl_hours
-        self._explanation_cache: Dict[str, Any] = {}
+        self._explanation_cache: dict[str, Any] = {}
 
     async def explain_prediction(
         self, request: ExplainPredictionRequest
@@ -487,8 +486,8 @@ class ExplainabilityUseCase:
     # Helper methods
 
     async def _get_feature_names(
-        self, detector: Detector, dataset_id: Optional[str] = None
-    ) -> List[str]:
+        self, detector: Detector, dataset_id: str | None = None
+    ) -> list[str]:
         """Get feature names for the detector."""
         if dataset_id:
             dataset = await self.dataset_repository.get(dataset_id)
@@ -505,9 +504,9 @@ class ExplainabilityUseCase:
 
     def _prepare_instance_data(
         self,
-        instance_data: Union[Dict[str, Any], np.ndarray, pd.Series],
-        feature_names: List[str],
-    ) -> tuple[np.ndarray, List[str]]:
+        instance_data: dict[str, Any] | np.ndarray | pd.Series,
+        feature_names: list[str],
+    ) -> tuple[np.ndarray, list[str]]:
         """Prepare instance data for explanation."""
         if isinstance(instance_data, dict):
             # Ensure feature order matches feature_names
@@ -522,7 +521,7 @@ class ExplainabilityUseCase:
         else:
             raise ValueError(f"Unsupported instance data type: {type(instance_data)}")
 
-    async def _get_background_data(self, dataset_id: str) -> Optional[np.ndarray]:
+    async def _get_background_data(self, dataset_id: str) -> np.ndarray | None:
         """Get background data for explanation context."""
         dataset = await self.dataset_repository.get(dataset_id)
         if dataset:
@@ -551,7 +550,7 @@ class ExplainabilityUseCase:
         return (time.time() - timestamp) < cache_ttl_seconds
 
     def _cache_explanation(
-        self, cache_key: str, explanation: Any, metadata: Dict[str, Any]
+        self, cache_key: str, explanation: Any, metadata: dict[str, Any]
     ) -> None:
         """Cache explanation result."""
         import time
@@ -566,8 +565,8 @@ class ExplainabilityUseCase:
         self,
         detector: Detector,
         instance: np.ndarray,
-        feature_names: List[str],
-        background_data: Optional[np.ndarray],
+        feature_names: list[str],
+        background_data: np.ndarray | None,
     ) -> LocalExplanation:
         """Generate SHAP explanation with optimizations."""
         # This could be enhanced with specific SHAP optimizations
@@ -582,8 +581,8 @@ class ExplainabilityUseCase:
         self,
         detector: Detector,
         instance: np.ndarray,
-        feature_names: List[str],
-        background_data: Optional[np.ndarray],
+        feature_names: list[str],
+        background_data: np.ndarray | None,
     ) -> LocalExplanation:
         """Generate LIME explanation with optimizations."""
         return self.explainability_service.explain_instance(
@@ -598,7 +597,7 @@ class ExplainabilityUseCase:
         detector: Detector,
         explanation: LocalExplanation,
         request: ExplainPredictionRequest,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate metadata for explanation."""
         return {
             "detector_algorithm": (
@@ -621,7 +620,7 @@ class ExplainabilityUseCase:
         dataset: Dataset,
         explanation: GlobalExplanation,
         request: ExplainModelRequest,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate metadata for model explanation."""
         return {
             "detector_algorithm": (
@@ -641,7 +640,7 @@ class ExplainabilityUseCase:
         cohort_data: pd.DataFrame,
         explanation: CohortExplanation,
         request: ExplainCohortRequest,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate metadata for cohort explanation."""
         return {
             "cohort_size": len(cohort_data),
@@ -659,9 +658,9 @@ class ExplainabilityUseCase:
         self,
         detector: Detector,
         instance: np.ndarray,
-        feature_names: List[str],
+        feature_names: list[str],
         explanation: LocalExplanation,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Generate counterfactual explanations."""
         # Simplified counterfactual generation
         # In production, this would use specialized libraries like DiCE or Alibi
@@ -707,8 +706,8 @@ class ExplainabilityUseCase:
         return counterfactuals
 
     async def _calculate_feature_interactions(
-        self, detector: Detector, data: pd.DataFrame, feature_names: List[str]
-    ) -> Dict[str, float]:
+        self, detector: Detector, data: pd.DataFrame, feature_names: list[str]
+    ) -> dict[str, float]:
         """Calculate feature interaction effects."""
         # Simplified interaction calculation
         # In production, this would use more sophisticated methods
@@ -724,8 +723,8 @@ class ExplainabilityUseCase:
         return interactions
 
     async def _analyze_feature_groups(
-        self, explanation: GlobalExplanation, feature_groups: Dict[str, List[str]]
-    ) -> Dict[str, Dict[str, float]]:
+        self, explanation: GlobalExplanation, feature_groups: dict[str, list[str]]
+    ) -> dict[str, dict[str, float]]:
         """Analyze feature importance by groups."""
         group_analysis = {}
 
@@ -753,10 +752,9 @@ class ExplainabilityUseCase:
 
     async def _calculate_cohort_similarity(
         self, cohort_data: pd.DataFrame, threshold: float
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculate similarity matrix for cohort instances."""
         from scipy.spatial.distance import pdist, squareform
-        from scipy.stats import pearsonr
 
         # Calculate pairwise distances
         distances = pdist(cohort_data.values, metric="euclidean")
@@ -793,8 +791,8 @@ class ExplainabilityUseCase:
         }
 
     async def _analyze_explanation_consistency(
-        self, explanations: Dict[str, LocalExplanation]
-    ) -> Dict[str, Any]:
+        self, explanations: dict[str, LocalExplanation]
+    ) -> dict[str, Any]:
         """Analyze consistency across different explanation methods."""
         if len(explanations) < 2:
             return {"error": "Need at least 2 explanations for consistency analysis"}

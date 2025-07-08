@@ -118,17 +118,17 @@ done
 
 validate_environment() {
     log "Validating deployment environment..."
-    
+
     # Check if kubectl is available
     if ! command -v kubectl &> /dev/null; then
         error "kubectl is not installed or not in PATH"
     fi
-    
+
     # Check if kubectl context is set
     if ! kubectl config current-context &> /dev/null; then
         error "No kubectl context is set"
     fi
-    
+
     # Check if namespace exists
     if ! kubectl get namespace "$NAMESPACE" &> /dev/null; then
         warning "Namespace '$NAMESPACE' does not exist. Creating..."
@@ -136,18 +136,18 @@ validate_environment() {
             kubectl apply -f "$DEPLOY_DIR/kubernetes/namespace.yaml"
         fi
     fi
-    
+
     # Validate environment-specific requirements
     case "$ENVIRONMENT" in
         production)
             # Additional production validations
             log "Validating production environment..."
-            
+
             # Check for required secrets
             if ! kubectl get secret pynomaly-secrets -n "$NAMESPACE" &> /dev/null; then
                 error "Production secrets not found in namespace '$NAMESPACE'"
             fi
-            
+
             # Verify cluster resources
             local nodes_ready
             nodes_ready=$(kubectl get nodes --no-headers | grep -c "Ready")
@@ -165,15 +165,15 @@ validate_environment() {
             error "Unknown environment: $ENVIRONMENT"
             ;;
     esac
-    
+
     success "Environment validation completed"
 }
 
 validate_image() {
     log "Validating Docker image..."
-    
+
     local image_name="ghcr.io/pynomaly/pynomaly:$IMAGE_TAG"
-    
+
     # Check if image exists in registry
     if command -v docker &> /dev/null; then
         if ! docker manifest inspect "$image_name" &> /dev/null; then
@@ -182,7 +182,7 @@ validate_image() {
     else
         warning "Docker not available, skipping image validation"
     fi
-    
+
     success "Image validation completed"
 }
 
@@ -195,33 +195,33 @@ run_pre_deployment_tests() {
         warning "Skipping pre-deployment tests"
         return 0
     fi
-    
+
     log "Running pre-deployment tests..."
-    
+
     # API health check on current deployment
     if kubectl get deployment pynomaly-api -n "$NAMESPACE" &> /dev/null; then
         log "Checking current deployment health..."
-        
+
         local service_ip
         service_ip=$(kubectl get service pynomaly-api-internal -n "$NAMESPACE" -o jsonpath='{.spec.clusterIP}' 2>/dev/null || echo "")
-        
+
         if [[ -n "$service_ip" ]]; then
             # Run health check via port-forward
             kubectl port-forward service/pynomaly-api-internal 8080:8000 -n "$NAMESPACE" &
             local port_forward_pid=$!
-            
+
             sleep 5
-            
+
             if curl -f http://localhost:8080/api/v1/health &> /dev/null; then
                 success "Current deployment is healthy"
             else
                 warning "Current deployment health check failed"
             fi
-            
+
             kill $port_forward_pid 2>/dev/null || true
         fi
     fi
-    
+
     # Run unit tests
     log "Running unit tests..."
     if [[ -f "$PROJECT_ROOT/pyproject.toml" ]]; then
@@ -232,22 +232,22 @@ run_pre_deployment_tests() {
             python -m pytest tests/unit/ -x || error "Unit tests failed"
         fi
     fi
-    
+
     success "Pre-deployment tests completed"
 }
 
 backup_current_deployment() {
     log "Creating backup of current deployment..."
-    
+
     local backup_dir="$PROJECT_ROOT/backups/$(date +%Y%m%d_%H%M%S)"
     mkdir -p "$backup_dir"
-    
+
     # Backup current deployment manifests
     if kubectl get deployment pynomaly-api -n "$NAMESPACE" &> /dev/null; then
         kubectl get deployment pynomaly-api -n "$NAMESPACE" -o yaml > "$backup_dir/deployment.yaml"
         kubectl get service pynomaly-api-service -n "$NAMESPACE" -o yaml > "$backup_dir/service.yaml"
         kubectl get configmap pynomaly-config -n "$NAMESPACE" -o yaml > "$backup_dir/configmap.yaml"
-        
+
         success "Backup created at $backup_dir"
     else
         log "No existing deployment to backup"
@@ -260,82 +260,82 @@ backup_current_deployment() {
 
 deploy_database() {
     log "Deploying database components..."
-    
+
     if [[ "$DRY_RUN" == "true" ]]; then
         log "[DRY RUN] Would deploy database"
         return 0
     fi
-    
+
     # Apply database manifests
     kubectl apply -f "$DEPLOY_DIR/kubernetes/database-statefulset.yaml"
-    
+
     # Wait for database to be ready
     log "Waiting for database to be ready..."
     kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=database -n "$NAMESPACE" --timeout=300s
-    
+
     success "Database deployment completed"
 }
 
 deploy_redis() {
     log "Deploying Redis cache..."
-    
+
     if [[ "$DRY_RUN" == "true" ]]; then
         log "[DRY RUN] Would deploy Redis"
         return 0
     fi
-    
+
     # Apply Redis manifests
     kubectl apply -f "$DEPLOY_DIR/kubernetes/cache-deployment.yaml"
-    
+
     # Wait for Redis to be ready
     log "Waiting for Redis to be ready..."
     kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=cache -n "$NAMESPACE" --timeout=300s
-    
+
     success "Redis deployment completed"
 }
 
 deploy_api() {
     log "Deploying API application..."
-    
+
     # Update image tag in deployment manifest
     local temp_manifest="/tmp/pynomaly-deployment.yaml"
     local image_name="ghcr.io/pynomaly/pynomaly:$IMAGE_TAG"
-    
+
     # Create temporary manifest with updated image
     sed "s|image: pynomaly:production-latest|image: $image_name|g" \
         "$DEPLOY_DIR/kubernetes/production-deployment.yaml" > "$temp_manifest"
-    
+
     if [[ "$DRY_RUN" == "true" ]]; then
         log "[DRY RUN] Would deploy API with image: $image_name"
         cat "$temp_manifest" | grep -A 2 -B 2 "image:"
         rm -f "$temp_manifest"
         return 0
     fi
-    
+
     # Apply the deployment
     kubectl apply -f "$temp_manifest"
-    
+
     # Wait for rollout to complete
     log "Waiting for API deployment rollout..."
     kubectl rollout status deployment/pynomaly-api -n "$NAMESPACE" --timeout=600s
-    
+
     # Wait for pods to be ready
     kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=api -n "$NAMESPACE" --timeout=300s
-    
+
     # Clean up temporary manifest
     rm -f "$temp_manifest"
-    
+
     success "API deployment completed"
 }
 
 deploy_monitoring() {
     log "Deploying monitoring components..."
-    
+
     if [[ "$DRY_RUN" == "true" ]]; then
         log "[DRY RUN] Would deploy monitoring"
         return 0
     fi
-    
+
     # Apply monitoring manifests if they exist
     if [[ -f "$DEPLOY_DIR/kubernetes/monitoring-deployment.yaml" ]]; then
         kubectl apply -f "$DEPLOY_DIR/kubernetes/monitoring-deployment.yaml"
@@ -353,26 +353,26 @@ verify_deployment() {
     if [[ "$VERIFY_DEPLOYMENT" == "false" ]] || [[ "$DRY_RUN" == "true" ]]; then
         return 0
     fi
-    
+
     log "Verifying deployment..."
-    
+
     # Check pod status
     local ready_pods
     ready_pods=$(kubectl get pods -n "$NAMESPACE" -l app.kubernetes.io/component=api --no-headers | grep -c "Running" || echo "0")
-    
+
     if [[ "$ready_pods" -lt 1 ]]; then
         error "No API pods are running"
     fi
-    
+
     # Check service accessibility
     log "Checking service accessibility..."
-    
+
     # Port forward for testing
     kubectl port-forward service/pynomaly-api-internal 8081:8000 -n "$NAMESPACE" &
     local port_forward_pid=$!
-    
+
     sleep 10
-    
+
     # Health check
     if curl -f http://localhost:8081/api/v1/health &> /dev/null; then
         success "Health check passed"
@@ -380,51 +380,51 @@ verify_deployment() {
         kill $port_forward_pid 2>/dev/null || true
         error "Health check failed"
     fi
-    
+
     # API docs check
     if curl -f http://localhost:8081/api/v1/docs &> /dev/null; then
         success "API documentation accessible"
     else
         warning "API documentation check failed"
     fi
-    
+
     # OpenAPI schema check
     local endpoint_count
     endpoint_count=$(curl -s http://localhost:8081/api/v1/openapi.json | jq '.paths | length' 2>/dev/null || echo "0")
-    
+
     if [[ "$endpoint_count" -gt 100 ]]; then
         success "OpenAPI schema valid ($endpoint_count endpoints)"
     else
         warning "OpenAPI schema check failed or incomplete"
     fi
-    
+
     # Clean up port forward
     kill $port_forward_pid 2>/dev/null || true
-    
+
     success "Deployment verification completed"
 }
 
 post_deployment_tasks() {
     log "Running post-deployment tasks..."
-    
+
     if [[ "$DRY_RUN" == "true" ]]; then
         log "[DRY RUN] Would run post-deployment tasks"
         return 0
     fi
-    
+
     # Update deployment annotations
     kubectl annotate deployment pynomaly-api -n "$NAMESPACE" \
         deployment.kubernetes.io/revision-last-deployed="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
         deployment.kubernetes.io/image-tag="$IMAGE_TAG" \
         --overwrite
-    
+
     # Log deployment info
     log "Deployment Summary:"
     log "  Environment: $ENVIRONMENT"
     log "  Namespace: $NAMESPACE"
     log "  Image Tag: $IMAGE_TAG"
     log "  Replicas: $(kubectl get deployment pynomaly-api -n "$NAMESPACE" -o jsonpath='{.status.readyReplicas}')"
-    
+
     success "Post-deployment tasks completed"
 }
 
@@ -437,11 +437,11 @@ main() {
     log "Environment: $ENVIRONMENT"
     log "Namespace: $NAMESPACE"
     log "Image Tag: $IMAGE_TAG"
-    
+
     if [[ "$DRY_RUN" == "true" ]]; then
         warning "DRY RUN MODE - No changes will be made"
     fi
-    
+
     # Confirmation for production
     if [[ "$ENVIRONMENT" == "production" ]] && [[ "$FORCE_DEPLOY" == "false" ]] && [[ "$DRY_RUN" == "false" ]]; then
         echo -n "Are you sure you want to deploy to PRODUCTION? (yes/no): "
@@ -451,25 +451,25 @@ main() {
             exit 0
         fi
     fi
-    
+
     # Pre-deployment phase
     validate_environment
     validate_image
     run_pre_deployment_tests
     backup_current_deployment
-    
+
     # Deployment phase
     deploy_database
     deploy_redis
     deploy_api
     deploy_monitoring
-    
+
     # Post-deployment phase
     verify_deployment
     post_deployment_tasks
-    
+
     success "🚀 Deployment completed successfully!"
-    
+
     if [[ "$DRY_RUN" == "false" ]]; then
         log "Access your deployment:"
         log "  kubectl get services -n $NAMESPACE"

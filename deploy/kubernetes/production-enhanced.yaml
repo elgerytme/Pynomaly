@@ -73,23 +73,23 @@ data:
     global:
       scrape_interval: 15s
       evaluation_interval: 15s
-    
+
     rule_files:
       - "/etc/prometheus/alert_rules.yml"
-    
+
     alerting:
       alertmanagers:
         - static_configs:
             - targets:
               - alertmanager:9093
-    
+
     scrape_configs:
       - job_name: 'pynomaly-api'
         static_configs:
           - targets: ['pynomaly-api-internal:9090']
         metrics_path: '/metrics'
         scrape_interval: 30s
-        
+
       - job_name: 'pynomaly-worker'
         static_configs:
           - targets: ['pynomaly-worker-internal:9090']
@@ -108,7 +108,7 @@ data:
         annotations:
           summary: "High error rate in Pynomaly API"
           description: "Error rate is {{ $value }} errors per second"
-          
+
       - alert: PynomalyAPIHighLatency
         expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
         for: 5m
@@ -117,7 +117,7 @@ data:
         annotations:
           summary: "High latency in Pynomaly API"
           description: "95th percentile latency is {{ $value }} seconds"
-          
+
       - alert: PynomalyMemoryUsageHigh
         expr: container_memory_usage_bytes{pod=~"pynomaly-.*"} / container_spec_memory_limit_bytes > 0.9
         for: 10m
@@ -126,7 +126,7 @@ data:
         annotations:
           summary: "High memory usage in Pynomaly"
           description: "Memory usage is {{ $value | humanizePercentage }}"
-          
+
       - alert: PynomaliyCPUUsageHigh
         expr: rate(container_cpu_usage_seconds_total{pod=~"pynomaly-.*"}[5m]) / container_spec_cpu_quota * 100 > 90
         for: 10m
@@ -313,18 +313,18 @@ data:
   backup.sh: |
     #!/bin/bash
     set -euo pipefail
-    
+
     TIMESTAMP=$(date +%Y%m%d_%H%M%S)
     BACKUP_DIR="/backup"
     DB_HOST="${DATABASE_HOST}"
     DB_NAME="${DATABASE_NAME}"
     DB_USER="${DATABASE_USER}"
-    
+
     echo "Starting backup at $(date)"
-    
+
     # Create backup directory
     mkdir -p "${BACKUP_DIR}/${TIMESTAMP}"
-    
+
     # Database backup
     echo "Backing up database..."
     PGPASSWORD="${DATABASE_PASSWORD}" pg_dump \
@@ -335,15 +335,15 @@ data:
       --no-owner \
       --no-privileges \
       -f "${BACKUP_DIR}/${TIMESTAMP}/database.sql"
-    
+
     # Storage backup
     echo "Backing up storage..."
     tar -czf "${BACKUP_DIR}/${TIMESTAMP}/storage.tar.gz" -C /app/storage .
-    
+
     # Models backup
     echo "Backing up models..."
     tar -czf "${BACKUP_DIR}/${TIMESTAMP}/models.tar.gz" -C /app/models .
-    
+
     # Create metadata
     cat > "${BACKUP_DIR}/${TIMESTAMP}/metadata.json" << EOF
     {
@@ -356,32 +356,32 @@ data:
       "backup_version": "1.0"
     }
     EOF
-    
+
     # Cleanup old backups (keep last 7 days)
     find "${BACKUP_DIR}" -type d -mtime +7 -exec rm -rf {} \; 2>/dev/null || true
-    
+
     echo "Backup completed successfully at $(date)"
     echo "Backup location: ${BACKUP_DIR}/${TIMESTAMP}"
 
   restore.sh: |
     #!/bin/bash
     set -euo pipefail
-    
+
     if [ $# -ne 1 ]; then
       echo "Usage: $0 <backup_timestamp>"
       exit 1
     fi
-    
+
     TIMESTAMP="$1"
     BACKUP_DIR="/backup/${TIMESTAMP}"
-    
+
     if [ ! -d "${BACKUP_DIR}" ]; then
       echo "Backup directory ${BACKUP_DIR} not found"
       exit 1
     fi
-    
+
     echo "Starting restore from backup: ${TIMESTAMP}"
-    
+
     # Restore database
     echo "Restoring database..."
     PGPASSWORD="${DATABASE_PASSWORD}" psql \
@@ -389,15 +389,15 @@ data:
       -U "${DATABASE_USER}" \
       -d "${DATABASE_NAME}" \
       -f "${BACKUP_DIR}/database.sql"
-    
+
     # Restore storage
     echo "Restoring storage..."
     tar -xzf "${BACKUP_DIR}/storage.tar.gz" -C /app/storage
-    
+
     # Restore models
     echo "Restoring models..."
     tar -xzf "${BACKUP_DIR}/models.tar.gz" -C /app/models
-    
+
     echo "Restore completed successfully at $(date)"
 
 ---
@@ -665,7 +665,7 @@ data:
         mode: one
         action: pod-kill
         duration: "30s"
-        
+
     ---
     apiVersion: chaos-mesh.org/v1alpha1
     kind: Schedule

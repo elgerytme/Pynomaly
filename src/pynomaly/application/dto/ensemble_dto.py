@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -399,12 +399,12 @@ def create_ensemble_performance_from_dict(
 class EnsembleDetectionRequestDTO(BaseModel):
     """Request DTO for ensemble detection."""
 
-    detector_ids: List[str] = Field(
+    detector_ids: list[str] = Field(
         min_items=2,
         max_items=20,
         description="List of detector IDs to include in ensemble (2-20 detectors)",
     )
-    data: Union[List[List[float]], List[Dict[str, Any]]] = Field(
+    data: Union[list[list[float]], list[dict[str, Any]]] = Field(
         description="Input data as array of arrays or list of dictionaries"
     )
     voting_strategy: str = Field(
@@ -509,41 +509,41 @@ class EnsembleDetectionResponseDTO(BaseModel):
     """Response DTO for ensemble detection."""
 
     success: bool = Field(description="Whether the detection was successful")
-    predictions: List[int] = Field(
+    predictions: list[int] = Field(
         default_factory=list,
         description="Binary anomaly predictions (0=normal, 1=anomaly)",
     )
-    anomaly_scores: List[float] = Field(
+    anomaly_scores: list[float] = Field(
         default_factory=list, description="Continuous anomaly scores (0.0-1.0)"
     )
-    confidence_scores: List[float] = Field(
+    confidence_scores: list[float] = Field(
         default_factory=list, description="Prediction confidence levels"
     )
-    uncertainty_scores: List[float] = Field(
+    uncertainty_scores: list[float] = Field(
         default_factory=list, description="Prediction uncertainty estimates"
     )
-    consensus_scores: List[float] = Field(
+    consensus_scores: list[float] = Field(
         default_factory=list, description="Agreement scores among detectors"
     )
-    individual_results: Optional[Dict[str, List[float]]] = Field(
+    individual_results: Optional[dict[str, list[float]]] = Field(
         default=None, description="Individual detector results (if requested)"
     )
-    detector_weights: List[float] = Field(
+    detector_weights: list[float] = Field(
         default_factory=list, description="Weights used for each detector"
     )
     voting_strategy_used: str = Field(
         default="", description="Actual voting strategy used"
     )
-    ensemble_metrics: Dict[str, Any] = Field(
+    ensemble_metrics: dict[str, Any] = Field(
         default_factory=dict, description="Ensemble diversity and performance metrics"
     )
-    explanations: List[Dict[str, Any]] = Field(
+    explanations: list[dict[str, Any]] = Field(
         default_factory=list, description="Per-prediction explanations"
     )
     processing_time: float = Field(
         default=0.0, description="Total processing time in seconds"
     )
-    warnings: List[str] = Field(default_factory=list, description="Warning messages")
+    warnings: list[str] = Field(default_factory=list, description="Warning messages")
     error_message: Optional[str] = Field(
         default=None, description="Error message if detection failed"
     )
@@ -552,7 +552,7 @@ class EnsembleDetectionResponseDTO(BaseModel):
 class EnsembleOptimizationRequestDTO(BaseModel):
     """Request DTO for ensemble optimization."""
 
-    detector_ids: List[str] = Field(
+    detector_ids: list[str] = Field(
         min_items=2, description="Candidate detector IDs for ensemble"
     )
     validation_dataset_id: str = Field(
@@ -561,7 +561,7 @@ class EnsembleOptimizationRequestDTO(BaseModel):
     optimization_objective: str = Field(
         default="f1_score", description="Primary optimization objective"
     )
-    target_voting_strategies: List[str] = Field(
+    target_voting_strategies: list[str] = Field(
         default_factory=lambda: ["dynamic_selection"],
         description="Voting strategies to evaluate",
     )
@@ -636,25 +636,25 @@ class EnsembleOptimizationResponseDTO(BaseModel):
     """Response DTO for ensemble optimization."""
 
     success: bool = Field(description="Whether optimization was successful")
-    optimized_detector_ids: List[str] = Field(
+    optimized_detector_ids: list[str] = Field(
         default_factory=list, description="Optimized detector combination"
     )
     optimal_voting_strategy: str = Field(
         default="", description="Best voting strategy found"
     )
-    optimal_weights: List[float] = Field(
+    optimal_weights: list[float] = Field(
         default_factory=list, description="Optimized detector weights"
     )
-    ensemble_performance: Dict[str, float] = Field(
+    ensemble_performance: dict[str, float] = Field(
         default_factory=dict, description="Performance metrics on validation data"
     )
-    diversity_metrics: Dict[str, float] = Field(
+    diversity_metrics: dict[str, float] = Field(
         default_factory=dict, description="Ensemble diversity analysis"
     )
-    optimization_history: List[Dict[str, Any]] = Field(
+    optimization_history: list[dict[str, Any]] = Field(
         default_factory=list, description="Optimization process history"
     )
-    recommendations: List[str] = Field(
+    recommendations: list[str] = Field(
         default_factory=list, description="Optimization recommendations"
     )
     optimization_time: float = Field(
@@ -668,26 +668,26 @@ class EnsembleOptimizationResponseDTO(BaseModel):
 class EnsembleStatusResponseDTO(BaseModel):
     """Response DTO for ensemble system status."""
 
-    available_voting_strategies: List[Dict[str, Any]] = Field(
+    available_voting_strategies: list[dict[str, Any]] = Field(
         description="Available voting strategies with descriptions"
     )
-    available_optimization_objectives: List[Dict[str, Any]] = Field(
+    available_optimization_objectives: list[dict[str, Any]] = Field(
         description="Available optimization objectives with descriptions"
     )
-    system_capabilities: Dict[str, Any] = Field(
+    system_capabilities: dict[str, Any] = Field(
         description="System capabilities and limits"
     )
-    system_statistics: Dict[str, Any] = Field(description="Current system statistics")
+    system_statistics: dict[str, Any] = Field(description="Current system statistics")
 
 
 class EnsembleMetricsResponseDTO(BaseModel):
     """Response DTO for ensemble performance metrics."""
 
-    detector_performance_metrics: Dict[str, Dict[str, Any]] = Field(
+    detector_performance_metrics: dict[str, dict[str, Any]] = Field(
         description="Individual detector performance metrics"
     )
-    ensemble_statistics: Dict[str, Any] = Field(description="Ensemble-level statistics")
-    recent_optimizations: List[Dict[str, Any]] = Field(
+    ensemble_statistics: dict[str, Any] = Field(description="Ensemble-level statistics")
+    recent_optimizations: list[dict[str, Any]] = Field(
         description="Recent optimization runs"
     )
-    system_health: Dict[str, Any] = Field(description="System health indicators")
+    system_health: dict[str, Any] = Field(description="System health indicators")

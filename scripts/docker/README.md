@@ -363,7 +363,7 @@ Each environment uses its own Docker network:
    ```bash
    # Check port usage
    netstat -tulpn | grep :8000
-   
+
    # Use different port
    ./dev/run-dev.sh --port 8001
    ```
@@ -372,7 +372,7 @@ Each environment uses its own Docker network:
    ```bash
    # Stop and remove all containers
    ./prod/run-prod.sh --stop
-   
+
    # Clean up with force
    ./prod/run-prod.sh --clean
    ```
@@ -381,7 +381,7 @@ Each environment uses its own Docker network:
    ```bash
    # Check volume usage
    docker volume ls | grep pynomaly
-   
+
    # Clean up volumes (WARNING: Data loss)
    docker volume prune
    ```
@@ -390,7 +390,7 @@ Each environment uses its own Docker network:
    ```bash
    # Check networks
    docker network ls | grep pynomaly
-   
+
    # Recreate network
    docker network rm pynomaly-dev
    docker network create pynomaly-dev

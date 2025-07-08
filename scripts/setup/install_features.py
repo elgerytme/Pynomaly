@@ -7,11 +7,9 @@ This script helps users install only the features they need.
 
 import subprocess
 import sys
-from pathlib import Path
-from typing import Dict, List
 
 
-def run_command(cmd: List[str]) -> bool:
+def run_command(cmd: list[str]) -> bool:
     """Run a command and return True if successful."""
     try:
         result = subprocess.run(cmd, check=True, capture_output=True, text=True)
@@ -35,7 +33,7 @@ def main():
     print("=" * 50)
 
     # Feature definitions
-    features: Dict[str, Dict[str, str]] = {
+    features: dict[str, dict[str, str]] = {
         "Basic Features": {
             "minimal": "Core anomaly detection only",
             "standard": "Core + data formats (Parquet, Excel)",

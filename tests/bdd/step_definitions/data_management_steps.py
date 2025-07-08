@@ -8,9 +8,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
-from pytest_bdd import given, parsers, then, when
-
 from pynomaly.infrastructure.data_loaders import CSVLoader, ParquetLoader
+from pytest_bdd import given, parsers, then, when
 
 
 @pytest.fixture

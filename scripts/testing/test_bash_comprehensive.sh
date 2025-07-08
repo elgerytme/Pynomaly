@@ -12,12 +12,12 @@ echo ""
 run_test() {
     local test_name="$1"
     local command="$2"
-    
+
     echo "----------------------------------------"
     echo "Testing: $test_name"
     echo "Command: $command"
     echo "----------------------------------------"
-    
+
     if eval "$command"; then
         echo "✅ PASSED: $test_name"
         return 0
@@ -37,7 +37,7 @@ if run_test "Domain Layer Tests" "python3 -m pytest tests/domain/test_entities.p
     ((passed_tests++))
 fi
 
-# Test 2: Application Services Tests  
+# Test 2: Application Services Tests
 ((total_tests++))
 if run_test "Application Services Tests" "python3 -m pytest tests/application/test_services.py -v --tb=short"; then
     ((passed_tests++))
@@ -152,7 +152,7 @@ try:
 except Exception as e:
     print('⚠️ PyOD adapter failed:', str(e))
 
-# Test Sklearn adapter  
+# Test Sklearn adapter
 try:
     sklearn_adapter = SklearnAdapter('IsolationForest')
     print('✅ Sklearn adapter created:', sklearn_adapter.algorithm_name)

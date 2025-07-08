@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import typer
 from rich.console import Console
@@ -34,16 +34,18 @@ console = Console()
 @require_feature("advanced_automl")
 def recommend_for_dataset(
     dataset_path: Path = typer.Argument(..., help="Path to dataset file"),
-    samples: int | None = typer.Option(
+    samples: int
+    | None = typer.Option(
         None, "--samples", help="Number of samples (auto-detected if not provided)"
     ),
-    features: int | None = typer.Option(
+    features: int
+    | None = typer.Option(
         None, "--features", help="Number of features (auto-detected if not provided)"
     ),
-    min_accuracy: float | None = typer.Option(
-        0.7, "--min-accuracy", help="Minimum required accuracy"
-    ),
-    use_case: str | None = typer.Option(
+    min_accuracy: float
+    | None = typer.Option(0.7, "--min-accuracy", help="Minimum required accuracy"),
+    use_case: str
+    | None = typer.Option(
         None, "--use-case", help="Specific use case (e.g., fraud_detection)"
     ),
     difficulty: str = typer.Option(
@@ -54,9 +56,8 @@ def recommend_for_dataset(
     max_results: int = typer.Option(
         5, "--max-results", help="Maximum number of recommendations"
     ),
-    output: Path | None = typer.Option(
-        None, "--output", "-o", help="Save recommendations to file"
-    ),
+    output: Path
+    | None = typer.Option(None, "--output", "-o", help="Save recommendations to file"),
     format: str = typer.Option(
         "table", "--format", help="Output format (table/json/yaml)"
     ),
@@ -134,9 +135,8 @@ def recommend_similar(
     similarity_threshold: float = typer.Option(
         0.7, "--threshold", help="Minimum similarity threshold"
     ),
-    output: Path | None = typer.Option(
-        None, "--output", "-o", help="Save recommendations to file"
-    ),
+    output: Path
+    | None = typer.Option(None, "--output", "-o", help="Save recommendations to file"),
     format: str = typer.Option(
         "table", "--format", help="Output format (table/json/yaml)"
     ),
@@ -183,9 +183,8 @@ def predict_performance(
     dataset_path: Path = typer.Argument(..., help="Path to target dataset"),
     samples: int | None = typer.Option(None, "--samples", help="Number of samples"),
     features: int | None = typer.Option(None, "--features", help="Number of features"),
-    output: Path | None = typer.Option(
-        None, "--output", "-o", help="Save predictions to file"
-    ),
+    output: Path
+    | None = typer.Option(None, "--output", "-o", help="Save predictions to file"),
     format: str = typer.Option(
         "table", "--format", help="Output format (table/json/yaml)"
     ),
@@ -323,9 +322,8 @@ def train_models(
 @require_feature("advanced_automl")
 def analyze_patterns(
     days: int = typer.Option(30, "--days", help="Number of days to analyze"),
-    output: Path | None = typer.Option(
-        None, "--output", "-o", help="Save analysis to file"
-    ),
+    output: Path
+    | None = typer.Option(None, "--output", "-o", help="Save analysis to file"),
     format: str = typer.Option(
         "table", "--format", help="Output format (table/json/yaml)"
     ),
@@ -600,7 +598,7 @@ def _display_dataset_characteristics(characteristics: DatasetCharacteristicsDTO)
 
 
 def _display_performance_predictions(
-    configuration, predictions: Dict[str, float], format: str, output: Path | None
+    configuration, predictions: dict[str, float], format: str, output: Path | None
 ):
     """Display performance predictions."""
 
@@ -641,7 +639,7 @@ def _display_performance_predictions(
 
 
 def _display_pattern_analysis(
-    analysis: Dict[str, Any], format: str, output: Path | None
+    analysis: dict[str, Any], format: str, output: Path | None
 ):
     """Display pattern analysis results."""
 

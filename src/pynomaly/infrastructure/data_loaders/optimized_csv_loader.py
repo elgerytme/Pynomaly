@@ -4,9 +4,8 @@ from __future__ import annotations
 
 import gc
 import logging
-import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 import numpy as np
 import pandas as pd
@@ -41,7 +40,7 @@ class OptimizedCSVLoader(CSVLoader):
         self.logger = logging.getLogger(__name__)
 
         # Cache for dtype optimizations
-        self._dtype_cache: Dict[str, Dict[str, str]] = {}
+        self._dtype_cache: dict[str, dict[str, str]] = {}
 
     async def load(self, source: Path, **kwargs) -> Dataset:
         """Load CSV with memory and performance optimizations.
@@ -170,7 +169,7 @@ class OptimizedCSVLoader(CSVLoader):
             },
         )
 
-    def _infer_optimal_dtypes(self, df: pd.DataFrame) -> Dict[str, str]:
+    def _infer_optimal_dtypes(self, df: pd.DataFrame) -> dict[str, str]:
         """Infer optimal data types for memory efficiency."""
         dtypes = {}
 
@@ -261,7 +260,7 @@ class OptimizedCSVLoader(CSVLoader):
 
         return optimized_df
 
-    def _get_optimization_metrics(self, df: pd.DataFrame) -> Dict[str, Any]:
+    def _get_optimization_metrics(self, df: pd.DataFrame) -> dict[str, Any]:
         """Get metrics about the optimization process."""
         metrics = {
             "total_rows": len(df),
@@ -291,7 +290,7 @@ class ParallelCSVLoader:
     def __init__(
         self,
         max_workers: int = 4,
-        optimized_loader_config: Optional[Dict[str, Any]] = None,
+        optimized_loader_config: Optional[dict[str, Any]] = None,
     ):
         """Initialize parallel CSV loader.
 
@@ -303,7 +302,7 @@ class ParallelCSVLoader:
         self.optimized_loader_config = optimized_loader_config or {}
         self.logger = logging.getLogger(__name__)
 
-    async def load_multiple_files(self, file_paths: List[Path]) -> List[Dataset]:
+    async def load_multiple_files(self, file_paths: list[Path]) -> list[Dataset]:
         """Load multiple CSV files in parallel.
 
         Args:
@@ -414,7 +413,7 @@ class DataLoadingProfiler:
 
         return wrapper
 
-    def get_performance_summary(self) -> Dict[str, Any]:
+    def get_performance_summary(self) -> dict[str, Any]:
         """Get summary of performance metrics."""
         if not self.metrics:
             return {"message": "No metrics available"}

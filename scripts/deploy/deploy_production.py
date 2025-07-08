@@ -7,15 +7,11 @@ Orchestrates the complete production deployment on Kubernetes.
 import argparse
 import json
 import logging
-import os
 import subprocess
 import sys
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
-
-import yaml
 
 # Configure logging
 logging.basicConfig(
@@ -47,10 +43,10 @@ class DeploymentResult:
 
     success: bool
     duration: float
-    deployed_resources: List[str]
-    failed_resources: List[str]
-    warnings: List[str]
-    status: Dict
+    deployed_resources: list[str]
+    failed_resources: list[str]
+    warnings: list[str]
+    status: dict
 
 
 class ProductionDeployer:
@@ -150,7 +146,7 @@ class ProductionDeployer:
                 target_file = temp_dir / file
 
                 # Read original file
-                with open(source_file, "r") as f:
+                with open(source_file) as f:
                     content = f.read()
 
                 # Apply customizations
@@ -251,7 +247,7 @@ stringData:
 
         return self._apply_yaml_file(secrets_file)
 
-    def deploy_resources(self) -> Tuple[List[str], List[str]]:
+    def deploy_resources(self) -> tuple[list[str], list[str]]:
         """Deploy all Kubernetes resources."""
         logger.info("Deploying Kubernetes resources...")
 
@@ -358,7 +354,7 @@ stringData:
         logger.info("✓ All deployments are ready")
         return True
 
-    def verify_deployment(self) -> Dict:
+    def verify_deployment(self) -> dict:
         """Verify the deployment is working correctly."""
         logger.info("Verifying deployment...")
 
@@ -576,7 +572,7 @@ stringData:
 
     def print_deployment_summary(self, result: DeploymentResult):
         """Print a summary of the deployment."""
-        print(f"\n=== Pynomaly Production Deployment Summary ===")
+        print("\n=== Pynomaly Production Deployment Summary ===")
         print(f"Status: {'SUCCESS' if result.success else 'FAILED'}")
         print(f"Duration: {result.duration:.2f}s")
         print(f"Phase: {result.status.get('phase', 'unknown')}")
@@ -598,22 +594,22 @@ stringData:
 
         if "verification" in result.status:
             verification = result.status["verification"]
-            print(f"\nVerification Results:")
+            print("\nVerification Results:")
             for check, passed in verification.items():
                 status = "✓" if passed else "✗"
                 print(f"  {status} {check.replace('_', ' ').title()}")
 
         # Print next steps
         if result.success:
-            print(f"\n=== Next Steps ===")
-            print(f"1. Update DNS records:")
+            print("\n=== Next Steps ===")
+            print("1. Update DNS records:")
             print(f"   - {self.config.api_domain} → Load Balancer IP")
             print(f"   - {self.config.domain} → Load Balancer IP")
             print(f"   - {self.config.monitoring_domain} → Load Balancer IP")
-            print(f"2. Configure SSL certificates (Let's Encrypt)")
-            print(f"3. Set up monitoring alerts")
-            print(f"4. Configure backup strategies")
-            print(f"5. Test the deployed application")
+            print("2. Configure SSL certificates (Let's Encrypt)")
+            print("3. Set up monitoring alerts")
+            print("4. Configure backup strategies")
+            print("5. Test the deployed application")
 
 
 def main():

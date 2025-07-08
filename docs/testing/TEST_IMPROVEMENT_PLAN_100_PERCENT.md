@@ -51,10 +51,10 @@ class BasePage:
     def __init__(self, driver):
         self.driver = driver
         self.wait = WebDriverWait(driver, 10)
-    
+
     def wait_for_element_clickable(self, locator):
         return self.wait.until(EC.element_to_be_clickable(locator))
-    
+
     def wait_for_htmx_settle(self):
         # Custom wait for HTMX requests to complete
         return self.wait.until(lambda d: d.execute_script(
@@ -122,17 +122,17 @@ def test_isolation_forest_properties(data, contamination):
     """Property-based test for IsolationForest algorithm properties."""
     detector = IsolationForest(contamination=contamination)
     detector.fit(data)
-    
+
     scores = detector.decision_function(data)
     predictions = detector.predict(data)
-    
+
     # Property: Scores and predictions should be consistent
     assert len(scores) == len(predictions) == len(data)
-    
+
     # Property: Contamination rate should be approximately respected
     anomaly_rate = np.sum(predictions == -1) / len(predictions)
     assert abs(anomaly_rate - contamination) <= 0.1
-    
+
     # Property: Scores should be normalized
     assert np.all(np.isfinite(scores))
 ```
@@ -146,11 +146,11 @@ def test_isolation_forest_properties(data, contamination):
 def test_anomaly_score_properties(score_value, confidence):
     """Property-based test for AnomalyScore value object."""
     score = AnomalyScore(value=score_value, confidence=confidence)
-    
+
     # Property: Value and confidence should be preserved
     assert score.value == score_value
     assert score.confidence == confidence
-    
+
     # Property: Is anomaly threshold should be consistent
     if score_value > 0.5:
         assert score.is_anomaly is True
@@ -174,12 +174,12 @@ def test_anomaly_score_properties(score_value, confidence):
 def test_detection_performance_scaling(data_size, performance_monitor):
     """Test detection performance scaling with statistical validation."""
     data = generate_test_data(n_samples=data_size, n_features=10)
-    
+
     with performance_monitor.measure() as metrics:
         detector = IsolationForest()
         detector.fit(data)
         scores = detector.decision_function(data)
-    
+
     # Statistical validation of performance expectations
     expected_time = estimate_expected_time(data_size)
     assert metrics.execution_time <= expected_time * 1.2  # 20% tolerance
@@ -205,7 +205,7 @@ def test_algorithm_selection_mutations():
         # Small datasets might use OneClassSVM
         (np.random.randn(50, 5), 0.2, "OneClassSVM")
     ]
-    
+
     for data, contamination, expected_algorithm in test_cases:
         selector = AutonomousAlgorithmSelector()
         selected = selector.select_algorithm(data, contamination)
@@ -219,11 +219,11 @@ def test_api_contract_backward_compatibility():
     """Ensure API contracts maintain backward compatibility."""
     v1_request = {"algorithm": "isolation_forest", "contamination": 0.1}
     v2_request = {"detector_config": {"algorithm": "isolation_forest", "contamination": 0.1}}
-    
+
     # Both versions should work
     v1_response = api_client.post("/detect", json=v1_request)
     v2_response = api_client.post("/v2/detect", json=v2_request)
-    
+
     assert v1_response.status_code == 200
     assert v2_response.status_code == 200
     assert_response_structure_equivalent(v1_response.json(), v2_response.json())
@@ -244,7 +244,7 @@ class TestQualityMetrics:
         self.execution_times = {}
         self.failure_rates = {}
         self.coverage_data = {}
-    
+
     def analyze_test_quality(self):
         """Analyze test suite quality metrics."""
         return {
@@ -354,19 +354,19 @@ class TestEnvironmentManager:
     def __init__(self):
         self.containers = {}
         self.networks = {}
-    
+
     async def setup_test_environment(self):
         """Setup isolated test environment."""
         # Create test network
         self.networks["test"] = await self.create_test_network()
-        
+
         # Setup test databases
         self.containers["postgres"] = await self.start_postgres_container()
         self.containers["redis"] = await self.start_redis_container()
-        
+
         # Setup mock services
         self.containers["mock_api"] = await self.start_mock_api_container()
-    
+
     async def teardown_test_environment(self):
         """Clean up test environment."""
         for container in self.containers.values():

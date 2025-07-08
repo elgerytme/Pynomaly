@@ -12,7 +12,6 @@ from uuid import uuid4
 import numpy as np
 import pandas as pd
 import pytest
-
 from pynomaly.application.dto.export_options import ExportFormat, ExportOptions
 from pynomaly.domain.entities.anomaly import Anomaly
 from pynomaly.domain.entities.dataset import Dataset

@@ -40,7 +40,7 @@ COPY deploy/docker/config/alert_rules.yml /etc/prometheus/alert_rules.yml
 USER nobody
 
 #=============================================================================
-# Grafana Configuration Stage  
+# Grafana Configuration Stage
 #=============================================================================
 FROM grafana/grafana:10.2.0 as grafana
 

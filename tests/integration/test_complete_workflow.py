@@ -1,13 +1,11 @@
 """Complete end-to-end integration test for all 4 major features."""
 
-import asyncio
 from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
-
 from pynomaly.application.services.algorithm_adapter_registry import (
     AlgorithmAdapterRegistry,
 )
@@ -497,7 +495,6 @@ class TestCompleteWorkflowIntegration:
                 return_value=mock_container_with_real_services,
             ),
         ):
-
             # ✅ Feature 1: Real Algorithm Integration
             registry = AlgorithmAdapterRegistry()
             supported_algorithms = registry.get_supported_algorithms()

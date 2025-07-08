@@ -147,7 +147,7 @@ We update to the latest patch releases when they include:
 ## 🔗 References
 
 - [Python 3.12.8 Release Notes](https://www.python.org/downloads/release/python-3128/)
-- [Python 3.13.1 Release Notes](https://www.python.org/downloads/release/python-3131/) 
+- [Python 3.13.1 Release Notes](https://www.python.org/downloads/release/python-3131/)
 - [Python 3.14 Development Schedule (PEP 745)](https://peps.python.org/pep-0745/)
 - [What's New in Python 3.13](https://docs.python.org/3/whatsnew/3.13.html)
 

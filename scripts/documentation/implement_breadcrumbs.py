@@ -7,10 +7,8 @@ clear hierarchy navigation and improve user orientation within the docs.
 """
 
 import argparse
-import os
 import re
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 
 class BreadcrumbImplementer:
@@ -18,8 +16,8 @@ class BreadcrumbImplementer:
 
     def __init__(self, docs_root: Path):
         self.docs_root = docs_root
-        self.implemented_files: List[str] = []
-        self.errors: List[str] = []
+        self.implemented_files: list[str] = []
+        self.errors: list[str] = []
 
         # Define breadcrumb patterns for different documentation sections
         self.breadcrumb_patterns = {
@@ -111,7 +109,7 @@ class BreadcrumbImplementer:
             },
         }
 
-    def implement_breadcrumbs(self) -> Tuple[int, int]:
+    def implement_breadcrumbs(self) -> tuple[int, int]:
         """
         Implement breadcrumb navigation across all documentation.
 
@@ -245,8 +243,7 @@ class BreadcrumbImplementer:
             # Fallback
             file_title = filename.replace(".md", "").replace("-", " ").title()
             return (
-                section_patterns["base"]
-                + f" > 📁 {subsection.title()} > 📄 {file_title}"
+                section_patterns["base"] + f" > 📁 {subsection.title()} > 📄 {file_title}"
             )
 
         # Fallback for deeply nested files
@@ -295,7 +292,7 @@ def main():
 
     implemented_count, error_count = implementer.implement_breadcrumbs()
 
-    print(f"\n📊 Breadcrumb Implementation Summary:")
+    print("\n📊 Breadcrumb Implementation Summary:")
     print(f"  • Files with breadcrumbs: {implemented_count}")
     print(f"  • Errors: {error_count}")
 

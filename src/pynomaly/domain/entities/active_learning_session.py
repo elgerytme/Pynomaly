@@ -10,9 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional, Set
 
-from pynomaly.domain.entities.detection_result import DetectionResult
 from pynomaly.domain.entities.human_feedback import HumanFeedback
 
 
@@ -56,21 +54,21 @@ class ActiveLearningSession:
     max_samples: int
     status: SessionStatus
     created_at: datetime
-    metadata: Dict
+    metadata: dict
 
     # Session state
-    selected_samples: List[str] = field(default_factory=list)
-    annotated_samples: Set[str] = field(default_factory=set)
-    feedback_collection: List[HumanFeedback] = field(default_factory=list)
+    selected_samples: list[str] = field(default_factory=list)
+    annotated_samples: set[str] = field(default_factory=set)
+    feedback_collection: list[HumanFeedback] = field(default_factory=list)
 
     # Session configuration
-    timeout_minutes: Optional[int] = None
+    timeout_minutes: int | None = None
     min_feedback_quality: float = 0.7
-    target_corrections: Optional[int] = None
+    target_corrections: int | None = None
 
     # Session statistics
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
     total_time_spent_seconds: float = 0.0
 
     def __post_init__(self) -> None:
@@ -164,7 +162,7 @@ class ActiveLearningSession:
         if feedback.time_spent_seconds:
             self.total_time_spent_seconds += feedback.time_spent_seconds
 
-    def get_pending_samples(self) -> List[str]:
+    def get_pending_samples(self) -> list[str]:
         """Get samples that still need annotation."""
         return [
             sample_id
@@ -172,7 +170,7 @@ class ActiveLearningSession:
             if sample_id not in self.annotated_samples
         ]
 
-    def get_progress(self) -> Dict[str, float]:
+    def get_progress(self) -> dict[str, float]:
         """Get session progress statistics."""
         total_selected = len(self.selected_samples)
         total_annotated = len(self.annotated_samples)
@@ -190,7 +188,7 @@ class ActiveLearningSession:
             ),
         }
 
-    def get_feedback_quality_metrics(self) -> Dict[str, float]:
+    def get_feedback_quality_metrics(self) -> dict[str, float]:
         """Calculate feedback quality metrics."""
         if not self.feedback_collection:
             return {
@@ -255,7 +253,7 @@ class ActiveLearningSession:
         elapsed_minutes = (datetime.now() - self.started_at).total_seconds() / 60
         return elapsed_minutes > self.timeout_minutes
 
-    def get_session_duration(self) -> Optional[float]:
+    def get_session_duration(self) -> float | None:
         """Get session duration in minutes."""
         if not self.started_at:
             return None
@@ -263,7 +261,7 @@ class ActiveLearningSession:
         end_time = self.completed_at or datetime.now()
         return (end_time - self.started_at).total_seconds() / 60
 
-    def get_feedback_by_sample(self, sample_id: str) -> List[HumanFeedback]:
+    def get_feedback_by_sample(self, sample_id: str) -> list[HumanFeedback]:
         """Get all feedback for a specific sample."""
         return [
             feedback
@@ -271,7 +269,7 @@ class ActiveLearningSession:
             if feedback.sample_id == sample_id
         ]
 
-    def get_corrections(self) -> List[HumanFeedback]:
+    def get_corrections(self) -> list[HumanFeedback]:
         """Get all feedback that represents corrections."""
         return [
             feedback
@@ -279,7 +277,7 @@ class ActiveLearningSession:
             if feedback.is_correction()
         ]
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert session to dictionary representation."""
         return {
             "session_id": self.session_id,

@@ -39,7 +39,7 @@ Comprehensive testing strategy for the Pynomaly design system, ensuring reliabil
 module.exports = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/test/setup.js'],
-  
+
   // Coverage thresholds
   coverageThreshold: {
     global: {
@@ -49,19 +49,19 @@ module.exports = {
       statements: 85
     }
   },
-  
+
   // Module mapping for static assets
   moduleNameMapping: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     '\\.(jpg|jpeg|png|gif|svg)$': '<rootDir>/src/test/__mocks__/fileMock.js'
   },
-  
+
   // Test path patterns
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.(js|jsx|ts|tsx)',
     '<rootDir>/src/**/*.(test|spec).(js|jsx|ts|tsx)'
   ],
-  
+
   // Transform configuration
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest'
@@ -83,7 +83,7 @@ expect.extend(toHaveNoViolations);
 beforeEach(() => {
   // Clear any previous DOM
   document.body.innerHTML = '';
-  
+
   // Reset any global state
   jest.clearAllMocks();
 });
@@ -117,44 +117,44 @@ describe('Button Component', () => {
     render(<Button>Click me</Button>);
     expect(screen.getByRole('button', { name: /click me/i })).toBeInTheDocument();
   });
-  
+
   it('handles click events', async () => {
     const handleClick = jest.fn();
     const user = userEvent.setup();
-    
+
     render(<Button onClick={handleClick}>Click me</Button>);
-    
+
     await user.click(screen.getByRole('button'));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
-  
+
   it('is accessible', async () => {
     const { container } = render(<Button>Accessible button</Button>);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
-  
+
   it('supports keyboard navigation', async () => {
     const handleClick = jest.fn();
     const user = userEvent.setup();
-    
+
     render(<Button onClick={handleClick}>Keyboard accessible</Button>);
-    
+
     const button = screen.getByRole('button');
     button.focus();
-    
+
     expect(button).toHaveFocus();
-    
+
     await user.keyboard('{Enter}');
     expect(handleClick).toHaveBeenCalled();
-    
+
     await user.keyboard('{Space}');
     expect(handleClick).toHaveBeenCalledTimes(2);
   });
-  
+
   it('handles disabled state correctly', () => {
     render(<Button disabled>Disabled button</Button>);
-    
+
     const button = screen.getByRole('button');
     expect(button).toBeDisabled();
     expect(button).toHaveAttribute('aria-disabled', 'true');
@@ -172,28 +172,28 @@ describe('ContactForm', () => {
   it('validates required fields', async () => {
     const user = userEvent.setup();
     render(<ContactForm />);
-    
+
     const submitButton = screen.getByRole('button', { name: /submit/i });
     await user.click(submitButton);
-    
+
     await waitFor(() => {
       expect(screen.getByText(/name is required/i)).toBeInTheDocument();
       expect(screen.getByText(/email is required/i)).toBeInTheDocument();
     });
   });
-  
+
   it('submits form with valid data', async () => {
     const user = userEvent.setup();
     const mockSubmit = jest.fn();
-    
+
     render(<ContactForm onSubmit={mockSubmit} />);
-    
+
     await user.type(screen.getByLabelText(/name/i), 'John Doe');
     await user.type(screen.getByLabelText(/email/i), 'john@example.com');
     await user.type(screen.getByLabelText(/message/i), 'Test message');
-    
+
     await user.click(screen.getByRole('button', { name: /submit/i }));
-    
+
     await waitFor(() => {
       expect(mockSubmit).toHaveBeenCalledWith({
         name: 'John Doe',
@@ -202,20 +202,20 @@ describe('ContactForm', () => {
       });
     });
   });
-  
+
   it('displays loading state during submission', async () => {
     const user = userEvent.setup();
     const slowSubmit = () => new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     render(<ContactForm onSubmit={slowSubmit} />);
-    
+
     // Fill form
     await user.type(screen.getByLabelText(/name/i), 'John Doe');
     await user.type(screen.getByLabelText(/email/i), 'john@example.com');
-    
+
     // Submit form
     await user.click(screen.getByRole('button', { name: /submit/i }));
-    
+
     // Check loading state
     expect(screen.getByText(/submitting/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /submitting/i })).toBeDisabled();
@@ -253,33 +253,33 @@ const mockData = [
 describe('AnomalyChart', () => {
   it('renders chart with data', () => {
     render(<AnomalyChart data={mockData} />);
-    
+
     expect(screen.getByRole('application', { name: /anomaly chart/i })).toBeInTheDocument();
     expect(screen.getByText(/3 data points/i)).toBeInTheDocument();
   });
-  
+
   it('provides accessible data table', () => {
     render(<AnomalyChart data={mockData} showDataTable />);
-    
+
     const table = screen.getByRole('table', { name: /chart data/i });
     expect(table).toBeInTheDocument();
-    
+
     // Check table headers
     expect(screen.getByColumnHeader(/timestamp/i)).toBeInTheDocument();
     expect(screen.getByColumnHeader(/value/i)).toBeInTheDocument();
     expect(screen.getByColumnHeader(/status/i)).toBeInTheDocument();
   });
-  
+
   it('handles empty data gracefully', () => {
     render(<AnomalyChart data={[]} />);
-    
+
     expect(screen.getByText(/no data available/i)).toBeInTheDocument();
     expect(screen.getByRole('application')).toHaveAttribute('aria-label', expect.stringContaining('empty'));
   });
-  
+
   it('is accessible with screen readers', async () => {
     const { container } = render(<AnomalyChart data={mockData} />);
-    
+
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -304,7 +304,7 @@ const server = setupServer(
       { id: 2, timestamp: '2023-01-01T01:00:00Z', value: 0.2, isAnomaly: false }
     ]));
   }),
-  
+
   rest.post('/api/analyze', (req, res, ctx) => {
     return res(ctx.json({ success: true, jobId: 'job-123' }));
   })
@@ -317,37 +317,37 @@ afterAll(() => server.close());
 describe('Dashboard Integration', () => {
   it('loads and displays anomaly data', async () => {
     render(<Dashboard />);
-    
+
     // Wait for data to load
     await waitFor(() => {
       expect(screen.getByText(/2 anomalies detected/i)).toBeInTheDocument();
     });
-    
+
     // Check chart is rendered
     expect(screen.getByRole('application', { name: /anomaly chart/i })).toBeInTheDocument();
   });
-  
+
   it('handles analysis submission workflow', async () => {
     const user = userEvent.setup();
     render(<Dashboard />);
-    
+
     // Upload file
     const fileInput = screen.getByLabelText(/upload dataset/i);
     const file = new File(['test data'], 'test.csv', { type: 'text/csv' });
     await user.upload(fileInput, file);
-    
+
     // Configure analysis
     await user.selectOptions(screen.getByLabelText(/algorithm/i), 'isolation-forest');
-    
+
     // Submit analysis
     await user.click(screen.getByRole('button', { name: /start analysis/i }));
-    
+
     // Check success message
     await waitFor(() => {
       expect(screen.getByText(/analysis started successfully/i)).toBeInTheDocument();
     });
   });
-  
+
   it('handles API errors gracefully', async () => {
     // Mock API error
     server.use(
@@ -355,13 +355,13 @@ describe('Dashboard Integration', () => {
         return res(ctx.status(500), ctx.json({ error: 'Server error' }));
       })
     );
-    
+
     render(<Dashboard />);
-    
+
     await waitFor(() => {
       expect(screen.getByText(/failed to load data/i)).toBeInTheDocument();
     });
-    
+
     // Check retry functionality
     const retryButton = screen.getByRole('button', { name: /retry/i });
     expect(retryButton).toBeInTheDocument();
@@ -378,66 +378,66 @@ import { test, expect } from '@playwright/test';
 test.describe('Anomaly Detection Workflow', () => {
   test('complete analysis workflow', async ({ page }) => {
     await page.goto('/');
-    
+
     // Check page loads
     await expect(page.locator('h1')).toContainText('Pynomaly Dashboard');
-    
+
     // Navigate to analysis page
     await page.click('text=New Analysis');
     await expect(page).toHaveURL(/.*\/analysis/);
-    
+
     // Upload dataset
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles('test-data/sample.csv');
-    
+
     // Configure parameters
     await page.selectOption('select[name="algorithm"]', 'isolation-forest');
     await page.fill('input[name="contamination"]', '0.1');
-    
+
     // Submit analysis
     await page.click('button:text("Start Analysis")');
-    
+
     // Wait for results
     await expect(page.locator('.analysis-results')).toBeVisible({ timeout: 30000 });
-    
+
     // Check results are displayed
     await expect(page.locator('.anomaly-chart')).toBeVisible();
     await expect(page.locator('.metrics-summary')).toBeVisible();
-    
+
     // Test data export
     const downloadPromise = page.waitForEvent('download');
     await page.click('button:text("Export Results")');
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toMatch(/.*\.csv$/);
   });
-  
+
   test('keyboard navigation', async ({ page }) => {
     await page.goto('/');
-    
+
     // Test tab navigation
     await page.keyboard.press('Tab');
     await expect(page.locator(':focus')).toHaveAttribute('data-testid', 'main-nav');
-    
+
     // Test keyboard shortcuts
     await page.keyboard.press('Control+KeyT');
     await expect(page.locator('.sidebar')).toHaveClass(/collapsed/);
-    
+
     await page.keyboard.press('Control+KeyF');
     await expect(page.locator('input[type="search"]')).toBeFocused();
   });
-  
+
   test('mobile responsiveness', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
-    
+
     // Check mobile layout
     await expect(page.locator('.mobile-menu-button')).toBeVisible();
     await expect(page.locator('.sidebar')).not.toBeVisible();
-    
+
     // Test mobile menu
     await page.click('.mobile-menu-button');
     await expect(page.locator('.sidebar')).toBeVisible();
-    
+
     // Test touch interactions
     await page.tap('.chart-container');
     await expect(page.locator('.chart-tooltip')).toBeVisible();
@@ -466,30 +466,30 @@ function generateLargeDataset(size = 10000) {
 describe('Performance Tests', () => {
   it('renders large dataset within performance budget', () => {
     const largeData = generateLargeDataset(10000);
-    
+
     const startTime = performance.now();
     render(<LargeDataChart data={largeData} />);
     const endTime = performance.now();
-    
+
     const renderTime = endTime - startTime;
     expect(renderTime).toBeLessThan(100); // 100ms budget
   });
-  
+
   it('handles rapid data updates efficiently', async () => {
     const { rerender } = render(<LargeDataChart data={[]} />);
-    
+
     const measurements = [];
-    
+
     for (let i = 0; i < 100; i++) {
       const data = generateLargeDataset(1000);
-      
+
       const startTime = performance.now();
       rerender(<LargeDataChart data={data} />);
       const endTime = performance.now();
-      
+
       measurements.push(endTime - startTime);
     }
-    
+
     const averageTime = measurements.reduce((a, b) => a + b, 0) / measurements.length;
     expect(averageTime).toBeLessThan(50); // 50ms average budget
   });
@@ -505,17 +505,17 @@ module.exports = {
   async preRender(page, context) {
     // Ensure fonts are loaded
     await page.evaluateHandle('document.fonts.ready');
-    
+
     // Wait for animations to complete
     await page.waitForTimeout(500);
   },
-  
+
   async postRender(page, context) {
     // Hide dynamic content like timestamps
     await page.addStyleTag({
       content: '.timestamp { visibility: hidden !important; }'
     });
-    
+
     // Take screenshot
     const image = await page.screenshot();
     expect(image).toMatchImageSnapshot({
@@ -557,33 +557,33 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [16, 18, 20]
         browser: [chromium, firefox, webkit]
-    
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run unit tests
         run: npm run test:ci
-      
+
       - name: Install Playwright browsers
         run: npx playwright install ${{ matrix.browser }}
-      
+
       - name: Run E2E tests
         run: npm run test:e2e -- --project=${{ matrix.browser }}
-      
+
       - name: Upload coverage reports
         uses: codecov/codecov-action@v3
         with:

@@ -4,16 +4,12 @@ Comprehensive BDD Test Runner for Pynomaly
 Executes behavior-driven development tests with detailed reporting
 """
 
-import asyncio
 import json
-import os
-import shutil
 import subprocess
 import sys
-import tempfile
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -42,7 +38,7 @@ class BDDTestRunner:
             "errors": [],
         }
 
-    def discover_feature_files(self) -> List[Path]:
+    def discover_feature_files(self) -> list[Path]:
         """Discover all BDD feature files"""
         features_dir = self.test_dir / "bdd" / "features"
         if not features_dir.exists():
@@ -56,7 +52,7 @@ class BDDTestRunner:
 
         return feature_files
 
-    def analyze_feature_files(self, feature_files: List[Path]) -> Dict[str, Any]:
+    def analyze_feature_files(self, feature_files: list[Path]) -> dict[str, Any]:
         """Analyze feature files to extract scenarios and steps"""
         analysis = {
             "total_features": len(feature_files),
@@ -67,7 +63,7 @@ class BDDTestRunner:
 
         for feature_file in feature_files:
             try:
-                with open(feature_file, "r", encoding="utf-8") as f:
+                with open(feature_file, encoding="utf-8") as f:
                     content = f.read()
 
                 # Parse feature content
@@ -127,7 +123,7 @@ class BDDTestRunner:
 
         return analysis
 
-    def run_pytest_bdd(self, test_categories: List[str] = None) -> Dict[str, Any]:
+    def run_pytest_bdd(self, test_categories: list[str] = None) -> dict[str, Any]:
         """Run pytest-bdd tests with comprehensive reporting"""
 
         # Prepare pytest command
@@ -200,7 +196,7 @@ class BDDTestRunner:
                 "success": False,
             }
 
-    def parse_junit_results(self) -> Dict[str, Any]:
+    def parse_junit_results(self) -> dict[str, Any]:
         """Parse JUnit XML results for detailed analysis"""
         junit_file = self.reports_dir / "bdd_junit.xml"
 
@@ -248,10 +244,10 @@ class BDDTestRunner:
 
     def generate_bdd_report(
         self,
-        feature_analysis: Dict[str, Any],
-        execution_result: Dict[str, Any],
-        junit_results: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        feature_analysis: dict[str, Any],
+        execution_result: dict[str, Any],
+        junit_results: dict[str, Any],
+    ) -> dict[str, Any]:
         """Generate comprehensive BDD test report"""
 
         report = {
@@ -303,7 +299,7 @@ class BDDTestRunner:
 
         return report
 
-    def save_results(self, report: Dict[str, Any]):
+    def save_results(self, report: dict[str, Any]):
         """Save test results to files"""
 
         # Save JSON report
@@ -346,15 +342,15 @@ class BDDTestRunner:
                 for i, rec in enumerate(report["recommendations"], 1):
                     f.write(f"  {i}. {rec}\n")
 
-        print(f"BDD test results saved to:")
+        print("BDD test results saved to:")
         print(f"  - JSON: {json_file}")
         print(f"  - Summary: {summary_file}")
         print(f"  - HTML: {self.reports_dir}/bdd_report.html")
         print(f"  - JUnit XML: {self.reports_dir}/bdd_junit.xml")
 
     def run_comprehensive_bdd_tests(
-        self, test_categories: List[str] = None
-    ) -> Dict[str, Any]:
+        self, test_categories: list[str] = None
+    ) -> dict[str, Any]:
         """Run comprehensive BDD test suite"""
 
         print("Starting Comprehensive BDD Test Execution")

@@ -5,18 +5,14 @@ import json
 from uuid import UUID
 
 import click
+from pynomaly.application.services.cost_optimization_service import (
+    CostOptimizationService,
+)
+from pynomaly.domain.entities.cost_optimization import CostBudget, OptimizationStrategy
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
-
-from pynomaly.application.services.cost_optimization_service import (
-    CostOptimizationService,
-)
-from pynomaly.domain.entities.cost_optimization import (
-    CostBudget,
-    OptimizationStrategy,
-)
 
 console = Console()
 

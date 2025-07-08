@@ -15,7 +15,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 import numpy as np
 import pandas as pd
-
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.value_objects import ContaminationRate
 from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
@@ -151,7 +150,7 @@ def run_pynomaly_sklearn_example():
         else 0
     )
 
-    print(f"\n🎯 Performance Metrics:")
+    print("\n🎯 Performance Metrics:")
     print(f"Accuracy: {accuracy:.3f}")
     print(f"Precision: {precision:.3f}")
     print(f"Recall: {recall:.3f}")
@@ -159,14 +158,14 @@ def run_pynomaly_sklearn_example():
 
     # Show score statistics
     scores = [score.value for score in result.scores]
-    print(f"\n📊 Anomaly Scores:")
+    print("\n📊 Anomaly Scores:")
     print(f"Min score: {min(scores):.3f}")
     print(f"Max score: {max(scores):.3f}")
     print(f"Mean score: {np.mean(scores):.3f}")
     print(f"Std score: {np.std(scores):.3f}")
 
     # Show detector metadata
-    print(f"\n🔧 Detector Information:")
+    print("\n🔧 Detector Information:")
     print(f"Algorithm: {detector.algorithm_name}")
     print(f"Fitted: {detector.is_fitted}")
     print(

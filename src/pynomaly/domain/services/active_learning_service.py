@@ -7,19 +7,15 @@ the most informative samples for human annotation.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Protocol, Tuple
+from typing import Protocol
 
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
-from scipy.stats import entropy
 from sklearn.cluster import KMeans
-from sklearn.metrics.pairwise import cosine_similarity
 
 from pynomaly.domain.entities.active_learning_session import SamplingStrategy
 from pynomaly.domain.entities.detection_result import DetectionResult
 from pynomaly.domain.entities.human_feedback import HumanFeedback
-from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval
 
 
 class SampleSelectionProtocol(Protocol):
@@ -27,10 +23,10 @@ class SampleSelectionProtocol(Protocol):
 
     def select_samples(
         self,
-        detection_results: List[DetectionResult],
+        detection_results: list[DetectionResult],
         features: np.ndarray,
         n_samples: int,
-    ) -> List[int]:
+    ) -> list[int]:
         """Select sample indices for annotation."""
         ...
 
@@ -43,7 +39,7 @@ class ActiveLearningService:
     informative samples for human annotation.
     """
 
-    def __init__(self, random_seed: Optional[int] = None):
+    def __init__(self, random_seed: int | None = None):
         """
         Initialize active learning service.
 
@@ -56,10 +52,10 @@ class ActiveLearningService:
 
     def select_samples_by_uncertainty(
         self,
-        detection_results: List[DetectionResult],
+        detection_results: list[DetectionResult],
         n_samples: int,
         uncertainty_method: str = "entropy",
-    ) -> List[int]:
+    ) -> list[int]:
         """
         Select samples with highest uncertainty for annotation.
 
@@ -95,7 +91,7 @@ class ActiveLearningService:
 
     def select_samples_by_diversity(
         self, features: np.ndarray, n_samples: int, diversity_method: str = "kmeans"
-    ) -> List[int]:
+    ) -> list[int]:
         """
         Select diverse samples to cover the feature space.
 
@@ -129,8 +125,8 @@ class ActiveLearningService:
         return selected_indices
 
     def select_samples_by_committee_disagreement(
-        self, ensemble_results: List[List[DetectionResult]], n_samples: int
-    ) -> List[int]:
+        self, ensemble_results: list[list[DetectionResult]], n_samples: int
+    ) -> list[int]:
         """
         Select samples where ensemble models disagree most.
 
@@ -163,11 +159,11 @@ class ActiveLearningService:
 
     def select_samples_by_expected_model_change(
         self,
-        detection_results: List[DetectionResult],
+        detection_results: list[DetectionResult],
         features: np.ndarray,
-        model_gradients: Optional[np.ndarray] = None,
+        model_gradients: np.ndarray | None = None,
         n_samples: int = 10,
-    ) -> List[int]:
+    ) -> list[int]:
         """
         Select samples that would cause the largest model update.
 
@@ -204,11 +200,11 @@ class ActiveLearningService:
 
     def combine_selection_strategies(
         self,
-        detection_results: List[DetectionResult],
+        detection_results: list[DetectionResult],
         features: np.ndarray,
-        strategies: Dict[SamplingStrategy, float],
+        strategies: dict[SamplingStrategy, float],
         n_samples: int,
-    ) -> List[int]:
+    ) -> list[int]:
         """
         Combine multiple selection strategies with weights.
 
@@ -261,9 +257,9 @@ class ActiveLearningService:
     def calculate_annotation_value(
         self,
         sample_index: int,
-        detection_results: List[DetectionResult],
+        detection_results: list[DetectionResult],
         features: np.ndarray,
-        existing_feedback: List[HumanFeedback],
+        existing_feedback: list[HumanFeedback],
     ) -> float:
         """
         Calculate the expected value of annotating a specific sample.
@@ -301,8 +297,8 @@ class ActiveLearningService:
         return total_value
 
     def update_model_with_feedback(
-        self, feedback_list: List[HumanFeedback], learning_rate: float = 0.1
-    ) -> Dict[str, float]:
+        self, feedback_list: list[HumanFeedback], learning_rate: float = 0.1
+    ) -> dict[str, float]:
         """
         Calculate model update parameters based on human feedback.
 
@@ -373,7 +369,7 @@ class ActiveLearningService:
 
     def _select_by_kmeans_diversity(
         self, features: np.ndarray, n_samples: int
-    ) -> List[int]:
+    ) -> list[int]:
         """Select diverse samples using k-means clustering."""
         if n_samples >= features.shape[0]:
             return list(range(features.shape[0]))
@@ -402,7 +398,7 @@ class ActiveLearningService:
 
     def _select_by_max_distance(
         self, features: np.ndarray, n_samples: int
-    ) -> List[int]:
+    ) -> list[int]:
         """Select samples using greedy max-distance approach."""
         selected_indices = []
 
@@ -463,7 +459,7 @@ class ActiveLearningService:
         self,
         sample_index: int,
         features: np.ndarray,
-        existing_feedback: List[HumanFeedback],
+        existing_feedback: list[HumanFeedback],
     ) -> float:
         """Calculate diversity value relative to annotated samples."""
         if not existing_feedback:
@@ -492,7 +488,7 @@ class ActiveLearningService:
         return min(1.0, min_distance / np.std(features))
 
     def _calculate_novelty_value(
-        self, result: DetectionResult, existing_feedback: List[HumanFeedback]
+        self, result: DetectionResult, existing_feedback: list[HumanFeedback]
     ) -> float:
         """Calculate novelty value based on feedback patterns."""
         if not existing_feedback:

@@ -266,9 +266,7 @@ def run_pre_push_validation() -> int:
         ]
 
         if critical_violations:
-            print(
-                f"\n❌ Found {len(critical_violations)} TDD violations blocking push:"
-            )
+            print(f"\n❌ Found {len(critical_violations)} TDD violations blocking push:")
 
             # Group by type
             violation_groups = {}

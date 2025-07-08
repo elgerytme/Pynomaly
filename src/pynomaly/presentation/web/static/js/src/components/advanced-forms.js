@@ -1045,7 +1045,7 @@ class FileUploadForm extends BaseForm {
       <div class="upload-text">
         <p>Click to select files or drag and drop</p>
         <p class="upload-help">
-          ${this.options.acceptedTypes.join(", ")} • 
+          ${this.options.acceptedTypes.join(", ")} •
           Max ${this.formatFileSize(this.options.maxFileSize)}
         </p>
       </div>

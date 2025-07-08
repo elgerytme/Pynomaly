@@ -6,7 +6,8 @@ import asyncio
 import logging
 import time
 from abc import ABC, abstractmethod
-from typing import Any, Callable, TypeVar
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 from pynomaly.domain.exceptions import InfrastructureError, PynamolyError
 

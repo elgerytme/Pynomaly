@@ -302,7 +302,7 @@ make -f Makefile.docker health
    ```bash
    # Check port usage
    netstat -tulpn | grep :8000
-   
+
    # Stop conflicting services
    make -f Makefile.docker clean
    ```
@@ -317,7 +317,7 @@ make -f Makefile.docker health
    ```bash
    # Check Docker resources
    docker system df
-   
+
    # Clean up
    make -f Makefile.docker clean
    ```

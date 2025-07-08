@@ -13,10 +13,10 @@ Schemas:
 
 from __future__ import annotations
 
-from typing import Optional
+from datetime import datetime
 
 from pydantic import BaseModel, Field, validator
-from datetime import datetime
+
 
 class TimestampedMetric(BaseModel):
     """Schema including timestamp information for metrics."""
@@ -27,9 +27,9 @@ class TimestampedMetric(BaseModel):
 class MetricMetadata(BaseModel):
     """Metadata associated with a metric, used to describe its context."""
 
-    source: Optional[str]
-    labels: Optional[dict[str, str]]
-    unit: Optional[str]
+    source: str | None
+    labels: dict[str, str] | None
+    unit: str | None
 
 
 class MetricFrame(TimestampedMetric):
@@ -38,13 +38,13 @@ class MetricFrame(TimestampedMetric):
     metric_id: str
     name: str
     value: float
-    metadata: Optional[MetricMetadata] = None
+    metadata: MetricMetadata | None = None
 
 
 class RealTimeMetricFrame(MetricFrame):
     """Enhanced metric frame with real-time properties."""
 
-    delay: Optional[float] = Field(
+    delay: float | None = Field(
         None,
         description="Time delay in seconds for metric collection"
     )

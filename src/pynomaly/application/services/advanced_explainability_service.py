@@ -343,7 +343,9 @@ class AdvancedExplainabilityService:
                     explanation_method=(
                         "shap"
                         if self.enable_shap
-                        else "lime" if self.enable_lime else "gradient"
+                        else "lime"
+                        if self.enable_lime
+                        else "gradient"
                     ),
                     metadata={"sample_index": int(idx)},
                 )

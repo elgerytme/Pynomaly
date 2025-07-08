@@ -8,7 +8,7 @@ tracking of progress, results, and metadata for anomaly detection models.
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from pynomaly.application.dto.training_dto import TrainingConfigDTO
 from pynomaly.domain.value_objects.hyperparameters import HyperparameterSet
@@ -44,7 +44,7 @@ class ResourceUsage:
     disk_io: float = 0.0  # MB
     network_io: float = 0.0  # MB
 
-    def to_dict(self) -> Dict[str, float]:
+    def to_dict(self) -> dict[str, float]:
         """Convert to dictionary."""
         return {
             "cpu_time": self.cpu_time,
@@ -61,14 +61,14 @@ class TrainingMetrics:
 
     best_score: Optional[float] = None
     final_score: Optional[float] = None
-    validation_scores: List[float] = field(default_factory=list)
-    training_loss: List[float] = field(default_factory=list)
-    validation_loss: List[float] = field(default_factory=list)
+    validation_scores: list[float] = field(default_factory=list)
+    training_loss: list[float] = field(default_factory=list)
+    validation_loss: list[float] = field(default_factory=list)
     epochs_completed: int = 0
     early_stopping_epoch: Optional[int] = None
-    convergence_metrics: Dict[str, Any] = field(default_factory=dict)
+    convergence_metrics: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "best_score": self.best_score,
@@ -91,11 +91,11 @@ class AlgorithmResult:
     hyperparameters: Optional[HyperparameterSet] = None
     metrics: Optional[TrainingMetrics] = None
     training_time: float = 0.0
-    optimization_history: List[Dict[str, Any]] = field(default_factory=list)
+    optimization_history: list[dict[str, Any]] = field(default_factory=list)
     status: TrainingStatus = TrainingStatus.PENDING
     error_message: Optional[str] = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "algorithm_name": self.algorithm_name,
@@ -128,7 +128,7 @@ class TrainingJob:
     description: Optional[str] = None
 
     # Configuration
-    algorithms: List[str] = field(default_factory=list)
+    algorithms: list[str] = field(default_factory=list)
     config: Optional[TrainingConfigDTO] = None
     priority: TrainingPriority = TrainingPriority.NORMAL
 
@@ -146,7 +146,7 @@ class TrainingJob:
     estimated_completion: Optional[datetime] = None
 
     # Results
-    algorithm_results: List[AlgorithmResult] = field(default_factory=list)
+    algorithm_results: list[AlgorithmResult] = field(default_factory=list)
     best_model_id: Optional[str] = None
     best_algorithm: Optional[str] = None
     final_metrics: Optional[TrainingMetrics] = None
@@ -154,23 +154,23 @@ class TrainingJob:
     # Resource tracking
     resource_usage: ResourceUsage = field(default_factory=ResourceUsage)
     worker_id: Optional[str] = None
-    gpu_ids: List[int] = field(default_factory=list)
+    gpu_ids: list[int] = field(default_factory=list)
 
     # Error handling
     error_message: Optional[str] = None
-    error_details: Dict[str, Any] = field(default_factory=dict)
+    error_details: dict[str, Any] = field(default_factory=dict)
     retry_count: int = 0
     max_retries: int = 3
 
     # Metadata
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
     user_id: Optional[str] = None
     experiment_id: Optional[str] = None
     parent_job_id: Optional[str] = None
-    child_job_ids: List[str] = field(default_factory=list)
+    child_job_ids: list[str] = field(default_factory=list)
 
     # Legacy compatibility (for backward compatibility with existing code)
-    results: Optional[List[Dict[str, Any]]] = None
+    results: Optional[list[dict[str, Any]]] = None
 
     def __post_init__(self):
         """Post-initialization processing."""
@@ -244,7 +244,7 @@ class TrainingJob:
         self.progress = 100.0
 
     def fail(
-        self, error_message: str, error_details: Optional[Dict[str, Any]] = None
+        self, error_message: str, error_details: Optional[dict[str, Any]] = None
     ) -> None:
         """Mark job as failed."""
         self.status = TrainingStatus.FAILED
@@ -298,7 +298,6 @@ class TrainingJob:
             and result.metrics
             and result.metrics.best_score is not None
         ):
-
             current_best_score = (
                 self.final_metrics.best_score
                 if self.final_metrics and self.final_metrics.best_score
@@ -317,7 +316,7 @@ class TrainingJob:
                 return result
         return None
 
-    def get_successful_results(self) -> List[AlgorithmResult]:
+    def get_successful_results(self) -> list[AlgorithmResult]:
         """Get all successful algorithm results."""
         return [
             result
@@ -325,7 +324,7 @@ class TrainingJob:
             if result.status == TrainingStatus.COMPLETED
         ]
 
-    def get_failed_results(self) -> List[AlgorithmResult]:
+    def get_failed_results(self) -> list[AlgorithmResult]:
         """Get all failed algorithm results."""
         return [
             result
@@ -372,7 +371,7 @@ class TrainingJob:
         self.estimated_completion = datetime.utcnow() + timedelta(seconds=remaining)
         return self.estimated_completion
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert job to dictionary."""
         return {
             "id": self.id,
@@ -423,7 +422,7 @@ class TrainingJob:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "TrainingJob":
+    def from_dict(cls, data: dict[str, Any]) -> "TrainingJob":
         """Create job from dictionary."""
         # Handle datetime fields
         datetime_fields = [

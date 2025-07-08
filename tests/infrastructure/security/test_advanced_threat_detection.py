@@ -5,7 +5,6 @@ from datetime import UTC, datetime
 from unittest.mock import patch
 
 import pytest
-
 from pynomaly.infrastructure.security.advanced_threat_detection import (
     AdvancedBehaviorAnalyzer,
     BehaviorProfile,

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID
@@ -139,12 +138,13 @@ class ModelDriftDetectionService:
             feature_drift_results[feature] = feature_drift
 
         # Detect multivariate drift
-        multivariate_drift_score, multivariate_drift_detected = (
-            await self._detect_multivariate_drift(
-                reference_data[features_to_check],
-                current_data[features_to_check],
-                configuration,
-            )
+        (
+            multivariate_drift_score,
+            multivariate_drift_detected,
+        ) = await self._detect_multivariate_drift(
+            reference_data[features_to_check],
+            current_data[features_to_check],
+            configuration,
         )
 
         # Detect concept drift

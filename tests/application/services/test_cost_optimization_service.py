@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from uuid import uuid4
 
 import pytest
-
 from pynomaly.application.services.cost_optimization_service import (
     CostAnalysisEngine,
     CostOptimizationService,

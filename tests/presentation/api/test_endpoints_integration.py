@@ -1,13 +1,11 @@
 """Integration tests for API endpoints with real algorithms."""
 
-import json
 from unittest.mock import Mock
 
 import numpy as np
 import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
-
 from pynomaly.application.services.algorithm_adapter_registry import (
     AlgorithmAdapterRegistry,
 )

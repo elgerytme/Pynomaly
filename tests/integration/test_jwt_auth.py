@@ -1,8 +1,8 @@
 import pytest
 from fastapi.testclient import TestClient
-from pynomaly.presentation.api.app import create_app
-from pynomaly.infrastructure.auth.jwt_auth import get_auth, init_auth, JWTAuthService
+from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService, get_auth, init_auth
 from pynomaly.infrastructure.config import get_settings
+from pynomaly.presentation.api.app import create_app
 
 
 @pytest.fixture(scope="module")
@@ -35,7 +35,7 @@ def test_login_locked_out(client):
     # Attempt failed logins to trigger account lockout
     for _ in range(6):
         client.post("/api/v1/auth/login", data={"username": "admin", "password": "wrongpassword"})
-    
+
     response = client.post("/api/v1/auth/login", data={"username": "admin", "password": "admin123"})
     assert response.status_code == 401
     assert response.json().get("detail") == "Account temporarily locked due to too many failed login attempts"
@@ -46,7 +46,7 @@ def test_password_change(client):
     response = client.post("/api/v1/auth/login", data={"username": "admin", "password": "admin123"})
     assert response.status_code == 200
     json_response = response.json()
-    
+
     # Change password
     auth_service: JWTAuthService = get_auth()
     success = auth_service.change_password(user_id="admin", old_password="admin123", new_password="newpassword123")

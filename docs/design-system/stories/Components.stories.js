@@ -13,7 +13,7 @@ export default {
 export const Buttons = () => {
   const container = document.createElement('div');
   container.className = 'space-y-6';
-  
+
   container.innerHTML = `
     <div>
       <h3 class="text-lg font-semibold mb-4">Button Variants</h3>
@@ -26,7 +26,7 @@ export const Buttons = () => {
         <button class="btn-ghost">Ghost Button</button>
       </div>
     </div>
-    
+
     <div>
       <h3 class="text-lg font-semibold mb-4">Button Sizes</h3>
       <div class="flex flex-wrap items-center gap-4">
@@ -37,7 +37,7 @@ export const Buttons = () => {
         <button class="btn-primary btn-xl">Extra Large</button>
       </div>
     </div>
-    
+
     <div>
       <h3 class="text-lg font-semibold mb-4">Button States</h3>
       <div class="flex flex-wrap gap-4">
@@ -53,7 +53,7 @@ export const Buttons = () => {
       </div>
     </div>
   `;
-  
+
   return container;
 };
 
@@ -67,7 +67,7 @@ Buttons.parameters = {
 export const StatusIndicators = () => {
   const container = document.createElement('div');
   container.className = 'space-y-6';
-  
+
   container.innerHTML = `
     <div>
       <h3 class="text-lg font-semibold mb-4">Anomaly Status Indicators</h3>
@@ -77,25 +77,25 @@ export const StatusIndicators = () => {
           <span class="status-text">Normal</span>
           <span class="status-value">98.5%</span>
         </div>
-        
+
         <div class="status-indicator status-anomaly">
           <span class="status-icon"> </span>
           <span class="status-text">Anomaly Detected</span>
           <span class="status-value">2.1%</span>
         </div>
-        
+
         <div class="status-indicator status-warning">
           <span class="status-icon">=á</span>
           <span class="status-text">Warning</span>
           <span class="status-value">5.3%</span>
         </div>
-        
+
         <div class="status-indicator status-unknown">
           <span class="status-icon">S</span>
           <span class="status-text">Unknown</span>
           <span class="status-value">--</span>
         </div>
-        
+
         <div class="status-indicator status-processing">
           <span class="status-icon">
             <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -106,7 +106,7 @@ export const StatusIndicators = () => {
           <span class="status-text">Processing</span>
           <span class="status-value">...</span>
         </div>
-        
+
         <div class="status-indicator status-error">
           <span class="status-icon">L</span>
           <span class="status-text">Error</span>
@@ -114,7 +114,7 @@ export const StatusIndicators = () => {
         </div>
       </div>
     </div>
-    
+
     <div>
       <h3 class="text-lg font-semibold mb-4">Confidence Levels</h3>
       <div class="space-y-3">
@@ -124,14 +124,14 @@ export const StatusIndicators = () => {
           </div>
           <span class="confidence-label">High Confidence (95%)</span>
         </div>
-        
+
         <div class="confidence-indicator confidence-medium">
           <div class="confidence-bar">
             <div class="confidence-fill" style="width: 75%"></div>
           </div>
           <span class="confidence-label">Medium Confidence (75%)</span>
         </div>
-        
+
         <div class="confidence-indicator confidence-low">
           <div class="confidence-bar">
             <div class="confidence-fill" style="width: 45%"></div>
@@ -141,7 +141,7 @@ export const StatusIndicators = () => {
       </div>
     </div>
   `;
-  
+
   return container;
 };
 
@@ -149,7 +149,7 @@ export const StatusIndicators = () => {
 export const FormElements = () => {
   const container = document.createElement('div');
   container.className = 'space-y-6';
-  
+
   container.innerHTML = `
     <div>
       <h3 class="text-lg font-semibold mb-4">Input Fields</h3>
@@ -159,7 +159,7 @@ export const FormElements = () => {
           <input type="text" class="form-input" placeholder="Enter dataset name">
           <span class="form-help">Choose a descriptive name for your dataset</span>
         </div>
-        
+
         <div class="form-group">
           <label class="form-label">Algorithm Selection</label>
           <select class="form-select">
@@ -169,7 +169,7 @@ export const FormElements = () => {
             <option>DBSCAN</option>
           </select>
         </div>
-        
+
         <div class="form-group">
           <label class="form-label">Contamination Rate</label>
           <input type="range" class="form-range" min="0" max="1" step="0.01" value="0.1">
@@ -179,14 +179,14 @@ export const FormElements = () => {
             <span>100%</span>
           </div>
         </div>
-        
+
         <div class="form-group">
           <label class="form-label">Configuration</label>
           <textarea class="form-textarea" rows="4" placeholder="Enter JSON configuration"></textarea>
         </div>
       </div>
     </div>
-    
+
     <div>
       <h3 class="text-lg font-semibold mb-4">Form States</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -195,13 +195,13 @@ export const FormElements = () => {
           <input type="text" class="form-input form-input-valid" value="dataset_v1.csv">
           <span class="form-success">File format is valid</span>
         </div>
-        
+
         <div class="form-group">
           <label class="form-label">Invalid Input</label>
           <input type="text" class="form-input form-input-invalid" value="invalid_file.txt">
           <span class="form-error">Unsupported file format</span>
         </div>
-        
+
         <div class="form-group">
           <label class="form-label">Disabled Input</label>
           <input type="text" class="form-input" disabled value="Read-only value">
@@ -209,7 +209,7 @@ export const FormElements = () => {
       </div>
     </div>
   `;
-  
+
   return container;
 };
 
@@ -217,7 +217,7 @@ export const FormElements = () => {
 export const CardsAndContainers = () => {
   const container = document.createElement('div');
   container.className = 'space-y-6';
-  
+
   container.innerHTML = `
     <div>
       <h3 class="text-lg font-semibold mb-4">Card Variants</h3>
@@ -230,7 +230,7 @@ export const CardsAndContainers = () => {
             <p class="card-text">This is a basic card with header and body content.</p>
           </div>
         </div>
-        
+
         <div class="card card-interactive">
           <div class="card-header">
             <h4 class="card-title">Interactive Card</h4>
@@ -241,7 +241,7 @@ export const CardsAndContainers = () => {
             <button class="btn-primary btn-sm">Action</button>
           </div>
         </div>
-        
+
         <div class="card card-highlighted">
           <div class="card-header">
             <h4 class="card-title">Highlighted Card</h4>
@@ -252,7 +252,7 @@ export const CardsAndContainers = () => {
         </div>
       </div>
     </div>
-    
+
     <div>
       <h3 class="text-lg font-semibold mb-4">Dashboard Widgets</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -265,7 +265,7 @@ export const CardsAndContainers = () => {
             <div class="metric-change metric-increase">+12.5%</div>
           </div>
         </div>
-        
+
         <div class="widget widget-metric">
           <div class="widget-header">
             <h5 class="widget-title">Anomalies Detected</h5>
@@ -275,7 +275,7 @@ export const CardsAndContainers = () => {
             <div class="metric-change metric-decrease">-8.3%</div>
           </div>
         </div>
-        
+
         <div class="widget widget-metric">
           <div class="widget-header">
             <h5 class="widget-title">Detection Accuracy</h5>
@@ -285,7 +285,7 @@ export const CardsAndContainers = () => {
             <div class="metric-change metric-stable">+0.2%</div>
           </div>
         </div>
-        
+
         <div class="widget widget-metric">
           <div class="widget-header">
             <h5 class="widget-title">Processing Time</h5>
@@ -298,7 +298,7 @@ export const CardsAndContainers = () => {
       </div>
     </div>
   `;
-  
+
   return container;
 };
 
@@ -306,7 +306,7 @@ export const CardsAndContainers = () => {
 export const Navigation = () => {
   const container = document.createElement('div');
   container.className = 'space-y-6';
-  
+
   container.innerHTML = `
     <div>
       <h3 class="text-lg font-semibold mb-4">Breadcrumbs</h3>
@@ -318,7 +318,7 @@ export const Navigation = () => {
         <span class="breadcrumb-item breadcrumb-current">anomaly_data_v2.csv</span>
       </nav>
     </div>
-    
+
     <div>
       <h3 class="text-lg font-semibold mb-4">Tabs</h3>
       <div class="tabs">
@@ -327,14 +327,14 @@ export const Navigation = () => {
         <button class="tab" data-tab="results">Results</button>
         <button class="tab" data-tab="history">History</button>
       </div>
-      
+
       <div class="tab-content">
         <div class="tab-pane tab-pane-active" id="overview">
           <p class="text-gray-600">Overview content goes here...</p>
         </div>
       </div>
     </div>
-    
+
     <div>
       <h3 class="text-lg font-semibold mb-4">Pagination</h3>
       <nav class="pagination">
@@ -348,7 +348,7 @@ export const Navigation = () => {
       </nav>
     </div>
   `;
-  
+
   return container;
 };
 
@@ -356,7 +356,7 @@ export const Navigation = () => {
 export const FeedbackComponents = () => {
   const container = document.createElement('div');
   container.className = 'space-y-6';
-  
+
   container.innerHTML = `
     <div>
       <h3 class="text-lg font-semibold mb-4">Alerts</h3>
@@ -369,7 +369,7 @@ export const FeedbackComponents = () => {
           </div>
           <button class="alert-close">×</button>
         </div>
-        
+
         <div class="alert alert-warning">
           <div class="alert-icon"> </div>
           <div class="alert-content">
@@ -378,7 +378,7 @@ export const FeedbackComponents = () => {
           </div>
           <button class="alert-close">×</button>
         </div>
-        
+
         <div class="alert alert-danger">
           <div class="alert-icon">L</div>
           <div class="alert-content">
@@ -387,7 +387,7 @@ export const FeedbackComponents = () => {
           </div>
           <button class="alert-close">×</button>
         </div>
-        
+
         <div class="alert alert-info">
           <div class="alert-icon">9</div>
           <div class="alert-content">
@@ -397,7 +397,7 @@ export const FeedbackComponents = () => {
         </div>
       </div>
     </div>
-    
+
     <div>
       <h3 class="text-lg font-semibold mb-4">Badges</h3>
       <div class="flex flex-wrap gap-2">
@@ -410,7 +410,7 @@ export const FeedbackComponents = () => {
         <span class="badge badge-outline">Outline</span>
       </div>
     </div>
-    
+
     <div>
       <h3 class="text-lg font-semibold mb-4">Progress Indicators</h3>
       <div class="space-y-4">
@@ -418,12 +418,12 @@ export const FeedbackComponents = () => {
           <div class="progress-fill" style="width: 75%"></div>
           <span class="progress-label">Training Progress: 75%</span>
         </div>
-        
+
         <div class="progress-bar progress-bar-success">
           <div class="progress-fill" style="width: 100%"></div>
           <span class="progress-label">Validation Complete: 100%</span>
         </div>
-        
+
         <div class="progress-bar progress-bar-warning">
           <div class="progress-fill" style="width: 45%"></div>
           <span class="progress-label">Data Quality: 45%</span>
@@ -431,7 +431,7 @@ export const FeedbackComponents = () => {
       </div>
     </div>
   `;
-  
+
   return container;
 };
 
@@ -439,7 +439,7 @@ export const FeedbackComponents = () => {
 export const DataVisualization = () => {
   const container = document.createElement('div');
   container.className = 'space-y-6';
-  
+
   container.innerHTML = `
     <div>
       <h3 class="text-lg font-semibold mb-4">Chart Placeholders</h3>
@@ -458,7 +458,7 @@ export const DataVisualization = () => {
             </div>
           </div>
         </div>
-        
+
         <div class="chart-container">
           <div class="chart-header">
             <h4 class="chart-title">Algorithm Performance</h4>
@@ -472,7 +472,7 @@ export const DataVisualization = () => {
         </div>
       </div>
     </div>
-    
+
     <div>
       <h3 class="text-lg font-semibold mb-4">Data Tables</h3>
       <div class="table-container">
@@ -522,7 +522,7 @@ export const DataVisualization = () => {
       </div>
     </div>
   `;
-  
+
   return container;
 };
 
@@ -534,13 +534,13 @@ const addInteractivity = () => {
       const tabsContainer = e.target.closest('.tabs');
       const allTabs = tabsContainer.querySelectorAll('.tab');
       const allPanes = tabsContainer.parentElement.querySelectorAll('.tab-pane');
-      
+
       allTabs.forEach(tab => tab.classList.remove('tab-active'));
       allPanes.forEach(pane => pane.classList.remove('tab-pane-active'));
-      
+
       e.target.classList.add('tab-active');
     }
-    
+
     // Alert close functionality
     if (e.target.classList.contains('alert-close')) {
       e.target.closest('.alert').style.display = 'none';

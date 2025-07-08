@@ -2,66 +2,13 @@
 # This file mirrors the CI environment for reproducible development
 # Based on CI workflow: .github/workflows/ci.yml and pyproject.toml
 
-# ==========================================
-# Core Development Dependencies
-# ==========================================
+aiofiles>=24.1.0
 
-# Build system (matching CI)
-hatch>=1.12.0
+# Async utilities
+aioredis>=2.0.0
 
-# Core dependencies (pinned versions from pyproject.toml)
-pyod==2.0.5
-numpy==1.26.0
-pandas==2.2.3
-polars==1.19.0
-pydantic==2.10.4
-structlog==24.4.0
-dependency-injector==4.42.0
-networkx==3.0
-boto3>=1.35.0
-mypy-boto3-s3>=1.35.0
-
-# ML dependencies (matching CI pre-installation)
-scikit-learn>=1.6.0
-scipy>=1.15.0
-
-# ==========================================
-# Testing Framework & Tools
-# ==========================================
-
-# Core testing (matching CI exactly)
-pytest>=8.0.0
-pytest-cov>=6.0.0
-pytest-asyncio>=0.24.0
-pytest-xdist>=3.6.0
-pytest-mock>=3.14.0
-pytest-benchmark>=5.1.0
-pytest-timeout>=2.3.1
-pytest-env>=1.1.5
-pytest-html>=4.1.1
-
-# Property-based testing
-hypothesis>=6.115.0
-pytest-bdd>=8.0.1
-
-# Test data generation
-factory-boy>=3.3.1
-faker>=33.1.0
-freezegun>=1.5.1
-responses>=0.25.3
-
-# ==========================================
-# Debugging Tools (Requested)
-# ==========================================
-
-# Interactive Python debugger
-ipdb>=0.13.13
-
-# Enhanced pytest output
-pytest-sugar>=1.0.0
-
-# Coverage analysis
-coverage[toml]>=7.6.9
+# Security scanning (matching CI)
+bandit[toml]>=1.8.0
 
 # ==========================================
 # Code Quality & Linting (CI matching)
@@ -69,20 +16,17 @@ coverage[toml]>=7.6.9
 
 # Formatters (matching CI)
 black>=24.0.0
-isort>=5.13.0
-ruff>=0.8.0
+boto3>=1.35.0
+circuitbreaker>=2.0.0
 
-# Type checking (matching CI)
-mypy>=1.13.0
+# Coverage analysis
+coverage[toml]>=7.6.9
+cyclonedx-bom>=6.0.0
+dependency-injector==4.42.0
 
-# Security scanning (matching CI)
-bandit[toml]>=1.8.0
-safety>=4.0.0
-
-# Additional linting
-flake8>=7.1.1
-flake8-docstrings>=1.7.0
-flake8-annotations>=3.1.1
+# Test data generation
+factory-boy>=3.3.1
+faker>=33.1.0
 
 # ==========================================
 # API & CLI Dependencies (matching CI)
@@ -90,79 +34,104 @@ flake8-annotations>=3.1.1
 
 # API framework
 fastapi>=0.115.0
-uvicorn[standard]>=0.34.0
-httpx>=0.28.1
-requests>=2.32.3
-python-multipart>=0.0.20
-jinja2>=3.1.5
-aiofiles>=24.1.0
-pydantic-settings>=2.8.0
-
-# CLI framework
-typer[all]>=0.15.1
-rich>=13.9.4
-
-# ==========================================
-# Infrastructure & Monitoring
-# ==========================================
-
-# Authentication
-pyjwt>=2.10.1
-passlib[bcrypt]>=1.7.4
-
-# Caching
-redis>=5.2.1
-
-# Monitoring (matching CI)
-opentelemetry-api>=1.29.0
-opentelemetry-sdk>=1.29.0
-opentelemetry-instrumentation-fastapi>=0.50b0
-prometheus-client>=0.21.1
-psutil>=6.1.1
-prometheus-fastapi-instrumentator>=7.0.0
-
-# Circuit breaker and resilience
-tenacity>=9.0.0
-circuitbreaker>=2.0.0
-
-# ==========================================
-# Data Processing
-# ==========================================
-
-# Data formats
-pyarrow>=18.1.0
 fastparquet>=2024.11.0
-openpyxl>=3.1.5
-xlsxwriter>=3.2.0
-h5py>=3.12.1
 
-# Database
-sqlalchemy>=2.0.36
-psycopg2-binary>=2.9.10
+# Additional linting
+flake8>=7.1.1
+flake8-annotations>=3.1.1
+flake8-docstrings>=1.7.0
+freezegun>=1.5.1
+h5py>=3.12.1
+# ==========================================
+# Core Development Dependencies
+# ==========================================
+
+# Build system (matching CI)
+hatch>=1.12.0
+httpx>=0.28.1
+
+# HTTP client for testing
+httpx>=0.28.1
+hyperopt>=0.2.7
+
+# Property-based testing
+hypothesis>=6.115.0
+
+# ==========================================
+# Debugging Tools (Requested)
+# ==========================================
+
+# Interactive Python debugger
+ipdb>=0.13.13
+ipywidgets>=8.0.0
+isort>=5.13.0
+
+# JAX (CPU version)
+jax>=0.4.37
+jaxlib>=0.4.37
+jinja2>=3.1.5
+
+# ==========================================
+# Jupyter & Interactive Development
+# ==========================================
+
+# Jupyter for interactive development
+jupyter>=1.1.0
+jupyterlab>=4.0.0
+lime>=0.2.0.1
+
+# Line profiling
+line-profiler>=4.1.0
+
+# ==========================================
+# Performance & Profiling
+# ==========================================
+
+# Memory profiling
+memory-profiler>=0.61.0
 
 # ==========================================
 # Documentation (matching CI)
 # ==========================================
 
 mkdocs>=1.6.0
-mkdocs-material>=9.5.0
-mkdocstrings[python]>=0.27.0
 mkdocs-gen-files>=0.5.0
 mkdocs-literate-nav>=0.6.0
-pymdown-extensions>=10.0.0
+mkdocs-material>=9.5.0
+mkdocstrings[python]>=0.27.0
 
 # ==========================================
-# Development Tools
+# Mutation Testing
 # ==========================================
 
-# Pre-commit hooks
-pre-commit>=4.0.0
+mutmut>=3.2.0
 
-# Environment management
-pip-tools>=7.4.0
+# Type checking (matching CI)
+mypy>=1.13.0
+mypy-boto3-s3>=1.35.0
+networkx==3.0
+numpy==1.26.0
+openpyxl>=3.1.5
 
-# Testing utilities
-tox>=4.0.0
+# Monitoring (matching CI)
+opentelemetry-api>=1.29.0
+opentelemetry-instrumentation-fastapi>=0.50b0
+opentelemetry-sdk>=1.29.0
+
+# ==========================================
+# AutoML & Hyperparameter Optimization
+# ==========================================
+
+optuna>=4.1.0
+
+# ==========================================
+# Additional Development Utilities
+# ==========================================
+
+# JSON handling
+orjson>=3.10.0
+pandas==2.2.3
+passlib[bcrypt]>=1.7.4
 
 # ==========================================
 # Security & Vulnerability Scanning
@@ -170,7 +139,101 @@ tox>=4.0.0
 
 # Security scanning tools (matching CI)
 pip-audit>=2.6.0
-cyclonedx-bom>=6.0.0
+
+# Environment management
+pip-tools>=7.4.0
+polars==1.19.0
+
+# ==========================================
+# Development Tools
+# ==========================================
+
+# Pre-commit hooks
+pre-commit>=4.0.0
+prometheus-client>=0.21.1
+prometheus-fastapi-instrumentator>=7.0.0
+psutil>=6.1.1
+psycopg2-binary>=2.9.10
+
+# ==========================================
+# Data Processing
+# ==========================================
+
+# Data formats
+pyarrow>=18.1.0
+pydantic==2.10.4
+pydantic-settings>=2.8.0
+
+# ==========================================
+# Infrastructure & Monitoring
+# ==========================================
+
+# Authentication
+pyjwt>=2.10.1
+pymdown-extensions>=10.0.0
+
+# Core dependencies (pinned versions from pyproject.toml)
+pyod==2.0.5
+
+# ==========================================
+# Testing Framework & Tools
+# ==========================================
+
+# Core testing (matching CI exactly)
+pytest>=8.0.0
+pytest-asyncio>=0.24.0
+pytest-bdd>=8.0.1
+pytest-benchmark>=5.1.0
+pytest-cov>=6.0.0
+
+# ==========================================
+# Documentation Testing
+# ==========================================
+
+pytest-doctest-modules>=3.1.0
+pytest-env>=1.1.5
+pytest-html>=4.1.1
+pytest-mock>=3.14.0
+
+# Enhanced pytest output
+pytest-sugar>=1.0.0
+pytest-timeout>=2.3.1
+pytest-xdist>=3.6.0
+
+# Time handling
+python-dateutil>=2.9.0
+
+# Configuration management
+python-dotenv>=1.0.0
+python-multipart>=0.0.20
+
+# Caching
+redis>=5.2.1
+requests>=2.32.3
+responses>=0.25.3
+rich>=13.9.4
+ruff>=0.8.0
+safety>=4.0.0
+
+# ML dependencies (matching CI pre-installation)
+scikit-learn>=1.6.0
+scipy>=1.15.0
+
+# ==========================================
+# Explainability Tools
+# ==========================================
+
+shap>=0.46.0
+
+# Database
+sqlalchemy>=2.0.36
+structlog==24.4.0
+
+# Circuit breaker and resilience
+tenacity>=9.0.0
+
+# TensorFlow (CPU version for dev containers)
+tensorflow-cpu>=2.18.0,<2.20.0
 
 # ==========================================
 # ML Backend Dependencies (Optional)
@@ -180,76 +243,12 @@ cyclonedx-bom>=6.0.0
 torch>=2.5.1
 torchvision>=0.20.1
 
-# TensorFlow (CPU version for dev containers)
-tensorflow-cpu>=2.18.0,<2.20.0
+# Testing utilities
+tox>=4.0.0
 
-# JAX (CPU version)
-jax>=0.4.37
-jaxlib>=0.4.37
-
-# ==========================================
-# AutoML & Hyperparameter Optimization
-# ==========================================
-
-optuna>=4.1.0
-hyperopt>=0.2.7
-
-# ==========================================
-# Explainability Tools
-# ==========================================
-
-shap>=0.46.0
-lime>=0.2.0.1
-
-# ==========================================
-# Additional Development Utilities
-# ==========================================
-
-# JSON handling
-orjson>=3.10.0
-
-# Time handling
-python-dateutil>=2.9.0
-
-# Configuration management
-python-dotenv>=1.0.0
-
-# Async utilities
-aioredis>=2.0.0
-
-# HTTP client for testing
-httpx>=0.28.1
-
-# ==========================================
-# Jupyter & Interactive Development
-# ==========================================
-
-# Jupyter for interactive development
-jupyter>=1.1.0
-jupyterlab>=4.0.0
-ipywidgets>=8.0.0
-
-# ==========================================
-# Performance & Profiling
-# ==========================================
-
-# Memory profiling
-memory-profiler>=0.61.0
-
-# Line profiling
-line-profiler>=4.1.0
-
-# ==========================================
-# Documentation Testing
-# ==========================================
-
-pytest-doctest-modules>=3.1.0
-
-# ==========================================
-# Mutation Testing
-# ==========================================
-
-mutmut>=3.2.0
+# CLI framework
+typer[all]>=0.15.1
+uvicorn[standard]>=0.34.0
 
 # ==========================================
 # File Watching for Development
@@ -263,6 +262,7 @@ watchdog>=4.0.0
 
 # WebSocket support
 websockets>=13.0
+xlsxwriter>=3.2.0
 
 # ==========================================
 # End of requirements-dev.txt

@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             for (const path in paths) {
                 const methods = paths[path];
-                
+
                 for (const method in methods) {
                     const endpoint = methods[method];
                     (endpoint.tags || []).forEach(tag => {

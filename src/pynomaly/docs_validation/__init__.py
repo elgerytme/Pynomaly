@@ -4,23 +4,23 @@ This package provides comprehensive documentation validation tools to ensure
 documentation quality, consistency, and accuracy across the project.
 """
 
-from .core.validator import DocumentationValidator
+from .checkers.consistency import ConsistencyChecker
+from .checkers.content import ContentChecker
+from .checkers.links import LinkChecker
+from .checkers.structure import StructureChecker
 from .core.config import ValidationConfig
 from .core.reporter import ValidationReporter
-from .checkers.content import ContentChecker
-from .checkers.structure import StructureChecker
-from .checkers.links import LinkChecker
-from .checkers.consistency import ConsistencyChecker
+from .core.validator import DocumentationValidator
 
 __version__ = "1.0.0"
 __author__ = "Pynomaly Team"
 
 __all__ = [
     "DocumentationValidator",
-    "ValidationConfig", 
+    "ValidationConfig",
     "ValidationReporter",
     "ContentChecker",
-    "StructureChecker", 
+    "StructureChecker",
     "LinkChecker",
     "ConsistencyChecker",
 ]

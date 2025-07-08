@@ -4,14 +4,13 @@ import asyncio
 import json
 
 import click
+from pynomaly.application.services.enhanced_automl_service import EnhancedAutoMLConfig
+from pynomaly.infrastructure.config.container import create_container
 from rich.console import Console
 from rich.json import JSON
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
-
-from pynomaly.application.services.enhanced_automl_service import EnhancedAutoMLConfig
-from pynomaly.infrastructure.config.container import create_container
 
 console = Console()
 
@@ -602,9 +601,9 @@ def _save_result_to_file(result, filename):
     if hasattr(result, "convergence_stability"):
         result_dict["convergence_stability"] = result.convergence_stability
     if hasattr(result, "optimization_recommendations"):
-        result_dict["optimization_recommendations"] = (
-            result.optimization_recommendations
-        )
+        result_dict[
+            "optimization_recommendations"
+        ] = result.optimization_recommendations
     if hasattr(result, "next_steps"):
         result_dict["next_steps"] = result.next_steps
     if hasattr(result, "pareto_front"):

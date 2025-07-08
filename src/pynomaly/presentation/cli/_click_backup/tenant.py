@@ -5,17 +5,13 @@ import json
 from uuid import UUID
 
 import click
+from pynomaly.application.services.multi_tenant_service import MultiTenantService
+from pynomaly.domain.entities.tenant import SubscriptionTier, TenantStatus
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.prompt import Confirm
 from rich.table import Table
-
-from pynomaly.application.services.multi_tenant_service import MultiTenantService
-from pynomaly.domain.entities.tenant import (
-    SubscriptionTier,
-    TenantStatus,
-)
 
 console = Console()
 
@@ -564,7 +560,9 @@ def _display_usage_summary(usage_summary):
         status_color = (
             "red"
             if quota_info["is_exceeded"]
-            else "yellow" if usage_pct > 80 else "green"
+            else "yellow"
+            if usage_pct > 80
+            else "green"
         )
         status_text = "EXCEEDED" if quota_info["is_exceeded"] else "OK"
 

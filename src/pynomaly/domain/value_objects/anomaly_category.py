@@ -5,7 +5,7 @@ from enum import Enum
 
 class AnomalyCategory(str, Enum):
     """Enumeration for different categories of anomalies."""
-    
+
     STATISTICAL = "statistical"
     THRESHOLD = "threshold"
     CLUSTERING = "clustering"
@@ -13,7 +13,7 @@ class AnomalyCategory(str, Enum):
     DENSITY = "density"
     NEURAL = "neural"
     ENSEMBLE = "ensemble"
-    
+
     @classmethod
     def get_default(cls) -> "AnomalyCategory":
         """Get default anomaly category."""

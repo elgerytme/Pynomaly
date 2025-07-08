@@ -730,7 +730,9 @@ class TestMonitoringPipeline:
                         "status": (
                             "meeting"
                             if compliance >= 99
-                            else "at_risk" if compliance >= 95 else "violated"
+                            else "at_risk"
+                            if compliance >= 95
+                            else "violated"
                         ),
                     }
 

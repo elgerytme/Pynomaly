@@ -68,12 +68,12 @@ class PynomaryComponents {
         position: relative;
         overflow: hidden;
       }
-      
+
       .pynomaly-component.gpu-accelerated {
         will-change: transform;
         transform: translateZ(0);
       }
-      
+
       .pynomaly-component.high-contrast {
         --color-primary-500: #0066cc;
         --color-danger-500: #cc0000;
@@ -81,13 +81,13 @@ class PynomaryComponents {
         --color-text-primary: #000000;
         --color-bg-primary: #ffffff;
       }
-      
+
       .pynomaly-component.reduced-motion * {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
       }
-      
+
       @media (prefers-reduced-motion: reduce) {
         .pynomaly-component * {
           animation-duration: 0.01ms !important;
@@ -581,7 +581,7 @@ class PynomaryComponents {
   showKeyboardHelp() {
     const helpText = `
       Pynomaly Keyboard Shortcuts:
-      
+
       Global:
       • Ctrl+R: Toggle real-time updates
       • Ctrl+E: Export all data
@@ -589,13 +589,13 @@ class PynomaryComponents {
       • Alt+T: Toggle theme
       • Alt+C: Toggle high contrast
       • Alt+M: Toggle reduced motion
-      
+
       Chart Navigation:
       • Arrow Keys: Navigate data points
       • Home/End: First/Last point
       • Enter/Space: Select point
       • Escape: Clear selection
-      
+
       Mouse & Touch:
       • Click: Select points/cells
       • Drag: Brush selection
@@ -649,7 +649,7 @@ class PynomaryComponents {
         backface-visibility: hidden;
         perspective: 1000px;
       }
-      
+
       .pynomaly-component.gpu-accelerated * {
         transform-style: preserve-3d;
       }

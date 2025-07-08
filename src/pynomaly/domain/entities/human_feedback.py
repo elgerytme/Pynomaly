@@ -10,7 +10,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Dict, Optional, Union
 
 from pynomaly.domain.value_objects.anomaly_score import AnomalyScore
 
@@ -47,13 +46,13 @@ class HumanFeedback:
     sample_id: str
     annotator_id: str
     feedback_type: FeedbackType
-    feedback_value: Union[bool, float, str, Dict]
+    feedback_value: bool | float | str | dict
     confidence: FeedbackConfidence
     timestamp: datetime
-    metadata: Dict
-    original_prediction: Optional[AnomalyScore] = None
-    session_id: Optional[str] = None
-    time_spent_seconds: Optional[float] = None
+    metadata: dict
+    original_prediction: AnomalyScore | None = None
+    session_id: str | None = None
+    time_spent_seconds: float | None = None
 
     def __post_init__(self) -> None:
         """Validate feedback after initialization."""
@@ -114,7 +113,7 @@ class HumanFeedback:
 
         return False
 
-    def get_corrected_score(self) -> Optional[AnomalyScore]:
+    def get_corrected_score(self) -> AnomalyScore | None:
         """Get the corrected anomaly score based on feedback."""
         if self.feedback_type == FeedbackType.SCORE_CORRECTION:
             return AnomalyScore(value=float(self.feedback_value))
@@ -148,7 +147,7 @@ class HumanFeedback:
 
         return base_weight
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert feedback to dictionary representation."""
         return {
             "feedback_id": self.feedback_id,
@@ -176,10 +175,10 @@ class HumanFeedback:
         annotator_id: str,
         is_anomaly: bool,
         confidence: FeedbackConfidence,
-        original_prediction: Optional[AnomalyScore] = None,
-        session_id: Optional[str] = None,
-        time_spent_seconds: Optional[float] = None,
-        metadata: Optional[Dict] = None,
+        original_prediction: AnomalyScore | None = None,
+        session_id: str | None = None,
+        time_spent_seconds: float | None = None,
+        metadata: dict | None = None,
     ) -> HumanFeedback:
         """Create binary classification feedback."""
         return cls(
@@ -204,10 +203,10 @@ class HumanFeedback:
         annotator_id: str,
         corrected_score: float,
         confidence: FeedbackConfidence,
-        original_prediction: Optional[AnomalyScore] = None,
-        session_id: Optional[str] = None,
-        time_spent_seconds: Optional[float] = None,
-        metadata: Optional[Dict] = None,
+        original_prediction: AnomalyScore | None = None,
+        session_id: str | None = None,
+        time_spent_seconds: float | None = None,
+        metadata: dict | None = None,
     ) -> HumanFeedback:
         """Create score correction feedback."""
         return cls(
@@ -232,9 +231,9 @@ class HumanFeedback:
         annotator_id: str,
         explanation: str,
         confidence: FeedbackConfidence,
-        session_id: Optional[str] = None,
-        time_spent_seconds: Optional[float] = None,
-        metadata: Optional[Dict] = None,
+        session_id: str | None = None,
+        time_spent_seconds: float | None = None,
+        metadata: dict | None = None,
     ) -> HumanFeedback:
         """Create explanation feedback."""
         return cls(

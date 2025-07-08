@@ -9,17 +9,14 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import numpy as np
-import pandas as pd
 
 from pynomaly.application.services.drift_detection_service import DriftDetectionService
 from pynomaly.domain.entities.drift_detection import (
     DriftAlert,
-    DriftDetectionMethod,
     DriftDetectionResult,
-    DriftMetrics,
     DriftMonitoringStatus,
     DriftReport,
     DriftSeverity,
@@ -59,7 +56,7 @@ class DriftMonitoringUseCase:
         self.metrics_service = metrics_service or get_metrics_service()
 
         # Active monitoring tasks
-        self.monitoring_tasks: Dict[str, asyncio.Task] = {}
+        self.monitoring_tasks: dict[str, asyncio.Task] = {}
 
         logger.info("Drift monitoring use case initialized")
 
@@ -110,7 +107,7 @@ class DriftMonitoringUseCase:
         detector_id: str,
         reference_data: Optional[np.ndarray] = None,
         current_data: Optional[np.ndarray] = None,
-        feature_names: Optional[List[str]] = None,
+        feature_names: Optional[list[str]] = None,
     ) -> DriftDetectionResult:
         """Perform immediate drift check for a detector.
 
@@ -184,8 +181,8 @@ class DriftMonitoringUseCase:
     async def check_performance_drift(
         self,
         detector_id: str,
-        reference_metrics: Dict[str, float],
-        current_metrics: Dict[str, float],
+        reference_metrics: dict[str, float],
+        current_metrics: dict[str, float],
         threshold: float = 0.05,
     ) -> DriftDetectionResult:
         """Check for performance drift in a detector.
@@ -320,7 +317,7 @@ class DriftMonitoringUseCase:
             logger.error(f"Failed to stop monitoring for {detector_id}: {e}")
             return False
 
-    async def list_active_monitors(self) -> List[str]:
+    async def list_active_monitors(self) -> list[str]:
         """List all actively monitored detectors.
 
         Returns:
@@ -340,7 +337,7 @@ class DriftMonitoringUseCase:
         severity: Optional[DriftSeverity] = None,
         active_only: bool = True,
         limit: int = 100,
-    ) -> List[DriftAlert]:
+    ) -> list[DriftAlert]:
         """Get drift alerts with optional filtering.
 
         Args:
@@ -440,7 +437,7 @@ class DriftMonitoringUseCase:
             logger.error(f"Failed to generate drift report for {detector_id}: {e}")
             raise
 
-    async def get_system_health(self) -> Dict[str, Any]:
+    async def get_system_health(self) -> dict[str, Any]:
         """Get overall drift monitoring system health.
 
         Returns:
@@ -593,7 +590,9 @@ class DriftMonitoringUseCase:
                 else (
                     0.2
                     if result.severity == DriftSeverity.MEDIUM
-                    else 0.3 if result.severity == DriftSeverity.HIGH else 0.5
+                    else 0.3
+                    if result.severity == DriftSeverity.HIGH
+                    else 0.5
                 )
             )
             status.overall_health_score = max(

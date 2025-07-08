@@ -8,7 +8,6 @@ import json
 
 import pytest
 from pydantic import ValidationError
-
 from pynomaly.domain.exceptions import ValidationError as DomainValidationError
 from pynomaly.infrastructure.validation import (
     DataSanitizer,
@@ -466,7 +465,7 @@ class TestInputValidationSecurity:
             "admin",  # ASCII
             b"admin".decode("utf-8"),  # UTF-8
             "admin".encode("utf-16").decode("utf-16"),  # UTF-16
-            "admin".encode("latin1").decode("latin1"),  # Latin-1
+            b"admin".decode("latin1"),  # Latin-1
         ]
 
         # All should normalize to same canonical form

@@ -8,13 +8,11 @@ import argparse
 import concurrent.futures
 import json
 import logging
-import statistics
 import subprocess
 import sys
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional
 
 # Import our testing frameworks
 try:
@@ -44,7 +42,7 @@ class TestQualityMetrics:
     code_coverage: float
     test_effectiveness: float
     risk_assessment: str
-    recommendations: List[str]
+    recommendations: list[str]
 
 
 @dataclass
@@ -53,17 +51,17 @@ class AdvancedTestResult:
 
     success: bool
     duration: float
-    mutation_results: Optional[MutationTestSummary]
-    property_results: Optional[PropertyTestSummary]
-    traditional_test_results: Dict
+    mutation_results: MutationTestSummary | None
+    property_results: PropertyTestSummary | None
+    traditional_test_results: dict
     quality_metrics: TestQualityMetrics
-    detailed_analysis: Dict
+    detailed_analysis: dict
 
 
 class AdvancedTestingOrchestrator:
     """Orchestrates advanced testing including mutation and property-based testing."""
 
-    def __init__(self, config: Dict = None):
+    def __init__(self, config: dict = None):
         self.config = config or self._default_config()
         self.source_dir = Path(self.config.get("source_dir", "src/pynomaly"))
         self.test_dir = Path(self.config.get("test_dir", "tests"))
@@ -74,7 +72,7 @@ class AdvancedTestingOrchestrator:
         self.mutation_tester = None
         self.property_tester = None
 
-    def _default_config(self) -> Dict:
+    def _default_config(self) -> dict:
         """Default configuration for advanced testing."""
         return {
             "source_dir": "src/pynomaly",
@@ -96,7 +94,7 @@ class AdvancedTestingOrchestrator:
         }
 
     def run_comprehensive_testing(
-        self, target_files: List[str] = None
+        self, target_files: list[str] = None
     ) -> AdvancedTestResult:
         """Run complete advanced testing suite."""
         logger.info("Starting comprehensive advanced testing...")
@@ -170,7 +168,7 @@ class AdvancedTestingOrchestrator:
                 detailed_analysis={"error": str(e)},
             )
 
-    def _run_traditional_tests(self) -> Dict:
+    def _run_traditional_tests(self) -> dict:
         """Run traditional pytest-based tests."""
         logger.info("Executing traditional test suite...")
         results = {
@@ -231,7 +229,7 @@ class AdvancedTestingOrchestrator:
             # Read coverage report
             coverage_file = Path.cwd() / "coverage.json"
             if coverage_file.exists():
-                with open(coverage_file, "r") as f:
+                with open(coverage_file) as f:
                     coverage_data = json.load(f)
                     results["coverage"] = (
                         coverage_data.get("totals", {}).get("percent_covered", 0.0)
@@ -253,7 +251,7 @@ class AdvancedTestingOrchestrator:
 
         return results
 
-    def _run_parallel_advanced_tests(self, target_files: List[str] = None) -> tuple:
+    def _run_parallel_advanced_tests(self, target_files: list[str] = None) -> tuple:
         """Run mutation and property testing in parallel."""
         logger.info("Running mutation and property testing in parallel...")
 
@@ -281,8 +279,8 @@ class AdvancedTestingOrchestrator:
         return mutation_results, property_results
 
     def _run_mutation_testing(
-        self, target_files: List[str] = None
-    ) -> Optional[MutationTestSummary]:
+        self, target_files: list[str] = None
+    ) -> MutationTestSummary | None:
         """Run mutation testing."""
         try:
             logger.info("Starting mutation testing...")
@@ -312,8 +310,8 @@ class AdvancedTestingOrchestrator:
             return None
 
     def _run_property_testing(
-        self, target_files: List[str] = None
-    ) -> Optional[PropertyTestSummary]:
+        self, target_files: list[str] = None
+    ) -> PropertyTestSummary | None:
         """Run property-based testing."""
         try:
             logger.info("Starting property-based testing...")
@@ -349,9 +347,9 @@ class AdvancedTestingOrchestrator:
 
     def _calculate_quality_metrics(
         self,
-        mutation_results: Optional[MutationTestSummary],
-        property_results: Optional[PropertyTestSummary],
-        traditional_results: Dict,
+        mutation_results: MutationTestSummary | None,
+        property_results: PropertyTestSummary | None,
+        traditional_results: dict,
     ) -> TestQualityMetrics:
         """Calculate comprehensive test quality metrics."""
 
@@ -413,7 +411,7 @@ class AdvancedTestingOrchestrator:
 
         # Calculate how many metrics meet targets
         meets_target = sum(
-            1 for score, target in zip(scores, targets) if score >= target
+            1 for score, target in zip(scores, targets, strict=False) if score >= target
         )
 
         if meets_target >= 3:
@@ -431,7 +429,7 @@ class AdvancedTestingOrchestrator:
         property_coverage: float,
         code_coverage: float,
         test_effectiveness: float,
-    ) -> List[str]:
+    ) -> list[str]:
         """Generate specific recommendations for improving test quality."""
         recommendations = []
         thresholds = self.config["quality_thresholds"]
@@ -470,10 +468,10 @@ class AdvancedTestingOrchestrator:
 
     def _perform_detailed_analysis(
         self,
-        mutation_results: Optional[MutationTestSummary],
-        property_results: Optional[PropertyTestSummary],
-        traditional_results: Dict,
-    ) -> Dict:
+        mutation_results: MutationTestSummary | None,
+        property_results: PropertyTestSummary | None,
+        traditional_results: dict,
+    ) -> dict:
         """Perform detailed analysis of test results."""
         analysis = {
             "test_gaps": [],
@@ -558,7 +556,7 @@ class AdvancedTestingOrchestrator:
 
     def _generate_actionable_insights(
         self, mutation_results, property_results, traditional_results
-    ) -> List[str]:
+    ) -> list[str]:
         """Generate specific actionable insights from test results."""
         insights = []
 
@@ -631,18 +629,18 @@ class AdvancedTestingOrchestrator:
 
     def print_comprehensive_summary(self, result: AdvancedTestResult):
         """Print comprehensive testing summary."""
-        print(f"\n=== Comprehensive Advanced Testing Summary ===")
+        print("\n=== Comprehensive Advanced Testing Summary ===")
         print(f"Overall Success: {'PASS' if result.success else 'FAIL'}")
         print(f"Total Duration: {result.duration:.2f}s")
         print(f"Risk Assessment: {result.quality_metrics.risk_assessment}")
 
-        print(f"\n=== Quality Metrics ===")
+        print("\n=== Quality Metrics ===")
         print(f"Mutation Score: {result.quality_metrics.mutation_score:.1f}%")
         print(f"Property Coverage: {result.quality_metrics.property_coverage:.1f}%")
         print(f"Code Coverage: {result.quality_metrics.code_coverage:.1f}%")
         print(f"Test Effectiveness: {result.quality_metrics.test_effectiveness:.1f}%")
 
-        print(f"\n=== Traditional Tests ===")
+        print("\n=== Traditional Tests ===")
         trad = result.traditional_test_results
         print(
             f"Tests: {trad.get('test_count', 0)}, "
@@ -651,25 +649,25 @@ class AdvancedTestingOrchestrator:
         )
 
         if result.mutation_results:
-            print(f"\n=== Mutation Testing ===")
+            print("\n=== Mutation Testing ===")
             mut = result.mutation_results
             print(f"Total Mutations: {mut.total_mutations}")
             print(f"Killed: {mut.killed_mutations}, Survived: {mut.survived_mutations}")
             print(f"Score: {mut.mutation_score:.1f}%")
 
         if result.property_results:
-            print(f"\n=== Property Testing ===")
+            print("\n=== Property Testing ===")
             prop = result.property_results
             print(f"Properties Tested: {prop.total_properties}")
             print(f"Passed: {prop.passed_properties}, Failed: {prop.failed_properties}")
             print(f"Examples Generated: {prop.total_examples}")
 
-        print(f"\n=== Recommendations ===")
+        print("\n=== Recommendations ===")
         for i, rec in enumerate(result.quality_metrics.recommendations, 1):
             print(f"{i}. {rec}")
 
         if result.detailed_analysis.get("high_risk_areas"):
-            print(f"\n=== High Risk Areas ===")
+            print("\n=== High Risk Areas ===")
             for area in result.detailed_analysis["high_risk_areas"][:3]:
                 print(
                     f"  • {area['file']}: {area['survived_mutations']} survived mutations"
@@ -703,7 +701,7 @@ def main():
     # Load configuration
     config = {}
     if args.config and args.config.exists():
-        with open(args.config, "r") as f:
+        with open(args.config) as f:
             config = json.load(f)
 
     # Override with command line arguments

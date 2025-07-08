@@ -10,7 +10,6 @@ import numpy as np
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-
 from pynomaly.application.services import (
     DatasetService,
     DetectionService,

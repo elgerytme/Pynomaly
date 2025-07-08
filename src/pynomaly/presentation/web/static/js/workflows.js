@@ -570,7 +570,7 @@ window.WorkflowManager = {
             <form id="step-config-form" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium mb-2">Step Name</label>
-                    <input type="text" name="name" value="${step.name}" 
+                    <input type="text" name="name" value="${step.name}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                 </div>
                 <div>
@@ -590,11 +590,11 @@ window.WorkflowManager = {
                 </div>
                 ${this.getStepSpecificConfig(step)}
                 <div class="flex justify-end space-x-2 pt-4">
-                    <button type="button" onclick="this.closest('.modal').style.display='none'" 
+                    <button type="button" onclick="this.closest('.modal').style.display='none'"
                             class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
                         Cancel
                     </button>
-                    <button type="submit" 
+                    <button type="submit"
                             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                         Save
                     </button>
@@ -620,7 +620,7 @@ window.WorkflowManager = {
         return `
                     <div>
                         <label class="block text-sm font-medium mb-2">Dataset Path</label>
-                        <input type="text" name="dataset_path" value="${step.config?.dataset_path || ""}" 
+                        <input type="text" name="dataset_path" value="${step.config?.dataset_path || ""}"
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                     </div>
                     <div>
@@ -644,7 +644,7 @@ window.WorkflowManager = {
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-2">Contamination</label>
-                        <input type="number" name="contamination" value="${step.config?.contamination || 0.1}" 
+                        <input type="number" name="contamination" value="${step.config?.contamination || 0.1}"
                                step="0.01" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                     </div>
                 `;

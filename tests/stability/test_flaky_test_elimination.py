@@ -1,21 +1,17 @@
 """Comprehensive test stabilization framework to eliminate flaky tests."""
 
-import asyncio
 import functools
 import json
-import logging
 import os
 import random
 import shutil
-import sys
 import tempfile
 import threading
 import time
-import warnings
+from collections.abc import Callable
 from contextlib import contextmanager
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
 from unittest.mock import MagicMock, Mock, patch
 
 import numpy as np
@@ -630,7 +626,6 @@ class TestFlakyTestElimination:
 
         # Complex scenario: Multiple potential failure points
         with test_stabilizer.stabilized_test("complex_scenario"):
-
             # 1. File system race condition
             temp_dir = tempfile.mkdtemp()
             test_stabilizer.resource_manager.register_resource("temp_objects", temp_dir)
@@ -669,7 +664,7 @@ class TestFlakyTestElimination:
             assert network_success
 
             # 3. Data consistency check
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 content = f.read()
                 assert content == "test content"
 

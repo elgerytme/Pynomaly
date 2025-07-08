@@ -5,10 +5,9 @@ from __future__ import annotations
 import logging
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 import pandas as pd
-import pyarrow as pa
 import pyarrow.parquet as pq
 
 from pynomaly.domain.entities import Dataset
@@ -23,8 +22,8 @@ class EnhancedParquetLoader(BatchDataLoaderProtocol):
         self,
         engine: str = "pyarrow",
         use_memory_map: bool = True,
-        columns: Optional[List[str]] = None,
-        filters: Optional[List[List[tuple]]] = None,
+        columns: Optional[list[str]] = None,
+        filters: Optional[list[list[tuple]]] = None,
         use_pandas_metadata: bool = True,
         validate_schema: bool = True,
     ):
@@ -59,7 +58,7 @@ class EnhancedParquetLoader(BatchDataLoaderProtocol):
                 raise ImportError("fastparquet is required for fastparquet engine")
 
     @property
-    def supported_formats(self) -> List[str]:
+    def supported_formats(self) -> list[str]:
         """Get supported file formats."""
         return ["parquet", "pq"]
 
@@ -300,7 +299,7 @@ class EnhancedParquetLoader(BatchDataLoaderProtocol):
                 f"Failed to load Parquet in batches: {e}", file_path=str(source_path)
             ) from e
 
-    def estimate_size(self, source: Union[str, Path]) -> Dict[str, Any]:
+    def estimate_size(self, source: Union[str, Path]) -> dict[str, Any]:
         """Estimate the size of the Parquet file.
 
         Args:
@@ -366,7 +365,7 @@ class EnhancedParquetLoader(BatchDataLoaderProtocol):
                 "error": str(e),
             }
 
-    def get_schema_info(self, source: Union[str, Path]) -> Dict[str, Any]:
+    def get_schema_info(self, source: Union[str, Path]) -> dict[str, Any]:
         """Get detailed schema information from Parquet file.
 
         Args:
@@ -434,7 +433,7 @@ class EnhancedParquetLoader(BatchDataLoaderProtocol):
                 f"Failed to read schema: {e}", file_path=str(source_path)
             ) from e
 
-    def _extract_metadata(self, source_path: Path) -> Dict[str, Any]:
+    def _extract_metadata(self, source_path: Path) -> dict[str, Any]:
         """Extract metadata from Parquet file."""
         metadata = {}
 

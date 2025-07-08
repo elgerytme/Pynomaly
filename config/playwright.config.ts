@@ -7,10 +7,10 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   // Test directory
   testDir: './tests/ui',
-  
+
   // Global test timeout
   timeout: 30 * 1000,
-  
+
   // Test expectations timeout
   expect: {
     timeout: 5000,
@@ -18,13 +18,13 @@ export default defineConfig({
 
   // Fail the build on CI if you accidentally left test.only in the source code
   forbidOnly: !!process.env.CI,
-  
+
   // Retry on CI only
   retries: process.env.CI ? 2 : 0,
-  
+
   // Opt out of parallel tests on CI
   workers: process.env.CI ? 1 : undefined,
-  
+
   // Reporter configuration
   reporter: [
     ['html', { outputFolder: 'test_reports/playwright-report' }],
@@ -39,23 +39,23 @@ export default defineConfig({
   use: {
     // Base URL for tests
     baseURL: process.env.BASE_URL || 'http://localhost:8000',
-    
+
     // Collect trace when retrying the failed test
     trace: 'on-first-retry',
-    
+
     // Record video on failure
     video: 'retain-on-failure',
-    
+
     // Take screenshot on failure
     screenshot: 'only-on-failure',
-    
+
     // Browser context options
     locale: 'en-US',
     timezoneId: 'America/New_York',
-    
+
     // Viewport for desktop tests (will be overridden by device-specific configs)
     viewport: { width: 1280, height: 720 },
-    
+
     // Ignore HTTPS errors
     ignoreHTTPSErrors: true,
   },
@@ -65,7 +65,7 @@ export default defineConfig({
     // === DESKTOP BROWSERS ===
     {
       name: 'Desktop Chrome',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1920, height: 1080 },
         contextOptions: {
@@ -81,7 +81,7 @@ export default defineConfig({
 
     {
       name: 'Desktop Firefox',
-      use: { 
+      use: {
         ...devices['Desktop Firefox'],
         viewport: { width: 1920, height: 1080 },
         contextOptions: {
@@ -97,7 +97,7 @@ export default defineConfig({
 
     {
       name: 'Desktop Safari',
-      use: { 
+      use: {
         ...devices['Desktop Safari'],
         viewport: { width: 1920, height: 1080 }
       },
@@ -110,7 +110,7 @@ export default defineConfig({
 
     {
       name: 'Desktop Edge',
-      use: { 
+      use: {
         ...devices['Desktop Edge'],
         viewport: { width: 1920, height: 1080 },
         contextOptions: {
@@ -127,7 +127,7 @@ export default defineConfig({
     // === MOBILE DEVICES ===
     {
       name: 'Mobile Chrome',
-      use: { 
+      use: {
         ...devices['Pixel 5'],
         contextOptions: {
           permissions: ['geolocation', 'notifications']
@@ -142,7 +142,7 @@ export default defineConfig({
 
     {
       name: 'Mobile Safari',
-      use: { 
+      use: {
         ...devices['iPhone 12'],
         contextOptions: {
           permissions: ['geolocation', 'notifications']
@@ -157,7 +157,7 @@ export default defineConfig({
 
     {
       name: 'Mobile Firefox',
-      use: { 
+      use: {
         ...devices['Pixel 5'],
         channel: 'firefox',
         contextOptions: {
@@ -173,7 +173,7 @@ export default defineConfig({
     // === TABLET DEVICES ===
     {
       name: 'iPad',
-      use: { 
+      use: {
         ...devices['iPad Pro'],
         contextOptions: {
           permissions: ['geolocation', 'notifications']
@@ -188,7 +188,7 @@ export default defineConfig({
 
     {
       name: 'Android Tablet',
-      use: { 
+      use: {
         ...devices['Galaxy Tab S4'],
         contextOptions: {
           permissions: ['geolocation', 'notifications']
@@ -204,7 +204,7 @@ export default defineConfig({
     // === HIGH DPI DISPLAYS ===
     {
       name: 'Desktop Chrome HiDPI',
-      use: { 
+      use: {
         ...devices['Desktop Chrome HiDPI'],
         viewport: { width: 1920, height: 1080 }
       },
@@ -217,7 +217,7 @@ export default defineConfig({
     // === ACCESSIBILITY TESTING ===
     {
       name: 'Accessibility Chrome',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1280, height: 720 },
         contextOptions: {
@@ -233,7 +233,7 @@ export default defineConfig({
     // === PERFORMANCE TESTING ===
     {
       name: 'Performance Chrome',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1920, height: 1080 },
         contextOptions: {
@@ -248,7 +248,7 @@ export default defineConfig({
     // === SLOW NETWORK SIMULATION ===
     {
       name: 'Slow Network Chrome',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1280, height: 720 },
         contextOptions: {
@@ -268,7 +268,7 @@ export default defineConfig({
     // === OLDER BROWSER VERSIONS ===
     {
       name: 'Legacy Chrome',
-      use: { 
+      use: {
         channel: 'chrome',
         viewport: { width: 1280, height: 720 },
         // Simulate older Chrome capabilities

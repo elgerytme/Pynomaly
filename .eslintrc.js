@@ -17,13 +17,13 @@ module.exports = {
         'no-debugger': 'error',
         'no-unused-vars': 'error',
         'no-undef': 'error',
-        
+
         // Code style
         'indent': ['error', 2],
         'quotes': ['error', 'single'],
         'semi': ['error', 'always'],
         'comma-dangle': ['error', 'never'],
-        
+
         // Best practices
         'eqeqeq': 'error',
         'curly': 'error',
@@ -31,7 +31,7 @@ module.exports = {
         'no-implied-eval': 'error',
         'no-new-func': 'error',
         'no-alert': 'warn',
-        
+
         // ES6+
         'prefer-const': 'error',
         'no-var': 'error',
@@ -43,7 +43,7 @@ module.exports = {
         'fetch': 'readonly',
         'localStorage': 'readonly',
         'sessionStorage': 'readonly',
-        
+
         // Third-party libraries (based on package.json dependencies)
         'htmx': 'readonly',
         'Alpine': 'readonly',

@@ -21,7 +21,7 @@ Display anomaly detection status with clear visual hierarchy:
       <button class="btn-primary btn-sm">Refresh Data</button>
     </div>
   </div>
-  
+
   <div class="metric-overview">
     <div class="metric-card metric-card-success">
       <div class="metric-icon">
@@ -33,7 +33,7 @@ Display anomaly detection status with clear visual hierarchy:
         <div class="metric-change positive">+2.1%</div>
       </div>
     </div>
-    
+
     <div class="metric-card metric-card-warning">
       <div class="metric-icon">
         <svg class="w-8 h-8"><!-- Warning status icon --></svg>
@@ -44,7 +44,7 @@ Display anomaly detection status with clear visual hierarchy:
         <div class="metric-change negative">+0.3%</div>
       </div>
     </div>
-    
+
     <div class="metric-card metric-card-info">
       <div class="metric-icon">
         <svg class="w-8 h-8"><!-- Processing icon --></svg>
@@ -56,7 +56,7 @@ Display anomaly detection status with clear visual hierarchy:
       </div>
     </div>
   </div>
-  
+
   <div class="anomaly-timeline">
     <div class="timeline-header">
       <h3>Detection Timeline</h3>
@@ -146,7 +146,7 @@ Multi-step data upload with progress tracking:
       </div>
     </div>
   </div>
-  
+
   <div class="upload-content">
     <!-- Step 1: File Selection -->
     <div class="upload-step" data-step="1" style="display: none;">
@@ -163,7 +163,7 @@ Multi-step data upload with progress tracking:
         <input type="file" class="file-input" accept=".csv,.json,.parquet" multiple>
       </div>
     </div>
-    
+
     <!-- Step 2: Configuration -->
     <div class="upload-step" data-step="2">
       <div class="config-form">
@@ -180,7 +180,7 @@ Multi-step data upload with progress tracking:
             </div>
           </div>
         </div>
-        
+
         <div class="form-section">
           <h4>Detection Settings</h4>
           <div class="form-grid">
@@ -203,7 +203,7 @@ Multi-step data upload with progress tracking:
         </div>
       </div>
     </div>
-    
+
     <!-- Step 3: Processing -->
     <div class="upload-step" data-step="3" style="display: none;">
       <div class="processing-status">
@@ -222,7 +222,7 @@ Multi-step data upload with progress tracking:
       </div>
     </div>
   </div>
-  
+
   <div class="upload-actions">
     <button class="btn-secondary" onclick="previousStep()">Previous</button>
     <button class="btn-primary" onclick="nextStep()">Continue</button>
@@ -251,7 +251,7 @@ Pattern for comparing different detection algorithms:
       </div>
     </div>
   </div>
-  
+
   <div class="comparison-grid">
     <div class="algorithm-card algorithm-card-winner">
       <div class="card-header">
@@ -286,7 +286,7 @@ Pattern for comparing different detection algorithms:
         <button class="btn-ghost btn-sm">View Details</button>
       </div>
     </div>
-    
+
     <div class="algorithm-card">
       <div class="card-header">
         <h4>One-Class SVM</h4>
@@ -319,7 +319,7 @@ Pattern for comparing different detection algorithms:
         <button class="btn-ghost btn-sm">View Details</button>
       </div>
     </div>
-    
+
     <div class="algorithm-card">
       <div class="card-header">
         <h4>Local Outlier Factor</h4>
@@ -392,7 +392,7 @@ Reusable pattern for interactive data visualizations:
       </div>
     </div>
   </div>
-  
+
   <div class="chart-container">
     <div class="chart-legend">
       <div class="legend-item">
@@ -406,11 +406,11 @@ Reusable pattern for interactive data visualizations:
         <span class="legend-value">2,290 (21.8%)</span>
       </div>
     </div>
-    
+
     <div class="chart-content" data-component="anomaly-chart">
       <!-- Chart rendered here -->
     </div>
-    
+
     <div class="chart-insights">
       <div class="insight-item">
         <div class="insight-icon">📈</div>
@@ -463,7 +463,7 @@ Pattern for data tables with bulk actions and filtering:
       </button>
     </div>
   </div>
-  
+
   <div class="table-filters" style="display: none;">
     <div class="filter-group">
       <label class="filter-label">Confidence Level:</label>
@@ -481,7 +481,7 @@ Pattern for data tables with bulk actions and filtering:
       <input type="date" class="form-input form-input-sm">
     </div>
   </div>
-  
+
   <div class="bulk-actions" style="display: none;">
     <div class="bulk-info">
       <span class="selected-count">12 items selected</span>
@@ -492,7 +492,7 @@ Pattern for data tables with bulk actions and filtering:
       <button class="btn-danger btn-sm">Delete</button>
     </div>
   </div>
-  
+
   <div class="table-container">
     <table class="data-table">
       <thead>
@@ -541,7 +541,7 @@ Pattern for data tables with bulk actions and filtering:
       </tbody>
     </table>
   </div>
-  
+
   <div class="table-footer">
     <div class="table-info">
       Showing 1-25 of 2,290 anomalies
@@ -575,7 +575,7 @@ Collapsible settings panel for algorithm configuration:
       <svg class="panel-icon"><!-- Collapse icon --></svg>
     </button>
   </div>
-  
+
   <div class="panel-content">
     <div class="settings-section">
       <h4 class="section-title">Algorithm Parameters</h4>
@@ -593,7 +593,7 @@ Collapsible settings panel for algorithm configuration:
             Currently set to 10% - Adjust based on expected anomaly frequency
           </div>
         </div>
-        
+
         <div class="setting-item">
           <label class="setting-label">
             Random State
@@ -604,7 +604,7 @@ Collapsible settings panel for algorithm configuration:
             <button class="btn-secondary btn-sm">Randomize</button>
           </div>
         </div>
-        
+
         <div class="setting-item">
           <label class="setting-label">Bootstrap Sampling</label>
           <div class="setting-control">
@@ -619,7 +619,7 @@ Collapsible settings panel for algorithm configuration:
         </div>
       </div>
     </div>
-    
+
     <div class="settings-section">
       <h4 class="section-title">Performance Options</h4>
       <div class="settings-grid">
@@ -635,7 +635,7 @@ Collapsible settings panel for algorithm configuration:
             </select>
           </div>
         </div>
-        
+
         <div class="setting-item">
           <label class="setting-label">Memory Usage</label>
           <div class="setting-control">
@@ -648,7 +648,7 @@ Collapsible settings panel for algorithm configuration:
         </div>
       </div>
     </div>
-    
+
     <div class="settings-actions">
       <button class="btn-secondary">Reset to Defaults</button>
       <button class="btn-primary">Apply Settings</button>
@@ -683,7 +683,7 @@ Stack of toast notifications for system feedback:
       <div class="progress-bar" style="animation-duration: 5s;"></div>
     </div>
   </div>
-  
+
   <div class="toast toast-warning" role="alert">
     <div class="toast-icon">
       <svg class="w-5 h-5"><!-- Warning icon --></svg>
@@ -715,7 +715,7 @@ Comprehensive notification management:
       <button class="btn-ghost btn-sm">Settings</button>
     </div>
   </div>
-  
+
   <div class="notification-filters">
     <div class="filter-tabs">
       <button class="filter-tab filter-tab-active">All</button>
@@ -724,7 +724,7 @@ Comprehensive notification management:
       <button class="filter-tab">System</button>
     </div>
   </div>
-  
+
   <div class="notification-list">
     <div class="notification-item notification-item-unread">
       <div class="notification-indicator"></div>
@@ -743,7 +743,7 @@ Comprehensive notification management:
         </div>
       </div>
     </div>
-    
+
     <div class="notification-item">
       <div class="notification-content">
         <div class="notification-header">
@@ -776,13 +776,13 @@ Secure login form with validation:
       <h2 class="auth-title">Sign in to Pynomaly</h2>
       <p class="auth-subtitle">Welcome back! Please sign in to continue.</p>
     </div>
-    
+
     <form class="auth-form">
       <div class="form-group">
         <label class="form-label">Email Address</label>
-        <input 
-          type="email" 
-          class="form-input" 
+        <input
+          type="email"
+          class="form-input"
           placeholder="Enter your email"
           required
           autocomplete="email"
@@ -791,13 +791,13 @@ Secure login form with validation:
           Please enter a valid email address
         </div>
       </div>
-      
+
       <div class="form-group">
         <label class="form-label">Password</label>
         <div class="password-input">
-          <input 
-            type="password" 
-            class="form-input" 
+          <input
+            type="password"
+            class="form-input"
             placeholder="Enter your password"
             required
             autocomplete="current-password"
@@ -807,7 +807,7 @@ Secure login form with validation:
           </button>
         </div>
       </div>
-      
+
       <div class="form-options">
         <label class="checkbox-label">
           <input type="checkbox" class="form-checkbox">
@@ -815,15 +815,15 @@ Secure login form with validation:
         </label>
         <a href="/forgot-password" class="form-link">Forgot password?</a>
       </div>
-      
+
       <button type="submit" class="btn-primary btn-full">
         Sign In
       </button>
     </form>
-    
+
     <div class="auth-footer">
       <p class="auth-text">
-        Don't have an account? 
+        Don't have an account?
         <a href="/register" class="auth-link">Sign up for free</a>
       </p>
     </div>

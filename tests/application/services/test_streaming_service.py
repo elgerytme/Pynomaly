@@ -5,9 +5,7 @@ This module provides comprehensive tests for the streaming service,
 ensuring proper real-time data processing and anomaly detection capabilities.
 """
 
-from unittest.mock import AsyncMock, Mock
 
-import pytest
 
 # TODO: Import actual service when implementation is complete
 # from src.pynomaly.application.services.streaming_service import StreamingService

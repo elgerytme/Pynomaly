@@ -4,7 +4,6 @@
 import os
 import subprocess
 import sys
-from pathlib import Path
 
 
 def run_command(cmd, description, use_venv=True):
@@ -70,7 +69,7 @@ def main():
     print("=" * 50)
 
     # Check environment
-    print(f"\n📌 Environment Info:")
+    print("\n📌 Environment Info:")
     print(f"Python: {sys.executable}")
     print(f"Platform: {sys.platform}")
     print(f"Virtual env exists: {os.path.exists('.venv')}")

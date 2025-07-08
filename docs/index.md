@@ -26,6 +26,7 @@ Comprehensive references for algorithms, APIs, and configuration.
 ### 🚀 **I'm deploying to production**
 Production deployment, operations, and monitoring guidance.
 - **[Deployment →](deployment/)** - Docker, Kubernetes, security, monitoring
+- **[Security →](security/)** - Security best practices and SDLC guidance
 
 ### 📋 **I want examples**
 Real-world examples, tutorials, and industry-specific guides.
@@ -54,6 +55,9 @@ docs/
 │   ├── api/                 # API specifications
 │   └── configuration/       # Config reference
 ├── 🚀 deployment/           # Production deployment
+├── 🔒 security/             # Security guides
+│   ├── security-best-practices.md  # Production security
+│   └── SDLC-security-guide.md      # Secure development lifecycle
 ├── 📋 examples/             # Practical examples
 │   ├── banking/            # Financial use cases
 │   ├── manufacturing/      # Industrial use cases
@@ -165,7 +169,8 @@ print(f"Detected {results.n_anomalies} anomalies with {results.confidence:.2f} c
 1. [Docker Deployment](deployment/DOCKER_DEPLOYMENT_GUIDE.md) → Containerization
 2. [Kubernetes](deployment/kubernetes.md) → Orchestration
 3. [Security](deployment/SECURITY.md) → Production security
-4. [Monitoring](user-guides/basic-usage/monitoring.md) → Observability
+4. [SDLC Security Guide](security/SDLC-security-guide.md) → Secure development lifecycle
+5. [Monitoring](user-guides/basic-usage/monitoring.md) → Observability
 
 ### **Business Analyst - Domain Expert**
 1. [Banking Examples](examples/banking/) → Industry use cases
@@ -226,7 +231,7 @@ print(f"Detected {results.n_anomalies} anomalies with {results.confidence:.2f} c
 
 Ready to get started? Choose your path:
 
-### **Quick Start** 
+### **Quick Start**
 Jump right in with the essentials:
 - **[Install Pynomaly →](getting-started/installation.md)**
 - **[5-Minute Quickstart →](getting-started/quickstart.md)**

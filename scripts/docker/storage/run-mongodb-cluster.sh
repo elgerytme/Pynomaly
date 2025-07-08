@@ -79,7 +79,7 @@ stop_containers() {
         docker rm -f "${SECONDARY_PREFIX}-${i}" 2>/dev/null || true
     done
     docker rm -f "pynomaly-mongodb-arbiter" 2>/dev/null || true
-    
+
     if [[ "$SHARDING" == "true" ]]; then
         docker rm -f "pynomaly-mongos" 2>/dev/null || true
         for i in 1 2 3; do
@@ -90,7 +90,7 @@ stop_containers() {
             docker rm -f "pynomaly-shard${i}-secondary" 2>/dev/null || true
         done
     fi
-    
+
     docker rm -f "pynomaly-mongodb-monitor" 2>/dev/null || true
     docker rm -f "pynomaly-mongodb-backup" 2>/dev/null || true
     echo "All MongoDB containers stopped."
@@ -116,13 +116,13 @@ MONGODB_REPLICA_SET_KEY="replicasetkey123"
 
 if [[ "$SHARDING" == "true" ]]; then
     echo "Starting MongoDB Sharded Cluster..."
-    
+
     # Start Config Servers
     echo "Starting Config Server Replica Set..."
     for i in 1 2 3; do
         CONFIG_PORT=$((27019 + i - 1))
         echo "Starting Config Server $i on port $CONFIG_PORT..."
-        
+
         docker run -d \
             --name "pynomaly-configsvr-${i}" \
             --network "$NETWORK_NAME" \
@@ -135,13 +135,13 @@ if [[ "$SHARDING" == "true" ]]; then
             -v "mongodb-configsvr-${i}:/bitnami/mongodb" \
             bitnami/mongodb:7.0 --configsvr
     done
-    
+
     sleep 15
-    
+
     # Start Shard Replica Sets
     for shard in 1 2; do
         echo "Starting Shard $shard Replica Set..."
-        
+
         # Primary
         SHARD_PORT=$((27017 + (shard - 1) * 10))
         docker run -d \
@@ -155,7 +155,7 @@ if [[ "$SHARDING" == "true" ]]; then
             -e MONGODB_REPLICA_SET_KEY="$MONGODB_REPLICA_SET_KEY" \
             -v "mongodb-shard${shard}-primary:/bitnami/mongodb" \
             bitnami/mongodb:7.0 --shardsvr
-        
+
         # Secondary
         SHARD_SEC_PORT=$((27018 + (shard - 1) * 10))
         docker run -d \
@@ -171,9 +171,9 @@ if [[ "$SHARDING" == "true" ]]; then
             -v "mongodb-shard${shard}-secondary:/bitnami/mongodb" \
             bitnami/mongodb:7.0 --shardsvr
     done
-    
+
     sleep 30
-    
+
     # Start Mongos Router
     echo "Starting Mongos Router..."
     docker run -d \
@@ -186,9 +186,9 @@ if [[ "$SHARDING" == "true" ]]; then
         -e MONGODB_ROOT_PASSWORD="$MONGODB_ROOT_PASSWORD" \
         -e MONGODB_REPLICA_SET_KEY="$MONGODB_REPLICA_SET_KEY" \
         bitnami/mongodb:7.0 mongos --configdb configReplSet/pynomaly-configsvr-1:27017,pynomaly-configsvr-2:27017,pynomaly-configsvr-3:27017
-    
+
     sleep 15
-    
+
     # Initialize sharding
     echo "Initializing shards..."
     docker exec -it pynomaly-mongos mongosh --eval "
@@ -199,12 +199,12 @@ if [[ "$SHARDING" == "true" ]]; then
         sh.shardCollection('pynomaly.detectors', {_id: 'hashed'});
         sh.status();
     "
-    
+
 else
     echo "Starting MongoDB Replica Set..."
     echo "Primary: 1 node"
     echo "Secondaries: $SECONDARIES nodes"
-    
+
     # Start MongoDB Primary
     echo "Starting MongoDB Primary..."
     docker run -d \
@@ -218,16 +218,16 @@ else
         -e MONGODB_REPLICA_SET_KEY="$MONGODB_REPLICA_SET_KEY" \
         -v mongodb-primary-data:/bitnami/mongodb \
         bitnami/mongodb:7.0
-    
+
     # Wait for primary to be ready
     echo "Waiting for primary to be ready..."
     sleep 30
-    
+
     # Start MongoDB Secondaries
     for i in $(seq 1 $SECONDARIES); do
         SECONDARY_PORT=$((27017 + i))
         echo "Starting MongoDB Secondary $i on port $SECONDARY_PORT..."
-        
+
         docker run -d \
             --name "${SECONDARY_PREFIX}-${i}" \
             --network "$NETWORK_NAME" \
@@ -241,7 +241,7 @@ else
             -v "mongodb-secondary-${i}-data:/bitnami/mongodb" \
             bitnami/mongodb:7.0
     done
-    
+
     # Start Arbiter if requested
     if [[ "$WITH_ARBITER" == "true" ]]; then
         echo "Starting MongoDB Arbiter..."
@@ -257,11 +257,11 @@ else
             -e MONGODB_REPLICA_SET_KEY="$MONGODB_REPLICA_SET_KEY" \
             bitnami/mongodb:7.0
     fi
-    
+
     # Wait for replica set to initialize
     echo "Waiting for replica set to initialize..."
     sleep 30
-    
+
     # Initialize database and collections
     echo "Initializing database..."
     docker exec -it "$PRIMARY_NAME" mongosh pynomaly --eval "
@@ -280,7 +280,7 @@ else
                 }
             }
         });
-        
+
         db.createCollection('detectors', {
             validator: {
                 \$jsonSchema: {
@@ -296,13 +296,13 @@ else
                 }
             }
         });
-        
+
         db.anomalies.createIndex({ timestamp: -1 });
         db.anomalies.createIndex({ score: -1 });
         db.anomalies.createIndex({ detector_id: 1, timestamp: -1 });
         db.detectors.createIndex({ algorithm: 1 });
         db.detectors.createIndex({ created_at: -1 });
-        
+
         print('Database initialized successfully');
     "
 fi
@@ -324,7 +324,7 @@ fi
 # Set up automated backups if requested
 if [[ "$BACKUP" == "true" ]]; then
     echo "Setting up automated backups..."
-    
+
     # Create backup script
     cat > /tmp/mongodb-backup.sh << 'EOF'
 #!/bin/bash
@@ -355,7 +355,7 @@ echo "Backup completed: mongodb-backup-$DATE.tar.gz"
 EOF
 
     chmod +x /tmp/mongodb-backup.sh
-    
+
     docker run -d \
         --name "pynomaly-mongodb-backup" \
         --network "$NETWORK_NAME" \

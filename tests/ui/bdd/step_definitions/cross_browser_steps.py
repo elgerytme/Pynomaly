@@ -1,8 +1,8 @@
 """Step definitions for cross-browser compatibility BDD scenarios."""
 
 import pytest
-from playwright.async_api import Browser, Page, expect
-from pytest_bdd import given, parsers, then, when
+from playwright.async_api import Page
+from pytest_bdd import given, then, when
 
 from tests.ui.conftest import TEST_CONFIG, UITestHelper
 
@@ -37,7 +37,7 @@ async def given_using_specific_browser(
         () => {
             const userAgent = navigator.userAgent;
             let browserName = 'unknown';
-            
+
             if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) {
                 browserName = 'chromium';
             } else if (userAgent.includes('Firefox')) {
@@ -47,7 +47,7 @@ async def given_using_specific_browser(
             } else if (userAgent.includes('Edg')) {
                 browserName = 'edge';
             }
-            
+
             return {
                 name: browserName,
                 userAgent: userAgent,
@@ -82,12 +82,12 @@ async def when_access_application_cross_browser(
                 supportsGrid: CSS.supports('display', 'grid'),
                 supportsFlexbox: CSS.supports('display', 'flex'),
                 supportsCustomProperties: CSS.supports('--test', 'value'),
-                
+
                 // JavaScript Features
                 supportsES6Modules: 'noModule' in document.createElement('script'),
                 supportsAsyncAwait: typeof (async function(){}) === 'function',
                 supportsWebComponents: 'customElements' in window,
-                
+
                 // Web APIs
                 supportsServiceWorker: 'serviceWorker' in navigator,
                 supportsWebGL: !!document.createElement('canvas').getContext('webgl'),
@@ -95,27 +95,27 @@ async def when_access_application_cross_browser(
                 supportsWebAudio: 'AudioContext' in window,
                 supportsGeolocation: 'geolocation' in navigator,
                 supportsNotifications: 'Notification' in window,
-                
+
                 // Storage
                 supportsLocalStorage: 'localStorage' in window,
                 supportsSessionStorage: 'sessionStorage' in window,
                 supportsIndexedDB: 'indexedDB' in window,
-                
+
                 // Network
                 supportsFetch: 'fetch' in window,
                 supportsWebSockets: 'WebSocket' in window,
-                
+
                 // Media
                 supportsWebP: (() => {
                     const canvas = document.createElement('canvas');
                     return canvas.toDataURL('image/webp').startsWith('data:image/webp');
                 })(),
-                
+
                 // Device APIs
                 supportsDeviceMotion: 'DeviceMotionEvent' in window,
                 supportsVibration: 'vibrate' in navigator,
                 supportsBluetooth: 'bluetooth' in navigator,
-                
+
                 // Performance
                 supportsPerformanceObserver: 'PerformanceObserver' in window,
                 supportsIntersectionObserver: 'IntersectionObserver' in window
@@ -143,13 +143,13 @@ async def then_core_functionality_consistent(
             // Test navigation elements
             const navLinks = document.querySelectorAll('a[href], button');
             let workingLinks = 0;
-            
+
             navLinks.forEach(link => {
                 if (link.href || link.onclick || link.addEventListener) {
                     workingLinks++;
                 }
             });
-            
+
             return {
                 totalLinks: navLinks.length,
                 workingLinks: workingLinks,
@@ -186,7 +186,7 @@ async def then_core_functionality_consistent(
                 const testObj = { test: 'value' };
                 const testArray = [1, 2, 3];
                 const testFunction = () => 'working';
-                
+
                 return {
                     objectsWork: testObj.test === 'value',
                     arraysWork: testArray.length === 3,
@@ -217,7 +217,7 @@ async def then_css_layouts_render_correctly(
         () => {
             const body = document.body;
             const computedStyle = getComputedStyle(body);
-            
+
             // Check basic layout properties
             return {
                 hasWidth: body.offsetWidth > 0,
@@ -260,40 +260,40 @@ async def then_javascript_features_compatible(
                         return true;
                     } catch (e) { return false; }
                 })(),
-                
+
                 templateLiterals: (() => {
                     try {
                         eval('`test ${1}`');
                         return true;
                     } catch (e) { return false; }
                 })(),
-                
+
                 destructuring: (() => {
                     try {
                         eval('const [a] = [1]');
                         return true;
                     } catch (e) { return false; }
                 })(),
-                
+
                 classes: (() => {
                     try {
                         eval('class Test {}');
                         return true;
                     } catch (e) { return false; }
                 })(),
-                
+
                 // Modern APIs
                 promises: typeof Promise !== 'undefined',
                 fetch: typeof fetch !== 'undefined',
-                
+
                 // Array methods
                 arrayMethods: [].includes && [].find && [].filter,
-                
+
                 // Object methods
                 objectAssign: typeof Object.assign === 'function',
                 objectKeys: typeof Object.keys === 'function'
             };
-            
+
             return tests;
         }
     """
@@ -400,32 +400,32 @@ async def then_content_accessible_across_viewports(
             const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
             const buttons = document.querySelectorAll('button, [role="button"]');
             const links = document.querySelectorAll('a[href]');
-            
+
             let visibleHeadings = 0;
             let visibleButtons = 0;
             let visibleLinks = 0;
-            
+
             headings.forEach(h => {
                 const style = getComputedStyle(h);
                 if (style.display !== 'none' && style.visibility !== 'hidden') {
                     visibleHeadings++;
                 }
             });
-            
+
             buttons.forEach(b => {
                 const style = getComputedStyle(b);
                 if (style.display !== 'none' && style.visibility !== 'hidden') {
                     visibleButtons++;
                 }
             });
-            
+
             links.forEach(l => {
                 const style = getComputedStyle(l);
                 if (style.display !== 'none' && style.visibility !== 'hidden') {
                     visibleLinks++;
                 }
             });
-            
+
             return {
                 totalHeadings: headings.length,
                 visibleHeadings: visibleHeadings,
@@ -463,7 +463,7 @@ async def then_features_degrade_gracefully(
         """
         () => {
             const tests = [];
-            
+
             // Test CSS Grid fallback
             if (!CSS.supports('display', 'grid')) {
                 tests.push({
@@ -471,7 +471,7 @@ async def then_features_degrade_gracefully(
                     hasGracefulFallback: getComputedStyle(document.body).display === 'block'
                 });
             }
-            
+
             // Test Service Worker fallback
             if (!('serviceWorker' in navigator)) {
                 tests.push({
@@ -479,7 +479,7 @@ async def then_features_degrade_gracefully(
                     hasGracefulFallback: true  // App should work without SW
                 });
             }
-            
+
             // Test WebGL fallback
             const canvas = document.createElement('canvas');
             if (!canvas.getContext('webgl')) {
@@ -488,7 +488,7 @@ async def then_features_degrade_gracefully(
                     hasGracefulFallback: !!canvas.getContext('2d')
                 });
             }
-            
+
             return tests;
         }
     """
@@ -513,7 +513,7 @@ async def then_performance_consistent_browsers(
         () => {
             const navigation = performance.getEntriesByType('navigation')[0];
             const paint = performance.getEntriesByType('paint');
-            
+
             return {
                 domContentLoaded: navigation ? navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart : 0,
                 loadComplete: navigation ? navigation.loadEventEnd - navigation.loadEventStart : 0,
@@ -527,9 +527,9 @@ async def then_performance_consistent_browsers(
     # Store browser-specific performance
     browser_name = cross_browser_context.current_browser
     if browser_name:
-        cross_browser_context.compatibility_results[f"{browser_name}_performance"] = (
-            performance_metrics
-        )
+        cross_browser_context.compatibility_results[
+            f"{browser_name}_performance"
+        ] = performance_metrics
 
     # Basic performance thresholds (should be reasonable across browsers)
     if performance_metrics["domContentLoaded"] > 0:
@@ -561,7 +561,7 @@ async def when_use_touch_interactions(page: Page):
         () => {
             // Dispatch touch events to test touch handling
             const element = document.body;
-            
+
             const touchStart = new TouchEvent('touchstart', {
                 bubbles: true,
                 cancelable: true,
@@ -572,13 +572,13 @@ async def when_use_touch_interactions(page: Page):
                     clientY: 100
                 }]
             });
-            
+
             const touchEnd = new TouchEvent('touchend', {
                 bubbles: true,
                 cancelable: true,
                 touches: []
             });
-            
+
             element.dispatchEvent(touchStart);
             element.dispatchEvent(touchEnd);
         }
@@ -608,7 +608,7 @@ async def then_both_input_methods_work(
                 supportsTouch: 'ontouchstart' in window || navigator.maxTouchPoints > 0,
                 supportsMouse: window.matchMedia('(pointer: fine)').matches,
                 supportsPointerEvents: 'PointerEvent' in window,
-                
+
                 // Test event handler compatibility
                 hasClickHandlers: typeof document.onclick !== 'undefined',
                 hasTouchHandlers: typeof document.ontouchstart !== 'undefined',
@@ -640,22 +640,22 @@ async def then_security_features_supported(
             return {
                 // Content Security Policy
                 supportsCSP: 'SecurityPolicyViolationEvent' in window,
-                
+
                 // Secure contexts
                 isSecureContext: window.isSecureContext,
-                
+
                 // HTTPS enforcement
                 protocol: window.location.protocol,
-                
+
                 // Cookie security
                 supportsSameSite: document.cookie.includes('SameSite') || true,  // Fallback to true
-                
+
                 // CORS
                 supportsCORS: 'fetch' in window,
-                
+
                 // Subresource Integrity
                 supportsSRI: 'integrity' in document.createElement('script'),
-                
+
                 // Feature Policy / Permissions Policy
                 supportsFeaturePolicy: 'featurePolicy' in document || 'permissionsPolicy' in document
             };
@@ -684,22 +684,22 @@ async def then_accessibility_consistent(
             return {
                 // ARIA support
                 supportsARIA: 'role' in document.createElement('div'),
-                
+
                 // Screen reader APIs
                 supportsAccessibilityAPI: 'accessibleName' in document.createElement('div') || true,
-                
+
                 // Focus management
                 supportsFocusManagement: typeof document.activeElement !== 'undefined',
-                
+
                 // Keyboard navigation
                 supportsKeyboardEvents: 'KeyboardEvent' in window,
-                
+
                 // High contrast media query
                 supportsHighContrast: window.matchMedia('(prefers-contrast: high)').media !== 'not all',
-                
+
                 // Reduced motion
                 supportsReducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').media !== 'not all',
-                
+
                 // Color scheme preference
                 supportsColorScheme: window.matchMedia('(prefers-color-scheme: dark)').media !== 'not all'
             };
@@ -735,22 +735,22 @@ async def then_modern_standards_supported(
                 supportsClasses: typeof class{} === 'function',
                 supportsArrowFunctions: (() => true)(),
                 supportsTemplateStrings: `test` === 'test',
-                
+
                 // Modules
                 supportsModules: 'noModule' in document.createElement('script'),
-                
+
                 // Async/Await
                 supportsAsyncAwait: typeof (async function(){}) === 'function',
-                
+
                 // Web Components
                 supportsCustomElements: 'customElements' in window,
                 supportsShadowDOM: 'attachShadow' in Element.prototype,
-                
+
                 // Modern CSS
                 supportsCSSVariables: CSS.supports('color', 'var(--test)'),
                 supportsCSSGrid: CSS.supports('display', 'grid'),
                 supportsFlexbox: CSS.supports('display', 'flex'),
-                
+
                 // Modern APIs
                 supportsFetch: 'fetch' in window,
                 supportsPromises: 'Promise' in window,

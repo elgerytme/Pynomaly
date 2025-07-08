@@ -9,7 +9,6 @@ from unittest.mock import Mock, patch
 import jwt
 import pytest
 from fastapi.testclient import TestClient
-
 from pynomaly.domain.exceptions import AuthenticationError
 from pynomaly.presentation.api.app import create_app
 
@@ -92,7 +91,8 @@ class TestAuthEndpoints:
     def test_login_invalid_email_format(self, client):
         """Test login with invalid email format."""
         response = client.post(
-            "/api/auth/login", json={"email": "invalid-email", "password": "password123"}
+            "/api/auth/login",
+            json={"email": "invalid-email", "password": "password123"},
         )
 
         assert response.status_code == 422

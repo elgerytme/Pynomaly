@@ -1,13 +1,14 @@
 """Real-time streaming anomaly detection processor."""
 
 import asyncio
+import json
 import logging
 import time
-from typing import Any, AsyncIterator, Dict, List, Optional, Union, Callable
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
-import json
-from datetime import datetime, timedelta
+from typing import Any
+
 import numpy as np
 import pandas as pd
 
@@ -28,10 +29,11 @@ except ImportError:
 
 from ...domain.entities.dataset import Dataset
 from ...domain.entities.detection_result import DetectionResult
-from ...domain.services.advanced_detection_service import get_detection_service, DetectionAlgorithm
-from ...shared.config import Config
+from ...domain.services.advanced_detection_service import (
+    DetectionAlgorithm,
+    get_detection_service,
+)
 from ..monitoring.distributed_tracing import trace_operation
-
 
 logger = logging.getLogger(__name__)
 
@@ -58,62 +60,62 @@ class StreamFormat(Enum):
 @dataclass
 class StreamConfig:
     """Configuration for stream processing."""
-    
+
     # Source configuration
     source_type: StreamSource
-    source_config: Dict[str, Any] = field(default_factory=dict)
-    
+    source_config: dict[str, Any] = field(default_factory=dict)
+
     # Data format
     data_format: StreamFormat = StreamFormat.JSON
-    
+
     # Processing configuration
     batch_size: int = 1000
     batch_timeout_seconds: float = 30.0
     max_memory_mb: int = 512
-    
+
     # Detection configuration
     detection_algorithm: DetectionAlgorithm = DetectionAlgorithm.ISOLATION_FOREST
-    detection_config: Optional[Dict[str, Any]] = None
-    
+    detection_config: dict[str, Any] | None = None
+
     # Output configuration
-    output_topic: Optional[str] = None
+    output_topic: str | None = None
     output_format: StreamFormat = StreamFormat.JSON
-    
+
     # Performance tuning
     enable_backpressure: bool = True
     max_queue_size: int = 10000
     worker_threads: int = 4
     enable_compression: bool = True
-    
+
     # Error handling
     max_retries: int = 3
     retry_delay_seconds: float = 1.0
-    dead_letter_queue: Optional[str] = None
+    dead_letter_queue: str | None = None
 
 
 @dataclass
 class StreamRecord:
     """Individual stream record."""
-    
+
     id: str
     timestamp: datetime
-    data: Dict[str, Any]
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    source: Optional[str] = None
-    partition: Optional[int] = None
-    offset: Optional[int] = None
+    data: dict[str, Any]
+    metadata: dict[str, Any] = field(default_factory=dict)
+    source: str | None = None
+    partition: int | None = None
+    offset: int | None = None
 
 
 @dataclass
 class StreamBatch:
     """Batch of stream records."""
-    
+
     batch_id: str
-    records: List[StreamRecord]
+    records: list[StreamRecord]
     batch_timestamp: datetime
     size: int
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    
+    metadata: dict[str, Any] = field(default_factory=dict)
+
     def to_dataset(self) -> Dataset:
         """Convert batch to Dataset for anomaly detection."""
         # Extract data from records
@@ -122,10 +124,10 @@ class StreamBatch:
             # Flatten nested data if needed
             flattened = self._flatten_data(record.data)
             data_list.append(flattened)
-        
+
         # Create DataFrame
         df = pd.DataFrame(data_list)
-        
+
         # Create dataset
         dataset = Dataset(
             id=self.batch_id,
@@ -139,16 +141,16 @@ class StreamBatch:
                 **self.metadata
             }
         )
-        
+
         return dataset
-    
-    def _flatten_data(self, data: Dict[str, Any], prefix: str = "") -> Dict[str, Any]:
+
+    def _flatten_data(self, data: dict[str, Any], prefix: str = "") -> dict[str, Any]:
         """Flatten nested dictionary data."""
         flattened = {}
-        
+
         for key, value in data.items():
             new_key = f"{prefix}{key}" if prefix else key
-            
+
             if isinstance(value, dict):
                 flattened.update(self._flatten_data(value, f"{new_key}_"))
             elif isinstance(value, list):
@@ -156,124 +158,124 @@ class StreamBatch:
                 flattened[new_key] = str(value)
             else:
                 flattened[new_key] = value
-        
+
         return flattened
 
 
 class StreamProcessor:
     """Real-time streaming anomaly detection processor."""
-    
+
     def __init__(self, config: StreamConfig):
         """Initialize stream processor."""
         self.config = config
         self.detection_service = get_detection_service()
-        
+
         # Processing state
         self.is_running = False
         self.current_batch = []
         self.batch_count = 0
         self.processed_records = 0
         self.error_count = 0
-        
+
         # Queues and buffers
         self.input_queue: asyncio.Queue = asyncio.Queue(maxsize=config.max_queue_size)
         self.output_queue: asyncio.Queue = asyncio.Queue(maxsize=config.max_queue_size)
-        
+
         # Source and sink connectors
         self.source_connector = None
         self.sink_connector = None
-        
+
         # Background tasks
-        self.ingestion_task: Optional[asyncio.Task] = None
-        self.processing_task: Optional[asyncio.Task] = None
-        self.output_task: Optional[asyncio.Task] = None
-        self.monitoring_task: Optional[asyncio.Task] = None
-        
+        self.ingestion_task: asyncio.Task | None = None
+        self.processing_task: asyncio.Task | None = None
+        self.output_task: asyncio.Task | None = None
+        self.monitoring_task: asyncio.Task | None = None
+
         # Metrics
         self.start_time = time.time()
         self.last_batch_time = None
         self.processing_times = []
-        
+
         logger.info(f"Stream processor initialized with source: {config.source_type.value}")
-    
+
     async def start(self) -> None:
         """Start stream processing."""
         if self.is_running:
             logger.warning("Stream processor is already running")
             return
-        
+
         try:
             self.is_running = True
-            
+
             # Initialize connectors
             await self._initialize_source_connector()
             await self._initialize_sink_connector()
-            
+
             # Start background tasks
             self.ingestion_task = asyncio.create_task(self._ingestion_loop())
             self.processing_task = asyncio.create_task(self._processing_loop())
             self.output_task = asyncio.create_task(self._output_loop())
             self.monitoring_task = asyncio.create_task(self._monitoring_loop())
-            
+
             logger.info("Stream processor started successfully")
-            
+
         except Exception as e:
             logger.error(f"Failed to start stream processor: {e}")
             await self.stop()
             raise
-    
+
     async def stop(self) -> None:
         """Stop stream processing."""
         if not self.is_running:
             return
-        
+
         logger.info("Stopping stream processor...")
         self.is_running = False
-        
+
         # Cancel background tasks
         tasks = [self.ingestion_task, self.processing_task, self.output_task, self.monitoring_task]
         for task in tasks:
             if task and not task.done():
                 task.cancel()
-        
+
         # Wait for tasks to complete
         if tasks:
             await asyncio.gather(*tasks, return_exceptions=True)
-        
+
         # Process remaining batches
         await self._process_remaining_data()
-        
+
         # Close connectors
         if self.source_connector:
             await self._close_source_connector()
         if self.sink_connector:
             await self._close_sink_connector()
-        
+
         logger.info("Stream processor stopped")
-    
+
     async def _initialize_source_connector(self) -> None:
         """Initialize source connector based on configuration."""
         if self.config.source_type == StreamSource.KAFKA:
             if not KAFKA_AVAILABLE:
                 raise ImportError("Kafka is required for Kafka source")
             self.source_connector = await self._create_kafka_consumer()
-        
+
         elif self.config.source_type == StreamSource.REDIS:
             if not REDIS_AVAILABLE:
                 raise ImportError("Redis is required for Redis source")
             self.source_connector = await self._create_redis_consumer()
-        
+
         elif self.config.source_type == StreamSource.MEMORY:
             # In-memory queue for testing
             self.source_connector = asyncio.Queue()
-        
+
         else:
             raise ValueError(f"Unsupported source type: {self.config.source_type}")
-    
+
     async def _create_kafka_consumer(self):
         """Create Kafka consumer."""
         kafka_config = self.config.source_config
-        
+
         consumer = KafkaConsumer(
             kafka_config.get('topic', 'anomaly-detection-input'),
             bootstrap_servers=kafka_config.get('bootstrap_servers', ['localhost:9092']),
@@ -283,13 +285,13 @@ class StreamProcessor:
             max_poll_records=self.config.batch_size,
             consumer_timeout_ms=int(self.config.batch_timeout_seconds * 1000)
         )
-        
+
         return consumer
-    
+
     async def _create_redis_consumer(self):
         """Create Redis consumer."""
         redis_config = self.config.source_config
-        
+
         redis_client = Redis(
             host=redis_config.get('host', 'localhost'),
             port=redis_config.get('port', 6379),
@@ -297,9 +299,9 @@ class StreamProcessor:
             password=redis_config.get('password'),
             decode_responses=True
         )
-        
+
         return redis_client
-    
+
     async def _initialize_sink_connector(self) -> None:
         """Initialize sink connector for output."""
         if self.config.output_topic:
@@ -309,41 +311,41 @@ class StreamProcessor:
                     bootstrap_servers=kafka_config.get('bootstrap_servers', ['localhost:9092']),
                     value_serializer=lambda v: json.dumps(v).encode('utf-8')
                 )
-    
+
     @trace_operation("stream_ingestion")
     async def _ingestion_loop(self) -> None:
         """Main ingestion loop."""
         while self.is_running:
             try:
                 records = await self._fetch_records()
-                
+
                 for record in records:
                     if not self.is_running:
                         break
-                    
+
                     # Apply backpressure if queue is full
                     if self.config.enable_backpressure and self.input_queue.full():
                         logger.warning("Input queue full, applying backpressure")
                         await asyncio.sleep(0.1)
                         continue
-                    
+
                     await self.input_queue.put(record)
-                
+
             except Exception as e:
                 logger.error(f"Error in ingestion loop: {e}")
                 await asyncio.sleep(self.config.retry_delay_seconds)
-    
-    async def _fetch_records(self) -> List[StreamRecord]:
+
+    async def _fetch_records(self) -> list[StreamRecord]:
         """Fetch records from source."""
         records = []
-        
+
         if self.config.source_type == StreamSource.KAFKA:
             try:
                 message_pack = self.source_connector.poll(
                     timeout_ms=int(self.config.batch_timeout_seconds * 1000),
                     max_records=self.config.batch_size
                 )
-                
+
                 for topic_partition, messages in message_pack.items():
                     for message in messages:
                         record = StreamRecord(
@@ -355,17 +357,17 @@ class StreamProcessor:
                             offset=message.offset
                         )
                         records.append(record)
-                        
+
             except Exception as e:
                 logger.error(f"Error fetching from Kafka: {e}")
-        
+
         elif self.config.source_type == StreamSource.REDIS:
             try:
                 # Use Redis Streams for consumption
                 stream_name = self.config.source_config.get('stream', 'anomaly-stream')
                 consumer_group = self.config.source_config.get('consumer_group', 'processors')
                 consumer_name = self.config.source_config.get('consumer_name', 'processor-1')
-                
+
                 messages = await self.source_connector.xreadgroup(
                     consumer_group,
                     consumer_name,
@@ -373,7 +375,7 @@ class StreamProcessor:
                     count=self.config.batch_size,
                     block=int(self.config.batch_timeout_seconds * 1000)
                 )
-                
+
                 for stream, stream_messages in messages:
                     for message_id, fields in stream_messages:
                         record = StreamRecord(
@@ -383,15 +385,15 @@ class StreamProcessor:
                             source=stream
                         )
                         records.append(record)
-                        
+
             except Exception as e:
                 logger.error(f"Error fetching from Redis: {e}")
-        
+
         elif self.config.source_type == StreamSource.MEMORY:
             # For testing - generate synthetic data
             if not hasattr(self, '_synthetic_counter'):
                 self._synthetic_counter = 0
-            
+
             for i in range(min(self.config.batch_size, 10)):
                 self._synthetic_counter += 1
                 record = StreamRecord(
@@ -406,11 +408,11 @@ class StreamProcessor:
                     source="synthetic"
                 )
                 records.append(record)
-                
+
             await asyncio.sleep(0.1)  # Simulate streaming delay
-        
+
         return records
-    
+
     @trace_operation("stream_processing")
     async def _processing_loop(self) -> None:
         """Main processing loop."""
@@ -418,49 +420,49 @@ class StreamProcessor:
             try:
                 # Collect batch
                 batch = await self._collect_batch()
-                
+
                 if not batch.records:
                     continue
-                
+
                 # Process batch
                 start_time = time.time()
                 result = await self._process_batch(batch)
                 processing_time = time.time() - start_time
-                
+
                 # Track metrics
                 self.processing_times.append(processing_time)
                 self.last_batch_time = time.time()
                 self.processed_records += len(batch.records)
-                
+
                 # Send to output queue
                 await self.output_queue.put(result)
-                
+
                 logger.debug(f"Processed batch {batch.batch_id} with {len(batch.records)} records in {processing_time:.2f}s")
-                
+
             except Exception as e:
                 self.error_count += 1
                 logger.error(f"Error in processing loop: {e}")
                 await asyncio.sleep(self.config.retry_delay_seconds)
-    
+
     async def _collect_batch(self) -> StreamBatch:
         """Collect records into a batch."""
         records = []
         batch_start = time.time()
-        
+
         # Collect records until batch size or timeout
-        while (len(records) < self.config.batch_size and 
+        while (len(records) < self.config.batch_size and
                time.time() - batch_start < self.config.batch_timeout_seconds):
-            
+
             try:
                 record = await asyncio.wait_for(
                     self.input_queue.get(),
                     timeout=self.config.batch_timeout_seconds
                 )
                 records.append(record)
-                
-            except asyncio.TimeoutError:
+
+            except TimeoutError:
                 break
-        
+
         self.batch_count += 1
         batch = StreamBatch(
             batch_id=f"batch_{self.batch_count}_{int(time.time())}",
@@ -468,22 +470,22 @@ class StreamProcessor:
             batch_timestamp=datetime.now(),
             size=len(records)
         )
-        
+
         return batch
-    
+
     async def _process_batch(self, batch: StreamBatch) -> DetectionResult:
         """Process a batch of records for anomaly detection."""
         try:
             # Convert batch to dataset
             dataset = batch.to_dataset()
-            
+
             # Run anomaly detection
             result = await self.detection_service.detect_anomalies(
                 dataset=dataset,
                 algorithm=self.config.detection_algorithm,
                 config=self.config.detection_config
             )
-            
+
             # Enhance result with stream metadata
             result.metadata.update({
                 "batch_id": batch.batch_id,
@@ -491,40 +493,40 @@ class StreamProcessor:
                 "stream_source": self.config.source_type.value,
                 "processing_mode": "streaming"
             })
-            
+
             return result
-            
+
         except Exception as e:
             logger.error(f"Error processing batch {batch.batch_id}: {e}")
             raise
-    
+
     async def _output_loop(self) -> None:
         """Output loop for sending results."""
         while self.is_running:
             try:
                 result = await self.output_queue.get()
                 await self._send_result(result)
-                
+
             except Exception as e:
                 logger.error(f"Error in output loop: {e}")
                 await asyncio.sleep(self.config.retry_delay_seconds)
-    
+
     async def _send_result(self, result: DetectionResult) -> None:
         """Send detection result to configured output."""
         if self.sink_connector and self.config.output_topic:
             try:
                 # Convert result to output format
                 output_data = self._format_result(result)
-                
+
                 if self.config.source_type == StreamSource.KAFKA:
                     future = self.sink_connector.send(self.config.output_topic, output_data)
                     record_metadata = future.get(timeout=10)
                     logger.debug(f"Sent result to Kafka topic {self.config.output_topic}")
-                
+
             except Exception as e:
                 logger.error(f"Error sending result: {e}")
-    
-    def _format_result(self, result: DetectionResult) -> Dict[str, Any]:
+
+    def _format_result(self, result: DetectionResult) -> dict[str, Any]:
         """Format detection result for output."""
         return {
             "dataset_id": result.dataset_id,
@@ -546,7 +548,7 @@ class StreamProcessor:
             ],
             "metadata": result.metadata
         }
-    
+
     async def _monitoring_loop(self) -> None:
         """Monitoring loop for health checks and metrics."""
         while self.is_running:
@@ -554,24 +556,24 @@ class StreamProcessor:
                 await self._collect_metrics()
                 await self._health_check()
                 await asyncio.sleep(30)  # Check every 30 seconds
-                
+
             except Exception as e:
                 logger.error(f"Error in monitoring loop: {e}")
                 await asyncio.sleep(60)
-    
+
     async def _collect_metrics(self) -> None:
         """Collect processing metrics."""
         current_time = time.time()
         uptime = current_time - self.start_time
-        
+
         # Calculate rates
         processing_rate = self.processed_records / uptime if uptime > 0 else 0
         error_rate = self.error_count / max(1, self.batch_count)
-        
+
         # Calculate latency metrics
         avg_processing_time = np.mean(self.processing_times) if self.processing_times else 0
         p95_processing_time = np.percentile(self.processing_times, 95) if self.processing_times else 0
-        
+
         metrics = {
             "uptime_seconds": uptime,
             "processed_records": self.processed_records,
@@ -584,29 +586,29 @@ class StreamProcessor:
             "input_queue_size": self.input_queue.qsize(),
             "output_queue_size": self.output_queue.qsize()
         }
-        
+
         logger.debug(f"Stream processor metrics: {metrics}")
-    
+
     async def _health_check(self) -> None:
         """Perform health checks."""
         current_time = time.time()
-        
+
         # Check if processing is stalled
-        if (self.last_batch_time and 
+        if (self.last_batch_time and
             current_time - self.last_batch_time > self.config.batch_timeout_seconds * 2):
             logger.warning("Stream processing appears to be stalled")
-        
+
         # Check queue sizes
         if self.input_queue.qsize() > self.config.max_queue_size * 0.8:
             logger.warning("Input queue is near capacity")
-        
+
         if self.output_queue.qsize() > self.config.max_queue_size * 0.8:
             logger.warning("Output queue is near capacity")
-    
+
     async def _process_remaining_data(self) -> None:
         """Process any remaining data in queues during shutdown."""
         logger.info("Processing remaining data...")
-        
+
         # Process remaining input records
         remaining_records = []
         while not self.input_queue.empty():
@@ -615,7 +617,7 @@ class StreamProcessor:
                 remaining_records.append(record)
             except asyncio.QueueEmpty:
                 break
-        
+
         if remaining_records:
             final_batch = StreamBatch(
                 batch_id=f"final_batch_{int(time.time())}",
@@ -623,31 +625,31 @@ class StreamProcessor:
                 batch_timestamp=datetime.now(),
                 size=len(remaining_records)
             )
-            
+
             try:
                 result = await self._process_batch(final_batch)
                 await self._send_result(result)
                 logger.info(f"Processed final batch with {len(remaining_records)} records")
             except Exception as e:
                 logger.error(f"Error processing final batch: {e}")
-    
+
     async def _close_source_connector(self) -> None:
         """Close source connector."""
         if self.config.source_type == StreamSource.KAFKA:
             if self.source_connector:
                 self.source_connector.close()
-        
+
         elif self.config.source_type == StreamSource.REDIS:
             if self.source_connector:
                 await self.source_connector.close()
-    
+
     async def _close_sink_connector(self) -> None:
         """Close sink connector."""
         if self.sink_connector:
             if self.config.source_type == StreamSource.KAFKA:
                 self.sink_connector.close()
-    
-    async def add_test_record(self, data: Dict[str, Any]) -> None:
+
+    async def add_test_record(self, data: dict[str, Any]) -> None:
         """Add a test record to the stream (for testing)."""
         if self.config.source_type == StreamSource.MEMORY:
             record = StreamRecord(
@@ -657,12 +659,12 @@ class StreamProcessor:
                 source="test"
             )
             await self.input_queue.put(record)
-    
-    def get_status(self) -> Dict[str, Any]:
+
+    def get_status(self) -> dict[str, Any]:
         """Get current processor status."""
         current_time = time.time()
         uptime = current_time - self.start_time
-        
+
         return {
             "is_running": self.is_running,
             "uptime_seconds": uptime,

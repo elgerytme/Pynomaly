@@ -7,14 +7,8 @@ from unittest.mock import Mock
 
 import jsonschema
 import pytest
-
-from pynomaly.application.dto import (
-    DetectionRequestDTO,
-    TrainingRequestDTO,
-)
-from pynomaly.domain.protocols import (
-    AdapterProtocol,
-)
+from pynomaly.application.dto import DetectionRequestDTO, TrainingRequestDTO
+from pynomaly.domain.protocols import AdapterProtocol
 from pynomaly.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
 from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 

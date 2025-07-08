@@ -111,7 +111,7 @@ body {
   .group {
     position: static;
   }
-  
+
   .group-hover\:block {
     position: static;
     display: block \!important;

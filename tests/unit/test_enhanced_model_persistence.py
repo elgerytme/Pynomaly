@@ -6,7 +6,6 @@ from unittest.mock import AsyncMock, Mock
 
 import numpy as np
 import pytest
-
 from pynomaly.application.services.enhanced_model_persistence_service import (
     EnhancedModelPersistenceService,
     ModelSerializationError,

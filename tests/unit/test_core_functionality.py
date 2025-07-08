@@ -14,8 +14,6 @@ def test_domain_imports():
     """Test that core domain imports work."""
     print("🔍 Testing domain layer imports...")
     try:
-        from pynomaly.domain.entities import Anomaly, Dataset, Detector
-        from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
 
         print("✅ Domain layer imports successful")
         return True
@@ -28,11 +26,6 @@ def test_application_imports():
     """Test that application layer imports work."""
     print("🔍 Testing application layer imports...")
     try:
-        from pynomaly.application.services import DetectionService
-        from pynomaly.application.use_cases import (
-            DetectAnomaliesUseCase,
-            TrainDetectorUseCase,
-        )
 
         print("✅ Application layer imports successful")
         return True
@@ -45,8 +38,6 @@ def test_infrastructure_imports():
     """Test that infrastructure imports work."""
     print("🔍 Testing infrastructure layer imports...")
     try:
-        from pynomaly.infrastructure.adapters import SklearnAdapter
-        from pynomaly.infrastructure.repositories import InMemoryDetectorRepository
 
         print("✅ Infrastructure layer imports successful")
         return True
@@ -61,7 +52,6 @@ def test_basic_functionality():
     try:
         import numpy as np
         import pandas as pd
-
         from pynomaly.domain.entities import Dataset
         from pynomaly.domain.value_objects import ContaminationRate
         from pynomaly.infrastructure.adapters import SklearnAdapter

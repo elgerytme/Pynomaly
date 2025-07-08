@@ -246,13 +246,14 @@ class TestAnomalyScoreThresholdIntegration:
     ):
         """Test adaptive threshold with confidence intervals."""
         # Calculate threshold with confidence interval
-        threshold, confidence = (
-            threshold_calculator.calculate_threshold_with_confidence(
-                scores=sample_scores,
-                method="percentile",
-                percentile=90.0,
-                confidence_level=0.95,
-            )
+        (
+            threshold,
+            confidence,
+        ) = threshold_calculator.calculate_threshold_with_confidence(
+            scores=sample_scores,
+            method="percentile",
+            percentile=90.0,
+            confidence_level=0.95,
         )
 
         # Verify confidence interval

@@ -238,9 +238,7 @@ def main():
         print(f"\n📈 Workflow Simplification Status: {passing}/{total} tests passing")
 
         if passing == total:
-            print(
-                "🎉 User workflow simplification infrastructure is fully operational!"
-            )
+            print("🎉 User workflow simplification infrastructure is fully operational!")
             print(
                 "✅ Ready for intelligent workflow automation and user experience enhancement"
             )

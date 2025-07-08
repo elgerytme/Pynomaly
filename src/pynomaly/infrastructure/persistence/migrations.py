@@ -112,10 +112,10 @@ class DatabaseMigrator:
         if not self.seed_default_roles_and_permissions():
             logger.warning("Failed to seed default roles and permissions")
             # Don't fail the initialization for this
-        
+
         logger.info("Database initialization completed successfully")
         return True
-    
+
     def seed_default_roles_and_permissions(self) -> bool:
         """Seed default roles and permissions into the database.
 

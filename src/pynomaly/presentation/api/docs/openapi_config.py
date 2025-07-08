@@ -341,10 +341,10 @@ def configure_openapi_docs(app: FastAPI, settings: Settings) -> None:
                 "info": {
                     "title": app.title,
                     "version": app.version,
-                    "description": "Pynomaly API - Schema generation failed"
+                    "description": "Pynomaly API - Schema generation failed",
                 },
                 "paths": {},
-                "components": {"schemas": {}}
+                "components": {"schemas": {}},
             }
 
     app.openapi = custom_openapi

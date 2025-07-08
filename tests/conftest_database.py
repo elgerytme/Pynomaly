@@ -3,7 +3,6 @@
 import tempfile
 
 import pytest
-
 from pynomaly.infrastructure.config import Settings
 from pynomaly.infrastructure.config.container import Container
 from pynomaly.infrastructure.persistence import DatabaseManager

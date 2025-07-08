@@ -4,8 +4,6 @@
 import asyncio
 import os
 import sys
-from datetime import datetime, timedelta
-from unittest.mock import Mock
 
 import numpy as np
 
@@ -29,7 +27,6 @@ async def test_drift_detection_integration():
         from pynomaly.domain.entities.drift_detection import (
             DriftDetectionMethod,
             DriftSeverity,
-            DriftType,
             ModelMonitoringConfig,
         )
 
@@ -69,7 +66,7 @@ async def test_drift_detection_integration():
             feature_names=feature_names,
         )
 
-        print(f"✅ No drift detection completed")
+        print("✅ No drift detection completed")
         print(f"   Drift detected: {result_no_drift.drift_detected}")
         print(f"   Severity: {result_no_drift.severity.value}")
         print(f"   Affected features: {len(result_no_drift.affected_features)}")
@@ -91,7 +88,7 @@ async def test_drift_detection_integration():
             ],
         )
 
-        print(f"✅ Drift detection completed")
+        print("✅ Drift detection completed")
         print(f"   Drift detected: {result_with_drift.drift_detected}")
         print(f"   Severity: {result_with_drift.severity.value}")
         print(f"   Affected features: {len(result_with_drift.affected_features)}")
@@ -132,7 +129,7 @@ async def test_drift_detection_integration():
             threshold=0.05,
         )
 
-        print(f"✅ Performance drift detection completed")
+        print("✅ Performance drift detection completed")
         print(f"   Performance drift detected: {perf_result.drift_detected}")
         print(f"   Severity: {perf_result.severity.value}")
         print(f"   Affected metrics: {len(perf_result.affected_features)}")
@@ -158,7 +155,7 @@ async def test_drift_detection_integration():
             current_predictions=current_predictions,
         )
 
-        print(f"✅ Prediction drift detection completed")
+        print("✅ Prediction drift detection completed")
         print(f"   Prediction drift detected: {pred_result.drift_detected}")
         print(f"   Severity: {pred_result.severity.value}")
         print(f"   Confidence: {pred_result.confidence:.3f}")
@@ -189,7 +186,7 @@ async def test_drift_detection_integration():
             features_to_monitor=feature_names,
         )
 
-        print(f"✅ Monitoring configuration created")
+        print("✅ Monitoring configuration created")
         print(f"   Check interval: {monitoring_config.check_interval_hours} hours")
         print(f"   Methods enabled: {len(monitoring_config.enabled_methods)}")
         print(
@@ -202,7 +199,7 @@ async def test_drift_detection_integration():
             "weather_detector", monitoring_config
         )
 
-        print(f"✅ Monitoring setup completed")
+        print("✅ Monitoring setup completed")
         print(f"   Status: {monitoring_status.status.value}")
         print(f"   Checks performed: {monitoring_status.checks_performed}")
         print(f"   Health score: {monitoring_status.overall_health_score:.3f}")
@@ -222,7 +219,7 @@ async def test_drift_detection_integration():
             feature_names=feature_names,
         )
 
-        print(f"✅ Immediate drift check completed")
+        print("✅ Immediate drift check completed")
         print(f"   Drift detected: {immediate_result.drift_detected}")
         print(f"   Severity: {immediate_result.severity.value}")
 
@@ -233,13 +230,13 @@ async def test_drift_detection_integration():
             current_metrics=current_metrics,
         )
 
-        print(f"✅ Performance drift check through use case completed")
+        print("✅ Performance drift check through use case completed")
         print(f"   Performance drift: {perf_use_case_result.drift_detected}")
 
         # Test monitoring status retrieval
         status = await drift_use_case.get_monitoring_status("weather_detector")
         if status:
-            print(f"✅ Monitoring status retrieved")
+            print("✅ Monitoring status retrieved")
             print(f"   Status: {status.status.value}")
             print(f"   Last check: {status.last_check_at}")
             print(f"   Next check: {status.next_check_at}")
@@ -258,7 +255,7 @@ async def test_drift_detection_integration():
             detector_id="weather_detector", period_days=30
         )
 
-        print(f"✅ Drift report generated")
+        print("✅ Drift report generated")
         print(
             f"   Report period: {drift_report.report_period_start.strftime('%Y-%m-%d')} to {drift_report.report_period_end.strftime('%Y-%m-%d')}"
         )
@@ -272,7 +269,7 @@ async def test_drift_detection_integration():
         print("-" * 25)
 
         system_health = await drift_use_case.get_system_health()
-        print(f"✅ System health retrieved")
+        print("✅ System health retrieved")
         print(f"   Total monitors: {system_health.get('total_monitors', 0)}")
         print(f"   Active monitors: {system_health.get('active_monitors', 0)}")
         print(f"   System status: {system_health.get('system_status', 'unknown')}")
@@ -310,9 +307,7 @@ async def test_drift_detection_integration():
         curr_sample = np.random.randn(500) + 1.0
 
         ks_stat, ks_p = stat_detector.kolmogorov_smirnov_test(ref_sample, curr_sample)
-        print(
-            f"✅ Kolmogorov-Smirnov test: statistic={ks_stat:.3f}, p-value={ks_p:.6f}"
-        )
+        print(f"✅ Kolmogorov-Smirnov test: statistic={ks_stat:.3f}, p-value={ks_p:.6f}")
 
         # Test Jensen-Shannon divergence
         js_div = stat_detector.jensen_shannon_divergence(ref_sample, curr_sample)

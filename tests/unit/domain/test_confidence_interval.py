@@ -7,7 +7,8 @@ validation, calculations, and methods.
 
 import numpy as np
 import pytest
-from hypothesis import given, strategies as st, assume
+from hypothesis import assume, given
+from hypothesis import strategies as st
 
 from pynomaly.domain.exceptions import InvalidValueError
 from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval

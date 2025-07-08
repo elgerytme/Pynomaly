@@ -3,42 +3,27 @@
 from __future__ import annotations
 
 import asyncio
-import json
-import os
-import tempfile
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List
-from unittest.mock import AsyncMock, MagicMock, patch
+from typing import Any
 
 import pytest
-import redis
-from kubernetes import client as k8s_client
-
 from pynomaly.infrastructure.caching.advanced_cache_service import (
     AdvancedCacheService,
-    CacheBackend,
     CompressionAlgorithm,
-    SerializationFormat,
 )
 from pynomaly.infrastructure.performance.profiling_service import (
     PerformanceProfilingService,
     ProfilerType,
-    ResourceMonitor,
 )
 from pynomaly.infrastructure.security.advanced_threat_detection import (
-    AdvancedBehaviorAnalyzer,
     DataExfiltrationDetector,
     SessionHijackingDetector,
-    ThreatIntelligenceDetector,
     create_advanced_threat_detectors,
 )
 from pynomaly.infrastructure.security.audit_logger import SecurityEventType
-from pynomaly.infrastructure.security.security_monitor import (
-    AlertType,
-    ThreatLevel,
-)
+from pynomaly.infrastructure.security.security_monitor import AlertType, ThreatLevel
 from pynomaly.infrastructure.security.security_service import (
     AuditEventType,
     SecurityConfig,
@@ -58,7 +43,7 @@ class TestKubernetesDeploymentIntegration:
     @pytest.fixture
     def streaming_deployment_manifest(
         self, k8s_deployment_path: Path
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Load streaming service deployment manifest."""
         manifest_path = k8s_deployment_path / "streaming-service-deployment.yaml"
         assert (
@@ -80,7 +65,7 @@ class TestKubernetesDeploymentIntegration:
         return {"content": content, "valid": True}
 
     @pytest.fixture
-    def cache_deployment_manifest(self, k8s_deployment_path: Path) -> Dict[str, Any]:
+    def cache_deployment_manifest(self, k8s_deployment_path: Path) -> dict[str, Any]:
         """Load cache deployment manifest."""
         manifest_path = k8s_deployment_path / "cache-deployment.yaml"
         assert (
@@ -101,8 +86,8 @@ class TestKubernetesDeploymentIntegration:
 
     def test_deployment_manifest_structure(
         self,
-        streaming_deployment_manifest: Dict[str, Any],
-        cache_deployment_manifest: Dict[str, Any],
+        streaming_deployment_manifest: dict[str, Any],
+        cache_deployment_manifest: dict[str, Any],
     ):
         """Test that deployment manifests have correct structure."""
         assert streaming_deployment_manifest["valid"]
@@ -337,7 +322,7 @@ class TestPerformanceProfilingIntegration:
         """Test memory usage profiling."""
 
         @profiling_service.profile_function(ProfilerType.MEMORY, save_stats=True)
-        def memory_intensive_function() -> List[int]:
+        def memory_intensive_function() -> list[int]:
             """Memory intensive function for testing."""
             large_list = list(range(100000))
             return large_list
@@ -412,7 +397,7 @@ class TestSecurityHardeningIntegration:
         return SecurityService(config)
 
     @pytest.fixture
-    def threat_detectors(self) -> List:
+    def threat_detectors(self) -> list:
         """Create threat detectors for testing."""
         return create_advanced_threat_detectors()
 
@@ -448,7 +433,7 @@ class TestSecurityHardeningIntegration:
         assert user_id == "admin"
         assert error is None
 
-    def test_threat_detection_integration(self, threat_detectors: List):
+    def test_threat_detection_integration(self, threat_detectors: list):
         """Test integration of all threat detectors."""
         assert len(threat_detectors) == 4
 

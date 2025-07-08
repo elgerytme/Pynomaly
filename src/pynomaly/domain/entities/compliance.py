@@ -4,13 +4,12 @@ Compliance and audit logging domain entities.
 
 from __future__ import annotations
 
-import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional, Any, Union
+from typing import Any, Optional
 
-from pynomaly.shared.types import UserId, TenantId
+from pynomaly.shared.types import TenantId, UserId
 
 
 class AuditAction(str, Enum):
@@ -23,14 +22,14 @@ class AuditAction(str, Enum):
     USER_DELETED = "user_deleted"
     USER_INVITED = "user_invited"
     USER_ROLE_CHANGED = "user_role_changed"
-    
+
     # Data actions
     DATASET_CREATED = "dataset_created"
     DATASET_UPDATED = "dataset_updated"
     DATASET_DELETED = "dataset_deleted"
     DATASET_ACCESSED = "dataset_accessed"
     DATASET_EXPORTED = "dataset_exported"
-    
+
     # Model actions
     MODEL_CREATED = "model_created"
     MODEL_TRAINED = "model_trained"
@@ -38,25 +37,25 @@ class AuditAction(str, Enum):
     MODEL_DELETED = "model_deleted"
     MODEL_DEPLOYED = "model_deployed"
     MODEL_RETIRED = "model_retired"
-    
+
     # Detection actions
     DETECTION_PERFORMED = "detection_performed"
     ANOMALY_DETECTED = "anomaly_detected"
     ALERT_TRIGGERED = "alert_triggered"
     ALERT_ACKNOWLEDGED = "alert_acknowledged"
-    
+
     # System actions
     SYSTEM_CONFIGURATION_CHANGED = "system_configuration_changed"
     INTEGRATION_CREATED = "integration_created"
     INTEGRATION_UPDATED = "integration_updated"
     INTEGRATION_DELETED = "integration_deleted"
-    
+
     # Admin actions
     TENANT_CREATED = "tenant_created"
     TENANT_UPDATED = "tenant_updated"
     TENANT_SUSPENDED = "tenant_suspended"
     PERMISSIONS_CHANGED = "permissions_changed"
-    
+
     # Compliance actions
     GDPR_REQUEST = "gdpr_request"
     DATA_RETENTION_POLICY_APPLIED = "data_retention_policy_applied"
@@ -112,14 +111,14 @@ class AuditEvent:
     user_id: Optional[UserId] = None
     resource_type: Optional[str] = None
     resource_id: Optional[str] = None
-    details: Dict[str, Any] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
     ip_address: Optional[str] = None
     user_agent: Optional[str] = None
     session_id: Optional[str] = None
     outcome: str = "success"  # success, failure, error
     risk_score: int = 0  # 0-100 risk assessment
-    compliance_frameworks: List[ComplianceFramework] = field(default_factory=list)
-    
+    compliance_frameworks: list[ComplianceFramework] = field(default_factory=list)
+
     @property
     def is_high_risk(self) -> bool:
         """Check if this is a high-risk event."""
@@ -134,8 +133,8 @@ class AuditEvent:
                 AuditAction.SYSTEM_CONFIGURATION_CHANGED
             ]
         )
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "id": self.id,
@@ -166,19 +165,19 @@ class DataRetentionPolicy:
     data_type: str
     classification: DataClassification
     retention_period_days: int
-    compliance_frameworks: List[ComplianceFramework]
+    compliance_frameworks: list[ComplianceFramework]
     auto_delete: bool = True
     archive_before_delete: bool = True
     status: RetentionPolicyStatus = RetentionPolicyStatus.ACTIVE
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
     created_by: Optional[UserId] = None
-    
+
     @property
     def is_expired(self) -> bool:
         """Check if policy has expired."""
         return self.status == RetentionPolicyStatus.EXPIRED
-    
+
     def get_deletion_date(self, creation_date: datetime) -> datetime:
         """Calculate when data should be deleted based on policy."""
         from datetime import timedelta
@@ -193,8 +192,8 @@ class ComplianceRule:
     description: str
     framework: ComplianceFramework
     rule_type: str  # e.g., "data_protection", "access_control", "audit_log"
-    requirements: List[str]
-    validation_criteria: Dict[str, Any]
+    requirements: list[str]
+    validation_criteria: dict[str, Any]
     severity: AuditSeverity
     is_mandatory: bool = True
     implementation_guide: str = ""
@@ -209,16 +208,16 @@ class ComplianceCheck:
     tenant_id: TenantId
     check_timestamp: datetime
     status: str  # "compliant", "non_compliant", "warning", "not_applicable"
-    details: Dict[str, Any] = field(default_factory=dict)
-    evidence: List[str] = field(default_factory=list)
-    recommendations: List[str] = field(default_factory=list)
+    details: dict[str, Any] = field(default_factory=dict)
+    evidence: list[str] = field(default_factory=list)
+    recommendations: list[str] = field(default_factory=list)
     next_check_due: Optional[datetime] = None
-    
+
     @property
     def is_compliant(self) -> bool:
         """Check if rule is compliant."""
         return self.status == "compliant"
-    
+
     @property
     def needs_attention(self) -> bool:
         """Check if check needs attention."""
@@ -238,10 +237,10 @@ class GDPRRequest:
     status: str = "pending"  # "pending", "in_progress", "completed", "rejected"
     assigned_to: Optional[UserId] = None
     completion_deadline: Optional[datetime] = None
-    response_data: Optional[Dict[str, Any]] = None
+    response_data: Optional[dict[str, Any]] = None
     processed_at: Optional[datetime] = None
     notes: str = ""
-    
+
     @property
     def is_overdue(self) -> bool:
         """Check if request is overdue (GDPR 30-day requirement)."""
@@ -264,7 +263,7 @@ class EncryptionKey:
     rotated_at: Optional[datetime] = None
     status: str = "active"  # "active", "retired", "compromised"
     usage_count: int = 0
-    
+
     @property
     def needs_rotation(self) -> bool:
         """Check if key needs rotation."""
@@ -285,7 +284,7 @@ class BackupRecord:
     id: str
     backup_type: str  # "full", "incremental", "differential"
     tenant_id: TenantId
-    data_types: List[str]
+    data_types: list[str]
     backup_location: str
     encryption_key_id: str
     started_at: datetime
@@ -295,14 +294,14 @@ class BackupRecord:
     compressed_size_bytes: int = 0
     checksum: str = ""
     retention_until: Optional[datetime] = None
-    
+
     @property
     def compression_ratio(self) -> float:
         """Calculate compression ratio."""
         if self.size_bytes == 0:
             return 0.0
         return self.compressed_size_bytes / self.size_bytes
-    
+
     @property
     def is_expired(self) -> bool:
         """Check if backup is expired."""
@@ -320,30 +319,30 @@ class ComplianceReport:
     reporting_period_end: datetime
     generated_at: datetime
     generated_by: UserId
-    
+
     # Summary statistics
     total_checks: int = 0
     compliant_checks: int = 0
     non_compliant_checks: int = 0
     warning_checks: int = 0
-    
+
     # Detailed findings
-    findings: List[ComplianceCheck] = field(default_factory=list)
-    recommendations: List[str] = field(default_factory=list)
-    risk_assessment: Dict[str, Any] = field(default_factory=dict)
-    
+    findings: list[ComplianceCheck] = field(default_factory=list)
+    recommendations: list[str] = field(default_factory=list)
+    risk_assessment: dict[str, Any] = field(default_factory=dict)
+
     # Audit trail summary
     high_risk_events: int = 0
     total_audit_events: int = 0
     failed_operations: int = 0
-    
+
     @property
     def compliance_score(self) -> float:
         """Calculate overall compliance score (0-100)."""
         if self.total_checks == 0:
             return 0.0
         return (self.compliant_checks / self.total_checks) * 100
-    
+
     @property
     def risk_level(self) -> str:
         """Determine overall risk level."""
@@ -459,7 +458,7 @@ DEFAULT_COMPLIANCE_RULES = {
 }
 
 
-def get_default_retention_policies() -> List[DataRetentionPolicy]:
+def get_default_retention_policies() -> list[DataRetentionPolicy]:
     """Get default data retention policies for common data types."""
     return [
         DataRetentionPolicy(

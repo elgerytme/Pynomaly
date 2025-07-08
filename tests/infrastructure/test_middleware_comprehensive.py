@@ -8,12 +8,7 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from starlette.middleware.base import BaseHTTPMiddleware
-
-from pynomaly.domain.exceptions import (
-    AuthenticationError,
-    AuthorizationError,
-)
+from pynomaly.domain.exceptions import AuthenticationError, AuthorizationError
 from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService, UserModel
 from pynomaly.infrastructure.auth.middleware import (
     AuthenticationMiddleware,
@@ -22,6 +17,7 @@ from pynomaly.infrastructure.auth.middleware import (
     RateLimitMiddleware,
     SecurityHeadersMiddleware,
 )
+from starlette.middleware.base import BaseHTTPMiddleware
 
 
 class TestAuthenticationMiddleware:

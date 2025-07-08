@@ -12,12 +12,9 @@ This script analyzes the documentation structure in the /docs/ directory to:
 """
 
 import json
-import os
 import re
-import sys
 from collections import Counter, defaultdict
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
 
 
 class DocumentationAnalyzer:
@@ -37,7 +34,7 @@ class DocumentationAnalyzer:
         for md_file in self.docs_path.rglob("*.md"):
             rel_path = str(md_file.relative_to(self.docs_path))
             try:
-                with open(md_file, "r", encoding="utf-8") as f:
+                with open(md_file, encoding="utf-8") as f:
                     content = f.read()
                     self.all_docs[rel_path] = content
                     print(f"  ✓ {rel_path}")
@@ -334,27 +331,27 @@ def main():
     print(f"🔄 Cross-Referenced Docs: {report['summary']['cross_referenced_docs']}")
     print(f"🏝️  Orphaned Documents: {report['summary']['orphaned_docs']}")
 
-    print(f"\n🔗 LINK PATTERNS:")
+    print("\n🔗 LINK PATTERNS:")
     for pattern, count in report["link_patterns"].items():
         print(f"  {pattern}: {count}")
 
     if report["broken_links"]:
-        print(f"\n❌ BROKEN LINKS (showing first 10):")
+        print("\n❌ BROKEN LINKS (showing first 10):")
         for i, (source, text, target, reason) in enumerate(report["broken_links"][:10]):
             print(f"  {i+1}. {source}: '{text}' -> '{target}' ({reason})")
 
-    print(f"\n💡 IMPROVEMENT OPPORTUNITIES (showing first 10):")
+    print("\n💡 IMPROVEMENT OPPORTUNITIES (showing first 10):")
     for i, opp in enumerate(report["opportunities"][:10]):
         print(f"  {i+1}. [{opp['priority'].upper()}] {opp['type']}: {opp['file']}")
         print(f"      {opp['description']}")
 
-    print(f"\n📋 RECOMMENDATIONS:")
+    print("\n📋 RECOMMENDATIONS:")
     for i, rec in enumerate(report["recommendations"]):
         print(
             f"  {i+1}. [{rec['priority'].upper()}] {rec['category']}: {rec['description']}"
         )
 
-    print(f"\n📄 Full analysis saved to: docs_cross_linking_analysis.json")
+    print("\n📄 Full analysis saved to: docs_cross_linking_analysis.json")
     print("\n🎯 Next Steps:")
     print("  1. Fix broken links identified in the analysis")
     print("  2. Add cross-references for orphaned documents")

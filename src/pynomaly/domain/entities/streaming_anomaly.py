@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Callable
-from uuid import UUID, uuid4
+from typing import Any
+from uuid import UUID
 
 
 class StreamingMode(str, Enum):

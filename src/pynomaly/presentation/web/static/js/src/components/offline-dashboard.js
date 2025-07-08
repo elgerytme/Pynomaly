@@ -130,7 +130,7 @@ export class OfflineDashboard {
             </div>
           </div>
         </div>
-        
+
         <div class="card">
           <div class="card-body">
             <div class="flex items-center justify-between">
@@ -145,7 +145,7 @@ export class OfflineDashboard {
             </div>
           </div>
         </div>
-        
+
         <div class="card">
           <div class="card-body">
             <div class="flex items-center justify-between">
@@ -160,7 +160,7 @@ export class OfflineDashboard {
             </div>
           </div>
         </div>
-        
+
         <div class="card">
           <div class="card-body">
             <div class="flex items-center justify-between">

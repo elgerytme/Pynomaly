@@ -16,10 +16,7 @@ import pytest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../src"))
 
 from pynomaly.domain.entities import DetectionResult
-from pynomaly.domain.exceptions import (
-    InvalidAlgorithmError,
-    ValidationError,
-)
+from pynomaly.domain.exceptions import InvalidAlgorithmError, ValidationError
 from pynomaly.domain.value_objects import ContaminationRate
 
 

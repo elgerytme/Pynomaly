@@ -1,13 +1,12 @@
 """Enhanced Visual Regression Testing with Percy Integration and Cross-Browser Support."""
 
-import asyncio
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import pytest
-from playwright.sync_api import Page, expect
+from playwright.sync_api import Page
 
 from tests.ui.enhanced_page_objects.base_page import BasePage
 
@@ -241,7 +240,7 @@ class CrossBrowserVisualTester:
         self.results = {}
 
     async def run_cross_browser_test(
-        self, test_name: str, test_function, browsers: List[str] = None
+        self, test_name: str, test_function, browsers: list[str] = None
     ):
         """Run visual test across multiple browsers."""
         browsers = browsers or VISUAL_TEST_CONFIG["browsers"]
@@ -475,7 +474,7 @@ class TestPercyIntegration:
 
 
 # Utility functions for visual testing
-def generate_visual_test_report(results: Dict[str, Any]) -> str:
+def generate_visual_test_report(results: dict[str, Any]) -> str:
     """Generate comprehensive visual test report."""
     report = {
         "summary": {

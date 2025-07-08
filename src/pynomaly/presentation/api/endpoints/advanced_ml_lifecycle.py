@@ -1,7 +1,7 @@
 """REST API endpoints for advanced ML lifecycle management."""
 
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from datetime import UTC, datetime
+from typing import Any, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -33,8 +33,8 @@ class StartExperimentRequest(BaseModel):
     auto_log_parameters: bool = Field(True, description="Auto-log parameters")
     auto_log_metrics: bool = Field(True, description="Auto-log metrics")
     auto_log_artifacts: bool = Field(True, description="Auto-log artifacts")
-    tags: Optional[List[str]] = Field(None, description="Experiment tags")
-    metadata: Optional[Dict[str, Any]] = Field(None, description="Additional metadata")
+    tags: Optional[list[str]] = Field(None, description="Experiment tags")
+    metadata: Optional[dict[str, Any]] = Field(None, description="Additional metadata")
 
 
 class StartExperimentResponse(BaseModel):
@@ -50,9 +50,9 @@ class StartRunRequest(BaseModel):
     run_name: str = Field(..., description="Run name")
     detector_id: UUID = Field(..., description="Detector ID")
     dataset_id: UUID = Field(..., description="Dataset ID")
-    parameters: Dict[str, Any] = Field(..., description="Run parameters")
+    parameters: dict[str, Any] = Field(..., description="Run parameters")
     parent_run_id: Optional[str] = Field(None, description="Parent run ID")
-    tags: Optional[List[str]] = Field(None, description="Run tags")
+    tags: Optional[list[str]] = Field(None, description="Run tags")
     description: str = Field("", description="Run description")
 
 
@@ -86,7 +86,7 @@ class LogArtifactRequest(BaseModel):
     artifact_name: str = Field(..., description="Artifact name")
     artifact_data: Any = Field(..., description="Artifact data")
     artifact_type: str = Field("pickle", description="Artifact type")
-    metadata: Optional[Dict[str, Any]] = Field(None, description="Artifact metadata")
+    metadata: Optional[dict[str, Any]] = Field(None, description="Artifact metadata")
 
 
 class LogArtifactResponse(BaseModel):
@@ -100,7 +100,7 @@ class LogModelRequest(BaseModel):
     """Request model for logging a model."""
 
     model_name: str = Field(..., description="Model name")
-    model_signature: Optional[Dict[str, Any]] = Field(
+    model_signature: Optional[dict[str, Any]] = Field(
         None, description="Model signature"
     )
     input_example: Optional[Any] = Field(None, description="Input example")
@@ -129,11 +129,11 @@ class CreateModelVersionRequest(BaseModel):
     model_name: str = Field(..., description="Model name")
     run_id: str = Field(..., description="Associated run ID")
     model_path: str = Field(..., description="Model artifact path")
-    performance_metrics: Dict[str, float] = Field(
+    performance_metrics: dict[str, float] = Field(
         ..., description="Performance metrics"
     )
     description: str = Field("", description="Version description")
-    tags: Optional[List[str]] = Field(None, description="Version tags")
+    tags: Optional[list[str]] = Field(None, description="Version tags")
     auto_version: bool = Field(True, description="Auto-determine version")
 
 
@@ -149,7 +149,7 @@ class PromoteModelRequest(BaseModel):
 
     stage: str = Field(..., description="Target stage")
     approval_workflow: bool = Field(True, description="Use approval workflow")
-    validation_tests: Optional[List[str]] = Field(None, description="Validation tests")
+    validation_tests: Optional[list[str]] = Field(None, description="Validation tests")
 
 
 class PromoteModelResponse(BaseModel):
@@ -159,7 +159,7 @@ class PromoteModelResponse(BaseModel):
     model_version_id: str = Field(..., description="Model version ID")
     new_stage: str = Field(..., description="New stage")
     new_status: str = Field(..., description="New status")
-    validation_results: Dict[str, Any] = Field(..., description="Validation results")
+    validation_results: dict[str, Any] = Field(..., description="Validation results")
     promoted_by: str = Field(..., description="User who promoted")
     promoted_at: str = Field(..., description="Promotion timestamp")
 
@@ -169,10 +169,10 @@ class SearchModelsRequest(BaseModel):
 
     query: str = Field(..., description="Search query")
     max_results: int = Field(50, description="Maximum results")
-    filter_dict: Optional[Dict[str, Any]] = Field(
+    filter_dict: Optional[dict[str, Any]] = Field(
         None, description="Additional filters"
     )
-    order_by: Optional[List[str]] = Field(None, description="Ordering criteria")
+    order_by: Optional[list[str]] = Field(None, description="Ordering criteria")
 
 
 class ModelRegistryStatsResponse(BaseModel):
@@ -183,20 +183,20 @@ class ModelRegistryStatsResponse(BaseModel):
     average_versions_per_model: float = Field(
         ..., description="Average versions per model"
     )
-    model_status_distribution: Dict[str, int] = Field(
+    model_status_distribution: dict[str, int] = Field(
         ..., description="Model status counts"
     )
-    version_status_distribution: Dict[str, int] = Field(
+    version_status_distribution: dict[str, int] = Field(
         ..., description="Version status counts"
     )
-    recent_models: List[Dict[str, Any]] = Field(
+    recent_models: list[dict[str, Any]] = Field(
         ..., description="Recently created models"
     )
-    recent_versions: List[Dict[str, Any]] = Field(
+    recent_versions: list[dict[str, Any]] = Field(
         ..., description="Recently created versions"
     )
-    performance_trends: Dict[str, Any] = Field(..., description="Performance trends")
-    registry_health: Dict[str, Any] = Field(..., description="Registry health metrics")
+    performance_trends: dict[str, Any] = Field(..., description="Performance trends")
+    registry_health: dict[str, Any] = Field(..., description="Registry health metrics")
 
 
 # ==================== Experiment Tracking Endpoints ====================
@@ -283,7 +283,7 @@ async def log_parameter(
     request: LogParameterRequest,
     ml_service: AdvancedMLLifecycleService = Depends(get_advanced_ml_lifecycle_service),
     _: None = Depends(require_write),
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Log a parameter for the specified run."""
     try:
         await ml_service.log_parameter(run_id, request.key, request.value)
@@ -301,7 +301,7 @@ async def log_metric(
     request: LogMetricRequest,
     ml_service: AdvancedMLLifecycleService = Depends(get_advanced_ml_lifecycle_service),
     _: None = Depends(require_write),
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Log a metric for the specified run."""
     try:
         await ml_service.log_metric(
@@ -371,7 +371,7 @@ async def end_run(
     request: EndRunRequest,
     ml_service: AdvancedMLLifecycleService = Depends(get_advanced_ml_lifecycle_service),
     _: None = Depends(require_write),
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """End the specified experiment run."""
     try:
         await ml_service.end_run(run_id, request.status, request.end_time)
@@ -451,7 +451,7 @@ async def promote_model_version(
 async def search_models(
     request: SearchModelsRequest,
     ml_service: AdvancedMLLifecycleService = Depends(get_advanced_ml_lifecycle_service),
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Search models in the registry with advanced filtering."""
     try:
         results = await ml_service.search_models(
@@ -487,7 +487,7 @@ async def get_model_registry_stats(
 
 
 @router.get("/health")
-async def get_ml_lifecycle_health() -> Dict[str, Any]:
+async def get_ml_lifecycle_health() -> dict[str, Any]:
     """Get ML lifecycle service health status."""
     return {
         "status": "healthy",
@@ -500,12 +500,12 @@ async def get_ml_lifecycle_health() -> Dict[str, Any]:
             "validation_pipeline",
             "performance_monitoring",
         ],
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
 @router.get("/capabilities")
-async def get_capabilities() -> Dict[str, Any]:
+async def get_capabilities() -> dict[str, Any]:
     """Get advanced ML lifecycle service capabilities."""
     return {
         "experiment_tracking": {

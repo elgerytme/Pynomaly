@@ -7,13 +7,10 @@ Comprehensive test suite to validate the Buck2 incremental testing system.
 import argparse
 import json
 import logging
-import os
 import subprocess
 import sys
-import tempfile
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 # Configure logging
 logging.basicConfig(
@@ -63,7 +60,7 @@ class Buck2SystemTester:
 
         logger.info("✓ All prerequisites validated")
 
-    def test_change_detector(self) -> Dict:
+    def test_change_detector(self) -> dict:
         """Test the Buck2 change detector functionality."""
         logger.info("Testing Buck2 change detector...")
 
@@ -91,7 +88,7 @@ class Buck2SystemTester:
                 # Check if output file was created
                 output_file = self.repo_root / "test_change_analysis.json"
                 if output_file.exists():
-                    with open(output_file, "r") as f:
+                    with open(output_file) as f:
                         analysis_data = json.load(f)
 
                     test_result["details"]["basic_detection"] = {
@@ -140,7 +137,7 @@ class Buck2SystemTester:
 
         return test_result
 
-    def test_incremental_runner(self) -> Dict:
+    def test_incremental_runner(self) -> dict:
         """Test the Buck2 incremental test runner."""
         logger.info("Testing Buck2 incremental test runner...")
 
@@ -172,7 +169,7 @@ class Buck2SystemTester:
             # Check if results file was created
             results_file = self.repo_root / "test_results.json"
             if results_file.exists():
-                with open(results_file, "r") as f:
+                with open(results_file) as f:
                     results_data = json.load(f)
 
                 test_result["details"]["results_file"] = {
@@ -221,7 +218,7 @@ class Buck2SystemTester:
 
         return test_result
 
-    def test_git_integration(self) -> Dict:
+    def test_git_integration(self) -> dict:
         """Test the Git integration functionality."""
         logger.info("Testing Git integration...")
 
@@ -274,7 +271,7 @@ class Buck2SystemTester:
 
         return test_result
 
-    def test_impact_analyzer(self) -> Dict:
+    def test_impact_analyzer(self) -> dict:
         """Test the impact analyzer functionality."""
         logger.info("Testing impact analyzer...")
 
@@ -301,7 +298,7 @@ class Buck2SystemTester:
             if result.returncode == 0:
                 output_file = self.repo_root / "test_impact.json"
                 if output_file.exists():
-                    with open(output_file, "r") as f:
+                    with open(output_file) as f:
                         impact_data = json.load(f)
 
                     test_result["details"]["basic_analysis"] = {
@@ -352,7 +349,7 @@ class Buck2SystemTester:
 
         return test_result
 
-    def test_workflow_orchestrator(self) -> Dict:
+    def test_workflow_orchestrator(self) -> dict:
         """Test the workflow orchestrator."""
         logger.info("Testing workflow orchestrator...")
 
@@ -414,7 +411,7 @@ class Buck2SystemTester:
 
         return test_result
 
-    def test_file_imports(self) -> Dict:
+    def test_file_imports(self) -> dict:
         """Test that all Python files can be imported without errors."""
         logger.info("Testing Python imports...")
 
@@ -452,7 +449,7 @@ class Buck2SystemTester:
 
         return test_result
 
-    def run_comprehensive_test(self) -> Dict:
+    def run_comprehensive_test(self) -> dict:
         """Run all tests and return comprehensive results."""
         logger.info("Starting comprehensive Buck2 system testing...")
         start_time = time.time()
@@ -508,20 +505,20 @@ class Buck2SystemTester:
 
         return results
 
-    def print_test_summary(self, results: Dict):
+    def print_test_summary(self, results: dict):
         """Print a human-readable test summary."""
-        print(f"\n=== Buck2 System Validation Results ===")
+        print("\n=== Buck2 System Validation Results ===")
         print(f"Overall Status: {results['overall_status'].upper()}")
         print(f"Duration: {results['summary']['duration']:.2f}s")
         print(f"Success Rate: {results['summary']['success_rate']:.1%}")
 
-        print(f"\nTest Summary:")
+        print("\nTest Summary:")
         print(f"  Total: {results['summary']['total_tests']}")
         print(f"  Passed: {results['summary']['passed']}")
         print(f"  Failed: {results['summary']['failed']}")
         print(f"  Errors: {results['summary']['errors']}")
 
-        print(f"\nDetailed Results:")
+        print("\nDetailed Results:")
         for test in results["tests"]:
             status_symbol = {"passed": "✓", "failed": "✗", "error": "!"}[test["status"]]
             print(f"  {status_symbol} {test['test_name']}: {test['status']}")
@@ -537,7 +534,7 @@ class Buck2SystemTester:
                 )
                 print(f"    Details: {passed_details}/{detail_count} sub-tests passed")
 
-    def save_results(self, results: Dict, output_file: Path = None) -> Path:
+    def save_results(self, results: dict, output_file: Path = None) -> Path:
         """Save test results to JSON file."""
         if output_file is None:
             timestamp = int(time.time())

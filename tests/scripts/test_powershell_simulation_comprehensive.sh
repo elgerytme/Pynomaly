@@ -57,29 +57,29 @@ invoke_powershell_test() {
     local test_name="$1"
     local command="$2"
     local expected_exit_code="${3:-0}"
-    
+
     ((total_tests++))
-    
+
     echo "----------------------------------------"
     print_powershell_status "TEST" "Invoke-PynomaliTest: $test_name"
     echo "COMMAND (PS Style): $command"
     echo "----------------------------------------"
-    
+
     # Simulate PowerShell execution with Python
     local output
     local exit_code
-    
+
     # Execute command and capture output/errors
     output=$(eval "$command" 2>&1)
     exit_code=$?
-    
+
     # Display PowerShell-style output
     echo "$output" | head -12  # Show more output for PowerShell simulation
     local line_count=$(echo "$output" | wc -l)
     if [ $line_count -gt 12 ]; then
         echo "... (PowerShell output truncated)"
     fi
-    
+
     # PowerShell-style result checking
     if [ $exit_code -eq $expected_exit_code ]; then
         print_powershell_status "SUCCESS" "✅ PASSED: $test_name"
@@ -129,22 +129,22 @@ print(f'Current Path (Windows style): {current_path}')
 try:
     import pynomaly
     print('✓ Pynomaly imported successfully in Windows environment')
-    
+
     # Check for Windows-specific features
     from pynomaly.infrastructure.config.settings import get_settings
     settings = get_settings()
     print(f'App configured for environment: {settings.app.environment}')
-    
+
     # Test Windows path compatibility
     import tempfile
     with tempfile.NamedTemporaryFile(mode='w', suffix='.tmp', delete=False) as tmp:
         tmp_path = tmp.name
         print(f'Temp file (Windows style): {tmp_path}')
-    
+
     # Cleanup
     os.unlink(tmp_path)
     print('✓ Windows file operations successful')
-    
+
 except Exception as e:
     print(f'✗ Windows package import error: {str(e)}')
     raise
@@ -183,16 +183,16 @@ try:
     import tempfile
     temp_dir = tempfile.gettempdir()
     print(f'Temp directory (Windows): {temp_dir}')
-    
+
     # Test file creation with Windows-style paths
     test_file = Path(temp_dir) / 'pynomaly_test.tmp'
     test_file.write_text('Windows test file')
     print(f'✓ Created test file: {test_file}')
-    
+
     # Cleanup
     test_file.unlink()
     print('✓ Cleaned up test file')
-    
+
 except Exception as e:
     print(f'Windows path handling error: {e}')
     raise
@@ -215,7 +215,7 @@ try:
     result = subprocess.run([
         sys.executable, '-m', 'pynomaly', '--help'
     ], capture_output=True, text=True, timeout=30)
-    
+
     if result.returncode == 0:
         output_lines = result.stdout.split('\n')
         print('PowerShell CLI Output (first 10 lines):')
@@ -225,7 +225,7 @@ try:
     else:
         print(f'⚠ CLI returned non-zero exit code: {result.returncode}')
         print(f'STDERR: {result.stderr[:200]}')
-    
+
 except subprocess.TimeoutExpired:
     print('⚠ CLI command timed out')
 except Exception as e:
@@ -249,25 +249,25 @@ try:
     print(f'  Environment: {settings.app.environment}')
     print(f'  API Host: {settings.api_host}')
     print(f'  API Port: {settings.api_port}')
-    
+
     # Test Windows-style paths
     print(f'  Storage Path: {settings.storage_path}')
     print(f'  Model Storage: {settings.model_storage_path}')
     print(f'  Log Path: {settings.log_path}')
-    
+
     # Test container creation (Windows)
     container = create_container()
     print(f'✓ DI Container created: {type(container).__name__}')
-    
+
     # Test repository access
     detector_repo = container.detector_repository()
     print(f'✓ Detector repository: {type(detector_repo).__name__}')
-    
+
     dataset_repo = container.dataset_repository()
     print(f'✓ Dataset repository: {type(dataset_repo).__name__}')
-    
+
     print('✓ Windows configuration management successful')
-    
+
 except Exception as e:
     print(f'Windows configuration error: {e}')
     raise
@@ -332,24 +332,24 @@ try:
     # Load dataset with Windows path
     data_file = Path('./test_data_windows/small_data.csv')
     print(f'Loading from Windows path: {data_file}')
-    
+
     data = pd.read_csv(data_file)
     print(f'Raw data loaded: {data.shape}')
     print(f'Data columns: {data.columns.tolist()}')
     print(f'Data types: {data.dtypes.unique().tolist()}')
-    
+
     # Create Pynomaly dataset
     dataset = Dataset(name='Windows Test Dataset', data=data)
     print(f'Dataset created: {dataset.name}')
     print(f'Dataset ID: {dataset.id}')
     print(f'Dataset shape: {dataset.data.shape}')
-    
+
     # Test Windows-style data validation
     print(f'Missing values: {data.isnull().sum().sum()}')
     print(f'Numeric columns: {len(data.select_dtypes(include=[\'number\']).columns)}')
-    
+
     print('✓ Windows dataset loading successful')
-    
+
 except Exception as e:
     print(f'Windows dataset loading error: {e}')
     raise
@@ -378,44 +378,44 @@ try:
     data = pd.read_csv(data_file)
     dataset = Dataset(name='Windows ML Test', data=data)
     print(f'Dataset loaded for Windows ML: {data.shape}')
-    
+
     # Test Windows-compatible algorithms
     windows_algorithms = [
         ('sklearn', 'IsolationForest'),
         ('sklearn', 'LocalOutlierFactor'),
         ('pyod', 'IsolationForest')
     ]
-    
+
     successful_algos = 0
     for lib, algo in windows_algorithms:
         try:
             print(f'Testing {lib} {algo} on Windows...')
-            
+
             if lib == 'sklearn':
                 adapter = SklearnAdapter(algo)
             else:
                 adapter = PyODAdapter(algo)
-            
+
             # Windows-style fitting and detection
             adapter.fit(dataset)
             result = adapter.detect(dataset)
-            
+
             print(f'✓ {lib} {algo}: {len(result.anomalies)} anomalies ({result.anomaly_rate:.1%})')
             successful_algos += 1
-            
+
         except Exception as e:
             print(f'✗ {lib} {algo} failed on Windows: {str(e)}')
-    
+
     print(f'Windows ML Summary:')
     print(f'- Algorithms tested: {len(windows_algorithms)}')
     print(f'- Successful on Windows: {successful_algos}')
     print(f'- Windows compatibility: {successful_algos/len(windows_algorithms)*100:.1f}%')
-    
+
     if successful_algos >= 2:
         print('✓ Windows ML pipeline successful')
     else:
         print('⚠ Windows ML pipeline has issues')
-    
+
 except Exception as e:
     print(f'Windows ML pipeline error: {e}')
     raise
@@ -439,41 +439,41 @@ try:
     container = create_container()
     app = create_app(container)
     client = TestClient(app)
-    
+
     print(f'✓ Windows API server created')
-    
+
     # Test Windows health endpoint
     health_response = client.get('/api/health/')
     print(f'Windows health check: {health_response.status_code}')
-    
+
     if health_response.status_code == 200:
         health_data = health_response.json()
         print(f'Windows health status: {health_data.get(\\\"overall_status\\\", \\\"unknown\\\")}')
-    
+
     # Test Windows detector operations
     detector_data = {
         'name': 'Windows Test Detector',
-        'algorithm_name': 'IsolationForest', 
+        'algorithm_name': 'IsolationForest',
         'parameters': {'contamination': 0.1}
     }
-    
+
     create_response = client.post('/api/detectors/', json=detector_data)
     print(f'Windows detector creation: {create_response.status_code}')
-    
+
     if create_response.status_code == 200:
         detector = create_response.json()
         print(f'✓ Windows detector created: {detector[\\\"name\\\"]}')
-    
+
     # Test Windows detector listing
     list_response = client.get('/api/detectors/')
     print(f'Windows detector listing: {list_response.status_code}')
-    
+
     if list_response.status_code == 200:
         detectors = list_response.json()
         print(f'✓ Windows detectors listed: {len(detectors)}')
-    
+
     print('✓ Windows API server test successful')
-    
+
 except Exception as e:
     print(f'Windows API server error: {e}')
     raise
@@ -499,27 +499,27 @@ print('Testing Windows performance characteristics...')
 try:
     # Load Windows medium dataset
     data_file = Path('./test_data_windows/medium_data.csv')
-    
+
     start_time = time.time()
     data = pd.read_csv(data_file)
     dataset = Dataset(name='Windows Performance Test', data=data)
     load_time = time.time() - start_time
-    
+
     print(f'Windows data loading: {load_time:.3f}s for {data.shape[0]} rows')
-    
+
     # Windows ML performance
     start_time = time.time()
     adapter = SklearnAdapter('IsolationForest')
     adapter.fit(dataset)
     fit_time = time.time() - start_time
-    
+
     start_time = time.time()
     result = adapter.detect(dataset)
     detect_time = time.time() - start_time
-    
+
     total_time = load_time + fit_time + detect_time
     throughput = data.shape[0] / total_time
-    
+
     print(f'Windows Performance Results:')
     print(f'  Data size: {data.shape}')
     print(f'  Load time: {load_time:.3f}s')
@@ -528,15 +528,15 @@ try:
     print(f'  Total time: {total_time:.3f}s')
     print(f'  Throughput: {throughput:.0f} samples/sec')
     print(f'  Anomalies: {len(result.anomalies)} ({result.anomaly_rate:.1%})')
-    
+
     # Windows performance criteria
     if total_time < 15:
         print('✓ Windows performance acceptable')
     else:
         print('⚠ Windows performance could be improved')
-    
+
     print('✓ Windows performance test successful')
-    
+
 except Exception as e:
     print(f'Windows performance error: {e}')
     raise

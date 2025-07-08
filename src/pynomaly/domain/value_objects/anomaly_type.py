@@ -5,13 +5,13 @@ from enum import Enum
 
 class AnomalyType(str, Enum):
     """Enumeration for different types of anomalies."""
-    
+
     POINT = "point"
     CONTEXTUAL = "contextual"
     COLLECTIVE = "collective"
     GLOBAL = "global"
     LOCAL = "local"
-    
+
     @classmethod
     def get_default(cls) -> "AnomalyType":
         """Get default anomaly type."""

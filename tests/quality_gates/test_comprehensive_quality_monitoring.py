@@ -1,10 +1,7 @@
 """Comprehensive quality monitoring framework for continuous test quality assurance."""
 
 import json
-import os
 import sqlite3
-import subprocess
-import sys
 import threading
 import time
 import warnings
@@ -13,7 +10,7 @@ from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 import psutil
 import pytest
@@ -29,11 +26,11 @@ class TestMetrics:
     memory_usage_mb: float
     cpu_usage_percent: float
     timestamp: datetime
-    error_message: Optional[str] = None
+    error_message: str | None = None
     warnings_count: int = 0
     retry_count: int = 0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         result = asdict(self)
         result["timestamp"] = self.timestamp.isoformat()
@@ -54,11 +51,11 @@ class QualityMetrics:
     success_rate: float
     memory_usage_mb: float
     cpu_usage_percent: float
-    flaky_tests: List[str]
-    slow_tests: List[str]
+    flaky_tests: list[str]
+    slow_tests: list[str]
     timestamp: datetime
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         result = asdict(self)
         result["timestamp"] = self.timestamp.isoformat()
@@ -130,8 +127,8 @@ class QualityDatabase:
         with sqlite3.connect(self.db_path) as conn:
             conn.execute(
                 """
-                INSERT INTO test_metrics 
-                (test_name, status, duration, memory_usage_mb, cpu_usage_percent, 
+                INSERT INTO test_metrics
+                (test_name, status, duration, memory_usage_mb, cpu_usage_percent,
                  timestamp, error_message, warnings_count, retry_count)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
@@ -153,7 +150,7 @@ class QualityDatabase:
         with sqlite3.connect(self.db_path) as conn:
             conn.execute(
                 """
-                INSERT INTO quality_metrics 
+                INSERT INTO quality_metrics
                 (total_tests, passed_tests, failed_tests, skipped_tests, error_tests,
                  total_duration, average_duration, success_rate, memory_usage_mb,
                  cpu_usage_percent, flaky_tests, slow_tests, timestamp)
@@ -176,7 +173,7 @@ class QualityDatabase:
                 ),
             )
 
-    def get_test_history(self, test_name: str, days: int = 7) -> List[TestMetrics]:
+    def get_test_history(self, test_name: str, days: int = 7) -> list[TestMetrics]:
         """Get historical data for a specific test."""
         cutoff_date = datetime.now() - timedelta(days=days)
 
@@ -185,7 +182,7 @@ class QualityDatabase:
                 """
                 SELECT test_name, status, duration, memory_usage_mb, cpu_usage_percent,
                        timestamp, error_message, warnings_count, retry_count
-                FROM test_metrics 
+                FROM test_metrics
                 WHERE test_name = ? AND timestamp >= ?
                 ORDER BY timestamp DESC
             """,
@@ -209,17 +206,17 @@ class QualityDatabase:
 
             return results
 
-    def get_flaky_tests(self, days: int = 7, min_runs: int = 5) -> Dict[str, float]:
+    def get_flaky_tests(self, days: int = 7, min_runs: int = 5) -> dict[str, float]:
         """Identify flaky tests based on failure rate."""
         cutoff_date = datetime.now() - timedelta(days=days)
 
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.execute(
                 """
-                SELECT test_name, 
+                SELECT test_name,
                        COUNT(*) as total_runs,
                        SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failures
-                FROM test_metrics 
+                FROM test_metrics
                 WHERE timestamp >= ?
                 GROUP BY test_name
                 HAVING total_runs >= ?
@@ -252,7 +249,7 @@ class PerformanceMonitor:
         self._monitor_thread = threading.Thread(target=self._monitor_loop, daemon=True)
         self._monitor_thread.start()
 
-    def stop_monitoring(self) -> Dict[str, float]:
+    def stop_monitoring(self) -> dict[str, float]:
         """Stop monitoring and return aggregated metrics."""
         self._monitoring = False
         if self._monitor_thread:
@@ -302,7 +299,7 @@ class QualityGate:
             "slow_test_rate": {"threshold": 0.10, "operator": "<="},
         }
 
-    def validate(self, metrics: QualityMetrics) -> Dict[str, bool]:
+    def validate(self, metrics: QualityMetrics) -> dict[str, bool]:
         """Validate metrics against quality gates."""
         results = {}
 
@@ -335,7 +332,7 @@ class QualityGate:
 
         return results
 
-    def get_gate_summary(self, validation_results: Dict[str, bool]) -> Dict[str, Any]:
+    def get_gate_summary(self, validation_results: dict[str, bool]) -> dict[str, Any]:
         """Get summary of quality gate results."""
         passed_gates = sum(1 for result in validation_results.values() if result)
         total_gates = len(validation_results)

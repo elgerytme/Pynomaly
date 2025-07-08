@@ -115,7 +115,7 @@ Think of anomaly detection like training a new employee to spot suspicious activ
 
 ### Machine Learning Approaches
 
-**Supervised Learning**: 
+**Supervised Learning**:
 - Uses labeled examples of both normal and fraudulent transactions
 - Like showing a new employee examples of known fraud cases
 - Highly accurate but requires extensive historical fraud data

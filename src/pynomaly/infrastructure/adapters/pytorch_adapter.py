@@ -27,7 +27,16 @@ class BaseAnomalyModel(nn.Module):
     """Base class for PyTorch anomaly detection models."""
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        raise NotImplementedError
+        """Forward pass through the model.
+
+        Args:
+            x: Input tensor
+
+        Returns:
+            Model output tensor
+        """
+        # Default implementation - should be overridden by subclasses
+        return x
 
     def loss_function(
         self, x: torch.Tensor, recon: torch.Tensor, **kwargs

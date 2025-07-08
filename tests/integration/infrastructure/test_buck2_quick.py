@@ -6,7 +6,6 @@ Simple validation that our Buck2 scripts work independently.
 
 import subprocess
 import sys
-from pathlib import Path
 
 
 def test_script_help(script_name):

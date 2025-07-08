@@ -52,24 +52,24 @@ run_test() {
     local test_name="$1"
     local test_command="$2"
     local expected_exit_code="${3:-0}"
-    
+
     ((TOTAL_TESTS++))
     log "Running test: $test_name"
-    
+
     local start_time=$(date +%s)
     local output
     local exit_code
-    
+
     # Run the test command and capture output
     if output=$(eval "$test_command" 2>&1); then
         exit_code=0
     else
         exit_code=$?
     fi
-    
+
     local end_time=$(date +%s)
     local duration=$((end_time - start_time))
-    
+
     # Check if test passed
     if [ "$exit_code" -eq "$expected_exit_code" ]; then
         log_success "$test_name (${duration}s)"
@@ -84,28 +84,28 @@ run_test() {
 # Setup test environment
 setup_test_environment() {
     log "Setting up test environment..."
-    
+
     # Create temporary directory
     mkdir -p "$TEMP_DIR"
     mkdir -p "$TEST_DATA_DIR"
-    
+
     # Create virtual environment
     log "Creating virtual environment at $VENV_DIR"
     python3 -m venv "$VENV_DIR"
-    
+
     # Activate virtual environment
     source "$VENV_DIR/bin/activate"
-    
+
     # Upgrade pip
     pip install --upgrade pip
-    
+
     log "Test environment setup complete"
 }
 
 # Generate test data
 generate_test_data() {
     log "Generating test data..."
-    
+
     # Small CSV file
     cat > "$TEST_DATA_DIR/small_data.csv" << 'EOF'
 id,value1,value2,value3,category
@@ -184,11 +184,11 @@ EOF
 # Install Pynomaly in test environment
 install_pynomaly() {
     log "Installing Pynomaly..."
-    
+
     # Install from local project
     cd "$PROJECT_ROOT"
     pip install -e .
-    
+
     # Verify installation
     if command -v pynomaly &> /dev/null; then
         log_success "Pynomaly CLI installed successfully"
@@ -201,19 +201,19 @@ install_pynomaly() {
 # Core CLI tests
 test_basic_commands() {
     log "Testing basic CLI commands..."
-    
+
     # Test help
     run_test "CLI Help" "pynomaly --help"
-    
+
     # Test version
     run_test "CLI Version" "pynomaly version"
-    
+
     # Test config show
     run_test "Config Show" "pynomaly config --show"
-    
+
     # Test status
     run_test "System Status" "pynomaly status"
-    
+
     # Test quickstart
     run_test "Quickstart Help" "echo 'n' | pynomaly quickstart"
 }
@@ -221,28 +221,28 @@ test_basic_commands() {
 # Dataset management tests
 test_dataset_commands() {
     log "Testing dataset commands..."
-    
+
     # Test dataset help
     run_test "Dataset Help" "pynomaly dataset --help"
-    
+
     # Test dataset list (should be empty initially)
     run_test "Dataset List Empty" "pynomaly dataset list"
-    
+
     # Test dataset load - CSV
     run_test "Load CSV Dataset" "pynomaly dataset load '$TEST_DATA_DIR/small_data.csv' --name test_small"
-    
+
     # Test dataset load - JSON
     run_test "Load JSON Dataset" "pynomaly dataset load '$TEST_DATA_DIR/sample_data.json' --name test_json"
-    
+
     # Test dataset list (should show loaded datasets)
     run_test "Dataset List After Loading" "pynomaly dataset list"
-    
+
     # Test dataset info
     run_test "Dataset Info" "pynomaly dataset info test_small"
-    
+
     # Test dataset validation
     run_test "Dataset Validation" "pynomaly dataset validate test_small"
-    
+
     # Test malformed data handling
     run_test "Load Malformed CSV" "pynomaly dataset load '$TEST_DATA_DIR/malformed_data.csv' --name test_malformed" 1
 }
@@ -250,22 +250,22 @@ test_dataset_commands() {
 # Detector management tests
 test_detector_commands() {
     log "Testing detector commands..."
-    
+
     # Test detector help
     run_test "Detector Help" "pynomaly detector --help"
-    
+
     # Test detector list (should be empty initially)
     run_test "Detector List Empty" "pynomaly detector list"
-    
+
     # Test detector create
     run_test "Create IsolationForest Detector" "pynomaly detector create --name test_detector --algorithm IsolationForest"
-    
+
     # Test detector list (should show created detector)
     run_test "Detector List After Creation" "pynomaly detector list"
-    
+
     # Test detector info
     run_test "Detector Info" "pynomaly detector info test_detector"
-    
+
     # Test algorithm list
     run_test "Algorithm List" "pynomaly detector algorithms"
 }
@@ -273,19 +273,19 @@ test_detector_commands() {
 # Detection workflow tests
 test_detection_commands() {
     log "Testing detection commands..."
-    
+
     # Test detection help
     run_test "Detection Help" "pynomaly detect --help"
-    
+
     # Test train detector
     run_test "Train Detector" "pynomaly detect train --detector test_detector --dataset test_small"
-    
+
     # Test run detection
     run_test "Run Detection" "pynomaly detect run --detector test_detector --dataset test_small"
-    
+
     # Test results
     run_test "View Results" "pynomaly detect results --latest"
-    
+
     # Test results with specific detector
     run_test "View Detector Results" "pynomaly detect results --detector test_detector"
 }
@@ -293,16 +293,16 @@ test_detection_commands() {
 # Autonomous mode tests
 test_autonomous_commands() {
     log "Testing autonomous mode commands..."
-    
+
     # Test autonomous help
     run_test "Autonomous Help" "pynomaly auto --help"
-    
+
     # Test autonomous detect
     run_test "Autonomous Detection" "pynomaly auto detect '$TEST_DATA_DIR/small_data.csv' --max-algorithms 2"
-    
+
     # Test autonomous profile
     run_test "Autonomous Profile" "pynomaly auto profile '$TEST_DATA_DIR/small_data.csv'"
-    
+
     # Test autonomous quick detection
     run_test "Autonomous Quick" "pynomaly auto quick '$TEST_DATA_DIR/small_data.csv' --algorithm IsolationForest"
 }
@@ -310,13 +310,13 @@ test_autonomous_commands() {
 # Export functionality tests
 test_export_commands() {
     log "Testing export commands..."
-    
+
     # Test export help
     run_test "Export Help" "pynomaly export --help"
-    
+
     # Test list formats
     run_test "List Export Formats" "pynomaly export list-formats"
-    
+
     # Create a simple results file for export testing
     cat > "$TEMP_DIR/test_results.json" << 'EOF'
 {
@@ -331,10 +331,10 @@ test_export_commands() {
     }
 }
 EOF
-    
+
     # Test CSV export
     run_test "Export to CSV" "pynomaly export csv '$TEMP_DIR/test_results.json' '$TEMP_DIR/exported_results.csv'"
-    
+
     # Test Excel export (if dependencies available)
     run_test "Export to Excel" "pynomaly export excel '$TEMP_DIR/test_results.json' '$TEMP_DIR/exported_results.xlsx'" || true
 }
@@ -342,34 +342,34 @@ EOF
 # Performance tests
 test_performance() {
     log "Testing performance with medium dataset..."
-    
+
     # Load medium dataset
     run_test "Load Medium Dataset" "pynomaly dataset load '$TEST_DATA_DIR/medium_data.csv' --name test_medium"
-    
+
     # Create detector for medium dataset
     run_test "Create Detector for Medium Data" "pynomaly detector create --name medium_detector --algorithm IsolationForest"
-    
+
     # Time the training process
     local start_time=$(date +%s)
     run_test "Train on Medium Dataset" "pynomaly detect train --detector medium_detector --dataset test_medium"
     local end_time=$(date +%s)
     local training_duration=$((end_time - start_time))
-    
+
     log "Training duration: ${training_duration}s"
-    
+
     # Time the detection process
     start_time=$(date +%s)
     run_test "Detect on Medium Dataset" "pynomaly detect run --detector medium_detector --dataset test_medium"
     end_time=$(date +%s)
     local detection_duration=$((end_time - start_time))
-    
+
     log "Detection duration: ${detection_duration}s"
-    
+
     # Performance assertions
     if [ "$training_duration" -gt 120 ]; then
         log_warning "Training took longer than expected: ${training_duration}s"
     fi
-    
+
     if [ "$detection_duration" -gt 60 ]; then
         log_warning "Detection took longer than expected: ${detection_duration}s"
     fi
@@ -378,16 +378,16 @@ test_performance() {
 # Error handling tests
 test_error_handling() {
     log "Testing error handling..."
-    
+
     # Test non-existent dataset
     run_test "Load Non-existent File" "pynomaly dataset load '/non/existent/file.csv' --name test_missing" 1
-    
+
     # Test invalid algorithm
     run_test "Create Invalid Algorithm Detector" "pynomaly detector create --name bad_detector --algorithm NonExistentAlgorithm" 1
-    
+
     # Test train with non-existent detector
     run_test "Train Non-existent Detector" "pynomaly detect train --detector non_existent --dataset test_small" 1
-    
+
     # Test train with non-existent dataset
     run_test "Train with Non-existent Dataset" "pynomaly detect train --detector test_detector --dataset non_existent" 1
 }
@@ -395,24 +395,24 @@ test_error_handling() {
 # Resource cleanup
 cleanup() {
     log "Cleaning up test environment..."
-    
+
     # Deactivate virtual environment
     if [ -n "$VIRTUAL_ENV" ]; then
         deactivate
     fi
-    
+
     # Remove temporary directory
     if [ -d "$TEMP_DIR" ]; then
         rm -rf "$TEMP_DIR"
     fi
-    
+
     log "Cleanup complete"
 }
 
 # Generate test report
 generate_report() {
     log "Generating test report..."
-    
+
     # Create JSON report
     cat > "$RESULTS_JSON" << EOF
 {
@@ -431,7 +431,7 @@ generate_report() {
     ]
 }
 EOF
-    
+
     # Print summary
     echo ""
     echo "=============================================="
@@ -443,7 +443,7 @@ EOF
     echo "Success Rate:   $(echo "scale=1; $PASSED_TESTS * 100 / $TOTAL_TESTS" | bc -l)%"
     echo "=============================================="
     echo ""
-    
+
     if [ $FAILED_TESTS -eq 0 ]; then
         echo -e "${GREEN}🎉 All tests passed!${NC}"
         return 0
@@ -460,12 +460,12 @@ main() {
     log "Starting Pynomaly CLI tests in Bash environment"
     log "Platform: $(uname -s) $(uname -r)"
     log "Python: $(python3 --version 2>&1)"
-    
+
     # Setup
     setup_test_environment
     generate_test_data
     install_pynomaly
-    
+
     # Run tests
     test_basic_commands
     test_dataset_commands
@@ -475,11 +475,11 @@ main() {
     test_export_commands
     test_performance
     test_error_handling
-    
+
     # Report and cleanup
     generate_report
     local exit_code=$?
-    
+
     cleanup
     exit $exit_code
 }

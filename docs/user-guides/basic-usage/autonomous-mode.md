@@ -350,7 +350,7 @@ async def main():
     if len(sys.argv) != 2:
         print("Usage: script.py <data_file>")
         return
-    
+
     results = await run_autonomous_detection(sys.argv[1])
     print(f"Detection complete. Found {results['anomalies']} anomalies.")
 

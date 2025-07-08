@@ -15,12 +15,12 @@ function Invoke-TestCase {
         [string]$TestName,
         [string]$Command
     )
-    
+
     Write-Host "----------------------------------------"
     Write-Host "Testing: $TestName"
     Write-Host "Command: $Command"
     Write-Host "----------------------------------------"
-    
+
     try {
         $result = Invoke-Expression $Command
         if ($LASTEXITCODE -eq 0 -or $null -eq $LASTEXITCODE) {
@@ -47,7 +47,7 @@ if (Invoke-TestCase "Domain Layer Tests" "python3 -m pytest tests/domain/test_en
     $passedTests++
 }
 
-# Test 2: Application Services Tests  
+# Test 2: Application Services Tests
 $totalTests++
 if (Invoke-TestCase "Application Services Tests" "python3 -m pytest tests/application/test_services.py -v --tb=short") {
     $passedTests++
@@ -166,7 +166,7 @@ try:
 except Exception as e:
     print('⚠️ PyOD adapter failed:', str(e))
 
-# Test Sklearn adapter  
+# Test Sklearn adapter
 try:
     sklearn_adapter = SklearnAdapter('IsolationForest')
     print('✅ Sklearn adapter created:', sklearn_adapter.algorithm_name)

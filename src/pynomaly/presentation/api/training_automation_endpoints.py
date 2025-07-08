@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
@@ -21,7 +21,6 @@ from pynomaly.application.services.training_automation_service import (
     PruningStrategy,
     TrainingAutomationService,
     TrainingConfiguration,
-    TrainingJob,
     TrainingStatus,
 )
 from pynomaly.infrastructure.adapters.model_trainer_adapter import (
@@ -59,7 +58,7 @@ class TrainingConfigurationRequest(BaseModel):
     primary_metric: str = Field(
         default="roc_auc", description="Primary optimization metric"
     )
-    secondary_metrics: List[str] = Field(
+    secondary_metrics: list[str] = Field(
         default=["precision", "recall", "f1"], description="Secondary metrics to track"
     )
     optimization_direction: str = Field(
@@ -99,13 +98,13 @@ class TrainingConfigurationRequest(BaseModel):
     save_models: bool = Field(default=True, description="Save trained models")
 
     # Algorithm selection
-    algorithm_whitelist: Optional[List[str]] = Field(
+    algorithm_whitelist: Optional[list[str]] = Field(
         default=None, description="Allowed algorithms"
     )
-    algorithm_blacklist: Optional[List[str]] = Field(
+    algorithm_blacklist: Optional[list[str]] = Field(
         default=None, description="Excluded algorithms"
     )
-    ensemble_methods: List[str] = Field(
+    ensemble_methods: list[str] = Field(
         default=["voting", "stacking"], description="Ensemble methods to try"
     )
 
@@ -115,7 +114,7 @@ class CreateTrainingJobRequest(BaseModel):
 
     name: str = Field(..., min_length=1, max_length=255, description="Job name")
     dataset_id: str = Field(..., min_length=1, description="Dataset ID")
-    target_algorithms: Optional[List[str]] = Field(
+    target_algorithms: Optional[list[str]] = Field(
         default=None, description="Target algorithms"
     )
     configuration: TrainingConfigurationRequest = Field(
@@ -130,7 +129,7 @@ class TrainingJobResponse(BaseModel):
     name: str
     status: TrainingStatus
     dataset_id: str
-    target_algorithms: List[str]
+    target_algorithms: list[str]
 
     created_at: datetime
     started_at: Optional[datetime] = None
@@ -138,7 +137,7 @@ class TrainingJobResponse(BaseModel):
     error_message: Optional[str] = None
 
     best_score: Optional[float] = None
-    best_parameters: Optional[Dict[str, Any]] = None
+    best_parameters: Optional[dict[str, Any]] = None
 
     total_trials: int
     successful_trials: int
@@ -161,14 +160,14 @@ class TrainingJobMetricsResponse(BaseModel):
     success_rate: float
     best_score: Optional[float] = None
     best_algorithm: Optional[str] = None
-    trial_history: List[Dict[str, Any]] = []
+    trial_history: list[dict[str, Any]] = []
 
 
 class QuickOptimizeRequest(BaseModel):
     """Request model for quick optimization."""
 
     dataset_id: str = Field(..., description="Dataset ID")
-    algorithms: Optional[List[str]] = Field(
+    algorithms: Optional[list[str]] = Field(
         default=None, description="Target algorithms"
     )
     max_trials: int = Field(default=50, ge=10, le=200, description="Maximum trials")
@@ -321,7 +320,7 @@ async def get_training_job(
         )
 
 
-@router.get("/jobs", response_model=List[TrainingJobResponse])
+@router.get("/jobs", response_model=list[TrainingJobResponse])
 async def list_training_jobs(
     status_filter: Optional[TrainingStatus] = Query(
         None, alias="status", description="Filter by status"
@@ -330,7 +329,7 @@ async def list_training_jobs(
         100, ge=1, le=1000, description="Maximum number of jobs to return"
     ),
     service: TrainingAutomationService = Depends(get_training_service),
-) -> List[TrainingJobResponse]:
+) -> list[TrainingJobResponse]:
     """List training jobs."""
     try:
         jobs = await service.list_training_jobs(status_filter, limit)
@@ -472,10 +471,10 @@ async def quick_optimize(
         )
 
 
-@router.get("/algorithms", response_model=List[str])
+@router.get("/algorithms", response_model=list[str])
 async def get_supported_algorithms(
     service: TrainingAutomationService = Depends(get_training_service),
-) -> List[str]:
+) -> list[str]:
     """Get list of supported algorithms."""
     try:
         # Get algorithms from the trainer adapter
@@ -494,7 +493,7 @@ async def get_supported_algorithms(
 async def get_algorithm_info(
     algorithm_name: str,
     service: TrainingAutomationService = Depends(get_training_service),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get detailed information about a specific algorithm."""
     try:
         trainer = create_model_trainer_adapter()
@@ -533,7 +532,7 @@ async def cleanup_old_jobs(
 @router.get("/status")
 async def get_training_system_status(
     service: TrainingAutomationService = Depends(get_training_service),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get training system status and statistics."""
     try:
         # Get job statistics from repository

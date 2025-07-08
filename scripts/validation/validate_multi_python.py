@@ -7,14 +7,12 @@ Validates that the multi-version Python setup is working correctly.
 import argparse
 import json
 import logging
-import os
 import platform
 import subprocess
 import sys
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 # Configure logging
 logging.basicConfig(
@@ -30,7 +28,7 @@ class ValidationResult:
     check_name: str
     passed: bool
     message: str
-    details: Dict
+    details: dict
     duration: float
 
 
@@ -42,7 +40,7 @@ class ValidationSummary:
     passed_checks: int
     failed_checks: int
     total_duration: float
-    results: List[ValidationResult]
+    results: list[ValidationResult]
     overall_status: str
 
 
@@ -142,7 +140,7 @@ class MultiPythonValidator:
 
         return summary
 
-    def _validate_system_requirements(self) -> Tuple[bool, str, Dict]:
+    def _validate_system_requirements(self) -> tuple[bool, str, dict]:
         """Validate system requirements for multi-version Python."""
         details = {
             "platform": platform.platform(),
@@ -175,7 +173,7 @@ class MultiPythonValidator:
 
         return True, "All system requirements met", details
 
-    def _validate_python_versions(self) -> Tuple[bool, str, Dict]:
+    def _validate_python_versions(self) -> tuple[bool, str, dict]:
         """Validate Python version availability."""
         details = {"available_versions": [], "missing_versions": []}
 
@@ -251,7 +249,7 @@ class MultiPythonValidator:
             else:
                 return False, "Insufficient Python versions available", details
 
-    def _validate_virtual_environments(self) -> Tuple[bool, str, Dict]:
+    def _validate_virtual_environments(self) -> tuple[bool, str, dict]:
         """Validate virtual environments for each Python version."""
         if not self.environments_dir.exists():
             return (
@@ -305,7 +303,7 @@ class MultiPythonValidator:
         else:
             return True, f"All {found_environments} virtual environments found", details
 
-    def _validate_package_installations(self) -> Tuple[bool, str, Dict]:
+    def _validate_package_installations(self) -> tuple[bool, str, dict]:
         """Validate package installations in virtual environments."""
         details = {"packages": {}}
 
@@ -380,7 +378,7 @@ class MultiPythonValidator:
                 details,
             )
 
-    def _validate_import_compatibility(self) -> Tuple[bool, str, Dict]:
+    def _validate_import_compatibility(self) -> tuple[bool, str, dict]:
         """Test import compatibility across Python versions."""
         details = {"compatibility_tests": {}}
 
@@ -456,7 +454,7 @@ class MultiPythonValidator:
                 details,
             )
 
-    def _validate_github_actions(self) -> Tuple[bool, str, Dict]:
+    def _validate_github_actions(self) -> tuple[bool, str, dict]:
         """Validate GitHub Actions workflow configuration."""
         workflow_file = (
             self.base_dir / ".github" / "workflows" / "multi-python-testing.yml"
@@ -471,7 +469,7 @@ class MultiPythonValidator:
             return False, "GitHub Actions workflow file not found", details
 
         try:
-            with open(workflow_file, "r") as f:
+            with open(workflow_file) as f:
                 content = f.read()
 
             # Check for required Python versions
@@ -523,7 +521,7 @@ class MultiPythonValidator:
             details["error"] = str(e)
             return False, f"Failed to validate workflow: {str(e)}", details
 
-    def _validate_tox_configuration(self) -> Tuple[bool, str, Dict]:
+    def _validate_tox_configuration(self) -> tuple[bool, str, dict]:
         """Validate tox configuration."""
         tox_file = self.base_dir / "tox.ini"
 
@@ -533,7 +531,7 @@ class MultiPythonValidator:
             return False, "tox.ini file not found", details
 
         try:
-            with open(tox_file, "r") as f:
+            with open(tox_file) as f:
                 content = f.read()
 
             # Check for Python environments
@@ -579,7 +577,7 @@ class MultiPythonValidator:
             details["error"] = str(e)
             return False, f"Failed to validate tox.ini: {str(e)}", details
 
-    def _validate_docker_setup(self) -> Tuple[bool, str, Dict]:
+    def _validate_docker_setup(self) -> tuple[bool, str, dict]:
         """Validate Docker multi-version setup."""
         docker_file = self.base_dir / "deploy" / "docker" / "Dockerfile.multi-python"
 
@@ -592,7 +590,7 @@ class MultiPythonValidator:
             return False, "Multi-Python Dockerfile not found", details
 
         try:
-            with open(docker_file, "r") as f:
+            with open(docker_file) as f:
                 content = f.read()
 
             # Check for Python version installations
@@ -641,7 +639,7 @@ class MultiPythonValidator:
             details["error"] = str(e)
             return False, f"Failed to validate Dockerfile: {str(e)}", details
 
-    def _validate_performance_baseline(self) -> Tuple[bool, str, Dict]:
+    def _validate_performance_baseline(self) -> tuple[bool, str, dict]:
         """Run basic performance validation."""
         details = {"performance_tests": {}}
 
@@ -660,10 +658,6 @@ class MultiPythonValidator:
 
             # Import performance test
             start_time = time.perf_counter()
-            import json
-            import os
-            import pathlib
-            import sys
 
             import_time = time.perf_counter() - start_time
 
@@ -702,14 +696,14 @@ class MultiPythonValidator:
 
     def print_summary(self, summary: ValidationSummary):
         """Print human-readable validation summary."""
-        print(f"\n=== Multi-Version Python Validation Summary ===")
+        print("\n=== Multi-Version Python Validation Summary ===")
         print(f"Overall Status: {summary.overall_status}")
         print(f"Total Checks: {summary.total_checks}")
         print(f"Passed: {summary.passed_checks}")
         print(f"Failed: {summary.failed_checks}")
         print(f"Duration: {summary.total_duration:.1f}s")
 
-        print(f"\n=== Detailed Results ===")
+        print("\n=== Detailed Results ===")
         for result in summary.results:
             status = "✓" if result.passed else "✗"
             print(f"{status} {result.check_name:<25} {result.message}")
@@ -717,7 +711,7 @@ class MultiPythonValidator:
         # Show failed checks with details
         failed_results = [r for r in summary.results if not r.passed]
         if failed_results:
-            print(f"\n=== Failed Checks Details ===")
+            print("\n=== Failed Checks Details ===")
             for result in failed_results:
                 print(f"✗ {result.check_name}:")
                 print(f"  Message: {result.message}")
@@ -726,7 +720,7 @@ class MultiPythonValidator:
                         print(f"  {key}: {value}")
 
         # Recommendations
-        print(f"\n=== Recommendations ===")
+        print("\n=== Recommendations ===")
         if summary.overall_status == "EXCELLENT":
             print("🎉 Excellent! Your multi-version Python setup is perfect.")
             print("   Consider running regular validation to maintain quality.")

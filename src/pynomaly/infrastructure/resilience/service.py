@@ -21,10 +21,7 @@ from .retry import (
     retry_redis_operation,
     retry_with_backoff,
 )
-from .timeout import (
-    TimeoutManager,
-    timeout_handler,
-)
+from .timeout import TimeoutManager, timeout_handler
 
 logger = logging.getLogger(__name__)
 

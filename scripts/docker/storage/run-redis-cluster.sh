@@ -104,12 +104,12 @@ fi
 if [[ "$CLUSTER_MODE" == "true" ]]; then
     echo "Starting Redis Cluster..."
     CLUSTER_NODES=$((1 + REPLICAS))
-    
+
     # Start Redis nodes for cluster
     for i in $(seq 0 $((CLUSTER_NODES - 1))); do
         NODE_PORT=$((7000 + i))
         NODE_NAME="pynomaly-redis-node-${i}"
-        
+
         echo "Starting Redis Cluster Node $i on port $NODE_PORT..."
         docker run -d \
             --name "$NODE_NAME" \
@@ -129,11 +129,11 @@ if [[ "$CLUSTER_MODE" == "true" ]]; then
             --save 300 10 \
             --save 60 10000
     done
-    
+
     # Wait for nodes to start
     echo "Waiting for cluster nodes to start..."
     sleep 10
-    
+
     # Create cluster
     echo "Creating Redis cluster..."
     CLUSTER_IPS=""
@@ -142,18 +142,18 @@ if [[ "$CLUSTER_MODE" == "true" ]]; then
         NODE_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$NODE_NAME")
         CLUSTER_IPS="$CLUSTER_IPS $NODE_IP:6379"
     done
-    
+
     # Initialize cluster
     docker run --rm -it \
         --network "$NETWORK_NAME" \
         redis:7-alpine redis-cli --cluster create $CLUSTER_IPS --cluster-replicas 1 --cluster-yes
-    
+
 else
     echo "Starting Redis High Availability with Sentinel..."
     echo "Master: 1 node"
     echo "Replicas: $REPLICAS nodes"
     echo "Sentinels: $SENTINELS nodes"
-    
+
     # Start Redis Master
     echo "Starting Redis Master..."
     docker run -d \
@@ -173,16 +173,16 @@ else
         --maxmemory-policy allkeys-lru \
         --tcp-keepalive 60 \
         --timeout 300
-    
+
     # Wait for master to be ready
     echo "Waiting for master to be ready..."
     sleep 10
-    
+
     # Start Redis Replicas
     for i in $(seq 1 $REPLICAS); do
         REPLICA_PORT=$((6379 + i))
         echo "Starting Redis Replica $i on port $REPLICA_PORT..."
-        
+
         docker run -d \
             --name "${REPLICA_PREFIX}-${i}" \
             --network "$NETWORK_NAME" \
@@ -197,12 +197,12 @@ else
             --tcp-keepalive 60 \
             --timeout 300
     done
-    
+
     # Start Redis Sentinels
     for i in $(seq 1 $SENTINELS); do
         SENTINEL_PORT=$((26379 + i - 1))
         echo "Starting Redis Sentinel $i on port $SENTINEL_PORT..."
-        
+
         # Create sentinel configuration
         cat > "/tmp/sentinel-${i}.conf" << EOF
 port 26379
@@ -213,7 +213,7 @@ sentinel failover-timeout mymaster 10000
 sentinel auth-pass mymaster ""
 logfile ""
 EOF
-        
+
         docker run -d \
             --name "${SENTINEL_PREFIX}-${i}" \
             --network "$NETWORK_NAME" \
@@ -239,7 +239,7 @@ fi
 # Set up automated backups if requested
 if [[ "$BACKUP" == "true" ]]; then
     echo "Setting up automated backups..."
-    
+
     # Create backup script
     cat > /tmp/redis-backup.sh << 'EOF'
 #!/bin/bash
@@ -271,7 +271,7 @@ echo "Backup completed: redis-backup-$DATE.rdb.gz"
 EOF
 
     chmod +x /tmp/redis-backup.sh
-    
+
     docker run -d \
         --name "pynomaly-redis-backup" \
         --network "$NETWORK_NAME" \

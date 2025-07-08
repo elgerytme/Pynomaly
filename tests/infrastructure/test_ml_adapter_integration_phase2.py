@@ -375,7 +375,6 @@ class TestPyTorchAdapterIntegration(MLAdapterTestBase):
     def test_pytorch_gpu_cpu_compatibility(self, sample_data):
         """Test PyTorch adapter GPU/CPU device handling."""
         import torch
-
         from pynomaly.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
 
         # Test CPU mode

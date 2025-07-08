@@ -35,9 +35,8 @@ def init_tdd(
     coverage_threshold: float = typer.Option(
         0.8, "--coverage", help="Minimum coverage threshold"
     ),
-    project_root: str | None = typer.Option(
-        None, "--root", help="Project root directory"
-    ),
+    project_root: str
+    | None = typer.Option(None, "--root", help="Project root directory"),
 ):
     """Initialize TDD configuration for the project."""
     try:
@@ -91,9 +90,8 @@ def show_status(
     detailed: bool = typer.Option(
         False, "--detailed", "-d", help="Show detailed compliance report"
     ),
-    project_root: str | None = typer.Option(
-        None, "--root", help="Project root directory"
-    ),
+    project_root: str
+    | None = typer.Option(None, "--root", help="Project root directory"),
 ):
     """Show TDD compliance status."""
     try:
@@ -191,9 +189,8 @@ def create_requirement(
         0.8, "--coverage", help="Target coverage percentage"
     ),
     tags: str | None = typer.Option(None, "--tags", help="Comma-separated tags"),
-    project_root: str | None = typer.Option(
-        None, "--root", help="Project root directory"
-    ),
+    project_root: str
+    | None = typer.Option(None, "--root", help="Project root directory"),
 ):
     """Create a test requirement for a function."""
     try:
@@ -242,12 +239,10 @@ def create_requirement(
 def validate_compliance(
     fix: bool = typer.Option(False, "--fix", help="Attempt to auto-fix violations"),
     coverage: bool = typer.Option(False, "--coverage", help="Run coverage analysis"),
-    project_root: str | None = typer.Option(
-        None, "--root", help="Project root directory"
-    ),
-    file_path: str | None = typer.Option(
-        None, "--file", help="Validate specific file only"
-    ),
+    project_root: str
+    | None = typer.Option(None, "--root", help="Project root directory"),
+    file_path: str
+    | None = typer.Option(None, "--file", help="Validate specific file only"),
 ):
     """Validate TDD compliance for the project."""
     try:
@@ -408,7 +403,9 @@ def enable_tdd(
         console.print("✅ [green]TDD enforcement enabled![/green]")
         console.print(f"📊 Coverage threshold: {coverage_threshold:.1%}")
         if strict:
-            console.print("⚠️  Strict mode: Tests must be written before implementation")
+            console.print(
+                "⚠️  Strict mode: Tests must be written before implementation"
+            )
 
         console.print("\nRun 'pynomaly tdd status' to check current compliance.")
 
@@ -435,16 +432,15 @@ def disable_tdd():
 
 @app.command("requirements")
 def list_requirements(
-    status: str | None = typer.Option(
+    status: str
+    | None = typer.Option(
         None, "--status", help="Filter by status (pending, implemented, validated)"
     ),
     module: str | None = typer.Option(None, "--module", help="Filter by module path"),
-    tags: str | None = typer.Option(
-        None, "--tags", help="Filter by tags (comma-separated)"
-    ),
-    project_root: str | None = typer.Option(
-        None, "--root", help="Project root directory"
-    ),
+    tags: str
+    | None = typer.Option(None, "--tags", help="Filter by tags (comma-separated)"),
+    project_root: str
+    | None = typer.Option(None, "--root", help="Project root directory"),
 ):
     """List test requirements."""
     try:
@@ -506,10 +502,10 @@ def list_requirements(
 
 @app.command("coverage")
 def run_coverage(
-    project_root: str | None = typer.Option(
-        None, "--root", help="Project root directory"
-    ),
-    threshold: float | None = typer.Option(
+    project_root: str
+    | None = typer.Option(None, "--root", help="Project root directory"),
+    threshold: float
+    | None = typer.Option(
         None, "--threshold", help="Coverage threshold to check against"
     ),
 ):
@@ -578,9 +574,7 @@ def run_coverage(
         files_above_threshold = sum(
             1 for cov in coverage_data.values() if cov >= coverage_threshold
         )
-        console.print(
-            f"✅ Files above threshold: {files_above_threshold}/{files_count}"
-        )
+        console.print(f"✅ Files above threshold: {files_above_threshold}/{files_count}")
 
     except Exception as e:
         console.print(f"[red]Error running coverage analysis: {str(e)}[/red]")
@@ -728,15 +722,13 @@ def manage_git_hooks(
 
 @app.command("report")
 def generate_report(
-    output_file: str | None = typer.Option(
-        None, "--output", "-o", help="Output file for report"
-    ),
+    output_file: str
+    | None = typer.Option(None, "--output", "-o", help="Output file for report"),
     format: str = typer.Option(
         "json", "--format", help="Report format (json, yaml, html)"
     ),
-    project_root: str | None = typer.Option(
-        None, "--root", help="Project root directory"
-    ),
+    project_root: str
+    | None = typer.Option(None, "--root", help="Project root directory"),
 ):
     """Generate comprehensive TDD compliance report."""
     try:

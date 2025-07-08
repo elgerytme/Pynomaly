@@ -421,7 +421,7 @@ data:
       io_threads: 4
       max_memory_mb: 6144
       gc_threshold: 0.8
-      
+
     kafka:
       consumer_timeout_ms: 1000
       max_poll_records: 1000
@@ -429,7 +429,7 @@ data:
       fetch_max_wait_ms: 500
       enable_auto_commit: false
       auto_offset_reset: "latest"
-      
+
     monitoring:
       enable_detailed_metrics: true
       metrics_interval_seconds: 10

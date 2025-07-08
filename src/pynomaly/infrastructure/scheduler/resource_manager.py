@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional
 
-from .entities import ResourceRequirement, JobDefinition
+from .entities import JobDefinition, ResourceRequirement
 
 
 @dataclass
@@ -17,7 +16,7 @@ class ResourceUsage:
     gpu_count: int = 0
 
 
-@dataclass 
+@dataclass
 class ResourceQuota:
     """Resource quota/limits."""
     max_cpu_cores: float = 8.0
@@ -29,23 +28,23 @@ class ResourceQuota:
 class ResourceManager:
     """Manages resource allocation and limits for job execution."""
 
-    def __init__(self, quota: Optional[ResourceQuota] = None):
+    def __init__(self, quota: ResourceQuota | None = None):
         """Initialize resource manager with optional quota."""
         self.quota = quota or ResourceQuota()
         self.current_usage = ResourceUsage()
-        self.allocated_jobs: Dict[str, ResourceRequirement] = {}
+        self.allocated_jobs: dict[str, ResourceRequirement] = {}
 
     def can_allocate(self, job_id: str, requirement: ResourceRequirement) -> bool:
         """Check if resources can be allocated for a job."""
         if job_id in self.allocated_jobs:
             return True  # Already allocated
-        
+
         # Calculate what usage would be after allocation
         projected_cpu = self.current_usage.cpu_cores + requirement.cpu_cores
         projected_memory = self.current_usage.memory_gb + requirement.memory_gb
         projected_workers = self.current_usage.workers + requirement.workers
         projected_gpu = self.current_usage.gpu_count + requirement.gpu_count
-        
+
         # Check against quotas
         if projected_cpu > self.quota.max_cpu_cores:
             return False
@@ -55,34 +54,34 @@ class ResourceManager:
             return False
         if projected_gpu > self.quota.max_gpu_count:
             return False
-        
+
         return True
 
     def allocate(self, job_id: str, requirement: ResourceRequirement) -> bool:
         """Allocate resources for a job."""
         if not self.can_allocate(job_id, requirement):
             return False
-        
+
         if job_id not in self.allocated_jobs:
             self.current_usage.cpu_cores += requirement.cpu_cores
             self.current_usage.memory_gb += requirement.memory_gb
             self.current_usage.workers += requirement.workers
             self.current_usage.gpu_count += requirement.gpu_count
             self.allocated_jobs[job_id] = requirement
-        
+
         return True
 
     def deallocate(self, job_id: str) -> bool:
         """Deallocate resources for a job."""
         if job_id not in self.allocated_jobs:
             return False
-        
+
         requirement = self.allocated_jobs[job_id]
         self.current_usage.cpu_cores -= requirement.cpu_cores
         self.current_usage.memory_gb -= requirement.memory_gb
         self.current_usage.workers -= requirement.workers
         self.current_usage.gpu_count -= requirement.gpu_count
-        
+
         del self.allocated_jobs[job_id]
         return True
 
@@ -95,7 +94,7 @@ class ResourceManager:
             gpu_count=self.quota.max_gpu_count - self.current_usage.gpu_count
         )
 
-    def get_allocatable_jobs(self, jobs: Dict[str, JobDefinition]) -> List[str]:
+    def get_allocatable_jobs(self, jobs: dict[str, JobDefinition]) -> list[str]:
         """Get list of job IDs that can be allocated resources."""
         allocatable = []
         for job_id, job in jobs.items():
@@ -103,7 +102,7 @@ class ResourceManager:
                 allocatable.append(job_id)
         return allocatable
 
-    def get_resource_utilization(self) -> Dict[str, float]:
+    def get_resource_utilization(self) -> dict[str, float]:
         """Get current resource utilization as percentages."""
         return {
             "cpu": (self.current_usage.cpu_cores / self.quota.max_cpu_cores) * 100 if self.quota.max_cpu_cores > 0 else 0,

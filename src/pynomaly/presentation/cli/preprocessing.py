@@ -33,33 +33,34 @@ console = Console()
 @app.command("clean")
 def clean_data(
     dataset_id: str = typer.Argument(..., help="Dataset ID to clean"),
-    missing_strategy: str | None = typer.Option(
-        "drop_rows", "--missing", help="Missing value strategy"
-    ),
-    outlier_strategy: str | None = typer.Option(
-        "clip", "--outliers", help="Outlier handling strategy"
-    ),
+    missing_strategy: str
+    | None = typer.Option("drop_rows", "--missing", help="Missing value strategy"),
+    outlier_strategy: str
+    | None = typer.Option("clip", "--outliers", help="Outlier handling strategy"),
     remove_duplicates: bool = typer.Option(
         True, "--duplicates/--keep-duplicates", help="Remove duplicate rows"
     ),
-    handle_zeros: str | None = typer.Option(
+    handle_zeros: str
+    | None = typer.Option(
         "keep", "--zeros", help="Zero value handling: keep, remove, replace"
     ),
-    handle_infinite: str | None = typer.Option(
+    handle_infinite: str
+    | None = typer.Option(
         "remove", "--infinite", help="Infinite value handling: remove, replace, clip"
     ),
-    fill_value: str | None = typer.Option(
+    fill_value: str
+    | None = typer.Option(
         None, "--fill-value", help="Value for constant fill strategy"
     ),
-    outlier_threshold: float | None = typer.Option(
+    outlier_threshold: float
+    | None = typer.Option(
         3.0, "--outlier-threshold", help="Z-score threshold for outliers"
     ),
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Show what would be done without applying changes"
     ),
-    save_as: str | None = typer.Option(
-        None, "--save-as", help="Save cleaned data as new dataset"
-    ),
+    save_as: str
+    | None = typer.Option(None, "--save-as", help="Save cleaned data as new dataset"),
     output_format: str = typer.Option(
         "csv", "--format", help="Output format: csv, parquet, json"
     ),
@@ -246,18 +247,16 @@ def clean_data(
 @app.command("transform")
 def transform_data(
     dataset_id: str = typer.Argument(..., help="Dataset ID to transform"),
-    scaling: str | None = typer.Option(
-        None, "--scaling", help="Feature scaling strategy"
-    ),
-    encoding: str | None = typer.Option(
-        None, "--encoding", help="Categorical encoding strategy"
-    ),
-    feature_selection: str | None = typer.Option(
+    scaling: str
+    | None = typer.Option(None, "--scaling", help="Feature scaling strategy"),
+    encoding: str
+    | None = typer.Option(None, "--encoding", help="Categorical encoding strategy"),
+    feature_selection: str
+    | None = typer.Option(
         None, "--feature-selection", help="Feature selection strategy"
     ),
-    polynomial_degree: int | None = typer.Option(
-        None, "--polynomial", help="Generate polynomial features"
-    ),
+    polynomial_degree: int
+    | None = typer.Option(None, "--polynomial", help="Generate polynomial features"),
     normalize_column_names: bool = typer.Option(
         False, "--normalize-names", help="Normalize column names"
     ),
@@ -267,12 +266,12 @@ def transform_data(
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Show what would be done without applying changes"
     ),
-    save_as: str | None = typer.Option(
+    save_as: str
+    | None = typer.Option(
         None, "--save-as", help="Save transformed data as new dataset"
     ),
-    exclude_columns: str | None = typer.Option(
-        None, "--exclude", help="Comma-separated columns to exclude"
-    ),
+    exclude_columns: str
+    | None = typer.Option(None, "--exclude", help="Comma-separated columns to exclude"),
 ):
     """Transform dataset features with scaling, encoding, and feature engineering."""
     container = get_cli_container()
@@ -511,12 +510,10 @@ def manage_pipeline(
     ),
     name: str | None = typer.Option(None, "--name", help="Pipeline name"),
     dataset_id: str | None = typer.Option(None, "--dataset", help="Dataset ID"),
-    config_file: Path | None = typer.Option(
-        None, "--config", help="Pipeline configuration file"
-    ),
-    output_file: Path | None = typer.Option(
-        None, "--output", help="Output file for save operations"
-    ),
+    config_file: Path
+    | None = typer.Option(None, "--config", help="Pipeline configuration file"),
+    output_file: Path
+    | None = typer.Option(None, "--output", help="Output file for save operations"),
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Show what would be done without applying changes"
     ),

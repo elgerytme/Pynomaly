@@ -115,7 +115,7 @@ class TestPerformanceIntegration:
         assert avg_response_time < 2.0  # Average response time under 2 seconds
         assert overall_success_rate > 0.95  # 95% success rate
 
-        print(f"Load test results:")
+        print("Load test results:")
         print(f"  Total requests: {total_requests}")
         print(f"  Total time: {total_time:.2f}s")
         print(f"  Throughput: {overall_throughput:.2f} req/s")
@@ -200,7 +200,7 @@ class TestPerformanceIntegration:
                     )
                     response.raise_for_status()
                     processed_count += 1
-                except Exception as e:
+                except Exception:
                     error_count += 1
 
             end_time = time.time()
@@ -269,7 +269,7 @@ class TestPerformanceIntegration:
             total_processed >= messages_per_session * num_sessions * 0.8
         )  # 80% message processing
 
-        print(f"Streaming scale test results:")
+        print("Streaming scale test results:")
         print(f"  Sessions: {num_sessions}")
         print(f"  Messages per session: {messages_per_session}")
         print(f"  Total processed: {total_processed}")
@@ -407,7 +407,7 @@ class TestPerformanceIntegration:
         assert avg_operation_time < 10.0  # Average operation time under 10 seconds
         assert total_db_time < 30.0  # Total test time under 30 seconds
 
-        print(f"Database performance test results:")
+        print("Database performance test results:")
         print(f"  Concurrent operations: {num_concurrent_ops}")
         print(f"  Successful operations: {len(successful_ops)}")
         print(f"  Total test time: {total_db_time:.2f}s")
@@ -514,7 +514,7 @@ class TestPerformanceIntegration:
         )  # No single batch should take more than 5 seconds
         assert total_sustained_time < 60.0  # Total sustained test under 60 seconds
 
-        print(f"Memory and resource usage test results:")
+        print("Memory and resource usage test results:")
         print(f"  Large batch ({large_batch_size} items): {memory_test_time:.2f}s")
         print(f"  Sustained batches: {sustained_batches}")
         print(f"  First half avg time: {first_half_avg:.3f}s")
@@ -583,7 +583,7 @@ class TestPerformanceIntegration:
             total_successful_ops >= num_concurrent_tasks * 2
         )  # At least 2 ops per task on average
 
-        print(f"Concurrent resource usage:")
+        print("Concurrent resource usage:")
         print(f"  Concurrent tasks: {num_concurrent_tasks}")
         print(f"  Successful tasks: {len(successful_tasks)}")
         print(f"  Total time: {concurrent_total_time:.2f}s")
@@ -701,7 +701,7 @@ class TestPerformanceIntegration:
                 normal_result["rate_limited_count"] == 0
             )  # Normal rate should not be limited
 
-        print(f"Rate limiting test results:")
+        print("Rate limiting test results:")
         print(
             f"  Rapid requests: {rapid_result['success_count']}/{len(rapid_result['results'])} success, rate: {rapid_result['request_rate']:.2f} req/s"
         )
@@ -784,7 +784,7 @@ class TestPerformanceIntegration:
         assert aggregate_success_rate > 0.8  # 80% success rate under sustained load
         assert aggregate_request_rate > 15  # Aggregate rate should be reasonable
 
-        print(f"Sustained load test results:")
+        print("Sustained load test results:")
         print(f"  Clients: {num_clients}")
         print(f"  Duration: {sustained_total_time:.2f}s")
         print(f"  Total requests: {total_sustained_requests}")

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import pandas as pd
 import pytest
-
 from pynomaly.domain.entities import Dataset, Detector
 from pynomaly.infrastructure.config import Container
 

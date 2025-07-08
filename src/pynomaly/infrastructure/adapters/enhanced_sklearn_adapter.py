@@ -6,10 +6,9 @@ import importlib
 import time
 import warnings
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 import numpy as np
-import pandas as pd
 from sklearn.base import BaseEstimator
 from sklearn.preprocessing import StandardScaler
 
@@ -33,14 +32,14 @@ class SklearnAlgorithmInfo:
     supports_streaming: bool
     requires_scaling: bool
     description: str
-    hyperparameters: Dict[str, Any]
+    hyperparameters: dict[str, Any]
 
 
 class EnhancedSklearnAdapter(DetectorProtocol):
     """Enhanced scikit-learn adapter for anomaly detection."""
 
     # Comprehensive algorithm mapping
-    ALGORITHM_MAPPING: Dict[str, Tuple[str, str, SklearnAlgorithmInfo]] = {
+    ALGORITHM_MAPPING: dict[str, tuple[str, str, SklearnAlgorithmInfo]] = {
         "IsolationForest": (
             "sklearn.ensemble",
             "IsolationForest",
@@ -156,8 +155,8 @@ class EnhancedSklearnAdapter(DetectorProtocol):
         # State
         self._model: Optional[BaseEstimator] = None
         self._is_fitted = False
-        self._feature_names: Optional[List[str]] = None
-        self._training_metadata: Dict[str, Any] = {}
+        self._feature_names: Optional[list[str]] = None
+        self._training_metadata: dict[str, Any] = {}
 
         # Suppress sklearn warnings
         warnings.filterwarnings("ignore", category=UserWarning)
@@ -190,7 +189,7 @@ class EnhancedSklearnAdapter(DetectorProtocol):
         return self._is_fitted
 
     @property
-    def parameters(self) -> Dict[str, Any]:
+    def parameters(self) -> dict[str, Any]:
         """Get the current parameters."""
         return self._parameters.copy()
 
@@ -340,7 +339,7 @@ class EnhancedSklearnAdapter(DetectorProtocol):
                 },
             )
 
-    def score(self, dataset: Dataset) -> List[AnomalyScore]:
+    def score(self, dataset: Dataset) -> list[AnomalyScore]:
         """Calculate anomaly scores for the dataset.
 
         Args:
@@ -377,7 +376,7 @@ class EnhancedSklearnAdapter(DetectorProtocol):
         self.fit(dataset)
         return self.detect(dataset)
 
-    def get_params(self) -> Dict[str, Any]:
+    def get_params(self) -> dict[str, Any]:
         """Get parameters of the detector."""
         if self._model is not None:
             return self._model.get_params()
@@ -394,7 +393,7 @@ class EnhancedSklearnAdapter(DetectorProtocol):
             if valid_params:
                 self._model.set_params(**valid_params)
 
-    def _prepare_features(self, dataset: Dataset) -> Tuple[np.ndarray, List[str]]:
+    def _prepare_features(self, dataset: Dataset) -> tuple[np.ndarray, list[str]]:
         """Prepare features for algorithm."""
         # Get numeric features
         numeric_data = dataset.data.select_dtypes(include=[np.number])
@@ -408,7 +407,7 @@ class EnhancedSklearnAdapter(DetectorProtocol):
         feature_names = numeric_data.columns.tolist()
         return numeric_data.values, feature_names
 
-    def _prepare_model_parameters(self) -> Dict[str, Any]:
+    def _prepare_model_parameters(self) -> dict[str, Any]:
         """Prepare parameters for model initialization."""
         params = self._parameters.copy()
 
@@ -462,9 +461,9 @@ class EnhancedSklearnAdapter(DetectorProtocol):
         self,
         dataset: Dataset,
         labels: np.ndarray,
-        anomaly_scores: List[AnomalyScore],
+        anomaly_scores: list[AnomalyScore],
         raw_scores: np.ndarray,
-    ) -> List[Anomaly]:
+    ) -> list[Anomaly]:
         """Create anomaly entities for detected anomalies."""
         anomalies = []
         anomaly_indices = np.where(labels == 1)[0]
@@ -511,7 +510,7 @@ class EnhancedSklearnAdapter(DetectorProtocol):
             return "unknown"
 
     @classmethod
-    def list_algorithms(cls) -> List[str]:
+    def list_algorithms(cls) -> list[str]:
         """List all available algorithms."""
         return list(cls.ALGORITHM_MAPPING.keys())
 
@@ -523,7 +522,7 @@ class EnhancedSklearnAdapter(DetectorProtocol):
         return None
 
     @classmethod
-    def get_algorithms_by_category(cls) -> Dict[str, List[str]]:
+    def get_algorithms_by_category(cls) -> dict[str, list[str]]:
         """Get algorithms grouped by category."""
         categories = {}
         for name, (_, _, info) in cls.ALGORITHM_MAPPING.items():
@@ -536,7 +535,7 @@ class EnhancedSklearnAdapter(DetectorProtocol):
     @classmethod
     def recommend_algorithms(
         cls, n_samples: int, n_features: int, prefer_interpretable: bool = False
-    ) -> List[str]:
+    ) -> list[str]:
         """Recommend algorithms based on dataset characteristics.
 
         Args:

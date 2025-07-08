@@ -60,7 +60,7 @@ Our platform serves diverse users with various accessibility needs:
 #### 1.1 Text Alternatives
 ```html
 <!-- Images with meaningful content -->
-<img src="anomaly-chart.png" 
+<img src="anomaly-chart.png"
      alt="Time series chart showing 3 anomalies detected between 2:00-4:00 PM">
 
 <!-- Decorative images -->
@@ -70,7 +70,7 @@ Our platform serves diverse users with various accessibility needs:
 <div role="img" aria-labelledby="chart-title" aria-describedby="chart-desc">
   <h3 id="chart-title">Anomaly Detection Results</h3>
   <p id="chart-desc">
-    Chart displays 100 data points with 3 anomalies detected at timestamps 
+    Chart displays 100 data points with 3 anomalies detected at timestamps
     14:23, 15:45, and 16:12. Average confidence score: 0.87.
   </p>
   <!-- Chart visualization -->
@@ -139,17 +139,17 @@ Our platform serves diverse users with various accessibility needs:
 :root {
   --contrast-ratio-normal: 4.5; /* AA standard */
   --contrast-ratio-large: 3.0;  /* AA large text */
-  
+
   /* Primary colors with sufficient contrast */
   --primary-color: #0ea5e9;     /* Contrast: 4.52:1 on white */
   --primary-dark: #0284c7;      /* Contrast: 5.74:1 on white */
   --text-primary: #1e293b;      /* Contrast: 13.15:1 on white */
   --text-secondary: #475569;    /* Contrast: 7.07:1 on white */
-  
+
   /* Error colors */
   --error-color: #dc2626;       /* Contrast: 5.93:1 on white */
   --error-bg: #fef2f2;         /* Contrast: 1.04:1 on white */
-  
+
   /* Success colors */
   --success-color: #059669;     /* Contrast: 4.52:1 on white */
   --success-bg: #f0fdf4;       /* Contrast: 1.02:1 on white */
@@ -193,8 +193,8 @@ Our platform serves diverse users with various accessibility needs:
 </main>
 
 <!-- Custom interactive components -->
-<div role="button" 
-     tabindex="0" 
+<div role="button"
+     tabindex="0"
      aria-pressed="false"
      onkeydown="handleKeyDown(event)"
      onclick="toggleButton()">
@@ -232,7 +232,7 @@ html {
     max-width: 100%;
     padding: 1rem;
   }
-  
+
   .text-responsive {
     font-size: clamp(0.875rem, 2.5vw, 1.125rem);
   }
@@ -254,7 +254,7 @@ html {
 </h1>
 
 <!-- If images of text are necessary, provide alternatives -->
-<img src="logo-text.png" 
+<img src="logo-text.png"
      alt="Pynomaly - Advanced Anomaly Detection">
 ```
 
@@ -267,8 +267,8 @@ html {
 <label for="dataset-upload">
   Choose Dataset File (CSV, JSON, or Parquet)
 </label>
-<input type="file" 
-       id="dataset-upload" 
+<input type="file"
+       id="dataset-upload"
        accept=".csv,.json,.parquet"
        aria-describedby="upload-help">
 <div id="upload-help">
@@ -339,37 +339,37 @@ import AxeBuilder from '@axe-core/playwright';
 test.describe('Accessibility Testing', () => {
   test('Dashboard page meets WCAG 2.1 AA standards', async ({ page }) => {
     await page.goto('/dashboard');
-    
+
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
       .analyze();
-    
+
     expect(accessibilityScanResults.violations).toEqual([]);
   });
-  
+
   test('Form interactions are accessible', async ({ page }) => {
     await page.goto('/datasets/upload');
-    
+
     // Test keyboard navigation
     await page.keyboard.press('Tab');
     await expect(page.locator('#dataset-upload')).toBeFocused();
-    
+
     await page.keyboard.press('Tab');
     await expect(page.locator('#upload-button')).toBeFocused();
-    
+
     // Test screen reader announcements
     await page.locator('#upload-button').click();
     await expect(page.locator('[aria-live="polite"]')).toContainText('Upload started');
   });
-  
+
   test('Data visualizations have proper alternatives', async ({ page }) => {
     await page.goto('/dashboard');
-    
+
     // Check chart accessibility
     const chart = page.locator('[role="img"]');
     await expect(chart).toHaveAttribute('aria-labelledby');
     await expect(chart).toHaveAttribute('aria-describedby');
-    
+
     // Verify data table alternative
     const tableButton = page.locator('button:has-text("View as Table")');
     await expect(tableButton).toBeVisible();
@@ -384,7 +384,7 @@ import { test, expect } from '@playwright/test';
 
 test('Color contrast meets WCAG standards', async ({ page }) => {
   await page.goto('/dashboard');
-  
+
   // Test primary text contrast
   const textElement = page.locator('h1').first();
   const computedStyle = await textElement.evaluate((el) => {
@@ -394,13 +394,13 @@ test('Color contrast meets WCAG standards', async ({ page }) => {
       backgroundColor: style.backgroundColor
     };
   });
-  
+
   // Calculate contrast ratio (implementation depends on contrast library)
   const contrastRatio = calculateContrastRatio(
     computedStyle.color,
     computedStyle.backgroundColor
   );
-  
+
   expect(contrastRatio).toBeGreaterThanOrEqual(4.5);
 });
 ```
@@ -539,12 +539,12 @@ module.exports = {
 <main>
   <section aria-labelledby="dashboard-heading">
     <h1 id="dashboard-heading">Anomaly Detection Dashboard</h1>
-    
+
     <article aria-labelledby="recent-detections">
       <h2 id="recent-detections">Recent Detections</h2>
       <!-- Detection content -->
     </article>
-    
+
     <aside aria-labelledby="model-info">
       <h2 id="model-info">Model Information</h2>
       <!-- Model details -->
@@ -561,22 +561,22 @@ module.exports = {
 ```html
 <!-- Complex UI components -->
 <div role="tablist" aria-label="Detection Analysis Tabs">
-  <button role="tab" 
-          aria-selected="true" 
-          aria-controls="overview-panel" 
+  <button role="tab"
+          aria-selected="true"
+          aria-controls="overview-panel"
           id="overview-tab">
     Overview
   </button>
-  <button role="tab" 
-          aria-selected="false" 
-          aria-controls="details-panel" 
+  <button role="tab"
+          aria-selected="false"
+          aria-controls="details-panel"
           id="details-tab">
     Details
   </button>
 </div>
 
-<div role="tabpanel" 
-     id="overview-panel" 
+<div role="tabpanel"
+     id="overview-panel"
      aria-labelledby="overview-tab">
   <!-- Overview content -->
 </div>
@@ -591,15 +591,15 @@ module.exports = {
 </div>
 
 <!-- Modal dialogs -->
-<div role="dialog" 
-     aria-labelledby="modal-title" 
+<div role="dialog"
+     aria-labelledby="modal-title"
      aria-describedby="modal-description"
      aria-modal="true">
   <h2 id="modal-title">Confirm Deletion</h2>
   <p id="modal-description">
     Are you sure you want to delete this dataset? This action cannot be undone.
   </p>
-  
+
   <button type="button" onclick="confirmDelete()">Delete</button>
   <button type="button" onclick="closeModal()">Cancel</button>
 </div>
@@ -611,15 +611,15 @@ module.exports = {
 <form id="dataset-upload-form" novalidate>
   <fieldset>
     <legend>Dataset Upload Configuration</legend>
-    
+
     <div class="form-group">
       <label for="dataset-name" class="required">
         Dataset Name
         <span class="required-indicator" aria-label="required">*</span>
       </label>
-      <input type="text" 
-             id="dataset-name" 
-             required 
+      <input type="text"
+             id="dataset-name"
+             required
              aria-describedby="name-help name-error"
              autocomplete="off">
       <div id="name-help" class="help-text">
@@ -629,32 +629,32 @@ module.exports = {
         <!-- Error messages appear here -->
       </div>
     </div>
-    
+
     <div class="form-group">
       <label for="file-upload">
         Choose File
       </label>
-      <input type="file" 
-             id="file-upload" 
+      <input type="file"
+             id="file-upload"
              accept=".csv,.json,.parquet"
              aria-describedby="file-help">
       <div id="file-help" class="help-text">
         Supported formats: CSV, JSON, Parquet. Maximum size: 100MB.
       </div>
     </div>
-    
+
     <fieldset>
       <legend>Detection Parameters</legend>
-      
+
       <div class="form-group">
         <label for="contamination-rate">
           Contamination Rate
         </label>
-        <input type="range" 
-               id="contamination-rate" 
-               min="0.01" 
-               max="0.5" 
-               step="0.01" 
+        <input type="range"
+               id="contamination-rate"
+               min="0.01"
+               max="0.5"
+               step="0.01"
                value="0.1"
                aria-describedby="contamination-help"
                aria-valuetext="10 percent">
@@ -665,7 +665,7 @@ module.exports = {
       </div>
     </fieldset>
   </fieldset>
-  
+
   <div class="form-actions">
     <button type="submit" class="btn-primary">
       Upload and Analyze
@@ -687,19 +687,19 @@ module.exports = {
   --blue-600: #2563eb;    /* 5.74:1 contrast */
   --blue-700: #1d4ed8;    /* 7.04:1 contrast */
   --blue-800: #1e40af;    /* 8.59:1 contrast */
-  
+
   /* Success colors */
   --green-600: #059669;   /* 4.52:1 contrast */
   --green-700: #047857;   /* 5.85:1 contrast */
-  
+
   /* Warning colors */
   --amber-600: #d97706;   /* 3.94:1 contrast - use with caution */
   --amber-700: #b45309;   /* 5.08:1 contrast */
-  
+
   /* Error colors */
   --red-600: #dc2626;     /* 5.93:1 contrast */
   --red-700: #b91c1c;     /* 7.22:1 contrast */
-  
+
   /* Neutral colors */
   --gray-600: #4b5563;    /* 6.87:1 contrast */
   --gray-700: #374151;    /* 9.26:1 contrast */
@@ -714,11 +714,11 @@ module.exports = {
     --text-color: var(--gray-900);
     --border-color: var(--gray-800);
   }
-  
+
   .btn {
     border-width: 2px;
   }
-  
+
   .focus-visible {
     outline-width: 3px;
     outline-offset: 3px;
@@ -732,7 +732,7 @@ module.exports = {
 :root {
   --font-family-base: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-family-mono: "JetBrains Mono", Consolas, "Liberation Mono", Menlo, Courier, monospace;
-  
+
   /* Type scale with good line height ratios */
   --text-xs: 0.75rem;     /* 12px */
   --text-sm: 0.875rem;    /* 14px */
@@ -742,7 +742,7 @@ module.exports = {
   --text-2xl: 1.5rem;     /* 24px */
   --text-3xl: 1.875rem;   /* 30px */
   --text-4xl: 2.25rem;    /* 36px */
-  
+
   /* Line heights for readability */
   --leading-tight: 1.25;
   --leading-normal: 1.5;
@@ -847,12 +847,12 @@ module.exports = {
 class KeyboardNavigationManager {
   private focusableElements: HTMLElement[] = [];
   private currentIndex: number = 0;
-  
+
   constructor(container: HTMLElement) {
     this.updateFocusableElements(container);
     this.setupEventListeners();
   }
-  
+
   private updateFocusableElements(container: HTMLElement): void {
     const selectors = [
       'a[href]',
@@ -864,12 +864,12 @@ class KeyboardNavigationManager {
       '[role="button"]:not([aria-disabled="true"])',
       '[role="link"]:not([aria-disabled="true"])'
     ].join(', ');
-    
+
     this.focusableElements = Array.from(
       container.querySelectorAll(selectors)
     ) as HTMLElement[];
   }
-  
+
   private setupEventListeners(): void {
     document.addEventListener('keydown', (event) => {
       switch (event.key) {
@@ -890,11 +890,11 @@ class KeyboardNavigationManager {
       }
     });
   }
-  
+
   private handleTabNavigation(event: KeyboardEvent): void {
     const activeElement = document.activeElement as HTMLElement;
     const currentIndex = this.focusableElements.indexOf(activeElement);
-    
+
     if (event.shiftKey) {
       // Previous element
       const prevIndex = currentIndex > 0 ? currentIndex - 1 : this.focusableElements.length - 1;
@@ -905,12 +905,12 @@ class KeyboardNavigationManager {
       this.focusableElements[nextIndex]?.focus();
     }
   }
-  
+
   private announceNavigation(element: HTMLElement): void {
     const announcement = this.getElementAnnouncement(element);
     this.announceToScreenReader(announcement);
   }
-  
+
   private announceToScreenReader(message: string): void {
     const announcer = document.getElementById('screen-reader-announcer');
     if (announcer) {
@@ -928,25 +928,25 @@ class FocusTrap {
   private firstFocusableElement: HTMLElement | null = null;
   private lastFocusableElement: HTMLElement | null = null;
   private previousActiveElement: HTMLElement | null = null;
-  
+
   constructor(container: HTMLElement) {
     this.container = container;
     this.setupFocusTrap();
   }
-  
+
   activate(): void {
     this.previousActiveElement = document.activeElement as HTMLElement;
     this.updateFocusableElements();
     this.firstFocusableElement?.focus();
-    
+
     document.addEventListener('keydown', this.handleKeyDown);
   }
-  
+
   deactivate(): void {
     document.removeEventListener('keydown', this.handleKeyDown);
     this.previousActiveElement?.focus();
   }
-  
+
   private handleKeyDown = (event: KeyboardEvent): void => {
     if (event.key === 'Tab') {
       if (event.shiftKey) {
@@ -975,24 +975,24 @@ class FocusTrap {
 ### ARIA Live Regions
 ```html
 <!-- Status announcements -->
-<div id="status-announcer" 
-     aria-live="polite" 
-     aria-atomic="true" 
+<div id="status-announcer"
+     aria-live="polite"
+     aria-atomic="true"
      class="sr-only">
   <!-- Non-critical status updates -->
 </div>
 
-<div id="alert-announcer" 
-     aria-live="assertive" 
-     aria-atomic="true" 
+<div id="alert-announcer"
+     aria-live="assertive"
+     aria-atomic="true"
      class="sr-only">
   <!-- Critical alerts and errors -->
 </div>
 
 <!-- Progress announcements -->
-<div id="progress-announcer" 
-     aria-live="polite" 
-     aria-atomic="false" 
+<div id="progress-announcer"
+     aria-live="polite"
+     aria-atomic="false"
      class="sr-only">
   <!-- Progress updates -->
 </div>
@@ -1005,39 +1005,39 @@ class ScreenReaderAnnouncer {
   private statusElement: HTMLElement;
   private alertElement: HTMLElement;
   private progressElement: HTMLElement;
-  
+
   constructor() {
     this.statusElement = document.getElementById('status-announcer')!;
     this.alertElement = document.getElementById('alert-announcer')!;
     this.progressElement = document.getElementById('progress-announcer')!;
   }
-  
+
   announceStatus(message: string, priority: 'polite' | 'assertive' = 'polite'): void {
     const element = priority === 'assertive' ? this.alertElement : this.statusElement;
-    
+
     // Clear previous message
     element.textContent = '';
-    
+
     // Add new message after a brief delay
     setTimeout(() => {
       element.textContent = message;
     }, 100);
   }
-  
+
   announceProgress(current: number, total: number, task: string): void {
     const percentage = Math.round((current / total) * 100);
     const message = `${task}: ${percentage}% complete. ${current} of ${total} items processed.`;
-    
+
     this.progressElement.textContent = message;
   }
-  
+
   announceDetectionResult(result: DetectionResult): void {
     const message = `Detection complete. Found ${result.anomalyCount} anomalies ` +
                    `with average confidence ${result.averageConfidence.toFixed(2)}.`;
-    
+
     this.announceStatus(message, 'polite');
   }
-  
+
   announceError(error: string): void {
     const message = `Error: ${error}. Please try again or contact support.`;
     this.announceStatus(message, 'assertive');
@@ -1064,23 +1064,23 @@ announcer.announceError('Failed to load dataset. Please check file format.');
 ```html
 <!-- Complex data visualization with full accessibility -->
 <div class="chart-container">
-  <div role="img" 
-       aria-labelledby="chart-title" 
+  <div role="img"
+       aria-labelledby="chart-title"
        aria-describedby="chart-description chart-data-table">
-    
+
     <h3 id="chart-title">Anomaly Detection Timeline</h3>
-    
+
     <div id="chart-description">
       Time series chart showing anomaly detection results over the past 24 hours.
       X-axis represents time from 00:00 to 23:59. Y-axis represents data values
       ranging from 0 to 100. Red markers indicate detected anomalies.
     </div>
-    
+
     <!-- Visual chart (D3.js or ECharts) -->
     <div id="visual-chart" aria-hidden="true">
       <!-- Chart visualization -->
     </div>
-    
+
     <!-- Alternative data representation -->
     <details>
       <summary>View chart data as table</summary>
@@ -1140,15 +1140,15 @@ announcer.announceError('Failed to load dataset. Please check file format.');
 ```html
 <!-- Mobile-optimized navigation -->
 <nav class="mobile-nav" aria-label="Main navigation">
-  <button class="nav-toggle" 
-          aria-expanded="false" 
+  <button class="nav-toggle"
+          aria-expanded="false"
           aria-controls="nav-menu"
           aria-label="Toggle navigation menu">
     <span class="hamburger"></span>
   </button>
-  
-  <ul id="nav-menu" 
-      class="nav-menu" 
+
+  <ul id="nav-menu"
+      class="nav-menu"
       aria-hidden="true">
     <li><a href="/dashboard">Dashboard</a></li>
     <li><a href="/datasets">Datasets</a></li>
@@ -1165,18 +1165,18 @@ class MobileNavigation {
     this.menu = document.querySelector('.nav-menu');
     this.setupEventListeners();
   }
-  
+
   setupEventListeners() {
     this.toggle.addEventListener('click', () => this.toggleMenu());
-    
+
     // Close menu when clicking outside
     document.addEventListener('click', (event) => {
-      if (!this.toggle.contains(event.target) && 
+      if (!this.toggle.contains(event.target) &&
           !this.menu.contains(event.target)) {
         this.closeMenu();
       }
     });
-    
+
     // Handle escape key
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && this.isMenuOpen()) {
@@ -1185,7 +1185,7 @@ class MobileNavigation {
       }
     });
   }
-  
+
   toggleMenu() {
     if (this.isMenuOpen()) {
       this.closeMenu();
@@ -1193,23 +1193,23 @@ class MobileNavigation {
       this.openMenu();
     }
   }
-  
+
   openMenu() {
     this.toggle.setAttribute('aria-expanded', 'true');
     this.menu.setAttribute('aria-hidden', 'false');
     this.menu.classList.add('open');
-    
+
     // Focus first menu item
     const firstItem = this.menu.querySelector('a');
     firstItem?.focus();
   }
-  
+
   closeMenu() {
     this.toggle.setAttribute('aria-expanded', 'false');
     this.menu.setAttribute('aria-hidden', 'true');
     this.menu.classList.remove('open');
   }
-  
+
   isMenuOpen() {
     return this.toggle.getAttribute('aria-expanded') === 'true';
   }
@@ -1267,22 +1267,22 @@ const fs = require('fs');
 
 async function runAccessibilityChecks() {
   console.log('Running accessibility checks...');
-  
+
   try {
     // Run axe-core tests
     console.log('🔍 Running axe-core accessibility tests...');
     execSync('npm run test:a11y', { stdio: 'inherit' });
-    
+
     // Run Lighthouse accessibility audit
     console.log('🚨 Running Lighthouse accessibility audit...');
     execSync('npm run lighthouse:a11y', { stdio: 'inherit' });
-    
+
     // Check color contrast
     console.log('🎨 Checking color contrast ratios...');
     execSync('npm run test:contrast', { stdio: 'inherit' });
-    
+
     console.log('✅ All accessibility checks passed!');
-    
+
   } catch (error) {
     console.error('❌ Accessibility checks failed!');
     process.exit(1);
@@ -1311,12 +1311,12 @@ function generateAccessibilityReport() {
       criticalPaths: 8
     }
   };
-  
+
   fs.writeFileSync(
     'reports/accessibility-report.json',
     JSON.stringify(reportData, null, 2)
   );
-  
+
   console.log('📊 Accessibility report generated: reports/accessibility-report.json');
 }
 
@@ -1357,7 +1357,7 @@ button:focus-visible {
 .text-gray { color: #9ca3af; } /* ❌ 2.93:1 contrast - fails AA */
 
 /* Solution: Use higher contrast colors */
-.text-accessible { 
+.text-accessible {
   color: #4b5563; /* ✅ 6.87:1 contrast - passes AA */
 }
 
@@ -1384,11 +1384,11 @@ button:focus-visible {
 <div role="img" aria-labelledby="chart-title" aria-describedby="chart-desc">
   <h3 id="chart-title">Monthly Anomaly Trends</h3>
   <div id="chart-desc">
-    Bar chart showing anomaly counts by month. January: 12, February: 8, 
+    Bar chart showing anomaly counts by month. January: 12, February: 8,
     March: 15. Highest month was March with 15 anomalies.
   </div>
   <div id="chart"></div>
-  
+
   <!-- Data table alternative -->
   <table class="sr-only">
     <caption>Monthly Anomaly Data</caption>
@@ -1419,29 +1419,29 @@ class AccessibleModal {
     this.focusTrap = new FocusTrap(modalElement);
     this.previousActiveElement = null;
   }
-  
+
   open() {
     this.previousActiveElement = document.activeElement;
     this.modal.style.display = 'block';
     this.modal.setAttribute('aria-hidden', 'false');
-    
+
     // Enable focus trap
     this.focusTrap.activate();
-    
+
     // Focus first focusable element
     const firstFocusable = this.modal.querySelector(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
     firstFocusable?.focus();
   }
-  
+
   close() {
     this.modal.style.display = 'none';
     this.modal.setAttribute('aria-hidden', 'true');
-    
+
     // Disable focus trap
     this.focusTrap.deactivate();
-    
+
     // Return focus to trigger element
     this.previousActiveElement?.focus();
   }

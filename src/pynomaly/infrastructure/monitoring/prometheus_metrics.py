@@ -7,10 +7,8 @@ anomaly detection performance, system health, and business KPIs.
 from __future__ import annotations
 
 import logging
-import time
-from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # Prometheus client imports with graceful fallback
 try:
@@ -112,9 +110,9 @@ class MetricDefinition:
     name: str
     help_text: str
     metric_type: str  # counter, histogram, gauge, info, enum
-    labels: List[str] = field(default_factory=list)
-    buckets: Optional[List[float]] = None  # For histograms
-    states: Optional[List[str]] = None  # For enums
+    labels: list[str] = field(default_factory=list)
+    buckets: list[float] | None = None  # For histograms
+    states: list[str] | None = None  # For enums
 
 
 class PrometheusMetricsService:
@@ -123,9 +121,9 @@ class PrometheusMetricsService:
     def __init__(
         self,
         enable_default_metrics: bool = True,
-        custom_registry: Optional[Any] = None,
+        custom_registry: Any | None = None,
         namespace: str = "pynomaly",
-        port: Optional[int] = None,
+        port: int | None = None,
     ):
         """Initialize Prometheus metrics service.
 
@@ -409,7 +407,7 @@ class PrometheusMetricsService:
         duration: float,
         anomalies_found: int,
         success: bool,
-        accuracy: Optional[float] = None,
+        accuracy: float | None = None,
     ):
         """Record anomaly detection metrics.
 
@@ -553,8 +551,8 @@ class PrometheusMetricsService:
         self,
         active_models: int,
         active_streams: int,
-        memory_usage: Dict[str, int],
-        cpu_usage: Dict[str, float],
+        memory_usage: dict[str, int],
+        cpu_usage: dict[str, float],
     ):
         """Update system metrics.
 
@@ -615,9 +613,9 @@ class PrometheusMetricsService:
     def update_quality_metrics(
         self,
         dataset_id: str,
-        quality_scores: Dict[str, float],
-        prediction_confidence: Optional[float] = None,
-        algorithm: Optional[str] = None,
+        quality_scores: dict[str, float],
+        prediction_confidence: float | None = None,
+        algorithm: str | None = None,
     ):
         """Update data quality metrics.
 
@@ -725,13 +723,13 @@ class PrometheusMetricsService:
 
 
 # Global metrics service instance
-_metrics_service: Optional[PrometheusMetricsService] = None
+_metrics_service: PrometheusMetricsService | None = None
 
 
 def initialize_metrics(
     enable_default_metrics: bool = True,
     namespace: str = "pynomaly",
-    port: Optional[int] = None,
+    port: int | None = None,
 ) -> PrometheusMetricsService:
     """Initialize global metrics service.
 
@@ -750,7 +748,7 @@ def initialize_metrics(
     return _metrics_service
 
 
-def get_metrics_service() -> Optional[PrometheusMetricsService]:
+def get_metrics_service() -> PrometheusMetricsService | None:
     """Get global metrics service instance.
 
     Returns:

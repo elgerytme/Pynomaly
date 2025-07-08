@@ -1,16 +1,13 @@
 """Stable integration tests for external dependencies with comprehensive mocking and fallback strategies."""
 
-import asyncio
 import json
 import os
 import tempfile
 import time
-import uuid
-import warnings
+from collections.abc import Callable
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
-from unittest.mock import AsyncMock, MagicMock, Mock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import numpy as np
 import pandas as pd
@@ -212,7 +209,6 @@ class TestStableExternalDependencies:
     async def test_database_integration_stable(self):
         """Test database integration with stable mocking."""
         with stabilizer.stabilized_dependency("database") as dependency_type:
-
             if dependency_type == "real":
                 # Use real database if available
                 import asyncpg
@@ -247,7 +243,6 @@ class TestStableExternalDependencies:
     async def test_cache_integration_stable(self):
         """Test cache integration with Redis fallback."""
         with stabilizer.stabilized_dependency("redis") as dependency_type:
-
             if dependency_type == "real":
                 # Use real Redis if available
                 try:
@@ -290,7 +285,6 @@ class TestStableExternalDependencies:
     def test_http_api_integration_stable(self):
         """Test HTTP API integration with stable mocking."""
         with stabilizer.stabilized_dependency("http") as dependency_type:
-
             if dependency_type == "real":
                 # Use real HTTP if service is available
                 try:
@@ -354,7 +348,7 @@ class TestStableExternalDependencies:
                 json.dump(model_config, f)
 
             # Load model config
-            with open(model_file, "r") as f:
+            with open(model_file) as f:
                 loaded_config = json.load(f)
 
             assert loaded_config["algorithm"] == "IsolationForest"
@@ -399,7 +393,7 @@ class TestStableExternalDependencies:
             tmp_filename = tmp_file.name
 
         # Verify file was written
-        with open(tmp_filename, "r") as f:
+        with open(tmp_filename) as f:
             loaded_results = json.load(f)
 
         workflow_results["file_step"] = {
@@ -577,7 +571,7 @@ class TestStableExternalDependencies:
                 tmp_filename = tmp_file.name
 
             # Verify file exists and has content
-            with open(tmp_filename, "r") as f:
+            with open(tmp_filename) as f:
                 content = f.read()
 
             os.unlink(tmp_filename)
@@ -602,7 +596,6 @@ class TestStableExternalDependencies:
     def test_dependency_specific_stability(self, dependency):
         """Test stability for each specific dependency."""
         with stabilizer.stabilized_dependency(dependency) as dependency_type:
-
             if dependency == "sklearn":
                 # Test sklearn operations
                 from sklearn.ensemble import IsolationForest

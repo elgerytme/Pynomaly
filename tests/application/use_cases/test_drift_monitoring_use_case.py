@@ -11,7 +11,6 @@ from unittest.mock import AsyncMock, Mock, patch
 import numpy as np
 import pandas as pd
 import pytest
-
 from pynomaly.application.use_cases.drift_monitoring_use_case import (
     DriftMonitoringUseCase,
 )

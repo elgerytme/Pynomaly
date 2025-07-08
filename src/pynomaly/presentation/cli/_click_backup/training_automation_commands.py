@@ -13,18 +13,8 @@ import asyncio
 import json
 import logging
 from datetime import datetime
-from pathlib import Path
-from typing import List, Optional
 
-import click
 import typer
-from rich import print as rprint
-from rich.console import Console
-from rich.panel import Panel
-from rich.progress import Progress, SpinnerColumn, TextColumn
-from rich.table import Table
-from rich.tree import Tree
-
 from pynomaly.application.services.training_automation_service import (
     OptimizationStrategy,
     PruningStrategy,
@@ -38,6 +28,11 @@ from pynomaly.infrastructure.adapters.model_trainer_adapter import (
 from pynomaly.infrastructure.persistence.training_job_repository import (
     create_training_job_repository,
 )
+from rich import print as rprint
+from rich.console import Console
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
 
 # Create CLI app
 app = typer.Typer(name="training", help="Training automation and optimization commands")
@@ -56,7 +51,7 @@ def get_training_service() -> TrainingAutomationService:
 def create_training_job(
     name: str = typer.Argument(..., help="Training job name"),
     dataset_id: str = typer.Argument(..., help="Dataset ID"),
-    algorithms: Optional[List[str]] = typer.Option(
+    algorithms: list[str] | None = typer.Option(
         None, "--algorithm", "-a", help="Target algorithms"
     ),
     max_trials: int = typer.Option(
@@ -73,11 +68,11 @@ def create_training_job(
         "roc_auc", "--metric", "-m", help="Primary optimization metric"
     ),
     cv_folds: int = typer.Option(5, "--cv-folds", "-k", help="Cross-validation folds"),
-    experiment: Optional[str] = typer.Option(
+    experiment: str | None = typer.Option(
         None, "--experiment", "-e", help="Experiment name"
     ),
     auto_start: bool = typer.Option(False, "--start", help="Start job immediately"),
-    save_config: Optional[str] = typer.Option(
+    save_config: str | None = typer.Option(
         None, "--save-config", help="Save configuration to file"
     ),
 ):
@@ -326,7 +321,7 @@ def get_job_status(
 
 @app.command("list")
 def list_training_jobs(
-    status_filter: Optional[TrainingStatus] = typer.Option(
+    status_filter: TrainingStatus | None = typer.Option(
         None, "--status", "-s", help="Filter by status"
     ),
     limit: int = typer.Option(
@@ -448,7 +443,7 @@ def cancel_training_job(
 @app.command("quick")
 def quick_optimize(
     dataset_id: str = typer.Argument(..., help="Dataset ID"),
-    algorithms: Optional[List[str]] = typer.Option(
+    algorithms: list[str] | None = typer.Option(
         None, "--algorithm", "-a", help="Target algorithms"
     ),
     trials: int = typer.Option(50, "--trials", "-t", help="Maximum trials"),

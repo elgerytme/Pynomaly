@@ -1,14 +1,12 @@
 """Streaming pipeline manager for orchestrating real-time anomaly detection."""
 
-import asyncio
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 from uuid import uuid4
 
 from pynomaly.infrastructure.streaming.real_time_anomaly_pipeline import (
     AlertSeverity,
-    DataSource,
     KafkaDataSource,
     RealTimeAnomalyPipeline,
     StreamingAlert,
@@ -28,9 +26,9 @@ class PipelineTemplate:
         name: str,
         description: str,
         data_source_type: str,
-        data_source_config: Dict[str, Any],
-        detector_config: Dict[str, Any],
-        streaming_config: Dict[str, Any],
+        data_source_config: dict[str, Any],
+        detector_config: dict[str, Any],
+        streaming_config: dict[str, Any],
     ):
         """Initialize pipeline template.
 
@@ -55,9 +53,9 @@ class StreamingPipelineManager:
 
     def __init__(self):
         """Initialize streaming pipeline manager."""
-        self.pipelines: Dict[str, RealTimeAnomalyPipeline] = {}
-        self.templates: Dict[str, PipelineTemplate] = {}
-        self.alerts: List[StreamingAlert] = []
+        self.pipelines: dict[str, RealTimeAnomalyPipeline] = {}
+        self.templates: dict[str, PipelineTemplate] = {}
+        self.alerts: list[StreamingAlert] = []
         self.max_alerts = 10000  # Maximum alerts to keep in memory
 
         # Register default templates
@@ -163,7 +161,7 @@ class StreamingPipelineManager:
         self,
         template_name: str,
         pipeline_id: Optional[str] = None,
-        override_config: Optional[Dict[str, Any]] = None,
+        override_config: Optional[dict[str, Any]] = None,
     ) -> str:
         """Create a pipeline from a template.
 
@@ -207,9 +205,9 @@ class StreamingPipelineManager:
         self,
         pipeline_id: str,
         data_source_type: str,
-        data_source_config: Dict[str, Any],
-        detector_config: Dict[str, Any],
-        streaming_config: Dict[str, Any],
+        data_source_config: dict[str, Any],
+        detector_config: dict[str, Any],
+        streaming_config: dict[str, Any],
     ) -> str:
         """Create a new streaming pipeline.
 
@@ -326,7 +324,7 @@ class StreamingPipelineManager:
             except Exception as e:
                 logger.error(f"Failed to stop pipeline {pipeline_id}: {e}")
 
-    def get_pipeline_status(self, pipeline_id: str) -> Dict[str, Any]:
+    def get_pipeline_status(self, pipeline_id: str) -> dict[str, Any]:
         """Get status of a specific pipeline.
 
         Args:
@@ -344,7 +342,7 @@ class StreamingPipelineManager:
         pipeline = self.pipelines[pipeline_id]
         return pipeline.get_status()
 
-    def get_all_pipeline_status(self) -> Dict[str, Any]:
+    def get_all_pipeline_status(self) -> dict[str, Any]:
         """Get status of all pipelines.
 
         Returns:
@@ -359,7 +357,7 @@ class StreamingPipelineManager:
 
         return status
 
-    def get_pipeline_metrics(self, pipeline_id: str) -> Dict[str, Any]:
+    def get_pipeline_metrics(self, pipeline_id: str) -> dict[str, Any]:
         """Get metrics for a specific pipeline.
 
         Args:
@@ -377,7 +375,7 @@ class StreamingPipelineManager:
         pipeline = self.pipelines[pipeline_id]
         return pipeline.get_metrics().dict()
 
-    def get_aggregated_metrics(self) -> Dict[str, Any]:
+    def get_aggregated_metrics(self) -> dict[str, Any]:
         """Get aggregated metrics across all pipelines.
 
         Returns:
@@ -422,7 +420,7 @@ class StreamingPipelineManager:
         limit: int = 100,
         severity: Optional[AlertSeverity] = None,
         pipeline_id: Optional[str] = None,
-    ) -> List[StreamingAlert]:
+    ) -> list[StreamingAlert]:
         """Get recent alerts with optional filtering.
 
         Args:
@@ -452,7 +450,7 @@ class StreamingPipelineManager:
         filtered_alerts.sort(key=lambda x: x.timestamp, reverse=True)
         return filtered_alerts[:limit]
 
-    def get_alert_statistics(self) -> Dict[str, Any]:
+    def get_alert_statistics(self) -> dict[str, Any]:
         """Get alert statistics.
 
         Returns:
@@ -510,7 +508,7 @@ class StreamingPipelineManager:
         self.templates[template.name] = template
         logger.info(f"Registered pipeline template: {template.name}")
 
-    def get_templates(self) -> Dict[str, PipelineTemplate]:
+    def get_templates(self) -> dict[str, PipelineTemplate]:
         """Get all registered templates.
 
         Returns:
@@ -543,7 +541,7 @@ class StreamingPipelineManager:
         # - Trigger automated responses
         # - Update monitoring dashboards
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Perform health check on all pipelines.
 
         Returns:

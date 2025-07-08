@@ -8,8 +8,7 @@ measures.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Protocol, Tuple, Union
+from typing import Protocol
 
 import numpy as np
 from scipy import stats
@@ -29,8 +28,8 @@ class UncertaintyQuantificationProtocol(Protocol):
         ...
 
     def calculate_prediction_uncertainty(
-        self, scores: List[AnomalyScore], method: str = "bootstrap"
-    ) -> Dict[str, float]:
+        self, scores: list[AnomalyScore], method: str = "bootstrap"
+    ) -> dict[str, float]:
         """Calculate uncertainty metrics for predictions."""
         ...
 
@@ -43,7 +42,7 @@ class UncertaintyQuantificationService:
     and uncertainty measures for anomaly detection predictions.
     """
 
-    def __init__(self, random_seed: Optional[int] = None):
+    def __init__(self, random_seed: int | None = None):
         """
         Initialize uncertainty quantification service.
 
@@ -56,7 +55,7 @@ class UncertaintyQuantificationService:
 
     def calculate_bootstrap_confidence_interval(
         self,
-        scores: Union[np.ndarray, List[float]],
+        scores: np.ndarray | list[float],
         confidence_level: float = 0.95,
         n_bootstrap: int = 1000,
         statistic_function: str = "mean",
@@ -109,7 +108,7 @@ class UncertaintyQuantificationService:
 
     def calculate_bayesian_confidence_interval(
         self,
-        scores: Union[np.ndarray, List[float]],
+        scores: np.ndarray | list[float],
         confidence_level: float = 0.95,
         prior_alpha: float = 1.0,
         prior_beta: float = 1.0,
@@ -152,7 +151,7 @@ class UncertaintyQuantificationService:
         )
 
     def calculate_normal_confidence_interval(
-        self, scores: Union[np.ndarray, List[float]], confidence_level: float = 0.95
+        self, scores: np.ndarray | list[float], confidence_level: float = 0.95
     ) -> ConfidenceInterval:
         """
         Calculate confidence interval assuming normal distribution.
@@ -192,8 +191,8 @@ class UncertaintyQuantificationService:
         )
 
     def calculate_prediction_uncertainty(
-        self, detection_results: List[DetectionResult], method: str = "bootstrap"
-    ) -> Dict[str, Union[float, ConfidenceInterval]]:
+        self, detection_results: list[DetectionResult], method: str = "bootstrap"
+    ) -> dict[str, float | ConfidenceInterval]:
         """
         Calculate comprehensive uncertainty metrics for detection results.
 
@@ -243,9 +242,9 @@ class UncertaintyQuantificationService:
             uncertainty_metrics["confidence_interval_std"] = ci_std
 
         # Prediction interval (for individual predictions)
-        uncertainty_metrics["prediction_interval"] = (
-            self._calculate_prediction_interval(scores)
-        )
+        uncertainty_metrics[
+            "prediction_interval"
+        ] = self._calculate_prediction_interval(scores)
 
         # Entropy-based uncertainty (if applicable)
         uncertainty_metrics["entropy"] = self._calculate_entropy(scores)
@@ -253,8 +252,8 @@ class UncertaintyQuantificationService:
         return uncertainty_metrics
 
     def calculate_ensemble_uncertainty(
-        self, ensemble_scores: List[List[float]], confidence_level: float = 0.95
-    ) -> Dict[str, Union[float, ConfidenceInterval]]:
+        self, ensemble_scores: list[list[float]], confidence_level: float = 0.95
+    ) -> dict[str, float | ConfidenceInterval]:
         """
         Calculate uncertainty for ensemble predictions.
 
@@ -280,7 +279,9 @@ class UncertaintyQuantificationService:
             "ensemble_mean": float(np.mean(mean_scores)),
             "ensemble_std": float(np.mean(std_scores)),
             "total_variance": float(np.var(ensemble_array)),
-            "aleatoric_uncertainty": float(np.mean(std_scores**2)),  # Data uncertainty
+            "aleatoric_uncertainty": float(
+                np.mean(std_scores**2)
+            ),  # Data uncertainty
             "epistemic_uncertainty": float(np.var(mean_scores)),  # Model uncertainty
         }
 

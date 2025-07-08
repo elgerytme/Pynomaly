@@ -5,7 +5,6 @@ from uuid import uuid4
 
 import numpy as np
 import pytest
-
 from pynomaly.application.services.intelligent_alert_service import (
     AlertCorrelationEngine,
     IntelligentAlertService,

@@ -17,13 +17,11 @@ from typing import Any
 
 # Optional dependencies for enterprise features
 try:
-
     PANDAS_AVAILABLE = True
 except ImportError:
     PANDAS_AVAILABLE = False
 
 try:
-
     NUMPY_AVAILABLE = True
 except ImportError:
     NUMPY_AVAILABLE = False

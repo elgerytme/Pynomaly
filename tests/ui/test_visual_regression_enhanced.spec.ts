@@ -12,14 +12,14 @@ class VisualTestHelper {
   async preparePageForSnapshot() {
     // Wait for all content to load
     await this.page.waitForLoadState('networkidle');
-    
+
     // Hide dynamic elements that shouldn't be in snapshots
     await this.page.addStyleTag({
       content: `
         .timestamp, .time-display, .loading-spinner, .pulse {
           visibility: hidden !important;
         }
-        
+
         /* Disable animations for consistent snapshots */
         *, *::before, *::after {
           animation-duration: 0s !important;
@@ -27,12 +27,12 @@ class VisualTestHelper {
           transition-duration: 0s !important;
           transition-delay: 0s !important;
         }
-        
+
         /* Ensure charts are in stable state */
         .chart-container canvas {
           animation: none !important;
         }
-        
+
         /* Hide scrollbars */
         ::-webkit-scrollbar { display: none; }
         * { scrollbar-width: none; }
@@ -55,10 +55,10 @@ class VisualTestHelper {
 
   async testComponentStates(componentSelector: string, states: string[]) {
     const component = this.page.locator(componentSelector);
-    
+
     for (const state of states) {
       await component.hover();
-      
+
       if (state === 'hover') {
         await this.page.waitForTimeout(200);
       } else if (state === 'focus') {
@@ -77,10 +77,10 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
 
   test.beforeEach(async ({ page }) => {
     helper = new VisualTestHelper(page);
-    
+
     // Set consistent viewport
     await page.setViewportSize({ width: 1280, height: 720 });
-    
+
     // Disable animations globally
     await page.addInitScript(() => {
       // Override CSS animations
@@ -112,7 +112,7 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
     await expect(page.locator('header')).toBeVisible();
     await expect(page.locator('nav')).toBeVisible();
     await expect(page.locator('main')).toBeVisible();
-    
+
     // Check for dashboard-specific elements
     const dashboardElements = [
       '[data-testid="stats-overview"]',
@@ -133,9 +133,9 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
     await helper.preparePageForSnapshot();
 
     // Wait for detection interface to load
-    await page.waitForSelector('[data-testid="detection-form"], .detection-container', { 
-      state: 'visible', 
-      timeout: 10000 
+    await page.waitForSelector('[data-testid="detection-form"], .detection-container', {
+      state: 'visible',
+      timeout: 10000
     });
 
     if (process.env.PERCY_TOKEN) {
@@ -149,7 +149,7 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
     const uploadArea = page.locator('[data-testid="file-upload"], .upload-area').first();
     if (await uploadArea.count() > 0) {
       await uploadArea.hover();
-      
+
       if (process.env.PERCY_TOKEN) {
         await percySnapshot(page, 'Detection Interface - Upload Hover', {
           widths: [1280],
@@ -164,9 +164,9 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
     await helper.preparePageForSnapshot();
 
     // Wait for detectors list
-    await page.waitForSelector('[data-testid="detectors-list"], .detectors-container', { 
-      state: 'visible', 
-      timeout: 10000 
+    await page.waitForSelector('[data-testid="detectors-list"], .detectors-container', {
+      state: 'visible',
+      timeout: 10000
     });
 
     if (process.env.PERCY_TOKEN) {
@@ -179,10 +179,10 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
     // Test detector card states
     const detectorCards = page.locator('[data-testid="detector-card"], .detector-item');
     const cardCount = await detectorCards.count();
-    
+
     if (cardCount > 0) {
       await detectorCards.first().hover();
-      
+
       if (process.env.PERCY_TOKEN) {
         await percySnapshot(page, 'Detectors Page - Card Hover', {
           widths: [1280],
@@ -197,9 +197,9 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
     await helper.preparePageForSnapshot();
 
     // Wait for datasets interface
-    await page.waitForSelector('[data-testid="datasets-list"], .datasets-container', { 
-      state: 'visible', 
-      timeout: 10000 
+    await page.waitForSelector('[data-testid="datasets-list"], .datasets-container', {
+      state: 'visible',
+      timeout: 10000
     });
 
     if (process.env.PERCY_TOKEN) {
@@ -212,10 +212,10 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
     // Test table/list interactions
     const datasetRows = page.locator('[data-testid="dataset-row"], .dataset-item, tbody tr');
     const rowCount = await datasetRows.count();
-    
+
     if (rowCount > 0) {
       await datasetRows.first().hover();
-      
+
       if (process.env.PERCY_TOKEN) {
         await percySnapshot(page, 'Datasets Page - Row Hover', {
           widths: [1280],
@@ -230,9 +230,9 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
     await helper.preparePageForSnapshot();
 
     // Wait for visualization content
-    await page.waitForSelector('[data-testid="visualization-container"], .viz-container', { 
-      state: 'visible', 
-      timeout: 10000 
+    await page.waitForSelector('[data-testid="visualization-container"], .viz-container', {
+      state: 'visible',
+      timeout: 10000
     });
 
     // Allow extra time for charts to render
@@ -248,11 +248,11 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
     // Test chart interactions
     const charts = page.locator('.chart-container, [data-testid="chart"]');
     const chartCount = await charts.count();
-    
+
     if (chartCount > 0) {
       await charts.first().hover();
       await page.waitForTimeout(500);
-      
+
       if (process.env.PERCY_TOKEN) {
         await percySnapshot(page, 'Visualizations Page - Chart Interaction', {
           widths: [1280],
@@ -316,7 +316,7 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
     if (await darkModeToggle.count() > 0) {
       await darkModeToggle.click();
       await page.waitForTimeout(500); // Allow theme transition
-      
+
       if (process.env.PERCY_TOKEN) {
         await percySnapshot(page, 'Dashboard - Dark Mode', {
           widths: [1280],
@@ -344,7 +344,7 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
       // Hover state
       await buttons.hover();
       await page.waitForTimeout(200);
-      
+
       if (process.env.PERCY_TOKEN) {
         await percySnapshot(page, 'Components - Button Hover', {
           widths: [1280],
@@ -355,7 +355,7 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
       // Focus state
       await buttons.focus();
       await page.waitForTimeout(200);
-      
+
       if (process.env.PERCY_TOKEN) {
         await percySnapshot(page, 'Components - Button Focus', {
           widths: [1280],
@@ -401,7 +401,7 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
     });
 
     await page.goto('/detection');
-    
+
     // Capture loading state if present
     const loadingElements = page.locator('.loading, .spinner, [data-testid="loading"]');
     if (await loadingElements.count() > 0) {

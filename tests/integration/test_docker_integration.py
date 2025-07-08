@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Integration test for Docker containerization and deployment functionality."""
 
-import json
 import os
 import subprocess
 import sys
@@ -160,7 +159,7 @@ def test_docker_integration():
 
         for env_file in env_files:
             if os.path.exists(env_file):
-                with open(env_file, "r") as f:
+                with open(env_file) as f:
                     content = f.read()
                     if "POSTGRES_PASSWORD" in content and "REDIS_PASSWORD" in content:
                         print(f"✅ {env_file} contains required configuration")
@@ -186,7 +185,7 @@ def test_docker_integration():
                     if config_file.endswith(".yaml") or config_file.endswith(".yml"):
                         import yaml
 
-                        with open(config_file, "r") as f:
+                        with open(config_file) as f:
                             yaml.safe_load(f)
                         print(f"✅ {config_file} - valid YAML syntax")
                     else:
@@ -239,7 +238,7 @@ def test_docker_integration():
         # Check for non-root user in Dockerfiles
         for dockerfile in dockerfiles:
             if os.path.exists(dockerfile):
-                with open(dockerfile, "r") as f:
+                with open(dockerfile) as f:
                     content = f.read()
                     if "USER " in content and "USER root" not in content:
                         security_checks.append(f"✅ {dockerfile} uses non-root user")
@@ -249,7 +248,7 @@ def test_docker_integration():
         # Check for health checks
         for dockerfile in dockerfiles:
             if os.path.exists(dockerfile):
-                with open(dockerfile, "r") as f:
+                with open(dockerfile) as f:
                     content = f.read()
                     if "HEALTHCHECK" in content:
                         security_checks.append(f"✅ {dockerfile} includes health check")
@@ -265,7 +264,7 @@ def test_docker_integration():
 
         for compose_file in compose_files:
             if os.path.exists(compose_file):
-                with open(compose_file, "r") as f:
+                with open(compose_file) as f:
                     content = f.read()
                     if "deploy:" in content and "resources:" in content:
                         print(f"✅ {compose_file} includes resource limits")

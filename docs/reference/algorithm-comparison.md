@@ -316,7 +316,7 @@ detector = create_detector(
 kernel_guide = {
     "linear": "High-dimensional sparse data",
     "rbf": "General purpose, non-linear patterns",
-    "poly": "Polynomial relationships in data", 
+    "poly": "Polynomial relationships in data",
     "sigmoid": "Neural network-like boundaries"
 }
 ```
@@ -553,7 +553,7 @@ Use this decision matrix to select the best algorithm for your use case:
 def recommend_algorithm(data_characteristics):
     """
     Recommend algorithm based on data characteristics.
-    
+
     Args:
         data_characteristics: dict with keys:
             - n_samples: number of samples
@@ -563,13 +563,13 @@ def recommend_algorithm(data_characteristics):
             - interpretability: 'required', 'preferred', 'not_important'
             - speed_requirement: 'real_time', 'batch', 'offline'
             - data_quality: 'clean', 'noisy', 'missing_values'
-    
+
     Returns:
         List of recommended algorithms with confidence scores
     """
-    
+
     recommendations = []
-    
+
     n_samples = data_characteristics['n_samples']
     n_features = data_characteristics['n_features']
     data_type = data_characteristics['data_type']
@@ -577,7 +577,7 @@ def recommend_algorithm(data_characteristics):
     interpretability = data_characteristics['interpretability']
     speed_requirement = data_characteristics['speed_requirement']
     data_quality = data_characteristics['data_quality']
-    
+
     # Rule-based recommendation system
     if speed_requirement == 'real_time':
         if n_features < 50:
@@ -586,35 +586,35 @@ def recommend_algorithm(data_characteristics):
         else:
             recommendations.append(('ECOD', 0.95))
             recommendations.append(('IsolationForest', 0.7))
-    
+
     elif n_samples > 100000:  # Large scale
         recommendations.append(('ECOD', 0.9))
         recommendations.append(('COPOD', 0.85))
         recommendations.append(('IsolationForest', 0.8))
-    
+
     elif anomaly_type == 'local':
         recommendations.append(('LOF', 0.9))
         recommendations.append(('KNN', 0.8))
-    
+
     elif data_type == 'graph':
         recommendations.append(('GCNAE', 0.9))
         recommendations.append(('DOMINANT', 0.8))
-    
+
     elif interpretability == 'required':
         recommendations.append(('LOF', 0.85))
         recommendations.append(('ECOD', 0.8))
         recommendations.append(('COPOD', 0.8))
-    
+
     elif n_samples > 10000 and n_features > 50:  # Complex data
         recommendations.append(('AutoEncoder', 0.9))
         recommendations.append(('IsolationForest', 0.85))
         recommendations.append(('ECOD', 0.8))
-    
+
     else:  # General case
         recommendations.append(('IsolationForest', 0.85))
         recommendations.append(('LOF', 0.8))
         recommendations.append(('ECOD', 0.75))
-    
+
     # Sort by confidence and return top 3
     recommendations.sort(key=lambda x: x[1], reverse=True)
     return recommendations[:3]

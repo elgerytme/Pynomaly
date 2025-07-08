@@ -47,7 +47,7 @@ jobs:
       cache-strategy: ${{ steps.strategy.outputs.cache-strategy }}
       buck2-available: ${{ steps.strategy.outputs.buck2-available }}
       estimated-duration: ${{ steps.strategy.outputs.estimated-duration }}
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -63,12 +63,12 @@ jobs:
       id: install-buck2
       run: |
         echo "Attempting to install Buck2..."
-        
+
         # Download and install Buck2
         if curl -L https://github.com/facebook/buck2/releases/latest/download/buck2-x86_64-unknown-linux-gnu.zst | zstd -d > buck2; then
           chmod +x buck2
           sudo mv buck2 /usr/local/bin/
-          
+
           # Verify installation
           if buck2 --version; then
             echo "buck2-installed=true" >> $GITHUB_OUTPUT
@@ -88,7 +88,7 @@ jobs:
         # Override strategy if specified in workflow dispatch
         MANUAL_STRATEGY="${{ github.event.inputs.build_strategy }}"
         MANUAL_CACHE="${{ github.event.inputs.cache_strategy }}"
-        
+
         if [ -n "$MANUAL_STRATEGY" ] && [ "$MANUAL_STRATEGY" != "auto" ]; then
           echo "build-strategy=$MANUAL_STRATEGY" >> $GITHUB_OUTPUT
         elif [ "${{ steps.install-buck2.outputs.buck2-installed }}" = "true" ]; then
@@ -96,15 +96,15 @@ jobs:
         else
           echo "build-strategy=hatch-only" >> $GITHUB_OUTPUT
         fi
-        
+
         if [ -n "$MANUAL_CACHE" ]; then
           echo "cache-strategy=$MANUAL_CACHE" >> $GITHUB_OUTPUT
         else
           echo "cache-strategy=enabled" >> $GITHUB_OUTPUT
         fi
-        
+
         echo "buck2-available=${{ steps.install-buck2.outputs.buck2-installed }}" >> $GITHUB_OUTPUT
-        
+
         # Estimate duration based on strategy
         case "${{ steps.install-buck2.outputs.buck2-installed }}" in
           "true") echo "estimated-duration=300" >> $GITHUB_OUTPUT ;;  # 5 minutes with Buck2
@@ -124,7 +124,7 @@ jobs:
             targets: "//:validation //:test-validation //:dev-ready"
           - name: "Core Build Test"
             targets: "//:validation"  # Start simple, expand as Python targets become available
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -168,10 +168,10 @@ jobs:
       run: |
         echo "Validating Buck2 setup..."
         buck2 --version
-        
+
         echo "Buck2 configuration:"
         buck2 audit config
-        
+
         echo "Available targets (sample):"
         buck2 uquery "//:validation" || echo "Target validation query failed"
 
@@ -179,10 +179,10 @@ jobs:
       id: buck2-build
       run: |
         echo "Building targets: ${{ matrix.target-group.targets }}"
-        
+
         # Track timing
         START_TIME=$(date +%s)
-        
+
         # Run builds
         SUCCESS=true
         for target in ${{ matrix.target-group.targets }}; do
@@ -192,13 +192,13 @@ jobs:
             SUCCESS=false
           fi
         done
-        
+
         END_TIME=$(date +%s)
         DURATION=$((END_TIME - START_TIME))
-        
+
         echo "build-success=$SUCCESS" >> $GITHUB_OUTPUT
         echo "build-duration=$DURATION" >> $GITHUB_OUTPUT
-        
+
         # Check artifacts
         echo "Build artifacts:"
         find buck-out -name "*.txt" 2>/dev/null | head -10 || echo "No .txt artifacts found"
@@ -206,24 +206,24 @@ jobs:
     - name: Performance metrics collection
       run: |
         echo "Collecting Buck2 performance metrics..."
-        
+
         # Get cache statistics if available
         if [ -d .buck-cache ]; then
           CACHE_SIZE=$(du -sh .buck-cache 2>/dev/null | cut -f1 || echo "unknown")
           CACHE_FILES=$(find .buck-cache -type f 2>/dev/null | wc -l || echo "unknown")
           echo "Buck2 cache size: $CACHE_SIZE ($CACHE_FILES files)"
         fi
-        
+
         # Test cache effectiveness
         echo "Testing cache effectiveness..."
         START_TIME=$(date +%s)
         buck2 build //:validation >/dev/null 2>&1 || true
         END_TIME=$(date +%s)
         CACHED_DURATION=$((END_TIME - START_TIME))
-        
+
         echo "Cached build duration: ${CACHED_DURATION}s"
         echo "Original build duration: ${{ steps.buck2-build.outputs.build-duration }}s"
-        
+
         if [ "${{ steps.buck2-build.outputs.build-duration }}" -gt 0 ] && [ "$CACHED_DURATION" -gt 0 ]; then
           SPEEDUP=$(echo "scale=2; ${{ steps.buck2-build.outputs.build-duration }} / $CACHED_DURATION" | bc -l || echo "N/A")
           echo "Cache speedup: ${SPEEDUP}x"
@@ -254,7 +254,7 @@ jobs:
           "cache_strategy": "${{ needs.setup-strategy.outputs.cache-strategy }}"
         }
         EOF
-        
+
         echo "Buck2 build report:"
         cat buck2-build-report.json
 
@@ -271,7 +271,7 @@ jobs:
     needs: setup-strategy
     if: needs.setup-strategy.outputs.buck2-available != 'true' || needs.setup-strategy.outputs.build-strategy == 'hatch-only'
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -297,13 +297,13 @@ jobs:
       run: |
         echo "Running Hatch build..."
         START_TIME=$(date +%s)
-        
+
         if hatch build; then
           echo "build-success=true" >> $GITHUB_OUTPUT
         else
           echo "build-success=false" >> $GITHUB_OUTPUT
         fi
-        
+
         END_TIME=$(date +%s)
         DURATION=$((END_TIME - START_TIME))
         echo "build-duration=$DURATION" >> $GITHUB_OUTPUT
@@ -321,7 +321,7 @@ jobs:
     needs: [setup-strategy, buck2-builds]
     if: needs.setup-strategy.outputs.build-strategy == 'hybrid' && needs.buck2-builds.result == 'success'
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -337,7 +337,7 @@ jobs:
         curl -L https://github.com/facebook/buck2/releases/latest/download/buck2-x86_64-unknown-linux-gnu.zst | zstd -d > buck2
         chmod +x buck2
         sudo mv buck2 /usr/local/bin/
-        
+
         # Install Hatch
         python -m pip install --upgrade pip
         pip install hatch
@@ -386,10 +386,10 @@ jobs:
             buck2-url: "https://github.com/facebook/buck2/releases/latest/download/buck2-x86_64-pc-windows-msvc.exe"
             decompress: ""
             executable: "buck2.exe"
-    
+
     runs-on: ${{ matrix.os }}
     continue-on-error: true
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -437,7 +437,7 @@ jobs:
     needs: [setup-strategy, buck2-builds, hatch-builds, hybrid-tests]
     if: always()
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Download all artifacts
       uses: actions/download-artifact@v4
@@ -453,7 +453,7 @@ jobs:
         echo "**Cache Strategy:** ${{ needs.setup-strategy.outputs.cache-strategy }}" >> $GITHUB_STEP_SUMMARY
         echo "**Estimated Duration:** ${{ needs.setup-strategy.outputs.estimated-duration }}s" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        
+
         # Job results
         echo "## Job Results" >> $GITHUB_STEP_SUMMARY
         echo "- **Setup Strategy:** ${{ needs.setup-strategy.result }}" >> $GITHUB_STEP_SUMMARY
@@ -461,7 +461,7 @@ jobs:
         echo "- **Hatch Builds:** ${{ needs.hatch-builds.result }}" >> $GITHUB_STEP_SUMMARY
         echo "- **Hybrid Tests:** ${{ needs.hybrid-tests.result }}" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        
+
         # Performance summary
         if [ -f "artifacts/performance-comparison/buck2_performance_report.json" ]; then
           echo "## Performance Summary" >> $GITHUB_STEP_SUMMARY
@@ -476,28 +476,28 @@ jobs:
       with:
         script: |
           const fs = require('fs');
-          
+
           const strategy = '${{ needs.setup-strategy.outputs.build-strategy }}';
           const buck2Available = '${{ needs.setup-strategy.outputs.buck2-available }}' === 'true';
           const buck2Result = '${{ needs.buck2-builds.result }}';
           const hatchResult = '${{ needs.hatch-builds.result }}';
-          
+
           const statusEmoji = {
             'success': '✅',
             'failure': '❌',
             'cancelled': '⏹️',
             'skipped': '⏭️'
           };
-          
+
           const body = `## 🚀 Buck2 Enhanced CI/CD Results
-          
+
           **Build Strategy:** ${strategy}
           **Buck2 Available:** ${buck2Available ? '✅ Yes' : '❌ No'}
-          
+
           ### Pipeline Results
           - **Buck2 Builds:** ${statusEmoji[buck2Result] || '❓'} ${buck2Result}
           - **Hatch Builds:** ${statusEmoji[hatchResult] || '❓'} ${hatchResult}
-          
+
           ${buck2Available ? `
           ### Buck2 Performance
           Buck2 integration is active and providing accelerated builds with intelligent caching.
@@ -505,10 +505,10 @@ jobs:
           ### Fallback Mode
           Using standard Hatch builds. Consider installing Buck2 for enhanced performance.
           `}
-          
+
           *CI/CD pipeline automatically adapts based on Buck2 availability*
           `;
-          
+
           github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,

@@ -7,7 +7,6 @@ from unittest.mock import Mock
 
 import jwt
 import pytest
-
 from pynomaly.domain.exceptions import AuthenticationError, AuthorizationError
 from pynomaly.infrastructure.auth.jwt_auth import (
     JWTAuthService,
@@ -17,9 +16,7 @@ from pynomaly.infrastructure.auth.jwt_auth import (
     get_auth,
     init_auth,
 )
-from pynomaly.infrastructure.auth.middleware import (
-    AuthenticationMiddleware,
-)
+from pynomaly.infrastructure.auth.middleware import AuthenticationMiddleware
 from pynomaly.infrastructure.config.settings import Settings
 
 

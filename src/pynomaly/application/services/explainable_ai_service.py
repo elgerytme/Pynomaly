@@ -181,18 +181,18 @@ class ExplainableAIService:
         """Initialize available explanation methods."""
         try:
             if SHAP_AVAILABLE:
-                self.explanation_generators[ExplanationMethod.SHAP_TREE] = (
-                    SHAPExplainer()
-                )
-                self.explanation_generators[ExplanationMethod.SHAP_KERNEL] = (
-                    SHAPKernelExplainer()
-                )
-                self.explanation_generators[ExplanationMethod.SHAP_DEEP] = (
-                    SHAPDeepExplainer()
-                )
-                self.explanation_generators[ExplanationMethod.SHAP_LINEAR] = (
-                    SHAPLinearExplainer()
-                )
+                self.explanation_generators[
+                    ExplanationMethod.SHAP_TREE
+                ] = SHAPExplainer()
+                self.explanation_generators[
+                    ExplanationMethod.SHAP_KERNEL
+                ] = SHAPKernelExplainer()
+                self.explanation_generators[
+                    ExplanationMethod.SHAP_DEEP
+                ] = SHAPDeepExplainer()
+                self.explanation_generators[
+                    ExplanationMethod.SHAP_LINEAR
+                ] = SHAPLinearExplainer()
                 logger.info("SHAP explainers initialized successfully")
             else:
                 logger.warning("SHAP not available - install with: pip install shap")
@@ -204,12 +204,12 @@ class ExplainableAIService:
                 logger.warning("LIME not available - install with: pip install lime")
 
             # Always available methods
-            self.explanation_generators[ExplanationMethod.PERMUTATION_IMPORTANCE] = (
-                PermutationImportanceExplainer()
-            )
-            self.explanation_generators[ExplanationMethod.FEATURE_ABLATION] = (
-                FeatureAblationExplainer()
-            )
+            self.explanation_generators[
+                ExplanationMethod.PERMUTATION_IMPORTANCE
+            ] = PermutationImportanceExplainer()
+            self.explanation_generators[
+                ExplanationMethod.FEATURE_ABLATION
+            ] = FeatureAblationExplainer()
 
         except Exception as e:
             logger.error(f"Failed to initialize explanation methods: {e}")
@@ -504,7 +504,9 @@ class ExplainableAIService:
                 trust_level=(
                     "high"
                     if overall_trust > 0.8
-                    else "medium" if overall_trust > 0.6 else "low"
+                    else "medium"
+                    if overall_trust > 0.6
+                    else "low"
                 ),
             )
 

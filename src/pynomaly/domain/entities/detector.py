@@ -141,8 +141,8 @@ class Detector:
         }
 
     def train(
-        self, dataset: "Dataset", algorithm_adapter: DetectorAlgorithm
-    ) -> "TrainingResult":
+        self, dataset: Dataset, algorithm_adapter: DetectorAlgorithm
+    ) -> TrainingResult:
         """Train the detector with provided dataset.
 
         Args:
@@ -210,8 +210,8 @@ class Detector:
             )
 
     def detect(
-        self, dataset: "Dataset", algorithm_adapter: DetectorAlgorithm
-    ) -> "DetectionResult":
+        self, dataset: Dataset, algorithm_adapter: DetectorAlgorithm
+    ) -> DetectionResult:
         """Detect anomalies in provided dataset.
 
         Args:
@@ -266,7 +266,7 @@ class Detector:
 
             # Create anomaly objects for positive predictions
             anomalies = []
-            for i, (pred, score) in enumerate(zip(predictions, scores)):
+            for i, (pred, score) in enumerate(zip(predictions, scores, strict=False)):
                 if pred == 1:  # Anomaly detected
                     # Extract data point as dictionary
                     data_point = dataset.data.iloc[i].to_dict()

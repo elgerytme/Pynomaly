@@ -1869,18 +1869,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Entities: Anomaly, Detector, Dataset, DetectionResult
   - Value Objects: AnomalyScore, ContaminationRate, ConfidenceInterval
   - Domain Services: AnomalyScorer, ThresholdCalculator, FeatureValidator
-  
+
 - **Application Layer**
   - Use Cases: DetectAnomalies, TrainDetector, EvaluateModel, ExplainAnomaly
   - Services: DetectionService, EnsembleService, ModelPersistenceService
   - DTOs for data transfer
-  
+
 - **Infrastructure Layer**
   - PyOD adapter supporting 40+ algorithms
   - Scikit-learn adapter for additional algorithms
   - Data loaders for CSV and Parquet files
   - In-memory repositories with planned database support
-  
+
 - **Presentation Layer**
   - REST API with comprehensive endpoints
   - CLI with intuitive commands

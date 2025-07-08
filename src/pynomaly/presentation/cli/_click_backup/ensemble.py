@@ -9,10 +9,6 @@ import time
 from pathlib import Path
 
 import click
-from rich.console import Console
-from rich.panel import Panel
-from rich.progress import Progress, SpinnerColumn, TextColumn
-from rich.table import Table
 
 # Application imports
 from pynomaly.application.services.advanced_ensemble_service import (
@@ -26,6 +22,10 @@ from pynomaly.infrastructure.config.feature_flags import require_feature
 
 # Infrastructure imports
 from pynomaly.infrastructure.data_loaders import CSVLoader, ParquetLoader
+from rich.console import Console
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
 
 console = Console()
 
@@ -237,9 +237,7 @@ def compare(
 
         # Test each strategy
         for i, strategy in enumerate(strategies, 1):
-            console.print(
-                f"\n📈 [{i}/{len(strategies)}] Testing {strategy} strategy..."
-            )
+            console.print(f"\n📈 [{i}/{len(strategies)}] Testing {strategy} strategy...")
 
             try:
                 config = EnsembleConfiguration(
@@ -558,9 +556,7 @@ def _display_ensemble_comparison(results: dict):
     for i, (strategy, performance, status) in enumerate(strategy_scores):
         if status == "Success":
             result = results[strategy]
-            rank_emoji = (
-                "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else "📊"
-            )
+            rank_emoji = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else "📊"
             table.add_row(
                 f"{rank_emoji} {strategy}",
                 f"{result.get('estimated_performance', 0):.4f}",
@@ -682,7 +678,9 @@ def _display_algorithm_compatibility(algorithms: tuple, compatibility_matrix: di
                 color = (
                     "green"
                     if compatibility < 0.6
-                    else "yellow" if compatibility < 0.8 else "red"
+                    else "yellow"
+                    if compatibility < 0.8
+                    else "red"
                 )
                 row.append(f"[{color}]{compatibility:.2f}[/{color}]")
         table.add_row(*row)

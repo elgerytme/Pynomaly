@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Test script to validate pyproject.toml setup"""
 
-import os
 import subprocess
 import sys
 from pathlib import Path

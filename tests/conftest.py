@@ -4,24 +4,23 @@ from __future__ import annotations
 
 import asyncio
 import os
-import tempfile
 import shutil
-from typing import Generator, AsyncGenerator
+import tempfile
+from collections.abc import Generator
 from unittest.mock import AsyncMock, MagicMock
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 import pytest
 from dependency_injector import providers
 from fastapi.testclient import TestClient
+from pynomaly.domain.entities import Dataset, DetectionResult, Detector
+from pynomaly.domain.value_objects import AnomalyScore
+from pynomaly.infrastructure.auth.jwt_auth import init_auth
+from pynomaly.infrastructure.config import Container, Settings
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-
-from pynomaly.domain.entities import Dataset, Detector, DetectionResult
-from pynomaly.domain.value_objects import AnomalyScore
-from pynomaly.infrastructure.config import Container, Settings
-from pynomaly.infrastructure.auth.jwt_auth import init_auth
 
 # Optional imports for advanced features
 try:
@@ -95,9 +94,9 @@ def test_settings() -> Settings:
     """Enhanced test settings with security and monitoring."""
     import os
     import tempfile
-    
+
     temp_dir = tempfile.mkdtemp()
-    
+
     # Set environment variables for pydantic-settings
     os.environ.update({
         "PYNOMALY_APP_NAME": "pynomaly-test",
@@ -116,7 +115,7 @@ def test_settings() -> Settings:
         "PYNOMALY_MONITORING_PROMETHEUS_ENABLED": "false",
         "PYNOMALY_STORAGE_PATH": temp_dir,
     })
-    
+
     return Settings()
 
 
@@ -143,16 +142,16 @@ def db_engine():
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
-    
+
     # Import and create tables
     try:
         from pynomaly.infrastructure.persistence.database_repositories import Base
         Base.metadata.create_all(bind=engine)
     except ImportError:
         pass  # Database models not available
-    
+
     yield engine
-    
+
     try:
         Base.metadata.drop_all(bind=engine)
     except:
@@ -166,7 +165,7 @@ def db_session(db_engine):
     TestingSessionLocal = sessionmaker(
         autocommit=False, autoflush=False, bind=db_engine
     )
-    
+
     session = TestingSessionLocal()
     try:
         yield session
@@ -242,20 +241,20 @@ def sample_data() -> pd.DataFrame:
     np.random.seed(42)
     n_samples = 1000
     n_features = 5
-    
+
     # Generate normal data
     normal_data = np.random.normal(0, 1, (n_samples - 50, n_features))
-    
+
     # Generate anomalous data
     anomalous_data = np.random.normal(3, 1, (50, n_features))
-    
+
     # Combine data
     data = np.vstack([normal_data, anomalous_data])
-    
+
     # Create DataFrame
     df = pd.DataFrame(data, columns=[f"feature_{i}" for i in range(n_features)])
     df["target"] = [0] * (n_samples - 50) + [1] * 50  # 0 = normal, 1 = anomaly
-    
+
     return df
 
 
@@ -278,10 +277,10 @@ def large_dataset() -> Dataset:
     np.random.seed(42)
     n_samples = 10000
     n_features = 20
-    
+
     data = np.random.normal(0, 1, (n_samples, n_features))
     df = pd.DataFrame(data, columns=[f"feature_{i}" for i in range(n_features)])
-    
+
     return Dataset(
         name="Large Test Dataset",
         data=df,
@@ -307,7 +306,7 @@ def test_detection_result(sample_detector, sample_dataset) -> DetectionResult:
     # Generate mock scores
     np.random.seed(42)
     scores = [AnomalyScore(value=np.random.random()) for _ in range(100)]
-    
+
     return DetectionResult(
         detector_id=sample_detector.id,
         dataset_id=sample_dataset.id,
@@ -396,10 +395,10 @@ def performance_data() -> pd.DataFrame:
     np.random.seed(42)
     n_samples = 100000
     n_features = 20
-    
+
     data = np.random.normal(0, 1, (n_samples, n_features))
     df = pd.DataFrame(data, columns=[f"feature_{i}" for i in range(n_features)])
-    
+
     return df
 
 
@@ -409,7 +408,7 @@ def observability_components():
     """Set up observability for testing."""
     if not OBSERVABILITY_AVAILABLE:
         pytest.skip("Observability components not available")
-    
+
     components = setup_observability(
         enable_logging=True,
         enable_metrics=False,  # Disable for tests
@@ -504,10 +503,10 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "unit: mark test as a unit test"
     )
-    
+
     # Benchmark markers (from benchmarks/conftest.py)
     config.addinivalue_line("markers", "benchmark: mark test as a benchmark")
-    
+
     # Data testing markers (from fixtures/conftest.py)
     config.addinivalue_line(
         "markers", "requires_data: mark test as requiring test data"
@@ -520,7 +519,7 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "synthetic_data: mark test as using synthetic data"
     )
-    
+
     # UI/BDD testing markers (from ui/bdd/conftest.py)
     config.addinivalue_line("markers", "accessibility: Accessibility compliance tests")
     config.addinivalue_line("markers", "workflow: Complete user workflow tests")
@@ -539,7 +538,7 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "slow" in item.keywords:
                 item.add_marker(skip_slow)
-    
+
     # Skip integration tests unless requested
     if not config.getoption("--integration"):
         skip_integration = pytest.mark.skip(reason="need --integration option to run")

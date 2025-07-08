@@ -8,7 +8,6 @@ from unittest.mock import MagicMock, Mock, patch
 
 import numpy as np
 import pytest
-
 from pynomaly.domain.exceptions import GPUError, MemoryError
 from pynomaly.infrastructure.gpu.cuda_utils import CUDAUtils
 from pynomaly.infrastructure.gpu.device_manager import DeviceManager
@@ -435,7 +434,11 @@ class TestPerformanceBenchmarks:
 
         with patch("torch.cuda.is_available", return_value=True):
             # Test memory copy performance
-            data_sizes = [1024**2, 10 * 1024**2, 100 * 1024**2]  # 1MB, 10MB, 100MB
+            data_sizes = [
+                1024**2,
+                10 * 1024**2,
+                100 * 1024**2,
+            ]  # 1MB, 10MB, 100MB
 
             for size in data_sizes:
                 bandwidth = benchmark.measure_memory_bandwidth(size, device="cuda")

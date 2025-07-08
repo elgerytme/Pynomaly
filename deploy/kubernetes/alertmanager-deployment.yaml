@@ -67,14 +67,14 @@ data:
           Alert: {{ .GroupLabels.alertname }}
           Summary: {{ .CommonAnnotations.summary }}
           Description: {{ .CommonAnnotations.description }}
-          
+
           Details:
           {{ range .Alerts }}
           - Instance: {{ .Labels.instance }}
           - Status: {{ .Status }}
           - Started: {{ .StartsAt }}
           {{ end }}
-          
+
           Dashboard: https://monitoring.pynomaly.ai/grafana
           Runbook: https://docs.pynomaly.ai/runbooks/{{ .GroupLabels.alertname }}
         headers:
@@ -85,12 +85,12 @@ data:
         text: |
           *Summary:* {{ .CommonAnnotations.summary }}
           *Description:* {{ .CommonAnnotations.description }}
-          
+
           *Affected Services:*
           {{ range .Alerts }}
           • {{ .Labels.instance }} - {{ .Status }}
           {{ end }}
-          
+
           <https://monitoring.pynomaly.ai/grafana|📊 Dashboard> | <https://docs.pynomaly.ai/runbooks/{{ .GroupLabels.alertname }}|📖 Runbook>
         color: 'danger'
         send_resolved: true
@@ -103,14 +103,14 @@ data:
           Alert: {{ .GroupLabels.alertname }}
           Summary: {{ .CommonAnnotations.summary }}
           Description: {{ .CommonAnnotations.description }}
-          
+
           Details:
           {{ range .Alerts }}
           - Instance: {{ .Labels.instance }}
           - Status: {{ .Status }}
           - Started: {{ .StartsAt }}
           {{ end }}
-          
+
           Dashboard: https://monitoring.pynomaly.ai/grafana
       slack_configs:
       - channel: '#alerts-warning'
@@ -118,7 +118,7 @@ data:
         text: |
           *Summary:* {{ .CommonAnnotations.summary }}
           *Description:* {{ .CommonAnnotations.description }}
-          
+
           <https://monitoring.pynomaly.ai/grafana|📊 Dashboard>
         color: 'warning'
         send_resolved: true
@@ -129,18 +129,18 @@ data:
         subject: '[URGENT] Pynomaly API is DOWN'
         body: |
           🚨 URGENT: The Pynomaly API is currently down!
-          
+
           This affects all users and integrations. Immediate attention required.
-          
+
           Time: {{ .CommonAnnotations.startsAt }}
           Duration: {{ .CommonAnnotations.duration }}
-          
+
           Immediate Actions:
           1. Check API pods: kubectl get pods -n pynomaly-production -l app.kubernetes.io/component=api
           2. Check logs: kubectl logs -n pynomaly-production -l app.kubernetes.io/component=api --tail=100
           3. Check load balancer health
           4. Verify database connectivity
-          
+
           Dashboard: https://monitoring.pynomaly.ai/grafana
           Incident Response: https://docs.pynomaly.ai/incident-response
         headers:
@@ -150,14 +150,14 @@ data:
         title: '🚨 URGENT: Pynomaly API DOWN'
         text: |
           <!channel> The Pynomaly API is currently down!
-          
+
           This is affecting all users and integrations.
-          
+
           *Immediate Actions Required:*
           1. Check API pods and logs
           2. Verify load balancer and database
           3. Start incident response procedure
-          
+
           <https://monitoring.pynomaly.ai/grafana|📊 Dashboard> | <https://docs.pynomaly.ai/incident-response|🚨 Incident Response>
         color: 'danger'
         send_resolved: true
@@ -168,18 +168,18 @@ data:
         subject: '[CRITICAL] Database Issue - {{ .GroupLabels.alertname }}'
         body: |
           🚨 CRITICAL: Database issue detected!
-          
+
           Alert: {{ .GroupLabels.alertname }}
           Summary: {{ .CommonAnnotations.summary }}
-          
+
           This may affect data integrity and application functionality.
-          
+
           Immediate Actions:
           1. Check PostgreSQL pod status
           2. Verify data consistency
           3. Check backup status
           4. Monitor disk space and performance
-          
+
           Dashboard: https://monitoring.pynomaly.ai/grafana
           Database Runbook: https://docs.pynomaly.ai/runbooks/database
       slack_configs:
@@ -187,9 +187,9 @@ data:
         title: '🗄️ Database Alert - {{ .GroupLabels.alertname }}'
         text: |
           *Summary:* {{ .CommonAnnotations.summary }}
-          
+
           Database issue detected - may affect data operations.
-          
+
           <https://monitoring.pynomaly.ai/grafana|📊 Dashboard> | <https://docs.pynomaly.ai/runbooks/database|📖 Database Runbook>
         color: 'danger'
         send_resolved: true
@@ -200,27 +200,27 @@ data:
         subject: '[WARNING] Redis Cache Issue'
         body: |
           ⚠️ WARNING: Redis cache issue detected!
-          
+
           This may affect application performance but not core functionality.
-          
+
           Alert: {{ .GroupLabels.alertname }}
           Summary: {{ .CommonAnnotations.summary }}
-          
+
           Actions:
           1. Check Redis pod status
           2. Verify memory usage
           3. Monitor cache hit rates
           4. Consider cache warmup if needed
-          
+
           Dashboard: https://monitoring.pynomaly.ai/grafana
       slack_configs:
       - channel: '#cache-alerts'
         title: '💾 Cache Alert - {{ .GroupLabels.alertname }}'
         text: |
           *Summary:* {{ .CommonAnnotations.summary }}
-          
+
           Redis cache issue - may affect performance.
-          
+
           <https://monitoring.pynomaly.ai/grafana|📊 Dashboard>
         color: 'warning'
         send_resolved: true
@@ -270,9 +270,9 @@ data:
 
     {{ define "slack.pynomaly.title" }}
     {{- if eq .Status "firing" -}}
-    🚨 [{{ .Status | title }}{{ if gt (len .Alerts.Firing) 1 }} - {{ len .Alerts.Firing }}{{ end }}] 
+    🚨 [{{ .Status | title }}{{ if gt (len .Alerts.Firing) 1 }} - {{ len .Alerts.Firing }}{{ end }}]
     {{- else -}}
-    ✅ [{{ .Status | title }}{{ if gt (len .Alerts.Resolved) 1 }} - {{ len .Alerts.Resolved }}{{ end }}] 
+    ✅ [{{ .Status | title }}{{ if gt (len .Alerts.Resolved) 1 }} - {{ len .Alerts.Resolved }}{{ end }}]
     {{- end -}}
     {{ .GroupLabels.alertname }}{{ if .CommonLabels.instance }} on {{ .CommonLabels.instance }}{{ end }}
     {{ end }}

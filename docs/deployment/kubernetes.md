@@ -246,38 +246,38 @@ data:
   APP_NAME: "Pynomaly"
   APP_VERSION: "1.0.0"
   DEBUG: "false"
-  
+
   # API Configuration
   API_HOST: "0.0.0.0"
   API_PORT: "8000"
   API_WORKERS: "4"
   API_TIMEOUT: "300"
-  
+
   # Cache Configuration
   CACHE_ENABLED: "true"
   CACHE_TTL: "3600"
-  
+
   # Authentication
   AUTH_ENABLED: "true"
   JWT_ALGORITHM: "HS256"
   JWT_EXPIRATION: "3600"
-  
+
   # Rate Limiting
   API_RATE_LIMIT: "100"
-  
+
   # Monitoring
   METRICS_ENABLED: "true"
   TRACING_ENABLED: "true"
   PROMETHEUS_ENABLED: "true"
-  
+
   # Logging
   LOG_LEVEL: "INFO"
   LOG_FORMAT: "json"
-  
+
   # Performance
   MAX_DATASET_SIZE_MB: "1000"
   GPU_ENABLED: "false"
-  
+
   # Storage
   MODEL_STORAGE_PATH: "/app/models"
   EXPERIMENT_STORAGE_PATH: "/app/experiments"
@@ -298,7 +298,7 @@ data:
   database-url: cG9zdGdyZXNxbDovL3VzZXI6cGFzc0BkYi9weW5vbWFseQ==
   redis-url: cmVkaXM6Ly9yZWRpcy1zZXJ2aWNlOjYzNzk=
   jwt-secret: eW91ci1zdXBlci1zZWNyZXQta2V5LWhhdmUtYS1nb29kLW9uZQ==
-  
+
   # Optional: API keys for external services
   openai-api-key: ""
   huggingface-token: ""

@@ -8,8 +8,7 @@ active learning sessions including sample selection and feedback collection.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
+from datetime import datetime
 from uuid import uuid4
 
 import numpy as np
@@ -390,9 +389,9 @@ class ManageActiveLearningUseCase:
 
     def calculate_learning_progress(
         self,
-        session_history: List[ActiveLearningSession],
-        feedback_history: List[HumanFeedback],
-    ) -> Dict[str, float]:
+        session_history: list[ActiveLearningSession],
+        feedback_history: list[HumanFeedback],
+    ) -> dict[str, float]:
         """
         Calculate learning progress across multiple sessions.
 
@@ -470,7 +469,7 @@ class ManageActiveLearningUseCase:
         self,
         strategy: SamplingStrategy,
         sample_index: int,
-        detection_results: List[DetectionResult],
+        detection_results: list[DetectionResult],
     ) -> str:
         """Generate human-readable selection reason."""
         result = detection_results[sample_index]
@@ -488,7 +487,7 @@ class ManageActiveLearningUseCase:
         else:
             return "Selected by sampling strategy"
 
-    def _assess_feedback_quality(self, feedback: HumanFeedback) -> Dict[str, float]:
+    def _assess_feedback_quality(self, feedback: HumanFeedback) -> dict[str, float]:
         """Assess the quality of provided feedback."""
         quality_score = feedback.get_feedback_weight()
 
@@ -520,7 +519,7 @@ class ManageActiveLearningUseCase:
 
     def _get_next_sample_recommendations(
         self, feedback: HumanFeedback, session_id: str
-    ) -> List[str]:
+    ) -> list[str]:
         """Generate recommendations for next samples to annotate."""
         recommendations = []
 
@@ -535,7 +534,7 @@ class ManageActiveLearningUseCase:
 
         return recommendations
 
-    def _analyze_feedback_patterns(self, feedback_list: List[HumanFeedback]) -> Dict:
+    def _analyze_feedback_patterns(self, feedback_list: list[HumanFeedback]) -> dict:
         """Analyze patterns in collected feedback."""
         if not feedback_list:
             return {}
@@ -579,8 +578,8 @@ class ManageActiveLearningUseCase:
         }
 
     def _generate_update_recommendations(
-        self, update_stats: Dict[str, float], feedback_analysis: Dict
-    ) -> List[str]:
+        self, update_stats: dict[str, float], feedback_analysis: dict
+    ) -> list[str]:
         """Generate recommendations for model updates."""
         recommendations = []
 
@@ -597,7 +596,7 @@ class ManageActiveLearningUseCase:
 
         return recommendations
 
-    def _identify_focus_areas(self, feedback_analysis: Dict) -> List[str]:
+    def _identify_focus_areas(self, feedback_analysis: dict) -> list[str]:
         """Identify areas that need focus in next session."""
         focus_areas = []
 
@@ -609,7 +608,7 @@ class ManageActiveLearningUseCase:
 
         return focus_areas
 
-    def _recommend_next_strategy(self, feedback_analysis: Dict) -> SamplingStrategy:
+    def _recommend_next_strategy(self, feedback_analysis: dict) -> SamplingStrategy:
         """Recommend sampling strategy for next session."""
         correction_rate = feedback_analysis.get("correction_rate", 0)
 
@@ -621,7 +620,7 @@ class ManageActiveLearningUseCase:
             return SamplingStrategy.MARGIN
 
     def _calculate_feedback_consistency(
-        self, feedback_history: List[HumanFeedback]
+        self, feedback_history: list[HumanFeedback]
     ) -> float:
         """Calculate consistency of feedback across similar samples."""
         # Placeholder implementation

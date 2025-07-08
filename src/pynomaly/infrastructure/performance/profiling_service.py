@@ -7,21 +7,19 @@ import cProfile
 import functools
 import gc
 import inspect
-import io
 import logging
-import os
 import pstats
-import sys
 import threading
 import time
 import tracemalloc
 from collections import defaultdict, deque
+from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Union
+from typing import Any
 from uuid import uuid4
 
 import numpy as np
@@ -89,8 +87,8 @@ class PerformanceMetric:
     value: float
     unit: str
     timestamp: datetime
-    context: Dict[str, Any] = field(default_factory=dict)
-    tags: Dict[str, str] = field(default_factory=dict)
+    context: dict[str, Any] = field(default_factory=dict)
+    tags: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -103,10 +101,10 @@ class ProfileResult:
     execution_time_seconds: float
     memory_usage_mb: float
     cpu_percent: float
-    metrics: List[PerformanceMetric]
+    metrics: list[PerformanceMetric]
     stats_summary: str
-    detailed_stats: Dict[str, Any]
-    recommendations: List[str] = field(default_factory=list)
+    detailed_stats: dict[str, Any]
+    recommendations: list[str] = field(default_factory=list)
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
 
@@ -128,7 +126,7 @@ class PerformanceConfig:
     # Resource monitoring
     enable_resource_monitoring: bool = True
     monitoring_interval_seconds: float = 1.0
-    resource_alert_thresholds: Dict[str, float] = field(
+    resource_alert_thresholds: dict[str, float] = field(
         default_factory=lambda: {
             "cpu_percent": 80.0,
             "memory_percent": 85.0,
@@ -158,7 +156,7 @@ class FunctionProfiler:
     def __init__(self, config: PerformanceConfig):
         self.config = config
         self.logger = logging.getLogger(__name__)
-        self._active_profiles: Dict[str, Any] = {}
+        self._active_profiles: dict[str, Any] = {}
 
     def profile_function(
         self,
@@ -506,12 +504,12 @@ class ResourceMonitor:
 
         # Monitoring state
         self._monitoring = False
-        self._monitor_thread: Optional[threading.Thread] = None
+        self._monitor_thread: threading.Thread | None = None
         self._metrics_history: deque = deque(maxlen=1000)
 
         # Alert tracking
-        self._alert_cooldowns: Dict[str, datetime] = {}
-        self._alert_callbacks: List[Callable] = []
+        self._alert_cooldowns: dict[str, datetime] = {}
+        self._alert_callbacks: list[Callable] = []
 
     def start_monitoring(self) -> None:
         """Start resource monitoring."""
@@ -553,7 +551,7 @@ class ResourceMonitor:
                 self.logger.error(f"Error in monitoring loop: {e}")
                 time.sleep(1)  # Brief pause on error
 
-    def _collect_metrics(self) -> Dict[str, float]:
+    def _collect_metrics(self) -> dict[str, float]:
         """Collect current resource metrics."""
         metrics = {}
 
@@ -612,7 +610,7 @@ class ResourceMonitor:
 
         return metrics
 
-    def _check_alerts(self, metrics: Dict[str, float]) -> None:
+    def _check_alerts(self, metrics: dict[str, float]) -> None:
         """Check for alert conditions."""
         current_time = datetime.utcnow()
 
@@ -646,13 +644,13 @@ class ResourceMonitor:
             except Exception as e:
                 self.logger.error(f"Error in alert callback: {e}")
 
-    def get_current_metrics(self) -> Optional[Dict[str, float]]:
+    def get_current_metrics(self) -> dict[str, float] | None:
         """Get latest collected metrics."""
         if self._metrics_history:
             return self._metrics_history[-1]
         return None
 
-    def get_metrics_history(self, minutes: int = 10) -> List[Dict[str, float]]:
+    def get_metrics_history(self, minutes: int = 10) -> list[dict[str, float]]:
         """Get metrics history for specified time period."""
         if not self._metrics_history:
             return []
@@ -674,10 +672,10 @@ class PerformanceOptimizer:
         self.logger = logging.getLogger(__name__)
 
         # Optimization history
-        self._optimization_history: List[Dict[str, Any]] = []
-        self._baseline_metrics: Dict[str, float] = {}
+        self._optimization_history: list[dict[str, Any]] = []
+        self._baseline_metrics: dict[str, float] = {}
 
-    def analyze_performance(self, profile_results: List[ProfileResult]) -> List[str]:
+    def analyze_performance(self, profile_results: list[ProfileResult]) -> list[str]:
         """Analyze profile results and generate optimization recommendations."""
         recommendations = []
 
@@ -737,7 +735,7 @@ class PerformanceOptimizer:
 
         return recommendations
 
-    def optimize_garbage_collection(self) -> Dict[str, Any]:
+    def optimize_garbage_collection(self) -> dict[str, Any]:
         """Optimize Python garbage collection settings."""
         if not self.config.gc_optimization:
             return {}
@@ -781,7 +779,7 @@ class PerformanceOptimizer:
 
         return optimization_result
 
-    def _get_gc_stats(self) -> Dict[str, Any]:
+    def _get_gc_stats(self) -> dict[str, Any]:
         """Get current garbage collection statistics."""
         return {
             "threshold": gc.get_threshold(),
@@ -790,7 +788,7 @@ class PerformanceOptimizer:
             "objects": len(gc.get_objects()),
         }
 
-    def optimize_numpy_operations(self) -> List[str]:
+    def optimize_numpy_operations(self) -> list[str]:
         """Provide NumPy optimization recommendations."""
         recommendations = []
 
@@ -832,7 +830,7 @@ class PerformanceOptimizer:
 class ProfilingService:
     """Main profiling service coordinating all profiling activities."""
 
-    def __init__(self, config: Optional[PerformanceConfig] = None):
+    def __init__(self, config: PerformanceConfig | None = None):
         """Initialize profiling service."""
         self.config = config or PerformanceConfig()
         self.logger = logging.getLogger(__name__)
@@ -843,7 +841,7 @@ class ProfilingService:
         self.optimizer = PerformanceOptimizer(self.config)
 
         # Profile storage
-        self._profile_results: List[ProfileResult] = []
+        self._profile_results: list[ProfileResult] = []
         self._max_stored_results = 1000
 
         # Start monitoring if enabled
@@ -902,7 +900,7 @@ class ProfilingService:
                 f"memory delta: {memory_delta:.2f}MB"
             )
 
-    def get_performance_summary(self) -> Dict[str, Any]:
+    def get_performance_summary(self) -> dict[str, Any]:
         """Get comprehensive performance summary."""
         current_metrics = self.resource_monitor.get_current_metrics()
         metrics_history = self.resource_monitor.get_metrics_history(10)
@@ -997,7 +995,7 @@ class ProfilingService:
 
 
 # Global profiling service instance
-_profiling_service: Optional[ProfilingService] = None
+_profiling_service: ProfilingService | None = None
 
 
 def get_profiling_service() -> ProfilingService:

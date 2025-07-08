@@ -41,11 +41,11 @@ run_test_step() {
     local step_name="$1"
     local command="$2"
     local optional="${3:-false}"
-    
+
     print_status "INFO" "Running: $step_name"
     echo "Command: $command"
     echo "----------------------------------------"
-    
+
     if eval "$command"; then
         print_status "SUCCESS" "$step_name completed successfully"
         return 0

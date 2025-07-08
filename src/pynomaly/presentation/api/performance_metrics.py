@@ -3,12 +3,11 @@ Performance Metrics API for Real User Monitoring (RUM)
 Collects and analyzes performance data from web clients
 """
 
-import json
 import logging
 import statistics
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pydantic import BaseModel, Field
@@ -18,17 +17,17 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/metrics", tags=["performance"])
 
 # In-memory storage for demo (in production, use proper database)
-performance_metrics_store: List[Dict[str, Any]] = []
+performance_metrics_store: list[dict[str, Any]] = []
 
 
 @dataclass
 class CoreWebVitals:
     """Core Web Vitals metrics"""
 
-    lcp: Optional[float] = None  # Largest Contentful Paint
-    fid: Optional[float] = None  # First Input Delay
-    cls: Optional[float] = None  # Cumulative Layout Shift
-    fcp: Optional[float] = None  # First Contentful Paint
+    lcp: float | None = None  # Largest Contentful Paint
+    fid: float | None = None  # First Input Delay
+    cls: float | None = None  # Cumulative Layout Shift
+    fcp: float | None = None  # First Contentful Paint
 
 
 @dataclass
@@ -36,7 +35,7 @@ class PerformanceMetricData:
     """Individual performance metric data point"""
 
     type: str
-    data: Dict[str, Any]
+    data: dict[str, Any]
     page: str
     user_agent: str
     timestamp: int
@@ -45,7 +44,7 @@ class PerformanceMetricData:
 class PerformanceMetricsPayload(BaseModel):
     """Payload for performance metrics submission"""
 
-    metrics: List[Dict[str, Any]] = Field(
+    metrics: list[dict[str, Any]] = Field(
         ..., description="Array of performance metrics"
     )
     session: str = Field(..., description="Session identifier")
@@ -55,11 +54,11 @@ class PerformanceMetricsPayload(BaseModel):
 class PerformanceAnalysis(BaseModel):
     """Performance analysis results"""
 
-    core_web_vitals: Dict[str, Any]
+    core_web_vitals: dict[str, Any]
     performance_score: float
-    recommendations: List[str]
-    trends: Dict[str, Any]
-    summary: Dict[str, Any]
+    recommendations: list[str]
+    trends: dict[str, Any]
+    summary: dict[str, Any]
 
 
 class PerformanceThresholds:
@@ -79,7 +78,7 @@ class PerformanceAnalyzer:
     """Analyzes performance metrics and generates insights"""
 
     @staticmethod
-    def analyze_core_web_vitals(metrics: List[PerformanceMetricData]) -> CoreWebVitals:
+    def analyze_core_web_vitals(metrics: list[PerformanceMetricData]) -> CoreWebVitals:
         """Extract and analyze Core Web Vitals from metrics"""
         cwv = CoreWebVitals()
 
@@ -132,8 +131,8 @@ class PerformanceAnalyzer:
 
     @staticmethod
     def generate_recommendations(
-        cwv: CoreWebVitals, metrics: List[PerformanceMetricData]
-    ) -> List[str]:
+        cwv: CoreWebVitals, metrics: list[PerformanceMetricData]
+    ) -> list[str]:
         """Generate performance improvement recommendations"""
         recommendations = []
 
@@ -186,7 +185,7 @@ class PerformanceAnalyzer:
         return recommendations
 
     @staticmethod
-    def analyze_trends(recent_hours: int = 24) -> Dict[str, Any]:
+    def analyze_trends(recent_hours: int = 24) -> dict[str, Any]:
         """Analyze performance trends over recent time period"""
         cutoff_time = datetime.now() - timedelta(hours=recent_hours)
         cutoff_timestamp = int(cutoff_time.timestamp() * 1000)
@@ -247,7 +246,7 @@ class PerformanceAnalyzer:
 @router.post("/performance")
 async def submit_performance_metrics(
     payload: PerformanceMetricsPayload, background_tasks: BackgroundTasks
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """
     Submit performance metrics from web clients
     """
@@ -285,7 +284,7 @@ async def submit_performance_metrics(
 
 @router.get("/performance/analysis")
 async def get_performance_analysis(
-    session_id: Optional[str] = None, hours: int = 24
+    session_id: str | None = None, hours: int = 24
 ) -> PerformanceAnalysis:
     """
     Get performance analysis and recommendations
@@ -331,9 +330,9 @@ async def get_performance_analysis(
         # Generate summary
         summary = {
             "total_metrics": len(session_metrics),
-            "pages_tracked": len(set(m.get("page", "/") for m in session_metrics)),
+            "pages_tracked": len({m.get("page", "/") for m in session_metrics}),
             "session_count": len(
-                set(m.get("session") for m in session_metrics if m.get("session"))
+                {m.get("session") for m in session_metrics if m.get("session")}
             ),
             "time_range_hours": hours,
         }
@@ -388,7 +387,7 @@ async def get_performance_analysis(
 
 
 @router.get("/performance/summary")
-async def get_performance_summary(hours: int = 24) -> Dict[str, Any]:
+async def get_performance_summary(hours: int = 24) -> dict[str, Any]:
     """
     Get a summary of performance metrics
     """
@@ -446,7 +445,7 @@ async def get_performance_summary(hours: int = 24) -> Dict[str, Any]:
             "total_metrics": len(recent_metrics),
             "pages_tracked": len(page_metrics),
             "unique_sessions": len(
-                set(m.get("session") for m in recent_metrics if m.get("session"))
+                {m.get("session") for m in recent_metrics if m.get("session")}
             ),
             "page_summaries": page_summaries,
         }
@@ -457,7 +456,7 @@ async def get_performance_summary(hours: int = 24) -> Dict[str, Any]:
 
 
 @router.delete("/performance/clear")
-async def clear_performance_metrics() -> Dict[str, str]:
+async def clear_performance_metrics() -> dict[str, str]:
     """
     Clear all stored performance metrics (for testing/development)
     """
@@ -470,7 +469,7 @@ async def clear_performance_metrics() -> Dict[str, str]:
     return {"status": "success", "message": f"Cleared {cleared_count} metrics"}
 
 
-async def process_metrics_async(metrics: List[Dict[str, Any]], session_id: str):
+async def process_metrics_async(metrics: list[dict[str, Any]], session_id: str):
     """
     Background task to process metrics
     """
@@ -507,7 +506,7 @@ async def process_metrics_async(metrics: List[Dict[str, Any]], session_id: str):
 
 # Health check endpoint
 @router.get("/performance/health")
-async def performance_monitoring_health() -> Dict[str, Any]:
+async def performance_monitoring_health() -> dict[str, Any]:
     """
     Health check for performance monitoring system
     """

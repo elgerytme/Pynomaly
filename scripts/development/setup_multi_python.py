@@ -7,14 +7,12 @@ Automates setup of multiple Python versions for local development and testing.
 import argparse
 import json
 import logging
-import os
 import platform
 import shutil
 import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 # Configure logging
 logging.basicConfig(
@@ -67,7 +65,7 @@ class MultiPythonManager:
 
         self.system_info = self._get_system_info()
 
-    def _get_system_info(self) -> Dict:
+    def _get_system_info(self) -> dict:
         """Get system information for compatibility checks."""
         return {
             "platform": platform.platform(),
@@ -174,7 +172,7 @@ class MultiPythonManager:
             )
             return False
 
-    def list_available_versions(self) -> List[str]:
+    def list_available_versions(self) -> list[str]:
         """List available Python versions."""
         if not self.check_pyenv():
             return []
@@ -243,7 +241,7 @@ class MultiPythonManager:
             logger.error(f"✗ Failed to install Python {version}: {e}")
             return False
 
-    def create_virtual_environments(self) -> Dict[str, bool]:
+    def create_virtual_environments(self) -> dict[str, bool]:
         """Create virtual environments for each Python version."""
         results = {}
 
@@ -319,7 +317,7 @@ class MultiPythonManager:
 
         return results
 
-    def test_environments(self) -> Dict[str, Dict]:
+    def test_environments(self) -> dict[str, dict]:
         """Test all created environments."""
         results = {}
 
@@ -488,22 +486,22 @@ from pathlib import Path
 def main():
     print(f"Running tests with Python {version}")
     print(f"Python executable: {python_path}")
-    
+
     # Set up environment
     base_dir = Path.cwd()
-    
+
     # Run basic tests
     test_commands = [
         # Basic pytest
         [str(python_path), "-m", "pytest", "tests/", "-v", "--tb=short"],
-        
+
         # Type checking (if available)
         [str(python_path), "-c", "import mypy; print('mypy available')"],
-        
+
         # Import tests
         [str(python_path), "-c", "import sys; sys.path.insert(0, 'src'); import pynomaly; print('✓ pynomaly imports successfully')"],
     ]
-    
+
     for i, cmd in enumerate(test_commands, 1):
         print(f"\\n--- Test {{i}}: {{' '.join(cmd[:3])}} ---")
         try:
@@ -516,7 +514,7 @@ def main():
             print(f"✗ Test {{i}} timed out")
         except Exception as e:
             print(f"✗ Test {{i}} error: {{e}}")
-    
+
     print(f"\\n✓ Test suite completed for Python {version}")
 
 if __name__ == "__main__":
@@ -530,7 +528,7 @@ if __name__ == "__main__":
 
             logger.info(f"✓ Created test runner: {script_name}")
 
-    def generate_report(self, test_results: Dict) -> str:
+    def generate_report(self, test_results: dict) -> str:
         """Generate a comprehensive setup and test report."""
         report_file = self.reports_dir / "multi_python_setup_report.json"
 
@@ -600,7 +598,7 @@ Usage:
         with open(text_report_file, "w") as f:
             f.write(text_report)
 
-        logger.info(f"✓ Reports generated:")
+        logger.info("✓ Reports generated:")
         logger.info(f"  JSON: {report_file}")
         logger.info(f"  Text: {text_report_file}")
 

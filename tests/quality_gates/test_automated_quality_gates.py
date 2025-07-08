@@ -1,19 +1,13 @@
 """Automated quality gates and validation system for ensuring 100% test quality."""
 
 import json
-import re
-import shutil
 import subprocess
 import sys
-import tempfile
-import threading
 import time
-import warnings
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import psutil
 import pytest
@@ -31,7 +25,7 @@ class QualityGateResult:
     message: str
     timestamp: datetime
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         result = asdict(self)
         result["timestamp"] = self.timestamp.isoformat()
@@ -47,12 +41,12 @@ class QualityReport:
     failed_gates: int
     success_rate: float
     overall_status: str
-    gate_results: List[QualityGateResult]
+    gate_results: list[QualityGateResult]
     execution_time: float
     timestamp: datetime
-    recommendations: List[str]
+    recommendations: list[str]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         result = asdict(self)
         result["timestamp"] = self.timestamp.isoformat()
@@ -71,7 +65,7 @@ class TestCoverageAnalyzer:
             "class_coverage": 90.0,
         }
 
-    def run_coverage_analysis(self) -> Dict[str, float]:
+    def run_coverage_analysis(self) -> dict[str, float]:
         """Run comprehensive coverage analysis."""
         try:
             # Run pytest with coverage
@@ -115,15 +109,15 @@ class TestCoverageAnalyzer:
         except Exception as e:
             return {"error": f"Coverage analysis failed: {str(e)}"}
 
-    def _parse_coverage_json(self) -> Dict[str, Any]:
+    def _parse_coverage_json(self) -> dict[str, Any]:
         """Parse coverage JSON report."""
         coverage_file = Path("coverage.json")
         if coverage_file.exists():
-            with open(coverage_file, "r") as f:
+            with open(coverage_file) as f:
                 return json.load(f)
         return {}
 
-    def _calculate_function_coverage(self, coverage_data: Dict) -> float:
+    def _calculate_function_coverage(self, coverage_data: dict) -> float:
         """Calculate function coverage percentage."""
         # Simplified calculation - in real implementation would analyze AST
         files = coverage_data.get("files", {})
@@ -148,7 +142,7 @@ class TestCoverageAnalyzer:
             (covered_functions / total_functions * 100) if total_functions > 0 else 0.0
         )
 
-    def _calculate_class_coverage(self, coverage_data: Dict) -> float:
+    def _calculate_class_coverage(self, coverage_data: dict) -> float:
         """Calculate class coverage percentage."""
         # Simplified calculation - in real implementation would analyze AST
         return (
@@ -168,7 +162,7 @@ class TestExecutionAnalyzer:
             "min_test_count": 100,
         }
 
-    def run_test_execution_analysis(self) -> Dict[str, Any]:
+    def run_test_execution_analysis(self) -> dict[str, Any]:
         """Run comprehensive test execution analysis."""
         start_time = time.time()
         initial_memory = psutil.Process().memory_info().rss / 1024 / 1024
@@ -216,15 +210,15 @@ class TestExecutionAnalyzer:
         except Exception as e:
             return {"error": f"Test execution analysis failed: {str(e)}"}
 
-    def _parse_test_report(self) -> Dict[str, Any]:
+    def _parse_test_report(self) -> dict[str, Any]:
         """Parse pytest JSON report."""
         report_file = Path("test_report.json")
         if report_file.exists():
-            with open(report_file, "r") as f:
+            with open(report_file) as f:
                 return json.load(f)
         return {}
 
-    def _calculate_failure_rate(self, test_data: Dict) -> float:
+    def _calculate_failure_rate(self, test_data: dict) -> float:
         """Calculate test failure rate."""
         summary = test_data.get("summary", {})
         total = summary.get("total", 0)
@@ -232,7 +226,7 @@ class TestExecutionAnalyzer:
 
         return (failed / total) if total > 0 else 0.0
 
-    def _identify_slow_tests(self, test_data: Dict) -> List[str]:
+    def _identify_slow_tests(self, test_data: dict) -> list[str]:
         """Identify slow-running tests."""
         slow_tests = []
         tests = test_data.get("tests", [])
@@ -244,7 +238,7 @@ class TestExecutionAnalyzer:
 
         return slow_tests
 
-    def _identify_flaky_tests(self, test_data: Dict) -> List[str]:
+    def _identify_flaky_tests(self, test_data: dict) -> list[str]:
         """Identify potentially flaky tests."""
         # In a real implementation, this would analyze historical data
         # For now, identify tests with warnings or skips
@@ -272,7 +266,7 @@ class CodeQualityAnalyzer:
             "max_lint_violations": 50,
         }
 
-    def run_code_quality_analysis(self) -> Dict[str, Any]:
+    def run_code_quality_analysis(self) -> dict[str, Any]:
         """Run comprehensive code quality analysis."""
         try:
             # Run linting
@@ -299,7 +293,7 @@ class CodeQualityAnalyzer:
         except Exception as e:
             return {"error": f"Code quality analysis failed: {str(e)}"}
 
-    def _run_linting(self) -> Dict[str, int]:
+    def _run_linting(self) -> dict[str, int]:
         """Run code linting with flake8/pylint."""
         try:
             # Run flake8
@@ -330,7 +324,7 @@ class CodeQualityAnalyzer:
         except:
             return {"total_violations": 0, "errors": 0, "warnings": 0}
 
-    def _analyze_complexity(self) -> Dict[str, float]:
+    def _analyze_complexity(self) -> dict[str, float]:
         """Analyze code complexity."""
         try:
             # In a real implementation, would use radon or similar tools
@@ -347,7 +341,7 @@ class CodeQualityAnalyzer:
                 "high_complexity_functions": 0,
             }
 
-    def _detect_duplicates(self) -> Dict[str, float]:
+    def _detect_duplicates(self) -> dict[str, float]:
         """Detect code duplication."""
         try:
             # In a real implementation, would use tools like jscpd or similar
@@ -364,7 +358,7 @@ class CodeQualityAnalyzer:
             }
 
     def _calculate_maintainability_index(
-        self, complexity: Dict, duplication: Dict, lint: Dict
+        self, complexity: dict, duplication: dict, lint: dict
     ) -> float:
         """Calculate maintainability index."""
         # Simplified calculation
@@ -394,7 +388,7 @@ class SecurityAnalyzer:
             "max_medium_severity": 5,
         }
 
-    def run_security_analysis(self) -> Dict[str, Any]:
+    def run_security_analysis(self) -> dict[str, Any]:
         """Run comprehensive security analysis."""
         try:
             # Run bandit security linter
@@ -430,27 +424,27 @@ class SecurityAnalyzer:
         except Exception as e:
             return {"error": f"Security analysis failed: {str(e)}"}
 
-    def _parse_security_report(self) -> Dict[str, Any]:
+    def _parse_security_report(self) -> dict[str, Any]:
         """Parse bandit security report."""
         report_file = Path("security_report.json")
         if report_file.exists():
-            with open(report_file, "r") as f:
+            with open(report_file) as f:
                 return json.load(f)
         return {"results": []}
 
-    def _count_by_severity(self, security_data: Dict, severity: str) -> int:
+    def _count_by_severity(self, security_data: dict, severity: str) -> int:
         """Count issues by severity level."""
         results = security_data.get("results", [])
         return sum(1 for result in results if result.get("issue_severity") == severity)
 
-    def _count_by_confidence(self, security_data: Dict, confidence: str) -> int:
+    def _count_by_confidence(self, security_data: dict, confidence: str) -> int:
         """Count issues by confidence level."""
         results = security_data.get("results", [])
         return sum(
             1 for result in results if result.get("issue_confidence") == confidence
         )
 
-    def _calculate_security_score(self, security_data: Dict) -> float:
+    def _calculate_security_score(self, security_data: dict) -> float:
         """Calculate overall security score."""
         results = security_data.get("results", [])
         if not results:
@@ -566,7 +560,7 @@ class QualityGateValidator:
             recommendations=recommendations,
         )
 
-    def _validate_coverage_gates(self, coverage_data: Dict) -> List[QualityGateResult]:
+    def _validate_coverage_gates(self, coverage_data: dict) -> list[QualityGateResult]:
         """Validate coverage-related quality gates."""
         results = []
 
@@ -593,8 +587,8 @@ class QualityGateValidator:
         return results
 
     def _validate_execution_gates(
-        self, execution_data: Dict
-    ) -> List[QualityGateResult]:
+        self, execution_data: dict
+    ) -> list[QualityGateResult]:
         """Validate execution-related quality gates."""
         results = []
 
@@ -660,7 +654,7 @@ class QualityGateValidator:
 
         return results
 
-    def _validate_quality_gates(self, quality_data: Dict) -> List[QualityGateResult]:
+    def _validate_quality_gates(self, quality_data: dict) -> list[QualityGateResult]:
         """Validate code quality gates."""
         results = []
 
@@ -721,7 +715,7 @@ class QualityGateValidator:
 
         return results
 
-    def _validate_security_gates(self, security_data: Dict) -> List[QualityGateResult]:
+    def _validate_security_gates(self, security_data: dict) -> list[QualityGateResult]:
         """Validate security gates."""
         results = []
 
@@ -764,8 +758,8 @@ class QualityGateValidator:
             return False
 
     def _generate_recommendations(
-        self, gate_results: List[QualityGateResult]
-    ) -> List[str]:
+        self, gate_results: list[QualityGateResult]
+    ) -> list[str]:
         """Generate recommendations based on failed gates."""
         recommendations = []
 

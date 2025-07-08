@@ -7,7 +7,6 @@ from unittest.mock import Mock, patch
 import numpy as np
 import pandas as pd
 import pytest
-
 from pynomaly.application.services.performance_testing_service import (
     BenchmarkResult,
     BenchmarkSuite,

@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
+from collections.abc import AsyncGenerator
 from datetime import datetime, timedelta
-from typing import Any, AsyncGenerator
+from typing import Any
 from uuid import UUID
 
 from pynomaly.domain.entities.anomaly_event import (
@@ -25,9 +25,7 @@ from pynomaly.domain.entities.streaming_session import (
     StreamingMetrics,
     StreamingSession,
 )
-from pynomaly.shared.protocols.repository_protocol import (
-    ModelRepositoryProtocol,
-)
+from pynomaly.shared.protocols.repository_protocol import ModelRepositoryProtocol
 
 logger = logging.getLogger(__name__)
 

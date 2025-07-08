@@ -13,7 +13,7 @@ Achieve excellent user experience with these performance targets:
 
 ```
 Largest Contentful Paint (LCP)     < 2.5 seconds
-First Input Delay (FID)            < 100 milliseconds  
+First Input Delay (FID)            < 100 milliseconds
 Cumulative Layout Shift (CLS)      < 0.1
 First Contentful Paint (FCP)       < 1.8 seconds
 Time to Interactive (TTI)          < 3.8 seconds
@@ -41,8 +41,8 @@ Prioritize critical resources for faster initial load:
 <!-- Critical CSS inlined in head -->
 <style>
   /* Critical above-the-fold CSS */
-  .hero-section, .nav-bar, .loading-spinner { 
-    /* Inline critical styles */ 
+  .hero-section, .nav-bar, .loading-spinner {
+    /* Inline critical styles */
   }
 </style>
 
@@ -64,24 +64,24 @@ class ProgressiveLoader {
   async loadDashboard() {
     // 1. Load critical above-the-fold content
     await this.loadCriticalContent();
-    
+
     // 2. Load interactive components
     requestIdleCallback(() => {
       this.loadInteractiveComponents();
     });
-    
+
     // 3. Preload below-the-fold content
     requestIdleCallback(() => {
       this.preloadSecondaryContent();
     });
   }
-  
+
   async loadCriticalContent() {
     // Load essential dashboard metrics
     const metrics = await fetch('/api/dashboard/critical');
     this.renderMetrics(metrics);
   }
-  
+
   loadInteractiveComponents() {
     // Load charts and interactive elements
     import('./charts/anomaly-timeline.js').then(module => {
@@ -175,24 +175,24 @@ class DataManager {
     this.cache = new Map();
     this.pendingRequests = new Map();
   }
-  
+
   async fetchAnomalyData(datasetId, options = {}) {
     const cacheKey = `${datasetId}-${JSON.stringify(options)}`;
-    
+
     // Return cached data if available
     if (this.cache.has(cacheKey)) {
       return this.cache.get(cacheKey);
     }
-    
+
     // Deduplicate concurrent requests
     if (this.pendingRequests.has(cacheKey)) {
       return this.pendingRequests.get(cacheKey);
     }
-    
+
     // Fetch with streaming for large datasets
     const promise = this.streamAnomalyData(datasetId, options);
     this.pendingRequests.set(cacheKey, promise);
-    
+
     try {
       const data = await promise;
       this.cache.set(cacheKey, data);
@@ -201,30 +201,30 @@ class DataManager {
       this.pendingRequests.delete(cacheKey);
     }
   }
-  
+
   async streamAnomalyData(datasetId, options) {
     const response = await fetch(`/api/anomalies/${datasetId}/stream`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(options)
     });
-    
+
     if (!response.ok) throw new Error('Failed to fetch data');
-    
+
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
     const data = [];
-    
+
     try {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        
+
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
         buffer = lines.pop(); // Keep incomplete line in buffer
-        
+
         for (const line of lines) {
           if (line.trim()) {
             data.push(JSON.parse(line));
@@ -234,7 +234,7 @@ class DataManager {
     } finally {
       reader.releaseLock();
     }
-    
+
     return data;
   }
 }
@@ -248,7 +248,7 @@ Implement multi-level caching for optimal performance:
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
-  
+
   // Cache strategy based on resource type
   if (url.pathname.startsWith('/api/')) {
     // Network-first for API calls with short-term cache
@@ -281,30 +281,30 @@ class MemoryCache {
     this.maxSize = maxSize;
     this.ttl = ttl;
   }
-  
+
   set(key, value) {
     // Remove oldest entries if cache is full
     if (this.cache.size >= this.maxSize) {
       const firstKey = this.cache.keys().next().value;
       this.cache.delete(firstKey);
     }
-    
+
     this.cache.set(key, {
       value,
       timestamp: Date.now()
     });
   }
-  
+
   get(key) {
     const item = this.cache.get(key);
     if (!item) return null;
-    
+
     // Check if item has expired
     if (Date.now() - item.timestamp > this.ttl) {
       this.cache.delete(key);
       return null;
     }
-    
+
     return item.value;
   }
 }
@@ -328,7 +328,7 @@ Optimize images for fast loading and responsive display:
     anomaly-chart-640.webp 640w,
     anomaly-chart-1280.webp 1280w
   " type="image/webp">
-  <img 
+  <img
     src="anomaly-chart-640.jpg"
     srcset="
       anomaly-chart-320.jpg 320w,
@@ -343,7 +343,7 @@ Optimize images for fast loading and responsive display:
 </picture>
 
 <!-- Optimize chart images -->
-<img 
+<img
   src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'%3E%3Crect width='400' height='200' fill='%23f1f5f9'/%3E%3C/svg%3E"
   data-src="/charts/performance-metrics.png"
   alt="Performance metrics chart"
@@ -405,7 +405,7 @@ async function loadChartLibrary() {
   const { default: ECharts } = await import('echarts/core');
   const { LineChart, ScatterChart } = await import('echarts/charts');
   const { GridComponent, TooltipComponent } = await import('echarts/components');
-  
+
   ECharts.use([LineChart, ScatterChart, GridComponent, TooltipComponent]);
   return ECharts;
 }
@@ -422,7 +422,7 @@ class FeatureLoader {
       import('./analyzers/StatisticalAnalyzer.js'),
       import('./utils/ExportUtils.js')
     ]);
-    
+
     return { MLAnalyzer, StatisticalAnalyzer, ExportUtils };
   }
 }
@@ -438,24 +438,24 @@ class MetricUpdater {
     this.pendingUpdates = [];
     this.updateScheduled = false;
   }
-  
+
   updateMetric(element, value) {
     this.pendingUpdates.push({ element, value });
-    
+
     if (!this.updateScheduled) {
       this.updateScheduled = true;
       requestAnimationFrame(() => this.flushUpdates());
     }
   }
-  
+
   flushUpdates() {
     // Use DocumentFragment for batch updates
     const fragment = document.createDocumentFragment();
-    
+
     this.pendingUpdates.forEach(({ element, value }) => {
       element.textContent = value;
     });
-    
+
     this.pendingUpdates = [];
     this.updateScheduled = false;
   }
@@ -467,7 +467,7 @@ class InteractionManager {
     this.container = container;
     this.setupEventDelegation();
   }
-  
+
   setupEventDelegation() {
     this.container.addEventListener('click', (event) => {
       const target = event.target.closest('[data-action]');
@@ -477,7 +477,7 @@ class InteractionManager {
       }
     });
   }
-  
+
   handleAction(action, element, event) {
     switch (action) {
       case 'toggle-metric':
@@ -554,7 +554,7 @@ async function syncData() {
   // Sync cached anomaly detection results
   const cache = await caches.open('data-cache');
   const requests = await cache.keys();
-  
+
   for (const request of requests) {
     try {
       const response = await fetch(request);
@@ -582,7 +582,7 @@ class PerformanceMonitor {
     this.metrics = {};
     this.initializeMetrics();
   }
-  
+
   initializeMetrics() {
     getCLS(this.recordMetric.bind(this, 'CLS'));
     getFID(this.recordMetric.bind(this, 'FID'));
@@ -590,19 +590,19 @@ class PerformanceMonitor {
     getLCP(this.recordMetric.bind(this, 'LCP'));
     getTTFB(this.recordMetric.bind(this, 'TTFB'));
   }
-  
+
   recordMetric(name, metric) {
     this.metrics[name] = metric;
-    
+
     // Send to analytics
     this.sendMetric(name, metric.value);
-    
+
     // Log performance issues
     if (this.isMetricPoor(name, metric.value)) {
       console.warn(`Poor ${name} performance:`, metric.value);
     }
   }
-  
+
   isMetricPoor(name, value) {
     const thresholds = {
       'LCP': 2500,
@@ -611,10 +611,10 @@ class PerformanceMonitor {
       'FCP': 1800,
       'TTFB': 800
     };
-    
+
     return value > thresholds[name];
   }
-  
+
   sendMetric(name, value) {
     // Send to your analytics service
     fetch('/api/metrics', {
@@ -643,12 +643,12 @@ class PerformanceProfiler {
       const start = performance.now();
       const result = await fn(...args);
       const end = performance.now();
-      
+
       console.log(`${name} took ${end - start} milliseconds`);
       return result;
     };
   }
-  
+
   static markAndMeasure(name) {
     return {
       start() {
@@ -657,10 +657,10 @@ class PerformanceProfiler {
       end() {
         performance.mark(`${name}-end`);
         performance.measure(name, `${name}-start`, `${name}-end`);
-        
+
         const measure = performance.getEntriesByName(name)[0];
         console.log(`${name}: ${measure.duration}ms`);
-        
+
         // Clean up marks
         performance.clearMarks(`${name}-start`);
         performance.clearMarks(`${name}-end`);
@@ -730,24 +730,24 @@ class DataStreamProcessor {
     this.worker = new Worker('/js/data-worker.js');
     this.chunks = new Map();
   }
-  
+
   async processLargeDataset(data) {
     // Process in chunks to avoid memory issues
     const chunkSize = 1000;
     const results = [];
-    
+
     for (let i = 0; i < data.length; i += chunkSize) {
       const chunk = data.slice(i, i + chunkSize);
       const result = await this.processChunk(chunk);
       results.push(result);
-      
+
       // Allow browser to breathe
       await new Promise(resolve => setTimeout(resolve, 0));
     }
-    
+
     return results.flat();
   }
-  
+
   cleanup() {
     this.worker.terminate();
     this.chunks.clear();

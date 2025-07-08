@@ -7,17 +7,15 @@ Fallback implementation that uses pytest instead of Buck2 while maintaining incr
 import argparse
 import json
 import logging
-import os
 import subprocess
 import sys
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
 
 # Import our existing change detection logic
 from buck2_change_detector import Buck2ChangeDetector, ChangeAnalysis
-from buck2_impact_analyzer import Buck2ImpactAnalyzer, ImpactAnalysisResult
+from buck2_impact_analyzer import Buck2ImpactAnalyzer
 
 # Configure logging
 logging.basicConfig(
@@ -48,9 +46,9 @@ class IncrementalPytestSummary:
     successful_commands: int
     failed_commands: int
     total_duration: float
-    results: List[PytestResult]
+    results: list[PytestResult]
     change_analysis: ChangeAnalysis
-    run_metadata: Dict
+    run_metadata: dict
 
 
 class PytestIncrementalRunner:
@@ -165,7 +163,7 @@ class PytestIncrementalRunner:
                 tests_failed=0,
             )
 
-    def _parse_pytest_output(self, output: str) -> Tuple[int, int, int]:
+    def _parse_pytest_output(self, output: str) -> tuple[int, int, int]:
         """Parse pytest output to extract test counts."""
         tests_run = 0
         tests_passed = 0
@@ -190,7 +188,7 @@ class PytestIncrementalRunner:
         tests_run = tests_passed + tests_failed
         return tests_run, tests_passed, tests_failed
 
-    def get_pytest_commands_for_targets(self, targets: Set[str]) -> List[str]:
+    def get_pytest_commands_for_targets(self, targets: set[str]) -> list[str]:
         """Convert Buck2 targets to pytest commands."""
         commands = []
 
@@ -342,7 +340,7 @@ class PytestIncrementalRunner:
 
     def print_summary(self, summary: IncrementalPytestSummary):
         """Print human-readable test summary."""
-        print(f"\n=== Pytest Incremental Test Results ===")
+        print("\n=== Pytest Incremental Test Results ===")
         print(f"Commit range: {summary.change_analysis.commit_range}")
         print(f"Total duration: {summary.total_duration:.2f}s")
         print(f"Commands run: {summary.total_commands}")
@@ -364,7 +362,7 @@ class PytestIncrementalRunner:
 
         # Show test results
         if summary.results:
-            print(f"\nTest Results:")
+            print("\nTest Results:")
             total_tests_run = sum(r.tests_run for r in summary.results)
             total_tests_passed = sum(r.tests_passed for r in summary.results)
             total_tests_failed = sum(r.tests_failed for r in summary.results)
@@ -388,7 +386,7 @@ class PytestIncrementalRunner:
         # Show failed commands
         failed_results = [r for r in summary.results if not r.success]
         if failed_results:
-            print(f"\nFailed Commands:")
+            print("\nFailed Commands:")
             for result in failed_results:
                 print(f"  ✗ {result.command}")
                 if result.stderr:

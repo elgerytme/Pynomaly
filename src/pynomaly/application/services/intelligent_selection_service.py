@@ -634,9 +634,9 @@ class IntelligentSelectionService:
                 predicted_performances[algo] = 0.5
 
         # Update context with predictions
-        recommendation.selection_context["predicted_performances"] = (
-            predicted_performances
-        )
+        recommendation.selection_context[
+            "predicted_performances"
+        ] = predicted_performances
 
         return recommendation
 

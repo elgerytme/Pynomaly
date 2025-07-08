@@ -1,15 +1,13 @@
 """Health check endpoints with comprehensive OpenAPI documentation."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from pynomaly.infrastructure.config import Container
-from pynomaly.infrastructure.monitoring.health_service import (
-    HealthService,
-)
+from pynomaly.infrastructure.monitoring.health_service import HealthService
 from pynomaly.presentation.api.deps import get_container
 from pynomaly.presentation.api.docs.response_models import HTTPResponses
 from pynomaly.presentation.api.docs.schema_examples import SchemaExamples
@@ -128,18 +126,18 @@ class SystemMetricsResponse(BaseModel):
     summary="Comprehensive Health Check",
     description="""
     Perform a comprehensive health check of all system components.
-    
+
     This endpoint checks:
     - **System Resources**: CPU, memory, disk usage
-    - **Database Connectivity**: Database connection and response time  
+    - **Database Connectivity**: Database connection and response time
     - **Cache Connectivity**: Redis/cache service availability
     - **Repository Access**: Data access layer functionality
     - **Algorithm Adapters**: ML library availability
     - **Configuration**: Security and environment settings
-    
+
     The response includes individual check results and an overall status.
     Use this endpoint for detailed monitoring and troubleshooting.
-    
+
     **Rate Limit**: 60 requests per minute
     """,
     responses={
@@ -220,7 +218,7 @@ async def health_check(
 
     return HealthResponse(
         overall_status=overall_status.value,
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
         version=settings.app.version,
         uptime_seconds=metrics.uptime_seconds,
         checks=check_responses,
@@ -299,7 +297,7 @@ async def readiness_check(
         except Exception:
             pass  # Database not critical for readiness
 
-        return {"status": "ready", "timestamp": datetime.now(timezone.utc).isoformat()}
+        return {"status": "ready", "timestamp": datetime.now(UTC).isoformat()}
 
     except Exception as e:
         raise HTTPException(
@@ -307,7 +305,7 @@ async def readiness_check(
             detail={
                 "status": "not_ready",
                 "error": str(e),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             },
         )
 
@@ -327,14 +325,14 @@ async def liveness_check() -> dict[str, str]:
                     "status": "unhealthy",
                     "reason": "memory_exhausted",
                     "memory_percent": metrics.memory_percent,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                 },
             )
 
         return {
             "status": "alive",
             "uptime_seconds": metrics.uptime_seconds,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
     except HTTPException:
@@ -345,7 +343,7 @@ async def liveness_check() -> dict[str, str]:
             detail={
                 "status": "unhealthy",
                 "error": str(e),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             },
         )
 

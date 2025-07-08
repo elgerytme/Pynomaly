@@ -5,11 +5,10 @@ from __future__ import annotations
 import asyncio
 import gc
 import logging
-import os
 import time
-import warnings
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -39,7 +38,7 @@ class MemoryOptimizationResult:
     memory_saved_mb: float
     success: bool
     duration_seconds: float
-    details: Dict[str, Any] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
 
 
 class AdaptiveMemoryManager:
@@ -71,8 +70,8 @@ class AdaptiveMemoryManager:
         self.logger = logging.getLogger(__name__)
 
         # Memory tracking
-        self._memory_history: List[MemoryUsage] = []
-        self._optimization_history: List[MemoryOptimizationResult] = []
+        self._memory_history: list[MemoryUsage] = []
+        self._optimization_history: list[MemoryOptimizationResult] = []
         self._last_optimization_time = 0.0
 
         # Optimization strategies (ordered by aggressiveness)
@@ -86,7 +85,7 @@ class AdaptiveMemoryManager:
         ]
 
         # Monitored objects for optimization
-        self._monitored_objects: Dict[str, Any] = {}
+        self._monitored_objects: dict[str, Any] = {}
 
         # Performance metrics
         self._optimization_metrics = {
@@ -96,7 +95,7 @@ class AdaptiveMemoryManager:
         }
 
         # Background task
-        self._monitoring_task: Optional[asyncio.Task] = None
+        self._monitoring_task: asyncio.Task | None = None
         self._running = False
 
     async def start_monitoring(self) -> None:
@@ -143,7 +142,7 @@ class AdaptiveMemoryManager:
 
     async def optimize_memory_usage(
         self, force: bool = False
-    ) -> List[MemoryOptimizationResult]:
+    ) -> list[MemoryOptimizationResult]:
         """Optimize memory usage using available strategies.
 
         Args:
@@ -461,7 +460,7 @@ class AdaptiveMemoryManager:
         )
 
     def _update_optimization_metrics(
-        self, results: List[MemoryOptimizationResult]
+        self, results: list[MemoryOptimizationResult]
     ) -> None:
         """Update optimization metrics."""
         successful_results = [r for r in results if r.success]
@@ -484,7 +483,7 @@ class AdaptiveMemoryManager:
                 + avg_time * len(successful_results)
             ) / total_ops
 
-    def get_memory_trends(self, hours: int = 1) -> Dict[str, Any]:
+    def get_memory_trends(self, hours: int = 1) -> dict[str, Any]:
         """Get memory usage trends over specified time period.
 
         Args:
@@ -519,7 +518,7 @@ class AdaptiveMemoryManager:
             ),
         }
 
-    def _calculate_trend(self, values: List[float]) -> str:
+    def _calculate_trend(self, values: list[float]) -> str:
         """Calculate trend direction from values."""
         if len(values) < 2:
             return "insufficient_data"
@@ -547,7 +546,7 @@ class AdaptiveMemoryManager:
         else:
             return "stable"
 
-    def get_optimization_summary(self) -> Dict[str, Any]:
+    def get_optimization_summary(self) -> dict[str, Any]:
         """Get summary of optimization activities."""
         return {
             "metrics": self._optimization_metrics.copy(),
@@ -569,7 +568,7 @@ class MemoryProfiler:
 
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        self._profiles: Dict[str, Dict[str, Any]] = {}
+        self._profiles: dict[str, dict[str, Any]] = {}
 
     def profile_function(self, func_name: str):
         """Decorator to profile memory usage of functions."""
@@ -609,7 +608,7 @@ class MemoryProfiler:
 
             return result
 
-        except Exception as e:
+        except Exception:
             end_memory = psutil.Process().memory_info().rss / (1024 * 1024)
             end_time = time.time()
 
@@ -635,7 +634,7 @@ class MemoryProfiler:
 
             return result
 
-        except Exception as e:
+        except Exception:
             end_memory = psutil.Process().memory_info().rss / (1024 * 1024)
             end_time = time.time()
 
@@ -675,7 +674,7 @@ class MemoryProfiler:
         if not success:
             profile["failures"] += 1
 
-    def get_profile_summary(self) -> Dict[str, Any]:
+    def get_profile_summary(self) -> dict[str, Any]:
         """Get summary of all function profiles."""
         summary = {}
 

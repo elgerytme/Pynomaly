@@ -6,12 +6,6 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import click
-from rich.console import Console
-from rich.layout import Layout
-from rich.panel import Panel
-from rich.progress import Progress, SpinnerColumn, TextColumn
-from rich.table import Table
-
 from pynomaly.application.services.governance_framework_service import (
     GovernanceAction,
     GovernanceFrameworkService,
@@ -20,6 +14,11 @@ from pynomaly.application.services.governance_framework_service import (
 )
 from pynomaly.domain.entities.security_compliance import ComplianceFramework
 from pynomaly.infrastructure.config.container import Container
+from rich.console import Console
+from rich.layout import Layout
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
 
 console = Console()
 
@@ -840,7 +839,9 @@ def _display_governance_dashboard(dashboard_data: dict):
     rate_color = (
         "green"
         if compliance_rate >= 95
-        else "yellow" if compliance_rate >= 80 else "red"
+        else "yellow"
+        if compliance_rate >= 80
+        else "red"
     )
 
     compliance_table.add_row(

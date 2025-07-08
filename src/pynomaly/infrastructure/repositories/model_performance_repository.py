@@ -1,9 +1,12 @@
 """Model performance repository implementation."""
 
-from typing import List, Optional
+from typing import Optional
 from uuid import UUID
 
-from pynomaly.domain.entities.model_performance import ModelPerformanceMetrics, ModelPerformanceBaseline
+from pynomaly.domain.entities.model_performance import (
+    ModelPerformanceBaseline,
+    ModelPerformanceMetrics,
+)
 
 
 class ModelPerformanceRepository:
@@ -17,18 +20,17 @@ class ModelPerformanceRepository:
         """Save a model performance record."""
         self._performances[performance.id] = performance
 
-    async def get_by_id(self, performance_id: UUID) -> Optional[ModelPerformanceMetrics]:
+    async def get_by_id(
+        self, performance_id: UUID
+    ) -> Optional[ModelPerformanceMetrics]:
         """Get a model performance record by ID."""
         return self._performances.get(performance_id)
 
-    async def get_by_model_id(self, model_id: str) -> List[ModelPerformanceMetrics]:
+    async def get_by_model_id(self, model_id: str) -> list[ModelPerformanceMetrics]:
         """Get all performance records for a specific model."""
-        return [
-            p for p in self._performances.values()
-            if p.model_id == model_id
-        ]
+        return [p for p in self._performances.values() if p.model_id == model_id]
 
-    async def get_all(self) -> List[ModelPerformanceMetrics]:
+    async def get_all(self) -> list[ModelPerformanceMetrics]:
         """Get all performance records."""
         return list(self._performances.values())
 
@@ -53,14 +55,11 @@ class PerformanceBaselineRepository:
         """Get a performance baseline record by ID."""
         return self._baselines.get(baseline_id)
 
-    async def get_by_model_id(self, model_id: str) -> List[ModelPerformanceBaseline]:
+    async def get_by_model_id(self, model_id: str) -> list[ModelPerformanceBaseline]:
         """Get all baseline records for a specific model."""
-        return [
-            b for b in self._baselines.values()
-            if b.model_id == model_id
-        ]
+        return [b for b in self._baselines.values() if b.model_id == model_id]
 
-    async def get_all(self) -> List[ModelPerformanceBaseline]:
+    async def get_all(self) -> list[ModelPerformanceBaseline]:
         """Get all baseline records."""
         return list(self._baselines.values())
 

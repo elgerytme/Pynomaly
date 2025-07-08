@@ -2,7 +2,8 @@
 
 from .app import create_app
 
-# Create app function for lazy initialization 
+
+# Create app function for lazy initialization
 def get_app():
     """Get app instance with lazy initialization."""
     return create_app()

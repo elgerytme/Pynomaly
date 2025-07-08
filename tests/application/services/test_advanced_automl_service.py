@@ -4,7 +4,6 @@ from unittest.mock import Mock, patch
 
 import numpy as np
 import pytest
-
 from pynomaly.application.dto.optimization_dto import (
     OptimizationConfigDTO,
     OptimizationObjectiveDTO,

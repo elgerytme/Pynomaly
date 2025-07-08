@@ -1,17 +1,16 @@
 """Real-time anomaly detection pipeline with streaming data processing."""
 
 import asyncio
-import json
 import logging
 from abc import ABC, abstractmethod
 from collections import deque
+from collections.abc import AsyncGenerator, Callable
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union
-from uuid import UUID, uuid4
+from typing import Any
+from uuid import uuid4
 
 import numpy as np
-import pandas as pd
 from pydantic import BaseModel, Field
 
 from pynomaly.domain.entities import AnomalyPoint, DetectionResult
@@ -47,7 +46,7 @@ class StreamingMetrics(BaseModel):
     average_latency: float = 0.0  # milliseconds
     error_count: int = 0
     backpressure_events: int = 0
-    last_processed_at: Optional[datetime] = None
+    last_processed_at: datetime | None = None
     pipeline_uptime: timedelta = timedelta()
     memory_usage_mb: float = 0.0
     cpu_usage_percent: float = 0.0
@@ -65,7 +64,7 @@ class StreamingConfig(BaseModel):
     processing_timeout: float = Field(30.0, description="Processing timeout in seconds")
     enable_backpressure: bool = Field(True, description="Enable backpressure control")
     enable_metrics: bool = Field(True, description="Enable metrics collection")
-    alert_thresholds: Dict[str, float] = Field(
+    alert_thresholds: dict[str, float] = Field(
         default_factory=lambda: {
             "anomaly_rate": 0.1,
             "processing_latency": 1000.0,
@@ -78,10 +77,10 @@ class DataPoint(BaseModel):
     """Individual data point in the stream."""
 
     timestamp: datetime
-    data: Dict[str, Any]
-    metadata: Dict[str, Any] = Field(default_factory=dict)
-    source_id: Optional[str] = None
-    partition_key: Optional[str] = None
+    data: dict[str, Any]
+    metadata: dict[str, Any] = Field(default_factory=dict)
+    source_id: str | None = None
+    partition_key: str | None = None
 
 
 class StreamingAlert(BaseModel):
@@ -92,10 +91,10 @@ class StreamingAlert(BaseModel):
     severity: AlertSeverity
     alert_type: str
     message: str
-    data_point: Optional[DataPoint] = None
-    anomaly_score: Optional[float] = None
-    detection_result: Optional[DetectionResult] = None
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    data_point: DataPoint | None = None
+    anomaly_score: float | None = None
+    detection_result: DetectionResult | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class StreamingWindow:
@@ -128,7 +127,7 @@ class StreamingWindow:
         # Check if window is ready for processing
         return len(self.buffer) == self.size and self.slide_count >= self.slide
 
-    def get_window_data(self) -> List[DataPoint]:
+    def get_window_data(self) -> list[DataPoint]:
         """Get current window data."""
         return list(self.buffer)
 
@@ -233,7 +232,7 @@ class KafkaDataSource(DataSource):
 class WebSocketDataSource(DataSource):
     """WebSocket data source implementation."""
 
-    def __init__(self, websocket_url: str, headers: Optional[Dict[str, str]] = None):
+    def __init__(self, websocket_url: str, headers: dict[str, str] | None = None):
         """Initialize WebSocket data source.
 
         Args:
@@ -339,8 +338,8 @@ class StreamingAnomalyDetector:
             raise ValueError(f"Unsupported algorithm: {self.detector_algorithm}")
 
     async def process_batch(
-        self, data_points: List[DataPoint]
-    ) -> List[DetectionResult]:
+        self, data_points: list[DataPoint]
+    ) -> list[DetectionResult]:
         """Process a batch of data points.
 
         Args:
@@ -379,7 +378,7 @@ class StreamingAnomalyDetector:
             scores = self.detector.decision_function(X)
 
             for i, (point, pred, score) in enumerate(
-                zip(data_points, predictions, scores)
+                zip(data_points, predictions, scores, strict=False)
             ):
                 is_anomaly = pred == -1
                 anomaly_score = float(score)
@@ -444,7 +443,7 @@ class RealTimeAnomalyPipeline:
         config: StreamingConfig,
         data_source: DataSource,
         detector: StreamingAnomalyDetector,
-        alert_handler: Optional[Callable[[StreamingAlert], None]] = None,
+        alert_handler: Callable[[StreamingAlert], None] | None = None,
     ):
         """Initialize real-time anomaly pipeline.
 
@@ -606,7 +605,7 @@ class RealTimeAnomalyPipeline:
                     else:
                         self.metrics.average_latency = processing_time
 
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     logger.error("Processing timeout exceeded")
                     self.metrics.error_count += 1
                 except Exception as e:
@@ -617,10 +616,10 @@ class RealTimeAnomalyPipeline:
             pass
 
     async def _handle_detection_results(
-        self, results: List[DetectionResult], batch: List[DataPoint]
+        self, results: list[DetectionResult], batch: list[DataPoint]
     ) -> None:
         """Handle detection results and generate alerts."""
-        for result, data_point in zip(results, batch):
+        for result, data_point in zip(results, batch, strict=False):
             if result.anomalies:
                 # Generate alert
                 anomaly = result.anomalies[0]
@@ -746,7 +745,7 @@ class RealTimeAnomalyPipeline:
         """Get current pipeline metrics."""
         return self.metrics
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """Get pipeline status."""
         return {
             "pipeline_id": self.config.pipeline_id,

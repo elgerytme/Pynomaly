@@ -96,15 +96,15 @@ async def main():
     normal_data = np.random.normal(0, 1, (1000, 3))
     outliers = np.random.uniform(-4, 4, (50, 3))
     data = np.vstack([normal_data, outliers])
-    
+
     df = pd.DataFrame(data, columns=['feature1', 'feature2', 'feature3'])
     dataset = Dataset(name='sample_data', data=df)
-    
+
     # Detect anomalies
     adapter = PyODAdapter('IsolationForest', {'contamination': 0.05})
     detector = await adapter.train(dataset)
     result = await adapter.detect(dataset)
-    
+
     print(f'✓ Found {len(result.anomalies)} anomalies out of {len(dataset.data)} samples')
 
 asyncio.run(main())
@@ -165,7 +165,7 @@ pynomaly server start --port 8000
 Open your browser and go to: http://localhost:8000
 
 ### Step 3: Upload and Analyze
-1. Click "Upload Dataset" 
+1. Click "Upload Dataset"
 2. Select your `sample_data.csv` file
 3. Choose "Isolation Forest" algorithm
 4. Set contamination to 0.05
@@ -192,7 +192,7 @@ curl -X POST "http://localhost:8000/api/detectors" \
      -H "Content-Type: application/json" \
      -d '{
        "name": "isolation_forest",
-       "algorithm": "IsolationForest", 
+       "algorithm": "IsolationForest",
        "parameters": {"contamination": 0.05}
      }'
 ```
@@ -217,13 +217,13 @@ from pynomaly.infrastructure.adapters.optimized_pyod_adapter import AsyncAlgorit
 async def compare_algorithms():
     # Your dataset here
     dataset = create_your_dataset()
-    
+
     # Compare algorithms
     executor = AsyncAlgorithmExecutor(max_concurrent=3)
     algorithms = ["IsolationForest", "LocalOutlierFactor", "OneClassSVM"]
-    
+
     results = await executor.execute_multiple_algorithms(algorithms, dataset)
-    
+
     for algo_name, result in results:
         if result:
             print(f"{algo_name}: {len(result.anomalies)} anomalies")
@@ -304,7 +304,7 @@ adapter = PyODAdapter(
 ```python
 # Good for network intrusion detection
 adapter = PyODAdapter(
-    algorithm="LocalOutlierFactor", 
+    algorithm="LocalOutlierFactor",
     parameters={
         "n_neighbors": 50,       # Larger neighborhood
         "contamination": 0.01    # Low intrusion rate

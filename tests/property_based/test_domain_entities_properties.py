@@ -1,10 +1,9 @@
 """Property-based tests for domain entities using Hypothesis."""
 
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import pytest
 from hypothesis import assume, given, settings

@@ -13,7 +13,7 @@ class BrowserCompatibilityMatrix {
     this.outputDir = options.outputDir || './test_reports/compatibility-matrix';
     this.browsers = options.browsers || [
       'Desktop Chrome',
-      'Desktop Firefox', 
+      'Desktop Firefox',
       'Desktop Safari',
       'Desktop Edge',
       'Mobile Chrome',
@@ -22,7 +22,7 @@ class BrowserCompatibilityMatrix {
       'iPad',
       'Android Tablet'
     ];
-    
+
     this.matrix = {
       timestamp: new Date().toISOString(),
       browsers: {},
@@ -36,36 +36,36 @@ class BrowserCompatibilityMatrix {
 
   async generate() {
     console.log('= Generating browser compatibility matrix...');
-    
+
     try {
       await fs.mkdir(this.outputDir, { recursive: true });
-      
+
       // Load test results
       await this.loadTestResults();
-      
+
       // Analyze browser capabilities
       await this.analyzeBrowserCapabilities();
-      
+
       // Generate feature compatibility matrix
       this.generateFeatureMatrix();
-      
+
       // Analyze cross-browser issues
       this.analyzeCrossBrowserIssues();
-      
+
       // Generate recommendations
       this.generateRecommendations();
-      
+
       // Create summary
       this.createSummary();
-      
+
       // Export results
       await this.exportResults();
-      
+
       console.log(` Compatibility matrix generated successfully`);
       console.log(`=Ê Results saved to: ${this.outputDir}`);
-      
+
       return this.matrix;
-      
+
     } catch (error) {
       console.error('L Failed to generate compatibility matrix:', error);
       throw error;
@@ -74,23 +74,23 @@ class BrowserCompatibilityMatrix {
 
   async loadTestResults() {
     console.log('=Ä Loading test results...');
-    
+
     try {
       // Load Playwright results
       const playwrightResults = await this.loadPlaywrightResults();
-      
+
       // Load browser capabilities
       const capabilities = await this.loadBrowserCapabilities();
-      
+
       // Load cross-browser test results
       const crossBrowserResults = await this.loadCrossBrowserResults();
-      
+
       this.matrix.browsers = capabilities || {};
       this.matrix.tests = playwrightResults || {};
-      
+
       console.log(`  Loaded results for ${Object.keys(this.matrix.browsers).length} browsers`);
       console.log(`  Analyzed ${Object.keys(this.matrix.tests).length} test suites`);
-      
+
     } catch (error) {
       console.warn(`  Warning: Could not load all test results - ${error.message}`);
     }
@@ -127,15 +127,16 @@ class BrowserCompatibilityMatrix {
   }
 
   async analyzeBrowserCapabilities() {
-    console.log('= Analyzing browser capabilities...');
-    
+    console.log('=
+ Analyzing browser capabilities...');
+
     // Define key web features to check
     const keyFeatures = [
       'es6', 'es2017', 'es2018', 'flexbox', 'grid', 'customProperties',
       'serviceWorker', 'webgl', 'webgl2', 'touchEvents', 'pointerEvents',
       'intersectionObserver', 'webComponents', 'pushManager', 'geolocation'
     ];
-    
+
     // Initialize feature matrix
     this.matrix.features = {};
     keyFeatures.forEach(feature => {
@@ -146,13 +147,13 @@ class BrowserCompatibilityMatrix {
         critical: this.isFeatureCritical(feature)
       };
     });
-    
+
     // Analyze capabilities for each browser
     Object.entries(this.matrix.browsers.browsers || {}).forEach(([browserName, browserData]) => {
       if (browserData.capabilities) {
         keyFeatures.forEach(feature => {
           const isSupported = browserData.capabilities[feature] === true;
-          
+
           if (isSupported) {
             this.matrix.features[feature].supported.push(browserName);
           } else {
@@ -161,15 +162,15 @@ class BrowserCompatibilityMatrix {
         });
       }
     });
-    
+
     // Calculate support rates
     const totalBrowsers = Object.keys(this.matrix.browsers.browsers || {}).length;
     Object.keys(this.matrix.features).forEach(feature => {
       const supportedCount = this.matrix.features[feature].supported.length;
-      this.matrix.features[feature].supportRate = totalBrowsers > 0 ? 
+      this.matrix.features[feature].supportRate = totalBrowsers > 0 ?
         (supportedCount / totalBrowsers) * 100 : 0;
     });
-    
+
     console.log(`  Analyzed ${keyFeatures.length} key web features`);
   }
 
@@ -182,17 +183,17 @@ class BrowserCompatibilityMatrix {
 
   generateFeatureMatrix() {
     console.log('=Ê Generating feature compatibility matrix...');
-    
+
     this.matrix.compatibility = {};
-    
+
     // Create browser x feature matrix
     this.browsers.forEach(browser => {
       this.matrix.compatibility[browser] = {};
-      
+
       Object.keys(this.matrix.features).forEach(feature => {
         const isSupported = this.matrix.features[feature].supported.includes(browser);
         const isCritical = this.matrix.features[feature].critical;
-        
+
         this.matrix.compatibility[browser][feature] = {
           supported: isSupported,
           critical: isCritical,
@@ -200,20 +201,21 @@ class BrowserCompatibilityMatrix {
         };
       });
     });
-    
+
     console.log(`  Generated compatibility matrix for ${this.browsers.length} browsers`);
   }
 
   analyzeCrossBrowserIssues() {
-    console.log('= Analyzing cross-browser issues...');
-    
+    console.log('=
+ Analyzing cross-browser issues...');
+
     const issues = {
       criticalMissing: [],
       partialSupport: [],
       performanceIssues: [],
       testFailures: []
     };
-    
+
     // Find features with poor support
     Object.entries(this.matrix.features).forEach(([feature, data]) => {
       if (data.critical && data.supportRate < 100) {
@@ -230,20 +232,20 @@ class BrowserCompatibilityMatrix {
         });
       }
     });
-    
+
     // Analyze test failures by browser
     if (this.matrix.tests.suites) {
       const browserFailures = {};
-      
+
       this.matrix.tests.suites.forEach(suite => {
         suite.specs?.forEach(spec => {
           spec.tests?.forEach(test => {
             const browser = test.projectName || 'unknown';
-            
+
             if (!browserFailures[browser]) {
               browserFailures[browser] = { total: 0, failed: 0 };
             }
-            
+
             browserFailures[browser].total++;
             if (test.outcome === 'failed') {
               browserFailures[browser].failed++;
@@ -251,7 +253,7 @@ class BrowserCompatibilityMatrix {
           });
         });
       });
-      
+
       // Identify browsers with high failure rates
       Object.entries(browserFailures).forEach(([browser, stats]) => {
         const failureRate = (stats.failed / stats.total) * 100;
@@ -265,9 +267,9 @@ class BrowserCompatibilityMatrix {
         }
       });
     }
-    
+
     this.matrix.issues = issues;
-    
+
     console.log(`  Found ${issues.criticalMissing.length} critical compatibility issues`);
     console.log(`  Found ${issues.partialSupport.length} partial support issues`);
     console.log(`  Found ${issues.testFailures.length} browsers with high failure rates`);
@@ -275,9 +277,9 @@ class BrowserCompatibilityMatrix {
 
   generateRecommendations() {
     console.log('=¡ Generating recommendations...');
-    
+
     const recommendations = [];
-    
+
     // Critical feature recommendations
     this.matrix.issues.criticalMissing.forEach(issue => {
       recommendations.push({
@@ -290,7 +292,7 @@ class BrowserCompatibilityMatrix {
         impact: 'high'
       });
     });
-    
+
     // Partial support recommendations
     this.matrix.issues.partialSupport.forEach(issue => {
       if (issue.supportRate < 50) {
@@ -305,7 +307,7 @@ class BrowserCompatibilityMatrix {
         });
       }
     });
-    
+
     // Test failure recommendations
     this.matrix.issues.testFailures.forEach(issue => {
       recommendations.push({
@@ -318,11 +320,11 @@ class BrowserCompatibilityMatrix {
         impact: 'high'
       });
     });
-    
+
     // Browser coverage recommendations
     const testedBrowsers = Object.keys(this.matrix.compatibility);
     const missingBrowsers = this.browsers.filter(browser => !testedBrowsers.includes(browser));
-    
+
     if (missingBrowsers.length > 0) {
       recommendations.push({
         priority: 'medium',
@@ -334,26 +336,26 @@ class BrowserCompatibilityMatrix {
         impact: 'medium'
       });
     }
-    
+
     // Sort recommendations by priority
     recommendations.sort((a, b) => {
       const priorityOrder = { critical: 3, high: 2, medium: 1, low: 0 };
       return priorityOrder[b.priority] - priorityOrder[a.priority];
     });
-    
+
     this.matrix.recommendations = recommendations;
-    
+
     console.log(`  Generated ${recommendations.length} recommendations`);
   }
 
   createSummary() {
     const browsers = Object.keys(this.matrix.compatibility);
     const features = Object.keys(this.matrix.features);
-    
+
     // Calculate overall compatibility score
     let totalChecks = 0;
     let passedChecks = 0;
-    
+
     browsers.forEach(browser => {
       features.forEach(feature => {
         totalChecks++;
@@ -362,13 +364,13 @@ class BrowserCompatibilityMatrix {
         }
       });
     });
-    
+
     const overallCompatibility = totalChecks > 0 ? (passedChecks / totalChecks) * 100 : 0;
-    
+
     // Count critical issues
     const criticalIssues = this.matrix.recommendations.filter(r => r.priority === 'critical').length;
     const highIssues = this.matrix.recommendations.filter(r => r.priority === 'high').length;
-    
+
     // Determine status
     let status = 'excellent';
     if (criticalIssues > 0) {
@@ -378,7 +380,7 @@ class BrowserCompatibilityMatrix {
     } else if (overallCompatibility < 90) {
       status = 'needs-improvement';
     }
-    
+
     this.matrix.summary = {
       overallCompatibility: overallCompatibility,
       status: status,
@@ -416,7 +418,7 @@ class BrowserCompatibilityMatrix {
       const score = totalCount > 0 ? (supportedCount / totalCount) * 100 : 0;
       return { browser, score };
     });
-    
+
     return browserScores.sort((a, b) => b.score - a.score)[0];
   }
 
@@ -427,26 +429,26 @@ class BrowserCompatibilityMatrix {
       const score = totalCount > 0 ? (supportedCount / totalCount) * 100 : 0;
       return { browser, score };
     });
-    
+
     return browserScores.sort((a, b) => a.score - b.score)[0];
   }
 
   async exportResults() {
     console.log('=Ä Exporting compatibility matrix...');
-    
+
     // Save JSON results
     const jsonPath = path.join(this.outputDir, 'compatibility-matrix.json');
     await fs.writeFile(jsonPath, JSON.stringify(this.matrix, null, 2));
-    
+
     // Generate HTML report
     await this.generateHTMLReport();
-    
+
     // Generate CSV matrix
     await this.generateCSVMatrix();
-    
+
     // Generate markdown summary
     await this.generateMarkdownSummary();
-    
+
     console.log(' All reports exported successfully');
   }
 
@@ -489,7 +491,7 @@ class BrowserCompatibilityMatrix {
             <h1>Browser Compatibility Matrix</h1>
             <p>Generated on ${new Date().toLocaleString()}</p>
         </div>
-        
+
         <div class="summary">
             <div class="card">
                 <h3>Overall Compatibility</h3>
@@ -512,7 +514,7 @@ class BrowserCompatibilityMatrix {
                 <p>Require immediate attention</p>
             </div>
         </div>
-        
+
         <div class="matrix">
             <h2>Feature Support Matrix</h2>
             <table class="matrix-table">
@@ -539,7 +541,7 @@ class BrowserCompatibilityMatrix {
                 </tbody>
             </table>
         </div>
-        
+
         ${this.generateRecommendationsHTML()}
     </div>
 </body>
@@ -573,19 +575,19 @@ class BrowserCompatibilityMatrix {
   async generateCSVMatrix() {
     const headers = ['Feature', ...this.browsers, 'Support Rate'];
     const rows = [headers];
-    
+
     Object.entries(this.matrix.features).forEach(([feature, data]) => {
       const row = [feature];
-      
+
       this.browsers.forEach(browser => {
         const support = this.matrix.compatibility[browser]?.[feature];
         row.push(support?.supported ? 'Yes' : 'No');
       });
-      
+
       row.push(`${data.supportRate.toFixed(1)}%`);
       rows.push(row);
     });
-    
+
     const csv = rows.map(row => row.join(',')).join('\n');
     const csvPath = path.join(this.outputDir, 'compatibility-matrix.csv');
     await fs.writeFile(csvPath, csv);
@@ -620,7 +622,7 @@ ${this.matrix.summary.worstSupportedFeatures.map(item => `- L ${item.feature} ($
 
 ## Top Recommendations
 
-${this.matrix.recommendations.slice(0, 5).map((rec, index) => 
+${this.matrix.recommendations.slice(0, 5).map((rec, index) =>
   `${index + 1}. **${rec.priority.toUpperCase()}**: ${rec.issue}\n   - ${rec.action}`
 ).join('\n\n')}
 

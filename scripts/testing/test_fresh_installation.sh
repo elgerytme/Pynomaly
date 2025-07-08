@@ -41,11 +41,11 @@ run_test_step() {
     local step_name="$1"
     local command="$2"
     local optional="${3:-false}"
-    
+
     print_status "INFO" "Running: $step_name"
     echo "Command: $command"
     echo "----------------------------------------"
-    
+
     if eval "$command"; then
         print_status "SUCCESS" "$step_name completed successfully"
         return 0
@@ -142,7 +142,7 @@ except Exception as e:
     print(f'✗ SklearnAdapter failed: {str(e)}')
 
 try:
-    from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter  
+    from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
     pyod_adapter = PyODAdapter('IsolationForest')
     print(f'✓ PyODAdapter: {pyod_adapter.algorithm_name}')
     adapters_working.append('pyod')

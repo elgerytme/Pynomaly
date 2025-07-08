@@ -23,19 +23,19 @@ export const AnomalyTimelineVisualization = () => {
   container.style.borderRadius = '8px';
   container.style.padding = '20px';
   container.style.backgroundColor = 'white';
-  
+
   // Generate sample anomaly data
   const generateAnomalyData = () => {
     const data = [];
     const now = new Date();
     const startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000); // 24 hours ago
-    
+
     for (let i = 0; i < 100; i++) {
       const timestamp = new Date(startTime.getTime() + (i * 14.4 * 60 * 1000)); // Every 14.4 minutes
       const baseScore = Math.random() * 0.3; // Normal baseline
       const isAnomaly = Math.random() < 0.1; // 10% chance of anomaly
       const score = isAnomaly ? baseScore + Math.random() * 0.7 + 0.3 : baseScore;
-      
+
       data.push({
         id: `anomaly_${i}`,
         timestamp: timestamp,
@@ -45,10 +45,10 @@ export const AnomalyTimelineVisualization = () => {
         features: isAnomaly ? ['cpu_usage', 'memory_consumption', 'network_traffic'] : ['cpu_usage']
       });
     }
-    
+
     return data;
   };
-  
+
   // Initialize timeline
   setTimeout(() => {
     const timeline = new AnomalyTimeline(container, {
@@ -58,25 +58,25 @@ export const AnomalyTimelineVisualization = () => {
       enableBrush: true,
       showTooltip: true
     });
-    
+
     timeline.setData(generateAnomalyData());
-    
+
     // Add event listeners for demo
     container.addEventListener('anomalySelected', (e) => {
       console.log('Anomaly selected:', e.detail.anomaly);
     });
-    
+
     container.addEventListener('timeRangeFiltered', (e) => {
       console.log('Time range filtered:', e.detail.range);
     });
-    
+
     // Add demo controls
     const controls = document.createElement('div');
     controls.style.marginTop = '20px';
     controls.style.display = 'flex';
     controls.style.gap = '10px';
     controls.style.flexWrap = 'wrap';
-    
+
     const addDataBtn = document.createElement('button');
     addDataBtn.textContent = 'Add Real-time Data';
     addDataBtn.className = 'btn btn-primary btn-sm';
@@ -89,7 +89,7 @@ export const AnomalyTimelineVisualization = () => {
       }];
       timeline.addRealTimeData(newData);
     };
-    
+
     const exportBtn = document.createElement('button');
     exportBtn.textContent = 'Export Data';
     exportBtn.className = 'btn btn-secondary btn-sm';
@@ -98,31 +98,31 @@ export const AnomalyTimelineVisualization = () => {
       console.log('Exported data:', data);
       alert('Data exported to console');
     };
-    
+
     const filterBtn = document.createElement('button');
     filterBtn.textContent = 'Filter High Severity';
     filterBtn.className = 'btn btn-warning btn-sm';
     filterBtn.onclick = () => {
       timeline.filterBySeverity(['high', 'critical']);
     };
-    
+
     const resetBtn = document.createElement('button');
     resetBtn.textContent = 'Reset Filters';
     resetBtn.className = 'btn btn-ghost btn-sm';
     resetBtn.onclick = () => {
       timeline.setData(generateAnomalyData());
     };
-    
+
     controls.appendChild(addDataBtn);
     controls.appendChild(exportBtn);
     controls.appendChild(filterBtn);
     controls.appendChild(resetBtn);
     container.appendChild(controls);
-    
+
     // Store timeline instance for cleanup
     container._timelineInstance = timeline;
   }, 100);
-  
+
   return container;
 };
 
@@ -140,7 +140,7 @@ export const ConfigurableDashboard = () => {
   container.style.border = '1px solid #e2e8f0';
   container.style.borderRadius = '8px';
   container.style.backgroundColor = '#f8fafc';
-  
+
   // Initialize dashboard
   setTimeout(() => {
     const dashboard = new DashboardLayout(container, {
@@ -151,7 +151,7 @@ export const ConfigurableDashboard = () => {
       isResizable: true,
       compactType: 'vertical'
     });
-    
+
     // Add sample widgets
     const widgets = [
       {
@@ -253,9 +253,9 @@ export const ConfigurableDashboard = () => {
         }
       }
     ];
-    
+
     widgets.forEach(widget => dashboard.addWidget(widget));
-    
+
     // Add controls
     const controls = document.createElement('div');
     controls.style.position = 'absolute';
@@ -264,7 +264,7 @@ export const ConfigurableDashboard = () => {
     controls.style.display = 'flex';
     controls.style.gap = '8px';
     controls.style.zIndex = '1000';
-    
+
     const addWidgetBtn = document.createElement('button');
     addWidgetBtn.textContent = 'Add Widget';
     addWidgetBtn.className = 'btn btn-primary btn-sm';
@@ -282,7 +282,7 @@ export const ConfigurableDashboard = () => {
         }
       });
     };
-    
+
     const exportLayoutBtn = document.createElement('button');
     exportLayoutBtn.textContent = 'Export Layout';
     exportLayoutBtn.className = 'btn btn-secondary btn-sm';
@@ -291,7 +291,7 @@ export const ConfigurableDashboard = () => {
       console.log('Exported layout:', layout);
       alert('Layout exported to console');
     };
-    
+
     const resetBtn = document.createElement('button');
     resetBtn.textContent = 'Reset Layout';
     resetBtn.className = 'btn btn-ghost btn-sm';
@@ -299,25 +299,25 @@ export const ConfigurableDashboard = () => {
       dashboard.setLayout([]);
       widgets.forEach(widget => dashboard.addWidget(widget));
     };
-    
+
     controls.appendChild(addWidgetBtn);
     controls.appendChild(exportLayoutBtn);
     controls.appendChild(resetBtn);
     container.appendChild(controls);
-    
+
     // Add event listeners
     container.addEventListener('dashboard:widgetAdded', (e) => {
       console.log('Widget added:', e.detail.widget);
     });
-    
+
     container.addEventListener('dashboard:layoutSaved', (e) => {
       console.log('Layout saved:', e.detail.layout);
     });
-    
+
     // Store dashboard instance for cleanup
     container._dashboardInstance = dashboard;
   }, 100);
-  
+
   return container;
 };
 
@@ -337,7 +337,7 @@ export const AnomalyDetectionForm = () => {
   container.style.borderRadius = '8px';
   container.style.backgroundColor = 'white';
   container.style.padding = '20px';
-  
+
   // Initialize form
   setTimeout(() => {
     const form = new MultiStepForm(container, {
@@ -348,18 +348,18 @@ export const AnomalyDetectionForm = () => {
       saveProgress: true,
       progressKey: 'demo-anomaly-form'
     });
-    
+
     // Add steps
     anomalyDetectionFormSteps.forEach(step => form.addStep(step));
-    
+
     // Add event listeners
     container.addEventListener('multiStepForm:stepChanged', (e) => {
       console.log('Step changed:', e.detail);
     });
-    
+
     container.addEventListener('multiStepForm:submitSuccess', (e) => {
       console.log('Form submitted successfully:', e.detail);
-      
+
       // Show success message
       const success = document.createElement('div');
       success.className = 'alert alert-success';
@@ -374,20 +374,20 @@ export const AnomalyDetectionForm = () => {
         </div>
       `;
       container.appendChild(success);
-      
+
       setTimeout(() => {
         form.reset();
         success.remove();
       }, 3000);
     });
-    
+
     container.addEventListener('multiStepForm:submitError', (e) => {
       console.error('Form submission error:', e.detail);
     });
-    
+
     // Start the form
     form.start();
-    
+
     // Add demo controls
     const controls = document.createElement('div');
     controls.style.marginTop = '20px';
@@ -395,7 +395,7 @@ export const AnomalyDetectionForm = () => {
     controls.style.gap = '10px';
     controls.style.justifyContent = 'center';
     controls.style.flexWrap = 'wrap';
-    
+
     const fillDemoDataBtn = document.createElement('button');
     fillDemoDataBtn.textContent = 'Fill Demo Data';
     fillDemoDataBtn.className = 'btn btn-outline btn-sm';
@@ -411,14 +411,14 @@ export const AnomalyDetectionForm = () => {
         generate_report: true
       });
     };
-    
+
     const resetFormBtn = document.createElement('button');
     resetFormBtn.textContent = 'Reset Form';
     resetFormBtn.className = 'btn btn-ghost btn-sm';
     resetFormBtn.onclick = () => {
       form.reset();
     };
-    
+
     const getDataBtn = document.createElement('button');
     getDataBtn.textContent = 'View Form Data';
     getDataBtn.className = 'btn btn-secondary btn-sm';
@@ -427,16 +427,16 @@ export const AnomalyDetectionForm = () => {
       console.log('Current form data:', data);
       alert('Form data logged to console');
     };
-    
+
     controls.appendChild(fillDemoDataBtn);
     controls.appendChild(getDataBtn);
     controls.appendChild(resetFormBtn);
     container.appendChild(controls);
-    
+
     // Store form instance for cleanup
     container._formInstance = form;
   }, 100);
-  
+
   return container;
 };
 
@@ -453,7 +453,7 @@ export const StateManagementDemo = () => {
   container.style.border = '1px solid #e2e8f0';
   container.style.borderRadius = '8px';
   container.style.backgroundColor = 'white';
-  
+
   // Create state manager
   const stateManager = new AnomalyStateManager({
     datasets: [
@@ -467,14 +467,14 @@ export const StateManagementDemo = () => {
       notifications: []
     }
   });
-  
+
   // Create UI
   container.innerHTML = `
     <div style="margin-bottom: 20px;">
       <h3>State Management Demo</h3>
       <p style="color: #6b7280;">Interactive demo of the anomaly detection state management system</p>
     </div>
-    
+
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
       <div>
         <h4>Current State</h4>
@@ -491,7 +491,7 @@ export const StateManagementDemo = () => {
         </div>
       </div>
     </div>
-    
+
     <div style="margin-bottom: 20px;">
       <h4>Time Travel (History)</h4>
       <div style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -500,35 +500,35 @@ export const StateManagementDemo = () => {
         <button class="btn btn-outline btn-sm" id="show-history">View History</button>
       </div>
     </div>
-    
+
     <div id="history-display" style="display: none;">
       <h4>State History</h4>
       <div id="history-list" style="max-height: 150px; overflow: auto; border: 1px solid #e5e7eb; border-radius: 4px; padding: 8px;"></div>
     </div>
   `;
-  
+
   // Update state display
   const updateStateDisplay = () => {
     const stateEl = container.querySelector('#current-state');
     stateEl.textContent = JSON.stringify(stateManager.getState(), null, 2);
   };
-  
+
   // Subscribe to state changes
   stateManager.subscribe((state, prevState, action) => {
     updateStateDisplay();
     console.log('State changed:', { action, state });
   });
-  
+
   // Initial state display
   updateStateDisplay();
-  
+
   // Bind event handlers
   container.querySelector('#select-dataset').onclick = () => {
     const datasets = stateManager.getState().datasets;
     const randomDataset = datasets[Math.floor(Math.random() * datasets.length)];
     stateManager.dispatch(anomalyActions.selectDataset(randomDataset));
   };
-  
+
   container.querySelector('#add-notification').onclick = () => {
     const messages = [
       'New anomaly detected in dataset',
@@ -539,14 +539,14 @@ export const StateManagementDemo = () => {
     const types = ['info', 'success', 'warning', 'error'];
     const message = messages[Math.floor(Math.random() * messages.length)];
     const type = types[Math.floor(Math.random() * types.length)];
-    
+
     stateManager.dispatch(anomalyActions.addNotification(message, type));
   };
-  
+
   container.querySelector('#toggle-sidebar').onclick = () => {
     stateManager.dispatch(anomalyActions.toggleSidebar());
   };
-  
+
   container.querySelector('#add-result').onclick = () => {
     const result = {
       datasetId: Math.floor(Math.random() * 1000),
@@ -556,32 +556,32 @@ export const StateManagementDemo = () => {
     };
     stateManager.dispatch(anomalyActions.addResult(result));
   };
-  
+
   container.querySelector('#clear-notifications').onclick = () => {
     const notifications = stateManager.getState().ui.notifications;
     notifications.forEach(notification => {
       stateManager.dispatch(anomalyActions.removeNotification(notification.id));
     });
   };
-  
+
   container.querySelector('#undo').onclick = () => {
     const success = stateManager.undo();
     if (!success) {
       alert('Nothing to undo');
     }
   };
-  
+
   container.querySelector('#redo').onclick = () => {
     const success = stateManager.redo();
     if (!success) {
       alert('Nothing to redo');
     }
   };
-  
+
   container.querySelector('#show-history').onclick = () => {
     const historyDisplay = container.querySelector('#history-display');
     const historyList = container.querySelector('#history-list');
-    
+
     if (historyDisplay.style.display === 'none') {
       const history = stateManager.getHistory();
       historyList.innerHTML = history.map((entry, index) => `
@@ -598,10 +598,10 @@ export const StateManagementDemo = () => {
       container.querySelector('#show-history').textContent = 'View History';
     }
   };
-  
+
   // Store state manager instance for cleanup
   container._stateManagerInstance = stateManager;
-  
+
   return container;
 };
 
@@ -618,13 +618,13 @@ export const ComponentIntegration = () => {
   container.style.border = '1px solid #e2e8f0';
   container.style.borderRadius = '8px';
   container.style.backgroundColor = 'white';
-  
+
   container.innerHTML = `
     <div style="margin-bottom: 20px;">
       <h3>Component Integration Demo</h3>
       <p style="color: #6b7280;">Demonstration of how advanced components work together in a real anomaly detection workflow</p>
     </div>
-    
+
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
       <div>
         <h4>Quick Actions</h4>
@@ -645,7 +645,7 @@ export const ComponentIntegration = () => {
         </div>
       </div>
     </div>
-    
+
     <div style="margin-top: 20px; padding: 16px; background: #f8fafc; border-radius: 8px;">
       <h4>Integration Notes</h4>
       <ul style="margin: 0; padding-left: 20px; color: #6b7280; font-size: 0.875rem;">
@@ -657,7 +657,7 @@ export const ComponentIntegration = () => {
       </ul>
     </div>
   `;
-  
+
   // Demo actions
   container.querySelector('#simulate-detection').onclick = () => {
     console.log('Simulating anomaly detection...');
@@ -671,7 +671,7 @@ export const ComponentIntegration = () => {
     });
     container.dispatchEvent(event);
   };
-  
+
   container.querySelector('#add-widget').onclick = () => {
     console.log('Adding dashboard widget...');
     const event = new CustomEvent('demo:widgetAdded', {
@@ -683,31 +683,31 @@ export const ComponentIntegration = () => {
     });
     container.dispatchEvent(event);
   };
-  
+
   container.querySelector('#export-timeline').onclick = () => {
     console.log('Exporting timeline data...');
     alert('Timeline data would be exported (check console for demo events)');
   };
-  
+
   container.querySelector('#reset-demo').onclick = () => {
     console.log('Resetting demo state...');
     const event = new CustomEvent('demo:reset');
     container.dispatchEvent(event);
   };
-  
+
   // Listen for demo events
   container.addEventListener('demo:detectionSimulated', (e) => {
     console.log('Detection simulated:', e.detail);
     const status = container.querySelector('#component-status');
     status.innerHTML += `<div style="color: #059669;">📊 Detection: ${e.detail.anomalies} anomalies detected</div>`;
   });
-  
+
   container.addEventListener('demo:widgetAdded', (e) => {
     console.log('Widget added:', e.detail);
     const status = container.querySelector('#component-status');
     status.innerHTML += `<div style="color: #3b82f6;">📈 Widget: "${e.detail.title}" added</div>`;
   });
-  
+
   container.addEventListener('demo:reset', () => {
     const status = container.querySelector('#component-status');
     status.innerHTML = `
@@ -717,7 +717,7 @@ export const ComponentIntegration = () => {
       <div>🟢 State Manager: Ready</div>
     `;
   });
-  
+
   return container;
 };
 

@@ -109,7 +109,7 @@ test.describe('Cross-Browser Compatibility Suite', () => {
   for (const pageInfo of criticalPages) {
     test(`${pageInfo.name} page loads correctly across browsers`, async ({ page, browserName }) => {
       const helper = new CrossBrowserTestHelper(page);
-      
+
       await test.step(`Navigate to ${pageInfo.name}`, async () => {
         await page.goto(pageInfo.path);
         await helper.waitForPageLoad();
@@ -144,7 +144,7 @@ test.describe('Cross-Browser Compatibility Suite', () => {
   for (const viewport of testViewports) {
     test(`Responsive design works on ${viewport.name} viewport`, async ({ page }) => {
       const helper = new CrossBrowserTestHelper(page);
-      
+
       await test.step(`Set ${viewport.name} viewport`, async () => {
         await page.setViewportSize({ width: viewport.width, height: viewport.height });
       });
@@ -199,15 +199,15 @@ test.describe('Cross-Browser Compatibility Suite', () => {
         const testElement = document.createElement('div');
         testElement.style.display = 'grid';
         document.body.appendChild(testElement);
-        
+
         const computedStyle = window.getComputedStyle(testElement);
         const gridSupport = computedStyle.display === 'grid';
-        
+
         testElement.style.display = 'flex';
         const flexSupport = computedStyle.display === 'flex';
-        
+
         document.body.removeChild(testElement);
-        
+
         return { gridSupport, flexSupport };
       });
 
@@ -248,13 +248,13 @@ test.describe('Cross-Browser Compatibility Suite', () => {
       const vitals = await page.evaluate(() => {
         return new Promise((resolve) => {
           const vitals: any = {};
-          
+
           // Mock CLS measurement (in real implementation, would use PerformanceObserver)
           vitals.cls = 0.1; // Cumulative Layout Shift should be < 0.1
-          
+
           // Mock FID measurement
           vitals.fid = 50; // First Input Delay should be < 100ms
-          
+
           // LCP can be measured with PerformanceObserver
           const observer = new PerformanceObserver((list) => {
             for (const entry of list.getEntries()) {
@@ -264,7 +264,7 @@ test.describe('Cross-Browser Compatibility Suite', () => {
             }
             resolve(vitals);
           });
-          
+
           try {
             observer.observe({ entryTypes: ['largest-contentful-paint'] });
           } catch (e) {
@@ -272,7 +272,7 @@ test.describe('Cross-Browser Compatibility Suite', () => {
             vitals.lcp = 1500; // Mock value
             resolve(vitals);
           }
-          
+
           // Timeout after 3 seconds
           setTimeout(() => resolve(vitals), 3000);
         });
@@ -307,7 +307,7 @@ test.describe('Cross-Browser Compatibility Suite', () => {
       // Basic color contrast check (simplified)
       const textElements = page.locator('p, h1, h2, h3, a, button');
       const elementCount = await textElements.count();
-      
+
       if (elementCount > 0) {
         const firstElement = textElements.first();
         const styles = await firstElement.evaluate(el => {
@@ -317,7 +317,7 @@ test.describe('Cross-Browser Compatibility Suite', () => {
             backgroundColor: computed.backgroundColor
           };
         });
-        
+
         // Ensure text is not invisible (basic check)
         expect(styles.color).not.toBe(styles.backgroundColor);
       }
@@ -327,10 +327,10 @@ test.describe('Cross-Browser Compatibility Suite', () => {
 
 // Test suite for browser-specific edge cases
 test.describe('Browser-Specific Edge Cases', () => {
-  
+
   test('Safari-specific WebKit behavior', async ({ page, browserName }) => {
     test.skip(browserName !== 'webkit', 'Safari/WebKit specific test');
-    
+
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
@@ -347,7 +347,7 @@ test.describe('Browser-Specific Edge Cases', () => {
 
   test('Firefox-specific Gecko behavior', async ({ page, browserName }) => {
     test.skip(browserName !== 'firefox', 'Firefox specific test');
-    
+
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
@@ -364,7 +364,7 @@ test.describe('Browser-Specific Edge Cases', () => {
 
   test('Chrome-specific Blink behavior', async ({ page, browserName }) => {
     test.skip(browserName !== 'chromium', 'Chrome/Chromium specific test');
-    
+
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
@@ -374,7 +374,7 @@ test.describe('Browser-Specific Edge Cases', () => {
       const performanceEntries = await page.evaluate(() => {
         return performance.getEntriesByType('navigation').length > 0;
       });
-      
+
       expect(performanceEntries).toBe(true);
     });
   });

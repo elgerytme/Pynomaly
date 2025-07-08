@@ -23,7 +23,7 @@ class AccessibilityTestHelper {
 
   async runAxeAnalysis(options?: any) {
     const axeBuilder = new AxeBuilder({ page: this.page });
-    
+
     // Configure axe for WCAG 2.1 AA compliance
     axeBuilder
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
@@ -49,11 +49,11 @@ class AccessibilityTestHelper {
 
     for (let i = 0; i < Math.min(focusableElements.length, 10); i++) {
       const element = focusableElements[i];
-      
+
       try {
         await element.focus();
         await this.page.waitForTimeout(100);
-        
+
         const isFocused = await element.evaluate(el => document.activeElement === el);
         const hasVisibleFocus = await element.evaluate(el => {
           const styles = window.getComputedStyle(el);
@@ -84,7 +84,7 @@ class AccessibilityTestHelper {
 
     for (let i = 0; i < Math.min(textElements.length, 20); i++) {
       const element = textElements[i];
-      
+
       try {
         const styles = await element.evaluate(el => {
           const computed = window.getComputedStyle(el);
@@ -96,10 +96,10 @@ class AccessibilityTestHelper {
         });
 
         // Basic contrast check (simplified - in production use proper contrast calculation)
-        if (styles.color && styles.backgroundColor && 
-            styles.color !== 'rgba(0, 0, 0, 0)' && 
+        if (styles.color && styles.backgroundColor &&
+            styles.color !== 'rgba(0, 0, 0, 0)' &&
             styles.backgroundColor !== 'rgba(0, 0, 0, 0)') {
-          
+
           const textContent = await element.textContent();
           if (textContent && textContent.trim().length > 0) {
             contrastIssues.push({
@@ -205,12 +205,12 @@ class AccessibilityTestHelper {
     });
 
     const structureIssues = [];
-    
+
     // Check for proper heading hierarchy
     for (let i = 1; i < headings.length; i++) {
       const current = headings[i];
       const previous = headings[i - 1];
-      
+
       if (current.level > previous.level + 1) {
         structureIssues.push({
           issue: 'Heading level skipped',
@@ -267,10 +267,10 @@ test.describe('Accessibility Testing - WCAG 2.1 AA Compliance', () => {
 
   test.beforeEach(async ({ page }) => {
     helper = new AccessibilityTestHelper(page);
-    
+
     // Set a consistent viewport for accessibility testing
     await page.setViewportSize({ width: 1280, height: 720 });
-    
+
     // Ensure page is ready for accessibility analysis
     test.setTimeout(60000);
   });
@@ -294,10 +294,10 @@ test.describe('Accessibility Testing - WCAG 2.1 AA Compliance', () => {
 
       await test.step('Run axe accessibility analysis', async () => {
         const results = await helper.runAxeAnalysis();
-        
+
         // Log violations for debugging
         if (results.violations.length > 0) {
-          console.log(`Accessibility violations on ${pageInfo.name}:`, 
+          console.log(`Accessibility violations on ${pageInfo.name}:`,
             results.violations.map(v => ({
               id: v.id,
               impact: v.impact,
@@ -310,10 +310,10 @@ test.describe('Accessibility Testing - WCAG 2.1 AA Compliance', () => {
         // No critical or serious violations allowed
         const criticalViolations = results.violations.filter(v => v.impact === 'critical');
         const seriousViolations = results.violations.filter(v => v.impact === 'serious');
-        
+
         expect(criticalViolations).toHaveLength(0);
         expect(seriousViolations).toHaveLength(0);
-        
+
         // Moderate violations should be limited
         const moderateViolations = results.violations.filter(v => v.impact === 'moderate');
         expect(moderateViolations.length).toBeLessThan(5);
@@ -321,11 +321,11 @@ test.describe('Accessibility Testing - WCAG 2.1 AA Compliance', () => {
 
       await test.step('Check keyboard navigation', async () => {
         const navigationResults = await helper.checkKeyboardNavigation();
-        
+
         // At least 80% of focusable elements should have visible focus
         const focusableCount = navigationResults.filter(r => r.focused).length;
         const visibleFocusCount = navigationResults.filter(r => r.visibleFocus).length;
-        
+
         if (focusableCount > 0) {
           const focusRatio = visibleFocusCount / focusableCount;
           expect(focusRatio).toBeGreaterThan(0.8);
@@ -334,24 +334,24 @@ test.describe('Accessibility Testing - WCAG 2.1 AA Compliance', () => {
 
       await test.step('Check color contrast', async () => {
         const contrastResults = await helper.checkColorContrast();
-        
+
         // Basic check - ensure we have some text elements with proper styling
         expect(contrastResults.length).toBeGreaterThan(0);
-        
+
         // Log contrast information for manual review
         console.log(`Color contrast check for ${pageInfo.name}:`, contrastResults.slice(0, 5));
       });
 
       await test.step('Check screen reader support', async () => {
         const ariaElements = await helper.checkScreenReaderSupport();
-        
+
         // Should have some ARIA elements for screen reader support
         expect(ariaElements.length).toBeGreaterThan(0);
-        
+
         // Check for common ARIA patterns
         const hasAriaLabels = ariaElements.some(el => el.ariaLabel);
         const hasAriaRoles = ariaElements.some(el => el.ariaRole);
-        
+
         expect(hasAriaLabels || hasAriaRoles).toBe(true);
       });
     });
@@ -362,14 +362,14 @@ test.describe('Accessibility Testing - WCAG 2.1 AA Compliance', () => {
 
       await test.step('Check form accessibility', async () => {
         const formIssues = await helper.checkFormAccessibility();
-        
+
         // Log form issues for review
         if (formIssues.length > 0) {
           console.log(`Form accessibility issues on ${pageInfo.name}:`, formIssues);
         }
-        
+
         // No critical form accessibility issues
-        const criticalFormIssues = formIssues.filter(issue => 
+        const criticalFormIssues = formIssues.filter(issue =>
           issue.issue.includes('Missing label') && issue.type !== 'hidden'
         );
         expect(criticalFormIssues.length).toBeLessThan(2);
@@ -377,28 +377,28 @@ test.describe('Accessibility Testing - WCAG 2.1 AA Compliance', () => {
 
       await test.step('Check heading structure', async () => {
         const headingAnalysis = await helper.checkHeadingStructure();
-        
+
         // Should have at least one heading
         expect(headingAnalysis.headings.length).toBeGreaterThan(0);
-        
+
         // Should start with H1 if present
         if (headingAnalysis.headings.length > 0) {
           const hasH1 = headingAnalysis.headings.some(h => h.level === 1);
           expect(hasH1).toBe(true);
         }
-        
+
         // No more than 2 heading structure issues
         expect(headingAnalysis.structureIssues.length).toBeLessThan(3);
       });
 
       await test.step('Check image accessibility', async () => {
         const imageIssues = await helper.checkImageAccessibility();
-        
+
         // Log image issues for review
         if (imageIssues.length > 0) {
           console.log(`Image accessibility issues on ${pageInfo.name}:`, imageIssues);
         }
-        
+
         // No more than 20% of images should have accessibility issues
         const totalImages = await page.locator('img, svg, [role="img"]').count();
         if (totalImages > 0) {
@@ -417,12 +417,12 @@ test.describe('Accessibility Testing - WCAG 2.1 AA Compliance', () => {
     await test.step('Tab navigation through interface', async () => {
       const focusableElements = [];
       let currentFocus = null;
-      
+
       // Test Tab navigation
       for (let i = 0; i < 15; i++) {
         await page.keyboard.press('Tab');
         await page.waitForTimeout(100);
-        
+
         currentFocus = await page.evaluate(() => {
           const active = document.activeElement;
           return active ? {
@@ -432,12 +432,12 @@ test.describe('Accessibility Testing - WCAG 2.1 AA Compliance', () => {
             text: active.textContent?.slice(0, 30)
           } : null;
         });
-        
+
         if (currentFocus) {
           focusableElements.push(currentFocus);
         }
       }
-      
+
       // Should have navigated through multiple elements
       expect(focusableElements.length).toBeGreaterThan(5);
     });
@@ -446,11 +446,11 @@ test.describe('Accessibility Testing - WCAG 2.1 AA Compliance', () => {
       // Test modals/overlays close with Escape
       const modals = page.locator('[role="dialog"], .modal, .overlay');
       const modalCount = await modals.count();
-      
+
       if (modalCount > 0) {
         await page.keyboard.press('Escape');
         await page.waitForTimeout(500);
-        
+
         // Check if modals are properly hidden
         const visibleModals = await modals.filter({ hasText: /.+/ }).count();
         expect(visibleModals).toBeLessThanOrEqual(modalCount);
@@ -462,11 +462,11 @@ test.describe('Accessibility Testing - WCAG 2.1 AA Compliance', () => {
       if (await buttons.count() > 0) {
         await buttons.focus();
         await page.waitForTimeout(200);
-        
+
         // Test Space activation
         await page.keyboard.press('Space');
         await page.waitForTimeout(200);
-        
+
         // Should not throw errors
         expect(true).toBe(true);
       }
@@ -486,7 +486,7 @@ test.describe('Accessibility Testing - WCAG 2.1 AA Compliance', () => {
           values: ['wcag2a', 'wcag2aa', 'wcag21aa', 'mobile']
         }
       });
-      
+
       // Mobile should have no critical accessibility issues
       const criticalViolations = results.violations.filter(v => v.impact === 'critical');
       expect(criticalViolations).toHaveLength(0);
@@ -494,16 +494,16 @@ test.describe('Accessibility Testing - WCAG 2.1 AA Compliance', () => {
 
     await test.step('Touch target size', async () => {
       const touchTargets = await page.locator('button, a, input[type="button"], input[type="submit"], [role="button"]').all();
-      
+
       for (let i = 0; i < Math.min(touchTargets.length, 10); i++) {
         const target = touchTargets[i];
         const box = await target.boundingBox();
-        
+
         if (box) {
           // WCAG 2.1 AA requires 44x44px minimum touch target
           const meetsMinimumSize = box.width >= 44 && box.height >= 44;
           const isLargeEnough = box.width >= 32 && box.height >= 32; // Allow some flexibility
-          
+
           expect(isLargeEnough).toBe(true);
         }
       }
@@ -525,11 +525,11 @@ test.describe('Accessibility Testing - WCAG 2.1 AA Compliance', () => {
               color: #ffffff !important;
               border-color: #ffffff !important;
             }
-            
+
             a {
               color: #ffff00 !important;
             }
-            
+
             button {
               background: #000080 !important;
               color: #ffffff !important;
@@ -544,7 +544,7 @@ test.describe('Accessibility Testing - WCAG 2.1 AA Compliance', () => {
 
       // Run accessibility analysis in high contrast mode
       const results = await helper.runAxeAnalysis();
-      
+
       // Should still pass basic accessibility requirements
       const criticalViolations = results.violations.filter(v => v.impact === 'critical');
       expect(criticalViolations).toHaveLength(0);
@@ -560,7 +560,7 @@ test.describe('Accessibility Testing - WCAG 2.1 AA Compliance', () => {
       const landmarks = await page.evaluate(() => {
         const landmarkSelectors = ['main', 'nav', 'header', 'footer', 'aside', '[role="main"]', '[role="navigation"]', '[role="banner"]', '[role="contentinfo"]', '[role="complementary"]'];
         const landmarks = [];
-        
+
         landmarkSelectors.forEach(selector => {
           const elements = document.querySelectorAll(selector);
           elements.forEach(el => {
@@ -572,14 +572,14 @@ test.describe('Accessibility Testing - WCAG 2.1 AA Compliance', () => {
             });
           });
         });
-        
+
         return landmarks;
       });
 
       // Should have essential landmarks
       const hasMain = landmarks.some(l => l.tagName === 'main' || l.role === 'main');
       const hasNav = landmarks.some(l => l.tagName === 'nav' || l.role === 'navigation');
-      
+
       expect(hasMain).toBe(true);
       expect(hasNav).toBe(true);
     });
@@ -592,17 +592,17 @@ test.describe('Accessibility Testing - WCAG 2.1 AA Compliance', () => {
           null,
           false
         );
-        
+
         const textNodes = [];
         let node;
-        
+
         while (node = walker.nextNode()) {
           const text = node.textContent?.trim();
           if (text && text.length > 2) {
             textNodes.push(text.slice(0, 50));
           }
         }
-        
+
         return textNodes;
       });
 

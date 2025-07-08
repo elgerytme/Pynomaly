@@ -7,7 +7,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
-from sklearn.datasets import make_classification
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
@@ -294,7 +293,6 @@ class TestMemoryPerformance:
             import os
 
             import psutil
-
             from pynomaly.infrastructure.algorithms.adapters.pyod_adapter import (
                 PyODAdapter,
             )

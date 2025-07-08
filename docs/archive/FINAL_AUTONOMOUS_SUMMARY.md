@@ -206,7 +206,7 @@ import requests
 
 # Autonomous detection with file upload
 with open('data.csv', 'rb') as f:
-    response = requests.post('/api/autonomous/detect', 
+    response = requests.post('/api/autonomous/detect',
                            files={'file': f},
                            data={'max_algorithms': 10})
 

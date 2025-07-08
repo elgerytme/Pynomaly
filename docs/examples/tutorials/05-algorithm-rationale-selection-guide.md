@@ -38,7 +38,7 @@ The algorithm selection process considers multiple factors weighted by importanc
 ```python
 class AlgorithmSelector:
     """Systematic algorithm selection framework."""
-    
+
     def __init__(self):
         self.criteria_weights = {
             "data_characteristics": 0.30,
@@ -47,37 +47,37 @@ class AlgorithmSelector:
             "interpretability_needs": 0.15,
             "domain_requirements": 0.10
         }
-        
+
         self.algorithm_scores = self._initialize_algorithm_scores()
-    
+
     def select_optimal_algorithm(
         self,
         data_profile: DataProfile,
         requirements: Requirements
     ) -> AlgorithmRecommendation:
         """Select optimal algorithm based on systematic evaluation."""
-        
+
         # Score each algorithm against criteria
         algorithm_ratings = {}
-        
+
         for algorithm in self.available_algorithms:
             total_score = 0
-            
+
             for criterion, weight in self.criteria_weights.items():
                 criterion_score = self._evaluate_criterion(
                     algorithm, criterion, data_profile, requirements
                 )
                 total_score += criterion_score * weight
-            
+
             algorithm_ratings[algorithm] = total_score
-        
+
         # Rank algorithms by total score
         ranked_algorithms = sorted(
             algorithm_ratings.items(),
             key=lambda x: x[1],
             reverse=True
         )
-        
+
         return AlgorithmRecommendation(
             primary=ranked_algorithms[0][0],
             alternatives=ranked_algorithms[1:4],
@@ -93,11 +93,11 @@ class AlgorithmSelector:
 ```python
 def categorize_dataset_size(n_samples: int, n_features: int) -> str:
     """Categorize dataset by size for algorithm selection."""
-    
+
     if n_samples < 1000:
         return "small"
     elif n_samples < 10000:
-        return "medium" 
+        return "medium"
     elif n_samples < 100000:
         return "large"
     else:
@@ -133,7 +133,7 @@ size_suitability = {
 ```python
 def assess_dimensionality_impact(n_features: int) -> Dict[str, Any]:
     """Assess how dimensionality affects algorithm choice."""
-    
+
     if n_features <= 10:
         return {
             "category": "low_dimensional",
@@ -143,7 +143,7 @@ def assess_dimensionality_impact(n_features: int) -> Dict[str, Any]:
         }
     elif n_features <= 100:
         return {
-            "category": "medium_dimensional", 
+            "category": "medium_dimensional",
             "challenges": ["Moderate curse of dimensionality"],
             "recommended": ["IsolationForest", "PCA", "AutoEncoder"],
             "considerations": ["Consider feature selection"]
@@ -169,9 +169,9 @@ def assess_dimensionality_impact(n_features: int) -> Dict[str, Any]:
 ```python
 def analyze_data_types(data: np.ndarray) -> DataTypeProfile:
     """Analyze data types and their impact on algorithm selection."""
-    
+
     profile = DataTypeProfile()
-    
+
     # Numerical data assessment
     numerical_features = self._identify_numerical_features(data)
     profile.numerical = {
@@ -180,7 +180,7 @@ def analyze_data_types(data: np.ndarray) -> DataTypeProfile:
         "scaling_needed": self._assess_scaling_needs(data[:, numerical_features]),
         "outliers_present": self._detect_outliers(data[:, numerical_features])
     }
-    
+
     # Categorical data assessment  
     categorical_features = self._identify_categorical_features(data)
     profile.categorical = {
@@ -189,7 +189,7 @@ def analyze_data_types(data: np.ndarray) -> DataTypeProfile:
         "encoding_strategy": self._recommend_encoding(data[:, categorical_features]),
         "rare_categories": self._identify_rare_categories(data[:, categorical_features])
     }
-    
+
     # Temporal data assessment
     temporal_features = self._identify_temporal_features(data)
     profile.temporal = {
@@ -198,7 +198,7 @@ def analyze_data_types(data: np.ndarray) -> DataTypeProfile:
         "trends": self._detect_trends(data[:, temporal_features]),
         "frequency": self._determine_frequency(data[:, temporal_features])
     }
-    
+
     return profile
 ```
 
@@ -209,34 +209,34 @@ def analyze_data_types(data: np.ndarray) -> DataTypeProfile:
 ```mermaid
 flowchart TD
     A[Start: Anomaly Detection Problem] --> B{Data Size?}
-    
+
     B -->|< 1K samples| C[Small Dataset Path]
     B -->|1K - 100K| D[Medium Dataset Path]
     B -->|> 100K| E[Large Dataset Path]
-    
+
     C --> C1{High Accuracy Required?}
     C1 -->|Yes| C2[OneClassSVM + Ensemble]
     C1 -->|No| C3[LOF or Statistical Methods]
-    
+
     D --> D1{High Dimensionality?}
     D1 -->|Yes| D2[AutoEncoder or PCA+LOF]
     D1 -->|No| D3[IsolationForest]
-    
+
     E --> E1{Real-time Requirements?}
     E1 -->|Yes| E2[Streaming Algorithms]
     E1 -->|No| E3[Deep Learning Ensemble]
-    
+
     C2 --> F[Evaluate Performance]
     C3 --> F
     D2 --> F
     D3 --> F
     E2 --> F
     E3 --> F
-    
+
     F --> G{Performance Acceptable?}
     G -->|Yes| H[Deploy Model]
     G -->|No| I[Try Advanced Ensemble]
-    
+
     I --> F
 ```
 
@@ -245,30 +245,30 @@ flowchart TD
 ```mermaid
 flowchart TD
     A[Domain-Specific Selection] --> B{Application Domain?}
-    
+
     B -->|Finance| F1[Financial Data]
     B -->|Healthcare| H1[Healthcare Data]
     B -->|Manufacturing| M1[Manufacturing Data]
     B -->|Cybersecurity| C1[Security Data]
     B -->|IoT/Sensors| I1[Sensor Data]
-    
+
     F1 --> F2{Data Type?}
     F2 -->|Transactions| F3[IsolationForest + Ensemble]
     F2 -->|Time Series| F4[LSTM + Statistical]
     F2 -->|Mixed| F5[Deep Ensemble]
-    
+
     H1 --> H2{Interpretability Critical?}
     H2 -->|Yes| H3[Statistical + Rule-based]
     H2 -->|No| H4[AutoEncoder + Ensemble]
-    
+
     M1 --> M2{Real-time Monitoring?}
     M2 -->|Yes| M3[Streaming IsolationForest]
     M2 -->|No| M4[LSTM + Control Charts]
-    
+
     C1 --> C2{Network or Host?}
     C2 -->|Network| C3[GNN + Deep Learning]
     C2 -->|Host| C4[Sequence Models]
-    
+
     I1 --> I2{Multivariate Sensors?}
     I2 -->|Yes| I3[VAE + Ensemble]
     I2 -->|No| I4[ARIMA + IsolationForest]
@@ -279,7 +279,7 @@ flowchart TD
 ```python
 def create_performance_resource_matrix():
     """Create decision matrix balancing performance and resources."""
-    
+
     return {
         "high_performance_low_resource": {
             "algorithms": ["IsolationForest", "RandomForest"],
@@ -333,7 +333,7 @@ Statistical methods provide:
 isolation_forest_rationale = {
     "strengths": [
         "Excellent scalability to high dimensions",
-        "No assumptions about data distribution", 
+        "No assumptions about data distribution",
         "Fast training and prediction",
         "Effective for global anomalies",
         "Minimal parameter tuning required"
@@ -518,7 +518,7 @@ gnn_selection_rationale = {
     ],
     "architecture_choices": {
         "GCN": "General graph convolutions",
-        "GraphSAGE": "Large graphs, inductive learning", 
+        "GraphSAGE": "Large graphs, inductive learning",
         "GAT": "Attention-based, interpretable",
         "GIN": "Graph isomorphism, powerful"
     },
@@ -571,7 +571,7 @@ fraud_detection_recommendations = {
             }
         },
         {
-            "algorithm": "GradientBoosting", 
+            "algorithm": "GradientBoosting",
             "rationale": "High accuracy for critical decisions",
             "parameters": {
                 "learning_rate": 0.05,
@@ -587,7 +587,7 @@ fraud_detection_recommendations = {
     },
     "preprocessing_pipeline": [
         "Numerical scaling",
-        "Categorical encoding", 
+        "Categorical encoding",
         "Time-based features",
         "Velocity features",
         "Risk scoring"
@@ -630,7 +630,7 @@ medical_imaging_recommendations = {
         ],
         "feature_extraction": [
             "CNN features",
-            "Radiomics features", 
+            "Radiomics features",
             "Traditional image features"
         ]
     },
@@ -639,7 +639,7 @@ medical_imaging_recommendations = {
         "rationale": "Spatial pattern recognition, feature learning",
         "architecture": {
             "encoder": "Progressive downsampling",
-            "decoder": "Progressive upsampling", 
+            "decoder": "Progressive upsampling",
             "skip_connections": "Preserve fine details"
         }
     },
@@ -728,7 +728,7 @@ network_security_recommendations = {
     },
     "attack_types": {
         "DDoS": "Statistical methods for volume detection",
-        "APT": "Long-term behavioral analysis with LSTM", 
+        "APT": "Long-term behavioral analysis with LSTM",
         "Malware": "Graph neural networks for propagation",
         "Insider_threats": "User behavior analytics"
     },
@@ -747,7 +747,7 @@ network_security_recommendations = {
 ```python
 def analyze_computational_complexity():
     """Analyze time and space complexity for different algorithms."""
-    
+
     complexity_analysis = {
         "IsolationForest": {
             "training_time": "O(n * log(n) * t)",  # n=samples, t=trees
@@ -778,7 +778,7 @@ def analyze_computational_complexity():
             "parallelization": "Limited by sequence dependencies"
         }
     }
-    
+
     return complexity_analysis
 ```
 
@@ -798,7 +798,7 @@ memory_constrained_recommendations = {
         ]
     },
     "medium_memory": {
-        "budget": "1-8GB", 
+        "budget": "1-8GB",
         "algorithms": ["IsolationForest", "Random Forest", "Simple AutoEncoder"],
         "strategies": [
             "Batch processing",
@@ -930,7 +930,7 @@ premature_optimization_pitfall = {
         "Reduced model interpretability"
     ],
     "prevention": [
-        "Establish performance baselines first", 
+        "Establish performance baselines first",
         "Profile actual bottlenecks",
         "Maintain accuracy standards",
         "Measure real-world performance needs"
@@ -965,17 +965,17 @@ hyperparameter_pitfall = {
 ```python
 class ExpertDecisionFramework:
     """Systematic framework for expert algorithm selection."""
-    
+
     def __init__(self):
         self.evaluation_stages = [
             "problem_definition",
-            "data_analysis", 
+            "data_analysis",
             "constraint_assessment",
             "algorithm_screening",
             "detailed_evaluation",
             "final_selection"
         ]
-    
+
     def expert_algorithm_selection(
         self,
         problem_context: ProblemContext,
@@ -983,34 +983,34 @@ class ExpertDecisionFramework:
         constraints: Constraints
     ) -> ExpertRecommendation:
         """Expert-level algorithm selection process."""
-        
+
         # Stage 1: Problem Definition
         problem_type = self._classify_problem_type(problem_context)
         success_metrics = self._define_success_metrics(problem_context)
-        
+
         # Stage 2: Data Analysis
         data_insights = self._deep_data_analysis(data_profile)
         pattern_complexity = self._assess_pattern_complexity(data_profile)
-        
+
         # Stage 3: Constraint Assessment
         hard_constraints = self._identify_hard_constraints(constraints)
         soft_constraints = self._identify_soft_constraints(constraints)
-        
+
         # Stage 4: Algorithm Screening
         candidate_algorithms = self._screen_algorithms(
             problem_type, data_insights, hard_constraints
         )
-        
+
         # Stage 5: Detailed Evaluation
         evaluation_results = self._detailed_algorithm_evaluation(
             candidate_algorithms, data_profile, success_metrics
         )
-        
+
         # Stage 6: Final Selection
         final_recommendation = self._make_final_selection(
             evaluation_results, soft_constraints, problem_context
         )
-        
+
         return final_recommendation
 ```
 
@@ -1027,7 +1027,7 @@ expert_heuristics = {
             "Mixed types → Algorithms handling heterogeneous data"
         ]
     },
-    
+
     "progressive_complexity": {
         "rule": "Start simple, increase complexity only when needed",
         "rationale": "Simpler models are more interpretable and less prone to overfitting",
@@ -1039,7 +1039,7 @@ expert_heuristics = {
             "Specialized architectures"
         ]
     },
-    
+
     "domain_expertise_integration": {
         "rule": "Incorporate domain knowledge into algorithm selection",
         "rationale": "Domain expertise can guide appropriate algorithm choices",
@@ -1050,13 +1050,13 @@ expert_heuristics = {
             "Expert validation"
         ]
     },
-    
+
     "robustness_over_optimization": {
         "rule": "Prefer robust solutions over highly optimized ones",
         "rationale": "Real-world deployment requires stability",
         "practices": [
             "Conservative hyperparameter choices",
-            "Ensemble methods for stability", 
+            "Ensemble methods for stability",
             "Validation on multiple datasets",
             "Stress testing under various conditions"
         ]
@@ -1070,46 +1070,46 @@ expert_heuristics = {
 ```python
 class MultiObjectiveSelection:
     """Advanced multi-objective algorithm selection."""
-    
+
     def __init__(self):
         self.objectives = [
             "accuracy",
-            "interpretability", 
+            "interpretability",
             "computational_efficiency",
             "robustness",
             "maintainability"
         ]
-    
+
     def pareto_optimal_selection(
         self,
         algorithms: List[str],
         evaluation_results: Dict[str, Dict[str, float]]
     ) -> ParetoFront:
         """Find Pareto-optimal algorithms across multiple objectives."""
-        
+
         pareto_front = []
-        
+
         for algorithm in algorithms:
             is_pareto_optimal = True
-            
+
             for other_algorithm in algorithms:
                 if algorithm == other_algorithm:
                     continue
-                
+
                 # Check if other algorithm dominates current
                 dominates = True
                 for objective in self.objectives:
                     if evaluation_results[algorithm][objective] > evaluation_results[other_algorithm][objective]:
                         dominates = False
                         break
-                
+
                 if dominates:
                     is_pareto_optimal = False
                     break
-            
+
             if is_pareto_optimal:
                 pareto_front.append(algorithm)
-        
+
         return ParetoFront(
             algorithms=pareto_front,
             trade_offs=self._analyze_trade_offs(pareto_front, evaluation_results),
@@ -1121,25 +1121,25 @@ class MultiObjectiveSelection:
 ```python
 class AdaptiveAlgorithmSelection:
     """Algorithm selection that adapts to changing conditions."""
-    
+
     def __init__(self):
         self.performance_history = {}
         self.context_tracker = ContextTracker()
         self.meta_learner = MetaLearner()
-    
+
     def adaptive_selection(
         self,
         current_context: Context,
         performance_feedback: Dict[str, float]
     ) -> AdaptiveRecommendation:
         """Select algorithm based on current context and historical performance."""
-        
+
         # Update performance history
         self._update_performance_history(current_context, performance_feedback)
-        
+
         # Detect context changes
         context_change = self.context_tracker.detect_change(current_context)
-        
+
         if context_change.significant:
             # Re-evaluate algorithm suitability
             new_recommendations = self.meta_learner.predict_performance(
@@ -1148,7 +1148,7 @@ class AdaptiveAlgorithmSelection:
         else:
             # Use current best-performing algorithm
             new_recommendations = self._get_current_best_algorithms()
-        
+
         return AdaptiveRecommendation(
             recommended_algorithms=new_recommendations,
             adaptation_reason=context_change.reason if context_change.significant else "stable_performance",

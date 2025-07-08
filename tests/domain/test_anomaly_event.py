@@ -1,10 +1,8 @@
 """Tests for anomaly event domain entities."""
 
 from datetime import datetime, timedelta
-from uuid import uuid4
 
 import pytest
-
 from pynomaly.domain.entities.anomaly_event import (
     AnomalyEvent,
     AnomalyEventData,

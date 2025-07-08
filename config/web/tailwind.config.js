@@ -27,7 +27,7 @@ module.exports = {
           900: '#0c4a6e',  // Darkest blue
           950: '#082f49'   // Ultra dark blue
         },
-        
+
         // Secondary Palette - Success/Normal State
         secondary: {
           50: '#f0fdf4',   // Lightest green
@@ -42,7 +42,7 @@ module.exports = {
           900: '#14532d',  // Darkest green
           950: '#052e16'   // Ultra dark green
         },
-        
+
         // Accent Palette - Anomaly/Alert State
         accent: {
           50: '#fef2f2',   // Lightest red
@@ -57,7 +57,7 @@ module.exports = {
           900: '#7f1d1d',  // Darkest red
           950: '#450a0a'   // Ultra dark red
         },
-        
+
         // Chart and Visualization Colors
         chart: {
           normal: '#22c55e',     // Green for normal data
@@ -67,7 +67,7 @@ module.exports = {
           confidence: '#06b6d4'  // Teal for confidence intervals
         }
       },
-      
+
       // Typography
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

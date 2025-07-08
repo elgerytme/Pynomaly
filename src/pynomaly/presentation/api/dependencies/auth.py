@@ -2,10 +2,10 @@
 
 from typing import Optional
 
-from fastapi import Depends, HTTPException, Request, status
+from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService, UserModel, get_auth
+from pynomaly.infrastructure.auth.jwt_auth import UserModel, get_auth
 
 # Security scheme
 security = HTTPBearer(auto_error=False)
@@ -60,16 +60,16 @@ class SimpleAuthContext:
     def __init__(self, user: UserModel, permissions: list[str]) -> None:
         self.user = user
         self.permissions = permissions
-    
+
     # Define properties for easy attribute access
     @property
     def username(self) -> str:
         return self.user.username
-    
+
     @property
     def roles(self) -> list[str]:
         return self.user.roles if self.user else []
-    
+
     def has_permission(self, permission: str) -> bool:
         """Check if user has a specific permission."""
         return permission in self.permissions

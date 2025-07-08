@@ -1,11 +1,9 @@
 """Tests for drift detection service."""
 
 from datetime import datetime, timedelta
-from unittest.mock import AsyncMock, Mock
 
 import numpy as np
 import pytest
-
 from pynomaly.application.services.drift_detection_service import DriftDetectionService
 from pynomaly.domain.entities.drift_detection import (
     DriftDetectionMethod,

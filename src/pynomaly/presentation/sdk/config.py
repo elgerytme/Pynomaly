@@ -26,6 +26,13 @@ class ClientConfig:
     user_agent: str = "Pynomaly-SDK/1.0.0"
     max_connections: int = 10
     max_connections_per_host: int = 5
+    
+    # Security hardening options
+    enforce_tls: bool = True
+    minimum_tls_version: str = "TLSv1.2"
+    enable_checksum_validation: bool = True
+    enable_client_side_encryption: bool = True
+    encryption_key: str | None = None
 
 
 @dataclass

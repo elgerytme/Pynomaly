@@ -1,15 +1,14 @@
 """REST API endpoints for explainable AI (XAI) service."""
 
 from datetime import timedelta
-from typing import Any, Dict, List, Optional, Union
-from uuid import UUID, uuid4
+from typing import Any, Optional, Union
+from uuid import uuid4
 
 import numpy as np
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field, field_validator
 
 from pynomaly.application.services.explainable_ai_service import (
-    ExplainabilityError,
     ExplainableAIService,
     ExplanationConfiguration,
     ExplanationNotSupportedError,
@@ -19,15 +18,12 @@ from pynomaly.domain.entities.explainable_ai import (
     BiasType,
     ExplanationAudience,
     ExplanationMethod,
-    ExplanationScope,
-    ExplanationType,
     TrustLevel,
 )
 from pynomaly.presentation.api.deps import (
     get_current_user,
     get_explainable_ai_service,
     require_read,
-    require_write,
 )
 
 router = APIRouter(prefix="/explainable-ai", tags=["Explainable AI"])
@@ -40,8 +36,8 @@ class ExplainPredictionRequest(BaseModel):
     """Request model for single prediction explanation."""
 
     model_id: str = Field(..., description="Model identifier")
-    instance_data: List[float] = Field(..., description="Input instance data")
-    feature_names: Optional[List[str]] = Field(None, description="Feature names")
+    instance_data: list[float] = Field(..., description="Input instance data")
+    feature_names: Optional[list[str]] = Field(None, description="Feature names")
     explanation_method: Optional[str] = Field(
         None, description="Explanation method to use"
     )
@@ -72,7 +68,7 @@ class ExplainModelGlobalRequest(BaseModel):
     """Request model for global model explanation."""
 
     model_id: str = Field(..., description="Model identifier")
-    feature_names: Optional[List[str]] = Field(None, description="Feature names")
+    feature_names: Optional[list[str]] = Field(None, description="Feature names")
     explanation_method: Optional[str] = Field(
         None, description="Explanation method to use"
     )
@@ -95,7 +91,7 @@ class FeatureImportanceRequest(BaseModel):
     """Request model for feature importance analysis."""
 
     model_id: str = Field(..., description="Model identifier")
-    feature_names: Optional[List[str]] = Field(None, description="Feature names")
+    feature_names: Optional[list[str]] = Field(None, description="Feature names")
     explanation_method: str = Field(
         "permutation_importance", description="Method for importance calculation"
     )
@@ -120,10 +116,10 @@ class BiasDetectionRequest(BaseModel):
     """Request model for bias detection."""
 
     model_id: str = Field(..., description="Model identifier")
-    protected_attributes: List[str] = Field(
+    protected_attributes: list[str] = Field(
         ..., description="Protected attribute names"
     )
-    feature_names: List[str] = Field(..., description="All feature names")
+    feature_names: list[str] = Field(..., description="All feature names")
     sample_size: int = Field(1000, description="Sample size for bias analysis")
     bias_threshold: float = Field(0.3, description="Bias detection threshold")
 
@@ -146,8 +142,8 @@ class CounterfactualRequest(BaseModel):
     """Request model for counterfactual explanations."""
 
     model_id: str = Field(..., description="Model identifier")
-    instance_data: List[float] = Field(..., description="Input instance data")
-    feature_names: Optional[List[str]] = Field(None, description="Feature names")
+    instance_data: list[float] = Field(..., description="Input instance data")
+    feature_names: Optional[list[str]] = Field(None, description="Feature names")
     num_counterfactuals: int = Field(5, description="Number of counterfactuals")
     max_distance: Optional[float] = Field(
         None, description="Maximum distance for counterfactuals"
@@ -182,7 +178,7 @@ class FeatureImportanceResponse(BaseModel):
     confidence: float = Field(..., description="Confidence in importance")
     rank: int = Field(..., description="Feature rank")
     contribution_direction: str = Field(..., description="Positive/negative/neutral")
-    additional_metrics: Dict[str, float] = Field(
+    additional_metrics: dict[str, float] = Field(
         default_factory=dict, description="Additional metrics"
     )
 
@@ -196,7 +192,7 @@ class InstanceExplanationResponse(BaseModel):
     )
     prediction_confidence: float = Field(..., description="Prediction confidence")
     base_value: float = Field(..., description="Base value for additive explanations")
-    feature_importances: List[FeatureImportanceResponse] = Field(
+    feature_importances: list[FeatureImportanceResponse] = Field(
         ..., description="Feature importance scores"
     )
     local_fidelity_score: float = Field(..., description="Local explanation fidelity")
@@ -210,13 +206,13 @@ class GlobalExplanationResponse(BaseModel):
 
     model_id: str = Field(..., description="Model identifier")
     explanation_method: str = Field(..., description="Explanation method used")
-    global_feature_importances: List[FeatureImportanceResponse] = Field(
+    global_feature_importances: list[FeatureImportanceResponse] = Field(
         ..., description="Global feature importance scores"
     )
     data_coverage: float = Field(..., description="Fraction of data used")
     feature_stability_score: float = Field(..., description="Feature stability score")
     has_bias_issues: bool = Field(..., description="Whether bias was detected")
-    fairness_metrics: Dict[str, float] = Field(
+    fairness_metrics: dict[str, float] = Field(
         default_factory=dict, description="Fairness metrics"
     )
 
@@ -228,15 +224,15 @@ class BiasAnalysisResponse(BaseModel):
     overall_bias_score: float = Field(..., description="Overall bias score")
     bias_severity: str = Field(..., description="Bias severity level")
     bias_detected: bool = Field(..., description="Whether bias was detected")
-    protected_attribute_bias: Dict[str, float] = Field(
+    protected_attribute_bias: dict[str, float] = Field(
         ..., description="Bias scores for protected attributes"
     )
-    fairness_metrics: Dict[str, float] = Field(..., description="Fairness metrics")
+    fairness_metrics: dict[str, float] = Field(..., description="Fairness metrics")
     requires_attention: bool = Field(
         ..., description="Whether bias requires immediate attention"
     )
-    bias_sources: List[str] = Field(..., description="Sources of bias")
-    mitigation_recommendations: List[str] = Field(
+    bias_sources: list[str] = Field(..., description="Sources of bias")
+    mitigation_recommendations: list[str] = Field(
         default_factory=list, description="Bias mitigation recommendations"
     )
 
@@ -250,7 +246,7 @@ class TrustScoreResponse(BaseModel):
     stability_score: float = Field(..., description="Stability score")
     fidelity_score: float = Field(..., description="Fidelity score")
     completeness_score: float = Field(..., description="Completeness score")
-    confidence_interval: List[float] = Field(
+    confidence_interval: list[float] = Field(
         ..., description="Trust score confidence interval"
     )
     is_trustworthy: bool = Field(..., description="Whether explanation is trustworthy")
@@ -266,7 +262,7 @@ class CounterfactualResponse(BaseModel):
     counterfactual_prediction: Union[float, int, str] = Field(
         ..., description="Counterfactual prediction"
     )
-    feature_changes: Dict[str, Dict[str, float]] = Field(
+    feature_changes: dict[str, dict[str, float]] = Field(
         ..., description="Changes made to features"
     )
     distance: float = Field(..., description="Distance from original instance")
@@ -283,7 +279,7 @@ class ExplanationMetadataResponse(BaseModel):
     model_version: str = Field(..., description="Model version")
     explanation_version: str = Field(..., description="Explanation framework version")
     feature_coverage: float = Field(..., description="Feature coverage")
-    method_parameters: Dict[str, Any] = Field(..., description="Method parameters used")
+    method_parameters: dict[str, Any] = Field(..., description="Method parameters used")
 
 
 class ExplainPredictionResponse(BaseModel):
@@ -299,13 +295,13 @@ class ExplainPredictionResponse(BaseModel):
     trust_score: Optional[TrustScoreResponse] = Field(
         None, description="Trust assessment"
     )
-    counterfactuals: List[CounterfactualResponse] = Field(
+    counterfactuals: list[CounterfactualResponse] = Field(
         default_factory=list, description="Counterfactual explanations"
     )
     metadata: ExplanationMetadataResponse = Field(
         ..., description="Explanation metadata"
     )
-    warnings: List[str] = Field(default_factory=list, description="Warning messages")
+    warnings: list[str] = Field(default_factory=list, description="Warning messages")
 
 
 class ExplanationSummaryResponse(BaseModel):
@@ -314,15 +310,15 @@ class ExplanationSummaryResponse(BaseModel):
     model_id: str = Field(..., description="Model identifier")
     time_window_hours: float = Field(..., description="Time window for summary")
     total_explanations: int = Field(..., description="Total explanations generated")
-    methods_used: List[str] = Field(..., description="Explanation methods used")
+    methods_used: list[str] = Field(..., description="Explanation methods used")
     cache_hit_rate: float = Field(..., description="Cache hit rate")
     average_explanation_time: float = Field(
         ..., description="Average explanation generation time"
     )
-    top_features: List[str] = Field(..., description="Most important features")
+    top_features: list[str] = Field(..., description="Most important features")
     average_trust_score: float = Field(..., description="Average trust score")
     bias_detected: bool = Field(..., description="Whether bias was detected")
-    quality_metrics: Dict[str, float] = Field(
+    quality_metrics: dict[str, float] = Field(
         ..., description="Explanation quality metrics"
     )
 
@@ -521,13 +517,13 @@ async def explain_model_global(
 # ==================== Feature Analysis Endpoints ====================
 
 
-@router.post("/features/importance", response_model=List[FeatureImportanceResponse])
+@router.post("/features/importance", response_model=list[FeatureImportanceResponse])
 async def analyze_feature_importance(
     request: FeatureImportanceRequest,
     current_user: dict = Depends(get_current_user),
     xai_service: ExplainableAIService = Depends(get_explainable_ai_service),
     _: None = Depends(require_read),
-) -> List[FeatureImportanceResponse]:
+) -> list[FeatureImportanceResponse]:
     """Analyze feature importance using specified method."""
     try:
         # Load model and data
@@ -610,13 +606,13 @@ async def detect_bias(
 # ==================== Counterfactual and Trust Endpoints ====================
 
 
-@router.post("/counterfactuals/generate", response_model=List[CounterfactualResponse])
+@router.post("/counterfactuals/generate", response_model=list[CounterfactualResponse])
 async def generate_counterfactuals(
     request: CounterfactualRequest,
     current_user: dict = Depends(get_current_user),
     xai_service: ExplainableAIService = Depends(get_explainable_ai_service),
     _: None = Depends(require_read),
-) -> List[CounterfactualResponse]:
+) -> list[CounterfactualResponse]:
     """Generate counterfactual explanations."""
     try:
         # Load model
@@ -753,8 +749,8 @@ async def get_explanation_summary(
         )
 
 
-@router.get("/methods", response_model=Dict[str, Any])
-async def get_available_methods() -> Dict[str, Any]:
+@router.get("/methods", response_model=dict[str, Any])
+async def get_available_methods() -> dict[str, Any]:
     """Get information about available explanation methods."""
     return {
         "explanation_methods": [
@@ -784,8 +780,8 @@ async def get_available_methods() -> Dict[str, Any]:
     }
 
 
-@router.get("/config/defaults", response_model=Dict[str, Any])
-async def get_default_configuration() -> Dict[str, Any]:
+@router.get("/config/defaults", response_model=dict[str, Any])
+async def get_default_configuration() -> dict[str, Any]:
     """Get default explanation configuration."""
     config = ExplanationConfiguration()
     return {
@@ -842,7 +838,7 @@ def _get_method_description(method: ExplanationMethod) -> str:
     return descriptions.get(method, "Advanced explanation method")
 
 
-def _get_method_scope(method: ExplanationMethod) -> List[str]:
+def _get_method_scope(method: ExplanationMethod) -> list[str]:
     """Get supported scopes for explanation method."""
     local_methods = [
         ExplanationMethod.LIME,
@@ -866,7 +862,7 @@ def _get_method_scope(method: ExplanationMethod) -> List[str]:
     return scopes
 
 
-def _get_method_requirements(method: ExplanationMethod) -> List[str]:
+def _get_method_requirements(method: ExplanationMethod) -> list[str]:
     """Get requirements for explanation method."""
     requirements = {
         ExplanationMethod.SHAP_TREE: ["tree-based model", "shap library"],

@@ -6,14 +6,13 @@ import logging
 import warnings
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
-from uuid import UUID, uuid4
+from typing import Any
+from uuid import UUID
 
 import numpy as np
 import pandas as pd
 
 from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.entities.detection_result import DetectionResult
 from pynomaly.domain.entities.detector import Detector
 from pynomaly.domain.exceptions import ValidationError
 
@@ -53,7 +52,7 @@ class FeatureImportance:
     rank: int
     confidence: float
     method: str
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -63,9 +62,9 @@ class LocalExplanation:
     sample_id: str
     anomaly_score: float
     prediction: int  # 0 = normal, 1 = anomaly
-    feature_importances: List[FeatureImportance]
-    counterfactual: Optional[Dict[str, Any]] = None
-    nearest_normal: Optional[Dict[str, Any]] = None
+    feature_importances: list[FeatureImportance]
+    counterfactual: dict[str, Any] | None = None
+    nearest_normal: dict[str, Any] | None = None
     explanation_text: str = ""
     confidence: float = 0.0
     method: str = ""
@@ -78,10 +77,10 @@ class GlobalExplanation:
 
     detector_id: UUID
     model_type: str
-    feature_importances: List[FeatureImportance]
-    anomaly_patterns: List[Dict[str, Any]]
-    decision_boundaries: Optional[Dict[str, Any]] = None
-    feature_interactions: Optional[List[Tuple[str, str, float]]] = None
+    feature_importances: list[FeatureImportance]
+    anomaly_patterns: list[dict[str, Any]]
+    decision_boundaries: dict[str, Any] | None = None
+    feature_interactions: list[tuple[str, str, float]] | None = None
     explanation_summary: str = ""
     model_interpretability_score: float = 0.0
     timestamp: datetime = field(default_factory=datetime.utcnow)
@@ -120,7 +119,7 @@ class ExplanationConfig:
 class ExplainabilityEngine:
     """Advanced explainability engine for anomaly detection."""
 
-    def __init__(self, config: Optional[ExplanationConfig] = None):
+    def __init__(self, config: ExplanationConfig | None = None):
         """Initialize explainability engine.
 
         Args:
@@ -130,13 +129,13 @@ class ExplainabilityEngine:
         self.logger = logging.getLogger(__name__)
 
         # Cache for explanations
-        self._explanation_cache: Dict[str, Any] = {}
+        self._explanation_cache: dict[str, Any] = {}
 
         # SHAP explainers cache
-        self._shap_explainers: Dict[str, Any] = {}
+        self._shap_explainers: dict[str, Any] = {}
 
         # LIME explainers cache
-        self._lime_explainers: Dict[str, Any] = {}
+        self._lime_explainers: dict[str, Any] = {}
 
         # Check availability of explainability libraries
         if not SHAP_AVAILABLE:
@@ -158,9 +157,9 @@ class ExplainabilityEngine:
         self,
         detector: Detector,
         dataset: Dataset,
-        sample_indices: List[int],
+        sample_indices: list[int],
         method: str = "auto",
-    ) -> List[LocalExplanation]:
+    ) -> list[LocalExplanation]:
         """Generate local explanations for specific samples.
 
         Args:
@@ -354,7 +353,7 @@ class ExplainabilityEngine:
         X: np.ndarray,
         sample: np.ndarray,
         sample_idx: int,
-    ) -> List[FeatureImportance]:
+    ) -> list[FeatureImportance]:
         """Generate SHAP explanations."""
 
         if not SHAP_AVAILABLE:
@@ -415,7 +414,7 @@ class ExplainabilityEngine:
         X: np.ndarray,
         sample: np.ndarray,
         sample_idx: int,
-    ) -> List[FeatureImportance]:
+    ) -> list[FeatureImportance]:
         """Generate LIME explanations."""
 
         if not LIME_AVAILABLE:
@@ -477,7 +476,7 @@ class ExplainabilityEngine:
         sample: np.ndarray,
         sample_idx: int,
         sample_score: float,
-    ) -> List[FeatureImportance]:
+    ) -> list[FeatureImportance]:
         """Generate explanations using custom methods."""
 
         feature_importances = []
@@ -517,7 +516,7 @@ class ExplainabilityEngine:
         X: np.ndarray,
         sample: np.ndarray,
         baseline_score: float,
-    ) -> List[FeatureImportance]:
+    ) -> list[FeatureImportance]:
         """Calculate feature importance using perturbation method."""
 
         importances = []
@@ -566,7 +565,7 @@ class ExplainabilityEngine:
         X: np.ndarray,
         sample: np.ndarray,
         sample_idx: int,
-    ) -> List[FeatureImportance]:
+    ) -> list[FeatureImportance]:
         """Calculate statistical importance based on deviations."""
 
         importances = []
@@ -613,7 +612,7 @@ class ExplainabilityEngine:
         X: np.ndarray,
         sample: np.ndarray,
         sample_idx: int,
-    ) -> List[FeatureImportance]:
+    ) -> list[FeatureImportance]:
         """Calculate importance based on distances to normal samples."""
 
         importances = []
@@ -671,8 +670,8 @@ class ExplainabilityEngine:
         return importances
 
     def _combine_importance_scores(
-        self, feature_importances: List[FeatureImportance]
-    ) -> List[FeatureImportance]:
+        self, feature_importances: list[FeatureImportance]
+    ) -> list[FeatureImportance]:
         """Combine multiple importance scores for the same features."""
 
         # Group by feature name
@@ -735,7 +734,7 @@ class ExplainabilityEngine:
         X: np.ndarray,
         sample: np.ndarray,
         sample_score: float,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Generate counterfactual explanation."""
 
         try:
@@ -774,7 +773,7 @@ class ExplainabilityEngine:
         sample: np.ndarray,
         sample_idx: int,
         sample_prediction: int,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Find nearest normal sample for comparison."""
 
         try:
@@ -803,9 +802,9 @@ class ExplainabilityEngine:
 
     def _create_explanation_text(
         self,
-        feature_importances: List[FeatureImportance],
+        feature_importances: list[FeatureImportance],
         anomaly_score: float,
-        counterfactual: Optional[Dict[str, Any]],
+        counterfactual: dict[str, Any] | None,
     ) -> str:
         """Create human-readable explanation text."""
 
@@ -841,7 +840,7 @@ class ExplainabilityEngine:
         return "\n".join(explanation_parts)
 
     def _calculate_explanation_confidence(
-        self, feature_importances: List[FeatureImportance], method: str
+        self, feature_importances: list[FeatureImportance], method: str
     ) -> float:
         """Calculate confidence in the explanation."""
 
@@ -895,7 +894,7 @@ class ExplainabilityEngine:
 
     async def _get_model_predictions(
         self, detector: Detector, X: np.ndarray
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Get model predictions and scores."""
 
         # Placeholder implementation
@@ -991,7 +990,7 @@ class ExplainabilityEngine:
         X: np.ndarray,
         scores: np.ndarray,
         method: str,
-    ) -> List[FeatureImportance]:
+    ) -> list[FeatureImportance]:
         """Generate global feature importances."""
 
         try:
@@ -1008,7 +1007,7 @@ class ExplainabilityEngine:
 
     async def _global_shap_importance(
         self, detector: Detector, X: np.ndarray, scores: np.ndarray
-    ) -> List[FeatureImportance]:
+    ) -> list[FeatureImportance]:
         """Calculate global importance using SHAP."""
 
         try:
@@ -1035,7 +1034,7 @@ class ExplainabilityEngine:
 
             feature_importances = []
             for i, (importance, contribution) in enumerate(
-                zip(mean_abs_shap, mean_shap)
+                zip(mean_abs_shap, mean_shap, strict=False)
             ):
                 feature_importances.append(
                     FeatureImportance(
@@ -1061,7 +1060,7 @@ class ExplainabilityEngine:
 
     async def _global_statistical_importance(
         self, X: np.ndarray, scores: np.ndarray
-    ) -> List[FeatureImportance]:
+    ) -> list[FeatureImportance]:
         """Calculate global importance using statistical methods."""
 
         try:
@@ -1109,7 +1108,7 @@ class ExplainabilityEngine:
 
     async def _global_custom_importance(
         self, X: np.ndarray, scores: np.ndarray
-    ) -> List[FeatureImportance]:
+    ) -> list[FeatureImportance]:
         """Calculate global importance using custom methods."""
 
         feature_importances = []
@@ -1167,8 +1166,8 @@ class ExplainabilityEngine:
         X: np.ndarray,
         predictions: np.ndarray,
         scores: np.ndarray,
-        feature_names: Optional[List[str]] = None,
-    ) -> List[Dict[str, Any]]:
+        feature_names: list[str] | None = None,
+    ) -> list[dict[str, Any]]:
         """Discover common patterns in anomalous samples."""
 
         patterns = []
@@ -1261,8 +1260,8 @@ class ExplainabilityEngine:
         self,
         X: np.ndarray,
         scores: np.ndarray,
-        feature_names: Optional[List[str]] = None,
-    ) -> List[Tuple[str, str, float]]:
+        feature_names: list[str] | None = None,
+    ) -> list[tuple[str, str, float]]:
         """Analyze feature interactions."""
 
         interactions = []
@@ -1333,9 +1332,9 @@ class ExplainabilityEngine:
 
     def _create_global_summary(
         self,
-        feature_importances: List[FeatureImportance],
-        anomaly_patterns: List[Dict[str, Any]],
-        feature_interactions: Optional[List[Tuple[str, str, float]]],
+        feature_importances: list[FeatureImportance],
+        anomaly_patterns: list[dict[str, Any]],
+        feature_interactions: list[tuple[str, str, float]] | None,
     ) -> str:
         """Create global explanation summary."""
 
@@ -1390,8 +1389,8 @@ class ExplainabilityEngine:
     def _calculate_interpretability_score(
         self,
         detector: Detector,
-        feature_importances: List[FeatureImportance],
-        anomaly_patterns: List[Dict[str, Any]],
+        feature_importances: list[FeatureImportance],
+        anomaly_patterns: list[dict[str, Any]],
     ) -> float:
         """Calculate overall model interpretability score."""
 

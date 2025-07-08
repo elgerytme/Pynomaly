@@ -24,10 +24,7 @@ def test_working_sdk():
         print("✅ Infrastructure adapters import successful")
 
         # Test SDK models directly
-        from pynomaly.presentation.sdk.models import (
-            AnomalyScore,
-            PerformanceMetrics,
-        )
+        from pynomaly.presentation.sdk.models import AnomalyScore, PerformanceMetrics
 
         print("✅ SDK models import successful")
 

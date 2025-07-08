@@ -48,13 +48,14 @@ class LineageArtifact(BaseModel):
     """Artifact information in model lineage."""
 
     id: UUID = Field(..., description="Artifact identifier")
-    type: str = Field(
-        ..., description="Artifact type (model, dataset, configuration, etc.)"
-    )
     name: str = Field(..., description="Artifact name")
+    type: str | None = Field(
+        None, description="Artifact type (model, dataset, configuration, etc.)"
+    )
     version: str | None = Field(None, description="Artifact version")
     checksum: str | None = Field(None, description="Artifact checksum for integrity")
     location: str | None = Field(None, description="Artifact storage location")
+    size_bytes: int | None = Field(None, description="Artifact size in bytes")
     metadata: dict[str, Any] = Field(
         default_factory=dict, description="Artifact metadata"
     )

@@ -1068,7 +1068,7 @@ window.AdvancedViz = {
                 <p><strong>Status:</strong> ${data.anomaly ? "⚠️ Anomaly" : "✅ Normal"}</p>
             </div>
             <div class="mt-6 flex justify-end">
-                <button onclick="this.closest('.modal').style.display='none'" 
+                <button onclick="this.closest('.modal').style.display='none'"
                         class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
                     Close
                 </button>

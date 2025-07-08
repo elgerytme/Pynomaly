@@ -1,6 +1,5 @@
 """Repository for performance baselines."""
 
-from typing import List, Optional
 from uuid import UUID
 
 from pynomaly.domain.entities.model_performance import ModelPerformanceBaseline
@@ -17,11 +16,11 @@ class PerformanceBaselineRepository:
         """Save a model performance baseline record."""
         self._baselines[baseline.id] = baseline
 
-    async def get_by_id(self, baseline_id: UUID) -> Optional[ModelPerformanceBaseline]:
+    async def get_by_id(self, baseline_id: UUID) -> ModelPerformanceBaseline | None:
         """Get a model performance baseline by ID."""
         return self._baselines.get(baseline_id)
 
-    async def get_all(self) -> List[ModelPerformanceBaseline]:
+    async def get_all(self) -> list[ModelPerformanceBaseline]:
         """Get all baseline records."""
         return list(self._baselines.values())
 

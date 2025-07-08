@@ -1,21 +1,18 @@
 """Test suite for AutoML service."""
 
 from unittest.mock import AsyncMock, Mock, patch
-from uuid import uuid4
 
 import numpy as np
 import pandas as pd
 import pytest
-
 from pynomaly.application.services.automl_service import (
-    AlgorithmConfig,
     AlgorithmFamily,
     AutoMLResult,
     AutoMLService,
     DatasetProfile,
     OptimizationObjective,
 )
-from pynomaly.domain.entities import Dataset, Detector
+from pynomaly.domain.entities import Dataset
 from pynomaly.domain.exceptions import AutoMLError
 
 

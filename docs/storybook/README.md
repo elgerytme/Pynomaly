@@ -195,7 +195,7 @@ npm run test:performance
    ```bash
    # View in Storybook
    npm run storybook
-   
+
    # Run accessibility tests
    npm run accessibility-audit
    ```

@@ -8,7 +8,7 @@ import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import click
 
@@ -64,19 +64,19 @@ class CoverageMonitor:
 
             conn.execute(
                 """
-                CREATE INDEX IF NOT EXISTS idx_coverage_runs_timestamp 
+                CREATE INDEX IF NOT EXISTS idx_coverage_runs_timestamp
                 ON coverage_runs (timestamp)
             """
             )
 
             conn.execute(
                 """
-                CREATE INDEX IF NOT EXISTS idx_file_coverage_run_id 
+                CREATE INDEX IF NOT EXISTS idx_file_coverage_run_id
                 ON file_coverage (run_id)
             """
             )
 
-    def run_coverage(self, test_command: str = None) -> Dict[str, Any]:
+    def run_coverage(self, test_command: str = None) -> dict[str, Any]:
         """Run test coverage and collect results.
 
         Args:
@@ -121,8 +121,8 @@ class CoverageMonitor:
             raise
 
     def _parse_coverage_data(
-        self, coverage_data: Dict[str, Any], test_command: str
-    ) -> Dict[str, Any]:
+        self, coverage_data: dict[str, Any], test_command: str
+    ) -> dict[str, Any]:
         """Parse coverage data from JSON report.
 
         Args:
@@ -176,7 +176,7 @@ class CoverageMonitor:
 
         return result
 
-    def store_coverage(self, coverage_data: Dict[str, Any]) -> int:
+    def store_coverage(self, coverage_data: dict[str, Any]) -> int:
         """Store coverage data in database.
 
         Args:
@@ -232,7 +232,7 @@ class CoverageMonitor:
 
             return run_id
 
-    def get_coverage_trends(self, days: int = 30) -> List[Dict[str, Any]]:
+    def get_coverage_trends(self, days: int = 30) -> list[dict[str, Any]]:
         """Get coverage trends over time.
 
         Args:
@@ -243,22 +243,20 @@ class CoverageMonitor:
         """
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.execute(
-                """
-                SELECT 
+                f"""
+                SELECT
                     timestamp, branch, commit_hash, total_coverage,
                     lines_covered, lines_total, files_covered, files_total
                 FROM coverage_runs
-                WHERE timestamp >= datetime('now', '-{} days')
+                WHERE timestamp >= datetime('now', '-{days} days')
                 ORDER BY timestamp
-            """.format(
-                    days
-                )
+            """
             )
 
             columns = [desc[0] for desc in cursor.description]
-            return [dict(zip(columns, row)) for row in cursor.fetchall()]
+            return [dict(zip(columns, row, strict=False)) for row in cursor.fetchall()]
 
-    def check_coverage_regression(self, threshold: float = 2.0) -> Dict[str, Any]:
+    def check_coverage_regression(self, threshold: float = 2.0) -> dict[str, Any]:
         """Check for coverage regression.
 
         Args:
@@ -347,7 +345,7 @@ class CoverageMonitor:
                 <p>Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
                 <p>Branch: {latest['branch']} | Commit: {latest['commit_hash'][:8]}</p>
             </div>
-            
+
             <div class="metrics">
                 <div class="metric">
                     <h3>Total Coverage</h3>
@@ -370,7 +368,7 @@ class CoverageMonitor:
                     </div>
                 </div>
             </div>
-            
+
             <h2>File Coverage Details</h2>
             <table>
                 <thead>
@@ -388,7 +386,9 @@ class CoverageMonitor:
             color_class = (
                 "good"
                 if coverage_percent >= 80
-                else "warning" if coverage_percent >= 60 else "danger"
+                else "warning"
+                if coverage_percent >= 60
+                else "danger"
             )
             html += f"""
                     <tr>
@@ -453,7 +453,7 @@ def run(test_command: str, db_path: str):
         coverage_data = monitor.run_coverage(test_command)
         run_id = monitor.store_coverage(coverage_data)
 
-        click.echo(f"✅ Coverage analysis complete!")
+        click.echo("✅ Coverage analysis complete!")
         click.echo(f"📊 Total coverage: {coverage_data['total_coverage']:.1f}%")
         click.echo(f"📁 Run ID: {run_id}")
 
@@ -513,12 +513,12 @@ def check(threshold: float, db_path: str):
     regression = monitor.check_coverage_regression(threshold)
 
     if regression["has_regression"]:
-        click.echo(f"❌ Coverage regression detected!")
+        click.echo("❌ Coverage regression detected!")
         click.echo(f"   {regression['message']}")
         click.echo(f"   Threshold: {threshold}%")
         sys.exit(1)
     else:
-        click.echo(f"✅ No coverage regression detected")
+        click.echo("✅ No coverage regression detected")
         click.echo(f"   {regression['message']}")
 
 

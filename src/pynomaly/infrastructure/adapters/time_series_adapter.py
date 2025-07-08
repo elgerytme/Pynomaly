@@ -136,9 +136,11 @@ class SeasonalDecompositionDetector:
             self.period = self._detect_period(data)
 
         if self.period > 1 and len(data) >= 2 * self.period:
-            self.trend_component, self.seasonal_component, self.baseline_residuals = (
-                self._simple_seasonal_decompose(data, self.period)
-            )
+            (
+                self.trend_component,
+                self.seasonal_component,
+                self.baseline_residuals,
+            ) = self._simple_seasonal_decompose(data, self.period)
         else:
             # Fall back to simple statistics
             self.trend_component = np.full(len(data), np.mean(data))

@@ -2,14 +2,13 @@
 """Comprehensive UI test runner with visual regression, accessibility, and performance testing."""
 
 import argparse
-import asyncio
 import json
 import os
 import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
@@ -28,7 +27,7 @@ except ImportError as e:
 class ComprehensiveUITestRunner:
     """Comprehensive UI test runner with enhanced reporting and analysis."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.project_root = project_root
         self.reports_dir = project_root / "test_reports" / "ui_comprehensive"
@@ -83,7 +82,7 @@ class ComprehensiveUITestRunner:
             if self.config.get("verbose", False):
                 print(f"Set {key}={value}")
 
-    def run_visual_regression_tests(self) -> Dict[str, Any]:
+    def run_visual_regression_tests(self) -> dict[str, Any]:
         """Run comprehensive visual regression testing."""
         print("\n🎨 Running Visual Regression Tests...")
 
@@ -108,7 +107,7 @@ class ComprehensiveUITestRunner:
 
         return self._run_test_command(cmd, "visual_regression")
 
-    def run_accessibility_tests(self) -> Dict[str, Any]:
+    def run_accessibility_tests(self) -> dict[str, Any]:
         """Run comprehensive accessibility testing."""
         print("\n♿ Running Accessibility Tests...")
 
@@ -129,7 +128,7 @@ class ComprehensiveUITestRunner:
 
         return self._run_test_command(cmd, "accessibility")
 
-    def run_performance_tests(self) -> Dict[str, Any]:
+    def run_performance_tests(self) -> dict[str, Any]:
         """Run performance testing."""
         print("\n⚡ Running Performance Tests...")
 
@@ -150,7 +149,7 @@ class ComprehensiveUITestRunner:
 
         return self._run_test_command(cmd, "performance")
 
-    def run_responsive_tests(self) -> Dict[str, Any]:
+    def run_responsive_tests(self) -> dict[str, Any]:
         """Run responsive design testing."""
         print("\n📱 Running Responsive Design Tests...")
 
@@ -171,7 +170,7 @@ class ComprehensiveUITestRunner:
 
         return self._run_test_command(cmd, "responsive")
 
-    def run_bdd_workflow_tests(self) -> Dict[str, Any]:
+    def run_bdd_workflow_tests(self) -> dict[str, Any]:
         """Run comprehensive BDD testing including workflows, accessibility, performance, and cross-browser scenarios."""
         print("\n🎭 Running Comprehensive BDD Tests...")
 
@@ -358,7 +357,7 @@ class ComprehensiveUITestRunner:
 
         return bdd_report
 
-    def run_cross_browser_tests(self) -> Dict[str, Any]:
+    def run_cross_browser_tests(self) -> dict[str, Any]:
         """Run cross-browser compatibility testing."""
         print("\n🌐 Running Cross-Browser Tests...")
 
@@ -404,7 +403,7 @@ class ComprehensiveUITestRunner:
             "browsers_tested": browsers,
         }
 
-    def run_playwright_tests(self) -> Dict[str, Any]:
+    def run_playwright_tests(self) -> dict[str, Any]:
         """Run Playwright-based tests if Playwright is configured."""
         print("\n🎭 Running Playwright Tests...")
 
@@ -445,8 +444,8 @@ class ComprehensiveUITestRunner:
             }
 
     def _run_test_command(
-        self, cmd: List[str], category: str, cwd: Path = None
-    ) -> Dict[str, Any]:
+        self, cmd: list[str], category: str, cwd: Path = None
+    ) -> dict[str, Any]:
         """Run a test command and capture results."""
         start_time = time.time()
         cwd = cwd or self.project_root
@@ -491,7 +490,7 @@ class ComprehensiveUITestRunner:
                 "command": " ".join(cmd),
             }
 
-    def run_all_tests(self) -> Dict[str, Any]:
+    def run_all_tests(self) -> dict[str, Any]:
         """Run all comprehensive UI tests."""
         print("🚀 Starting Comprehensive UI Test Suite")
         print("=" * 60)
@@ -653,7 +652,7 @@ class ComprehensiveUITestRunner:
         text_report = self.reports_dir / "comprehensive_ui_test_summary.txt"
         self._generate_text_report(text_report)
 
-        print(f"\n📊 Reports generated:")
+        print("\n📊 Reports generated:")
         print(f"   📄 JSON: {json_report}")
         print(f"   🌐 HTML: {html_report}")
         print(f"   📝 Text: {text_report}")
@@ -685,7 +684,7 @@ class ComprehensiveUITestRunner:
 </head>
 <body>
     <h1>Pynomaly Comprehensive UI Test Report</h1>
-    
+
     <div class="summary">
         <h2>Executive Summary</h2>
         <p><strong>Total Test Categories:</strong> {summary['total_categories']}</p>
@@ -805,7 +804,7 @@ class ComprehensiveUITestRunner:
         print(f"Total Duration: {summary['total_duration']:.1f} seconds")
 
         if self.results["issues"]:
-            print(f"\n❌ FAILED CATEGORIES:")
+            print("\n❌ FAILED CATEGORIES:")
             for issue in self.results["issues"]:
                 priority_indicator = {"high": "🔴", "medium": "🟡", "low": "🟢"}
                 indicator = priority_indicator.get(issue["priority"], "⚪")
@@ -814,7 +813,7 @@ class ComprehensiveUITestRunner:
                 )
 
         if self.results["recommendations"]:
-            print(f"\n🎯 RECOMMENDATIONS:")
+            print("\n🎯 RECOMMENDATIONS:")
             for rec in self.results["recommendations"]:
                 print(f"  • {rec}")
 

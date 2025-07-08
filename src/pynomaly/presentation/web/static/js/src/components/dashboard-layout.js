@@ -1354,7 +1354,7 @@ export const dashboardStyles = `
     bottom: 0;
     pointer-events: none;
     z-index: 999;
-    background-image: 
+    background-image:
         linear-gradient(to right, rgba(0,0,0,0.1) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(0,0,0,0.1) 1px, transparent 1px);
     background-size: 60px 60px;
