@@ -51,12 +51,12 @@ class UncertaintyRequestModel(BaseModel):
     """Pydantic model for uncertainty quantification request."""
 
     detection_results: List[DetectionResultModel] = Field(
-        ..., min_items=1, description="List of detection results to analyze"
+        ..., min_length=1, description="List of detection results to analyze"
     )
     method: str = Field(
         "bootstrap",
         description="Uncertainty calculation method",
-        regex="^(bootstrap|normal|bayesian)$",
+        pattern="^(bootstrap|normal|bayesian)$",
     )
     confidence_level: float = Field(
         0.95, ge=0.0, le=1.0, description="Desired confidence level"
@@ -76,12 +76,12 @@ class EnsembleUncertaintyRequestModel(BaseModel):
     """Pydantic model for ensemble uncertainty quantification request."""
 
     ensemble_results: List[List[DetectionResultModel]] = Field(
-        ..., min_items=2, description="List of detection results from each model"
+        ..., min_length=2, description="List of detection results from each model"
     )
     method: str = Field(
         "bootstrap",
         description="Uncertainty calculation method",
-        regex="^(bootstrap|normal|bayesian)$",
+        pattern="^(bootstrap|normal|bayesian)$",
     )
     confidence_level: float = Field(
         0.95, ge=0.0, le=1.0, description="Desired confidence level"
@@ -94,7 +94,7 @@ class EnsembleUncertaintyRequestModel(BaseModel):
 class BootstrapRequestModel(BaseModel):
     """Pydantic model for bootstrap confidence interval request."""
 
-    scores: List[float] = Field(..., min_items=1, description="List of anomaly scores")
+    scores: List[float] = Field(..., min_length=1, description="List of anomaly scores")
     confidence_level: float = Field(
         0.95, ge=0.0, le=1.0, description="Confidence level"
     )
@@ -102,7 +102,7 @@ class BootstrapRequestModel(BaseModel):
         1000, ge=100, le=10000, description="Number of bootstrap samples"
     )
     statistic: str = Field(
-        "mean", description="Statistic to calculate", regex="^(mean|median|std|var)$"
+        "mean", description="Statistic to calculate", pattern="^(mean|median|std|var)$"
     )
 
 
@@ -110,7 +110,7 @@ class BayesianRequestModel(BaseModel):
     """Pydantic model for Bayesian confidence interval request."""
 
     binary_scores: List[int] = Field(
-        ..., min_items=1, description="Binary anomaly indicators"
+        ..., min_length=1, description="Binary anomaly indicators"
     )
     confidence_level: float = Field(
         0.95, ge=0.0, le=1.0, description="Confidence level"
@@ -123,7 +123,7 @@ class PredictionIntervalRequestModel(BaseModel):
     """Pydantic model for prediction interval request."""
 
     training_scores: List[float] = Field(
-        ..., min_items=10, description="Historical anomaly scores"
+        ..., min_length=10, description="Historical anomaly scores"
     )
     confidence_level: float = Field(
         0.95, ge=0.0, le=1.0, description="Confidence level"
@@ -240,12 +240,12 @@ def _convert_uncertainty_response_to_model(
     summary="Quantify uncertainty in anomaly detection results",
     description="""
     Calculate uncertainty metrics and confidence intervals for anomaly detection predictions.
-    
+
     Supports multiple statistical methods:
     - **Bootstrap**: Resampling-based confidence intervals
     - **Normal**: Assumes normal distribution of scores
     - **Bayesian**: Beta-binomial model for binary outcomes
-    
+
     Returns comprehensive uncertainty analysis including confidence intervals,
     prediction intervals, and entropy-based uncertainty measures.
     """,
@@ -295,12 +295,12 @@ async def quantify_uncertainty(
     summary="Quantify uncertainty in ensemble predictions",
     description="""
     Calculate uncertainty metrics for ensemble anomaly detection models.
-    
+
     Analyzes uncertainty across multiple models including:
     - **Ensemble metrics**: Overall ensemble uncertainty
     - **Model disagreement**: How much models disagree
     - **Aleatoric vs Epistemic**: Data vs model uncertainty
-    
+
     Useful for understanding model reliability and confidence in ensemble predictions.
     """,
 )
@@ -350,10 +350,10 @@ async def quantify_ensemble_uncertainty(
     summary="Calculate bootstrap confidence interval",
     description="""
     Calculate confidence interval using bootstrap resampling method.
-    
+
     Bootstrap is a non-parametric method that doesn't assume any specific
     distribution. It's robust and works well for various statistics.
-    
+
     Supported statistics:
     - **mean**: Average of scores
     - **median**: Middle value of scores
@@ -399,10 +399,10 @@ async def calculate_bootstrap_interval(
     summary="Calculate Bayesian confidence interval",
     description="""
     Calculate confidence interval using Bayesian inference with Beta prior.
-    
+
     This method is particularly useful for binary classification problems
     where you want to estimate the anomaly rate with prior knowledge.
-    
+
     The Beta prior allows you to incorporate domain knowledge:
     - **prior_alpha**: Strength of belief in positive outcomes
     - **prior_beta**: Strength of belief in negative outcomes
@@ -447,12 +447,12 @@ async def calculate_bayesian_interval(
     summary="Calculate prediction interval",
     description="""
     Calculate prediction interval for individual future predictions.
-    
+
     Prediction intervals are wider than confidence intervals because they
     account for both:
     1. **Sampling uncertainty**: Uncertainty in estimating population parameters
     2. **Individual variation**: Natural variation in individual observations
-    
+
     Use this when you want to predict where a single new observation will fall,
     rather than estimating a population parameter.
     """,
