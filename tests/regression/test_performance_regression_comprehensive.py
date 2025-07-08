@@ -276,7 +276,7 @@ class TestInferencePerformanceRegression:
             inference_time = time.time() - start_time
 
             # Single sample inference should be very fast
-            single_sample_threshold = config.get('performance_thresholds', {}).get('execution_time', {}).get('single_sample_max_seconds', 1.0)
+            single_sample_threshold = get_performance_threshold(config, 'execution_time', 'single_sample_max_seconds', 1.0)
             assert (
                 inference_time < single_sample_threshold
             ), f"{model_name} single sample inference too slow: {inference_time}s"
@@ -305,13 +305,13 @@ class TestInferencePerformanceRegression:
 
                     # Performance thresholds
                     default_thresholds = {100: 2.0, 1000: 10.0, 5000: 30.0}
-                    time_threshold = config.get('performance_thresholds', {}).get('execution_time', {}).get(f'batch_{batch_size}_max_seconds', default_thresholds[batch_size])
+                    time_threshold = get_performance_threshold(config, 'execution_time', f'batch_{batch_size}_max_seconds', default_thresholds[batch_size])
                     assert (
                         inference_time < time_threshold
                     ), f"{model_name} batch {batch_size} inference too slow: {inference_time}s"
 
                     # Throughput should be reasonable
-                    min_throughput = config.get('performance_thresholds', {}).get('throughput', {}).get('min_throughput_samples_per_second', 50)
+                    min_throughput = get_performance_threshold(config, 'throughput', 'min_throughput_samples_per_second', 50)
                     assert (
                         throughput > min_throughput
                     ), f"{model_name} throughput too low: {throughput} samples/s"

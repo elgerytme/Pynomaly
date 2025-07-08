@@ -55,6 +55,39 @@ class ExportFormat(str, Enum):
 # ============================================================================
 
 
+class OptimizationConfigDTO(BaseModel):
+    """Configuration for optimization and AutoML."""
+    
+    model_config = ConfigDict(from_attributes=True)
+    
+    enable_optimization: bool = Field(
+        default=True, description="Enable hyperparameter optimization"
+    )
+    optimization_method: str = Field(
+        default="random_search", description="Optimization method"
+    )
+    max_trials: int = Field(default=100, description="Maximum number of trials")
+    timeout_seconds: int = Field(default=3600, description="Timeout in seconds")
+    
+    # Resource constraints
+    max_memory_mb: int = Field(default=4096, description="Maximum memory usage")
+    max_cpu_cores: int = Field(default=4, description="Maximum CPU cores")
+    
+    # Objectives
+    primary_objective: str = Field(default="accuracy", description="Primary objective")
+    secondary_objectives: list[str] = Field(
+        default_factory=list, description="Secondary objectives"
+    )
+    
+    # Early stopping
+    early_stopping_patience: int = Field(
+        default=10, description="Early stopping patience"
+    )
+    early_stopping_threshold: float = Field(
+        default=0.01, description="Early stopping threshold"
+    )
+
+
 class AlgorithmConfigurationDTO(BaseModel):
     """DTO for algorithm configuration."""
 

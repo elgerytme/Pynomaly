@@ -61,7 +61,7 @@ class TestVisualizationDashboardService:
         assert dashboard_data.title == "Executive Anomaly Detection Dashboard"
         assert len(dashboard_data.charts) >= 5  # Should have multiple charts
         assert len(dashboard_data.kpis) > 0  # Should have KPIs
-        assert "executive" in service.dashboard_cache
+        assert dashboard_data.dashboard_id in service.dashboard_cache
 
     @pytest.mark.asyncio
     async def test_generate_operational_dashboard(self, service):
@@ -73,7 +73,7 @@ class TestVisualizationDashboardService:
         assert dashboard_data.title == "Operational Monitoring Dashboard"
         assert len(dashboard_data.charts) >= 5  # Should have multiple charts
         assert dashboard_data.metadata.get("real_time") is True
-        assert "operational" in service.dashboard_cache
+        assert dashboard_data.dashboard_id in service.dashboard_cache
 
     @pytest.mark.asyncio
     async def test_generate_analytical_dashboard(self, service):
@@ -86,7 +86,7 @@ class TestVisualizationDashboardService:
         assert dashboard_data.dashboard_type == DashboardType.ANALYTICAL
         assert dashboard_data.title == "Analytical Anomaly Detection Dashboard"
         assert len(dashboard_data.charts) >= 6  # Should have multiple charts
-        assert "analytical" in service.dashboard_cache
+        assert dashboard_data.dashboard_id in service.dashboard_cache
 
     @pytest.mark.asyncio
     async def test_generate_performance_dashboard(self, service):
@@ -99,7 +99,7 @@ class TestVisualizationDashboardService:
         assert dashboard_data.dashboard_type == DashboardType.PERFORMANCE
         assert dashboard_data.title == "Performance Analytics Dashboard"
         assert len(dashboard_data.charts) >= 6  # Should have multiple charts
-        assert "performance" in service.dashboard_cache
+        assert dashboard_data.dashboard_id in service.dashboard_cache
 
     @pytest.mark.asyncio
     async def test_generate_real_time_dashboard(self, service):
