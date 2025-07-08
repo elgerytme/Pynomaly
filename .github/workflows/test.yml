@@ -67,6 +67,34 @@ jobs:
           --maxfail=5 \
           --timeout=300
           
+    - name: Download performance baseline
+      if: matrix.test-type == 'performance'
+      run: |
+        # Try to download baseline from repository first
+        if wget -q --spider "https://raw.githubusercontent.com/${{ github.repository }}/main/performance_baseline.json"; then
+          wget -O performance_baseline.json "https://raw.githubusercontent.com/${{ github.repository }}/main/performance_baseline.json"
+          echo "Downloaded baseline from repository"
+        else
+          echo "No baseline found in repository, will create empty baseline"
+          echo '{}' > performance_baseline.json
+        fi
+        
+    - name: Download baseline from artifacts (if available)
+      if: matrix.test-type == 'performance' && github.event_name == 'pull_request'
+      uses: actions/download-artifact@v3
+      with:
+        name: performance-artifacts
+        path: ./artifacts
+      continue-on-error: true
+        
+    - name: Use artifact baseline if available
+      if: matrix.test-type == 'performance' && github.event_name == 'pull_request'
+      run: |
+        if [ -f "./artifacts/performance_baseline.json" ]; then
+          cp ./artifacts/performance_baseline.json performance_baseline.json
+          echo "Using baseline from artifacts"
+        fi
+        
     - name: Run performance tests
       if: matrix.test-type == 'performance'
       run: |
@@ -74,6 +102,15 @@ jobs:
           -m "benchmark or performance" \
           --benchmark-only \
           --benchmark-json=benchmark.json
+          
+    - name: Check for regressions
+      if: matrix.test-type == 'performance'
+      run: |
+        if [ -f "check_regressions.py" ]; then
+          python check_regressions.py --baseline performance_baseline.json --benchmark benchmark.json || exit 1
+        else
+          echo "Warning: check_regressions.py not found, skipping regression check"
+        fi
           
     - name: Upload coverage to Codecov
       if: matrix.test-type == 'unit' && matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
@@ -84,12 +121,16 @@ jobs:
         name: codecov-umbrella
         fail_ci_if_error: false
         
-    - name: Upload benchmark results
+    - name: Upload benchmark and diff results
       if: matrix.test-type == 'performance' && matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
       uses: actions/upload-artifact@v3
       with:
-        name: benchmark-results
-        path: benchmark.json
+        name: performance-artifacts
+        path: |
+          benchmark.json
+          performance_baseline.json
+          performance_diff.html
+        if-no-files-found: ignore
 
   test-matrix:
     runs-on: ubuntu-latest
@@ -262,11 +303,27 @@ jobs:
       with:
         script: |
           const fs = require('fs');
-          if (fs.existsSync('test-report.html')) {
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '📊 Test report has been generated and uploaded as an artifact.'
-            });
+          let summary = '## 🧪 Test Results Summary\n\n';
+          summary += '✅ Test report has been generated and uploaded as an artifact.\n\n';
+          
+          // Check if performance artifacts exist
+          if (fs.existsSync('benchmark.json')) {
+            summary += '📊 **Performance Tests**: Benchmark results generated\n';
           }
+          
+          if (fs.existsSync('performance_diff.html')) {
+            summary += '📝 **Regression Check**: Performance regression report generated and uploaded as artifact\n';
+          }
+          
+          if (fs.existsSync('performance_baseline.json')) {
+            summary += '📈 **Baseline**: Performance baseline loaded for comparison\n';
+          }
+          
+          summary += '\n🔍 Check the **Actions** tab for detailed artifacts and reports.';
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: summary
+          });

@@ -442,11 +442,35 @@ npm-clean: ## Clean npm artifacts
 	-rm -rf src/pynomaly/presentation/web/static/js/app.js
 	@echo "✅ npm artifacts cleaned!"
 
-dev: ## Start development environment with watch mode
-	@echo "🚀 Starting development environment..."
-	@echo "This will start web asset watch mode"
+dev: ## Start development environment with Docker (recommended)
+	@echo "🚀 Starting Docker development environment..."
+	@echo "This will start the full development stack with hot-reload"
+	@echo "API will be available at http://localhost:8000"
+	@echo "Press Ctrl+C to stop"
+	@./scripts/docker/dev/run-dev.sh --build
+
+dev-legacy: ## Start legacy development environment with watch mode (deprecated)
+	@echo "⚠️  Starting legacy development environment..."
+	@echo "This will start web asset watch mode only"
 	@echo "Press Ctrl+C to stop"
 	@trap 'kill 0' EXIT; npm run watch
+
+dev-storage: ## Start development environment with storage services
+	@echo "🚀 Starting Docker development environment with storage services..."
+	@echo "This will start PostgreSQL, Redis, and MinIO services"
+	@echo "API will be available at http://localhost:8000"
+	@./scripts/docker/dev/run-dev-with-storage.sh --storage all
+
+dev-test: ## Run tests in Docker environment
+	@echo "🧪 Running tests in Docker environment..."
+	@./scripts/docker/test/run-test.sh --type all
+
+dev-clean: ## Clean Docker development environment
+	@echo "🧺 Cleaning Docker development environment..."
+	@echo "Stopping and removing development containers..."
+	@docker ps -q --filter "name=pynomaly-dev" | xargs -r docker stop
+	@docker ps -aq --filter "name=pynomaly-dev" | xargs -r docker rm
+	@echo "✅ Development containers cleaned!"
 
 # Update existing targets to include Buck2 + npm integration
 build: npm-build ## Build package and web assets

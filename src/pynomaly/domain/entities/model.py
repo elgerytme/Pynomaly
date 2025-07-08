@@ -8,6 +8,12 @@ from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
 
+# Import for alias
+from pynomaly.domain.value_objects.performance_metrics import PerformanceMetrics
+
+# Create alias for backward compatibility
+ModelMetrics = PerformanceMetrics
+
 
 class ModelType(Enum):
     """Type of anomaly detection model."""

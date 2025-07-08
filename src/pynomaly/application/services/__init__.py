@@ -1,25 +1,17 @@
 """Application services."""
 
-from .automl_service import AutoMLService
+from .anomaly_classification_service import AnomalyClassificationService
 from .detection_service import DetectionService
 from .ensemble_service import EnsembleService
 from .experiment_tracking_service import ExperimentTrackingService
-from .explainability_service import ExplainabilityService
 from .model_persistence_service import ModelPersistenceService
-from .streaming_service import StreamingService
-from .training_service import TrainingService
-from .user_management_service import UserManagementService
-from .visualization_service import VisualizationService
+from .training_service import AutomatedTrainingService
 
 __all__ = [
+    "AnomalyClassificationService",
     "DetectionService",
     "EnsembleService",
     "ModelPersistenceService",
     "ExperimentTrackingService",
-    "AutoMLService",
-    "ExplainabilityService",
-    "StreamingService",
-    "TrainingService",
-    "UserManagementService",
-    "VisualizationService",
+    "AutomatedTrainingService",
 ]

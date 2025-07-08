@@ -255,26 +255,26 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install Hatch
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install hatch
+        pip install .[test,cli,lint]
 
     - name: Run unit tests
       if: matrix.test-type == 'unit'
       run: |
-        hatch env run test:run tests/domain/ tests/application/ -v --tb=short
+        pytest tests/domain/ tests/application/ -v --tb=short
       continue-on-error: true
 
     - name: Run integration tests
       if: matrix.test-type == 'integration'
       run: |
-        hatch env run test:run tests/infrastructure/ -v --tb=short --ignore=tests/infrastructure/test_*_performance*
+        pytest tests/infrastructure/ -v --tb=short --ignore=tests/infrastructure/test_*_performance*
       continue-on-error: true
 
     - name: Run tests with coverage
       run: |
-        hatch env run test:run-cov --cov-report=xml --cov-report=html --cov-report=term-missing --cov-fail-under=80
+        pytest --cov=pynomaly --cov-report=xml --cov-report=html --cov-report=term-missing --cov-fail-under=80
       continue-on-error: true
 
     - name: Upload coverage to Codecov
@@ -313,14 +313,14 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
-    - name: Install Hatch
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install hatch
+        pip install .[test,cli,lint]
 
     - name: Test CLI help
       run: |
-        hatch env run cli:test-cli
+        pynomaly --help
       continue-on-error: true
 
     - name: Test core functionality
@@ -332,10 +332,6 @@ jobs:
         from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
         print('✅ Core domain imports successful')
         "
-
-    - name: Install API dependencies for testing
-      run: |
-        pip install "fastapi>=0.100.0" "uvicorn[standard]>=0.20.0"
 
     - name: Test API startup (10 second timeout)
       run: |
@@ -358,10 +354,10 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
-    - name: Install security tools
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install bandit safety
+        pip install .[test,cli,lint]
 
     - name: Run Bandit security scan
       run: |

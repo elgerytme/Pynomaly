@@ -20,7 +20,7 @@ from enum import Enum
 from functools import wraps
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 logger = logging.getLogger(__name__)
 
@@ -127,6 +127,10 @@ class AuditContext:
 class SecurityEvent(BaseModel):
     """Security event data structure."""
 
+    model_config = ConfigDict(
+        json_encoders={datetime: lambda v: v.isoformat()}
+    )
+
     event_type: SecurityEventType
     level: AuditLevel
     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
@@ -162,9 +166,6 @@ class SecurityEvent(BaseModel):
     source_component: str | None = None
     error_code: str | None = None
     stack_trace: str | None = None
-
-    class Config:
-        json_encoders = {datetime: lambda v: v.isoformat()}
 
 
 class AuditEvent(BaseModel):

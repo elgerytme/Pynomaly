@@ -30,6 +30,7 @@ from pynomaly.application.dto.training_dto import (
     TrainingConfigDTO,
     TrainingRequestDTO,
     TrainingResultDTO,
+    ModelMetricsDTO,
 )
 from pynomaly.domain.entities.dataset import Dataset
 from pynomaly.application.dto.training_dto import ModelMetricsDTO as ModelMetrics
@@ -37,12 +38,12 @@ from pynomaly.domain.entities.model_version import ModelVersion
 from pynomaly.domain.entities.training_job import TrainingJob, TrainingStatus
 from pynomaly.domain.optimization.pareto_optimizer import ParetoOptimizer
 from pynomaly.domain.services.metrics_calculator import MetricsCalculator
-from pynomaly.domain.services.model_selector import ModelSelector
 from pynomaly.domain.services.model_service import ModelService
+from pynomaly.domain.services.model_selector import ModelSelector
 from pynomaly.domain.services.statistical_tester import StatisticalTester
 from pynomaly.domain.value_objects.hyperparameters import HyperparameterSet
-from pynomaly.infrastructure.adapters.algorithm_adapter import AlgorithmAdapter
-from pynomaly.infrastructure.config.training_config import TrainingConfig
+from pynomaly.shared.protocols import DetectorProtocol as AlgorithmAdapter
+# from pynomaly.infrastructure.config.training_config import TrainingConfig
 from pynomaly.infrastructure.persistence.model_repository import ModelRepository
 from pynomaly.infrastructure.persistence.training_repository import TrainingRepository
 from pynomaly.shared.exceptions import (
@@ -73,7 +74,7 @@ class AutomatedTrainingService:
         model_repository: ModelRepository,
         model_service: ModelService,
         algorithm_adapters: Dict[str, AlgorithmAdapter],
-        config: TrainingConfig,
+        config: dict,
     ):
         self.training_repository = training_repository
         self.model_repository = model_repository
@@ -612,7 +613,7 @@ class AutomatedTrainingService:
 
     async def _evaluate_model(
         self, model: Any, X_val: np.ndarray, y_val: np.ndarray, algorithm_name: str
-    ) -> ModelMetrics:
+    ) -> ModelMetricsDTO:
         """
         Evaluate a trained model and return comprehensive metrics.
 
@@ -623,7 +624,7 @@ class AutomatedTrainingService:
             algorithm_name: Name of the algorithm
 
         Returns:
-            ModelMetrics: Comprehensive model evaluation metrics
+            ModelMetricsDTO: Comprehensive model evaluation metrics
         """
         start_time = datetime.utcnow()
 
@@ -648,16 +649,15 @@ class AutomatedTrainingService:
 
         inference_time = (datetime.utcnow() - start_time).total_seconds()
 
-        return ModelMetrics(
+        return ModelMetricsDTO(
             accuracy=metrics_dict["accuracy"],
             precision=metrics_dict["precision"],
             recall=metrics_dict["recall"],
             f1_score=metrics_dict["f1_score"],
             roc_auc=metrics_dict["roc_auc"],
             confusion_matrix=metrics_dict["confusion_matrix"],
-            training_time=0.0,  # Will be set by caller
-            inference_time=inference_time,
-            algorithm=algorithm_name,
+            training_time_seconds=0.0,  # Will be set by caller
+            inference_time_ms=inference_time * 1000,  # Convert to milliseconds
             additional_metrics=metrics_dict.get("additional_metrics", {}),
         )
 

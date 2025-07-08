@@ -59,14 +59,14 @@ class DefaultSeverityClassifier:
         # Extract score value
         score_value = anomaly.score.value if hasattr(anomaly.score, 'value') else anomaly.score
         
-        if score_value >= self.thresholds['critical']:
-            return 'critical'
-        elif score_value >= self.thresholds['high']:
-            return 'high'
-        elif score_value >= self.thresholds['medium']:
-            return 'medium'
-        else:
-            return 'low'
+        # Sort thresholds by value (descending) to ensure correct classification
+        sorted_thresholds = sorted(self.thresholds.items(), key=lambda x: x[1], reverse=True)
+        
+        for severity, threshold in sorted_thresholds:
+            if score_value >= threshold:
+                return severity
+        
+        return 'low'  # Fallback
 
 
 class DefaultTypeClassifier:

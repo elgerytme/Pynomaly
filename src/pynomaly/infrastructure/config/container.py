@@ -9,6 +9,7 @@ from dependency_injector import containers, providers
 
 # Core imports (always available)
 from pynomaly.application.services import (
+    AnomalyClassificationService,
     DetectionService,
     EnsembleService,
     ExperimentTrackingService,
@@ -24,6 +25,8 @@ from pynomaly.domain.services import (
     EnsembleAggregator,
     FeatureValidator,
     ThresholdCalculator,
+    DefaultSeverityClassifier,
+    DefaultTypeClassifier,
 )
 from pynomaly.infrastructure.config.feature_flags import FeatureFlagManager
 from pynomaly.infrastructure.config.settings import Settings
@@ -436,6 +439,10 @@ class Container(containers.DeclarativeContainer):
     threshold_calculator = providers.Singleton(ThresholdCalculator)
     feature_validator = providers.Singleton(FeatureValidator)
     ensemble_aggregator = providers.Singleton(EnsembleAggregator)
+    
+    # Classifier services
+    default_severity_classifier = providers.Singleton(DefaultSeverityClassifier)
+    default_type_classifier = providers.Singleton(DefaultTypeClassifier)
 
     # Repositories using unified creation logic
     detector_repository = providers.Singleton(
@@ -821,6 +828,12 @@ class Container(containers.DeclarativeContainer):
         cls.connection_pool_manager = providers.Singleton(lambda: None)
 
     # Application services
+    anomaly_classification_service = providers.Singleton(
+        AnomalyClassificationService,
+        severity_classifier=default_severity_classifier,
+        type_classifier=default_type_classifier,
+    )
+    
     detection_service = providers.Singleton(
         DetectionService,
         detector_repository=detector_repository,
