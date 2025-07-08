@@ -5,6 +5,15 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from pynomaly.infrastructure.auth import (
+    UserModel,
+    get_current_user as auth_get_current_user,
+    require_analyst,
+    require_data_scientist,
+    require_super_admin,
+    require_tenant_admin,
+    require_viewer,
+)
 from pynomaly.infrastructure.config import Container
 
 # Security scheme
@@ -89,34 +98,18 @@ async def require_auth(
     return user
 
 
-async def require_read(
-    user: Annotated[str | None, Depends(get_current_user)],
-) -> str:
-    """Require user with read permissions."""
-    if user is None:
-        raise HTTPException(status_code=401, detail="Authentication required")
-    # For now, any authenticated user has read permissions
-    # In a full RBAC system, this would check specific permissions
-    return user
+# RBAC dependencies - these now use proper role-based access control
+# Import the actual RBAC dependencies from the auth module
 
+# For backward compatibility, provide simplified role mapping
+def require_read() -> UserModel:
+    """Require user with read permissions (viewer role or higher)."""
+    return require_viewer
 
-async def require_write(
-    user: Annotated[str | None, Depends(get_current_user)],
-) -> str:
-    """Require user with write permissions."""
-    if user is None:
-        raise HTTPException(status_code=401, detail="Authentication required")
-    # For now, any authenticated user has write permissions
-    # In a full RBAC system, this would check specific permissions
-    return user
+def require_write() -> UserModel:
+    """Require user with write permissions (analyst role or higher)."""
+    return require_analyst
 
-
-async def require_admin(
-    user: Annotated[str | None, Depends(get_current_user)],
-) -> str:
-    """Require user with admin permissions."""
-    if user is None:
-        raise HTTPException(status_code=401, detail="Authentication required")
-    # For now, any authenticated user has admin permissions
-    # In a full RBAC system, this would check admin roles
-    return user
+def require_admin() -> UserModel:
+    """Require user with admin permissions (tenant admin or higher)."""
+    return require_tenant_admin

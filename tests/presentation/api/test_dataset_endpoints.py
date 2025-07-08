@@ -99,7 +99,7 @@ class TestDatasetEndpoints:
             mock_use_case.return_value = mock_instance
 
             response = client.post(
-                "/datasets", json=sample_dataset_request, headers=auth_headers
+                "/api/datasets", json=sample_dataset_request, headers=auth_headers
             )
 
             assert response.status_code == 201
@@ -115,7 +115,7 @@ class TestDatasetEndpoints:
             "file_format": "invalid_format",
         }
 
-        response = client.post("/datasets", json=invalid_request, headers=auth_headers)
+        response = client.post("/api/datasets", json=invalid_request, headers=auth_headers)
 
         assert response.status_code == 422
         data = response.json()
@@ -123,7 +123,7 @@ class TestDatasetEndpoints:
 
     def test_create_dataset_unauthorized(self, client):
         """Test dataset creation without authentication."""
-        response = client.post("/datasets", json={})
+        response = client.post("/api/datasets", json={})
 
         assert response.status_code == 401
 
@@ -148,7 +148,7 @@ class TestDatasetEndpoints:
             )
             mock_use_case.return_value = mock_instance
 
-            response = client.get("/datasets/dataset123", headers=auth_headers)
+            response = client.get("/api/datasets/dataset123", headers=auth_headers)
 
             assert response.status_code == 200
             data = response.json()
@@ -164,7 +164,7 @@ class TestDatasetEndpoints:
             mock_instance.execute.side_effect = ValueError("Dataset not found")
             mock_use_case.return_value = mock_instance
 
-            response = client.get("/datasets/nonexistent", headers=auth_headers)
+            response = client.get("/api/datasets/nonexistent", headers=auth_headers)
 
             assert response.status_code == 404
 
@@ -204,7 +204,7 @@ class TestDatasetEndpoints:
             ]
             mock_use_case.return_value = mock_instance
 
-            response = client.get("/datasets", headers=auth_headers)
+            response = client.get("/api/datasets", headers=auth_headers)
 
             assert response.status_code == 200
             data = response.json()
@@ -214,7 +214,7 @@ class TestDatasetEndpoints:
 
     def test_list_datasets_with_pagination(self, client, mock_auth, auth_headers):
         """Test listing datasets with pagination."""
-        response = client.get("/datasets?page=1&size=10", headers=auth_headers)
+        response = client.get("/api/datasets?page=1&size=10", headers=auth_headers)
 
         assert response.status_code == 200
         data = response.json()

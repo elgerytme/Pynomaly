@@ -220,6 +220,82 @@ def require_permission(permission: str) -> PermissionChecker:
     return PermissionChecker([permission])
 
 
+# Role-based access control dependencies
+class RoleChecker:
+    """Role checker dependency that validates user has specific roles."""
+
+    def __init__(self, roles: list[str]):
+        """Initialize with required roles.
+
+        Args:
+            roles: Required roles
+        """
+        self.roles = roles
+
+    async def __call__(
+        self,
+        current_user: Annotated[UserModel | None, Depends(get_current_user)],
+        auth_service: Annotated[JWTAuthService | None, Depends(get_auth)],
+    ) -> UserModel:
+        """Check roles for current user.
+
+        Args:
+            current_user: Current user
+            auth_service: Auth service
+
+        Returns:
+            User if authorized
+
+        Raises:
+            HTTPException: If not authenticated or authorized
+        """
+        if not current_user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authentication required",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        if not auth_service:
+            # If no auth service, allow access (backward compatibility)
+            return current_user
+
+        # Check if user has any of the required roles
+        user_roles = set(current_user.roles or [])
+        required_roles = set(self.roles)
+
+        # Super admin has access to everything
+        if "super_admin" in user_roles:
+            return current_user
+
+        if not user_roles.intersection(required_roles):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Insufficient permissions. Required roles: {', '.join(self.roles)}",
+            )
+
+        return current_user
+
+
+def require_role(*roles: str) -> RoleChecker:
+    """Create a role checker for specific roles.
+
+    Args:
+        *roles: Required roles
+
+    Returns:
+        RoleChecker instance
+    """
+    return RoleChecker(list(roles))
+
+
+# Predefined role dependencies
+require_super_admin = RoleChecker(["super_admin"])
+require_tenant_admin = RoleChecker(["tenant_admin", "super_admin"])
+require_data_scientist = RoleChecker(["data_scientist", "tenant_admin", "super_admin"])
+require_analyst = RoleChecker(["analyst", "data_scientist", "tenant_admin", "super_admin"])
+require_viewer = RoleChecker(["viewer", "analyst", "data_scientist", "tenant_admin", "super_admin"])
+
 # Rate limiter instances
 default_limiter = RateLimiter(requests=100, window=60)
 strict_limiter = RateLimiter(requests=10, window=60)

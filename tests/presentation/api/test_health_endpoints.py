@@ -45,7 +45,7 @@ class TestHealthEndpoints:
 
     def test_basic_health_check(self, client):
         """Test basic health check endpoint."""
-        response = client.get("/health")
+        response = client.get("/api/health")
 
         assert response.status_code == 200
         data = response.json()
@@ -55,14 +55,14 @@ class TestHealthEndpoints:
 
     def test_health_check_no_auth_required(self, client):
         """Test that health check doesn't require authentication."""
-        response = client.get("/health")
+        response = client.get("/api/health")
 
         assert response.status_code == 200
         # Should work without Authorization header
 
     def test_liveness_probe(self, client):
         """Test Kubernetes liveness probe endpoint."""
-        response = client.get("/health/live")
+        response = client.get("/api/health/live")
 
         assert response.status_code == 200
         data = response.json()
@@ -70,7 +70,7 @@ class TestHealthEndpoints:
 
     def test_readiness_probe(self, client, mock_health_service):
         """Test Kubernetes readiness probe endpoint."""
-        response = client.get("/health/ready")
+        response = client.get("/api/health/ready")
 
         assert response.status_code == 200
         data = response.json()
@@ -79,7 +79,7 @@ class TestHealthEndpoints:
 
     def test_startup_probe(self, client):
         """Test Kubernetes startup probe endpoint."""
-        response = client.get("/health/startup")
+        response = client.get("/api/health/startup")
 
         assert response.status_code == 200
         data = response.json()
@@ -89,7 +89,7 @@ class TestHealthEndpoints:
 
     def test_detailed_health_status(self, client, mock_health_service):
         """Test detailed health status endpoint."""
-        response = client.get("/health/status")
+        response = client.get("/api/health/status")
 
         assert response.status_code == 200
         data = response.json()
@@ -111,7 +111,7 @@ class TestHealthEndpoints:
             "system": {"cpu_usage": 85.5, "memory_usage": 90.2, "disk_usage": 95.8},
         }
 
-        response = client.get("/health/status")
+        response = client.get("/api/health/status")
 
         assert response.status_code == 200
         data = response.json()
@@ -131,7 +131,7 @@ class TestHealthEndpoints:
             "system": {"cpu_usage": 95.0, "memory_usage": 98.5, "disk_usage": 99.2},
         }
 
-        response = client.get("/health/status")
+        response = client.get("/api/health/status")
 
         assert response.status_code == 503  # Service Unavailable
         data = response.json()
@@ -148,7 +148,7 @@ class TestHealthEndpoints:
             "last_check": datetime.utcnow().isoformat(),
         }
 
-        response = client.get("/health/database")
+        response = client.get("/api/health/database")
 
         assert response.status_code == 200
         data = response.json()
@@ -165,7 +165,7 @@ class TestHealthEndpoints:
             "hit_rate": 0.85,
         }
 
-        response = client.get("/health/cache")
+        response = client.get("/api/health/cache")
 
         assert response.status_code == 200
         data = response.json()
@@ -181,7 +181,7 @@ class TestHealthEndpoints:
             "io_stats": {"read_ops": 1250, "write_ops": 890},
         }
 
-        response = client.get("/health/storage")
+        response = client.get("/api/health/storage")
 
         assert response.status_code == 200
         data = response.json()
@@ -192,7 +192,7 @@ class TestHealthEndpoints:
 
     def test_metrics_endpoint(self, client):
         """Test Prometheus metrics endpoint."""
-        response = client.get("/metrics")
+        response = client.get("/api/metrics")
 
         assert response.status_code == 200
         assert (
@@ -207,7 +207,7 @@ class TestHealthEndpoints:
 
     def test_system_metrics(self, client, mock_health_service):
         """Test system metrics endpoint."""
-        response = client.get("/health/metrics")
+        response = client.get("/api/health/metrics")
 
         assert response.status_code == 200
         data = response.json()
@@ -217,7 +217,7 @@ class TestHealthEndpoints:
 
     def test_performance_metrics(self, client):
         """Test performance metrics collection."""
-        response = client.get("/health/performance")
+        response = client.get("/api/health/performance")
 
         assert response.status_code == 200
         data = response.json()
@@ -229,7 +229,7 @@ class TestHealthEndpoints:
 
     def test_version_endpoint(self, client):
         """Test version information endpoint."""
-        response = client.get("/health/version")
+        response = client.get("/api/health/version")
 
         assert response.status_code == 200
         data = response.json()
@@ -240,7 +240,7 @@ class TestHealthEndpoints:
 
     def test_build_info_endpoint(self, client):
         """Test build information endpoint."""
-        response = client.get("/health/build")
+        response = client.get("/api/health/build")
 
         assert response.status_code == 200
         data = response.json()
@@ -261,7 +261,7 @@ class TestHealthEndpoints:
             },
         }
 
-        response = client.get("/health/dependencies")
+        response = client.get("/api/health/dependencies")
 
         assert response.status_code == 200
         data = response.json()
@@ -270,7 +270,7 @@ class TestHealthEndpoints:
 
     def test_ml_frameworks_health(self, client):
         """Test ML frameworks availability check."""
-        response = client.get("/health/ml-frameworks")
+        response = client.get("/api/health/ml-frameworks")
 
         assert response.status_code == 200
         data = response.json()
@@ -287,7 +287,7 @@ class TestHealthEndpoints:
             "alert_systems": {"status": "healthy", "active_alerts": 0},
         }
 
-        response = client.get("/health/custom")
+        response = client.get("/api/health/custom")
 
         assert response.status_code == 200
         data = response.json()
@@ -300,7 +300,7 @@ class TestHealthEndpoints:
     def test_admin_health_endpoint(self, client):
         """Test admin-only health endpoint (requires authentication)."""
         # Without authentication
-        response = client.get("/health/admin")
+        response = client.get("/api/health/admin")
         assert response.status_code == 401
 
         # With authentication (mocked)
@@ -309,7 +309,7 @@ class TestHealthEndpoints:
             "pynomaly.infrastructure.auth.jwt_auth.JWTAuthHandler.get_current_user"
         ) as mock_auth:
             mock_auth.return_value = {"role": "admin", "permissions": ["admin:health"]}
-            response = client.get("/health/admin", headers=headers)
+            response = client.get("/api/health/admin", headers=headers)
             assert response.status_code == 200
 
     # Load and Stress Testing Health
@@ -330,7 +330,7 @@ class TestHealthEndpoints:
             "status": "healthy",
         }
 
-        response = client.get("/health/load")
+        response = client.get("/api/health/load")
 
         assert response.status_code == 200
         data = response.json()
@@ -339,7 +339,7 @@ class TestHealthEndpoints:
 
     def test_circuit_breaker_status(self, client):
         """Test circuit breaker status in health check."""
-        response = client.get("/health/circuit-breakers")
+        response = client.get("/api/health/circuit-breakers")
 
         assert response.status_code == 200
         data = response.json()
@@ -351,7 +351,7 @@ class TestHealthEndpoints:
         """Test health check when service throws exception."""
         mock_health_service.get_system_health.side_effect = Exception("Service error")
 
-        response = client.get("/health/status")
+        response = client.get("/api/health/status")
 
         assert response.status_code == 503
         data = response.json()
@@ -368,7 +368,7 @@ class TestHealthEndpoints:
             },
         }
 
-        response = client.get("/health/status")
+        response = client.get("/api/health/status")
 
         assert response.status_code == 200
         data = response.json()
@@ -378,7 +378,7 @@ class TestHealthEndpoints:
 
     def test_health_response_format(self, client):
         """Test health check response format consistency."""
-        response = client.get("/health")
+        response = client.get("/api/health")
 
         assert response.status_code == 200
         data = response.json()
@@ -393,7 +393,7 @@ class TestHealthEndpoints:
 
     def test_health_response_headers(self, client):
         """Test health check response headers."""
-        response = client.get("/health")
+        response = client.get("/api/health")
 
         assert response.headers["content-type"] == "application/json"
         assert "cache-control" in response.headers
@@ -406,7 +406,7 @@ class TestHealthEndpoints:
         with patch(
             "pynomaly.infrastructure.monitoring.health_service.logger"
         ) as mock_logger:
-            response = client.get("/health/status")
+            response = client.get("/api/health/status")
 
             assert response.status_code == 200
             mock_logger.info.assert_called()
@@ -416,7 +416,7 @@ class TestHealthEndpoints:
         with patch(
             "pynomaly.infrastructure.monitoring.health_service.metrics"
         ) as mock_metrics:
-            response = client.get("/health")
+            response = client.get("/api/health")
 
             assert response.status_code == 200
             # Verify metrics were recorded
@@ -435,41 +435,41 @@ class TestHealthEndpointsIntegration:
     def test_health_check_workflow(self, client):
         """Test complete health check workflow."""
         # 1. Basic health check
-        basic_response = client.get("/health")
+        basic_response = client.get("/api/health")
         assert basic_response.status_code == 200
 
         # 2. Detailed status
-        status_response = client.get("/health/status")
+        status_response = client.get("/api/health/status")
         assert status_response.status_code in [200, 503]
 
         # 3. Individual service checks
         services = ["database", "cache", "storage"]
         for service in services:
-            service_response = client.get(f"/health/{service}")
+            service_response = client.get(f"/api/health/{service}")
             assert service_response.status_code in [200, 503]
 
     def test_kubernetes_probes_workflow(self, client):
         """Test Kubernetes health probe workflow."""
         # Startup probe
-        startup_response = client.get("/health/startup")
+        startup_response = client.get("/api/health/startup")
         assert startup_response.status_code == 200
 
         # Liveness probe
-        liveness_response = client.get("/health/live")
+        liveness_response = client.get("/api/health/live")
         assert liveness_response.status_code == 200
 
         # Readiness probe
-        readiness_response = client.get("/health/ready")
+        readiness_response = client.get("/api/health/ready")
         assert readiness_response.status_code in [200, 503]
 
     def test_monitoring_data_collection(self, client):
         """Test comprehensive monitoring data collection."""
         endpoints = [
-            "/health",
-            "/health/status",
-            "/health/metrics",
-            "/health/performance",
-            "/health/version",
+            "/api/health",
+            "/api/health/status",
+            "/api/health/metrics",
+            "/api/health/performance",
+            "/api/health/version",
         ]
 
         for endpoint in endpoints:

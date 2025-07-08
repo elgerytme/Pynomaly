@@ -8,8 +8,6 @@ from typing import Any, Dict, Optional
 from dataclasses import dataclass, asdict
 from contextlib import asynccontextmanager
 
-from pynomaly.infrastructure.observability import get_logger
-
 
 class AuditEventType(str, Enum):
     """Types of audit events."""
@@ -130,7 +128,7 @@ class AuditLogger:
         Args:
             logger_name: Name for the audit logger
         """
-        self.logger = get_logger(logger_name)
+        self.logger = logging.getLogger(logger_name)
         self.logger.setLevel(logging.INFO)
         
         # Create audit-specific handler
@@ -195,12 +193,29 @@ class AuditLogger:
         """
         self._event_processors.append(processor)
     
-    def log_event(self, event: AuditEvent) -> None:
+    def log_event(self, 
+                  event_type: AuditEventType,
+                  user_id: Optional[str] = None,
+                  outcome: str = "success",
+                  severity: AuditSeverity = AuditSeverity.LOW,
+                  details: Optional[Dict[str, Any]] = None) -> None:
         """Log an audit event.
         
         Args:
-            event: Audit event to log
+            event_type: Type of audit event
+            user_id: User ID associated with the event
+            outcome: Event outcome (success, failure, error)
+            severity: Event severity level
+            details: Additional event details
         """
+        event = AuditEvent(
+            event_type=event_type,
+            timestamp=datetime.now(UTC),
+            user_id=user_id,
+            outcome=outcome,
+            severity=severity,
+            details=details or {}
+        )
         # Process event through enrichment processors
         for processor in self._event_processors:
             try:

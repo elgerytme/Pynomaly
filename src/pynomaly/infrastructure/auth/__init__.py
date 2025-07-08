@@ -11,19 +11,25 @@ from .jwt_auth import (
 from .middleware import (
     PermissionChecker,
     RateLimiter,
+    RoleChecker,
     create_auth_context,
     default_limiter,
     get_current_active_user,
     get_current_user,
     require_admin,
+    require_analyst,
+    require_data_scientist,
     require_permission,
     require_read,
+    require_role,
+    require_super_admin,
+    require_tenant_admin,
+    require_viewer,
     require_write,
     strict_limiter,
     track_request_metrics,
 )
 from .dependencies import (
-    require_role,
     require_api_key,
     require_role_or_api_key,
 )
@@ -48,6 +54,7 @@ __all__ = [
     "get_current_active_user",
     "PermissionChecker",
     "RateLimiter",
+    "RoleChecker",
     "require_read",
     "require_write",
     "require_admin",
@@ -56,8 +63,14 @@ __all__ = [
     "strict_limiter",
     "track_request_metrics",
     "create_auth_context",
-    # Dependencies
+    # Role-based dependencies
     "require_role",
+    "require_super_admin",
+    "require_tenant_admin",
+    "require_data_scientist",
+    "require_analyst",
+    "require_viewer",
+    # Other dependencies
     "require_api_key",
     "require_role_or_api_key",
     # WebSocket & HTMX Auth

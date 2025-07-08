@@ -51,10 +51,10 @@ app = typer.Typer(
 def explain(
     detector_path: Path = typer.Argument(..., help="Path to saved detector model", exists=True),
     dataset_path: Path = typer.Argument(..., help="Path to dataset file (CSV or Parquet)", exists=True),
-    explanation_type: Literal["local", "global", "both"] = typer.Option(
+    explanation_type: str = typer.Option(
         "both",
         "-t", "--explanation-type",
-        help="Type of explanation to generate"
+        help="Type of explanation to generate (local, global, both)"
     ),
     methods: Optional[List[str]] = typer.Option(
         None,
@@ -62,16 +62,16 @@ def explain(
         help="Explanation methods to use (options: shap, lime, permutation, gradient)"
     ),
     n_samples: int = typer.Option(10, "--n-samples", help="Number of samples for local explanations"),
-    audience: Literal["technical", "business", "regulatory"] = typer.Option(
+    audience: str = typer.Option(
         "technical",
         "--audience",
-        help="Target audience for explanations"
+        help="Target audience for explanations (technical, business, regulatory)"
     ),
     output: Optional[Path] = typer.Option(None, "--output", help="Output file for explanation report"),
-    output_format: Literal["json", "html", "pdf"] = typer.Option(
+    output_format: str = typer.Option(
         "json",
         "--format",
-        help="Output format"
+        help="Output format (json, html, pdf)"
     ),
     visualizations: bool = typer.Option(True, "--visualizations/--no-visualizations", help="Generate visualization plots"),
 ):

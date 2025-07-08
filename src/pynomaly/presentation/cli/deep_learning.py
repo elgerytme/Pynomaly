@@ -51,12 +51,12 @@ def train(
     algorithm: str = typer.Option(
         "autoencoder",
         "-a", "--algorithm",
-        help="Deep learning algorithm"
+        help="Deep learning algorithm (options: autoencoder, vae, lstm, gru, transformer)"
     ),
     framework: Optional[str] = typer.Option(
         None,
         "-f", "--framework",
-        help="Deep learning framework (auto-select if not specified)"
+        help="Deep learning framework (options: pytorch, tensorflow, jax; auto-select if not specified)"
     ),
     epochs: int = typer.Option(100, "--epochs", help="Number of training epochs"),
     batch_size: int = typer.Option(32, "--batch-size", help="Batch size for training"),
@@ -180,7 +180,7 @@ def benchmark(
     algorithm: str = typer.Option(
         "autoencoder",
         "-a", "--algorithm",
-        help="Deep learning algorithm"
+        help="Deep learning algorithm (options: autoencoder, vae, lstm, gru, transformer)"
     ),
     frameworks: Optional[List[str]] = typer.Option(
         None,
@@ -242,10 +242,10 @@ def benchmark(
 @require_feature("deep_learning")
 def recommend(
     dataset_path: Path = typer.Argument(..., help="Path to the dataset file", exists=True),
-    priority: Literal["speed", "accuracy", "memory", "balanced"] = typer.Option(
+    priority: str = typer.Option(
         "balanced",
         "--priority",
-        help="Performance priority"
+        help="Performance priority (speed, accuracy, memory, balanced)"
     ),
     gpu: bool = typer.Option(True, "--gpu/--no-gpu", help="GPU availability"),
 ):
@@ -349,11 +349,11 @@ def frameworks():
 @app.command()
 @require_feature("deep_learning")
 def info(
-    algorithm: str = typer.Option(
-        "autoencoder",
-        "-a", "--algorithm",
-        help="Deep learning algorithm (options: autoencoder, vae, lstm, gru, transformer)"
+    algorithm: str = typer.Argument(
+        ...,
+        help="Algorithm to get information about (options: autoencoder, vae, lstm, gru, transformer)"
     ),
+):
     """Get detailed information about a deep learning algorithm.
 
     ALGORITHM: Algorithm to get information about
