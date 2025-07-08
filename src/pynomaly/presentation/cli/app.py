@@ -27,7 +27,7 @@ from pynomaly.presentation.cli import (
 )
 from pynomaly.presentation.cli.export import export_app
 from pynomaly.presentation.cli.performance import performance_app
-from pynomaly.presentation.cli.benchmarking import benchmark_commands
+from pynomaly.presentation.cli.benchmark import benchmark_app
 
 # These modules are now properly converted to Typer
 # from pynomaly.presentation.cli import deep_learning  # ✅ Now uses Typer - re-enabled below
@@ -105,7 +105,7 @@ app.add_typer(
     performance_app, name="perf", help="Performance monitoring and optimization"
 )
 app.add_typer(
-    benchmark_commands, name="benchmark", help="🔬 Performance benchmarking and testing"
+    benchmark_app, name="benchmark", help="🔬 Performance benchmarking and testing"
 )
 
 # Configuration recommendation commands
