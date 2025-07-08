@@ -320,7 +320,7 @@ def feature_importance(
         "shap",
         "--method",
         help="Feature importance method",
-        click_type=click.Choice(["shap", "lime", "permutation"])
+        case_insensitive=True
     ),
     top_k: int = typer.Option(15, "--top-k", help="Number of top features to display"),
     output: Optional[Path] = typer.Option(None, "--output", help="Output file for feature importance"),
@@ -503,7 +503,7 @@ def info(
     explanation_type: str = typer.Argument(
         ...,
         help="Type of explanation to get information about",
-        click_type=click.Choice(["local", "global", "bias", "trust"])
+        case_insensitive=True
     ),
 ):
     """Get detailed information about explanation types and methods.

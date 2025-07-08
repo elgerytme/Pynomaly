@@ -275,6 +275,4 @@ def create_app(container: Container | None = None) -> FastAPI:
 
 
 # Create default app instance for uvicorn
-
-# Create default app instance for uvicorn
 app = create_app()
