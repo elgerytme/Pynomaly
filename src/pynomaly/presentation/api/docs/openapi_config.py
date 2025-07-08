@@ -336,9 +336,9 @@ def configure_openapi_docs(app: FastAPI, settings: Settings) -> None:
     app.openapi = custom_openapi
 
     # Configure documentation URLs and settings
-    app.docs_url = "/docs" if settings.docs_enabled else None
-    app.redoc_url = "/redoc" if settings.docs_enabled else None
-    app.openapi_url = "/openapi.json" if settings.docs_enabled else None
+    app.docs_url = "/api/v1/docs" if settings.docs_enabled else None
+    app.redoc_url = "/api/v1/redoc" if settings.docs_enabled else None
+    app.openapi_url = "/api/openapi.json" if settings.docs_enabled else None
 
 
 def get_custom_swagger_ui_html(

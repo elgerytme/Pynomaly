@@ -5,7 +5,9 @@ from fastapi import APIRouter, FastAPI
 from pynomaly.presentation.api.dependencies import (
     get_current_user_safe,
     require_auth_safe,
+    get_container_simple,
 )
+from pynomaly.presentation.api.dependencies.container import get_container_safe
 
 # Import the existing complex auth dependencies that cause issues
 from pynomaly.infrastructure.auth import (
@@ -34,6 +36,8 @@ def create_api_router_with_overrides() -> APIRouter:
         require_admin: require_auth_safe,
         require_analyst: require_auth_safe,
         require_viewer: require_auth_safe,
+        # Container dependencies
+        get_container_simple: get_container_safe,
     }
     
     return router
@@ -55,4 +59,6 @@ def apply_openapi_overrides(app: FastAPI) -> None:
         require_admin: require_auth_safe,
         require_analyst: require_auth_safe, 
         require_viewer: require_auth_safe,
+        # Container dependencies
+        get_container_simple: get_container_safe,
     })
