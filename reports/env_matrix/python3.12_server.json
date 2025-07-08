@@ -1,7 +1,7 @@
 {
-  "python_version": "3.11",
-  "extra": "automl",
-  "test_timestamp": "2025-07-08T14:13:25.275321",
+  "python_version": "3.12",
+  "extra": "server",
+  "test_timestamp": "2025-07-08T14:13:25.283831",
   "venv_creation": {
     "success": false,
     "error": "Failed to create virtual environment"
