@@ -12,7 +12,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
 
-from pynomaly.application.dto.configuration_dto import OptimizationConfigDTO
+from pynomaly.application.dto.optimization_dto import OptimizationConfigDTO
 from pynomaly.domain.value_objects.hyperparameters import (
     HyperparameterSet,
     HyperparameterSpace,

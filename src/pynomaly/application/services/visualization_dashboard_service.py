@@ -476,7 +476,7 @@ class VisualizationDashboardService:
             )
 
             # Cache dashboard
-            self.dashboard_cache["executive"] = dashboard_data
+            self.dashboard_cache[dashboard_data.dashboard_id] = dashboard_data
 
             logger.info("Executive dashboard generated successfully")
             return dashboard_data
@@ -541,7 +541,7 @@ class VisualizationDashboardService:
                 dashboard_data.metadata["refresh_interval"] = 5  # seconds
 
             # Cache dashboard
-            self.dashboard_cache["operational"] = dashboard_data
+            self.dashboard_cache[dashboard_data.dashboard_id] = dashboard_data
 
             logger.info("Operational dashboard generated successfully")
             return dashboard_data

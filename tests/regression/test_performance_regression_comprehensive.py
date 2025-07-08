@@ -117,7 +117,7 @@ class TestTrainingPerformanceRegression:
                 ), f"{dataset_name.capitalize()} dataset training too slow: {training_time}s"
 
                 # Throughput should be reasonable
-                min_throughput = get_threshold(config, 'throughput', 'min_throughput_samples_per_second', 100)
+                min_throughput = get_performance_threshold(config, 'throughput', 'min_throughput_samples_per_second', 100)
                 samples_per_second = dataset.n_samples / training_time
                 assert (
                     samples_per_second > min_throughput
@@ -157,7 +157,7 @@ class TestTrainingPerformanceRegression:
 
                 # LOF performance thresholds (more lenient)
                 default_time_threshold = {'small': 10.0, 'medium': 60.0}
-                time_threshold = config.get('algorithm_thresholds', {}).get('LocalOutlierFactor', {}).get('execution_time', {}).get('max_execution_time_seconds', default_time_threshold[dataset_name])
+                time_threshold = get_threshold(config, 'execution_time', 'max_execution_time_seconds', default_time_threshold[dataset_name], 'LocalOutlierFactor')
                 assert (
                     training_time < time_threshold
                 ), f"LOF {dataset_name} dataset training too slow: {training_time}s"
