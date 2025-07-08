@@ -8,12 +8,10 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID, uuid4
 
-from pynomaly.domain.value_objects import (
-    AnomalyScore,
-    AnomalyType,
-    ConfidenceInterval,
-    SeverityLevel,
-)
+from pynomaly.domain.value_objects.anomaly_score import AnomalyScore
+from pynomaly.domain.value_objects.anomaly_type import AnomalyType
+from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval
+from pynomaly.domain.value_objects.severity_level import SeverityLevel
 
 
 @dataclass

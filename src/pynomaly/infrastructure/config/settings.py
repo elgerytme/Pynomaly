@@ -95,6 +95,59 @@ class SecuritySettings(BaseModel):
             "buffer_size": buffer_size,
             "flush_interval": flush_interval,
         }
+        
+    def get_monitoring_providers(self) -> list[dict[str, Any]]:
+        """Get external monitoring providers configuration."""
+        import os
+        
+        providers = []
+        
+        # Grafana provider
+        if os.getenv("PYNOMALY_GRAFANA_ENABLED", "false").lower() == "true":
+            providers.append({
+                "provider": "grafana",
+                "enabled": True,
+                "endpoint": os.getenv("PYNOMALY_GRAFANA_ENDPOINT", "http://localhost:3000"),
+                "api_key": os.getenv("PYNOMALY_GRAFANA_API_KEY"),
+            })
+            
+        # Datadog provider
+        if os.getenv("PYNOMALY_DATADOG_ENABLED", "false").lower() == "true":
+            providers.append({
+                "provider": "datadog",
+                "enabled": True,
+                "endpoint": os.getenv("PYNOMALY_DATADOG_ENDPOINT", "https://api.datadoghq.com"),
+                "api_key": os.getenv("PYNOMALY_DATADOG_API_KEY"),
+            })
+            
+        # New Relic provider  
+        if os.getenv("PYNOMALY_NEWRELIC_ENABLED", "false").lower() == "true":
+            providers.append({
+                "provider": "new_relic",
+                "enabled": True,
+                "endpoint": os.getenv("PYNOMALY_NEWRELIC_ENDPOINT", "https://api.newrelic.com"),
+                "api_key": os.getenv("PYNOMALY_NEWRELIC_API_KEY"),
+            })
+            
+        # Prometheus provider
+        if os.getenv("PYNOMALY_PROMETHEUS_ENABLED", "false").lower() == "true":
+            providers.append({
+                "provider": "prometheus",
+                "enabled": True,
+                "endpoint": os.getenv("PYNOMALY_PROMETHEUS_ENDPOINT", "http://localhost:9091"),
+                "api_key": os.getenv("PYNOMALY_PROMETHEUS_API_KEY"),
+            })
+            
+        # Custom webhook provider
+        if os.getenv("PYNOMALY_WEBHOOK_ENABLED", "false").lower() == "true":
+            providers.append({
+                "provider": "custom_webhook",
+                "enabled": True,
+                "endpoint": os.getenv("PYNOMALY_WEBHOOK_ENDPOINT"),
+                "api_key": os.getenv("PYNOMALY_WEBHOOK_API_KEY"),
+            })
+            
+        return providers
 
     @field_validator("encryption_algorithm")
     @classmethod
