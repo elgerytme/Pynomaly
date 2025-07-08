@@ -271,6 +271,8 @@ def create_app(container: Container | None = None) -> FastAPI:
             "version_info": "/api/v1/version",
         }
 
+    return app
+
 
 # Create default app instance for uvicorn
 app = create_app()
