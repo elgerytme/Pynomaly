@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "hatchling", 
+    "hatchling",
     "hatch-vcs",
 ]
 build-backend = "hatchling.build"
@@ -56,9 +56,9 @@ standard = ["scikit-learn>=1.6.0", "scipy>=1.15.0", "pyarrow>=18.1.0"]
 # Interface extras
 api = [
     "fastapi>=0.115.0",
-    "uvicorn[standard]>=0.34.0", 
+    "uvicorn[standard]>=0.34.0",
     "httpx>=0.28.1",
-    "requests>=2.32.3", 
+    "requests>=2.32.3",
     "python-multipart>=0.0.20",
     "jinja2>=3.1.5",
     "aiofiles>=24.1.0",
@@ -86,7 +86,7 @@ auth = ["pyjwt>=2.10.1", "passlib[bcrypt]>=1.7.4"]
 caching = ["redis>=5.2.1"]
 monitoring = [
     "opentelemetry-api>=1.29.0",
-    "opentelemetry-sdk>=1.29.0", 
+    "opentelemetry-sdk>=1.29.0",
     "opentelemetry-instrumentation-fastapi>=0.50b0",
     "prometheus-client>=0.21.1",
     "psutil>=6.1.1",
@@ -109,7 +109,7 @@ data-formats = [
 database = ["sqlalchemy>=2.0.36", "psycopg2-binary>=2.9.10"]
 spark = ["pyspark>=3.5.4"]
 
-# ML backend extras  
+# ML backend extras
 torch = ["torch>=2.5.1"]
 tensorflow = ["tensorflow>=2.18.0,<2.20.0", "keras>=3.8.0"]
 jax = ["jax>=0.4.37", "jaxlib>=0.4.37", "optax>=0.2.4"]
@@ -118,7 +118,7 @@ jax = ["jax>=0.4.37", "jaxlib>=0.4.37", "optax>=0.2.4"]
 graph = ["pygod>=1.1.0", "torch-geometric>=2.6.1"]
 automl = [
     "optuna>=4.1.0",
-    "hyperopt>=0.2.7", 
+    "hyperopt>=0.2.7",
     "auto-sklearn2>=1.0.0",
     "scikit-learn>=1.6.0"
 ]
@@ -277,7 +277,7 @@ version-file = "src/pynomaly/_version.py"
 # executable = "/mnt/c/Users/andre/buck2.exe"
 # targets = [
 #     "//:pynomaly-lib",
-#     "//:pynomaly-cli", 
+#     "//:pynomaly-cli",
 #     "//:pynomaly-api",
 #     "//:pynomaly-web",
 #     "//:web-assets",
@@ -398,7 +398,7 @@ dependencies = [
     "hatch>=1.12.0",
 ]
 extra-dependencies = [
-    "pynomaly[test,lint,docs]",
+    "pynomaly[dev,test,lint,docs]",
 ]
 
 [tool.hatch.envs.dev.scripts]
@@ -448,11 +448,11 @@ report = "pytest tests/ui/ --html=test_reports/ui_test_report.html --self-contai
 target-version = "py311"
 line-length = 88
 extend-exclude = [
-    "migrations", 
-    "environments", 
-    ".env*", 
-    ".venv*", 
-    "test_env*", 
+    "migrations",
+    "environments",
+    ".env*",
+    ".venv*",
+    "test_env*",
     "venv*"
 ]
 
@@ -488,7 +488,7 @@ known_first_party = ["pynomaly"]
 skip_glob = [
     "environments/*",
     ".env*",
-    ".venv*", 
+    ".venv*",
     "test_env*",
     "venv*"
 ]
@@ -571,12 +571,12 @@ exclude = [
     "venv*/"
 ]
 
-# PyRight configuration  
+# PyRight configuration
 [tool.pyright]
 exclude = [
     "environments/",
     ".env*/",
-    ".venv*/", 
+    ".venv*/",
     "test_env*/",
     "venv*/"
 ]
