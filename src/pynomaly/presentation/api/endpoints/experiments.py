@@ -1,5 +1,6 @@
 """Experiment tracking endpoints."""
 
+from uuid import uuid4, UUID
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import FileResponse
 
@@ -9,6 +10,7 @@ from pynomaly.application.dto import (
     LeaderboardEntryDTO,
     RunDTO,
 )
+from pynomaly.domain.entities.ab_testing import ComparisonResult
 from pynomaly.infrastructure.auth import (
     UserModel,
     get_current_user,
@@ -185,41 +187,93 @@ async def trigger_comparison(
         raise HTTPException(status_code=400, detail=f"Failed to trigger comparison: {str(e)}")
 
 
-@router.get("/{experiment_id}/results", response_model=ComparisonResult)
+@router.get("/{experiment_id}/results")
 async def get_comparison_results(
     experiment_id: str,
+    include_charts: bool = Query(False, description="Include visualization charts"),
     current_user: UserModel = Depends(require_viewer),
     container: Container = Depends(lambda: Container()),
-) -> list[ComparisonResult]:
-    """Fetch comparison results for an experiment."""
+) -> dict:
+    """Fetch comparison results for an experiment with charts."""
     experiment_service = container.experiment_tracking_service()
 
     try:
         comparison_df = await experiment_service.compare_runs(experiment_id=experiment_id)
+        
+        if comparison_df.empty:
+            return {
+                "experiment_id": experiment_id,
+                "comparison_results": [],
+                "charts": {} if include_charts else None,
+                "summary": {"total_runs": 0, "metrics_analyzed": 0}
+            }
 
-        # Transform DataFrame rows into ComparisonResult model
-        comparison_results = [
-            ComparisonResult(
-                comparison_id=uuid4(),  # Generate new UUID for comparison result
-                control_variant_id=UUID(run['run_id']),
-                treatment_variant_id=UUID(run['run_id']),
-                metric_name=metric,
-                control_value=float(run[metric]),
-                treatment_value=float(run[metric]),
-                difference=0,  # Placeholder
-                relative_difference=0,  # Placeholder
-                effect_size=0,  # Placeholder
-                test_statistic=0,  # Placeholder
-                p_value=0,  # Placeholder
-                confidence_interval=(0.0, 0.0),  # Placeholder
-                is_significant=False,  # Placeholder
-                practical_significance=False,  # Placeholder
-                interpretation="Not computed",  # Placeholder
-            )
-            for run in comparison_df.to_dict(orient="records")
-        ]
-
-        return comparison_results
+        # Extract metrics from DataFrame columns (exclude non-metric columns)
+        non_metric_cols = {'run_id', 'detector', 'dataset', 'timestamp'}
+        metric_cols = [col for col in comparison_df.columns if col not in non_metric_cols and not col.startswith('param_')]
+        
+        # Create comparison results for each metric
+        comparison_results = []
+        runs_data = comparison_df.to_dict(orient="records")
+        
+        for metric in metric_cols:
+            metric_values = [run[metric] for run in runs_data if metric in run and run[metric] is not None]
+            if len(metric_values) >= 2:
+                # Calculate simple statistics for comparison
+                best_value = max(metric_values)
+                worst_value = min(metric_values)
+                avg_value = sum(metric_values) / len(metric_values)
+                
+                comparison_results.append({
+                    "metric_name": metric,
+                    "best_value": best_value,
+                    "worst_value": worst_value,
+                    "average_value": avg_value,
+                    "std_deviation": (sum((x - avg_value) ** 2 for x in metric_values) / len(metric_values)) ** 0.5,
+                    "run_count": len(metric_values),
+                    "improvement_potential": ((best_value - worst_value) / worst_value * 100) if worst_value != 0 else 0
+                })
+        
+        # Generate charts if requested
+        charts = {}
+        if include_charts:
+            charts = {
+                "metrics_comparison": {
+                    "type": "bar",
+                    "data": {
+                        "labels": [result["metric_name"] for result in comparison_results],
+                        "datasets": [{
+                            "label": "Best Value",
+                            "data": [result["best_value"] for result in comparison_results]
+                        }, {
+                            "label": "Average Value", 
+                            "data": [result["average_value"] for result in comparison_results]
+                        }]
+                    }
+                },
+                "run_timeline": {
+                    "type": "line",
+                    "data": {
+                        "labels": [run["timestamp"] for run in runs_data],
+                        "datasets": [{
+                            "label": metric,
+                            "data": [run.get(metric, 0) for run in runs_data]
+                        } for metric in metric_cols[:3]]  # Limit to first 3 metrics for readability
+                    }
+                }
+            }
+        
+        return {
+            "experiment_id": experiment_id,
+            "comparison_results": comparison_results,
+            "charts": charts,
+            "summary": {
+                "total_runs": len(runs_data),
+                "metrics_analyzed": len(metric_cols),
+                "detectors_used": len(set(run["detector"] for run in runs_data)),
+                "datasets_used": len(set(run["dataset"] for run in runs_data))
+            }
+        }
 
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
