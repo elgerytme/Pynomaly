@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- **Critical Bug Fix - Issue #33** (2025-01-08): Fixed syntax error in tests/conftest.py preventing pytest from running
+  - Moved `from __future__ import annotations` to the beginning of the file as required by Python
+  - Fixed git merge conflict artifacts in src/pynomaly/domain/entities/anomaly.py
+  - Added comprehensive regression tests to prevent future occurrences
+  - Verified pytest can now load conftest.py and run test fixtures without syntax errors
 - **Pydantic V2 Compatibility** (2025-07-07): Fixed all Pydantic v1 deprecation warnings and compatibility issues
   - Updated `@validator` decorators to `@field_validator` with proper `@classmethod` decorators
   - Updated `@root_validator` to `@model_validator(mode='before')`  
