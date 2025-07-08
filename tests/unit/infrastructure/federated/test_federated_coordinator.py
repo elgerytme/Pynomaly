@@ -5,7 +5,7 @@ from uuid import uuid4
 
 import numpy as np
 import pytest
-from pynomaly.domain.models.detector import Detector
+from pynomaly.domain.entities.detector import Detector
 from pynomaly.domain.models.federated import (
     AggregationMethod,
     FederatedParticipant,
