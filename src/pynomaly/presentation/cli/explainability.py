@@ -51,27 +51,27 @@ def explain(
         "both",
         "-t", "--explanation-type",
         help="Type of explanation to generate",
-        click_type=click.Choice(["local", "global", "both"])
+        case_insensitive=True
     ),
     methods: Optional[List[str]] = typer.Option(
         None,
         "-m", "--methods",
         help="Explanation methods to use",
-        click_type=click.Choice(["shap", "lime", "permutation", "gradient"])
+        case_insensitive=True
     ),
     n_samples: int = typer.Option(10, "--n-samples", help="Number of samples for local explanations"),
     audience: str = typer.Option(
         "technical",
         "--audience",
         help="Target audience for explanations",
-        click_type=click.Choice(["technical", "business", "regulatory"])
+        case_insensitive=True
     ),
     output: Optional[Path] = typer.Option(None, "--output", help="Output file for explanation report"),
     output_format: str = typer.Option(
         "json",
         "--format",
         help="Output format",
-        click_type=click.Choice(["json", "html", "pdf"])
+        case_insensitive=True
     ),
     visualizations: bool = typer.Option(True, "--visualizations/--no-visualizations", help="Generate visualization plots"),
 ):
@@ -164,7 +164,7 @@ def analyze_bias(
         None,
         "-m", "--metrics",
         help="Fairness metrics to compute",
-        click_type=click.Choice(["demographic_parity", "equalized_odds", "statistical_parity"])
+        case_insensitive=True
     ),
     threshold: float = typer.Option(0.5, "--threshold", help="Decision threshold for binary classification"),
     min_group_size: int = typer.Option(30, "--min-group-size", help="Minimum group size for analysis"),

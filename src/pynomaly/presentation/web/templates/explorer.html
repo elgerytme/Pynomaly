@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Explorer</title>
+    <script src="https://unpkg.com/htmx.org@1.5.0"></script>
+    <style>
+        /* Basic styles */
+        body { font-family: Arial, sans-serif; }
+        #app { display: flex; }
+        .sidebar { width: 20%; background-color: #f4f4f4; padding: 10px; }
+        .content { width: 60%; padding: 10px; }
+        .admin-panel, .log-panel { width: 20%; background-color: #ececec; padding: 10px; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="sidebar">
+            <h2>Endpoints</h2>
+            <!-- Sidebar will be populated by JavaScript -->
+        </div>
+        <div class="content">
+            <h1>API Explorer</h1>
+            <!-- Form builder and response display -->
+        </div>
+        <div class="admin-panel">
+            <!-- Admin panel for CRUD operations -->
+        </div>
+        <div class="log-panel">
+            <!-- Live log streaming -->
+        </div>
+    </div>
+    <script src="/static/js/explorer/sidebar.js"></script>
+    <script src="/static/js/explorer/formBuilder.js"></script>
+    <script src="/static/js/explorer/admin.js"></script>
+    <script src="/static/js/explorer/logViewer.js"></script>
+</body>
+</html>
