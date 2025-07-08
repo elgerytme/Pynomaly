@@ -117,7 +117,7 @@ class TestRunner:
         print("=" * 50)
         
         cmd = [
-            "python", "-m", "pytest",
+            "python3", "-m", "pytest",
             "tests/",
             "-m", "security",
             "--security",
@@ -156,7 +156,7 @@ class TestRunner:
         print("=" * 50)
         
         cmd = [
-            "python", "-m", "pytest",
+            "python3", "-m", "pytest",
             "tests/",
             "-m", "performance",
             "--performance",
@@ -197,7 +197,7 @@ class TestRunner:
         print("=" * 50)
         
         cmd = [
-            "python", "-m", "pytest",
+            "python3", "-m", "pytest",
             "tests/",
             "--integration",
             "--security", 
@@ -242,7 +242,7 @@ class TestRunner:
         print("=" * 50)
         
         cmd = [
-            "python", "-m", "pytest",
+            "python3", "-m", "pytest",
             "tests/",
             "-m", "not (slow or performance)",
             "--cov=src/pynomaly",
@@ -276,15 +276,15 @@ class TestRunner:
         print("=" * 50)
         
         # Generate HTML report
-        html_cmd = ["python", "-m", "coverage", "html", "-d", "reports/coverage"]
+        html_cmd = ["python3", "-m", "coverage", "html", "-d", "reports/coverage"]
         html_result = subprocess.run(html_cmd, cwd=self.project_root, capture_output=True, text=True)
         
         # Generate XML report
-        xml_cmd = ["python", "-m", "coverage", "xml", "-o", "reports/coverage.xml"]
+        xml_cmd = ["python3", "-m", "coverage", "xml", "-o", "reports/coverage.xml"]
         xml_result = subprocess.run(xml_cmd, cwd=self.project_root, capture_output=True, text=True)
         
         # Get coverage report
-        report_cmd = ["python", "-m", "coverage", "report"]
+        report_cmd = ["python3", "-m", "coverage", "report"]
         report_result = subprocess.run(report_cmd, cwd=self.project_root, capture_output=True, text=True)
         
         return {
@@ -308,7 +308,7 @@ class TestRunner:
         
         # MyPy type checking
         print("Running MyPy type checking...")
-        mypy_cmd = ["python", "-m", "mypy", "src/pynomaly", "--ignore-missing-imports"]
+        mypy_cmd = ["python3", "-m", "mypy", "src/pynomaly", "--ignore-missing-imports"]
         mypy_result = subprocess.run(mypy_cmd, cwd=self.project_root, capture_output=True, text=True)
         results["mypy"] = {
             "returncode": mypy_result.returncode,
@@ -318,7 +318,7 @@ class TestRunner:
         
         # Flake8 linting
         print("Running Flake8 linting...")
-        flake8_cmd = ["python", "-m", "flake8", "src/pynomaly", "tests/"]
+        flake8_cmd = ["python3", "-m", "flake8", "src/pynomaly", "tests/"]
         flake8_result = subprocess.run(flake8_cmd, cwd=self.project_root, capture_output=True, text=True)
         results["flake8"] = {
             "returncode": flake8_result.returncode,
@@ -328,7 +328,7 @@ class TestRunner:
         
         # Black formatting check
         print("Running Black formatting check...")
-        black_cmd = ["python", "-m", "black", "--check", "--diff", "src/pynomaly", "tests/"]
+        black_cmd = ["python3", "-m", "black", "--check", "--diff", "src/pynomaly", "tests/"]
         black_result = subprocess.run(black_cmd, cwd=self.project_root, capture_output=True, text=True)
         results["black"] = {
             "returncode": black_result.returncode,

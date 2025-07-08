@@ -17,7 +17,7 @@ class FinalIntegrationTester:
     """Comprehensive end-to-end integration testing"""
 
     def __init__(self):
-        self.project_root = Path(__file__).parent.parent
+        self.project_root = Path(__file__).parent.parent.parent
         self.python_exe = "/usr/bin/python3.12"
         self.results = {
             "cli_tests": {},

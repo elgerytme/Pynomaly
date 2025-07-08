@@ -48,14 +48,12 @@ def train(
     algorithm: str = typer.Option(
         "autoencoder",
         "-a", "--algorithm",
-        help="Deep learning algorithm",
-        click_type=click.Choice(["autoencoder", "vae", "lstm", "transformer", "gmm", "svdd"])
+        help="Deep learning algorithm"
     ),
     framework: Optional[str] = typer.Option(
         None,
         "-f", "--framework",
-        help="Deep learning framework (auto-select if not specified)",
-        click_type=click.Choice(["pytorch", "tensorflow", "jax"])
+        help="Deep learning framework (auto-select if not specified)"
     ),
     epochs: int = typer.Option(100, "--epochs", help="Number of training epochs"),
     batch_size: int = typer.Option(32, "--batch-size", help="Batch size for training"),
@@ -179,15 +177,13 @@ def benchmark(
     algorithm: str = typer.Option(
         "autoencoder",
         "-a", "--algorithm",
-        help="Deep learning algorithm",
+        help="Deep learning algorithm"
     ),
     frameworks: Optional[List[str]] = typer.Option(
         None,
         "-f", "--frameworks",
-        help="Frameworks to benchmark (all available if not specified)",
+        help="Frameworks to benchmark (all available if not specified)"
     ),
-    epochs: int = typer.Option(50, "--epochs", help="Number of training epochs"),
-    output: Optional[Path] = typer.Option(None, "--output", help="Output file for benchmark results"),
 ):
     """Benchmark deep learning frameworks on anomaly detection task.
 
@@ -244,8 +240,7 @@ def recommend(
     priority: str = typer.Option(
         "balanced",
         "--priority",
-        help="Performance priority",
-        click_type=click.Choice(["speed", "accuracy", "memory", "balanced"])
+        help="Performance priority"
     ),
     gpu: bool = typer.Option(True, "--gpu/--no-gpu", help="GPU availability"),
 ):
