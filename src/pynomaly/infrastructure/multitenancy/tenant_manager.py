@@ -11,7 +11,12 @@ import uuid
 import secrets
 
 from pynomaly.shared.config import Config
-from ..monitoring.opentelemetry_service import get_telemetry_service
+# from ..monitoring.opentelemetry_service import get_telemetry_service
+
+# Simple stub for monitoring
+def get_telemetry_service():
+    """Simple stub for monitoring."""
+    return None
 from ..compliance.audit_system import get_audit_system, EventType, Severity
 
 

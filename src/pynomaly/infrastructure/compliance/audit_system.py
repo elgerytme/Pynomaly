@@ -20,8 +20,17 @@ except ImportError:
     AIOFILES_AVAILABLE = False
 
 from pynomaly.shared.config import Config
-from ..monitoring.opentelemetry_service import get_telemetry_service
-from ..monitoring.distributed_tracing import get_distributed_tracer
+# from ..monitoring.opentelemetry_service import get_telemetry_service
+# from ..monitoring.distributed_tracing import get_distributed_tracer
+
+# Simple stubs for monitoring
+def get_telemetry_service():
+    """Simple stub for monitoring."""
+    return None
+
+def get_distributed_tracer():
+    """Simple stub for monitoring."""
+    return None
 
 
 logger = logging.getLogger(__name__)
