@@ -157,11 +157,13 @@ class PerformanceMonitoringService:
             dataset: The dataset related to the performance metrics.
             metrics: The performance metrics to record and examine.
         """
-        # Persist the metrics (storage layer integration required)
-        # Example: self.metrics_repository.save(metrics)
+        # Persist the metrics using the repository
+        self.model_performance_repository.save_metrics(metrics)
 
         # Fetch the baseline for the detector and dataset
-        baseline: Optional[ModelPerformanceBaseline] = self.performance_baselines.get(detector.name)
+        baseline: Optional[ModelPerformanceBaseline] = self.performance_baseline_repository.get_latest_baseline(
+            metrics.model_id
+        )
 
         # If baseline is not available, this could be an initial recording
         if not baseline:
@@ -171,7 +173,7 @@ class PerformanceMonitoringService:
                 mean=metrics.accuracy,  # Example metric; adjust as needed
                 std=0.0  # Initial std deviation
             )
-            self.performance_baselines[detector.name] = baseline
+            self.performance_baseline_repository.save_baseline(baseline)
 
         # Initiate degradation detection
         detector_config = DegradationDetectorConfig(
@@ -194,6 +196,132 @@ class PerformanceMonitoringService:
                 model_id=metrics.model_id,
                 model_name=detector.name
             )
+
+    def get_model_performance_history(
+        self, 
+        model_id: str, 
+        dataset_id: str, 
+        limit: Optional[int] = None,
+        since: Optional[datetime] = None
+    ) -> List[ModelPerformanceMetrics]:
+        """Get performance history for a model.
+        
+        Args:
+            model_id: The model identifier
+            dataset_id: The dataset identifier
+            limit: Maximum number of records to return
+            since: Only return metrics after this timestamp
+            
+        Returns:
+            List of performance metrics
+        """
+        return self.model_performance_repository.get_recent_metrics(
+            model_id=model_id,
+            dataset_id=dataset_id,
+            limit=limit,
+            since=since
+        )
+
+    def get_model_performance_summary(
+        self, 
+        model_id: str, 
+        dataset_id: str
+    ) -> Dict[str, Any]:
+        """Get performance summary for a model.
+        
+        Args:
+            model_id: The model identifier
+            dataset_id: The dataset identifier
+            
+        Returns:
+            Dictionary containing performance summary
+        """
+        return self.model_performance_repository.get_metrics_summary(
+            model_id=model_id,
+            dataset_id=dataset_id
+        )
+
+    def get_performance_baseline(
+        self, 
+        model_id: str, 
+        version: Optional[str] = None
+    ) -> Optional[ModelPerformanceBaseline]:
+        """Get performance baseline for a model.
+        
+        Args:
+            model_id: The model identifier
+            version: The model version (if None, gets latest)
+            
+        Returns:
+            The baseline if found, None otherwise
+        """
+        if version:
+            return self.performance_baseline_repository.get_baseline(model_id, version)
+        else:
+            return self.performance_baseline_repository.get_latest_baseline(model_id)
+
+    def update_performance_baseline(
+        self, 
+        model_id: str, 
+        version: str, 
+        baseline: ModelPerformanceBaseline
+    ) -> None:
+        """Update performance baseline for a model.
+        
+        Args:
+            model_id: The model identifier
+            version: The model version
+            baseline: The updated baseline
+        """
+        self.performance_baseline_repository.update_baseline(baseline)
+
+    def create_performance_baseline(
+        self, 
+        model_id: str, 
+        dataset_id: str, 
+        version: str = "1.0",
+        lookback_days: int = 30
+    ) -> ModelPerformanceBaseline:
+        """Create a new performance baseline from recent metrics.
+        
+        Args:
+            model_id: The model identifier
+            dataset_id: The dataset identifier
+            version: The model version
+            lookback_days: Number of days to look back for metrics
+            
+        Returns:
+            The created baseline
+        """
+        since = datetime.now() - timedelta(days=lookback_days)
+        recent_metrics = self.model_performance_repository.get_recent_metrics(
+            model_id=model_id,
+            dataset_id=dataset_id,
+            since=since
+        )
+        
+        if not recent_metrics:
+            raise ValueError(f"No metrics found for model {model_id} in the last {lookback_days} days")
+        
+        # Calculate baseline statistics
+        accuracies = [m.accuracy for m in recent_metrics]
+        mean_accuracy = sum(accuracies) / len(accuracies)
+        std_accuracy = (sum((x - mean_accuracy) ** 2 for x in accuracies) / len(accuracies)) ** 0.5
+        
+        # Create baseline with percentile thresholds
+        baseline = ModelPerformanceBaseline(
+            model_id=model_id,
+            version=version,
+            mean=mean_accuracy,
+            std=std_accuracy,
+            pct_thresholds={
+                "p95": max(0.0, mean_accuracy - 1.96 * std_accuracy),
+                "p99": max(0.0, mean_accuracy - 2.58 * std_accuracy)
+            }
+        )
+        
+        self.performance_baseline_repository.save_baseline(baseline)
+        return baseline
 
     @require_feature("performance_monitoring")
     def monitor_training_operation(

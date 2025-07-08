@@ -47,6 +47,7 @@ class StepType(Enum):
     POST_PROCESSING = "post_processing"
     MONITORING = "monitoring"
     ALERTING = "alerting"
+    BATCH_PROCESS = "batch_process"
     CUSTOM = "custom"
 
 
@@ -68,6 +69,11 @@ class PipelineStep:
     retry_count: int = 0
     retry_delay_seconds: int = 60
     metadata: dict[str, Any] = field(default_factory=dict)
+    
+    # Batch processing specific fields
+    batch_job_id: str | None = None  # ID of associated batch job
+    batch_status: str | None = None  # Current status of batch job
+    batch_config: dict[str, Any] = field(default_factory=dict)  # Batch processing configuration
 
     def __post_init__(self) -> None:
         """Validate step after initialization."""
