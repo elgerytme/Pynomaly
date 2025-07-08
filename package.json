@@ -45,7 +45,7 @@
     "test:dashboard:advanced": "playwright test tests/ui/dashboard/advanced/",
     "test:drag-drop": "playwright test tests/ui/interactions/drag-drop.spec.ts",
     "test:real-time": "playwright test tests/ui/real-time/",
-    "analyze-bundle": "node scripts/bundle-analyzer.js",
+    "analyze-bundle": "node scripts/analysis/bundle-analyzer.js",
     "analyze-bundle-webpack": "npx webpack-bundle-analyzer storybook-static/static/js/*.js",
     "accessibility-audit": "axe-crawler http://localhost:6006",
     "serve-static": "http-server src/pynomaly/presentation/web/static -p 8080 -c-1"
