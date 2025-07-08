@@ -9,6 +9,24 @@ from typing import Any
 from uuid import UUID, uuid4
 
 
+class NoiseClassification(Enum):
+    """Classification of alerts as signal or noise."""
+
+    SIGNAL = "signal"
+    NOISE = "noise"
+    UNKNOWN = "unknown"
+
+
+@dataclass
+class MLNoiseFeatures:
+    """Dataclass for machine learning noise features used by IntelligentAlertService."""
+    anomaly_score: float = 0.0
+    confidence_level: float = 0.0
+    system_load: float = 0.0
+    memory_usage: float = 0.0
+    cpu_usage: float = 0.0
+
+
 class AlertSeverity(Enum):
     """Severity level of an alert."""
 
