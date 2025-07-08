@@ -14,6 +14,7 @@ Python anomaly detection package targeting Python 3.11+ with clean architecture 
 ## Features
 
 ### Core Features (Stable)
+
 - 🏗️ **Clean Architecture**: Domain-driven design with hexagonal architecture
 - 🔌 **PyOD Integration**: Production-ready PyOD algorithms (40+ algorithms including Isolation Forest, LOF, One-Class SVM)
 - 🧪 **scikit-learn Support**: Standard ML algorithms for anomaly detection
@@ -23,6 +24,7 @@ Python anomaly detection package targeting Python 3.11+ with clean architecture 
 - ✅ **Testing**: Comprehensive test suite with high coverage
 
 ### Advanced Features (Production Ready)
+
 - 🚀 **FastAPI REST API**: 65+ API endpoints with OpenAPI documentation
 - 🔐 **Authentication**: JWT-based authentication framework (optional)
 - 📈 **Monitoring**: Prometheus metrics collection capabilities
@@ -34,6 +36,7 @@ Python anomaly detection package targeting Python 3.11+ with clean architecture 
 ### Experimental Features (Limited Support)
 
 **NOTE:** The following features are marked as experimental and their implementations might be incomplete or not available:
+
 - **ONNX model format is not supported yet in the storage service**
 - **Certain PyTorch base models are placeholders without concrete implementations**
 - 🤖 **AutoML**: Hyperparameter optimization framework (requires additional setup)
@@ -47,12 +50,14 @@ Python anomaly detection package targeting Python 3.11+ with clean architecture 
 ### Quick Setup (Recommended)
 
 #### Prerequisites
+
 ```bash
 # Ensure Python 3.11+ is installed
 python --version  # Should show 3.11 or higher
 ```
 
 #### Installation
+
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/pynomaly.git
@@ -75,6 +80,7 @@ python -c "import pynomaly; print('Installation successful')"
 ```
 
 #### Feature Installation Options
+
 ```bash
 # 🎯 Quick Start (recommended for most users)
 pip install -e ".[server]"       # Complete server (CLI + API + web)
@@ -96,6 +102,7 @@ python scripts/setup/install_features.py
 If you prefer traditional Python environment management, Pynomaly uses a centralized environment structure:
 
 #### Quick Start
+
 ```bash
 # Create virtual environment in organized directory structure
 mkdir -p environments
@@ -115,6 +122,7 @@ pip install -e ".[all]"             # All available features
 **Environment Organization**: Pynomaly uses a centralized `environments/` directory with dot-prefix naming (`.venv`, `.test_env`) to keep the project root clean and organize all virtual environments in one location.
 
 #### Feature-Specific Installation
+
 ```bash
 # Core functionality only
 pip install -e .
@@ -148,29 +156,49 @@ pip install -e ".[dev]"             # Development tools
 Pynomaly is designed to work seamlessly across different operating systems and environments:
 
 **Supported Platforms:**
+
 - **Linux/Unix**: Full compatibility with bash shell environments
 - **macOS**: Complete support for all features and commands
 - **Windows**: Full compatibility with PowerShell and Command Prompt
 - **WSL/WSL2**: Tested and verified on Windows Subsystem for Linux
 
 **Shell Compatibility:**
+
 - **Bash**: All commands and scripts tested and verified
 - **PowerShell**: Cross-platform PowerShell support (Core 6.0+)
 - **Command Prompt**: Basic functionality available
 - **Zsh/Fish**: Compatible with alternative Unix shells
 
 **Python Environment Support:**
+
 - **Virtual Environments**: `venv`, `virtualenv`, `conda`, `pipenv`, `poetry`
 - **Python Versions**: 3.11, 3.12, 3.13+
 - **Package Managers**: pip, conda, poetry, pipenv
 
 **Installation Methods:**
+
 - **Package Installation**: `pip install -e .` (cross-platform)
-- **Development Setup**: Poetry-based development environment
+- **Development Setup**: Hatch-based development environment
 - **Container Deployment**: Docker support for all platforms
 - **Cloud Deployment**: AWS, Azure, GCP compatible
 
+### Development Setup
+
+```bash
+# Quick development environment setup
+make dev
+
+# Or use the development script
+./scripts/dev_setup.sh
+```
+
+This will:
+- Create an isolated `.venv` under `environments/`
+- Install Pynomaly in editable mode with all `[dev]` extras
+- Register pre-commit hooks automatically
+
 **Path Handling:**
+
 - Automatic cross-platform path normalization
 - Windows backslash (`\`) and Unix forward slash (`/`) support
 - Environment variable handling across all platforms
@@ -290,7 +318,7 @@ if __name__ == "__main__":
 
 ### Web API & Interface
 
-Access the API and Progressive Web App at http://localhost:8000 after starting the server.
+Access the API and Progressive Web App at <http://localhost:8000> after starting the server.
 
 **📚 Complete Setup Guide**: See [docs/developer-guides/api-integration/WEB_API_SETUP_GUIDE.md](docs/developer-guides/api-integration/WEB_API_SETUP_GUIDE.md) for detailed instructions across all environments.
 
@@ -396,6 +424,7 @@ src/pynomaly/
 ## Supported Algorithm Libraries
 
 ### PyOD (Python Outlier Detection)
+
 - **Statistical**: Isolation Forest, Local Outlier Factor, One-Class SVM, MCD, PCA
 - **Probabilistic**: GMM, COPOD, ECOD, Histogram-based, Sampling
 - **Linear**: PCA, Kernel PCA, Robust Covariance, Feature Bagging
@@ -403,28 +432,33 @@ src/pynomaly/
 - **Neural Networks**: AutoEncoder, VAE, Deep SVDD, SO-GAAL, MO-GAAL
 
 ### Time Series Algorithms (Custom Implementation)
+
 - **Statistical**: Rolling statistics, percentile-based detection
 - **Decomposition**: Seasonal decomposition with trend analysis
 - **Change Point**: Statistical tests for abrupt changes
 
 ### PyGOD (Python Graph Outlier Detection)
+
 - **Node-level**: Anomalous node detection in graphs
 - **Edge-level**: Anomalous edge and subgraph detection  
 - **Graph-level**: Anomalous graph classification
 - **Deep Learning**: Graph neural networks, graph autoencoders
 
 ### Scikit-learn Integration
+
 - **Ensemble**: Isolation Forest, One-Class SVM
 - **Neighbors**: Local Outlier Factor, Novelty detection
 - **Clustering**: DBSCAN outliers, Gaussian Mixture
 - **Covariance**: Elliptic Envelope, Robust Covariance
 
 ### Deep Learning Frameworks
+
 - **PyTorch**: Custom neural architectures, GPU acceleration
 - **TensorFlow**: Distributed training, TensorBoard integration
 - **JAX**: High-performance computing, automatic differentiation
 
 ### Multi-Modal Detection
+
 - **Tabular Data**: Traditional ML and statistical methods
 - **Time Series**: Seasonal decomposition, LSTM, Transformers  
 - **Graph Data**: GNN-based detection, network analysis
@@ -455,6 +489,7 @@ pre-commit install
 ```
 
 #### Code Quality & Testing
+
 ```bash
 # Run tests
 pytest tests/                    # Run all tests
@@ -473,6 +508,7 @@ python -m build                  # Build distribution
 ```
 
 #### Web Development
+
 ```bash
 # Start development server
 uvicorn pynomaly.presentation.api.app:app --reload --port 8000
@@ -523,6 +559,7 @@ npm run build-css
 **Pynomaly is actively developed with the following implementation status:**
 
 ### ✅ Stable Features
+
 - **Core anomaly detection**: PyOD integration with 40+ algorithms
 - **Basic web interface**: HTMX-based UI with Tailwind CSS
 - **CLI tools**: Basic dataset and detector management
@@ -530,12 +567,14 @@ npm run build-css
 - **API foundation**: FastAPI with 65+ endpoints
 
 ### ⚠️ Beta Features
+
 - **Authentication**: JWT framework (requires configuration)
 - **Monitoring**: Prometheus metrics (optional)
 - **Export functionality**: CSV/JSON export
 - **Ensemble methods**: Advanced voting strategies
 
 ### 🚧 Experimental Features
+
 - **AutoML**: Requires additional setup and dependencies
 - **Deep Learning**: PyTorch/TensorFlow adapters (optional install)
 - **Explainability**: SHAP/LIME integration (manual setup required)
@@ -543,6 +582,7 @@ npm run build-css
 - **Real-time streaming**: Framework exists, limited functionality
 
 ### ❌ Planned Features
+
 - **Graph anomaly detection**: PyGOD integration in development
 - **Advanced visualization**: Complex D3.js components
 - **Production monitoring**: Full observability stack
